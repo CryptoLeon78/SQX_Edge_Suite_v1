@@ -1,0 +1,139 @@
+{
+  "version": 1,
+  "minings": [
+    {
+      "num": 1,
+      "phase": 1,
+      "asset": "XAUUSD",
+      "tf": "H1",
+      "bs": "BS_Tendencia",
+      "dir": "L"
+    },
+    {
+      "num": 2,
+      "phase": 1,
+      "asset": "XAUUSD",
+      "tf": "H4",
+      "bs": "BS_Tendencia",
+      "dir": "L"
+    },
+    {
+      "num": 3,
+      "phase": 1,
+      "asset": "XAUUSD",
+      "tf": "M30",
+      "bs": "BS_Tendencia",
+      "dir": "L"
+    },
+    {
+      "num": 4,
+      "phase": 2,
+      "asset": "EURUSD",
+      "tf": "H1",
+      "bs": "BS_Tendencia",
+      "dir": "L/S"
+    },
+    {
+      "num": 5,
+      "phase": 2,
+      "asset": "EURUSD",
+      "tf": "H4",
+      "bs": "BS_Tendencia",
+      "dir": "L/S"
+    },
+    {
+      "num": 6,
+      "phase": 2,
+      "asset": "EURUSD",
+      "tf": "M30",
+      "bs": "BS_Momentum",
+      "dir": "L/S"
+    },
+    {
+      "num": 7,
+      "phase": 3,
+      "asset": "USTEC",
+      "tf": "H1",
+      "bs": "BS_Tendencia",
+      "dir": "L"
+    },
+    {
+      "num": 8,
+      "phase": 3,
+      "asset": "USTEC",
+      "tf": "H1",
+      "bs": "BS_Momentum",
+      "dir": "L"
+    },
+    {
+      "num": 9,
+      "phase": 3,
+      "asset": "USTEC",
+      "tf": "M30",
+      "bs": "BS_Momentum",
+      "dir": "L"
+    },
+    {
+      "num": 10,
+      "phase": 4,
+      "asset": "GBPUSD",
+      "tf": "H1",
+      "bs": "BS_Volatilidad",
+      "dir": "L/S"
+    },
+    {
+      "num": 11,
+      "phase": 4,
+      "asset": "GBPJPY",
+      "tf": "H1",
+      "bs": "BS_Volatilidad",
+      "dir": "L/S"
+    },
+    {
+      "num": 12,
+      "phase": 5,
+      "asset": "EURGBP",
+      "tf": "H4",
+      "bs": "BS_Regimen",
+      "dir": "L/S"
+    },
+    {
+      "num": 13,
+      "phase": 5,
+      "asset": "AUDNZD",
+      "tf": "H4",
+      "bs": "BS_Regimen",
+      "dir": "L/S"
+    },
+    {
+      "num": 14,
+      "phase": 5,
+      "asset": "EURGBP",
+      "tf": "H1",
+      "bs": "BS_Estadistico",
+      "dir": "L/S"
+    }
+  ],
+  "phases": {
+    "1": {
+      "name": "Completar Oro",
+      "desc": "XAUUSD en distintos TF, edge tendencial"
+    },
+    "2": {
+      "name": "Major versátil",
+      "desc": "EURUSD multi-TF + momentum"
+    },
+    "3": {
+      "name": "Índice direccional",
+      "desc": "USTEC con bias alcista"
+    },
+    "4": {
+      "name": "Volatilidad",
+      "desc": "GBPUSD / GBPJPY breakout y bandas"
+    },
+    "5": {
+      "name": "Mean reversion / Cruces",
+      "desc": "EURGBP + AUDNZD régimen y estadístico"
+    }
+  }
+}

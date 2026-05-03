@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "defaultBrokerPostfix": "_darwinex",
+  "retestPeriods": {
+    "BUILD": [
+      "2017.10.02",
+      "2023.12.31"
+    ],
+    "RETEST_0": [
+      "2017.10.02",
+      "2026.04.30"
+    ],
+    "RETEST_1": [
+      "2010.01.01",
+      "2016.12.31"
+    ],
+    "FOWARD": [
+      "2024.01.01",
+      "2026.04.30"
+    ]
+  },
+  "taskPeriodMaps": {
+    "1": {
+      "Build-Task1.xml": "BUILD",
+      "Retest-Task3.xml": "RETEST_0",
+      "Retest-Task1.xml": "RETEST_1",
+      "Retest-Task2.xml": "FOWARD"
+    },
+    "2": {
+      "Build-Task1.xml": "BUILD",
+      "Retest-Task1.xml": "RETEST_0",
+      "AutomaticRetest-Task7.xml": "RETEST_1",
+      "Retest-Task2.xml": "FOWARD",
+      "Optimize-Task1.xml": "BUILD"
+    }
+  },
+  "autodetect": {
+    "roots": [
+      "C:/StrategyQuantX",
+      "D:/StrategyQuantX",
+      "C:/Program Files/StrategyQuantX",
+      "C:/Program Files (x86)/StrategyQuantX",
+      "~/StrategyQuantX",
+      "~/Documents/StrategyQuantX",
+      "C:/SQX",
+      "D:/SQX",
+      "E:/SQX"
+    ],
+    "driveLetters": [
+      "C",
+      "D",
+      "E",
+      "F",
+      "G",
+      "H"
+    ],
+    "versionFolders": [
+      "SQX_142",
+      "SQX_141",
+      "SQX_140"
+    ]
+  },
+  "api": {
+    "defaultHost": "127.0.0.1",
+    "defaultPort": 5050,
+    "corsOrigins": [
+      "http://127.0.0.1:5050",
+      "http://localhost:5050",
+      "null"
+    ],
+    "localOriginPattern": "^https?://(localhost|127\\.0\\.0\\.1)(:\\d+)?$"
+  }
+}

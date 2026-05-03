@@ -1,0 +1,110 @@
+{
+  "version": 1,
+  "defaultBrokerPostfix": "_darwinex",
+  "assetDefaults": {
+    "XAUUSD": {
+      "spread": 30,
+      "swap_long": -67.8,
+      "swap_short": 38.4
+    },
+    "EURUSD": {
+      "spread": 5,
+      "swap_long": -1.5,
+      "swap_short": -1
+    },
+    "GBPUSD": {
+      "spread": 8,
+      "swap_long": -2,
+      "swap_short": -1.5
+    },
+    "GBPJPY": {
+      "spread": 12,
+      "swap_long": -3,
+      "swap_short": -1.5
+    },
+    "USTEC": {
+      "spread": 100,
+      "swap_long": -8,
+      "swap_short": -5
+    },
+    "EURGBP": {
+      "spread": 6,
+      "swap_long": -1,
+      "swap_short": -1
+    },
+    "AUDNZD": {
+      "spread": 10,
+      "swap_long": -1.5,
+      "swap_short": -1.5
+    }
+  },
+  "assetAliases": {
+    "USTEC": "NDXm",
+    "US500": "SP500",
+    "US30": "WS30(2)",
+    "GER40": "GDAXIm"
+  },
+  "searchHints": {
+    "USTEC": [
+      "nasdaq",
+      "nas100",
+      "ndx",
+      "ustec"
+    ],
+    "US500": [
+      "s&p 500",
+      "sp500",
+      "spx",
+      "us500"
+    ],
+    "US30": [
+      "dow jones",
+      "dow30",
+      "ws30",
+      "us30",
+      "djia",
+      "dji"
+    ],
+    "GER40": [
+      "dax",
+      "ger40",
+      "gdaxi",
+      "germany 40"
+    ],
+    "XAUUSD": [
+      "gold",
+      "xauusd",
+      "xau/usd"
+    ],
+    "EURUSD": [
+      "eur/usd",
+      "eurusd",
+      "eur"
+    ],
+    "GBPUSD": [
+      "gbp/usd",
+      "gbpusd",
+      "gbp"
+    ],
+    "GBPJPY": [
+      "gbp/jpy",
+      "gbpjpy",
+      "gbp"
+    ],
+    "EURGBP": [
+      "eur/gbp",
+      "eurgbp",
+      "eur"
+    ],
+    "AUDNZD": [
+      "aud/nzd",
+      "audnzd",
+      "aud"
+    ]
+  },
+  "fallbackVariants": [
+    "{asset}(2)",
+    "{asset}_darwinex",
+    "{assetLower}(2)"
+  ]
+}

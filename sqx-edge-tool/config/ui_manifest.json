@@ -1,0 +1,783 @@
+{
+  "version": 1,
+  "header": {
+    "titleHtml": "SQX <span>Edge</span> - Activos por Categoria",
+    "subtitle": "Fase 1: Busqueda de Edge | 28 Forex + 4 Indices + Oro | Long/Short"
+  },
+  "tabs": [
+    {
+      "id": "activos",
+      "label": "Por Activo"
+    },
+    {
+      "id": "categorias",
+      "label": "Por Categoria",
+      "active": true
+    },
+    {
+      "id": "filtros",
+      "label": "Filtros Fase 2"
+    },
+    {
+      "id": "priority",
+      "label": "SQX Priority"
+    },
+    {
+      "id": "pipeline",
+      "label": "Pipeline State"
+    },
+    {
+      "id": "projectgen",
+      "label": "Project Generator"
+    },
+    {
+      "id": "estrategias",
+      "label": "Estrategias"
+    },
+    {
+      "id": "workflow",
+      "label": "Workflow"
+    }
+  ],
+  "filters": {
+    "assetTypes": [
+      {
+        "value": "all",
+        "label": "Todos",
+        "active": true
+      },
+      {
+        "value": "forex",
+        "label": "Forex"
+      },
+      {
+        "value": "index",
+        "label": "Indices"
+      },
+      {
+        "value": "oro",
+        "label": "Oro"
+      }
+    ],
+    "sqxConfigs": [
+      {
+        "value": "all",
+        "label": "Todas",
+        "active": true
+      },
+      {
+        "value": "A",
+        "label": "A · Both+Sym",
+        "title": "Forex simétrico (Both + Entry Symmetry)"
+      },
+      {
+        "value": "B",
+        "label": "B · Both",
+        "title": "Long ≠ Short — índices/oro (Both sin Symmetry)"
+      },
+      {
+        "value": "C",
+        "label": "C · Long puro",
+        "title": "Activos con categorías sólo-Long puras"
+      },
+      {
+        "value": "D",
+        "label": "D · Short puro",
+        "title": "Activos con categorías sólo-Short puras"
+      }
+    ],
+    "directions": [
+      {
+        "value": "all",
+        "label": "Todos",
+        "active": true
+      },
+      {
+        "value": "L",
+        "label": "Long"
+      },
+      {
+        "value": "S",
+        "label": "Short"
+      }
+    ],
+    "assetSort": [
+      {
+        "value": "name",
+        "label": "Nombre A-Z"
+      },
+      {
+        "value": "score-desc",
+        "label": "Score desc"
+      },
+      {
+        "value": "score-asc",
+        "label": "Score asc"
+      },
+      {
+        "value": "cats-desc",
+        "label": "Categorias desc"
+      }
+    ],
+    "ratings": [
+      {
+        "value": "all",
+        "label": "Todos"
+      },
+      {
+        "value": "++",
+        "label": "Estrella"
+      },
+      {
+        "value": "+",
+        "label": "Bueno"
+      },
+      {
+        "value": "~",
+        "label": "Precaucion"
+      },
+      {
+        "value": "-",
+        "label": "No recom."
+      }
+    ],
+    "subtypes": [
+      {
+        "value": "all",
+        "label": "Todos"
+      },
+      {
+        "value": "Major",
+        "label": "Major"
+      },
+      {
+        "value": "Minor",
+        "label": "Minor"
+      },
+      {
+        "value": "Exotic",
+        "label": "Exotic"
+      },
+      {
+        "value": "SP500",
+        "label": "SP500"
+      },
+      {
+        "value": "Nasdaq",
+        "label": "Nasdaq"
+      },
+      {
+        "value": "DAX",
+        "label": "DAX"
+      },
+      {
+        "value": "Dow Jones",
+        "label": "Dow Jones"
+      },
+      {
+        "value": "Oro",
+        "label": "Oro"
+      }
+    ],
+    "timeframes": [
+      {
+        "value": "all",
+        "label": "Todos"
+      },
+      {
+        "value": "M5",
+        "label": "M5"
+      },
+      {
+        "value": "M15",
+        "label": "M15"
+      },
+      {
+        "value": "M30",
+        "label": "M30"
+      },
+      {
+        "value": "H1",
+        "label": "H1"
+      },
+      {
+        "value": "H4",
+        "label": "H4"
+      },
+      {
+        "value": "D1",
+        "label": "D1"
+      }
+    ],
+    "priorityMin": [
+      {
+        "value": "0",
+        "label": "Todos",
+        "active": true
+      },
+      {
+        "value": "55",
+        "label": ">=55%"
+      },
+      {
+        "value": "70",
+        "label": ">=70%"
+      },
+      {
+        "value": "85",
+        "label": ">=85%"
+      }
+    ],
+    "categories": [
+      {
+        "value": "all",
+        "label": "Todas"
+      },
+      {
+        "value": "tendencia",
+        "label": "Tendencia"
+      },
+      {
+        "value": "momentum",
+        "label": "Momentum"
+      },
+      {
+        "value": "volatilidad",
+        "label": "Volatilidad"
+      },
+      {
+        "value": "regimen",
+        "label": "Regimen"
+      },
+      {
+        "value": "volumen",
+        "label": "Volumen"
+      },
+      {
+        "value": "sr",
+        "label": "Soporte/Resistencia"
+      },
+      {
+        "value": "estadistico",
+        "label": "Estadistico"
+      }
+    ],
+    "strategyTiers": [
+      {
+        "value": "all",
+        "label": "Todas",
+        "active": true
+      },
+      {
+        "value": "1",
+        "label": "TIER 1"
+      },
+      {
+        "value": "1.5",
+        "label": "TIER 1.5"
+      },
+      {
+        "value": "2",
+        "label": "TIER 2"
+      },
+      {
+        "value": "tentativa",
+        "label": "Tentativas"
+      }
+    ],
+    "strategyStatus": [
+      {
+        "value": "all",
+        "label": "Todos"
+      },
+      {
+        "value": "CANDIDATA",
+        "label": "CANDIDATA"
+      },
+      {
+        "value": "PASSED",
+        "label": "PASSED"
+      },
+      {
+        "value": "PASSED_ASTERISK",
+        "label": "PASSED*"
+      },
+      {
+        "value": "DEPLOYED",
+        "label": "DEPLOYED"
+      },
+      {
+        "value": "REJECTED",
+        "label": "REJECTED"
+      }
+    ],
+    "directionsFull": [
+      {
+        "value": "L",
+        "label": "Long"
+      },
+      {
+        "value": "S",
+        "label": "Short"
+      },
+      {
+        "value": "L/S",
+        "label": "Long+Short"
+      }
+    ]
+  },
+  "categories": {
+    "tendencia": {
+      "name": "Tendencia",
+      "icon": "T",
+      "color": "#3b82f6",
+      "desc": "EMA, MACD, Ichimoku, SuperTrend"
+    },
+    "momentum": {
+      "name": "Momentum",
+      "icon": "M",
+      "color": "#22c55e",
+      "desc": "RSI, Stochastic, CCI, ROC"
+    },
+    "volatilidad": {
+      "name": "Volatilidad",
+      "icon": "V",
+      "color": "#f97316",
+      "desc": "Bollinger, Keltner, Donchian, StdDev"
+    },
+    "regimen": {
+      "name": "Regimen",
+      "icon": "R",
+      "color": "#a855f7",
+      "desc": "CSSAMarketRegime, Entropy, Hilbert"
+    },
+    "volumen": {
+      "name": "Volumen",
+      "icon": "W",
+      "color": "#06b6d4",
+      "desc": "VWAP, AvgVolume"
+    },
+    "sr": {
+      "name": "Soporte/Resistencia",
+      "icon": "S",
+      "color": "#ec4899",
+      "desc": "Pivots, Fibo, Fractals, H/L"
+    },
+    "estadistico": {
+      "name": "Estadistico",
+      "icon": "E",
+      "color": "#eab308",
+      "desc": "ZScore, PercentRank"
+    }
+  },
+  "filtros": [
+    {
+      "id": "ADX",
+      "name": "ADX",
+      "desc": "Fuerza de tendencia (Average Directional Index)",
+      "long": "> 25 (confirmar tendencia real)",
+      "short": "> 30 en indices (necesita tendencia bajista fuerte)"
+    },
+    {
+      "id": "ATR",
+      "name": "ATR",
+      "desc": "Rango verdadero promedio — filtrar volatilidad",
+      "long": "ATR min (evitar mercados planos)",
+      "short": "ATR min MAS ALTO que Long (necesita volatilidad para Short rentable)"
+    },
+    {
+      "id": "Choppiness",
+      "name": "Choppiness Index",
+      "desc": "Trending vs Ranging (bajo = trending)",
+      "long": "< 45 (trending)",
+      "short": "< 38 en indices (Short solo en tendencia bajista clara)"
+    },
+    {
+      "id": "Hurst",
+      "name": "Hurst Exponent",
+      "desc": "Persistencia del movimiento (>0.5 = trending)",
+      "long": "> 0.5 (persistencia)",
+      "short": "> 0.55 en indices (mayor umbral para confirmar persistencia bajista)"
+    },
+    {
+      "id": "KER",
+      "name": "Kaufman Eff. Ratio",
+      "desc": "Eficiencia del movimiento (0-1)",
+      "long": "> 0.3 (eficiencia)",
+      "short": "> 0.4 en indices (movimiento bajista debe ser mas eficiente)"
+    },
+    {
+      "id": "AvgVolume",
+      "name": "Average Volume",
+      "desc": "Filtro de liquidez",
+      "long": "> media (liquidez)",
+      "short": "> 1.2x media en indices (volumen alto confirma sell-off real)"
+    }
+  ],
+  "ratingOrder": {
+    "++": 3,
+    "+": 2,
+    "~": 1,
+    "-": 0
+  },
+  "sqxConfigDesc": {
+    "A": {
+      "label": "Both + Entry Sym",
+      "desc": "<strong>Forex simétrico</strong>Reglas L/S espejadas en la entrada. SQX optimiza un lado y replica al otro."
+    },
+    "B": {
+      "label": "Both sin Symmetry",
+      "desc": "<strong>Long ≠ Short</strong>Índices y oro — SQX optimiza Long y Short por separado (reglas distintas)."
+    },
+    "C": {
+      "label": "Only Long",
+      "desc": "<strong>Ideas Long puras</strong>Filtra activos con ≥1 categoría sólo-Long (índices/oro). Para correr SQX en modo Only Long."
+    },
+    "D": {
+      "label": "Only Short",
+      "desc": "<strong>Ideas Short puras</strong>Filtra activos con ≥1 categoría sólo-Short (índices/oro). Para correr SQX en modo Only Short."
+    }
+  },
+  "macroEvents": [
+    {
+      "date": "2008-09",
+      "label": "Lehman / Crisis",
+      "color": "#ef4444"
+    },
+    {
+      "date": "2012-07",
+      "label": "Draghi QE",
+      "color": "#f97316"
+    },
+    {
+      "date": "2016-06",
+      "label": "Brexit",
+      "color": "#06b6d4"
+    },
+    {
+      "date": "2020-03",
+      "label": "COVID",
+      "color": "#a855f7"
+    },
+    {
+      "date": "2022-02",
+      "label": "Ucrania / Inflación",
+      "color": "#eab308"
+    },
+    {
+      "date": "2025-01",
+      "label": "Trump II",
+      "color": "#3b82f6"
+    }
+  ],
+  "approachHints": {
+    "tendencia": "Trend follow · EMA cross · MACD · SuperTrend",
+    "momentum": "RSI / Stoch reversal · ROC reversal",
+    "volatilidad": "Bollinger / Donchian breakout · Keltner",
+    "regimen": "ADX / Hurst / SMA200 filter",
+    "volumen": "VWAP rejection · AvgVolume filter",
+    "sr": "Pivot / Fibo / Round number bounce",
+    "estadistico": "ZScore / OU mean-reversion · PercentRank"
+  },
+  "catToBs": {
+    "tendencia": "BS_Tendencia_v4",
+    "momentum": "BS_Momentum_v4",
+    "volatilidad": "BS_Volatilidad_v4",
+    "regimen": "BS_Regimen_v4",
+    "volumen": "BS_Volumen_v4",
+    "sr": "BS_SoporteResistencia_v4",
+    "estadistico": "BS_Estadistico_v4"
+  },
+  "bsToPriorityCat": {
+    "BS_Tendencia": "tendencia",
+    "BS_Momentum": "momentum",
+    "BS_Volatilidad": "volatilidad",
+    "BS_Regimen": "regimen",
+    "BS_Volumen": "volumen",
+    "BS_SoporteResistencia": "sr",
+    "BS_Estadistico": "estadistico"
+  },
+  "priorityCatToBs": {
+    "tendencia": "BS_Tendencia",
+    "momentum": "BS_Momentum",
+    "volatilidad": "BS_Volatilidad",
+    "regimen": "BS_Regimen",
+    "volumen": "BS_Volumen",
+    "sr": "BS_SoporteResistencia",
+    "estadistico": "BS_Estadistico"
+  },
+  "priorityTiers": [
+    {
+      "min": 85,
+      "label": "MAXIMA",
+      "cls": "tier-max",
+      "color": "var(--green)"
+    },
+    {
+      "min": 70,
+      "label": "ALTA",
+      "cls": "tier-high",
+      "color": "var(--accent)"
+    },
+    {
+      "min": 55,
+      "label": "SECUNDARIA",
+      "cls": "tier-mid",
+      "color": "var(--yellow)"
+    },
+    {
+      "min": 40,
+      "label": "BAJA",
+      "cls": "tier-low",
+      "color": "var(--orange)"
+    },
+    {
+      "min": 0,
+      "label": "SKIP",
+      "cls": "tier-skip",
+      "color": "var(--text2)"
+    }
+  ],
+  "statuses": [
+    {
+      "id": "pending",
+      "label": "○ Pendiente"
+    },
+    {
+      "id": "current",
+      "label": "▶ En curso"
+    },
+    {
+      "id": "completed",
+      "label": "✓ Completado"
+    }
+  ],
+  "storageKeys": {
+    "priorityProgress": "sqx_priority_progress_v1",
+    "planUser": "sqx_plan_user_v1",
+    "pipelineState": "sqx_pipeline_state_v1",
+    "strategiesUser": "sqx_strategies_user_v1",
+    "workflowChecklist": "sqx_workflow_checklist_v1",
+    "apiBase": "sqx_pg_api_base_v1"
+  },
+  "chart": {
+    "width": 720,
+    "height": 220,
+    "padL": 44,
+    "padR": 14,
+    "padT": 18,
+    "padB": 32,
+    "smaPeriod": 24,
+    "minBandMonths": 6
+  },
+  "pipeline": {
+    "funnelStagesDefault": [
+      {
+        "id": "mining",
+        "name": "Mining inicial",
+        "terminal": false
+      },
+      {
+        "id": "retest0",
+        "name": "Retest 0 (período completo)",
+        "terminal": false
+      },
+      {
+        "id": "retest_oos",
+        "name": "Retest 1 (OOS 2010-2017)",
+        "terminal": false
+      },
+      {
+        "id": "retest_fwd",
+        "name": "Retest 2 (Forward 2024-26)",
+        "terminal": false
+      },
+      {
+        "id": "hbp",
+        "name": "HBP",
+        "terminal": false
+      },
+      {
+        "id": "mc",
+        "name": "MC Trades",
+        "terminal": false
+      },
+      {
+        "id": "mc2",
+        "name": "MC2 Historical",
+        "terminal": false
+      },
+      {
+        "id": "sequential",
+        "name": "Sequential",
+        "terminal": false
+      },
+      {
+        "id": "synthetic",
+        "name": "Synthetic",
+        "terminal": false
+      },
+      {
+        "id": "spp",
+        "name": "SPP",
+        "terminal": false
+      },
+      {
+        "id": "wfm",
+        "name": "WFM ⭐ Final",
+        "terminal": true
+      }
+    ],
+    "funnelPreload": {
+      "1|LINEAR": {
+        "mining": 1000,
+        "retest0": 388,
+        "retest_oos": 21,
+        "retest_fwd": null,
+        "hbp": 17,
+        "mc": 17,
+        "mc2": 8,
+        "sequential": 6,
+        "synthetic": 4,
+        "spp": 4,
+        "wfm": 3
+      }
+    },
+    "defaultNextAction": "Filter-by-correlation entre las 3 PASSED del WFM (threshold 0.7) → confirmar diversidad estructural → cerrar TEMPLATE LINEAR. Después: Capa 2 sobre TEMPLATES ICHIMOKU x2, MACD y SUPER (mismo flujo)."
+  },
+  "csvImport": {
+    "columnMap": {
+      "Strategy Name": "_strategy_name",
+      "TimeFrame": "tf",
+      "Symbol": "_symbol",
+      "Net profit": "m.net_profit",
+      "Fitness": "m.fitness",
+      "Net profit in %": "m.net_profit_pct",
+      "Drawdown": "m.dd",
+      "Max DD %": "m.dd_pct",
+      "Open Drawdown %": "m.open_dd_pct",
+      "Max Intraday Drawdown": "m.max_intraday_dd",
+      "Ret/DD Ratio": "m.ret_dd",
+      "Annual % Return": "m.annual_pct_return",
+      "Sharpe Ratio": "m.sharpe",
+      "Profit factor": "m.pf",
+      "# of trades": "m.trades",
+      "# of profits": "m.wins",
+      "# of losses": "m.losses",
+      "Max Consec. Wins": "m.max_consec_wins",
+      "Max Consec. Losses": "m.max_consec_losses",
+      "Winning Percent": "m.win_pct",
+      "Avg. Trades Per Month": "m.trades_per_month",
+      "Longest trade (days)": "m.longest_trade_days",
+      "Entry indicators": "indicators",
+      "Exit quality": "m.exit_quality",
+      "Complexity": "m.complexity",
+      "EquityAngle": "m.equity_angle",
+      "Stagnation": "m.stagnation_days",
+      "Exposure Position": "m.exposure",
+      "RecoveryFactor": "m.recovery_factor",
+      "ZScore": "m.z_score",
+      "SQN Score": "m.sqn",
+      "R Expectancy": "m.r_exp",
+      "StandardDev": "m.std_dev",
+      "Payout ratio": "m.payout_ratio",
+      "Avg. Bars in Trade": "m.avg_bars_in_trade"
+    },
+    "templateKeywords": [
+      {
+        "template": "LINEAR",
+        "keywords": [
+          "LINEARREGRESSION"
+        ]
+      },
+      {
+        "template": "ICHIMOKU",
+        "keywords": [
+          "ICHIMOKU"
+        ]
+      },
+      {
+        "template": "SUPER",
+        "keywords": [
+          "SUPERTREND"
+        ]
+      },
+      {
+        "template": "MACD",
+        "keywords": [
+          "MACD"
+        ]
+      },
+      {
+        "template": "SAR",
+        "keywords": [
+          "PARABOLICSAR"
+        ]
+      },
+      {
+        "template": "EMA",
+        "keywords": [
+          "EMA",
+          "SMA"
+        ]
+      },
+      {
+        "template": "STOCH",
+        "keywords": [
+          "STOCHASTIC",
+          "STOCH"
+        ]
+      },
+      {
+        "template": "RSI",
+        "keywords": [
+          "RSI"
+        ]
+      },
+      {
+        "template": "CCI",
+        "keywords": [
+          "CCI"
+        ]
+      },
+      {
+        "template": "BOLLINGER",
+        "keywords": [
+          "BOLLINGER"
+        ]
+      },
+      {
+        "template": "KELTNER",
+        "keywords": [
+          "KELTNER"
+        ]
+      },
+      {
+        "template": "DONCHIAN",
+        "keywords": [
+          "DONCHIAN"
+        ]
+      },
+      {
+        "template": "ADX",
+        "keywords": [
+          "ADX"
+        ]
+      },
+      {
+        "template": "ATR",
+        "keywords": [
+          "ATR"
+        ]
+      }
+    ]
+  },
+  "projectGenerator": {
+    "aliasSuggestMinScore": 80
+  },
+  "api": {
+    "defaultHost": "127.0.0.1",
+    "defaultPort": 5050,
+    "basePath": "/api"
+  }
+}

@@ -1,0 +1,2725 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQX Edge - Activos por Categoria</title>
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>SQX <span>Edge</span> — Activos por Categoria</h1>
+    <div class="subtitle">Fase 1: Busqueda de Edge | 28 Forex + 4 Indices + Oro | Long/Short</div>
+  </div>
+</div>
+
+<div class="tabs" id="main-tabs" data-config-render="tabs"></div>
+
+<div class="container">
+
+  <!-- TAB: POR ACTIVO -->
+  <div id="tab-activos" class="tab-content" style="display:none">
+    <div class="filters">
+      <input type="text" class="search-input" id="search-asset" placeholder="Buscar activo...">
+      <div class="filter-group" id="asset-type-filter"></div>
+      <div class="filter-group" id="asset-sqx-filter"></div>
+      <div class="filter-group">
+        <label>Orden:</label>
+        <select class="filter-select" id="asset-sort">
+        </select>
+      </div>
+    </div>
+    <div class="sqx-legend">
+      <div class="sqx-legend-title">⚙️ Configuraciones SQX — Trading directions settings</div>
+      <div class="sqx-config-grid" id="sqx-legend-grid"></div>
+    </div>
+    <div class="asset-grid" id="asset-grid"></div>
+    <div class="detail-panel" id="detail-panel"></div>
+  </div>
+
+  <!-- TAB: POR CATEGORIA -->
+  <div id="tab-categorias" class="tab-content">
+    <div class="filters">
+      <div class="filter-group" id="category-dir-filter"></div>
+      <div class="filter-group">
+        <label>Rating:</label>
+        <select class="filter-select" id="cat-filter-rating">
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Subtipo:</label>
+        <select class="filter-select" id="cat-filter-sub">
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Timeframe:</label>
+        <select class="filter-select" id="cat-filter-tf">
+        </select>
+      </div>
+      <button class="export-btn" id="export-cat-btn">&#11015; CSV</button>
+    </div>
+    <div id="categories-view"></div>
+  </div>
+
+  <!-- TAB: FILTROS FASE 2 -->
+  <div id="tab-filtros" class="tab-content" style="display:none">
+    <div style="margin-bottom:16px;color:var(--text2);font-size:14px;">Umbrales recomendados para la segunda fase de filtrado. Aplicar sobre estrategias ganadoras de Fase 1.</div>
+    <div class="filtros-grid" id="filtros-view"></div>
+  </div>
+
+  <!-- TAB: SQX PRIORITY -->
+  <div id="tab-priority" class="tab-content" style="display:none">
+    <div style="margin-bottom:14px;color:var(--text2);font-size:14px;">
+      Lista priorizada de pares (activo, categoría) ordenados por composite percentile data-driven.
+      Empieza tus runs SQX por los top.
+    </div>
+    <div class="priority-summary" id="priority-summary"></div>
+
+    <div class="progress-wrap">
+      <div class="progress-label"><strong id="priority-progress-text">Cargando...</strong><span id="priority-progress-pct"></span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="priority-progress-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="priority-controls">
+      <span style="font-size:12px;color:var(--text2);text-transform:uppercase;font-weight:700;letter-spacing:.5px;">Tracking</span>
+      <span style="flex:1"></span>
+      <button id="priority-export-btn">Exportar JSON</button>
+      <button id="priority-import-btn">Importar JSON</button>
+      <input type="file" id="priority-import-file" accept=".json" style="display:none">
+      <button id="priority-reset-btn" class="danger">Reset</button>
+    </div>
+
+    <div class="filters">
+      <div class="filter-group" id="priority-min-filter"></div>
+      <div class="filter-group">
+        <label>Categoría:</label>
+        <select class="filter-select" id="priority-cat-filter">
+        </select>
+      </div>
+      <div class="filter-group" id="priority-type-filter"></div>
+    </div>
+    <div class="matrix-wrap">
+      <table class="cat-table" id="priority-table"></table>
+    </div>
+  </div>
+
+  <!-- TAB: PIPELINE STATE — progreso operativo del plan configurado -->
+  <div id="tab-pipeline" class="tab-content" style="display:none">
+    <div style="margin-bottom:14px;color:var(--text2);font-size:14px;">
+      Estado operativo del pipeline. KPIs auto-calculados de las estrategias supervivientes. Plan configurable con tracking persistente. Embudo de filtrado del mining activo.
+    </div>
+
+    <!-- KPIs globales -->
+    <div class="ps-kpis" id="ps-kpis"></div>
+
+    <!-- Próxima acción -->
+    <div class="ps-next-action" id="ps-next-action">
+      <div class="ps-na-icon">⚡</div>
+      <div class="ps-na-content">
+        <div class="ps-na-label">Próxima acción inmediata</div>
+        <div class="ps-na-text" id="ps-na-text">—</div>
+      </div>
+      <button class="export-btn" id="ps-na-edit">✎ Editar</button>
+    </div>
+
+    <!-- Activos fuera del plan (auto-detect del SQX Priority) -->
+    <div class="card" id="ps-orphans-card" style="display:none;">
+      <div class="card-header">
+        <h2>🔄 Activos fuera del plan</h2>
+        <span class="badge warning">Detectados en SQX Priority</span>
+        <span style="flex:1"></span>
+        <span style="font-size:11px; color:var(--text2);">Click "+ Añadir al plan" para promover a mining oficial</span>
+      </div>
+      <div style="color:var(--text2);font-size:12px;margin-bottom:12px;">
+        Items que has marcado como <strong style="color:var(--accent);">▶ En curso</strong> o <strong style="color:var(--green);">✓ Completado</strong> en SQX Priority pero <strong>no matchean ningún mining del plan</strong>. Promuévelos al plan con 1 click para que entren en el tracking oficial.
+      </div>
+      <div id="ps-orphans-list"></div>
+    </div>
+
+    <!-- Plan minings -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Plan de minings</h2>
+        <span class="badge info" id="ps-plan-counts">— fases · — minings</span>
+        <span id="ps-overrides-info" style="display:none; padding:3px 10px; background:rgba(249,115,22,.12); color:var(--orange); border:1px solid rgba(249,115,22,.3); border-radius:4px; font-size:11px; font-weight:700;"></span>
+        <span style="flex:1"></span>
+        <button class="export-btn" id="ps-add-mining-btn" style="border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08);">+ Añadir mining</button>
+        <button class="export-btn" id="ps-add-phase-btn" style="border-color:var(--pink); color:var(--pink); background:rgba(236,72,153,.08);">+ Nueva fase</button>
+        <button class="export-btn" id="ps-consolidate-plan" title="Genera snippet PLAN_MININGS + PHASE_META para pegar al HTML">💾 Consolidar plan</button>
+        <button class="export-btn" id="ps-restore-auto" style="display:none; border-color:var(--purple); color:var(--purple);">↻ Restaurar todos a auto-sync</button>
+        <button class="export-btn" id="ps-plan-reset">Reset tracking</button>
+      </div>
+      <div id="ps-plan-user-info" style="display:none; padding:10px 14px; background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.3); border-radius:8px; margin-bottom:14px; font-size:13px;">
+        <strong style="color:var(--accent);">📦 Plan extendido:</strong>
+        <span id="ps-plan-user-count">0</span> añadidos en localStorage.
+        <button id="ps-clear-plan-user-btn" style="margin-left:10px; padding:3px 10px; border-radius:4px; border:1px solid var(--red); background:transparent; color:var(--red); font-size:11px; cursor:pointer;">Limpiar añadidos</button>
+      </div>
+      <div style="color:var(--text2);font-size:12px;margin-bottom:12px;">
+        Estado por defecto se sincroniza desde <strong style="color:var(--purple);">SQX Priority</strong> (matching <code>asset|cat|tf|dir</code>).
+        Click en el badge para override manual. Los manuales muestran <span class="ps-src-badge ps-src-manual" style="margin:0; cursor:default;">✏ Manual ↻</span> — click ahí para volver a auto-sync de ese mining.
+      </div>
+      <div id="ps-plan-table"></div>
+    </div>
+
+    <!-- Embudo del mining activo -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Embudo de filtrado <span style="font-size:12px;color:var(--text2);font-weight:normal;">— mining seleccionado</span></h2>
+        <select id="ps-funnel-mining" class="filter-select" style="margin-left:auto;"></select>
+        <select id="ps-funnel-template" class="filter-select"></select>
+      </div>
+      <div id="ps-funnel"></div>
+      <div style="margin-top:12px;color:var(--text2);font-size:11px;">
+        Click en cualquier valor para editar. Los datos se guardan en localStorage por mining+template.
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: PROJECT GENERATOR — genera Custom Projects .cfx para SQX vía API local -->
+  <div id="tab-projectgen" class="tab-content" style="display:none">
+    <div style="margin-bottom:14px;color:var(--text2);font-size:14px;">
+      Generador de <code>.cfx</code> Custom Projects para SQX. Toma tus templates Capa 1 / Capa 2 validados y los clona para cada mining del plan, parametrizando símbolo, TF, dirección, fechas y costos. Requiere el backend Python corriendo en <code id="pg-api-base-inline">API local</code>.
+    </div>
+
+    <!-- Banner status backend -->
+    <div id="pg-status-banner" class="pg-status-banner pg-status-down">
+      <div class="pg-status-icon">●</div>
+      <div class="pg-status-content">
+        <div class="pg-status-title" id="pg-status-title">Conectando…</div>
+        <div class="pg-status-desc" id="pg-status-desc">Comprobando backend local</div>
+      </div>
+      <button class="export-btn" id="pg-status-refresh">↻ Reintentar</button>
+    </div>
+
+    <!-- Settings collapsible -->
+    <div class="card pg-settings-card" id="pg-settings-card">
+      <div class="card-header" style="cursor:pointer;" id="pg-settings-toggle">
+        <h2>⚙️ Configuración</h2>
+        <span class="badge info">Path SQX y carpetas</span>
+        <span style="flex:1"></span>
+        <span id="pg-settings-arrow" class="collapse-arrow closed">▼</span>
+      </div>
+      <div id="pg-settings-body" style="display:none;">
+        <div class="strat-form-grid" style="margin-top:10px;">
+          <label class="full">SQX install path <span class="hint">(donde está StrategyQuantX.exe)</span>
+            <input type="text" id="pg-sqx-path" placeholder="Ruta de instalacion de StrategyQuantX">
+          </label>
+          <label class="full">SQX data.db <span class="hint">(opcional, para auto-detectar spreads/swaps en F2)</span>
+            <input type="text" id="pg-sqx-db" placeholder=".../user/data/data.db">
+          </label>
+          <label class="full">SQX projects dir <span class="hint">(donde quieres copiar los .cfx generados)</span>
+            <input type="text" id="pg-sqx-projects" placeholder=".../user/projects">
+          </label>
+          <label class="full">Output dir <span class="hint">(carpeta local donde se guardan los .cfx generados)</span>
+            <input type="text" id="pg-output-dir" placeholder="output">
+          </label>
+          <label>Template Capa 1 <input type="text" id="pg-tpl-c1" placeholder="templates/Capa1_Long.cfx"></label>
+          <label>Template Capa 2 <input type="text" id="pg-tpl-c2" placeholder="templates/Capa2_Base.cfx"></label>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
+          <button class="export-btn" id="pg-settings-save" style="border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);">💾 Guardar config</button>
+          <button class="export-btn" id="pg-settings-reload">↻ Recargar</button>
+          <span style="flex:1"></span>
+          <button class="export-btn" id="pg-autodetect" style="border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08);">🔍 Auto-detectar SQX</button>
+          <button class="export-btn" id="pg-validate">✓ Validar paths</button>
+        </div>
+        <div id="pg-settings-msg" style="margin-top:10px;font-size:12px;color:var(--text2);"></div>
+        <div id="pg-autodetect-results" style="margin-top:10px;"></div>
+
+        <!-- ALIASES editables -->
+        <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <h4 style="font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:.4px;">Aliases asset → instrument</h4>
+            <span style="font-size:11px;color:var(--text2);">El ticker del activo en SQX puede variar por broker (USTEC → NDXm en Darwinex, NDX en Dukascopy, USTEC100 en otros).</span>
+          </div>
+          <div id="pg-aliases-table" style="margin-bottom:10px;"></div>
+          <button class="export-btn" id="pg-aliases-suggest" style="border-color:var(--accent);color:var(--accent);">🔍 Auto-sugerir desde DB</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Acciones masivas -->
+    <div class="card">
+      <div class="card-header">
+        <h2>🚀 Generación masiva</h2>
+        <span class="badge info" id="pg-bulk-count">Minings del plan · Capa 1 + Capa 2</span>
+        <span style="flex:1"></span>
+        <button class="export-btn" id="pg-open-output" title="Abrir carpeta output en Explorer">📁 Abrir output</button>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+        <button class="export-btn" id="pg-gen-all-c1" style="border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08);font-size:13px;padding:8px 16px;">📦 Generar TODOS · Capa 1</button>
+        <button class="export-btn" id="pg-gen-all-c2" style="border-color:var(--purple);color:var(--purple);background:rgba(168,85,247,.08);font-size:13px;padding:8px 16px;">📦 Generar TODOS · Capa 2</button>
+        <span style="flex:1"></span>
+        <span style="font-size:12px;color:var(--text2);">Resultado en log abajo</span>
+      </div>
+    </div>
+
+    <!-- Tabla de minings con botones por fila -->
+    <div class="card">
+      <div class="card-header">
+        <h2>Minings del plan</h2>
+        <span class="badge info" id="pg-minings-count">— minings</span>
+      </div>
+      <div id="pg-minings-table"></div>
+    </div>
+
+    <!-- Output existente -->
+    <div class="card">
+      <div class="card-header">
+        <h2>📂 .cfx generados</h2>
+        <span class="badge info" id="pg-output-count">— archivos</span>
+        <span style="flex:1"></span>
+        <button class="export-btn" id="pg-output-refresh">↻ Refrescar</button>
+      </div>
+      <div id="pg-output-list"></div>
+    </div>
+
+    <!-- ───────────── Strategy Cleaner (F5) — post-mining ───────────── -->
+    <div class="card">
+      <div class="card-header">
+        <h2>🧹 Strategy Cleaner</h2>
+        <span class="badge warning">Post-mining</span>
+        <span style="flex:1"></span>
+        <span style="font-size:11px;color:var(--text2);">Limpia ExitAfterBars + renombrado institucional sobre .sqx generados por SQX</span>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+        <input type="text" class="search-input" id="cln-dir" style="flex:1;min-width:300px;" placeholder="Carpeta con .sqx (ej. .../user/projects/EDGE LONG/databanks/HBP)">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);"><input type="checkbox" id="cln-recursive" checked> Recursivo</label>
+        <button class="export-btn" id="cln-scan" style="border-color:var(--accent);color:var(--accent);">📂 Escanear</button>
+      </div>
+      <div id="cln-info" style="font-size:12px;color:var(--text2);margin-bottom:8px;"></div>
+      <div id="cln-table"></div>
+      <div id="cln-actions" style="display:none; margin-top:14px; padding-top:12px; border-top:1px solid var(--border);">
+        <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin-bottom:10px;">
+          <strong style="font-size:13px;">Acciones:</strong>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;"><input type="checkbox" id="cln-opt-eab" checked> Eliminar ExitAfterBars (set 0)</label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;"><input type="checkbox" id="cln-opt-rename"> Renombrar institucional</label>
+          <span id="cln-pattern-wrap" style="display:none;font-size:12px;color:var(--text2);">
+            Pattern: <input type="text" id="cln-pattern" value="{asset}_{tf}_{dir}_{id}" style="width:200px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:Consolas,monospace;font-size:11px;">
+          </span>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button class="export-btn" id="cln-select-all" style="font-size:11px;">Seleccionar todo</button>
+          <button class="export-btn" id="cln-select-none" style="font-size:11px;">Ninguno</button>
+          <span style="flex:1"></span>
+          <span id="cln-selected" style="font-size:12px;color:var(--text2);">0 seleccionadas</span>
+          <button class="export-btn" id="cln-preview" style="border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08);">👁 Preview rename</button>
+          <button class="export-btn" id="cln-process" style="border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);">🧹 Procesar selección</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Log de operaciones -->
+    <div class="card">
+      <div class="card-header">
+        <h2>📋 Log</h2>
+        <span style="flex:1"></span>
+        <button class="export-btn" id="pg-log-clear">Limpiar</button>
+      </div>
+      <pre class="code-block" id="pg-log" style="max-height:280px;overflow:auto;font-size:12px;">[esperando primera acción…]</pre>
+    </div>
+  </div>
+
+  <!-- TAB: ESTRATEGIAS — repositorio de .sqx supervivientes del pipeline -->
+  <div id="tab-estrategias" class="tab-content" style="display:none">
+    <div style="margin-bottom:14px;color:var(--text2);font-size:14px;">
+      Estrategias supervivientes del pipeline SQX. Cada entrada representa una <code>.sqx</code> producida tras Capa 2 con sus métricas y estado de validación.
+    </div>
+
+    <div class="strat-summary" id="strat-summary"></div>
+
+    <div class="filters">
+      <div class="filter-group">
+        <label>Mining:</label>
+        <select class="filter-select" id="strat-filter-mining"><option value="all">Todos</option></select>
+      </div>
+      <div class="filter-group">
+        <label>Template:</label>
+        <select class="filter-select" id="strat-filter-template"><option value="all">Todos</option></select>
+      </div>
+      <div class="filter-group">
+        <label>TIER:</label>
+        <button class="filter-btn active" data-strat-tier="all">Todos</button>
+        <button class="filter-btn" data-strat-tier="1">TIER 1</button>
+        <button class="filter-btn" data-strat-tier="1.5">TIER 1.5</button>
+        <button class="filter-btn" data-strat-tier="2">TIER 2</button>
+        <button class="filter-btn" data-strat-tier="tentativa">Tentativa</button>
+      </div>
+      <div class="filter-group">
+        <label>Status:</label>
+        <select class="filter-select" id="strat-filter-status">
+          <option value="all">Todos</option>
+          <option value="PASSED">PASSED</option>
+          <option value="PASSED_ASTERISK">PASSED*</option>
+          <option value="CANDIDATA">CANDIDATA</option>
+          <option value="DEPLOYED">DEPLOYED</option>
+          <option value="REJECTED">REJECTED</option>
+        </select>
+      </div>
+      <span style="flex:1"></span>
+      <button class="export-btn" id="strat-import-btn" style="border-color:var(--purple); color:var(--purple); background:rgba(168,85,247,.08);">📥 Importar CSV de SQX</button>
+      <button class="export-btn" id="strat-add-btn" style="border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08);">+ Añadir estrategia</button>
+      <button class="export-btn" id="strat-consolidate-btn" title="Exporta JSON con todas las estrategias (DEFAULT + importadas)">💾 Consolidar JSON</button>
+      <button class="export-btn" id="strat-export-btn">&#11015; CSV</button>
+      <input type="file" id="strat-import-file" accept=".csv,.txt" style="display:none">
+    </div>
+
+    <div id="strat-user-info" style="display:none; padding:10px 14px; background:rgba(168,85,247,.08); border:1px solid rgba(168,85,247,.3); border-radius:8px; margin-bottom:14px; font-size:13px;">
+      <strong style="color:var(--purple);">📦 Importadas:</strong>
+      <span id="strat-user-count">0</span> estrategias en localStorage (sesión persistente).
+      <button id="strat-clear-user-btn" style="margin-left:10px; padding:3px 10px; border-radius:4px; border:1px solid var(--red); background:transparent; color:var(--red); font-size:11px; cursor:pointer;">Limpiar importadas</button>
+    </div>
+
+    <div class="strat-grid" id="strat-grid"></div>
+  </div>
+
+  <!-- MODAL: Añadir estrategia -->
+  <div class="strat-modal-backdrop" id="strat-modal-backdrop" style="display:none;">
+    <div class="strat-modal">
+      <div class="strat-modal-header">
+        <h3>+ Añadir estrategia</h3>
+        <button class="strat-modal-close" id="strat-modal-close">×</button>
+      </div>
+      <div class="strat-modal-body">
+        <p style="color:var(--text2);font-size:12px;margin-bottom:12px;">
+          Rellena los campos. "Generar JSON" produce una estrategia compatible con el manifiesto de estrategias.
+        </p>
+
+        <div class="strat-form-grid">
+          <label>ID / Fitness <span class="hint">(ej. 0.621529)</span><input type="text" id="sf-id" placeholder="0.621529"></label>
+          <label>Nombre corto <span class="hint">(indicadores)</span><input type="text" id="sf-name" placeholder="ATR + LinearRegression"></label>
+          <label>Mining # <input type="number" id="sf-mining" min="1" value="1"></label>
+          <label>Asset <input type="text" id="sf-asset" value="XAUUSD"></label>
+          <label>Timeframe
+            <select id="sf-tf"><option>M5</option><option>M15</option><option>M30</option><option selected>H1</option><option>H4</option><option>D1</option></select>
+          </label>
+          <label>Blocksetting
+            <select id="sf-bs">
+              <option selected>BS_Tendencia</option><option>BS_Momentum</option><option>BS_Volatilidad</option>
+              <option>BS_SoporteResistencia</option><option>BS_Estadistico</option><option>BS_Volumen</option><option>BS_Regimen</option>
+            </select>
+          </label>
+          <label>Template <span class="hint">(LINEAR, ICHIMOKU, MACD…)</span><input type="text" id="sf-template" placeholder="LINEAR"></label>
+          <label>Dirección
+            <select id="sf-dir"><option value="L" selected>Long</option><option value="S">Short</option><option value="L/S">Long+Short</option></select>
+          </label>
+          <label class="full">Indicadores / Señal <textarea id="sf-indicators" rows="2" placeholder="ATR(14) + LinearRegression(20) cruzando precio"></textarea></label>
+          <label class="full">Exits <textarea id="sf-exits" rows="1" placeholder="ATR-based PT(2*ATR) / SL(1.5*ATR) / TS(3*ATR)"></textarea></label>
+
+          <fieldset class="full">
+            <legend>Métricas</legend>
+            <div class="strat-form-grid metrics-grid">
+              <label>Net Profit $ <input type="number" step="0.01" id="sf-np"></label>
+              <label>WFM Profit $ <input type="number" step="0.01" id="sf-wfm"></label>
+              <label>PF <input type="number" step="0.01" id="sf-pf"></label>
+              <label>Sharpe <input type="number" step="0.01" id="sf-sharpe"></label>
+              <label>Ret/DD <input type="number" step="0.01" id="sf-retdd"></label>
+              <label>DD % <input type="number" step="0.01" id="sf-ddpct"></label>
+              <label>DD $ <input type="number" step="0.01" id="sf-dd"></label>
+              <label># Trades <input type="number" id="sf-trades"></label>
+              <label>Win % <input type="number" step="0.01" id="sf-win"></label>
+              <label>R Expectancy <input type="number" step="0.01" id="sf-rexp"></label>
+              <label>R Exp Score <input type="number" step="0.01" id="sf-rexpscore"></label>
+              <label>SQN <input type="number" step="0.01" id="sf-sqn"></label>
+              <label>CAGR % <input type="number" step="0.01" id="sf-cagr"></label>
+              <label>Stagnation días <input type="number" id="sf-stagd"></label>
+              <label>Stagnation % <input type="number" step="0.01" id="sf-stagpct"></label>
+              <label>Z-Probability % <input type="number" step="0.01" id="sf-zprob"></label>
+              <label>Exposure % <input type="number" step="0.01" id="sf-exposure"></label>
+            </div>
+          </fieldset>
+
+          <label>TIER
+            <select id="sf-tier">
+              <option value="1">TIER 1 — pasa todos los tests</option>
+              <option value="1.5">TIER 1.5 — pasa con asterisco</option>
+              <option value="2">TIER 2 — sólida con números optimistas</option>
+              <option value="tentativa" selected>Tentativa — pendiente tests</option>
+            </select>
+          </label>
+          <label>Status
+            <select id="sf-status">
+              <option value="CANDIDATA" selected>CANDIDATA</option>
+              <option value="PASSED">PASSED</option>
+              <option value="PASSED_ASTERISK">PASSED*</option>
+              <option value="DEPLOYED">DEPLOYED</option>
+              <option value="REJECTED">REJECTED</option>
+            </select>
+          </label>
+          <label class="full">Tests pasados <span class="hint">(coma-separado: OOS, Forward, HBP, MC, MC2, Sequential, Synthetic, SPP, WFM)</span><input type="text" id="sf-tests-ok" placeholder="OOS, Forward, HBP, MC"></label>
+          <label class="full">Tests fallados <span class="hint">(opcional)</span><input type="text" id="sf-tests-ko" placeholder="Synthetic (4.2%)"></label>
+          <label class="full">Notas <textarea id="sf-notes" rows="3" placeholder="Observaciones, sospechas de overfitting, decisiones..."></textarea></label>
+        </div>
+
+        <div style="display:flex; gap:8px; margin-top:14px;">
+          <button class="export-btn" id="sf-generate" style="border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);">Generar JSON</button>
+          <button class="export-btn" id="sf-clear">Limpiar</button>
+        </div>
+
+        <div id="sf-output-wrap" style="display:none; margin-top:14px;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+            <strong style="font-size:13px;">JSON generado</strong>
+            <span style="color:var(--text2); font-size:11px;">→ compatible con <code>sqx-edge-tool/config/strategies.json</code></span>
+            <span style="flex:1"></span>
+            <button class="export-btn" id="sf-copy" style="padding:4px 12px;font-size:12px;">Copiar</button>
+          </div>
+          <pre id="sf-output" class="code-block" style="max-height:280px; overflow:auto; white-space:pre-wrap;"></pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Importar CSV de SQX -->
+  <div class="strat-modal-backdrop" id="strat-import-backdrop" style="display:none;">
+    <div class="strat-modal" style="max-width:1100px;">
+      <div class="strat-modal-header">
+        <h3>📥 Importar CSV de SQX (Databank Export)</h3>
+        <button class="strat-modal-close" id="strat-import-close">×</button>
+      </div>
+      <div class="strat-modal-body">
+
+        <!-- Stepper -->
+        <div class="csv-stepper" id="csv-stepper">
+          <div class="csv-step active" data-step="1"><span class="cs-num">1</span><span>Upload</span></div>
+          <div class="csv-step" data-step="2"><span class="cs-num">2</span><span>Meta común</span></div>
+          <div class="csv-step" data-step="3"><span class="cs-num">3</span><span>Preview & seleccionar</span></div>
+          <div class="csv-step" data-step="4"><span class="cs-num">4</span><span>Confirmar</span></div>
+        </div>
+
+        <!-- Step 1: Upload -->
+        <div class="csv-step-pane active" id="csv-pane-1">
+          <p style="color:var(--text2); font-size:13px; margin-bottom:12px;">
+            Sube el <code>DatabankExport.csv</code> que SQX exporta desde el panel Databank → "Export to CSV". Separador esperado: <code>;</code> (auto-detecta).
+          </p>
+          <div class="csv-dropzone" id="csv-dropzone">
+            <div style="font-size:36px; margin-bottom:6px;">📥</div>
+            <div style="font-weight:700; margin-bottom:4px;">Arrastra el CSV aquí</div>
+            <div style="color:var(--text2); font-size:12px;">o haz click para seleccionar archivo</div>
+          </div>
+          <div id="csv-file-info" style="display:none; margin-top:12px; padding:10px 14px; background:var(--surface2); border-radius:8px; border:1px solid var(--border);">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size:18px;">📄</span>
+              <div style="flex:1;">
+                <div style="font-weight:700; font-size:13px;" id="csv-file-name">—</div>
+                <div style="color:var(--text2); font-size:11px;" id="csv-file-meta">—</div>
+              </div>
+            </div>
+            <div id="csv-mapping-summary" style="margin-top:10px; font-size:12px; color:var(--text2);"></div>
+          </div>
+        </div>
+
+        <!-- Step 2: Meta común -->
+        <div class="csv-step-pane" id="csv-pane-2" style="display:none;">
+          <p style="color:var(--text2); font-size:13px; margin-bottom:12px;">
+            Estos campos NO vienen en el CSV — aplica a todas las estrategias seleccionadas. Puedes editar individualmente después.
+          </p>
+          <div class="strat-form-grid">
+            <label>Mining # <input type="number" id="csv-meta-mining" min="1" max="14" value="1"></label>
+            <label>Blocksetting
+              <select id="csv-meta-bs">
+                <option selected>BS_Tendencia</option><option>BS_Momentum</option><option>BS_Volatilidad</option>
+                <option>BS_SoporteResistencia</option><option>BS_Estadistico</option><option>BS_Volumen</option><option>BS_Regimen</option>
+              </select>
+            </label>
+            <label>Template <span class="hint">(default si no auto-detectado)</span><input type="text" id="csv-meta-template" placeholder="LINEAR"></label>
+            <label>Auto-detectar Template <span class="hint">(de "Entry indicators")</span>
+              <select id="csv-meta-autotemplate">
+                <option value="yes" selected>Sí (LINEAR/ICHIMOKU/MACD/SUPER)</option>
+                <option value="no">No, usar default</option>
+              </select>
+            </label>
+            <label>Dirección
+              <select id="csv-meta-dir"><option value="L" selected>Long</option><option value="S">Short</option><option value="L/S">L+S</option></select>
+            </label>
+            <label>TIER inicial
+              <select id="csv-meta-tier">
+                <option value="tentativa" selected>Tentativa</option>
+                <option value="2">TIER 2</option>
+                <option value="1.5">TIER 1.5</option>
+                <option value="1">TIER 1</option>
+              </select>
+            </label>
+            <label>Status inicial
+              <select id="csv-meta-status">
+                <option value="CANDIDATA" selected>CANDIDATA</option>
+                <option value="PASSED">PASSED</option>
+                <option value="PASSED_ASTERISK">PASSED*</option>
+                <option value="REJECTED">REJECTED</option>
+              </select>
+            </label>
+            <label>Fase del pipeline <span class="hint">(opcional, va a notes)</span>
+              <select id="csv-meta-phase">
+                <option value="">— ninguna —</option>
+                <option value="Mining inicial">Mining inicial</option>
+                <option value="Retest 0 (período completo)">Retest 0 (período completo)</option>
+                <option value="Retest 1 (OOS 2010-2017)">Retest 1 (OOS 2010-2017)</option>
+                <option value="Retest 2 (Forward 2024-2026)">Retest 2 (Forward 2024-2026)</option>
+                <option value="HBP">HBP</option>
+                <option value="MC Trades">MC Trades</option>
+                <option value="MC2 Historical">MC2 Historical</option>
+                <option value="Sequential">Sequential</option>
+                <option value="Synthetic">Synthetic</option>
+                <option value="SPP">SPP</option>
+                <option value="WFM">WFM</option>
+              </select>
+            </label>
+            <label class="full">Notas comunes <span class="hint">(opcional, se añade a notes de cada estrategia)</span><textarea id="csv-meta-notes" rows="2" placeholder="Ej: Mining 1 capa 2 LINEAR — retest 1 PASSED"></textarea></label>
+          </div>
+        </div>
+
+        <!-- Step 3: Preview & select -->
+        <div class="csv-step-pane" id="csv-pane-3" style="display:none;">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px; flex-wrap:wrap;">
+            <strong style="font-size:13px;">Preview · <span id="csv-row-count">0</span> filas</strong>
+            <span style="flex:1"></span>
+            <input type="text" id="csv-filter-input" placeholder="Filtrar por nombre o indicadores…" style="padding:6px 12px; border-radius:6px; border:1px solid var(--border); background:var(--surface2); color:var(--text); font-size:12px; width:280px;">
+            <button class="export-btn" id="csv-select-all" style="padding:4px 12px; font-size:12px;">Seleccionar todo</button>
+            <button class="export-btn" id="csv-select-none" style="padding:4px 12px; font-size:12px;">Ninguno</button>
+            <button class="export-btn" id="csv-select-top10" style="padding:4px 12px; font-size:12px;" title="Por Net Profit desc">Top 10</button>
+          </div>
+          <div style="color:var(--text2); font-size:11px; margin-bottom:8px;">
+            <span id="csv-selected-count">0</span> seleccionadas para importar.
+          </div>
+          <div class="csv-preview-wrap">
+            <table class="csv-preview-table" id="csv-preview-table"></table>
+          </div>
+        </div>
+
+        <!-- Step 4: Confirmar -->
+        <div class="csv-step-pane" id="csv-pane-4" style="display:none;">
+          <div class="alert info" style="margin-bottom:14px;">
+            <div class="alert-icon">ℹ</div>
+            <div class="alert-content">
+              <strong>Resumen de la importación</strong>
+              <div id="csv-confirm-summary" style="font-size:13px; margin-top:6px;"></div>
+            </div>
+          </div>
+          <div class="alert warning">
+            <div class="alert-icon">⚠</div>
+            <div class="alert-content">
+              <strong>Persistencia</strong>
+              Las estrategias se guardan en <code>localStorage</code> de tu navegador (clave <code>sqx_strategies_user_v1</code>). Para consolidarlas permanentemente al HTML, usa el botón <strong>"💾 Consolidar JSON"</strong> del tab Estrategias y pega el snippet dentro del array <code>STRATEGIES</code>.
+            </div>
+          </div>
+        </div>
+
+        <!-- Footer botones -->
+        <div style="display:flex; gap:8px; margin-top:18px; padding-top:14px; border-top:1px solid var(--border);">
+          <button class="export-btn" id="csv-back-btn" disabled>← Atrás</button>
+          <span style="flex:1"></span>
+          <button class="export-btn" id="csv-cancel-btn">Cancelar</button>
+          <button class="export-btn" id="csv-next-btn" style="border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08);" disabled>Siguiente →</button>
+          <button class="export-btn" id="csv-finish-btn" style="border-color:var(--green); color:var(--green); background:rgba(34,197,94,.08); display:none;">✓ Importar al dashboard</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: + Añadir mining al plan -->
+  <div class="strat-modal-backdrop" id="ps-add-mining-backdrop" style="display:none;">
+    <div class="strat-modal" style="max-width:560px;">
+      <div class="strat-modal-header">
+        <h3>+ Añadir mining al plan</h3>
+        <button class="strat-modal-close" id="ps-add-mining-close">×</button>
+      </div>
+      <div class="strat-modal-body">
+        <p style="color:var(--text2);font-size:12px;margin-bottom:12px;">
+          Añade un mining nuevo al plan. Vive en <code>localStorage</code> hasta que uses <strong>"💾 Consolidar plan"</strong>.
+        </p>
+        <div class="strat-form-grid">
+          <label>Mining # <input type="number" id="psm-num" min="1"></label>
+          <label>Fase <select id="psm-phase"></select></label>
+          <label>Asset <input type="text" id="psm-asset" placeholder="EURUSD" value="XAUUSD"></label>
+          <label>Timeframe
+            <select id="psm-tf"><option>M5</option><option>M15</option><option>M30</option><option selected>H1</option><option>H4</option><option>D1</option></select>
+          </label>
+          <label>Blocksetting
+            <select id="psm-bs">
+              <option selected>BS_Tendencia</option><option>BS_Momentum</option><option>BS_Volatilidad</option>
+              <option>BS_SoporteResistencia</option><option>BS_Estadistico</option><option>BS_Volumen</option><option>BS_Regimen</option>
+            </select>
+          </label>
+          <label>Dirección
+            <select id="psm-dir"><option value="L" selected>Long</option><option value="S">Short</option><option value="L/S">Long+Short</option></select>
+          </label>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:18px; padding-top:14px; border-top:1px solid var(--border);">
+          <span style="flex:1"></span>
+          <button class="export-btn" id="psm-cancel">Cancelar</button>
+          <button class="export-btn" id="psm-save" style="border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);">✓ Añadir mining</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: + Nueva fase -->
+  <div class="strat-modal-backdrop" id="ps-add-phase-backdrop" style="display:none;">
+    <div class="strat-modal" style="max-width:560px;">
+      <div class="strat-modal-header">
+        <h3>+ Nueva fase del plan</h3>
+        <button class="strat-modal-close" id="ps-add-phase-close">×</button>
+      </div>
+      <div class="strat-modal-body">
+        <p style="color:var(--text2);font-size:12px;margin-bottom:12px;">
+          Crea una fase nueva (ej. <strong>FASE 6 — Yenes</strong>). Después podrás añadir minings con esa fase.
+        </p>
+        <div class="strat-form-grid">
+          <label>Número de fase <input type="number" id="psp-num" min="1"></label>
+          <label>Nombre corto <input type="text" id="psp-name" placeholder="Yenes"></label>
+          <label class="full">Descripción <input type="text" id="psp-desc" placeholder="USDJPY + GBPJPY tendencia/momentum"></label>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:18px; padding-top:14px; border-top:1px solid var(--border);">
+          <span style="flex:1"></span>
+          <button class="export-btn" id="psp-cancel">Cancelar</button>
+          <button class="export-btn" id="psp-save" style="border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);">✓ Crear fase</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: WORKFLOW (metodología completa - integrado de SQX_Workflow_Dashboard) -->
+  <div id="tab-workflow" class="tab-content" style="display:none">
+    <div class="subtabs">
+      <div class="subtab active" data-subtab="wf-overview">Vista General</div>
+      <div class="subtab" data-subtab="wf-setup">Setup Global</div>
+      <div class="subtab" data-subtab="wf-capa1">Capa 1</div>
+      <div class="subtab" data-subtab="wf-capa2">Capa 2</div>
+      <div class="subtab" data-subtab="wf-diff">Capa 1 vs 2</div>
+      <div class="subtab" data-subtab="wf-postproc">Post-Procesamiento</div>
+      <div class="subtab" data-subtab="wf-portfolio">Portfolio</div>
+      <div class="subtab" data-subtab="wf-deploy">Despliegue MT5</div>
+      <div class="subtab" data-subtab="wf-cheat">Cheatsheet</div>
+      <div class="subtab" data-subtab="wf-rules">Reglas Oro</div>
+    </div>
+    <div class="subtab-host">
+      <div id="wf-overview" class="subtab-content active"><div class="stats-row">
+    <div class="stat-card"><div class="stat-num">2</div><div class="stat-label">Capas</div></div>
+    <div class="stat-card"><div class="stat-num">14</div><div class="stat-label">Minings Plan</div></div>
+    <div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Fases</div></div>
+    <div class="stat-card"><div class="stat-num">8-12</div><div class="stat-label">Portfolio Final</div></div>
+    <div class="stat-card"><div class="stat-num">0.2%</div><div class="stat-label">Risk/Trade</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Filosofía del Proceso</h2>
+      <span class="badge info">Concepto</span>
+    </div>
+    <p style="color:var(--text2); margin-bottom:16px; line-height:1.6;">
+      Pipeline de dos capas para encontrar estrategias robustas: <strong style="color:var(--accent);">Capa 1</strong> busca edge puro,
+      <strong style="color:var(--purple);">Capa 2</strong> optimiza la operativa. Validación cronológica con datos reales (OOS hacia atrás + Forward intocado)
+      tiene preferencia sobre tests de robustez simulados.
+    </p>
+
+    <h4 style="margin:16px 0 8px; color:var(--text2); font-size:12px; text-transform:uppercase; letter-spacing:.5px;">Periodos cronológicos</h4>
+    <div class="periods-bar">
+      <div class="period-seg period-oos">
+        <div class="yr">2010-2017</div>
+        <div>OOS hacia atrás</div>
+      </div>
+      <div class="period-seg period-is">
+        <div class="yr">2017-2023</div>
+        <div>IS (Mining)</div>
+      </div>
+      <div class="period-seg period-fwd">
+        <div class="yr">2024-2026</div>
+        <div>Forward intocado</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Flujo Completo del Pipeline</h2>
+    </div>
+
+    <div class="pipeline">
+      <div class="pipeline-step l1">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Mining Capa 1 IS 2017-2023</div>
+          <div class="step-desc">Generar estrategias con 1-2 indicadores, ExitAfterBars=20 fijo, sin SL/TP/Trailing. Buscar edge puro.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+
+      <div class="pipeline-step val">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Validación OOS 2010-2017 (retest pasivo)</div>
+          <div class="step-desc">Retest sin re-optimizar. Filtro: PF > 1.0, # trades > 50.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+
+      <div class="pipeline-step val">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Validación Forward 2024-2026 (retest pasivo)</div>
+          <div class="step-desc">Confirmación con datos intocados. Solo backtest.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+
+      <div class="pipeline-step l1">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Extracción de Templates ganadores</div>
+          <div class="step-desc">Identificar 4-6 edges distintos. Exportar como .sqx para usar de base en Capa 2.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+
+      <div class="pipeline-step l2">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">Mining Capa 2 sobre cada Template</div>
+          <div class="step-desc">AlgoWizard con edge fijo + filtros random + SL/TP/Trailing optimizados. Weighted Fitness.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+
+      <div class="pipeline-step val">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <div class="step-title">Filtros estrictos + Retest OOS + Forward Capa 2</div>
+          <div class="step-desc">PF≥1.5, Ret/DD≥5, R Exp≥0.30, Stagnation<25%. Después retest pasivos.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+
+      <div class="pipeline-step l2">
+        <div class="step-num">7</div>
+        <div class="step-content">
+          <div class="step-title">Tests de Robustez sobre supervivientes</div>
+          <div class="step-desc">Sequential, MC, WFM solo a las que pasaron OOS+Forward. Eficiencia computacional.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+
+      <div class="pipeline-step l2">
+        <div class="step-num">8</div>
+        <div class="step-content">
+          <div class="step-title">Análisis correlación intra-template</div>
+          <div class="step-desc">Quedarse con 1 ganadora por template. Repetir para cada template.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+
+      <div class="pipeline-step val">
+        <div class="step-num">9</div>
+        <div class="step-content">
+          <div class="step-title">Análisis correlación cross-todo</div>
+          <div class="step-desc">Cross-templates → cross-blocksetting → cross-TF → cross-activos. Threshold 0.5.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+
+      <div class="pipeline-step dep">
+        <div class="step-num">10</div>
+        <div class="step-content">
+          <div class="step-title">Portfolio Master + Despliegue gradual MT5</div>
+          <div class="step-desc">Selección 8-12 estrategias. Demo primero, luego real progresivo.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert success">
+    <div class="alert-icon">✓</div>
+    <div class="alert-content">
+      <strong>Estado actual del pipeline · 2026-05-02</strong>
+      <strong style="color:var(--accent);">Mining 1</strong> (XAUUSD H1 BS_Tendencia) — Capa 1 cerrada con 5 templates extraídos (ICHIMOKU, ICHIMOKU 2, LINEAR, MACD, SUPER).
+      Capa 2 sobre <strong style="color:var(--text);">TEMPLATE LINEAR cerrada</strong>: embudo 1000 → 388 → 21 → 17 → 17 → 8 → 6 → 4 → 4 → <strong style="color:var(--green);">3 ganadoras</strong> (tasa de supervivencia 0.3%).
+      <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
+        <span class="tier-high">TIER 1 · 0.621529 ATR+LR · pasa todos los tests</span>
+        <span class="tier-mid">TIER 1.5 · 0.920817 KER+LR · falló Synthetic 4.2%</span>
+        <span class="tier-low">TIER 2 · 0.553059 LR puro</span>
+      </div>
+      <div style="margin-top:8px; color:var(--text2); font-size:12px;"><strong style="color:var(--text);">Siguiente paso:</strong> filter-by-correlation entre las 3 PASSED del WFM (threshold 0.7) → confirmar diversidad estructural → cerrar TEMPLATE LINEAR. Después: Capa 2 sobre los 4 templates restantes.</div>
+    </div></div>
+</div>
+            <div id="wf-setup" class="subtab-content"><div class="card">
+    <div class="card-header">
+      <h2>Money Management (común a todos los minings)</h2>
+      <span class="badge info">Configuración fija</span>
+    </div>
+
+    <div class="config-grid">
+      <div class="config-box">
+        <h4><span class="icon">$</span>Capital y Riesgo</h4>
+        <ul class="config-list">
+          <li><span class="key">Initial Capital:</span><span class="value">$100,000</span></li>
+          <li><span class="key">Method:</span><span class="value">Fixed amount</span></li>
+          <li><span class="key">RiskedMoney:</span><span class="value">$200 (0.2%)</span></li>
+          <li><span class="key">Size Decimals:</span><span class="value">1</span></li>
+          <li><span class="key">Size if no MM:</span><span class="value">0.1 lots</span></li>
+        </ul>
+      </div>
+
+      <div class="config-box">
+        <h4><span class="icon">⚙</span>Maximum Lots por Activo</h4>
+        <ul class="config-list">
+          <li><span class="key">XAUUSD (Oro):</span><span class="value">3 lots</span></li>
+          <li><span class="key">Forex Majors:</span><span class="value">5 lots</span></li>
+          <li><span class="key">Forex Minors:</span><span class="value">3 lots</span></li>
+          <li><span class="key">Índices:</span><span class="value">2 contratos</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Blocksettings disponibles</h2>
+      <span class="badge layer1">Capa 1</span>
+      <span class="badge layer2">Capa 2</span>
+    </div>
+
+    <table class="mining-table">
+      <thead>
+        <tr>
+          <th>Archivo</th>
+          <th>Capa</th>
+          <th>Uso</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><code>BS_Tendencia_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges trend (SuperTrend, EMA, MACD, Ichimoku, LinearRegression)</td></tr>
+        <tr><td><code>BS_Momentum_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges osciladores (RSI, Stochastic, CCI)</td></tr>
+        <tr><td><code>BS_Volatilidad_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges Bollinger, Keltner, ATR</td></tr>
+        <tr><td><code>BS_SoporteResistencia_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges S/R, Pivots</td></tr>
+        <tr><td><code>BS_Filtros_v5.sqb</code></td><td><span class="badge layer2">Capa 2</span></td><td>Filtros adicionales + Trailing limpio</td></tr>
+        <tr><td><code>BS_Estadistico_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges estadísticos</td></tr>
+        <tr><td><code>BS_Volumen_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges volumen</td></tr>
+        <tr><td><code>BS_Regimen_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges régimen mercado</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Pasos al cambiar de activo</h2>
+      <span class="badge warning">Obligatorio</span>
+    </div>
+    <ol style="padding-left:20px; line-height:2; color:var(--text2);">
+      <li><strong style="color:var(--text);">Cargar datos</strong> del nuevo activo en SQX (Data Manager)</li>
+      <li><strong style="color:var(--text);">Calibrate indicators</strong> en el Builder (botón) — actualiza rangos</li>
+      <li><strong style="color:var(--text);">Ajustar Maximum lots</strong> según activo (tabla arriba)</li>
+      <li><strong style="color:var(--text);">Configurar dirección</strong> (Long-only o Long+Short según activo)</li>
+      <li><strong style="color:var(--text);">Verificar spread y comisiones</strong> realistas (config Darwinex)</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Direcciones por tipo de activo</h2>
+    </div>
+
+    <table class="mining-table">
+      <thead>
+        <tr><th>Tipo</th><th>Long</th><th>Short</th><th>Razón</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Oro (XAUUSD)</strong></td>
+          <td><span class="dir-icon long">SÍ</span></td>
+          <td><span class="dir-icon short">NO</span></td>
+          <td>Tendencia secular alcista. Operar short es ir contra macro.</td>
+        </tr>
+        <tr>
+          <td><strong>Índices (US500/USTEC/US30)</strong></td>
+          <td><span class="dir-icon long">SÍ</span></td>
+          <td><span class="dir-icon short">NO</span></td>
+          <td>Bull bias estructural. Empresas crecen, gobiernos rescatan crashes.</td>
+        </tr>
+        <tr>
+          <td><strong>Forex Majors</strong></td>
+          <td><span class="dir-icon long">SÍ</span></td>
+          <td><span class="dir-icon long">SÍ</span></td>
+          <td>Sin dirección secular. Pares oscilan en rangos. L/S simétrico.</td>
+        </tr>
+        <tr>
+          <td><strong>Forex Minors</strong></td>
+          <td><span class="dir-icon long">SÍ</span></td>
+          <td><span class="dir-icon long">SÍ</span></td>
+          <td>Mean reversion en rangos. L/S aprovecha ambos lados.</td>
+        </tr>
+      </tbody>
+    </table></div>
+</div>
+            <div id="wf-capa1" class="subtab-content">
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Capa 1 — Cheatsheet operativo</h2>
+      <span class="badge layer1">Búsqueda de edge puro</span>
+      <span style="margin-left:auto;color:var(--text2);font-size:12px;">Validado en mining XAUUSD H1 · 743 → 2 supervivientes</span>
+    </div>
+    <p style="color:var(--text2);line-height:1.6;">
+      Cada test detallado con <strong style="color:var(--text);">Settings</strong> + <strong style="color:var(--text);">Filtering</strong> + <strong style="color:var(--text);">Explicación</strong>. Capa 1 busca edge puro (sin SL/TP/Trailing) para detectar si la entrada predice movimiento del precio.
+    </p>
+  </div>
+
+  <!-- CONFIG BASE BUILDER -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2>⚙️ Config Base Builder</h2>
+      <span class="badge info">Setup inicial</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Trade direction: Long-only (oro/índices) | L+S (Forex)
+ATM: OFF
+Allow conditions: 1-2
+
+Exit Methods:
+   ExitAfterBars: 20 fijo
+   SL/TP/Trailing: OFF
+
+Money Management:
+   Capital: $100,000
+   Method: Fixed amount
+   RiskedMoney: $200 (0.2%)
+   Max lots: 3 (oro) / 5 (Forex Major) / 2 (índices)
+
+Fitness: R Expectancy (Van Tharp)</pre>
+    <h4 class="test-section-title">Filtering Global</h4>
+    <pre class="code-block">PF >= 1.10
+# trades > 100
+R Expectancy > 0.05</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Capa 1 busca <strong>edge puro</strong>. Sin SL/TP, las métricas operativas (Sharpe, DD%) se distorsionan. R Expectancy mide ganancia por unidad de riesgo, ideal aquí. Filtros permisivos para no descartar edges válidos.</p>
+  </div>
+
+  <!-- TEST 1 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l1">1</span>RETEST 0 — Período Completo</h2>
+      <span class="badge validation">Validación temporal</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Period: 2017.10 — 2026.04 (rango completo, incluye Forward)
+Re-optimize: NO (retest pasivo)</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">PF > 1.0
+# trades > 100
+Ret/DD > 1.0</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Backtest sobre <strong>TODA la historia disponible</strong>. Filtros más permisivos que mining (PF&gt;1.0 vs ≥1.10) porque validamos supervivencia.</p>
+  </div>
+
+  <!-- TEST 2 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l1">2</span>RETEST 1 — OOS hacia atrás 2010-2017</h2>
+      <span class="badge validation">Validación retroactiva</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Period: 2010.01 — 2016.12
+Re-optimize: NO (retest pasivo)</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">PF > 1.0
+# trades > 50    ← bajamos por periodo más corto
+Ret/DD > 1.0</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Periodo nunca visto durante mining. Si sigue rentable en 7 años antes de IS, el edge es real. Filtros proporcionalmente bajados.</p>
+  </div>
+
+  <!-- TEST 3 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l1">3</span>HBP — History Bootstrap Performance</h2>
+      <span class="badge info">Test rápido</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Number of simulations: 100
+Use Full sample: ON</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">☑ Net profit (HBP, Conf. 80%) > 0
+☑ Max DD % (HBP, Conf. 80%) <= 200% of Max DD %</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Re-muestrea bloques de barras manteniendo dependencias temporales. Verifica que el edge no depende de patrones secuenciales muy específicos. Test rápido.</p>
+  </div>
+
+  <!-- TEST 4 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l1">4</span>MC — Monte Carlo Trades</h2>
+      <span class="badge info">Robustez al orden</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Number of simulations: 200
+Use Full sample: ON
+
+Métodos a marcar:
+   ☑ Randomize trades order, with method Resampling
+   ☐ Modified randomize trades order
+   ☐ Randomly skip trades, with probability 10%   ← DESACTIVAR
+
+Default Method: Resampling</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">☑ Net profit (MC trades, Conf. 80%) >= 50% of Net profit
+☑ Max DD % (MC trades, Conf. 80%) <= 200% of Max DD %</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Reordena los trades aleatoriamente. Si la rentabilidad colapsa al reordenar, el edge depende del orden específico (frágil).<br><br>
+    <strong>Skip trades DESACTIVADO</strong> porque en Capa 1 sin SL/TP los trades son "puros" del edge; saltarse 10% descarta estrategias con muestra pequeña pero edge válido.</p>
+  </div>
+
+  <!-- TEST 5 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l1">5</span>MC2 — Monte Carlo Retest Methods</h2>
+      <span class="badge warning">OPCIONAL en Capa 1</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Number of simulations: 100
+Use Full sample: ON
+Backtest precision: Selected timeframe only (fastest)
+
+Métodos a marcar:
+   ☑ Randomize history data (by tick)
+   ☐ Modified randomize history data
+   ☐ Randomize OHLC history data
+   ☐ Randomize min distance from price
+   ☐ Randomize slippage
+   ☑ Randomize spread
+   ☐ Randomize starting bar
+   ☐ Randomize strategy parameters   ← DESACTIVAR (lo testa SPP)
+   ☐ Customizable Randomize strategy parameters
+   ☐ Real Monkey Test (PyRE)
+   ☐ Synthetic Bootstrap V2
+
+Default — Randomize history data:
+   Probability up: 10
+   Max up change: 10
+   Probability down: 10
+   Max change down: 10
+   Keep connected: ON
+
+Default — Randomize spread:
+   Min: 10
+   Max: 25</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">☑ CAGR/Max DD % (MC retest, Conf. 100%) >= 0
+☑ CAGR/Max DD % (MC retest, Conf. 95%) >= 30% of CAGR/Max DD %</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Re-ejecuta el backtest con perturbaciones del <strong>MERCADO</strong> (no del orden). Verifica robustez a slippage, gaps, spreads variables.<br><br>
+    <strong>10% (no 20%) y spread 10-25 (no 30-50):</strong> valores realistas en oro Darwinex.<br>
+    <strong>Randomize parameters DESACTIVADO:</strong> lo testa SPP, aquí solo perturbaciones del mercado.<br>
+    <strong>30% (no 50%):</strong> umbral realista en Capa 1 sin SL.<br><br>
+    <strong>OPCIONAL:</strong> si vas justo de tiempo, desactiva MC2 en Capa 1 (aplica solo en Capa 2).</p>
+  </div>
+
+  <!-- TEST 6 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l1">6</span>SEQUENTIAL OPTIMIZATION</h2>
+      <span class="badge info">Estabilidad por parámetro</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Value distribution:
+   Up: 130
+   Down: 70
+   Steps: 12
+
+Apply optimized parameters to strategy: OFF ⚠️ CRÍTICO
+
+What to parametrize:
+   ● Your own settings
+
+   ☑ Periods                              ← MARCAR (entradas)
+   ☑ Constants                            ← MARCAR (entradas)
+   ☐ Shifts
+   ☐ Other params
+   ☐ Entry (levels)
+   ☐ Entry (logic)
+   ☑ Exit params (SL, PT,...) only used   ← MARCAR (incluye ExitAfterBars=20)
+   ☐ Exit params unused
+   ☐ Boolean params
+
+   ☐ Symmetric variables for Long / Short</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">Sequential Optimization conditions:
+   Percentage of parameters to pass the stability test: 80 %
+
+Stability check:
+   Number of results in stable area: 5
+   Fitness stability range: 25 %</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Varía cada parámetro ±30% (Up 130 / Down 70) en 12 pasos. Busca <strong>"zona estable"</strong> (plateau de Fitness) alrededor del valor original.<br><br>
+    <strong>Periods + Constants:</strong> testa robustez del edge (KER 27, LinReg 40, ATR 14).<br>
+    <strong>Exit params:</strong> incluye ExitAfterBars=20 (técnicamente Exit param).<br>
+    <strong>Apply optimized OFF:</strong> Sequential testa robustez, NO produce mejores parámetros.<br><br>
+    <strong>Filtros:</strong> 80% pass = estándar profesional · 5 valores en stable area = 5/12 = 42% del rango · 25% fitness range = el plateau no puede caer más del 25% del máximo.</p>
+  </div>
+
+  <!-- TEST 7 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l1">7</span>MONKEY TEST</h2>
+      <span class="badge info">Vs estrategias random</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Number of simulations: 100
+Confidence level: 80%</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">☑ Net profit (Monkey, Conf. 80%) > 0
+   o alternativamente:
+☑ Z-score >= 2</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Genera estrategias con entradas <strong>ALEATORIAS</strong> y compara con tu estrategia. Si una random produce más profit, tu edge no es real.<br><br>
+    <strong>Z-score &gt;= 2:</strong> tu estrategia al menos 2 desviaciones estándar por encima del random (95% significancia).</p>
+  </div>
+
+  <!-- TEST 8 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l1">8</span>SYNTHETIC BOOTSTRAP V2</h2>
+      <span class="badge info">Histórico sintético</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Number of simulations: 100
+Synthetic Bootstrap V2: ON
+Warmup: 200
+Preserve: 85%</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">☑ Net profit (Synthetic, Conf. 80%) >= 50% of Net profit</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Genera versiones <strong>SINTÉTICAS</strong> del histórico (similares estadísticamente pero distintas) y testa la estrategia. Si depende del orden específico del histórico, falla.<br><br>
+    <strong>Preserve 85%:</strong> mantiene 85% de propiedades estadísticas · <strong>Warmup 200:</strong> primeras 200 barras para estabilizar indicadores.</p>
+  </div>
+
+  <!-- TEST 9 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l1">9</span>SPP — System Parameter Permutation</h2>
+      <span class="badge info">3000 permutaciones</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Maximum tests: 3000
+
+Value distribution (% from original value):
+   Up: 20
+   Down: 20
+   Max steps: 25
+
+What to parametrize:
+   ☐ Recommended parameters
+   ● Your own settings              ← consistencia con Sequential y WFM
+
+   ☑ Periods                        ← MARCAR (entradas)
+   ☑ Constants                      ← MARCAR (entradas)
+   ☐ Shifts
+   ☐ Other params
+   ☑ Entry (levels)                 ← MARCAR (niveles de filtros)
+   ☐ Entry (logic)
+   ☑ Exit params only used          ← MARCAR (incluye ExitAfterBars=20)
+   ☐ Exit params unused
+   ☐ Boolean params</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">Optimization Profile conditions:
+   ☑ % of Profitable Optimizations >  30
+   ☑ Average profit (in $) of all optimizations is > $ 0
+   ☑ Uniform distribution - less than 10 changes from positive to negative
+   ☐ Best Optimization profit < 1 StDev of average profit   ← DESACTIVAR
+
+System Parameters Permutation conditions:
+   ☑ 80% of Net profit (Median ≥) >= 40% of Net profit
+   ☑ 80% of Max DD % (Median ≤) <= 200% of Max DD %</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Optimiza la estrategia 3000 veces permutando parámetros marcados (Periods + Constants + Entry levels + Exit params). Construye distribución estadística de resultados.<br><br>
+    <strong>Your own settings (no Recommended):</strong> control explícito sobre qué se optimiza. Consistencia con Sequential y WFM de Capa 1.<br>
+    <strong>Periods + Constants + Entry levels + Exit params:</strong> en Capa 1 queremos validar TODO el sistema.<br>
+    <strong>% Profitable &gt; 30:</strong> al menos 30% de permutaciones rentables (permisivo para Capa 1).<br>
+    <strong>40% Net profit (no 50%):</strong> Capa 1 sin SL/TP es más volátil, umbral realista.</p>
+  </div>
+
+  <!-- TEST 10 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l1">10</span>WFM — Walk-Forward Matrix</h2>
+      <span class="badge danger">Test crítico</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Walk-Forward type: Simulated IS, Simulated OOS (fastest) ⚠️ CRÍTICO
+Period type: Percent + Floating
+
+Out of Sample %:
+   Start: 20
+   Stop: 36
+   Step: 2
+
+Walk Forward runs:
+   Start: 5
+   Stop: 8
+   Step: 1
+
+Maximum tests: 3000
+
+Value distribution:
+   Up: 20
+   Down: 20
+   Max steps: 8
+
+What to parametrize:
+   ● Your own settings
+
+   ☑ Periods                              ← MARCAR
+   ☑ Constants                            ← MARCAR
+   ☐ Shifts
+   ☐ Other params
+   ☑ Entry (levels)                       ← MARCAR
+   ☐ Entry (logic)
+   ☑ Exit params (SL, PT,...) only used   ← MARCAR
+   ☐ Exit params unused
+   ☐ Boolean params
+
+   ☐ Symmetric variables for Long / Short
+
+Apply optimized parameters: OFF ⚠️ CRÍTICO</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">WF Matrix Filter:
+   Filter passes when it finds an area of:
+      3 rows  AND  3 columns
+   where at least 7 results have robustness score >= 60 %
+
+Robustness conditions (6 activas):
+   ☑ WF Net profit (OOS) > 0
+   ☑ WF Stability of Net profit > 60 %
+   ☑ WF Special - Percentage of profitable runs > 60 %
+   ☑ WF Special - Max profit in one run as % of total < 50 %
+   ☑ WF Special - Min trades in one run > 20
+   ☑ WF Special - Max % Drawdown in one run <= 50 %
+
+   ☐ WF Stability of Drawdown < 130 %
+   ☐ WF Stability of Ret/DD Ratio > 60 %</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Divide el periodo en N ventanas rolling, optimiza en mini-IS, testa en mini-OOS. Repite con N×M configuraciones (9 OOS% × 4 runs = 36 combinaciones).<br><br>
+    <strong>Walk-Forward type Simulated (fastest):</strong> Exact tarda 10-20× más sin beneficio. CRÍTICO.<br>
+    <strong>Periods + Constants + Entry levels + Exit params:</strong> testa robustez completa del edge.<br>
+    <strong>Apply optimized OFF:</strong> WFM testa robustez, NO produce mejores parámetros.<br><br>
+    <strong>Filtros:</strong> Robustness 60% (sin SL es más volátil) · Profitable runs 60% · Max DD 50% (DD inherentemente mayor sin SL) · Max profit en una run &lt; 50% (anti curve-fit) · Min trades &gt; 20 por ventana.</p>
+  </div>
+
+  <!-- TEST 11 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l1">11</span>FOWARD — Forward 2024-2026</h2>
+      <span class="badge danger">CRÍTICO último</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Period: 2024.01 — 2026.04 (~2.5 años)
+Re-optimize: NO (retest pasivo)
+Direction: igual al mining</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">PF > 1.0
+# trades > 30      ← más bajo por periodo corto
+Ret/DD > 0.5       ← muy permisivo (Forward es validación)</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Datos completamente <strong>intocados</strong> durante mining. Última prueba antes de Capa 2.<br><br>
+    <strong># trades &gt; 30 (no 100):</strong> proporcional al periodo (~2.5 años).<br>
+    <strong>Ret/DD &gt; 0.5 (no 1.0):</strong> Forward es supervivencia, no excelencia.<br><br>
+    <strong>CRÍTICO:</strong> sin pasar Forward NO se debe ir a Capa 2.</p>
+  </div>
+
+  <!-- Tests no recomendados -->
+  <div class="card">
+    <div class="card-header">
+      <h2>🚫 Tests NO recomendados en Capa 1</h2>
+    </div>
+    <div class="alert warning">
+      <div class="alert-icon">⚠</div>
+      <div class="alert-content">
+        <strong>Backtests on additional markets — DESACTIVAR</strong>
+        Probar oro H1 en otro activo (ej. AUDCAD D1) compara peras con manzanas. Casi todas las estrategias fallan.
+      </div>
+    </div>
+    <div class="alert info">
+      <div class="alert-icon">ℹ</div>
+      <div class="alert-content">
+        <strong>Higher backtest precision (1-min tick) — OPCIONAL</strong>
+        Más precisa pero MUY lenta. Reservar para Capa 2 sobre finalistas.
+      </div>
+    </div>
+    <div class="alert warning">
+      <div class="alert-icon">⚠</div>
+      <div class="alert-content">
+        <strong>Walk-Forward Optimization (WFO) — DESACTIVAR</strong>
+        Redundante con WFM. WFM hace lo mismo y más.
+      </div>
+    </div>
+  </div>
+
+  <!-- Orden de ejecución -->
+  <div class="card">
+    <div class="card-header">
+      <h2>🔢 Orden de ejecución Capa 1</h2>
+    </div>
+    <div class="pipeline">
+      <div class="pipeline-step l1"><div class="step-num">1</div><div class="step-content"><div class="step-title">Mining IS 2017-2023</div><div class="step-desc">Con cross-checks activos</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step val"><div class="step-num">2</div><div class="step-content"><div class="step-title">RETEST 0 período completo</div><div class="step-desc">Validación temporal</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step val"><div class="step-num">3</div><div class="step-content"><div class="step-title">RETEST 1 OOS 2010-2017</div><div class="step-desc">Validación retroactiva</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">4</div><div class="step-content"><div class="step-title">HBP</div><div class="step-desc">Test rápido bootstrap</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">5</div><div class="step-content"><div class="step-title">MC</div><div class="step-desc">Resampling, sin Skip</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">6</div><div class="step-content"><div class="step-title">MC2</div><div class="step-desc">Opcional</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">7</div><div class="step-content"><div class="step-title">Sequential</div><div class="step-desc">Periods + Const + Exit</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">8</div><div class="step-content"><div class="step-title">Monkey Test</div><div class="step-desc">Vs random</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">9</div><div class="step-content"><div class="step-title">Synthetic Bootstrap V2</div><div class="step-desc">Preserve 85%</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">10</div><div class="step-content"><div class="step-title">SPP</div><div class="step-desc">Your own settings, Net 40%</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">11</div><div class="step-content"><div class="step-title">WFM</div><div class="step-desc">Simulated, robustness 60%</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step dep"><div class="step-num">12</div><div class="step-content"><div class="step-title">FOWARD 2024-2026</div><div class="step-desc">CRÍTICO último</div></div></div>
+    </div>
+  </div>
+
+  <!-- Embudo esperado -->
+  <div class="card">
+    <div class="card-header">
+      <h2>📉 Embudo esperado Capa 1</h2>
+      <span class="badge info">Tasa supervivencia 0.1-0.5%</span>
+    </div>
+    <div class="ps-funnel">
+      <div class="ps-funnel-step"><div class="pf-name">Mining IS</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:100%"></div></div><div class="pf-count">~700-1000</div><div class="pf-survival">100%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">RETEST 0</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:35%"></div></div><div class="pf-count">~250-400</div><div class="pf-survival">~32%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">RETEST 1 OOS</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:8%"></div></div><div class="pf-count">~30-100</div><div class="pf-survival">~6%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">HBP</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:6%"></div></div><div class="pf-count">~25-80</div><div class="pf-survival">~5%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">MC</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:3%"></div></div><div class="pf-count">~10-50</div><div class="pf-survival">~3%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">MC2 (si activo)</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:2%"></div></div><div class="pf-count">~8-30</div><div class="pf-survival">~2%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">Sequential</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:1.5%"></div></div><div class="pf-count">~5-20</div><div class="pf-survival">~1.2%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">Monkey Test</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:1%"></div></div><div class="pf-count">~5-15</div><div class="pf-survival">~1%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">Synthetic</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.7%"></div></div><div class="pf-count">~3-10</div><div class="pf-survival">~0.7%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">SPP</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.5%"></div></div><div class="pf-count">~2-8</div><div class="pf-survival">~0.5%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">WFM</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.3%"></div></div><div class="pf-count">~1-5</div><div class="pf-survival">~0.3%</div></div>
+      <div class="ps-funnel-step terminal ps-funnel-final"><div class="pf-name">FOWARD ⭐</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.2%"></div></div><div class="pf-count">~1-3</div><div class="pf-survival">~0.2%</div></div>
+    </div>
+  </div>
+
+  <!-- Checklist -->
+  <div class="card">
+    <div class="card-header">
+      <h2>✅ Checklist de aplicación Capa 1</h2>
+      <span class="badge info">Persistente en localStorage</span>
+      <span style="flex:1"></span>
+      <button class="export-btn" data-checklist-clear="capa1">Resetear checklist</button>
+    </div>
+    <div class="checklist-section">
+      <h4>Antes de lanzar el mining</h4>
+      <label class="check-row"><input type="checkbox" data-check="capa1-pre-mm"><span>Money Management configurado ($200, max lots)</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-pre-fitness"><span>Fitness: R Expectancy</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-pre-filtros"><span>Filtros mining: PF≥1.10, #trades&gt;100, R Exp&gt;0.05</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-pre-exit"><span>ExitAfterBars=20, sin SL/TP/Trailing</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-pre-cc"><span>Cross-checks activos: HBP, MC, Sequential, Synthetic, SPP, WFM, FOWARD</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-pre-mc"><span>MC sin Skip trades</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-pre-mc2"><span>MC2: opcional, si lo activas con config conservadora</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-pre-seq"><span>Sequential: Periods + Constants + Exit params, Apply OFF</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-pre-spp"><span>SPP: Your own settings, Best Opt &lt; 1 StDev DESACTIVADO</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-pre-wfm-conf"><span>WFM: Simulated (fastest), Periods + Const + Entry + Exit, Apply OFF</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-pre-wfm-filt"><span>Filtros WFM: robustness 60%, Max DD 50%, profitable 60%</span></label>
+    </div>
+    <div class="checklist-section">
+      <h4>Durante el mining</h4>
+      <label class="check-row"><input type="checkbox" data-check="capa1-dur-mon"><span>Monitorear progreso</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-dur-coh"><span>Verificar números intermedios coherentes con embudo</span></label>
+    </div>
+    <div class="checklist-section">
+      <h4>Después del mining</h4>
+      <label class="check-row"><input type="checkbox" data-check="capa1-post-filt"><span>Aplicar filtros estrictos sobre databank</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-post-corr"><span>Filter by correlation 0.7</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-post-tpl"><span>Identificar templates únicos</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-post-fwd"><span>Validar Forward (si no aplicado en pipeline)</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-post-c2"><span>Templates ganadores → Capa 2</span></label>
+    </div>
+  </div>
+
+  <!-- Reglas de oro -->
+  <div class="card">
+    <div class="card-header">
+      <h2>📜 Reglas de oro Capa 1</h2>
+    </div>
+    <div class="rules">
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Apply optimized parameters: SIEMPRE OFF</strong> (Sequential, WFM, SPP)</div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Walk-Forward type: Simulated (fastest)</strong> — Exact es 10-20× más lento sin beneficio</div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Filtros del retest más permisivos que mining</strong> para no descartar estrategias robustas</div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Marcar Periods + Constants + Exit params en Sequential/WFM</strong> en Capa 1</div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Aplicar TODOS los tests en orden</strong> sin saltarse ninguno</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Aplicar valores optimizados</strong> — rompe metodología</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Backtests on additional markets</strong> en activos muy distintos — falsos negativos</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Filtros estrictos en retest</strong> — descarta estrategias robustas</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Randomize parameters en MC2</strong> — lo cubre SPP</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Walk-Forward Exact</strong> — 10-20× más lento sin beneficio</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Saltarse FOWARD</strong> — datos intocados son críticos</div></div>
+    </div>
+  </div>
+
+</div>
+            <div id="wf-capa2" class="subtab-content">
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Capa 2 — Cheatsheet operativo</h2>
+      <span class="badge layer2">Optimización operativa</span>
+      <span style="margin-left:auto;color:var(--text2);font-size:12px;">Validado en TEMPLATE LINEAR · 1000 → 3 ganadoras</span>
+    </div>
+    <p style="color:var(--text2);line-height:1.6;">
+      Convertir el edge validado en Capa 1 en estrategia <strong style="color:var(--text);">OPERABLE</strong> añadiendo SL + TP + Trailing optimizados. Cada test detallado con Settings + Filtering + Explicación.
+    </p>
+  </div>
+
+  <!-- CONFIG BASE BUILDER -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2>⚙️ Config Base Builder Capa 2</h2>
+      <span class="badge info">Setup AlgoWizard</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Trade direction: Long-only (oro/índices) | L+S (Forex)
+ATM: OFF
+Allow conditions: 1-2 random conditions (filtros adicionales)
+
+AlgoWizard:
+   Cargar template ganador de Capa 1 como BASE
+   Edge: NO RANDOM (fijo del template)
+   Random conditions: 1-2 filtros adicionales
+
+Exit Methods:
+   ExitAfterBars: 20 (opcional, mantener o desactivar)
+   Stop Loss: ATR-based (random)
+   Profit Target: ATR-based (random)
+   Trailing Stop: ATR-based (random)
+
+Building blocks:
+   Cargar BS_Filtros_v5.sqb (con Trailing limpio)
+
+Money Management:
+   Capital: $100,000
+   Method: Fixed amount
+   RiskedMoney: $200 (0.2%)
+   Max lots: 3 (oro) / 5 (Forex Major) / 2 (índices)
+
+Fitness: Weighted Fitness con 5 métricas peso=1</pre>
+    <h4 class="test-section-title">Strategy Quality (Weighted Fitness)</h4>
+    <pre class="code-block">● Weighted Fitness (multiple goals)
+
+Métricas (todas peso 1):
+   ☑ CAGR/Max DD %       Maximize
+   ☑ Profit Factor       Maximize
+   ☑ R Expectancy        Maximize
+   ☑ # of Trades         Maximize
+   ☑ Avg. % Drawdown     Minimize</pre>
+    <h4 class="test-section-title">Filtering Global durante mining</h4>
+    <pre class="code-block">PF >= 1.20
+# trades > 100
+(Sharpe y SQN QUITADOS — descartan estrategias buenas)</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Capa 2 mantiene el edge fijo del template (no toca KER, LinReg, etc.) y solo varía: 1-2 filtros adicionales random + SL/TP/Trailing optimizados con ATR-based.<br><br>
+    Weighted Fitness con 5 métricas porque ya hay gestión completa, optimizamos múltiples dimensiones operativas. Filtros más estrictos que Capa 1 (PF≥1.20 vs ≥1.10) porque ahora exigimos calidad operativa.</p>
+  </div>
+
+  <!-- TEST 1 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l2">1</span>RETEST 0 — Período Completo</h2>
+      <span class="badge validation">Validación temporal</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Period: 2017.10 — 2026.04 (rango completo)
+Re-optimize: NO</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">PF > 1.0
+# trades > 100
+Ret/DD > 1.0</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Igual que Capa 1. Validación temporal sobre todo el histórico disponible. Filtros permisivos para no descartar estrategias con métricas correctas pero menos brillantes que en IS.</p>
+  </div>
+
+  <!-- TEST 2 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l2">2</span>RETEST 1 — OOS hacia atrás 2010-2017</h2>
+      <span class="badge validation">Validación retroactiva</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Period: 2010.01 — 2016.12
+Re-optimize: NO</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">PF > 1.0
+# trades > 100      ← más exigente que en Capa 1 (era 50)
+Ret/DD > 1.0</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Periodo nunca visto durante mining IS. Validación cronológica retroactiva. <strong># trades &gt; 100</strong> más exigente porque en Capa 2 con SL/TP las estrategias deben mantener volumen operativo.</p>
+  </div>
+
+  <!-- TEST 3 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l2">3</span>HBP — History Bootstrap Performance</h2>
+      <span class="badge info">Test rápido</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Number of simulations: 100
+Use Full sample: ON</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">☑ Net profit (HBP, Conf. 80%) > 0
+☑ Max DD % (HBP, Conf. 80%) <= 150% of Max DD %</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Igual configuración que Capa 1. Filtro <strong>Max DD más estricto (150% vs 200%)</strong> porque en Capa 2 con SL/TP el DD debe estar más controlado.</p>
+  </div>
+
+  <!-- TEST 4 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l2">4</span>MC — Monte Carlo Trades</h2>
+      <span class="badge warning">Skip trades ACTIVADO</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Number of simulations: 200
+Use Full sample: ON
+
+Métodos a marcar:
+   ☑ Randomize trades order, with method Resampling
+   ☐ Modified randomize trades order
+   ☑ Randomly skip trades, with probability 10%   ← ACTIVAR en Capa 2
+
+Default Method: Resampling</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">☑ Net profit (MC trades, Conf. 80%) >= 50% of Net profit
+☑ Max DD % (MC trades, Conf. 80%) <= 150% of Max DD %</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Reordena trades. Si la rentabilidad colapsa al reordenar, el edge depende del orden específico.<br><br>
+    <strong>Skip trades ACTIVADO en Capa 2 (a diferencia de Capa 1):</strong> simula errores de ejecución reales (slippage, conexión perdida) que en operativa real con SL/TP sí pueden ocurrir. En Capa 1 lo desactivamos porque sin SL/TP descartaba estrategias válidas con muestra pequeña.<br><br>
+    <strong>Max DD &lt;= 150% (no 200%):</strong> en Capa 2 con SL/TP el DD debe estar más controlado.</p>
+  </div>
+
+  <!-- TEST 5 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l2">5</span>MC2 — Monte Carlo Retest Methods</h2>
+      <span class="badge danger">RECOMENDADO en Capa 2</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Number of simulations: 100
+Use Full sample: ON
+Backtest precision: Selected timeframe only (fastest)
+
+Métodos a marcar:
+   ☑ Randomize history data (by tick)
+   ☐ Modified randomize history data
+   ☐ Randomize OHLC history data
+   ☐ Randomize min distance from price
+   ☑ Randomize slippage                        ← ACTIVAR en Capa 2
+   ☑ Randomize spread
+   ☐ Randomize starting bar
+   ☐ Randomize strategy parameters             ← DESACTIVAR (lo testa SPP)
+   ☐ Customizable Randomize strategy parameters
+   ☐ Real Monkey Test (PyRE)
+   ☐ Synthetic Bootstrap V2
+
+Default — Randomize history data:
+   Probability up: 10
+   Max up change: 10
+   Probability down: 10
+   Max change down: 10
+   Keep connected: ON
+
+Default — Randomize spread:
+   Min: 10
+   Max: 25
+
+Default — Randomize slippage:
+   Min: 0
+   Max: 5</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">☑ CAGR/Max DD % (MC retest, Conf. 100%) >= 0
+☑ CAGR/Max DD % (MC retest, Conf. 95%) >= 30% of CAGR/Max DD %</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Re-ejecuta backtest con perturbaciones del MERCADO (no del orden de trades). En Capa 2 sí es recomendado porque las estrategias con SL/TP deben sobrevivir slippage real.<br><br>
+    <strong>Slippage 0-5 ACTIVADO en Capa 2:</strong> simula slippage real en ejecución de SL/TP. En Capa 1 no aplicaba (sin SL/TP).<br>
+    <strong>Probability 10% y spread 10-25:</strong> valores realistas en oro Darwinex.<br>
+    <strong>Randomize parameters DESACTIVADO:</strong> lo testa SPP. Aquí solo testamos perturbaciones de mercado.<br>
+    <strong>30% al 95% confianza:</strong> umbral realista para estrategias robustas.</p>
+  </div>
+
+  <!-- TEST 6 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l2">6</span>SEQUENTIAL OPTIMIZATION</h2>
+      <span class="badge info">Solo Entry levels + Exit</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Value distribution:
+   Up: 130
+   Down: 70
+   Steps: 12
+
+Apply optimized parameters to strategy: OFF ⚠️ CRÍTICO
+
+What to parametrize:
+   ● Your own settings
+
+   ☐ Periods                              ← NO MARCAR (vienen del template fijo)
+   ☐ Constants                            ← NO MARCAR
+   ☐ Shifts
+   ☐ Other params
+   ☑ Entry (levels)                       ← MARCAR (niveles de filtros random)
+   ☐ Entry (logic)
+   ☑ Exit params (SL, PT,...) only used   ← MARCAR (SL+TP+Trailing+ExitAfterBars)
+   ☐ Exit params unused
+   ☐ Boolean params
+
+   ☐ Symmetric variables for Long / Short</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">Sequential Optimization conditions:
+   Percentage of parameters to pass the stability test: 80 %
+
+Stability check:
+   Number of results in stable area: 5
+   Fitness stability range: 25 %</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation"><strong>Diferencia clave con Capa 1:</strong> SOLO se marcan Entry levels + Exit params. Las entradas (Periods, Constants) vienen del template fijo de Capa 1 y NO se tocan.<br><br>
+    <strong>¿Qué optimiza Sequential en Capa 2?</strong><br>
+    • Niveles de filtros random añadidos en Capa 2 (ej. si hay ADX &gt; 25, se optimiza el "25")<br>
+    • LongStopLossCef / ShortStopLossCef (multiplicadores SL)<br>
+    • LongProfitTargetCef / ShortProfitTargetCef (multiplicadores TP)<br>
+    • LongTrailingStopCef / ShortTrailingStopCef (multiplicadores Trailing)<br>
+    • ExitAfterBars (si lo mantienes)<br><br>
+    <strong>Apply optimized OFF:</strong> Sequential testa robustez, NO produce mejores parámetros. Aplicarlo rompe la metodología.</p>
+  </div>
+
+  <!-- TEST 7 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l2">7</span>MONKEY TEST</h2>
+      <span class="badge info">Vs estrategias random</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Number of simulations: 100
+Confidence level: 80%</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">☑ Net profit (Monkey, Conf. 80%) > 0
+   o alternativamente:
+☑ Z-score >= 2</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Igual que Capa 1. Compara con estrategias random. Si una random produce más profit que la tuya, tu edge no es real.<br><br>
+    En Capa 2 con SL/TP el test es más exigente porque las estrategias random también tienen SL/TP, así que pasar este test demuestra <strong>edge genuino</strong>.</p>
+  </div>
+
+  <!-- TEST 8 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l2">8</span>SYNTHETIC BOOTSTRAP V2</h2>
+      <span class="badge info">Histórico sintético</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Number of simulations: 100
+Synthetic Bootstrap V2: ON
+Warmup: 200
+Preserve: 85%</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">☑ Net profit (Synthetic, Conf. 80%) >= 50% of Net profit</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Genera versiones SINTÉTICAS del histórico (similares estadísticamente pero distintas) y testa la estrategia. Si depende del orden específico del histórico, falla.<br><br>
+    <strong>Mismo umbral que Capa 1 (50% al 80% confianza)</strong> porque mide algo intrínseco al edge: si funciona con orden distinto del histórico.</p>
+  </div>
+
+  <!-- TEST 9 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l2">9</span>SPP — System Parameter Permutation</h2>
+      <span class="badge warning">Your own settings</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Maximum tests: 3000
+
+Value distribution (% from original value):
+   Up: 20
+   Down: 20
+   Max steps: 25
+
+What to parametrize:
+   ☐ Recommended parameters
+   ● Your own settings              ← CAMBIO vs Capa 1
+
+   ☐ Periods                        ← NO (template fijo)
+   ☐ Constants
+   ☐ Shifts
+   ☐ Other params
+   ☑ Entry (levels)                 ← MARCAR (niveles de filtros random añadidos)
+   ☐ Entry (logic)
+   ☑ Exit params only used          ← MARCAR (SL+TP+Trailing+ExitAfterBars)
+   ☐ Exit params unused
+   ☐ Boolean params</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">Optimization Profile conditions:
+   ☑ % of Profitable Optimizations >  50    ← más estricto que Capa 1 (era 30)
+   ☑ Average profit (in $) of all optimizations is > $ 0
+   ☑ Uniform distribution - less than 10 changes from positive to negative
+   ☐ Best Optimization profit < 1 StDev of average profit   ← DESACTIVAR
+
+System Parameters Permutation conditions:
+   ☑ 80% of Net profit (Median ≥) >= 50% of Net profit     ← 50% (no 40%)
+   ☑ 80% of Max DD % (Median ≤) <= 150% of Max DD %        ← 150% (no 200%)</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation"><strong>Diferencia clave con Capa 1:</strong> "Your own settings" en lugar de "Recommended parameters". Solo testa Entry levels (niveles de filtros random) + Exit params (SL/TP/Trailing/ExitAfterBars).<br><br>
+    <strong>Por qué NO Recommended:</strong> en Capa 2 las entradas (Periods, Constants) son del template fijo. Si Recommended las toca, rompes la metodología.<br>
+    <strong>Por qué Entry levels SÍ:</strong> los filtros random añadidos en Capa 2 (ej. ADX &gt; 25) tienen niveles que sí queremos validar.<br><br>
+    <strong>Filtros más estrictos en Capa 2:</strong> % Profitable &gt; 50 (vs 30) · Net profit ≥ 50% (vs 40%) · Max DD ≤ 150% (vs 200%).</p>
+  </div>
+
+  <!-- TEST 10 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l2">10</span>WFM — Walk-Forward Matrix</h2>
+      <span class="badge danger">Filtros operativos</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Walk-Forward type: Simulated IS, Simulated OOS (fastest) ⚠️ CRÍTICO
+Period type: Percent + Floating
+
+Out of Sample %:
+   Start: 20
+   Stop: 36
+   Step: 2
+
+Walk Forward runs:
+   Start: 4
+   Stop: 8
+   Step: 1
+
+Maximum tests: 3000
+
+Value distribution:
+   Up: 20
+   Down: 20
+   Max steps: 8
+
+What to parametrize:
+   ● Your own settings
+
+   ☐ Periods                              ← NO (template fijo)
+   ☐ Constants
+   ☐ Shifts
+   ☐ Other params
+   ☑ Entry (levels)                       ← MARCAR
+   ☐ Entry (logic)
+   ☑ Exit params (SL, PT,...) only used   ← MARCAR
+   ☐ Exit params unused
+   ☐ Boolean params
+
+   ☐ Symmetric variables for Long / Short
+
+Apply optimized parameters: OFF ⚠️ CRÍTICO</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">WF Matrix Filter:
+   Filter passes when it finds an area of:
+      3 rows  AND  3 columns
+   where at least 7 results have robustness score >= 60 %
+
+Robustness conditions (6 activas — DISTINTAS a Capa 1):
+   ☑ WF Winning Percent (OOS) >= 70% of WF Winning Percent (IS)
+   ☑ WF Stability of Net profit >= 60 %
+   ☑ WF Special - Percentage of profitable runs >= 70 %
+   ☑ WF Special - Max profit in one run < 50 %
+   ☑ WF Stagnation <= 365 días
+   ☑ WF Ret/DD Ratio >= 5</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation"><strong>Diferencia clave con Capa 1:</strong> SOLO Entry levels + Exit params. Las entradas del template no se tocan.<br><br>
+    <strong>Walk-Forward Runs Start: 4 (no 5):</strong> ligeramente más permisivo en Capa 2 porque las estrategias con SL/TP son más sensibles a configuraciones extremas.<br><br>
+    <strong>Filtros DISTINTOS a Capa 1 (más operativos):</strong><br>
+    • <strong>WF Winning % OOS &gt;= 70% IS:</strong> el % de aciertos OOS debe ser al menos 70% del IS (consistencia)<br>
+    • <strong>WF Profitable runs &gt;= 70%:</strong> mayoría de ventanas rentables (más estricto que Capa 1)<br>
+    • <strong>WF Stagnation &lt;= 365 días:</strong> no más de 1 año sin nuevo equity high<br>
+    • <strong>WF Ret/DD Ratio &gt;= 5:</strong> umbral profesional para estrategias operables (filtro fuerte)<br>
+    • <strong>Max profit in one run &lt; 50%:</strong> anti curve-fitting</p>
+  </div>
+
+  <!-- TEST 11 -->
+  <div class="card test-card">
+    <div class="card-header">
+      <h2><span class="test-num l2">11</span>FOWARD — Forward 2024-2026</h2>
+      <span class="badge danger">CRÍTICO último</span>
+    </div>
+    <h4 class="test-section-title">Settings</h4>
+    <pre class="code-block">Period: 2024.01 — 2026.04 (~2.5 años)
+Re-optimize: NO
+Direction: igual al mining</pre>
+    <h4 class="test-section-title">Filtering</h4>
+    <pre class="code-block">PF > 1.0
+# trades > 30
+Ret/DD > 1.0          ← más estricto que Capa 1 (era 0.5)</pre>
+    <h4 class="test-section-title">Explicación</h4>
+    <p class="test-explanation">Datos completamente intocados durante mining y todos los tests anteriores.<br><br>
+    <strong>Ret/DD &gt; 1.0 (no 0.5):</strong> en Capa 2 con SL/TP exigimos al menos Ret/DD operativo. Si en Forward el Ret/DD baja por debajo de 1, la estrategia no es operable en datos nuevos.<br><br>
+    <strong>CRÍTICO:</strong> sin pasar Forward NO se debe desplegar en MT5. Una estrategia que falla Forward es un overfit.</p>
+  </div>
+
+  <!-- Filtros estrictos post-Capa 2 -->
+  <div class="card">
+    <div class="card-header">
+      <h2>🎯 Filtros estrictos post-Capa 2</h2>
+      <span class="badge warning">Manual sobre databank</span>
+    </div>
+    <p style="color:var(--text2);font-size:13px;margin-bottom:12px;">Aplicar antes de los tests de robustez para reducir el universo:</p>
+    <table class="filter-table">
+      <thead><tr><th>Filtro</th><th>Valor</th><th>Significado operativo</th></tr></thead>
+      <tbody>
+        <tr><td>Profit Factor</td><td class="v">≥ 1.5</td><td>Rentable con margen amplio</td></tr>
+        <tr><td>Ret/DD Ratio</td><td class="v">≥ 5</td><td>Ganancia 5x el peor DD histórico</td></tr>
+        <tr><td>R Expectancy</td><td class="v">≥ 0.30</td><td>Edge significativo por unidad de riesgo</td></tr>
+        <tr><td>Stagnation %</td><td class="v">&lt; 25%</td><td>Menos de 1/4 del tiempo sin progresar</td></tr>
+        <tr><td># trades</td><td class="v">&gt; 150</td><td>Significancia estadística sólida</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Tests no recomendados -->
+  <div class="card">
+    <div class="card-header">
+      <h2>🚫 Tests NO recomendados en Capa 2</h2>
+    </div>
+    <div class="alert warning">
+      <div class="alert-icon">⚠</div>
+      <div class="alert-content">
+        <strong>Backtests on additional markets — DESACTIVAR</strong>
+        Mismo razonamiento que Capa 1. Probar oro H1 en otro activo es comparar peras con manzanas.
+      </div>
+    </div>
+    <div class="alert info">
+      <div class="alert-icon">ℹ</div>
+      <div class="alert-content">
+        <strong>Higher backtest precision — OPCIONAL solo sobre finalistas</strong>
+        Sobre 3-5 estrategias finales puede tener sentido. Sobre cientos es prohibitivo.
+      </div>
+    </div>
+    <div class="alert warning">
+      <div class="alert-icon">⚠</div>
+      <div class="alert-content">
+        <strong>Walk-Forward Optimization (WFO) — DESACTIVAR</strong>
+        Redundante con WFM. WFM hace lo mismo y más.
+      </div>
+    </div>
+  </div>
+
+  <!-- Orden de ejecución -->
+  <div class="card">
+    <div class="card-header">
+      <h2>🔢 Orden de ejecución Capa 2</h2>
+    </div>
+    <div class="pipeline">
+      <div class="pipeline-step l2"><div class="step-num">1</div><div class="step-content"><div class="step-title">Mining IS 2017-2023</div><div class="step-desc">Weighted Fitness, PF≥1.20, #trades&gt;100</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step val"><div class="step-num">2</div><div class="step-content"><div class="step-title">RETEST 0 período completo</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">3</div><div class="step-content"><div class="step-title">Filtros estrictos post-Capa 2 manuales</div><div class="step-desc">PF≥1.5, Ret/DD≥5, R Exp≥0.30, Stagnation&lt;25%, #trades&gt;150</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step val"><div class="step-num">4</div><div class="step-content"><div class="step-title">RETEST 1 OOS 2010-2017</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">5</div><div class="step-content"><div class="step-title">HBP</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">6</div><div class="step-content"><div class="step-title">MC (con Skip trades activado)</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">7</div><div class="step-content"><div class="step-title">MC2 (con Slippage activado)</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">8</div><div class="step-content"><div class="step-title">Sequential (solo Exit params)</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">9</div><div class="step-content"><div class="step-title">Monkey Test</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">10</div><div class="step-content"><div class="step-title">Synthetic Bootstrap V2</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">11</div><div class="step-content"><div class="step-title">SPP (Your own settings)</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">12</div><div class="step-content"><div class="step-title">WFM (filtros operativos)</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step dep"><div class="step-num">13</div><div class="step-content"><div class="step-title">FOWARD 2024-2026</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step val"><div class="step-num">14</div><div class="step-content"><div class="step-title">Filter by correlation (threshold 0.7)</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step val"><div class="step-num">15</div><div class="step-content"><div class="step-title">1-3 ganadoras por template ⭐</div></div></div>
+    </div>
+  </div>
+
+  <!-- Embudo esperado -->
+  <div class="card">
+    <div class="card-header">
+      <h2>📉 Embudo esperado Capa 2</h2>
+      <span class="badge info">Tasa supervivencia 0.05-0.3%</span>
+    </div>
+    <div class="ps-funnel">
+      <div class="ps-funnel-step"><div class="pf-name">Mining inicial</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:100%"></div></div><div class="pf-count">~500-2000</div><div class="pf-survival">100%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">Filtros automáticos</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:25%"></div></div><div class="pf-count">~100-500</div><div class="pf-survival">~25%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">RETEST 0</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:20%"></div></div><div class="pf-count">~80-400</div><div class="pf-survival">~20%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">Filtros estrictos manual</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:6%"></div></div><div class="pf-count">~30-100</div><div class="pf-survival">~6%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">RETEST 1 OOS</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:2%"></div></div><div class="pf-count">~10-30</div><div class="pf-survival">~2%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">HBP</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:1.5%"></div></div><div class="pf-count">~10-25</div><div class="pf-survival">~1.5%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">MC</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:1.2%"></div></div><div class="pf-count">~5-20</div><div class="pf-survival">~1.2%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">MC2</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:1%"></div></div><div class="pf-count">~5-15</div><div class="pf-survival">~1%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">Sequential</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.7%"></div></div><div class="pf-count">~3-10</div><div class="pf-survival">~0.7%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">Monkey Test</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.6%"></div></div><div class="pf-count">~3-10</div><div class="pf-survival">~0.6%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">Synthetic</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.5%"></div></div><div class="pf-count">~2-7</div><div class="pf-survival">~0.5%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">SPP</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.4%"></div></div><div class="pf-count">~2-5</div><div class="pf-survival">~0.4%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">WFM</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.3%"></div></div><div class="pf-count">~1-4</div><div class="pf-survival">~0.3%</div></div>
+      <div class="ps-funnel-step terminal ps-funnel-final"><div class="pf-name">FOWARD ⭐</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.2%"></div></div><div class="pf-count">~1-3</div><div class="pf-survival">~0.2%</div></div>
+    </div>
+  </div>
+
+  <!-- Checklist -->
+  <div class="card">
+    <div class="card-header">
+      <h2>✅ Checklist de aplicación Capa 2</h2>
+      <span class="badge info">Persistente en localStorage</span>
+      <span style="flex:1"></span>
+      <button class="export-btn" data-checklist-clear="capa2">Resetear checklist</button>
+    </div>
+    <div class="checklist-section">
+      <h4>Antes del mining</h4>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-tpl"><span>Template Capa 1 seleccionado y validado</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-aw"><span>AlgoWizard configurado con template como base</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-edge"><span>Edge: NO RANDOM</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-rc"><span>Random conditions: 1-2</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-exits"><span>SL/TP/Trailing: ATR-based random</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-bs"><span>BS_Filtros_v5.sqb cargado</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-mm"><span>Money Management: $200, max lots correcto</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-fitness"><span>Fitness: Weighted Fitness con 5 métricas</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-filtros"><span>Filtros mining: PF≥1.20, #trades&gt;100</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-cc"><span>Cross-checks activos (todos los relevantes)</span></label>
+    </div>
+    <div class="checklist-section">
+      <h4>Durante el mining</h4>
+      <label class="check-row"><input type="checkbox" data-check="capa2-dur-mon"><span>Monitorear progreso</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-dur-coh"><span>Verificar coherencia con embudo esperado</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-dur-relax"><span>Si pasan 0 estrategias por algún test, considerar relajar filtros</span></label>
+    </div>
+    <div class="checklist-section">
+      <h4>Después del mining</h4>
+      <label class="check-row"><input type="checkbox" data-check="capa2-post-filt"><span>Aplicar filtros estrictos sobre databank</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-post-corr"><span>Filter by correlation 0.7</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-post-fwd"><span>Validar Forward sobre supervivientes</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-post-tier"><span>Identificar 1-3 ganadoras por template</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-post-doc"><span>Documentar TIER 1 / TIER 2 / TIER 3 según margen de pase</span></label>
+    </div>
+  </div>
+
+  <!-- Reglas de oro -->
+  <div class="card">
+    <div class="card-header">
+      <h2>📜 Reglas de oro Capa 2</h2>
+    </div>
+    <div class="rules">
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Edge FIJO del template</strong>, NO tocar entradas (Periods, Constants)</div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Apply optimized parameters: SIEMPRE OFF</strong></div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Walk-Forward type: Simulated (fastest)</strong></div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Sequential/WFM/SPP:</strong> SOLO marcar Entry levels + Exit params</div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>MC con Skip trades activado</strong> (simula errores ejecución)</div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>MC2 con Slippage activado</strong> (simula slippage real con SL/TP)</div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Filtros más estrictos que Capa 1</strong> (objetivo: excelencia operativa)</div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>WFM con filtros operativos</strong> (Ret/DD, Stagnation, Win%)</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Marcar Periods/Constants en Capa 2</strong> — rompe template</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Aplicar valores optimizados</strong> — rompe metodología</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>"Recommended parameters" en SPP Capa 2</strong> — toca entradas</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Filtros laxos en Capa 2</strong> — objetivo es excelencia operativa</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Saltarse FOWARD</strong> — datos intocados son críticos</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Aplicar optimizaciones del WFM</strong> — degrada NetProfit ~30% sin beneficio</div></div>
+    </div>
+  </div>
+
+  <!-- Configuraciones opcionales -->
+  <div class="card">
+    <div class="card-header">
+      <h2>🎚 Configuraciones opcionales según objetivo</h2>
+    </div>
+    <div class="config-grid">
+      <div class="config-box">
+        <h4><span class="icon">+</span>Más estrategias supervivientes (umbral medio)</h4>
+        <ul class="config-list">
+          <li><span class="key">SPP Net profit:</span><span class="value">≥ 40%</span></li>
+          <li><span class="key">WFM Robustness:</span><span class="value">50%</span></li>
+          <li><span class="key">WFM Profitable runs:</span><span class="value">60%</span></li>
+          <li><span class="key">MC Max DD:</span><span class="value">≤ 200%</span></li>
+        </ul>
+      </div>
+      <div class="config-box">
+        <h4><span class="icon">⭐</span>Pocas pero excepcionales (umbral alto)</h4>
+        <ul class="config-list">
+          <li><span class="key">SPP Net profit:</span><span class="value">≥ 60%</span></li>
+          <li><span class="key">SPP Profitable:</span><span class="value">≥ 70%</span></li>
+          <li><span class="key">WFM Robustness:</span><span class="value">70%</span></li>
+          <li><span class="key">WFM Profitable runs:</span><span class="value">80%</span></li>
+          <li><span class="key">WFM Ret/DD:</span><span class="value">≥ 7</span></li>
+          <li><span class="key">Filtros estrictos PF:</span><span class="value">≥ 1.7</span></li>
+          <li><span class="key">Filtros estrictos Ret/DD:</span><span class="value">≥ 7</span></li>
+        </ul>
+      </div>
+      <div class="config-box">
+        <h4><span class="icon">⏱</span>Test reducido (si tienes prisa)</h4>
+        <ul class="config-list">
+          <li><span class="key">DESACTIVAR:</span><span class="value">MC2, Synthetic, SPP</span></li>
+          <li><span class="key">MANTENER:</span><span class="value">HBP, MC, Sequential, WFM, FOWARD</span></li>
+          <li><span class="key">WFM OOS:</span><span class="value">25-35 step 5</span></li>
+          <li><span class="key">WFM runs:</span><span class="value">5-7 step 1</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+            <div id="wf-diff" class="subtab-content">
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Capa 1 vs Capa 2 — Tabla comparativa</h2>
+      <span class="badge info">Diferencias clave</span>
+    </div>
+    <p style="color:var(--text2);line-height:1.6;">
+      Misma metodología, distintos parámetros. Capa 1 busca <strong>edge puro</strong> sin gestión; Capa 2 hace el edge <strong>operable</strong> con SL/TP/Trailing.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>📊 Tabla comparativa general</h2>
+    </div>
+    <table class="filter-table">
+      <thead>
+        <tr><th>Aspecto</th><th>Capa 1</th><th>Capa 2</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Edge</strong></td><td>Variable (mining)</td><td>Fijo (template)</td></tr>
+        <tr><td><strong>SL/TP/Trailing</strong></td><td>NO</td><td>SÍ (random ATR-based)</td></tr>
+        <tr><td><strong>ExitAfterBars</strong></td><td>20 fijo</td><td>Variable o mantener 20</td></tr>
+        <tr><td><strong>Filtros mining</strong></td><td class="v">PF ≥ 1.10</td><td class="v">PF ≥ 1.20</td></tr>
+        <tr><td><strong>Fitness</strong></td><td>R Expectancy</td><td>Weighted (5 métricas)</td></tr>
+        <tr><td><strong>MC Skip trades</strong></td><td>DESACTIVADO</td><td>ACTIVADO</td></tr>
+        <tr><td><strong>MC2 Slippage</strong></td><td>DESACTIVADO</td><td>ACTIVADO</td></tr>
+        <tr><td><strong>MC2 estado</strong></td><td>OPCIONAL</td><td>RECOMENDADO</td></tr>
+        <tr><td><strong>Sequential parametrize</strong></td><td>Periods + Const + Exit</td><td>Entry levels + Exit</td></tr>
+        <tr><td><strong>WFM parametrize</strong></td><td>Periods + Const + Entry + Exit</td><td>Entry + Exit</td></tr>
+        <tr><td><strong>WFM filtros</strong></td><td>DD-focused</td><td>Stagnation, Ret/DD, Win%</td></tr>
+        <tr><td><strong>SPP modo</strong></td><td>Your own settings</td><td>Your own settings</td></tr>
+        <tr><td><strong>SPP Net profit</strong></td><td class="v">≥ 40%</td><td class="v">≥ 50%</td></tr>
+        <tr><td><strong>SPP % Profitable</strong></td><td class="v">&gt; 30</td><td class="v">&gt; 50</td></tr>
+        <tr><td><strong>Forward Ret/DD</strong></td><td class="v">&gt; 0.5</td><td class="v">&gt; 1.0</td></tr>
+        <tr><td><strong>Tasa supervivencia</strong></td><td>0.1-0.5%</td><td>0.05-0.3%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>🔍 Diferencias específicas en cross-checks</h2>
+    </div>
+
+    <div class="config-grid">
+      <div class="config-box">
+        <h4><span class="icon">S</span>Sequential</h4>
+        <ul class="config-list">
+          <li><span class="key">Capa 1:</span><span class="value">Periods + Const + Exit</span></li>
+          <li><span class="key">Capa 2:</span><span class="value">Entry levels + Exit</span></li>
+        </ul>
+        <p style="font-size:11px;color:var(--text2);margin-top:6px;">En Capa 2 las entradas son del template fijo y NO se tocan.</p>
+      </div>
+
+      <div class="config-box">
+        <h4><span class="icon">W</span>WFM</h4>
+        <ul class="config-list">
+          <li><span class="key">Capa 1:</span><span class="value">Periods + Const + Entry + Exit (4 categorías)</span></li>
+          <li><span class="key">Capa 2:</span><span class="value">Entry levels + Exit (2 categorías)</span></li>
+        </ul>
+        <p style="font-size:11px;color:var(--text2);margin-top:6px;">Filtros también distintos: WF Win% OOS/IS y WF Stagnation solo en Capa 2.</p>
+      </div>
+
+      <div class="config-box">
+        <h4><span class="icon">P</span>SPP</h4>
+        <ul class="config-list">
+          <li><span class="key">Capa 1:</span><span class="value">Periods + Const + Entry + Exit</span></li>
+          <li><span class="key">Capa 2:</span><span class="value">Entry levels + Exit</span></li>
+        </ul>
+        <p style="font-size:11px;color:var(--text2);margin-top:6px;">Ambas usan "Your own settings" (no Recommended) para control explícito.</p>
+      </div>
+
+      <div class="config-box">
+        <h4><span class="icon">M</span>MC</h4>
+        <ul class="config-list">
+          <li><span class="key">Capa 1:</span><span class="value">Solo Randomize order (sin Skip)</span></li>
+          <li><span class="key">Capa 2:</span><span class="value">Randomize order + Skip trades</span></li>
+        </ul>
+        <p style="font-size:11px;color:var(--text2);margin-top:6px;">Skip trades en Capa 2 simula errores de ejecución reales.</p>
+      </div>
+
+      <div class="config-box">
+        <h4><span class="icon">M2</span>MC2</h4>
+        <ul class="config-list">
+          <li><span class="key">Capa 1:</span><span class="value">history + spread (sin slippage)</span></li>
+          <li><span class="key">Capa 2:</span><span class="value">history + spread + slippage</span></li>
+        </ul>
+        <p style="font-size:11px;color:var(--text2);margin-top:6px;">Slippage solo aplica con SL/TP (Capa 2).</p>
+      </div>
+
+      <div class="config-box">
+        <h4><span class="icon">F</span>Filtros mining</h4>
+        <ul class="config-list">
+          <li><span class="key">Capa 1:</span><span class="value">PF≥1.10, R Exp&gt;0.05, #trades&gt;100</span></li>
+          <li><span class="key">Capa 2:</span><span class="value">PF≥1.20, #trades&gt;100 (Sharpe/SQN OFF)</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>💡 Por qué estas diferencias</h2>
+    </div>
+    <div class="alert info">
+      <div class="alert-icon">ℹ</div>
+      <div class="alert-content">
+        <strong>Edge fijo en Capa 2</strong>
+        El template ya pasó todos los tests de Capa 1. Si en Capa 2 tocas Periods/Constants, modificas el edge validado y rompes la metodología.
+      </div>
+    </div>
+    <div class="alert info">
+      <div class="alert-icon">ℹ</div>
+      <div class="alert-content">
+        <strong>Skip trades + Slippage activados en Capa 2</strong>
+        Las estrategias con SL/TP están expuestas a slippage real y errores de ejecución (gaps, conexión). En Capa 1 sin SL/TP, estos eventos descartaban estrategias válidas con muestras pequeñas.
+      </div>
+    </div>
+    <div class="alert info">
+      <div class="alert-icon">ℹ</div>
+      <div class="alert-content">
+        <strong>Filtros más estrictos en Capa 2</strong>
+        Capa 1 busca cualquier edge potencial (permisivo). Capa 2 selecciona estrategias <strong>desplegables en MT5 real</strong> (estrictos: PF≥1.5, Ret/DD≥5, Stagnation&lt;25%).
+      </div>
+    </div>
+    <div class="alert success">
+      <div class="alert-icon">✓</div>
+      <div class="alert-content">
+        <strong>Tasa supervivencia menor en Capa 2 (0.05-0.3%) vs Capa 1 (0.1-0.5%)</strong>
+        Es esperado y deseable. De 1000-2000 estrategias mining → 1-3 ganadoras finales por template. Las que sobreviven están listas para portfolio real.
+      </div>
+    </div>
+  </div>
+
+</div>
+            <div id="wf-postproc" class="subtab-content"><div class="card">
+    <div class="card-header">
+      <h2>Filtros estrictos post-Capa 2</h2>
+      <span class="badge validation">Manual en databank</span>
+    </div>
+    <table class="filter-table">
+      <thead>
+        <tr><th>Filtro</th><th>Valor</th><th>Significado operativo</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Profit Factor</td><td class="v">≥ 1.5</td><td>Sistema rentable con margen</td></tr>
+        <tr><td>Ret/DD Ratio</td><td class="v">≥ 5</td><td>Ganancia 5x el peor DD histórico</td></tr>
+        <tr><td>R Expectancy</td><td class="v">≥ 0.30</td><td>Ganancia significativa por unidad de riesgo</td></tr>
+        <tr><td>Stagnation %</td><td class="v">< 25%</td><td>Menos de 1/4 del tiempo sin progresar</td></tr>
+        <tr><td># of trades</td><td class="v">> 150</td><td>Significancia estadística sólida</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Validaciones cronológicas (retest pasivo)</h2>
+      <span class="badge validation">Sin re-optimizar</span>
+    </div>
+
+    <div class="config-grid">
+      <div class="config-box">
+        <h4><span class="icon">←</span>OOS 2010-2017</h4>
+        <ul class="config-list">
+          <li><span class="key">PF mínimo:</span><span class="value">> 1.0</span></li>
+          <li><span class="key"># trades min:</span><span class="value">> 50</span></li>
+          <li><span class="key">Importante:</span><span style="color:var(--text2); font-size:11px;">No perder más de 30% del NetProfit IS</span></li>
+        </ul>
+      </div>
+
+      <div class="config-box">
+        <h4><span class="icon">→</span>Forward 2024-2026</h4>
+        <ul class="config-list">
+          <li><span class="key">PF mínimo:</span><span class="value">> 1.0</span></li>
+          <li><span class="key"># trades min:</span><span class="value">> 30</span></li>
+          <li><span class="key">Crítico:</span><span style="color:var(--text2); font-size:11px;">Datos completamente intocados</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Análisis correlación a 4 niveles</h2>
+      <span class="badge info">Cross-everything</span>
+    </div>
+
+    <div class="pipeline">
+      <div class="pipeline-step l1">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Intra-template (threshold 0.7)</div>
+          <div class="step-desc">Variantes del mismo template. Quedarse con la mejor de cada cluster.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Cross-template mismo blocksetting (threshold 0.5)</div>
+          <div class="step-desc">5 templates pueden converger en mismos regímenes. Filtrar.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step val">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Cross-blocksetting mismo activo/TF (threshold 0.5)</div>
+          <div class="step-desc">Tendencia + Momentum + Volatilidad. Verificar diversidad real.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step dep">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Cross-TF y Cross-activos (threshold 0.5)</div>
+          <div class="step-desc">M30 + H1 + H4 distintos. Oro + EURUSD + USTEC distintos.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="alert success">
+    <div class="alert-icon">✓</div>
+    <div class="alert-content">
+      <strong>Resultado del post-procesamiento</strong>
+      30-50 estrategias en stock final. De ahí Portfolio Master selecciona 8-12 finalistas para operar. Resto queda en reserva.
+    </div></div>
+</div>
+            <div id="wf-portfolio" class="subtab-content"><div class="card">
+    <div class="card-header">
+      <h2>Construcción de Portfolio</h2>
+      <span class="badge layer2">Selección final</span>
+    </div>
+
+    <div class="pipeline">
+      <div class="pipeline-step val">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Cargar stock en Portfolio Master</div>
+          <div class="step-desc">30-50 estrategias seleccionadas tras todo el pipeline.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step val">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Optimización del subset</div>
+          <div class="step-desc">SQX sugiere 8-12 estrategias maximizando Sharpe agregado y minimizando correlación.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step val">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Verificación de diversidad</div>
+          <div class="step-desc">Mix de direcciones, TFs, activos, estilos.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Stress test</div>
+          <div class="step-desc">Simular en 2008, 2020 marzo, 2022. DD agregado < 20%.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Métricas mínimas del Portfolio agregado</h2>
+    </div>
+    <table class="filter-table">
+      <thead>
+        <tr><th>Métrica</th><th>Mínimo</th><th>Ideal</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>DD agregado</td><td class="v">< 15%</td><td>< 10%</td></tr>
+        <tr><td>Sharpe agregado</td><td class="v">> 1.0</td><td>> 1.5</td></tr>
+        <tr><td>Stagnation agregada</td><td class="v">< 20%</td><td>< 15%</td></tr>
+        <tr><td>Annual Return</td><td class="v">> 5%</td><td>> 10%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Verificación de diversidad obligatoria</h2>
+    </div>
+    <div class="config-grid">
+      <div class="config-box">
+        <h4><span class="icon">↔</span>Direcciones</h4>
+        <ul class="config-list" style="font-size:13px;">
+          <li>Long-only (oro, índices)</li>
+          <li>Long+Short (Forex)</li>
+          <li>Mean reversion (cruces)</li>
+        </ul>
+      </div>
+      <div class="config-box">
+        <h4><span class="icon">⏱</span>Timeframes</h4>
+        <ul class="config-list" style="font-size:13px;">
+          <li>M30 (intradía)</li>
+          <li>H1 (intradía-swing)</li>
+          <li>H4 (swing)</li>
+        </ul>
+      </div>
+      <div class="config-box">
+        <h4><span class="icon">$</span>Activos</h4>
+        <ul class="config-list" style="font-size:13px;">
+          <li>Oro</li>
+          <li>Forex Majors/Minors</li>
+          <li>Índices</li>
+        </ul>
+      </div>
+      <div class="config-box">
+        <h4><span class="icon">≡</span>Estilos</h4>
+        <ul class="config-list" style="font-size:13px;">
+          <li>Trend following</li>
+          <li>Mean reversion</li>
+          <li>Breakout</li>
+          <li>Momentum</li>
+        </ul>
+      </div>
+    </div></div>
+</div>
+            <div id="wf-deploy" class="subtab-content"><div class="card">
+    <div class="card-header">
+      <h2>Despliegue gradual en MT5</h2>
+      <span class="badge danger">Crítico</span>
+    </div>
+    <p style="color:var(--text2); margin-bottom:14px; line-height:1.6;">
+      <strong style="color:var(--red);">NUNCA desplegar 8-12 estrategias de golpe.</strong> El despliegue gradual permite detectar problemas antes de comprometer todo el capital.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Roadmap del despliegue</h2>
+    </div>
+
+    <div class="pipeline">
+      <div class="pipeline-step val">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Semana 1-2: Demo Account</div>
+          <div class="step-desc">2-3 estrategias en cuenta demo. Verificar que opera como en backtest.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Semana 3-4: Cuenta Real (capital reducido)</div>
+          <div class="step-desc">Si demo va bien, mismas 2-3 estrategias en real con capital limitado.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Mes 2: Añadir 2-3 más</div>
+          <div class="step-desc">Total: 5-6 estrategias. Capital completo. Monitoreo activo.</div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Mes 3+: Portfolio completo</div>
+          <div class="step-desc">8-12 estrategias operando. Monitoreo continuo de desviación vs backtest.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Configuración del EA en MT5</h2>
+    </div>
+    <ul class="config-list">
+      <li><span class="key">Capital:</span><span class="value">$100,000 (balance real)</span></li>
+      <li><span class="key">Risk per trade:</span><span class="value">$200 (= 0.2% balance)</span></li>
+      <li><span class="key">Magic Number:</span><span class="value">Único por estrategia (1001, 1002...)</span></li>
+      <li><span class="key">Lot size:</span><span class="value">Calculado automáticamente</span></li>
+      <li><span class="key">Spread max:</span><span class="value">Configurar según activo</span></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Frecuencia de monitoreo</h2>
+    </div>
+    <table class="filter-table">
+      <thead>
+        <tr><th>Frecuencia</th><th>Acción</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Diario</strong></td><td>Verificar todas las estrategias operan, check errores en logs MT5</td></tr>
+        <tr><td><strong>Semanal</strong></td><td>Comparar P&L vs backtest equivalente, detectar desviaciones > 20%</td></tr>
+        <tr><td><strong>Mensual</strong></td><td>Análisis completo de performance, DD agregado, Stagnation por estrategia</td></tr>
+        <tr><td><strong>Trimestral</strong></td><td>Decisión: añadir/remover/reemplazar estrategias. NUNCA re-optimizar.</td></tr>
+      </tbody>
+    </table></div>
+</div>
+            <div id="wf-cheat" class="subtab-content"><div class="card">
+    <div class="card-header">
+      <h2>Cheatsheet — Referencia rápida</h2>
+      <span class="badge info">Imprimible</span>
+    </div>
+  </div>
+
+  <div class="cheat-grid">
+    <div class="cheat-box">
+      <h4>📋 Capa 1 — Setup</h4>
+      <table class="cheat-table">
+        <tr><td>Fitness</td><td>R Expectancy</td></tr>
+        <tr><td>PF mín</td><td>1.10</td></tr>
+        <tr><td># trades mín</td><td>100</td></tr>
+        <tr><td>R Exp mín</td><td>0.05</td></tr>
+        <tr><td>ExitAfterBars</td><td>20 fijo</td></tr>
+        <tr><td>SL/TP/Trail</td><td>OFF</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-box">
+      <h4>📋 Capa 2 — Setup</h4>
+      <table class="cheat-table">
+        <tr><td>Fitness</td><td>Weighted (5)</td></tr>
+        <tr><td>PF mín</td><td>1.20</td></tr>
+        <tr><td># trades mín</td><td>100</td></tr>
+        <tr><td>SL/TP/Trail</td><td>ATR-based</td></tr>
+        <tr><td>Sharpe filter</td><td>QUITAR</td></tr>
+        <tr><td>SQN filter</td><td>QUITAR</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-box">
+      <h4>🔍 Filtros estrictos post-Capa 2</h4>
+      <table class="cheat-table">
+        <tr><td>PF</td><td>≥ 1.5</td></tr>
+        <tr><td>Ret/DD</td><td>≥ 5</td></tr>
+        <tr><td>R Expectancy</td><td>≥ 0.30</td></tr>
+        <tr><td>Stagnation</td><td>< 25%</td></tr>
+        <tr><td># trades</td><td>> 150</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-box">
+      <h4>← Retest OOS 2010-2017</h4>
+      <table class="cheat-table">
+        <tr><td>PF</td><td>> 1.0</td></tr>
+        <tr><td># trades</td><td>> 50</td></tr>
+        <tr><td>Re-optimizar</td><td>NO</td></tr>
+        <tr><td>Modo</td><td>Pasivo</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-box">
+      <h4>→ Retest Forward 2024-26</h4>
+      <table class="cheat-table">
+        <tr><td>PF</td><td>> 1.0</td></tr>
+        <tr><td># trades</td><td>> 30</td></tr>
+        <tr><td>Re-optimizar</td><td>NUNCA</td></tr>
+        <tr><td>Importancia</td><td>Crítica</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-box">
+      <h4>📊 Correlación thresholds</h4>
+      <table class="cheat-table">
+        <tr><td>Intra-template</td><td>0.7</td></tr>
+        <tr><td>Cross-template</td><td>0.5</td></tr>
+        <tr><td>Cross-blocksetting</td><td>0.5</td></tr>
+        <tr><td>Cross-TF</td><td>0.5</td></tr>
+        <tr><td>Cross-activos</td><td>0.5</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-box">
+      <h4>$ Money Management</h4>
+      <table class="cheat-table">
+        <tr><td>Capital</td><td>$100,000</td></tr>
+        <tr><td>Method</td><td>Fixed amount</td></tr>
+        <tr><td>Risk/trade</td><td>$200 (0.2%)</td></tr>
+        <tr><td>Size Decimals</td><td>1</td></tr>
+        <tr><td>Size if no MM</td><td>0.1</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-box">
+      <h4>⚙ Maximum lots</h4>
+      <table class="cheat-table">
+        <tr><td>XAUUSD</td><td>3</td></tr>
+        <tr><td>Forex Majors</td><td>5</td></tr>
+        <tr><td>Forex Minors</td><td>3</td></tr>
+        <tr><td>Índices</td><td>2</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-box">
+      <h4>↕ Direcciones</h4>
+      <table class="cheat-table">
+        <tr><td>Oro</td><td>Long</td></tr>
+        <tr><td>Índices</td><td>Long</td></tr>
+        <tr><td>Forex Majors</td><td>L+S</td></tr>
+        <tr><td>Forex Minors</td><td>L+S</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-box">
+      <h4>🎯 Portfolio Final</h4>
+      <table class="cheat-table">
+        <tr><td>Estrategias</td><td>8-12</td></tr>
+        <tr><td>DD agregado</td><td>< 10-15%</td></tr>
+        <tr><td>Sharpe agregado</td><td>> 1.5</td></tr>
+        <tr><td>Annual Return</td><td>8-15%</td></tr>
+      </table>
+    </div></div>
+</div>
+            <div id="wf-rules" class="subtab-content"><div class="card">
+    <div class="card-header">
+      <h2>Reglas de Oro del Pipeline</h2>
+      <span class="badge danger">Críticas</span>
+    </div>
+  </div>
+
+  <div class="rules">
+    <div class="rule do">
+      <div class="rule-icon">✓</div>
+      <div class="rule-text">
+        <strong>HACER: Validar Forward antes de Capa 2</strong>
+        Forward de Capa 1 confirma edge real antes de invertir tiempo en Capa 2. Estrategias que mueren en Forward NO merecen Capa 2.
+      </div>
+    </div>
+
+    <div class="rule do">
+      <div class="rule-icon">✓</div>
+      <div class="rule-text">
+        <strong>HACER: Filtros más estrictos en Capa 2 que en Capa 1</strong>
+        En Capa 2 con SL/TP las métricas operativas son fiables. Exigir Ret/DD≥5, Stagnation<25%, R Exp≥0.30.
+      </div>
+    </div>
+
+    <div class="rule do">
+      <div class="rule-icon">✓</div>
+      <div class="rule-text">
+        <strong>HACER: Retest OOS+Forward ANTES de tests robustez</strong>
+        Datos reales > simulación de robustez. No malgastar tiempo en tests caros sobre estrategias que mueren en OOS/Forward.
+      </div>
+    </div>
+
+    <div class="rule do">
+      <div class="rule-icon">✓</div>
+      <div class="rule-text">
+        <strong>HACER: Análisis de correlación obligatorio</strong>
+        8-12 estrategias correlacionadas NO es portfolio diverso. Threshold 0.5 entre estrategias finales.
+      </div>
+    </div>
+
+    <div class="rule do">
+      <div class="rule-icon">✓</div>
+      <div class="rule-text">
+        <strong>HACER: Despliegue gradual en MT5</strong>
+        Empezar con 2-3 en demo, luego real, luego añadir. NUNCA desplegar 8-12 de golpe.
+      </div>
+    </div>
+
+    <div class="rule dont">
+      <div class="rule-icon">✗</div>
+      <div class="rule-text">
+        <strong>NO HACER: Tests robustez sobre estrategias que mueren en OOS</strong>
+        Desperdicio computacional. Filtra primero por OOS/Forward, después aplica tests.
+      </div>
+    </div>
+
+    <div class="rule dont">
+      <div class="rule-icon">✗</div>
+      <div class="rule-text">
+        <strong>NO HACER: Sharpe ni SQN como filtros principales</strong>
+        Penalizan estrategias con muestras pequeñas o varianza alta aunque sean buenas. Usar Ret/DD, R Exp, PF.
+      </div>
+    </div>
+
+    <div class="rule dont">
+      <div class="rule-icon">✗</div>
+      <div class="rule-text">
+        <strong>NO HACER: Operar Long+Short en oro/índices</strong>
+        Oro/índices tienen sesgo macro alcista estructural. Short funciona en raros eventos pero pasa años perdiendo.
+      </div>
+    </div>
+
+    <div class="rule dont">
+      <div class="rule-icon">✗</div>
+      <div class="rule-text">
+        <strong>NO HACER: Re-optimizar estrategias en producción</strong>
+        Una vez en real, NO tocar parámetros. Si una estrategia falla, sustituirla. Re-optimizar = curve fitting en vivo.
+      </div>
+    </div>
+
+    <div class="rule dont">
+      <div class="rule-icon">✗</div>
+      <div class="rule-text">
+        <strong>NO HACER: Asumir diversidad sin verificar correlación</strong>
+        Cambiar de blocksetting o template no garantiza estrategias descorrelacionadas. Verificar siempre.
+      </div>
+    </div>
+
+    <div class="rule dont">
+      <div class="rule-icon">✗</div>
+      <div class="rule-text">
+        <strong>NO HACER: Añadir capital tras un buen mes</strong>
+        Buenos meses son parte del proceso normal. Añadir capital tras racha positiva = aumentar exposición justo cuando viene corrección.
+      </div>
+    </div>
+
+    <div class="rule dont">
+      <div class="rule-icon">✗</div>
+      <div class="rule-text">
+        <strong>NO HACER: Quitar capital tras un mal mes</strong>
+        Drawdowns son parte normal del trading sistemático. Quitar capital = consolidar pérdidas, perder recuperación.
+      </div>
+    </div></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+
+
+
+<!-- ── Scripts: datasets → data → logic → init (orden de carga importa) ── -->
+<script src="js/historical-data.js"></script>
+<script src="js/scores-data.js"></script>
+<script src="js/manifest-data.js"></script>
+<script src="js/app-config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
+
+

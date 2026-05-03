@@ -1,0 +1,974 @@
+{
+  "version": 1,
+  "assets": [
+    {
+      "id": "EURUSD",
+      "type": "forex",
+      "sub": "Major",
+      "cats": {
+        "tendencia": {
+          "dir": "L/S",
+          "tf": "H1, H4, D1",
+          "why": "Tendencias macro por divergencia de politica monetaria",
+          "rating": "++"
+        },
+        "momentum": {
+          "dir": "L/S",
+          "tf": "M15, M30, H1",
+          "why": "Buenas reversiones en extremos RSI/Stoch",
+          "rating": "+"
+        },
+        "regimen": {
+          "dir": "L/S",
+          "tf": "H4, D1",
+          "why": "Ciclos claros trending/consolidacion por macro",
+          "rating": "+"
+        },
+        "volumen": {
+          "dir": "L/S",
+          "tf": "M5, M15, M30",
+          "why": "Mayor tick volume = VWAP representativo",
+          "rating": "+"
+        },
+        "sr": {
+          "dir": "L/S",
+          "tf": "H1, H4, D1",
+          "why": "Pivots y Fibos muy respetados por institucionales",
+          "rating": "++"
+        },
+        "estadistico": {
+          "dir": "L/S",
+          "tf": "M30, H1, H4",
+          "why": "Baja kurtosis, distribucion mas normal. ZScore funciona bien",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "GBPUSD",
+      "type": "forex",
+      "sub": "Major",
+      "cats": {
+        "tendencia": {
+          "dir": "L/S",
+          "tf": "H1, H4, D1",
+          "why": "Tendencias macro por divergencia de politica monetaria",
+          "rating": "+"
+        },
+        "momentum": {
+          "dir": "L/S",
+          "tf": "M15, M30, H1",
+          "why": "Buenas reversiones en extremos RSI/Stoch",
+          "rating": "+"
+        },
+        "volatilidad": {
+          "dir": "L/S",
+          "tf": "M15, H1, H4",
+          "why": "GBP alta volatilidad intrinseca",
+          "rating": "++"
+        },
+        "volumen": {
+          "dir": "L/S",
+          "tf": "M5, M15, M30",
+          "why": "Mayor tick volume = VWAP representativo",
+          "rating": "+"
+        },
+        "sr": {
+          "dir": "L/S",
+          "tf": "H1, H4, D1",
+          "why": "Pivots y Fibos muy respetados por institucionales",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "USDJPY",
+      "type": "forex",
+      "sub": "Major",
+      "cats": {
+        "tendencia": {
+          "dir": "L/S",
+          "tf": "H1, H4, D1",
+          "why": "Tendencias macro por divergencia de politica monetaria",
+          "rating": "+"
+        },
+        "volatilidad": {
+          "dir": "L/S",
+          "tf": "M15, H1, H4",
+          "why": "Volatilidad en sesion asiatica",
+          "rating": "+"
+        },
+        "regimen": {
+          "dir": "L/S",
+          "tf": "H4, D1",
+          "why": "Ciclos claros trending/consolidacion por macro",
+          "rating": "+"
+        },
+        "volumen": {
+          "dir": "L/S",
+          "tf": "M5, M15, M30",
+          "why": "Mayor tick volume = VWAP representativo",
+          "rating": "+"
+        },
+        "sr": {
+          "dir": "L/S",
+          "tf": "H1, H4, D1",
+          "why": "Pivots y Fibos muy respetados por institucionales",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "USDCHF",
+      "type": "forex",
+      "sub": "Major",
+      "cats": {
+        "tendencia": {
+          "dir": "L/S",
+          "tf": "H1, H4, D1",
+          "why": "Tendencias macro por divergencia de politica monetaria",
+          "rating": "+"
+        },
+        "sr": {
+          "dir": "L/S",
+          "tf": "H1, H4, D1",
+          "why": "Pivots y Fibos respetados",
+          "rating": "+"
+        },
+        "estadistico": {
+          "dir": "L/S",
+          "tf": "M30, H1, H4",
+          "why": "Baja kurtosis, distribucion mas normal",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "AUDUSD",
+      "type": "forex",
+      "sub": "Major",
+      "cats": {
+        "momentum": {
+          "dir": "L/S",
+          "tf": "M15, M30, H1",
+          "why": "Buenas reversiones en extremos RSI/Stoch",
+          "rating": "+"
+        },
+        "regimen": {
+          "dir": "L/S",
+          "tf": "H4, D1",
+          "why": "Ciclos claros trending/consolidacion por macro",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "NZDUSD",
+      "type": "forex",
+      "sub": "Major",
+      "cats": {
+        "momentum": {
+          "dir": "L/S",
+          "tf": "M15, M30, H1",
+          "why": "Buenas reversiones en extremos RSI/Stoch",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "USDCAD",
+      "type": "forex",
+      "sub": "Major",
+      "cats": {
+        "volatilidad": {
+          "dir": "L/S",
+          "tf": "M15, H1, H4",
+          "why": "Correlacion con petroleo genera expansion de volatilidad",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "EURGBP",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "tendencia": {
+          "dir": "L/S",
+          "tf": "H4, D1",
+          "why": "Tendencias lentas pero limpias",
+          "rating": "+"
+        },
+        "regimen": {
+          "dir": "L/S",
+          "tf": "H4, D1",
+          "why": "Alterna semanas en rango y breakout",
+          "rating": "++"
+        },
+        "sr": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "S/R claros en rango",
+          "rating": "+"
+        },
+        "estadistico": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Par ideal para mean-reversion. ZScore extremo = reversion",
+          "rating": "++"
+        }
+      }
+    },
+    {
+      "id": "EURJPY",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "tendencia": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "JPY-crosses trendan fuerte en ambas direcciones",
+          "rating": "+"
+        },
+        "sr": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "JPY-crosses respetan pivots",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "EURCAD",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "tendencia": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "CAD-crosses trendan bien por correlacion con petroleo",
+          "rating": "+"
+        },
+        "sr": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Respeta bien pivots diarios y niveles Fibo",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "EURCHF",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "momentum": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Baja volatilidad, momentum ciclico predecible",
+          "rating": "+"
+        },
+        "estadistico": {
+          "dir": "L/S",
+          "tf": "M30, H1, H4",
+          "why": "Baja kurtosis, buena para ZScore",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "EURAUD",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "volatilidad": {
+          "dir": "L/S",
+          "tf": "M15, H1",
+          "why": "High-vol cross, expansion de bandas predecible",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "EURNZD",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "momentum": {
+          "dir": "L/S",
+          "tf": "M30, H1",
+          "why": "Momentum amplio por diferencial de tipos EUR vs NZD",
+          "rating": "+"
+        },
+        "volatilidad": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Spread amplio de volatilidad, buenas expansiones",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "GBPJPY",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "tendencia": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "JPY-crosses trendan fuerte en ambas direcciones",
+          "rating": "+"
+        },
+        "momentum": {
+          "dir": "L/S",
+          "tf": "M30, H1",
+          "why": "Carry trades generan impulsos de momentum claros",
+          "rating": "+"
+        },
+        "volatilidad": {
+          "dir": "L/S",
+          "tf": "M15, H1",
+          "why": "High-vol cross, expansion de bandas predecible",
+          "rating": "++"
+        },
+        "sr": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "JPY-crosses respetan pivots",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "GBPNZD",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "volatilidad": {
+          "dir": "L/S",
+          "tf": "M15, H1",
+          "why": "High-vol cross, expansion de bandas predecible",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "GBPAUD",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "tendencia": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Tendencias amplias, alta direccionalidad",
+          "rating": "+"
+        },
+        "volatilidad": {
+          "dir": "L/S",
+          "tf": "M15, H1",
+          "why": "GBP-cross de alta volatilidad, bandas anchas",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "GBPCAD",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "tendencia": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "CAD-crosses trendan bien por correlacion con petroleo",
+          "rating": "+"
+        },
+        "volatilidad": {
+          "dir": "L/S",
+          "tf": "M15, H1",
+          "why": "GBP-cross de alta volatilidad, bandas anchas",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "GBPCHF",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "tendencia": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Tendencias claras, GBP volatil vs CHF estable",
+          "rating": "+"
+        },
+        "sr": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Respeta bien pivots diarios y niveles Fibo",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "AUDJPY",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "momentum": {
+          "dir": "L/S",
+          "tf": "M30, H1",
+          "why": "Carry trades generan impulsos de momentum claros",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "NZDJPY",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "momentum": {
+          "dir": "L/S",
+          "tf": "M30, H1",
+          "why": "Carry trades generan impulsos de momentum claros",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "CADJPY",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "momentum": {
+          "dir": "L/S",
+          "tf": "M30, H1",
+          "why": "Carry trades generan impulsos de momentum claros",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "CHFJPY",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "regimen": {
+          "dir": "L/S",
+          "tf": "H4, D1",
+          "why": "Safe-haven vs safe-haven, regimenes marcados por risk-on/risk-off",
+          "rating": "+"
+        },
+        "estadistico": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Par de rango con distribucion estadistica predecible",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "AUDNZD",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "momentum": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Baja volatilidad, momentum ciclico predecible",
+          "rating": "+"
+        },
+        "regimen": {
+          "dir": "L/S",
+          "tf": "H4, D1",
+          "why": "Alterna semanas en rango y breakout",
+          "rating": "++"
+        },
+        "estadistico": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Par ideal para mean-reversion. ZScore extremo = reversion",
+          "rating": "++"
+        }
+      }
+    },
+    {
+      "id": "AUDCAD",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "momentum": {
+          "dir": "L/S",
+          "tf": "M30, H1",
+          "why": "Impulsos por divergencia commodities (oro AU vs petroleo CA)",
+          "rating": "+"
+        },
+        "regimen": {
+          "dir": "L/S",
+          "tf": "H4, D1",
+          "why": "Cambios de regimen claros por fundamentales commodity",
+          "rating": "+"
+        },
+        "estadistico": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Par de rango con distribucion estadistica predecible",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "NZDCAD",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "regimen": {
+          "dir": "L/S",
+          "tf": "H4, D1",
+          "why": "Alterna semanas en rango y breakout",
+          "rating": "+"
+        },
+        "estadistico": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Par ideal para mean-reversion",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "CADCHF",
+      "type": "forex",
+      "sub": "Minor",
+      "cats": {
+        "regimen": {
+          "dir": "L/S",
+          "tf": "H4, D1",
+          "why": "Cambios de regimen claros por fundamentales commodity/safe-haven",
+          "rating": "+"
+        },
+        "estadistico": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Par de rango con distribucion estadistica predecible",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "USDMXN",
+      "type": "forex",
+      "sub": "Exotic",
+      "cats": {
+        "volatilidad": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Volatilidad extrema, breakout de bandas",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "USDZAR",
+      "type": "forex",
+      "sub": "Exotic",
+      "cats": {
+        "volatilidad": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "Volatilidad extrema, breakout de bandas",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "US500",
+      "type": "index",
+      "sub": "SP500",
+      "cats": {
+        "tendencia": {
+          "dir": "L",
+          "tf": "H1, H4, D1",
+          "why": "Bias alcista estructural, tendencias multi-mes",
+          "rating": "++"
+        },
+        "tendencia_S": {
+          "dir": "S",
+          "tf": "M30, H1",
+          "why": "Solo correcciones profundas. No recomendado Short tendencial puro",
+          "rating": "-"
+        },
+        "momentum": {
+          "dir": "L",
+          "tf": "M30, H1",
+          "why": "Momentum alcista en rallies",
+          "rating": "+"
+        },
+        "momentum_S": {
+          "dir": "S",
+          "tf": "M5, M15, M30",
+          "why": "ESTRELLA SHORT: caidas rapidas con momentum extremo",
+          "rating": "++"
+        },
+        "volatilidad": {
+          "dir": "L",
+          "tf": "H1, H4",
+          "why": "Breakout alcista de Bollinger/Keltner",
+          "rating": "+"
+        },
+        "volatilidad_S": {
+          "dir": "S",
+          "tf": "M15, M30",
+          "why": "VIX sube en caidas = expansion masiva. Donchian breakout Short",
+          "rating": "++"
+        },
+        "regimen": {
+          "dir": "L",
+          "tf": "H4, D1",
+          "why": "Regimen trending alcista = comprar",
+          "rating": "+"
+        },
+        "regimen_S": {
+          "dir": "S",
+          "tf": "H1, H4",
+          "why": "Solo Short cuando regimen confirma bearish",
+          "rating": "+"
+        },
+        "volumen": {
+          "dir": "L",
+          "tf": "M5, M15, M30",
+          "why": "Volumen real. Reclaim VWAP = Long intraday",
+          "rating": "+"
+        },
+        "volumen_S": {
+          "dir": "S",
+          "tf": "M5, M15",
+          "why": "Rechazo en VWAP desde abajo = Short intraday",
+          "rating": "+"
+        },
+        "sr": {
+          "dir": "L",
+          "tf": "H1, H4, D1",
+          "why": "Rebote en soporte (Pivots S1/S2, Fibos 61.8%)",
+          "rating": "+"
+        },
+        "sr_S": {
+          "dir": "S",
+          "tf": "H1, H4",
+          "why": "Rechazo en resistencia. Funciona bien en techo de rango",
+          "rating": "+"
+        },
+        "estadistico": {
+          "dir": "L",
+          "tf": "H1, H4",
+          "why": "ZScore muy negativo (>-2) = Long por reversion",
+          "rating": "+"
+        },
+        "estadistico_S": {
+          "dir": "S",
+          "tf": "M15, M30",
+          "why": "ZScore >+2 menos fiable Short por bias alcista. Con confirmacion",
+          "rating": "~"
+        }
+      }
+    },
+    {
+      "id": "USTEC",
+      "type": "index",
+      "sub": "Nasdaq",
+      "cats": {
+        "tendencia": {
+          "dir": "L",
+          "tf": "H1, H4, D1",
+          "why": "Bias alcista estructural, tech rallies",
+          "rating": "++"
+        },
+        "tendencia_S": {
+          "dir": "S",
+          "tf": "M30, H1",
+          "why": "No recomendado Short tendencial puro",
+          "rating": "-"
+        },
+        "momentum": {
+          "dir": "L",
+          "tf": "M30, H1",
+          "why": "Momentum alcista explosivo en tech rallies",
+          "rating": "++"
+        },
+        "momentum_S": {
+          "dir": "S",
+          "tf": "M5, M15, M30",
+          "why": "ESTRELLA SHORT: caidas rapidas con momentum extremo",
+          "rating": "++"
+        },
+        "volatilidad": {
+          "dir": "L",
+          "tf": "H1, H4",
+          "why": "Breakout alcista de Bollinger/Keltner",
+          "rating": "+"
+        },
+        "volatilidad_S": {
+          "dir": "S",
+          "tf": "M15, M30",
+          "why": "VIX sube en caidas = expansion masiva",
+          "rating": "++"
+        },
+        "regimen": {
+          "dir": "L",
+          "tf": "H4, D1",
+          "why": "Regimen trending alcista",
+          "rating": "+"
+        },
+        "regimen_S": {
+          "dir": "S",
+          "tf": "H1, H4",
+          "why": "Solo Short cuando regimen bearish confirmado",
+          "rating": "+"
+        },
+        "volumen": {
+          "dir": "L",
+          "tf": "M5, M15, M30",
+          "why": "Volumen real. Reclaim VWAP = Long",
+          "rating": "+"
+        },
+        "volumen_S": {
+          "dir": "S",
+          "tf": "M5, M15",
+          "why": "Rechazo VWAP = Short intraday",
+          "rating": "+"
+        },
+        "sr": {
+          "dir": "L",
+          "tf": "H1, H4, D1",
+          "why": "Rebote en soporte",
+          "rating": "+"
+        },
+        "sr_S": {
+          "dir": "S",
+          "tf": "H1, H4",
+          "why": "Rechazo en resistencia",
+          "rating": "+"
+        },
+        "estadistico": {
+          "dir": "L",
+          "tf": "H1, H4",
+          "why": "ZScore negativo extremo = Long",
+          "rating": "+"
+        },
+        "estadistico_S": {
+          "dir": "S",
+          "tf": "M15, M30",
+          "why": "ZScore positivo menos fiable Short",
+          "rating": "~"
+        }
+      }
+    },
+    {
+      "id": "GER40",
+      "type": "index",
+      "sub": "DAX",
+      "cats": {
+        "tendencia": {
+          "dir": "L",
+          "tf": "H1, H4",
+          "why": "Tendencia alcista europea",
+          "rating": "+"
+        },
+        "tendencia_S": {
+          "dir": "S",
+          "tf": "M30, H1",
+          "why": "No recomendado Short tendencial",
+          "rating": "-"
+        },
+        "momentum": {
+          "dir": "L",
+          "tf": "M15, M30",
+          "why": "Ciclos intraday marcados, European open",
+          "rating": "+"
+        },
+        "momentum_S": {
+          "dir": "S",
+          "tf": "M15, M30",
+          "why": "Caidas intraday bruscas",
+          "rating": "+"
+        },
+        "volatilidad_S": {
+          "dir": "S",
+          "tf": "M15, M30",
+          "why": "Expansion vol en gap-downs y crisis europeas",
+          "rating": "+"
+        },
+        "regimen": {
+          "dir": "L",
+          "tf": "H4, D1",
+          "why": "Regimen trending alcista",
+          "rating": "+"
+        },
+        "regimen_S": {
+          "dir": "S",
+          "tf": "H1, H4",
+          "why": "Regimen bearish confirmado",
+          "rating": "+"
+        },
+        "volumen": {
+          "dir": "L",
+          "tf": "M5, M15, M30",
+          "why": "Volumen real",
+          "rating": "+"
+        },
+        "sr": {
+          "dir": "L",
+          "tf": "H1, H4, D1",
+          "why": "Niveles psicologicos (18000, 20000)",
+          "rating": "+"
+        },
+        "sr_S": {
+          "dir": "S",
+          "tf": "H1, H4",
+          "why": "Rechazo en resistencia",
+          "rating": "+"
+        },
+        "estadistico": {
+          "dir": "L",
+          "tf": "M30, H1",
+          "why": "Reversion intraday sesion europea",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "US30",
+      "type": "index",
+      "sub": "Dow Jones",
+      "cats": {
+        "tendencia": {
+          "dir": "L",
+          "tf": "H1, H4, D1",
+          "why": "Bias alcista estructural",
+          "rating": "++"
+        },
+        "tendencia_S": {
+          "dir": "S",
+          "tf": "M30, H1",
+          "why": "No recomendado",
+          "rating": "-"
+        },
+        "momentum": {
+          "dir": "L",
+          "tf": "M30, H1",
+          "why": "Momentum en rallies",
+          "rating": "+"
+        },
+        "momentum_S": {
+          "dir": "S",
+          "tf": "M15, M30",
+          "why": "Momentum Short en caidas",
+          "rating": "+"
+        },
+        "volumen": {
+          "dir": "L",
+          "tf": "M5, M15, M30",
+          "why": "Volumen real",
+          "rating": "+"
+        },
+        "volumen_S": {
+          "dir": "S",
+          "tf": "M5, M15",
+          "why": "Short intraday VWAP",
+          "rating": "+"
+        },
+        "sr": {
+          "dir": "L",
+          "tf": "H1, H4, D1",
+          "why": "Niveles redondos + pivots",
+          "rating": "+"
+        },
+        "sr_S": {
+          "dir": "S",
+          "tf": "H1, H4",
+          "why": "Rechazo en resistencia",
+          "rating": "+"
+        }
+      }
+    },
+    {
+      "id": "XAUUSD",
+      "type": "oro",
+      "sub": "Oro",
+      "cats": {
+        "tendencia": {
+          "dir": "L",
+          "tf": "H1, H4, D1",
+          "why": "Tendencias fuertes en risk-off/inflacion. Muy bueno Long",
+          "rating": "++"
+        },
+        "tendencia_S": {
+          "dir": "S",
+          "tf": "H1, H4",
+          "why": "Solo en fases USD fuerte. Tendencias Short cortas y erraticas",
+          "rating": "~"
+        },
+        "momentum": {
+          "dir": "L",
+          "tf": "M30, H1",
+          "why": "Impulsos Long en datos macro (CPI, NFP, FOMC)",
+          "rating": "+"
+        },
+        "momentum_S": {
+          "dir": "S",
+          "tf": "M15, M30",
+          "why": "Caidas por USD fuerte son rapidas. Momentum Short en TF cortos",
+          "rating": "++"
+        },
+        "volatilidad": {
+          "dir": "L",
+          "tf": "H1, H4",
+          "why": "Expansion vol en crisis = Oro sube rompiendo bandas superiores",
+          "rating": "+"
+        },
+        "volatilidad_S": {
+          "dir": "S",
+          "tf": "M30, H1",
+          "why": "Expansion vol en USD fuerte, bandas inferiores se rompen rapido",
+          "rating": "+"
+        },
+        "regimen": {
+          "dir": "L",
+          "tf": "H4, D1",
+          "why": "Fases acumulacion a expansion muy marcadas",
+          "rating": "+"
+        },
+        "regimen_S": {
+          "dir": "S",
+          "tf": "H4",
+          "why": "Detectar regimen bearish (USD rally) antes de operar Short",
+          "rating": "+"
+        },
+        "volumen": {
+          "dir": "L/S",
+          "tf": "M15, M30",
+          "why": "VWAP como pivot intraday, ambas direcciones",
+          "rating": "+"
+        },
+        "sr": {
+          "dir": "L",
+          "tf": "H1, H4, D1",
+          "why": "Niveles redondos (2000, 2500, 3000) + Fibo historicos",
+          "rating": "++"
+        },
+        "sr_S": {
+          "dir": "S",
+          "tf": "H1, H4",
+          "why": "Rechazo en resistencia / Highest. Short en techo de rango",
+          "rating": "+"
+        },
+        "estadistico": {
+          "dir": "L/S",
+          "tf": "H1, H4",
+          "why": "ZScore sobre ATR detecta movimientos anomalos",
+          "rating": "+"
+        }
+      }
+    }
+  ]
+}
