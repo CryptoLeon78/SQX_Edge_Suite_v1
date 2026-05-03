@@ -158,7 +158,7 @@ node --check js\main.js
 
 ## Seguridad Y Datos Locales
 
-No deberian subirse al repo:
+Si creas un nuevo repo, no deberian subirse:
 
 - `sqx-edge-tool/config.json`
 - `sqx-edge-tool/runtime/`
@@ -173,15 +173,5 @@ El `.gitignore` ya cubre esos paths.
 - Setup general: `README_SETUP.md`
 - Backend y CLI: `sqx-edge-tool/README.md`
 
-## Estado
 
-Roadmap actual:
-
-- F1 CLI minimo
-- F2 lectura `data.db`
-- F3 API Flask local
-- F4 Project Generator en dashboard
-- F5 Strategy Cleaner
-- F6 Capa 2
-- F7 Python embebido / paquete portable
 
