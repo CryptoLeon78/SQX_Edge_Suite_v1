@@ -58,6 +58,11 @@ let PG_CONNECTED = false;
 let PG_HEALTH_TIMER = null;
 let PG_PLAN_COUNT = 0;
 let PG_LAST_TRACE_STATE = '';
+let PG_HEALTH_META = {};
+let PG_CONFIG_STATE = {};
+let PG_MININGS = [];
+let PG_OUTPUT_FILES = [];
+let PG_OUTPUT_DIR = '';
 const PG_ALIAS_MIN_SCORE = (window.SQX_CONFIG && window.SQX_CONFIG.value('projectGenerator.aliasSuggestMinScore', 80)) || 80;
 const pgApiInline = document.getElementById('pg-api-base-inline');
 if (pgApiInline && PG_API) pgApiInline.textContent = PG_API;
@@ -92,6 +97,152 @@ function pgTrace(title, detail, level) {
   }
 }
 
+function pgSetSettingsOpen(open) {
+  const body = document.getElementById('pg-settings-body');
+  const arrow = document.getElementById('pg-settings-arrow');
+  if (!body || !arrow) return;
+  const shouldOpen = !!open;
+  body.style.display = shouldOpen ? 'block' : 'none';
+  arrow.classList.toggle('closed', !shouldOpen);
+}
+
+function pgFocusSettingsField(id) {
+  pgSetSettingsOpen(true);
+  const target = document.getElementById(id);
+  if (!target) return;
+  target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => target.focus(), 90);
+}
+
+function pgGetOnboardingState() {
+  const hasSqxInput = !!((document.getElementById('pg-sqx-path') || {}).value || PG_CONFIG_STATE.sqx_path || '').trim();
+  const hasMinings = PG_MININGS.length > 0;
+  const outputReady = !!PG_HEALTH_META.output_dir_exists;
+  const templateReady = !!PG_HEALTH_META.templates_capa1_exists && !!PG_HEALTH_META.templates_capa2_exists && outputReady;
+  const sqxReady = !!PG_HEALTH_META.sqx_path_set && !!PG_HEALTH_META.data_db_exists;
+  const steps = [
+    {
+      id: 'api',
+      label: 'API local',
+      done: PG_CONNECTED,
+      detail: PG_CONNECTED ? ('Backend listo en ' + PG_API) : 'Sin conexion con el backend local.',
+    },
+    {
+      id: 'sqx',
+      label: 'Ruta SQX',
+      done: PG_CONNECTED && sqxReady,
+      detail: sqxReady
+        ? ((PG_HEALTH_META.sqx_path || 'Ruta SQX') + ' listo')
+        : (hasSqxInput ? 'Hay una ruta configurada pendiente de validar.' : 'Detecta o pega la carpeta de StrategyQuant X.'),
+    },
+    {
+      id: 'templates',
+      label: 'Templates y output',
+      done: PG_CONNECTED && templateReady,
+      detail: templateReady
+        ? ('C1, C2 y output listos en ' + (PG_HEALTH_META.output_dir || PG_OUTPUT_DIR || 'output'))
+        : [
+            PG_HEALTH_META.templates_capa1_exists ? null : 'falta Capa 1',
+            PG_HEALTH_META.templates_capa2_exists ? null : 'falta Capa 2',
+            outputReady ? null : 'revisa output',
+          ].filter(Boolean).join(' · '),
+    },
+    {
+      id: 'first',
+      label: 'Primer .cfx',
+      done: PG_OUTPUT_FILES.length > 0,
+      detail: PG_OUTPUT_FILES.length
+        ? (PG_OUTPUT_FILES.length + ' archivo(s) generado(s).')
+        : (hasMinings ? ('Listo para generar desde ' + PG_MININGS[0].asset + ' ' + PG_MININGS[0].tf + '.') : 'No hay minings cargados en el plan.'),
+    },
+  ];
+  const completed = steps.filter(step => step.done).length;
+  const current = steps.find(step => !step.done) || null;
+  const state = {
+    steps,
+    completed,
+    current,
+    primaryLabel: 'Comprobar API',
+    secondaryLabel: 'Abrir configuracion',
+    primaryDisabled: false,
+    title: 'Preparando flujo guiado',
+    desc: 'Conecta la API y deja la configuracion lista para generar tu primer .cfx.',
+  };
+
+  if (!current) {
+    state.title = 'Todo listo para producir';
+    state.desc = 'Ya tienes la base configurada. Puedes abrir output o seguir afinando paths y templates.';
+    state.primaryLabel = 'Abrir output';
+    state.secondaryLabel = 'Abrir configuracion';
+    return state;
+  }
+
+  if (current.id === 'api') {
+    state.title = '1. Comprueba la API local';
+    state.desc = 'El dashboard necesita el backend activo para leer config, minings, output y generar proyectos.';
+    state.primaryLabel = 'Comprobar API';
+    return state;
+  }
+
+  if (current.id === 'sqx') {
+    state.title = hasSqxInput ? '2. Valida la ruta de SQX' : '2. Detecta tu instalacion de SQX';
+    state.desc = hasSqxInput
+      ? 'Valida la ruta actual para rellenar data.db y projects sin tener que tocar nada mas.'
+      : 'Busca StrategyQuant X automaticamente o pega la ruta manualmente en configuracion.';
+    state.primaryLabel = hasSqxInput ? 'Validar ruta SQX' : 'Auto-detectar SQX';
+    return state;
+  }
+
+  if (current.id === 'templates') {
+    state.title = '3. Deja templates y output listos';
+    state.desc = 'Revisa que existan las dos plantillas .cfx y que la carpeta output apunte al destino correcto.';
+    state.primaryLabel = 'Revisar configuracion';
+    state.secondaryLabel = 'Reintentar estado';
+    return state;
+  }
+
+  state.title = hasMinings ? '4. Genera tu primer .cfx' : '4. Falta el plan de minings';
+  state.desc = hasMinings
+    ? ('Generaremos un ejemplo con el primer mining (' + PG_MININGS[0].asset + ' ' + PG_MININGS[0].tf + ') para dejar la rueda girando.')
+    : 'No hay minings disponibles. Revisa el manifest del plan antes de continuar.';
+  state.primaryLabel = hasMinings ? 'Generar primer .cfx' : 'Reintentar estado';
+  state.primaryDisabled = !hasMinings;
+  return state;
+}
+
+function pgRenderOnboarding() {
+  const progress = document.getElementById('pg-onboarding-progress');
+  const title = document.getElementById('pg-onboarding-title');
+  const desc = document.getElementById('pg-onboarding-desc');
+  const bar = document.getElementById('pg-onboarding-bar');
+  const stepsEl = document.getElementById('pg-onboarding-steps');
+  const primary = document.getElementById('pg-onboarding-action');
+  const secondary = document.getElementById('pg-onboarding-secondary');
+  if (!progress || !title || !desc || !bar || !stepsEl || !primary || !secondary) return;
+
+  const state = pgGetOnboardingState();
+  progress.textContent = state.completed + '/' + state.steps.length;
+  title.textContent = state.title;
+  desc.textContent = state.desc;
+  bar.style.width = Math.round((state.completed / state.steps.length) * 100) + '%';
+  stepsEl.innerHTML = state.steps.map((step, index) => {
+    const cls = step.done ? 'pg-step done' : (state.current && state.current.id === step.id ? 'pg-step current' : 'pg-step');
+    const status = step.done ? 'Listo' : (state.current && state.current.id === step.id ? 'En curso' : 'Pendiente');
+    return '' +
+      '<div class="' + cls + '">' +
+        '<div class="pg-step-top">' +
+          '<span class="pg-step-num">' + (index + 1) + '</span>' +
+          '<span class="pg-step-state">' + status + '</span>' +
+        '</div>' +
+        '<div class="pg-step-title">' + pgEsc(step.label) + '</div>' +
+        '<div class="pg-step-desc">' + pgEsc(step.detail || '') + '</div>' +
+      '</div>';
+  }).join('');
+  primary.textContent = state.primaryLabel;
+  primary.disabled = !!state.primaryDisabled;
+  secondary.textContent = state.secondaryLabel;
+}
+
 async function pgFetch(path, options) {
   const url = PG_API + path;
   const opts = Object.assign({}, options || {});
@@ -112,6 +263,8 @@ function pgSetStatus(state, title, desc, meta) {
   const banner = document.getElementById('pg-status-banner');
   const t = document.getElementById('pg-status-title');
   const d = document.getElementById('pg-status-desc');
+  if (meta && Object.keys(meta).length) PG_HEALTH_META = meta;
+  else if (state === 'down') PG_HEALTH_META = {};
   if (typeof window.updateHomeBackendStatus === 'function') {
     window.updateHomeBackendStatus(state, title, desc, meta || {});
   }
@@ -128,6 +281,7 @@ function pgSetStatus(state, title, desc, meta) {
   banner.classList.add('pg-status-' + state);
   if (t) t.textContent = title;
   if (d) d.textContent = desc;
+  pgRenderOnboarding();
 }
 
 async function pgCheckHealth() {
@@ -159,6 +313,7 @@ let PG_ALIASES = {}; // estado en memoria de los aliases editados
 async function pgLoadConfig() {
   try {
     const c = await pgFetch('/config');
+    PG_CONFIG_STATE = c || {};
     document.getElementById('pg-sqx-path').value = c.sqx_path || '';
     document.getElementById('pg-sqx-db').value = c.sqx_data_db || '';
     document.getElementById('pg-sqx-projects').value = c.sqx_projects_dir || '';
@@ -167,6 +322,7 @@ async function pgLoadConfig() {
     document.getElementById('pg-tpl-c2').value = c.template_capa2 || '';
     PG_ALIASES = c.asset_aliases || {};
     pgRenderAliases();
+    pgRenderOnboarding();
   } catch(e) { pgLog('Error cargando config: ' + e.message, 'err'); }
 }
 
@@ -214,6 +370,7 @@ async function pgSuggestForAsset(asset) {
     const r = await pgFetch('/suggest-instruments/' + asset);
     if (!r.suggestions || !r.suggestions.length) {
       pgLog('Sin sugerencias para ' + asset + ' en data.db', 'err');
+      pgRenderOnboarding();
       return;
     }
     // Mostrar prompt simple con las top 5 sugerencias
@@ -258,6 +415,7 @@ function pgDirLabel(d) { return d === 'long' ? 'LONG' : d === 'short' ? 'SHORT' 
 async function pgLoadMinings() {
   try {
     const minings = await pgFetch('/minings');
+    PG_MININGS = minings;
     PG_PLAN_COUNT = minings.length;
     document.getElementById('pg-minings-count').textContent = minings.length + ' minings';
     const bulkCount = document.getElementById('pg-bulk-count');
@@ -292,13 +450,17 @@ async function pgLoadMinings() {
     document.querySelectorAll('button[data-pg-gen]').forEach(btn => {
       btn.addEventListener('click', () => pgGenerateOne(parseInt(btn.dataset.pgGen,10), parseInt(btn.dataset.pgCapa,10)));
     });
+    pgRenderOnboarding();
   } catch(e) { pgLog('Error cargando minings: ' + e.message, 'err'); }
 }
 
 async function pgLoadOutput() {
   try {
     const r = await pgFetch('/output');
+    PG_OUTPUT_DIR = r.output_dir || '';
+    PG_OUTPUT_FILES = r.files || [];
     document.getElementById('pg-output-count').textContent = r.files.length + ' archivos';
+    pgRenderOnboarding();
     const list = document.getElementById('pg-output-list');
     if (!r.files.length) {
       list.innerHTML = '<div class="pg-output-empty">No hay .cfx generados todavía. Pulsa un botón "📦 Capa 1/2" arriba.</div>';
@@ -310,6 +472,7 @@ async function pgLoadOutput() {
         '<div class="pgo-size">' + pgEsc(f.size_kb) + ' KB</div>' +
         '<div class="pgo-time">' + new Date(f.mtime * 1000).toLocaleString() + '</div>' +
       '</div>').join('');
+    pgRenderOnboarding();
   } catch(e) { pgLog('Error cargando output: ' + e.message, 'err'); }
 }
 
@@ -375,6 +538,131 @@ async function pgSaveConfig() {
 }
 
 // ── Listeners Project Generator ──
+async function pgAutodetectSqx() {
+  const out = document.getElementById('pg-autodetect-results');
+  if (!out) return;
+  out.innerHTML = '<div style="color:var(--text2);font-size:12px;">Buscando instalaciones de SQX...</div>';
+  try {
+    const r = await pgFetch('/autodetect-sqx');
+    if (!r.found) {
+      out.innerHTML = '<div class="alert warning"><div class="alert-icon">!</div><div class="alert-content"><strong>No se encontro ninguna instalacion de SQX.</strong>Edita los campos manualmente con la ruta donde este StrategyQuantX.exe.</div></div>';
+      return;
+    }
+    out.innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:6px;">' + r.found + ' instalacion(es) detectada(s):</div>' +
+      r.candidates.map((c, i) =>
+        '<div class="pg-autodetect-row">' +
+          '<div style="flex:1;">' +
+            '<div style="font-weight:700;font-size:13px;">SQX v' + pgEsc(c.version) + (c.has_exe ? ' OK' : ' sin exe') + '</div>' +
+            '<div style="font-family:Consolas,monospace;font-size:11px;color:var(--text2);">' + pgEsc(c.sqx_path) + '</div>' +
+            '<div style="font-family:Consolas,monospace;font-size:10px;color:var(--text2);">-> data.db: ' + pgEsc(c.data_db) + '</div>' +
+          '</div>' +
+          '<button class="export-btn pg-use-btn" data-idx="' + i + '" style="border-color:var(--green);color:var(--green);">Usar esta</button>' +
+        '</div>'
+      ).join('');
+    document.querySelectorAll('.pg-use-btn').forEach(btn => {
+      btn.addEventListener('click', function(){
+        const c = r.candidates[parseInt(this.dataset.idx, 10)];
+        document.getElementById('pg-sqx-path').value = c.sqx_path;
+        document.getElementById('pg-sqx-db').value = c.data_db;
+        document.getElementById('pg-sqx-projects').value = c.projects_dir;
+        pgLog('Path SQX seleccionado: ' + c.sqx_path + ' (pulsa Guardar config)', 'info');
+        pgTrace('Ruta SQX detectada', c.sqx_path, 'info');
+        pgRenderOnboarding();
+        out.innerHTML = '<div class="alert success"><div class="alert-icon">OK</div><div class="alert-content"><strong>Aplicado.</strong> Pulsa "Guardar config" para persistir.</div></div>';
+      });
+    });
+  } catch(e) {
+    out.innerHTML = '<div style="color:var(--red);font-size:12px;">Error: ' + pgEsc(e.message) + '</div>';
+  }
+}
+
+async function pgValidateSqxPath() {
+  const path = document.getElementById('pg-sqx-path').value.trim();
+  const out = document.getElementById('pg-autodetect-results');
+  if (!out) return;
+  if (!path) {
+    out.innerHTML = '<div style="color:var(--yellow);font-size:12px;">Pon primero un SQX install path.</div>';
+    return;
+  }
+  try {
+    const r = await pgFetch('/validate-sqx-path', { method:'POST', body: { path } });
+    const c = r.checks;
+    const item = (label, ok) => '<li style="color:' + (ok ? 'var(--green)' : 'var(--red)') + ';">' + (ok ? 'OK' : 'X') + ' ' + label + '</li>';
+    out.innerHTML = '<div class="alert ' + (r.valid ? 'success' : 'warning') + '"><div class="alert-icon">' + (r.valid ? 'OK' : '!') + '</div><div class="alert-content"><strong>' + (r.valid ? 'Path valido' : 'Path con problemas') + '</strong>' +
+      '<ul style="margin-top:6px;padding-left:20px;font-size:12px;">' +
+        item('Directorio base existe', c.base_exists) +
+        item('user/data/data.db existe', c.data_db_exists) +
+        item('user/projects existe', c.projects_exists) +
+        item('StrategyQuantX.exe existe', c.exe_exists) +
+      '</ul></div></div>';
+    if (r.valid && r.resolved.data_db) {
+      document.getElementById('pg-sqx-db').value = r.resolved.data_db;
+      document.getElementById('pg-sqx-projects').value = r.resolved.projects_dir || '';
+      pgTrace('Validacion SQX correcta', path, 'ok');
+      pgRenderOnboarding();
+    }
+  } catch(e) {
+    out.innerHTML = '<div style="color:var(--red);font-size:12px;">Error: ' + pgEsc(e.message) + '</div>';
+    pgTrace('Error validando SQX', e.message, 'err');
+  }
+}
+
+async function pgOpenOutputFolder() {
+  if (!PG_CONNECTED) {
+    pgLog('Backend desconectado', 'err');
+    return;
+  }
+  try {
+    const outputDir = PG_OUTPUT_DIR || (await pgFetch('/output')).output_dir;
+    await pgFetch('/open-folder', { method:'POST', body: { path: outputDir } });
+    pgLog('Carpeta output abierta', 'info');
+    pgTrace('Carpeta output abierta', outputDir, 'info');
+  } catch(e) {
+    pgLog('Error abrir carpeta: ' + e.message, 'err');
+    pgTrace('Error abriendo output', e.message, 'err');
+  }
+}
+
+async function pgRunOnboardingAction() {
+  const state = pgGetOnboardingState();
+  const current = state.current;
+  if (!current) {
+    await pgOpenOutputFolder();
+    return;
+  }
+  if (current.id === 'api') {
+    await pgCheckHealth();
+    return;
+  }
+  if (current.id === 'sqx') {
+    pgSetSettingsOpen(true);
+    const path = document.getElementById('pg-sqx-path').value.trim();
+    if (path) await pgValidateSqxPath();
+    else await pgAutodetectSqx();
+    return;
+  }
+  if (current.id === 'templates') {
+    const targetId = !PG_HEALTH_META.templates_capa1_exists ? 'pg-tpl-c1'
+      : (!PG_HEALTH_META.templates_capa2_exists ? 'pg-tpl-c2' : 'pg-output-dir');
+    pgFocusSettingsField(targetId);
+    return;
+  }
+  if (PG_MININGS.length) {
+    await pgGenerateOne(PG_MININGS[0].num, 1);
+    return;
+  }
+  await pgCheckHealth();
+}
+
+async function pgRunOnboardingSecondaryAction() {
+  const state = pgGetOnboardingState();
+  if (state.current && state.current.id === 'templates') {
+    await pgCheckHealth();
+    return;
+  }
+  pgFocusSettingsField('pg-sqx-path');
+}
+
 (function pgInit(){
   const refresh = document.getElementById('pg-status-refresh');
   if (!refresh) return; // tab no está en el HTML
@@ -383,13 +671,13 @@ async function pgSaveConfig() {
 
   document.getElementById('pg-settings-toggle').addEventListener('click', function(){
     const body = document.getElementById('pg-settings-body');
-    const arrow = document.getElementById('pg-settings-arrow');
     const open = body.style.display !== 'none';
-    body.style.display = open ? 'none' : 'block';
-    arrow.classList.toggle('closed', open);
+    pgSetSettingsOpen(!open);
   });
   document.getElementById('pg-settings-save').addEventListener('click', pgSaveConfig);
   document.getElementById('pg-settings-reload').addEventListener('click', pgLoadConfig);
+  document.getElementById('pg-onboarding-action').addEventListener('click', pgRunOnboardingAction);
+  document.getElementById('pg-onboarding-secondary').addEventListener('click', pgRunOnboardingSecondaryAction);
 
   // Auto-detect SQX install
   document.getElementById('pg-autodetect').addEventListener('click', async function(){
@@ -608,5 +896,6 @@ async function pgSaveConfig() {
     if (document.getElementById('tab-projectgen').style.display !== 'none') pgCheckHealth();
   }, 30000);
   // Initial check al cargar la página (silencioso)
+  pgRenderOnboarding();
   setTimeout(pgCheckHealth, 500);
 })();
