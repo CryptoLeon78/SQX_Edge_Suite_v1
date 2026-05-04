@@ -2,29 +2,15 @@
 
 Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custom Projects `.cfx` para StrategyQuant X y limpiar estrategias `.sqx` post-mining.
 
-El proyecto esta pensado para dos perfiles:
-
-- Usuario basico: doble click en `START_SQX_EDGE.bat`.
-- Usuario tecnico: CLI/API Python en `sqx-edge-tool/`.
-
 ## Inicio Rapido
 
-### Opcion portable recomendada
-
-El paquete portable incluye Python embebido y no requiere instalar Python en Windows.
-
-1. Descarga o clona el repo.
-2. Si ya viene preparado con `sqx-edge-tool/runtime/python`, ejecuta:
+Para usuario basico, doble click en:
 
 ```bat
 START_SQX_EDGE.bat
 ```
 
-Ese launcher:
-
-1. Arranca la API local con Python embebido.
-2. Espera a que `http://127.0.0.1:5050/api/health` responda.
-3. Abre `SQX_Dashboard_v6.html` automaticamente.
+Ese launcher arranca la API local con Python embebido, espera a `http://127.0.0.1:5050/api/health` y abre `app\SQX_Dashboard_v6.html`.
 
 Para cerrar la API local:
 
@@ -32,146 +18,66 @@ Para cerrar la API local:
 STOP_SQX_EDGE.bat
 ```
 
-### Preparar Python embebido
-
-Si el repo no trae `sqx-edge-tool/runtime/python`, preparalo una vez con:
-
-```powershell
-cd sqx-edge-tool
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\bootstrap_embedded_python.ps1
-```
-
-Despues puedes usar:
-
-```bat
-run-web-embedded.bat
-run-embedded.bat list
-```
-
-## Dashboard
-
-Abre `SQX_Dashboard_v6.html` para acceder a:
-
-- Por Activo
-- Por Categoria
-- Filtros Fase 2
-- SQX Priority
-- Pipeline State
-- Project Generator
-- Estrategias
-- Workflow
-
-El dashboard funciona como HTML estatico. Los datos y manifiestos estan separados en `js/` y `sqx-edge-tool/config/`.
-
-## Project Generator
-
-El tab Project Generator usa la API local Flask para:
-
-- Leer config SQX.
-- Autodetectar instalacion StrategyQuant X.
-- Sugerir aliases de instrumentos desde `data.db`.
-- Generar `.cfx` Capa 1 / Capa 2.
-- Listar outputs generados.
-- Limpiar `.sqx` con backup automatico.
-
-La configuracion local vive en:
-
-```text
-sqx-edge-tool/config.json
-```
-
-Ese archivo esta ignorado por Git para no subir rutas personales.
-
 ## Estructura
 
 ```text
 .
-├── START_SQX_EDGE.bat
-├── STOP_SQX_EDGE.bat
-├── SQX_Dashboard_v6.html
-├── README_SETUP.md
-├── css/
-├── js/
-└── sqx-edge-tool/
-    ├── api/
-    ├── cli/
-    ├── config/
-    ├── core/
-    ├── templates/
-    ├── tools/
-    ├── run.bat
-    ├── run-web.bat
-    ├── run-embedded.bat
-    └── run-web-embedded.bat
+├── app/                         Dashboard HTML, CSS y JS
+│   ├── SQX_Dashboard_v6.html
+│   ├── css/
+│   └── js/
+├── backend/sqx-edge-tool/        API Flask, CLI, config, templates y tests
+├── analysis/                     Scripts analiticos y outputs regenerables
+├── data/                         Datasets base versionados
+├── docs/                         Documentacion y conceptos visuales
+├── packaging/                    Launchers internos y empaquetado
+├── START_SQX_EDGE.bat            Acceso directo de un click
+└── STOP_SQX_EDGE.bat
 ```
 
 ## Manifiestos Dinamicos
 
-La app evita hardcodes principales moviendo datos a JSON:
+Los datos principales viven en JSON dentro de `backend/sqx-edge-tool/config/`:
 
-- `sqx-edge-tool/config/plan.json`
-- `sqx-edge-tool/config/assets.json`
-- `sqx-edge-tool/config/strategies.json`
-- `sqx-edge-tool/config/ui_manifest.json`
-- `sqx-edge-tool/config/generator_profiles.json`
-- `sqx-edge-tool/config/instruments.json`
+- `plan.json`
+- `assets.json`
+- `strategies.json`
+- `ui_manifest.json`
+- `generator_profiles.json`
+- `instruments.json`
 
 Para regenerar el manifiesto frontend:
 
 ```powershell
-python sqx-edge-tool\tools\build_frontend_manifest.py
+backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\build_frontend_manifest.py
 ```
 
-## Empaquetado Portable
+El resultado se escribe en `app\js\manifest-data.js`.
 
-Crear ZIP portable:
+## Backend
+
+La configuracion local vive en:
+
+```text
+backend/sqx-edge-tool/config.json
+```
+
+Ese archivo esta ignorado por Git para no subir rutas personales. Si falta el Python embebido, preparalo una vez con:
 
 ```powershell
-cd sqx-edge-tool
-powershell -NoProfile -ExecutionPolicy Bypass -File tools\package_portable.ps1 -RequireEmbeddedPython
+powershell -NoProfile -ExecutionPolicy Bypass -File backend\sqx-edge-tool\tools\bootstrap_embedded_python.ps1
 ```
-
-El ZIP se genera en `dist/` y excluye:
-
-- `config.json`
-- `runtime/downloads/`
-- `output/`
-- backups
-- caches
 
 ## Tests
 
-Ejecutar suite Python:
-
 ```powershell
-python -m unittest discover -s sqx-edge-tool -p "test*.py"
+backend\sqx-edge-tool\venv\Scripts\python.exe -m pytest backend\sqx-edge-tool
 ```
 
-Validar JavaScript:
+## Empaquetado
 
 ```powershell
-node --check js\app-config.js
-node --check js\data.js
-node --check js\dashboard.js
-node --check js\main.js
+powershell -NoProfile -ExecutionPolicy Bypass -File backend\sqx-edge-tool\tools\package_portable.ps1 -RequireEmbeddedPython
 ```
 
-## Seguridad Y Datos Locales
-
-Si creas un nuevo repo, no deberian subirse:
-
-- `sqx-edge-tool/config.json`
-- `sqx-edge-tool/runtime/`
-- `sqx-edge-tool/output/`
-- `dist/`
-- backups locales
-
-El `.gitignore` ya cubre esos paths.
-
-## Documentacion
-
-- Setup general: `README_SETUP.md`
-- Backend y CLI: `sqx-edge-tool/README.md`
-
-
-
+El ZIP portable se crea en `dist/`.

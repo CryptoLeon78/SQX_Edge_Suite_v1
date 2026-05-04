@@ -16,10 +16,10 @@ Generador de Custom Projects (`.cfx`) para SQX adaptado a la metodología SQX Ed
 
 ## Setup portable con Python embebido
 
-F7 permite ejecutar el backend sin depender del Python instalado en Windows. El runtime queda dentro de `sqx-edge-tool/runtime/`.
+F7 permite ejecutar el backend sin depender del Python instalado en Windows. El runtime queda dentro de `backend/sqx-edge-tool/runtime/`.
 
 ```powershell
-cd sqx-edge-tool
+cd backend\sqx-edge-tool
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\bootstrap_embedded_python.ps1
 ```
 
@@ -73,7 +73,7 @@ Los `.cfx` generados quedan en `output/` con nombres tipo `Mining02_XAUUSD_H4_BS
 ## Arquitectura
 
 ```
-sqx-edge-tool/
+backend/sqx-edge-tool/
 ├── core/
 │   ├── cfx_editor.py       — abre/modifica/guarda .cfx (zip+xml)
 │   ├── xml_patcher.py      — patches: symbol, TF, dates, direction, swap
@@ -87,7 +87,7 @@ sqx-edge-tool/
 │   ├── strategies.json     — estrategias base
 │   └── ui_manifest.json    — tabs, filtros, estados, thresholds y textos UI
 ├── tools/
-│   ├── build_frontend_manifest.py — regenera js/manifest-data.js
+│   ├── build_frontend_manifest.py — regenera app/js/manifest-data.js
 │   ├── bootstrap_embedded_python.ps1 — prepara runtime/python portable
 │   └── package_portable.ps1 — empaqueta ZIP portable
 ├── cli/

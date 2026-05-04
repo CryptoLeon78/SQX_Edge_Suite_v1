@@ -126,7 +126,7 @@ async function pgCheckHealth() {
     PG_CONNECTED = false;
     pgSetStatus('down',
       '🔴 Backend desconectado',
-      'Lanza "run-web.bat" en sqx-edge-tool/ para arrancar la API local (' + PG_API + '). Detalle: ' + e.message);
+      'Lanza "backend/sqx-edge-tool/run-web.bat" para arrancar la API local (' + PG_API + '). Detalle: ' + e.message);
   }
 }
 

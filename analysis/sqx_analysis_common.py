@@ -1,7 +1,7 @@
 """Shared helpers for SQX analytical scripts.
 
-The dashboard source of truth in this repo is ``js/manifest-data.js`` plus
-``sqx-edge-tool/config/*.json``. These helpers keep standalone analysis scripts
+The dashboard source of truth in this repo is ``app/js/manifest-data.js`` plus
+``backend/sqx-edge-tool/config/*.json``. These helpers keep standalone analysis scripts
 decoupled from the dashboard's rendering modules.
 """
 from __future__ import annotations
@@ -12,12 +12,13 @@ from pathlib import Path
 from typing import Any
 
 
-ROOT = Path(__file__).resolve().parent
+ANALYSIS_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = ANALYSIS_ROOT.parent
 
 
-def load_manifest(root: Path = ROOT) -> dict[str, Any]:
-    """Load ``window.SQX_MANIFEST = {...};`` from js/manifest-data.js."""
-    path = root / "js" / "manifest-data.js"
+def load_manifest(root: Path = PROJECT_ROOT) -> dict[str, Any]:
+    """Load ``window.SQX_MANIFEST = {...};`` from app/js/manifest-data.js."""
+    path = root / "app" / "js" / "manifest-data.js"
     if not path.exists():
         return {}
     text = path.read_text(encoding="utf-8-sig")
@@ -27,22 +28,22 @@ def load_manifest(root: Path = ROOT) -> dict[str, Any]:
     return json.loads(match.group(1))
 
 
-def load_assets(root: Path = ROOT) -> list[dict[str, Any]]:
+def load_assets(root: Path = PROJECT_ROOT) -> list[dict[str, Any]]:
     return list(((load_manifest(root).get("assets") or {}).get("assets") or []))
 
 
-def load_plan(root: Path = ROOT) -> dict[str, Any]:
-    path = root / "sqx-edge-tool" / "config" / "plan.json"
+def load_plan(root: Path = PROJECT_ROOT) -> dict[str, Any]:
+    path = root / "backend" / "sqx-edge-tool" / "config" / "plan.json"
     if path.exists():
         return json.loads(path.read_text(encoding="utf-8-sig"))
     return load_manifest(root).get("plan") or {}
 
 
-def load_ui(root: Path = ROOT) -> dict[str, Any]:
+def load_ui(root: Path = PROJECT_ROOT) -> dict[str, Any]:
     return load_manifest(root).get("ui") or {}
 
 
-def editorial_asset_map(root: Path = ROOT) -> dict[str, dict[str, Any]]:
+def editorial_asset_map(root: Path = PROJECT_ROOT) -> dict[str, dict[str, Any]]:
     """Return asset metadata indexed by asset id for scoring scripts."""
     out: dict[str, dict[str, Any]] = {}
     for asset in load_assets(root):
@@ -64,6 +65,6 @@ def editorial_asset_map(root: Path = ROOT) -> dict[str, dict[str, Any]]:
     return out
 
 
-def all_asset_ids(root: Path = ROOT) -> list[str]:
+def all_asset_ids(root: Path = PROJECT_ROOT) -> list[str]:
     return sorted(editorial_asset_map(root).keys())
 

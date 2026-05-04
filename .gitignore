@@ -18,11 +18,16 @@ sqx-edge-tool/output/
 sqx-edge-tool/output/*.cfx
 sqx-edge-tool/runtime/
 sqx-edge-tool/dist/
+backend/sqx-edge-tool/output/
+backend/sqx-edge-tool/output/*.cfx
+backend/sqx-edge-tool/runtime/
+backend/sqx-edge-tool/dist/
 SQX_Dashboard_v*.zip
 SQX_Edge_Suite_v*.zip
 
 # ── Local config / sensitive machine state ──────────
 sqx-edge-tool/config.json
+backend/sqx-edge-tool/config.json
 .env
 .env.*
 
@@ -37,9 +42,11 @@ backups/
 
 # ── Dashboard state backups ─────────────────────────
 analysis_output/state_backup_*.json
+analysis/analysis_output/state_backup_*.json
 
 # ── Massive analysis data, regenerable ──────────────
 csv_for_sqx/*.csv
+analysis/csv_for_sqx/*.csv
 data/ohlc/
 *_M1.csv
 *_M1_clean.csv

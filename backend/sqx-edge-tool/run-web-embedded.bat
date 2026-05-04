@@ -24,7 +24,7 @@ echo ================================================================
 echo   SQX Edge Tool - Web API (embedded Python)
 echo ================================================================
 echo.
-echo   Starting local API. Open SQX_Dashboard_v6.html and go to
+echo   Starting local API. Open app\SQX_Dashboard_v6.html and go to
 echo   Project Generator.
 echo.
 echo   Press Ctrl+C to stop the server.

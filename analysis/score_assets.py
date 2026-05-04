@@ -24,6 +24,7 @@ else:
     ANALYSIS_IMPORT_ERROR = None
 
 ROOT = Path(__file__).parent
+PROJECT_ROOT = ROOT.parent
 
 RATING_ORDER = {"++": 3, "+": 2, "~": 1, "-": 0}
 ORDER_RATING = {v: k for k, v in RATING_ORDER.items()}
@@ -202,9 +203,9 @@ def inject_into_html(json_path: Path, tf: str = "H1") -> None:
     """Inyecta JSON en <script id='scores-data[-TF]'>. H1 mantiene el id legacy 'scores-data'.
     Para otros TF crea/actualiza un script id='scores-data-<TF>'."""
     targets = [
-        ROOT / "SQX_Dashboard_v6.html",
-        ROOT / "SQX_Activos_Dashboard_v5.html",
-        ROOT / "SQX_Workflow_Dashboard.html",
+        PROJECT_ROOT / "app" / "SQX_Dashboard_v6.html",
+        PROJECT_ROOT / "app" / "SQX_Activos_Dashboard_v5.html",
+        PROJECT_ROOT / "app" / "SQX_Workflow_Dashboard.html",
     ]
     data = json_path.read_text(encoding="utf-8").strip()
     script_id = "scores-data" if tf == "H1" else f"scores-data-{tf}"

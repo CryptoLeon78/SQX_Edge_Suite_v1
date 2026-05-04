@@ -2,7 +2,7 @@
 Shared JSON manifest loader for SQX Edge Tool.
 
 The dashboard and backend now read the same canonical config files under
-sqx-edge-tool/config/ instead of duplicating plan, periods, instruments, and UI
+backend/sqx-edge-tool/config/ instead of duplicating plan, periods, instruments, and UI
 defaults in code.
 """
 from __future__ import annotations

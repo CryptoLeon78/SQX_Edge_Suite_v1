@@ -1819,7 +1819,7 @@ document.getElementById('ps-consolidate-plan').addEventListener('click', functio
   if (w) {
     w.document.write('<html><head><title>SQX Plan — Consolidado</title><style>body{background:#0f1117;color:#e4e4e7;font-family:Segoe UI,sans-serif;padding:20px;}h1{font-size:16px;margin-bottom:10px;}p{color:#9ca3af;font-size:12px;margin-bottom:14px;}pre{background:#0a0c12;border:1px solid #2e3348;border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;color:#9eb1d3;line-height:1.5;overflow:auto;max-height:80vh;white-space:pre-wrap;}button{margin-bottom:10px;padding:8px 16px;background:#22c55e;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;}</style></head><body>');
     w.document.write('<h1>💾 Consolidado: '+all.length+' minings · '+Object.keys(phases).length+' fases</h1>');
-    w.document.write('<p>JSON compatible con <code>sqx-edge-tool/config/plan.json</code>.</p>');
+    w.document.write('<p>JSON compatible con <code>backend/sqx-edge-tool/config/plan.json</code>.</p>');
     w.document.write('<button onclick="navigator.clipboard.writeText(document.getElementById(\'cn\').textContent).then(()=>this.textContent=\'✓ Copiado\')">📋 Copiar al portapapeles</button>');
     w.document.write('<pre id="cn">'+wrapper.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+'</pre>');
     w.document.write('</body></html>');
@@ -2136,7 +2136,7 @@ function consolidateStrategiesJSON() {
   if (w) {
     w.document.write('<html><head><title>SQX Strategies — Consolidado</title><style>body{background:#0f1117;color:#e4e4e7;font-family:Segoe UI,sans-serif;padding:20px;}h1{font-size:16px;margin-bottom:10px;}p{color:#9ca3af;font-size:12px;margin-bottom:14px;}pre{background:#0a0c12;border:1px solid #2e3348;border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;color:#9eb1d3;line-height:1.5;overflow:auto;max-height:80vh;white-space:pre-wrap;}button{margin-bottom:10px;padding:8px 16px;background:#22c55e;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;}</style></head><body>');
     w.document.write('<h1>💾 Consolidado: '+all.length+' estrategias</h1>');
-    w.document.write('<p>JSON compatible con <code>sqx-edge-tool/config/strategies.json</code>.</p>');
+    w.document.write('<p>JSON compatible con <code>backend/sqx-edge-tool/config/strategies.json</code>.</p>');
     w.document.write('<button onclick="navigator.clipboard.writeText(document.getElementById(\'cn\').textContent).then(()=>this.textContent=\'✓ Copiado\')">📋 Copiar al portapapeles</button>');
     w.document.write('<pre id="cn">'+wrapper.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+'</pre>');
     w.document.write('</body></html>');

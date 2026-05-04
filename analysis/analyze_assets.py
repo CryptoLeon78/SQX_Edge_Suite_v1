@@ -5,7 +5,7 @@ Output:
   asset_metrics.json       (H1, default — compat con código existente)
   asset_metrics_<TF>.json   (otros TFs)
 
-Ratings editoriales se extraen de js/data/assets.js (refactor C3) o del HTML legacy.
+Ratings editoriales se extraen del manifiesto en app/js/manifest-data.js.
 """
 from __future__ import annotations
 

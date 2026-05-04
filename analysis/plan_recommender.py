@@ -2,7 +2,7 @@
 plan_recommender.py — Reconstruye el plan de minings priorizando data-driven multi-TF.
 
 Algoritmo:
-  1. Lee TODAS las (asset, cat, tf) del dashboard editorial (js/data.js)
+  1. Lee TODAS las (asset, cat, tf) del dashboard editorial (app/js/manifest-data.js)
   2. Resuelve composite percentile en el TF más bajo disponible (lógica modo Auto)
   3. Excluye casos con data parcial (USDJPY post-2018) y categorías sin métrica fiable
   4. Aplica reglas de diversificación + edge mínimo
@@ -17,6 +17,7 @@ from collections import defaultdict
 from sqx_analysis_common import load_assets, load_plan
 
 ROOT = Path(__file__).parent
+PROJECT_ROOT = ROOT.parent
 ANALYSIS_DIR = ROOT / "analysis_output"
 
 SCORES: dict[str, dict] = {}
@@ -55,13 +56,13 @@ def load_scores() -> dict[str, dict]:
 
 
 def current_plan() -> list[dict]:
-    return list((load_plan(ROOT).get("minings") or []))
+    return list((load_plan(PROJECT_ROOT).get("minings") or []))
 
 
 def parse_assets_from_js() -> dict:
     """Extrae activos del manifiesto actual del dashboard."""
     out = {}
-    for asset in load_assets(ROOT):
+    for asset in load_assets(PROJECT_ROOT):
         aid = asset.get("id")
         if not aid:
             continue

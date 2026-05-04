@@ -27,6 +27,7 @@ from pathlib import Path
 
 # Permitir ejecución directa o vía -m
 ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = ROOT.parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
@@ -45,8 +46,8 @@ app = Flask(__name__)
 
 VERSION = "0.2.0"
 CONFIG_PATH = ROOT / "config.json"
-DASHBOARD_ROOT = ROOT.parent
-STATE_BACKUP_DIR = DASHBOARD_ROOT / "analysis_output"
+DASHBOARD_ROOT = PROJECT_ROOT / "app"
+STATE_BACKUP_DIR = PROJECT_ROOT / "analysis" / "analysis_output"
 STATE_BACKUP_RETENTION = int(os.environ.get("SQX_STATE_BACKUP_RETENTION", "30"))
 API_PROFILE = (load_manifest("generator_profiles.json").get("api") or {})
 DEFAULT_HOST = API_PROFILE.get("defaultHost", "127.0.0.1")

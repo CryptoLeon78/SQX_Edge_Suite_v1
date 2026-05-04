@@ -5,8 +5,9 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$ProjectRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
-$ToolRoot = Join-Path $ProjectRoot "sqx-edge-tool"
+$ToolRoot = Split-Path -Parent $PSScriptRoot
+$BackendRoot = Split-Path -Parent $ToolRoot
+$ProjectRoot = Split-Path -Parent $BackendRoot
 if (-not $OutputDir) {
   $OutputDir = Join-Path $ProjectRoot "dist"
 }
@@ -14,7 +15,7 @@ if (-not $OutputDir) {
 $OutputDir = (New-Item -ItemType Directory -Path $OutputDir -Force).FullName
 $PythonExe = Join-Path $ToolRoot "runtime\python\python.exe"
 if ($RequireEmbeddedPython -and -not (Test-Path -LiteralPath $PythonExe)) {
-  throw "Embedded Python not found. Run sqx-edge-tool\tools\bootstrap_embedded_python.ps1 first."
+  throw "Embedded Python not found. Run backend\sqx-edge-tool\tools\bootstrap_embedded_python.ps1 first."
 }
 
 $Stamp = Get-Date -Format "yyyyMMdd_HHmmss"
@@ -24,10 +25,10 @@ $StageDir = Join-Path $OutputDir "stage_$Stamp"
 
 New-Item -ItemType Directory -Path $StageDir -Force | Out-Null
 
-$excludeNames = @(".git", "venv", "__pycache__", "output", "dist")
+$excludeNames = @(".git", "venv", "__pycache__", "output", "dist", "backups", ".pytest_cache", ".playwright-cli")
 $excludePatterns = @(
-  "\\sqx-edge-tool\\runtime\\downloads\\",
-  "\\sqx-edge-tool\\output\\",
+  "\\backend\\sqx-edge-tool\\runtime\\downloads\\",
+  "\\backend\\sqx-edge-tool\\output\\",
   "\\__pycache__\\"
 )
 
@@ -39,7 +40,7 @@ function Test-IncludedPath {
   foreach ($pattern in $excludePatterns) {
     if ($Path -match $pattern) { return $false }
   }
-  if ($Path -match "\\sqx-edge-tool\\config\.json$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\config\.json$") { return $false }
   if ($Path -match "_backup") { return $false }
   return $true
 }

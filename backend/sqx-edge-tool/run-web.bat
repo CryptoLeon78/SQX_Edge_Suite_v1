@@ -10,7 +10,7 @@ echo   SQX Edge Tool — Web API
 echo ================================================================
 echo.
 echo   Iniciando servidor en http://localhost:5050
-echo   Abre el dashboard SQX_Dashboard_v6.html y ve al tab
+echo   Abre el dashboard app\SQX_Dashboard_v6.html y ve al tab
 echo   "Project Generator" para usarlo.
 echo.
 echo   Pulsa Ctrl+C para detener el servidor.

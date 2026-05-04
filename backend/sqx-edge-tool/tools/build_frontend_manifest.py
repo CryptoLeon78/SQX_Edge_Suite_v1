@@ -4,9 +4,11 @@ import json
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[2]
-CONFIG_DIR = ROOT / "sqx-edge-tool" / "config"
-OUT_PATH = ROOT / "js" / "manifest-data.js"
+SCRIPT_PATH = Path(__file__).resolve()
+PROJECT_ROOT = SCRIPT_PATH.parents[3]
+TOOL_ROOT = SCRIPT_PATH.parents[1]
+CONFIG_DIR = TOOL_ROOT / "config"
+OUT_PATH = PROJECT_ROOT / "app" / "js" / "manifest-data.js"
 
 
 def read_json(name: str) -> dict:

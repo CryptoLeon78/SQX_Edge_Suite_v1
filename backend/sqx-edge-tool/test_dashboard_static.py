@@ -5,12 +5,15 @@ import unittest
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parent.parent
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+APP_ROOT = PROJECT_ROOT / "app"
+TOOL_ROOT = PROJECT_ROOT / "backend" / "sqx-edge-tool"
+ANALYSIS_ROOT = PROJECT_ROOT / "analysis"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
     def setUp(self):
-        self.html_path = ROOT / "SQX_Dashboard_v6.html"
+        self.html_path = APP_ROOT / "SQX_Dashboard_v6.html"
         self.html = self.html_path.read_text(encoding="utf-8-sig")
 
     def test_script_files_exist_in_expected_order(self):
@@ -28,10 +31,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             ],
         )
         for script in scripts:
-            self.assertTrue((ROOT / script).is_file(), script)
+            self.assertTrue((APP_ROOT / script).is_file(), script)
 
     def test_tabs_have_matching_panels(self):
-        ui_manifest = json.loads((ROOT / "sqx-edge-tool" / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
+        ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
         panels = re.findall(r'id="tab-([^"]+)"', self.html)
 
@@ -59,11 +62,11 @@ class DashboardStaticTestCase(unittest.TestCase):
     def test_external_dataset_scripts_are_valid_assignments(self):
         datasets = {
             "js/historical-data.js": "window.SQX_HISTORICAL_DATA",
-            "js/scores-data.js": "window.SQX_SCORES_DATA",
+                "js/scores-data.js": "window.SQX_SCORES_DATA",
         }
         for rel_path, global_name in datasets.items():
             with self.subTest(rel_path=rel_path):
-                text = (ROOT / rel_path).read_text(encoding="utf-8-sig").strip()
+                text = (APP_ROOT / rel_path).read_text(encoding="utf-8-sig").strip()
                 self.assertTrue(text.startswith(global_name + " = "))
                 self.assertTrue(text.endswith(";"))
                 json_text = text[len(global_name + " = "):-1]
@@ -72,15 +75,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertGreater(len(data), 0)
 
     def test_manifest_script_mirrors_json_manifests(self):
-        text = (ROOT / "js" / "manifest-data.js").read_text(encoding="utf-8-sig").strip()
+        text = (APP_ROOT / "js" / "manifest-data.js").read_text(encoding="utf-8-sig").strip()
         self.assertTrue(text.startswith("window.SQX_MANIFEST = "))
         self.assertTrue(text.endswith(";"))
         manifest = json.loads(text[len("window.SQX_MANIFEST = "):-1])
 
-        plan = json.loads((ROOT / "sqx-edge-tool" / "config" / "plan.json").read_text(encoding="utf-8-sig"))
-        assets = json.loads((ROOT / "sqx-edge-tool" / "config" / "assets.json").read_text(encoding="utf-8-sig"))
-        strategies = json.loads((ROOT / "sqx-edge-tool" / "config" / "strategies.json").read_text(encoding="utf-8-sig"))
-        ui = json.loads((ROOT / "sqx-edge-tool" / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
+        plan = json.loads((TOOL_ROOT / "config" / "plan.json").read_text(encoding="utf-8-sig"))
+        assets = json.loads((TOOL_ROOT / "config" / "assets.json").read_text(encoding="utf-8-sig"))
+        strategies = json.loads((TOOL_ROOT / "config" / "strategies.json").read_text(encoding="utf-8-sig"))
+        ui = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
 
         self.assertEqual(manifest["plan"], plan)
         self.assertEqual(manifest["assets"], assets)
@@ -88,8 +91,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(manifest["ui"], ui)
 
     def test_compat_data_layer_has_no_domain_arrays(self):
-        data_js = (ROOT / "js" / "data.js").read_text(encoding="utf-8-sig")
-        self.assertIn("Source of truth lives in js/manifest-data.js", data_js)
+        data_js = (APP_ROOT / "js" / "data.js").read_text(encoding="utf-8-sig")
+        self.assertIn("Source of truth lives in app/js/manifest-data.js", data_js)
         self.assertNotIn("const PLAN_MININGS = [", data_js)
         self.assertNotIn("const STRATEGIES = [", data_js)
 
@@ -103,12 +106,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         ]
         for script in scripts:
             with self.subTest(script=script):
-                path = ROOT / script
+                path = ANALYSIS_ROOT / script
                 self.assertTrue(path.is_file(), script)
                 py_compile.compile(str(path), doraise=True)
 
-        helper = (ROOT / "sqx_analysis_common.py").read_text(encoding="utf-8")
-        self.assertIn("js/manifest-data.js", helper)
+        helper = (ANALYSIS_ROOT / "sqx_analysis_common.py").read_text(encoding="utf-8")
+        self.assertIn("app/js/manifest-data.js", helper)
 
 
 if __name__ == "__main__":

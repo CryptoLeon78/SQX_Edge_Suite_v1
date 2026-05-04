@@ -1,6 +1,6 @@
 // ============================================================
 // SQX Dashboard - compatibility data layer
-// Source of truth lives in js/manifest-data.js and sqx-edge-tool/config/*.json.
+// Source of truth lives in app/js/manifest-data.js and backend/sqx-edge-tool/config/*.json.
 // This file keeps the existing dashboard code working with global names.
 // ============================================================
 
