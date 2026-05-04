@@ -116,10 +116,12 @@ function pgFocusSettingsField(id) {
 
 function pgGetOnboardingState() {
   const hasSqxInput = !!((document.getElementById('pg-sqx-path') || {}).value || PG_CONFIG_STATE.sqx_path || '').trim();
+  const hasDbInput = !!((document.getElementById('pg-sqx-db') || {}).value || PG_CONFIG_STATE.sqx_data_db || '').trim();
   const hasMinings = PG_MININGS.length > 0;
   const outputReady = !!PG_HEALTH_META.output_dir_exists;
   const templateReady = !!PG_HEALTH_META.templates_capa1_exists && !!PG_HEALTH_META.templates_capa2_exists && outputReady;
   const sqxReady = !!PG_HEALTH_META.sqx_path_set && !!PG_HEALTH_META.data_db_exists;
+  const hasUnsavedSqxCandidate = hasSqxInput && (!PG_HEALTH_META.sqx_path_set || !PG_HEALTH_META.data_db_exists);
   const steps = [
     {
       id: 'api',
@@ -162,11 +164,24 @@ function pgGetOnboardingState() {
     steps,
     completed,
     current,
+    checks: [
+      { label: 'API local responde', ok: PG_CONNECTED },
+      { label: hasDbInput ? 'data.db localizado' : 'data.db pendiente', ok: !!PG_HEALTH_META.data_db_exists },
+      { label: 'Templates C1 y C2 listos', ok: !!PG_HEALTH_META.templates_capa1_exists && !!PG_HEALTH_META.templates_capa2_exists },
+      { label: hasMinings ? (PG_MININGS.length + ' minings cargados') : 'Plan de minings pendiente', ok: hasMinings },
+      { label: outputReady ? 'Output accesible' : 'Output pendiente', ok: outputReady },
+      { label: PG_OUTPUT_FILES.length ? 'Primer .cfx generado' : 'Primer .cfx pendiente', ok: PG_OUTPUT_FILES.length > 0 },
+    ],
     primaryLabel: 'Comprobar API',
     secondaryLabel: 'Abrir configuracion',
+    tertiaryLabel: 'Guardar config',
+    tertiaryAction: 'save',
+    tertiaryVisible: true,
     primaryDisabled: false,
     title: 'Preparando flujo guiado',
     desc: 'Conecta la API y deja la configuracion lista para generar tu primer .cfx.',
+    assistantNext: 'Comprobar API',
+    assistantHint: 'Primero necesitamos confirmar que el backend local responde.',
   };
 
   if (!current) {
@@ -174,6 +189,10 @@ function pgGetOnboardingState() {
     state.desc = 'Ya tienes la base configurada. Puedes abrir output o seguir afinando paths y templates.';
     state.primaryLabel = 'Abrir output';
     state.secondaryLabel = 'Abrir configuracion';
+    state.tertiaryLabel = 'Actualizar estado';
+    state.tertiaryAction = 'refresh';
+    state.assistantNext = 'Produccion lista';
+    state.assistantHint = 'La base esta preparada. Puedes generar mas proyectos o abrir la carpeta output.';
     return state;
   }
 
@@ -181,6 +200,9 @@ function pgGetOnboardingState() {
     state.title = '1. Comprueba la API local';
     state.desc = 'El dashboard necesita el backend activo para leer config, minings, output y generar proyectos.';
     state.primaryLabel = 'Comprobar API';
+    state.tertiaryVisible = false;
+    state.assistantNext = 'Arrancar o comprobar backend';
+    state.assistantHint = 'Si no conecta, usa START_SQX_EDGE.bat y vuelve a pulsar Comprobar API.';
     return state;
   }
 
@@ -190,6 +212,11 @@ function pgGetOnboardingState() {
       ? 'Valida la ruta actual para rellenar data.db y projects sin tener que tocar nada mas.'
       : 'Busca StrategyQuant X automaticamente o pega la ruta manualmente en configuracion.';
     state.primaryLabel = hasSqxInput ? 'Validar ruta SQX' : 'Auto-detectar SQX';
+    state.tertiaryVisible = hasUnsavedSqxCandidate;
+    state.assistantNext = hasSqxInput ? 'Validar y guardar ruta SQX' : 'Detectar instalacion SQX';
+    state.assistantHint = hasSqxInput
+      ? 'Si la validacion sale bien, guarda la configuracion para que el asistente avance.'
+      : 'El asistente puede buscar instalaciones habituales de SQX y rellenar los campos por ti.';
     return state;
   }
 
@@ -198,6 +225,10 @@ function pgGetOnboardingState() {
     state.desc = 'Revisa que existan las dos plantillas .cfx y que la carpeta output apunte al destino correcto.';
     state.primaryLabel = 'Revisar configuracion';
     state.secondaryLabel = 'Reintentar estado';
+    state.tertiaryLabel = 'Guardar config';
+    state.tertiaryAction = 'save';
+    state.assistantNext = 'Completar templates y output';
+    state.assistantHint = 'Cuando Capa 1, Capa 2 y output existan, el ultimo paso sera generar el primer .cfx.';
     return state;
   }
 
@@ -207,6 +238,12 @@ function pgGetOnboardingState() {
     : 'No hay minings disponibles. Revisa el manifest del plan antes de continuar.';
   state.primaryLabel = hasMinings ? 'Generar primer .cfx' : 'Reintentar estado';
   state.primaryDisabled = !hasMinings;
+  state.tertiaryLabel = 'Actualizar output';
+  state.tertiaryAction = 'output';
+  state.assistantNext = hasMinings ? 'Generar primer proyecto' : 'Recargar plan';
+  state.assistantHint = hasMinings
+    ? 'El asistente usara el primer mining del plan como prueba controlada.'
+    : 'Sin minings no hay proyecto que generar; refresca el estado para volver a leer el plan.';
   return state;
 }
 
@@ -218,7 +255,11 @@ function pgRenderOnboarding() {
   const stepsEl = document.getElementById('pg-onboarding-steps');
   const primary = document.getElementById('pg-onboarding-action');
   const secondary = document.getElementById('pg-onboarding-secondary');
-  if (!progress || !title || !desc || !bar || !stepsEl || !primary || !secondary) return;
+  const tertiary = document.getElementById('pg-onboarding-tertiary');
+  const next = document.getElementById('pg-assistant-next');
+  const hint = document.getElementById('pg-assistant-hint');
+  const checksEl = document.getElementById('pg-assistant-checks');
+  if (!progress || !title || !desc || !bar || !stepsEl || !primary || !secondary || !tertiary || !next || !hint || !checksEl) return;
 
   const state = pgGetOnboardingState();
   progress.textContent = state.completed + '/' + state.steps.length;
@@ -241,6 +282,17 @@ function pgRenderOnboarding() {
   primary.textContent = state.primaryLabel;
   primary.disabled = !!state.primaryDisabled;
   secondary.textContent = state.secondaryLabel;
+  tertiary.textContent = state.tertiaryLabel;
+  tertiary.dataset.pgAssistantAction = state.tertiaryAction || 'save';
+  tertiary.style.display = state.tertiaryVisible === false ? 'none' : '';
+  next.textContent = state.assistantNext;
+  hint.textContent = state.assistantHint;
+  checksEl.innerHTML = state.checks.map(check =>
+    '<div class="pg-assistant-check ' + (check.ok ? 'ok' : 'warn') + '">' +
+      '<span class="pg-check-dot">' + (check.ok ? '✓' : '!') + '</span>' +
+      '<span>' + pgEsc(check.label) + '</span>' +
+    '</div>'
+  ).join('');
 }
 
 async function pgFetch(path, options) {
@@ -663,6 +715,20 @@ async function pgRunOnboardingSecondaryAction() {
   pgFocusSettingsField('pg-sqx-path');
 }
 
+async function pgRunOnboardingTertiaryAction() {
+  const action = (document.getElementById('pg-onboarding-tertiary') || {}).dataset?.pgAssistantAction || 'save';
+  if (action === 'refresh') {
+    await pgCheckHealth();
+    return;
+  }
+  if (action === 'output') {
+    await pgLoadOutput();
+    return;
+  }
+  pgSetSettingsOpen(true);
+  await pgSaveConfig();
+}
+
 (function pgInit(){
   const refresh = document.getElementById('pg-status-refresh');
   if (!refresh) return; // tab no está en el HTML
@@ -678,6 +744,7 @@ async function pgRunOnboardingSecondaryAction() {
   document.getElementById('pg-settings-reload').addEventListener('click', pgLoadConfig);
   document.getElementById('pg-onboarding-action').addEventListener('click', pgRunOnboardingAction);
   document.getElementById('pg-onboarding-secondary').addEventListener('click', pgRunOnboardingSecondaryAction);
+  document.getElementById('pg-onboarding-tertiary').addEventListener('click', pgRunOnboardingTertiaryAction);
 
   // Auto-detect SQX install
   document.getElementById('pg-autodetect').addEventListener('click', async function(){

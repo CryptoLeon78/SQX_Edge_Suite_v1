@@ -86,6 +86,11 @@ class DashboardStaticTestCase(unittest.TestCase):
             "pg-onboarding-steps",
             "pg-onboarding-action",
             "pg-onboarding-secondary",
+            "pg-onboarding-tertiary",
+            "pg-assistant-panel",
+            "pg-assistant-next",
+            "pg-assistant-hint",
+            "pg-assistant-checks",
         ]
         for element_id in expected_ids:
             with self.subTest(element_id=element_id):
@@ -102,6 +107,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("pgTrace(", main_js)
         self.assertIn("function pgRenderOnboarding", main_js)
         self.assertIn("function pgRunOnboardingAction", main_js)
+        self.assertIn("function pgRunOnboardingTertiaryAction", main_js)
+        self.assertIn("pg-assistant-check", main_js)
 
     def test_external_dataset_scripts_are_valid_assignments(self):
         datasets = {
