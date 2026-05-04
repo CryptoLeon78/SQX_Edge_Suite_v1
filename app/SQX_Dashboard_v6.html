@@ -78,6 +78,39 @@
           </div>
         </div>
 
+        <div class="home-audit">
+          <div class="home-audit-head">
+            <span>Auditoria del sistema</span>
+            <strong id="home-audit-score">--</strong>
+          </div>
+          <div class="home-audit-grid">
+            <button class="home-audit-row" id="home-audit-manifest" data-home-tab="activos">
+              <span class="home-audit-dot"></span>
+              <div><strong>Manifiestos</strong><small id="home-audit-manifest-detail">Pendiente</small></div>
+            </button>
+            <button class="home-audit-row" id="home-audit-plan" data-home-tab="pipeline">
+              <span class="home-audit-dot"></span>
+              <div><strong>Plan</strong><small id="home-audit-plan-detail">Pendiente</small></div>
+            </button>
+            <button class="home-audit-row" id="home-audit-backend" data-home-tab="projectgen">
+              <span class="home-audit-dot"></span>
+              <div><strong>Backend</strong><small id="home-audit-backend-detail">Pendiente</small></div>
+            </button>
+            <button class="home-audit-row" id="home-audit-templates" data-home-tab="projectgen">
+              <span class="home-audit-dot"></span>
+              <div><strong>Templates</strong><small id="home-audit-templates-detail">Pendiente</small></div>
+            </button>
+            <button class="home-audit-row" id="home-audit-sqx" data-home-tab="projectgen">
+              <span class="home-audit-dot"></span>
+              <div><strong>SQX Path</strong><small id="home-audit-sqx-detail">Pendiente</small></div>
+            </button>
+            <button class="home-audit-row" id="home-audit-output" data-home-tab="projectgen">
+              <span class="home-audit-dot"></span>
+              <div><strong>Output</strong><small id="home-audit-output-detail">Pendiente</small></div>
+            </button>
+          </div>
+        </div>
+
         <div class="home-actions">
           <button class="home-action primary" data-home-tab="pipeline">
             <span>Siguiente accion</span>
@@ -128,6 +161,14 @@
             <span>3</span>
             <strong>Ejecutar workflow operativo</strong>
           </button>
+        </div>
+        <div class="home-panel home-history">
+          <div class="home-history-head">
+            <div class="home-panel-title">Actividad reciente</div>
+            <button id="home-history-clear" class="home-history-clear" type="button">Limpiar</button>
+          </div>
+          <div id="home-history-list" class="home-history-list"></div>
+          <div id="home-history-empty" class="home-history-empty">Aun no hay eventos registrados.</div>
         </div>
       </aside>
     </div>

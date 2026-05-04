@@ -1034,7 +1034,57 @@ function generateStratJSON() {
 // ============================================================
 // EVENTS
 // ============================================================
-var HOME_BACKEND_STATE = { state: 'loading', title: 'Comprobando', desc: 'API local pendiente de comprobar.' };
+var HOME_BACKEND_STATE = { state: 'loading', title: 'Comprobando', desc: 'API local pendiente de comprobar.', meta: {} };
+var HOME_TRACE_KEY = (window.SQX_CONFIG && window.SQX_CONFIG.storageKeys && window.SQX_CONFIG.storageKeys.homeTrace) || 'sqx_home_trace_v1';
+var HOME_TRACE = [];
+try { HOME_TRACE = JSON.parse(localStorage.getItem(HOME_TRACE_KEY) || '[]'); } catch(e) { HOME_TRACE = []; }
+
+function saveHomeTrace() {
+  localStorage.setItem(HOME_TRACE_KEY, JSON.stringify(HOME_TRACE));
+}
+
+function homeEsc(value) {
+  return String(value == null ? '' : value).replace(/[<>&"']/g, function(ch) {
+    return ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch];
+  });
+}
+
+function renderHomeTrace() {
+  var list = document.getElementById('home-history-list');
+  var empty = document.getElementById('home-history-empty');
+  if (!list || !empty) return;
+  if (!HOME_TRACE.length) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  list.innerHTML = HOME_TRACE.map(function(item) {
+    return (
+      '<div class="home-history-item ' + homeEsc(item.level || 'info') + '">' +
+        '<span class="home-history-dot"></span>' +
+        '<div>' +
+          '<div class="home-history-title">' + homeEsc(item.title || 'Evento') + '</div>' +
+          '<div class="home-history-meta">' + homeEsc(item.timeLabel || '') + ' · ' + homeEsc(item.detail || '') + '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
+window.addHomeTrace = function(title, detail, level) {
+  var now = new Date();
+  HOME_TRACE.unshift({
+    title: title || 'Evento',
+    detail: detail || '',
+    level: level || 'info',
+    timeLabel: now.toLocaleString(),
+    ts: now.getTime()
+  });
+  HOME_TRACE = HOME_TRACE.slice(0, 12);
+  saveHomeTrace();
+  renderHomeTrace();
+};
 
 function renderHome() {
   function setText(id, value) {
@@ -1053,6 +1103,15 @@ function renderHome() {
     el.classList.remove('is-ok', 'is-warn');
     el.classList.add(ok ? 'is-ok' : 'is-warn');
   }
+  function setAudit(id, ok, detail) {
+    var row = document.getElementById(id);
+    var detailEl = document.getElementById(id + '-detail');
+    if (row) {
+      row.classList.remove('is-ok', 'is-warn');
+      row.classList.add(ok ? 'is-ok' : 'is-warn');
+    }
+    if (detailEl) detailEl.textContent = detail;
+  }
   var assetCounts = (ASSETS || []).reduce(function(acc, asset) {
     acc[asset.type] = (acc[asset.type] || 0) + 1;
     return acc;
@@ -1065,6 +1124,12 @@ function renderHome() {
   var planOk = (PLAN_MININGS || []).length > 0;
   var strategiesOk = ((STRATEGIES || []).length + strategyUserCount) > 0;
   var backendOk = HOME_BACKEND_STATE.state === 'up';
+  var backendMeta = HOME_BACKEND_STATE.meta || {};
+  var templatesOk = backendOk && !!(backendMeta.templates_capa1_exists && backendMeta.templates_capa2_exists);
+  var sqxPathOk = backendOk && !!backendMeta.sqx_path_set;
+  var outputOk = backendOk && !!(backendMeta.output_dir && backendMeta.output_dir_exists);
+  var auditItems = [manifestOk, planOk, backendOk, templatesOk, sqxPathOk, outputOk];
+  var auditPassed = auditItems.filter(Boolean).length;
   var readiness = Math.round(([manifestOk, planOk, strategiesOk, backendOk].filter(Boolean).length / 4) * 100);
   if (nextAction.length > 82) nextAction = nextAction.slice(0, 79).trim() + '...';
 
@@ -1085,9 +1150,10 @@ function renderHome() {
   setText(
     'home-hero-status',
     backendOk
-      ? 'API conectada. Plan, manifiestos y generador listos para operar.'
+      ? (sqxPathOk ? 'API conectada. Plan, manifiestos y generador listos para operar.' : 'API conectada. Falta completar la ruta SQX para generar con seguridad.')
       : 'Manifest activo. Arranca la API local para habilitar generacion, validacion de rutas y limpieza SQX.'
   );
+  setText('home-audit-score', auditPassed + '/' + auditItems.length);
   var bar = document.getElementById('home-readiness-bar');
   if (bar) bar.style.width = readiness + '%';
   setCheck('home-check-manifest', manifestOk);
@@ -1096,13 +1162,21 @@ function renderHome() {
   setCheck('home-check-backend', backendOk);
   setStateClass('home-backend-status', backendOk ? 'ok' : 'warn');
   setStateClass('home-data-status', manifestOk ? 'ok' : 'warn');
+  setAudit('home-audit-manifest', manifestOk, (ASSETS || []).length + ' activos · ' + (CAT_KEYS || []).length + ' categorias');
+  setAudit('home-audit-plan', planOk, phaseCount + ' fases · ' + (PLAN_MININGS || []).length + ' minings');
+  setAudit('home-audit-backend', backendOk, backendOk ? 'API v' + (backendMeta.version || '?') : 'API no conectada');
+  setAudit('home-audit-templates', templatesOk, backendOk ? (templatesOk ? 'Capa 1 + Capa 2 OK' : 'revisar templates') : 'requiere API');
+  setAudit('home-audit-sqx', sqxPathOk, backendOk ? (sqxPathOk ? 'ruta configurada' : 'ruta pendiente') : 'requiere API');
+  setAudit('home-audit-output', outputOk, backendOk ? (outputOk ? 'carpeta accesible' : 'output pendiente') : 'requiere API');
+  renderHomeTrace();
 }
 
-window.updateHomeBackendStatus = function(state, title, desc) {
+window.updateHomeBackendStatus = function(state, title, desc, meta) {
   HOME_BACKEND_STATE = {
     state: state || 'loading',
     title: title || 'API local',
-    desc: desc || ''
+    desc: desc || '',
+    meta: meta || {}
   };
   renderHome();
 };
@@ -1126,6 +1200,15 @@ document.querySelectorAll('[data-home-tab]').forEach(function(btn) {
     activateTabById(btn.dataset.homeTab);
   });
 });
+
+var homeHistoryClear = document.getElementById('home-history-clear');
+if (homeHistoryClear) {
+  homeHistoryClear.addEventListener('click', function() {
+    HOME_TRACE = [];
+    saveHomeTrace();
+    renderHomeTrace();
+  });
+}
 
 function bindBtns(sel, dataKey, varSetter, cb) {
   document.querySelectorAll(sel).forEach(b => b.addEventListener('click', () => {

@@ -5,7 +5,7 @@ Lanza Flask en localhost:5050 con CORS restringido a uso local.
 El dashboard SQX Edge consume estos endpoints desde el navegador.
 
 Endpoints:
-  GET  /api/health            -> {ok: true, version, sqx_path_set}
+  GET  /api/health            -> {ok: true, version, paths, templates, output}
   GET  /api/config            -> config.json actual
   POST /api/config            -> actualiza config.json (path SQX, output_dir, etc.)
   GET  /api/minings           -> lista de los 14 minings del plan
@@ -145,13 +145,17 @@ def is_allowed_workspace_path(value: str, cfg: dict) -> bool:
 def health():
     cfg = load_config()
     db_path = cfg.get("sqx_data_db", "")
+    output_dir = Path(resolve_output_dir(cfg))
     return jsonify({
         "ok": True,
         "version": VERSION,
+        "config_exists": CONFIG_PATH.is_file(),
         "sqx_path_set": bool(cfg.get("sqx_path")),
         "sqx_path": cfg.get("sqx_path", ""),
         "data_db_set": bool(db_path),
         "data_db_exists": bool(db_path) and os.path.isfile(db_path),
+        "output_dir": str(output_dir),
+        "output_dir_exists": output_dir.is_dir(),
         "templates_capa1_exists": os.path.isfile(resolve_template(cfg, 1)),
         "templates_capa2_exists": os.path.isfile(resolve_template(cfg, 2)),
     })

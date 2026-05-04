@@ -21,6 +21,9 @@ class ApiTestCase(unittest.TestCase):
         data = self.get_json(response)
         self.assertTrue(data["ok"])
         self.assertEqual(data["version"], server.VERSION)
+        self.assertIn("config_exists", data)
+        self.assertIn("output_dir", data)
+        self.assertIn("output_dir_exists", data)
 
     def test_manifest_endpoint_exposes_shared_config(self):
         response = self.client.get("/api/manifest")

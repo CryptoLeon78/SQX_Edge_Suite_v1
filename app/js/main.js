@@ -57,6 +57,7 @@ const PG_API = (window.SQX_CONFIG && window.SQX_CONFIG.apiBase()) || '';
 let PG_CONNECTED = false;
 let PG_HEALTH_TIMER = null;
 let PG_PLAN_COUNT = 0;
+let PG_LAST_TRACE_STATE = '';
 const PG_ALIAS_MIN_SCORE = (window.SQX_CONFIG && window.SQX_CONFIG.value('projectGenerator.aliasSuggestMinScore', 80)) || 80;
 const pgApiInline = document.getElementById('pg-api-base-inline');
 if (pgApiInline && PG_API) pgApiInline.textContent = PG_API;
@@ -85,6 +86,12 @@ function pgLog(msg, level) {
   log.scrollTop = log.scrollHeight;
 }
 
+function pgTrace(title, detail, level) {
+  if (typeof window.addHomeTrace === 'function') {
+    window.addHomeTrace(title, detail, level || 'info');
+  }
+}
+
 async function pgFetch(path, options) {
   const url = PG_API + path;
   const opts = Object.assign({}, options || {});
@@ -101,12 +108,20 @@ async function pgFetch(path, options) {
   return data;
 }
 
-function pgSetStatus(state, title, desc) {
+function pgSetStatus(state, title, desc, meta) {
   const banner = document.getElementById('pg-status-banner');
   const t = document.getElementById('pg-status-title');
   const d = document.getElementById('pg-status-desc');
   if (typeof window.updateHomeBackendStatus === 'function') {
-    window.updateHomeBackendStatus(state, title, desc);
+    window.updateHomeBackendStatus(state, title, desc, meta || {});
+  }
+  if (state !== 'loading' && state !== PG_LAST_TRACE_STATE) {
+    PG_LAST_TRACE_STATE = state;
+    pgTrace(
+      state === 'up' ? 'Backend conectado' : 'Backend desconectado',
+      state === 'up' ? ((meta && meta.sqx_path) || 'API local operativa') : desc,
+      state === 'up' ? 'ok' : 'err'
+    );
   }
   if (!banner) return;
   banner.classList.remove('pg-status-up', 'pg-status-down', 'pg-status-loading');
@@ -123,13 +138,15 @@ async function pgCheckHealth() {
     const tplOk = h.templates_capa1_exists && h.templates_capa2_exists;
     pgSetStatus('up',
       '🟢 Backend conectado · v' + h.version,
-      'SQX path: ' + (h.sqx_path || '(no set)') + ' · Templates: ' + (tplOk ? 'C1+C2 OK' : '⚠ alguno falta'));
+      'SQX path: ' + (h.sqx_path || '(no set)') + ' · Templates: ' + (tplOk ? 'C1+C2 OK' : '⚠ alguno falta'),
+      h);
     await pgLoadAll();
   } catch(e) {
     PG_CONNECTED = false;
     pgSetStatus('down',
       '🔴 Backend desconectado',
-      'Lanza "backend/sqx-edge-tool/run-web.bat" para arrancar la API local (' + PG_API + '). Detalle: ' + e.message);
+      'Lanza "backend/sqx-edge-tool/run-web.bat" para arrancar la API local (' + PG_API + '). Detalle: ' + e.message,
+      { error: e.message });
   }
 }
 
@@ -211,6 +228,7 @@ async function pgSuggestForAsset(asset) {
     PG_ALIASES[asset] = chosen;
     document.querySelector('input[data-pg-alias="' + asset + '"]').value = chosen;
     pgLog('Alias propuesto: ' + asset + ' → ' + chosen + ' (pulsa Guardar config)', 'info');
+    pgTrace('Alias propuesto', asset + ' -> ' + chosen, 'info');
   } catch(e) { pgLog('Error sugiriendo: ' + e.message, 'err'); }
 }
 
@@ -301,11 +319,13 @@ async function pgGenerateOne(mining, capa) {
     const r = await pgFetch('/generate', { method:'POST', body: { mining, capa } });
     if (r.ok) {
       pgLog('✓ ' + r.filename, 'ok');
+      pgTrace('Proyecto generado', 'Mining ' + mining + ' · Capa ' + capa + ' · ' + r.filename, 'ok');
       await pgLoadOutput();
     } else {
       pgLog('✗ ' + (r.error || 'fallo'), 'err');
+      pgTrace('Error generando proyecto', 'Mining ' + mining + ' · ' + (r.error || 'fallo'), 'err');
     }
-  } catch(e) { pgLog('✗ Error: ' + e.message, 'err'); }
+  } catch(e) { pgLog('✗ Error: ' + e.message, 'err'); pgTrace('Error generando proyecto', e.message, 'err'); }
 }
 
 async function pgGenerateAll(capa) {
@@ -315,12 +335,17 @@ async function pgGenerateAll(capa) {
   try {
     const r = await pgFetch('/generate-all', { method:'POST', body: { capa } });
     pgLog('OK: ' + r.ok_count + ' · FAIL: ' + r.fail_count, r.fail_count === 0 ? 'ok' : 'err');
+    pgTrace(
+      'Generacion masiva completada',
+      'Capa ' + capa + ' · OK ' + r.ok_count + ' · FAIL ' + r.fail_count,
+      r.fail_count === 0 ? 'ok' : 'err'
+    );
     r.results.forEach(x => {
       if (x.ok) pgLog('  ✓ M' + String(x.mining).padStart(2,'0') + ' → ' + x.filename, 'ok');
       else pgLog('  ✗ M' + String(x.mining).padStart(2,'0') + ' → ' + x.error, 'err');
     });
     await pgLoadOutput();
-  } catch(e) { pgLog('✗ Error: ' + e.message, 'err'); }
+  } catch(e) { pgLog('✗ Error: ' + e.message, 'err'); pgTrace('Error en generacion masiva', e.message, 'err'); }
 }
 
 async function pgSaveConfig() {
@@ -340,10 +365,12 @@ async function pgSaveConfig() {
     msg.textContent = '✓ Guardado: ' + r.updated_keys.join(', ');
     msg.style.color = 'var(--green)';
     pgLog('Config actualizada (' + r.updated_keys.length + ' keys)', 'ok');
+    pgTrace('Configuracion guardada', r.updated_keys.join(', '), 'ok');
     await pgCheckHealth();
   } catch(e) {
     msg.textContent = '✗ Error: ' + e.message;
     msg.style.color = 'var(--red)';
+    pgTrace('Error guardando configuracion', e.message, 'err');
   }
 }
 
@@ -393,6 +420,7 @@ async function pgSaveConfig() {
           document.getElementById('pg-sqx-db').value = c.data_db;
           document.getElementById('pg-sqx-projects').value = c.projects_dir;
           pgLog('Path SQX seleccionado: ' + c.sqx_path + ' (pulsa Guardar config)', 'info');
+          pgTrace('Ruta SQX detectada', c.sqx_path, 'info');
           out.innerHTML = '<div class="alert success"><div class="alert-icon">✓</div><div class="alert-content"><strong>Aplicado.</strong> Pulsa "💾 Guardar config" para persistir.</div></div>';
         });
       });
@@ -423,9 +451,11 @@ async function pgSaveConfig() {
       if (r.valid && r.resolved.data_db) {
         document.getElementById('pg-sqx-db').value = r.resolved.data_db;
         document.getElementById('pg-sqx-projects').value = r.resolved.projects_dir || '';
+        pgTrace('Validacion SQX correcta', path, 'ok');
       }
     } catch(e) {
       out.innerHTML = '<div style="color:var(--red);font-size:12px;">Error: '+pgEsc(e.message)+'</div>';
+      pgTrace('Error validando SQX', e.message, 'err');
     }
   });
 
@@ -534,6 +564,11 @@ async function pgSaveConfig() {
     try {
       const r = await pgFetch('/sqx-clean', { method:'POST', body: { files: [...CLN_SELECTED], options: opts } });
       pgLog('Resultado: ' + r.ok_count + ' OK · ' + r.fail_count + ' FAIL', r.fail_count === 0 ? 'ok' : 'err');
+      pgTrace(
+        'Limpieza SQX completada',
+        CLN_SELECTED.size + ' archivos · OK ' + r.ok_count + ' · FAIL ' + r.fail_count,
+        r.fail_count === 0 ? 'ok' : 'err'
+      );
       r.results.forEach(x => {
         const fname = x.path.split(/[\\/]/).pop();
         if (x.ok) pgLog('  ✓ ' + fname + ' — ' + x.actions.join(', '), 'ok');
@@ -541,7 +576,7 @@ async function pgSaveConfig() {
       });
       // Re-scan al terminar
       await clnScan();
-    } catch(e) { pgLog('Error procesando: ' + e.message, 'err'); }
+    } catch(e) { pgLog('Error procesando: ' + e.message, 'err'); pgTrace('Error en limpieza SQX', e.message, 'err'); }
   }
 
   document.getElementById('cln-scan').addEventListener('click', clnScan);
@@ -560,7 +595,8 @@ async function pgSaveConfig() {
       const r = await pgFetch('/output');
       await pgFetch('/open-folder', { method:'POST', body: { path: r.output_dir } });
       pgLog('📁 Abierta carpeta output', 'info');
-    } catch(e) { pgLog('Error abrir carpeta: ' + e.message, 'err'); }
+      pgTrace('Carpeta output abierta', r.output_dir, 'info');
+    } catch(e) { pgLog('Error abrir carpeta: ' + e.message, 'err'); pgTrace('Error abriendo output', e.message, 'err'); }
   });
 
   // Auto-check al abrir el tab
