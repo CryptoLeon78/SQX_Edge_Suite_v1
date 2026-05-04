@@ -38,6 +38,13 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("app\\SQX_Dashboard_v6.html", text)
         self.assertIn("http://127.0.0.1:5050/api/health", text)
 
+    def test_portable_package_includes_embedded_runtime(self):
+        text = (TOOL_ROOT / "tools" / "package_portable.ps1").read_text(encoding="utf-8-sig")
+        self.assertIn('"runtime\\python\\python.exe"', text)
+        self.assertNotIn('"runtime"', text)
+        self.assertIn('"\\\\backend\\\\sqx-edge-tool\\\\runtime\\\\downloads\\\\",', text)
+        self.assertIn('"node_modules"', text)
+
     def test_roadmap_marks_f7_done(self):
         readme = (TOOL_ROOT / "README.md").read_text(encoding="utf-8-sig")
         self.assertIn("[x] **F7**", readme)

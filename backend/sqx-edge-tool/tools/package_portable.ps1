@@ -25,7 +25,7 @@ $StageDir = Join-Path $OutputDir "stage_$Stamp"
 
 New-Item -ItemType Directory -Path $StageDir -Force | Out-Null
 
-$excludeNames = @(".git", "venv", "__pycache__", "output", "dist", "backups", ".pytest_cache", ".playwright-cli")
+$excludeNames = @(".git", "venv", "__pycache__", "output", "dist", "backups", ".pytest_cache", ".playwright-cli", "node_modules")
 $excludePatterns = @(
   "\\backend\\sqx-edge-tool\\runtime\\downloads\\",
   "\\backend\\sqx-edge-tool\\output\\",

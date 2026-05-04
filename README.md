@@ -74,10 +74,20 @@ powershell -NoProfile -ExecutionPolicy Bypass -File backend\sqx-edge-tool\tools\
 backend\sqx-edge-tool\venv\Scripts\python.exe -m pytest backend\sqx-edge-tool
 ```
 
+Los tests E2E de interfaz son opcionales. Si quieres activarlos en desarrollo:
+
+```powershell
+npm install --no-save --package-lock=false playwright
+$env:SQX_E2E_SCREENSHOTS='1'
+backend\sqx-edge-tool\venv\Scripts\python.exe -m pytest backend\sqx-edge-tool
+```
+
+Si Playwright no esta instalado, esos tests se saltan automaticamente.
+
 ## Empaquetado
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File backend\sqx-edge-tool\tools\package_portable.ps1 -RequireEmbeddedPython
 ```
 
-El ZIP portable se crea en `dist/`.
+El ZIP portable se crea en `dist/` e incluye el Python embebido para que el usuario final pueda abrir `START_SQX_EDGE.bat` sin instalar nada.
