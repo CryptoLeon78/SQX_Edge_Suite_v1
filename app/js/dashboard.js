@@ -32,6 +32,7 @@ const SQX_RUNTIME_CONFIG = window.SQX_CONFIG || { ui:{}, storageKeys:{}, value:f
 const SQX_UI_CONFIG = SQX_RUNTIME_CONFIG.ui || {};
 const SQX_STORAGE_KEYS = SQX_RUNTIME_CONFIG.storageKeys || {};
 const SQX_MODULES = window.SQX || {};
+const SQX_FORMATTERS = SQX_MODULES.formatters || {};
 
 function sqxConfigValue(path, fallback) {
   return SQX_RUNTIME_CONFIG.value ? SQX_RUNTIME_CONFIG.value(path, fallback) : fallback;
@@ -76,18 +77,20 @@ function calcScore(asset, dirFilter) {
 // HELPERS
 // ============================================================
 function rLabel(r) {
+  if (SQX_FORMATTERS.ratingLabel) return SQX_FORMATTERS.ratingLabel(r);
   if (r==='++') return { text:'Estrella', cls:'rating-pp' };
   if (r==='+')  return { text:'Bueno',    cls:'rating-p'  };
   if (r==='~')  return { text:'Precauc.', cls:'rating-t'  };
   return { text:'No recom.', cls:'rating-m' };
 }
 function hmCls(r) {
+  if (SQX_FORMATTERS.heatmapClass) return SQX_FORMATTERS.heatmapClass(r);
   if (r==='++') return 'hm-pp'; if (r==='+') return 'hm-p';
   if (r==='~')  return 'hm-t';  if (r==='-') return 'hm-m';
   return '';
 }
 function dirCls(d) {
-  return d==='L' ? 'dir-long' : d==='S' ? 'dir-short' : 'dir-both';
+  return SQX_FORMATTERS.assetDirectionClass ? SQX_FORMATTERS.assetDirectionClass(d) : d==='L' ? 'dir-long' : d==='S' ? 'dir-short' : 'dir-both';
 }
 
 // SQX Config: A = Both + Entry Symmetry, B = Both sin symmetry, C = Only Long, D = Only Short
@@ -786,23 +789,27 @@ let stratFilterTier     = 'all';
 let stratFilterStatus   = 'all';
 
 function tierClass(tier) {
+  if (SQX_FORMATTERS.tierClass) return SQX_FORMATTERS.tierClass(tier);
   if (tier === '1')   return 'tier-1';
   if (tier === '1.5') return 'tier-15';
   if (tier === '2')   return 'tier-2';
   return 'tier-tentativa';
 }
 function tierLabel(tier) {
+  if (SQX_FORMATTERS.tierLabel) return SQX_FORMATTERS.tierLabel(tier);
   if (tier === '1')   return 'TIER 1';
   if (tier === '1.5') return 'TIER 1.5';
   if (tier === '2')   return 'TIER 2';
   return 'TENTATIVA';
 }
 function dirClass(d) {
+  if (SQX_FORMATTERS.strategyDirectionClass) return SQX_FORMATTERS.strategyDirectionClass(d);
   if (d === 'L')   return 'dir-L';
   if (d === 'S')   return 'dir-S';
   return 'dir-LS';
 }
 function metricClass(label, val) {
+  if (SQX_FORMATTERS.metricClass) return SQX_FORMATTERS.metricClass(label, val);
   if (val == null) return '';
   if (label === 'PF')      return val >= 1.5 ? 'pos' : val >= 1.2 ? 'warn' : 'neg';
   if (label === 'Ret/DD')  return val >= 5   ? 'pos' : val >= 3   ? 'warn' : 'neg';
@@ -814,12 +821,14 @@ function metricClass(label, val) {
   return '';
 }
 function fmtNum(v, dec=2) {
+  if (SQX_FORMATTERS.formatNumber) return SQX_FORMATTERS.formatNumber(v, dec);
   if (v == null || v === '') return '—';
   if (typeof v !== 'number') v = parseFloat(v);
   if (isNaN(v)) return '—';
   return v.toLocaleString('en-US', { minimumFractionDigits:dec, maximumFractionDigits:dec });
 }
 function fmtInt(v) {
+  if (SQX_FORMATTERS.formatInteger) return SQX_FORMATTERS.formatInteger(v);
   if (v == null || v === '') return '—';
   return parseInt(v,10).toLocaleString('en-US');
 }
@@ -870,6 +879,7 @@ function populateStratFilters() {
 }
 
 function stratEsc(value) {
+  if (SQX_FORMATTERS.escapeHtml) return SQX_FORMATTERS.escapeHtml(value);
   return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({
     '&': '&amp;',
     '<': '&lt;',
@@ -1112,6 +1122,7 @@ function saveHomeTrace() {
 }
 
 function homeEsc(value) {
+  if (SQX_FORMATTERS.escapeHtml) return SQX_FORMATTERS.escapeHtml(value);
   return String(value == null ? '' : value).replace(/[<>&"']/g, function(ch) {
     return ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch];
   });

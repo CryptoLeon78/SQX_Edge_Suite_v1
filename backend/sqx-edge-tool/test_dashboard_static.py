@@ -28,6 +28,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/core.js",
                 "js/modules/storage.js",
                 "js/modules/ui.js",
+                "js/modules/formatters.js",
                 "js/modules/index.js",
                 "js/data.js",
                 "js/dashboard.js",
@@ -43,6 +44,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/core.js",
             "js/modules/storage.js",
             "js/modules/ui.js",
+            "js/modules/formatters.js",
             "js/modules/index.js",
         ]
 
@@ -53,6 +55,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         core_js = (APP_ROOT / "js" / "modules" / "core.js").read_text(encoding="utf-8-sig")
         storage_js = (APP_ROOT / "js" / "modules" / "storage.js").read_text(encoding="utf-8-sig")
         ui_js = (APP_ROOT / "js" / "modules" / "ui.js").read_text(encoding="utf-8-sig")
+        formatters_js = (APP_ROOT / "js" / "modules" / "formatters.js").read_text(encoding="utf-8-sig")
         index_js = (APP_ROOT / "js" / "modules" / "index.js").read_text(encoding="utf-8-sig")
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
 
@@ -60,8 +63,30 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("registerModule", core_js)
         self.assertIn("SQX.storage", storage_js)
         self.assertIn("SQX.ui", ui_js)
+        self.assertIn("SQX.formatters", formatters_js)
         self.assertIn("SQX.boot", index_js)
         self.assertIn("dashboard-legacy", dashboard_js)
+
+    def test_legacy_dashboard_helpers_delegate_to_formatter_module(self):
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        formatters_js = (APP_ROOT / "js" / "modules" / "formatters.js").read_text(encoding="utf-8-sig")
+
+        expected_exports = [
+            "ratingLabel",
+            "heatmapClass",
+            "assetDirectionClass",
+            "strategyDirectionClass",
+            "tierClass",
+            "tierLabel",
+            "metricClass",
+            "formatNumber",
+            "formatInteger",
+            "escapeHtml",
+        ]
+        for export in expected_exports:
+            with self.subTest(export=export):
+                self.assertIn(export, formatters_js)
+                self.assertIn(f"SQX_FORMATTERS.{export}", dashboard_js)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
