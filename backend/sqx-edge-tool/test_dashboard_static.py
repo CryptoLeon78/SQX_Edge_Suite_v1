@@ -32,6 +32,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/formatters.js",
                 "js/modules/domain.js",
                 "js/modules/datasets.js",
+                "js/modules/renderers.js",
                 "js/modules/index.js",
                 "js/data.js",
                 "js/dashboard.js",
@@ -51,6 +52,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/formatters.js",
             "js/modules/domain.js",
             "js/modules/datasets.js",
+            "js/modules/renderers.js",
             "js/modules/index.js",
         ]
 
@@ -65,6 +67,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         formatters_js = (APP_ROOT / "js" / "modules" / "formatters.js").read_text(encoding="utf-8-sig")
         domain_js = (APP_ROOT / "js" / "modules" / "domain.js").read_text(encoding="utf-8-sig")
         datasets_js = (APP_ROOT / "js" / "modules" / "datasets.js").read_text(encoding="utf-8-sig")
+        renderers_js = (APP_ROOT / "js" / "modules" / "renderers.js").read_text(encoding="utf-8-sig")
         index_js = (APP_ROOT / "js" / "modules" / "index.js").read_text(encoding="utf-8-sig")
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
 
@@ -76,8 +79,24 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.formatters", formatters_js)
         self.assertIn("SQX.domain", domain_js)
         self.assertIn("SQX.datasets", datasets_js)
+        self.assertIn("SQX.renderers", renderers_js)
         self.assertIn("SQX.boot", index_js)
         self.assertIn("dashboard-legacy", dashboard_js)
+
+    def test_dashboard_html_helpers_delegate_to_renderers_module(self):
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        renderers_js = (APP_ROOT / "js" / "modules" / "renderers.js").read_text(encoding="utf-8-sig")
+
+        expected_exports = [
+            "sqxBadge",
+            "sqxPreviewHTML",
+            "ratingPairBadge",
+            "compositeBar",
+        ]
+        for export in expected_exports:
+            with self.subTest(export=export):
+                self.assertIn(export, renderers_js)
+                self.assertIn(f"SQX_RENDERERS.{export}", dashboard_js)
 
     def test_dashboard_dataset_loading_delegates_to_datasets_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
