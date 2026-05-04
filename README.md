@@ -2,6 +2,32 @@
 
 Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custom Projects `.cfx` para StrategyQuant X y limpiar estrategias `.sqx` post-mining.
 
+## Entrega Final
+
+Paquete recomendado para usuario final:
+
+```text
+dist/SQX_Edge_Tool_Portable_*.zip
+```
+
+Uso para usuario basico:
+
+1. Descomprime el ZIP en una carpeta normal, por ejemplo `C:\SQX_Edge`.
+2. Haz doble click en `START_SQX_EDGE.bat`.
+3. Espera unos segundos: se arranca la API local y se abre el dashboard.
+4. Usa la app desde el navegador que se abre.
+5. Para cerrar la API local, haz doble click en `STOP_SQX_EDGE.bat`.
+
+No hace falta instalar Python. El ZIP incluye un runtime portable dentro de `backend\sqx-edge-tool\runtime\python`.
+
+Problemas frecuentes:
+
+- Si Windows muestra SmartScreen, pulsa `Mas informacion` y despues `Ejecutar de todas formas`.
+- Si no abre el dashboard, ejecuta `STOP_SQX_EDGE.bat` y vuelve a abrir `START_SQX_EDGE.bat`.
+- Si la API no conecta, revisa que el puerto `5050` no este ocupado por otra aplicacion.
+- No muevas archivos internos del ZIP descomprimido; abre siempre desde `START_SQX_EDGE.bat`.
+- Si StrategyQuant X esta en una ruta distinta, configuralo desde el tab `Project Generator`.
+
 ## Inicio Rapido
 
 Para usuario basico, doble click en:
