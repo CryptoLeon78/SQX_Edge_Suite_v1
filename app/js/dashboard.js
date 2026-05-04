@@ -39,6 +39,7 @@ const SQX_DATASETS = SQX_MODULES.datasets || {};
 const SQX_RENDERERS = SQX_MODULES.renderers || {};
 const SQX_CHARTS = SQX_MODULES.charts || {};
 const SQX_STRATEGIES = SQX_MODULES.strategies || {};
+const SQX_HOME = SQX_MODULES.home || {};
 const SQX_STORAGE = SQX_MODULES.storage || {
   getJson:function(key, fallback){ try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch(e){ return fallback; } },
   setJson:function(key, value){ localStorage.setItem(key, JSON.stringify(value)); return true; }
@@ -920,6 +921,7 @@ function saveHomeTrace() {
 }
 
 function homeEsc(value) {
+  if (SQX_HOME.escapeHtml) return SQX_HOME.escapeHtml(value);
   if (SQX_FORMATTERS.escapeHtml) return SQX_FORMATTERS.escapeHtml(value);
   return String(value == null ? '' : value).replace(/[<>&"']/g, function(ch) {
     return ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#39;' })[ch];
@@ -936,7 +938,7 @@ function renderHomeTrace() {
     return;
   }
   empty.style.display = 'none';
-  list.innerHTML = HOME_TRACE.map(function(item) {
+  list.innerHTML = SQX_HOME.traceHtml ? SQX_HOME.traceHtml(HOME_TRACE, homeEsc) : HOME_TRACE.map(function(item) {
     return (
       '<div class="home-history-item ' + homeEsc(item.level || 'info') + '">' +
         '<span class="home-history-dot"></span>' +
@@ -950,15 +952,14 @@ function renderHomeTrace() {
 }
 
 window.addHomeTrace = function(title, detail, level) {
-  var now = new Date();
-  HOME_TRACE.unshift({
+  var item = SQX_HOME.createTraceItem ? SQX_HOME.createTraceItem(title, detail, level) : {
     title: title || 'Evento',
     detail: detail || '',
     level: level || 'info',
-    timeLabel: now.toLocaleString(),
-    ts: now.getTime()
-  });
-  HOME_TRACE = HOME_TRACE.slice(0, 12);
+    timeLabel: new Date().toLocaleString(),
+    ts: Date.now()
+  };
+  HOME_TRACE = SQX_HOME.addTrace ? SQX_HOME.addTrace(HOME_TRACE, item, 12) : [item].concat(HOME_TRACE).slice(0, 12);
   saveHomeTrace();
   renderHomeTrace();
 };
@@ -989,62 +990,94 @@ function renderHome() {
     }
     if (detailEl) detailEl.textContent = detail;
   }
-  var assetCounts = (ASSETS || []).reduce(function(acc, asset) {
-    acc[asset.type] = (acc[asset.type] || 0) + 1;
-    return acc;
-  }, {});
-  var strategyUserCount = Array.isArray(STRATEGIES_USER) ? STRATEGIES_USER.length : 0;
-  var marked = Object.keys(PRIORITY_PROGRESS || {}).length;
-  var nextAction = (PIPELINE_STATE && PIPELINE_STATE.nextAction) || 'Plan operativo';
-  var phaseCount = Object.keys(PHASE_META || {}).length;
-  var manifestOk = !!((ASSETS || []).length && (PLAN_MININGS || []).length && (STRATEGIES || []).length);
-  var planOk = (PLAN_MININGS || []).length > 0;
-  var strategiesOk = ((STRATEGIES || []).length + strategyUserCount) > 0;
-  var backendOk = HOME_BACKEND_STATE.state === 'up';
-  var backendMeta = HOME_BACKEND_STATE.meta || {};
-  var templatesOk = backendOk && !!(backendMeta.templates_capa1_exists && backendMeta.templates_capa2_exists);
-  var sqxPathOk = backendOk && !!backendMeta.sqx_path_set;
-  var outputOk = backendOk && !!(backendMeta.output_dir && backendMeta.output_dir_exists);
-  var auditItems = [manifestOk, planOk, backendOk, templatesOk, sqxPathOk, outputOk];
-  var auditPassed = auditItems.filter(Boolean).length;
-  var readiness = Math.round(([manifestOk, planOk, strategiesOk, backendOk].filter(Boolean).length / 4) * 100);
-  if (nextAction.length > 82) nextAction = nextAction.slice(0, 79).trim() + '...';
+  var model = SQX_HOME.computeHomeModel
+    ? SQX_HOME.computeHomeModel({
+      assets: ASSETS,
+      backendState: HOME_BACKEND_STATE,
+      catKeys: CAT_KEYS,
+      manifestVersion: (SQX_MANIFEST && SQX_MANIFEST.version) || 1,
+      phaseMeta: PHASE_META,
+      pipelineState: PIPELINE_STATE,
+      planMinings: PLAN_MININGS,
+      priorityProgress: PRIORITY_PROGRESS,
+      strategies: STRATEGIES,
+      strategiesUser: STRATEGIES_USER
+    })
+    : null;
+  if (!model) {
+    var assetCounts = (ASSETS || []).reduce(function(acc, asset) {
+      acc[asset.type] = (acc[asset.type] || 0) + 1;
+      return acc;
+    }, {});
+    var strategyUserCount = Array.isArray(STRATEGIES_USER) ? STRATEGIES_USER.length : 0;
+    var marked = Object.keys(PRIORITY_PROGRESS || {}).length;
+    var nextAction = (PIPELINE_STATE && PIPELINE_STATE.nextAction) || 'Plan operativo';
+    var phaseCount = Object.keys(PHASE_META || {}).length;
+    var manifestOk = !!((ASSETS || []).length && (PLAN_MININGS || []).length && (STRATEGIES || []).length);
+    var planOk = (PLAN_MININGS || []).length > 0;
+    var strategiesOk = ((STRATEGIES || []).length + strategyUserCount) > 0;
+    var backendOk = HOME_BACKEND_STATE.state === 'up';
+    var backendMeta = HOME_BACKEND_STATE.meta || {};
+    var templatesOk = backendOk && !!(backendMeta.templates_capa1_exists && backendMeta.templates_capa2_exists);
+    var sqxPathOk = backendOk && !!backendMeta.sqx_path_set;
+    var outputOk = backendOk && !!(backendMeta.output_dir && backendMeta.output_dir_exists);
+    var auditItems = [manifestOk, planOk, backendOk, templatesOk, sqxPathOk, outputOk];
+    var readiness = Math.round(([manifestOk, planOk, strategiesOk, backendOk].filter(Boolean).length / 4) * 100);
+    nextAction = SQX_HOME.trimAction ? SQX_HOME.trimAction(nextAction) : (nextAction.length > 82 ? nextAction.slice(0, 79).trim() + '...' : nextAction);
+    model = {
+      assetCount: (ASSETS || []).length,
+      assetsSub: (assetCounts.forex || 0) + ' Forex · ' + (assetCounts.index || 0) + ' Indices · ' + (assetCounts.oro || 0) + ' Oro',
+      planCount: (PLAN_MININGS || []).length,
+      planSub: phaseCount + ' fases · minings configurados',
+      strategyCount: (STRATEGIES || []).length + strategyUserCount,
+      strategiesSub: (STRATEGIES || []).length + ' base · ' + strategyUserCount + ' importadas',
+      priorityCount: marked,
+      nextAction: nextAction,
+      backendTitle: HOME_BACKEND_STATE.title,
+      dataStatus: manifestOk ? 'Manifest v' + ((SQX_MANIFEST && SQX_MANIFEST.version) || 1) : 'Manifest incompleto',
+      readiness: readiness,
+      heroStatus: backendOk ? (sqxPathOk ? 'API conectada. Plan, manifiestos y generador listos para operar.' : 'API conectada. Falta completar la ruta SQX para generar con seguridad.') : 'Manifest activo. Arranca la API local para habilitar generacion, validacion de rutas y limpieza SQX.',
+      auditScore: auditItems.filter(Boolean).length + '/' + auditItems.length,
+      checks: { manifest: manifestOk, plan: planOk, strategies: strategiesOk, backend: backendOk },
+      states: { backend: backendOk ? 'ok' : 'warn', data: manifestOk ? 'ok' : 'warn' },
+      audit: {
+        manifest: { ok: manifestOk, detail: (ASSETS || []).length + ' activos · ' + (CAT_KEYS || []).length + ' categorias' },
+        plan: { ok: planOk, detail: phaseCount + ' fases · ' + (PLAN_MININGS || []).length + ' minings' },
+        backend: { ok: backendOk, detail: backendOk ? 'API v' + (backendMeta.version || '?') : 'API no conectada' },
+        templates: { ok: templatesOk, detail: backendOk ? (templatesOk ? 'Capa 1 + Capa 2 OK' : 'revisar templates') : 'requiere API' },
+        sqx: { ok: sqxPathOk, detail: backendOk ? (sqxPathOk ? 'ruta configurada' : 'ruta pendiente') : 'requiere API' },
+        output: { ok: outputOk, detail: backendOk ? (outputOk ? 'carpeta accesible' : 'output pendiente') : 'requiere API' }
+      }
+    };
+  }
 
-  setText('home-assets-count', (ASSETS || []).length);
-  setText(
-    'home-assets-sub',
-    (assetCounts.forex || 0) + ' Forex · ' + (assetCounts.index || 0) + ' Indices · ' + (assetCounts.oro || 0) + ' Oro'
-  );
-  setText('home-minings-count', (PLAN_MININGS || []).length);
-  setText('home-plan-sub', phaseCount + ' fases · minings configurados');
-  setText('home-strategies-count', (STRATEGIES || []).length + strategyUserCount);
-  setText('home-strategies-sub', (STRATEGIES || []).length + ' base · ' + strategyUserCount + ' importadas');
-  setText('home-priority-count', marked);
-  setText('home-next-action', nextAction);
-  setText('home-backend-status', HOME_BACKEND_STATE.title);
-  setText('home-data-status', manifestOk ? 'Manifest v' + ((SQX_MANIFEST && SQX_MANIFEST.version) || 1) : 'Manifest incompleto');
-  setText('home-readiness-score', readiness + '%');
-  setText(
-    'home-hero-status',
-    backendOk
-      ? (sqxPathOk ? 'API conectada. Plan, manifiestos y generador listos para operar.' : 'API conectada. Falta completar la ruta SQX para generar con seguridad.')
-      : 'Manifest activo. Arranca la API local para habilitar generacion, validacion de rutas y limpieza SQX.'
-  );
-  setText('home-audit-score', auditPassed + '/' + auditItems.length);
+  setText('home-assets-count', model.assetCount);
+  setText('home-assets-sub', model.assetsSub);
+  setText('home-minings-count', model.planCount);
+  setText('home-plan-sub', model.planSub);
+  setText('home-strategies-count', model.strategyCount);
+  setText('home-strategies-sub', model.strategiesSub);
+  setText('home-priority-count', model.priorityCount);
+  setText('home-next-action', model.nextAction);
+  setText('home-backend-status', model.backendTitle);
+  setText('home-data-status', model.dataStatus);
+  setText('home-readiness-score', model.readiness + '%');
+  setText('home-hero-status', model.heroStatus);
+  setText('home-audit-score', model.auditScore);
   var bar = document.getElementById('home-readiness-bar');
-  if (bar) bar.style.width = readiness + '%';
-  setCheck('home-check-manifest', manifestOk);
-  setCheck('home-check-plan', planOk);
-  setCheck('home-check-strategies', strategiesOk);
-  setCheck('home-check-backend', backendOk);
-  setStateClass('home-backend-status', backendOk ? 'ok' : 'warn');
-  setStateClass('home-data-status', manifestOk ? 'ok' : 'warn');
-  setAudit('home-audit-manifest', manifestOk, (ASSETS || []).length + ' activos · ' + (CAT_KEYS || []).length + ' categorias');
-  setAudit('home-audit-plan', planOk, phaseCount + ' fases · ' + (PLAN_MININGS || []).length + ' minings');
-  setAudit('home-audit-backend', backendOk, backendOk ? 'API v' + (backendMeta.version || '?') : 'API no conectada');
-  setAudit('home-audit-templates', templatesOk, backendOk ? (templatesOk ? 'Capa 1 + Capa 2 OK' : 'revisar templates') : 'requiere API');
-  setAudit('home-audit-sqx', sqxPathOk, backendOk ? (sqxPathOk ? 'ruta configurada' : 'ruta pendiente') : 'requiere API');
-  setAudit('home-audit-output', outputOk, backendOk ? (outputOk ? 'carpeta accesible' : 'output pendiente') : 'requiere API');
+  if (bar) bar.style.width = model.readiness + '%';
+  setCheck('home-check-manifest', model.checks.manifest);
+  setCheck('home-check-plan', model.checks.plan);
+  setCheck('home-check-strategies', model.checks.strategies);
+  setCheck('home-check-backend', model.checks.backend);
+  setStateClass('home-backend-status', model.states.backend);
+  setStateClass('home-data-status', model.states.data);
+  setAudit('home-audit-manifest', model.audit.manifest.ok, model.audit.manifest.detail);
+  setAudit('home-audit-plan', model.audit.plan.ok, model.audit.plan.detail);
+  setAudit('home-audit-backend', model.audit.backend.ok, model.audit.backend.detail);
+  setAudit('home-audit-templates', model.audit.templates.ok, model.audit.templates.detail);
+  setAudit('home-audit-sqx', model.audit.sqx.ok, model.audit.sqx.detail);
+  setAudit('home-audit-output', model.audit.output.ok, model.audit.output.detail);
   renderHomeTrace();
 }
 

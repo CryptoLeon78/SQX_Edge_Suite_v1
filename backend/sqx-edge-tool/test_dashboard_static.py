@@ -35,6 +35,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/renderers.js",
                 "js/modules/charts.js",
                 "js/modules/strategies.js",
+                "js/modules/home.js",
                 "js/modules/index.js",
                 "js/data.js",
                 "js/dashboard.js",
@@ -57,6 +58,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/renderers.js",
             "js/modules/charts.js",
             "js/modules/strategies.js",
+            "js/modules/home.js",
             "js/modules/index.js",
         ]
 
@@ -74,6 +76,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         renderers_js = (APP_ROOT / "js" / "modules" / "renderers.js").read_text(encoding="utf-8-sig")
         charts_js = (APP_ROOT / "js" / "modules" / "charts.js").read_text(encoding="utf-8-sig")
         strategies_js = (APP_ROOT / "js" / "modules" / "strategies.js").read_text(encoding="utf-8-sig")
+        home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
         index_js = (APP_ROOT / "js" / "modules" / "index.js").read_text(encoding="utf-8-sig")
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
 
@@ -88,6 +91,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.renderers", renderers_js)
         self.assertIn("SQX.charts", charts_js)
         self.assertIn("SQX.strategies", strategies_js)
+        self.assertIn("SQX.home", home_js)
         self.assertIn("SQX.boot", index_js)
         self.assertIn("dashboard-legacy", dashboard_js)
 
@@ -149,6 +153,23 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(export=export):
                 self.assertIn(export, strategies_js)
                 self.assertIn(f"SQX_STRATEGIES.{export}", dashboard_js)
+
+    def test_dashboard_home_logic_delegates_to_home_module(self):
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
+
+        expected_exports = [
+            "addTrace",
+            "computeHomeModel",
+            "createTraceItem",
+            "escapeHtml",
+            "traceHtml",
+            "trimAction",
+        ]
+        for export in expected_exports:
+            with self.subTest(export=export):
+                self.assertIn(export, home_js)
+                self.assertIn(f"SQX_HOME.{export}", dashboard_js)
 
     def test_dashboard_dataset_loading_delegates_to_datasets_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
