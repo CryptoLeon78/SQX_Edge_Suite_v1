@@ -823,8 +823,46 @@ function listFromCSV(id) {
   const v = strOrEmpty(id); if (!v) return [];
   return v.split(',').map(x => x.trim()).filter(Boolean);
 }
+function readStratFormValues() {
+  return {
+    id: strOrEmpty('sf-id'),
+    name: strOrEmpty('sf-name'),
+    mining: document.getElementById('sf-mining').value,
+    asset: strOrEmpty('sf-asset'),
+    tf: document.getElementById('sf-tf').value,
+    blocksetting: document.getElementById('sf-bs').value,
+    template: strOrEmpty('sf-template'),
+    direction: document.getElementById('sf-dir').value,
+    indicators: strOrEmpty('sf-indicators'),
+    exits: strOrEmpty('sf-exits'),
+    netProfit: strOrEmpty('sf-np'),
+    wfmProfit: strOrEmpty('sf-wfm'),
+    pf: strOrEmpty('sf-pf'),
+    sharpe: strOrEmpty('sf-sharpe'),
+    retDd: strOrEmpty('sf-retdd'),
+    ddPct: strOrEmpty('sf-ddpct'),
+    dd: strOrEmpty('sf-dd'),
+    trades: strOrEmpty('sf-trades'),
+    winPct: strOrEmpty('sf-win'),
+    rExp: strOrEmpty('sf-rexp'),
+    rExpScore: strOrEmpty('sf-rexpscore'),
+    sqn: strOrEmpty('sf-sqn'),
+    cagr: strOrEmpty('sf-cagr'),
+    stagnationDays: strOrEmpty('sf-stagd'),
+    stagnationPct: strOrEmpty('sf-stagpct'),
+    zProbability: strOrEmpty('sf-zprob'),
+    exposure: strOrEmpty('sf-exposure'),
+    tier: document.getElementById('sf-tier').value,
+    status: document.getElementById('sf-status').value,
+    testsPassed: strOrEmpty('sf-tests-ok'),
+    testsFailed: strOrEmpty('sf-tests-ko'),
+    notes: strOrEmpty('sf-notes')
+  };
+}
 function generateStratJSON() {
-  const obj = {
+  const obj = SQX_STRATEGIES.manualStrategyFromValues
+    ? SQX_STRATEGIES.manualStrategyFromValues(readStratFormValues(), new Date().toISOString().slice(0,10))
+    : {
     id:           strOrEmpty('sf-id') || '0.000000',
     name:         strOrEmpty('sf-name') || 'Sin nombre',
     mining:       parseInt(document.getElementById('sf-mining').value,10) || 1,
@@ -837,32 +875,32 @@ function generateStratJSON() {
     exits:        strOrEmpty('sf-exits'),
     metrics: {}
   };
-  // métricas - solo incluir las rellenadas
   const M = obj.metrics;
-  const np = numOrNull('sf-np');         if (np   !== null) M.net_profit = np;
-  const wf = numOrNull('sf-wfm');        if (wf   !== null) M.wfm_profit = wf;
-  const pf = numOrNull('sf-pf');         if (pf   !== null) M.pf = pf;
-  const sh = numOrNull('sf-sharpe');     if (sh   !== null) M.sharpe = sh;
-  const rd = numOrNull('sf-retdd');      if (rd   !== null) M.ret_dd = rd;
-  const dp = numOrNull('sf-ddpct');      if (dp   !== null) M.dd_pct = dp;
-  const dd = numOrNull('sf-dd');         if (dd   !== null) M.dd = dd;
-  const tr = intOrNull('sf-trades');     if (tr   !== null) M.trades = tr;
-  const wn = numOrNull('sf-win');        if (wn   !== null) M.win_pct = wn;
-  const re = numOrNull('sf-rexp');       if (re   !== null) M.r_exp = re;
-  const rs = numOrNull('sf-rexpscore');  if (rs   !== null) M.r_exp_score = rs;
-  const sq = numOrNull('sf-sqn');        if (sq   !== null) M.sqn = sq;
-  const cg = numOrNull('sf-cagr');       if (cg   !== null) M.cagr = cg;
-  const sd = intOrNull('sf-stagd');      if (sd   !== null) M.stagnation_days = sd;
-  const sp = numOrNull('sf-stagpct');    if (sp   !== null) M.stagnation_pct = sp;
-  const zp = numOrNull('sf-zprob');      if (zp   !== null) M.z_probability = zp;
-  const ex = numOrNull('sf-exposure');   if (ex   !== null) M.exposure = ex;
-
-  obj.tier         = document.getElementById('sf-tier').value;
-  obj.status       = document.getElementById('sf-status').value;
-  obj.tests_passed = listFromCSV('sf-tests-ok');
-  obj.tests_failed = listFromCSV('sf-tests-ko');
-  obj.notes        = strOrEmpty('sf-notes');
-  obj.added        = new Date().toISOString().slice(0,10);
+  if (!SQX_STRATEGIES.manualStrategyFromValues) {
+    const np = numOrNull('sf-np');         if (np   !== null) M.net_profit = np;
+    const wf = numOrNull('sf-wfm');        if (wf   !== null) M.wfm_profit = wf;
+    const pf = numOrNull('sf-pf');         if (pf   !== null) M.pf = pf;
+    const sh = numOrNull('sf-sharpe');     if (sh   !== null) M.sharpe = sh;
+    const rd = numOrNull('sf-retdd');      if (rd   !== null) M.ret_dd = rd;
+    const dp = numOrNull('sf-ddpct');      if (dp   !== null) M.dd_pct = dp;
+    const dd = numOrNull('sf-dd');         if (dd   !== null) M.dd = dd;
+    const tr = intOrNull('sf-trades');     if (tr   !== null) M.trades = tr;
+    const wn = numOrNull('sf-win');        if (wn   !== null) M.win_pct = wn;
+    const re = numOrNull('sf-rexp');       if (re   !== null) M.r_exp = re;
+    const rs = numOrNull('sf-rexpscore');  if (rs   !== null) M.r_exp_score = rs;
+    const sq = numOrNull('sf-sqn');        if (sq   !== null) M.sqn = sq;
+    const cg = numOrNull('sf-cagr');       if (cg   !== null) M.cagr = cg;
+    const sd = intOrNull('sf-stagd');      if (sd   !== null) M.stagnation_days = sd;
+    const sp = numOrNull('sf-stagpct');    if (sp   !== null) M.stagnation_pct = sp;
+    const zp = numOrNull('sf-zprob');      if (zp   !== null) M.z_probability = zp;
+    const ex = numOrNull('sf-exposure');   if (ex   !== null) M.exposure = ex;
+    obj.tier         = document.getElementById('sf-tier').value;
+    obj.status       = document.getElementById('sf-status').value;
+    obj.tests_passed = listFromCSV('sf-tests-ok');
+    obj.tests_failed = listFromCSV('sf-tests-ko');
+    obj.notes        = strOrEmpty('sf-notes');
+    obj.added        = new Date().toISOString().slice(0,10);
+  }
 
   const json = JSON.stringify(obj, null, 2);
   document.getElementById('sf-output').textContent = json;

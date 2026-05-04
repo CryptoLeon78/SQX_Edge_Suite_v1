@@ -136,6 +136,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "dedupeImportedStrategies",
             "consolidateJson",
             "consolidatedPopupHtml",
+            "manualStrategyFromValues",
             "autoDetectTemplate",
             "parseCSV",
             "detectSeparator",

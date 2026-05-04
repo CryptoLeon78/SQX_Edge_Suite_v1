@@ -329,6 +329,72 @@
     };
   }
 
+  function parseNullableNumber(value) {
+    if (value == null || value === '') return null;
+    var n = parseFloat(value);
+    return isNaN(n) ? null : n;
+  }
+
+  function parseNullableInteger(value) {
+    if (value == null || value === '') return null;
+    var n = parseInt(value, 10);
+    return isNaN(n) ? null : n;
+  }
+
+  function listFromText(value) {
+    if (!value) return [];
+    return String(value).split(',').map(function(item) {
+      return item.trim();
+    }).filter(Boolean);
+  }
+
+  function addMetric(metrics, key, value, parser) {
+    var parsed = parser(value);
+    if (parsed !== null) metrics[key] = parsed;
+  }
+
+  function manualStrategyFromValues(values, addedDate) {
+    var v = values || {};
+    var metrics = {};
+    addMetric(metrics, 'net_profit', v.netProfit, parseNullableNumber);
+    addMetric(metrics, 'wfm_profit', v.wfmProfit, parseNullableNumber);
+    addMetric(metrics, 'pf', v.pf, parseNullableNumber);
+    addMetric(metrics, 'sharpe', v.sharpe, parseNullableNumber);
+    addMetric(metrics, 'ret_dd', v.retDd, parseNullableNumber);
+    addMetric(metrics, 'dd_pct', v.ddPct, parseNullableNumber);
+    addMetric(metrics, 'dd', v.dd, parseNullableNumber);
+    addMetric(metrics, 'trades', v.trades, parseNullableInteger);
+    addMetric(metrics, 'win_pct', v.winPct, parseNullableNumber);
+    addMetric(metrics, 'r_exp', v.rExp, parseNullableNumber);
+    addMetric(metrics, 'r_exp_score', v.rExpScore, parseNullableNumber);
+    addMetric(metrics, 'sqn', v.sqn, parseNullableNumber);
+    addMetric(metrics, 'cagr', v.cagr, parseNullableNumber);
+    addMetric(metrics, 'stagnation_days', v.stagnationDays, parseNullableInteger);
+    addMetric(metrics, 'stagnation_pct', v.stagnationPct, parseNullableNumber);
+    addMetric(metrics, 'z_probability', v.zProbability, parseNullableNumber);
+    addMetric(metrics, 'exposure', v.exposure, parseNullableNumber);
+
+    return {
+      id: v.id || '0.000000',
+      name: v.name || 'Sin nombre',
+      mining: parseNullableInteger(v.mining) || 1,
+      asset: v.asset || 'XAUUSD',
+      tf: v.tf,
+      blocksetting: v.blocksetting,
+      template: v.template || 'UNKNOWN',
+      direction: v.direction,
+      indicators: v.indicators || '',
+      exits: v.exits || '',
+      metrics: metrics,
+      tier: v.tier,
+      status: v.status,
+      tests_passed: listFromText(v.testsPassed),
+      tests_failed: listFromText(v.testsFailed),
+      notes: v.notes || '',
+      added: addedDate || new Date().toISOString().slice(0, 10)
+    };
+  }
+
   function csvQuote(value) {
     return '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"';
   }
@@ -415,6 +481,7 @@
     filterCsvRows: filterCsvRows,
     filterStrategies: filterStrategies,
     getAllStrategies: getAllStrategies,
+    manualStrategyFromValues: manualStrategyFromValues,
     parseCSV: parseCSV,
     rowToStrategy: rowToStrategy,
     sortForDisplay: sortForDisplay,
