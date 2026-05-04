@@ -172,6 +172,24 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(export, home_js)
                 self.assertIn(f"SQX_HOME.{export}", dashboard_js)
 
+    def test_dashboard_navigation_delegates_to_ui_module(self):
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        ui_js = (APP_ROOT / "js" / "modules" / "ui.js").read_text(encoding="utf-8-sig")
+
+        expected_exports = [
+            "activateTabById",
+            "bindButtonGroup",
+            "bindChange",
+            "bindClick",
+            "bindHomeTabButtons",
+            "bindInput",
+            "bindTabs",
+        ]
+        for export in expected_exports:
+            with self.subTest(export=export):
+                self.assertIn(export, ui_js)
+                self.assertIn(f"SQX_UI_MODULE.{export}", dashboard_js)
+
     def test_dashboard_dataset_loading_delegates_to_datasets_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
         datasets_js = (APP_ROOT / "js" / "modules" / "datasets.js").read_text(encoding="utf-8-sig")

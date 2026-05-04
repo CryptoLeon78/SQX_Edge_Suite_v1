@@ -33,6 +33,7 @@ const SQX_CONFIG_API = SQX_MODULES.config || {};
 const SQX_RUNTIME_CONFIG = SQX_CONFIG_API.raw || window.SQX_CONFIG || { ui:{}, storageKeys:{}, value:function(_path, fallback){ return fallback; } };
 const SQX_UI_CONFIG = SQX_CONFIG_API.ui ? SQX_CONFIG_API.ui() : SQX_RUNTIME_CONFIG.ui || {};
 const SQX_STORAGE_KEYS = SQX_CONFIG_API.storageKeys ? SQX_CONFIG_API.storageKeys() : SQX_RUNTIME_CONFIG.storageKeys || {};
+const SQX_UI_MODULE = SQX_MODULES.ui || {};
 const SQX_FORMATTERS = SQX_MODULES.formatters || {};
 const SQX_DOMAIN = SQX_MODULES.domain || {};
 const SQX_DATASETS = SQX_MODULES.datasets || {};
@@ -1096,6 +1097,7 @@ window.updateHomeBackendStatus = function(state, title, desc, meta) {
 };
 
 function activateTabById(id) {
+  if (SQX_UI_MODULE.activateTabById) return SQX_UI_MODULE.activateTabById(id, document);
   var tab = document.querySelector('.tab[data-tab="' + id + '"]');
   var panel = document.getElementById('tab-' + id);
   if (!tab || !panel) return;
@@ -1105,11 +1107,13 @@ function activateTabById(id) {
   panel.style.display = 'block';
 }
 
-document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+if (SQX_UI_MODULE.bindTabs) SQX_UI_MODULE.bindTabs('.tab', activateTabById, document);
+else document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   activateTabById(t.dataset.tab);
 }));
 
-document.querySelectorAll('[data-home-tab]').forEach(function(btn) {
+if (SQX_UI_MODULE.bindHomeTabButtons) SQX_UI_MODULE.bindHomeTabButtons('[data-home-tab]', activateTabById, document);
+else document.querySelectorAll('[data-home-tab]').forEach(function(btn) {
   btn.addEventListener('click', function() {
     activateTabById(btn.dataset.homeTab);
   });
@@ -1125,6 +1129,7 @@ if (homeHistoryClear) {
 }
 
 function bindBtns(sel, dataKey, varSetter, cb) {
+  if (SQX_UI_MODULE.bindButtonGroup) return SQX_UI_MODULE.bindButtonGroup(sel, dataKey, varSetter, cb, document);
   document.querySelectorAll(sel).forEach(b => b.addEventListener('click', () => {
     document.querySelectorAll(sel).forEach(x => x.classList.remove('active'));
     b.classList.add('active');
@@ -1133,10 +1138,12 @@ function bindBtns(sel, dataKey, varSetter, cb) {
   }));
 }
 function bindChange(id, cb) {
+  if (SQX_UI_MODULE.bindChange) return SQX_UI_MODULE.bindChange(id, cb);
   const el = document.getElementById(id);
   if (el) el.addEventListener('change', cb);
 }
 function bindClick(id, cb) {
+  if (SQX_UI_MODULE.bindClick) return SQX_UI_MODULE.bindClick(id, cb);
   const el = document.getElementById(id);
   if (el) el.addEventListener('click', cb);
 }
@@ -1146,18 +1153,18 @@ bindBtns('[data-filter-dir]',  'filterDir',  function(v){ filterDir  = v; }, ren
 bindBtns('[data-priority-min]','priorityMin',function(v){ filterPriorityMin = parseInt(v,10) || 0; }, renderPriority);
 bindBtns('[data-priority-type]','priorityType',function(v){ filterPriorityType = v; }, renderPriority);
 
-document.getElementById('search-asset').addEventListener('input',renderAssetGrid);
-document.getElementById('asset-sort').addEventListener('change',function(e){ assetSort=e.target.value; renderAssetGrid(); });
-document.getElementById('cat-filter-rating').addEventListener('change',function(e){ filterCatRating=e.target.value; renderCategoriesView(); });
-document.getElementById('cat-filter-sub').addEventListener('change',function(e){ filterCatSub=e.target.value; renderCategoriesView(); });
-document.getElementById('cat-filter-tf').addEventListener('change',function(e){ filterCatTf=e.target.value; renderCategoriesView(); });
-document.getElementById('export-cat-btn').addEventListener('click',exportCatCSV);
-document.getElementById('priority-cat-filter').addEventListener('change',function(e){ filterPriorityCat=e.target.value; renderPriority(); });
+if (SQX_UI_MODULE.bindInput) SQX_UI_MODULE.bindInput('search-asset', renderAssetGrid);
+else document.getElementById('search-asset').addEventListener('input',renderAssetGrid);
+bindChange('asset-sort', function(e){ assetSort=e.target.value; renderAssetGrid(); });
+bindChange('cat-filter-rating', function(e){ filterCatRating=e.target.value; renderCategoriesView(); });
+bindChange('cat-filter-sub', function(e){ filterCatSub=e.target.value; renderCategoriesView(); });
+bindChange('cat-filter-tf', function(e){ filterCatTf=e.target.value; renderCategoriesView(); });
+bindClick('export-cat-btn', exportCatCSV);
+bindChange('priority-cat-filter', function(e){ filterPriorityCat=e.target.value; renderPriority(); });
 
 // Global helper for inline onclick navigation to asset tab
 window.navToAsset = function(id) {
-  var tab = document.querySelector('.tab[data-tab="activos"]');
-  if (tab) tab.click();
+  activateTabById('activos');
   selectAsset(id);
 };
 
