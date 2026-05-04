@@ -30,6 +30,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/storage.js",
                 "js/modules/ui.js",
                 "js/modules/formatters.js",
+                "js/modules/domain.js",
                 "js/modules/index.js",
                 "js/data.js",
                 "js/dashboard.js",
@@ -47,6 +48,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/storage.js",
             "js/modules/ui.js",
             "js/modules/formatters.js",
+            "js/modules/domain.js",
             "js/modules/index.js",
         ]
 
@@ -59,6 +61,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         storage_js = (APP_ROOT / "js" / "modules" / "storage.js").read_text(encoding="utf-8-sig")
         ui_js = (APP_ROOT / "js" / "modules" / "ui.js").read_text(encoding="utf-8-sig")
         formatters_js = (APP_ROOT / "js" / "modules" / "formatters.js").read_text(encoding="utf-8-sig")
+        domain_js = (APP_ROOT / "js" / "modules" / "domain.js").read_text(encoding="utf-8-sig")
         index_js = (APP_ROOT / "js" / "modules" / "index.js").read_text(encoding="utf-8-sig")
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
 
@@ -68,8 +71,27 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.storage", storage_js)
         self.assertIn("SQX.ui", ui_js)
         self.assertIn("SQX.formatters", formatters_js)
+        self.assertIn("SQX.domain", domain_js)
         self.assertIn("SQX.boot", index_js)
         self.assertIn("dashboard-legacy", dashboard_js)
+
+    def test_dashboard_domain_logic_delegates_to_domain_module(self):
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        domain_js = (APP_ROOT / "js" / "modules" / "domain.js").read_text(encoding="utf-8-sig")
+
+        expected_exports = [
+            "calcScore",
+            "getSqxConfig",
+            "scoreFromScores",
+            "applyObjectiveRatings",
+            "tfMatch",
+            "sortRows",
+            "assetMatchesSqxFilter",
+        ]
+        for export in expected_exports:
+            with self.subTest(export=export):
+                self.assertIn(export, domain_js)
+                self.assertIn(f"SQX_DOMAIN.{export}", dashboard_js)
 
     def test_runtime_config_delegates_through_config_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")

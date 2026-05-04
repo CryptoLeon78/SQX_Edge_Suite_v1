@@ -34,6 +34,7 @@ const SQX_RUNTIME_CONFIG = SQX_CONFIG_API.raw || window.SQX_CONFIG || { ui:{}, s
 const SQX_UI_CONFIG = SQX_CONFIG_API.ui ? SQX_CONFIG_API.ui() : SQX_RUNTIME_CONFIG.ui || {};
 const SQX_STORAGE_KEYS = SQX_CONFIG_API.storageKeys ? SQX_CONFIG_API.storageKeys() : SQX_RUNTIME_CONFIG.storageKeys || {};
 const SQX_FORMATTERS = SQX_MODULES.formatters || {};
+const SQX_DOMAIN = SQX_MODULES.domain || {};
 const SQX_STORAGE = SQX_MODULES.storage || {
   getJson:function(key, fallback){ try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch(e){ return fallback; } },
   setJson:function(key, value){ localStorage.setItem(key, JSON.stringify(value)); return true; }
@@ -71,14 +72,8 @@ function sqxStatusSequence() {
 // SCORE
 // ============================================================
 function calcScore(asset, dirFilter) {
-  let total = 0, count = 0;
-  for (const [, val] of Object.entries(asset.cats)) {
-    if (dirFilter === 'L' && val.dir === 'S') continue;
-    if (dirFilter === 'S' && val.dir === 'L') continue;
-    total += RATING_ORDER[val.rating] ?? 0;
-    count++;
-  }
-  return { raw: total, count, norm: count ? Math.round((total / (count * 3)) * 100) : 0 };
+  if (SQX_DOMAIN.calcScore) return SQX_DOMAIN.calcScore(asset, dirFilter, RATING_ORDER);
+  return { raw: 0, count: 0, norm: 0 };
 }
 
 // ============================================================
@@ -103,33 +98,7 @@ function dirCls(d) {
 
 // SQX Config: A = Both + Entry Symmetry, B = Both sin symmetry, C = Only Long, D = Only Short
 function getSqxConfig(asset) {
-  const keys = Object.keys(asset.cats);
-  let hasL=false, hasS=false, hasLS=false, hasPair=false;
-  for (const k of keys) {
-    const v = asset.cats[k];
-    if (v.dir === 'L/S') hasLS = true;
-    else if (v.dir === 'L') hasL = true;
-    else if (v.dir === 'S') hasS = true;
-    if (k.endsWith('_S')) hasPair = true;
-  }
-  // A: forex sim (todas L/S, sin pares _S)
-  if (hasLS && !hasPair && !hasL && !hasS) {
-    return { code:'A', label:'Both + Entry Sym', desc:'Both (Long & Short) con Entry Symmetry ON. Reglas espejadas L/S — ideal para forex simétrico.' };
-  }
-  // B: tiene pares _S (reglas distintas L vs S)
-  if (hasPair) {
-    return { code:'B', label:'Both sin Symmetry', desc:'Both (Long & Short) con Symmetry OFF. SQX optimiza L y S por separado — necesario cuando las reglas Long ≠ Short (índices, oro).' };
-  }
-  // C: solo Long
-  if (hasL && !hasS) {
-    return { code:'C', label:'Only Long', desc:'Only Long. Solo se buscan estrategias en lado Long.' };
-  }
-  // D: solo Short
-  if (hasS && !hasL) {
-    return { code:'D', label:'Only Short', desc:'Only Short. Solo se buscan estrategias en lado Short.' };
-  }
-  // mixto raro (L y S sin pares _S → tratar como B)
-  return { code:'B', label:'Both sin Symmetry', desc:'Both (Long & Short) con Symmetry OFF. SQX optimiza L y S por separado.' };
+  return SQX_DOMAIN.getSqxConfig ? SQX_DOMAIN.getSqxConfig(asset) : { code:'B', label:'Both sin Symmetry', desc:'Both (Long & Short) con Symmetry OFF. SQX optimiza L y S por separado.' };
 }
 function sqxBadge(asset, mini=false) {
   const c = getSqxConfig(asset);
@@ -191,33 +160,15 @@ try {
 } catch(e) { console.warn('No se pudo parsear scores-data:', e); }
 
 function getScore(assetId, catKey) {
-  const base = catKey.endsWith('_S') ? catKey.slice(0, -2) : catKey;
-  const a = SCORES[assetId];
-  if (!a || !a[base]) return null;
-  const e = a[base];
-  return {
-    base: base,
-    objective: e.objective,
-    composite: e.composite_score,
-    metrics: (a.metrics && a.metrics[base]) || {},
-  };
+  if (SQX_DOMAIN.scoreFromScores) return SQX_DOMAIN.scoreFromScores(SCORES, assetId, catKey);
+  return null;
 }
 
 // Sobreescribe los ratings editoriales en ASSETS con los data-driven (Dukascopy H1).
 // Tras esto toda la UI (grid, cat-cards, tablas y vistas de prioridad) usa automaticamente
 // los ratings objetivos calculados desde datos reales.
 function applyObjectiveRatings() {
-  if (!SCORES || !Object.keys(SCORES).length) return;
-  for (const a of ASSETS) {
-    for (const [catKey, entry] of Object.entries(a.cats)) {
-      const sc = getScore(a.id, catKey);
-      if (sc && sc.objective) {
-        entry.rating = sc.objective;
-        entry._composite = sc.composite;
-        entry._metrics = sc.metrics;
-      }
-    }
-  }
+  if (SQX_DOMAIN.applyObjectiveRatings) SQX_DOMAIN.applyObjectiveRatings(ASSETS, SCORES, getScore);
 }
 applyObjectiveRatings();
 
@@ -414,7 +365,7 @@ function renderSqxLegend() {
   }).join('');
 }
 function tfMatch(tf, filter) {
-  return filter==='all' || tf.includes(filter);
+  return SQX_DOMAIN.tfMatch ? SQX_DOMAIN.tfMatch(tf, filter) : filter==='all' || tf.includes(filter);
 }
 function thH(label, col, ctx, key) {
   const s = sortState.cat[key] || {};
@@ -431,18 +382,7 @@ window.doSort = function doSort(ctx, key, col) {
   }
 }
 function sortRows(rows, col, dir) {
-  if (!col||!dir) return rows;
-  return [...rows].sort((a,b)=>{
-    let va,vb;
-    if (col==='asset')  { va=a.asset?.id||''; vb=b.asset?.id||''; }
-    else if (col==='sub')    { va=a.asset?.sub||''; vb=b.asset?.sub||''; }
-    else if (col==='dir')    { va=a.dir||''; vb=b.dir||''; }
-    else if (col==='tf')     { va=a.tf||''; vb=b.tf||''; }
-    else if (col==='rating') { va=RATING_ORDER[a.rating]??-1; vb=RATING_ORDER[b.rating]??-1; }
-    else { va=''; vb=''; }
-    if (typeof va==='number') return dir==='asc'?va-vb:vb-va;
-    return dir==='asc'?va.localeCompare(vb):vb.localeCompare(va);
-  });
+  return SQX_DOMAIN.sortRows ? SQX_DOMAIN.sortRows(rows, col, dir, RATING_ORDER) : rows;
 }
 function sparkHTML(asset) {
   return '<div class="sparkline">' + CAT_KEYS.map(ck => {
@@ -461,11 +401,7 @@ function sparkHTML(asset) {
 //   C     → activos con ≥1 categoría dir:'L' (ideas Long puras — índices/oro)
 //   D     → activos con ≥1 categoría dir:'S' (ideas Short puras — índices/oro)
 function assetMatchesSqxFilter(a, code) {
-  if (code === 'all') return true;
-  if (code === 'A' || code === 'B') return getSqxConfig(a).code === code;
-  if (code === 'C') return Object.values(a.cats).some(v => v.dir === 'L');
-  if (code === 'D') return Object.values(a.cats).some(v => v.dir === 'S');
-  return true;
+  return SQX_DOMAIN.assetMatchesSqxFilter ? SQX_DOMAIN.assetMatchesSqxFilter(a, code) : true;
 }
 
 function renderAssetGrid() {
