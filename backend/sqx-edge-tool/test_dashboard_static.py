@@ -105,6 +105,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             "sqxPreviewHTML",
             "ratingPairBadge",
             "compositeBar",
+            "historySection",
+            "sqxLegend",
+            "sortableHeader",
+            "sparkHTML",
         ]
         for export in expected_exports:
             with self.subTest(export=export):

@@ -60,10 +60,63 @@
       + '<div class="composite-text">Composite ' + pct + '% percentil (Dukascopy H1 2010-2026)</div>';
   }
 
+  function historySection(assetId, historical, chartHtml, macroEvents) {
+    var history = historical || {};
+    if (!history[assetId]) {
+      if (Object.keys(history).length === 0) return '';
+      return '<div class="history-section"><div class="history-title">Histórico real</div>'
+        + '<div class="history-no-data">Sin datos para ' + assetId + ' (no disponible en Darwinex).</div></div>';
+    }
+
+    return '<div class="history-section">'
+      + '<div class="history-title">Histórico real mensual base 100 — Darwinex MT5 · línea gris = SMA24 (régimen, mín 6 meses)</div>'
+      + chartHtml
+      + '<div class="history-events-legend">'
+      + (macroEvents || []).map(function(event) {
+        return '<span><i style="background:' + event.color + '"></i>' + event.label + ' (' + event.date + ')</span>';
+      }).join('')
+      + '<span style="margin-left:auto"><i style="background:rgba(34,197,94,.5)"></i>Sobre SMA24 = bull (sostenido ≥6m)</span>'
+      + '<span><i style="background:rgba(239,68,68,.5)"></i>Bajo SMA24 = bear (sostenido ≥6m)</span>'
+      + '</div></div>';
+  }
+
+  function sqxLegend(codes, configDesc, previewFn) {
+    return (codes || []).map(function(code) {
+      var meta = configDesc[code];
+      return ''
+        + '<div class="sqx-config-card">'
+        +   '<div class="sqx-config-card-head">'
+        +     '<span class="sqx-badge sqx-' + code + '"><span class="sqx-letter">' + code + '</span><span>' + meta.label + '</span></span>'
+        +   '</div>'
+        +   previewFn(code)
+        +   '<div class="sqx-config-desc">' + meta.desc + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  function sortableHeader(label, col, ctx, key, state) {
+    var s = state || {};
+    var cls = s.col === col ? (s.dir === 'asc' ? 'sort-asc' : 'sort-desc') : '';
+    return '<th class="sortable ' + cls + '" onclick="doSort(\'' + ctx + '\',\'' + key + '\',\'' + col + '\')">' + label + '<span class="sort-icon"></span></th>';
+  }
+
+  function sparkHTML(asset, catKeys, catMeta) {
+    return '<div class="sparkline">' + (catKeys || []).map(function(catKey) {
+      var entry = asset.cats[catKey];
+      if (!entry) return '<div class="sparkline-seg" style="background:#1e2233"></div>';
+      var alpha = entry.rating === '++' ? 1 : entry.rating === '+' ? 0.7 : entry.rating === '~' ? 0.4 : 0.2;
+      return '<div class="sparkline-seg" style="background:' + catMeta[catKey].color + ';opacity:' + alpha + '" title="' + catMeta[catKey].name + ': ' + entry.rating + '"></div>';
+    }).join('') + '</div>';
+  }
+
   SQX.renderers = SQX.renderers || {
     compositeBar: compositeBar,
+    historySection: historySection,
     ratingPairBadge: ratingPairBadge,
+    sortableHeader: sortableHeader,
+    sparkHTML: sparkHTML,
     sqxBadge: sqxBadge,
+    sqxLegend: sqxLegend,
     sqxPreviewHTML: sqxPreviewHTML
   };
 

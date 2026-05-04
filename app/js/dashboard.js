@@ -148,42 +148,25 @@ function historyChartSVG(assetId) {
 }
 
 function historySection(assetId) {
-  if (!HISTORICAL[assetId]) {
-    if (Object.keys(HISTORICAL).length === 0) return ''; // datos no inyectados aún, no mostrar
-    return '<div class="history-section"><div class="history-title">Histórico real</div>'
-      + '<div class="history-no-data">Sin datos para '+assetId+' (no disponible en Darwinex).</div></div>';
-  }
-  return '<div class="history-section">'
-    + '<div class="history-title">Histórico real mensual base 100 — Darwinex MT5 · línea gris = SMA24 (régimen, mín 6 meses)</div>'
-    + historyChartSVG(assetId)
-    + '<div class="history-events-legend">'
-    + MACRO_EVENTS.map(e => '<span><i style="background:'+e.color+'"></i>'+e.label+' ('+e.date+')</span>').join('')
-    + '<span style="margin-left:auto"><i style="background:rgba(34,197,94,.5)"></i>Sobre SMA24 = bull (sostenido ≥6m)</span>'
-    + '<span><i style="background:rgba(239,68,68,.5)"></i>Bajo SMA24 = bear (sostenido ≥6m)</span>'
-    + '</div></div>';
+  const chartHtml = HISTORICAL[assetId] ? historyChartSVG(assetId) : '';
+  return SQX_RENDERERS.historySection
+    ? SQX_RENDERERS.historySection(assetId, HISTORICAL, chartHtml, MACRO_EVENTS)
+    : '';
 }
 
 function renderSqxLegend() {
   const codes = ['A','B','C','D'];
-  document.getElementById('sqx-legend-grid').innerHTML = codes.map(code => {
-    const meta = SQX_CONFIG_DESC[code];
-    return ''
-      + '<div class="sqx-config-card">'
-      +   '<div class="sqx-config-card-head">'
-      +     '<span class="sqx-badge sqx-'+code+'"><span class="sqx-letter">'+code+'</span><span>'+meta.label+'</span></span>'
-      +   '</div>'
-      +   sqxPreviewHTML(code)
-      +   '<div class="sqx-config-desc">'+meta.desc+'</div>'
-      + '</div>';
-  }).join('');
+  document.getElementById('sqx-legend-grid').innerHTML = SQX_RENDERERS.sqxLegend
+    ? SQX_RENDERERS.sqxLegend(codes, SQX_CONFIG_DESC, sqxPreviewHTML)
+    : '';
 }
 function tfMatch(tf, filter) {
   return SQX_DOMAIN.tfMatch ? SQX_DOMAIN.tfMatch(tf, filter) : filter==='all' || tf.includes(filter);
 }
 function thH(label, col, ctx, key) {
-  const s = sortState.cat[key] || {};
-  const cls = s.col===col ? (s.dir==='asc'?'sort-asc':'sort-desc') : '';
-  return `<th class="sortable ${cls}" onclick="doSort('${ctx}','${key}','${col}')">${label}<span class="sort-icon"></span></th>`;
+  return SQX_RENDERERS.sortableHeader
+    ? SQX_RENDERERS.sortableHeader(label, col, ctx, key, sortState.cat[key] || {})
+    : '';
 }
 window.doSort = function doSort(ctx, key, col) {
   if (ctx==='cat') {
@@ -198,12 +181,7 @@ function sortRows(rows, col, dir) {
   return SQX_DOMAIN.sortRows ? SQX_DOMAIN.sortRows(rows, col, dir, RATING_ORDER) : rows;
 }
 function sparkHTML(asset) {
-  return '<div class="sparkline">' + CAT_KEYS.map(ck => {
-    const e = asset.cats[ck];
-    if (!e) return `<div class="sparkline-seg" style="background:#1e2233"></div>`;
-    const alpha = e.rating==='++' ? 1 : e.rating==='+' ? 0.7 : e.rating==='~' ? 0.4 : 0.2;
-    return `<div class="sparkline-seg" style="background:${CAT_META[ck].color};opacity:${alpha}" title="${CAT_META[ck].name}: ${e.rating}"></div>`;
-  }).join('') + '</div>';
+  return SQX_RENDERERS.sparkHTML ? SQX_RENDERERS.sparkHTML(asset, CAT_KEYS, CAT_META) : '';
 }
 
 // ============================================================
