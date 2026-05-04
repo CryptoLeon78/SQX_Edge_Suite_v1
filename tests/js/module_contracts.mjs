@@ -30,6 +30,9 @@ class Element {
     this.style = { display: '', width: '' };
     this.textContent = '';
     this.innerHTML = '';
+    this.checked = false;
+    this.tagName = '';
+    this.type = '';
   }
   addEventListener(type, handler) {
     this.listeners[type] = this.listeners[type] || [];
@@ -77,11 +80,27 @@ class FakeDocument {
   querySelectorAll(selector) {
     if (selector === '.tab') return this.tabs;
     if (selector === '.tab-content') return this.panels;
+    if (selector === '.subtab') {
+      return Array.from(this.elements.values()).filter(el => el.classList.contains('subtab'));
+    }
+    if (selector === '.subtab-content') {
+      return Array.from(this.elements.values()).filter(el => el.classList.contains('subtab-content'));
+    }
     if (selector === '[data-home-tab]') {
       return Array.from(this.elements.values()).filter(el => el.dataset.homeTab);
     }
     if (selector.startsWith('[data-filter-type]')) {
       return Array.from(this.elements.values()).filter(el => el.dataset.filterType);
+    }
+    if (selector === 'input[type="checkbox"][data-check]') {
+      return Array.from(this.elements.values()).filter(el => el.tagName === 'input' && el.type === 'checkbox' && el.dataset.check);
+    }
+    if (selector === 'button[data-checklist-clear]') {
+      return Array.from(this.elements.values()).filter(el => el.tagName === 'button' && el.dataset.checklistClear);
+    }
+    const checkPrefix = selector.match(/^input\[type="checkbox"\]\[data-check\^="([^"]+)"\]$/);
+    if (checkPrefix) {
+      return Array.from(this.elements.values()).filter(el => el.tagName === 'input' && el.type === 'checkbox' && (el.dataset.check || '').startsWith(checkPrefix[1]));
     }
     return [];
   }
@@ -131,6 +150,7 @@ const context = vm.createContext(sandbox);
   'app/js/modules/ui.js',
   'app/js/modules/strategies.js',
   'app/js/modules/home.js',
+  'app/js/modules/workflow.js',
 ].forEach(file => loadModule(context, file));
 
 const { SQX, document } = sandbox;
@@ -239,5 +259,44 @@ assert.equal(document.getElementById('home-readiness-bar').style.width, '100%');
 
 const trace = SQX.home.addTrace([], SQX.home.createTraceItem('Phase 17', 'contracts', 'ok', new Date('2026-05-04T12:00:00Z')), 12);
 assert.match(SQX.home.traceHtml(trace), /Phase 17/);
+
+const wfA = document.add(new Element('wf-main', ['subtab', 'active'], { subtab: 'wf-main-panel' }));
+const wfB = document.add(new Element('wf-rules-tab', ['subtab'], { subtab: 'wf-rules-panel' }));
+const wfMainPanel = document.add(new Element('wf-main-panel', ['subtab-content', 'active']));
+const wfRulesPanel = document.add(new Element('wf-rules-panel', ['subtab-content']));
+assert.equal(SQX.workflow.bindSubtabs({ document }), 2);
+wfB.click();
+assert.equal(wfA.classList.contains('active'), false);
+assert.equal(wfB.classList.contains('active'), true);
+assert.equal(wfMainPanel.classList.contains('active'), false);
+assert.equal(wfRulesPanel.classList.contains('active'), true);
+
+const boxC1 = document.add(new Element('check-c1-a', [], { check: 'capa1-a' }));
+boxC1.tagName = 'input';
+boxC1.type = 'checkbox';
+const boxC2 = document.add(new Element('check-c2-a', [], { check: 'capa2-a' }));
+boxC2.tagName = 'input';
+boxC2.type = 'checkbox';
+const clearC1 = document.add(new Element('clear-c1', [], { checklistClear: 'capa1' }));
+clearC1.tagName = 'button';
+const writes = [];
+const checklist = SQX.workflow.bindChecklist({
+  document,
+  key: 'workflow-test',
+  storage: {
+    getJson: () => ({ 'capa1-a': true, 'capa2-a': true }),
+    setJson: (_key, value) => { writes.push(Object.assign({}, value)); return true; },
+  },
+  confirm: () => true,
+});
+assert.equal(checklist.checkboxCount, 2);
+assert.equal(checklist.clearCount, 1);
+assert.equal(boxC1.checked, true);
+boxC2.checked = false;
+boxC2.dispatch('change', { target: boxC2 });
+assert.equal(writes[writes.length - 1]['capa2-a'], undefined);
+clearC1.click();
+assert.equal(boxC1.checked, false);
+assert.equal(writes[writes.length - 1]['capa1-a'], undefined);
 
 console.log('module contracts ok');

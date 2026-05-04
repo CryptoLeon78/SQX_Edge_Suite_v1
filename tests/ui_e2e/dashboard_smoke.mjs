@@ -39,6 +39,7 @@ async function run() {
     const desktop = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
     const desktopErrors = [];
     collectBrowserErrors(desktop, desktopErrors);
+    desktop.on('dialog', dialog => dialog.accept());
     await desktop.goto(dashboardUrl, { waitUntil: 'load' });
     await desktop.waitForSelector('.tab[data-tab="inicio"].active');
     await desktop.waitForSelector('#home-readiness-score');
@@ -52,6 +53,18 @@ async function run() {
     await desktop.waitForSelector('#asset-grid .asset-card');
     await desktop.evaluate(() => navToAsset('EURUSD'));
     await desktop.waitForSelector('#detail-panel.visible');
+    await desktop.locator('.tab[data-tab="workflow"]').click();
+    await desktop.waitForSelector('.tab[data-tab="workflow"].active');
+    await desktop.evaluate(() => localStorage.removeItem('sqx_workflow_checklist_v1'));
+    await desktop.locator('.subtab[data-subtab="wf-capa1"]').click();
+    await desktop.waitForSelector('#wf-capa1.active');
+    await desktop.locator('input[data-check="capa1-pre-mm"]').check();
+    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_workflow_checklist_v1') || '{}')['capa1-pre-mm'] === true);
+    await desktop.locator('button[data-checklist-clear="capa1"]').click();
+    await desktop.waitForFunction(() => !JSON.parse(localStorage.getItem('sqx_workflow_checklist_v1') || '{}')['capa1-pre-mm']);
+    const workflowChecked = await desktop.locator('input[data-check="capa1-pre-mm"]').isChecked();
+    if (workflowChecked) throw new Error('Workflow checklist clear should uncheck capa1 items');
+    await saveShot(desktop, 'e2e-workflow-desktop.png');
     await desktop.locator('.tab[data-tab="estrategias"]').click();
     await desktop.waitForSelector('#tab-estrategias .strat-card');
     const cards = await desktop.locator('#tab-estrategias .strat-card').count();
@@ -59,7 +72,6 @@ async function run() {
     if (cards < 1) throw new Error('Strategies tab rendered without strategy cards');
     if (cards !== deleteButtons) throw new Error(`Expected one delete button per card, got ${cards} cards and ${deleteButtons} buttons`);
 
-    desktop.on('dialog', dialog => dialog.accept());
     await desktop.locator('#tab-estrategias .strat-remove-btn').first().click();
     await desktop.waitForFunction(() => localStorage.getItem('sqx_strategies_deleted_v1') !== null);
     const afterDelete = await desktop.locator('#tab-estrategias .strat-card').count();

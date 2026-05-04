@@ -1,6 +1,6 @@
 // ============================================================
 // SQX Dashboard — main / INIT
-// Tab handlers + subtab handler + initial render calls
+// Initial render calls + app shell bindings
 // ============================================================
 
 renderSqxLegend();
@@ -12,48 +12,9 @@ renderStrategies();
 renderPipelineState();
 renderHome();
 
-// ── Sub-tabs (dentro de Workflow tab) ──
-document.querySelectorAll('.subtab').forEach(t => t.addEventListener('click', () => {
-  const sub = t.dataset.subtab;
-  document.querySelectorAll('.subtab').forEach(x => x.classList.remove('active'));
-  t.classList.add('active');
-  document.querySelectorAll('.subtab-content').forEach(x => x.classList.remove('active'));
-  const target = document.getElementById(sub);
-  if (target) target.classList.add('active');
-}));
-
-// ── Checklist persistente (Workflow Capa 1 / Capa 2) ──
-const SQX_MAIN_CONFIG = (window.SQX && window.SQX.config) || {};
-const CHECKLIST_KEY = SQX_MAIN_CONFIG.storageKey ? SQX_MAIN_CONFIG.storageKey('workflowChecklist', 'sqx_workflow_checklist_v1') : (window.SQX_CONFIG && window.SQX_CONFIG.storageKeys.workflowChecklist) || 'sqx_workflow_checklist_v1';
-const SQX_MAIN_STORAGE = (window.SQX && window.SQX.storage) || {
-  getJson:function(key, fallback){ try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch(e){ return fallback; } },
-  setJson:function(key, value){ localStorage.setItem(key, JSON.stringify(value)); return true; }
-};
-let CHECKLIST_STATE = {};
-CHECKLIST_STATE = SQX_MAIN_STORAGE.getJson(CHECKLIST_KEY, {});
-function saveChecklist() { SQX_MAIN_STORAGE.setJson(CHECKLIST_KEY, CHECKLIST_STATE); }
-
-document.querySelectorAll('input[type="checkbox"][data-check]').forEach(cb => {
-  const id = cb.dataset.check;
-  if (CHECKLIST_STATE[id]) cb.checked = true;
-  cb.addEventListener('change', function() {
-    if (this.checked) CHECKLIST_STATE[id] = true;
-    else delete CHECKLIST_STATE[id];
-    saveChecklist();
-  });
-});
-
-document.querySelectorAll('button[data-checklist-clear]').forEach(btn => {
-  btn.addEventListener('click', function() {
-    const prefix = this.dataset.checklistClear + '-';
-    const matches = Object.keys(CHECKLIST_STATE).filter(k => k.startsWith(prefix));
-    if (!matches.length) return;
-    if (!confirm('¿Resetear ' + matches.length + ' checks de ' + this.dataset.checklistClear + '?')) return;
-    matches.forEach(k => delete CHECKLIST_STATE[k]);
-    saveChecklist();
-    document.querySelectorAll('input[type="checkbox"][data-check^="' + prefix + '"]').forEach(cb => cb.checked = false);
-  });
-});
+if (window.SQX && window.SQX.workflow) {
+  window.SQX.workflow.init();
+}
 
 // ============================================================
 // PROJECT GENERATOR — Tab que consume el backend Python (F3 API)

@@ -36,6 +36,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/charts.js",
                 "js/modules/strategies.js",
                 "js/modules/home.js",
+                "js/modules/workflow.js",
                 "js/modules/index.js",
                 "js/data.js",
                 "js/dashboard.js",
@@ -59,6 +60,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/charts.js",
             "js/modules/strategies.js",
             "js/modules/home.js",
+            "js/modules/workflow.js",
             "js/modules/index.js",
         ]
 
@@ -77,6 +79,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         charts_js = (APP_ROOT / "js" / "modules" / "charts.js").read_text(encoding="utf-8-sig")
         strategies_js = (APP_ROOT / "js" / "modules" / "strategies.js").read_text(encoding="utf-8-sig")
         home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
+        workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
         index_js = (APP_ROOT / "js" / "modules" / "index.js").read_text(encoding="utf-8-sig")
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
 
@@ -92,6 +95,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.charts", charts_js)
         self.assertIn("SQX.strategies", strategies_js)
         self.assertIn("SQX.home", home_js)
+        self.assertIn("SQX.workflow", workflow_js)
         self.assertIn("SQX.boot", index_js)
         self.assertIn("dashboard-legacy", dashboard_js)
 
@@ -190,6 +194,24 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(export, ui_js)
                 self.assertIn(f"SQX_UI_MODULE.{export}", dashboard_js)
 
+    def test_workflow_shell_delegates_to_workflow_module(self):
+        main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
+        workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
+
+        expected_exports = [
+            "bindChecklist",
+            "bindSubtabs",
+            "init",
+            "resolveChecklistKey",
+        ]
+        for export in expected_exports:
+            with self.subTest(export=export):
+                self.assertIn(export, workflow_js)
+
+        self.assertIn("window.SQX.workflow.init()", main_js)
+        self.assertNotIn("CHECKLIST_STATE", main_js)
+        self.assertNotIn("data-checklist-clear", main_js)
+
     def test_dashboard_dataset_loading_delegates_to_datasets_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
         datasets_js = (APP_ROOT / "js" / "modules" / "datasets.js").read_text(encoding="utf-8-sig")
@@ -224,12 +246,14 @@ class DashboardStaticTestCase(unittest.TestCase):
         main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
         storage_js = (APP_ROOT / "js" / "modules" / "storage.js").read_text(encoding="utf-8-sig")
         config_js = (APP_ROOT / "js" / "modules" / "config.js").read_text(encoding="utf-8-sig")
+        workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
 
         self.assertIn("SQX_CONFIG_API", dashboard_js)
         self.assertIn("SQX_CONFIG_API.value", dashboard_js)
         self.assertIn("SQX_CONFIG_API.statusMeta", dashboard_js)
         self.assertIn("SQX_CONFIG_API.statusSequence", dashboard_js)
-        self.assertIn("SQX_MAIN_CONFIG.storageKey", main_js)
+        self.assertIn("window.SQX.workflow.init()", main_js)
+        self.assertIn("SQX.config", workflow_js)
         self.assertIn("SQX.config.storageKey", storage_js)
         self.assertIn("statusMeta", config_js)
         self.assertIn("statusSequence", config_js)
@@ -259,9 +283,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
         main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
         storage_js = (APP_ROOT / "js" / "modules" / "storage.js").read_text(encoding="utf-8-sig")
+        workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
 
         self.assertIn("SQX_STORAGE = SQX_MODULES.storage", dashboard_js)
-        self.assertIn("SQX_MAIN_STORAGE", main_js)
+        self.assertIn("window.SQX.workflow.init()", main_js)
         self.assertIn("getJson", storage_js)
         self.assertIn("setJson", storage_js)
 
@@ -283,8 +308,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(call=call):
                 self.assertIn(call, dashboard_js)
 
-        self.assertIn("SQX_MAIN_STORAGE.getJson(CHECKLIST_KEY", main_js)
-        self.assertIn("SQX_MAIN_STORAGE.setJson(CHECKLIST_KEY", main_js)
+        self.assertIn("storage.getJson(key", workflow_js)
+        self.assertIn("storage.setJson(key", workflow_js)
 
     def test_pipeline_mobile_layout_has_overflow_guards(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
