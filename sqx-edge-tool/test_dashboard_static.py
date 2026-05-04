@@ -35,9 +35,11 @@ class DashboardStaticTestCase(unittest.TestCase):
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
         panels = re.findall(r'id="tab-([^"]+)"', self.html)
 
-        self.assertEqual(len(tabs), 8)
+        self.assertEqual(len(tabs), 9)
         self.assertEqual(set(tabs), set(panels))
         self.assertEqual(sum(1 for tab in ui_manifest["tabs"] if tab.get("active")), 1)
+        self.assertEqual(ui_manifest["tabs"][0]["id"], "inicio")
+        self.assertTrue(ui_manifest["tabs"][0].get("active"))
         self.assertNotIn("toppicks", tabs)
         self.assertNotIn("matrix", tabs)
 

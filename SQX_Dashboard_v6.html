@@ -3,21 +3,88 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SQX Edge - Activos por Categoria</title>
+<title>SQX Edge</title>
 <link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
 
 <div class="header">
   <div>
-    <h1>SQX <span>Edge</span> — Activos por Categoria</h1>
-    <div class="subtitle">Fase 1: Busqueda de Edge | 28 Forex + 4 Indices + Oro | Long/Short</div>
+    <h1>SQX <span>Edge</span></h1>
+    <div class="subtitle"></div>
   </div>
 </div>
 
 <div class="tabs" id="main-tabs" data-config-render="tabs"></div>
 
 <div class="container">
+
+  <!-- TAB: INICIO -->
+  <div id="tab-inicio" class="tab-content">
+    <div class="home-grid">
+      <section class="home-main">
+        <div class="home-kpis">
+          <button class="home-kpi" data-home-tab="activos">
+            <span class="home-kpi-label">Activos</span>
+            <strong id="home-assets-count">--</strong>
+            <span id="home-assets-sub">Forex · Indices · Oro</span>
+          </button>
+          <button class="home-kpi" data-home-tab="pipeline">
+            <span class="home-kpi-label">Plan</span>
+            <strong id="home-minings-count">--</strong>
+            <span>minings configurados</span>
+          </button>
+          <button class="home-kpi" data-home-tab="estrategias">
+            <span class="home-kpi-label">Estrategias</span>
+            <strong id="home-strategies-count">--</strong>
+            <span>candidatas y validadas</span>
+          </button>
+          <button class="home-kpi" data-home-tab="priority">
+            <span class="home-kpi-label">Tracking</span>
+            <strong id="home-priority-count">--</strong>
+            <span>items marcados</span>
+          </button>
+        </div>
+
+        <div class="home-actions">
+          <button class="home-action primary" data-home-tab="pipeline">
+            <span>Pipeline State</span>
+            <strong id="home-next-action">--</strong>
+          </button>
+          <button class="home-action" data-home-tab="projectgen">
+            <span>Project Generator</span>
+            <strong>Generar .cfx</strong>
+          </button>
+          <button class="home-action" data-home-tab="categorias">
+            <span>Por Categoria</span>
+            <strong>Mapa de edges</strong>
+          </button>
+          <button class="home-action" data-home-tab="workflow">
+            <span>Workflow</span>
+            <strong>Metodo operativo</strong>
+          </button>
+        </div>
+      </section>
+
+      <aside class="home-side">
+        <div class="home-panel">
+          <div class="home-panel-title">Foco actual</div>
+          <div class="home-focus-row">
+            <span>Backend</span>
+            <strong id="home-backend-status">API local</strong>
+          </div>
+          <div class="home-focus-row">
+            <span>Vista inicial</span>
+            <strong>Inicio</strong>
+          </div>
+          <div class="home-focus-row">
+            <span>Datos</span>
+            <strong id="home-data-status">Manifest activo</strong>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
 
   <!-- TAB: POR ACTIVO -->
   <div id="tab-activos" class="tab-content" style="display:none">
@@ -40,7 +107,7 @@
   </div>
 
   <!-- TAB: POR CATEGORIA -->
-  <div id="tab-categorias" class="tab-content">
+  <div id="tab-categorias" class="tab-content" style="display:none">
     <div class="filters">
       <div class="filter-group" id="category-dir-filter"></div>
       <div class="filter-group">

@@ -1,18 +1,22 @@
 {
   "version": 1,
   "header": {
-    "titleHtml": "SQX <span>Edge</span> - Activos por Categoria",
-    "subtitle": "Fase 1: Busqueda de Edge | 28 Forex + 4 Indices + Oro | Long/Short"
+    "titleHtml": "SQX <span>Edge</span>",
+    "subtitle": ""
   },
   "tabs": [
+    {
+      "id": "inicio",
+      "label": "Inicio",
+      "active": true
+    },
     {
       "id": "activos",
       "label": "Por Activo"
     },
     {
       "id": "categorias",
-      "label": "Por Categoria",
-      "active": true
+      "label": "Por Categoria"
     },
     {
       "id": "filtros",

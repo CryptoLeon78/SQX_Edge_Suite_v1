@@ -10,6 +10,7 @@ renderFiltros();
 renderPriority();
 renderStrategies();
 renderPipelineState();
+renderHome();
 
 // ── Sub-tabs (dentro de Workflow tab) ──
 document.querySelectorAll('.subtab').forEach(t => t.addEventListener('click', () => {

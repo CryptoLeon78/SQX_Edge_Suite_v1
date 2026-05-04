@@ -1034,12 +1034,50 @@ function generateStratJSON() {
 // ============================================================
 // EVENTS
 // ============================================================
+function renderHome() {
+  function setText(id, value) {
+    var el = document.getElementById(id);
+    if (el) el.textContent = value;
+  }
+  var assetCounts = (ASSETS || []).reduce(function(acc, asset) {
+    acc[asset.type] = (acc[asset.type] || 0) + 1;
+    return acc;
+  }, {});
+  var strategyUserCount = Array.isArray(STRATEGIES_USER) ? STRATEGIES_USER.length : 0;
+  var marked = Object.keys(PRIORITY_PROGRESS || {}).length;
+  var nextAction = (PIPELINE_STATE && PIPELINE_STATE.nextAction) || 'Plan operativo';
+  if (nextAction.length > 96) nextAction = nextAction.slice(0, 93).trim() + '...';
+
+  setText('home-assets-count', (ASSETS || []).length);
+  setText(
+    'home-assets-sub',
+    (assetCounts.forex || 0) + ' Forex · ' + (assetCounts.index || 0) + ' Indices · ' + (assetCounts.oro || 0) + ' Oro'
+  );
+  setText('home-minings-count', (PLAN_MININGS || []).length);
+  setText('home-strategies-count', (STRATEGIES || []).length + strategyUserCount);
+  setText('home-priority-count', marked);
+  setText('home-next-action', nextAction);
+}
+
+function activateTabById(id) {
+  var tab = document.querySelector('.tab[data-tab="' + id + '"]');
+  var panel = document.getElementById('tab-' + id);
+  if (!tab || !panel) return;
+  document.querySelectorAll('.tab').forEach(function(x) { x.classList.remove('active'); });
+  tab.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(function(c) { c.style.display = 'none'; });
+  panel.style.display = 'block';
+}
+
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-  t.classList.add('active');
-  document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
-  document.getElementById('tab-'+t.dataset.tab).style.display='block';
+  activateTabById(t.dataset.tab);
 }));
+
+document.querySelectorAll('[data-home-tab]').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    activateTabById(btn.dataset.homeTab);
+  });
+});
 
 function bindBtns(sel, dataKey, varSetter, cb) {
   document.querySelectorAll(sel).forEach(b => b.addEventListener('click', () => {

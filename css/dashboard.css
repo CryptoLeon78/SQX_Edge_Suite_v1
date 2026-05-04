@@ -58,6 +58,85 @@
   .score-badge { font-size:11px; font-weight:700; margin-top:5px; color:var(--text2); }
   .score-badge span { color:var(--accent); }
 
+  /* HOME */
+  .home-grid { display:grid; grid-template-columns:minmax(0, 1fr) 340px; gap:18px; align-items:start; }
+  .home-main { display:grid; gap:18px; }
+  .home-kpis { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; }
+  .home-kpi,
+  .home-action,
+  .home-panel {
+    border:1px solid var(--border);
+    background:var(--surface);
+    color:var(--text);
+    border-radius:10px;
+  }
+  .home-kpi,
+  .home-action {
+    text-align:left;
+    cursor:pointer;
+    transition:all .15s;
+    font-family:inherit;
+  }
+  .home-kpi { min-height:132px; padding:16px; display:flex; flex-direction:column; justify-content:space-between; }
+  .home-kpi:hover,
+  .home-action:hover { border-color:var(--accent); transform:translateY(-2px); }
+  .home-kpi-label,
+  .home-action span,
+  .home-panel-title {
+    color:var(--text2);
+    font-size:11px;
+    text-transform:uppercase;
+    font-weight:800;
+    letter-spacing:.45px;
+  }
+  .home-kpi strong { font-size:34px; line-height:1; color:var(--text); }
+  .home-kpi span:last-child { color:var(--text2); font-size:12px; line-height:1.35; }
+  .home-actions {
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:8px;
+    padding:14px;
+    border:1px solid var(--border);
+    background:rgba(17,24,39,.72);
+    border-radius:10px;
+  }
+  .home-actions::before {
+    content:'Accesos directos';
+    grid-column:1/-1;
+    color:var(--text2);
+    font-size:11px;
+    text-transform:uppercase;
+    font-weight:800;
+    letter-spacing:.45px;
+    margin-bottom:4px;
+  }
+  .home-action {
+    min-height:62px;
+    padding:11px 12px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    gap:4px;
+    background:#101827;
+    box-shadow:none;
+  }
+  .home-action strong {
+    color:var(--text);
+    font-size:14px;
+    line-height:1.2;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+  }
+  .home-action.primary { border-color:rgba(59,130,246,.38); background:rgba(37,99,235,.10); }
+  .home-panel { padding:18px; }
+  .home-panel-title { margin-bottom:16px; color:var(--accent2, var(--accent)); }
+  .home-focus-row { display:flex; justify-content:space-between; gap:14px; padding:12px 0; border-bottom:1px solid var(--border); }
+  .home-focus-row:last-child { border-bottom:none; }
+  .home-focus-row span { color:var(--text2); font-size:13px; }
+  .home-focus-row strong { color:var(--text); font-size:13px; text-align:right; }
+
   /* DETAIL PANEL */
   .detail-panel { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; display:none; }
   .detail-panel.visible { display:block; }
@@ -218,6 +297,9 @@
     .asset-grid { grid-template-columns: repeat(auto-fill, minmax(110px,1fr)); }
     .cat-cards { grid-template-columns: 1fr; }
     .filters { flex-direction:column; align-items:stretch; }
+    .home-grid { grid-template-columns:1fr; }
+    .home-kpis { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    .home-actions { grid-template-columns:1fr; }
   }
 
   /* ── Workflow methodology CSS (merged) ── */
@@ -861,27 +943,8 @@
     text-shadow:0 0 24px rgba(59,130,246,.38);
   }
 
-  .header .subtitle {
-    margin-top:7px;
-    color:var(--text2);
-    font-size:13px;
-  }
-
-  .header::after {
-    content:'Premium SaaS Dark';
-    margin-left:auto;
-    align-self:center;
-    padding:10px 14px;
-    border:1px solid rgba(59,130,246,.38);
-    border-radius:8px;
-    background:linear-gradient(135deg, rgba(37,99,235,.20), rgba(34,197,94,.08));
-    color:#dbeafe;
-    font-size:12px;
-    font-weight:800;
-    letter-spacing:.35px;
-    text-transform:uppercase;
-    white-space:nowrap;
-  }
+  .header .subtitle { display:none; }
+  .header::after { content:none; display:none; }
 
   .tabs {
     grid-area:nav;
