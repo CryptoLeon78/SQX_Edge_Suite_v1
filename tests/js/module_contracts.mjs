@@ -151,6 +151,7 @@ const context = vm.createContext(sandbox);
   'app/js/modules/strategies.js',
   'app/js/modules/home.js',
   'app/js/modules/workflow.js',
+  'app/js/modules/project-generator.js',
 ].forEach(file => loadModule(context, file));
 
 const { SQX, document } = sandbox;
@@ -298,5 +299,50 @@ assert.equal(writes[writes.length - 1]['capa2-a'], undefined);
 clearC1.click();
 assert.equal(boxC1.checked, false);
 assert.equal(writes[writes.length - 1]['capa1-a'], undefined);
+
+assert.equal(SQX.projectGenerator.escapeHtml('<x>'), '&lt;x&gt;');
+const pgApiState = SQX.projectGenerator.computeOnboardingState({
+  apiBase: 'http://127.0.0.1:8765',
+  connected: false,
+  configState: {},
+  healthMeta: {},
+  minings: [],
+  outputFiles: [],
+});
+assert.equal(pgApiState.completed, 0);
+assert.equal(pgApiState.current.id, 'api');
+assert.equal(pgApiState.tertiaryVisible, false);
+
+const pgReadyState = SQX.projectGenerator.computeOnboardingState({
+  apiBase: 'http://127.0.0.1:8765',
+  connected: true,
+  configState: { sqx_path: 'C:/SQX', sqx_data_db: 'C:/SQX/data.db' },
+  healthMeta: {
+    data_db_exists: true,
+    output_dir: 'out',
+    output_dir_exists: true,
+    sqx_path: 'C:/SQX',
+    sqx_path_set: true,
+    templates_capa1_exists: true,
+    templates_capa2_exists: true,
+  },
+  minings: [{ asset: 'EURUSD', tf: 'H1' }],
+  outputFiles: [{ name: 'M01.cfx' }],
+});
+assert.equal(pgReadyState.completed, 4);
+assert.equal(pgReadyState.current, null);
+assert.equal(pgReadyState.tertiaryAction, 'refresh');
+
+[
+  'pg-onboarding-progress', 'pg-onboarding-title', 'pg-onboarding-desc',
+  'pg-onboarding-bar', 'pg-onboarding-steps', 'pg-onboarding-action',
+  'pg-onboarding-secondary', 'pg-onboarding-tertiary', 'pg-assistant-next',
+  'pg-assistant-hint', 'pg-assistant-checks'
+].forEach(id => document.add(new Element(id)));
+assert.equal(SQX.projectGenerator.applyOnboardingState(pgReadyState, document), true);
+assert.equal(document.getElementById('pg-onboarding-progress').textContent, '4/4');
+assert.equal(document.getElementById('pg-onboarding-bar').style.width, '100%');
+assert.equal(document.getElementById('pg-onboarding-tertiary').dataset.pgAssistantAction, 'refresh');
+assert.match(document.getElementById('pg-onboarding-steps').innerHTML, /pg-step done/);
 
 console.log('module contracts ok');

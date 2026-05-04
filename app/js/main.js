@@ -19,6 +19,7 @@ if (window.SQX && window.SQX.workflow) {
 // ============================================================
 // PROJECT GENERATOR — Tab que consume el backend Python (F3 API)
 // ============================================================
+const SQX_PG_MODULE = (window.SQX && window.SQX.projectGenerator) || {};
 const PG_API = (window.SQX_CONFIG && window.SQX_CONFIG.apiBase()) || '';
 let PG_CONNECTED = false;
 let PG_HEALTH_TIMER = null;
@@ -34,13 +35,15 @@ const pgApiInline = document.getElementById('pg-api-base-inline');
 if (pgApiInline && PG_API) pgApiInline.textContent = PG_API;
 
 function pgEsc(value) {
-  return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#39;',
-  }[ch]));
+  return SQX_PG_MODULE.escapeHtml
+    ? SQX_PG_MODULE.escapeHtml(value)
+    : String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+    }[ch]));
 }
 
 function pgLog(msg, level) {
@@ -81,184 +84,22 @@ function pgFocusSettingsField(id) {
 }
 
 function pgGetOnboardingState() {
-  const hasSqxInput = !!((document.getElementById('pg-sqx-path') || {}).value || PG_CONFIG_STATE.sqx_path || '').trim();
-  const hasDbInput = !!((document.getElementById('pg-sqx-db') || {}).value || PG_CONFIG_STATE.sqx_data_db || '').trim();
-  const hasMinings = PG_MININGS.length > 0;
-  const outputReady = !!PG_HEALTH_META.output_dir_exists;
-  const templateReady = !!PG_HEALTH_META.templates_capa1_exists && !!PG_HEALTH_META.templates_capa2_exists && outputReady;
-  const sqxReady = !!PG_HEALTH_META.sqx_path_set && !!PG_HEALTH_META.data_db_exists;
-  const hasUnsavedSqxCandidate = hasSqxInput && (!PG_HEALTH_META.sqx_path_set || !PG_HEALTH_META.data_db_exists);
-  const steps = [
-    {
-      id: 'api',
-      label: 'API local',
-      done: PG_CONNECTED,
-      detail: PG_CONNECTED ? ('Backend listo en ' + PG_API) : 'Sin conexion con el backend local.',
-    },
-    {
-      id: 'sqx',
-      label: 'Ruta SQX',
-      done: PG_CONNECTED && sqxReady,
-      detail: sqxReady
-        ? ((PG_HEALTH_META.sqx_path || 'Ruta SQX') + ' listo')
-        : (hasSqxInput ? 'Hay una ruta configurada pendiente de validar.' : 'Detecta o pega la carpeta de StrategyQuant X.'),
-    },
-    {
-      id: 'templates',
-      label: 'Templates y output',
-      done: PG_CONNECTED && templateReady,
-      detail: templateReady
-        ? ('C1, C2 y output listos en ' + (PG_HEALTH_META.output_dir || PG_OUTPUT_DIR || 'output'))
-        : [
-            PG_HEALTH_META.templates_capa1_exists ? null : 'falta Capa 1',
-            PG_HEALTH_META.templates_capa2_exists ? null : 'falta Capa 2',
-            outputReady ? null : 'revisa output',
-          ].filter(Boolean).join(' · '),
-    },
-    {
-      id: 'first',
-      label: 'Primer .cfx',
-      done: PG_OUTPUT_FILES.length > 0,
-      detail: PG_OUTPUT_FILES.length
-        ? (PG_OUTPUT_FILES.length + ' archivo(s) generado(s).')
-        : (hasMinings ? ('Listo para generar desde ' + PG_MININGS[0].asset + ' ' + PG_MININGS[0].tf + '.') : 'No hay minings cargados en el plan.'),
-    },
-  ];
-  const completed = steps.filter(step => step.done).length;
-  const current = steps.find(step => !step.done) || null;
-  const state = {
-    steps,
-    completed,
-    current,
-    checks: [
-      { label: 'API local responde', ok: PG_CONNECTED },
-      { label: hasDbInput ? 'data.db localizado' : 'data.db pendiente', ok: !!PG_HEALTH_META.data_db_exists },
-      { label: 'Templates C1 y C2 listos', ok: !!PG_HEALTH_META.templates_capa1_exists && !!PG_HEALTH_META.templates_capa2_exists },
-      { label: hasMinings ? (PG_MININGS.length + ' minings cargados') : 'Plan de minings pendiente', ok: hasMinings },
-      { label: outputReady ? 'Output accesible' : 'Output pendiente', ok: outputReady },
-      { label: PG_OUTPUT_FILES.length ? 'Primer .cfx generado' : 'Primer .cfx pendiente', ok: PG_OUTPUT_FILES.length > 0 },
-    ],
-    primaryLabel: 'Comprobar API',
-    secondaryLabel: 'Abrir configuracion',
-    tertiaryLabel: 'Guardar config',
-    tertiaryAction: 'save',
-    tertiaryVisible: true,
-    primaryDisabled: false,
-    title: 'Preparando flujo guiado',
-    desc: 'Conecta la API y deja la configuracion lista para generar tu primer .cfx.',
-    assistantNext: 'Comprobar API',
-    assistantHint: 'Primero necesitamos confirmar que el backend local responde.',
-  };
-
-  if (!current) {
-    state.title = 'Todo listo para producir';
-    state.desc = 'Ya tienes la base configurada. Puedes abrir output o seguir afinando paths y templates.';
-    state.primaryLabel = 'Abrir output';
-    state.secondaryLabel = 'Abrir configuracion';
-    state.tertiaryLabel = 'Actualizar estado';
-    state.tertiaryAction = 'refresh';
-    state.assistantNext = 'Produccion lista';
-    state.assistantHint = 'La base esta preparada. Puedes generar mas proyectos o abrir la carpeta output.';
-    return state;
-  }
-
-  if (current.id === 'api') {
-    state.title = '1. Comprueba la API local';
-    state.desc = 'El dashboard necesita el backend activo para leer config, minings, output y generar proyectos.';
-    state.primaryLabel = 'Comprobar API';
-    state.tertiaryVisible = false;
-    state.assistantNext = 'Arrancar o comprobar backend';
-    state.assistantHint = 'Si no conecta, usa START_SQX_EDGE.bat y vuelve a pulsar Comprobar API.';
-    return state;
-  }
-
-  if (current.id === 'sqx') {
-    state.title = hasSqxInput ? '2. Valida la ruta de SQX' : '2. Detecta tu instalacion de SQX';
-    state.desc = hasSqxInput
-      ? 'Valida la ruta actual para rellenar data.db y projects sin tener que tocar nada mas.'
-      : 'Busca StrategyQuant X automaticamente o pega la ruta manualmente en configuracion.';
-    state.primaryLabel = hasSqxInput ? 'Validar ruta SQX' : 'Auto-detectar SQX';
-    state.tertiaryVisible = hasUnsavedSqxCandidate;
-    state.assistantNext = hasSqxInput ? 'Validar y guardar ruta SQX' : 'Detectar instalacion SQX';
-    state.assistantHint = hasSqxInput
-      ? 'Si la validacion sale bien, guarda la configuracion para que el asistente avance.'
-      : 'El asistente puede buscar instalaciones habituales de SQX y rellenar los campos por ti.';
-    return state;
-  }
-
-  if (current.id === 'templates') {
-    state.title = '3. Deja templates y output listos';
-    state.desc = 'Revisa que existan las dos plantillas .cfx y que la carpeta output apunte al destino correcto.';
-    state.primaryLabel = 'Revisar configuracion';
-    state.secondaryLabel = 'Reintentar estado';
-    state.tertiaryLabel = 'Guardar config';
-    state.tertiaryAction = 'save';
-    state.assistantNext = 'Completar templates y output';
-    state.assistantHint = 'Cuando Capa 1, Capa 2 y output existan, el ultimo paso sera generar el primer .cfx.';
-    return state;
-  }
-
-  state.title = hasMinings ? '4. Genera tu primer .cfx' : '4. Falta el plan de minings';
-  state.desc = hasMinings
-    ? ('Generaremos un ejemplo con el primer mining (' + PG_MININGS[0].asset + ' ' + PG_MININGS[0].tf + ') para dejar la rueda girando.')
-    : 'No hay minings disponibles. Revisa el manifest del plan antes de continuar.';
-  state.primaryLabel = hasMinings ? 'Generar primer .cfx' : 'Reintentar estado';
-  state.primaryDisabled = !hasMinings;
-  state.tertiaryLabel = 'Actualizar output';
-  state.tertiaryAction = 'output';
-  state.assistantNext = hasMinings ? 'Generar primer proyecto' : 'Recargar plan';
-  state.assistantHint = hasMinings
-    ? 'El asistente usara el primer mining del plan como prueba controlada.'
-    : 'Sin minings no hay proyecto que generar; refresca el estado para volver a leer el plan.';
-  return state;
+  return SQX_PG_MODULE.computeOnboardingState({
+    apiBase: PG_API,
+    connected: PG_CONNECTED,
+    configState: PG_CONFIG_STATE,
+    dbInput: (document.getElementById('pg-sqx-db') || {}).value,
+    healthMeta: PG_HEALTH_META,
+    minings: PG_MININGS,
+    outputDir: PG_OUTPUT_DIR,
+    outputFiles: PG_OUTPUT_FILES,
+    sqxPathInput: (document.getElementById('pg-sqx-path') || {}).value,
+  });
 }
 
 function pgRenderOnboarding() {
-  const progress = document.getElementById('pg-onboarding-progress');
-  const title = document.getElementById('pg-onboarding-title');
-  const desc = document.getElementById('pg-onboarding-desc');
-  const bar = document.getElementById('pg-onboarding-bar');
-  const stepsEl = document.getElementById('pg-onboarding-steps');
-  const primary = document.getElementById('pg-onboarding-action');
-  const secondary = document.getElementById('pg-onboarding-secondary');
-  const tertiary = document.getElementById('pg-onboarding-tertiary');
-  const next = document.getElementById('pg-assistant-next');
-  const hint = document.getElementById('pg-assistant-hint');
-  const checksEl = document.getElementById('pg-assistant-checks');
-  if (!progress || !title || !desc || !bar || !stepsEl || !primary || !secondary || !tertiary || !next || !hint || !checksEl) return;
-
   const state = pgGetOnboardingState();
-  progress.textContent = state.completed + '/' + state.steps.length;
-  title.textContent = state.title;
-  desc.textContent = state.desc;
-  bar.style.width = Math.round((state.completed / state.steps.length) * 100) + '%';
-  stepsEl.innerHTML = state.steps.map((step, index) => {
-    const cls = step.done ? 'pg-step done' : (state.current && state.current.id === step.id ? 'pg-step current' : 'pg-step');
-    const status = step.done ? 'Listo' : (state.current && state.current.id === step.id ? 'En curso' : 'Pendiente');
-    return '' +
-      '<div class="' + cls + '">' +
-        '<div class="pg-step-top">' +
-          '<span class="pg-step-num">' + (index + 1) + '</span>' +
-          '<span class="pg-step-state">' + status + '</span>' +
-        '</div>' +
-        '<div class="pg-step-title">' + pgEsc(step.label) + '</div>' +
-        '<div class="pg-step-desc">' + pgEsc(step.detail || '') + '</div>' +
-      '</div>';
-  }).join('');
-  primary.textContent = state.primaryLabel;
-  primary.disabled = !!state.primaryDisabled;
-  secondary.textContent = state.secondaryLabel;
-  tertiary.textContent = state.tertiaryLabel;
-  tertiary.dataset.pgAssistantAction = state.tertiaryAction || 'save';
-  tertiary.style.display = state.tertiaryVisible === false ? 'none' : '';
-  next.textContent = state.assistantNext;
-  hint.textContent = state.assistantHint;
-  checksEl.innerHTML = state.checks.map(check =>
-    '<div class="pg-assistant-check ' + (check.ok ? 'ok' : 'warn') + '">' +
-      '<span class="pg-check-dot">' + (check.ok ? '✓' : '!') + '</span>' +
-      '<span>' + pgEsc(check.label) + '</span>' +
-    '</div>'
-  ).join('');
+  if (SQX_PG_MODULE.applyOnboardingState) SQX_PG_MODULE.applyOnboardingState(state, document);
 }
 
 async function pgFetch(path, options) {

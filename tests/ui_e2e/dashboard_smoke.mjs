@@ -65,6 +65,12 @@ async function run() {
     const workflowChecked = await desktop.locator('input[data-check="capa1-pre-mm"]').isChecked();
     if (workflowChecked) throw new Error('Workflow checklist clear should uncheck capa1 items');
     await saveShot(desktop, 'e2e-workflow-desktop.png');
+    await desktop.locator('.tab[data-tab="projectgen"]').click();
+    await desktop.waitForSelector('.tab[data-tab="projectgen"].active');
+    await desktop.waitForSelector('#pg-onboarding-title');
+    await desktop.waitForFunction(() => document.getElementById('pg-onboarding-progress')?.textContent.trim() === '0/4');
+    await desktop.waitForFunction(() => document.getElementById('pg-onboarding-steps')?.querySelectorAll('.pg-step').length === 4);
+    await saveShot(desktop, 'e2e-projectgen-desktop.png');
     await desktop.locator('.tab[data-tab="estrategias"]').click();
     await desktop.waitForSelector('#tab-estrategias .strat-card');
     const cards = await desktop.locator('#tab-estrategias .strat-card').count();
