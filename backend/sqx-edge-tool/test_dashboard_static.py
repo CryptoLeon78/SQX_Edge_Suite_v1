@@ -26,6 +26,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/manifest-data.js",
                 "js/app-config.js",
                 "js/modules/core.js",
+                "js/modules/config.js",
                 "js/modules/storage.js",
                 "js/modules/ui.js",
                 "js/modules/formatters.js",
@@ -42,6 +43,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)
         module_scripts = [
             "js/modules/core.js",
+            "js/modules/config.js",
             "js/modules/storage.js",
             "js/modules/ui.js",
             "js/modules/formatters.js",
@@ -53,6 +55,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertLess(scripts.index(script), scripts.index("js/data.js"))
 
         core_js = (APP_ROOT / "js" / "modules" / "core.js").read_text(encoding="utf-8-sig")
+        config_js = (APP_ROOT / "js" / "modules" / "config.js").read_text(encoding="utf-8-sig")
         storage_js = (APP_ROOT / "js" / "modules" / "storage.js").read_text(encoding="utf-8-sig")
         ui_js = (APP_ROOT / "js" / "modules" / "ui.js").read_text(encoding="utf-8-sig")
         formatters_js = (APP_ROOT / "js" / "modules" / "formatters.js").read_text(encoding="utf-8-sig")
@@ -61,11 +64,27 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         self.assertIn("global.SQX = global.SQX || {}", core_js)
         self.assertIn("registerModule", core_js)
+        self.assertIn("SQX.config", config_js)
         self.assertIn("SQX.storage", storage_js)
         self.assertIn("SQX.ui", ui_js)
         self.assertIn("SQX.formatters", formatters_js)
         self.assertIn("SQX.boot", index_js)
         self.assertIn("dashboard-legacy", dashboard_js)
+
+    def test_runtime_config_delegates_through_config_module(self):
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
+        storage_js = (APP_ROOT / "js" / "modules" / "storage.js").read_text(encoding="utf-8-sig")
+        config_js = (APP_ROOT / "js" / "modules" / "config.js").read_text(encoding="utf-8-sig")
+
+        self.assertIn("SQX_CONFIG_API", dashboard_js)
+        self.assertIn("SQX_CONFIG_API.value", dashboard_js)
+        self.assertIn("SQX_CONFIG_API.statusMeta", dashboard_js)
+        self.assertIn("SQX_CONFIG_API.statusSequence", dashboard_js)
+        self.assertIn("SQX_MAIN_CONFIG.storageKey", main_js)
+        self.assertIn("SQX.config.storageKey", storage_js)
+        self.assertIn("statusMeta", config_js)
+        self.assertIn("statusSequence", config_js)
 
     def test_legacy_dashboard_helpers_delegate_to_formatter_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
@@ -118,6 +137,16 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         self.assertIn("SQX_MAIN_STORAGE.getJson(CHECKLIST_KEY", main_js)
         self.assertIn("SQX_MAIN_STORAGE.setJson(CHECKLIST_KEY", main_js)
+
+    def test_pipeline_mobile_layout_has_overflow_guards(self):
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+
+        self.assertIn("#tab-pipeline .card-header", css)
+        self.assertIn("flex-wrap:wrap", css)
+        self.assertIn("#ps-plan-table", css)
+        self.assertIn("overflow-x:auto", css)
+        self.assertIn("#tab-pipeline .ps-funnel-step", css)
+        self.assertIn("flex-wrap:wrap", css)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))

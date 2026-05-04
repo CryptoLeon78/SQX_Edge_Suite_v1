@@ -2,7 +2,7 @@
   'use strict';
 
   var SQX = global.SQX = global.SQX || {};
-  SQX.moduleOrder = SQX.moduleOrder || ['core', 'storage', 'ui', 'formatters'];
+  SQX.moduleOrder = SQX.moduleOrder || ['core', 'config', 'storage', 'ui', 'formatters'];
 
   SQX.boot = SQX.boot || function bootSQXModules() {
     SQX.booted = true;

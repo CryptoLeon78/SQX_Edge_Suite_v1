@@ -23,7 +23,8 @@ document.querySelectorAll('.subtab').forEach(t => t.addEventListener('click', ()
 }));
 
 // ── Checklist persistente (Workflow Capa 1 / Capa 2) ──
-const CHECKLIST_KEY = (window.SQX_CONFIG && window.SQX_CONFIG.storageKeys.workflowChecklist) || 'sqx_workflow_checklist_v1';
+const SQX_MAIN_CONFIG = (window.SQX && window.SQX.config) || {};
+const CHECKLIST_KEY = SQX_MAIN_CONFIG.storageKey ? SQX_MAIN_CONFIG.storageKey('workflowChecklist', 'sqx_workflow_checklist_v1') : (window.SQX_CONFIG && window.SQX_CONFIG.storageKeys.workflowChecklist) || 'sqx_workflow_checklist_v1';
 const SQX_MAIN_STORAGE = (window.SQX && window.SQX.storage) || {
   getJson:function(key, fallback){ try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch(e){ return fallback; } },
   setJson:function(key, value){ localStorage.setItem(key, JSON.stringify(value)); return true; }

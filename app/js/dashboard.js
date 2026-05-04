@@ -28,10 +28,11 @@ let assetSort       = 'name';
 const sortState   = { cat:{} };
 const collapseMap = {};
 const DEFAULT_CATEGORY_COLLAPSED = true;
-const SQX_RUNTIME_CONFIG = window.SQX_CONFIG || { ui:{}, storageKeys:{}, value:function(_path, fallback){ return fallback; } };
-const SQX_UI_CONFIG = SQX_RUNTIME_CONFIG.ui || {};
-const SQX_STORAGE_KEYS = SQX_RUNTIME_CONFIG.storageKeys || {};
 const SQX_MODULES = window.SQX || {};
+const SQX_CONFIG_API = SQX_MODULES.config || {};
+const SQX_RUNTIME_CONFIG = SQX_CONFIG_API.raw || window.SQX_CONFIG || { ui:{}, storageKeys:{}, value:function(_path, fallback){ return fallback; } };
+const SQX_UI_CONFIG = SQX_CONFIG_API.ui ? SQX_CONFIG_API.ui() : SQX_RUNTIME_CONFIG.ui || {};
+const SQX_STORAGE_KEYS = SQX_CONFIG_API.storageKeys ? SQX_CONFIG_API.storageKeys() : SQX_RUNTIME_CONFIG.storageKeys || {};
 const SQX_FORMATTERS = SQX_MODULES.formatters || {};
 const SQX_STORAGE = SQX_MODULES.storage || {
   getJson:function(key, fallback){ try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch(e){ return fallback; } },
@@ -39,6 +40,7 @@ const SQX_STORAGE = SQX_MODULES.storage || {
 };
 
 function sqxConfigValue(path, fallback) {
+  if (SQX_CONFIG_API.value) return SQX_CONFIG_API.value(path, fallback);
   return SQX_RUNTIME_CONFIG.value ? SQX_RUNTIME_CONFIG.value(path, fallback) : fallback;
 }
 
@@ -54,11 +56,13 @@ if (SQX_MODULES.registerModule) {
 }
 
 function sqxStatusMeta(status) {
+  if (SQX_CONFIG_API.statusMeta) return SQX_CONFIG_API.statusMeta(status);
   const statuses = SQX_UI_CONFIG.statuses || [];
   return statuses.find(s => s.id === status) || { id: status, label: status };
 }
 
 function sqxStatusSequence() {
+  if (SQX_CONFIG_API.statusSequence) return SQX_CONFIG_API.statusSequence();
   const statuses = SQX_UI_CONFIG.statuses || [];
   return statuses.length ? statuses.map(s => s.id) : ['pending', 'current', 'completed'];
 }

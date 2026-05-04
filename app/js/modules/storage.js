@@ -4,6 +4,7 @@
   var SQX = global.SQX = global.SQX || {};
 
   function storageKey(name, fallback) {
+    if (SQX.config && SQX.config.storageKey) return SQX.config.storageKey(name, fallback);
     var config = global.SQX_CONFIG || {};
     var keys = config.storageKeys || {};
     return keys[name] || fallback || name;

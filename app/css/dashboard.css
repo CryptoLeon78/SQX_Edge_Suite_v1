@@ -2571,4 +2571,36 @@
     .export-btn {
       width:100%;
     }
+
+    #tab-pipeline .card-header {
+      flex-wrap:wrap;
+    }
+
+    #tab-pipeline .card-header .export-btn {
+      flex:1 1 150px;
+      width:auto;
+    }
+
+    #ps-plan-table {
+      max-width:100%;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+
+    #tab-pipeline .ps-funnel-step {
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    #tab-pipeline .ps-funnel-step .pf-name,
+    #tab-pipeline .ps-funnel-step .pf-bar-wrap {
+      flex:1 1 100%;
+      min-width:0;
+    }
+
+    #tab-pipeline .ps-funnel-step .pf-count,
+    #tab-pipeline .ps-funnel-step .pf-survival {
+      flex:1 1 calc(50% - 8px);
+      text-align:left;
+    }
   }
