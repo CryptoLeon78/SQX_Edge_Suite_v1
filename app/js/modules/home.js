@@ -114,8 +114,71 @@
     };
   }
 
+  function setText(doc, id, value) {
+    var el = doc.getElementById(id);
+    if (el) el.textContent = value;
+  }
+
+  function setStateClass(doc, id, state) {
+    var el = doc.getElementById(id);
+    if (!el) return;
+    el.classList.remove('is-ok', 'is-warn');
+    el.classList.add(state === 'ok' ? 'is-ok' : 'is-warn');
+  }
+
+  function setCheck(doc, id, ok) {
+    var el = doc.getElementById(id);
+    if (!el) return;
+    el.classList.remove('is-ok', 'is-warn');
+    el.classList.add(ok ? 'is-ok' : 'is-warn');
+  }
+
+  function setAudit(doc, id, item) {
+    var row = doc.getElementById(id);
+    var detailEl = doc.getElementById(id + '-detail');
+    if (row) {
+      row.classList.remove('is-ok', 'is-warn');
+      row.classList.add(item.ok ? 'is-ok' : 'is-warn');
+    }
+    if (detailEl) detailEl.textContent = item.detail;
+  }
+
+  function applyHomeModel(model, doc) {
+    var target = doc || global.document;
+    if (!target || !model) return;
+    setText(target, 'home-assets-count', model.assetCount);
+    setText(target, 'home-assets-sub', model.assetsSub);
+    setText(target, 'home-minings-count', model.planCount);
+    setText(target, 'home-plan-sub', model.planSub);
+    setText(target, 'home-strategies-count', model.strategyCount);
+    setText(target, 'home-strategies-sub', model.strategiesSub);
+    setText(target, 'home-priority-count', model.priorityCount);
+    setText(target, 'home-next-action', model.nextAction);
+    setText(target, 'home-backend-status', model.backendTitle);
+    setText(target, 'home-data-status', model.dataStatus);
+    setText(target, 'home-readiness-score', model.readiness + '%');
+    setText(target, 'home-hero-status', model.heroStatus);
+    setText(target, 'home-audit-score', model.auditScore);
+
+    var bar = target.getElementById('home-readiness-bar');
+    if (bar) bar.style.width = model.readiness + '%';
+    setCheck(target, 'home-check-manifest', model.checks.manifest);
+    setCheck(target, 'home-check-plan', model.checks.plan);
+    setCheck(target, 'home-check-strategies', model.checks.strategies);
+    setCheck(target, 'home-check-backend', model.checks.backend);
+    setStateClass(target, 'home-backend-status', model.states.backend);
+    setStateClass(target, 'home-data-status', model.states.data);
+    setAudit(target, 'home-audit-manifest', model.audit.manifest);
+    setAudit(target, 'home-audit-plan', model.audit.plan);
+    setAudit(target, 'home-audit-backend', model.audit.backend);
+    setAudit(target, 'home-audit-templates', model.audit.templates);
+    setAudit(target, 'home-audit-sqx', model.audit.sqx);
+    setAudit(target, 'home-audit-output', model.audit.output);
+  }
+
   SQX.home = SQX.home || {
     addTrace: addTrace,
+    applyHomeModel: applyHomeModel,
     computeHomeModel: computeHomeModel,
     createTraceItem: createTraceItem,
     escapeHtml: escapeHtml,

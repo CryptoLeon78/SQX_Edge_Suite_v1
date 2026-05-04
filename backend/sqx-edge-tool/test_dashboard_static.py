@@ -160,6 +160,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         expected_exports = [
             "addTrace",
+            "applyHomeModel",
             "computeHomeModel",
             "createTraceItem",
             "escapeHtml",
