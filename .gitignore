@@ -1,11 +1,69 @@
-venv/
+# ── Python / build artefacts ────────────────────────
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.pytest_cache/
+.venv/
+venv/
+env/
+
+# ── Portable runtime / generated packages ───────────
 output/
 sqx-edge-tool/output/
-sqx-edge-tool/config.json
+sqx-edge-tool/output/*.cfx
 sqx-edge-tool/runtime/
-dist/
 sqx-edge-tool/dist/
+SQX_Dashboard_v*.zip
+SQX_Edge_Suite_v*.zip
+
+# ── Local config / sensitive machine state ──────────
+sqx-edge-tool/config.json
+.env
+.env.*
+
+# ── Backups and temporary refactor snapshots ────────
+backups/
 *_backup_*/
 *_backup_hardcode_refactor_*/
+*.bak
+*.old
+*.backup.html
+*.before-*.html
+
+# ── Dashboard state backups ─────────────────────────
+analysis_output/state_backup_*.json
+
+# ── Massive analysis data, regenerable ──────────────
+csv_for_sqx/*.csv
+data/ohlc/
+*_M1.csv
+*_M1_clean.csv
+*_M1.meta.txt
+
+# ── Debug / browser / logs ──────────────────────────
+.playwright-cli/
+.playwright-mcp/
+console_errors.txt
+console-*.log
+page-*.yml
+*.log
+v6_*.png
+debug_*.png
+screenshot_*.png
+
+# ── OS / IDEs ───────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Local assistant/tooling config ──────────────────
+.claude/

@@ -1,4 +1,5 @@
 import json
+import py_compile
 import re
 import unittest
 from pathlib import Path
@@ -89,6 +90,23 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Source of truth lives in js/manifest-data.js", data_js)
         self.assertNotIn("const PLAN_MININGS = [", data_js)
         self.assertNotIn("const STRATEGIES = [", data_js)
+
+    def test_phase1_analysis_scripts_are_present_and_syntax_valid(self):
+        scripts = [
+            "sqx_analysis_common.py",
+            "analyze_assets.py",
+            "score_assets.py",
+            "plan_recommender.py",
+            "download_dukas_bulk.py",
+        ]
+        for script in scripts:
+            with self.subTest(script=script):
+                path = ROOT / script
+                self.assertTrue(path.is_file(), script)
+                py_compile.compile(str(path), doraise=True)
+
+        helper = (ROOT / "sqx_analysis_common.py").read_text(encoding="utf-8")
+        self.assertIn("js/manifest-data.js", helper)
 
 
 if __name__ == "__main__":

@@ -22,6 +22,7 @@ import os
 import re
 import sys
 import subprocess
+from datetime import datetime
 from pathlib import Path
 
 # Permitir ejecución directa o vía -m
@@ -29,7 +30,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from flask import Flask, jsonify, request  # type: ignore
+from flask import Flask, abort, jsonify, request  # type: ignore
 
 from core import all_minings, generate_project, get_mining
 from core.config_loader import load_manifest
@@ -44,6 +45,9 @@ app = Flask(__name__)
 
 VERSION = "0.2.0"
 CONFIG_PATH = ROOT / "config.json"
+DASHBOARD_ROOT = ROOT.parent
+STATE_BACKUP_DIR = DASHBOARD_ROOT / "analysis_output"
+STATE_BACKUP_RETENTION = int(os.environ.get("SQX_STATE_BACKUP_RETENTION", "30"))
 API_PROFILE = (load_manifest("generator_profiles.json").get("api") or {})
 DEFAULT_HOST = API_PROFILE.get("defaultHost", "127.0.0.1")
 DEFAULT_PORT = int(API_PROFILE.get("defaultPort", 5050))
@@ -529,6 +533,107 @@ def open_folder():
         return jsonify({"ok": True})
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
+
+
+# ── Dashboard state backups ──────────────────────────────────────
+# Guarda snapshots JSON del estado local del dashboard sin depender de la
+# modularizacion JS. La UI puede consumir estos endpoints ahora o en una fase
+# posterior.
+def _state_backup_path(filename: str) -> Path:
+    if not filename.startswith("state_backup_") or not filename.endswith(".json"):
+        abort(404)
+    path = (STATE_BACKUP_DIR / filename).resolve(strict=False)
+    try:
+        path.relative_to(STATE_BACKUP_DIR.resolve(strict=False))
+    except ValueError:
+        abort(403)
+    return path
+
+
+def _list_state_backups() -> list[dict]:
+    if not STATE_BACKUP_DIR.exists():
+        return []
+    files = sorted(
+        STATE_BACKUP_DIR.glob("state_backup_*.json"),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+    return [
+        {
+            "name": p.name,
+            "size_kb": round(p.stat().st_size / 1024, 1),
+            "mtime": int(p.stat().st_mtime),
+        }
+        for p in files
+        if p.is_file()
+    ]
+
+
+def _rotate_state_backups() -> int:
+    files = sorted(
+        STATE_BACKUP_DIR.glob("state_backup_*.json"),
+        key=lambda p: p.stat().st_mtime,
+        reverse=True,
+    )
+    stale = files[STATE_BACKUP_RETENTION:]
+    deleted = 0
+    for path in stale:
+        try:
+            path.unlink()
+            deleted += 1
+        except OSError:
+            pass
+    return deleted
+
+
+@app.post("/api/state/backup")
+def api_state_backup():
+    """Guarda un backup timestamped del estado del dashboard.
+    Body esperado: objeto JSON con claves de localStorage o payload equivalente.
+    """
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return jsonify({"ok": False, "error": "body must be a JSON object"}), 400
+
+    STATE_BACKUP_DIR.mkdir(parents=True, exist_ok=True)
+    created_at = datetime.now().isoformat(timespec="seconds")
+    stamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
+    target = STATE_BACKUP_DIR / f"state_backup_{stamp}.json"
+    payload = {
+        "_meta": {
+            "created_at": created_at,
+            "version": VERSION,
+            "keys": sorted(data.keys()),
+        },
+        "data": data,
+    }
+    target.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    rotated = _rotate_state_backups()
+    return jsonify({
+        "ok": True,
+        "filename": target.name,
+        "size_kb": round(target.stat().st_size / 1024, 1),
+        "rotated": rotated,
+    })
+
+
+@app.get("/api/state/backups")
+def api_state_backups():
+    """Lista backups disponibles, del mas reciente al mas antiguo."""
+    return jsonify({"ok": True, "backups": _list_state_backups()})
+
+
+@app.get("/api/state/restore/<path:filename>")
+def api_state_restore(filename: str):
+    """Devuelve el contenido de un backup concreto para restaurarlo en UI."""
+    path = _state_backup_path(filename)
+    if not path.is_file():
+        abort(404)
+    return jsonify({
+        "ok": True,
+        "filename": filename,
+        "payload": json.loads(path.read_text(encoding="utf-8")),
+    })
 
 
 # ── Entrypoint ────────────────────────────────────────────────────

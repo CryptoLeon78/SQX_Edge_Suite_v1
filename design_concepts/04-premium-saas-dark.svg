@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760">
+  <defs>
+    <linearGradient id="top" x1="0" x2="1">
+      <stop offset="0" stop-color="#0d1220"/>
+      <stop offset="1" stop-color="#12111d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="760" fill="#0a0d14"/>
+  <rect x="0" y="0" width="1280" height="118" fill="url(#top)"/>
+  <text x="48" y="58" fill="#ffffff" font-family="Segoe UI,Arial" font-size="30" font-weight="750">SQX Edge Suite</text>
+  <text x="48" y="88" fill="#9aa6b8" font-family="Segoe UI,Arial" font-size="15">Premium SaaS dark · calmer hierarchy · polished product feel</text>
+  <rect x="984" y="38" width="196" height="42" rx="7" fill="#2563eb"/>
+  <text x="1033" y="64" fill="#ffffff" font-family="Segoe UI,Arial" font-size="14" font-weight="700">Project Generator</text>
+  <rect x="36" y="144" width="1208" height="560" rx="12" fill="#111827" stroke="#253044"/>
+  <rect x="36" y="144" width="220" height="560" rx="12" fill="#0f1724"/>
+  <g font-family="Segoe UI,Arial" font-size="14" font-weight="650">
+    <text x="66" y="196" fill="#ffffff">Dashboard</text>
+    <rect x="56" y="226" width="170" height="38" rx="7" fill="#172b4d"/>
+    <text x="78" y="251" fill="#80b4ff">Por Categoria</text>
+    <text x="78" y="304" fill="#8d99aa">SQX Priority</text>
+    <text x="78" y="354" fill="#8d99aa">Pipeline State</text>
+    <text x="78" y="404" fill="#8d99aa">Estrategias</text>
+    <text x="78" y="454" fill="#8d99aa">Workflow</text>
+  </g>
+  <g font-family="Segoe UI,Arial">
+    <text x="292" y="196" fill="#ffffff" font-size="24" font-weight="750">Activos por Categoria</text>
+    <text x="292" y="222" fill="#94a3b8" font-size="14">Explore categories, filters and opportunities with softer visual density.</text>
+    <rect x="292" y="252" width="912" height="76" rx="10" fill="#151f2f" stroke="#2a3850"/>
+    <rect x="318" y="274" width="86" height="32" rx="7" fill="#2563eb"/>
+    <text x="343" y="295" fill="#ffffff" font-size="13" font-weight="700">Todos</text>
+    <rect x="418" y="274" width="86" height="32" rx="7" fill="#111827" stroke="#304058"/>
+    <text x="447" y="295" fill="#aab7ca" font-size="13">Long</text>
+    <rect x="518" y="274" width="86" height="32" rx="7" fill="#111827" stroke="#304058"/>
+    <text x="548" y="295" fill="#aab7ca" font-size="13">Short</text>
+    <rect x="1100" y="274" width="78" height="32" rx="7" fill="#10261e" stroke="#22c55e"/>
+    <text x="1121" y="295" fill="#36dd7e" font-size="13" font-weight="700">CSV</text>
+  </g>
+  <g font-family="Segoe UI,Arial">
+    <rect x="292" y="358" width="912" height="72" rx="10" fill="#151f2f" stroke="#2a3850"/>
+    <rect x="318" y="377" width="34" height="34" rx="8" fill="#1d3d70"/>
+    <text x="330" y="399" fill="#80b4ff" font-size="16" font-weight="700">T</text>
+    <text x="370" y="401" fill="#ffffff" font-size="17" font-weight="700">Tendencia</text>
+    <text x="476" y="401" fill="#94a3b8" font-size="13">EMA, MACD, Ichimoku, SuperTrend</text>
+    <text x="1112" y="401" fill="#94a3b8" font-size="13">21 activos</text>
+    <rect x="292" y="446" width="912" height="72" rx="10" fill="#151f2f" stroke="#2a3850"/>
+    <rect x="318" y="465" width="34" height="34" rx="8" fill="#173a2a"/>
+    <text x="329" y="487" fill="#36dd7e" font-size="16" font-weight="700">M</text>
+    <text x="370" y="489" fill="#ffffff" font-size="17" font-weight="700">Momentum</text>
+    <text x="480" y="489" fill="#94a3b8" font-size="13">RSI, Stochastic, CCI, ROC</text>
+    <text x="1112" y="489" fill="#94a3b8" font-size="13">22 activos</text>
+    <rect x="292" y="534" width="282" height="118" rx="10" fill="#151f2f" stroke="#2a3850"/>
+    <text x="318" y="570" fill="#ffffff" font-size="17" font-weight="700">Progress</text>
+    <text x="318" y="604" fill="#80b4ff" font-size="34" font-weight="750">42%</text>
+    <text x="398" y="604" fill="#94a3b8" font-size="13">pipeline complete</text>
+    <rect x="606" y="534" width="282" height="118" rx="10" fill="#151f2f" stroke="#2a3850"/>
+    <text x="632" y="570" fill="#ffffff" font-size="17" font-weight="700">Strategies</text>
+    <text x="632" y="604" fill="#36dd7e" font-size="34" font-weight="750">4</text>
+    <text x="680" y="604" fill="#94a3b8" font-size="13">validated candidates</text>
+    <rect x="922" y="534" width="282" height="118" rx="10" fill="#151f2f" stroke="#2a3850"/>
+    <text x="948" y="570" fill="#ffffff" font-size="17" font-weight="700">Outputs</text>
+    <text x="948" y="604" fill="#f59e0b" font-size="34" font-weight="750">17</text>
+    <text x="1008" y="604" fill="#94a3b8" font-size="13">generated files</text>
+  </g>
+</svg>

@@ -124,6 +124,34 @@ class ApiTestCase(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(gen.call_args.kwargs["alias_override"], {"USTEC": "NDXm"})
 
+    def test_state_backup_roundtrip_uses_safe_directory(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            backup_dir = Path(tmp)
+            with patch.object(server, "STATE_BACKUP_DIR", backup_dir):
+                response = self.client.post(
+                    "/api/state/backup",
+                    json={"sqx_priority_progress_v1": {"EURUSD|tendencia": "current"}},
+                )
+                self.assertEqual(response.status_code, 200)
+                created = self.get_json(response)
+                self.assertTrue(created["ok"])
+                self.assertTrue(created["filename"].startswith("state_backup_"))
+
+                listed = self.get_json(self.client.get("/api/state/backups"))
+                self.assertEqual(len(listed["backups"]), 1)
+
+                restored = self.client.get(f"/api/state/restore/{created['filename']}")
+                self.assertEqual(restored.status_code, 200)
+                payload = self.get_json(restored)["payload"]
+                self.assertIn("_meta", payload)
+                self.assertEqual(
+                    payload["data"]["sqx_priority_progress_v1"]["EURUSD|tendencia"],
+                    "current",
+                )
+
+                rejected = self.client.get("/api/state/restore/../config.json")
+                self.assertEqual(rejected.status_code, 404)
+
 
 if __name__ == "__main__":
     unittest.main()

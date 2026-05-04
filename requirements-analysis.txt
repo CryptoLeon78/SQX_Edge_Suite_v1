@@ -1,0 +1,5 @@
+# Optional dependencies for analytical pipeline scripts.
+# The portable dashboard/backend does not require these.
+numpy
+pandas
+MetaTrader5; platform_system == "Windows"

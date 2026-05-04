@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="760" viewBox="0 0 1280 760">
+  <rect width="1280" height="760" fill="#0b0f14"/>
+  <rect x="0" y="0" width="1280" height="74" fill="#111821"/>
+  <text x="36" y="45" fill="#f4f7fb" font-family="Segoe UI,Arial" font-size="26" font-weight="700">SQX Edge</text>
+  <text x="158" y="45" fill="#61a7ff" font-family="Segoe UI,Arial" font-size="26" font-weight="700">Terminal Pro</text>
+  <text x="36" y="66" fill="#8fa0b5" font-family="Segoe UI,Arial" font-size="13">Institutional dark interface · compact trading workflow</text>
+  <rect x="0" y="74" width="1280" height="54" fill="#0f151d"/>
+  <g font-family="Segoe UI,Arial" font-size="14" font-weight="700">
+    <text x="44" y="108" fill="#8fa0b5">Por Activo</text>
+    <text x="170" y="108" fill="#61a7ff">Por Categoria</text>
+    <text x="316" y="108" fill="#8fa0b5">SQX Priority</text>
+    <text x="460" y="108" fill="#8fa0b5">Pipeline</text>
+    <text x="575" y="108" fill="#8fa0b5">Project Generator</text>
+  </g>
+  <rect x="160" y="126" width="118" height="3" fill="#61a7ff"/>
+  <rect x="28" y="154" width="1224" height="70" rx="4" fill="#101720" stroke="#273446"/>
+  <rect x="48" y="174" width="78" height="34" rx="4" fill="#19345c" stroke="#2f7ee6"/>
+  <text x="70" y="196" fill="#ffffff" font-family="Segoe UI,Arial" font-size="13" font-weight="700">Todos</text>
+  <rect x="140" y="174" width="78" height="34" rx="4" fill="#111a25" stroke="#273446"/>
+  <text x="164" y="196" fill="#a9b7ca" font-family="Segoe UI,Arial" font-size="13">Long</text>
+  <rect x="232" y="174" width="78" height="34" rx="4" fill="#111a25" stroke="#273446"/>
+  <text x="257" y="196" fill="#a9b7ca" font-family="Segoe UI,Arial" font-size="13">Short</text>
+  <rect x="1034" y="174" width="84" height="34" rx="4" fill="#071d12" stroke="#15b86a"/>
+  <text x="1055" y="196" fill="#29e58a" font-family="Segoe UI,Arial" font-size="13" font-weight="700">CSV</text>
+  <g font-family="Segoe UI,Arial">
+    <rect x="28" y="248" width="1224" height="72" rx="6" fill="#121922" stroke="#2a3748"/>
+    <rect x="48" y="266" width="38" height="38" rx="6" fill="#14264a"/>
+    <text x="62" y="291" fill="#61a7ff" font-size="18" font-weight="700">T</text>
+    <text x="104" y="292" fill="#ffffff" font-size="18" font-weight="700">Tendencia</text>
+    <text x="210" y="292" fill="#91a2b7" font-size="13">EMA, MACD, Ichimoku, SuperTrend</text>
+    <text x="1148" y="292" fill="#9fb1c6" font-size="13">21 activos</text>
+    <text x="1230" y="292" fill="#61a7ff" font-size="16">▶</text>
+    <rect x="28" y="336" width="1224" height="72" rx="6" fill="#121922" stroke="#2a3748"/>
+    <rect x="48" y="354" width="38" height="38" rx="6" fill="#133424"/>
+    <text x="61" y="379" fill="#29e58a" font-size="18" font-weight="700">M</text>
+    <text x="104" y="380" fill="#ffffff" font-size="18" font-weight="700">Momentum</text>
+    <text x="213" y="380" fill="#91a2b7" font-size="13">RSI, Stochastic, CCI, ROC</text>
+    <text x="1148" y="380" fill="#9fb1c6" font-size="13">22 activos</text>
+    <text x="1230" y="380" fill="#61a7ff" font-size="16">▶</text>
+    <rect x="28" y="424" width="1224" height="72" rx="6" fill="#121922" stroke="#2a3748"/>
+    <rect x="48" y="442" width="38" height="38" rx="6" fill="#3b2517"/>
+    <text x="62" y="467" fill="#ff9b43" font-size="18" font-weight="700">V</text>
+    <text x="104" y="468" fill="#ffffff" font-size="18" font-weight="700">Volatilidad</text>
+    <text x="222" y="468" fill="#91a2b7" font-size="13">Bollinger, Keltner, Donchian, StdDev</text>
+    <text x="1148" y="468" fill="#9fb1c6" font-size="13">18 activos</text>
+    <text x="1230" y="468" fill="#61a7ff" font-size="16">▶</text>
+  </g>
+  <rect x="28" y="534" width="386" height="164" rx="6" fill="#101720" stroke="#273446"/>
+  <text x="52" y="570" fill="#f4f7fb" font-family="Segoe UI,Arial" font-size="17" font-weight="700">Priority Health</text>
+  <rect x="52" y="592" width="318" height="12" rx="2" fill="#1c2734"/>
+  <rect x="52" y="592" width="226" height="12" rx="2" fill="#29e58a"/>
+  <text x="52" y="636" fill="#8fa0b5" font-family="Segoe UI,Arial" font-size="13">MAXIMA 18 · ALTA 42 · SKIP 9</text>
+  <rect x="446" y="534" width="386" height="164" rx="6" fill="#101720" stroke="#273446"/>
+  <text x="470" y="570" fill="#f4f7fb" font-family="Segoe UI,Arial" font-size="17" font-weight="700">Pipeline State</text>
+  <circle cx="486" cy="618" r="9" fill="#29e58a"/><text x="506" y="623" fill="#8fa0b5" font-family="Segoe UI,Arial" font-size="13">3 completed</text>
+  <circle cx="486" cy="650" r="9" fill="#61a7ff"/><text x="506" y="655" fill="#8fa0b5" font-family="Segoe UI,Arial" font-size="13">2 in progress</text>
+  <rect x="864" y="534" width="388" height="164" rx="6" fill="#101720" stroke="#273446"/>
+  <text x="888" y="570" fill="#f4f7fb" font-family="Segoe UI,Arial" font-size="17" font-weight="700">Generator</text>
+  <rect x="888" y="594" width="132" height="36" rx="4" fill="#071d12" stroke="#15b86a"/>
+  <text x="910" y="617" fill="#29e58a" font-family="Segoe UI,Arial" font-size="13" font-weight="700">Capa 1</text>
+  <rect x="1034" y="594" width="132" height="36" rx="4" fill="#132744" stroke="#2f7ee6"/>
+  <text x="1056" y="617" fill="#61a7ff" font-family="Segoe UI,Arial" font-size="13" font-weight="700">Capa 2</text>
+</svg>
