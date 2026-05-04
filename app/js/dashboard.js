@@ -31,9 +31,21 @@ const DEFAULT_CATEGORY_COLLAPSED = true;
 const SQX_RUNTIME_CONFIG = window.SQX_CONFIG || { ui:{}, storageKeys:{}, value:function(_path, fallback){ return fallback; } };
 const SQX_UI_CONFIG = SQX_RUNTIME_CONFIG.ui || {};
 const SQX_STORAGE_KEYS = SQX_RUNTIME_CONFIG.storageKeys || {};
+const SQX_MODULES = window.SQX || {};
 
 function sqxConfigValue(path, fallback) {
   return SQX_RUNTIME_CONFIG.value ? SQX_RUNTIME_CONFIG.value(path, fallback) : fallback;
+}
+
+if (SQX_MODULES.registerModule) {
+  SQX_MODULES.registerModule('dashboard-legacy', {
+    state: STATE,
+    config: {
+      ui: SQX_UI_CONFIG,
+      storageKeys: SQX_STORAGE_KEYS,
+      value: sqxConfigValue
+    }
+  });
 }
 
 function sqxStatusMeta(status) {

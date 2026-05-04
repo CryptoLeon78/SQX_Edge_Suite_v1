@@ -25,6 +25,10 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/scores-data.js",
                 "js/manifest-data.js",
                 "js/app-config.js",
+                "js/modules/core.js",
+                "js/modules/storage.js",
+                "js/modules/ui.js",
+                "js/modules/index.js",
                 "js/data.js",
                 "js/dashboard.js",
                 "js/main.js",
@@ -32,6 +36,32 @@ class DashboardStaticTestCase(unittest.TestCase):
         )
         for script in scripts:
             self.assertTrue((APP_ROOT / script).is_file(), script)
+
+    def test_modular_scaffold_loads_before_legacy_logic(self):
+        scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)
+        module_scripts = [
+            "js/modules/core.js",
+            "js/modules/storage.js",
+            "js/modules/ui.js",
+            "js/modules/index.js",
+        ]
+
+        for script in module_scripts:
+            with self.subTest(script=script):
+                self.assertLess(scripts.index(script), scripts.index("js/data.js"))
+
+        core_js = (APP_ROOT / "js" / "modules" / "core.js").read_text(encoding="utf-8-sig")
+        storage_js = (APP_ROOT / "js" / "modules" / "storage.js").read_text(encoding="utf-8-sig")
+        ui_js = (APP_ROOT / "js" / "modules" / "ui.js").read_text(encoding="utf-8-sig")
+        index_js = (APP_ROOT / "js" / "modules" / "index.js").read_text(encoding="utf-8-sig")
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+
+        self.assertIn("global.SQX = global.SQX || {}", core_js)
+        self.assertIn("registerModule", core_js)
+        self.assertIn("SQX.storage", storage_js)
+        self.assertIn("SQX.ui", ui_js)
+        self.assertIn("SQX.boot", index_js)
+        self.assertIn("dashboard-legacy", dashboard_js)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
