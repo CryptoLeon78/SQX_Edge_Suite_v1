@@ -35,6 +35,7 @@ const SQX_UI_CONFIG = SQX_CONFIG_API.ui ? SQX_CONFIG_API.ui() : SQX_RUNTIME_CONF
 const SQX_STORAGE_KEYS = SQX_CONFIG_API.storageKeys ? SQX_CONFIG_API.storageKeys() : SQX_RUNTIME_CONFIG.storageKeys || {};
 const SQX_FORMATTERS = SQX_MODULES.formatters || {};
 const SQX_DOMAIN = SQX_MODULES.domain || {};
+const SQX_DATASETS = SQX_MODULES.datasets || {};
 const SQX_STORAGE = SQX_MODULES.storage || {
   getJson:function(key, fallback){ try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch(e){ return fallback; } },
   setJson:function(key, value){ localStorage.setItem(key, JSON.stringify(value)); return true; }
@@ -136,28 +137,10 @@ function sqxPreviewHTML(code) {
 }
 
 
-let HISTORICAL = {};
-try {
-  if (window.SQX_HISTORICAL_DATA) {
-    HISTORICAL = window.SQX_HISTORICAL_DATA;
-  } else {
-    const _hd = document.getElementById('historical-data');
-    const _txt = _hd && _hd.textContent.trim();
-    if (_txt && !_txt.startsWith('__')) HISTORICAL = JSON.parse(_txt);
-  }
-} catch(e) { console.warn('No se pudo parsear historical-data:', e); }
+let HISTORICAL = SQX_DATASETS.historical ? SQX_DATASETS.historical() : {};
 
 // Data-driven scores (Dukascopy H1 2010-2026)
-let SCORES = {};
-try {
-  if (window.SQX_SCORES_DATA) {
-    SCORES = window.SQX_SCORES_DATA;
-  } else {
-    const _sd = document.getElementById('scores-data');
-    const _stxt = _sd && _sd.textContent.trim();
-    if (_stxt && !_stxt.startsWith('__')) SCORES = JSON.parse(_stxt);
-  }
-} catch(e) { console.warn('No se pudo parsear scores-data:', e); }
+let SCORES = SQX_DATASETS.scores ? SQX_DATASETS.scores() : {};
 
 function getScore(assetId, catKey) {
   if (SQX_DOMAIN.scoreFromScores) return SQX_DOMAIN.scoreFromScores(SCORES, assetId, catKey);
