@@ -21,6 +21,24 @@
 
   <!-- TAB: INICIO -->
   <div id="tab-inicio" class="tab-content">
+    <section class="home-hero">
+      <div class="home-hero-copy">
+        <span class="home-eyebrow">Cockpit operativo</span>
+        <h2>SQX Edge Control Center</h2>
+        <p id="home-hero-status">Manifest activo. API local pendiente de comprobar.</p>
+      </div>
+      <div class="home-hero-actions">
+        <button class="home-command primary" data-home-tab="projectgen">
+          <span>Generar</span>
+          <strong>Project Generator</strong>
+        </button>
+        <button class="home-command" data-home-tab="pipeline">
+          <span>Plan</span>
+          <strong>Pipeline State</strong>
+        </button>
+      </div>
+    </section>
+
     <div class="home-grid">
       <section class="home-main">
         <div class="home-kpis">
@@ -32,12 +50,12 @@
           <button class="home-kpi" data-home-tab="pipeline">
             <span class="home-kpi-label">Plan</span>
             <strong id="home-minings-count">--</strong>
-            <span>minings configurados</span>
+            <span id="home-plan-sub">minings configurados</span>
           </button>
           <button class="home-kpi" data-home-tab="estrategias">
             <span class="home-kpi-label">Estrategias</span>
             <strong id="home-strategies-count">--</strong>
-            <span>candidatas y validadas</span>
+            <span id="home-strategies-sub">candidatas y validadas</span>
           </button>
           <button class="home-kpi" data-home-tab="priority">
             <span class="home-kpi-label">Tracking</span>
@@ -46,9 +64,23 @@
           </button>
         </div>
 
+        <div class="home-readiness">
+          <div class="home-readiness-head">
+            <span>Readiness</span>
+            <strong id="home-readiness-score">--%</strong>
+          </div>
+          <div class="home-readiness-track"><div id="home-readiness-bar"></div></div>
+          <div class="home-readiness-grid">
+            <div class="home-check" id="home-check-manifest"><span></span><strong>Manifest</strong></div>
+            <div class="home-check" id="home-check-plan"><span></span><strong>Plan</strong></div>
+            <div class="home-check" id="home-check-strategies"><span></span><strong>Estrategias</strong></div>
+            <div class="home-check" id="home-check-backend"><span></span><strong>Backend</strong></div>
+          </div>
+        </div>
+
         <div class="home-actions">
           <button class="home-action primary" data-home-tab="pipeline">
-            <span>Pipeline State</span>
+            <span>Siguiente accion</span>
             <strong id="home-next-action">--</strong>
           </button>
           <button class="home-action" data-home-tab="projectgen">
@@ -71,16 +103,31 @@
           <div class="home-panel-title">Foco actual</div>
           <div class="home-focus-row">
             <span>Backend</span>
-            <strong id="home-backend-status">API local</strong>
+            <strong id="home-backend-status">Comprobando</strong>
           </div>
           <div class="home-focus-row">
-            <span>Vista inicial</span>
-            <strong>Inicio</strong>
+            <span>Runtime</span>
+            <strong id="home-runtime-status">Portable</strong>
           </div>
           <div class="home-focus-row">
             <span>Datos</span>
             <strong id="home-data-status">Manifest activo</strong>
           </div>
+        </div>
+        <div class="home-panel home-ops">
+          <div class="home-panel-title">Arranque rapido</div>
+          <button class="home-step" data-home-tab="projectgen">
+            <span>1</span>
+            <strong>Validar API y rutas SQX</strong>
+          </button>
+          <button class="home-step" data-home-tab="pipeline">
+            <span>2</span>
+            <strong>Revisar plan de minings</strong>
+          </button>
+          <button class="home-step" data-home-tab="workflow">
+            <span>3</span>
+            <strong>Ejecutar workflow operativo</strong>
+          </button>
         </div>
       </aside>
     </div>

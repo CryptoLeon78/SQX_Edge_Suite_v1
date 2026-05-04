@@ -105,6 +105,9 @@ function pgSetStatus(state, title, desc) {
   const banner = document.getElementById('pg-status-banner');
   const t = document.getElementById('pg-status-title');
   const d = document.getElementById('pg-status-desc');
+  if (typeof window.updateHomeBackendStatus === 'function') {
+    window.updateHomeBackendStatus(state, title, desc);
+  }
   if (!banner) return;
   banner.classList.remove('pg-status-up', 'pg-status-down', 'pg-status-loading');
   banner.classList.add('pg-status-' + state);

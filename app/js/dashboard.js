@@ -1034,10 +1034,24 @@ function generateStratJSON() {
 // ============================================================
 // EVENTS
 // ============================================================
+var HOME_BACKEND_STATE = { state: 'loading', title: 'Comprobando', desc: 'API local pendiente de comprobar.' };
+
 function renderHome() {
   function setText(id, value) {
     var el = document.getElementById(id);
     if (el) el.textContent = value;
+  }
+  function setStateClass(id, state) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('is-ok', 'is-warn');
+    el.classList.add(state === 'ok' ? 'is-ok' : 'is-warn');
+  }
+  function setCheck(id, ok) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.classList.remove('is-ok', 'is-warn');
+    el.classList.add(ok ? 'is-ok' : 'is-warn');
   }
   var assetCounts = (ASSETS || []).reduce(function(acc, asset) {
     acc[asset.type] = (acc[asset.type] || 0) + 1;
@@ -1046,7 +1060,13 @@ function renderHome() {
   var strategyUserCount = Array.isArray(STRATEGIES_USER) ? STRATEGIES_USER.length : 0;
   var marked = Object.keys(PRIORITY_PROGRESS || {}).length;
   var nextAction = (PIPELINE_STATE && PIPELINE_STATE.nextAction) || 'Plan operativo';
-  if (nextAction.length > 96) nextAction = nextAction.slice(0, 93).trim() + '...';
+  var phaseCount = Object.keys(PHASE_META || {}).length;
+  var manifestOk = !!((ASSETS || []).length && (PLAN_MININGS || []).length && (STRATEGIES || []).length);
+  var planOk = (PLAN_MININGS || []).length > 0;
+  var strategiesOk = ((STRATEGIES || []).length + strategyUserCount) > 0;
+  var backendOk = HOME_BACKEND_STATE.state === 'up';
+  var readiness = Math.round(([manifestOk, planOk, strategiesOk, backendOk].filter(Boolean).length / 4) * 100);
+  if (nextAction.length > 82) nextAction = nextAction.slice(0, 79).trim() + '...';
 
   setText('home-assets-count', (ASSETS || []).length);
   setText(
@@ -1054,10 +1074,38 @@ function renderHome() {
     (assetCounts.forex || 0) + ' Forex · ' + (assetCounts.index || 0) + ' Indices · ' + (assetCounts.oro || 0) + ' Oro'
   );
   setText('home-minings-count', (PLAN_MININGS || []).length);
+  setText('home-plan-sub', phaseCount + ' fases · minings configurados');
   setText('home-strategies-count', (STRATEGIES || []).length + strategyUserCount);
+  setText('home-strategies-sub', (STRATEGIES || []).length + ' base · ' + strategyUserCount + ' importadas');
   setText('home-priority-count', marked);
   setText('home-next-action', nextAction);
+  setText('home-backend-status', HOME_BACKEND_STATE.title);
+  setText('home-data-status', manifestOk ? 'Manifest v' + ((SQX_MANIFEST && SQX_MANIFEST.version) || 1) : 'Manifest incompleto');
+  setText('home-readiness-score', readiness + '%');
+  setText(
+    'home-hero-status',
+    backendOk
+      ? 'API conectada. Plan, manifiestos y generador listos para operar.'
+      : 'Manifest activo. Arranca la API local para habilitar generacion, validacion de rutas y limpieza SQX.'
+  );
+  var bar = document.getElementById('home-readiness-bar');
+  if (bar) bar.style.width = readiness + '%';
+  setCheck('home-check-manifest', manifestOk);
+  setCheck('home-check-plan', planOk);
+  setCheck('home-check-strategies', strategiesOk);
+  setCheck('home-check-backend', backendOk);
+  setStateClass('home-backend-status', backendOk ? 'ok' : 'warn');
+  setStateClass('home-data-status', manifestOk ? 'ok' : 'warn');
 }
+
+window.updateHomeBackendStatus = function(state, title, desc) {
+  HOME_BACKEND_STATE = {
+    state: state || 'loading',
+    title: title || 'API local',
+    desc: desc || ''
+  };
+  renderHome();
+};
 
 function activateTabById(id) {
   var tab = document.querySelector('.tab[data-tab="' + id + '"]');
@@ -1707,6 +1755,7 @@ function renderPipelineState() {
     const cnt = document.getElementById('ps-plan-user-count');
     if (cnt) cnt.textContent = userCount;
   }
+  renderHome();
 }
 
 // listeners

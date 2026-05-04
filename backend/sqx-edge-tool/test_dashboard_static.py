@@ -59,6 +59,26 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, self.html)
 
+    def test_home_cockpit_has_operational_sections(self):
+        expected_ids = [
+            "home-hero-status",
+            "home-readiness-score",
+            "home-readiness-bar",
+            "home-check-manifest",
+            "home-check-plan",
+            "home-check-strategies",
+            "home-check-backend",
+            "home-runtime-status",
+        ]
+        for element_id in expected_ids:
+            with self.subTest(element_id=element_id):
+                self.assertIn(f'id="{element_id}"', self.html)
+
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
+        self.assertIn("window.updateHomeBackendStatus", dashboard_js)
+        self.assertIn("updateHomeBackendStatus", main_js)
+
     def test_external_dataset_scripts_are_valid_assignments(self):
         datasets = {
             "js/historical-data.js": "window.SQX_HISTORICAL_DATA",
