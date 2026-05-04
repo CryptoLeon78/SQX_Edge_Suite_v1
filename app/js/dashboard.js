@@ -38,6 +38,7 @@ const SQX_DOMAIN = SQX_MODULES.domain || {};
 const SQX_DATASETS = SQX_MODULES.datasets || {};
 const SQX_RENDERERS = SQX_MODULES.renderers || {};
 const SQX_CHARTS = SQX_MODULES.charts || {};
+const SQX_STRATEGIES = SQX_MODULES.strategies || {};
 const SQX_STORAGE = SQX_MODULES.storage || {
   getJson:function(key, fallback){ try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch(e){ return fallback; } },
   setJson:function(key, value){ localStorage.setItem(key, JSON.stringify(value)); return true; }
@@ -569,32 +570,44 @@ function fmtInt(v) {
 }
 
 function getFilteredStrategies() {
-  return getAllStrategies().filter(s => {
-    if (stratFilterMining   !== 'all' && String(s.mining)   !== stratFilterMining)   return false;
-    if (stratFilterTemplate !== 'all' && s.template !== stratFilterTemplate) return false;
-    if (stratFilterTier     !== 'all' && s.tier     !== stratFilterTier)     return false;
-    if (stratFilterStatus   !== 'all' && s.status   !== stratFilterStatus)   return false;
-    return true;
-  });
+  return SQX_STRATEGIES.filterStrategies
+    ? SQX_STRATEGIES.filterStrategies(getAllStrategies(), {
+      mining: stratFilterMining,
+      template: stratFilterTemplate,
+      tier: stratFilterTier,
+      status: stratFilterStatus
+    })
+    : getAllStrategies().filter(s => {
+      if (stratFilterMining   !== 'all' && String(s.mining)   !== stratFilterMining)   return false;
+      if (stratFilterTemplate !== 'all' && s.template !== stratFilterTemplate) return false;
+      if (stratFilterTier     !== 'all' && s.tier     !== stratFilterTier)     return false;
+      if (stratFilterStatus   !== 'all' && s.status   !== stratFilterStatus)   return false;
+      return true;
+    });
 }
 
 function renderStratSummary() {
   const all = getAllStrategies();
-  const t1  = all.filter(s => s.tier === '1').length;
-  const t15 = all.filter(s => s.tier === '1.5').length;
-  const t2  = all.filter(s => s.tier === '2').length;
-  const tt  = all.filter(s => s.tier === 'tentativa').length;
-  const deployed = all.filter(s => s.status === 'DEPLOYED').length;
-  const totalProfit = all.reduce((acc,s) => acc + ((s.metrics && s.metrics.net_profit) || 0), 0);
+  const summary = SQX_STRATEGIES.summarize
+    ? SQX_STRATEGIES.summarize(all)
+    : {
+      total: all.length,
+      tier1: all.filter(s => s.tier === '1').length,
+      tier15: all.filter(s => s.tier === '1.5').length,
+      tier2: all.filter(s => s.tier === '2').length,
+      tentative: all.filter(s => s.tier === 'tentativa').length,
+      deployed: all.filter(s => s.status === 'DEPLOYED').length,
+      totalProfit: all.reduce((acc,s) => acc + ((s.metrics && s.metrics.net_profit) || 0), 0)
+    };
 
   document.getElementById('strat-summary').innerHTML =
-    '<div class="strat-summary-card"><div class="ss-count">' + all.length + '</div><div class="ss-label">Total</div></div>' +
-    '<div class="strat-summary-card t1"><div class="ss-count">' + t1 + '</div><div class="ss-label">TIER 1</div></div>' +
-    '<div class="strat-summary-card t15"><div class="ss-count">' + t15 + '</div><div class="ss-label">TIER 1.5</div></div>' +
-    '<div class="strat-summary-card t2"><div class="ss-count">' + t2 + '</div><div class="ss-label">TIER 2</div></div>' +
-    '<div class="strat-summary-card tt"><div class="ss-count">' + tt + '</div><div class="ss-label">Tentativas</div></div>' +
-    '<div class="strat-summary-card"><div class="ss-count">' + deployed + '</div><div class="ss-label">Deployed</div></div>' +
-    '<div class="strat-summary-card"><div class="ss-count" style="font-size:18px;">$' + fmtInt(Math.round(totalProfit)) + '</div><div class="ss-label">Σ Net Profit (BT)</div></div>';
+    '<div class="strat-summary-card"><div class="ss-count">' + summary.total + '</div><div class="ss-label">Total</div></div>' +
+    '<div class="strat-summary-card t1"><div class="ss-count">' + summary.tier1 + '</div><div class="ss-label">TIER 1</div></div>' +
+    '<div class="strat-summary-card t15"><div class="ss-count">' + summary.tier15 + '</div><div class="ss-label">TIER 1.5</div></div>' +
+    '<div class="strat-summary-card t2"><div class="ss-count">' + summary.tier2 + '</div><div class="ss-label">TIER 2</div></div>' +
+    '<div class="strat-summary-card tt"><div class="ss-count">' + summary.tentative + '</div><div class="ss-label">Tentativas</div></div>' +
+    '<div class="strat-summary-card"><div class="ss-count">' + summary.deployed + '</div><div class="ss-label">Deployed</div></div>' +
+    '<div class="strat-summary-card"><div class="ss-count" style="font-size:18px;">$' + fmtInt(Math.round(summary.totalProfit)) + '</div><div class="ss-label">Σ Net Profit (BT)</div></div>';
 }
 
 function populateStratFilters() {
@@ -625,9 +638,11 @@ function stratEsc(value) {
 }
 
 function strategyKey(s) {
-  return [s.id, s.mining, s.template, s.asset, s.tf]
-    .map(v => String(v == null ? '' : v))
-    .join('|');
+  return SQX_STRATEGIES.strategyKey
+    ? SQX_STRATEGIES.strategyKey(s)
+    : [s.id, s.mining, s.template, s.asset, s.tf]
+      .map(v => String(v == null ? '' : v))
+      .join('|');
 }
 
 function renderStrategyCard(s) {
@@ -1793,9 +1808,10 @@ function saveStrategiesDeleted() { SQX_STORAGE.setJson(STRAT_DELETED_KEY, STRATE
 const SQX_COLUMN_MAP = sqxConfigValue('csvImport.columnMap', {});
 
 function autoDetectTemplate(indicators) {
+  const rules = sqxConfigValue('csvImport.templateKeywords', []);
+  if (SQX_STRATEGIES.autoDetectTemplate) return SQX_STRATEGIES.autoDetectTemplate(indicators, rules);
   if (!indicators) return null;
   const ind = indicators.toUpperCase();
-  const rules = sqxConfigValue('csvImport.templateKeywords', []);
   for (const rule of rules) {
     if ((rule.keywords || []).some(keyword => ind.includes(keyword))) return rule.template;
   }
@@ -1804,6 +1820,7 @@ function autoDetectTemplate(indicators) {
 
 // Parser CSV simple — separador configurable, soporte comillas con escape ""
 function parseCSV(text, sep) {
+  if (SQX_STRATEGIES.parseCSV) return SQX_STRATEGIES.parseCSV(text, sep);
   const rows = [];
   let cur = '', inQuotes = false, row = [];
   for (let i = 0; i < text.length; i++) {
@@ -1825,6 +1842,7 @@ function parseCSV(text, sep) {
 }
 
 function detectSeparator(text) {
+  if (SQX_STRATEGIES.detectSeparator) return SQX_STRATEGIES.detectSeparator(text);
   const sample = text.split('\n')[0] || '';
   const semis = (sample.match(/;/g) || []).length;
   const commas = (sample.match(/,/g) || []).length;
@@ -1902,6 +1920,13 @@ function readCsvFile(file) {
 }
 
 function getCsvFilteredRows() {
+  if (SQX_STRATEGIES.filterCsvRows) {
+    return SQX_STRATEGIES.filterCsvRows(csvImport.rows, {
+      filter: csvImport.filter,
+      sortCol: csvImport.sortCol,
+      sortDir: csvImport.sortDir
+    });
+  }
   const q = csvImport.filter.toLowerCase().trim();
   let rows = csvImport.rows.map((r,i) => ({_idx:i, ...r}));
   if (q) {
@@ -2007,6 +2032,12 @@ function readImportMeta() {
 }
 
 function rowToStrategy(row, meta) {
+  if (SQX_STRATEGIES.rowToStrategy) {
+    return SQX_STRATEGIES.rowToStrategy(row, meta, {
+      columnMap: SQX_COLUMN_MAP,
+      templateRules: sqxConfigValue('csvImport.templateKeywords', [])
+    });
+  }
   const sn = (row['Strategy Name'] || '').trim();
   const id = sn.replace(/^Strategy\s+/i, '') || sn;
   const indicators = row['Entry indicators'] || '';
@@ -2072,6 +2103,9 @@ function commitImport() {
 
 // override de getAllStrategies y refactor de filtros
 function getAllStrategies() {
+  if (SQX_STRATEGIES.getAllStrategies) {
+    return SQX_STRATEGIES.getAllStrategies(STRATEGIES, STRATEGIES_USER, STRATEGIES_DELETED);
+  }
   const deleted = new Set(STRATEGIES_DELETED);
   return [
     ...STRATEGIES.filter(s => !deleted.has(strategyKey(s))),
