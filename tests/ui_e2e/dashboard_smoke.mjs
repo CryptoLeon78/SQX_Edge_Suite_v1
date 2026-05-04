@@ -13,6 +13,20 @@ async function assertNoMobileOverflow(page) {
   if (overflow) throw new Error('Mobile viewport has horizontal overflow');
 }
 
+function collectBrowserErrors(page, bucket) {
+  page.on('pageerror', error => bucket.push(`pageerror: ${error.message}`));
+  page.on('console', message => {
+    if (message.type() !== 'error') return;
+    const text = message.text();
+    if (text.includes('net::ERR_CONNECTION_REFUSED')) return;
+    bucket.push(`console error: ${text}`);
+  });
+}
+
+function assertNoBrowserErrors(bucket, label) {
+  if (bucket.length) throw new Error(`${label} browser errors:\n${bucket.join('\n')}`);
+}
+
 async function saveShot(page, name) {
   if (!screenshotsEnabled) return;
   await mkdir(screenshotDir, { recursive: true });
@@ -23,9 +37,21 @@ async function run() {
   const browser = await chromium.launch({ headless: true });
   try {
     const desktop = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+    const desktopErrors = [];
+    collectBrowserErrors(desktop, desktopErrors);
     await desktop.goto(dashboardUrl, { waitUntil: 'load' });
     await desktop.waitForSelector('.tab[data-tab="inicio"].active');
     await desktop.waitForSelector('#home-readiness-score');
+    await desktop.locator('[data-home-tab="pipeline"]').first().click();
+    await desktop.waitForSelector('.tab[data-tab="pipeline"].active');
+    await desktop.locator('.tab[data-tab="activos"]').click();
+    await desktop.waitForSelector('.tab[data-tab="activos"].active');
+    await desktop.locator('[data-filter-type="forex"]').click();
+    await desktop.waitForSelector('[data-filter-type="forex"].active');
+    await desktop.fill('#search-asset', 'EUR');
+    await desktop.waitForSelector('#asset-grid .asset-card');
+    await desktop.evaluate(() => navToAsset('EURUSD'));
+    await desktop.waitForSelector('#detail-panel.visible');
     await desktop.locator('.tab[data-tab="estrategias"]').click();
     await desktop.waitForSelector('#tab-estrategias .strat-card');
     const cards = await desktop.locator('#tab-estrategias .strat-card').count();
@@ -43,10 +69,14 @@ async function run() {
     const afterRestore = await desktop.locator('#tab-estrategias .strat-card').count();
     if (afterRestore !== cards) throw new Error(`Restoring hidden strategies should recover cards, got ${afterRestore} from ${cards}`);
     await saveShot(desktop, 'e2e-strategies-desktop.png');
+    assertNoBrowserErrors(desktopErrors, 'desktop');
     await desktop.close();
 
     const mobile = await browser.newPage({ viewport: { width: 390, height: 920 } });
+    const mobileErrors = [];
+    collectBrowserErrors(mobile, mobileErrors);
     await mobile.goto(dashboardUrl, { waitUntil: 'load' });
+    await mobile.waitForSelector('.tab[data-tab="inicio"].active');
     await mobile.locator('.tab[data-tab="estrategias"]').click();
     await mobile.waitForSelector('#tab-estrategias .strat-card');
     const activeTabBox = await mobile.locator('.tab.active').boundingBox();
@@ -55,6 +85,7 @@ async function run() {
     if (tabsBox && tabsBox.height > 90) throw new Error('Mobile tabs bar is too tall');
     await assertNoMobileOverflow(mobile);
     await saveShot(mobile, 'e2e-strategies-mobile.png');
+    assertNoBrowserErrors(mobileErrors, 'mobile');
     await mobile.close();
   } finally {
     await browser.close();
