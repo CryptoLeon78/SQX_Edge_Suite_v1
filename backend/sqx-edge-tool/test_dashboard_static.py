@@ -128,10 +128,16 @@ class DashboardStaticTestCase(unittest.TestCase):
             "getAllStrategies",
             "filterStrategies",
             "summarize",
+            "summaryHtml",
+            "filterOptionsHtml",
+            "strategyCard",
+            "sortForDisplay",
             "autoDetectTemplate",
             "parseCSV",
             "detectSeparator",
             "filterCsvRows",
+            "csvPreviewTable",
+            "csvConfirmHtml",
             "rowToStrategy",
         ]
         for export in expected_exports:

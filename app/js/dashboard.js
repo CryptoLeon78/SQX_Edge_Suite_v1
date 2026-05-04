@@ -601,29 +601,33 @@ function renderStratSummary() {
     };
 
   document.getElementById('strat-summary').innerHTML =
-    '<div class="strat-summary-card"><div class="ss-count">' + summary.total + '</div><div class="ss-label">Total</div></div>' +
-    '<div class="strat-summary-card t1"><div class="ss-count">' + summary.tier1 + '</div><div class="ss-label">TIER 1</div></div>' +
-    '<div class="strat-summary-card t15"><div class="ss-count">' + summary.tier15 + '</div><div class="ss-label">TIER 1.5</div></div>' +
-    '<div class="strat-summary-card t2"><div class="ss-count">' + summary.tier2 + '</div><div class="ss-label">TIER 2</div></div>' +
-    '<div class="strat-summary-card tt"><div class="ss-count">' + summary.tentative + '</div><div class="ss-label">Tentativas</div></div>' +
-    '<div class="strat-summary-card"><div class="ss-count">' + summary.deployed + '</div><div class="ss-label">Deployed</div></div>' +
-    '<div class="strat-summary-card"><div class="ss-count" style="font-size:18px;">$' + fmtInt(Math.round(summary.totalProfit)) + '</div><div class="ss-label">Σ Net Profit (BT)</div></div>';
+    SQX_STRATEGIES.summaryHtml
+      ? SQX_STRATEGIES.summaryHtml(summary, fmtInt)
+      : '<div class="strat-summary-card"><div class="ss-count">' + summary.total + '</div><div class="ss-label">Total</div></div>' +
+        '<div class="strat-summary-card t1"><div class="ss-count">' + summary.tier1 + '</div><div class="ss-label">TIER 1</div></div>' +
+        '<div class="strat-summary-card t15"><div class="ss-count">' + summary.tier15 + '</div><div class="ss-label">TIER 1.5</div></div>' +
+        '<div class="strat-summary-card t2"><div class="ss-count">' + summary.tier2 + '</div><div class="ss-label">TIER 2</div></div>' +
+        '<div class="strat-summary-card tt"><div class="ss-count">' + summary.tentative + '</div><div class="ss-label">Tentativas</div></div>' +
+        '<div class="strat-summary-card"><div class="ss-count">' + summary.deployed + '</div><div class="ss-label">Deployed</div></div>' +
+        '<div class="strat-summary-card"><div class="ss-count" style="font-size:18px;">$' + fmtInt(Math.round(summary.totalProfit)) + '</div><div class="ss-label">Σ Net Profit (BT)</div></div>';
 }
 
 function populateStratFilters() {
   const all = getAllStrategies();
-  const minings   = [...new Set(all.map(s => s.mining))].sort((a,b)=>a-b);
-  const templates = [...new Set(all.map(s => s.template))].sort();
 
   const mSel = document.getElementById('strat-filter-mining');
-  mSel.innerHTML = '<option value="all">Todos</option>' + minings.map(m =>
-    '<option value="'+m+'">Mining ' + m + '</option>'
-  ).join('');
+  mSel.innerHTML = SQX_STRATEGIES.filterOptionsHtml
+    ? SQX_STRATEGIES.filterOptionsHtml(all, 'mining', m => 'Mining ' + m)
+    : '<option value="all">Todos</option>' + [...new Set(all.map(s => s.mining))].sort((a,b)=>a-b).map(m =>
+      '<option value="'+m+'">Mining ' + m + '</option>'
+    ).join('');
 
   const tSel = document.getElementById('strat-filter-template');
-  tSel.innerHTML = '<option value="all">Todos</option>' + templates.map(t =>
-    '<option value="'+t+'">' + t + '</option>'
-  ).join('');
+  tSel.innerHTML = SQX_STRATEGIES.filterOptionsHtml
+    ? SQX_STRATEGIES.filterOptionsHtml(all, 'template')
+    : '<option value="all">Todos</option>' + [...new Set(all.map(s => s.template))].sort().map(t =>
+      '<option value="'+t+'">' + t + '</option>'
+    ).join('');
 }
 
 function stratEsc(value) {
@@ -646,6 +650,18 @@ function strategyKey(s) {
 }
 
 function renderStrategyCard(s) {
+  if (SQX_STRATEGIES.strategyCard) {
+    return SQX_STRATEGIES.strategyCard(s, {
+      dirClass: dirClass,
+      escapeHtml: stratEsc,
+      formatInteger: fmtInt,
+      formatNumber: fmtNum,
+      metricClass: metricClass,
+      strategyKey: strategyKey,
+      tierClass: tierClass,
+      tierLabel: tierLabel
+    });
+  }
   const m = s.metrics || {};
   const dirCls = dirClass(s.direction);
   const dirTxt = s.direction === 'L' ? 'LONG' : s.direction === 'S' ? 'SHORT' : 'L+S';
@@ -722,14 +738,16 @@ function renderStrategies() {
     grid.innerHTML = '<div class="no-data" style="grid-column:1/-1;">Sin estrategias que coincidan con los filtros.</div>';
     return;
   }
-  // sort: tier 1 → 1.5 → 2 → tentativa, dentro mismo tier por net_profit desc
-  const tierRank = { '1':0, '1.5':1, '2':2, 'tentativa':3 };
-  list.sort((a,b) => {
-    const ta = tierRank[a.tier] ?? 99, tb = tierRank[b.tier] ?? 99;
-    if (ta !== tb) return ta - tb;
-    return (b.metrics.net_profit||0) - (a.metrics.net_profit||0);
-  });
-  grid.innerHTML = list.map(renderStrategyCard).join('');
+  const displayList = SQX_STRATEGIES.sortForDisplay ? SQX_STRATEGIES.sortForDisplay(list) : list;
+  if (!SQX_STRATEGIES.sortForDisplay) {
+    const tierRank = { '1':0, '1.5':1, '2':2, 'tentativa':3 };
+    displayList.sort((a,b) => {
+      const ta = tierRank[a.tier] ?? 99, tb = tierRank[b.tier] ?? 99;
+      if (ta !== tb) return ta - tb;
+      return (b.metrics.net_profit||0) - (a.metrics.net_profit||0);
+    });
+  }
+  grid.innerHTML = displayList.map(renderStrategyCard).join('');
   grid.querySelectorAll('.strat-remove-btn').forEach(btn => {
     btn.addEventListener('click', function() {
       removeStrategyClick(this.dataset.strategyKey);
@@ -1953,39 +1971,36 @@ function renderCsvPreview() {
   const rows = getCsvFilteredRows();
   document.getElementById('csv-row-count').textContent = csvImport.rows.length;
   document.getElementById('csv-selected-count').textContent = csvImport.selected.size;
-  const cols = ['Strategy Name','Net profit','Profit factor','Sharpe Ratio','Ret/DD Ratio','Max DD %','# of trades','Winning Percent','SQN Score','R Expectancy','Stagnation','Entry indicators'];
-  const head = '<thead><tr><th style="width:30px;"><input type="checkbox" id="csv-th-check"></th>' +
-    cols.map(c => {
-      const isNum = c !== 'Strategy Name' && c !== 'Entry indicators';
-      const arrow = csvImport.sortCol === c ? (csvImport.sortDir==='asc'?' ▲':' ▼') : '';
-      return '<th class="sortable" data-col="'+c+'">'+c+arrow+'</th>';
-    }).join('') + '<th>TPL</th></tr></thead>';
-  const body = '<tbody>' + rows.map(r => {
-    const idx = r._idx;
-    const checked = csvImport.selected.has(idx) ? 'checked' : '';
-    const tpl = autoDetectTemplate(r['Entry indicators']) || '—';
-    const cells = cols.map(c => {
-      const v = r[c] || '';
-      if (c === 'Strategy Name') return '<td class="cv-id">'+v+'</td>';
-      if (c === 'Entry indicators') return '<td style="font-size:11px; color:var(--text2); max-width:280px; white-space:normal;">'+v+'</td>';
-      const num = parseFloat(v);
-      let cls = '';
-      if (!isNaN(num)) {
-        if (c === 'Profit factor')   cls = num >= 1.5 ? 'pos' : num >= 1.2 ? 'warn' : 'neg';
-        if (c === 'Sharpe Ratio')    cls = num >= 1.3 ? 'pos' : num >= 1.0 ? 'warn' : 'neg';
-        if (c === 'Ret/DD Ratio')    cls = num >= 5   ? 'pos' : num >= 3   ? 'warn' : 'neg';
-        if (c === 'Max DD %')        cls = num <  2   ? 'pos' : num <  5   ? 'warn' : 'neg';
-        if (c === 'R Expectancy')    cls = num >= 0.30? 'pos' : num >= 0.15? 'warn' : 'neg';
-        if (c === 'SQN Score')       cls = num >= 1.6 ? 'pos' : num >= 1.0 ? 'warn' : 'neg';
-        if (c === 'Stagnation')      cls = num <  180 ? 'pos' : num <  365 ? 'warn' : 'neg';
-        if (c === 'Net profit')      cls = num > 0    ? 'pos' : 'neg';
-      }
-      return '<td class="cv-num '+cls+'">'+v+'</td>';
-    }).join('');
-    return '<tr><td><input type="checkbox" class="cv-row-check" data-idx="'+idx+'" '+checked+'></td>' + cells + '<td><span class="cv-tpl">'+tpl+'</span></td></tr>';
-  }).join('') + '</tbody>';
   const t = document.getElementById('csv-preview-table');
-  t.innerHTML = head + body;
+  if (SQX_STRATEGIES.csvPreviewTable) {
+    t.innerHTML = SQX_STRATEGIES.csvPreviewTable(rows, {
+      selected: csvImport.selected,
+      sortCol: csvImport.sortCol,
+      sortDir: csvImport.sortDir
+    }, {
+      autoDetectTemplate: autoDetectTemplate
+    });
+  } else {
+    const cols = ['Strategy Name','Net profit','Profit factor','Sharpe Ratio','Ret/DD Ratio','Max DD %','# of trades','Winning Percent','SQN Score','R Expectancy','Stagnation','Entry indicators'];
+    const head = '<thead><tr><th style="width:30px;"><input type="checkbox" id="csv-th-check"></th>' +
+      cols.map(c => {
+        const arrow = csvImport.sortCol === c ? (csvImport.sortDir==='asc'?' ▲':' ▼') : '';
+        return '<th class="sortable" data-col="'+c+'">'+c+arrow+'</th>';
+      }).join('') + '<th>TPL</th></tr></thead>';
+    const body = '<tbody>' + rows.map(r => {
+      const idx = r._idx;
+      const checked = csvImport.selected.has(idx) ? 'checked' : '';
+      const tpl = autoDetectTemplate(r['Entry indicators']) || '—';
+      const cells = cols.map(c => {
+        const v = r[c] || '';
+        if (c === 'Strategy Name') return '<td class="cv-id">'+v+'</td>';
+        if (c === 'Entry indicators') return '<td style="font-size:11px; color:var(--text2); max-width:280px; white-space:normal;">'+v+'</td>';
+        return '<td class="cv-num">'+v+'</td>';
+      }).join('');
+      return '<tr><td><input type="checkbox" class="cv-row-check" data-idx="'+idx+'" '+checked+'></td>' + cells + '<td><span class="cv-tpl">'+tpl+'</span></td></tr>';
+    }).join('') + '</tbody>';
+    t.innerHTML = head + body;
+  }
   // events
   document.getElementById('csv-th-check').checked = (csvImport.selected.size === csvImport.rows.length);
   document.getElementById('csv-th-check').addEventListener('change', function(){
@@ -2009,12 +2024,9 @@ function renderCsvPreview() {
 
 function renderCsvConfirm() {
   const meta = readImportMeta();
-  const sel = csvImport.selected.size;
-  const sample = Array.from(csvImport.selected).slice(0,5).map(i => 'Strategy ' + (csvImport.rows[i]['Strategy Name']||'').replace(/^Strategy /,'')).join(', ');
-  document.getElementById('csv-confirm-summary').innerHTML =
-    '<div><strong>'+sel+'</strong> estrategia(s) se importarán.</div>' +
-    '<div style="margin-top:6px;">Mining <strong>'+meta.mining+'</strong> · '+meta.bs+' · Template default <strong>'+(meta.template||'(auto-detect)')+'</strong> · Dirección <strong>'+meta.dir+'</strong> · TIER <strong>'+meta.tier+'</strong> · Status <strong>'+meta.status+'</strong></div>' +
-    (sample ? '<div style="margin-top:6px; font-size:12px; color:var(--text2);">Primeras: '+sample+(sel>5?'…':'')+'</div>' : '');
+  document.getElementById('csv-confirm-summary').innerHTML = SQX_STRATEGIES.csvConfirmHtml
+    ? SQX_STRATEGIES.csvConfirmHtml(meta, csvImport.selected, csvImport.rows)
+    : '<div><strong>'+csvImport.selected.size+'</strong> estrategia(s) se importarán.</div>';
 }
 
 function readImportMeta() {

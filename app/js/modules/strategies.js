@@ -42,6 +42,104 @@
     };
   }
 
+  function summaryHtml(summary, formatInteger) {
+    var fmtInt = formatInteger || function(value) { return String(value); };
+    return '<div class="strat-summary-card"><div class="ss-count">' + summary.total + '</div><div class="ss-label">Total</div></div>' +
+      '<div class="strat-summary-card t1"><div class="ss-count">' + summary.tier1 + '</div><div class="ss-label">TIER 1</div></div>' +
+      '<div class="strat-summary-card t15"><div class="ss-count">' + summary.tier15 + '</div><div class="ss-label">TIER 1.5</div></div>' +
+      '<div class="strat-summary-card t2"><div class="ss-count">' + summary.tier2 + '</div><div class="ss-label">TIER 2</div></div>' +
+      '<div class="strat-summary-card tt"><div class="ss-count">' + summary.tentative + '</div><div class="ss-label">Tentativas</div></div>' +
+      '<div class="strat-summary-card"><div class="ss-count">' + summary.deployed + '</div><div class="ss-label">Deployed</div></div>' +
+      '<div class="strat-summary-card"><div class="ss-count" style="font-size:18px;">$' + fmtInt(Math.round(summary.totalProfit)) + '</div><div class="ss-label">Σ Net Profit (BT)</div></div>';
+  }
+
+  function filterOptionsHtml(strategies, field, labelFn) {
+    var values = Array.from(new Set((strategies || []).map(function(strategy) { return strategy[field]; })));
+    values.sort(function(a, b) {
+      if (typeof a === 'number' && typeof b === 'number') return a - b;
+      return String(a).localeCompare(String(b));
+    });
+    return '<option value="all">Todos</option>' + values.map(function(value) {
+      var label = labelFn ? labelFn(value) : value;
+      return '<option value="' + value + '">' + label + '</option>';
+    }).join('');
+  }
+
+  function strategyCard(strategy, options) {
+    var opts = options || {};
+    var m = strategy.metrics || {};
+    var tierClass = opts.tierClass || function() { return ''; };
+    var tierLabel = opts.tierLabel || function(tier) { return tier; };
+    var dirClass = opts.dirClass || function() { return ''; };
+    var metricClass = opts.metricClass || function() { return ''; };
+    var fmtNum = opts.formatNumber || function(value) { return value == null ? '—' : String(value); };
+    var fmtInt = opts.formatInteger || function(value) { return value == null ? '—' : String(value); };
+    var escapeHtml = opts.escapeHtml || function(value) { return String(value == null ? '' : value); };
+    var strategyKeyFn = opts.strategyKey || strategyKey;
+    var dirCls = dirClass(strategy.direction);
+    var dirTxt = strategy.direction === 'L' ? 'LONG' : strategy.direction === 'S' ? 'SHORT' : 'L+S';
+    var key = strategyKeyFn(strategy);
+    var sourceLabel = strategy._imported ? 'importada' : 'base';
+
+    var metricsRow = [
+      ['Net Profit', m.net_profit != null ? '$' + fmtNum(m.net_profit, 0) : '—', m.net_profit > 0 ? 'pos' : ''],
+      ['PF', fmtNum(m.pf), metricClass('PF', m.pf)],
+      ['Ret/DD', fmtNum(m.ret_dd), metricClass('Ret/DD', m.ret_dd)],
+      ['DD %', m.dd_pct != null ? fmtNum(m.dd_pct) + '%' : '—', metricClass('DD %', m.dd_pct)],
+      ['Sharpe', fmtNum(m.sharpe), metricClass('Sharpe', m.sharpe)],
+      ['R Exp', fmtNum(m.r_exp), metricClass('R Exp', m.r_exp)],
+      ['# Trades', fmtInt(m.trades), ''],
+      ['Win %', m.win_pct != null ? fmtNum(m.win_pct) + '%' : '—', ''],
+      [
+        m.sqn != null ? 'SQN' : (m.stagnation_days != null ? 'Stagn d' : 'WFM $'),
+        m.sqn != null ? fmtNum(m.sqn) : (m.stagnation_days != null ? fmtInt(m.stagnation_days) : (m.wfm_profit != null ? '$' + fmtInt(m.wfm_profit) : '—')),
+        m.sqn != null ? metricClass('SQN', m.sqn) : (m.stagnation_days != null ? metricClass('Stagn d', m.stagnation_days) : '')
+      ]
+    ];
+
+    var metricsHtml = metricsRow.map(function(row) {
+      return '<div class="sc-metric"><div class="m-label">' + row[0] + '</div><div class="m-val ' + row[2] + '">' + row[1] + '</div></div>';
+    }).join('');
+    var testsOk = (strategy.tests_passed || []).map(function(test) { return '<span class="sc-test-ok">' + test + '</span>'; }).join('');
+    var testsKo = (strategy.tests_failed || []).map(function(test) { return '<span class="sc-test-ko">' + test + '</span>'; }).join('');
+    var importedCls = strategy._imported ? ' user-imported' : '';
+
+    return '<div class="strat-card ' + tierClass(strategy.tier) + importedCls + '">' +
+      '<div class="sc-head">' +
+        '<span class="sc-id">' + strategy.id + '</span>' +
+        '<span class="sc-name">' + strategy.name + '</span>' +
+        '<span class="strat-tier-badge ' + tierClass(strategy.tier) + '">' + tierLabel(strategy.tier) + '</span>' +
+        '<span class="strat-status-badge ' + strategy.status + '">' + strategy.status.replace('_', ' ') + '</span>' +
+      '</div>' +
+      '<div class="sc-meta">' +
+        '<span class="sc-meta-pill">M' + strategy.mining + '</span>' +
+        '<span class="sc-meta-pill">' + strategy.asset + '</span>' +
+        '<span class="sc-meta-pill">' + strategy.tf + '</span>' +
+        '<span class="sc-meta-pill">' + strategy.blocksetting + '</span>' +
+        '<span class="sc-meta-pill template">' + strategy.template + '</span>' +
+        '<span class="sc-meta-pill ' + dirCls + '">' + dirTxt + '</span>' +
+      '</div>' +
+      '<div class="sc-indicators"><strong>Señal</strong>' + strategy.indicators + '</div>' +
+      '<div class="sc-indicators"><strong>Exits</strong>' + strategy.exits + '</div>' +
+      '<div class="sc-metrics">' + metricsHtml + '</div>' +
+      (testsOk || testsKo ? '<div class="sc-tests">' + testsOk + testsKo + '</div>' : '') +
+      (strategy.notes ? '<div class="sc-notes">' + strategy.notes + '</div>' : '') +
+      '<div class="sc-footer"><span class="sc-date">' + (strategy.added || '—') + '</span>' +
+        '<button class="strat-remove-btn" data-strategy-key="' + escapeHtml(key) + '" title="Eliminar estrategia ' + sourceLabel + '">Eliminar</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function sortForDisplay(strategies) {
+    var tierRank = { '1': 0, '1.5': 1, '2': 2, 'tentativa': 3 };
+    return (strategies || []).slice().sort(function(a, b) {
+      var ta = tierRank[a.tier] == null ? 99 : tierRank[a.tier];
+      var tb = tierRank[b.tier] == null ? 99 : tierRank[b.tier];
+      if (ta !== tb) return ta - tb;
+      return ((b.metrics && b.metrics.net_profit) || 0) - ((a.metrics && a.metrics.net_profit) || 0);
+    });
+  }
+
   function autoDetectTemplate(indicators, rules) {
     if (!indicators) return null;
     var ind = indicators.toUpperCase();
@@ -118,6 +216,57 @@
     return filtered;
   }
 
+  function csvMetricClass(col, value) {
+    var num = parseFloat(value);
+    if (isNaN(num)) return '';
+    if (col === 'Profit factor') return num >= 1.5 ? 'pos' : num >= 1.2 ? 'warn' : 'neg';
+    if (col === 'Sharpe Ratio') return num >= 1.3 ? 'pos' : num >= 1.0 ? 'warn' : 'neg';
+    if (col === 'Ret/DD Ratio') return num >= 5 ? 'pos' : num >= 3 ? 'warn' : 'neg';
+    if (col === 'Max DD %') return num < 2 ? 'pos' : num < 5 ? 'warn' : 'neg';
+    if (col === 'R Expectancy') return num >= 0.30 ? 'pos' : num >= 0.15 ? 'warn' : 'neg';
+    if (col === 'SQN Score') return num >= 1.6 ? 'pos' : num >= 1.0 ? 'warn' : 'neg';
+    if (col === 'Stagnation') return num < 180 ? 'pos' : num < 365 ? 'warn' : 'neg';
+    if (col === 'Net profit') return num > 0 ? 'pos' : 'neg';
+    return '';
+  }
+
+  function csvPreviewTable(rows, state, options) {
+    var opts = options || {};
+    var selected = state.selected || new Set();
+    var cols = opts.columns || ['Strategy Name','Net profit','Profit factor','Sharpe Ratio','Ret/DD Ratio','Max DD %','# of trades','Winning Percent','SQN Score','R Expectancy','Stagnation','Entry indicators'];
+    var autoTemplate = opts.autoDetectTemplate || function() { return null; };
+    var head = '<thead><tr><th style="width:30px;"><input type="checkbox" id="csv-th-check"></th>' +
+      cols.map(function(col) {
+        var arrow = state.sortCol === col ? (state.sortDir === 'asc' ? ' ▲' : ' ▼') : '';
+        return '<th class="sortable" data-col="' + col + '">' + col + arrow + '</th>';
+      }).join('') + '<th>TPL</th></tr></thead>';
+
+    var body = '<tbody>' + (rows || []).map(function(row) {
+      var idx = row._idx;
+      var checked = selected.has(idx) ? 'checked' : '';
+      var tpl = autoTemplate(row['Entry indicators']) || '—';
+      var cells = cols.map(function(col) {
+        var value = row[col] || '';
+        if (col === 'Strategy Name') return '<td class="cv-id">' + value + '</td>';
+        if (col === 'Entry indicators') return '<td style="font-size:11px; color:var(--text2); max-width:280px; white-space:normal;">' + value + '</td>';
+        return '<td class="cv-num ' + csvMetricClass(col, value) + '">' + value + '</td>';
+      }).join('');
+      return '<tr><td><input type="checkbox" class="cv-row-check" data-idx="' + idx + '" ' + checked + '></td>' + cells + '<td><span class="cv-tpl">' + tpl + '</span></td></tr>';
+    }).join('') + '</tbody>';
+
+    return head + body;
+  }
+
+  function csvConfirmHtml(meta, selected, rows) {
+    var sel = selected.size;
+    var sample = Array.from(selected).slice(0, 5).map(function(index) {
+      return 'Strategy ' + String((rows[index] && rows[index]['Strategy Name']) || '').replace(/^Strategy /, '');
+    }).join(', ');
+    return '<div><strong>' + sel + '</strong> estrategia(s) se importarán.</div>' +
+      '<div style="margin-top:6px;">Mining <strong>' + meta.mining + '</strong> · ' + meta.bs + ' · Template default <strong>' + (meta.template || '(auto-detect)') + '</strong> · Dirección <strong>' + meta.dir + '</strong> · TIER <strong>' + meta.tier + '</strong> · Status <strong>' + meta.status + '</strong></div>' +
+      (sample ? '<div style="margin-top:6px; font-size:12px; color:var(--text2);">Primeras: ' + sample + (sel > 5 ? '…' : '') + '</div>' : '');
+  }
+
   function rowToStrategy(row, meta, options) {
     var opts = options || {};
     var columnMap = opts.columnMap || {};
@@ -182,14 +331,20 @@
 
   SQX.strategies = SQX.strategies || {
     autoDetectTemplate: autoDetectTemplate,
+    csvConfirmHtml: csvConfirmHtml,
+    csvPreviewTable: csvPreviewTable,
     detectSeparator: detectSeparator,
+    filterOptionsHtml: filterOptionsHtml,
     filterCsvRows: filterCsvRows,
     filterStrategies: filterStrategies,
     getAllStrategies: getAllStrategies,
     parseCSV: parseCSV,
     rowToStrategy: rowToStrategy,
+    sortForDisplay: sortForDisplay,
+    strategyCard: strategyCard,
     strategyKey: strategyKey,
-    summarize: summarize
+    summarize: summarize,
+    summaryHtml: summaryHtml
   };
 
   if (SQX.registerModule) {
