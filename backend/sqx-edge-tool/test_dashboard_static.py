@@ -33,6 +33,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/domain.js",
                 "js/modules/datasets.js",
                 "js/modules/renderers.js",
+                "js/modules/charts.js",
                 "js/modules/index.js",
                 "js/data.js",
                 "js/dashboard.js",
@@ -53,6 +54,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/domain.js",
             "js/modules/datasets.js",
             "js/modules/renderers.js",
+            "js/modules/charts.js",
             "js/modules/index.js",
         ]
 
@@ -68,6 +70,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         domain_js = (APP_ROOT / "js" / "modules" / "domain.js").read_text(encoding="utf-8-sig")
         datasets_js = (APP_ROOT / "js" / "modules" / "datasets.js").read_text(encoding="utf-8-sig")
         renderers_js = (APP_ROOT / "js" / "modules" / "renderers.js").read_text(encoding="utf-8-sig")
+        charts_js = (APP_ROOT / "js" / "modules" / "charts.js").read_text(encoding="utf-8-sig")
         index_js = (APP_ROOT / "js" / "modules" / "index.js").read_text(encoding="utf-8-sig")
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
 
@@ -80,8 +83,18 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.domain", domain_js)
         self.assertIn("SQX.datasets", datasets_js)
         self.assertIn("SQX.renderers", renderers_js)
+        self.assertIn("SQX.charts", charts_js)
         self.assertIn("SQX.boot", index_js)
         self.assertIn("dashboard-legacy", dashboard_js)
+
+    def test_dashboard_history_chart_delegates_to_charts_module(self):
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        charts_js = (APP_ROOT / "js" / "modules" / "charts.js").read_text(encoding="utf-8-sig")
+
+        self.assertIn("SQX_CHARTS", dashboard_js)
+        self.assertIn("SQX_CHARTS.renderHistoryChart", dashboard_js)
+        self.assertIn("renderHistoryChart", charts_js)
+        self.assertIn("history-chart", charts_js)
 
     def test_dashboard_html_helpers_delegate_to_renderers_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")

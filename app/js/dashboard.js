@@ -37,6 +37,7 @@ const SQX_FORMATTERS = SQX_MODULES.formatters || {};
 const SQX_DOMAIN = SQX_MODULES.domain || {};
 const SQX_DATASETS = SQX_MODULES.datasets || {};
 const SQX_RENDERERS = SQX_MODULES.renderers || {};
+const SQX_CHARTS = SQX_MODULES.charts || {};
 const SQX_STORAGE = SQX_MODULES.storage || {
   getJson:function(key, fallback){ try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch(e){ return fallback; } },
   setJson:function(key, value){ localStorage.setItem(key, JSON.stringify(value)); return true; }
@@ -141,140 +142,9 @@ function compositeBar(score) {
 
 function historyChartSVG(assetId) {
   const data = HISTORICAL[assetId];
-  if (!data) return '<div class="history-no-data">Sin histórico disponible para '+assetId+' (no estaba en Darwinex).</div>';
-
-  const chartCfg = sqxConfigValue('chart', {});
-  const W=chartCfg.width || 720, H=chartCfg.height || 220;
-  const padL=chartCfg.padL || 44, padR=chartCfg.padR || 14, padT=chartCfg.padT || 18, padB=chartCfg.padB || 32;
-  const innerW = W-padL-padR, innerH = H-padT-padB;
-  const v = data.v, n = v.length;
-  const [sy, sm] = data.start.split('-').map(Number);
-
-  const xAt = i => padL + (n>1 ? (i/(n-1))*innerW : innerW/2);
-  const minV = Math.min.apply(null, v), maxV = Math.max.apply(null, v);
-  const useLog = (maxV/Math.max(minV,0.001)) > 3;
-  const tx = useLog ? Math.log : (x=>x);
-  const minT = tx(minV), maxT = tx(maxV), rangeT = (maxT-minT) || 1;
-  const yAt = val => padT + (1 - (tx(val)-minT)/rangeT) * innerH;
-
-  // 24-month SMA (régimen) — más estable que SMA12
-  const SMA_PERIOD = chartCfg.smaPeriod || 24;
-  const sma = v.map((_, i) => {
-    if (i < SMA_PERIOD-1) return null;
-    let s=0; for (let k=i-(SMA_PERIOD-1); k<=i; k++) s += v[k]; return s/SMA_PERIOD;
-  });
-
-  // Régimen raw: precio vs SMA24
-  const regimeRaw = v.map((_, i) => sma[i] === null ? null : (v[i] > sma[i] ? 1 : -1));
-
-  // Bandas bull/bear con HYSTERESIS — sólo flip si el cambio se sostiene 6+ meses
-  // Esto elimina los flips ruidosos cortos y muestra regímenes coherentes
-  const MIN_BAND_MONTHS = chartCfg.minBandMonths || 6;
-  const bands = [];
-  let curStart = -1, curBull = null;
-  for (let i=0; i<n; i++) {
-    if (regimeRaw[i] === null) continue;
-    const isBull = regimeRaw[i] === 1;
-    if (curBull === null) { curBull = isBull; curStart = i; continue; }
-    if (isBull !== curBull) {
-      // Verificar si el cambio se sostiene los próximos MIN_BAND_MONTHS meses
-      let sustained = true;
-      for (let k=i; k<Math.min(i+MIN_BAND_MONTHS, n); k++) {
-        if (regimeRaw[k] !== null && (regimeRaw[k] === 1) !== isBull) { sustained = false; break; }
-      }
-      if (sustained) {
-        bands.push({ start: curStart, end: i-1, bull: curBull });
-        curStart = i; curBull = isBull;
-      }
-    }
-  }
-  if (curStart !== -1) bands.push({ start: curStart, end: n-1, bull: curBull });
-
-  // Paths
-  let path = '', smaPath = '', smaStarted = false;
-  for (let i=0; i<n; i++) {
-    path += (i===0?'M':'L') + xAt(i).toFixed(1) + ',' + yAt(v[i]).toFixed(1) + ' ';
-    if (sma[i] !== null) {
-      smaPath += (smaStarted?'L':'M') + xAt(i).toFixed(1) + ',' + yAt(sma[i]).toFixed(1) + ' ';
-      smaStarted = true;
-    }
-  }
-
-  // Year ticks
-  const totalMonths = n + (sm-1);
-  const ey = sy + Math.floor((totalMonths-1) / 12);
-  const span = ey - sy;
-  const tickEvery = span >= 16 ? 3 : span >= 10 ? 2 : 1;
-  const yearTicks = [];
-  for (let yy = Math.ceil(sy/tickEvery)*tickEvery; yy <= ey; yy += tickEvery) {
-    const idx = (yy - sy) * 12 - (sm - 1);
-    if (idx >= 0 && idx < n) yearTicks.push({ year: yy, idx });
-  }
-
-  let svg = '<svg class="history-chart" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet">';
-  svg += '<rect x="0" y="0" width="'+W+'" height="'+H+'" fill="#11141d" rx="6"/>';
-
-  // Bandas régimen
-  for (const b of bands) {
-    const x1 = xAt(b.start), x2 = xAt(b.end);
-    const fill = b.bull ? 'rgba(34,197,94,0.18)' : 'rgba(239,68,68,0.18)';
-    svg += '<rect x="'+x1.toFixed(1)+'" y="'+padT+'" width="'+(x2-x1).toFixed(1)+'" height="'+innerH+'" fill="'+fill+'"/>';
-  }
-
-  // Gridlines horizontales
-  const gridVals = [];
-  if (useLog) {
-    const decades = [50, 75, 100, 150, 200, 300, 500, 750, 1000, 1500, 2000, 3000, 5000];
-    for (const d of decades) if (d >= minV*0.9 && d <= maxV*1.1) gridVals.push(d);
-  } else {
-    const span2 = maxV - minV;
-    const step = span2 < 30 ? 5 : span2 < 80 ? 10 : 20;
-    for (let g = Math.floor(minV/step)*step; g <= maxV; g += step) {
-      if (g >= minV*0.95) gridVals.push(g);
-    }
-  }
-  for (const g of gridVals) {
-    const yp = yAt(g);
-    svg += '<line x1="'+padL+'" y1="'+yp.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+yp.toFixed(1)+'" stroke="#2e3348" stroke-width="0.5" stroke-dasharray="2,3"/>';
-    svg += '<text x="'+(padL-6)+'" y="'+(yp+3).toFixed(1)+'" text-anchor="end" font-size="10" fill="#9ca3af">'+g.toFixed(0)+'</text>';
-  }
-  // Línea base 100
-  if (100 >= minV && 100 <= maxV) {
-    const y100 = yAt(100);
-    svg += '<line x1="'+padL+'" y1="'+y100.toFixed(1)+'" x2="'+(W-padR)+'" y2="'+y100.toFixed(1)+'" stroke="#3b82f6" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.4"/>';
-  }
-
-  // Year ticks
-  for (const t of yearTicks) {
-    const xp = xAt(t.idx);
-    svg += '<line x1="'+xp.toFixed(1)+'" y1="'+padT+'" x2="'+xp.toFixed(1)+'" y2="'+(H-padB+2)+'" stroke="#2e3348" stroke-width="0.5"/>';
-    svg += '<text x="'+xp.toFixed(1)+'" y="'+(H-padB+15)+'" text-anchor="middle" font-size="10" fill="#9ca3af">'+t.year+'</text>';
-  }
-
-  // Eventos macro
-  for (const ev of MACRO_EVENTS) {
-    const parts = ev.date.split('-').map(Number);
-    const idx = (parts[0]-sy)*12 + (parts[1]-sm);
-    if (idx < 0 || idx >= n) continue;
-    const xp = xAt(idx);
-    svg += '<line x1="'+xp.toFixed(1)+'" y1="'+padT+'" x2="'+xp.toFixed(1)+'" y2="'+(H-padB)+'" stroke="'+ev.color+'" stroke-width="1.2" stroke-dasharray="3,2" opacity="0.7"><title>'+ev.label+' ('+ev.date+')</title></line>';
-    svg += '<circle cx="'+xp.toFixed(1)+'" cy="'+(padT-2)+'" r="3.2" fill="'+ev.color+'"><title>'+ev.label+' ('+ev.date+')</title></circle>';
-  }
-
-  // SMA12
-  svg += '<path d="'+smaPath+'" fill="none" stroke="#9ca3af" stroke-width="1" stroke-dasharray="3,2" opacity="0.55"/>';
-  // Curva principal
-  svg += '<path d="'+path+'" fill="none" stroke="#3b82f6" stroke-width="1.7"/>';
-
-  // Stat top-right
-  const last = v[n-1], first = v[0];
-  const totalChange = ((last/first - 1) * 100);
-  const tcStr = (totalChange>=0?'+':'') + totalChange.toFixed(1) + '%';
-  const tcColor = totalChange >= 0 ? '#22c55e' : '#ef4444';
-  svg += '<text x="'+(W-padR)+'" y="'+(padT-4)+'" text-anchor="end" font-size="11" fill="'+tcColor+'" font-weight="700">'+tcStr+' ('+data.start+' → hoy)</text>';
-
-  svg += '</svg>';
-  return svg;
+  return SQX_CHARTS.renderHistoryChart
+    ? SQX_CHARTS.renderHistoryChart(assetId, data, MACRO_EVENTS, sqxConfigValue('chart', {}))
+    : '';
 }
 
 function historySection(assetId) {
