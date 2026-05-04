@@ -329,11 +329,88 @@
     };
   }
 
+  function csvQuote(value) {
+    return '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"';
+  }
+
+  function exportCsvRows(strategies) {
+    var headers = ['ID','Name','Mining','Asset','TF','Blocksetting','Template','Direction','Tier','Status','NetProfit','PF','Sharpe','RetDD','DDpct','Trades','WinPct','RExp','SQN','StagnationDays','TestsPassed','TestsFailed','Indicators','Exits','Notes','Added','Source'];
+    var rows = (strategies || []).map(function(strategy) {
+      var m = strategy.metrics || {};
+      return [
+        strategy.id, strategy.name, strategy.mining, strategy.asset, strategy.tf, strategy.blocksetting, strategy.template, strategy.direction, strategy.tier, strategy.status,
+        m.net_profit == null ? '' : m.net_profit,
+        m.pf == null ? '' : m.pf,
+        m.sharpe == null ? '' : m.sharpe,
+        m.ret_dd == null ? '' : m.ret_dd,
+        m.dd_pct == null ? '' : m.dd_pct,
+        m.trades == null ? '' : m.trades,
+        m.win_pct == null ? '' : m.win_pct,
+        m.r_exp == null ? '' : m.r_exp,
+        m.sqn == null ? '' : m.sqn,
+        m.stagnation_days == null ? '' : m.stagnation_days,
+        (strategy.tests_passed || []).join('|'),
+        (strategy.tests_failed || []).join('|'),
+        (strategy.indicators || '').replace(/[\r\n]+/g, ' '),
+        (strategy.exits || '').replace(/[\r\n]+/g, ' '),
+        (strategy.notes || '').replace(/[\r\n]+/g, ' '),
+        strategy.added || '',
+        strategy._imported ? 'IMPORTED' : 'DEFAULT'
+      ].map(csvQuote).join(';');
+    });
+    return [headers.map(csvQuote).join(';')].concat(rows);
+  }
+
+  function dedupeImportedStrategies(baseStrategies, userStrategies, newStrategies) {
+    var existingKeys = new Set((baseStrategies || []).concat(userStrategies || []).map(function(strategy) {
+      return strategy.id + '|' + strategy.mining + '|' + strategy.template;
+    }));
+    var fresh = (newStrategies || []).filter(function(strategy) {
+      return !existingKeys.has(strategy.id + '|' + strategy.mining + '|' + strategy.template);
+    });
+    return {
+      fresh: fresh,
+      duplicates: (newStrategies || []).length - fresh.length
+    };
+  }
+
+  function cleanedStrategies(strategies) {
+    return (strategies || []).map(function(strategy) {
+      var clone = JSON.parse(JSON.stringify(strategy));
+      delete clone._imported;
+      delete clone._import_id;
+      return clone;
+    });
+  }
+
+  function consolidateJson(strategies) {
+    return JSON.stringify({ version: 1, strategies: cleanedStrategies(strategies) }, null, 2);
+  }
+
+  function escapePre(value) {
+    return String(value).replace(/[<>&]/g, function(ch) {
+      return { '<': '&lt;', '>': '&gt;', '&': '&amp;' }[ch];
+    });
+  }
+
+  function consolidatedPopupHtml(jsonText, total) {
+    return '<html><head><title>SQX Strategies — Consolidado</title><style>body{background:#0f1117;color:#e4e4e7;font-family:Segoe UI,sans-serif;padding:20px;}h1{font-size:16px;margin-bottom:10px;}p{color:#9ca3af;font-size:12px;margin-bottom:14px;}pre{background:#0a0c12;border:1px solid #2e3348;border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;color:#9eb1d3;line-height:1.5;overflow:auto;max-height:80vh;white-space:pre-wrap;}button{margin-bottom:10px;padding:8px 16px;background:#22c55e;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;}</style></head><body>' +
+      '<h1>Consolidado: ' + total + ' estrategias</h1>' +
+      '<p>JSON compatible con <code>backend/sqx-edge-tool/config/strategies.json</code>.</p>' +
+      '<button onclick="navigator.clipboard.writeText(document.getElementById(\'cn\').textContent).then(()=>this.textContent=\'Copiado\')">Copiar al portapapeles</button>' +
+      '<pre id="cn">' + escapePre(jsonText) + '</pre>' +
+      '</body></html>';
+  }
+
   SQX.strategies = SQX.strategies || {
     autoDetectTemplate: autoDetectTemplate,
+    consolidateJson: consolidateJson,
+    consolidatedPopupHtml: consolidatedPopupHtml,
     csvConfirmHtml: csvConfirmHtml,
     csvPreviewTable: csvPreviewTable,
+    dedupeImportedStrategies: dedupeImportedStrategies,
     detectSeparator: detectSeparator,
+    exportCsvRows: exportCsvRows,
     filterOptionsHtml: filterOptionsHtml,
     filterCsvRows: filterCsvRows,
     filterStrategies: filterStrategies,

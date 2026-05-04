@@ -782,20 +782,12 @@ function removeStrategyClick(key) {
 }
 
 function exportStrategiesCSV() {
+  if (SQX_STRATEGIES.exportCsvRows) {
+    doExport(SQX_STRATEGIES.exportCsvRows(getAllStrategies()), 'SQX_estrategias.csv');
+    return;
+  }
   const headers = ['ID','Name','Mining','Asset','TF','Blocksetting','Template','Direction','Tier','Status','NetProfit','PF','Sharpe','RetDD','DDpct','Trades','WinPct','RExp','SQN','StagnationDays','TestsPassed','TestsFailed','Indicators','Exits','Notes','Added','Source'];
-  const rows = getAllStrategies().map(s => {
-    const m = s.metrics || {};
-    return [
-      s.id, s.name, s.mining, s.asset, s.tf, s.blocksetting, s.template, s.direction, s.tier, s.status,
-      m.net_profit ?? '', m.pf ?? '', m.sharpe ?? '', m.ret_dd ?? '', m.dd_pct ?? '',
-      m.trades ?? '', m.win_pct ?? '', m.r_exp ?? '', m.sqn ?? '', m.stagnation_days ?? '',
-      (s.tests_passed||[]).join('|'), (s.tests_failed||[]).join('|'),
-      (s.indicators||'').replace(/[\r\n]+/g,' '), (s.exits||'').replace(/[\r\n]+/g,' '),
-      (s.notes||'').replace(/[\r\n]+/g,' '), s.added || '',
-      s._imported ? 'IMPORTED' : 'DEFAULT'
-    ].map(v => '"' + String(v).replace(/"/g,'""') + '"').join(';');
-  });
-  doExport([headers.map(h=>'"'+h+'"').join(';'), ...rows], 'SQX_estrategias.csv');
+  doExport([headers.map(h=>'"'+h+'"').join(';')], 'SQX_estrategias.csv');
 }
 
 // ── MODAL: añadir estrategia ──
@@ -2101,10 +2093,11 @@ function rowToStrategy(row, meta) {
 function commitImport() {
   const meta = readImportMeta();
   const newOnes = Array.from(csvImport.selected).map(i => rowToStrategy(csvImport.rows[i], meta));
-  // dedupe contra existentes (mismo id + mining + template)
-  const existingKeys = new Set([...STRATEGIES, ...STRATEGIES_USER].map(s => s.id+'|'+s.mining+'|'+s.template));
-  const fresh = newOnes.filter(s => !existingKeys.has(s.id+'|'+s.mining+'|'+s.template));
-  const dups = newOnes.length - fresh.length;
+  const dedupe = SQX_STRATEGIES.dedupeImportedStrategies
+    ? SQX_STRATEGIES.dedupeImportedStrategies(STRATEGIES, STRATEGIES_USER, newOnes)
+    : { fresh: newOnes, duplicates: 0 };
+  const fresh = dedupe.fresh;
+  const dups = dedupe.duplicates;
   STRATEGIES_USER = [...STRATEGIES_USER, ...fresh];
   saveStrategiesUser();
   closeImportModal();
@@ -2127,21 +2120,16 @@ function getAllStrategies() {
 
 // ── consolidate (todo el array a JSON compatible con config/strategies.json) ──
 function consolidateStrategiesJSON() {
-  const all = getAllStrategies().map(s => {
-    const c = JSON.parse(JSON.stringify(s));
-    delete c._imported; delete c._import_id;
-    return c;
-  });
-  const wrapper = JSON.stringify({ version: 1, strategies: all }, null, 2);
-  // muestra en un modal simple usando el sf-output-wrap si está cerrado, si no en alert
+  const all = getAllStrategies();
+  const wrapper = SQX_STRATEGIES.consolidateJson
+    ? SQX_STRATEGIES.consolidateJson(all)
+    : JSON.stringify({ version: 1, strategies: all }, null, 2);
   const w = window.open('', '_blank', 'width=900,height=700');
   if (w) {
-    w.document.write('<html><head><title>SQX Strategies — Consolidado</title><style>body{background:#0f1117;color:#e4e4e7;font-family:Segoe UI,sans-serif;padding:20px;}h1{font-size:16px;margin-bottom:10px;}p{color:#9ca3af;font-size:12px;margin-bottom:14px;}pre{background:#0a0c12;border:1px solid #2e3348;border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;color:#9eb1d3;line-height:1.5;overflow:auto;max-height:80vh;white-space:pre-wrap;}button{margin-bottom:10px;padding:8px 16px;background:#22c55e;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;}</style></head><body>');
-    w.document.write('<h1>Consolidado: '+all.length+' estrategias</h1>');
-    w.document.write('<p>JSON compatible con <code>backend/sqx-edge-tool/config/strategies.json</code>.</p>');
-    w.document.write('<button onclick="navigator.clipboard.writeText(document.getElementById(\'cn\').textContent).then(()=>this.textContent=\'Copiado\')">Copiar al portapapeles</button>');
-    w.document.write('<pre id="cn">'+wrapper.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+'</pre>');
-    w.document.write('</body></html>');
+    const html = SQX_STRATEGIES.consolidatedPopupHtml
+      ? SQX_STRATEGIES.consolidatedPopupHtml(wrapper, all.length)
+      : '<pre>'+wrapper.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+'</pre>';
+    w.document.write(html);
     w.document.close();
   } else {
     navigator.clipboard.writeText(wrapper);
