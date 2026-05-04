@@ -11,6 +11,7 @@ dist/
 .venv/
 venv/
 env/
+node_modules/
 
 # ── Portable runtime / generated packages ───────────
 output/
@@ -62,6 +63,7 @@ page-*.yml
 v6_*.png
 debug_*.png
 screenshot_*.png
+e2e-*.png
 
 # ── OS / IDEs ───────────────────────────────────────
 .DS_Store
