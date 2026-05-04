@@ -363,11 +363,11 @@ function historyChartSVG(assetId) {
 function historySection(assetId) {
   if (!HISTORICAL[assetId]) {
     if (Object.keys(HISTORICAL).length === 0) return ''; // datos no inyectados aún, no mostrar
-    return '<div class="history-section"><div class="history-title">📈 Histórico real</div>'
+    return '<div class="history-section"><div class="history-title">Histórico real</div>'
       + '<div class="history-no-data">Sin datos para '+assetId+' (no disponible en Darwinex).</div></div>';
   }
   return '<div class="history-section">'
-    + '<div class="history-title">📈 Histórico real mensual base 100 — Darwinex MT5 · línea gris = SMA24 (régimen, mín 6 meses)</div>'
+    + '<div class="history-title">Histórico real mensual base 100 — Darwinex MT5 · línea gris = SMA24 (régimen, mín 6 meses)</div>'
     + historyChartSVG(assetId)
     + '<div class="history-events-legend">'
     + MACRO_EVENTS.map(e => '<span><i style="background:'+e.color+'"></i>'+e.label+' ('+e.date+')</span>').join('')
@@ -898,8 +898,8 @@ function renderStrategyCard(s) {
     '<div class="sc-metric"><div class="m-label">' + lbl + '</div><div class="m-val ' + cls + '">' + val + '</div></div>'
   ).join('');
 
-  const testsOk = (s.tests_passed||[]).map(t => '<span class="sc-test-ok">✓ '+t+'</span>').join('');
-  const testsKo = (s.tests_failed||[]).map(t => '<span class="sc-test-ko">✗ '+t+'</span>').join('');
+  const testsOk = (s.tests_passed||[]).map(t => '<span class="sc-test-ok">'+t+'</span>').join('');
+  const testsKo = (s.tests_failed||[]).map(t => '<span class="sc-test-ko">'+t+'</span>').join('');
 
   const importedCls = s._imported ? ' user-imported' : '';
   return '<div class="strat-card ' + tierClass(s.tier) + importedCls + '">' +
@@ -922,7 +922,7 @@ function renderStrategyCard(s) {
     '<div class="sc-metrics">' + metricsHtml + '</div>' +
     (testsOk || testsKo ? '<div class="sc-tests">' + testsOk + testsKo + '</div>' : '') +
     (s.notes ? '<div class="sc-notes">' + s.notes + '</div>' : '') +
-    '<div class="sc-footer"><span class="sc-date">📅 ' + (s.added || '—') + '</span>' +
+    '<div class="sc-footer"><span class="sc-date">' + (s.added || '—') + '</span>' +
       '<button class="strat-remove-btn" data-strategy-key="' + stratEsc(key) + '" title="Eliminar estrategia ' + sourceLabel + '">Eliminar</button>' +
     '</div>' +
   '</div>';
@@ -1378,7 +1378,7 @@ document.getElementById('sf-copy').addEventListener('click', function(){
   navigator.clipboard.writeText(txt).then(function(){
     const btn = document.getElementById('sf-copy');
     const old = btn.textContent;
-    btn.textContent = '✓ Copiado';
+    btn.textContent = 'Copiado';
     setTimeout(function(){ btn.textContent = old; }, 1500);
   }, function(){ alert('No se pudo copiar al portapapeles. Selecciona el texto manualmente.'); });
 });
@@ -1624,7 +1624,7 @@ function renderPsPlan() {
       } else if (info.source === 'priority') {
         srcBadge = '<span class="ps-src-badge ps-src-priority" title="Sincronizado desde SQX Priority">🔗 Priority</span>';
       } else if (info.source === 'strategies') {
-        srcBadge = '<span class="ps-src-badge ps-src-strategies" title="Auto-detectado: hay estrategias importadas de este mining">📦 Auto</span>';
+        srcBadge = '<span class="ps-src-badge ps-src-strategies" title="Auto-detectado: hay estrategias importadas de este mining">Auto</span>';
       }
       // Composite % del Priority si existe
       const pkey = miningToPriorityKey(m);
@@ -1646,8 +1646,8 @@ function renderPsPlan() {
       const tpls = getTemplatesByMining(m.num);
       const dirCls = m.dir==='L'?'dir-l':(m.dir==='S'?'dir-s':'dir-ls');
       const survBadge = survivors > 0 ?
-        '<span class="ps-m-survivors" title="' + survivors + ' supervivientes (TIER 1/1.5/2)">' + survivors + ' ✓</span>' :
-        '<span class="ps-m-survivors zero">0 ✓</span>';
+        '<span class="ps-m-survivors" title="' + survivors + ' supervivientes (TIER 1/1.5/2)">' + survivors + '</span>' :
+        '<span class="ps-m-survivors zero">0</span>';
       const tentBadge = tentativas > 0 ? ' <span class="ps-m-survivors zero" style="background:rgba(249,115,22,.12);color:var(--orange);">' + tentativas + ' ?</span>' : '';
       const tplsHtml = tpls.length ? '<div style="font-size:10px;color:var(--text2);margin-top:3px;">Templates: '+tpls.join(', ')+'</div>' : '';
       const userBadge = m._user ? '<span class="ps-user-badge" title="Añadido por UI (vive en localStorage)">USER</span>' : '';
@@ -2006,9 +2006,9 @@ document.getElementById('ps-consolidate-plan').addEventListener('click', functio
   const w = window.open('', '_blank', 'width=900,height=700');
   if (w) {
     w.document.write('<html><head><title>SQX Plan — Consolidado</title><style>body{background:#0f1117;color:#e4e4e7;font-family:Segoe UI,sans-serif;padding:20px;}h1{font-size:16px;margin-bottom:10px;}p{color:#9ca3af;font-size:12px;margin-bottom:14px;}pre{background:#0a0c12;border:1px solid #2e3348;border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;color:#9eb1d3;line-height:1.5;overflow:auto;max-height:80vh;white-space:pre-wrap;}button{margin-bottom:10px;padding:8px 16px;background:#22c55e;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;}</style></head><body>');
-    w.document.write('<h1>💾 Consolidado: '+all.length+' minings · '+Object.keys(phases).length+' fases</h1>');
+    w.document.write('<h1>Consolidado: '+all.length+' minings · '+Object.keys(phases).length+' fases</h1>');
     w.document.write('<p>JSON compatible con <code>backend/sqx-edge-tool/config/plan.json</code>.</p>');
-    w.document.write('<button onclick="navigator.clipboard.writeText(document.getElementById(\'cn\').textContent).then(()=>this.textContent=\'✓ Copiado\')">📋 Copiar al portapapeles</button>');
+    w.document.write('<button onclick="navigator.clipboard.writeText(document.getElementById(\'cn\').textContent).then(()=>this.textContent=\'Copiado\')">Copiar al portapapeles</button>');
     w.document.write('<pre id="cn">'+wrapper.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+'</pre>');
     w.document.write('</body></html>');
     w.document.close();
@@ -2309,7 +2309,7 @@ function commitImport() {
   closeImportModal();
   renderStrategies();
   renderPipelineState();
-  alert('✓ Importadas: '+fresh.length + (dups ? ' (omitidas '+dups+' duplicadas)' : ''));
+  alert('Importadas: '+fresh.length + (dups ? ' (omitidas '+dups+' duplicadas)' : ''));
 }
 
 // override de getAllStrategies y refactor de filtros
@@ -2333,9 +2333,9 @@ function consolidateStrategiesJSON() {
   const w = window.open('', '_blank', 'width=900,height=700');
   if (w) {
     w.document.write('<html><head><title>SQX Strategies — Consolidado</title><style>body{background:#0f1117;color:#e4e4e7;font-family:Segoe UI,sans-serif;padding:20px;}h1{font-size:16px;margin-bottom:10px;}p{color:#9ca3af;font-size:12px;margin-bottom:14px;}pre{background:#0a0c12;border:1px solid #2e3348;border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;color:#9eb1d3;line-height:1.5;overflow:auto;max-height:80vh;white-space:pre-wrap;}button{margin-bottom:10px;padding:8px 16px;background:#22c55e;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;}</style></head><body>');
-    w.document.write('<h1>💾 Consolidado: '+all.length+' estrategias</h1>');
+    w.document.write('<h1>Consolidado: '+all.length+' estrategias</h1>');
     w.document.write('<p>JSON compatible con <code>backend/sqx-edge-tool/config/strategies.json</code>.</p>');
-    w.document.write('<button onclick="navigator.clipboard.writeText(document.getElementById(\'cn\').textContent).then(()=>this.textContent=\'✓ Copiado\')">📋 Copiar al portapapeles</button>');
+    w.document.write('<button onclick="navigator.clipboard.writeText(document.getElementById(\'cn\').textContent).then(()=>this.textContent=\'Copiado\')">Copiar al portapapeles</button>');
     w.document.write('<pre id="cn">'+wrapper.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+'</pre>');
     w.document.write('</body></html>');
     w.document.close();

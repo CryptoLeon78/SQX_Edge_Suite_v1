@@ -282,13 +282,13 @@
     <!-- Activos fuera del plan (auto-detect del SQX Priority) -->
     <div class="card" id="ps-orphans-card" style="display:none;">
       <div class="card-header">
-        <h2>🔄 Activos fuera del plan</h2>
+        <h2>Activos fuera del plan</h2>
         <span class="badge warning">Detectados en SQX Priority</span>
         <span style="flex:1"></span>
         <span style="font-size:11px; color:var(--text2);">Click "+ Añadir al plan" para promover a mining oficial</span>
       </div>
       <div style="color:var(--text2);font-size:12px;margin-bottom:12px;">
-        Items que has marcado como <strong style="color:var(--accent);">▶ En curso</strong> o <strong style="color:var(--green);">✓ Completado</strong> en SQX Priority pero <strong>no matchean ningún mining del plan</strong>. Promuévelos al plan con 1 click para que entren en el tracking oficial.
+        Items que has marcado como <strong style="color:var(--accent);">En curso</strong> o <strong style="color:var(--green);">Completado</strong> en SQX Priority pero <strong>no matchean ningún mining del plan</strong>. Promuévelos al plan con 1 click para que entren en el tracking oficial.
       </div>
       <div id="ps-orphans-list"></div>
     </div>
@@ -302,12 +302,12 @@
         <span style="flex:1"></span>
         <button class="export-btn" id="ps-add-mining-btn" style="border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08);">+ Añadir mining</button>
         <button class="export-btn" id="ps-add-phase-btn" style="border-color:var(--pink); color:var(--pink); background:rgba(236,72,153,.08);">+ Nueva fase</button>
-        <button class="export-btn" id="ps-consolidate-plan" title="Genera snippet PLAN_MININGS + PHASE_META para pegar al HTML">💾 Consolidar plan</button>
+        <button class="export-btn" id="ps-consolidate-plan" title="Genera snippet PLAN_MININGS + PHASE_META para pegar al HTML">Consolidar plan</button>
         <button class="export-btn" id="ps-restore-auto" style="display:none; border-color:var(--purple); color:var(--purple);">↻ Restaurar todos a auto-sync</button>
         <button class="export-btn" id="ps-plan-reset">Reset tracking</button>
       </div>
       <div id="ps-plan-user-info" style="display:none; padding:10px 14px; background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.3); border-radius:8px; margin-bottom:14px; font-size:13px;">
-        <strong style="color:var(--accent);">📦 Plan extendido:</strong>
+        <strong style="color:var(--accent);">Plan extendido:</strong>
         <span id="ps-plan-user-count">0</span> añadidos en localStorage.
         <button id="ps-clear-plan-user-btn" style="margin-left:10px; padding:3px 10px; border-radius:4px; border:1px solid var(--red); background:transparent; color:var(--red); font-size:11px; cursor:pointer;">Limpiar añadidos</button>
       </div>
@@ -400,11 +400,11 @@
           <label>Template Capa 2 <input type="text" id="pg-tpl-c2" placeholder="templates/Capa2_Base.cfx"></label>
         </div>
         <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
-          <button class="export-btn" id="pg-settings-save" style="border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);">💾 Guardar config</button>
+          <button class="export-btn" id="pg-settings-save" style="border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);">Guardar config</button>
           <button class="export-btn" id="pg-settings-reload">↻ Recargar</button>
           <span style="flex:1"></span>
-          <button class="export-btn" id="pg-autodetect" style="border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08);">🔍 Auto-detectar SQX</button>
-          <button class="export-btn" id="pg-validate">✓ Validar paths</button>
+          <button class="export-btn" id="pg-autodetect" style="border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08);">Auto-detectar SQX</button>
+          <button class="export-btn" id="pg-validate">Validar paths</button>
         </div>
         <div id="pg-settings-msg" style="margin-top:10px;font-size:12px;color:var(--text2);"></div>
         <div id="pg-autodetect-results" style="margin-top:10px;"></div>
@@ -416,7 +416,7 @@
             <span style="font-size:11px;color:var(--text2);">El ticker del activo en SQX puede variar por broker (USTEC → NDXm en Darwinex, NDX en Dukascopy, USTEC100 en otros).</span>
           </div>
           <div id="pg-aliases-table" style="margin-bottom:10px;"></div>
-          <button class="export-btn" id="pg-aliases-suggest" style="border-color:var(--accent);color:var(--accent);">🔍 Auto-sugerir desde DB</button>
+          <button class="export-btn" id="pg-aliases-suggest" style="border-color:var(--accent);color:var(--accent);">Auto-sugerir desde DB</button>
         </div>
       </div>
     </div>
@@ -424,14 +424,14 @@
     <!-- Acciones masivas -->
     <div class="card">
       <div class="card-header">
-        <h2>🚀 Generación masiva</h2>
+        <h2>Generación masiva</h2>
         <span class="badge info" id="pg-bulk-count">Minings del plan · Capa 1 + Capa 2</span>
         <span style="flex:1"></span>
-        <button class="export-btn" id="pg-open-output" title="Abrir carpeta output en Explorer">📁 Abrir output</button>
+        <button class="export-btn" id="pg-open-output" title="Abrir carpeta output en Explorer">Abrir output</button>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-        <button class="export-btn" id="pg-gen-all-c1" style="border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08);font-size:13px;padding:8px 16px;">📦 Generar TODOS · Capa 1</button>
-        <button class="export-btn" id="pg-gen-all-c2" style="border-color:var(--purple);color:var(--purple);background:rgba(168,85,247,.08);font-size:13px;padding:8px 16px;">📦 Generar TODOS · Capa 2</button>
+        <button class="export-btn" id="pg-gen-all-c1" style="border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08);font-size:13px;padding:8px 16px;">Generar TODOS · Capa 1</button>
+        <button class="export-btn" id="pg-gen-all-c2" style="border-color:var(--purple);color:var(--purple);background:rgba(168,85,247,.08);font-size:13px;padding:8px 16px;">Generar TODOS · Capa 2</button>
         <span style="flex:1"></span>
         <span style="font-size:12px;color:var(--text2);">Resultado en log abajo</span>
       </div>
@@ -460,7 +460,7 @@
     <!-- ───────────── Strategy Cleaner (F5) — post-mining ───────────── -->
     <div class="card">
       <div class="card-header">
-        <h2>🧹 Strategy Cleaner</h2>
+        <h2>Strategy Cleaner</h2>
         <span class="badge warning">Post-mining</span>
         <span style="flex:1"></span>
         <span style="font-size:11px;color:var(--text2);">Limpia ExitAfterBars + renombrado institucional sobre .sqx generados por SQX</span>
@@ -487,7 +487,7 @@
           <span style="flex:1"></span>
           <span id="cln-selected" style="font-size:12px;color:var(--text2);">0 seleccionadas</span>
           <button class="export-btn" id="cln-preview" style="border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08);">👁 Preview rename</button>
-          <button class="export-btn" id="cln-process" style="border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);">🧹 Procesar selección</button>
+          <button class="export-btn" id="cln-process" style="border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);">Procesar selección</button>
         </div>
       </div>
     </div>
@@ -495,7 +495,7 @@
     <!-- Log de operaciones -->
     <div class="card">
       <div class="card-header">
-        <h2>📋 Log</h2>
+        <h2>Log</h2>
         <span style="flex:1"></span>
         <button class="export-btn" id="pg-log-clear">Limpiar</button>
       </div>
@@ -540,15 +540,15 @@
         </select>
       </div>
       <span style="flex:1"></span>
-      <button class="export-btn" id="strat-import-btn" style="border-color:var(--purple); color:var(--purple); background:rgba(168,85,247,.08);">📥 Importar CSV de SQX</button>
-      <button class="export-btn" id="strat-add-btn" style="border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08);">+ Añadir estrategia</button>
-      <button class="export-btn" id="strat-consolidate-btn" title="Exporta JSON con todas las estrategias (DEFAULT + importadas)">💾 Consolidar JSON</button>
-      <button class="export-btn" id="strat-export-btn">&#11015; CSV</button>
+      <button class="export-btn" id="strat-import-btn" style="border-color:var(--purple); color:var(--purple); background:rgba(168,85,247,.08);">Importar CSV de SQX</button>
+      <button class="export-btn" id="strat-add-btn" style="border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08);">Añadir estrategia</button>
+      <button class="export-btn" id="strat-consolidate-btn" title="Exporta JSON con todas las estrategias (DEFAULT + importadas)">Consolidar JSON</button>
+      <button class="export-btn" id="strat-export-btn">CSV</button>
       <input type="file" id="strat-import-file" accept=".csv,.txt" style="display:none">
     </div>
 
     <div id="strat-user-info" style="display:none; padding:10px 14px; background:rgba(168,85,247,.08); border:1px solid rgba(168,85,247,.3); border-radius:8px; margin-bottom:14px; font-size:13px;">
-      <strong style="color:var(--purple);">📦 Importadas:</strong>
+      <strong style="color:var(--purple);">Importadas:</strong>
       <span id="strat-user-count">0</span> estrategias en localStorage (sesión persistente).
       <button id="strat-clear-user-btn" style="margin-left:10px; padding:3px 10px; border-radius:4px; border:1px solid var(--red); background:transparent; color:var(--red); font-size:11px; cursor:pointer;">Limpiar importadas</button>
       <span id="strat-hidden-wrap" style="display:none;">
@@ -661,7 +661,7 @@
   <div class="strat-modal-backdrop" id="strat-import-backdrop" style="display:none;">
     <div class="strat-modal" style="max-width:1100px;">
       <div class="strat-modal-header">
-        <h3>📥 Importar CSV de SQX (Databank Export)</h3>
+        <h3>Importar CSV de SQX (Databank Export)</h3>
         <button class="strat-modal-close" id="strat-import-close">×</button>
       </div>
       <div class="strat-modal-body">
@@ -680,7 +680,7 @@
             Sube el <code>DatabankExport.csv</code> que SQX exporta desde el panel Databank → "Export to CSV". Separador esperado: <code>;</code> (auto-detecta).
           </p>
           <div class="csv-dropzone" id="csv-dropzone">
-            <div style="font-size:36px; margin-bottom:6px;">📥</div>
+            <div class="csv-drop-icon" aria-hidden="true"></div>
             <div style="font-weight:700; margin-bottom:4px;">Arrastra el CSV aquí</div>
             <div style="color:var(--text2); font-size:12px;">o haz click para seleccionar archivo</div>
           </div>
@@ -786,7 +786,7 @@
             <div class="alert-icon">⚠</div>
             <div class="alert-content">
               <strong>Persistencia</strong>
-              Las estrategias se guardan en <code>localStorage</code> de tu navegador (clave <code>sqx_strategies_user_v1</code>). Para consolidarlas permanentemente al HTML, usa el botón <strong>"💾 Consolidar JSON"</strong> del tab Estrategias y pega el snippet dentro del array <code>STRATEGIES</code>.
+              Las estrategias se guardan en <code>localStorage</code> de tu navegador (clave <code>sqx_strategies_user_v1</code>). Para consolidarlas permanentemente al HTML, usa el botón <strong>"Consolidar JSON"</strong> del tab Estrategias y pega el snippet dentro del array <code>STRATEGIES</code>.
             </div>
           </div>
         </div>
@@ -797,7 +797,7 @@
           <span style="flex:1"></span>
           <button class="export-btn" id="csv-cancel-btn">Cancelar</button>
           <button class="export-btn" id="csv-next-btn" style="border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08);" disabled>Siguiente →</button>
-          <button class="export-btn" id="csv-finish-btn" style="border-color:var(--green); color:var(--green); background:rgba(34,197,94,.08); display:none;">✓ Importar al dashboard</button>
+          <button class="export-btn" id="csv-finish-btn" style="border-color:var(--green); color:var(--green); background:rgba(34,197,94,.08); display:none;">Importar al dashboard</button>
         </div>
 
       </div>
@@ -813,7 +813,7 @@
       </div>
       <div class="strat-modal-body">
         <p style="color:var(--text2);font-size:12px;margin-bottom:12px;">
-          Añade un mining nuevo al plan. Vive en <code>localStorage</code> hasta que uses <strong>"💾 Consolidar plan"</strong>.
+          Añade un mining nuevo al plan. Vive en <code>localStorage</code> hasta que uses <strong>"Consolidar plan"</strong>.
         </p>
         <div class="strat-form-grid">
           <label>Mining # <input type="number" id="psm-num" min="1"></label>
@@ -835,7 +835,7 @@
         <div style="display:flex; gap:8px; margin-top:18px; padding-top:14px; border-top:1px solid var(--border);">
           <span style="flex:1"></span>
           <button class="export-btn" id="psm-cancel">Cancelar</button>
-          <button class="export-btn" id="psm-save" style="border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);">✓ Añadir mining</button>
+          <button class="export-btn" id="psm-save" style="border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);">Añadir mining</button>
         </div>
       </div>
     </div>
@@ -860,7 +860,7 @@
         <div style="display:flex; gap:8px; margin-top:18px; padding-top:14px; border-top:1px solid var(--border);">
           <span style="flex:1"></span>
           <button class="export-btn" id="psp-cancel">Cancelar</button>
-          <button class="export-btn" id="psp-save" style="border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);">✓ Crear fase</button>
+          <button class="export-btn" id="psp-save" style="border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);">Crear fase</button>
         </div>
       </div>
     </div>
