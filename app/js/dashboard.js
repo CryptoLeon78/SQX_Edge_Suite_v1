@@ -857,10 +857,28 @@ function populateStratFilters() {
   ).join('');
 }
 
+function stratEsc(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[ch]));
+}
+
+function strategyKey(s) {
+  return [s.id, s.mining, s.template, s.asset, s.tf]
+    .map(v => String(v == null ? '' : v))
+    .join('|');
+}
+
 function renderStrategyCard(s) {
   const m = s.metrics || {};
   const dirCls = dirClass(s.direction);
   const dirTxt = s.direction === 'L' ? 'LONG' : s.direction === 'S' ? 'SHORT' : 'L+S';
+  const key = strategyKey(s);
+  const sourceLabel = s._imported ? 'importada' : 'base';
 
   const metricsRow = [
     ['Net Profit', m.net_profit != null ? '$'+fmtNum(m.net_profit, 0) : '—', m.net_profit > 0 ? 'pos' : ''],
@@ -904,7 +922,9 @@ function renderStrategyCard(s) {
     '<div class="sc-metrics">' + metricsHtml + '</div>' +
     (testsOk || testsKo ? '<div class="sc-tests">' + testsOk + testsKo + '</div>' : '') +
     (s.notes ? '<div class="sc-notes">' + s.notes + '</div>' : '') +
-    '<div class="sc-footer"><span class="sc-date">📅 ' + (s.added || '—') + '</span></div>' +
+    '<div class="sc-footer"><span class="sc-date">📅 ' + (s.added || '—') + '</span>' +
+      '<button class="strat-remove-btn" data-strategy-key="' + stratEsc(key) + '" title="Eliminar estrategia ' + sourceLabel + '">Eliminar</button>' +
+    '</div>' +
   '</div>';
 }
 
@@ -915,9 +935,14 @@ function renderStrategies() {
   const userInfo = document.getElementById('strat-user-info');
   if (userInfo) {
     const cnt = STRATEGIES_USER.length;
-    userInfo.style.display = cnt > 0 ? 'block' : 'none';
+    const hiddenCnt = STRATEGIES_DELETED.length;
+    userInfo.style.display = (cnt > 0 || hiddenCnt > 0) ? 'block' : 'none';
     const cntEl = document.getElementById('strat-user-count');
     if (cntEl) cntEl.textContent = cnt;
+    const hiddenWrap = document.getElementById('strat-hidden-wrap');
+    const hiddenCntEl = document.getElementById('strat-hidden-count');
+    if (hiddenWrap) hiddenWrap.style.display = hiddenCnt > 0 ? 'inline' : 'none';
+    if (hiddenCntEl) hiddenCntEl.textContent = hiddenCnt;
   }
   const list = getFilteredStrategies();
   const grid = document.getElementById('strat-grid');
@@ -933,6 +958,37 @@ function renderStrategies() {
     return (b.metrics.net_profit||0) - (a.metrics.net_profit||0);
   });
   grid.innerHTML = list.map(renderStrategyCard).join('');
+  grid.querySelectorAll('.strat-remove-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      removeStrategyClick(this.dataset.strategyKey);
+    });
+  });
+}
+
+function removeStrategyClick(key) {
+  const imported = STRATEGIES_USER.find(s => strategyKey(s) === key);
+  const base = STRATEGIES.find(s => strategyKey(s) === key);
+  const target = imported || base;
+  if (!target) return;
+
+  const label = [target.id, 'M' + target.mining, target.template].filter(Boolean).join(' · ');
+  const prompt = imported
+    ? '¿Eliminar la estrategia importada ' + label + '?'
+    : '¿Eliminar la estrategia base ' + label + ' de la vista? Podrás restaurarla después.';
+
+  if (!confirm(prompt)) return;
+
+  if (imported) {
+    STRATEGIES_USER = STRATEGIES_USER.filter(s => strategyKey(s) !== key);
+    saveStrategiesUser();
+  } else if (!STRATEGIES_DELETED.includes(key)) {
+    STRATEGIES_DELETED.push(key);
+    saveStrategiesDeleted();
+  }
+
+  renderStrategies();
+  renderPipelineState();
+  renderHome();
 }
 
 function exportStrategiesCSV() {
@@ -1966,9 +2022,15 @@ document.getElementById('ps-consolidate-plan').addEventListener('click', functio
 // CSV IMPORT — Databank Export de SQX
 // ============================================================
 const STRAT_USER_KEY = SQX_STORAGE_KEYS.strategiesUser || 'sqx_strategies_user_v1';
+const STRAT_DELETED_KEY = SQX_STORAGE_KEYS.strategiesDeleted || 'sqx_strategies_deleted_v1';
 let STRATEGIES_USER = [];
+let STRATEGIES_DELETED = [];
 try { STRATEGIES_USER = JSON.parse(localStorage.getItem(STRAT_USER_KEY) || '[]'); } catch(e){ STRATEGIES_USER = []; }
+try { STRATEGIES_DELETED = JSON.parse(localStorage.getItem(STRAT_DELETED_KEY) || '[]'); } catch(e){ STRATEGIES_DELETED = []; }
+if (!Array.isArray(STRATEGIES_USER)) STRATEGIES_USER = [];
+if (!Array.isArray(STRATEGIES_DELETED)) STRATEGIES_DELETED = [];
 function saveStrategiesUser() { localStorage.setItem(STRAT_USER_KEY, JSON.stringify(STRATEGIES_USER)); }
+function saveStrategiesDeleted() { localStorage.setItem(STRAT_DELETED_KEY, JSON.stringify(STRATEGIES_DELETED)); }
 
 const SQX_COLUMN_MAP = sqxConfigValue('csvImport.columnMap', {});
 
@@ -2252,7 +2314,11 @@ function commitImport() {
 
 // override de getAllStrategies y refactor de filtros
 function getAllStrategies() {
-  return [...STRATEGIES, ...STRATEGIES_USER];
+  const deleted = new Set(STRATEGIES_DELETED);
+  return [
+    ...STRATEGIES.filter(s => !deleted.has(strategyKey(s))),
+    ...STRATEGIES_USER
+  ];
 }
 
 // ── consolidate (todo el array a JSON compatible con config/strategies.json) ──
@@ -2321,8 +2387,14 @@ document.getElementById('csv-select-top10').addEventListener('click', function()
 document.getElementById('strat-consolidate-btn').addEventListener('click', consolidateStrategiesJSON);
 document.getElementById('strat-clear-user-btn').addEventListener('click', function(){
   if (!STRATEGIES_USER.length) return;
-  if (confirm('¿Borrar las '+STRATEGIES_USER.length+' estrategias importadas? Las del HTML se mantienen.')) {
-    STRATEGIES_USER = []; saveStrategiesUser(); renderStrategies(); renderPipelineState();
+  if (confirm('¿Borrar las '+STRATEGIES_USER.length+' estrategias importadas? Las estrategias base se mantienen.')) {
+    STRATEGIES_USER = []; saveStrategiesUser(); renderStrategies(); renderPipelineState(); renderHome();
+  }
+});
+document.getElementById('strat-restore-hidden-btn').addEventListener('click', function(){
+  if (!STRATEGIES_DELETED.length) return;
+  if (confirm('¿Restaurar las '+STRATEGIES_DELETED.length+' estrategias base eliminadas de la vista?')) {
+    STRATEGIES_DELETED = []; saveStrategiesDeleted(); renderStrategies(); renderPipelineState(); renderHome();
   }
 });
 

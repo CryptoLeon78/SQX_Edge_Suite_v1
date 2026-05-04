@@ -91,6 +91,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "pg-assistant-next",
             "pg-assistant-hint",
             "pg-assistant-checks",
+            "strat-hidden-wrap",
+            "strat-hidden-count",
+            "strat-restore-hidden-btn",
         ]
         for element_id in expected_ids:
             with self.subTest(element_id=element_id):
@@ -109,6 +112,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("function pgRunOnboardingAction", main_js)
         self.assertIn("function pgRunOnboardingTertiaryAction", main_js)
         self.assertIn("pg-assistant-check", main_js)
+        self.assertIn("STRAT_DELETED_KEY", dashboard_js)
+        self.assertIn("function removeStrategyClick", dashboard_js)
+        self.assertIn("data-strategy-key", dashboard_js)
 
     def test_external_dataset_scripts_are_valid_assignments(self):
         datasets = {

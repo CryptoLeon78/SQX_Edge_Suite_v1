@@ -563,6 +563,7 @@ window.SQX_MANIFEST = {
       "planUser": "sqx_plan_user_v1",
       "pipelineState": "sqx_pipeline_state_v1",
       "strategiesUser": "sqx_strategies_user_v1",
+      "strategiesDeleted": "sqx_strategies_deleted_v1",
       "workflowChecklist": "sqx_workflow_checklist_v1",
       "apiBase": "sqx_pg_api_base_v1"
     },
