@@ -222,8 +222,11 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         expected_exports = [
             "applyOnboardingState",
+            "applyStatusBanner",
             "computeOnboardingState",
             "escapeHtml",
+            "fetchJson",
+            "prepareRequestOptions",
         ]
         for export in expected_exports:
             with self.subTest(export=export):
@@ -231,9 +234,13 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         self.assertIn("SQX_PG_MODULE.computeOnboardingState", main_js)
         self.assertIn("SQX_PG_MODULE.applyOnboardingState", main_js)
+        self.assertIn("SQX_PG_MODULE.applyStatusBanner", main_js)
         self.assertIn("SQX_PG_MODULE.escapeHtml", main_js)
+        self.assertIn("SQX_PG_MODULE.fetchJson", main_js)
         self.assertNotIn("const hasSqxInput = ", main_js)
         self.assertNotIn("stepsEl.innerHTML = state.steps.map", main_js)
+        self.assertNotIn("await fetch(url, opts)", main_js)
+        self.assertNotIn("banner.classList.remove('pg-status-up'", main_js)
 
     def test_dashboard_dataset_loading_delegates_to_datasets_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")

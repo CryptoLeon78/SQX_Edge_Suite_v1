@@ -103,25 +103,10 @@ function pgRenderOnboarding() {
 }
 
 async function pgFetch(path, options) {
-  const url = PG_API + path;
-  const opts = Object.assign({}, options || {});
-  if (opts.body && typeof opts.body !== 'string') {
-    opts.body = JSON.stringify(opts.body);
-    opts.headers = Object.assign({'Content-Type': 'application/json'}, opts.headers || {});
-  }
-  const r = await fetch(url, opts);
-  const text = await r.text();
-  let data = {};
-  try { data = text ? JSON.parse(text) : {}; }
-  catch { data = { ok: false, error: text || ('HTTP ' + r.status) }; }
-  if (!r.ok || data.ok === false) throw new Error(data.error || ('HTTP ' + r.status));
-  return data;
+  return SQX_PG_MODULE.fetchJson(PG_API, path, options);
 }
 
 function pgSetStatus(state, title, desc, meta) {
-  const banner = document.getElementById('pg-status-banner');
-  const t = document.getElementById('pg-status-title');
-  const d = document.getElementById('pg-status-desc');
   if (meta && Object.keys(meta).length) PG_HEALTH_META = meta;
   else if (state === 'down') PG_HEALTH_META = {};
   if (typeof window.updateHomeBackendStatus === 'function') {
@@ -135,11 +120,7 @@ function pgSetStatus(state, title, desc, meta) {
       state === 'up' ? 'ok' : 'err'
     );
   }
-  if (!banner) return;
-  banner.classList.remove('pg-status-up', 'pg-status-down', 'pg-status-loading');
-  banner.classList.add('pg-status-' + state);
-  if (t) t.textContent = title;
-  if (d) d.textContent = desc;
+  SQX_PG_MODULE.applyStatusBanner({ state, title, desc }, document);
   pgRenderOnboarding();
 }
 

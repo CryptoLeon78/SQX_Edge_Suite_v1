@@ -161,6 +161,43 @@
     return node;
   }
 
+  function prepareRequestOptions(options) {
+    var opts = Object.assign({}, options || {});
+    if (opts.body && typeof opts.body !== 'string') {
+      opts.body = JSON.stringify(opts.body);
+      opts.headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});
+    }
+    return opts;
+  }
+
+  async function fetchJson(apiBase, apiPath, options, fetchImpl) {
+    var request = fetchImpl || global.fetch;
+    if (typeof request !== 'function') throw new Error('Fetch API no disponible');
+    var response = await request((apiBase || '') + apiPath, prepareRequestOptions(options));
+    var text = await response.text();
+    var data = {};
+    try {
+      data = text ? JSON.parse(text) : {};
+    } catch (_err) {
+      data = { ok: false, error: text || ('HTTP ' + response.status) };
+    }
+    if (!response.ok || data.ok === false) throw new Error(data.error || ('HTTP ' + response.status));
+    return data;
+  }
+
+  function applyStatusBanner(status, doc) {
+    var target = doc || global.document;
+    var banner = target.getElementById('pg-status-banner');
+    var title = target.getElementById('pg-status-title');
+    var desc = target.getElementById('pg-status-desc');
+    if (!banner) return false;
+    banner.classList.remove('pg-status-up', 'pg-status-down', 'pg-status-loading');
+    banner.classList.add('pg-status-' + status.state);
+    if (title) title.textContent = status.title || '';
+    if (desc) desc.textContent = status.desc || '';
+    return true;
+  }
+
   function applyOnboardingState(state, doc) {
     var target = doc || global.document;
     var progress = target.getElementById('pg-onboarding-progress');
@@ -214,8 +251,11 @@
 
   SQX.projectGenerator = SQX.projectGenerator || {
     applyOnboardingState: applyOnboardingState,
+    applyStatusBanner: applyStatusBanner,
     computeOnboardingState: computeOnboardingState,
-    escapeHtml: escapeHtml
+    escapeHtml: escapeHtml,
+    fetchJson: fetchJson,
+    prepareRequestOptions: prepareRequestOptions
   };
 
   if (SQX.registerModule) {

@@ -345,4 +345,34 @@ assert.equal(document.getElementById('pg-onboarding-bar').style.width, '100%');
 assert.equal(document.getElementById('pg-onboarding-tertiary').dataset.pgAssistantAction, 'refresh');
 assert.match(document.getElementById('pg-onboarding-steps').innerHTML, /pg-step done/);
 
+const prepared = SQX.projectGenerator.prepareRequestOptions({ body: { alpha: 1 }, headers: { Accept: 'application/json' } });
+assert.equal(prepared.body, '{"alpha":1}');
+assert.equal(prepared.headers['Content-Type'], 'application/json');
+assert.equal(prepared.headers.Accept, 'application/json');
+
+let fetchUrl = '';
+let fetchOptions = null;
+const jsonResult = await SQX.projectGenerator.fetchJson('http://api.local', '/health', { method: 'POST', body: { ok: true } }, async (url, options) => {
+  fetchUrl = url;
+  fetchOptions = options;
+  return { ok: true, status: 200, text: async () => '{"ok":true,"version":"20"}' };
+});
+assert.equal(fetchUrl, 'http://api.local/health');
+assert.equal(fetchOptions.body, '{"ok":true}');
+assert.equal(jsonResult.version, '20');
+
+await assert.rejects(
+  () => SQX.projectGenerator.fetchJson('', '/bad', {}, async () => ({ ok: false, status: 500, text: async () => 'boom' })),
+  /boom/
+);
+
+document.add(new Element('pg-status-banner', ['pg-status-loading']));
+document.add(new Element('pg-status-title'));
+document.add(new Element('pg-status-desc'));
+assert.equal(SQX.projectGenerator.applyStatusBanner({ state: 'up', title: 'API OK', desc: 'Lista' }, document), true);
+assert.equal(document.getElementById('pg-status-title').textContent, 'API OK');
+assert.equal(document.getElementById('pg-status-desc').textContent, 'Lista');
+assert.equal(document.getElementById('pg-status-banner').classList.contains('pg-status-up'), true);
+assert.equal(document.getElementById('pg-status-banner').classList.contains('pg-status-loading'), false);
+
 console.log('module contracts ok');
