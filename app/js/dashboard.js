@@ -33,6 +33,10 @@ const SQX_UI_CONFIG = SQX_RUNTIME_CONFIG.ui || {};
 const SQX_STORAGE_KEYS = SQX_RUNTIME_CONFIG.storageKeys || {};
 const SQX_MODULES = window.SQX || {};
 const SQX_FORMATTERS = SQX_MODULES.formatters || {};
+const SQX_STORAGE = SQX_MODULES.storage || {
+  getJson:function(key, fallback){ try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch(e){ return fallback; } },
+  setJson:function(key, value){ localStorage.setItem(key, JSON.stringify(value)); return true; }
+};
 
 function sqxConfigValue(path, fallback) {
   return SQX_RUNTIME_CONFIG.value ? SQX_RUNTIME_CONFIG.value(path, fallback) : fallback;
@@ -1115,10 +1119,10 @@ function generateStratJSON() {
 var HOME_BACKEND_STATE = { state: 'loading', title: 'Comprobando', desc: 'API local pendiente de comprobar.', meta: {} };
 var HOME_TRACE_KEY = (window.SQX_CONFIG && window.SQX_CONFIG.storageKeys && window.SQX_CONFIG.storageKeys.homeTrace) || 'sqx_home_trace_v1';
 var HOME_TRACE = [];
-try { HOME_TRACE = JSON.parse(localStorage.getItem(HOME_TRACE_KEY) || '[]'); } catch(e) { HOME_TRACE = []; }
+HOME_TRACE = SQX_STORAGE.getJson(HOME_TRACE_KEY, []);
 
 function saveHomeTrace() {
-  localStorage.setItem(HOME_TRACE_KEY, JSON.stringify(HOME_TRACE));
+  SQX_STORAGE.setJson(HOME_TRACE_KEY, HOME_TRACE);
 }
 
 function homeEsc(value) {
@@ -1329,8 +1333,8 @@ window.navToAsset = function(id) {
 // ── SQX PRIORITY: tracking persistente en localStorage ──
 const PRIORITY_STATE_KEY = SQX_STORAGE_KEYS.priorityProgress || 'sqx_priority_progress_v1';
 let PRIORITY_PROGRESS = {};
-try { PRIORITY_PROGRESS = JSON.parse(localStorage.getItem(PRIORITY_STATE_KEY) || '{}'); } catch(e){ PRIORITY_PROGRESS = {}; }
-function savePriorityProgress() { localStorage.setItem(PRIORITY_STATE_KEY, JSON.stringify(PRIORITY_PROGRESS)); }
+PRIORITY_PROGRESS = SQX_STORAGE.getJson(PRIORITY_STATE_KEY, {});
+function savePriorityProgress() { SQX_STORAGE.setJson(PRIORITY_STATE_KEY, PRIORITY_PROGRESS); }
 
 function statusBadgeHtml(id, status) {
   const label = sqxStatusMeta(status).label;
@@ -1424,10 +1428,10 @@ document.addEventListener('keydown', function(e){
 const PLAN_USER_KEY = SQX_STORAGE_KEYS.planUser || 'sqx_plan_user_v1';
 let PLAN_USER = { minings:[], phases:{} };
 try {
-  const stored = JSON.parse(localStorage.getItem(PLAN_USER_KEY) || '{}');
+  const stored = SQX_STORAGE.getJson(PLAN_USER_KEY, {});
   PLAN_USER = { minings: stored.minings || [], phases: stored.phases || {} };
 } catch(e){ /* keep defaults */ }
-function savePlanUser() { localStorage.setItem(PLAN_USER_KEY, JSON.stringify(PLAN_USER)); }
+function savePlanUser() { SQX_STORAGE.setJson(PLAN_USER_KEY, PLAN_USER); }
 
 function getPlanMinings() {
   // Combina DEFAULT + USER, ordena por num
@@ -1505,7 +1509,7 @@ function miningToPriorityKey(mining) {
 const PIPELINE_STATE_KEY = SQX_STORAGE_KEYS.pipelineState || 'sqx_pipeline_state_v1';
 let PIPELINE_STATE = { overrides:{}, funnels:{}, nextAction:'' };
 try {
-  const stored = JSON.parse(localStorage.getItem(PIPELINE_STATE_KEY) || '{}');
+  const stored = SQX_STORAGE.getJson(PIPELINE_STATE_KEY, {});
   // Migración del formato antiguo (miningStatus → overrides) + limpieza del preset fantasma
   let overrides = stored.overrides || stored.miningStatus || {};
   // Si solo hay UN override y es el preset Mining 1 = 'current' (preset antiguo), limpiarlo
@@ -1517,13 +1521,13 @@ try {
   }
   PIPELINE_STATE = { overrides:overrides, funnels:stored.funnels || {}, nextAction:stored.nextAction || '' };
   // Persistir migración limpia para que no se vuelva a aplicar
-  localStorage.setItem(PIPELINE_STATE_KEY, JSON.stringify(PIPELINE_STATE));
+  SQX_STORAGE.setJson(PIPELINE_STATE_KEY, PIPELINE_STATE);
 } catch(e){ /* keep defaults */ }
 // pre-load funnel Mining 1 LINEAR si no hay
 if (!PIPELINE_STATE.funnels['1|LINEAR']) PIPELINE_STATE.funnels['1|LINEAR'] = {...FUNNEL_PRELOAD['1|LINEAR']};
 if (!PIPELINE_STATE.nextAction) PIPELINE_STATE.nextAction = sqxConfigValue('pipeline.defaultNextAction', 'Filter-by-correlation entre las estrategias PASSED del WFM.');
 
-function savePipelineState() { localStorage.setItem(PIPELINE_STATE_KEY, JSON.stringify(PIPELINE_STATE)); }
+function savePipelineState() { SQX_STORAGE.setJson(PIPELINE_STATE_KEY, PIPELINE_STATE); }
 
 // Devuelve { status, source } donde source ∈ {'manual','priority','strategies','default'}
 function getMiningStatusInfo(num) {
@@ -2048,12 +2052,12 @@ const STRAT_USER_KEY = SQX_STORAGE_KEYS.strategiesUser || 'sqx_strategies_user_v
 const STRAT_DELETED_KEY = SQX_STORAGE_KEYS.strategiesDeleted || 'sqx_strategies_deleted_v1';
 let STRATEGIES_USER = [];
 let STRATEGIES_DELETED = [];
-try { STRATEGIES_USER = JSON.parse(localStorage.getItem(STRAT_USER_KEY) || '[]'); } catch(e){ STRATEGIES_USER = []; }
-try { STRATEGIES_DELETED = JSON.parse(localStorage.getItem(STRAT_DELETED_KEY) || '[]'); } catch(e){ STRATEGIES_DELETED = []; }
+STRATEGIES_USER = SQX_STORAGE.getJson(STRAT_USER_KEY, []);
+STRATEGIES_DELETED = SQX_STORAGE.getJson(STRAT_DELETED_KEY, []);
 if (!Array.isArray(STRATEGIES_USER)) STRATEGIES_USER = [];
 if (!Array.isArray(STRATEGIES_DELETED)) STRATEGIES_DELETED = [];
-function saveStrategiesUser() { localStorage.setItem(STRAT_USER_KEY, JSON.stringify(STRATEGIES_USER)); }
-function saveStrategiesDeleted() { localStorage.setItem(STRAT_DELETED_KEY, JSON.stringify(STRATEGIES_DELETED)); }
+function saveStrategiesUser() { SQX_STORAGE.setJson(STRAT_USER_KEY, STRATEGIES_USER); }
+function saveStrategiesDeleted() { SQX_STORAGE.setJson(STRAT_DELETED_KEY, STRATEGIES_DELETED); }
 
 const SQX_COLUMN_MAP = sqxConfigValue('csvImport.columnMap', {});
 

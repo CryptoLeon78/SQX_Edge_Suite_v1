@@ -24,9 +24,13 @@ document.querySelectorAll('.subtab').forEach(t => t.addEventListener('click', ()
 
 // ── Checklist persistente (Workflow Capa 1 / Capa 2) ──
 const CHECKLIST_KEY = (window.SQX_CONFIG && window.SQX_CONFIG.storageKeys.workflowChecklist) || 'sqx_workflow_checklist_v1';
+const SQX_MAIN_STORAGE = (window.SQX && window.SQX.storage) || {
+  getJson:function(key, fallback){ try { return JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback)); } catch(e){ return fallback; } },
+  setJson:function(key, value){ localStorage.setItem(key, JSON.stringify(value)); return true; }
+};
 let CHECKLIST_STATE = {};
-try { CHECKLIST_STATE = JSON.parse(localStorage.getItem(CHECKLIST_KEY) || '{}'); } catch(e){ CHECKLIST_STATE = {}; }
-function saveChecklist() { localStorage.setItem(CHECKLIST_KEY, JSON.stringify(CHECKLIST_STATE)); }
+CHECKLIST_STATE = SQX_MAIN_STORAGE.getJson(CHECKLIST_KEY, {});
+function saveChecklist() { SQX_MAIN_STORAGE.setJson(CHECKLIST_KEY, CHECKLIST_STATE); }
 
 document.querySelectorAll('input[type="checkbox"][data-check]').forEach(cb => {
   const id = cb.dataset.check;

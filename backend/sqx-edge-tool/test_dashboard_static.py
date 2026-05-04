@@ -88,6 +88,37 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(export, formatters_js)
                 self.assertIn(f"SQX_FORMATTERS.{export}", dashboard_js)
 
+    def test_persistent_ui_state_delegates_to_storage_module(self):
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
+        storage_js = (APP_ROOT / "js" / "modules" / "storage.js").read_text(encoding="utf-8-sig")
+
+        self.assertIn("SQX_STORAGE = SQX_MODULES.storage", dashboard_js)
+        self.assertIn("SQX_MAIN_STORAGE", main_js)
+        self.assertIn("getJson", storage_js)
+        self.assertIn("setJson", storage_js)
+
+        expected_dashboard_calls = [
+            "SQX_STORAGE.getJson(HOME_TRACE_KEY",
+            "SQX_STORAGE.setJson(HOME_TRACE_KEY",
+            "SQX_STORAGE.getJson(PRIORITY_STATE_KEY",
+            "SQX_STORAGE.setJson(PRIORITY_STATE_KEY",
+            "SQX_STORAGE.getJson(PLAN_USER_KEY",
+            "SQX_STORAGE.setJson(PLAN_USER_KEY",
+            "SQX_STORAGE.getJson(PIPELINE_STATE_KEY",
+            "SQX_STORAGE.setJson(PIPELINE_STATE_KEY",
+            "SQX_STORAGE.getJson(STRAT_USER_KEY",
+            "SQX_STORAGE.setJson(STRAT_USER_KEY",
+            "SQX_STORAGE.getJson(STRAT_DELETED_KEY",
+            "SQX_STORAGE.setJson(STRAT_DELETED_KEY",
+        ]
+        for call in expected_dashboard_calls:
+            with self.subTest(call=call):
+                self.assertIn(call, dashboard_js)
+
+        self.assertIn("SQX_MAIN_STORAGE.getJson(CHECKLIST_KEY", main_js)
+        self.assertIn("SQX_MAIN_STORAGE.setJson(CHECKLIST_KEY", main_js)
+
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
