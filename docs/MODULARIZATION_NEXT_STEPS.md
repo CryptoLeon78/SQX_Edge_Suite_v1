@@ -13,6 +13,7 @@ Persistent planning note for the next SQX Edge phases.
 7. Phase 42: reduce Project Generator legacy bridge with a focused DOM helper module. Done.
 8. Phase 43: add a release checklist script for tests, portable packaging and ZIP validation. Done.
 9. Phase 44: polish release flow with one-click strict release, summary output and package guardrails. Done.
+10. Phase 45: extract Project Generator event bindings and polling from the legacy bridge. Done.
 
 ## Working Discipline
 

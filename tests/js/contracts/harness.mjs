@@ -151,6 +151,11 @@ function createSandbox() {
       removeItem: key => store.delete(key),
     },
     SQX_CONFIG: { storageKeys: {} },
+    setInterval: () => 1,
+    setTimeout: handler => {
+      if (handler) handler();
+      return 1;
+    },
     SQX: {
       modules: {},
       registerModule(name, module) {
@@ -179,6 +184,7 @@ function createLoadedSandbox(modules = [
   'app/js/modules/project-generator-core.js',
   'app/js/modules/project-generator-config.js',
   'app/js/modules/project-generator-dom.js',
+  'app/js/modules/project-generator-bindings.js',
   'app/js/modules/project-generator-renderers.js',
   'app/js/modules/project-generator-status.js',
   'app/js/modules/project-generator-cleaner.js',

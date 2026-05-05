@@ -67,15 +67,16 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 17. `js/modules/project-generator-core.js`
 18. `js/modules/project-generator-config.js`
 19. `js/modules/project-generator-dom.js`
-20. `js/modules/project-generator-renderers.js`
-21. `js/modules/project-generator-status.js`
-22. `js/modules/project-generator-cleaner.js`
-23. `js/modules/project-generator.js`
-24. `js/modules/index.js`
-25. `js/data.js`
-26. `js/dashboard.js`
-27. `js/main.js`
-28. `js/project-generator-main.js`
+20. `js/modules/project-generator-bindings.js`
+21. `js/modules/project-generator-renderers.js`
+22. `js/modules/project-generator-status.js`
+23. `js/modules/project-generator-cleaner.js`
+24. `js/modules/project-generator.js`
+25. `js/modules/index.js`
+26. `js/data.js`
+27. `js/dashboard.js`
+28. `js/main.js`
+29. `js/project-generator-main.js`
 
 ## Why This Order Matters
 
@@ -107,6 +108,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/project-generator-core.js` | Project Generator shared helpers and API primitives. |
 | `modules/project-generator-config.js` | Project Generator config read/write helpers. |
 | `modules/project-generator-dom.js` | Project Generator DOM helpers, config inputs, settings panel and log output. |
+| `modules/project-generator-bindings.js` | Project Generator event bindings and polling wiring. |
 | `modules/project-generator-renderers.js` | Project Generator DOM render output helpers. |
 | `modules/project-generator-status.js` | Project Generator health/status and polling helpers. |
 | `modules/project-generator-cleaner.js` | Strategy cleaner helpers used by Project Generator. |

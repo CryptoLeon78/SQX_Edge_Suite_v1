@@ -6,6 +6,7 @@ const moduleDir = path.join(repoRoot, 'app/js/modules');
 const readModule = name => fs.readFileSync(path.join(moduleDir, name), 'utf8');
 
 const files = {
+  bindings: readModule('project-generator-bindings.js'),
   cleaner: readModule('project-generator-cleaner.js'),
   config: readModule('project-generator-config.js'),
   core: readModule('project-generator-core.js'),
@@ -20,6 +21,9 @@ const files = {
   ['core', 'applyOnboardingState'],
   ['core', 'applyStatusBanner'],
   ['core', 'fetchJson'],
+  ['bindings', 'bindProjectGeneratorEvents'],
+  ['bindings', 'bindStrategyCleanerEvents'],
+  ['bindings', 'bindProjectGeneratorPolling'],
   ['config', 'configSaveBody'],
   ['config', 'aliasTableHtml'],
   ['config', 'validateSqxPathHtml'],
@@ -39,6 +43,8 @@ const files = {
 [
   ['core', 'cleaner'],
   ['core', 'miningRowsHtml'],
+  ['bindings', 'cleanerTableHtml'],
+  ['bindings', 'generateOneResult'],
   ['config', 'cleanerTableHtml'],
   ['config', 'generateOneResult'],
   ['dom', 'cleanerTableHtml'],

@@ -22,6 +22,27 @@ assert.equal(document.getElementById('pg-sqx-path').value, 'D:/SQX');
 assert.equal(document.getElementById('pg-output-dir').value, 'D:/out');
 PG.dom.applySqxFields(document, { sqxPath: 'E:/SQX', dataDb: 'E:/db', projectsDir: 'E:/projects' });
 assert.equal(document.getElementById('pg-sqx-db').value, 'E:/db');
+[
+  'pg-status-refresh', 'pg-settings-toggle', 'pg-settings-save', 'pg-settings-reload',
+  'pg-onboarding-action', 'pg-onboarding-secondary', 'pg-onboarding-tertiary',
+  'pg-autodetect', 'pg-aliases-suggest', 'pg-validate', 'pg-gen-all-c1',
+  'pg-gen-all-c2', 'pg-output-refresh', 'pg-open-output', 'pg-log-clear',
+  'pg-settings-body', 'pg-log'
+].forEach(id => document.add(new Element(id)));
+let checkHealthCalls = 0;
+let generateAllCapa = 0;
+PG.bindings.bindProjectGeneratorEvents(document, {
+  checkHealth: () => { checkHealthCalls++; },
+  generateAll: capa => { generateAllCapa = capa; },
+  setSettingsOpen: open => { document.getElementById('pg-settings-body').style.display = open ? 'block' : 'none'; },
+});
+document.getElementById('pg-status-refresh').click();
+document.getElementById('pg-gen-all-c2').click();
+assert.equal(checkHealthCalls, 1);
+assert.equal(generateAllCapa, 2);
+document.getElementById('pg-log').textContent = 'old';
+document.getElementById('pg-log-clear').click();
+assert.equal(document.getElementById('pg-log').textContent, '[esperando primera acción…]');
 const pgApiState = PG.computeOnboardingState({
   apiBase: 'http://127.0.0.1:8765',
   connected: false,

@@ -3,6 +3,7 @@
 // ============================================================
 const SQX_PG_MODULE = (window.SQX && window.SQX.projectGenerator) || {};
 const SQX_PG_DOM = SQX_PG_MODULE.dom || {};
+const SQX_PG_BINDINGS = SQX_PG_MODULE.bindings || {};
 const PG_API = (window.SQX_CONFIG && window.SQX_CONFIG.apiBase()) || '';
 const PG_STATE = {
   aliases: {},
@@ -553,53 +554,29 @@ async function pgRunOnboardingTertiaryAction() {
     }
   }
 
-  function bindProjectGeneratorEvents() {
-    refresh.addEventListener('click', pgCheckHealth);
-    document.getElementById('pg-settings-toggle').addEventListener('click', function(){
-      const body = document.getElementById('pg-settings-body');
-      const open = body.style.display !== 'none';
-      pgSetSettingsOpen(!open);
-    });
-    document.getElementById('pg-settings-save').addEventListener('click', pgSaveConfig);
-    document.getElementById('pg-settings-reload').addEventListener('click', pgLoadConfig);
-    document.getElementById('pg-onboarding-action').addEventListener('click', pgRunOnboardingAction);
-    document.getElementById('pg-onboarding-secondary').addEventListener('click', pgRunOnboardingSecondaryAction);
-    document.getElementById('pg-onboarding-tertiary').addEventListener('click', pgRunOnboardingTertiaryAction);
-    document.getElementById('pg-autodetect').addEventListener('click', pgAutodetectSqx);
-    document.getElementById('pg-aliases-suggest').addEventListener('click', pgSuggestAll);
-    document.getElementById('pg-validate').addEventListener('click', pgValidateSqxPath);
-    document.getElementById('pg-gen-all-c1').addEventListener('click', () => pgGenerateAll(1));
-    document.getElementById('pg-gen-all-c2').addEventListener('click', () => pgGenerateAll(2));
-    document.getElementById('pg-output-refresh').addEventListener('click', pgLoadOutput);
-    document.getElementById('pg-open-output').addEventListener('click', pgOpenOutputFolder);
-    document.getElementById('pg-log-clear').addEventListener('click', function(){
-      document.getElementById('pg-log').textContent = '[esperando primera acción…]';
-    });
-  }
-
-  function bindStrategyCleanerEvents() {
-    document.getElementById('cln-scan').addEventListener('click', clnScan);
-    document.getElementById('cln-preview').addEventListener('click', clnPreviewRename);
-    document.getElementById('cln-process').addEventListener('click', clnProcess);
-    document.getElementById('cln-select-all').addEventListener('click', function(){ CLN_STATE.files.forEach(f => CLN_STATE.selected.add(f.path)); clnRenderTable(); });
-    document.getElementById('cln-select-none').addEventListener('click', function(){ CLN_STATE.selected.clear(); clnRenderTable(); });
-    document.getElementById('cln-opt-rename').addEventListener('change', function(){
-      document.getElementById('cln-pattern-wrap').style.display = this.checked ? 'inline-block' : 'none';
-    });
-  }
-
-  function bindProjectGeneratorPolling() {
-    document.querySelectorAll('.tab[data-tab="projectgen"]').forEach(t => {
-      t.addEventListener('click', function(){ setTimeout(pgCheckHealth, 100); });
-    });
-    setInterval(function(){
-      if (document.getElementById('tab-projectgen').style.display !== 'none') pgCheckHealth();
-    }, 30000);
-    pgRenderOnboarding();
-    setTimeout(pgCheckHealth, 500);
-  }
-
-  bindProjectGeneratorEvents();
-  bindStrategyCleanerEvents();
-  bindProjectGeneratorPolling();
+  SQX_PG_BINDINGS.bindProjectGeneratorEvents(document, {
+    autodetectSqx: pgAutodetectSqx,
+    checkHealth: pgCheckHealth,
+    generateAll: pgGenerateAll,
+    loadConfig: pgLoadConfig,
+    loadOutput: pgLoadOutput,
+    openOutputFolder: pgOpenOutputFolder,
+    runOnboardingAction: pgRunOnboardingAction,
+    runOnboardingSecondaryAction: pgRunOnboardingSecondaryAction,
+    runOnboardingTertiaryAction: pgRunOnboardingTertiaryAction,
+    saveConfig: pgSaveConfig,
+    setSettingsOpen: pgSetSettingsOpen,
+    suggestAll: pgSuggestAll,
+    validateSqxPath: pgValidateSqxPath,
+  });
+  SQX_PG_BINDINGS.bindStrategyCleanerEvents(document, CLN_STATE, {
+    previewRename: clnPreviewRename,
+    process: clnProcess,
+    renderTable: clnRenderTable,
+    scan: clnScan,
+  });
+  SQX_PG_BINDINGS.bindProjectGeneratorPolling(window, document, {
+    checkHealth: pgCheckHealth,
+    renderOnboarding: pgRenderOnboarding,
+  });
 })();
