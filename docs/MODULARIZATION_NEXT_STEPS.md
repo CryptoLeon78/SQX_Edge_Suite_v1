@@ -11,6 +11,7 @@ Persistent planning note for the next SQX Edge phases.
 5. Phase 40: document the final architecture map and load order. Done.
 6. Phase 41: guard architecture load-order documentation with a living contract. Done.
 7. Phase 42: reduce Project Generator legacy bridge with a focused DOM helper module. Done.
+8. Phase 43: add a release checklist script for tests, portable packaging and ZIP validation. Done.
 
 ## Working Discipline
 

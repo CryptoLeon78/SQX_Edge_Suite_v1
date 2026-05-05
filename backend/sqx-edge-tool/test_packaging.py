@@ -18,6 +18,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "run-web-embedded.bat",
             TOOL_ROOT / "tools" / "bootstrap_embedded_python.ps1",
             TOOL_ROOT / "tools" / "package_portable.ps1",
+            TOOL_ROOT / "tools" / "release_checklist.ps1",
         ]
         for path in expected:
             with self.subTest(path=path.name):
@@ -44,6 +45,16 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertNotIn('"runtime"', text)
         self.assertIn('"\\\\backend\\\\sqx-edge-tool\\\\runtime\\\\downloads\\\\",', text)
         self.assertIn('"node_modules"', text)
+
+    def test_release_checklist_validates_portable_user_flow(self):
+        text = (TOOL_ROOT / "tools" / "release_checklist.ps1").read_text(encoding="utf-8-sig")
+        self.assertIn("module_contracts.mjs", text)
+        self.assertIn("-m pytest", text)
+        self.assertIn("package_portable.ps1", text)
+        self.assertIn("START_SQX_EDGE.bat", text)
+        self.assertIn("project-generator-dom.js", text)
+        self.assertIn("/api/health", text)
+        self.assertIn("runtime\\python\\python.exe", text)
 
     def test_roadmap_marks_f7_done(self):
         readme = (TOOL_ROOT / "README.md").read_text(encoding="utf-8-sig")

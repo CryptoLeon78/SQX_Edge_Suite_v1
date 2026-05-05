@@ -117,3 +117,13 @@ powershell -NoProfile -ExecutionPolicy Bypass -File backend\sqx-edge-tool\tools\
 ```
 
 El ZIP portable se crea en `dist/` e incluye el Python embebido para que el usuario final pueda abrir `START_SQX_EDGE.bat` sin instalar nada.
+
+## Checklist de entrega
+
+Para preparar una entrega completa con pruebas, ZIP portable y validacion del ZIP extraido:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File backend\sqx-edge-tool\tools\release_checklist.ps1
+```
+
+El checklist ejecuta contratos JS, suite Python, `git diff --check`, empaquetado portable, extraccion temporal, import de API con Python embebido y health check local. Al terminar muestra el ZIP listo en `dist/`.
