@@ -536,34 +536,28 @@ async function pgRunOnboardingTertiaryAction() {
 
   async function clnProcess() {
     if (!CLN_SELECTED.size) { pgLog('No hay nada seleccionado', 'err'); return; }
-    const opts = {
-      remove_exit_bars: document.getElementById('cln-opt-eab').checked,
-      rename_institutional: document.getElementById('cln-opt-rename').checked,
-      rename_pattern: document.getElementById('cln-pattern').value.trim() || '{asset}_{tf}_{dir}_{id}',
-    };
-    if (!opts.remove_exit_bars && !opts.rename_institutional) {
+    const opts = SQX_PG_MODULE.cleanerOptions({
+      removeExitBars: document.getElementById('cln-opt-eab').checked,
+      renameInstitutional: document.getElementById('cln-opt-rename').checked,
+      renamePattern: document.getElementById('cln-pattern').value.trim() || '{asset}_{tf}_{dir}_{id}',
+    });
+    if (!SQX_PG_MODULE.cleanerHasAction(opts)) {
       pgLog('Selecciona al menos una acción', 'err'); return;
     }
-    const msg = `¿Procesar ${CLN_SELECTED.size} archivos?\n\n` +
-      (opts.remove_exit_bars ? '• Eliminar ExitAfterBars (set 0)\n' : '') +
-      (opts.rename_institutional ? `• Renombrar a: ${opts.rename_pattern}\n` : '') +
-      '\nSe crea backup automático antes de modificar cada .sqx.';
-    if (!confirm(msg)) return;
-    pgLog('🧹 Procesando ' + CLN_SELECTED.size + ' archivos...', 'info');
+    if (!confirm(SQX_PG_MODULE.cleanerConfirmMessage(CLN_SELECTED.size, opts))) return;
+    pgLog('Procesando ' + CLN_SELECTED.size + ' archivos...', 'info');
     try {
       const r = await pgFetch('/sqx-clean', { method:'POST', body: { files: [...CLN_SELECTED], options: opts } });
-      pgLog('Resultado: ' + r.ok_count + ' OK · ' + r.fail_count + ' FAIL', r.fail_count === 0 ? 'ok' : 'err');
+      pgLog(SQX_PG_MODULE.cleanerResultSummary(r), SQX_PG_MODULE.cleanerResultLevel(r));
       pgTrace(
         'Limpieza SQX completada',
         CLN_SELECTED.size + ' archivos · OK ' + r.ok_count + ' · FAIL ' + r.fail_count,
-        r.fail_count === 0 ? 'ok' : 'err'
+        SQX_PG_MODULE.cleanerResultLevel(r)
       );
-      r.results.forEach(x => {
-        const fname = x.path.split(/[\\/]/).pop();
-        if (x.ok) pgLog('  ✓ ' + fname + ' — ' + x.actions.join(', '), 'ok');
-        else pgLog('  ✗ ' + fname + ' — ' + x.actions.join(', '), 'err');
+      (r.results || []).forEach(result => {
+        const line = SQX_PG_MODULE.cleanerResultLines([result])[0];
+        pgLog('  ' + line, result.ok ? 'ok' : 'err');
       });
-      // Re-scan al terminar
       await clnScan();
     } catch(e) { pgLog('Error procesando: ' + e.message, 'err'); pgTrace('Error en limpieza SQX', e.message, 'err'); }
   }

@@ -434,5 +434,25 @@ assert.match(cleanerHtml, /checked/);
 assert.match(cleanerHtml, /A&amp;B\.sqx/);
 assert.match(cleanerHtml, /cv-num warn/);
 assert.equal(SQX.projectGenerator.cleanerTableHtml([], {}), '');
+const cleanerOptions = SQX.projectGenerator.cleanerOptions({
+  removeExitBars: true,
+  renameInstitutional: false,
+  renamePattern: 'X',
+});
+assert.equal(cleanerOptions.remove_exit_bars, true);
+assert.equal(cleanerOptions.rename_institutional, false);
+assert.equal(cleanerOptions.rename_pattern, 'X');
+assert.equal(SQX.projectGenerator.cleanerHasAction(cleanerOptions), true);
+assert.equal(SQX.projectGenerator.cleanerHasAction(SQX.projectGenerator.cleanerOptions({})), false);
+assert.match(SQX.projectGenerator.cleanerConfirmMessage(2, cleanerOptions), /Eliminar ExitAfterBars/);
+assert.equal(SQX.projectGenerator.cleanerResultSummary({ ok_count: 3, fail_count: 0 }), 'Resultado: 3 OK · 0 FAIL');
+assert.equal(SQX.projectGenerator.cleanerResultLevel({ fail_count: 0 }), 'ok');
+assert.equal(SQX.projectGenerator.cleanerResultLevel({ fail_count: 1 }), 'err');
+const cleanerLines = SQX.projectGenerator.cleanerResultLines([
+  { ok: true, path: 'C:/SQX/clean.sqx', actions: ['rename'] },
+  { ok: false, path: 'C:/SQX/fail.sqx', actions: ['error'] },
+]);
+assert.equal(cleanerLines[0], 'OK clean.sqx - rename');
+assert.equal(cleanerLines[1], 'FAIL fail.sqx - error');
 
 console.log('module contracts ok');

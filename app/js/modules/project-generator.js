@@ -359,6 +359,47 @@
       + '</div>';
   }
 
+  function cleanerOptions(input) {
+    var data = input || {};
+    return {
+      remove_exit_bars: !!data.removeExitBars,
+      rename_institutional: !!data.renameInstitutional,
+      rename_pattern: data.renamePattern || '{asset}_{tf}_{dir}_{id}'
+    };
+  }
+
+  function cleanerHasAction(options) {
+    return !!(options && (options.remove_exit_bars || options.rename_institutional));
+  }
+
+  function cleanerConfirmMessage(selectedCount, options) {
+    var opts = options || {};
+    return 'Procesar ' + selectedCount + ' archivos?\n\n'
+      + (opts.remove_exit_bars ? '- Eliminar ExitAfterBars (set 0)\n' : '')
+      + (opts.rename_institutional ? '- Renombrar a: ' + opts.rename_pattern + '\n' : '')
+      + '\nSe crea backup automatico antes de modificar cada .sqx.';
+  }
+
+  function cleanerResultSummary(result) {
+    var data = result || {};
+    return 'Resultado: ' + (data.ok_count || 0) + ' OK · ' + (data.fail_count || 0) + ' FAIL';
+  }
+
+  function cleanerResultLevel(result) {
+    return result && result.fail_count === 0 ? 'ok' : 'err';
+  }
+
+  function basename(filePath) {
+    return String(filePath || '').split(/[\\/]/).pop();
+  }
+
+  function cleanerResultLines(results) {
+    return (results || []).map(function(result) {
+      var status = result.ok ? 'OK' : 'FAIL';
+      return status + ' ' + basename(result.path) + ' - ' + (result.actions || []).join(', ');
+    });
+  }
+
   function applyOnboardingState(state, doc) {
     var target = doc || global.document;
     var progress = target.getElementById('pg-onboarding-progress');
@@ -415,6 +456,13 @@
     applyOnboardingState: applyOnboardingState,
     applyStatusBanner: applyStatusBanner,
     autodetectCandidatesHtml: autodetectCandidatesHtml,
+    basename: basename,
+    cleanerConfirmMessage: cleanerConfirmMessage,
+    cleanerHasAction: cleanerHasAction,
+    cleanerOptions: cleanerOptions,
+    cleanerResultLevel: cleanerResultLevel,
+    cleanerResultLines: cleanerResultLines,
+    cleanerResultSummary: cleanerResultSummary,
     cleanerTableHtml: cleanerTableHtml,
     computeOnboardingState: computeOnboardingState,
     directionClass: directionClass,
