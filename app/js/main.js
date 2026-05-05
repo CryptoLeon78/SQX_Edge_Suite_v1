@@ -232,14 +232,12 @@ async function pgLoadMinings() {
     const minings = await pgFetch('/minings');
     PG_MININGS = minings;
     PG_PLAN_COUNT = minings.length;
-    document.getElementById('pg-minings-count').textContent = minings.length + ' minings';
+    document.getElementById('pg-minings-count').textContent = SQX_PG_MODULE.miningsCountLabel(minings.length);
     const bulkCount = document.getElementById('pg-bulk-count');
-    if (bulkCount) bulkCount.textContent = minings.length + ' minings · Capa 1 + Capa 2';
-    // Resolver costos para cada mining en paralelo (cosmético, no bloquea generación)
-    const infos = await Promise.all(minings.map(async m => {
-      try { return { ...m, _info: (await pgFetch('/symbol-info/' + m.asset)).info }; }
-      catch { return { ...m, _info: null }; }
-    }));
+    if (bulkCount) bulkCount.textContent = SQX_PG_MODULE.bulkGenerateLabel(minings.length);
+    const infos = await SQX_PG_MODULE.enrichMiningsWithSymbolInfo(minings, async asset => {
+      return (await pgFetch('/symbol-info/' + asset)).info;
+    });
     document.getElementById('pg-minings-table').innerHTML = SQX_PG_MODULE.miningRowsHtml(infos);
     document.querySelectorAll('button[data-pg-gen]').forEach(btn => {
       btn.addEventListener('click', () => pgGenerateOne(parseInt(btn.dataset.pgGen,10), parseInt(btn.dataset.pgCapa,10)));
@@ -251,12 +249,13 @@ async function pgLoadMinings() {
 async function pgLoadOutput() {
   try {
     const r = await pgFetch('/output');
-    PG_OUTPUT_DIR = r.output_dir || '';
-    PG_OUTPUT_FILES = r.files || [];
-    document.getElementById('pg-output-count').textContent = r.files.length + ' archivos';
+    const output = SQX_PG_MODULE.outputState(r);
+    PG_OUTPUT_DIR = output.outputDir;
+    PG_OUTPUT_FILES = output.files;
+    document.getElementById('pg-output-count').textContent = output.countLabel;
     pgRenderOnboarding();
     const list = document.getElementById('pg-output-list');
-    list.innerHTML = SQX_PG_MODULE.outputListHtml(r.files);
+    list.innerHTML = output.html;
     pgRenderOnboarding();
   } catch(e) { pgLog('Error cargando output: ' + e.message, 'err'); }
 }

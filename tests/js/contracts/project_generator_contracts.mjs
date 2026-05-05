@@ -121,6 +121,21 @@ const outputHtml = PG.outputListHtml([{ name: 'M07.cfx', size_kb: 12, mtime: 177
 assert.match(outputHtml, /M07\.cfx/);
 assert.match(outputHtml, /12 KB/);
 assert.match(PG.outputListHtml([]), /No hay \.cfx/);
+assert.equal(PG.miningsCountLabel(4), '4 minings');
+assert.equal(PG.bulkGenerateLabel(4), '4 minings · Capa 1 + Capa 2');
+const enrichedMinings = await PG.enrichMiningsWithSymbolInfo(
+  [{ asset: 'EURUSD' }, { asset: 'FAIL' }],
+  async asset => {
+    if (asset === 'FAIL') throw new Error('missing');
+    return { instrument: 'EURUSD_M1' };
+  }
+);
+assert.equal(enrichedMinings[0]._info.instrument, 'EURUSD_M1');
+assert.equal(enrichedMinings[1]._info, null);
+const outputState = PG.outputState({ output_dir: 'C:/out', files: [{ name: 'A.cfx', size_kb: 1, mtime: 1770000000 }] });
+assert.equal(outputState.outputDir, 'C:/out');
+assert.equal(outputState.countLabel, '1 archivos');
+assert.match(outputState.html, /A\.cfx/);
 assert.match(PG.messageHtml('Error <x>', 'error'), /&lt;x&gt;/);
 
 assert.equal(PG.generateOneStartMessage(3, 2), 'Generando Mining 3 · Capa 2…');

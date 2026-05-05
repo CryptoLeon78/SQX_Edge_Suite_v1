@@ -328,6 +328,41 @@
     }).join('');
   }
 
+  function miningsCountLabel(count) {
+    return (count || 0) + ' minings';
+  }
+
+  function bulkGenerateLabel(count) {
+    return miningsCountLabel(count) + ' · Capa 1 + Capa 2';
+  }
+
+  async function enrichMiningsWithSymbolInfo(minings, getSymbolInfo) {
+    var list = minings || [];
+    var resolver = getSymbolInfo || function() { return Promise.resolve(null); };
+    return Promise.all(list.map(async function(mining) {
+      try {
+        return Object.assign({}, mining, { _info: await resolver(mining.asset) });
+      } catch (_err) {
+        return Object.assign({}, mining, { _info: null });
+      }
+    }));
+  }
+
+  function outputCountLabel(files) {
+    return ((files || []).length) + ' archivos';
+  }
+
+  function outputState(result) {
+    var data = result || {};
+    var files = data.files || [];
+    return {
+      outputDir: data.output_dir || '',
+      files: files,
+      countLabel: outputCountLabel(files),
+      html: outputListHtml(files)
+    };
+  }
+
   function generateOneStartMessage(mining, capa) {
     return 'Generando Mining ' + mining + ' · Capa ' + capa + '…';
   }
@@ -738,6 +773,7 @@
     directionLabel: directionLabel,
     escapeHtml: escapeHtml,
     fetchJson: fetchJson,
+    bulkGenerateLabel: bulkGenerateLabel,
     configSaveBody: configSaveBody,
     configSaveError: configSaveError,
     configSaveStatus: configSaveStatus,
@@ -749,9 +785,13 @@
     generateErrorResult: generateErrorResult,
     generateOneResult: generateOneResult,
     generateOneStartMessage: generateOneStartMessage,
+    enrichMiningsWithSymbolInfo: enrichMiningsWithSymbolInfo,
     messageHtml: messageHtml,
     miningRowsHtml: miningRowsHtml,
+    miningsCountLabel: miningsCountLabel,
+    outputCountLabel: outputCountLabel,
     outputListHtml: outputListHtml,
+    outputState: outputState,
     prepareRequestOptions: prepareRequestOptions,
     sqxCandidateFields: sqxCandidateFields,
     sqxCandidateSelectedStatus: sqxCandidateSelectedStatus,

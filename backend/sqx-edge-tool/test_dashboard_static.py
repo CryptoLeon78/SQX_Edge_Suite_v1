@@ -250,6 +250,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "directionLabel",
             "escapeHtml",
             "fetchJson",
+            "bulkGenerateLabel",
             "configSaveBody",
             "configSaveError",
             "configSaveStatus",
@@ -261,8 +262,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             "generateErrorResult",
             "generateOneResult",
             "generateOneStartMessage",
+            "enrichMiningsWithSymbolInfo",
             "miningRowsHtml",
+            "miningsCountLabel",
+            "outputCountLabel",
             "outputListHtml",
+            "outputState",
             "prepareRequestOptions",
             "sqxCandidateFields",
             "sqxCandidateSelectedStatus",
@@ -294,6 +299,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.configSaveStatus", main_js)
         self.assertIn("SQX_PG_MODULE.sqxCandidateFields", main_js)
         self.assertIn("SQX_PG_MODULE.validateSqxShouldApply", main_js)
+        self.assertIn("SQX_PG_MODULE.enrichMiningsWithSymbolInfo", main_js)
+        self.assertIn("SQX_PG_MODULE.outputState", main_js)
         self.assertNotIn("const hasSqxInput = ", main_js)
         self.assertNotIn("stepsEl.innerHTML = state.steps.map", main_js)
         self.assertNotIn("await fetch(url, opts)", main_js)
@@ -310,6 +317,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("msg.textContent = '✓ Guardado: '", main_js)
         self.assertNotIn("r.updated_keys.join(', ')", main_js)
         self.assertNotIn("document.getElementById('pg-sqx-db').value = r.resolved.data_db", main_js)
+        self.assertNotIn("minings.length + ' minings'", main_js)
+        self.assertNotIn("r.files.length + ' archivos'", main_js)
+        self.assertNotIn("Promise.all(minings.map", main_js)
         self.assertNotIn("pg-output-empty", main_js)
         self.assertIn("addEventListener('click', pgAutodetectSqx)", main_js)
         self.assertIn("addEventListener('click', pgValidateSqxPath)", main_js)
