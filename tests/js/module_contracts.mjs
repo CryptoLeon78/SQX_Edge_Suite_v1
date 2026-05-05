@@ -1,6 +1,7 @@
 import './contracts/core_strategy_contracts.mjs';
 import './contracts/formatters_domain_contracts.mjs';
 import './contracts/storage_ui_contracts.mjs';
+import './contracts/license_contracts.mjs';
 import './contracts/renderers_charts_contracts.mjs';
 import './contracts/strategies_granular_contracts.mjs';
 import './contracts/ui_home_workflow_contracts.mjs';

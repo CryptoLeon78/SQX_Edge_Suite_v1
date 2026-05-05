@@ -788,6 +788,144 @@ window.SQX_MANIFEST = {
       "basePath": "/api"
     }
   },
+  "product": {
+    "version": 1,
+    "product": {
+      "name": "SQX Edge",
+      "publicName": "SQX Edge Suite",
+      "edition": "Pro",
+      "licenseVersion": 1
+    },
+    "build": {
+      "channel": "internal",
+      "label": "Internal Build",
+      "defaultPlan": "internal",
+      "activationMode": "manual_signed_file",
+      "allowOfflineUse": true
+    },
+    "licensing": {
+      "storageKey": "sqx_license_state_v1",
+      "licenseFile": "config/license.json",
+      "graceDays": 7,
+      "signatureMode": "public_key_future",
+      "manualBetaDelivery": true
+    },
+    "features": {
+      "dashboard.view": {
+        "label": "Dashboard",
+        "tier": "free"
+      },
+      "strategies.basic": {
+        "label": "Estrategias basicas",
+        "tier": "free"
+      },
+      "strategies.import_full": {
+        "label": "Import CSV completo",
+        "tier": "pro"
+      },
+      "strategies.export_advanced": {
+        "label": "Export avanzado",
+        "tier": "pro"
+      },
+      "project_generator.demo": {
+        "label": "Project Generator demo",
+        "tier": "free"
+      },
+      "project_generator.generate": {
+        "label": "Project Generator completo",
+        "tier": "pro"
+      },
+      "strategy_cleaner.preview": {
+        "label": "Strategy Cleaner preview",
+        "tier": "free"
+      },
+      "strategy_cleaner.apply": {
+        "label": "Strategy Cleaner aplicar cambios",
+        "tier": "pro"
+      },
+      "backups.advanced": {
+        "label": "Backups avanzados",
+        "tier": "pro"
+      },
+      "workflows.premium": {
+        "label": "Workflows premium",
+        "tier": "pro"
+      },
+      "templates.premium": {
+        "label": "Packs de templates premium",
+        "tier": "pack"
+      },
+      "support.priority": {
+        "label": "Soporte prioritario",
+        "tier": "add_on"
+      }
+    },
+    "accessLevels": {
+      "free": {
+        "label": "SQX Edge Free",
+        "state": "free",
+        "features": [
+          "dashboard.view",
+          "strategies.basic",
+          "project_generator.demo",
+          "strategy_cleaner.preview"
+        ]
+      },
+      "pro": {
+        "label": "SQX Edge Pro",
+        "state": "pro_active",
+        "features": [
+          "dashboard.view",
+          "strategies.basic",
+          "strategies.import_full",
+          "strategies.export_advanced",
+          "project_generator.demo",
+          "project_generator.generate",
+          "strategy_cleaner.preview",
+          "strategy_cleaner.apply",
+          "backups.advanced",
+          "workflows.premium"
+        ]
+      },
+      "internal": {
+        "label": "SQX Edge Internal",
+        "state": "internal",
+        "features": [
+          "*"
+        ]
+      }
+    },
+    "lockedResponses": {
+      "proRequired": {
+        "ok": false,
+        "error": "pro_required",
+        "message": "Esta funcion requiere SQX Edge Pro."
+      }
+    },
+    "upgrade": {
+      "primaryMessage": "Esta funcion forma parte de SQX Edge Pro.",
+      "secondaryMessage": "Activa Pro para usar Project Generator, Strategy Cleaner y workflows premium.",
+      "checkoutProvider": "Lemon Squeezy",
+      "checkoutUrl": ""
+    },
+    "releaseProfiles": {
+      "free": {
+        "label": "Free public ZIP",
+        "includeInternalTools": false,
+        "defaultPlan": "free"
+      },
+      "pro": {
+        "label": "Pro licensed ZIP",
+        "includeInternalTools": false,
+        "defaultPlan": "free"
+      },
+      "internal": {
+        "label": "Internal development build",
+        "includeInternalTools": true,
+        "defaultPlan": "internal"
+      }
+    }
+  },
   "plan": {
     "version": 1,
     "minings": [

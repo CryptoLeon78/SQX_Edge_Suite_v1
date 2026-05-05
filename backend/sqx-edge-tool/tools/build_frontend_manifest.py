@@ -19,6 +19,7 @@ def main() -> None:
     manifest = {
         "version": 1,
         "ui": read_json("ui_manifest.json"),
+        "product": read_json("product_manifest.json"),
         "plan": read_json("plan.json"),
         "assets": read_json("assets.json"),
         "strategies": read_json("strategies.json"),

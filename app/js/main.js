@@ -12,6 +12,10 @@ renderStrategies();
 renderPipelineState();
 renderHome();
 
+if (window.SQX && window.SQX.license) {
+  window.SQX.license.init();
+}
+
 if (window.SQX && window.SQX.workflow) {
   window.SQX.workflow.init();
 }

@@ -5,6 +5,7 @@
 (function initSqxAppConfig(global) {
   const manifest = global.SQX_MANIFEST || {};
   const ui = manifest.ui || {};
+  const product = manifest.product || {};
   const filters = ui.filters || {};
   const storageKeys = ui.storageKeys || {};
 
@@ -129,6 +130,7 @@
   global.SQX_CONFIG = {
     manifest,
     ui,
+    product,
     storageKeys,
     apiBase: defaultApiBase,
     value: configValue,

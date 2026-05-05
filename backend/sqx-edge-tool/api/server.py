@@ -35,6 +35,7 @@ from flask import Flask, abort, jsonify, request  # type: ignore
 
 from core import all_minings, generate_project, get_mining
 from core.config_loader import load_manifest
+from core.license_manager import check_feature, license_status, load_product_manifest
 from core.project_generator import DEFAULT_BROKER_POSTFIX, resolve_costs
 from core.sqx_db import SqxDb
 from core.strategy_cleaner import (
@@ -146,9 +147,16 @@ def health():
     cfg = load_config()
     db_path = cfg.get("sqx_data_db", "")
     output_dir = Path(resolve_output_dir(cfg))
+    current_license = license_status()
     return jsonify({
         "ok": True,
         "version": VERSION,
+        "license": {
+            "state": current_license.get("state"),
+            "plan": current_license.get("plan"),
+            "active": current_license.get("active"),
+            "build_channel": current_license.get("build_channel"),
+        },
         "config_exists": CONFIG_PATH.is_file(),
         "sqx_path_set": bool(cfg.get("sqx_path")),
         "sqx_path": cfg.get("sqx_path", ""),
@@ -296,10 +304,26 @@ def manifest():
     return jsonify({
         "ok": True,
         "ui": load_manifest("ui_manifest.json"),
+        "product": load_product_manifest(),
         "plan": load_manifest("plan.json"),
         "assets": load_manifest("assets.json"),
         "strategies": load_manifest("strategies.json"),
     })
+
+
+@app.get("/api/license/status")
+def api_license_status():
+    return jsonify(license_status())
+
+
+@app.post("/api/license/check")
+def api_license_check():
+    data = request.get_json(silent=True) or {}
+    feature = (data.get("feature") or "").strip()
+    if not feature:
+        return jsonify({"ok": False, "error": "missing feature"}), 400
+    result = check_feature(feature)
+    return jsonify(result), 200 if result.get("allowed") else 402
 
 
 @app.get("/api/plan")

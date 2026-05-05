@@ -94,6 +94,17 @@ Lineas de trabajo:
 - Ocultar herramientas internas del paquete final.
 - Ajustar release checklist para builds Free/Pro.
 
+Estado: Done.
+
+Decision M4:
+
+- `product_manifest.json` define producto, features, access levels y perfiles Free/Pro/Internal.
+- Build actual queda como `internal` para no romper desarrollo.
+- Backend expone estado de licencia y chequeo de feature flags.
+- Frontend muestra panel de licencia en Inicio.
+- Las licencias sin firma no activan Pro.
+- Enforcement fuerte en endpoints queda preparado para M6.
+
 ## Phase M5 - Branding And Go-To-Market
 
 Objetivo: preparar la app para ensenarla y venderla.

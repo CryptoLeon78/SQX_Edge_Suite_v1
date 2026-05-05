@@ -29,7 +29,7 @@ Persistent planning note for the next SQX Edge phases.
 1. Phase M1: define monetization model for SQX Edge Pro subscription, services and templates. Done.
 2. Phase M2: design licensing and access model. Done.
 3. Phase M3: define distribution channels and paid delivery flow. Done.
-4. Phase M4: separate Free/Pro/internal product packaging.
+4. Phase M4: separate Free/Pro/internal product packaging. Done.
 5. Phase M5: prepare branding and go-to-market assets.
 6. Phase M6: run security and distribution audit.
 7. Phase M7: design support and diagnostics flow.

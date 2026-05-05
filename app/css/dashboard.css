@@ -272,6 +272,104 @@
   .home-panel-title { margin-bottom:16px; color:var(--accent2, var(--accent)); }
   .home-focus-row { display:flex; justify-content:space-between; gap:14px; padding:12px 0; border-bottom:1px solid var(--border); }
   .home-focus-row:last-child { border-bottom:none; }
+
+  .license-panel {
+    display:grid;
+    gap:12px;
+  }
+  .license-head {
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+  }
+  .license-head .home-panel-title {
+    margin-bottom:8px;
+  }
+  .license-head strong {
+    color:var(--text);
+    font-size:15px;
+  }
+  .license-panel p,
+  .license-panel small {
+    color:var(--text2);
+    font-size:12px;
+    line-height:1.5;
+  }
+  .license-badge {
+    flex:0 0 auto;
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:4px 8px;
+    color:var(--text2);
+    font-size:10px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.4px;
+  }
+  .license-badge.is-active {
+    border-color:rgba(34,197,94,.45);
+    background:rgba(34,197,94,.13);
+    color:var(--green);
+  }
+  .license-badge.is-pending {
+    border-color:rgba(234,179,8,.45);
+    background:rgba(234,179,8,.13);
+    color:var(--yellow);
+  }
+  .license-badge.is-blocked {
+    border-color:rgba(239,68,68,.45);
+    background:rgba(239,68,68,.12);
+    color:var(--red);
+  }
+  .license-badge.is-free {
+    border-color:rgba(59,130,246,.32);
+    background:rgba(59,130,246,.10);
+    color:var(--accent);
+  }
+  .license-feature-list {
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    max-height:84px;
+    overflow:auto;
+  }
+  .license-feature {
+    border:1px solid rgba(148,163,184,.18);
+    border-radius:6px;
+    padding:4px 7px;
+    background:rgba(15,23,42,.26);
+    color:var(--text2);
+    font-size:10px;
+    font-weight:700;
+  }
+  .license-input {
+    width:100%;
+    resize:vertical;
+    min-height:74px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:rgba(2,6,23,.24);
+    color:var(--text);
+    padding:10px;
+    font-size:12px;
+    line-height:1.45;
+  }
+  .license-input:focus {
+    outline:none;
+    border-color:var(--accent);
+  }
+  .license-actions {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .license-actions .export-btn::before {
+    display:none;
+  }
+  .license-feedback {
+    min-height:16px;
+  }
   .home-focus-row span { color:var(--text2); font-size:13px; }
   .home-focus-row strong { color:var(--text); font-size:13px; text-align:right; }
   .home-focus-row strong.is-ok { color:var(--green); }

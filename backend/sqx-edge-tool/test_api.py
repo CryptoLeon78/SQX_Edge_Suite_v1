@@ -21,6 +21,8 @@ class ApiTestCase(unittest.TestCase):
         data = self.get_json(response)
         self.assertTrue(data["ok"])
         self.assertEqual(data["version"], server.VERSION)
+        self.assertIn("license", data)
+        self.assertEqual(data["license"]["build_channel"], "internal")
         self.assertIn("config_exists", data)
         self.assertIn("output_dir", data)
         self.assertIn("output_dir_exists", data)
@@ -31,9 +33,27 @@ class ApiTestCase(unittest.TestCase):
         data = self.get_json(response)
         self.assertTrue(data["ok"])
         self.assertIn("tabs", data["ui"])
+        self.assertIn("accessLevels", data["product"])
         self.assertIn("minings", data["plan"])
         self.assertIn("assets", data["assets"])
         self.assertIn("strategies", data["strategies"])
+
+    def test_license_status_and_feature_check_endpoints(self):
+        response = self.client.get("/api/license/status")
+        self.assertEqual(response.status_code, 200)
+        status = self.get_json(response)
+        self.assertTrue(status["ok"])
+        self.assertEqual(status["state"], "internal")
+        self.assertIn("*", status["features"])
+
+        allowed = self.client.post("/api/license/check", json={"feature": "project_generator.generate"})
+        self.assertEqual(allowed.status_code, 200)
+        allowed_data = self.get_json(allowed)
+        self.assertTrue(allowed_data["allowed"])
+        self.assertEqual(allowed_data["required_feature"], "project_generator.generate")
+
+        missing = self.client.post("/api/license/check", json={})
+        self.assertEqual(missing.status_code, 400)
 
     def test_minings_follow_plan_manifest(self):
         response = self.client.get("/api/minings")

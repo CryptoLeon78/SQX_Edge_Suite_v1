@@ -147,6 +147,24 @@
             <strong id="home-data-status">Manifest activo</strong>
           </div>
         </div>
+        <div class="home-panel license-panel" id="license-panel">
+          <div class="license-head">
+            <div>
+              <div class="home-panel-title">Licencia</div>
+              <strong id="license-plan-label">SQX Edge Free</strong>
+            </div>
+            <span id="license-state-badge" class="license-badge is-free">Free</span>
+          </div>
+          <p id="license-status-detail">Modo Free. Las funciones Pro requieren licencia.</p>
+          <div id="license-feature-list" class="license-feature-list"></div>
+          <textarea id="license-key-input" class="license-input" rows="4" placeholder='Pega aqui el JSON de licencia cuando llegue la fase de activacion firmada.'></textarea>
+          <div class="license-actions">
+            <button class="export-btn" id="license-import-btn" type="button">Cargar licencia</button>
+            <button class="export-btn pg-ghost-btn" id="license-clear-btn" type="button">Limpiar</button>
+          </div>
+          <small id="license-upgrade-note">Esta funcion forma parte de SQX Edge Pro.</small>
+          <small id="license-feedback" class="license-feedback"></small>
+        </div>
         <div class="home-panel home-ops">
           <div class="home-panel-title">Arranque rapido</div>
           <button class="home-step" data-home-tab="projectgen">
@@ -2905,6 +2923,7 @@ Ret/DD > 1.0          ← más estricto que Capa 1 (era 0.5)</pre>
 <script src="js/modules/core.js"></script>
 <script src="js/modules/config.js"></script>
 <script src="js/modules/storage.js"></script>
+<script src="js/modules/license.js"></script>
 <script src="js/modules/ui.js"></script>
 <script src="js/modules/formatters.js"></script>
 <script src="js/modules/domain.js"></script>

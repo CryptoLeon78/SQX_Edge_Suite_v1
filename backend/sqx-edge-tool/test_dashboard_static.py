@@ -14,6 +14,7 @@ MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
 MONETIZATION_M1_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M1.md"
 MONETIZATION_M2_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M2.md"
 MONETIZATION_M3_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M3.md"
+MONETIZATION_M4_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M4.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -33,6 +34,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/core.js",
                 "js/modules/config.js",
                 "js/modules/storage.js",
+                "js/modules/license.js",
                 "js/modules/ui.js",
                 "js/modules/formatters.js",
                 "js/modules/domain.js",
@@ -79,6 +81,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/core.js",
             "js/modules/config.js",
             "js/modules/storage.js",
+            "js/modules/license.js",
             "js/modules/ui.js",
             "js/modules/formatters.js",
             "js/modules/domain.js",
@@ -106,6 +109,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         core_js = (APP_ROOT / "js" / "modules" / "core.js").read_text(encoding="utf-8-sig")
         config_js = (APP_ROOT / "js" / "modules" / "config.js").read_text(encoding="utf-8-sig")
         storage_js = (APP_ROOT / "js" / "modules" / "storage.js").read_text(encoding="utf-8-sig")
+        license_js = (APP_ROOT / "js" / "modules" / "license.js").read_text(encoding="utf-8-sig")
         ui_js = (APP_ROOT / "js" / "modules" / "ui.js").read_text(encoding="utf-8-sig")
         formatters_js = (APP_ROOT / "js" / "modules" / "formatters.js").read_text(encoding="utf-8-sig")
         domain_js = (APP_ROOT / "js" / "modules" / "domain.js").read_text(encoding="utf-8-sig")
@@ -130,6 +134,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("registerModule", core_js)
         self.assertIn("SQX.config", config_js)
         self.assertIn("SQX.storage", storage_js)
+        self.assertIn("SQX.license", license_js)
         self.assertIn("SQX.ui", ui_js)
         self.assertIn("SQX.formatters", formatters_js)
         self.assertIn("SQX.domain", domain_js)
@@ -575,6 +580,51 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("storage.getJson(key", workflow_js)
         self.assertIn("storage.setJson(key", workflow_js)
 
+    def test_license_module_and_product_manifest_are_wired(self):
+        app_config_js = (APP_ROOT / "js" / "app-config.js").read_text(encoding="utf-8-sig")
+        main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
+        license_js = (APP_ROOT / "js" / "modules" / "license.js").read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        license_py = (TOOL_ROOT / "core" / "license_manager.py").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        expected_dom_ids = [
+            "license-panel",
+            "license-plan-label",
+            "license-state-badge",
+            "license-status-detail",
+            "license-feature-list",
+            "license-key-input",
+            "license-import-btn",
+            "license-clear-btn",
+            "license-upgrade-note",
+            "license-feedback",
+        ]
+        for element_id in expected_dom_ids:
+            with self.subTest(element_id=element_id):
+                self.assertIn(f'id="{element_id}"', self.html)
+
+        self.assertIn("const product = manifest.product", app_config_js)
+        self.assertIn("window.SQX.license.init()", main_js)
+        for export in [
+            "currentStatus",
+            "hasFeature",
+            "importLicenseText",
+            "renderPanel",
+            "storageKey",
+        ]:
+            with self.subTest(export=export):
+                self.assertIn(export, license_js)
+
+        self.assertEqual(product_manifest["build"]["channel"], "internal")
+        self.assertIn("project_generator.generate", product_manifest["features"])
+        self.assertIn("strategy_cleaner.apply", product_manifest["features"])
+        self.assertIn("*", product_manifest["accessLevels"]["internal"]["features"])
+        self.assertIn("/api/license/status", server_py)
+        self.assertIn("/api/license/check", server_py)
+        self.assertIn("def check_feature", license_py)
+        self.assertIn("pro_pending", license_py)
+
     def test_pipeline_mobile_layout_has_overflow_guards(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
 
@@ -604,18 +654,21 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_m2_m3_decisions(self):
+    def test_monetization_docs_capture_m1_m2_m3_m4_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
         m3 = MONETIZATION_M3_DOC.read_text(encoding="utf-8-sig")
+        m4 = MONETIZATION_M4_DOC.read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
 
         self.assertIn("Phase M1", roadmap)
         self.assertIn("Phase M2", roadmap)
         self.assertIn("Phase M3", roadmap)
+        self.assertIn("Phase M4", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
+        self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -658,6 +711,21 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in m3_patterns:
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, m3)
+
+        m4_patterns = [
+            "product_manifest.json",
+            "license_manager.py",
+            "GET /api/license/status",
+            "POST /api/license/check",
+            "SQX.license",
+            "project_generator.generate",
+            "strategy_cleaner.apply",
+            "modo `internal`",
+            "una licencia sin firma no activa Pro",
+        ]
+        for pattern in m4_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m4)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
@@ -720,6 +788,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "strat-hidden-wrap",
             "strat-hidden-count",
             "strat-restore-hidden-btn",
+            "license-panel",
+            "license-plan-label",
+            "license-state-badge",
         ]
         for element_id in expected_ids:
             with self.subTest(element_id=element_id):
@@ -767,11 +838,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         manifest = json.loads(text[len("window.SQX_MANIFEST = "):-1])
 
         plan = json.loads((TOOL_ROOT / "config" / "plan.json").read_text(encoding="utf-8-sig"))
+        product = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
         assets = json.loads((TOOL_ROOT / "config" / "assets.json").read_text(encoding="utf-8-sig"))
         strategies = json.loads((TOOL_ROOT / "config" / "strategies.json").read_text(encoding="utf-8-sig"))
         ui = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
 
         self.assertEqual(manifest["plan"], plan)
+        self.assertEqual(manifest["product"], product)
         self.assertEqual(manifest["assets"], assets)
         self.assertEqual(manifest["strategies"], strategies)
         self.assertEqual(manifest["ui"], ui)
