@@ -35,6 +35,7 @@ $denyFiles = @(
   "license_signer.py",
   "license_keypair.ps1",
   "license_issue.py",
+  "prepare_customer_delivery.ps1",
   ".env",
   "RELEASE_SQX_EDGE.bat"
 )
@@ -65,6 +66,7 @@ $requiredPackageGuards = @(
   'license_signer\.py',
   'license_keypair\.ps1',
   'license_issue\.py',
+  'prepare_customer_delivery\.ps1',
   '_private_key\.json',
   '\.private_key\.json',
   'license_signed_',

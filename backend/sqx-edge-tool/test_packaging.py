@@ -23,6 +23,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "release_checklist.ps1",
             TOOL_ROOT / "tools" / "license_keypair.ps1",
             TOOL_ROOT / "tools" / "license_issue.py",
+            TOOL_ROOT / "tools" / "prepare_customer_delivery.ps1",
         ]
         for path in expected:
             with self.subTest(path=path.name):
@@ -54,6 +55,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("license_signer\\.py", text)
         self.assertIn("license_keypair\\.ps1", text)
         self.assertIn("license_issue\\.py", text)
+        self.assertIn("prepare_customer_delivery\\.ps1", text)
         self.assertIn("_private_key\\.json", text)
         self.assertIn("license_signed_", text)
         self.assertIn("license_payload_", text)
@@ -75,6 +77,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("license_signer.py", text)
         self.assertIn("license_keypair.ps1", text)
         self.assertIn("license_issue.py", text)
+        self.assertIn("prepare_customer_delivery.ps1", text)
         self.assertIn("license_keys", text)
         self.assertIn("private_keys", text)
         self.assertIn("/api/health", text)
@@ -91,6 +94,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "license_signer.py",
             "license_keypair.ps1",
             "license_issue.py",
+            "prepare_customer_delivery.ps1",
             "license_keys",
             "private_keys",
             "_private_key\\.json",

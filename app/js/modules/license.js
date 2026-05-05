@@ -202,6 +202,15 @@
     }).join('');
   }
 
+  function checkoutMeta(upgrade) {
+    var checkout = upgrade.checkout || {};
+    return {
+      url: upgrade.checkoutUrl || checkout.primaryUrl || checkout.fallbackUrl || '',
+      label: upgrade.checkoutLabel || 'Comprar Pro',
+      provider: upgrade.checkoutProvider || checkout.primaryProvider || 'checkout'
+    };
+  }
+
   function stateClass(state) {
     if (state === 'internal' || state === 'pro_active') return 'is-active';
     if (state === 'pro_pending') return 'is-pending';
@@ -228,8 +237,10 @@
     var upgradeList = byId('license-upgrade-list');
     var planStripEl = byId('license-plan-strip');
     var featureListEl = byId('license-feature-list');
+    var checkoutLink = byId('license-checkout-link');
     var note = byId('license-upgrade-note');
     var upgrade = product.upgrade || {};
+    var checkout = checkoutMeta(upgrade);
 
     if (badge) {
       badge.className = 'license-badge ' + stateClass(status.state);
@@ -247,6 +258,17 @@
       planStripEl.innerHTML = planStrip(upgrade);
     }
     if (featureListEl) featureListEl.innerHTML = featureRows(status);
+    if (checkoutLink) {
+      if (checkout.url) {
+        checkoutLink.href = checkout.url;
+        checkoutLink.textContent = checkout.label;
+        checkoutLink.title = 'Abrir checkout de ' + checkout.provider;
+        checkoutLink.style.display = '';
+      } else {
+        checkoutLink.removeAttribute('href');
+        checkoutLink.style.display = 'none';
+      }
+    }
     if (note) {
       note.textContent = status.active
         ? 'Capacidades habilitadas para esta licencia.'
@@ -314,6 +336,7 @@
   SQX.license = SQX.license || {
     apiBase: apiBase,
     bindPanel: bindPanel,
+    checkoutMeta: checkoutMeta,
     clearLicense: clearLicense,
     currentStatus: currentStatus,
     fetchJson: fetchJson,

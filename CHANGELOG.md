@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Checkout and fulfillment
+
+- Prepara `upgrade.checkout` para Lemon Squeezy con Gumroad como fallback.
+- Anade enlace de checkout en el panel Licencia, oculto hasta configurar URL real.
+- Anade `prepare_customer_delivery.ps1` para preparar ZIP + licencia + instrucciones por cliente.
+- Documenta M11 y runbook de entrega comercial.
+
 ## 2026-05-06 - Manual license issuer
 
 - Anade `license_issue.py` para emitir licencias Pro firmadas en un solo comando.

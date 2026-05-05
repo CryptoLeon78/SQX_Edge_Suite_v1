@@ -58,6 +58,7 @@ function Test-IncludedPath {
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\license_signer\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\license_keypair\.ps1$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\license_issue\.py$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\tools\\prepare_customer_delivery\.ps1$") { return $false }
   if ($Path -match "\\[^\\]*_private_key\.json$") { return $false }
   if ($Path -match "\\[^\\]*\.private_key\.json$") { return $false }
   if ($Path -match "\\license_signed_[^\\]*\.json$") { return $false }

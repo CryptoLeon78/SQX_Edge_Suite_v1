@@ -21,6 +21,7 @@ MONETIZATION_M7_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M7.md"
 MONETIZATION_M8_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M8.md"
 MONETIZATION_M9_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M9.md"
 MONETIZATION_M10_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M10.md"
+MONETIZATION_M11_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M11.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -644,6 +645,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "license-plan-strip",
             "license-feature-list",
             "license-key-input",
+            "license-checkout-link",
             "license-import-btn",
             "license-clear-btn",
             "license-upgrade-note",
@@ -672,6 +674,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("*", product_manifest["accessLevels"]["internal"]["features"])
         self.assertEqual(product_manifest["upgrade"]["headline"], "SQX Edge Pro")
         self.assertIn("24 EUR/mes", json.dumps(product_manifest["upgrade"], ensure_ascii=False))
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["primaryProvider"], "Lemon Squeezy")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["fallbackProvider"], "Gumroad")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
+        self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
+        self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["variants"][0]["plan"], "pro_monthly")
         self.assertIn("No promete rentabilidad", product_manifest["upgrade"]["disclaimer"])
         self.assertIn("De idea a pipeline operativo SQX", product_manifest["marketing"]["tagline"])
         self.assertEqual(product_manifest["security"]["apiBoundary"], "local_only")
@@ -730,7 +738,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m10_decisions(self):
+    def test_monetization_docs_capture_m1_to_m11_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -742,6 +750,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         m8 = MONETIZATION_M8_DOC.read_text(encoding="utf-8-sig")
         m9 = MONETIZATION_M9_DOC.read_text(encoding="utf-8-sig")
         m10 = MONETIZATION_M10_DOC.read_text(encoding="utf-8-sig")
+        m11 = MONETIZATION_M11_DOC.read_text(encoding="utf-8-sig")
+        sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
         public_roadmap = (PROJECT_ROOT / "docs" / "PUBLIC_ROADMAP.md").read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
@@ -756,6 +766,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M8", roadmap)
         self.assertIn("Phase M9", roadmap)
         self.assertIn("Phase M10", roadmap)
+        self.assertIn("Phase M11", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -765,6 +776,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M8: implement offline signed license activation. Done.", next_steps)
         self.assertIn("Phase M9: prepare production license key management and release guardrails. Done.", next_steps)
         self.assertIn("Phase M10: add manual Pro license issuer for first paid sales. Done.", next_steps)
+        self.assertIn("Phase M11: prepare checkout wiring and manual sales fulfillment. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -915,6 +927,24 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in m10_patterns:
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, m10)
+
+        m11_patterns = [
+            "Lemon Squeezy",
+            "Gumroad",
+            "checkout.primaryUrl",
+            "license-checkout-link",
+            "license_issue.py",
+            "prepare_customer_delivery.ps1",
+            "ZIP portable",
+            "SQX_Edge_Pro_license.json",
+            "webhooks",
+            "Estado: Done.",
+        ]
+        for pattern in m11_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m11)
+        self.assertIn("Sale To Delivery", sales_runbook)
+        self.assertIn("Customer Email Template", sales_runbook)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))

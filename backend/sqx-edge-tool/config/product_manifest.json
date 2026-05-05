@@ -192,23 +192,74 @@
       {
         "id": "pro_monthly",
         "label": "Pro Mensual",
-        "price": "24 EUR/mes"
+        "price": "24 EUR/mes",
+        "checkoutUrl": ""
       },
       {
         "id": "pro_annual",
         "label": "Pro Anual",
-        "price": "199 EUR/ano"
+        "price": "199 EUR/ano",
+        "checkoutUrl": ""
       },
       {
         "id": "setup_assist",
         "label": "Setup Assist",
-        "price": "149 EUR"
+        "price": "149 EUR",
+        "checkoutUrl": ""
       }
     ],
     "disclaimer": "No promete rentabilidad ni resultados financieros. La propuesta es productividad, orden y reduccion de errores operativos.",
     "checkoutProvider": "Lemon Squeezy",
     "checkoutLabel": "Comprar Pro",
-    "checkoutUrl": ""
+    "checkoutUrl": "",
+    "checkout": {
+      "status": "pending_provider_urls",
+      "primaryProvider": "Lemon Squeezy",
+      "fallbackProvider": "Gumroad",
+      "mode": "hosted_checkout",
+      "primaryUrl": "",
+      "fallbackUrl": "",
+      "supportEmail": "",
+      "fulfillmentMode": "manual_signed_license",
+      "deliveryArtifact": "SQX_Edge_Tool_Portable_*.zip",
+      "licenseIssuerTool": "backend/sqx-edge-tool/tools/license_issue.py",
+      "deliveryTool": "backend/sqx-edge-tool/tools/prepare_customer_delivery.ps1",
+      "variants": [
+        {
+          "plan": "pro_monthly",
+          "label": "SQX Edge Pro Mensual",
+          "providerVariantId": "",
+          "price": "24 EUR/mes",
+          "billing": "monthly_subscription",
+          "licenseDurationDays": 31,
+          "activationLimit": 1
+        },
+        {
+          "plan": "pro_annual",
+          "label": "SQX Edge Pro Anual",
+          "providerVariantId": "",
+          "price": "199 EUR/ano",
+          "billing": "annual_subscription",
+          "licenseDurationDays": 366,
+          "activationLimit": 1
+        },
+        {
+          "plan": "setup_assist",
+          "label": "Setup Assist",
+          "providerVariantId": "",
+          "price": "149 EUR",
+          "billing": "one_time_service",
+          "licenseDurationDays": 31,
+          "activationLimit": 1
+        }
+      ],
+      "postPurchaseSteps": [
+        "Confirmar pago en Lemon Squeezy o Gumroad.",
+        "Generar licencia firmada con license_issue.py.",
+        "Preparar entrega con prepare_customer_delivery.ps1.",
+        "Enviar ZIP portable, licencia JSON e instrucciones al cliente."
+      ]
+    }
   },
   "marketing": {
     "tagline": "De idea a pipeline operativo SQX con menos friccion.",

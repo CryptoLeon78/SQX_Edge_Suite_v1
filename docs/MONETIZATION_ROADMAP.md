@@ -244,3 +244,25 @@ Decision M10:
 - `license_signer.py` queda como primitiva tecnica de firma.
 - El issuer queda fuera del paquete portable de cliente.
 - La siguiente fase natural es conectar este flujo a fulfillment de venta o preparar pagina/checkout real.
+
+## Phase M11 - Checkout And Manual Fulfillment
+
+Objetivo: preparar checkout real y entrega manual segura para primeras ventas Pro.
+
+Entregables:
+
+- `upgrade.checkout` en `product_manifest.json`.
+- Enlace de checkout preparado en el panel Licencia, oculto hasta tener URL real.
+- Script interno `prepare_customer_delivery.ps1`.
+- Runbook de ventas y entrega.
+- Documentacion de setup Lemon Squeezy/Gumroad.
+
+Estado: Done.
+
+Decision M11:
+
+- Lemon Squeezy queda como canal principal.
+- Gumroad queda como fallback ligero.
+- La licencia Pro real sigue siendo nuestro JSON firmado offline.
+- El cliente recibe ZIP portable + licencia JSON + instrucciones.
+- La siguiente fase natural es webhook/automatizacion de fulfillment.

@@ -1,0 +1,54 @@
+# SQX Edge Pro - Sales Fulfillment Runbook
+
+## Preflight
+
+- ZIP portable final validado con `release_checklist.ps1`.
+- Public key de produccion ya configurada en `product_manifest.json`.
+- Private key guardada fuera del repo.
+- Checkout URL real configurada en `product_manifest.json` si se va a mostrar en la app.
+- Email de soporte definido.
+
+## Sale To Delivery
+
+1. Revisar pedido en Lemon Squeezy o Gumroad.
+2. Identificar plan: `pro_monthly`, `pro_annual` o `setup_assist`.
+3. Ejecutar `license_issue.py` con `--order-id`.
+4. Ejecutar `prepare_customer_delivery.ps1`.
+5. Enviar carpeta de entrega o subirla a una descarga privada.
+6. Registrar internamente customer, order id, license id y fecha de expiracion.
+
+## Customer Email Template
+
+Asunto: SQX Edge Pro - descarga y licencia
+
+Hola,
+
+Gracias por adquirir SQX Edge Pro.
+
+Adjunto tienes:
+
+- ZIP portable de SQX Edge.
+- Archivo `SQX_Edge_Pro_license.json`.
+- Archivo `LEEME_PRIMERO.txt` con los pasos.
+
+Pasos rapidos:
+
+1. Descomprime el ZIP.
+2. Ejecuta `START_SQX_EDGE.bat`.
+3. Abre Inicio > Licencia.
+4. Pega el contenido de `SQX_Edge_Pro_license.json`.
+5. Pulsa `Cargar licencia`.
+
+Si tienes cualquier problema, responde a este email con el diagnostico de soporte generado desde Inicio.
+
+## Internal Renewal
+
+- Para mensual: emitir una nueva licencia si el proveedor confirma renovacion.
+- Para anual: emitir una licencia con duracion anual.
+- Para cancelacion: dejar que expire la licencia local en la siguiente fecha de corte.
+
+## Notes
+
+- No prometer rentabilidad.
+- Vender productividad, trazabilidad y reduccion de errores operativos.
+- No enviar private keys ni herramientas internas.

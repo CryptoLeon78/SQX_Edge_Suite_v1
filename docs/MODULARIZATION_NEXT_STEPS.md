@@ -36,3 +36,4 @@ Persistent planning note for the next SQX Edge phases.
 8. Phase M8: implement offline signed license activation. Done.
 9. Phase M9: prepare production license key management and release guardrails. Done.
 10. Phase M10: add manual Pro license issuer for first paid sales. Done.
+11. Phase M11: prepare checkout wiring and manual sales fulfillment. Done.

@@ -14,6 +14,7 @@ for (const exportName of [
   'renderPanel',
   'refreshBackendStatus',
   'storageKey',
+  'checkoutMeta',
 ]) {
   assert.ok(licenseJs.includes(exportName), `missing license export ${exportName}`);
 }
@@ -24,6 +25,10 @@ assert.equal(productManifest.licensing.signatureMode, 'rsa_sha256_pkcs1_v1_5');
 assert.equal(productManifest.licensing.signatureAlgorithm, 'RS256');
 assert.ok(productManifest.licensing.publicKey.n.length > 100);
 assert.equal(productManifest.upgrade.headline, 'SQX Edge Pro');
+assert.equal(productManifest.upgrade.checkout.primaryProvider, 'Lemon Squeezy');
+assert.equal(productManifest.upgrade.checkout.fallbackProvider, 'Gumroad');
+assert.equal(productManifest.upgrade.checkout.fulfillmentMode, 'manual_signed_license');
+assert.ok(productManifest.upgrade.checkout.deliveryTool.includes('prepare_customer_delivery.ps1'));
 assert.ok(productManifest.upgrade.bullets.length >= 3);
 assert.ok(JSON.stringify(productManifest.upgrade).includes('24 EUR/mes'));
 assert.ok(productManifest.marketing.tagline.includes('pipeline operativo'));
@@ -31,6 +36,7 @@ assert.ok(productManifest.features['project_generator.generate']);
 assert.ok(productManifest.features['strategy_cleaner.apply']);
 assert.deepEqual(productManifest.accessLevels.internal.features, ['*']);
 assert.ok(html.includes('id="license-panel"'));
+assert.ok(html.includes('id="license-checkout-link"'));
 assert.ok(html.includes('id="license-upgrade-list"'));
 assert.ok(html.includes('id="license-plan-strip"'));
 assert.ok(html.includes('js/modules/license.js'));
