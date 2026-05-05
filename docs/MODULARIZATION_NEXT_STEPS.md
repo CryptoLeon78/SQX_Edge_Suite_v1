@@ -27,7 +27,7 @@ Persistent planning note for the next SQX Edge phases.
 ## Monetization Track
 
 1. Phase M1: define monetization model for SQX Edge Pro subscription, services and templates. Done.
-2. Phase M2: design licensing and access model.
+2. Phase M2: design licensing and access model. Done.
 3. Phase M3: define distribution channels and paid delivery flow.
 4. Phase M4: separate Free/Pro/internal product packaging.
 5. Phase M5: prepare branding and go-to-market assets.

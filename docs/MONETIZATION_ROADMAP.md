@@ -43,6 +43,18 @@ Opciones a evaluar:
 
 Recomendacion inicial: licencia local firmada con validacion offline, preparada para activacion online futura.
 
+Estado: Done.
+
+Decision M2:
+
+- Licencia local firmada.
+- Activacion manual por archivo en la primera version.
+- Validacion offline para uso diario.
+- 1 equipo por licencia con reset manual de soporte.
+- Sin trial automatico inicial; demos mediante licencias temporales manuales.
+- Enforcement real en backend para funciones Pro.
+- Expiracion sin borrado de datos del usuario.
+
 ## Phase M3 - Distribution
 
 Objetivo: preparar canales de entrega y venta.
@@ -112,4 +124,3 @@ Opciones:
 - Consentimiento claro si algun dia hay telemetria.
 
 Recomendacion inicial: diagnostico local exportable, sin telemetria automatica.
-

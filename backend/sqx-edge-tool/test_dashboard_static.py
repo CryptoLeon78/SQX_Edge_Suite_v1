@@ -10,6 +10,9 @@ APP_ROOT = PROJECT_ROOT / "app"
 TOOL_ROOT = PROJECT_ROOT / "backend" / "sqx-edge-tool"
 ANALYSIS_ROOT = PROJECT_ROOT / "analysis"
 ARCHITECTURE_DOC = PROJECT_ROOT / "docs" / "ARCHITECTURE.md"
+MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
+MONETIZATION_M1_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M1.md"
+MONETIZATION_M2_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M2.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -599,6 +602,41 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in expected_patterns:
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
+
+    def test_monetization_docs_capture_m1_m2_decisions(self):
+        roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
+        m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
+
+        self.assertIn("Phase M1", roadmap)
+        self.assertIn("Phase M2", roadmap)
+        self.assertIn("Phase M2: design licensing and access model. Done.", (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig"))
+
+        m1_patterns = [
+            "SQX Edge Pro",
+            "24 EUR/mes",
+            "199 EUR/ano",
+            "Setup Assist",
+            "Premium Template Pack 1",
+        ]
+        for pattern in m1_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m1)
+
+        m2_patterns = [
+            "licencia local firmada",
+            "activacion manual por archivo",
+            "validacion offline",
+            "No basta con ocultar botones en HTML/JS.",
+            "required_feature",
+            "project_generator.generate",
+            "strategy_cleaner.apply",
+            "sin trial automatico al inicio",
+            "expiracion sin borrado de datos",
+        ]
+        for pattern in m2_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m2)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
