@@ -23,3 +23,13 @@ Persistent planning note for the next SQX Edge phases.
 - Remove temporary Playwright dependencies after E2E.
 - Use one commit per phase.
 - Push only when explicitly requested or when the active instruction includes continuing the planned push step.
+
+## Monetization Track
+
+1. Phase M1: define monetization model for SQX Edge Pro subscription, services and templates. Done.
+2. Phase M2: design licensing and access model.
+3. Phase M3: define distribution channels and paid delivery flow.
+4. Phase M4: separate Free/Pro/internal product packaging.
+5. Phase M5: prepare branding and go-to-market assets.
+6. Phase M6: run security and distribution audit.
+7. Phase M7: design support and diagnostics flow.
