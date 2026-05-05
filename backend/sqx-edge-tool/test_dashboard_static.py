@@ -9,6 +9,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 APP_ROOT = PROJECT_ROOT / "app"
 TOOL_ROOT = PROJECT_ROOT / "backend" / "sqx-edge-tool"
 ANALYSIS_ROOT = PROJECT_ROOT / "analysis"
+ARCHITECTURE_DOC = PROJECT_ROOT / "docs" / "ARCHITECTURE.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -52,6 +53,19 @@ class DashboardStaticTestCase(unittest.TestCase):
         )
         for script in scripts:
             self.assertTrue((APP_ROOT / script).is_file(), script)
+
+    def test_architecture_doc_matches_dashboard_load_order(self):
+        scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        match = re.search(
+            r"## Frontend Load Order\s+.*?(?=\n## )",
+            architecture,
+            flags=re.S,
+        )
+        self.assertIsNotNone(match, "ARCHITECTURE.md is missing Frontend Load Order section")
+        documented_scripts = re.findall(r"^\d+\.\s+`([^`]+)`", match.group(0), flags=re.M)
+
+        self.assertEqual(documented_scripts, scripts)
 
     def test_modular_scaffold_loads_before_legacy_logic(self):
         scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)
