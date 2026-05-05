@@ -202,3 +202,24 @@ Decision M8:
 - `POST /api/license/clear` limpia la licencia local.
 - Una licencia Pro valida habilita `project_generator.generate` y `strategy_cleaner.apply`.
 - Una licencia expirada o manipulada no borra datos, pero vuelve a features Free.
+
+## Phase M9 - Production License Key Management
+
+Objetivo: preparar la gestion de claves para venta Pro sin exponer secretos en repo, backups ni ZIP portable.
+
+Entregables:
+
+- Tool local `license_keypair.ps1` para generar claves RSA compatibles con `license_signer.py`.
+- Politica de clave privada fuera de git y fuera de paquetes.
+- Exclusiones reforzadas en `.gitignore`, empaquetado, auditoria y release checklist.
+- Manifiesto con `licensing.keyManagement`.
+- Documentacion del flujo manual de emision de licencias.
+
+Estado: Done.
+
+Decision M9:
+
+- La public key se distribuye en `product_manifest.json`.
+- La private key se guarda solo en ubicacion privada local.
+- Las herramientas internas de firma/generacion no viajan en el ZIP final.
+- Antes de vender publicamente hay que reemplazar la public key placeholder por una clave de produccion real.

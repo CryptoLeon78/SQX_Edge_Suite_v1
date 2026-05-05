@@ -23,15 +23,26 @@ $denySegments = @(
   "output",
   "__pycache__",
   ".pytest_cache",
-  ".playwright-cli"
+  ".playwright-cli",
+  "license_keys",
+  "licenses_private",
+  "private_keys"
 )
 
 $denyFiles = @(
   "config.json",
   "license.json",
   "license_signer.py",
+  "license_keypair.ps1",
   ".env",
   "RELEASE_SQX_EDGE.bat"
+)
+
+$denyFilePatterns = @(
+  ".*_private_key\.json$",
+  ".*\.private_key\.json$",
+  "license_signed_.*\.json$",
+  "signed_license_.*\.json$"
 )
 
 $requiredPackageGuards = @(
@@ -43,9 +54,17 @@ $requiredPackageGuards = @(
   '"output"',
   '".pytest_cache"',
   '".playwright-cli"',
+  '"license_keys"',
+  '"licenses_private"',
+  '"private_keys"',
   'config\.json',
   'license\.json',
   'license_signer\.py',
+  'license_keypair\.ps1',
+  '_private_key\.json',
+  '\.private_key\.json',
+  'license_signed_',
+  'signed_license_',
   '\\\.env',
   'RELEASE_SQX_EDGE'
 )
@@ -67,6 +86,11 @@ function Test-DeniedEntry {
   }
   foreach ($file in $denyFiles) {
     if ($segments.Count -gt 0 -and $segments[-1] -eq $file) { return $true }
+  }
+  if ($segments.Count -gt 0) {
+    foreach ($pattern in $denyFilePatterns) {
+      if ($segments[-1] -match $pattern) { return $true }
+    }
   }
   return $false
 }
@@ -128,6 +152,7 @@ if ($ZipPath) {
 $lines.Add("") | Out-Null
 $lines.Add("Denied segments: $($denySegments -join ', ')") | Out-Null
 $lines.Add("Denied files: $($denyFiles -join ', ')") | Out-Null
+$lines.Add("Denied file patterns: $($denyFilePatterns -join ', ')") | Out-Null
 $lines.Add("") | Out-Null
 
 if ($findings.Count -eq 0) {

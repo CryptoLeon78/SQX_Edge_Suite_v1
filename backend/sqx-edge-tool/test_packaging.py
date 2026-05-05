@@ -21,6 +21,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "audit_distribution.ps1",
             TOOL_ROOT / "tools" / "package_portable.ps1",
             TOOL_ROOT / "tools" / "release_checklist.ps1",
+            TOOL_ROOT / "tools" / "license_keypair.ps1",
         ]
         for path in expected:
             with self.subTest(path=path.name):
@@ -50,6 +51,10 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("RELEASE_SQX_EDGE", text)
         self.assertIn("license\\.json", text)
         self.assertIn("license_signer\\.py", text)
+        self.assertIn("license_keypair\\.ps1", text)
+        self.assertIn("_private_key\\.json", text)
+        self.assertIn("license_signed_", text)
+        self.assertIn('"license_keys"', text)
         self.assertIn("\\\\.env", text)
 
     def test_release_checklist_validates_portable_user_flow(self):
@@ -65,6 +70,9 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("project-generator-dom.js", text)
         self.assertIn("RELEASE_SQX_EDGE.bat", text)
         self.assertIn("license_signer.py", text)
+        self.assertIn("license_keypair.ps1", text)
+        self.assertIn("license_keys", text)
+        self.assertIn("private_keys", text)
         self.assertIn("/api/health", text)
         self.assertIn("runtime\\python\\python.exe", text)
         self.assertIn("RequireCleanGit", text)
@@ -77,6 +85,11 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "config.json",
             "license.json",
             "license_signer.py",
+            "license_keypair.ps1",
+            "license_keys",
+            "private_keys",
+            "_private_key\\.json",
+            "license_signed_",
             ".env",
             ".git",
             "node_modules",

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-06 - License key management
+
+- Anade `license_keypair.ps1` para generar claves RSA offline compatibles con el firmador interno.
+- Documenta M9 con el flujo manual de emision de licencias Pro.
+- Refuerza `.gitignore`, empaquetado, auditoria y checklist contra claves privadas/licencias firmadas.
+- Actualiza `product_manifest.json` con politica `never_commit_never_ship`.
+- Regenera el ZIP portable y valida la API portable con health OK.
+
 ## 2026-05-05 - Release polish
 
 - Anade `RELEASE_SQX_EDGE.bat` para ejecutar el checklist de entrega con doble click.

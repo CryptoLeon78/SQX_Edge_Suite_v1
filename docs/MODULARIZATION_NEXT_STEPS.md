@@ -34,3 +34,4 @@ Persistent planning note for the next SQX Edge phases.
 6. Phase M6: run security and distribution audit. Done.
 7. Phase M7: design support and diagnostics flow. Done.
 8. Phase M8: implement offline signed license activation. Done.
+9. Phase M9: prepare production license key management and release guardrails. Done.

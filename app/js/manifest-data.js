@@ -810,6 +810,18 @@ window.SQX_MANIFEST = {
       "signatureMode": "rsa_sha256_pkcs1_v1_5",
       "signatureAlgorithm": "RS256",
       "manualBetaDelivery": true,
+      "keyManagement": {
+        "productionKeyRequired": true,
+        "publicKeyReplacementRequiredBeforePublicSale": true,
+        "privateKeyPolicy": "never_commit_never_ship",
+        "keypairTool": "backend/sqx-edge-tool/tools/license_keypair.ps1",
+        "signerTool": "backend/sqx-edge-tool/tools/license_signer.py",
+        "localPrivateKeyFolders": [
+          "license_keys",
+          "licenses_private",
+          "private_keys"
+        ]
+      },
       "publicKey": {
         "kty": "RSA",
         "kid": "sqx-prod-2026-05-placeholder",
@@ -835,7 +847,15 @@ window.SQX_MANIFEST = {
         "node_modules",
         "venv",
         ".git",
-        "backend/sqx-edge-tool/tools/license_signer.py"
+        "license_keys",
+        "licenses_private",
+        "private_keys",
+        "*_private_key.json",
+        "*.private_key.json",
+        "license_signed_*.json",
+        "signed_license_*.json",
+        "backend/sqx-edge-tool/tools/license_signer.py",
+        "backend/sqx-edge-tool/tools/license_keypair.ps1"
       ],
       "releaseAudit": "backend/sqx-edge-tool/tools/audit_distribution.ps1"
     },

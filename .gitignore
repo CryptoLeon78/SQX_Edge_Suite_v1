@@ -31,6 +31,16 @@ sqx-edge-tool/config.json
 backend/sqx-edge-tool/config.json
 .env
 .env.*
+license_keys/
+licenses_private/
+private_keys/
+*_private_key.json
+*.private_key.json
+license_signed_*.json
+signed_license_*.json
+backend/sqx-edge-tool/license_keys/
+backend/sqx-edge-tool/licenses_private/
+backend/sqx-edge-tool/private_keys/
 
 # ── Backups and temporary refactor snapshots ────────
 backups/

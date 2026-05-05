@@ -25,7 +25,20 @@ $StageDir = Join-Path $OutputDir "stage_$Stamp"
 
 New-Item -ItemType Directory -Path $StageDir -Force | Out-Null
 
-$excludeNames = @(".git", "venv", "__pycache__", "output", "dist", "backups", ".pytest_cache", ".playwright-cli", "node_modules")
+$excludeNames = @(
+  ".git",
+  "venv",
+  "__pycache__",
+  "output",
+  "dist",
+  "backups",
+  ".pytest_cache",
+  ".playwright-cli",
+  "node_modules",
+  "license_keys",
+  "licenses_private",
+  "private_keys"
+)
 $excludePatterns = @(
   "\\backend\\sqx-edge-tool\\runtime\\downloads\\",
   "\\backend\\sqx-edge-tool\\output\\",
@@ -43,6 +56,11 @@ function Test-IncludedPath {
   if ($Path -match "\\backend\\sqx-edge-tool\\config\.json$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\config\\license\.json$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\license_signer\.py$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\tools\\license_keypair\.ps1$") { return $false }
+  if ($Path -match "\\[^\\]*_private_key\.json$") { return $false }
+  if ($Path -match "\\[^\\]*\.private_key\.json$") { return $false }
+  if ($Path -match "\\license_signed_[^\\]*\.json$") { return $false }
+  if ($Path -match "\\signed_license_[^\\]*\.json$") { return $false }
   if ($Path -match "\\\.env(\..*)?$") { return $false }
   if ($Path -match "\\RELEASE_SQX_EDGE\.bat$") { return $false }
   if ($Path -match "_backup") { return $false }
