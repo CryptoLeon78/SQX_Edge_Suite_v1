@@ -1,0 +1,194 @@
+import { assert, Element, createLoadedSandbox } from './harness.mjs';
+
+const { SQX, document } = createLoadedSandbox();
+const PG = SQX.projectGenerator;
+
+assert.equal(PG.escapeHtml('<x>'), '&lt;x&gt;');
+const pgApiState = PG.computeOnboardingState({
+  apiBase: 'http://127.0.0.1:8765',
+  connected: false,
+  configState: {},
+  healthMeta: {},
+  minings: [],
+  outputFiles: [],
+});
+assert.equal(pgApiState.completed, 0);
+assert.equal(pgApiState.current.id, 'api');
+assert.equal(pgApiState.tertiaryVisible, false);
+
+const pgReadyState = PG.computeOnboardingState({
+  apiBase: 'http://127.0.0.1:8765',
+  connected: true,
+  configState: { sqx_path: 'C:/SQX', sqx_data_db: 'C:/SQX/data.db' },
+  healthMeta: {
+    data_db_exists: true,
+    output_dir: 'out',
+    output_dir_exists: true,
+    sqx_path: 'C:/SQX',
+    sqx_path_set: true,
+    templates_capa1_exists: true,
+    templates_capa2_exists: true,
+  },
+  minings: [{ asset: 'EURUSD', tf: 'H1' }],
+  outputFiles: [{ name: 'M01.cfx' }],
+});
+assert.equal(pgReadyState.completed, 4);
+assert.equal(pgReadyState.current, null);
+assert.equal(pgReadyState.tertiaryAction, 'refresh');
+
+[
+  'pg-onboarding-progress', 'pg-onboarding-title', 'pg-onboarding-desc',
+  'pg-onboarding-bar', 'pg-onboarding-steps', 'pg-onboarding-action',
+  'pg-onboarding-secondary', 'pg-onboarding-tertiary', 'pg-assistant-next',
+  'pg-assistant-hint', 'pg-assistant-checks'
+].forEach(id => document.add(new Element(id)));
+assert.equal(PG.applyOnboardingState(pgReadyState, document), true);
+assert.equal(document.getElementById('pg-onboarding-progress').textContent, '4/4');
+assert.equal(document.getElementById('pg-onboarding-bar').style.width, '100%');
+assert.equal(document.getElementById('pg-onboarding-tertiary').dataset.pgAssistantAction, 'refresh');
+assert.match(document.getElementById('pg-onboarding-steps').innerHTML, /pg-step done/);
+
+const prepared = PG.prepareRequestOptions({ body: { alpha: 1 }, headers: { Accept: 'application/json' } });
+assert.equal(prepared.body, '{"alpha":1}');
+assert.equal(prepared.headers['Content-Type'], 'application/json');
+assert.equal(prepared.headers.Accept, 'application/json');
+
+let fetchUrl = '';
+let fetchOptions = null;
+const jsonResult = await PG.fetchJson('http://api.local', '/health', { method: 'POST', body: { ok: true } }, async (url, options) => {
+  fetchUrl = url;
+  fetchOptions = options;
+  return { ok: true, status: 200, text: async () => '{"ok":true,"version":"20"}' };
+});
+assert.equal(fetchUrl, 'http://api.local/health');
+assert.equal(fetchOptions.body, '{"ok":true}');
+assert.equal(jsonResult.version, '20');
+await assert.rejects(
+  () => PG.fetchJson('', '/bad', {}, async () => ({ ok: false, status: 500, text: async () => 'boom' })),
+  /boom/
+);
+
+document.add(new Element('pg-status-banner', ['pg-status-loading']));
+document.add(new Element('pg-status-title'));
+document.add(new Element('pg-status-desc'));
+assert.equal(PG.applyStatusBanner({ state: 'up', title: 'API OK', desc: 'Lista' }, document), true);
+assert.equal(document.getElementById('pg-status-title').textContent, 'API OK');
+assert.equal(document.getElementById('pg-status-desc').textContent, 'Lista');
+assert.equal(document.getElementById('pg-status-banner').classList.contains('pg-status-up'), true);
+assert.equal(document.getElementById('pg-status-banner').classList.contains('pg-status-loading'), false);
+
+const pgAssets = PG.uniqueAssets([{ asset: 'GBPUSD' }, { asset: 'EURUSD' }, { asset: 'GBPUSD' }]);
+assert.deepEqual(pgAssets, ['EURUSD', 'GBPUSD']);
+assert.equal(PG.directionClass('short'), 'short');
+assert.equal(PG.directionLabel('both'), 'L+S');
+const aliasHtml = PG.aliasTableHtml([{ asset: 'EURUSD' }], { EURUSD: 'EURUSD_M1' });
+assert.match(aliasHtml, /data-pg-alias="EURUSD"/);
+assert.match(aliasHtml, /value="EURUSD_M1"/);
+assert.match(PG.aliasTableHtml([], {}), /esperando minings/);
+
+const aliasSuggestions = [
+  { instrument: 'EURUSD_M1', score: 96, description: 'Major', broker_id: 10 },
+  { instrument: 'EURUSD_M5', score: 88, description: '', broker_id: 11 },
+  { instrument: 'EURUSD_H1', score: 82, description: 'Alt', broker_id: 12 },
+  { instrument: 'EURUSD_H4', score: 81, description: 'Alt', broker_id: 13 },
+  { instrument: 'EURUSD_D1', score: 80, description: 'Alt', broker_id: 14 },
+  { instrument: 'EURUSD_W1', score: 79, description: 'Ignored', broker_id: 15 },
+];
+assert.equal(PG.aliasTopSuggestions(aliasSuggestions, 5).length, 5);
+assert.match(PG.aliasSuggestionPrompt('EURUSD', aliasSuggestions), /1\. EURUSD_M1 \[96%\]/);
+assert.doesNotMatch(PG.aliasSuggestionPrompt('EURUSD', aliasSuggestions), /EURUSD_W1/);
+assert.equal(PG.aliasChoiceValue('2', aliasSuggestions), 'EURUSD_M5');
+assert.equal(PG.aliasChoiceValue(' CUSTOM ', aliasSuggestions), 'CUSTOM');
+assert.equal(PG.aliasChoiceValue('', aliasSuggestions), '');
+assert.equal(PG.aliasSuggestionEmptyMessage('GBPUSD'), 'Sin sugerencias para GBPUSD en data.db');
+assert.equal(PG.aliasProposedMessage('EURUSD', 'EURUSD_M1'), 'Alias propuesto: EURUSD → EURUSD_M1 (pulsa Guardar config)');
+assert.equal(PG.aliasAutoSuggestStartMessage(3), 'Auto-sugiriendo para 3 assets…');
+assert.equal(PG.aliasAutoSuggestResult(1).level, 'ok');
+assert.equal(PG.aliasAutoSuggestResult(0).level, 'info');
+
+const miningHtml = PG.miningRowsHtml([{
+  num: 7,
+  asset: 'EURUSD',
+  tf: 'H1',
+  bs: 'BS_Tendencia',
+  dir: 'long',
+  _info: { source: 'db', instrument: 'EURUSD_M1', spread: 1.2, swap_long: -1, swap_short: 0.5 },
+}]);
+assert.match(miningHtml, /data-pg-gen="7"/);
+assert.match(miningHtml, /pgm-dir long/);
+assert.match(miningHtml, /EURUSD_M1/);
+const outputHtml = PG.outputListHtml([{ name: 'M07.cfx', size_kb: 12, mtime: 1770000000 }]);
+assert.match(outputHtml, /M07\.cfx/);
+assert.match(outputHtml, /12 KB/);
+assert.match(PG.outputListHtml([]), /No hay \.cfx/);
+assert.match(PG.messageHtml('Error <x>', 'error'), /&lt;x&gt;/);
+
+assert.equal(PG.generateOneStartMessage(3, 2), 'Generando Mining 3 · Capa 2…');
+const generateOneOk = PG.generateOneResult({ ok: true, filename: 'M03.cfx' }, 3, 2);
+assert.equal(generateOneOk.logText, '✓ M03.cfx');
+assert.equal(generateOneOk.traceDetail, 'Mining 3 · Capa 2 · M03.cfx');
+assert.equal(PG.generateOneResult({ ok: false, error: 'bad template' }, 3, 1).traceLevel, 'err');
+assert.equal(PG.generateErrorResult('offline').logText, '✗ Error: offline');
+assert.equal(PG.generateAllConfirmMessage(1, 12), '¿Generar 12 minings en Capa 1? Sobrescribe los existentes en output/.');
+assert.equal(PG.generateAllConfirmMessage(2, 0), '¿Generar todos los minings en Capa 2? Sobrescribe los existentes en output/.');
+assert.equal(PG.generateAllStartMessage(2), 'Generando TODOS · Capa 2…');
+assert.equal(PG.generateAllResultSummary({ ok_count: 2, fail_count: 1 }).level, 'err');
+assert.equal(PG.generateAllTrace(2, { ok_count: 2, fail_count: 0 }).detail, 'Capa 2 · OK 2 · FAIL 0');
+const generateAllLines = PG.generateAllResultLines([
+  { ok: true, mining: 3, filename: 'M03.cfx' },
+  { ok: false, mining: 12, error: 'bad db' },
+]);
+assert.equal(generateAllLines[0].text, '  ✓ M03 → M03.cfx');
+assert.equal(generateAllLines[1].text, '  ✗ M12 → bad db');
+
+assert.match(PG.sqxNotFoundHtml(), /No se encontro/);
+assert.match(PG.sqxAppliedHtml(), /Aplicado/);
+assert.match(PG.autodetectCandidatesHtml({
+  found: 1,
+  candidates: [{ version: '1.0', has_exe: true, sqx_path: 'C:/SQX', data_db: 'C:/SQX/user/data/data.db' }],
+}), /pg-use-btn/);
+assert.match(PG.validateSqxPathHtml({
+  valid: true,
+  checks: { base_exists: true, data_db_exists: true, projects_exists: true, exe_exists: true },
+}), /Path valido/);
+
+const cleanerHtml = PG.cleanerTableHtml([{
+  path: 'C:/SQX/A&B.sqx',
+  name: 'A&B.sqx',
+  asset: 'EURUSD',
+  timeframe: 'H1',
+  direction: 'long',
+  exit_after_bars_count: 2,
+  fitness_id: 'F1',
+  size_kb: 34,
+}], { 'C:/SQX/A&B.sqx': true });
+assert.match(cleanerHtml, /cln-row-check/);
+assert.match(cleanerHtml, /checked/);
+assert.match(cleanerHtml, /A&amp;B\.sqx/);
+assert.match(cleanerHtml, /cv-num warn/);
+assert.equal(PG.cleanerTableHtml([], {}), '');
+const cleanerOptions = PG.cleanerOptions({ removeExitBars: true, renameInstitutional: false, renamePattern: 'X' });
+assert.equal(cleanerOptions.remove_exit_bars, true);
+assert.equal(cleanerOptions.rename_institutional, false);
+assert.equal(PG.cleanerHasAction(cleanerOptions), true);
+assert.equal(PG.cleanerHasAction(PG.cleanerOptions({})), false);
+assert.match(PG.cleanerConfirmMessage(2, cleanerOptions), /Eliminar ExitAfterBars/);
+assert.equal(PG.cleanerResultSummary({ ok_count: 3, fail_count: 0 }), 'Resultado: 3 OK · 0 FAIL');
+assert.equal(PG.cleanerResultLevel({ fail_count: 0 }), 'ok');
+assert.equal(PG.cleanerResultLines([{ ok: true, path: 'C:/SQX/clean.sqx', actions: ['rename'] }])[0], 'OK clean.sqx - rename');
+const selectedMap = PG.cleanerSelectedMap(['C:/SQX/a.sqx', 'C:/SQX/b.sqx']);
+assert.equal(selectedMap['C:/SQX/a.sqx'], true);
+assert.equal(PG.cleanerSelectedLabel(2), '2 seleccionadas');
+assert.equal(PG.cleanerScanMessage({ ok: true, count: 2 }).actionsDisplay, 'block');
+assert.equal(PG.cleanerScanMessage({ ok: true, count: 0 }).actionsDisplay, 'none');
+assert.equal(PG.cleanerPreviewPattern(''), '{asset}_{tf}_{dir}_{id}');
+assert.equal(PG.cleanerPreviewPattern(' {asset}_{id} '), '{asset}_{id}');
+const previewLines = PG.cleanerPreviewLines([
+  { current: 'old.sqx', new_name: 'new.sqx' },
+  { path: 'bad.sqx', error: 'missing asset' },
+]);
+assert.equal(PG.cleanerPreviewHeader(previewLines), 'Preview rename para 2 archivos:');
+assert.equal(previewLines[0].level, 'info');
+assert.equal(previewLines[1].level, 'err');
+
+console.log('project generator contracts ok');

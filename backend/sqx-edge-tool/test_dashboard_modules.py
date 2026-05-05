@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-CONTRACT_SCRIPT = PROJECT_ROOT / "tests" / "js" / "module_contracts.mjs"
+CONTRACTS_DIR = PROJECT_ROOT / "tests" / "js" / "contracts"
 
 
 class DashboardModuleContractTestCase(unittest.TestCase):
@@ -13,15 +13,20 @@ class DashboardModuleContractTestCase(unittest.TestCase):
         if shutil.which("node") is None:
             self.skipTest("Node.js is not available for dashboard module contract tests")
 
-        result = subprocess.run(
-            ["node", str(CONTRACT_SCRIPT)],
-            cwd=PROJECT_ROOT,
-            text=True,
-            capture_output=True,
-            timeout=30,
-        )
-        if result.returncode != 0:
-            self.fail(result.stdout + result.stderr)
+        scripts = sorted(CONTRACTS_DIR.glob("*_contracts.mjs"))
+        self.assertGreaterEqual(len(scripts), 3, "Expected split dashboard contract files")
+
+        for script in scripts:
+            with self.subTest(contract=script.name):
+                result = subprocess.run(
+                    ["node", str(script)],
+                    cwd=PROJECT_ROOT,
+                    text=True,
+                    capture_output=True,
+                    timeout=30,
+                )
+                if result.returncode != 0:
+                    self.fail(result.stdout + result.stderr)
 
 
 if __name__ == "__main__":
