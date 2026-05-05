@@ -69,6 +69,18 @@ Opciones:
 
 Recomendacion inicial: ZIP portable + Lemon Squeezy o Gumroad + GitHub Releases.
 
+Estado: Done.
+
+Decision M3:
+
+- Lemon Squeezy como canal principal de cobro, suscripcion y licencia.
+- ZIP portable como artefacto principal.
+- GitHub Releases para builds publicos o controlados.
+- Gumroad como alternativa para validar packs/plantillas.
+- Stripe Payment Links solo si construimos fulfillment/licensing propio.
+- Paddle como opcion futura si el producto escala.
+- Primera beta de pago con entrega manual de licencia firmada.
+
 ## Phase M4 - Product Packaging
 
 Objetivo: separar claramente funciones Free, Pro e internas.
