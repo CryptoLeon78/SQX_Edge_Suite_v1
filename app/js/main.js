@@ -500,30 +500,9 @@ async function pgRunOnboardingTertiaryAction() {
 
   function clnRenderTable() {
     const tbl = document.getElementById('cln-table');
-    if (!CLN_FILES.length) { tbl.innerHTML = ''; return; }
-    tbl.innerHTML =
-      '<div class="matrix-wrap" style="max-height:380px;">' +
-        '<table class="cat-table" style="font-size:11px;">' +
-          '<thead><tr>' +
-            '<th style="width:30px;"><input type="checkbox" id="cln-th-check"></th>' +
-            '<th>Archivo</th><th>Asset</th><th>TF</th><th>Dir</th>' +
-            '<th>EAB</th><th>ID</th><th>KB</th>' +
-          '</tr></thead><tbody>' +
-          CLN_FILES.map(f => {
-            const checked = CLN_SELECTED.has(f.path) ? 'checked' : '';
-            const eabCls = f.exit_after_bars_count > 0 ? 'cv-num warn' : 'cv-num pos';
-            return '<tr>' +
-              '<td><input type="checkbox" class="cln-row-check" data-path="'+pgEsc(f.path)+'" '+checked+'></td>' +
-              '<td style="font-family:Consolas,monospace;">'+pgEsc(f.name)+'</td>' +
-              '<td><strong>'+pgEsc(f.asset)+'</strong></td>' +
-              '<td>'+pgEsc(f.timeframe)+'</td>' +
-              '<td>'+pgEsc(f.direction)+'</td>' +
-              '<td class="'+eabCls+'">'+pgEsc(f.exit_after_bars_count)+'</td>' +
-              '<td>'+pgEsc(f.fitness_id)+'</td>' +
-              '<td style="color:var(--text2);">'+pgEsc(f.size_kb)+'</td>' +
-            '</tr>';
-          }).join('') +
-        '</tbody></table></div>';
+    const selected = Object.fromEntries([...CLN_SELECTED].map(path => [path, true]));
+    tbl.innerHTML = SQX_PG_MODULE.cleanerTableHtml(CLN_FILES, selected);
+    if (!CLN_FILES.length) { clnUpdateSelectedCount(); return; }
     document.querySelectorAll('.cln-row-check').forEach(cb => cb.addEventListener('change', function(){
       const p = this.dataset.path;
       if (this.checked) CLN_SELECTED.add(p); else CLN_SELECTED.delete(p);

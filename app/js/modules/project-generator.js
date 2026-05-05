@@ -329,6 +329,36 @@
       + '</ul></div></div>';
   }
 
+  function cleanerTableHtml(files, selectedPaths) {
+    var selected = selectedPaths || {};
+    if (!files || !files.length) return '';
+    return ''
+      + '<div class="matrix-wrap" style="max-height:380px;">'
+      +   '<table class="cat-table" style="font-size:11px;">'
+      +     '<thead><tr>'
+      +       '<th style="width:30px;"><input type="checkbox" id="cln-th-check"></th>'
+      +       '<th>Archivo</th><th>Asset</th><th>TF</th><th>Dir</th>'
+      +       '<th>EAB</th><th>ID</th><th>KB</th>'
+      +     '</tr></thead><tbody>'
+      +     files.map(function(file) {
+              var checked = selected[file.path] ? 'checked' : '';
+              var eabClass = file.exit_after_bars_count > 0 ? 'cv-num warn' : 'cv-num pos';
+              return ''
+                + '<tr>'
+                +   '<td><input type="checkbox" class="cln-row-check" data-path="' + escapeHtml(file.path) + '" ' + checked + '></td>'
+                +   '<td style="font-family:Consolas,monospace;">' + escapeHtml(file.name) + '</td>'
+                +   '<td><strong>' + escapeHtml(file.asset) + '</strong></td>'
+                +   '<td>' + escapeHtml(file.timeframe) + '</td>'
+                +   '<td>' + escapeHtml(file.direction) + '</td>'
+                +   '<td class="' + eabClass + '">' + escapeHtml(file.exit_after_bars_count) + '</td>'
+                +   '<td>' + escapeHtml(file.fitness_id) + '</td>'
+                +   '<td style="color:var(--text2);">' + escapeHtml(file.size_kb) + '</td>'
+                + '</tr>';
+            }).join('')
+      +     '</tbody></table>'
+      + '</div>';
+  }
+
   function applyOnboardingState(state, doc) {
     var target = doc || global.document;
     var progress = target.getElementById('pg-onboarding-progress');
@@ -385,6 +415,7 @@
     applyOnboardingState: applyOnboardingState,
     applyStatusBanner: applyStatusBanner,
     autodetectCandidatesHtml: autodetectCandidatesHtml,
+    cleanerTableHtml: cleanerTableHtml,
     computeOnboardingState: computeOnboardingState,
     directionClass: directionClass,
     directionLabel: directionLabel,

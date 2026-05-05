@@ -225,6 +225,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "applyOnboardingState",
             "applyStatusBanner",
             "autodetectCandidatesHtml",
+            "cleanerTableHtml",
             "computeOnboardingState",
             "directionClass",
             "directionLabel",
@@ -259,6 +260,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("addEventListener('click', pgValidateSqxPath)", main_js)
         self.assertNotIn("document.getElementById('pg-autodetect').addEventListener('click', async function", main_js)
         self.assertNotIn("document.getElementById('pg-validate').addEventListener('click', async function", main_js)
+        self.assertIn("SQX_PG_MODULE.cleanerTableHtml", main_js)
+        self.assertNotIn("CLN_FILES.map(f =>", main_js)
+        self.assertNotIn("cln-row-check\" data-path=\"'+pgEsc", main_js)
 
     def test_dashboard_dataset_loading_delegates_to_datasets_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")

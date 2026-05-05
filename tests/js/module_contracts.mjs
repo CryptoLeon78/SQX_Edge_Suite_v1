@@ -419,5 +419,20 @@ const validationHtml = SQX.projectGenerator.validateSqxPathHtml({
 });
 assert.match(validationHtml, /Path valido/);
 assert.match(validationHtml, /StrategyQuantX\.exe existe/);
+const cleanerHtml = SQX.projectGenerator.cleanerTableHtml([{
+  path: 'C:/SQX/A&B.sqx',
+  name: 'A&B.sqx',
+  asset: 'EURUSD',
+  timeframe: 'H1',
+  direction: 'long',
+  exit_after_bars_count: 2,
+  fitness_id: 'F1',
+  size_kb: 34,
+}], { 'C:/SQX/A&B.sqx': true });
+assert.match(cleanerHtml, /cln-row-check/);
+assert.match(cleanerHtml, /checked/);
+assert.match(cleanerHtml, /A&amp;B\.sqx/);
+assert.match(cleanerHtml, /cv-num warn/);
+assert.equal(SQX.projectGenerator.cleanerTableHtml([], {}), '');
 
 console.log('module contracts ok');
