@@ -12,6 +12,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         expected = [
             PROJECT_ROOT / "START_SQX_EDGE.bat",
             PROJECT_ROOT / "STOP_SQX_EDGE.bat",
+            PROJECT_ROOT / "RELEASE_SQX_EDGE.bat",
             PACKAGING_ROOT / "START_SQX_EDGE.bat",
             PACKAGING_ROOT / "STOP_SQX_EDGE.bat",
             TOOL_ROOT / "run-embedded.bat",
@@ -45,6 +46,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertNotIn('"runtime"', text)
         self.assertIn('"\\\\backend\\\\sqx-edge-tool\\\\runtime\\\\downloads\\\\",', text)
         self.assertIn('"node_modules"', text)
+        self.assertIn("RELEASE_SQX_EDGE", text)
 
     def test_release_checklist_validates_portable_user_flow(self):
         text = (TOOL_ROOT / "tools" / "release_checklist.ps1").read_text(encoding="utf-8-sig")
@@ -53,8 +55,18 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("package_portable.ps1", text)
         self.assertIn("START_SQX_EDGE.bat", text)
         self.assertIn("project-generator-dom.js", text)
+        self.assertIn("RELEASE_SQX_EDGE.bat", text)
         self.assertIn("/api/health", text)
         self.assertIn("runtime\\python\\python.exe", text)
+        self.assertIn("RequireCleanGit", text)
+        self.assertIn("SQX_release_summary.txt", text)
+        self.assertIn("Clean Git working tree", text)
+
+    def test_release_bat_runs_strict_checklist(self):
+        text = (PROJECT_ROOT / "RELEASE_SQX_EDGE.bat").read_text(encoding="utf-8-sig")
+        self.assertIn("release_checklist.ps1", text)
+        self.assertIn("-RequireCleanGit", text)
+        self.assertIn("pause", text.lower())
 
     def test_roadmap_marks_f7_done(self):
         readme = (TOOL_ROOT / "README.md").read_text(encoding="utf-8-sig")

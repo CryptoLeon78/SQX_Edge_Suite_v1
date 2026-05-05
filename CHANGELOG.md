@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-05 - Release polish
+
+- Anade `RELEASE_SQX_EDGE.bat` para ejecutar el checklist de entrega con doble click.
+- El checklist puede exigir Git limpio con `-RequireCleanGit`.
+- El release genera `dist/SQX_release_summary.txt` con ZIP, fecha, tamano y estado Git.
+- El ZIP portable excluye el BAT de release interno para no confundir al usuario final.
+
 ## 2026-05-04 - Entrega profesional
 
 Version entregable de SQX Edge Suite v1.

@@ -12,6 +12,7 @@ Persistent planning note for the next SQX Edge phases.
 6. Phase 41: guard architecture load-order documentation with a living contract. Done.
 7. Phase 42: reduce Project Generator legacy bridge with a focused DOM helper module. Done.
 8. Phase 43: add a release checklist script for tests, portable packaging and ZIP validation. Done.
+9. Phase 44: polish release flow with one-click strict release, summary output and package guardrails. Done.
 
 ## Working Discipline
 

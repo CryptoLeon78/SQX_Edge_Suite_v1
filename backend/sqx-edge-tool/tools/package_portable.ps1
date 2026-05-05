@@ -41,6 +41,7 @@ function Test-IncludedPath {
     if ($Path -match $pattern) { return $false }
   }
   if ($Path -match "\\backend\\sqx-edge-tool\\config\.json$") { return $false }
+  if ($Path -match "\\RELEASE_SQX_EDGE\.bat$") { return $false }
   if ($Path -match "_backup") { return $false }
   return $true
 }

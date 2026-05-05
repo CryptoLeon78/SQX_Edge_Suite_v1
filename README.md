@@ -127,3 +127,11 @@ powershell -NoProfile -ExecutionPolicy Bypass -File backend\sqx-edge-tool\tools\
 ```
 
 El checklist ejecuta contratos JS, suite Python, `git diff --check`, empaquetado portable, extraccion temporal, import de API con Python embebido y health check local. Al terminar muestra el ZIP listo en `dist/`.
+
+Tambien puedes lanzar el modo estricto con doble click desde:
+
+```text
+RELEASE_SQX_EDGE.bat
+```
+
+Ese modo exige Git limpio antes de empaquetar y deja un resumen en `dist/SQX_release_summary.txt`.

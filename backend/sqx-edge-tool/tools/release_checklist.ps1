@@ -1,6 +1,7 @@
 param(
   [switch]$SkipTests,
   [switch]$SkipPackage,
+  [switch]$RequireCleanGit,
   [int]$PortableApiPort = 5059
 )
 
@@ -12,6 +13,7 @@ $ProjectRoot = Split-Path -Parent $BackendRoot
 $PythonExe = Join-Path $ToolRoot "venv\Scripts\python.exe"
 $EmbeddedPythonExe = Join-Path $ToolRoot "runtime\python\python.exe"
 $PackageScript = Join-Path $PSScriptRoot "package_portable.ps1"
+$SummaryPath = Join-Path (Join-Path $ProjectRoot "dist") "SQX_release_summary.txt"
 
 function Write-Step {
   param([string]$Message)
@@ -45,6 +47,19 @@ function Assert-DirExcluded {
   }
 }
 
+function Get-GitStatusText {
+  return (git status --short --branch | Out-String).Trim()
+}
+
+function Assert-CleanGit {
+  $StatusLines = @(git status --porcelain)
+  if ($StatusLines.Count -gt 0) {
+    Write-Host "Git working tree is not clean:"
+    git status --short
+    throw "Commit or stash local changes before running a strict release checklist."
+  }
+}
+
 function Test-PortableZip {
   param([string]$ZipPath)
 
@@ -68,6 +83,7 @@ function Test-PortableZip {
     Assert-DirExcluded (Join-Path $TempRoot "backups")
     Assert-DirExcluded (Join-Path $TempRoot "dist")
     Assert-DirExcluded (Join-Path $TempRoot "node_modules")
+    Assert-DirExcluded (Join-Path $TempRoot "RELEASE_SQX_EDGE.bat")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\venv")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\config.json")
 
@@ -119,6 +135,10 @@ Assert-File $EmbeddedPythonExe
 
 Push-Location $ProjectRoot
 try {
+  if ($RequireCleanGit) {
+    Invoke-Checked "Clean Git working tree" { Assert-CleanGit }
+  }
+
   if (-not $SkipTests) {
     Assert-File $PythonExe
     Invoke-Checked "Frontend module contracts" { node ".\tests\js\module_contracts.mjs" }
@@ -141,7 +161,27 @@ try {
   }
 
   Write-Step "Git status"
-  git status --short --branch
+  $GitStatus = Get-GitStatusText
+  Write-Host $GitStatus
+
+  if (-not $SkipPackage -and $Zip) {
+    $ZipItem = Get-Item -LiteralPath $Zip.FullName
+    $Summary = @(
+      "SQX Edge Suite - Release Summary",
+      "Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')",
+      "ZIP: $($ZipItem.FullName)",
+      "ZIP bytes: $($ZipItem.Length)",
+      "Portable API port tested: $PortableApiPort",
+      "",
+      "Git status:",
+      $GitStatus
+    )
+    New-Item -ItemType Directory -Path (Split-Path -Parent $SummaryPath) -Force | Out-Null
+    Set-Content -LiteralPath $SummaryPath -Value $Summary -Encoding ASCII
+    Write-Host ""
+    Write-Host "Release summary:"
+    Write-Host "  $SummaryPath"
+  }
 
   Write-Host ""
   Write-Host "Release checklist completed."
