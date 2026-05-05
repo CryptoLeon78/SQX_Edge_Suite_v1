@@ -404,5 +404,20 @@ const outputHtml = SQX.projectGenerator.outputListHtml([{ name: 'M07.cfx', size_
 assert.match(outputHtml, /M07\.cfx/);
 assert.match(outputHtml, /12 KB/);
 assert.match(SQX.projectGenerator.outputListHtml([]), /No hay \.cfx/);
+assert.match(SQX.projectGenerator.messageHtml('Error <x>', 'error'), /&lt;x&gt;/);
+assert.match(SQX.projectGenerator.sqxNotFoundHtml(), /No se encontro/);
+assert.match(SQX.projectGenerator.sqxAppliedHtml(), /Aplicado/);
+const autoHtml = SQX.projectGenerator.autodetectCandidatesHtml({
+  found: 1,
+  candidates: [{ version: '1.0', has_exe: true, sqx_path: 'C:/SQX', data_db: 'C:/SQX/user/data/data.db' }],
+});
+assert.match(autoHtml, /pg-use-btn/);
+assert.match(autoHtml, /C:\/SQX/);
+const validationHtml = SQX.projectGenerator.validateSqxPathHtml({
+  valid: true,
+  checks: { base_exists: true, data_db_exists: true, projects_exists: true, exe_exists: true },
+});
+assert.match(validationHtml, /Path valido/);
+assert.match(validationHtml, /StrategyQuantX\.exe existe/);
 
 console.log('module contracts ok');

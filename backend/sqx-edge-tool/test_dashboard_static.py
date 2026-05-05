@@ -224,6 +224,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "aliasTableHtml",
             "applyOnboardingState",
             "applyStatusBanner",
+            "autodetectCandidatesHtml",
             "computeOnboardingState",
             "directionClass",
             "directionLabel",
@@ -232,6 +233,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "miningRowsHtml",
             "outputListHtml",
             "prepareRequestOptions",
+            "sqxAppliedHtml",
+            "sqxNotFoundHtml",
+            "validateSqxPathHtml",
             "uniqueAssets",
         ]
         for export in expected_exports:
@@ -251,6 +255,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("function pgDirLabel", main_js)
         self.assertNotIn("fetch(PG_API + '/minings'", main_js)
         self.assertNotIn("pg-output-empty", main_js)
+        self.assertIn("addEventListener('click', pgAutodetectSqx)", main_js)
+        self.assertIn("addEventListener('click', pgValidateSqxPath)", main_js)
+        self.assertNotIn("document.getElementById('pg-autodetect').addEventListener('click', async function", main_js)
+        self.assertNotIn("document.getElementById('pg-validate').addEventListener('click', async function", main_js)
 
     def test_dashboard_dataset_loading_delegates_to_datasets_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")

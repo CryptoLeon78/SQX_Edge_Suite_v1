@@ -330,24 +330,11 @@ async function pgSaveConfig() {
 async function pgAutodetectSqx() {
   const out = document.getElementById('pg-autodetect-results');
   if (!out) return;
-  out.innerHTML = '<div style="color:var(--text2);font-size:12px;">Buscando instalaciones de SQX...</div>';
+  out.innerHTML = SQX_PG_MODULE.messageHtml('Buscando instalaciones de SQX...', 'info');
   try {
     const r = await pgFetch('/autodetect-sqx');
-    if (!r.found) {
-      out.innerHTML = '<div class="alert warning"><div class="alert-icon">!</div><div class="alert-content"><strong>No se encontro ninguna instalacion de SQX.</strong>Edita los campos manualmente con la ruta donde este StrategyQuantX.exe.</div></div>';
-      return;
-    }
-    out.innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:6px;">' + r.found + ' instalacion(es) detectada(s):</div>' +
-      r.candidates.map((c, i) =>
-        '<div class="pg-autodetect-row">' +
-          '<div style="flex:1;">' +
-            '<div style="font-weight:700;font-size:13px;">SQX v' + pgEsc(c.version) + (c.has_exe ? ' OK' : ' sin exe') + '</div>' +
-            '<div style="font-family:Consolas,monospace;font-size:11px;color:var(--text2);">' + pgEsc(c.sqx_path) + '</div>' +
-            '<div style="font-family:Consolas,monospace;font-size:10px;color:var(--text2);">-> data.db: ' + pgEsc(c.data_db) + '</div>' +
-          '</div>' +
-          '<button class="export-btn pg-use-btn" data-idx="' + i + '" style="border-color:var(--green);color:var(--green);">Usar esta</button>' +
-        '</div>'
-      ).join('');
+    out.innerHTML = SQX_PG_MODULE.autodetectCandidatesHtml(r);
+    if (!r.found) return;
     document.querySelectorAll('.pg-use-btn').forEach(btn => {
       btn.addEventListener('click', function(){
         const c = r.candidates[parseInt(this.dataset.idx, 10)];
@@ -357,11 +344,11 @@ async function pgAutodetectSqx() {
         pgLog('Path SQX seleccionado: ' + c.sqx_path + ' (pulsa Guardar config)', 'info');
         pgTrace('Ruta SQX detectada', c.sqx_path, 'info');
         pgRenderOnboarding();
-        out.innerHTML = '<div class="alert success"><div class="alert-icon">OK</div><div class="alert-content"><strong>Aplicado.</strong> Pulsa "Guardar config" para persistir.</div></div>';
+        out.innerHTML = SQX_PG_MODULE.sqxAppliedHtml();
       });
     });
   } catch(e) {
-    out.innerHTML = '<div style="color:var(--red);font-size:12px;">Error: ' + pgEsc(e.message) + '</div>';
+    out.innerHTML = SQX_PG_MODULE.messageHtml('Error: ' + e.message, 'error');
   }
 }
 
@@ -370,20 +357,12 @@ async function pgValidateSqxPath() {
   const out = document.getElementById('pg-autodetect-results');
   if (!out) return;
   if (!path) {
-    out.innerHTML = '<div style="color:var(--yellow);font-size:12px;">Pon primero un SQX install path.</div>';
+    out.innerHTML = SQX_PG_MODULE.messageHtml('Pon primero un SQX install path.', 'warning');
     return;
   }
   try {
     const r = await pgFetch('/validate-sqx-path', { method:'POST', body: { path } });
-    const c = r.checks;
-    const item = (label, ok) => '<li style="color:' + (ok ? 'var(--green)' : 'var(--red)') + ';">' + (ok ? 'OK' : 'X') + ' ' + label + '</li>';
-    out.innerHTML = '<div class="alert ' + (r.valid ? 'success' : 'warning') + '"><div class="alert-icon">' + (r.valid ? 'OK' : '!') + '</div><div class="alert-content"><strong>' + (r.valid ? 'Path valido' : 'Path con problemas') + '</strong>' +
-      '<ul style="margin-top:6px;padding-left:20px;font-size:12px;">' +
-        item('Directorio base existe', c.base_exists) +
-        item('user/data/data.db existe', c.data_db_exists) +
-        item('user/projects existe', c.projects_exists) +
-        item('StrategyQuantX.exe existe', c.exe_exists) +
-      '</ul></div></div>';
+    out.innerHTML = SQX_PG_MODULE.validateSqxPathHtml(r);
     if (r.valid && r.resolved.data_db) {
       document.getElementById('pg-sqx-db').value = r.resolved.data_db;
       document.getElementById('pg-sqx-projects').value = r.resolved.projects_dir || '';
@@ -391,7 +370,7 @@ async function pgValidateSqxPath() {
       pgRenderOnboarding();
     }
   } catch(e) {
-    out.innerHTML = '<div style="color:var(--red);font-size:12px;">Error: ' + pgEsc(e.message) + '</div>';
+    out.innerHTML = SQX_PG_MODULE.messageHtml('Error: ' + e.message, 'error');
     pgTrace('Error validando SQX', e.message, 'err');
   }
 }
@@ -483,73 +462,12 @@ async function pgRunOnboardingTertiaryAction() {
   document.getElementById('pg-onboarding-secondary').addEventListener('click', pgRunOnboardingSecondaryAction);
   document.getElementById('pg-onboarding-tertiary').addEventListener('click', pgRunOnboardingTertiaryAction);
 
-  // Auto-detect SQX install
-  document.getElementById('pg-autodetect').addEventListener('click', async function(){
-    const out = document.getElementById('pg-autodetect-results');
-    out.innerHTML = '<div style="color:var(--text2);font-size:12px;">🔍 Buscando instalaciones de SQX...</div>';
-    try {
-      const r = await pgFetch('/autodetect-sqx');
-      if (!r.found) {
-        out.innerHTML = '<div class="alert warning"><div class="alert-icon">⚠</div><div class="alert-content"><strong>No se encontró ninguna instalación de SQX.</strong>Edita los campos manualmente con la ruta donde esté StrategyQuantX.exe.</div></div>';
-        return;
-      }
-      out.innerHTML = '<div style="font-size:12px;color:var(--text2);margin-bottom:6px;">'+r.found+' instalación(es) detectada(s):</div>' +
-        r.candidates.map((c, i) =>
-          '<div class="pg-autodetect-row">' +
-            '<div style="flex:1;">' +
-              '<div style="font-weight:700;font-size:13px;">SQX v'+pgEsc(c.version)+(c.has_exe?' ✓':' ⚠ sin .exe')+'</div>' +
-              '<div style="font-family:Consolas,monospace;font-size:11px;color:var(--text2);">'+pgEsc(c.sqx_path)+'</div>' +
-              '<div style="font-family:Consolas,monospace;font-size:10px;color:var(--text2);">→ data.db: '+pgEsc(c.data_db)+'</div>' +
-            '</div>' +
-            '<button class="export-btn pg-use-btn" data-idx="'+i+'" style="border-color:var(--green);color:var(--green);">Usar esta</button>' +
-          '</div>'
-        ).join('');
-      // Bind use buttons
-      document.querySelectorAll('.pg-use-btn').forEach(btn => {
-        btn.addEventListener('click', function(){
-          const c = r.candidates[parseInt(this.dataset.idx, 10)];
-          document.getElementById('pg-sqx-path').value = c.sqx_path;
-          document.getElementById('pg-sqx-db').value = c.data_db;
-          document.getElementById('pg-sqx-projects').value = c.projects_dir;
-          pgLog('Path SQX seleccionado: ' + c.sqx_path + ' (pulsa Guardar config)', 'info');
-          pgTrace('Ruta SQX detectada', c.sqx_path, 'info');
-          out.innerHTML = '<div class="alert success"><div class="alert-icon">✓</div><div class="alert-content"><strong>Aplicado.</strong> Pulsa "💾 Guardar config" para persistir.</div></div>';
-        });
-      });
-    } catch(e) {
-      out.innerHTML = '<div style="color:var(--red);font-size:12px;">Error: '+pgEsc(e.message)+'</div>';
-    }
-  });
+  document.getElementById('pg-autodetect').addEventListener('click', pgAutodetectSqx);
 
   // Auto-sugerir aliases para todos los assets
   document.getElementById('pg-aliases-suggest').addEventListener('click', pgSuggestAll);
 
-  // Validar paths actuales
-  document.getElementById('pg-validate').addEventListener('click', async function(){
-    const path = document.getElementById('pg-sqx-path').value.trim();
-    const out = document.getElementById('pg-autodetect-results');
-    if (!path) { out.innerHTML = '<div style="color:var(--yellow);font-size:12px;">Pon primero un SQX install path.</div>'; return; }
-    try {
-      const r = await pgFetch('/validate-sqx-path', { method:'POST', body: { path } });
-      const c = r.checks;
-      const item = (label, ok) => '<li style="color:'+(ok?'var(--green)':'var(--red)')+';">'+(ok?'✓':'✗')+' '+label+'</li>';
-      out.innerHTML = '<div class="alert '+(r.valid?'success':'warning')+'"><div class="alert-icon">'+(r.valid?'✓':'⚠')+'</div><div class="alert-content"><strong>'+(r.valid?'Path válido':'Path con problemas')+'</strong>' +
-        '<ul style="margin-top:6px;padding-left:20px;font-size:12px;">' +
-          item('Directorio base existe', c.base_exists) +
-          item('user/data/data.db existe', c.data_db_exists) +
-          item('user/projects/ existe', c.projects_exists) +
-          item('StrategyQuantX.exe existe', c.exe_exists) +
-        '</ul></div></div>';
-      if (r.valid && r.resolved.data_db) {
-        document.getElementById('pg-sqx-db').value = r.resolved.data_db;
-        document.getElementById('pg-sqx-projects').value = r.resolved.projects_dir || '';
-        pgTrace('Validacion SQX correcta', path, 'ok');
-      }
-    } catch(e) {
-      out.innerHTML = '<div style="color:var(--red);font-size:12px;">Error: '+pgEsc(e.message)+'</div>';
-      pgTrace('Error validando SQX', e.message, 'err');
-    }
-  });
+  document.getElementById('pg-validate').addEventListener('click', pgValidateSqxPath);
 
   document.getElementById('pg-gen-all-c1').addEventListener('click', () => pgGenerateAll(1));
   document.getElementById('pg-gen-all-c2').addEventListener('click', () => pgGenerateAll(2));

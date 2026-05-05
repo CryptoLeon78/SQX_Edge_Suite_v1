@@ -284,6 +284,51 @@
     }).join('');
   }
 
+  function messageHtml(message, tone) {
+    var color = tone === 'error' ? 'var(--red)' : tone === 'warning' ? 'var(--yellow)' : 'var(--text2)';
+    return '<div style="color:' + color + ';font-size:12px;">' + escapeHtml(message) + '</div>';
+  }
+
+  function sqxNotFoundHtml() {
+    return '<div class="alert warning"><div class="alert-icon">!</div><div class="alert-content"><strong>No se encontro ninguna instalacion de SQX.</strong>Edita los campos manualmente con la ruta donde este StrategyQuantX.exe.</div></div>';
+  }
+
+  function sqxAppliedHtml() {
+    return '<div class="alert success"><div class="alert-icon">&#10003;</div><div class="alert-content"><strong>Aplicado.</strong> Pulsa "Guardar config" para persistir.</div></div>';
+  }
+
+  function autodetectCandidatesHtml(result) {
+    var candidates = (result && result.candidates) || [];
+    if (!result || !result.found) return sqxNotFoundHtml();
+    return '<div style="font-size:12px;color:var(--text2);margin-bottom:6px;">' + result.found + ' instalacion(es) detectada(s):</div>'
+      + candidates.map(function(candidate, index) {
+        return ''
+          + '<div class="pg-autodetect-row">'
+          +   '<div style="flex:1;">'
+          +     '<div style="font-weight:700;font-size:13px;">SQX v' + escapeHtml(candidate.version) + (candidate.has_exe ? ' &#10003;' : ' ! sin .exe') + '</div>'
+          +     '<div style="font-family:Consolas,monospace;font-size:11px;color:var(--text2);">' + escapeHtml(candidate.sqx_path) + '</div>'
+          +     '<div style="font-family:Consolas,monospace;font-size:10px;color:var(--text2);">-&gt; data.db: ' + escapeHtml(candidate.data_db) + '</div>'
+          +   '</div>'
+          +   '<button class="export-btn pg-use-btn" data-idx="' + index + '" style="border-color:var(--green);color:var(--green);">Usar esta</button>'
+          + '</div>';
+      }).join('');
+  }
+
+  function validationItemHtml(label, ok) {
+    return '<li style="color:' + (ok ? 'var(--green)' : 'var(--red)') + ';">' + (ok ? 'OK' : 'X') + ' ' + escapeHtml(label) + '</li>';
+  }
+
+  function validateSqxPathHtml(result) {
+    var checks = result.checks || {};
+    return '<div class="alert ' + (result.valid ? 'success' : 'warning') + '"><div class="alert-icon">' + (result.valid ? 'OK' : '!') + '</div><div class="alert-content"><strong>' + (result.valid ? 'Path valido' : 'Path con problemas') + '</strong>'
+      + '<ul style="margin-top:6px;padding-left:20px;font-size:12px;">'
+      + validationItemHtml('Directorio base existe', checks.base_exists)
+      + validationItemHtml('user/data/data.db existe', checks.data_db_exists)
+      + validationItemHtml('user/projects existe', checks.projects_exists)
+      + validationItemHtml('StrategyQuantX.exe existe', checks.exe_exists)
+      + '</ul></div></div>';
+  }
+
   function applyOnboardingState(state, doc) {
     var target = doc || global.document;
     var progress = target.getElementById('pg-onboarding-progress');
@@ -339,14 +384,19 @@
     aliasTableHtml: aliasTableHtml,
     applyOnboardingState: applyOnboardingState,
     applyStatusBanner: applyStatusBanner,
+    autodetectCandidatesHtml: autodetectCandidatesHtml,
     computeOnboardingState: computeOnboardingState,
     directionClass: directionClass,
     directionLabel: directionLabel,
     escapeHtml: escapeHtml,
     fetchJson: fetchJson,
+    messageHtml: messageHtml,
     miningRowsHtml: miningRowsHtml,
     outputListHtml: outputListHtml,
     prepareRequestOptions: prepareRequestOptions,
+    sqxAppliedHtml: sqxAppliedHtml,
+    sqxNotFoundHtml: sqxNotFoundHtml,
+    validateSqxPathHtml: validateSqxPathHtml,
     uniqueAssets: uniqueAssets
   };
 
