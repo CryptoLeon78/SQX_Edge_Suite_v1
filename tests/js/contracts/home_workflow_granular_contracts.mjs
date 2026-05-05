@@ -1,0 +1,91 @@
+import { assert, Element, createLoadedSandbox } from './harness.mjs';
+
+const { SQX, document } = createLoadedSandbox([
+  'app/js/modules/home.js',
+  'app/js/modules/workflow.js',
+]);
+
+assert.equal(SQX.modules.home, SQX.home);
+assert.equal(SQX.modules.workflow, SQX.workflow);
+
+assert.equal(SQX.home.escapeHtml('<x>&'), '&lt;x&gt;&amp;');
+assert.equal(SQX.home.trimAction('A'.repeat(90), 12), 'AAAAAAAAA...');
+const traceItem = SQX.home.createTraceItem('Title', 'Detail', 'ok', new Date('2026-05-05T10:00:00Z'));
+assert.equal(traceItem.title, 'Title');
+assert.equal(traceItem.level, 'ok');
+assert.equal(SQX.home.addTrace([{ title: 'old' }], traceItem, 1).length, 1);
+assert.match(SQX.home.traceHtml([traceItem]), /Title/);
+
+[
+  'home-assets-count', 'home-assets-sub', 'home-minings-count', 'home-plan-sub',
+  'home-strategies-count', 'home-strategies-sub', 'home-priority-count',
+  'home-next-action', 'home-backend-status', 'home-data-status',
+  'home-readiness-score', 'home-hero-status', 'home-audit-score',
+  'home-readiness-bar', 'home-check-manifest', 'home-check-plan',
+  'home-check-strategies', 'home-check-backend', 'home-audit-manifest',
+  'home-audit-manifest-detail', 'home-audit-plan', 'home-audit-plan-detail',
+  'home-audit-backend', 'home-audit-backend-detail', 'home-audit-templates',
+  'home-audit-templates-detail', 'home-audit-sqx', 'home-audit-sqx-detail',
+  'home-audit-output', 'home-audit-output-detail'
+].forEach(id => document.add(new Element(id)));
+
+const model = SQX.home.computeHomeModel({
+  assets: [{ type: 'forex' }, { type: 'index' }],
+  planMinings: [{ num: 1 }],
+  strategies: [{ id: 'A' }],
+  strategiesUser: [{ id: 'U' }],
+  priorityProgress: { a: true, b: true },
+  pipelineState: { nextAction: 'Review candidates' },
+  phaseMeta: { 1: {} },
+  backendState: { state: 'down', title: 'API down', meta: {} },
+  catKeys: ['trend', 'momentum'],
+  manifestVersion: 2,
+});
+assert.equal(model.readiness, 75);
+assert.equal(model.auditScore, '2/6');
+assert.equal(model.strategiesSub, '1 base · 1 importadas');
+SQX.home.applyHomeModel(model, document);
+assert.equal(document.getElementById('home-readiness-score').textContent, '75%');
+assert.equal(document.getElementById('home-audit-score').textContent, '2/6');
+assert.equal(document.getElementById('home-readiness-bar').style.width, '75%');
+assert.equal(document.getElementById('home-check-backend').classList.contains('is-warn'), true);
+
+const tabA = document.add(new Element('wf-main-tab', ['subtab', 'active'], { subtab: 'wf-main' }));
+const tabB = document.add(new Element('wf-rules-tab', ['subtab'], { subtab: 'wf-rules' }));
+const panelA = document.add(new Element('wf-main', ['subtab-content', 'active']));
+const panelB = document.add(new Element('wf-rules', ['subtab-content']));
+assert.equal(SQX.workflow.bindSubtabs({ document }), 2);
+tabB.click();
+assert.equal(tabA.classList.contains('active'), false);
+assert.equal(tabB.classList.contains('active'), true);
+assert.equal(panelA.classList.contains('active'), false);
+assert.equal(panelB.classList.contains('active'), true);
+
+const writes = [];
+const box = document.add(new Element('check-one', [], { check: 'capa1-alpha' }));
+box.tagName = 'input';
+box.type = 'checkbox';
+const clear = document.add(new Element('clear-capa1', [], { checklistClear: 'capa1' }));
+clear.tagName = 'button';
+const checklist = SQX.workflow.bindChecklist({
+  document,
+  key: 'wf-key',
+  storage: {
+    getJson: () => ({ 'capa1-alpha': true }),
+    setJson: (_key, value) => { writes.push(Object.assign({}, value)); return true; },
+  },
+  confirm: () => true,
+});
+assert.equal(checklist.key, 'wf-key');
+assert.equal(checklist.checkboxCount, 1);
+assert.equal(box.checked, true);
+box.checked = false;
+box.dispatch('change', { target: box });
+assert.equal(writes[writes.length - 1]['capa1-alpha'], undefined);
+box.checked = true;
+box.dispatch('change', { target: box });
+clear.click();
+assert.equal(box.checked, false);
+assert.equal(SQX.workflow.resolveChecklistKey({ storageKey: (_name, fallback) => `x-${fallback}` }, 'fallback'), 'x-fallback');
+
+console.log('home workflow granular contracts ok');
