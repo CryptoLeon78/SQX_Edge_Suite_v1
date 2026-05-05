@@ -230,6 +230,50 @@
       + '</table>';
   }
 
+  function aliasTopSuggestions(suggestions, limit) {
+    return (suggestions || []).slice(0, limit || 5);
+  }
+
+  function aliasSuggestionPrompt(asset, suggestions) {
+    var top = aliasTopSuggestions(suggestions, 5);
+    var options = top.map(function(suggestion, index) {
+      return (index + 1) + '. ' + suggestion.instrument + ' [' + suggestion.score + '%] — '
+        + (suggestion.description || '') + ' (broker_id=' + suggestion.broker_id + ')';
+    }).join('\n');
+    return 'Sugerencias para "' + asset + '":\n\n'
+      + options
+      + '\n\nElige número (1-' + top.length + ') o escribe el ticker manualmente:';
+  }
+
+  function aliasChoiceValue(choice, suggestions) {
+    var raw = String(choice || '').trim();
+    if (!raw) return '';
+    var top = aliasTopSuggestions(suggestions, 5);
+    var index = parseInt(raw, 10);
+    if (index >= 1 && index <= top.length) return top[index - 1].instrument;
+    return raw;
+  }
+
+  function aliasProposedMessage(asset, instrument) {
+    return 'Alias propuesto: ' + asset + ' → ' + instrument + ' (pulsa Guardar config)';
+  }
+
+  function aliasSuggestionEmptyMessage(asset) {
+    return 'Sin sugerencias para ' + asset + ' en data.db';
+  }
+
+  function aliasAutoSuggestStartMessage(count) {
+    return 'Auto-sugiriendo para ' + (count || 0) + ' assets…';
+  }
+
+  function aliasAutoSuggestResult(found) {
+    var count = found || 0;
+    return {
+      text: 'Auto-suggest: ' + count + ' aliases nuevos propuestos (pulsa Guardar config)',
+      level: count > 0 ? 'ok' : 'info'
+    };
+  }
+
   function directionClass(direction) {
     return direction === 'long' ? 'long' : direction === 'short' ? 'short' : 'both';
   }
@@ -506,6 +550,13 @@
 
   SQX.projectGenerator = SQX.projectGenerator || {
     aliasTableHtml: aliasTableHtml,
+    aliasAutoSuggestResult: aliasAutoSuggestResult,
+    aliasAutoSuggestStartMessage: aliasAutoSuggestStartMessage,
+    aliasChoiceValue: aliasChoiceValue,
+    aliasProposedMessage: aliasProposedMessage,
+    aliasSuggestionEmptyMessage: aliasSuggestionEmptyMessage,
+    aliasSuggestionPrompt: aliasSuggestionPrompt,
+    aliasTopSuggestions: aliasTopSuggestions,
     applyOnboardingState: applyOnboardingState,
     applyStatusBanner: applyStatusBanner,
     autodetectCandidatesHtml: autodetectCandidatesHtml,

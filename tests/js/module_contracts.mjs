@@ -209,6 +209,28 @@ assert.match(csvRows[1], /"IMPORTED"$/);
 const consolidated = SQX.strategies.consolidateJson([imported]);
 assert.equal(JSON.parse(consolidated).strategies[0]._imported, undefined);
 
+const aliasSuggestions = [
+  { instrument: 'EURUSD_M1', score: 96, description: 'Major', broker_id: 10 },
+  { instrument: 'EURUSD_M5', score: 88, description: '', broker_id: 11 },
+  { instrument: 'EURUSD_H1', score: 82, description: 'Alt', broker_id: 12 },
+  { instrument: 'EURUSD_H4', score: 81, description: 'Alt', broker_id: 13 },
+  { instrument: 'EURUSD_D1', score: 80, description: 'Alt', broker_id: 14 },
+  { instrument: 'EURUSD_W1', score: 79, description: 'Ignored', broker_id: 15 },
+];
+assert.equal(SQX.projectGenerator.aliasTopSuggestions(aliasSuggestions, 5).length, 5);
+assert.match(SQX.projectGenerator.aliasSuggestionPrompt('EURUSD', aliasSuggestions), /1\. EURUSD_M1 \[96%\]/);
+assert.doesNotMatch(SQX.projectGenerator.aliasSuggestionPrompt('EURUSD', aliasSuggestions), /EURUSD_W1/);
+assert.equal(SQX.projectGenerator.aliasChoiceValue('2', aliasSuggestions), 'EURUSD_M5');
+assert.equal(SQX.projectGenerator.aliasChoiceValue(' CUSTOM ', aliasSuggestions), 'CUSTOM');
+assert.equal(SQX.projectGenerator.aliasChoiceValue('', aliasSuggestions), '');
+assert.equal(SQX.projectGenerator.aliasSuggestionEmptyMessage('GBPUSD'), 'Sin sugerencias para GBPUSD en data.db');
+assert.equal(SQX.projectGenerator.aliasProposedMessage('EURUSD', 'EURUSD_M1'), 'Alias propuesto: EURUSD → EURUSD_M1 (pulsa Guardar config)');
+assert.equal(SQX.projectGenerator.aliasAutoSuggestStartMessage(3), 'Auto-sugiriendo para 3 assets…');
+const aliasAutoResult = SQX.projectGenerator.aliasAutoSuggestResult(1);
+assert.equal(aliasAutoResult.text, 'Auto-suggest: 1 aliases nuevos propuestos (pulsa Guardar config)');
+assert.equal(aliasAutoResult.level, 'ok');
+assert.equal(SQX.projectGenerator.aliasAutoSuggestResult(0).level, 'info');
+
 document.addTab('inicio', true);
 document.addTab('pipeline', false);
 assert.equal(SQX.ui.activateTabById('pipeline', document), true);

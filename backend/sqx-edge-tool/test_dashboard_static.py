@@ -222,6 +222,13 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         expected_exports = [
             "aliasTableHtml",
+            "aliasAutoSuggestResult",
+            "aliasAutoSuggestStartMessage",
+            "aliasChoiceValue",
+            "aliasProposedMessage",
+            "aliasSuggestionEmptyMessage",
+            "aliasSuggestionPrompt",
+            "aliasTopSuggestions",
             "applyOnboardingState",
             "applyStatusBanner",
             "autodetectCandidatesHtml",
@@ -258,6 +265,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.computeOnboardingState", main_js)
         self.assertIn("SQX_PG_MODULE.applyOnboardingState", main_js)
         self.assertIn("SQX_PG_MODULE.applyStatusBanner", main_js)
+        self.assertIn("SQX_PG_MODULE.aliasSuggestionPrompt", main_js)
+        self.assertIn("SQX_PG_MODULE.aliasChoiceValue", main_js)
+        self.assertIn("SQX_PG_MODULE.aliasAutoSuggestResult", main_js)
         self.assertIn("SQX_PG_MODULE.escapeHtml", main_js)
         self.assertIn("SQX_PG_MODULE.fetchJson", main_js)
         self.assertNotIn("const hasSqxInput = ", main_js)
@@ -267,6 +277,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("function pgDirClass", main_js)
         self.assertNotIn("function pgDirLabel", main_js)
         self.assertNotIn("fetch(PG_API + '/minings'", main_js)
+        self.assertNotIn("const opts = top.map", main_js)
+        self.assertNotIn("const idx = parseInt(choice, 10)", main_js)
+        self.assertNotIn("Auto-suggest: ' + found", main_js)
         self.assertNotIn("pg-output-empty", main_js)
         self.assertIn("addEventListener('click', pgAutodetectSqx)", main_js)
         self.assertIn("addEventListener('click', pgValidateSqxPath)", main_js)

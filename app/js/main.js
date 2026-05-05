@@ -191,29 +191,24 @@ async function pgSuggestForAsset(asset) {
   try {
     const r = await pgFetch('/suggest-instruments/' + asset);
     if (!r.suggestions || !r.suggestions.length) {
-      pgLog('Sin sugerencias para ' + asset + ' en data.db', 'err');
+      pgLog(SQX_PG_MODULE.aliasSuggestionEmptyMessage(asset), 'err');
       pgRenderOnboarding();
       return;
     }
-    // Mostrar prompt simple con las top 5 sugerencias
-    const top = r.suggestions.slice(0, 5);
-    const opts = top.map((s, i) => (i+1) + '. ' + s.instrument + ' [' + s.score + '%] — ' + (s.description || '') + ' (broker_id=' + s.broker_id + ')').join('\n');
-    const choice = prompt('Sugerencias para "' + asset + '":\n\n' + opts + '\n\nElige número (1-' + top.length + ') o escribe el ticker manualmente:', '1');
+    const choice = prompt(SQX_PG_MODULE.aliasSuggestionPrompt(asset, r.suggestions), '1');
     if (!choice) return;
-    let chosen = '';
-    const idx = parseInt(choice, 10);
-    if (idx >= 1 && idx <= top.length) chosen = top[idx - 1].instrument;
-    else chosen = choice.trim();
+    const chosen = SQX_PG_MODULE.aliasChoiceValue(choice, r.suggestions);
+    if (!chosen) return;
     PG_ALIASES[asset] = chosen;
     document.querySelector('input[data-pg-alias="' + asset + '"]').value = chosen;
-    pgLog('Alias propuesto: ' + asset + ' → ' + chosen + ' (pulsa Guardar config)', 'info');
+    pgLog(SQX_PG_MODULE.aliasProposedMessage(asset, chosen), 'info');
     pgTrace('Alias propuesto', asset + ' -> ' + chosen, 'info');
   } catch(e) { pgLog('Error sugiriendo: ' + e.message, 'err'); }
 }
 
 async function pgSuggestAll() {
   const inputs = document.querySelectorAll('input[data-pg-alias]');
-  pgLog('Auto-sugiriendo para ' + inputs.length + ' assets…', 'info');
+  pgLog(SQX_PG_MODULE.aliasAutoSuggestStartMessage(inputs.length), 'info');
   let found = 0;
   for (const inp of inputs) {
     const asset = inp.dataset.pgAlias;
@@ -228,7 +223,8 @@ async function pgSuggestAll() {
       }
     } catch {}
   }
-  pgLog('Auto-suggest: ' + found + ' aliases nuevos propuestos (pulsa Guardar config)', found > 0 ? 'ok' : 'info');
+  const result = SQX_PG_MODULE.aliasAutoSuggestResult(found);
+  pgLog(result.text, result.level);
 }
 
 async function pgLoadMinings() {
