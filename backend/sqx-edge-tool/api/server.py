@@ -35,7 +35,13 @@ from flask import Flask, abort, jsonify, request  # type: ignore
 
 from core import all_minings, generate_project, get_mining
 from core.config_loader import load_manifest
-from core.license_manager import check_feature, license_status, load_product_manifest
+from core.license_manager import (
+    check_feature,
+    clear_license_file,
+    import_license_payload,
+    license_status,
+    load_product_manifest,
+)
 from core.project_generator import DEFAULT_BROKER_POSTFIX, resolve_costs
 from core.sqx_db import SqxDb
 from core.strategy_cleaner import (
@@ -363,6 +369,21 @@ def api_license_check():
         return jsonify({"ok": False, "error": "missing feature"}), 400
     result = check_feature(feature)
     return jsonify(result), 200 if result.get("allowed") else 402
+
+
+@app.post("/api/license/import")
+def api_license_import():
+    data = request.get_json(silent=True) or {}
+    payload = data.get("license") if isinstance(data.get("license"), dict) else data
+    if not isinstance(payload, dict):
+        return jsonify({"ok": False, "error": "license payload must be an object"}), 400
+    result = import_license_payload(payload)
+    return jsonify(result), 200 if result.get("ok") else 400
+
+
+@app.post("/api/license/clear")
+def api_license_clear():
+    return jsonify(clear_license_file())
 
 
 @app.get("/api/support/diagnostics")

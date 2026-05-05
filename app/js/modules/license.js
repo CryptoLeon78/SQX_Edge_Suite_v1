@@ -10,9 +10,15 @@
   var accessLevels = product.accessLevels || {};
   var features = product.features || {};
   var storageKey = licensing.storageKey || 'sqx_license_state_v1';
+  var backendStatus = null;
 
   function byId(id) {
     return global.document.getElementById(id);
+  }
+
+  function apiBase() {
+    if (raw.apiBase) return raw.apiBase().replace(/\/$/, '');
+    return 'http://127.0.0.1:5050/api';
   }
 
   function escapeHtml(value) {
@@ -142,11 +148,30 @@
   }
 
   function currentStatus() {
+    if (backendStatus && typeof backendStatus === 'object') return backendStatus;
     var build = product.build || {};
     if (build.channel === 'internal') return buildStatus();
     var payload = getJson(storageKey, null);
     if (payload && typeof payload === 'object') return statusFromLicense(payload);
     return buildStatus();
+  }
+
+  async function fetchJson(path, options) {
+    var response = await fetch(apiBase() + path, options);
+    var payload = await response.json();
+    if (!response.ok || payload.ok === false) {
+      throw new Error(payload.message || payload.error || 'license request failed');
+    }
+    return payload;
+  }
+
+  async function refreshBackendStatus() {
+    try {
+      backendStatus = await fetchJson('/license/status');
+    } catch (_err) {
+      backendStatus = null;
+    }
+    return renderPanel();
   }
 
   function hasFeature(feature) {
@@ -224,23 +249,35 @@
     if (featureListEl) featureListEl.innerHTML = featureRows(status);
     if (note) {
       note.textContent = status.active
-        ? 'Capacidades habilitadas para esta build.'
+        ? 'Capacidades habilitadas para esta licencia.'
         : (upgrade.primaryMessage || 'Esta funcion forma parte de SQX Edge Pro.');
     }
     return status;
   }
 
-  function importLicenseText(text) {
+  async function importLicenseText(text) {
     var payload = JSON.parse(text);
     if (!payload || typeof payload !== 'object') {
       throw new Error('license payload must be an object');
     }
+    var result = await fetchJson('/license/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    backendStatus = result.status || result.import_status || null;
     setJson(storageKey, payload);
     return renderPanel();
   }
 
-  function clearLicense() {
+  async function clearLicense() {
     remove(storageKey);
+    try {
+      var result = await fetchJson('/license/clear', { method: 'POST' });
+      backendStatus = result.status || null;
+    } catch (_err) {
+      backendStatus = null;
+    }
     return renderPanel();
   }
 
@@ -251,18 +288,18 @@
     var feedback = byId('license-feedback');
 
     if (importBtn && input) {
-      importBtn.addEventListener('click', function() {
+      importBtn.addEventListener('click', async function() {
         try {
-          importLicenseText(input.value || '{}');
-          if (feedback) feedback.textContent = 'Licencia cargada localmente.';
+          await importLicenseText(input.value || '{}');
+          if (feedback) feedback.textContent = 'Licencia firmada cargada y verificada.';
         } catch (err) {
           if (feedback) feedback.textContent = 'No se pudo leer la licencia: ' + err.message;
         }
       });
     }
     if (clearBtn) {
-      clearBtn.addEventListener('click', function() {
-        clearLicense();
+      clearBtn.addEventListener('click', async function() {
+        await clearLicense();
         if (feedback) feedback.textContent = 'Licencia local eliminada.';
       });
     }
@@ -271,15 +308,19 @@
   function init() {
     renderPanel();
     bindPanel();
+    refreshBackendStatus();
   }
 
   SQX.license = SQX.license || {
+    apiBase: apiBase,
     bindPanel: bindPanel,
     clearLicense: clearLicense,
     currentStatus: currentStatus,
+    fetchJson: fetchJson,
     hasFeature: hasFeature,
     importLicenseText: importLicenseText,
     renderPanel: renderPanel,
+    refreshBackendStatus: refreshBackendStatus,
     storageKey: storageKey,
     init: init
   };

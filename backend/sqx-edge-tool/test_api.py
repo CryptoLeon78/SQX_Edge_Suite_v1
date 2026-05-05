@@ -55,6 +55,29 @@ class ApiTestCase(unittest.TestCase):
         missing = self.client.post("/api/license/check", json={})
         self.assertEqual(missing.status_code, 400)
 
+    def test_license_import_and_clear_endpoints_delegate_to_manager(self):
+        imported = {
+            "ok": True,
+            "installed": True,
+            "status": {"ok": True, "state": "pro_active"},
+        }
+        with patch.object(server, "import_license_payload", return_value=imported) as importer:
+            response = self.client.post("/api/license/import", json={"license_id": "LIC-1", "plan": "pro_monthly"})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.get_json(response)["installed"])
+        importer.assert_called_once()
+
+        rejected = {"ok": False, "installed": False, "error": "invalid_signature"}
+        with patch.object(server, "import_license_payload", return_value=rejected):
+            bad = self.client.post("/api/license/import", json={"license_id": "LIC-1"})
+        self.assertEqual(bad.status_code, 400)
+        self.assertEqual(self.get_json(bad)["error"], "invalid_signature")
+
+        with patch.object(server, "clear_license_file", return_value={"ok": True, "removed": True}):
+            cleared = self.client.post("/api/license/clear")
+        self.assertEqual(cleared.status_code, 200)
+        self.assertTrue(self.get_json(cleared)["removed"])
+
     def test_support_diagnostics_endpoint_redacts_sensitive_values(self):
         sensitive_path = r"C:\Users\Ivan SQX\Private\StrategyQuantX"
         cfg = {

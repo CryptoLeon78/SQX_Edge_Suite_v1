@@ -807,8 +807,16 @@ window.SQX_MANIFEST = {
       "storageKey": "sqx_license_state_v1",
       "licenseFile": "config/license.json",
       "graceDays": 7,
-      "signatureMode": "public_key_future",
-      "manualBetaDelivery": true
+      "signatureMode": "rsa_sha256_pkcs1_v1_5",
+      "signatureAlgorithm": "RS256",
+      "manualBetaDelivery": true,
+      "publicKey": {
+        "kty": "RSA",
+        "kid": "sqx-prod-2026-05-placeholder",
+        "alg": "RS256",
+        "n": "rn0HogKI_r59abwzTUhgZAQsCKCq4qsMD8pW3nGsSoV_1iwOFotw4YEXm-rRaYNjgMydgYAMiBgblGMKv8SI8aYcIYEzMpIe7jw7LZSdwqiqhbTU7wTUh-rLhUDCkw2es5syqK1-IH_XWavaIJoVHKPk3wmBVkqtjOjdfFqXOq3EoG0-kRQiEDSk6vG9ow2zzThMFMpR01nRMvbWmOeR20NpEY_WQnse0Db-z2QvA9p5J81jqCk28VGz9EzqgbWMVycX21_QNGUD6hcWshSE7jItWJUbSbOUcme-GMnmMcSlDiQ_rugZxqD7-oV2vmhUsVQR768QjsTHuByNiXqphQ",
+        "e": "AQAB"
+      }
     },
     "security": {
       "apiBoundary": "local_only",
@@ -826,7 +834,8 @@ window.SQX_MANIFEST = {
         "output",
         "node_modules",
         "venv",
-        ".git"
+        ".git",
+        "backend/sqx-edge-tool/tools/license_signer.py"
       ],
       "releaseAudit": "backend/sqx-edge-tool/tools/audit_distribution.ps1"
     },

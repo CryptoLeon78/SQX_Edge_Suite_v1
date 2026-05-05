@@ -49,6 +49,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn('"node_modules"', text)
         self.assertIn("RELEASE_SQX_EDGE", text)
         self.assertIn("license\\.json", text)
+        self.assertIn("license_signer\\.py", text)
         self.assertIn("\\\\.env", text)
 
     def test_release_checklist_validates_portable_user_flow(self):
@@ -63,6 +64,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("START_SQX_EDGE.bat", text)
         self.assertIn("project-generator-dom.js", text)
         self.assertIn("RELEASE_SQX_EDGE.bat", text)
+        self.assertIn("license_signer.py", text)
         self.assertIn("/api/health", text)
         self.assertIn("runtime\\python\\python.exe", text)
         self.assertIn("RequireCleanGit", text)
@@ -74,6 +76,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         for pattern in (
             "config.json",
             "license.json",
+            "license_signer.py",
             ".env",
             ".git",
             "node_modules",

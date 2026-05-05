@@ -29,6 +29,7 @@ $denySegments = @(
 $denyFiles = @(
   "config.json",
   "license.json",
+  "license_signer.py",
   ".env",
   "RELEASE_SQX_EDGE.bat"
 )
@@ -44,6 +45,7 @@ $requiredPackageGuards = @(
   '".playwright-cli"',
   'config\.json',
   'license\.json',
+  'license_signer\.py',
   '\\\.env',
   'RELEASE_SQX_EDGE'
 )

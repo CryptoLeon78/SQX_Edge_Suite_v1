@@ -22,6 +22,13 @@ Documentos comerciales:
 - `docs/MONETIZATION_ROADMAP.md`
 - `docs/PUBLIC_ROADMAP.md`
 
+Activacion Pro prevista:
+
+- El usuario recibe un JSON de licencia firmado.
+- Lo pega en Inicio -> Licencia -> Cargar licencia.
+- La API local verifica la firma offline y guarda `backend/sqx-edge-tool/config/license.json`.
+- La licencia y la clave privada de firma nunca se incluyen en el ZIP portable.
+
 ## Entrega Final
 
 Paquete recomendado para usuario final:

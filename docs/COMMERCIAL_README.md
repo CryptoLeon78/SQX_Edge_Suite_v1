@@ -43,9 +43,14 @@ SQX Edge Pro:
 2. Descomprimir en una carpeta normal.
 3. Hacer doble click en `START_SQX_EDGE.bat`.
 4. Abrir Inicio.
-5. Activar licencia Pro cuando este disponible.
+5. Pegar el JSON de licencia firmado en Inicio -> Licencia.
+6. Pulsar `Cargar licencia`.
 
 No hace falta instalar Python.
+
+## Activation
+
+SQX Edge Pro usa una licencia local firmada y verificada offline. La app solo incluye la public key; la private key de firma se mantiene fuera del paquete portable.
 
 ## Responsible Notice
 

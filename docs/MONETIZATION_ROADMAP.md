@@ -178,3 +178,27 @@ Decision M7:
 - El JSON descargado excluye rutas personales, licencia, estrategias y localStorage.
 - El diagnostico resume version, runtime, build, config checks, manifests y distribucion.
 - La fase mantiene soporte manual sin telemetria automatica.
+
+## Phase M8 - Offline Signed License Activation
+
+Objetivo: activar SQX Edge Pro con licencia local firmada y verificacion offline.
+
+Entregables:
+
+- Verificacion RSA-SHA256 sin dependencias externas.
+- Importacion de licencia firmada a `config/license.json`.
+- Limpieza de licencia local.
+- Estado `pro_active` cuando la licencia es valida.
+- Rechazo de licencias manipuladas.
+- Tool dev para firmar licencias fuera del ZIP.
+
+Estado: Done.
+
+Decision M8:
+
+- El backend verifica `rsa_sha256_pkcs1_v1_5` (`RS256`) con public key en `product_manifest.json`.
+- La private key queda fuera del repo y fuera del ZIP portable.
+- `POST /api/license/import` instala solo licencias firmadas validas.
+- `POST /api/license/clear` limpia la licencia local.
+- Una licencia Pro valida habilita `project_generator.generate` y `strategy_cleaner.apply`.
+- Una licencia expirada o manipulada no borra datos, pero vuelve a features Free.

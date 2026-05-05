@@ -18,6 +18,7 @@ MONETIZATION_M4_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M4.md"
 MONETIZATION_M5_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M5.md"
 MONETIZATION_M6_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M6.md"
 MONETIZATION_M7_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M7.md"
+MONETIZATION_M8_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M8.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -657,6 +658,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "hasFeature",
             "importLicenseText",
             "renderPanel",
+            "refreshBackendStatus",
             "storageKey",
         ]:
             with self.subTest(export=export):
@@ -672,13 +674,20 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("De idea a pipeline operativo SQX", product_manifest["marketing"]["tagline"])
         self.assertEqual(product_manifest["security"]["apiBoundary"], "local_only")
         self.assertIn("config/license.json", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertEqual(product_manifest["licensing"]["signatureMode"], "rsa_sha256_pkcs1_v1_5")
+        self.assertEqual(product_manifest["licensing"]["signatureAlgorithm"], "RS256")
+        self.assertIn("publicKey", product_manifest["licensing"])
         self.assertIn("/api/license/status", server_py)
         self.assertIn("/api/license/check", server_py)
+        self.assertIn("/api/license/import", server_py)
+        self.assertIn("/api/license/clear", server_py)
         self.assertIn("def require_feature", server_py)
         self.assertIn('require_feature("project_generator.generate")', server_py)
         self.assertIn('require_feature("strategy_cleaner.apply")', server_py)
         self.assertIn("def check_feature", license_py)
-        self.assertIn("pro_pending", license_py)
+        self.assertIn("verify_license_signature", license_py)
+        self.assertIn("rsa_sha256_pkcs1_v1_5", license_py)
+        self.assertIn("pro_active", license_py)
 
     def test_pipeline_mobile_layout_has_overflow_guards(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
@@ -709,7 +718,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m7_decisions(self):
+    def test_monetization_docs_capture_m1_to_m8_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -718,6 +727,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m5 = MONETIZATION_M5_DOC.read_text(encoding="utf-8-sig")
         m6 = MONETIZATION_M6_DOC.read_text(encoding="utf-8-sig")
         m7 = MONETIZATION_M7_DOC.read_text(encoding="utf-8-sig")
+        m8 = MONETIZATION_M8_DOC.read_text(encoding="utf-8-sig")
         commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
         public_roadmap = (PROJECT_ROOT / "docs" / "PUBLIC_ROADMAP.md").read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
@@ -729,12 +739,14 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M5", roadmap)
         self.assertIn("Phase M6", roadmap)
         self.assertIn("Phase M7", roadmap)
+        self.assertIn("Phase M8", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
         self.assertIn("Phase M5: prepare branding and go-to-market assets. Done.", next_steps)
         self.assertIn("Phase M6: run security and distribution audit. Done.", next_steps)
         self.assertIn("Phase M7: design support and diagnostics flow. Done.", next_steps)
+        self.assertIn("Phase M8: implement offline signed license activation. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -838,6 +850,21 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in m7_patterns:
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, m7)
+
+        m8_patterns = [
+            "rsa_sha256_pkcs1_v1_5",
+            "RS256",
+            "GET /api/license/status",
+            "POST /api/license/import",
+            "POST /api/license/clear",
+            "license_signer.py",
+            "private key",
+            "config/license.json",
+            "pro_active",
+        ]
+        for pattern in m8_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m8)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
