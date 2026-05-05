@@ -86,17 +86,116 @@ function pgFocusSettingsField(id) {
   setTimeout(() => target.focus(), 90);
 }
 
+function pgDom(id) {
+  return document.getElementById(id);
+}
+
+function pgInputValue(id) {
+  return (pgDom(id) || {}).value || '';
+}
+
+function pgTrimmedInputValue(id) {
+  return pgInputValue(id).trim();
+}
+
+function pgSetInputValue(id, value) {
+  const input = pgDom(id);
+  if (input) input.value = value || '';
+}
+
+function pgSetText(id, text) {
+  const el = pgDom(id);
+  if (el) el.textContent = text;
+}
+
+function pgSetHtml(id, html) {
+  const el = pgDom(id);
+  if (el) el.innerHTML = html;
+  return el;
+}
+
+function pgReadConfigInputs() {
+  return {
+    sqxPath: pgTrimmedInputValue('pg-sqx-path'),
+    sqxDataDb: pgTrimmedInputValue('pg-sqx-db'),
+    sqxProjectsDir: pgTrimmedInputValue('pg-sqx-projects'),
+    outputDir: pgTrimmedInputValue('pg-output-dir'),
+    templateCapa1: pgTrimmedInputValue('pg-tpl-c1'),
+    templateCapa2: pgTrimmedInputValue('pg-tpl-c2'),
+    assetAliases: PG_STATE.aliases,
+  };
+}
+
+function pgWriteConfigInputs(config) {
+  const c = config || {};
+  pgSetInputValue('pg-sqx-path', c.sqx_path);
+  pgSetInputValue('pg-sqx-db', c.sqx_data_db);
+  pgSetInputValue('pg-sqx-projects', c.sqx_projects_dir);
+  pgSetInputValue('pg-output-dir', c.output_dir);
+  pgSetInputValue('pg-tpl-c1', c.template_capa1);
+  pgSetInputValue('pg-tpl-c2', c.template_capa2);
+}
+
+function pgApplySqxFields(fields) {
+  pgSetInputValue('pg-sqx-path', fields.sqxPath);
+  pgSetInputValue('pg-sqx-db', fields.dataDb);
+  pgSetInputValue('pg-sqx-projects', fields.projectsDir);
+}
+
+function pgApplySqxCandidate(candidate, outputEl) {
+  const fields = SQX_PG_MODULE.sqxCandidateFields(candidate);
+  const status = SQX_PG_MODULE.sqxCandidateSelectedStatus(candidate);
+  pgApplySqxFields(fields);
+  pgLog(status.logText, status.logLevel);
+  pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
+  pgRenderOnboarding();
+  if (outputEl) outputEl.innerHTML = SQX_PG_MODULE.sqxAppliedHtml();
+}
+
+function pgApplyValidatedSqxPath(path, response) {
+  const fields = SQX_PG_MODULE.validateSqxResolvedFields(response);
+  const trace = SQX_PG_MODULE.validateSqxTrace(path);
+  pgSetInputValue('pg-sqx-db', fields.dataDb);
+  pgSetInputValue('pg-sqx-projects', fields.projectsDir);
+  pgTrace(trace.title, trace.detail, trace.level);
+  pgRenderOnboarding();
+}
+
+function pgSetSettingsMessage(status) {
+  const msg = pgDom('pg-settings-msg');
+  if (!msg) return;
+  msg.textContent = status.message;
+  if (Object.prototype.hasOwnProperty.call(status, 'color')) msg.style.color = status.color;
+}
+
+function pgUpdateMiningSummary(count) {
+  pgSetText('pg-minings-count', SQX_PG_MODULE.miningsCountLabel(count));
+  pgSetText('pg-bulk-count', SQX_PG_MODULE.bulkGenerateLabel(count));
+}
+
+function pgRenderMiningsList(infos) {
+  pgSetHtml('pg-minings-table', SQX_PG_MODULE.miningRowsHtml(infos));
+  document.querySelectorAll('button[data-pg-gen]').forEach(btn => {
+    btn.addEventListener('click', () => pgGenerateOne(parseInt(btn.dataset.pgGen,10), parseInt(btn.dataset.pgCapa,10)));
+  });
+}
+
+function pgRenderOutputState(output) {
+  pgSetText('pg-output-count', output.countLabel);
+  pgSetHtml('pg-output-list', output.html);
+}
+
 function pgGetOnboardingState() {
   return SQX_PG_MODULE.computeOnboardingState({
     apiBase: PG_API,
     connected: PG_STATE.connected,
     configState: PG_STATE.config,
-    dbInput: (document.getElementById('pg-sqx-db') || {}).value,
+    dbInput: pgInputValue('pg-sqx-db'),
     healthMeta: PG_STATE.healthMeta,
     minings: PG_STATE.minings,
     outputDir: PG_STATE.outputDir,
     outputFiles: PG_STATE.outputFiles,
-    sqxPathInput: (document.getElementById('pg-sqx-path') || {}).value,
+    sqxPathInput: pgInputValue('pg-sqx-path'),
   });
 }
 
@@ -155,12 +254,7 @@ async function pgLoadConfig() {
   try {
     const c = await pgFetch('/config');
     PG_STATE.config = c || {};
-    document.getElementById('pg-sqx-path').value = c.sqx_path || '';
-    document.getElementById('pg-sqx-db').value = c.sqx_data_db || '';
-    document.getElementById('pg-sqx-projects').value = c.sqx_projects_dir || '';
-    document.getElementById('pg-output-dir').value = c.output_dir || '';
-    document.getElementById('pg-tpl-c1').value = c.template_capa1 || '';
-    document.getElementById('pg-tpl-c2').value = c.template_capa2 || '';
+    pgWriteConfigInputs(c);
     PG_STATE.aliases = c.asset_aliases || {};
     pgRenderAliases();
     pgRenderOnboarding();
@@ -233,16 +327,11 @@ async function pgLoadMinings() {
     const minings = await pgFetch('/minings');
     PG_STATE.minings = minings;
     PG_STATE.planCount = minings.length;
-    document.getElementById('pg-minings-count').textContent = SQX_PG_MODULE.miningsCountLabel(minings.length);
-    const bulkCount = document.getElementById('pg-bulk-count');
-    if (bulkCount) bulkCount.textContent = SQX_PG_MODULE.bulkGenerateLabel(minings.length);
+    pgUpdateMiningSummary(minings.length);
     const infos = await SQX_PG_MODULE.enrichMiningsWithSymbolInfo(minings, async asset => {
       return (await pgFetch('/symbol-info/' + asset)).info;
     });
-    document.getElementById('pg-minings-table').innerHTML = SQX_PG_MODULE.miningRowsHtml(infos);
-    document.querySelectorAll('button[data-pg-gen]').forEach(btn => {
-      btn.addEventListener('click', () => pgGenerateOne(parseInt(btn.dataset.pgGen,10), parseInt(btn.dataset.pgCapa,10)));
-    });
+    pgRenderMiningsList(infos);
     pgRenderOnboarding();
   } catch(e) { pgLog('Error cargando minings: ' + e.message, 'err'); }
 }
@@ -253,10 +342,7 @@ async function pgLoadOutput() {
     const output = SQX_PG_MODULE.outputState(r);
     PG_STATE.outputDir = output.outputDir;
     PG_STATE.outputFiles = output.files;
-    document.getElementById('pg-output-count').textContent = output.countLabel;
-    pgRenderOnboarding();
-    const list = document.getElementById('pg-output-list');
-    list.innerHTML = output.html;
+    pgRenderOutputState(output);
     pgRenderOnboarding();
   } catch(e) { pgLog('Error cargando output: ' + e.message, 'err'); }
 }
@@ -297,36 +383,25 @@ async function pgGenerateAll(capa) {
 }
 
 async function pgSaveConfig() {
-  const body = SQX_PG_MODULE.configSaveBody({
-    sqxPath: document.getElementById('pg-sqx-path').value.trim(),
-    sqxDataDb: document.getElementById('pg-sqx-db').value.trim(),
-    sqxProjectsDir: document.getElementById('pg-sqx-projects').value.trim(),
-    outputDir: document.getElementById('pg-output-dir').value.trim(),
-    templateCapa1: document.getElementById('pg-tpl-c1').value.trim(),
-    templateCapa2: document.getElementById('pg-tpl-c2').value.trim(),
-    assetAliases: PG_STATE.aliases,
-  });
-  const msg = document.getElementById('pg-settings-msg');
-  msg.textContent = 'Guardando…';
+  const body = SQX_PG_MODULE.configSaveBody(pgReadConfigInputs());
+  pgSetSettingsMessage({ message: 'Guardando…' });
   try {
     const r = await pgFetch('/config', { method:'POST', body });
     const status = SQX_PG_MODULE.configSaveStatus(r);
-    msg.textContent = status.message;
-    msg.style.color = status.color;
+    pgSetSettingsMessage(status);
     pgLog(status.logText, status.logLevel);
     pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
     await pgCheckHealth();
   } catch(e) {
     const status = SQX_PG_MODULE.configSaveError(e.message);
-    msg.textContent = status.message;
-    msg.style.color = status.color;
+    pgSetSettingsMessage(status);
     pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
   }
 }
 
 // ── Listeners Project Generator ──
 async function pgAutodetectSqx() {
-  const out = document.getElementById('pg-autodetect-results');
+  const out = pgDom('pg-autodetect-results');
   if (!out) return;
   out.innerHTML = SQX_PG_MODULE.messageHtml('Buscando instalaciones de SQX...', 'info');
   try {
@@ -336,15 +411,7 @@ async function pgAutodetectSqx() {
     document.querySelectorAll('.pg-use-btn').forEach(btn => {
       btn.addEventListener('click', function(){
         const c = r.candidates[parseInt(this.dataset.idx, 10)];
-        const fields = SQX_PG_MODULE.sqxCandidateFields(c);
-        const status = SQX_PG_MODULE.sqxCandidateSelectedStatus(c);
-        document.getElementById('pg-sqx-path').value = fields.sqxPath;
-        document.getElementById('pg-sqx-db').value = fields.dataDb;
-        document.getElementById('pg-sqx-projects').value = fields.projectsDir;
-        pgLog(status.logText, status.logLevel);
-        pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
-        pgRenderOnboarding();
-        out.innerHTML = SQX_PG_MODULE.sqxAppliedHtml();
+        pgApplySqxCandidate(c, out);
       });
     });
   } catch(e) {
@@ -353,8 +420,8 @@ async function pgAutodetectSqx() {
 }
 
 async function pgValidateSqxPath() {
-  const path = document.getElementById('pg-sqx-path').value.trim();
-  const out = document.getElementById('pg-autodetect-results');
+  const path = pgTrimmedInputValue('pg-sqx-path');
+  const out = pgDom('pg-autodetect-results');
   if (!out) return;
   if (!path) {
     out.innerHTML = SQX_PG_MODULE.validateSqxMissingPathHtml();
@@ -364,12 +431,7 @@ async function pgValidateSqxPath() {
     const r = await pgFetch('/validate-sqx-path', { method:'POST', body: { path } });
     out.innerHTML = SQX_PG_MODULE.validateSqxPathHtml(r);
     if (SQX_PG_MODULE.validateSqxShouldApply(r)) {
-      const fields = SQX_PG_MODULE.validateSqxResolvedFields(r);
-      const trace = SQX_PG_MODULE.validateSqxTrace(path);
-      document.getElementById('pg-sqx-db').value = fields.dataDb;
-      document.getElementById('pg-sqx-projects').value = fields.projectsDir;
-      pgTrace(trace.title, trace.detail, trace.level);
-      pgRenderOnboarding();
+      pgApplyValidatedSqxPath(path, r);
     }
   } catch(e) {
     out.innerHTML = SQX_PG_MODULE.messageHtml('Error: ' + e.message, 'error');
@@ -409,7 +471,7 @@ async function pgRunOnboardingAction() {
   }
   if (current.id === 'sqx') {
     pgSetSettingsOpen(true);
-    const path = document.getElementById('pg-sqx-path').value.trim();
+    const path = pgTrimmedInputValue('pg-sqx-path');
     if (path) await pgValidateSqxPath();
     else await pgAutodetectSqx();
     return;
