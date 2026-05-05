@@ -296,6 +296,51 @@
     font-size:12px;
     line-height:1.5;
   }
+  .license-commercial-copy {
+    display:grid;
+    gap:4px;
+    border:1px solid rgba(53,208,198,.18);
+    border-radius:8px;
+    background:rgba(53,208,198,.055);
+    padding:10px;
+  }
+  .license-commercial-copy strong {
+    color:var(--text);
+    font-size:13px;
+  }
+  .license-commercial-copy span {
+    color:var(--text2);
+    font-size:12px;
+    line-height:1.45;
+  }
+  .license-upgrade-list ul {
+    margin:0;
+    padding-left:16px;
+    color:var(--text2);
+    font-size:11px;
+    line-height:1.55;
+  }
+  .license-plan-strip {
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:6px;
+  }
+  .license-plan-strip span {
+    display:grid;
+    gap:2px;
+    border:1px solid rgba(148,163,184,.16);
+    border-radius:7px;
+    background:rgba(15,23,42,.28);
+    padding:7px;
+    color:var(--text2);
+    font-size:10px;
+    min-width:0;
+  }
+  .license-plan-strip strong {
+    color:var(--text);
+    font-size:10px;
+    white-space:nowrap;
+  }
   .license-badge {
     flex:0 0 auto;
     border:1px solid var(--border);
@@ -2478,6 +2523,9 @@
     .pg-status-banner .export-btn,
     .pg-onboarding-actions .export-btn {
       width:100%;
+    }
+    .license-plan-strip {
+      grid-template-columns:1fr;
     }
 
     .pg-assistant-checks {

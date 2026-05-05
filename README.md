@@ -2,6 +2,26 @@
 
 Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custom Projects `.cfx` para StrategyQuant X y limpiar estrategias `.sqx` post-mining.
 
+## SQX Edge Pro
+
+El proyecto esta preparando una edicion comercial Pro con suscripcion mensual/anual, soporte opcional y packs de plantillas alrededor de la herramienta.
+
+Oferta inicial prevista:
+
+- SQX Edge Free: descarga portable para probar el flujo.
+- SQX Edge Pro Mensual: 24 EUR/mes.
+- SQX Edge Pro Anual: 199 EUR/ano.
+- Setup Assist: instalacion y configuracion guiada.
+- Premium Template Pack 1: pack comercial separado.
+
+Aviso responsable: SQX Edge Pro no promete rentabilidad ni resultados financieros. La propuesta es productividad, orden, trazabilidad y reduccion de errores operativos dentro de StrategyQuant X.
+
+Documentos comerciales:
+
+- `docs/COMMERCIAL_README.md`
+- `docs/MONETIZATION_ROADMAP.md`
+- `docs/PUBLIC_ROADMAP.md`
+
 ## Entrega Final
 
 Paquete recomendado para usuario final:

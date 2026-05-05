@@ -113,10 +113,53 @@
     }
   },
   "upgrade": {
-    "primaryMessage": "Esta funcion forma parte de SQX Edge Pro.",
-    "secondaryMessage": "Activa Pro para usar Project Generator, Strategy Cleaner y workflows premium.",
+    "headline": "SQX Edge Pro",
+    "primaryMessage": "Convierte tu flujo SQX en un pipeline guiado, repetible y listo para trabajar.",
+    "secondaryMessage": "Activa Pro para usar Project Generator, Strategy Cleaner, workflows premium y export avanzado.",
+    "bullets": [
+      "Genera Custom Projects .cfx desde tu plan de minings.",
+      "Limpia y normaliza estrategias .sqx con preview seguro.",
+      "Mantiene trazabilidad local de activos, pipeline y estrategias.",
+      "Pensado para usuarios no tecnicos: portable, local y de un click."
+    ],
+    "plans": [
+      {
+        "id": "pro_monthly",
+        "label": "Pro Mensual",
+        "price": "24 EUR/mes"
+      },
+      {
+        "id": "pro_annual",
+        "label": "Pro Anual",
+        "price": "199 EUR/ano"
+      },
+      {
+        "id": "setup_assist",
+        "label": "Setup Assist",
+        "price": "149 EUR"
+      }
+    ],
+    "disclaimer": "No promete rentabilidad ni resultados financieros. La propuesta es productividad, orden y reduccion de errores operativos.",
     "checkoutProvider": "Lemon Squeezy",
+    "checkoutLabel": "Comprar Pro",
     "checkoutUrl": ""
+  },
+  "marketing": {
+    "tagline": "De idea a pipeline operativo SQX con menos friccion.",
+    "audience": "Usuarios de StrategyQuant X que quieren ordenar generacion, limpieza y validacion sin depender de scripts manuales.",
+    "promise": "Menos trabajo repetitivo, mas trazabilidad y una entrega portable facil de usar.",
+    "safeClaims": [
+      "Ahorra tiempo preparando proyectos SQX.",
+      "Reduce errores de rutas, plantillas y exports.",
+      "Mantiene tu pipeline documentado y repetible.",
+      "Funciona localmente y no requiere instalar Python."
+    ],
+    "avoidClaims": [
+      "beneficios garantizados",
+      "estrategias ganadoras",
+      "rentabilidad asegurada",
+      "resultados financieros garantizados"
+    ]
   },
   "releaseProfiles": {
     "free": {

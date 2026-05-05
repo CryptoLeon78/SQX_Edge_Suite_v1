@@ -165,6 +165,18 @@
     }).join('');
   }
 
+  function upgradeBullets(upgrade) {
+    return (upgrade.bullets || []).slice(0, 4).map(function(item) {
+      return '<li>' + escapeHtml(item) + '</li>';
+    }).join('');
+  }
+
+  function planStrip(upgrade) {
+    return (upgrade.plans || []).slice(0, 3).map(function(plan) {
+      return '<span><strong>' + escapeHtml(plan.label) + '</strong>' + escapeHtml(plan.price) + '</span>';
+    }).join('');
+  }
+
   function stateClass(state) {
     if (state === 'internal' || state === 'pro_active') return 'is-active';
     if (state === 'pro_pending') return 'is-pending';
@@ -187,8 +199,12 @@
     var badge = byId('license-state-badge');
     var plan = byId('license-plan-label');
     var detail = byId('license-status-detail');
+    var commercialCopy = byId('license-commercial-copy');
+    var upgradeList = byId('license-upgrade-list');
+    var planStripEl = byId('license-plan-strip');
     var featureListEl = byId('license-feature-list');
     var note = byId('license-upgrade-note');
+    var upgrade = product.upgrade || {};
 
     if (badge) {
       badge.className = 'license-badge ' + stateClass(status.state);
@@ -196,9 +212,17 @@
     }
     if (plan) plan.textContent = status.label;
     if (detail) detail.textContent = status.message;
+    if (commercialCopy) {
+      commercialCopy.innerHTML = '<strong>' + escapeHtml(upgrade.headline || 'SQX Edge Pro') + '</strong><span>' + escapeHtml(upgrade.primaryMessage || '') + '</span>';
+    }
+    if (upgradeList) {
+      upgradeList.innerHTML = '<ul>' + upgradeBullets(upgrade) + '</ul>';
+    }
+    if (planStripEl) {
+      planStripEl.innerHTML = planStrip(upgrade);
+    }
     if (featureListEl) featureListEl.innerHTML = featureRows(status);
     if (note) {
-      var upgrade = product.upgrade || {};
       note.textContent = status.active
         ? 'Capacidades habilitadas para esta build.'
         : (upgrade.primaryMessage || 'Esta funcion forma parte de SQX Edge Pro.');

@@ -15,6 +15,7 @@ MONETIZATION_M1_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M1.md"
 MONETIZATION_M2_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M2.md"
 MONETIZATION_M3_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M3.md"
 MONETIZATION_M4_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M4.md"
+MONETIZATION_M5_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M5.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -593,6 +594,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "license-plan-label",
             "license-state-badge",
             "license-status-detail",
+            "license-commercial-copy",
+            "license-upgrade-list",
+            "license-plan-strip",
             "license-feature-list",
             "license-key-input",
             "license-import-btn",
@@ -620,6 +624,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("project_generator.generate", product_manifest["features"])
         self.assertIn("strategy_cleaner.apply", product_manifest["features"])
         self.assertIn("*", product_manifest["accessLevels"]["internal"]["features"])
+        self.assertEqual(product_manifest["upgrade"]["headline"], "SQX Edge Pro")
+        self.assertIn("24 EUR/mes", json.dumps(product_manifest["upgrade"], ensure_ascii=False))
+        self.assertIn("No promete rentabilidad", product_manifest["upgrade"]["disclaimer"])
+        self.assertIn("De idea a pipeline operativo SQX", product_manifest["marketing"]["tagline"])
         self.assertIn("/api/license/status", server_py)
         self.assertIn("/api/license/check", server_py)
         self.assertIn("def check_feature", license_py)
@@ -654,21 +662,26 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_m2_m3_m4_decisions(self):
+    def test_monetization_docs_capture_m1_to_m5_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
         m3 = MONETIZATION_M3_DOC.read_text(encoding="utf-8-sig")
         m4 = MONETIZATION_M4_DOC.read_text(encoding="utf-8-sig")
+        m5 = MONETIZATION_M5_DOC.read_text(encoding="utf-8-sig")
+        commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
+        public_roadmap = (PROJECT_ROOT / "docs" / "PUBLIC_ROADMAP.md").read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
 
         self.assertIn("Phase M1", roadmap)
         self.assertIn("Phase M2", roadmap)
         self.assertIn("Phase M3", roadmap)
         self.assertIn("Phase M4", roadmap)
+        self.assertIn("Phase M5", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
+        self.assertIn("Phase M5: prepare branding and go-to-market assets. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -726,6 +739,23 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in m4_patterns:
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, m4)
+
+        m5_patterns = [
+            "SQX Edge Pro",
+            "De idea a pipeline operativo SQX",
+            "24 EUR/mes",
+            "199 EUR/ano",
+            "Setup Assist",
+            "no promete rentabilidad",
+            "Landing Page Copy",
+            "Video demo recomendado",
+        ]
+        for pattern in m5_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m5)
+        self.assertIn("SQX Edge Pro", commercial_readme)
+        self.assertIn("Responsible Notice", commercial_readme)
+        self.assertIn("SQX Edge Free public beta", public_roadmap)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
@@ -791,6 +821,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "license-panel",
             "license-plan-label",
             "license-state-badge",
+            "license-commercial-copy",
+            "license-upgrade-list",
+            "license-plan-strip",
         ]
         for element_id in expected_ids:
             with self.subTest(element_id=element_id):

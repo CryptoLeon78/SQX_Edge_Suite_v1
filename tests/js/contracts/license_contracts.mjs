@@ -18,10 +18,16 @@ for (const exportName of [
 
 assert.ok(licenseJs.includes("SQX.registerModule('license'"));
 assert.equal(productManifest.build.channel, 'internal');
+assert.equal(productManifest.upgrade.headline, 'SQX Edge Pro');
+assert.ok(productManifest.upgrade.bullets.length >= 3);
+assert.ok(JSON.stringify(productManifest.upgrade).includes('24 EUR/mes'));
+assert.ok(productManifest.marketing.tagline.includes('pipeline operativo'));
 assert.ok(productManifest.features['project_generator.generate']);
 assert.ok(productManifest.features['strategy_cleaner.apply']);
 assert.deepEqual(productManifest.accessLevels.internal.features, ['*']);
 assert.ok(html.includes('id="license-panel"'));
+assert.ok(html.includes('id="license-upgrade-list"'));
+assert.ok(html.includes('id="license-plan-strip"'));
 assert.ok(html.includes('js/modules/license.js'));
 
 console.log('license contracts ok');

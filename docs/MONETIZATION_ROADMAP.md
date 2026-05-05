@@ -120,6 +120,16 @@ Entregables:
 - Roadmap publico.
 - Casos de uso.
 
+Estado: Done.
+
+Decision M5:
+
+- SQX Edge Pro queda como nombre comercial principal.
+- El copy de upgrade vive en `product_manifest.json`.
+- Inicio muestra un panel de licencia con valor Pro, bullets y precios.
+- Se crean README comercial, roadmap publico y guion base de landing/demo.
+- La comunicacion evita promesas financieras y vende productividad/trazabilidad.
+
 ## Phase M6 - Security And Distribution Audit
 
 Objetivo: asegurar que el paquete comercial no expone archivos, endpoints o capacidades peligrosas.
