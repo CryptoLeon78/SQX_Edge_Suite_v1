@@ -37,6 +37,11 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/strategies.js",
                 "js/modules/home.js",
                 "js/modules/workflow.js",
+                "js/modules/project-generator-core.js",
+                "js/modules/project-generator-config.js",
+                "js/modules/project-generator-renderers.js",
+                "js/modules/project-generator-status.js",
+                "js/modules/project-generator-cleaner.js",
                 "js/modules/project-generator.js",
                 "js/modules/index.js",
                 "js/data.js",
@@ -62,6 +67,11 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/strategies.js",
             "js/modules/home.js",
             "js/modules/workflow.js",
+            "js/modules/project-generator-core.js",
+            "js/modules/project-generator-config.js",
+            "js/modules/project-generator-renderers.js",
+            "js/modules/project-generator-status.js",
+            "js/modules/project-generator-cleaner.js",
             "js/modules/project-generator.js",
             "js/modules/index.js",
         ]
@@ -82,6 +92,11 @@ class DashboardStaticTestCase(unittest.TestCase):
         strategies_js = (APP_ROOT / "js" / "modules" / "strategies.js").read_text(encoding="utf-8-sig")
         home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
         workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
+        project_generator_core_js = (APP_ROOT / "js" / "modules" / "project-generator-core.js").read_text(encoding="utf-8-sig")
+        project_generator_config_js = (APP_ROOT / "js" / "modules" / "project-generator-config.js").read_text(encoding="utf-8-sig")
+        project_generator_renderers_js = (APP_ROOT / "js" / "modules" / "project-generator-renderers.js").read_text(encoding="utf-8-sig")
+        project_generator_status_js = (APP_ROOT / "js" / "modules" / "project-generator-status.js").read_text(encoding="utf-8-sig")
+        project_generator_cleaner_js = (APP_ROOT / "js" / "modules" / "project-generator-cleaner.js").read_text(encoding="utf-8-sig")
         project_generator_js = (APP_ROOT / "js" / "modules" / "project-generator.js").read_text(encoding="utf-8-sig")
         index_js = (APP_ROOT / "js" / "modules" / "index.js").read_text(encoding="utf-8-sig")
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
@@ -99,6 +114,11 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.strategies", strategies_js)
         self.assertIn("SQX.home", home_js)
         self.assertIn("SQX.workflow", workflow_js)
+        self.assertIn("SQX.projectGenerator", project_generator_core_js)
+        self.assertIn("SQX.projectGenerator", project_generator_config_js)
+        self.assertIn("SQX.projectGenerator", project_generator_renderers_js)
+        self.assertIn("SQX.projectGenerator", project_generator_status_js)
+        self.assertIn("SQX.projectGenerator", project_generator_cleaner_js)
         self.assertIn("SQX.projectGenerator", project_generator_js)
         self.assertIn("SQX.boot", index_js)
         self.assertIn("dashboard-legacy", dashboard_js)
@@ -218,7 +238,18 @@ class DashboardStaticTestCase(unittest.TestCase):
 
     def test_project_generator_onboarding_delegates_to_module(self):
         main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
-        module_js = (APP_ROOT / "js" / "modules" / "project-generator.js").read_text(encoding="utf-8-sig")
+        project_generator_files = [
+            "project-generator-core.js",
+            "project-generator-config.js",
+            "project-generator-renderers.js",
+            "project-generator-status.js",
+            "project-generator-cleaner.js",
+            "project-generator.js",
+        ]
+        module_js = "\n".join(
+            (APP_ROOT / "js" / "modules" / filename).read_text(encoding="utf-8-sig")
+            for filename in project_generator_files
+        )
 
         expected_exports = [
             "aliasTableHtml",
@@ -575,7 +606,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
         main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
-        project_generator_js = (APP_ROOT / "js" / "modules" / "project-generator.js").read_text(encoding="utf-8-sig")
+        project_generator_core_js = (APP_ROOT / "js" / "modules" / "project-generator-core.js").read_text(encoding="utf-8-sig")
         self.assertIn("window.updateHomeBackendStatus", dashboard_js)
         self.assertIn("home-audit-score", dashboard_js)
         self.assertIn("window.addHomeTrace", dashboard_js)
@@ -586,7 +617,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("function pgRenderOnboarding", main_js)
         self.assertIn("function pgRunOnboardingAction", main_js)
         self.assertIn("function pgRunOnboardingTertiaryAction", main_js)
-        self.assertIn("pg-assistant-check", project_generator_js)
+        self.assertIn("pg-assistant-check", project_generator_core_js)
         self.assertIn("STRAT_DELETED_KEY", dashboard_js)
         self.assertIn("function removeStrategyClick", dashboard_js)
         self.assertIn("data-strategy-key", dashboard_js)

@@ -153,6 +153,11 @@ function createLoadedSandbox(modules = [
   'app/js/modules/strategies.js',
   'app/js/modules/home.js',
   'app/js/modules/workflow.js',
+  'app/js/modules/project-generator-core.js',
+  'app/js/modules/project-generator-config.js',
+  'app/js/modules/project-generator-renderers.js',
+  'app/js/modules/project-generator-status.js',
+  'app/js/modules/project-generator-cleaner.js',
   'app/js/modules/project-generator.js',
 ]) {
   const sandbox = createSandbox();
