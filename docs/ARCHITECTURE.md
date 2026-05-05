@@ -1,0 +1,175 @@
+# SQX Edge Architecture
+
+Final architecture map and load order after the modularization phases.
+
+## Runtime Shape
+
+SQX Edge Suite is a portable local web application:
+
+- The dashboard runs from `app/SQX_Dashboard_v6.html`.
+- Frontend behavior is loaded through plain browser scripts, without a bundler.
+- Shared frontend namespaces live under `window.SQX`.
+- The Project Generator tab talks to the local Python API at `http://127.0.0.1:5050`.
+- The portable package includes an embedded Python runtime and one-click launchers.
+
+## Top-Level Map
+
+```mermaid
+flowchart TD
+  H["app/SQX_Dashboard_v6.html"] --> CSS["app/css/dashboard.css"]
+  H --> DATA["Static data scripts"]
+  H --> MOD["app/js/modules/*"]
+  H --> LEG["Legacy-compatible render layer"]
+  H --> INIT["App init scripts"]
+
+  DATA --> HD["historical-data.js"]
+  DATA --> SD["scores-data.js"]
+  DATA --> MD["manifest-data.js"]
+  DATA --> CFG["app-config.js"]
+
+  MOD --> CORE["core.js"]
+  MOD --> FEAT["domain/renderers/charts/strategies/home/workflow"]
+  MOD --> PG["project-generator-* modules"]
+  MOD --> IDX["index.js boot"]
+
+  LEG --> DJ["data.js"]
+  LEG --> DASH["dashboard.js"]
+
+  INIT --> MAIN["main.js"]
+  INIT --> PGM["project-generator-main.js"]
+
+  PGM --> API["backend/sqx-edge-tool/api/server.py"]
+  API --> COREPY["backend/sqx-edge-tool/core/*"]
+  COREPY --> CONFIG["backend/sqx-edge-tool/config/*.json"]
+  COREPY --> TPL["backend/sqx-edge-tool/templates/*.cfx"]
+```
+
+## Frontend Load Order
+
+The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboard_static.py`.
+
+1. `js/historical-data.js`
+2. `js/scores-data.js`
+3. `js/manifest-data.js`
+4. `js/app-config.js`
+5. `js/modules/core.js`
+6. `js/modules/config.js`
+7. `js/modules/storage.js`
+8. `js/modules/ui.js`
+9. `js/modules/formatters.js`
+10. `js/modules/domain.js`
+11. `js/modules/datasets.js`
+12. `js/modules/renderers.js`
+13. `js/modules/charts.js`
+14. `js/modules/strategies.js`
+15. `js/modules/home.js`
+16. `js/modules/workflow.js`
+17. `js/modules/project-generator-core.js`
+18. `js/modules/project-generator-config.js`
+19. `js/modules/project-generator-renderers.js`
+20. `js/modules/project-generator-status.js`
+21. `js/modules/project-generator-cleaner.js`
+22. `js/modules/project-generator.js`
+23. `js/modules/index.js`
+24. `js/data.js`
+25. `js/dashboard.js`
+26. `js/main.js`
+27. `js/project-generator-main.js`
+
+## Why This Order Matters
+
+- Data scripts load first because legacy-compatible render code still consumes global datasets.
+- `app-config.js` loads before modules so API base and feature options are available everywhere.
+- `modules/core.js` creates `window.SQX`, module registration, and ready callbacks.
+- Focused modules attach stable contracts under `window.SQX`.
+- `modules/index.js` marks the module layer as booted and flushes ready callbacks.
+- `data.js` and `dashboard.js` preserve existing global render functions and dashboard behavior.
+- `main.js` runs shell-level initial rendering and workflow initialization.
+- `project-generator-main.js` runs last because it binds DOM events and calls the backend through the Project Generator module contracts.
+
+## Frontend Module Responsibilities
+
+| File | Responsibility |
+| --- | --- |
+| `modules/core.js` | SQX namespace, module registry, ready queue, shared guards. |
+| `modules/config.js` | Central access to UI/config manifests and dynamic values. |
+| `modules/storage.js` | Local state persistence, safe JSON access, strategy state. |
+| `modules/ui.js` | Shared DOM/UI helpers and tab helpers. |
+| `modules/formatters.js` | Display formatting, escaping, labels, badges. |
+| `modules/domain.js` | Domain rules that are independent from DOM rendering. |
+| `modules/datasets.js` | Normalized access to asset, score and manifest datasets. |
+| `modules/renderers.js` | Reusable HTML rendering helpers for dashboard lists/tables. |
+| `modules/charts.js` | Chart and visual summary helpers. |
+| `modules/strategies.js` | Strategy UI contracts, deletion/import state, strategy metadata. |
+| `modules/home.js` | Inicio tab model, trace and summary helpers. |
+| `modules/workflow.js` | Workflow tab initialization and subtab behavior. |
+| `modules/project-generator-core.js` | Project Generator shared helpers and API primitives. |
+| `modules/project-generator-config.js` | Project Generator config read/write helpers. |
+| `modules/project-generator-renderers.js` | Project Generator DOM render output helpers. |
+| `modules/project-generator-status.js` | Project Generator health/status and polling helpers. |
+| `modules/project-generator-cleaner.js` | Strategy cleaner helpers used by Project Generator. |
+| `modules/project-generator.js` | Public Project Generator facade that composes the split modules. |
+| `modules/index.js` | Module boot marker and final module-order registry. |
+
+## Initialization Scripts
+
+| File | Responsibility |
+| --- | --- |
+| `data.js` | Compatibility layer for static dashboard data. |
+| `dashboard.js` | Existing dashboard render functions and tab behavior. |
+| `main.js` | First render pass for Inicio, assets, categories, filters, priority, strategies, pipeline and workflow. |
+| `project-generator-main.js` | Project Generator orchestration, DOM bindings, backend calls and polling. |
+
+## Backend Map
+
+| Path | Responsibility |
+| --- | --- |
+| `backend/sqx-edge-tool/api/server.py` | Flask API, health, config, generation, backup and strategy endpoints. |
+| `backend/sqx-edge-tool/core/project_generator.py` | Project generation flow and SQX project assets. |
+| `backend/sqx-edge-tool/core/strategy_cleaner.py` | Strategy cleaning and deletion support. |
+| `backend/sqx-edge-tool/core/config_loader.py` | Config loading and defaults. |
+| `backend/sqx-edge-tool/core/sqx_db.py` | SQX database verification and access helpers. |
+| `backend/sqx-edge-tool/config/*.json` | Dynamic catalogs for assets, instruments, profiles, plan and UI manifest. |
+| `backend/sqx-edge-tool/templates/*.cfx` | StrategyQuant template files used by generation. |
+
+## Portable Packaging
+
+Portable packaging is owned by `backend/sqx-edge-tool/tools/package_portable.ps1`.
+
+The package includes:
+
+- `START_SQX_EDGE.bat` and `STOP_SQX_EDGE.bat` at package root.
+- `packaging/START_SQX_EDGE.bat` and `packaging/STOP_SQX_EDGE.bat` as source launchers.
+- `app/` dashboard assets.
+- `backend/sqx-edge-tool/` API, core code, templates, config templates and embedded runtime.
+- `backend/sqx-edge-tool/runtime/python/python.exe`.
+
+The package excludes:
+
+- `.git`
+- `venv`
+- `output`
+- `dist`
+- `backups`
+- `node_modules`
+- `.pytest_cache`
+- downloaded runtime cache
+- local `backend/sqx-edge-tool/config.json`
+
+## Contract Tests
+
+The architecture is protected by two layers:
+
+- `tests/js/module_contracts.mjs` imports granular browser-module contracts.
+- `backend/sqx-edge-tool/test_dashboard_static.py` verifies static HTML structure, script order, file existence, packaging rules and frontend contracts.
+
+When changing load order or module boundaries, update both the implementation and the matching contracts in the same phase.
+
+## Future Change Rules
+
+- Keep `modules/core.js` first among modules.
+- Keep `modules/index.js` after all module files and before legacy-compatible scripts.
+- Keep `project-generator-main.js` last unless Project Generator orchestration is converted into a boot callback.
+- Do not make a module depend on a script loaded later.
+- Prefer adding narrow contracts before moving behavior across files.
+- Keep packaging validation aligned with the actual portable user flow.
