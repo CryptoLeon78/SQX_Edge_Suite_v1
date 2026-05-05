@@ -315,6 +315,26 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.openOutputSuccessStatus", main_js)
         self.assertIn("SQX_PG_MODULE.cleanerNoSelectionStatus", main_js)
         self.assertIn("SQX_PG_MODULE.cleanerResultTrace", main_js)
+        self.assertIn("const PG_STATE = {", main_js)
+        self.assertIn("const CLN_STATE = {", main_js)
+        self.assertIn("PG_STATE.connected", main_js)
+        self.assertIn("CLN_STATE.selected", main_js)
+        for old_state in [
+            "let PG_CONNECTED",
+            "let PG_HEALTH_TIMER",
+            "let PG_PLAN_COUNT",
+            "let PG_LAST_TRACE_STATE",
+            "let PG_HEALTH_META",
+            "let PG_CONFIG_STATE",
+            "let PG_MININGS",
+            "let PG_OUTPUT_FILES",
+            "let PG_OUTPUT_DIR",
+            "let PG_ALIASES",
+            "let CLN_FILES",
+            "let CLN_SELECTED",
+        ]:
+            with self.subTest(old_state=old_state):
+                self.assertNotIn(old_state, main_js)
         self.assertNotIn("const hasSqxInput = ", main_js)
         self.assertNotIn("stepsEl.innerHTML = state.steps.map", main_js)
         self.assertNotIn("await fetch(url, opts)", main_js)
