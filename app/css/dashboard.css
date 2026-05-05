@@ -2073,6 +2073,342 @@
     }
   }
 
+  /* Phase 46: operational visual polish for dense production workflows. */
+  :root {
+    --phase46-grid: rgba(143,185,255,.075);
+    --phase46-row: rgba(17,22,32,.92);
+    --phase46-row-alt: rgba(20,26,38,.92);
+    --phase46-hot: rgba(53,208,198,.16);
+    --phase46-warn: rgba(232,188,82,.16);
+  }
+
+  .tab-content > div[style*="margin-bottom:14px"],
+  .tab-content > div[style*="margin-bottom:16px"] {
+    max-width:980px;
+    color:#aab6c7 !important;
+    line-height:1.55;
+  }
+
+  .card-header {
+    min-height:42px;
+  }
+
+  .card-header h2 {
+    min-width:0;
+    line-height:1.2;
+  }
+
+  .pg-status-banner {
+    position:relative;
+    overflow:hidden;
+    min-height:68px;
+    padding:15px 18px;
+  }
+
+  .pg-status-banner::after {
+    content:'';
+    position:absolute;
+    inset:0 auto 0 0;
+    width:3px;
+    background:var(--red);
+    opacity:.95;
+  }
+
+  .pg-status-banner.pg-status-up::after { background:var(--green); }
+  .pg-status-banner.pg-status-loading::after { background:var(--yellow); }
+
+  .pg-status-content {
+    min-width:0;
+    flex:1;
+  }
+
+  .pg-status-title,
+  .pg-status-desc {
+    overflow-wrap:anywhere;
+  }
+
+  .pg-onboarding-actions {
+    display:flex;
+    flex-wrap:wrap;
+    gap:9px;
+    align-items:center;
+  }
+
+  .pg-onboarding-actions .export-btn {
+    flex:0 1 auto;
+  }
+
+  .pg-ghost-btn {
+    border-color:rgba(162,173,189,.24);
+    background:rgba(17,22,32,.72);
+    color:#c1ccdc;
+  }
+
+  .pg-step {
+    position:relative;
+    isolation:isolate;
+    overflow:hidden;
+  }
+
+  .pg-step::after {
+    content:'';
+    position:absolute;
+    inset:auto 12px 11px 12px;
+    height:2px;
+    border-radius:999px;
+    background:rgba(162,173,189,.16);
+    z-index:-1;
+  }
+
+  .pg-step.done::after {
+    background:linear-gradient(90deg, var(--green), var(--cyan));
+  }
+
+  .pg-assistant-panel {
+    border-color:rgba(53,208,198,.22);
+  }
+
+  .pg-assistant-check {
+    min-width:0;
+  }
+
+  .pg-assistant-check span:last-child {
+    min-width:0;
+    overflow-wrap:anywhere;
+  }
+
+  .pg-mining-row {
+    min-height:48px;
+    background:var(--phase46-row);
+    border:1px solid rgba(162,173,189,.12);
+    border-radius:8px;
+    margin-bottom:7px;
+  }
+
+  .pg-mining-row:nth-child(even) {
+    background:var(--phase46-row-alt);
+  }
+
+  .pg-mining-row:hover {
+    border-color:rgba(143,185,255,.34);
+    box-shadow:0 12px 28px rgba(0,0,0,.18);
+  }
+
+  .pg-mining-row .pgm-num {
+    min-width:45px;
+    border-radius:7px;
+    background:rgba(79,140,255,.13);
+    text-align:center;
+  }
+
+  .pg-mining-row .pgm-asset,
+  .pg-mining-row .pgm-tf,
+  .pg-mining-row .pgm-bs {
+    min-width:0;
+  }
+
+  .pg-mining-row .pgm-bs {
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .pg-mining-row .pgm-actions {
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+
+  .pg-mining-row .pgm-btn {
+    min-height:30px;
+    border-radius:7px;
+  }
+
+  .pg-output-row {
+    min-height:42px;
+    background:rgba(17,22,32,.66);
+  }
+
+  .pg-output-row:hover {
+    background:rgba(24,31,45,.88);
+  }
+
+  #pg-log {
+    border:1px solid rgba(162,173,189,.14);
+    background:
+      linear-gradient(180deg, rgba(10,13,19,.96), rgba(7,9,14,.96)),
+      repeating-linear-gradient(0deg, transparent, transparent 23px, var(--phase46-grid) 24px);
+    border-radius:9px;
+    line-height:1.45;
+  }
+
+  .strat-summary-card {
+    position:relative;
+    overflow:hidden;
+  }
+
+  .strat-summary-card::after {
+    content:'';
+    position:absolute;
+    inset:auto 14px 12px auto;
+    width:34px;
+    height:2px;
+    border-radius:999px;
+    background:currentColor;
+    opacity:.34;
+  }
+
+  .strat-card {
+    overflow:hidden;
+  }
+
+  .strat-card::after {
+    content:'';
+    position:absolute;
+    inset:0 0 auto;
+    height:1px;
+    background:linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+  }
+
+  .strat-card .sc-head {
+    min-height:34px;
+  }
+
+  .strat-card .sc-name {
+    min-width:0;
+    overflow-wrap:anywhere;
+  }
+
+  .strat-card .sc-meta-pill,
+  .strat-tier-badge,
+  .pgm-src {
+    min-height:22px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .strat-card .sc-indicators {
+    max-height:78px;
+    overflow:auto;
+    scrollbar-width:thin;
+    scrollbar-color:rgba(143,185,255,.34) transparent;
+  }
+
+  .strat-card .sc-metrics {
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+  }
+
+  .strat-card .sc-metric {
+    min-width:0;
+  }
+
+  .strat-card .sc-metric .m-val {
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+
+  .strat-card .sc-footer {
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  .strat-card .sc-footer .sc-date {
+    min-width:180px;
+  }
+
+  .strat-remove-btn {
+    margin-left:auto;
+  }
+
+  #strat-clear-user-btn,
+  #strat-restore-hidden-btn {
+    min-height:26px;
+    vertical-align:middle;
+  }
+
+  .csv-preview-wrap {
+    background:rgba(8,10,15,.72);
+  }
+
+  .csv-preview-table tr:nth-child(even) td {
+    background:rgba(143,185,255,.035);
+  }
+
+  .csv-preview-table tr:hover td {
+    background:rgba(53,208,198,.06);
+  }
+
+  @media (max-width: 980px) {
+    .pg-status-banner {
+      align-items:flex-start;
+    }
+
+    .pg-mining-row {
+      display:grid;
+      grid-template-columns:auto minmax(0, 1fr) auto;
+      gap:8px;
+    }
+
+    .pg-mining-row .pgm-bs,
+    .pg-mining-row .pgm-actions,
+    .pgm-src {
+      grid-column:1 / -1;
+    }
+
+    .pg-mining-row .pgm-actions {
+      justify-content:stretch;
+    }
+
+    .pg-mining-row .pgm-btn {
+      flex:1 1 120px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .tab-content > div[style*="margin-bottom:14px"],
+    .tab-content > div[style*="margin-bottom:16px"] {
+      max-width:100%;
+      font-size:13px !important;
+    }
+
+    .pg-status-banner {
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .pg-status-banner .export-btn,
+    .pg-onboarding-actions .export-btn {
+      width:100%;
+    }
+
+    .pg-assistant-checks {
+      grid-template-columns:1fr;
+    }
+
+    .pg-output-row {
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:5px 10px;
+    }
+
+    .pg-output-row .pgo-time {
+      grid-column:1 / -1;
+      min-width:0;
+      text-align:left;
+    }
+
+    .strat-card .sc-footer .sc-date,
+    .strat-remove-btn {
+      width:100%;
+      min-width:0;
+    }
+
+    .strat-remove-btn {
+      margin-left:0;
+    }
+  }
+
   @media (max-width: 640px) {
     .home-hero {
       padding:18px;

@@ -581,6 +581,25 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("#tab-pipeline .ps-funnel-step", css)
         self.assertIn("flex-wrap:wrap", css)
 
+    def test_phase46_operational_visual_polish_is_present(self):
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+
+        expected_patterns = [
+            "Phase 46: operational visual polish",
+            "--phase46-grid",
+            ".pg-status-banner::after",
+            ".pg-mining-row:nth-child(even)",
+            "#pg-log",
+            ".strat-summary-card::after",
+            ".strat-card .sc-indicators",
+            ".csv-preview-table tr:hover td",
+            "@media (max-width: 980px)",
+            "@media (max-width: 640px)",
+        ]
+        for pattern in expected_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, css)
+
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
