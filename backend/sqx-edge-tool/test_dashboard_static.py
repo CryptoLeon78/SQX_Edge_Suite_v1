@@ -250,6 +250,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "directionLabel",
             "escapeHtml",
             "fetchJson",
+            "configSaveBody",
+            "configSaveError",
+            "configSaveStatus",
             "generateAllConfirmMessage",
             "generateAllResultLines",
             "generateAllResultSummary",
@@ -261,9 +264,15 @@ class DashboardStaticTestCase(unittest.TestCase):
             "miningRowsHtml",
             "outputListHtml",
             "prepareRequestOptions",
+            "sqxCandidateFields",
+            "sqxCandidateSelectedStatus",
             "sqxAppliedHtml",
             "sqxNotFoundHtml",
+            "validateSqxMissingPathHtml",
             "validateSqxPathHtml",
+            "validateSqxResolvedFields",
+            "validateSqxShouldApply",
+            "validateSqxTrace",
             "uniqueAssets",
         ]
         for export in expected_exports:
@@ -281,6 +290,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.generateOneResult", main_js)
         self.assertIn("SQX_PG_MODULE.generateAllConfirmMessage", main_js)
         self.assertIn("SQX_PG_MODULE.generateAllResultLines", main_js)
+        self.assertIn("SQX_PG_MODULE.configSaveBody", main_js)
+        self.assertIn("SQX_PG_MODULE.configSaveStatus", main_js)
+        self.assertIn("SQX_PG_MODULE.sqxCandidateFields", main_js)
+        self.assertIn("SQX_PG_MODULE.validateSqxShouldApply", main_js)
         self.assertNotIn("const hasSqxInput = ", main_js)
         self.assertNotIn("stepsEl.innerHTML = state.steps.map", main_js)
         self.assertNotIn("await fetch(url, opts)", main_js)
@@ -294,6 +307,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("const countLabel = PG_PLAN_COUNT", main_js)
         self.assertNotIn("String(x.mining).padStart", main_js)
         self.assertNotIn("'OK: ' + r.ok_count", main_js)
+        self.assertNotIn("msg.textContent = '✓ Guardado: '", main_js)
+        self.assertNotIn("r.updated_keys.join(', ')", main_js)
+        self.assertNotIn("document.getElementById('pg-sqx-db').value = r.resolved.data_db", main_js)
         self.assertNotIn("pg-output-empty", main_js)
         self.assertIn("addEventListener('click', pgAutodetectSqx)", main_js)
         self.assertIn("addEventListener('click', pgValidateSqxPath)", main_js)

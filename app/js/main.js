@@ -297,28 +297,30 @@ async function pgGenerateAll(capa) {
 }
 
 async function pgSaveConfig() {
-  const body = {
-    sqx_path: document.getElementById('pg-sqx-path').value.trim(),
-    sqx_data_db: document.getElementById('pg-sqx-db').value.trim(),
-    sqx_projects_dir: document.getElementById('pg-sqx-projects').value.trim(),
-    output_dir: document.getElementById('pg-output-dir').value.trim(),
-    template_capa1: document.getElementById('pg-tpl-c1').value.trim(),
-    template_capa2: document.getElementById('pg-tpl-c2').value.trim(),
-    asset_aliases: PG_ALIASES,
-  };
+  const body = SQX_PG_MODULE.configSaveBody({
+    sqxPath: document.getElementById('pg-sqx-path').value.trim(),
+    sqxDataDb: document.getElementById('pg-sqx-db').value.trim(),
+    sqxProjectsDir: document.getElementById('pg-sqx-projects').value.trim(),
+    outputDir: document.getElementById('pg-output-dir').value.trim(),
+    templateCapa1: document.getElementById('pg-tpl-c1').value.trim(),
+    templateCapa2: document.getElementById('pg-tpl-c2').value.trim(),
+    assetAliases: PG_ALIASES,
+  });
   const msg = document.getElementById('pg-settings-msg');
   msg.textContent = 'Guardando…';
   try {
     const r = await pgFetch('/config', { method:'POST', body });
-    msg.textContent = '✓ Guardado: ' + r.updated_keys.join(', ');
-    msg.style.color = 'var(--green)';
-    pgLog('Config actualizada (' + r.updated_keys.length + ' keys)', 'ok');
-    pgTrace('Configuracion guardada', r.updated_keys.join(', '), 'ok');
+    const status = SQX_PG_MODULE.configSaveStatus(r);
+    msg.textContent = status.message;
+    msg.style.color = status.color;
+    pgLog(status.logText, status.logLevel);
+    pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
     await pgCheckHealth();
   } catch(e) {
-    msg.textContent = '✗ Error: ' + e.message;
-    msg.style.color = 'var(--red)';
-    pgTrace('Error guardando configuracion', e.message, 'err');
+    const status = SQX_PG_MODULE.configSaveError(e.message);
+    msg.textContent = status.message;
+    msg.style.color = status.color;
+    pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
   }
 }
 
@@ -334,11 +336,13 @@ async function pgAutodetectSqx() {
     document.querySelectorAll('.pg-use-btn').forEach(btn => {
       btn.addEventListener('click', function(){
         const c = r.candidates[parseInt(this.dataset.idx, 10)];
-        document.getElementById('pg-sqx-path').value = c.sqx_path;
-        document.getElementById('pg-sqx-db').value = c.data_db;
-        document.getElementById('pg-sqx-projects').value = c.projects_dir;
-        pgLog('Path SQX seleccionado: ' + c.sqx_path + ' (pulsa Guardar config)', 'info');
-        pgTrace('Ruta SQX detectada', c.sqx_path, 'info');
+        const fields = SQX_PG_MODULE.sqxCandidateFields(c);
+        const status = SQX_PG_MODULE.sqxCandidateSelectedStatus(c);
+        document.getElementById('pg-sqx-path').value = fields.sqxPath;
+        document.getElementById('pg-sqx-db').value = fields.dataDb;
+        document.getElementById('pg-sqx-projects').value = fields.projectsDir;
+        pgLog(status.logText, status.logLevel);
+        pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
         pgRenderOnboarding();
         out.innerHTML = SQX_PG_MODULE.sqxAppliedHtml();
       });
@@ -353,16 +357,18 @@ async function pgValidateSqxPath() {
   const out = document.getElementById('pg-autodetect-results');
   if (!out) return;
   if (!path) {
-    out.innerHTML = SQX_PG_MODULE.messageHtml('Pon primero un SQX install path.', 'warning');
+    out.innerHTML = SQX_PG_MODULE.validateSqxMissingPathHtml();
     return;
   }
   try {
     const r = await pgFetch('/validate-sqx-path', { method:'POST', body: { path } });
     out.innerHTML = SQX_PG_MODULE.validateSqxPathHtml(r);
-    if (r.valid && r.resolved.data_db) {
-      document.getElementById('pg-sqx-db').value = r.resolved.data_db;
-      document.getElementById('pg-sqx-projects').value = r.resolved.projects_dir || '';
-      pgTrace('Validacion SQX correcta', path, 'ok');
+    if (SQX_PG_MODULE.validateSqxShouldApply(r)) {
+      const fields = SQX_PG_MODULE.validateSqxResolvedFields(r);
+      const trace = SQX_PG_MODULE.validateSqxTrace(path);
+      document.getElementById('pg-sqx-db').value = fields.dataDb;
+      document.getElementById('pg-sqx-projects').value = fields.projectsDir;
+      pgTrace(trace.title, trace.detail, trace.level);
       pgRenderOnboarding();
     }
   } catch(e) {

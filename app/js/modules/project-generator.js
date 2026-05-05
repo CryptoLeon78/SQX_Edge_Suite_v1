@@ -407,6 +407,86 @@
     });
   }
 
+  function configSaveBody(input) {
+    var data = input || {};
+    return {
+      sqx_path: data.sqxPath || '',
+      sqx_data_db: data.sqxDataDb || '',
+      sqx_projects_dir: data.sqxProjectsDir || '',
+      output_dir: data.outputDir || '',
+      template_capa1: data.templateCapa1 || '',
+      template_capa2: data.templateCapa2 || '',
+      asset_aliases: data.assetAliases || {}
+    };
+  }
+
+  function configSaveStatus(result) {
+    var keys = result && result.updated_keys || [];
+    return {
+      message: '✓ Guardado: ' + keys.join(', '),
+      color: 'var(--green)',
+      logText: 'Config actualizada (' + keys.length + ' keys)',
+      logLevel: 'ok',
+      traceTitle: 'Configuracion guardada',
+      traceDetail: keys.join(', '),
+      traceLevel: 'ok'
+    };
+  }
+
+  function configSaveError(message) {
+    return {
+      message: '✗ Error: ' + message,
+      color: 'var(--red)',
+      traceTitle: 'Error guardando configuracion',
+      traceDetail: message,
+      traceLevel: 'err'
+    };
+  }
+
+  function sqxCandidateFields(candidate) {
+    var data = candidate || {};
+    return {
+      sqxPath: data.sqx_path || '',
+      dataDb: data.data_db || '',
+      projectsDir: data.projects_dir || ''
+    };
+  }
+
+  function sqxCandidateSelectedStatus(candidate) {
+    var fields = sqxCandidateFields(candidate);
+    return {
+      logText: 'Path SQX seleccionado: ' + fields.sqxPath + ' (pulsa Guardar config)',
+      logLevel: 'info',
+      traceTitle: 'Ruta SQX detectada',
+      traceDetail: fields.sqxPath,
+      traceLevel: 'info'
+    };
+  }
+
+  function validateSqxMissingPathHtml() {
+    return messageHtml('Pon primero un SQX install path.', 'warning');
+  }
+
+  function validateSqxResolvedFields(result) {
+    var resolved = result && result.resolved || {};
+    return {
+      dataDb: resolved.data_db || '',
+      projectsDir: resolved.projects_dir || ''
+    };
+  }
+
+  function validateSqxShouldApply(result) {
+    return !!(result && result.valid && result.resolved && result.resolved.data_db);
+  }
+
+  function validateSqxTrace(path) {
+    return {
+      title: 'Validacion SQX correcta',
+      detail: path,
+      level: 'ok'
+    };
+  }
+
   function messageHtml(message, tone) {
     var color = tone === 'error' ? 'var(--red)' : tone === 'warning' ? 'var(--yellow)' : 'var(--text2)';
     return '<div style="color:' + color + ';font-size:12px;">' + escapeHtml(message) + '</div>';
@@ -658,6 +738,9 @@
     directionLabel: directionLabel,
     escapeHtml: escapeHtml,
     fetchJson: fetchJson,
+    configSaveBody: configSaveBody,
+    configSaveError: configSaveError,
+    configSaveStatus: configSaveStatus,
     generateAllConfirmMessage: generateAllConfirmMessage,
     generateAllResultLines: generateAllResultLines,
     generateAllResultSummary: generateAllResultSummary,
@@ -670,9 +753,15 @@
     miningRowsHtml: miningRowsHtml,
     outputListHtml: outputListHtml,
     prepareRequestOptions: prepareRequestOptions,
+    sqxCandidateFields: sqxCandidateFields,
+    sqxCandidateSelectedStatus: sqxCandidateSelectedStatus,
     sqxAppliedHtml: sqxAppliedHtml,
     sqxNotFoundHtml: sqxNotFoundHtml,
+    validateSqxMissingPathHtml: validateSqxMissingPathHtml,
     validateSqxPathHtml: validateSqxPathHtml,
+    validateSqxResolvedFields: validateSqxResolvedFields,
+    validateSqxShouldApply: validateSqxShouldApply,
+    validateSqxTrace: validateSqxTrace,
     uniqueAssets: uniqueAssets
   };
 

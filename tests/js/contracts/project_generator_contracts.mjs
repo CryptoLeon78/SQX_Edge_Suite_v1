@@ -141,6 +141,37 @@ const generateAllLines = PG.generateAllResultLines([
 assert.equal(generateAllLines[0].text, '  ✓ M03 → M03.cfx');
 assert.equal(generateAllLines[1].text, '  ✗ M12 → bad db');
 
+const configBody = PG.configSaveBody({
+  sqxPath: 'C:/SQX',
+  sqxDataDb: 'C:/SQX/data.db',
+  sqxProjectsDir: 'C:/SQX/projects',
+  outputDir: 'C:/out',
+  templateCapa1: 'C1.cfx',
+  templateCapa2: 'C2.cfx',
+  assetAliases: { EURUSD: 'EURUSD_M1' },
+});
+assert.equal(configBody.sqx_path, 'C:/SQX');
+assert.equal(configBody.sqx_data_db, 'C:/SQX/data.db');
+assert.equal(configBody.asset_aliases.EURUSD, 'EURUSD_M1');
+const configStatus = PG.configSaveStatus({ updated_keys: ['sqx_path', 'output_dir'] });
+assert.equal(configStatus.message, '✓ Guardado: sqx_path, output_dir');
+assert.equal(configStatus.logText, 'Config actualizada (2 keys)');
+assert.equal(configStatus.traceDetail, 'sqx_path, output_dir');
+assert.equal(PG.configSaveError('disk full').message, '✗ Error: disk full');
+const candidateFields = PG.sqxCandidateFields({ sqx_path: 'C:/SQX', data_db: 'db', projects_dir: 'projects' });
+assert.equal(candidateFields.sqxPath, 'C:/SQX');
+assert.equal(candidateFields.dataDb, 'db');
+assert.equal(candidateFields.projectsDir, 'projects');
+const candidateStatus = PG.sqxCandidateSelectedStatus({ sqx_path: 'C:/SQX' });
+assert.equal(candidateStatus.logText, 'Path SQX seleccionado: C:/SQX (pulsa Guardar config)');
+assert.equal(candidateStatus.traceDetail, 'C:/SQX');
+assert.match(PG.validateSqxMissingPathHtml(), /Pon primero/);
+const validationResult = { valid: true, resolved: { data_db: 'C:/SQX/data.db', projects_dir: 'C:/SQX/projects' } };
+assert.equal(PG.validateSqxShouldApply(validationResult), true);
+assert.equal(PG.validateSqxShouldApply({ valid: true, resolved: {} }), false);
+assert.equal(PG.validateSqxResolvedFields(validationResult).projectsDir, 'C:/SQX/projects');
+assert.equal(PG.validateSqxTrace('C:/SQX').title, 'Validacion SQX correcta');
+
 assert.match(PG.sqxNotFoundHtml(), /No se encontro/);
 assert.match(PG.sqxAppliedHtml(), /Aplicado/);
 assert.match(PG.autodetectCandidatesHtml({
