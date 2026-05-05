@@ -55,17 +55,48 @@ DEFAULT_HOST = API_PROFILE.get("defaultHost", "127.0.0.1")
 DEFAULT_PORT = int(API_PROFILE.get("defaultPort", 5050))
 LOCAL_CORS_ORIGINS = set(API_PROFILE.get("corsOrigins") or ["null"])
 LOCAL_HTTP_ORIGIN_RE = re.compile(API_PROFILE.get("localOriginPattern", r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"))
+LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1"}
+LOCAL_REMOTE_ADDRS = {"127.0.0.1", "::1"}
 
 
 # ── CORS manual local-only (zero deps) ────────────────────────────
+def _request_host_name(value: str) -> str:
+    host = (value or "").strip().lower()
+    if host.startswith("[") and "]" in host:
+        return host[1:host.index("]")]
+    return host.split(":", 1)[0]
+
+
+def _is_local_host(value: str) -> bool:
+    host = _request_host_name(value)
+    return host in LOCAL_HOSTS or host.startswith("127.")
+
+
+def _is_local_remote(value: str | None) -> bool:
+    remote = (value or "").strip().lower()
+    return remote in LOCAL_REMOTE_ADDRS or remote.startswith("127.")
+
+
+@app.before_request
+def enforce_local_api_boundary():
+    if not _is_local_host(request.host) or not _is_local_remote(request.remote_addr):
+        return jsonify({
+            "ok": False,
+            "error": "local_api_only",
+            "message": "SQX Edge API only accepts local browser requests.",
+        }), 403
+
+
 @app.after_request
 def add_cors_headers(response):
     origin = request.headers.get("Origin")
     if origin in LOCAL_CORS_ORIGINS or (origin and LOCAL_HTTP_ORIGIN_RE.match(origin)):
         response.headers["Access-Control-Allow-Origin"] = origin
-        response.headers["Vary"] = "Origin"
+    response.headers["Vary"] = "Origin"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Cache-Control"] = "no-store"
     return response
 
 
@@ -139,6 +170,13 @@ def is_allowed_workspace_path(value: str, cfg: dict) -> bool:
         return False
     path = _resolve_path(value)
     return any(path == root or _is_within(path, root) for root in allowed_workspace_roots(cfg))
+
+
+def require_feature(feature: str):
+    result = check_feature(feature)
+    if result.get("allowed"):
+        return None
+    return jsonify(result), 402
 
 
 # ── Endpoints ─────────────────────────────────────────────────────
@@ -389,6 +427,9 @@ def list_output():
 
 @app.post("/api/generate")
 def generate_one():
+    locked = require_feature("project_generator.generate")
+    if locked:
+        return locked
     data = request.get_json(silent=True) or {}
     if "mining" not in data:
         return jsonify({"ok": False, "error": "missing 'mining'"}), 400
@@ -430,6 +471,9 @@ def generate_one():
 
 @app.post("/api/generate-all")
 def generate_all():
+    locked = require_feature("project_generator.generate")
+    if locked:
+        return locked
     data = request.get_json(silent=True) or {}
     capa = int(data.get("capa", 1))
     if capa not in (1, 2):
@@ -493,6 +537,9 @@ def sqx_clean():
     """Procesa selección de .sqx con opciones.
     body: {files: [path,...], options: {remove_exit_bars, rename_institutional, rename_pattern}}
     """
+    locked = require_feature("strategy_cleaner.apply")
+    if locked:
+        return locked
     data = request.get_json(silent=True) or {}
     cfg = load_config()
     files = data.get("files") or []

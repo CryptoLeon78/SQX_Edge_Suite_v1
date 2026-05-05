@@ -145,6 +145,17 @@ Checklist:
 - Versionado.
 - Separacion dev/user.
 
+Estado: Done.
+
+Decision M6:
+
+- La API queda con boundary local explicito (`local_api_only`) ademas de CORS local.
+- Endpoints Pro de escritura aplican enforcement backend con `require_feature`.
+- El ZIP portable excluye `config.json`, `config/license.json`, `.env`, backups, outputs, dev envs y release tooling interno.
+- `audit_distribution.ps1` revisa paquete, genera reporte y checksum SHA256.
+- `release_checklist.ps1` ejecuta la auditoria antes de validar el ZIP final.
+- La firma criptografica real de licencias queda como riesgo residual para una fase posterior.
+
 ## Phase M7 - Support And Diagnostics
 
 Objetivo: reducir friccion de soporte sin capturar datos sensibles.

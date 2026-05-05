@@ -18,6 +18,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "run-embedded.bat",
             TOOL_ROOT / "run-web-embedded.bat",
             TOOL_ROOT / "tools" / "bootstrap_embedded_python.ps1",
+            TOOL_ROOT / "tools" / "audit_distribution.ps1",
             TOOL_ROOT / "tools" / "package_portable.ps1",
             TOOL_ROOT / "tools" / "release_checklist.ps1",
         ]
@@ -47,12 +48,18 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn('"\\\\backend\\\\sqx-edge-tool\\\\runtime\\\\downloads\\\\",', text)
         self.assertIn('"node_modules"', text)
         self.assertIn("RELEASE_SQX_EDGE", text)
+        self.assertIn("license\\.json", text)
+        self.assertIn("\\\\.env", text)
 
     def test_release_checklist_validates_portable_user_flow(self):
         text = (TOOL_ROOT / "tools" / "release_checklist.ps1").read_text(encoding="utf-8-sig")
         self.assertIn("module_contracts.mjs", text)
         self.assertIn("-m pytest", text)
         self.assertIn("package_portable.ps1", text)
+        self.assertIn("audit_distribution.ps1", text)
+        self.assertIn("Distribution audit", text)
+        self.assertIn("Get-FileHash", text)
+        self.assertIn("ZIP SHA256", text)
         self.assertIn("START_SQX_EDGE.bat", text)
         self.assertIn("project-generator-dom.js", text)
         self.assertIn("RELEASE_SQX_EDGE.bat", text)
@@ -61,6 +68,21 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("RequireCleanGit", text)
         self.assertIn("SQX_release_summary.txt", text)
         self.assertIn("Clean Git working tree", text)
+
+    def test_distribution_audit_guards_sensitive_release_content(self):
+        text = (TOOL_ROOT / "tools" / "audit_distribution.ps1").read_text(encoding="utf-8-sig")
+        for pattern in (
+            "config.json",
+            "license.json",
+            ".env",
+            ".git",
+            "node_modules",
+            "backups",
+            "Get-FileHash",
+            "SQX_distribution_audit.txt",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, text)
 
     def test_release_bat_runs_strict_checklist(self):
         text = (PROJECT_ROOT / "RELEASE_SQX_EDGE.bat").read_text(encoding="utf-8-sig")

@@ -66,12 +66,41 @@ class ApiTestCase(unittest.TestCase):
     def test_cors_allows_only_local_origins(self):
         evil = self.client.get("/api/health", headers={"Origin": "https://example.com"})
         self.assertIsNone(evil.headers.get("Access-Control-Allow-Origin"))
+        self.assertEqual(evil.headers.get("X-Content-Type-Options"), "nosniff")
+        self.assertEqual(evil.headers.get("Cache-Control"), "no-store")
 
         file_origin = self.client.get("/api/health", headers={"Origin": "null"})
         self.assertEqual(file_origin.headers.get("Access-Control-Allow-Origin"), "null")
 
         local_origin = self.client.get("/api/health", headers={"Origin": "http://localhost:3000"})
         self.assertEqual(local_origin.headers.get("Access-Control-Allow-Origin"), "http://localhost:3000")
+
+    def test_api_rejects_non_local_boundary(self):
+        response = self.client.get(
+            "/api/health",
+            headers={"Host": "192.168.1.20:5050"},
+            environ_base={"REMOTE_ADDR": "192.168.1.50"},
+        )
+        self.assertEqual(response.status_code, 403)
+        data = self.get_json(response)
+        self.assertEqual(data["error"], "local_api_only")
+
+    def test_pro_write_endpoints_are_feature_gated(self):
+        denied = {
+            "ok": False,
+            "allowed": False,
+            "error": "pro_required",
+            "message": "Esta funcion requiere SQX Edge Pro.",
+        }
+        with patch.object(server, "check_feature", return_value=denied):
+            generate = self.client.post("/api/generate", json={"mining": 1, "capa": 1})
+            generate_all = self.client.post("/api/generate-all", json={"capa": 1})
+            clean = self.client.post("/api/sqx-clean", json={"files": ["x.sqx"], "options": {}})
+
+        self.assertEqual(generate.status_code, 402)
+        self.assertEqual(generate_all.status_code, 402)
+        self.assertEqual(clean.status_code, 402)
+        self.assertEqual(self.get_json(generate)["error"], "pro_required")
 
     def test_sqx_list_rejects_paths_outside_allowed_roots(self):
         with tempfile.TemporaryDirectory() as tmp:

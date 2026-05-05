@@ -13,6 +13,7 @@ $ProjectRoot = Split-Path -Parent $BackendRoot
 $PythonExe = Join-Path $ToolRoot "venv\Scripts\python.exe"
 $EmbeddedPythonExe = Join-Path $ToolRoot "runtime\python\python.exe"
 $PackageScript = Join-Path $PSScriptRoot "package_portable.ps1"
+$DistributionAuditScript = Join-Path $PSScriptRoot "audit_distribution.ps1"
 $SummaryPath = Join-Path (Join-Path $ProjectRoot "dist") "SQX_release_summary.txt"
 
 function Write-Step {
@@ -131,6 +132,7 @@ Write-Host "SQX Edge Suite - Release Checklist"
 Write-Host "Project: $ProjectRoot"
 
 Assert-File $PackageScript
+Assert-File $DistributionAuditScript
 Assert-File $EmbeddedPythonExe
 
 Push-Location $ProjectRoot
@@ -154,6 +156,9 @@ try {
       Sort-Object LastWriteTime -Descending |
       Select-Object -First 1
     if (-not $Zip) { throw "Portable ZIP was not created in dist" }
+    Invoke-Checked "Distribution audit" {
+      powershell -NoProfile -ExecutionPolicy Bypass -File $DistributionAuditScript -ZipPath $Zip.FullName
+    }
     Test-PortableZip -ZipPath $Zip.FullName
     Write-Host ""
     Write-Host "Release ZIP ready:"
@@ -166,11 +171,13 @@ try {
 
   if (-not $SkipPackage -and $Zip) {
     $ZipItem = Get-Item -LiteralPath $Zip.FullName
+    $ZipHash = Get-FileHash -Algorithm SHA256 -LiteralPath $Zip.FullName
     $Summary = @(
       "SQX Edge Suite - Release Summary",
       "Generated: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')",
       "ZIP: $($ZipItem.FullName)",
       "ZIP bytes: $($ZipItem.Length)",
+      "ZIP SHA256: $($ZipHash.Hash)",
       "Portable API port tested: $PortableApiPort",
       "",
       "Git status:",

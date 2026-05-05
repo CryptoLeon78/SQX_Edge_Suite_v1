@@ -810,6 +810,26 @@ window.SQX_MANIFEST = {
       "signatureMode": "public_key_future",
       "manualBetaDelivery": true
     },
+    "security": {
+      "apiBoundary": "local_only",
+      "allowedHosts": [
+        "localhost",
+        "127.0.0.1",
+        "::1"
+      ],
+      "sensitiveFilesExcludedFromPortable": [
+        "config.json",
+        "config/license.json",
+        ".env",
+        "backups",
+        "dist",
+        "output",
+        "node_modules",
+        "venv",
+        ".git"
+      ],
+      "releaseAudit": "backend/sqx-edge-tool/tools/audit_distribution.ps1"
+    },
     "features": {
       "dashboard.view": {
         "label": "Dashboard",

@@ -16,6 +16,7 @@ MONETIZATION_M2_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M2.md"
 MONETIZATION_M3_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M3.md"
 MONETIZATION_M4_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M4.md"
 MONETIZATION_M5_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M5.md"
+MONETIZATION_M6_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M6.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -628,8 +629,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("24 EUR/mes", json.dumps(product_manifest["upgrade"], ensure_ascii=False))
         self.assertIn("No promete rentabilidad", product_manifest["upgrade"]["disclaimer"])
         self.assertIn("De idea a pipeline operativo SQX", product_manifest["marketing"]["tagline"])
+        self.assertEqual(product_manifest["security"]["apiBoundary"], "local_only")
+        self.assertIn("config/license.json", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("/api/license/status", server_py)
         self.assertIn("/api/license/check", server_py)
+        self.assertIn("def require_feature", server_py)
+        self.assertIn('require_feature("project_generator.generate")', server_py)
+        self.assertIn('require_feature("strategy_cleaner.apply")', server_py)
         self.assertIn("def check_feature", license_py)
         self.assertIn("pro_pending", license_py)
 
@@ -662,13 +668,14 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m5_decisions(self):
+    def test_monetization_docs_capture_m1_to_m6_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
         m3 = MONETIZATION_M3_DOC.read_text(encoding="utf-8-sig")
         m4 = MONETIZATION_M4_DOC.read_text(encoding="utf-8-sig")
         m5 = MONETIZATION_M5_DOC.read_text(encoding="utf-8-sig")
+        m6 = MONETIZATION_M6_DOC.read_text(encoding="utf-8-sig")
         commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
         public_roadmap = (PROJECT_ROOT / "docs" / "PUBLIC_ROADMAP.md").read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
@@ -678,10 +685,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M3", roadmap)
         self.assertIn("Phase M4", roadmap)
         self.assertIn("Phase M5", roadmap)
+        self.assertIn("Phase M6", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
         self.assertIn("Phase M5: prepare branding and go-to-market assets. Done.", next_steps)
+        self.assertIn("Phase M6: run security and distribution audit. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -756,6 +765,22 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX Edge Pro", commercial_readme)
         self.assertIn("Responsible Notice", commercial_readme)
         self.assertIn("SQX Edge Free public beta", public_roadmap)
+
+        m6_patterns = [
+            "Threat Model",
+            "Finding Discovery",
+            "Validation",
+            "Attack Path Analysis",
+            "audit_distribution.ps1",
+            "SHA256",
+            "local_api_only",
+            "project_generator.generate",
+            "strategy_cleaner.apply",
+            "config/license.json",
+        ]
+        for pattern in m6_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m6)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
