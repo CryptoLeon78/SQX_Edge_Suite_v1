@@ -454,33 +454,6 @@ async function pgRunOnboardingTertiaryAction() {
   const refresh = document.getElementById('pg-status-refresh');
   if (!refresh) return; // tab no está en el HTML
 
-  refresh.addEventListener('click', pgCheckHealth);
-
-  document.getElementById('pg-settings-toggle').addEventListener('click', function(){
-    const body = document.getElementById('pg-settings-body');
-    const open = body.style.display !== 'none';
-    pgSetSettingsOpen(!open);
-  });
-  document.getElementById('pg-settings-save').addEventListener('click', pgSaveConfig);
-  document.getElementById('pg-settings-reload').addEventListener('click', pgLoadConfig);
-  document.getElementById('pg-onboarding-action').addEventListener('click', pgRunOnboardingAction);
-  document.getElementById('pg-onboarding-secondary').addEventListener('click', pgRunOnboardingSecondaryAction);
-  document.getElementById('pg-onboarding-tertiary').addEventListener('click', pgRunOnboardingTertiaryAction);
-
-  document.getElementById('pg-autodetect').addEventListener('click', pgAutodetectSqx);
-
-  // Auto-sugerir aliases para todos los assets
-  document.getElementById('pg-aliases-suggest').addEventListener('click', pgSuggestAll);
-
-  document.getElementById('pg-validate').addEventListener('click', pgValidateSqxPath);
-
-  document.getElementById('pg-gen-all-c1').addEventListener('click', () => pgGenerateAll(1));
-  document.getElementById('pg-gen-all-c2').addEventListener('click', () => pgGenerateAll(2));
-  document.getElementById('pg-output-refresh').addEventListener('click', pgLoadOutput);
-  document.getElementById('pg-log-clear').addEventListener('click', function(){
-    document.getElementById('pg-log').textContent = '[esperando primera acción…]';
-  });
-
   // ── Strategy Cleaner ──
   const CLN_STATE = {
     files: [],
@@ -587,26 +560,53 @@ async function pgRunOnboardingTertiaryAction() {
     }
   }
 
-  document.getElementById('cln-scan').addEventListener('click', clnScan);
-  document.getElementById('cln-preview').addEventListener('click', clnPreviewRename);
-  document.getElementById('cln-process').addEventListener('click', clnProcess);
-  document.getElementById('cln-select-all').addEventListener('click', function(){ CLN_STATE.files.forEach(f => CLN_STATE.selected.add(f.path)); clnRenderTable(); });
-  document.getElementById('cln-select-none').addEventListener('click', function(){ CLN_STATE.selected.clear(); clnRenderTable(); });
-  document.getElementById('cln-opt-rename').addEventListener('change', function(){
-    document.getElementById('cln-pattern-wrap').style.display = this.checked ? 'inline-block' : 'none';
-  });
+  function bindProjectGeneratorEvents() {
+    refresh.addEventListener('click', pgCheckHealth);
+    document.getElementById('pg-settings-toggle').addEventListener('click', function(){
+      const body = document.getElementById('pg-settings-body');
+      const open = body.style.display !== 'none';
+      pgSetSettingsOpen(!open);
+    });
+    document.getElementById('pg-settings-save').addEventListener('click', pgSaveConfig);
+    document.getElementById('pg-settings-reload').addEventListener('click', pgLoadConfig);
+    document.getElementById('pg-onboarding-action').addEventListener('click', pgRunOnboardingAction);
+    document.getElementById('pg-onboarding-secondary').addEventListener('click', pgRunOnboardingSecondaryAction);
+    document.getElementById('pg-onboarding-tertiary').addEventListener('click', pgRunOnboardingTertiaryAction);
+    document.getElementById('pg-autodetect').addEventListener('click', pgAutodetectSqx);
+    document.getElementById('pg-aliases-suggest').addEventListener('click', pgSuggestAll);
+    document.getElementById('pg-validate').addEventListener('click', pgValidateSqxPath);
+    document.getElementById('pg-gen-all-c1').addEventListener('click', () => pgGenerateAll(1));
+    document.getElementById('pg-gen-all-c2').addEventListener('click', () => pgGenerateAll(2));
+    document.getElementById('pg-output-refresh').addEventListener('click', pgLoadOutput);
+    document.getElementById('pg-open-output').addEventListener('click', pgOpenOutputFolder);
+    document.getElementById('pg-log-clear').addEventListener('click', function(){
+      document.getElementById('pg-log').textContent = '[esperando primera acción…]';
+    });
+  }
 
-  document.getElementById('pg-open-output').addEventListener('click', pgOpenOutputFolder);
+  function bindStrategyCleanerEvents() {
+    document.getElementById('cln-scan').addEventListener('click', clnScan);
+    document.getElementById('cln-preview').addEventListener('click', clnPreviewRename);
+    document.getElementById('cln-process').addEventListener('click', clnProcess);
+    document.getElementById('cln-select-all').addEventListener('click', function(){ CLN_STATE.files.forEach(f => CLN_STATE.selected.add(f.path)); clnRenderTable(); });
+    document.getElementById('cln-select-none').addEventListener('click', function(){ CLN_STATE.selected.clear(); clnRenderTable(); });
+    document.getElementById('cln-opt-rename').addEventListener('change', function(){
+      document.getElementById('cln-pattern-wrap').style.display = this.checked ? 'inline-block' : 'none';
+    });
+  }
 
-  // Auto-check al abrir el tab
-  document.querySelectorAll('.tab[data-tab="projectgen"]').forEach(t => {
-    t.addEventListener('click', function(){ setTimeout(pgCheckHealth, 100); });
-  });
-  // Polling cada 30s mientras esté visible
-  setInterval(function(){
-    if (document.getElementById('tab-projectgen').style.display !== 'none') pgCheckHealth();
-  }, 30000);
-  // Initial check al cargar la página (silencioso)
-  pgRenderOnboarding();
-  setTimeout(pgCheckHealth, 500);
+  function bindProjectGeneratorPolling() {
+    document.querySelectorAll('.tab[data-tab="projectgen"]').forEach(t => {
+      t.addEventListener('click', function(){ setTimeout(pgCheckHealth, 100); });
+    });
+    setInterval(function(){
+      if (document.getElementById('tab-projectgen').style.display !== 'none') pgCheckHealth();
+    }, 30000);
+    pgRenderOnboarding();
+    setTimeout(pgCheckHealth, 500);
+  }
+
+  bindProjectGeneratorEvents();
+  bindStrategyCleanerEvents();
+  bindProjectGeneratorPolling();
 })();

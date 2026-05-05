@@ -319,6 +319,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("const CLN_STATE = {", main_js)
         self.assertIn("PG_STATE.connected", main_js)
         self.assertIn("CLN_STATE.selected", main_js)
+        self.assertIn("function bindProjectGeneratorEvents()", main_js)
+        self.assertIn("function bindStrategyCleanerEvents()", main_js)
+        self.assertIn("function bindProjectGeneratorPolling()", main_js)
+        self.assertIn("bindProjectGeneratorEvents();", main_js)
+        self.assertIn("bindStrategyCleanerEvents();", main_js)
+        self.assertIn("bindProjectGeneratorPolling();", main_js)
         for old_state in [
             "let PG_CONNECTED",
             "let PG_HEALTH_TIMER",
