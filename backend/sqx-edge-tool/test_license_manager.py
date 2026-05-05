@@ -3,9 +3,10 @@ import tempfile
 import unittest
 from datetime import date
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from core import license_manager
+from tools.license_issue import build_license_payload, issue_license
 from tools.license_signer import sign_license_payload
 
 
@@ -99,6 +100,41 @@ class LicenseManagerTestCase(unittest.TestCase):
             written = json.loads(Path(license_file).read_text(encoding="utf-8"))
             self.assertEqual(written["license_id"], "LIC-TEST-001")
             self.assertIn("signature", written)
+
+    def test_manual_license_issuer_creates_signed_pro_license(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            private_key_path = Path(tmp) / "test_private_key.json"
+            out_path = Path(tmp) / "license_signed_customer.json"
+            private_key_path.write_text(json.dumps(TEST_PRIVATE_KEY), encoding="utf-8")
+            args = Mock(
+                private_key=private_key_path,
+                out=out_path,
+                customer_name="Manual Customer",
+                customer_email="manual@example.com",
+                customer_id="CUS-001",
+                order_id="ORDER-001",
+                plan="pro_annual",
+                license_id="LIC-MANUAL-001",
+                issued_at="2026-05-06",
+                expires_at="",
+                duration_days=None,
+                machine_limit=1,
+                support_level="priority",
+                grace_days=7,
+                notes="paid beta",
+            )
+
+            payload = build_license_payload(args, today=date(2026, 5, 6))
+            signed = issue_license(args, today=date(2026, 5, 6))
+            product = self.product()
+
+            self.assertEqual(payload["expires_at"], "2027-05-07")
+            self.assertEqual(signed["customer_email"], "manual@example.com")
+            self.assertEqual(signed["support_level"], "priority")
+            self.assertTrue(out_path.is_file())
+            with patch.object(license_manager, "load_product_manifest", return_value=product):
+                status = license_manager.preview_license_payload(signed, today=date(2026, 5, 7))
+            self.assertEqual(status["state"], "pro_active")
 
 
 if __name__ == "__main__":

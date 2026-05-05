@@ -20,6 +20,7 @@ MONETIZATION_M6_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M6.md"
 MONETIZATION_M7_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M7.md"
 MONETIZATION_M8_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M8.md"
 MONETIZATION_M9_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M9.md"
+MONETIZATION_M10_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M10.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -683,9 +684,11 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["licensing"]["keyManagement"]["privateKeyPolicy"], "never_commit_never_ship")
         self.assertIn("license_keypair.ps1", product_manifest["licensing"]["keyManagement"]["keypairTool"])
         self.assertIn("license_signer.py", product_manifest["licensing"]["keyManagement"]["signerTool"])
+        self.assertIn("license_issue.py", product_manifest["licensing"]["keyManagement"]["issuerTool"])
         self.assertIn("license_keys", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("*_private_key.json", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/license_keypair.ps1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/license_issue.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("/api/license/status", server_py)
         self.assertIn("/api/license/check", server_py)
         self.assertIn("/api/license/import", server_py)
@@ -727,7 +730,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m9_decisions(self):
+    def test_monetization_docs_capture_m1_to_m10_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -738,6 +741,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m7 = MONETIZATION_M7_DOC.read_text(encoding="utf-8-sig")
         m8 = MONETIZATION_M8_DOC.read_text(encoding="utf-8-sig")
         m9 = MONETIZATION_M9_DOC.read_text(encoding="utf-8-sig")
+        m10 = MONETIZATION_M10_DOC.read_text(encoding="utf-8-sig")
         commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
         public_roadmap = (PROJECT_ROOT / "docs" / "PUBLIC_ROADMAP.md").read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
@@ -751,6 +755,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M7", roadmap)
         self.assertIn("Phase M8", roadmap)
         self.assertIn("Phase M9", roadmap)
+        self.assertIn("Phase M10", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -759,6 +764,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M7: design support and diagnostics flow. Done.", next_steps)
         self.assertIn("Phase M8: implement offline signed license activation. Done.", next_steps)
         self.assertIn("Phase M9: prepare production license key management and release guardrails. Done.", next_steps)
+        self.assertIn("Phase M10: add manual Pro license issuer for first paid sales. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -893,6 +899,22 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in m9_patterns:
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, m9)
+
+        m10_patterns = [
+            "license_issue.py",
+            "license_signer.py",
+            "pro_monthly",
+            "pro_annual",
+            "customer-name",
+            "order-id",
+            "machine_limit",
+            "support_level",
+            "package_portable.ps1",
+            "audit_distribution.ps1",
+        ]
+        for pattern in m10_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m10)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))

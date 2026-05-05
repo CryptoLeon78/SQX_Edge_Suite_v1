@@ -223,3 +223,24 @@ Decision M9:
 - La private key se guarda solo en ubicacion privada local.
 - Las herramientas internas de firma/generacion no viajan en el ZIP final.
 - Antes de vender publicamente hay que reemplazar la public key placeholder por una clave de produccion real.
+
+## Phase M10 - Manual Pro License Issuer
+
+Objetivo: emitir licencias Pro firmadas con menos friccion y menos riesgo de error manual.
+
+Entregables:
+
+- Tool interno `license_issue.py`.
+- Generacion de payload y firma en un solo comando.
+- Campos comerciales: cliente, email, plan, pedido, fechas, soporte y limite de equipos.
+- Exclusiones de ZIP/auditoria para el issuer y artefactos locales.
+- Documentacion operativa para primeras ventas manuales.
+
+Estado: Done.
+
+Decision M10:
+
+- El flujo manual recomendado pasa por `license_issue.py`.
+- `license_signer.py` queda como primitiva tecnica de firma.
+- El issuer queda fuera del paquete portable de cliente.
+- La siguiente fase natural es conectar este flujo a fulfillment de venta o preparar pagina/checkout real.

@@ -816,6 +816,7 @@ window.SQX_MANIFEST = {
         "privateKeyPolicy": "never_commit_never_ship",
         "keypairTool": "backend/sqx-edge-tool/tools/license_keypair.ps1",
         "signerTool": "backend/sqx-edge-tool/tools/license_signer.py",
+        "issuerTool": "backend/sqx-edge-tool/tools/license_issue.py",
         "localPrivateKeyFolders": [
           "license_keys",
           "licenses_private",
@@ -854,8 +855,11 @@ window.SQX_MANIFEST = {
         "*.private_key.json",
         "license_signed_*.json",
         "signed_license_*.json",
+        "license_payload_*.json",
+        "unsigned_license_*.json",
         "backend/sqx-edge-tool/tools/license_signer.py",
-        "backend/sqx-edge-tool/tools/license_keypair.ps1"
+        "backend/sqx-edge-tool/tools/license_keypair.ps1",
+        "backend/sqx-edge-tool/tools/license_issue.py"
       ],
       "releaseAudit": "backend/sqx-edge-tool/tools/audit_distribution.ps1"
     },

@@ -34,6 +34,7 @@ $denyFiles = @(
   "license.json",
   "license_signer.py",
   "license_keypair.ps1",
+  "license_issue.py",
   ".env",
   "RELEASE_SQX_EDGE.bat"
 )
@@ -42,7 +43,9 @@ $denyFilePatterns = @(
   ".*_private_key\.json$",
   ".*\.private_key\.json$",
   "license_signed_.*\.json$",
-  "signed_license_.*\.json$"
+  "signed_license_.*\.json$",
+  "license_payload_.*\.json$",
+  "unsigned_license_.*\.json$"
 )
 
 $requiredPackageGuards = @(
@@ -61,10 +64,13 @@ $requiredPackageGuards = @(
   'license\.json',
   'license_signer\.py',
   'license_keypair\.ps1',
+  'license_issue\.py',
   '_private_key\.json',
   '\.private_key\.json',
   'license_signed_',
   'signed_license_',
+  'license_payload_',
+  'unsigned_license_',
   '\\\.env',
   'RELEASE_SQX_EDGE'
 )

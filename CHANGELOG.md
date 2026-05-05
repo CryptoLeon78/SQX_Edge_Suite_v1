@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Manual license issuer
+
+- Anade `license_issue.py` para emitir licencias Pro firmadas en un solo comando.
+- Permite cliente, email, plan, pedido, fechas, soporte y limite de equipos.
+- Refuerza exclusiones de ZIP/auditoria para el issuer y artefactos locales de licencias.
+- Documenta la fase M10 para primeras ventas manuales.
+
 ## 2026-05-06 - License key management
 
 - Anade `license_keypair.ps1` para generar claves RSA offline compatibles con el firmador interno.
