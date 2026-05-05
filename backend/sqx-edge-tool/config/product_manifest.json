@@ -40,6 +40,19 @@
     ],
     "releaseAudit": "backend/sqx-edge-tool/tools/audit_distribution.ps1"
   },
+  "support": {
+    "diagnosticsEndpoint": "/api/support/diagnostics",
+    "diagnosticsFilenamePrefix": "SQX_support_diagnostic",
+    "privacyMode": "redacted_local_json",
+    "safeToSend": true,
+    "excludedFromDiagnostics": [
+      "personal paths",
+      "license payload",
+      "strategy files",
+      "localStorage data",
+      "raw config values"
+    ]
+  },
   "features": {
     "dashboard.view": {
       "label": "Dashboard",

@@ -168,3 +168,13 @@ Opciones:
 - Consentimiento claro si algun dia hay telemetria.
 
 Recomendacion inicial: diagnostico local exportable, sin telemetria automatica.
+
+Estado: Done.
+
+Decision M7:
+
+- Se crea `GET /api/support/diagnostics` con payload redacted.
+- Inicio incluye boton `Generar diagnostico`.
+- El JSON descargado excluye rutas personales, licencia, estrategias y localStorage.
+- El diagnostico resume version, runtime, build, config checks, manifests y distribucion.
+- La fase mantiene soporte manual sin telemetria automatica.

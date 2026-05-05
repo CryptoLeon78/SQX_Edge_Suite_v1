@@ -42,6 +42,7 @@ from core.strategy_cleaner import (
     extract_metadata, list_sqx_directory, clean_exit_after_bars,
     institutional_name, rename_sqx, process_files,
 )
+from core.support_diagnostics import build_support_diagnostics
 
 app = Flask(__name__)
 
@@ -362,6 +363,17 @@ def api_license_check():
         return jsonify({"ok": False, "error": "missing feature"}), 400
     result = check_feature(feature)
     return jsonify(result), 200 if result.get("allowed") else 402
+
+
+@app.get("/api/support/diagnostics")
+def api_support_diagnostics():
+    """Devuelve un diagnostico de soporte sin rutas, licencia ni estrategias."""
+    return jsonify(build_support_diagnostics(
+        load_config(),
+        app_version=VERSION,
+        config_exists=CONFIG_PATH.is_file(),
+        project_root=PROJECT_ROOT,
+    ))
 
 
 @app.get("/api/plan")

@@ -17,6 +17,7 @@ MONETIZATION_M3_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M3.md"
 MONETIZATION_M4_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M4.md"
 MONETIZATION_M5_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M5.md"
 MONETIZATION_M6_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M6.md"
+MONETIZATION_M7_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M7.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -45,6 +46,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/charts.js",
                 "js/modules/strategies.js",
                 "js/modules/home.js",
+                "js/modules/support.js",
                 "js/modules/workflow.js",
                 "js/modules/project-generator-core.js",
                 "js/modules/project-generator-config.js",
@@ -92,6 +94,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/charts.js",
             "js/modules/strategies.js",
             "js/modules/home.js",
+            "js/modules/support.js",
             "js/modules/workflow.js",
             "js/modules/project-generator-core.js",
             "js/modules/project-generator-config.js",
@@ -120,6 +123,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         charts_js = (APP_ROOT / "js" / "modules" / "charts.js").read_text(encoding="utf-8-sig")
         strategies_js = (APP_ROOT / "js" / "modules" / "strategies.js").read_text(encoding="utf-8-sig")
         home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
+        support_js = (APP_ROOT / "js" / "modules" / "support.js").read_text(encoding="utf-8-sig")
         workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
         project_generator_core_js = (APP_ROOT / "js" / "modules" / "project-generator-core.js").read_text(encoding="utf-8-sig")
         project_generator_config_js = (APP_ROOT / "js" / "modules" / "project-generator-config.js").read_text(encoding="utf-8-sig")
@@ -145,6 +149,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.charts", charts_js)
         self.assertIn("SQX.strategies", strategies_js)
         self.assertIn("SQX.home", home_js)
+        self.assertIn("SQX.support", support_js)
         self.assertIn("SQX.workflow", workflow_js)
         self.assertIn("SQX.projectGenerator", project_generator_core_js)
         self.assertIn("SQX.projectGenerator", project_generator_config_js)
@@ -233,6 +238,42 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(export=export):
                 self.assertIn(export, home_js)
                 self.assertIn(f"SQX_HOME.{export}", dashboard_js)
+
+    def test_support_diagnostics_module_and_ui_are_wired(self):
+        main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
+        support_js = (APP_ROOT / "js" / "modules" / "support.js").read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        support_py = (TOOL_ROOT / "core" / "support_diagnostics.py").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        expected_ids = [
+            "support-panel",
+            "support-diagnostic-btn",
+            "support-diagnostic-status",
+        ]
+        for element_id in expected_ids:
+            with self.subTest(element_id=element_id):
+                self.assertIn(f'id="{element_id}"', self.html)
+
+        for export in [
+            "diagnosticsFilename",
+            "downloadJson",
+            "fetchDiagnostics",
+            "generateDiagnostics",
+            "setStatus",
+        ]:
+            with self.subTest(export=export):
+                self.assertIn(export, support_js)
+
+        self.assertIn("js/modules/support.js", self.html)
+        self.assertIn("window.SQX.support.init()", main_js)
+        self.assertIn("/api/support/diagnostics", server_py)
+        self.assertIn("build_support_diagnostics", server_py)
+        self.assertIn("safe_to_send", support_py)
+        self.assertIn("license_payload", support_py)
+        self.assertIn("strategy_files", support_py)
+        self.assertEqual(product_manifest["support"]["diagnosticsEndpoint"], "/api/support/diagnostics")
+        self.assertTrue(product_manifest["support"]["safeToSend"])
 
     def test_dashboard_navigation_delegates_to_ui_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
@@ -668,7 +709,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m6_decisions(self):
+    def test_monetization_docs_capture_m1_to_m7_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -676,6 +717,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m4 = MONETIZATION_M4_DOC.read_text(encoding="utf-8-sig")
         m5 = MONETIZATION_M5_DOC.read_text(encoding="utf-8-sig")
         m6 = MONETIZATION_M6_DOC.read_text(encoding="utf-8-sig")
+        m7 = MONETIZATION_M7_DOC.read_text(encoding="utf-8-sig")
         commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
         public_roadmap = (PROJECT_ROOT / "docs" / "PUBLIC_ROADMAP.md").read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
@@ -686,11 +728,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M4", roadmap)
         self.assertIn("Phase M5", roadmap)
         self.assertIn("Phase M6", roadmap)
+        self.assertIn("Phase M7", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
         self.assertIn("Phase M5: prepare branding and go-to-market assets. Done.", next_steps)
         self.assertIn("Phase M6: run security and distribution audit. Done.", next_steps)
+        self.assertIn("Phase M7: design support and diagnostics flow. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -782,6 +826,19 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, m6)
 
+        m7_patterns = [
+            "GET /api/support/diagnostics",
+            "Generar diagnostico",
+            "privacy.safe_to_send = true",
+            "paths = redacted",
+            "license_payload = excluded",
+            "strategy_files = excluded",
+            "sin telemetria",
+        ]
+        for pattern in m7_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m7)
+
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
@@ -849,6 +906,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "license-commercial-copy",
             "license-upgrade-list",
             "license-plan-strip",
+            "support-panel",
+            "support-diagnostic-btn",
+            "support-diagnostic-status",
         ]
         for element_id in expected_ids:
             with self.subTest(element_id=element_id):

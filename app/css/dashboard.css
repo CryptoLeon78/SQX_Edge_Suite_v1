@@ -415,6 +415,27 @@
   .license-feedback {
     min-height:16px;
   }
+  .support-panel {
+    display:grid;
+    gap:10px;
+  }
+  .support-panel > strong {
+    color:var(--text);
+    font-size:14px;
+  }
+  .support-panel p,
+  .support-panel small {
+    color:var(--text2);
+    font-size:12px;
+    line-height:1.45;
+    margin:0;
+  }
+  .support-status {
+    min-height:16px;
+  }
+  .support-status.is-ok { color:var(--green); }
+  .support-status.is-warn { color:var(--yellow); }
+  .support-status.is-error { color:var(--red); }
   .home-focus-row span { color:var(--text2); font-size:13px; }
   .home-focus-row strong { color:var(--text); font-size:13px; text-align:right; }
   .home-focus-row strong.is-ok { color:var(--green); }

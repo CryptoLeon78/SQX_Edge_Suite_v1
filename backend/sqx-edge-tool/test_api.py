@@ -55,6 +55,36 @@ class ApiTestCase(unittest.TestCase):
         missing = self.client.post("/api/license/check", json={})
         self.assertEqual(missing.status_code, 400)
 
+    def test_support_diagnostics_endpoint_redacts_sensitive_values(self):
+        sensitive_path = r"C:\Users\Ivan SQX\Private\StrategyQuantX"
+        cfg = {
+            "sqx_path": sensitive_path,
+            "sqx_data_db": sensitive_path + r"\user\data\data.db",
+            "sqx_projects_dir": sensitive_path + r"\user\projects",
+            "template_capa1": sensitive_path + r"\templates\Capa1.cfx",
+            "template_capa2": sensitive_path + r"\templates\Capa2.cfx",
+            "output_dir": sensitive_path + r"\output",
+            "asset_aliases": {"USTEC": "NDXm"},
+            "darwinex_suffix": "_darwinex",
+        }
+        with patch.object(server, "load_config", return_value=cfg):
+            response = self.client.get("/api/support/diagnostics")
+
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        raw = json.dumps(data, ensure_ascii=False)
+        self.assertTrue(data["ok"])
+        self.assertTrue(data["privacy"]["safe_to_send"])
+        self.assertEqual(data["privacy"]["paths"], "redacted")
+        self.assertEqual(data["privacy"]["license_payload"], "excluded")
+        self.assertEqual(data["privacy"]["strategy_files"], "excluded")
+        self.assertEqual(data["config"]["asset_aliases_count"], 1)
+        self.assertTrue(data["config"]["path_values"]["sqx_path"]["redacted"])
+        self.assertNotIn(sensitive_path, raw)
+        self.assertNotIn("Private", raw)
+        self.assertNotIn("NDXm", raw)
+        self.assertRegex(data["filename"], r"^SQX_support_diagnostic_[a-f0-9]{12}\.json$")
+
     def test_minings_follow_plan_manifest(self):
         response = self.client.get("/api/minings")
         self.assertEqual(response.status_code, 200)

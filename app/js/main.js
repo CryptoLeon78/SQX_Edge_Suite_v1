@@ -16,6 +16,10 @@ if (window.SQX && window.SQX.license) {
   window.SQX.license.init();
 }
 
+if (window.SQX && window.SQX.support) {
+  window.SQX.support.init();
+}
+
 if (window.SQX && window.SQX.workflow) {
   window.SQX.workflow.init();
 }
