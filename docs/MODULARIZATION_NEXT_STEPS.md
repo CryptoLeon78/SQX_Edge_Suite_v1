@@ -9,6 +9,8 @@ Persistent planning note for the next SQX Edge phases.
 3. Phase 38: add more granular contracts per frontend submodule. Done.
 4. Phase 39: regenerate and test the portable ZIP after modularization. Done.
 5. Phase 40: document the final architecture map and load order. Done.
+6. Phase 41: guard architecture load-order documentation with a living contract. Done.
+7. Phase 42: reduce Project Generator legacy bridge with a focused DOM helper module. Done.
 
 ## Working Discipline
 

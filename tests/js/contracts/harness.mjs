@@ -16,6 +16,12 @@ class ClassList {
   remove(...names) {
     names.forEach(name => this.values.delete(name));
   }
+  toggle(name, force) {
+    const shouldAdd = force === undefined ? !this.values.has(name) : !!force;
+    if (shouldAdd) this.values.add(name);
+    else this.values.delete(name);
+    return shouldAdd;
+  }
   contains(name) {
     return this.values.has(name);
   }
@@ -31,8 +37,19 @@ class Element {
     this.textContent = '';
     this.innerHTML = '';
     this.checked = false;
+    this.value = '';
     this.tagName = '';
     this.type = '';
+    this.scrollTop = 0;
+  }
+  append(...nodes) {
+    nodes.forEach(node => {
+      this.textContent += typeof node === 'string' ? node : (node.textContent || '');
+    });
+  }
+  scrollIntoView() {}
+  focus() {
+    this.focused = true;
   }
   addEventListener(type, handler) {
     this.listeners[type] = this.listeners[type] || [];
@@ -66,6 +83,12 @@ class FakeDocument {
   }
   getElementById(id) {
     return this.elements.get(id) || null;
+  }
+  createTextNode(text) {
+    return { textContent: String(text || '') };
+  }
+  createElement() {
+    return new Element('');
   }
   querySelector(selector) {
     if (selector.startsWith('.tab[data-tab="')) {
@@ -155,6 +178,7 @@ function createLoadedSandbox(modules = [
   'app/js/modules/workflow.js',
   'app/js/modules/project-generator-core.js',
   'app/js/modules/project-generator-config.js',
+  'app/js/modules/project-generator-dom.js',
   'app/js/modules/project-generator-renderers.js',
   'app/js/modules/project-generator-status.js',
   'app/js/modules/project-generator-cleaner.js',

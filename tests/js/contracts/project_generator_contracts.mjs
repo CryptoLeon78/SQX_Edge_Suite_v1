@@ -4,6 +4,24 @@ const { SQX, document } = createLoadedSandbox();
 const PG = SQX.projectGenerator;
 
 assert.equal(PG.escapeHtml('<x>'), '&lt;x&gt;');
+assert.equal(PG.dom.escapeHtml('<x>'), '&lt;x&gt;');
+['pg-sqx-path', 'pg-sqx-db', 'pg-sqx-projects', 'pg-output-dir', 'pg-tpl-c1', 'pg-tpl-c2'].forEach(id => {
+  document.add(new Element(id));
+});
+document.getElementById('pg-sqx-path').value = ' C:/SQX ';
+document.getElementById('pg-sqx-db').value = ' C:/SQX/data.db ';
+document.getElementById('pg-sqx-projects').value = ' C:/SQX/projects ';
+document.getElementById('pg-output-dir').value = ' C:/out ';
+document.getElementById('pg-tpl-c1').value = ' C1.cfx ';
+document.getElementById('pg-tpl-c2').value = ' C2.cfx ';
+const domConfig = PG.dom.readConfigInputs(document, { EURUSD: 'EURUSD_M1' });
+assert.equal(domConfig.sqxPath, 'C:/SQX');
+assert.equal(domConfig.assetAliases.EURUSD, 'EURUSD_M1');
+PG.dom.writeConfigInputs(document, { sqx_path: 'D:/SQX', output_dir: 'D:/out' });
+assert.equal(document.getElementById('pg-sqx-path').value, 'D:/SQX');
+assert.equal(document.getElementById('pg-output-dir').value, 'D:/out');
+PG.dom.applySqxFields(document, { sqxPath: 'E:/SQX', dataDb: 'E:/db', projectsDir: 'E:/projects' });
+assert.equal(document.getElementById('pg-sqx-db').value, 'E:/db');
 const pgApiState = PG.computeOnboardingState({
   apiBase: 'http://127.0.0.1:8765',
   connected: false,

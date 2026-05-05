@@ -40,6 +40,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/workflow.js",
                 "js/modules/project-generator-core.js",
                 "js/modules/project-generator-config.js",
+                "js/modules/project-generator-dom.js",
                 "js/modules/project-generator-renderers.js",
                 "js/modules/project-generator-status.js",
                 "js/modules/project-generator-cleaner.js",
@@ -84,6 +85,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/workflow.js",
             "js/modules/project-generator-core.js",
             "js/modules/project-generator-config.js",
+            "js/modules/project-generator-dom.js",
             "js/modules/project-generator-renderers.js",
             "js/modules/project-generator-status.js",
             "js/modules/project-generator-cleaner.js",
@@ -109,6 +111,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
         project_generator_core_js = (APP_ROOT / "js" / "modules" / "project-generator-core.js").read_text(encoding="utf-8-sig")
         project_generator_config_js = (APP_ROOT / "js" / "modules" / "project-generator-config.js").read_text(encoding="utf-8-sig")
+        project_generator_dom_js = (APP_ROOT / "js" / "modules" / "project-generator-dom.js").read_text(encoding="utf-8-sig")
         project_generator_renderers_js = (APP_ROOT / "js" / "modules" / "project-generator-renderers.js").read_text(encoding="utf-8-sig")
         project_generator_status_js = (APP_ROOT / "js" / "modules" / "project-generator-status.js").read_text(encoding="utf-8-sig")
         project_generator_cleaner_js = (APP_ROOT / "js" / "modules" / "project-generator-cleaner.js").read_text(encoding="utf-8-sig")
@@ -131,6 +134,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.workflow", workflow_js)
         self.assertIn("SQX.projectGenerator", project_generator_core_js)
         self.assertIn("SQX.projectGenerator", project_generator_config_js)
+        self.assertIn("SQX.projectGenerator", project_generator_dom_js)
         self.assertIn("SQX.projectGenerator", project_generator_renderers_js)
         self.assertIn("SQX.projectGenerator", project_generator_status_js)
         self.assertIn("SQX.projectGenerator", project_generator_cleaner_js)
@@ -257,6 +261,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         project_generator_files = [
             "project-generator-core.js",
             "project-generator-config.js",
+            "project-generator-dom.js",
             "project-generator-renderers.js",
             "project-generator-status.js",
             "project-generator-cleaner.js",
@@ -305,6 +310,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             "directionLabel",
             "escapeHtml",
             "fetchJson",
+            "appendLog",
+            "readConfigInputs",
+            "setSettingsOpen",
+            "writeConfigInputs",
             "bulkGenerateLabel",
             "configSaveBody",
             "configSaveError",
@@ -362,6 +371,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.openOutputSuccessStatus", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.cleanerNoSelectionStatus", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.cleanerResultTrace", project_generator_main_js)
+        self.assertIn("const SQX_PG_DOM = SQX_PG_MODULE.dom", project_generator_main_js)
+        self.assertIn("SQX_PG_DOM.readConfigInputs", project_generator_main_js)
+        self.assertIn("SQX_PG_DOM.writeConfigInputs", project_generator_main_js)
+        self.assertIn("SQX_PG_DOM.appendLog", project_generator_main_js)
         self.assertIn("const PG_STATE = {", project_generator_main_js)
         self.assertIn("const CLN_STATE = {", project_generator_main_js)
         self.assertIn("PG_STATE.connected", project_generator_main_js)
@@ -369,8 +382,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("function bindProjectGeneratorEvents()", project_generator_main_js)
         self.assertIn("function bindStrategyCleanerEvents()", project_generator_main_js)
         self.assertIn("function bindProjectGeneratorPolling()", project_generator_main_js)
-        self.assertIn("function pgReadConfigInputs()", project_generator_main_js)
-        self.assertIn("function pgWriteConfigInputs(config)", project_generator_main_js)
+        self.assertNotIn("sqxPath: pgTrimmedInputValue('pg-sqx-path')", project_generator_main_js)
+        self.assertNotIn("pgSetInputValue('pg-sqx-path', c.sqx_path)", project_generator_main_js)
         self.assertIn("function pgApplySqxCandidate(candidate, outputEl)", project_generator_main_js)
         self.assertIn("function pgApplyValidatedSqxPath(path, response)", project_generator_main_js)
         self.assertIn("function pgUpdateMiningSummary(count)", project_generator_main_js)

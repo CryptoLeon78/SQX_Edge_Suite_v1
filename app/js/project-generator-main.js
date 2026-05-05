@@ -2,6 +2,7 @@
 // PROJECT GENERATOR — Tab que consume el backend Python (F3 API)
 // ============================================================
 const SQX_PG_MODULE = (window.SQX && window.SQX.projectGenerator) || {};
+const SQX_PG_DOM = SQX_PG_MODULE.dom || {};
 const PG_API = (window.SQX_CONFIG && window.SQX_CONFIG.apiBase()) || '';
 const PG_STATE = {
   aliases: {},
@@ -20,108 +21,59 @@ const pgApiInline = document.getElementById('pg-api-base-inline');
 if (pgApiInline && PG_API) pgApiInline.textContent = PG_API;
 
 function pgEsc(value) {
-  return SQX_PG_MODULE.escapeHtml
-    ? SQX_PG_MODULE.escapeHtml(value)
-    : String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;',
-    }[ch]));
+  return SQX_PG_DOM.escapeHtml ? SQX_PG_DOM.escapeHtml(value) : SQX_PG_MODULE.escapeHtml(value);
 }
 
 function pgLog(msg, level) {
-  const log = document.getElementById('pg-log');
-  if (!log) return;
-  const t = new Date().toLocaleTimeString();
-  const cls = level === 'ok' ? 'log-ok' : level === 'err' ? 'log-err' : 'log-info';
-  if (log.textContent.trim() === '[esperando primera acción…]') log.textContent = '';
-  log.append(document.createTextNode('[' + t + '] '));
-  const span = document.createElement('span');
-  span.className = cls;
-  span.textContent = msg;
-  log.append(span, document.createTextNode('\n'));
-  log.scrollTop = log.scrollHeight;
+  if (SQX_PG_DOM.appendLog) SQX_PG_DOM.appendLog(document, msg, level);
 }
 
 function pgTrace(title, detail, level) {
-  if (typeof window.addHomeTrace === 'function') {
-    window.addHomeTrace(title, detail, level || 'info');
-  }
+  if (SQX_PG_DOM.trace) SQX_PG_DOM.trace(window, title, detail, level);
 }
 
 function pgSetSettingsOpen(open) {
-  const body = document.getElementById('pg-settings-body');
-  const arrow = document.getElementById('pg-settings-arrow');
-  if (!body || !arrow) return;
-  const shouldOpen = !!open;
-  body.style.display = shouldOpen ? 'block' : 'none';
-  arrow.classList.toggle('closed', !shouldOpen);
+  if (SQX_PG_DOM.setSettingsOpen) SQX_PG_DOM.setSettingsOpen(document, open);
 }
 
 function pgFocusSettingsField(id) {
-  pgSetSettingsOpen(true);
-  const target = document.getElementById(id);
-  if (!target) return;
-  target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  setTimeout(() => target.focus(), 90);
+  if (SQX_PG_DOM.focusSettingsField) SQX_PG_DOM.focusSettingsField(document, id);
 }
 
 function pgDom(id) {
-  return document.getElementById(id);
+  return SQX_PG_DOM.byId ? SQX_PG_DOM.byId(document, id) : document.getElementById(id);
 }
 
 function pgInputValue(id) {
-  return (pgDom(id) || {}).value || '';
+  return SQX_PG_DOM.inputValue ? SQX_PG_DOM.inputValue(document, id) : ((pgDom(id) || {}).value || '');
 }
 
 function pgTrimmedInputValue(id) {
-  return pgInputValue(id).trim();
+  return SQX_PG_DOM.trimmedInputValue ? SQX_PG_DOM.trimmedInputValue(document, id) : pgInputValue(id).trim();
 }
 
 function pgSetInputValue(id, value) {
-  const input = pgDom(id);
-  if (input) input.value = value || '';
+  if (SQX_PG_DOM.setInputValue) SQX_PG_DOM.setInputValue(document, id, value);
 }
 
 function pgSetText(id, text) {
-  const el = pgDom(id);
-  if (el) el.textContent = text;
+  if (SQX_PG_DOM.setText) SQX_PG_DOM.setText(document, id, text);
 }
 
 function pgSetHtml(id, html) {
-  const el = pgDom(id);
-  if (el) el.innerHTML = html;
-  return el;
+  return SQX_PG_DOM.setHtml ? SQX_PG_DOM.setHtml(document, id, html) : null;
 }
 
 function pgReadConfigInputs() {
-  return {
-    sqxPath: pgTrimmedInputValue('pg-sqx-path'),
-    sqxDataDb: pgTrimmedInputValue('pg-sqx-db'),
-    sqxProjectsDir: pgTrimmedInputValue('pg-sqx-projects'),
-    outputDir: pgTrimmedInputValue('pg-output-dir'),
-    templateCapa1: pgTrimmedInputValue('pg-tpl-c1'),
-    templateCapa2: pgTrimmedInputValue('pg-tpl-c2'),
-    assetAliases: PG_STATE.aliases,
-  };
+  return SQX_PG_DOM.readConfigInputs(document, PG_STATE.aliases);
 }
 
 function pgWriteConfigInputs(config) {
-  const c = config || {};
-  pgSetInputValue('pg-sqx-path', c.sqx_path);
-  pgSetInputValue('pg-sqx-db', c.sqx_data_db);
-  pgSetInputValue('pg-sqx-projects', c.sqx_projects_dir);
-  pgSetInputValue('pg-output-dir', c.output_dir);
-  pgSetInputValue('pg-tpl-c1', c.template_capa1);
-  pgSetInputValue('pg-tpl-c2', c.template_capa2);
+  SQX_PG_DOM.writeConfigInputs(document, config);
 }
 
 function pgApplySqxFields(fields) {
-  pgSetInputValue('pg-sqx-path', fields.sqxPath);
-  pgSetInputValue('pg-sqx-db', fields.dataDb);
-  pgSetInputValue('pg-sqx-projects', fields.projectsDir);
+  SQX_PG_DOM.applySqxFields(document, fields);
 }
 
 function pgApplySqxCandidate(candidate, outputEl) {
@@ -144,10 +96,7 @@ function pgApplyValidatedSqxPath(path, response) {
 }
 
 function pgSetSettingsMessage(status) {
-  const msg = pgDom('pg-settings-msg');
-  if (!msg) return;
-  msg.textContent = status.message;
-  if (Object.prototype.hasOwnProperty.call(status, 'color')) msg.style.color = status.color;
+  SQX_PG_DOM.setSettingsMessage(document, status);
 }
 
 function pgUpdateMiningSummary(count) {
