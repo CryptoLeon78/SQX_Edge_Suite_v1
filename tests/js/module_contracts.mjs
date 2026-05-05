@@ -230,6 +230,38 @@ const aliasAutoResult = SQX.projectGenerator.aliasAutoSuggestResult(1);
 assert.equal(aliasAutoResult.text, 'Auto-suggest: 1 aliases nuevos propuestos (pulsa Guardar config)');
 assert.equal(aliasAutoResult.level, 'ok');
 assert.equal(SQX.projectGenerator.aliasAutoSuggestResult(0).level, 'info');
+assert.equal(SQX.projectGenerator.generateOneStartMessage(3, 2), 'Generando Mining 3 · Capa 2…');
+const generateOneOk = SQX.projectGenerator.generateOneResult({ ok: true, filename: 'M03.cfx' }, 3, 2);
+assert.equal(generateOneOk.logText, '✓ M03.cfx');
+assert.equal(generateOneOk.logLevel, 'ok');
+assert.equal(generateOneOk.traceDetail, 'Mining 3 · Capa 2 · M03.cfx');
+const generateOneFail = SQX.projectGenerator.generateOneResult({ ok: false, error: 'bad template' }, 3, 1);
+assert.equal(generateOneFail.logText, '✗ bad template');
+assert.equal(generateOneFail.traceLevel, 'err');
+assert.equal(SQX.projectGenerator.generateErrorResult('offline').logText, '✗ Error: offline');
+assert.equal(
+  SQX.projectGenerator.generateAllConfirmMessage(1, 12),
+  '¿Generar 12 minings en Capa 1? Sobrescribe los existentes en output/.'
+);
+assert.equal(
+  SQX.projectGenerator.generateAllConfirmMessage(2, 0),
+  '¿Generar todos los minings en Capa 2? Sobrescribe los existentes en output/.'
+);
+assert.equal(SQX.projectGenerator.generateAllStartMessage(2), 'Generando TODOS · Capa 2…');
+const generateAllSummary = SQX.projectGenerator.generateAllResultSummary({ ok_count: 2, fail_count: 1 });
+assert.equal(generateAllSummary.text, 'OK: 2 · FAIL: 1');
+assert.equal(generateAllSummary.level, 'err');
+const generateAllTrace = SQX.projectGenerator.generateAllTrace(2, { ok_count: 2, fail_count: 0 });
+assert.equal(generateAllTrace.detail, 'Capa 2 · OK 2 · FAIL 0');
+assert.equal(generateAllTrace.level, 'ok');
+const generateAllLines = SQX.projectGenerator.generateAllResultLines([
+  { ok: true, mining: 3, filename: 'M03.cfx' },
+  { ok: false, mining: 12, error: 'bad db' },
+]);
+assert.equal(generateAllLines[0].text, '  ✓ M03 → M03.cfx');
+assert.equal(generateAllLines[0].level, 'ok');
+assert.equal(generateAllLines[1].text, '  ✗ M12 → bad db');
+assert.equal(generateAllLines[1].level, 'err');
 
 document.addTab('inicio', true);
 document.addTab('pipeline', false);

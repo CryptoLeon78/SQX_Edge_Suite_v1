@@ -250,6 +250,14 @@ class DashboardStaticTestCase(unittest.TestCase):
             "directionLabel",
             "escapeHtml",
             "fetchJson",
+            "generateAllConfirmMessage",
+            "generateAllResultLines",
+            "generateAllResultSummary",
+            "generateAllStartMessage",
+            "generateAllTrace",
+            "generateErrorResult",
+            "generateOneResult",
+            "generateOneStartMessage",
             "miningRowsHtml",
             "outputListHtml",
             "prepareRequestOptions",
@@ -270,6 +278,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.aliasAutoSuggestResult", main_js)
         self.assertIn("SQX_PG_MODULE.escapeHtml", main_js)
         self.assertIn("SQX_PG_MODULE.fetchJson", main_js)
+        self.assertIn("SQX_PG_MODULE.generateOneResult", main_js)
+        self.assertIn("SQX_PG_MODULE.generateAllConfirmMessage", main_js)
+        self.assertIn("SQX_PG_MODULE.generateAllResultLines", main_js)
         self.assertNotIn("const hasSqxInput = ", main_js)
         self.assertNotIn("stepsEl.innerHTML = state.steps.map", main_js)
         self.assertNotIn("await fetch(url, opts)", main_js)
@@ -280,6 +291,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("const opts = top.map", main_js)
         self.assertNotIn("const idx = parseInt(choice, 10)", main_js)
         self.assertNotIn("Auto-suggest: ' + found", main_js)
+        self.assertNotIn("const countLabel = PG_PLAN_COUNT", main_js)
+        self.assertNotIn("String(x.mining).padStart", main_js)
+        self.assertNotIn("'OK: ' + r.ok_count", main_js)
         self.assertNotIn("pg-output-empty", main_js)
         self.assertIn("addEventListener('click', pgAutodetectSqx)", main_js)
         self.assertIn("addEventListener('click', pgValidateSqxPath)", main_js)

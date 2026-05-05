@@ -262,38 +262,38 @@ async function pgLoadOutput() {
 }
 
 async function pgGenerateOne(mining, capa) {
-  pgLog('Generando Mining ' + mining + ' · Capa ' + capa + '…', 'info');
+  pgLog(SQX_PG_MODULE.generateOneStartMessage(mining, capa), 'info');
   try {
     const r = await pgFetch('/generate', { method:'POST', body: { mining, capa } });
-    if (r.ok) {
-      pgLog('✓ ' + r.filename, 'ok');
-      pgTrace('Proyecto generado', 'Mining ' + mining + ' · Capa ' + capa + ' · ' + r.filename, 'ok');
-      await pgLoadOutput();
-    } else {
-      pgLog('✗ ' + (r.error || 'fallo'), 'err');
-      pgTrace('Error generando proyecto', 'Mining ' + mining + ' · ' + (r.error || 'fallo'), 'err');
-    }
-  } catch(e) { pgLog('✗ Error: ' + e.message, 'err'); pgTrace('Error generando proyecto', e.message, 'err'); }
+    const result = SQX_PG_MODULE.generateOneResult(r, mining, capa);
+    pgLog(result.logText, result.logLevel);
+    pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
+    if (r.ok) await pgLoadOutput();
+  } catch(e) {
+    const result = SQX_PG_MODULE.generateErrorResult(e.message, 'Error generando proyecto');
+    pgLog(result.logText, result.logLevel);
+    pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
+  }
 }
 
 async function pgGenerateAll(capa) {
-  const countLabel = PG_PLAN_COUNT || 'todos los';
-  if (!confirm('¿Generar ' + countLabel + ' minings en Capa ' + capa + '? Sobrescribe los existentes en output/.')) return;
-  pgLog('Generando TODOS · Capa ' + capa + '…', 'info');
+  if (!confirm(SQX_PG_MODULE.generateAllConfirmMessage(capa, PG_PLAN_COUNT))) return;
+  pgLog(SQX_PG_MODULE.generateAllStartMessage(capa), 'info');
   try {
     const r = await pgFetch('/generate-all', { method:'POST', body: { capa } });
-    pgLog('OK: ' + r.ok_count + ' · FAIL: ' + r.fail_count, r.fail_count === 0 ? 'ok' : 'err');
-    pgTrace(
-      'Generacion masiva completada',
-      'Capa ' + capa + ' · OK ' + r.ok_count + ' · FAIL ' + r.fail_count,
-      r.fail_count === 0 ? 'ok' : 'err'
-    );
-    r.results.forEach(x => {
-      if (x.ok) pgLog('  ✓ M' + String(x.mining).padStart(2,'0') + ' → ' + x.filename, 'ok');
-      else pgLog('  ✗ M' + String(x.mining).padStart(2,'0') + ' → ' + x.error, 'err');
+    const summary = SQX_PG_MODULE.generateAllResultSummary(r);
+    const trace = SQX_PG_MODULE.generateAllTrace(capa, r);
+    pgLog(summary.text, summary.level);
+    pgTrace(trace.title, trace.detail, trace.level);
+    SQX_PG_MODULE.generateAllResultLines(r.results).forEach(line => {
+      pgLog(line.text, line.level);
     });
     await pgLoadOutput();
-  } catch(e) { pgLog('✗ Error: ' + e.message, 'err'); pgTrace('Error en generacion masiva', e.message, 'err'); }
+  } catch(e) {
+    const result = SQX_PG_MODULE.generateErrorResult(e.message, 'Error en generacion masiva');
+    pgLog(result.logText, result.logLevel);
+    pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
+  }
 }
 
 async function pgSaveConfig() {
