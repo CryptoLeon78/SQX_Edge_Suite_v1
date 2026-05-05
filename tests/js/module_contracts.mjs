@@ -454,5 +454,24 @@ const cleanerLines = SQX.projectGenerator.cleanerResultLines([
 ]);
 assert.equal(cleanerLines[0], 'OK clean.sqx - rename');
 assert.equal(cleanerLines[1], 'FAIL fail.sqx - error');
+const selectedMap = SQX.projectGenerator.cleanerSelectedMap(['C:/SQX/a.sqx', 'C:/SQX/b.sqx']);
+assert.equal(selectedMap['C:/SQX/a.sqx'], true);
+assert.equal(selectedMap['C:/SQX/b.sqx'], true);
+assert.equal(SQX.projectGenerator.cleanerSelectedLabel(2), '2 seleccionadas');
+const scanMessage = SQX.projectGenerator.cleanerScanMessage({ ok: true, count: 2 });
+assert.equal(scanMessage.text, '✓ 2 archivos .sqx encontrados');
+assert.equal(scanMessage.actionsDisplay, 'block');
+assert.equal(SQX.projectGenerator.cleanerScanMessage({ ok: true, count: 0 }).actionsDisplay, 'none');
+assert.equal(SQX.projectGenerator.cleanerPreviewPattern(''), '{asset}_{tf}_{dir}_{id}');
+assert.equal(SQX.projectGenerator.cleanerPreviewPattern(' {asset}_{id} '), '{asset}_{id}');
+const previewLines = SQX.projectGenerator.cleanerPreviewLines([
+  { current: 'old.sqx', new_name: 'new.sqx' },
+  { path: 'bad.sqx', error: 'missing asset' },
+]);
+assert.equal(SQX.projectGenerator.cleanerPreviewHeader(previewLines), 'Preview rename para 2 archivos:');
+assert.equal(previewLines[0].text, '  old.sqx → new.sqx');
+assert.equal(previewLines[0].level, 'info');
+assert.equal(previewLines[1].text, '  ✗ bad.sqx: missing asset');
+assert.equal(previewLines[1].level, 'err');
 
 console.log('module contracts ok');

@@ -229,9 +229,15 @@ class DashboardStaticTestCase(unittest.TestCase):
             "cleanerConfirmMessage",
             "cleanerHasAction",
             "cleanerOptions",
+            "cleanerPreviewHeader",
+            "cleanerPreviewLines",
+            "cleanerPreviewPattern",
             "cleanerResultLevel",
             "cleanerResultLines",
             "cleanerResultSummary",
+            "cleanerScanMessage",
+            "cleanerSelectedLabel",
+            "cleanerSelectedMap",
             "computeOnboardingState",
             "directionClass",
             "directionLabel",
@@ -269,8 +275,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.cleanerTableHtml", main_js)
         self.assertIn("SQX_PG_MODULE.cleanerOptions", main_js)
         self.assertIn("SQX_PG_MODULE.cleanerConfirmMessage", main_js)
+        self.assertIn("SQX_PG_MODULE.cleanerPreviewLines", main_js)
         self.assertIn("SQX_PG_MODULE.cleanerResultSummary", main_js)
+        self.assertIn("SQX_PG_MODULE.cleanerScanMessage", main_js)
+        self.assertIn("SQX_PG_MODULE.cleanerSelectedMap", main_js)
         self.assertNotIn("CLN_FILES.map(f =>", main_js)
+        self.assertNotIn("Object.fromEntries([...CLN_SELECTED]", main_js)
+        self.assertNotIn("Preview rename para ' + r.previews.length", main_js)
         self.assertNotIn("cln-row-check\" data-path=\"'+pgEsc", main_js)
         self.assertNotIn("const msg = `", main_js)
         self.assertNotIn("const fname = x.path.split", main_js)

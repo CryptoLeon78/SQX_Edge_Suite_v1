@@ -491,17 +491,17 @@ async function pgRunOnboardingTertiaryAction() {
       if (!r.ok) { info.textContent = '✗ ' + r.error; info.style.color='var(--red)'; return; }
       CLN_FILES = r.files;
       CLN_SELECTED = new Set();
-      info.textContent = '✓ ' + r.count + ' archivos .sqx encontrados';
-      info.style.color = 'var(--green)';
+      const scanMessage = SQX_PG_MODULE.cleanerScanMessage(r);
+      info.textContent = scanMessage.text;
+      info.style.color = scanMessage.color;
       clnRenderTable();
-      document.getElementById('cln-actions').style.display = r.count > 0 ? 'block' : 'none';
+      document.getElementById('cln-actions').style.display = scanMessage.actionsDisplay;
     } catch(e) { info.textContent = '✗ ' + e.message; info.style.color='var(--red)'; }
   }
 
   function clnRenderTable() {
     const tbl = document.getElementById('cln-table');
-    const selected = Object.fromEntries([...CLN_SELECTED].map(path => [path, true]));
-    tbl.innerHTML = SQX_PG_MODULE.cleanerTableHtml(CLN_FILES, selected);
+    tbl.innerHTML = SQX_PG_MODULE.cleanerTableHtml(CLN_FILES, SQX_PG_MODULE.cleanerSelectedMap([...CLN_SELECTED]));
     if (!CLN_FILES.length) { clnUpdateSelectedCount(); return; }
     document.querySelectorAll('.cln-row-check').forEach(cb => cb.addEventListener('change', function(){
       const p = this.dataset.path;
@@ -518,18 +518,17 @@ async function pgRunOnboardingTertiaryAction() {
   }
 
   function clnUpdateSelectedCount() {
-    document.getElementById('cln-selected').textContent = CLN_SELECTED.size + ' seleccionadas';
+    document.getElementById('cln-selected').textContent = SQX_PG_MODULE.cleanerSelectedLabel(CLN_SELECTED.size);
   }
 
   async function clnPreviewRename() {
     if (!CLN_SELECTED.size) { pgLog('No hay nada seleccionado', 'err'); return; }
-    const pattern = document.getElementById('cln-pattern').value.trim() || '{asset}_{tf}_{dir}_{id}';
+    const pattern = SQX_PG_MODULE.cleanerPreviewPattern(document.getElementById('cln-pattern').value);
     try {
       const r = await pgFetch('/sqx-preview-rename', { method:'POST', body: { files: [...CLN_SELECTED], pattern } });
-      pgLog('Preview rename para ' + r.previews.length + ' archivos:', 'info');
-      r.previews.forEach(p => {
-        if (p.error) pgLog('  ✗ ' + p.path + ': ' + p.error, 'err');
-        else pgLog('  ' + p.current + ' → ' + p.new_name, 'info');
+      pgLog(SQX_PG_MODULE.cleanerPreviewHeader(r.previews), 'info');
+      SQX_PG_MODULE.cleanerPreviewLines(r.previews).forEach(line => {
+        pgLog(line.text, line.level);
       });
     } catch(e) { pgLog('Error preview: ' + e.message, 'err'); }
   }

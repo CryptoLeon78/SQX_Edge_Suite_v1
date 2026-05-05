@@ -359,6 +359,59 @@
       + '</div>';
   }
 
+  function cleanerSelectedMap(selectedPaths) {
+    var selected = {};
+    (selectedPaths || []).forEach(function(path) {
+      selected[path] = true;
+    });
+    return selected;
+  }
+
+  function cleanerSelectedLabel(count) {
+    return (count || 0) + ' seleccionadas';
+  }
+
+  function cleanerScanMessage(result) {
+    var data = result || {};
+    if (data.ok === false) {
+      return {
+        text: '✗ ' + (data.error || 'Error escaneando .sqx'),
+        color: 'var(--red)',
+        actionsDisplay: 'none'
+      };
+    }
+    var count = data.count || 0;
+    return {
+      text: '✓ ' + count + ' archivos .sqx encontrados',
+      color: 'var(--green)',
+      actionsDisplay: count > 0 ? 'block' : 'none'
+    };
+  }
+
+  function cleanerPreviewPattern(value) {
+    var pattern = String(value || '').trim();
+    return pattern || '{asset}_{tf}_{dir}_{id}';
+  }
+
+  function cleanerPreviewHeader(previews) {
+    return 'Preview rename para ' + ((previews || []).length) + ' archivos:';
+  }
+
+  function cleanerPreviewLines(previews) {
+    return (previews || []).map(function(preview) {
+      if (preview.error) {
+        return {
+          text: '  ✗ ' + preview.path + ': ' + preview.error,
+          level: 'err'
+        };
+      }
+      return {
+        text: '  ' + preview.current + ' → ' + preview.new_name,
+        level: 'info'
+      };
+    });
+  }
+
   function cleanerOptions(input) {
     var data = input || {};
     return {
@@ -460,9 +513,15 @@
     cleanerConfirmMessage: cleanerConfirmMessage,
     cleanerHasAction: cleanerHasAction,
     cleanerOptions: cleanerOptions,
+    cleanerPreviewHeader: cleanerPreviewHeader,
+    cleanerPreviewLines: cleanerPreviewLines,
+    cleanerPreviewPattern: cleanerPreviewPattern,
     cleanerResultLevel: cleanerResultLevel,
     cleanerResultLines: cleanerResultLines,
     cleanerResultSummary: cleanerResultSummary,
+    cleanerScanMessage: cleanerScanMessage,
+    cleanerSelectedLabel: cleanerSelectedLabel,
+    cleanerSelectedMap: cleanerSelectedMap,
     cleanerTableHtml: cleanerTableHtml,
     computeOnboardingState: computeOnboardingState,
     directionClass: directionClass,
