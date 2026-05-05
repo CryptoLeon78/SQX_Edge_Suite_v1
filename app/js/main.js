@@ -169,25 +169,8 @@ async function pgLoadConfig() {
 function pgRenderAliases() {
   const tbl = document.getElementById('pg-aliases-table');
   if (!tbl) return;
-  // Lista de assets únicos del plan (los obtenemos de la tabla minings ya cargada)
-  // Si todavía no se han cargado, mostramos placeholder
-  fetch(PG_API + '/minings').then(r => r.json()).then(minings => {
-    const assets = [...new Set(minings.map(m => m.asset))].sort();
-    tbl.innerHTML =
-      '<table class="cat-table" style="font-size:12px;">' +
-        '<thead><tr><th>Asset (plan)</th><th>Instrument SQX (alias)</th><th></th></tr></thead>' +
-        '<tbody>' +
-        assets.map(a => {
-          const cur = PG_ALIASES[a] || '';
-          return '<tr>' +
-            '<td style="font-weight:700;">'+pgEsc(a)+'</td>' +
-            '<td><input type="text" class="search-input" style="width:200px;font-size:12px;padding:4px 8px;" data-pg-alias="'+pgEsc(a)+'" value="'+pgEsc(cur)+'" placeholder="(default)"></td>' +
-            '<td><button class="export-btn" style="padding:3px 10px;font-size:11px;" data-pg-suggest-asset="'+pgEsc(a)+'">🔍</button></td>' +
-          '</tr>';
-        }).join('') +
-        '</tbody>' +
-      '</table>';
-    // Bind input change
+  pgFetch('/minings').then(minings => {
+    tbl.innerHTML = SQX_PG_MODULE.aliasTableHtml(minings, PG_ALIASES);
     tbl.querySelectorAll('input[data-pg-alias]').forEach(inp => {
       inp.addEventListener('change', function(){
         const k = this.dataset.pgAlias;
@@ -196,12 +179,11 @@ function pgRenderAliases() {
         else delete PG_ALIASES[k];
       });
     });
-    // Bind suggest button
     tbl.querySelectorAll('button[data-pg-suggest-asset]').forEach(btn => {
       btn.addEventListener('click', () => pgSuggestForAsset(btn.dataset.pgSuggestAsset));
     });
   }).catch(() => {
-    tbl.innerHTML = '<div style="color:var(--text2);font-size:12px;">(esperando minings…)</div>';
+    tbl.innerHTML = SQX_PG_MODULE.aliasTableHtml([], PG_ALIASES);
   });
 }
 
@@ -249,9 +231,6 @@ async function pgSuggestAll() {
   pgLog('Auto-suggest: ' + found + ' aliases nuevos propuestos (pulsa Guardar config)', found > 0 ? 'ok' : 'info');
 }
 
-function pgDirClass(d) { return d === 'long' ? 'long' : d === 'short' ? 'short' : 'both'; }
-function pgDirLabel(d) { return d === 'long' ? 'LONG' : d === 'short' ? 'SHORT' : 'L+S'; }
-
 async function pgLoadMinings() {
   try {
     const minings = await pgFetch('/minings');
@@ -265,28 +244,7 @@ async function pgLoadMinings() {
       try { return { ...m, _info: (await pgFetch('/symbol-info/' + m.asset)).info }; }
       catch { return { ...m, _info: null }; }
     }));
-    const html = infos.map(m => {
-      const info = m._info;
-      const srcBadge = info && info.source === 'db'
-        ? '<span class="pgm-src pgm-src-db" title="Costos leídos de data.db: ' + pgEsc(info.instrument) + ' spread=' + pgEsc(info.spread) + ' swap=' + pgEsc(info.swap_long) + '/' + pgEsc(info.swap_short) + '">📊 DB</span>'
-        : '<span class="pgm-src pgm-src-fallback" title="Costos por defecto (data.db no disponible o asset no encontrado)">📋 Default</span>';
-      const instrAlias = info && info.instrument && info.instrument !== m.asset
-        ? '<span class="pgm-alias" title="Alias: ' + pgEsc(m.asset) + ' -> ' + pgEsc(info.instrument) + ' en SQX DB">→ ' + pgEsc(info.instrument) + '</span>'
-        : '';
-      return '<div class="pg-mining-row">' +
-        '<div class="pgm-num">M' + String(m.num).padStart(2,'0') + '</div>' +
-        '<div class="pgm-asset">' + pgEsc(m.asset) + instrAlias + '</div>' +
-        '<div class="pgm-tf">' + pgEsc(m.tf) + '</div>' +
-        '<div class="pgm-bs">' + pgEsc(m.bs) + '</div>' +
-        '<div class="pgm-dir ' + pgDirClass(m.dir) + '">' + pgDirLabel(m.dir) + '</div>' +
-        srcBadge +
-        '<div class="pgm-actions">' +
-          '<button class="pgm-btn c1" data-pg-gen="' + m.num + '" data-pg-capa="1">📦 Capa 1</button>' +
-          '<button class="pgm-btn c2" data-pg-gen="' + m.num + '" data-pg-capa="2">📦 Capa 2</button>' +
-        '</div>' +
-      '</div>';
-    });
-    document.getElementById('pg-minings-table').innerHTML = html.join('');
+    document.getElementById('pg-minings-table').innerHTML = SQX_PG_MODULE.miningRowsHtml(infos);
     document.querySelectorAll('button[data-pg-gen]').forEach(btn => {
       btn.addEventListener('click', () => pgGenerateOne(parseInt(btn.dataset.pgGen,10), parseInt(btn.dataset.pgCapa,10)));
     });
@@ -302,16 +260,7 @@ async function pgLoadOutput() {
     document.getElementById('pg-output-count').textContent = r.files.length + ' archivos';
     pgRenderOnboarding();
     const list = document.getElementById('pg-output-list');
-    if (!r.files.length) {
-      list.innerHTML = '<div class="pg-output-empty">No hay .cfx generados todavía. Pulsa un botón "📦 Capa 1/2" arriba.</div>';
-      return;
-    }
-    list.innerHTML = r.files.map(f =>
-      '<div class="pg-output-row">' +
-        '<div class="pgo-name">' + pgEsc(f.name) + '</div>' +
-        '<div class="pgo-size">' + pgEsc(f.size_kb) + ' KB</div>' +
-        '<div class="pgo-time">' + new Date(f.mtime * 1000).toLocaleString() + '</div>' +
-      '</div>').join('');
+    list.innerHTML = SQX_PG_MODULE.outputListHtml(r.files);
     pgRenderOnboarding();
   } catch(e) { pgLog('Error cargando output: ' + e.message, 'err'); }
 }

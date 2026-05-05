@@ -375,4 +375,34 @@ assert.equal(document.getElementById('pg-status-desc').textContent, 'Lista');
 assert.equal(document.getElementById('pg-status-banner').classList.contains('pg-status-up'), true);
 assert.equal(document.getElementById('pg-status-banner').classList.contains('pg-status-loading'), false);
 
+const pgAssets = SQX.projectGenerator.uniqueAssets([
+  { asset: 'GBPUSD' },
+  { asset: 'EURUSD' },
+  { asset: 'GBPUSD' },
+]);
+assert.equal(pgAssets.length, 2);
+assert.equal(pgAssets[0], 'EURUSD');
+assert.equal(pgAssets[1], 'GBPUSD');
+assert.equal(SQX.projectGenerator.directionClass('short'), 'short');
+assert.equal(SQX.projectGenerator.directionLabel('both'), 'L+S');
+const aliasHtml = SQX.projectGenerator.aliasTableHtml([{ asset: 'EURUSD' }], { EURUSD: 'EURUSD_M1' });
+assert.match(aliasHtml, /data-pg-alias="EURUSD"/);
+assert.match(aliasHtml, /value="EURUSD_M1"/);
+assert.match(SQX.projectGenerator.aliasTableHtml([], {}), /esperando minings/);
+const miningHtml = SQX.projectGenerator.miningRowsHtml([{
+  num: 7,
+  asset: 'EURUSD',
+  tf: 'H1',
+  bs: 'BS_Tendencia',
+  dir: 'long',
+  _info: { source: 'db', instrument: 'EURUSD_M1', spread: 1.2, swap_long: -1, swap_short: 0.5 },
+}]);
+assert.match(miningHtml, /data-pg-gen="7"/);
+assert.match(miningHtml, /pgm-dir long/);
+assert.match(miningHtml, /EURUSD_M1/);
+const outputHtml = SQX.projectGenerator.outputListHtml([{ name: 'M07.cfx', size_kb: 12, mtime: 1770000000 }]);
+assert.match(outputHtml, /M07\.cfx/);
+assert.match(outputHtml, /12 KB/);
+assert.match(SQX.projectGenerator.outputListHtml([]), /No hay \.cfx/);
+
 console.log('module contracts ok');

@@ -198,6 +198,92 @@
     return true;
   }
 
+  function uniqueAssets(minings) {
+    var seen = {};
+    return (minings || [])
+      .map(function(mining) { return mining.asset; })
+      .filter(function(asset) {
+        if (!asset || seen[asset]) return false;
+        seen[asset] = true;
+        return true;
+      })
+      .sort();
+  }
+
+  function aliasTableHtml(minings, aliases) {
+    var assets = uniqueAssets(minings);
+    if (!assets.length) return '<div style="color:var(--text2);font-size:12px;">(esperando minings...)</div>';
+    return ''
+      + '<table class="cat-table" style="font-size:12px;">'
+      +   '<thead><tr><th>Asset (plan)</th><th>Instrument SQX (alias)</th><th></th></tr></thead>'
+      +   '<tbody>'
+      +   assets.map(function(asset) {
+            var current = (aliases || {})[asset] || '';
+            return ''
+              + '<tr>'
+              +   '<td style="font-weight:700;">' + escapeHtml(asset) + '</td>'
+              +   '<td><input type="text" class="search-input" style="width:200px;font-size:12px;padding:4px 8px;" data-pg-alias="' + escapeHtml(asset) + '" value="' + escapeHtml(current) + '" placeholder="(default)"></td>'
+              +   '<td><button class="export-btn" style="padding:3px 10px;font-size:11px;" data-pg-suggest-asset="' + escapeHtml(asset) + '">&#128269;</button></td>'
+              + '</tr>';
+          }).join('')
+      +   '</tbody>'
+      + '</table>';
+  }
+
+  function directionClass(direction) {
+    return direction === 'long' ? 'long' : direction === 'short' ? 'short' : 'both';
+  }
+
+  function directionLabel(direction) {
+    return direction === 'long' ? 'LONG' : direction === 'short' ? 'SHORT' : 'L+S';
+  }
+
+  function symbolSourceBadge(info) {
+    if (info && info.source === 'db') {
+      return '<span class="pgm-src pgm-src-db" title="Costos leidos de data.db: '
+        + escapeHtml(info.instrument) + ' spread=' + escapeHtml(info.spread)
+        + ' swap=' + escapeHtml(info.swap_long) + '/' + escapeHtml(info.swap_short)
+        + '">&#128202; DB</span>';
+    }
+    return '<span class="pgm-src pgm-src-fallback" title="Costos por defecto (data.db no disponible o asset no encontrado)">&#128203; Default</span>';
+  }
+
+  function miningRowsHtml(minings) {
+    return (minings || []).map(function(mining) {
+      var info = mining._info;
+      var alias = info && info.instrument && info.instrument !== mining.asset
+        ? '<span class="pgm-alias" title="Alias: ' + escapeHtml(mining.asset) + ' -> ' + escapeHtml(info.instrument) + ' en SQX DB">&#8594; ' + escapeHtml(info.instrument) + '</span>'
+        : '';
+      return ''
+        + '<div class="pg-mining-row">'
+        +   '<div class="pgm-num">M' + String(mining.num).padStart(2, '0') + '</div>'
+        +   '<div class="pgm-asset">' + escapeHtml(mining.asset) + alias + '</div>'
+        +   '<div class="pgm-tf">' + escapeHtml(mining.tf) + '</div>'
+        +   '<div class="pgm-bs">' + escapeHtml(mining.bs) + '</div>'
+        +   '<div class="pgm-dir ' + directionClass(mining.dir) + '">' + directionLabel(mining.dir) + '</div>'
+        +   symbolSourceBadge(info)
+        +   '<div class="pgm-actions">'
+        +     '<button class="pgm-btn c1" data-pg-gen="' + mining.num + '" data-pg-capa="1">&#128230; Capa 1</button>'
+        +     '<button class="pgm-btn c2" data-pg-gen="' + mining.num + '" data-pg-capa="2">&#128230; Capa 2</button>'
+        +   '</div>'
+        + '</div>';
+    }).join('');
+  }
+
+  function outputListHtml(files) {
+    if (!files || !files.length) {
+      return '<div class="pg-output-empty">No hay .cfx generados todav&iacute;a. Pulsa un bot&oacute;n "&#128230; Capa 1/2" arriba.</div>';
+    }
+    return files.map(function(file) {
+      return ''
+        + '<div class="pg-output-row">'
+        +   '<div class="pgo-name">' + escapeHtml(file.name) + '</div>'
+        +   '<div class="pgo-size">' + escapeHtml(file.size_kb) + ' KB</div>'
+        +   '<div class="pgo-time">' + new Date(file.mtime * 1000).toLocaleString() + '</div>'
+        + '</div>';
+    }).join('');
+  }
+
   function applyOnboardingState(state, doc) {
     var target = doc || global.document;
     var progress = target.getElementById('pg-onboarding-progress');
@@ -250,12 +336,18 @@
   }
 
   SQX.projectGenerator = SQX.projectGenerator || {
+    aliasTableHtml: aliasTableHtml,
     applyOnboardingState: applyOnboardingState,
     applyStatusBanner: applyStatusBanner,
     computeOnboardingState: computeOnboardingState,
+    directionClass: directionClass,
+    directionLabel: directionLabel,
     escapeHtml: escapeHtml,
     fetchJson: fetchJson,
-    prepareRequestOptions: prepareRequestOptions
+    miningRowsHtml: miningRowsHtml,
+    outputListHtml: outputListHtml,
+    prepareRequestOptions: prepareRequestOptions,
+    uniqueAssets: uniqueAssets
   };
 
   if (SQX.registerModule) {

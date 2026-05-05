@@ -221,12 +221,18 @@ class DashboardStaticTestCase(unittest.TestCase):
         module_js = (APP_ROOT / "js" / "modules" / "project-generator.js").read_text(encoding="utf-8-sig")
 
         expected_exports = [
+            "aliasTableHtml",
             "applyOnboardingState",
             "applyStatusBanner",
             "computeOnboardingState",
+            "directionClass",
+            "directionLabel",
             "escapeHtml",
             "fetchJson",
+            "miningRowsHtml",
+            "outputListHtml",
             "prepareRequestOptions",
+            "uniqueAssets",
         ]
         for export in expected_exports:
             with self.subTest(export=export):
@@ -241,6 +247,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("stepsEl.innerHTML = state.steps.map", main_js)
         self.assertNotIn("await fetch(url, opts)", main_js)
         self.assertNotIn("banner.classList.remove('pg-status-up'", main_js)
+        self.assertNotIn("function pgDirClass", main_js)
+        self.assertNotIn("function pgDirLabel", main_js)
+        self.assertNotIn("fetch(PG_API + '/minings'", main_js)
+        self.assertNotIn("pg-output-empty", main_js)
 
     def test_dashboard_dataset_loading_delegates_to_datasets_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
