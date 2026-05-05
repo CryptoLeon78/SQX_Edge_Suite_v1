@@ -234,15 +234,23 @@ class DashboardStaticTestCase(unittest.TestCase):
             "autodetectCandidatesHtml",
             "cleanerTableHtml",
             "cleanerConfirmMessage",
+            "cleanerErrorStatus",
             "cleanerHasAction",
+            "cleanerMissingDirStatus",
+            "cleanerNoActionStatus",
+            "cleanerNoSelectionStatus",
             "cleanerOptions",
             "cleanerPreviewHeader",
             "cleanerPreviewLines",
             "cleanerPreviewPattern",
+            "cleanerProcessingStatus",
+            "cleanerProcessErrorTrace",
             "cleanerResultLevel",
             "cleanerResultLines",
             "cleanerResultSummary",
+            "cleanerResultTrace",
             "cleanerScanMessage",
+            "cleanerScanningStatus",
             "cleanerSelectedLabel",
             "cleanerSelectedMap",
             "computeOnboardingState",
@@ -268,6 +276,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "outputCountLabel",
             "outputListHtml",
             "outputState",
+            "openOutputDisconnectedStatus",
+            "openOutputErrorStatus",
+            "openOutputSuccessStatus",
             "prepareRequestOptions",
             "sqxCandidateFields",
             "sqxCandidateSelectedStatus",
@@ -301,6 +312,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.validateSqxShouldApply", main_js)
         self.assertIn("SQX_PG_MODULE.enrichMiningsWithSymbolInfo", main_js)
         self.assertIn("SQX_PG_MODULE.outputState", main_js)
+        self.assertIn("SQX_PG_MODULE.openOutputSuccessStatus", main_js)
+        self.assertIn("SQX_PG_MODULE.cleanerNoSelectionStatus", main_js)
+        self.assertIn("SQX_PG_MODULE.cleanerResultTrace", main_js)
         self.assertNotIn("const hasSqxInput = ", main_js)
         self.assertNotIn("stepsEl.innerHTML = state.steps.map", main_js)
         self.assertNotIn("await fetch(url, opts)", main_js)
@@ -320,6 +334,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("minings.length + ' minings'", main_js)
         self.assertNotIn("r.files.length + ' archivos'", main_js)
         self.assertNotIn("Promise.all(minings.map", main_js)
+        self.assertNotIn("info.textContent = 'Pon una carpeta primero.'", main_js)
+        self.assertNotIn("info.textContent = '🔍 Escaneando...'", main_js)
+        self.assertNotIn("'Procesando ' + CLN_SELECTED.size", main_js)
         self.assertNotIn("pg-output-empty", main_js)
         self.assertIn("addEventListener('click', pgAutodetectSqx)", main_js)
         self.assertIn("addEventListener('click', pgValidateSqxPath)", main_js)

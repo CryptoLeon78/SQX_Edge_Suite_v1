@@ -378,17 +378,20 @@ async function pgValidateSqxPath() {
 
 async function pgOpenOutputFolder() {
   if (!PG_CONNECTED) {
-    pgLog('Backend desconectado', 'err');
+    const status = SQX_PG_MODULE.openOutputDisconnectedStatus();
+    pgLog(status.logText, status.logLevel);
     return;
   }
   try {
     const outputDir = PG_OUTPUT_DIR || (await pgFetch('/output')).output_dir;
     await pgFetch('/open-folder', { method:'POST', body: { path: outputDir } });
-    pgLog('Carpeta output abierta', 'info');
-    pgTrace('Carpeta output abierta', outputDir, 'info');
+    const status = SQX_PG_MODULE.openOutputSuccessStatus(outputDir);
+    pgLog(status.logText, status.logLevel);
+    pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
   } catch(e) {
-    pgLog('Error abrir carpeta: ' + e.message, 'err');
-    pgTrace('Error abriendo output', e.message, 'err');
+    const status = SQX_PG_MODULE.openOutputErrorStatus(e.message);
+    pgLog(status.logText, status.logLevel);
+    pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
   }
 }
 
@@ -485,11 +488,18 @@ async function pgRunOnboardingTertiaryAction() {
     const dir = document.getElementById('cln-dir').value.trim();
     const recursive = document.getElementById('cln-recursive').checked;
     const info = document.getElementById('cln-info');
-    if (!dir) { info.textContent = 'Pon una carpeta primero.'; info.style.color='var(--yellow)'; return; }
-    info.textContent = '🔍 Escaneando...'; info.style.color='var(--text2)';
+    if (!dir) {
+      const status = SQX_PG_MODULE.cleanerMissingDirStatus();
+      info.textContent = status.text; info.style.color=status.color; return;
+    }
+    const scanning = SQX_PG_MODULE.cleanerScanningStatus();
+    info.textContent = scanning.text; info.style.color=scanning.color;
     try {
       const r = await pgFetch('/sqx-list', { method:'POST', body: { dir, recursive } });
-      if (!r.ok) { info.textContent = '✗ ' + r.error; info.style.color='var(--red)'; return; }
+      if (!r.ok) {
+        const status = SQX_PG_MODULE.cleanerErrorStatus(r.error);
+        info.textContent = status.text; info.style.color=status.color; return;
+      }
       CLN_FILES = r.files;
       CLN_SELECTED = new Set();
       const scanMessage = SQX_PG_MODULE.cleanerScanMessage(r);
@@ -497,7 +507,10 @@ async function pgRunOnboardingTertiaryAction() {
       info.style.color = scanMessage.color;
       clnRenderTable();
       document.getElementById('cln-actions').style.display = scanMessage.actionsDisplay;
-    } catch(e) { info.textContent = '✗ ' + e.message; info.style.color='var(--red)'; }
+    } catch(e) {
+      const status = SQX_PG_MODULE.cleanerErrorStatus(e.message);
+      info.textContent = status.text; info.style.color=status.color;
+    }
   }
 
   function clnRenderTable() {
@@ -523,7 +536,10 @@ async function pgRunOnboardingTertiaryAction() {
   }
 
   async function clnPreviewRename() {
-    if (!CLN_SELECTED.size) { pgLog('No hay nada seleccionado', 'err'); return; }
+    if (!CLN_SELECTED.size) {
+      const status = SQX_PG_MODULE.cleanerNoSelectionStatus();
+      pgLog(status.text, status.level); return;
+    }
     const pattern = SQX_PG_MODULE.cleanerPreviewPattern(document.getElementById('cln-pattern').value);
     try {
       const r = await pgFetch('/sqx-preview-rename', { method:'POST', body: { files: [...CLN_SELECTED], pattern } });
@@ -535,31 +551,37 @@ async function pgRunOnboardingTertiaryAction() {
   }
 
   async function clnProcess() {
-    if (!CLN_SELECTED.size) { pgLog('No hay nada seleccionado', 'err'); return; }
+    if (!CLN_SELECTED.size) {
+      const status = SQX_PG_MODULE.cleanerNoSelectionStatus();
+      pgLog(status.text, status.level); return;
+    }
     const opts = SQX_PG_MODULE.cleanerOptions({
       removeExitBars: document.getElementById('cln-opt-eab').checked,
       renameInstitutional: document.getElementById('cln-opt-rename').checked,
       renamePattern: document.getElementById('cln-pattern').value.trim() || '{asset}_{tf}_{dir}_{id}',
     });
     if (!SQX_PG_MODULE.cleanerHasAction(opts)) {
-      pgLog('Selecciona al menos una acción', 'err'); return;
+      const status = SQX_PG_MODULE.cleanerNoActionStatus();
+      pgLog(status.text, status.level); return;
     }
     if (!confirm(SQX_PG_MODULE.cleanerConfirmMessage(CLN_SELECTED.size, opts))) return;
-    pgLog('Procesando ' + CLN_SELECTED.size + ' archivos...', 'info');
+    const processing = SQX_PG_MODULE.cleanerProcessingStatus(CLN_SELECTED.size);
+    pgLog(processing.text, processing.level);
     try {
       const r = await pgFetch('/sqx-clean', { method:'POST', body: { files: [...CLN_SELECTED], options: opts } });
       pgLog(SQX_PG_MODULE.cleanerResultSummary(r), SQX_PG_MODULE.cleanerResultLevel(r));
-      pgTrace(
-        'Limpieza SQX completada',
-        CLN_SELECTED.size + ' archivos · OK ' + r.ok_count + ' · FAIL ' + r.fail_count,
-        SQX_PG_MODULE.cleanerResultLevel(r)
-      );
+      const trace = SQX_PG_MODULE.cleanerResultTrace(CLN_SELECTED.size, r);
+      pgTrace(trace.title, trace.detail, trace.level);
       (r.results || []).forEach(result => {
         const line = SQX_PG_MODULE.cleanerResultLines([result])[0];
         pgLog('  ' + line, result.ok ? 'ok' : 'err');
       });
       await clnScan();
-    } catch(e) { pgLog('Error procesando: ' + e.message, 'err'); pgTrace('Error en limpieza SQX', e.message, 'err'); }
+    } catch(e) {
+      const status = SQX_PG_MODULE.cleanerProcessErrorTrace(e.message);
+      pgLog(status.logText, status.logLevel);
+      pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
+    }
   }
 
   document.getElementById('cln-scan').addEventListener('click', clnScan);

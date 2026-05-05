@@ -363,6 +363,30 @@
     };
   }
 
+  function openOutputDisconnectedStatus() {
+    return { logText: 'Backend desconectado', logLevel: 'err' };
+  }
+
+  function openOutputSuccessStatus(outputDir) {
+    return {
+      logText: 'Carpeta output abierta',
+      logLevel: 'info',
+      traceTitle: 'Carpeta output abierta',
+      traceDetail: outputDir || '',
+      traceLevel: 'info'
+    };
+  }
+
+  function openOutputErrorStatus(message) {
+    return {
+      logText: 'Error abrir carpeta: ' + message,
+      logLevel: 'err',
+      traceTitle: 'Error abriendo output',
+      traceDetail: message,
+      traceLevel: 'err'
+    };
+  }
+
   function generateOneStartMessage(mining, capa) {
     return 'Generando Mining ' + mining + ' · Capa ' + capa + '…';
   }
@@ -626,6 +650,30 @@
     };
   }
 
+  function cleanerMissingDirStatus() {
+    return { text: 'Pon una carpeta primero.', color: 'var(--yellow)' };
+  }
+
+  function cleanerScanningStatus() {
+    return { text: '🔍 Escaneando...', color: 'var(--text2)' };
+  }
+
+  function cleanerErrorStatus(message) {
+    return { text: '✗ ' + message, color: 'var(--red)' };
+  }
+
+  function cleanerNoSelectionStatus() {
+    return { text: 'No hay nada seleccionado', level: 'err' };
+  }
+
+  function cleanerNoActionStatus() {
+    return { text: 'Selecciona al menos una acción', level: 'err' };
+  }
+
+  function cleanerProcessingStatus(count) {
+    return { text: 'Procesando ' + (count || 0) + ' archivos...', level: 'info' };
+  }
+
   function cleanerPreviewPattern(value) {
     var pattern = String(value || '').trim();
     return pattern || '{asset}_{tf}_{dir}_{id}';
@@ -689,6 +737,25 @@
       var status = result.ok ? 'OK' : 'FAIL';
       return status + ' ' + basename(result.path) + ' - ' + (result.actions || []).join(', ');
     });
+  }
+
+  function cleanerResultTrace(selectedCount, result) {
+    var data = result || {};
+    return {
+      title: 'Limpieza SQX completada',
+      detail: (selectedCount || 0) + ' archivos · OK ' + (data.ok_count || 0) + ' · FAIL ' + (data.fail_count || 0),
+      level: cleanerResultLevel(data)
+    };
+  }
+
+  function cleanerProcessErrorTrace(message) {
+    return {
+      logText: 'Error procesando: ' + message,
+      logLevel: 'err',
+      traceTitle: 'Error en limpieza SQX',
+      traceDetail: message,
+      traceLevel: 'err'
+    };
   }
 
   function applyOnboardingState(state, doc) {
@@ -756,15 +823,23 @@
     autodetectCandidatesHtml: autodetectCandidatesHtml,
     basename: basename,
     cleanerConfirmMessage: cleanerConfirmMessage,
+    cleanerErrorStatus: cleanerErrorStatus,
     cleanerHasAction: cleanerHasAction,
+    cleanerMissingDirStatus: cleanerMissingDirStatus,
+    cleanerNoActionStatus: cleanerNoActionStatus,
+    cleanerNoSelectionStatus: cleanerNoSelectionStatus,
     cleanerOptions: cleanerOptions,
     cleanerPreviewHeader: cleanerPreviewHeader,
     cleanerPreviewLines: cleanerPreviewLines,
     cleanerPreviewPattern: cleanerPreviewPattern,
+    cleanerProcessingStatus: cleanerProcessingStatus,
+    cleanerProcessErrorTrace: cleanerProcessErrorTrace,
     cleanerResultLevel: cleanerResultLevel,
     cleanerResultLines: cleanerResultLines,
     cleanerResultSummary: cleanerResultSummary,
+    cleanerResultTrace: cleanerResultTrace,
     cleanerScanMessage: cleanerScanMessage,
+    cleanerScanningStatus: cleanerScanningStatus,
     cleanerSelectedLabel: cleanerSelectedLabel,
     cleanerSelectedMap: cleanerSelectedMap,
     cleanerTableHtml: cleanerTableHtml,
@@ -792,6 +867,9 @@
     outputCountLabel: outputCountLabel,
     outputListHtml: outputListHtml,
     outputState: outputState,
+    openOutputDisconnectedStatus: openOutputDisconnectedStatus,
+    openOutputErrorStatus: openOutputErrorStatus,
+    openOutputSuccessStatus: openOutputSuccessStatus,
     prepareRequestOptions: prepareRequestOptions,
     sqxCandidateFields: sqxCandidateFields,
     sqxCandidateSelectedStatus: sqxCandidateSelectedStatus,

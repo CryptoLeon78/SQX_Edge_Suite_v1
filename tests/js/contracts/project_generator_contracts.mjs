@@ -136,6 +136,9 @@ const outputState = PG.outputState({ output_dir: 'C:/out', files: [{ name: 'A.cf
 assert.equal(outputState.outputDir, 'C:/out');
 assert.equal(outputState.countLabel, '1 archivos');
 assert.match(outputState.html, /A\.cfx/);
+assert.equal(PG.openOutputDisconnectedStatus().logText, 'Backend desconectado');
+assert.equal(PG.openOutputSuccessStatus('C:/out').traceDetail, 'C:/out');
+assert.equal(PG.openOutputErrorStatus('denied').logText, 'Error abrir carpeta: denied');
 assert.match(PG.messageHtml('Error <x>', 'error'), /&lt;x&gt;/);
 
 assert.equal(PG.generateOneStartMessage(3, 2), 'Generando Mining 3 · Capa 2…');
@@ -213,6 +216,12 @@ assert.match(cleanerHtml, /checked/);
 assert.match(cleanerHtml, /A&amp;B\.sqx/);
 assert.match(cleanerHtml, /cv-num warn/);
 assert.equal(PG.cleanerTableHtml([], {}), '');
+assert.equal(PG.cleanerMissingDirStatus().text, 'Pon una carpeta primero.');
+assert.equal(PG.cleanerScanningStatus().color, 'var(--text2)');
+assert.equal(PG.cleanerErrorStatus('boom').text, '✗ boom');
+assert.equal(PG.cleanerNoSelectionStatus().level, 'err');
+assert.equal(PG.cleanerNoActionStatus().text, 'Selecciona al menos una acción');
+assert.equal(PG.cleanerProcessingStatus(2).text, 'Procesando 2 archivos...');
 const cleanerOptions = PG.cleanerOptions({ removeExitBars: true, renameInstitutional: false, renamePattern: 'X' });
 assert.equal(cleanerOptions.remove_exit_bars, true);
 assert.equal(cleanerOptions.rename_institutional, false);
@@ -222,6 +231,8 @@ assert.match(PG.cleanerConfirmMessage(2, cleanerOptions), /Eliminar ExitAfterBar
 assert.equal(PG.cleanerResultSummary({ ok_count: 3, fail_count: 0 }), 'Resultado: 3 OK · 0 FAIL');
 assert.equal(PG.cleanerResultLevel({ fail_count: 0 }), 'ok');
 assert.equal(PG.cleanerResultLines([{ ok: true, path: 'C:/SQX/clean.sqx', actions: ['rename'] }])[0], 'OK clean.sqx - rename');
+assert.equal(PG.cleanerResultTrace(2, { ok_count: 1, fail_count: 1 }).detail, '2 archivos · OK 1 · FAIL 1');
+assert.equal(PG.cleanerProcessErrorTrace('bad').traceTitle, 'Error en limpieza SQX');
 const selectedMap = PG.cleanerSelectedMap(['C:/SQX/a.sqx', 'C:/SQX/b.sqx']);
 assert.equal(selectedMap['C:/SQX/a.sqx'], true);
 assert.equal(PG.cleanerSelectedLabel(2), '2 seleccionadas');
