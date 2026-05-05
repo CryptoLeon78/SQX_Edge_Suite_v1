@@ -593,16 +593,7 @@ async function pgRunOnboardingTertiaryAction() {
     document.getElementById('cln-pattern-wrap').style.display = this.checked ? 'inline-block' : 'none';
   });
 
-  document.getElementById('pg-open-output').addEventListener('click', async function(){
-    if (!PG_CONNECTED) { pgLog('Backend desconectado', 'err'); return; }
-    try {
-      // El path absoluto lo resuelve el backend
-      const r = await pgFetch('/output');
-      await pgFetch('/open-folder', { method:'POST', body: { path: r.output_dir } });
-      pgLog('📁 Abierta carpeta output', 'info');
-      pgTrace('Carpeta output abierta', r.output_dir, 'info');
-    } catch(e) { pgLog('Error abrir carpeta: ' + e.message, 'err'); pgTrace('Error abriendo output', e.message, 'err'); }
-  });
+  document.getElementById('pg-open-output').addEventListener('click', pgOpenOutputFolder);
 
   // Auto-check al abrir el tab
   document.querySelectorAll('.tab[data-tab="projectgen"]').forEach(t => {
