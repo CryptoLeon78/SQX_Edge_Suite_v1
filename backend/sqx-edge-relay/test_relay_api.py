@@ -28,6 +28,7 @@ deployment_check = _load_module("sqx_edge_relay_deployment_check_test", "tools/d
 render_api_preflight = _load_module("sqx_edge_relay_render_api_preflight_test", "tools/render_api_preflight.py")
 render_credentials_handshake = _load_module("sqx_edge_relay_render_credentials_handshake_test", "tools/render_credentials_handshake.py")
 render_staging_gate = _load_module("sqx_edge_relay_render_staging_gate_test", "tools/render_staging_gate.py")
+render_staging_launch_pack = _load_module("sqx_edge_relay_render_staging_launch_pack_test", "tools/render_staging_launch_pack.py")
 staging_smoke = _load_module("sqx_edge_relay_staging_smoke_test", "tools/staging_smoke.py")
 staging_evidence = _load_module("sqx_edge_relay_staging_evidence_test", "tools/staging_evidence.py")
 
@@ -328,3 +329,23 @@ class RelayQueueTestCase(unittest.TestCase):
             )
         self.assertTrue(report["decision"]["go"])
         self.assertEqual(report["staging_evidence"]["evidence_paths"]["json"], "staging.json")
+
+    def test_render_staging_launch_pack_extracts_blueprint_env_keys(self):
+        text = "envVars:\n  - key: SQX_LEMON_WEBHOOK_SECRET\n  - key: SQX_LOCAL_INGEST_URL\n"
+        self.assertEqual(
+            render_staging_launch_pack.extract_env_keys(text),
+            ["SQX_LEMON_WEBHOOK_SECRET", "SQX_LOCAL_INGEST_URL"],
+        )
+
+    def test_render_staging_launch_pack_writes_no_go_packet(self):
+        gate = {"decision": {"go": False, "blockers": ["render_staging_url_missing"], "warnings": []}}
+        with tempfile.TemporaryDirectory() as tmp, \
+                patch.object(render_staging_launch_pack.render_staging_gate, "collect_gate", return_value=gate):
+            report = render_staging_launch_pack.collect_launch_pack(
+                blueprint_path=render_staging_launch_pack.DEFAULT_BLUEPRINT,
+                output_dir=Path(tmp),
+            )
+            self.assertTrue(Path(report["evidence_paths"]["json"]).is_file())
+        self.assertFalse(report["decision"]["go"])
+        self.assertIn("render_staging_gate_not_go", report["decision"]["blockers"])
+        self.assertIn("SQX_LEMON_WEBHOOK_SECRET", report["required_env_keys"])

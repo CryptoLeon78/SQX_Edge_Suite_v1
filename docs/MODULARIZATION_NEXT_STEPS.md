@@ -50,3 +50,4 @@ Persistent planning note for the next SQX Edge phases.
 22. Phase M22: add Render API preflight for key, owner and blueprint validation. Done.
 23. Phase M23: add Render credential handshake and no-password guardrail. Done.
 24. Phase M24: add Render staging go/no-go gate before live deployment. Done.
+25. Phase M25: add Render staging launch pack for audited manual deployment. Done.

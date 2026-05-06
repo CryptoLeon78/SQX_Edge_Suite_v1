@@ -537,3 +537,25 @@ Decision M24:
 - Sin handshake Render `GO`, la compuerta devuelve `NO-GO`.
 - Sin URL staging, la compuerta devuelve `NO-GO`.
 - Antes de conectar pagos reales, `staging_evidence.py` debe devolver `GO`.
+
+## Phase M25 - Render Staging Launch Pack
+
+Objetivo: preparar un paquete de lanzamiento auditable para el despliegue manual/controlado en Render.
+
+Entregables:
+
+- Estado `relay_render_staging_launch_pack_ready`.
+- `render_staging_launch_pack.py`.
+- SHA256 del blueprint staging.
+- Lista de variables Render requeridas.
+- Comandos de operador post-deploy.
+- Evidencia local en `backend/sqx-edge-relay/data/render_staging_launch_pack`.
+- Guia `RENDER_STAGING_LAUNCH_PACK.md`.
+
+Estado: Done.
+
+Decision M25:
+
+- El lanzamiento real sigue bloqueado si el staging gate no devuelve `GO`.
+- Las variables secretas se configuran en Render, no en git.
+- El launch pack es el documento operativo para ejecutar M26 con credenciales y URL reales.

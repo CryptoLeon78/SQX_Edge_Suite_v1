@@ -29,6 +29,7 @@ class RelayStaticTestCase(unittest.TestCase):
             RELAY_ROOT / "tools" / "render_api_preflight.py",
             RELAY_ROOT / "tools" / "render_credentials_handshake.py",
             RELAY_ROOT / "tools" / "render_staging_gate.py",
+            RELAY_ROOT / "tools" / "render_staging_launch_pack.py",
             RELAY_ROOT / "tools" / "simulate_purchase_flow.py",
             RELAY_ROOT / "tools" / "staging_evidence.py",
             RELAY_ROOT / "tools" / "staging_smoke.py",
@@ -56,6 +57,7 @@ class RelayStaticTestCase(unittest.TestCase):
         render_api_preflight = (RELAY_ROOT / "tools" / "render_api_preflight.py").read_text(encoding="utf-8-sig")
         render_credentials_handshake = (RELAY_ROOT / "tools" / "render_credentials_handshake.py").read_text(encoding="utf-8-sig")
         render_staging_gate = (RELAY_ROOT / "tools" / "render_staging_gate.py").read_text(encoding="utf-8-sig")
+        render_staging_launch_pack = (RELAY_ROOT / "tools" / "render_staging_launch_pack.py").read_text(encoding="utf-8-sig")
         simulation = (RELAY_ROOT / "tools" / "simulate_purchase_flow.py").read_text(encoding="utf-8-sig")
         staging_evidence = (RELAY_ROOT / "tools" / "staging_evidence.py").read_text(encoding="utf-8-sig")
         staging_smoke = (RELAY_ROOT / "tools" / "staging_smoke.py").read_text(encoding="utf-8-sig")
@@ -79,6 +81,7 @@ class RelayStaticTestCase(unittest.TestCase):
             "render_api_preflight.py",
             "render_credentials_handshake.py",
             "render_staging_gate.py",
+            "render_staging_launch_pack.py",
             "staging_evidence.py",
             "staging_smoke.py",
         ):
@@ -102,6 +105,9 @@ class RelayStaticTestCase(unittest.TestCase):
         self.assertIn("render_credential_handshake_not_go", render_staging_gate)
         self.assertIn("render_staging_url_missing", render_staging_gate)
         self.assertIn("render_staging_gate", render_staging_gate)
+        self.assertIn("render_staging_launch_pack", render_staging_launch_pack)
+        self.assertIn("extract_env_keys", render_staging_launch_pack)
+        self.assertIn("SHA256", render_staging_launch_pack)
         self.assertIn("dispatch_queue_item", simulation)
         self.assertIn("SQX_RELAY_STAGING_BASE_URL", staging_smoke)
         self.assertIn("--send-webhook", staging_smoke)

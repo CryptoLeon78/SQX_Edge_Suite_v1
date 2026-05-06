@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Render staging launch pack
+
+- Anade `render_staging_launch_pack.py` para preparar blueprint, SHA256, variables y comandos de staging.
+- Integra el estado del Render staging gate en una evidencia unica.
+- Guarda evidencia local en `backend/sqx-edge-relay/data/render_staging_launch_pack`.
+- Actualiza manifiesto a `relay_render_staging_launch_pack_ready`.
+
 ## 2026-05-06 - Render staging gate
 
 - Anade `render_staging_gate.py` como compuerta GO/NO-GO antes del despliegue vivo.

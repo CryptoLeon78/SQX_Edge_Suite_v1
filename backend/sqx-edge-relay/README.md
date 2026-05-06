@@ -131,6 +131,16 @@ python tools\render_staging_gate.py
 
 La compuerta exige handshake `GO`, URL staging y evidencia remota `GO`. Sin credenciales reales o sin URL staging devuelve `NO-GO` y guarda el reporte en `data/render_staging_gate`.
 
+## Render staging launch pack
+
+Para preparar la ejecucion manual/operativa del staging:
+
+```powershell
+python tools\render_staging_launch_pack.py
+```
+
+El launch pack resume blueprint, SHA256, variables Render necesarias, comandos de operador y estado actual del gate. La evidencia queda en `data/render_staging_launch_pack`.
+
 ## Worker de dispatch
 
 Una vez configurado `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_LOCAL_INGEST_URL`, puedes lanzar el worker:
