@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Local ingest Render handoff
+
+- Anade `local_ingest_render_handoff.py` para convertir sesion local GO en variables listas para Render.
+- Genera evidencia JSON/Markdown y `.env` local con `SQX_LOCAL_INGEST_URL`.
+- Puede consumir la ultima sesion M29 o una URL explicita.
+- Actualiza manifiesto a `relay_local_ingest_render_handoff_ready`.
+
 ## 2026-05-06 - Local ingest staging session
 
 - Anade `local_ingest_staging_session.py` para orquestar backend local, tunel e ingest check.

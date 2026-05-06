@@ -55,3 +55,4 @@ Persistent planning note for the next SQX Edge phases.
 27. Phase M27: add local ingest tunnel readiness check before Render staging. Done.
 28. Phase M28: add local ingest tunnel launcher and provider detection. Done.
 29. Phase M29: add local ingest staging session orchestrator. Done.
+30. Phase M30: add local ingest Render handoff pack. Done.

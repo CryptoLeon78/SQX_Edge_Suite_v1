@@ -199,6 +199,22 @@ python tools\local_ingest_staging_session.py --start-backend --start-tunnel --re
 
 La evidencia queda en `data/local_ingest_staging_session`.
 
+## Local ingest Render handoff
+
+Para preparar el valor final que se pegara en Render:
+
+```powershell
+python tools\local_ingest_render_handoff.py --use-latest-session
+```
+
+Tambien puede usarse con URL explicita:
+
+```powershell
+python tools\local_ingest_render_handoff.py --ingest-url https://tu-tunnel.example.com/api/fulfillment/relay-ingest
+```
+
+Genera evidencia y un `.env` local en `data/local_ingest_render_handoff`.
+
 ## Worker de dispatch
 
 Una vez configurado `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_LOCAL_INGEST_URL`, puedes lanzar el worker:

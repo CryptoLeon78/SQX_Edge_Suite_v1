@@ -28,6 +28,7 @@ deployment_check = _load_module("sqx_edge_relay_deployment_check_test", "tools/d
 local_ingest_tunnel_check = _load_module("sqx_edge_relay_local_ingest_tunnel_check_test", "tools/local_ingest_tunnel_check.py")
 local_ingest_tunnel_launcher = _load_module("sqx_edge_relay_local_ingest_tunnel_launcher_test", "tools/local_ingest_tunnel_launcher.py")
 local_ingest_staging_session = _load_module("sqx_edge_relay_local_ingest_staging_session_test", "tools/local_ingest_staging_session.py")
+local_ingest_render_handoff = _load_module("sqx_edge_relay_local_ingest_render_handoff_test", "tools/local_ingest_render_handoff.py")
 render_api_preflight = _load_module("sqx_edge_relay_render_api_preflight_test", "tools/render_api_preflight.py")
 render_credentials_handshake = _load_module("sqx_edge_relay_render_credentials_handshake_test", "tools/render_credentials_handshake.py")
 render_staging_gate = _load_module("sqx_edge_relay_render_staging_gate_test", "tools/render_staging_gate.py")
@@ -475,3 +476,28 @@ class RelayQueueTestCase(unittest.TestCase):
             )
         self.assertTrue(report["decision"]["go"])
         self.assertEqual(report["ingest_check"], ingest)
+
+    def test_local_ingest_render_handoff_blocks_no_go_session(self):
+        session = {
+            "decision": {"go": False, "blockers": ["local_backend_health_failed"]},
+            "tunnel": {"ingest_url": "https://demo.trycloudflare.com/api/fulfillment/relay-ingest"},
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            session_path = Path(tmp) / "local_ingest_staging_session_demo.json"
+            session_path.write_text(json.dumps(session), encoding="utf-8")
+            report = local_ingest_render_handoff.collect_handoff(session_file=session_path, output_dir=Path(tmp))
+        self.assertFalse(report["decision"]["go"])
+        self.assertIn("local_ingest_staging_session_not_go", report["decision"]["blockers"])
+
+    def test_local_ingest_render_handoff_writes_env_from_go_session(self):
+        session = {
+            "decision": {"go": True, "blockers": []},
+            "tunnel": {"ingest_url": "https://demo.trycloudflare.com/api/fulfillment/relay-ingest"},
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            session_path = Path(tmp) / "local_ingest_staging_session_demo.json"
+            session_path.write_text(json.dumps(session), encoding="utf-8")
+            report = local_ingest_render_handoff.collect_handoff(session_file=session_path, output_dir=Path(tmp))
+            env_text = Path(report["evidence_paths"]["env"]).read_text(encoding="utf-8")
+        self.assertTrue(report["decision"]["go"])
+        self.assertIn("SQX_LOCAL_INGEST_URL=https://demo.trycloudflare.com/api/fulfillment/relay-ingest", env_text)

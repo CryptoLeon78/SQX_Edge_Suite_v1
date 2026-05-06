@@ -645,3 +645,24 @@ Decision M29:
 - El comando por defecto no abre procesos persistentes.
 - Una sesion `GO` exige backend sano, URL publica detectada e ingest check correcto si hay tunnel.
 - El siguiente paso real es ejecutar la sesion con backend/tunel reales y pasar la URL a Render.
+
+## Phase M30 - Local Ingest Render Handoff
+
+Objetivo: convertir una sesion local GO o una URL de ingest explicita en un paquete listo para configurar Render staging.
+
+Entregables:
+
+- Estado `relay_local_ingest_render_handoff_ready`.
+- `local_ingest_render_handoff.py`.
+- `.env` local con `SQX_LOCAL_INGEST_URL` y valores worker.
+- Evidencia JSON/Markdown.
+- Consumo de `--use-latest-session` o `--ingest-url`.
+- Guia `LOCAL_INGEST_RENDER_HANDOFF.md`.
+
+Estado: Done.
+
+Decision M30:
+
+- Si se usa evidencia de sesion, por defecto debe ser `GO`.
+- El handoff no contiene secretos de firma, solo URL y valores no sensibles de worker.
+- La siguiente fase real es pegar los valores en Render y ejecutar el staging gate contra URL Render real.
