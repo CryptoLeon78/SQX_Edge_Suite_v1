@@ -46,3 +46,4 @@ Persistent planning note for the next SQX Edge phases.
 18. Phase M18: add relay observability, snapshots and simulated purchase flow. Done.
 19. Phase M19: prepare production relay deployment package and provider runbook. Done.
 20. Phase M20: add relay staging validation kit and go/no-go checklist. Done.
+21. Phase M21: choose Render staging path and add evidence go/no-go collector. Done.

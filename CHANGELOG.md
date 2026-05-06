@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Render staging evidence pack
+
+- Recomienda Render como primer proveedor de staging para el relay.
+- Anade `render.staging.yaml.example`.
+- Anade `staging_evidence.py` para generar decision GO/NO-GO en JSON y Markdown.
+- Actualiza manifiesto a `relay_staging_execution_ready`.
+
 ## 2026-05-06 - Relay staging validation kit
 
 - Anade `.env.staging.example` para entorno staging.

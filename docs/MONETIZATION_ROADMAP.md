@@ -456,3 +456,24 @@ Decision M20:
 - El proveedor se elige en la siguiente fase operativa.
 - El proyecto ya puede validar una URL staging con health, config, observability, snapshot y webhook firmado.
 - El siguiente paso natural es M21: desplegar staging real en el proveedor elegido y capturar evidencia go/no-go.
+
+## Phase M21 - Render Staging Execution Readiness
+
+Objetivo: elegir proveedor recomendado y preparar evidencia go/no-go para staging real.
+
+Entregables:
+
+- Estado `relay_staging_execution_ready`.
+- Render como proveedor recomendado para primer staging.
+- `render.staging.yaml.example`.
+- `staging_evidence.py`.
+- Runbook `RELAY_RENDER_STAGING_RUNBOOK.md`.
+
+Estado: Done.
+
+Decision M21:
+
+- Render queda como recomendacion principal para staging inicial.
+- Sin URL staging real, la decision debe quedar en NO-GO.
+- La evidencia se genera en JSON y Markdown para auditoria.
+- El siguiente paso natural es ejecutar el deploy real en Render y adjuntar evidencia.

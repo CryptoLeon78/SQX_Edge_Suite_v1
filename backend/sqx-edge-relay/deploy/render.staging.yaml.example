@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: sqx-edge-relay-staging
+    runtime: docker
+    dockerfilePath: ./backend/sqx-edge-relay/Dockerfile
+    dockerContext: .
+    healthCheckPath: /relay/health
+    envVars:
+      - key: SQX_LEMON_WEBHOOK_SECRET
+        sync: false
+      - key: SQX_FULFILLMENT_RELAY_SECRET
+        sync: false
+      - key: SQX_RELAY_OPERATOR_TOKEN
+        sync: false
+      - key: SQX_LOCAL_INGEST_URL
+        sync: false
+      - key: SQX_RELAY_WORKER_INTERVAL_SECONDS
+        value: "30"
+      - key: SQX_RELAY_WORKER_LIMIT
+        value: "10"
+
+  - type: worker
+    name: sqx-edge-relay-staging-worker
+    runtime: docker
+    dockerfilePath: ./backend/sqx-edge-relay/Dockerfile
+    dockerContext: .
+    dockerCommand: python worker/dispatch_worker.py
+    envVars:
+      - key: SQX_FULFILLMENT_RELAY_SECRET
+        sync: false
+      - key: SQX_LOCAL_INGEST_URL
+        sync: false
+      - key: SQX_RELAY_WORKER_INTERVAL_SECONDS
+        value: "30"
+      - key: SQX_RELAY_WORKER_LIMIT
+        value: "10"

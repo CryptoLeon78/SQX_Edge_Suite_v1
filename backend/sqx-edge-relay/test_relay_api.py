@@ -26,6 +26,7 @@ relay_queue = _load_module("sqx_edge_relay_queue_test", "core/relay_queue.py")
 relay_observability = _load_module("sqx_edge_relay_observability_test", "core/relay_observability.py")
 deployment_check = _load_module("sqx_edge_relay_deployment_check_test", "tools/deployment_check.py")
 staging_smoke = _load_module("sqx_edge_relay_staging_smoke_test", "tools/staging_smoke.py")
+staging_evidence = _load_module("sqx_edge_relay_staging_evidence_test", "tools/staging_evidence.py")
 
 
 class RelayApiTestCase(unittest.TestCase):
@@ -211,3 +212,22 @@ class RelayQueueTestCase(unittest.TestCase):
         self.assertIn("/relay/webhook/lemon", calls[-1]["url"])
         self.assertEqual(calls[-1]["method"], "POST")
         self.assertIn("X-signature", calls[-1]["headers"])
+
+    def test_staging_evidence_marks_no_go_without_remote_url(self):
+        preflight = {"files_ready": True, "docker_ready": True, "secrets_ready": True, "config_status": {"warnings": []}}
+        with patch.object(staging_evidence.deployment_check, "run_check", return_value=preflight):
+            report = staging_evidence.collect_evidence(provider="render")
+        self.assertFalse(report["decision"]["go"])
+        self.assertIn("remote_staging_url_not_tested", report["decision"]["blockers"])
+
+    def test_staging_evidence_writes_json_and_markdown(self):
+        preflight = {"files_ready": True, "docker_ready": True, "secrets_ready": True, "config_status": {"warnings": []}}
+        smoke = {"ok": True, "checks": []}
+        with tempfile.TemporaryDirectory() as tmp, \
+                patch.object(staging_evidence.deployment_check, "run_check", return_value=preflight), \
+                patch.object(staging_evidence.staging_smoke, "run_smoke", return_value=smoke):
+            report = staging_evidence.collect_evidence(provider="render", base_url="https://staging.example.com")
+            paths = staging_evidence.write_evidence(report, Path(tmp))
+            self.assertTrue(Path(paths["json"]).is_file())
+            self.assertTrue(Path(paths["markdown"]).is_file())
+            self.assertTrue(report["decision"]["go"])

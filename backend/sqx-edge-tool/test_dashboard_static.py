@@ -31,6 +31,7 @@ MONETIZATION_M17_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M17.md"
 MONETIZATION_M18_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M18.md"
 MONETIZATION_M19_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M19.md"
 MONETIZATION_M20_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M20.md"
+MONETIZATION_M21_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M21.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -335,7 +336,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_staging_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_staging_execution_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayIngestEndpoint"], "/api/fulfillment/relay-ingest")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayConfigCheckEndpoint"], "/relay/config-check")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayObservabilityEndpoint"], "/relay/observability")
@@ -346,7 +347,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("simulate_purchase_flow.py", product_manifest["upgrade"]["checkout"]["automation"]["relaySimulationTool"])
         self.assertIn("deployment_check.py", product_manifest["upgrade"]["checkout"]["automation"]["relayDeploymentCheckTool"])
         self.assertIn("staging_smoke.py", product_manifest["upgrade"]["checkout"]["automation"]["relayStagingSmokeTool"])
+        self.assertIn("staging_evidence.py", product_manifest["upgrade"]["checkout"]["automation"]["relayStagingEvidenceTool"])
         self.assertIn(".env.staging.example", product_manifest["upgrade"]["checkout"]["automation"]["relayStagingEnvExample"])
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayRecommendedStagingProvider"], "render")
         self.assertIn("Dockerfile", product_manifest["upgrade"]["checkout"]["automation"]["relayDockerfile"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["requestStatusEndpoint"], "/api/fulfillment/request-status")
         self.assertTrue(product_manifest["upgrade"]["checkout"]["automation"]["operatorPanelEnabled"])
@@ -751,7 +754,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_staging_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_staging_execution_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -775,6 +778,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayObservabilityMode"], "jsonl_events_and_queue_snapshots")
         self.assertIn("deployment_check.py", product_manifest["upgrade"]["checkout"]["automation"]["relayDeploymentCheckTool"])
         self.assertIn("staging_smoke.py", product_manifest["upgrade"]["checkout"]["automation"]["relayStagingSmokeTool"])
+        self.assertIn("staging_evidence.py", product_manifest["upgrade"]["checkout"]["automation"]["relayStagingEvidenceTool"])
         self.assertIn("Dockerfile", product_manifest["upgrade"]["checkout"]["automation"]["relayDockerfile"])
         self.assertIn("docker", product_manifest["upgrade"]["checkout"]["automation"]["relayDeploymentTargets"])
         self.assertIn("/relay/webhook/lemon", product_manifest["upgrade"]["checkout"]["automation"]["relayStagingChecks"])
@@ -852,7 +856,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m20_decisions(self):
+    def test_monetization_docs_capture_m1_to_m21_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -874,6 +878,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m18 = MONETIZATION_M18_DOC.read_text(encoding="utf-8-sig")
         m19 = MONETIZATION_M19_DOC.read_text(encoding="utf-8-sig")
         m20 = MONETIZATION_M20_DOC.read_text(encoding="utf-8-sig")
+        m21 = MONETIZATION_M21_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
@@ -904,6 +909,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M18", roadmap)
         self.assertIn("Phase M19", roadmap)
         self.assertIn("Phase M20", roadmap)
+        self.assertIn("Phase M21", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -923,6 +929,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M18: add relay observability, snapshots and simulated purchase flow. Done.", next_steps)
         self.assertIn("Phase M19: prepare production relay deployment package and provider runbook. Done.", next_steps)
         self.assertIn("Phase M20: add relay staging validation kit and go/no-go checklist. Done.", next_steps)
+        self.assertIn("Phase M21: choose Render staging path and add evidence go/no-go collector. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -1239,6 +1246,23 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Remote Smoke", staging_checklist)
         self.assertIn("Signed Webhook Smoke", staging_checklist)
         self.assertIn("Lemon Test", staging_checklist)
+
+        m21_patterns = [
+            "relay_staging_execution_ready",
+            "Render",
+            "render.staging.yaml.example",
+            "staging_evidence.py",
+            "remote_staging_url_not_tested",
+            "Estado: Done.",
+        ]
+        for pattern in m21_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m21)
+        render_runbook = (PROJECT_ROOT / "docs" / "sales" / "RELAY_RENDER_STAGING_RUNBOOK.md").read_text(encoding="utf-8-sig")
+        self.assertIn("Render", render_runbook)
+        self.assertIn("staging_evidence.py", render_runbook)
+        self.assertIn("GO", render_runbook)
+        self.assertIn("NO-GO", render_runbook)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))

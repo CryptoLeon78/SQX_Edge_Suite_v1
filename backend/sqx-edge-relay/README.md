@@ -75,6 +75,8 @@ El modo estricto exige `SQX_LEMON_WEBHOOK_SECRET`, `SQX_FULFILLMENT_RELAY_SECRET
 
 ## Staging smoke test
 
+Proveedor recomendado para el primer staging: Render, usando `deploy/render.staging.yaml.example`.
+
 Con una URL de staging real:
 
 ```powershell
@@ -88,6 +90,12 @@ python tools\staging_smoke.py --base-url https://tu-relay-staging.example.com --
 ```
 
 Usa `.env.staging.example` como lista de variables necesarias.
+
+Para generar un paquete de evidencia:
+
+```powershell
+python tools\staging_evidence.py --provider render --base-url https://tu-relay-staging.example.com --send-webhook
+```
 
 ## Worker de dispatch
 
