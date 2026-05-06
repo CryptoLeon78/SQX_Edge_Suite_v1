@@ -264,6 +264,13 @@ El ZIP final se genera en:
 ```text
 dist/SQX_Edge_Tool_Portable_*.zip
 ```
+# 2026-05-06 - Release publication record
+
+- Anade `release_publication_record.py` para registrar evidencia post-publicacion.
+- Valida GitHub Release publicada, tag, ZIP, SHA256 coincidente, descarga probada, soporte y rollback.
+- Refuerza empaquetado, auditoria y checklist para excluir la nueva herramienta interna.
+- Documenta M42 y el runbook de evidencia de release publicada.
+
 # 2026-05-06 - Public release gate
 
 - Anade `public_release_gate.py` como compuerta final antes de publicar GitHub Release.

@@ -904,3 +904,24 @@ Decision M41:
 - No se publica release publica sin release revisada, ZIP adjunto y SHA256 publicado.
 - Soporte y rollback deben tener owner antes de abrir una ventana publica.
 - El siguiente paso real es ejecutar una publicacion controlada y registrar evidencia post-release.
+
+## Phase M42 - Release Publication Record
+
+Objetivo: registrar evidencia post-publicacion de tag, GitHub Release, ZIP, SHA256, descarga, soporte y rollback.
+
+Entregables:
+
+- Estado `release_publication_record_ready`.
+- `release_publication_record.py`.
+- Consumo de evidencia M41.
+- Validacion de release publicada, tag creado, ZIP local, `.sha256`, descarga probada y notas visibles.
+- Evidencia local en `backend/sqx-edge-tool/data/release_publication_record`.
+- Guia `RELEASE_PUBLICATION_RECORD.md`.
+
+Estado: Done.
+
+Decision M42:
+
+- La publicacion no se considera cerrada sin checksum coincidente y descarga probada.
+- Soporte y rollback deben permanecer abiertos durante la ventana inicial.
+- El siguiente paso real es monitorizar incidencias, activaciones y descargas post-release.

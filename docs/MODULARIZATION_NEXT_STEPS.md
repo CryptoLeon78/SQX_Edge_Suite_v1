@@ -67,3 +67,4 @@ Persistent planning note for the next SQX Edge phases.
 39. Phase M39: add public offer pack for controlled offer copy, FAQ, release notes and buyer steps. Done.
 40. Phase M40: add launch assets kit for screenshots, copy, release draft and publication checklist. Done.
 41. Phase M41: add public release gate for tag, GitHub Release, ZIP, SHA256, support and rollback. Done.
+42. Phase M42: add release publication record for published tag, release, ZIP, SHA256 and rollback evidence. Done.
