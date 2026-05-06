@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Checkout live readiness
+
+- Anade `checkout_live_readiness.py` para validar URLs Lemon, variantes, soporte y rollback antes de venta publica.
+- Bloquea si faltan `providerVariantId`, checkout HTTPS, relay HTTPS o evidencia M32 `GO`.
+- Genera evidencia JSON/Markdown en `backend/sqx-edge-tool/data/checkout_live_readiness`.
+- Actualiza manifiesto a `checkout_live_readiness_ready`.
+
 ## 2026-05-06 - Render staging purchase drill
 
 - Anade `render_staging_purchase_drill.py` para probar webhook, cola y dispatch en Render staging.

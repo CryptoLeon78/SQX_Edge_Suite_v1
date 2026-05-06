@@ -24,6 +24,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "license_keypair.ps1",
             TOOL_ROOT / "tools" / "license_issue.py",
             TOOL_ROOT / "tools" / "prepare_customer_delivery.ps1",
+            TOOL_ROOT / "tools" / "checkout_live_readiness.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
             TOOL_ROOT / "tools" / "relay_bundle.py",
@@ -59,6 +60,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("license_keypair\\.ps1", text)
         self.assertIn("license_issue\\.py", text)
         self.assertIn("prepare_customer_delivery\\.ps1", text)
+        self.assertIn("checkout_live_readiness\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
         self.assertIn("relay_bundle\\.py", text)
@@ -111,6 +113,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "license_keypair.ps1",
             "license_issue.py",
             "prepare_customer_delivery.ps1",
+            "checkout_live_readiness.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
             "relay_bundle.py",

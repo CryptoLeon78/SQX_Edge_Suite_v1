@@ -7,6 +7,7 @@
 - Private key guardada fuera del repo.
 - Checkout URL real configurada en `product_manifest.json` si se va a mostrar en la app.
 - Email de soporte definido.
+- `checkout_live_readiness.py` ejecutado y en `GO` antes de publicar enlaces.
 
 ## Sale To Delivery
 

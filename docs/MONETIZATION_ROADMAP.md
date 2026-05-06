@@ -711,3 +711,27 @@ Decision M32:
 - Las operaciones mutantes requieren flags explicitos.
 - El `GO` requiere apply gate M31 `GO`, webhook aceptado, cola accesible y dispatch sin fallo.
 - La siguiente fase real es preparar conexion de checkout real con Lemon Squeezy, variantes definitivas y rollback.
+
+## Phase M33 - Checkout Live Readiness
+
+Objetivo: validar que el checkout real puede publicarse sin perder trazabilidad ni rollback.
+
+Entregables:
+
+- Estado `checkout_live_readiness_ready`.
+- `checkout_live_readiness.py`.
+- Validacion de `primaryUrl` HTTPS.
+- Validacion de relay publico HTTPS y webhook `/relay/webhook/lemon`.
+- Validacion de `providerVariantId` para `pro_monthly`, `pro_annual` y `setup_assist`.
+- Validacion de email de soporte.
+- Consumo de evidencia M32.
+- Evidencia local en `backend/sqx-edge-tool/data/checkout_live_readiness`.
+- Guia `CHECKOUT_LIVE_READINESS.md`.
+
+Estado: Done.
+
+Decision M33:
+
+- La herramienta no publica checkout ni activa webhooks.
+- El `GO` requiere URLs reales, variantes reales, soporte valido y M32 `GO`.
+- La siguiente fase real es preparar una release candidate comercial y compra piloto controlada.

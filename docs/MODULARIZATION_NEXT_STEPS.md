@@ -58,3 +58,4 @@ Persistent planning note for the next SQX Edge phases.
 30. Phase M30: add local ingest Render handoff pack. Done.
 31. Phase M31: add Render staging apply gate for handoff confirmation and remote gate evidence. Done.
 32. Phase M32: add Render staging purchase drill for webhook, queue and dispatch evidence. Done.
+33. Phase M33: add checkout live readiness gate for Lemon Squeezy URLs, variants and rollback. Done.

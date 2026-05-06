@@ -75,6 +75,7 @@
       "backend/sqx-edge-tool/tools/license_keypair.ps1",
       "backend/sqx-edge-tool/tools/license_issue.py",
       "backend/sqx-edge-tool/tools/prepare_customer_delivery.ps1",
+      "backend/sqx-edge-tool/tools/checkout_live_readiness.py",
       "backend/sqx-edge-tool/tools/fulfillment_request.py",
       "backend/sqx-edge-tool/tools/fulfill_from_request.ps1",
       "backend/sqx-edge-tool/tools/relay_bundle.py"
@@ -221,7 +222,7 @@
     "checkoutLabel": "Comprar Pro",
     "checkoutUrl": "",
     "checkout": {
-      "status": "pending_provider_urls",
+      "status": "checkout_live_readiness_ready",
       "primaryProvider": "Lemon Squeezy",
       "fallbackProvider": "Gumroad",
       "mode": "hosted_checkout",
@@ -232,8 +233,11 @@
       "deliveryArtifact": "SQX_Edge_Tool_Portable_*.zip",
       "licenseIssuerTool": "backend/sqx-edge-tool/tools/license_issue.py",
       "deliveryTool": "backend/sqx-edge-tool/tools/prepare_customer_delivery.ps1",
+      "liveReadinessTool": "backend/sqx-edge-tool/tools/checkout_live_readiness.py",
+      "liveReadinessEvidenceDir": "backend/sqx-edge-tool/data/checkout_live_readiness",
+      "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
       "automation": {
-        "status": "relay_render_staging_purchase_drill_ready",
+        "status": "checkout_live_readiness_ready",
         "webhookProvider": "Lemon Squeezy",
         "webhookSignatureHeader": "X-Signature",
         "webhookSigningAlgorithm": "hmac_sha256_hex",
