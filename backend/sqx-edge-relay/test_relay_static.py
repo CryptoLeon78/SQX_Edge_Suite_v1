@@ -26,6 +26,7 @@ class RelayStaticTestCase(unittest.TestCase):
             RELAY_ROOT / "core" / "relay_settings.py",
             RELAY_ROOT / "tools" / "__init__.py",
             RELAY_ROOT / "tools" / "deployment_check.py",
+            RELAY_ROOT / "tools" / "local_ingest_tunnel_check.py",
             RELAY_ROOT / "tools" / "render_api_preflight.py",
             RELAY_ROOT / "tools" / "render_credentials_handshake.py",
             RELAY_ROOT / "tools" / "render_staging_gate.py",
@@ -55,6 +56,7 @@ class RelayStaticTestCase(unittest.TestCase):
         observability = (RELAY_ROOT / "core" / "relay_observability.py").read_text(encoding="utf-8-sig")
         settings = (RELAY_ROOT / "core" / "relay_settings.py").read_text(encoding="utf-8-sig")
         deployment_check = (RELAY_ROOT / "tools" / "deployment_check.py").read_text(encoding="utf-8-sig")
+        local_ingest_tunnel_check = (RELAY_ROOT / "tools" / "local_ingest_tunnel_check.py").read_text(encoding="utf-8-sig")
         render_api_preflight = (RELAY_ROOT / "tools" / "render_api_preflight.py").read_text(encoding="utf-8-sig")
         render_credentials_handshake = (RELAY_ROOT / "tools" / "render_credentials_handshake.py").read_text(encoding="utf-8-sig")
         render_staging_gate = (RELAY_ROOT / "tools" / "render_staging_gate.py").read_text(encoding="utf-8-sig")
@@ -80,6 +82,7 @@ class RelayStaticTestCase(unittest.TestCase):
             "SQX_LOCAL_INGEST_URL",
             "SQX_RELAY_WORKER_INTERVAL_SECONDS",
             "deployment_check.py",
+            "local_ingest_tunnel_check.py",
             "render_api_preflight.py",
             "render_credentials_handshake.py",
             "render_staging_gate.py",
@@ -98,6 +101,9 @@ class RelayStaticTestCase(unittest.TestCase):
         self.assertIn("relay_events.jsonl", observability)
         self.assertIn("production_ready", deployment_check)
         self.assertIn("--strict", deployment_check)
+        self.assertIn("/api/fulfillment/relay-ingest", local_ingest_tunnel_check)
+        self.assertIn("/api/health", local_ingest_tunnel_check)
+        self.assertIn("signed_bundle_not_sent", local_ingest_tunnel_check)
         self.assertIn("RENDER_API_KEY", render_api_preflight)
         self.assertIn("/blueprints/validate", render_api_preflight)
         self.assertIn("multipart/form-data", render_api_preflight)

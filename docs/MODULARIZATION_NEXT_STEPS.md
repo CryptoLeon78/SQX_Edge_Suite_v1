@@ -52,3 +52,4 @@ Persistent planning note for the next SQX Edge phases.
 24. Phase M24: add Render staging go/no-go gate before live deployment. Done.
 25. Phase M25: add Render staging launch pack for audited manual deployment. Done.
 26. Phase M26: add Render staging secrets kit for safe provider setup. Done.
+27. Phase M27: add local ingest tunnel readiness check before Render staging. Done.

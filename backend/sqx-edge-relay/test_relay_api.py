@@ -25,6 +25,7 @@ server = _load_module("sqx_edge_relay_server_test", "api/server.py")
 relay_queue = _load_module("sqx_edge_relay_queue_test", "core/relay_queue.py")
 relay_observability = _load_module("sqx_edge_relay_observability_test", "core/relay_observability.py")
 deployment_check = _load_module("sqx_edge_relay_deployment_check_test", "tools/deployment_check.py")
+local_ingest_tunnel_check = _load_module("sqx_edge_relay_local_ingest_tunnel_check_test", "tools/local_ingest_tunnel_check.py")
 render_api_preflight = _load_module("sqx_edge_relay_render_api_preflight_test", "tools/render_api_preflight.py")
 render_credentials_handshake = _load_module("sqx_edge_relay_render_credentials_handshake_test", "tools/render_credentials_handshake.py")
 render_staging_gate = _load_module("sqx_edge_relay_render_staging_gate_test", "tools/render_staging_gate.py")
@@ -369,3 +370,41 @@ class RelayQueueTestCase(unittest.TestCase):
         self.assertIn("SQX_LEMON_WEBHOOK_SECRET=", env_text)
         self.assertIn("SQX_FULFILLMENT_RELAY_SECRET=", env_text)
         self.assertIn("SQX_RELAY_OPERATOR_TOKEN=", env_text)
+
+    def test_local_ingest_tunnel_check_blocks_missing_url_and_short_secret(self):
+        report = local_ingest_tunnel_check.collect_check("", "short", write=False)
+        self.assertFalse(report["decision"]["go"])
+        self.assertIn("sqx_local_ingest_url_missing", report["decision"]["blockers"])
+        self.assertIn("sqx_fulfillment_relay_secret_too_short", report["decision"]["blockers"])
+
+    def test_local_ingest_tunnel_check_health_only_go(self):
+        def fake_request(url, method="GET", body=None, headers=None, timeout=15):
+            self.assertIn("/api/health", url)
+            return {"ok": True, "status": 200, "payload": {"ok": True}}
+
+        with patch.object(local_ingest_tunnel_check, "request_json", side_effect=fake_request):
+            report = local_ingest_tunnel_check.collect_check(
+                "https://sqx-ingest-tunnel.test/api/fulfillment/relay-ingest",
+                "r" * 40,
+                write=False,
+            )
+        self.assertTrue(report["decision"]["go"])
+        self.assertIn("signed_bundle_not_sent", report["decision"]["warnings"])
+
+    def test_local_ingest_tunnel_check_signed_bundle_go(self):
+        calls = []
+
+        def fake_request(url, method="GET", body=None, headers=None, timeout=15):
+            calls.append({"url": url, "method": method, "headers": headers or {}, "body": body})
+            return {"ok": True, "status": 200, "payload": {"ok": True}}
+
+        with patch.object(local_ingest_tunnel_check, "request_json", side_effect=fake_request):
+            report = local_ingest_tunnel_check.collect_check(
+                "https://sqx-ingest-tunnel.test/api/fulfillment/relay-ingest",
+                "r" * 40,
+                send_bundle=True,
+                write=False,
+            )
+        self.assertTrue(report["decision"]["go"])
+        self.assertEqual(calls[1]["method"], "POST")
+        self.assertIn("X-SQX-Relay-Signature", calls[1]["headers"])

@@ -580,3 +580,24 @@ Decision M26:
 - Los secretos staging se generan localmente y se pegan en Render/Lemon manualmente.
 - La URL `SQX_LOCAL_INGEST_URL` sigue siendo un bloqueo hasta tener tunnel/endpoint real.
 - Estos secretos deben rotarse antes de produccion.
+
+## Phase M27 - Local Ingest Tunnel Readiness
+
+Objetivo: validar la URL que Render usara para enviar bundles firmados al backend local.
+
+Entregables:
+
+- Estado `relay_local_ingest_tunnel_check_ready`.
+- `local_ingest_tunnel_check.py`.
+- Validacion de HTTPS, health remoto y path `/api/fulfillment/relay-ingest`.
+- Envio opcional de bundle demo firmado con `--send-bundle`.
+- Evidencia local en `backend/sqx-edge-relay/data/local_ingest_tunnel_check`.
+- Guia `LOCAL_INGEST_TUNNEL_CHECK.md`.
+
+Estado: Done.
+
+Decision M27:
+
+- `SQX_LOCAL_INGEST_URL` no se pega en Render hasta que health y politica de URL pasen.
+- El bundle firmado demo es opt-in para no contaminar la cola durante pruebas secas.
+- La siguiente fase real es obtener URL/tunnel real y ejecutar el check con `--send-bundle`.

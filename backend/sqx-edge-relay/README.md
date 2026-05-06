@@ -151,6 +151,22 @@ python tools\render_staging_secrets_kit.py --local-ingest-url https://tu-local-i
 
 El kit prepara `SQX_LEMON_WEBHOOK_SECRET`, `SQX_FULFILLMENT_RELAY_SECRET`, `SQX_RELAY_OPERATOR_TOKEN` y valores worker. La evidencia redactada queda en `data/render_staging_secrets_kit`.
 
+## Local ingest tunnel check
+
+Antes de pegar `SQX_LOCAL_INGEST_URL` en Render:
+
+```powershell
+python tools\local_ingest_tunnel_check.py --ingest-url https://tu-tunnel.example.com/api/fulfillment/relay-ingest --relay-secret <SQX_FULFILLMENT_RELAY_SECRET>
+```
+
+Para enviar un bundle demo firmado:
+
+```powershell
+python tools\local_ingest_tunnel_check.py --ingest-url https://tu-tunnel.example.com/api/fulfillment/relay-ingest --relay-secret <SQX_FULFILLMENT_RELAY_SECRET> --send-bundle
+```
+
+La evidencia queda en `data/local_ingest_tunnel_check`.
+
 ## Worker de dispatch
 
 Una vez configurado `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_LOCAL_INGEST_URL`, puedes lanzar el worker:
