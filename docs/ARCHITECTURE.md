@@ -57,6 +57,8 @@ flowchart TD
   RENDERGATE --> RELAYEVIDENCE
   RENDERLAUNCH["backend/sqx-edge-relay/tools/render_staging_launch_pack.py"] --> RENDERGATE
   RENDERLAUNCH --> RENDERBLUEPRINT["backend/sqx-edge-relay/deploy/render.staging.yaml.example"]
+  RENDERSECRETS["backend/sqx-edge-relay/tools/render_staging_secrets_kit.py"] --> RENDERGATE
+  RENDERSECRETS --> RENDERDATA["backend/sqx-edge-relay/data/render_staging_secrets_kit"]
   RELAYSTAGE["backend/sqx-edge-relay/tools/staging_smoke.py"] --> RELAY
   RELAYEVIDENCE["backend/sqx-edge-relay/tools/staging_evidence.py"] --> RELAYSTAGE
   RELAYEVIDENCE --> RELAYDEPLOY

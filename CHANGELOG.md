@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Render staging secrets kit
+
+- Anade `render_staging_secrets_kit.py` para generar secretos fuertes de staging.
+- Escribe `.env` local ignorado por git y evidencia redactada.
+- Bloquea placeholders, valores cortos y passwords de cuenta Render en entorno.
+- Actualiza manifiesto a `relay_render_staging_secrets_kit_ready`.
+
 ## 2026-05-06 - Render staging launch pack
 
 - Anade `render_staging_launch_pack.py` para preparar blueprint, SHA256, variables y comandos de staging.

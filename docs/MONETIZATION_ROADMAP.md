@@ -559,3 +559,24 @@ Decision M25:
 - El lanzamiento real sigue bloqueado si el staging gate no devuelve `GO`.
 - Las variables secretas se configuran en Render, no en git.
 - El launch pack es el documento operativo para ejecutar M26 con credenciales y URL reales.
+
+## Phase M26 - Render Staging Secrets Kit
+
+Objetivo: generar y auditar secretos fuertes para configurar staging en Render sin versionarlos.
+
+Entregables:
+
+- Estado `relay_render_staging_secrets_kit_ready`.
+- `render_staging_secrets_kit.py`.
+- `.env` local con secretos staging dentro de `backend/sqx-edge-relay/data/`.
+- Evidencia JSON/Markdown redactada.
+- Bloqueo de placeholders, valores cortos y passwords de cuenta Render.
+- Guia `RENDER_STAGING_SECRETS_KIT.md`.
+
+Estado: Done.
+
+Decision M26:
+
+- Los secretos staging se generan localmente y se pegan en Render/Lemon manualmente.
+- La URL `SQX_LOCAL_INGEST_URL` sigue siendo un bloqueo hasta tener tunnel/endpoint real.
+- Estos secretos deben rotarse antes de produccion.

@@ -29,6 +29,7 @@ render_api_preflight = _load_module("sqx_edge_relay_render_api_preflight_test", 
 render_credentials_handshake = _load_module("sqx_edge_relay_render_credentials_handshake_test", "tools/render_credentials_handshake.py")
 render_staging_gate = _load_module("sqx_edge_relay_render_staging_gate_test", "tools/render_staging_gate.py")
 render_staging_launch_pack = _load_module("sqx_edge_relay_render_staging_launch_pack_test", "tools/render_staging_launch_pack.py")
+render_staging_secrets_kit = _load_module("sqx_edge_relay_render_staging_secrets_kit_test", "tools/render_staging_secrets_kit.py")
 staging_smoke = _load_module("sqx_edge_relay_staging_smoke_test", "tools/staging_smoke.py")
 staging_evidence = _load_module("sqx_edge_relay_staging_evidence_test", "tools/staging_evidence.py")
 
@@ -349,3 +350,22 @@ class RelayQueueTestCase(unittest.TestCase):
         self.assertFalse(report["decision"]["go"])
         self.assertIn("render_staging_gate_not_go", report["decision"]["blockers"])
         self.assertIn("SQX_LEMON_WEBHOOK_SECRET", report["required_env_keys"])
+
+    def test_render_staging_secrets_kit_blocks_without_ingest_url(self):
+        report = render_staging_secrets_kit.collect_secrets_kit(write=False)
+        self.assertFalse(report["decision"]["go"])
+        self.assertIn("sqx_local_ingest_url_missing", report["decision"]["blockers"])
+        self.assertEqual(len(report["secret_status"]), 3)
+
+    def test_render_staging_secrets_kit_writes_env_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            report = render_staging_secrets_kit.collect_secrets_kit(
+                local_ingest_url="https://sqx-ingest-tunnel.test/api/fulfillment/relay-ingest",
+                output_dir=Path(tmp),
+            )
+            env_path = Path(report["evidence_paths"]["env"])
+            env_text = env_path.read_text(encoding="utf-8")
+        self.assertTrue(report["decision"]["go"])
+        self.assertIn("SQX_LEMON_WEBHOOK_SECRET=", env_text)
+        self.assertIn("SQX_FULFILLMENT_RELAY_SECRET=", env_text)
+        self.assertIn("SQX_RELAY_OPERATOR_TOKEN=", env_text)

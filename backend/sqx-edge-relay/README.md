@@ -141,6 +141,16 @@ python tools\render_staging_launch_pack.py
 
 El launch pack resume blueprint, SHA256, variables Render necesarias, comandos de operador y estado actual del gate. La evidencia queda en `data/render_staging_launch_pack`.
 
+## Render staging secrets kit
+
+Para generar secretos fuertes de staging y un `.env` local ignorado por git:
+
+```powershell
+python tools\render_staging_secrets_kit.py --local-ingest-url https://tu-local-ingest-tunnel.example.com/api/fulfillment/relay-ingest
+```
+
+El kit prepara `SQX_LEMON_WEBHOOK_SECRET`, `SQX_FULFILLMENT_RELAY_SECRET`, `SQX_RELAY_OPERATOR_TOKEN` y valores worker. La evidencia redactada queda en `data/render_staging_secrets_kit`.
+
 ## Worker de dispatch
 
 Una vez configurado `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_LOCAL_INGEST_URL`, puedes lanzar el worker:
