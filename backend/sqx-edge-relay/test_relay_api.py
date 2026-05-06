@@ -26,6 +26,7 @@ relay_queue = _load_module("sqx_edge_relay_queue_test", "core/relay_queue.py")
 relay_observability = _load_module("sqx_edge_relay_observability_test", "core/relay_observability.py")
 deployment_check = _load_module("sqx_edge_relay_deployment_check_test", "tools/deployment_check.py")
 render_api_preflight = _load_module("sqx_edge_relay_render_api_preflight_test", "tools/render_api_preflight.py")
+render_credentials_handshake = _load_module("sqx_edge_relay_render_credentials_handshake_test", "tools/render_credentials_handshake.py")
 staging_smoke = _load_module("sqx_edge_relay_staging_smoke_test", "tools/staging_smoke.py")
 staging_evidence = _load_module("sqx_edge_relay_staging_evidence_test", "tools/staging_evidence.py")
 
@@ -249,3 +250,53 @@ class RelayQueueTestCase(unittest.TestCase):
         self.assertTrue(report["ok"])
         self.assertEqual(api_request.call_count, 2)
         self.assertTrue(report["blueprint_validation"]["payload"]["valid"])
+
+    def test_render_credentials_handshake_blocks_without_credentials(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            report = render_credentials_handshake.collect_handshake(
+                "",
+                "",
+                render_api_preflight.DEFAULT_BLUEPRINT,
+                output_dir=Path(tmp),
+            )
+            self.assertTrue(Path(report["evidence_paths"]["json"]).is_file())
+        self.assertFalse(report["decision"]["go"])
+        self.assertIn("render_api_key_missing", report["decision"]["blockers"])
+        self.assertIn("render_owner_id_missing", report["decision"]["blockers"])
+        self.assertIn("render_api_preflight_not_run", report["warnings"])
+
+    def test_render_credentials_handshake_rejects_account_password(self):
+        with patch.dict(render_credentials_handshake.os.environ, {"RENDER_ACCOUNT_PASSWORD": "secret"}, clear=False):
+            report = render_credentials_handshake.collect_handshake(
+                "",
+                "",
+                render_api_preflight.DEFAULT_BLUEPRINT,
+                write=False,
+            )
+        self.assertIn("render_account_password_present_do_not_use", report["decision"]["blockers"])
+
+    def test_render_credentials_handshake_rejects_placeholders(self):
+        fake_module = type("FakePreflight", (), {"run_preflight": staticmethod(lambda _api, _owner, _blueprint: {"ok": True, "blockers": []})})
+        with patch.object(render_credentials_handshake, "load_preflight_module", return_value=fake_module):
+            report = render_credentials_handshake.collect_handshake(
+                "replace-with-render-api-key",
+                "replace-with-owner-id",
+                render_api_preflight.DEFAULT_BLUEPRINT,
+                write=False,
+            )
+        self.assertFalse(report["decision"]["go"])
+        self.assertIn("render_api_key_placeholder", report["decision"]["blockers"])
+        self.assertIn("render_owner_id_placeholder", report["decision"]["blockers"])
+
+    def test_render_credentials_handshake_go_with_mocked_preflight(self):
+        preflight = {"ok": True, "blockers": [], "warnings": [], "blueprint_validation": {"payload": {"valid": True}}}
+        fake_module = type("FakePreflight", (), {"run_preflight": staticmethod(lambda _api, _owner, _blueprint: preflight)})
+        with patch.object(render_credentials_handshake, "load_preflight_module", return_value=fake_module):
+            report = render_credentials_handshake.collect_handshake(
+                "rnd_" + ("k" * 32),
+                "owner-123",
+                render_api_preflight.DEFAULT_BLUEPRINT,
+                write=False,
+            )
+        self.assertTrue(report["decision"]["go"])
+        self.assertEqual(report["credential_policy"], "api_key_only_no_account_password")

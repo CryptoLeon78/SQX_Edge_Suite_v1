@@ -27,6 +27,7 @@ class RelayStaticTestCase(unittest.TestCase):
             RELAY_ROOT / "tools" / "__init__.py",
             RELAY_ROOT / "tools" / "deployment_check.py",
             RELAY_ROOT / "tools" / "render_api_preflight.py",
+            RELAY_ROOT / "tools" / "render_credentials_handshake.py",
             RELAY_ROOT / "tools" / "simulate_purchase_flow.py",
             RELAY_ROOT / "tools" / "staging_evidence.py",
             RELAY_ROOT / "tools" / "staging_smoke.py",
@@ -52,6 +53,7 @@ class RelayStaticTestCase(unittest.TestCase):
         settings = (RELAY_ROOT / "core" / "relay_settings.py").read_text(encoding="utf-8-sig")
         deployment_check = (RELAY_ROOT / "tools" / "deployment_check.py").read_text(encoding="utf-8-sig")
         render_api_preflight = (RELAY_ROOT / "tools" / "render_api_preflight.py").read_text(encoding="utf-8-sig")
+        render_credentials_handshake = (RELAY_ROOT / "tools" / "render_credentials_handshake.py").read_text(encoding="utf-8-sig")
         simulation = (RELAY_ROOT / "tools" / "simulate_purchase_flow.py").read_text(encoding="utf-8-sig")
         staging_evidence = (RELAY_ROOT / "tools" / "staging_evidence.py").read_text(encoding="utf-8-sig")
         staging_smoke = (RELAY_ROOT / "tools" / "staging_smoke.py").read_text(encoding="utf-8-sig")
@@ -73,6 +75,7 @@ class RelayStaticTestCase(unittest.TestCase):
             "SQX_RELAY_WORKER_INTERVAL_SECONDS",
             "deployment_check.py",
             "render_api_preflight.py",
+            "render_credentials_handshake.py",
             "staging_evidence.py",
             "staging_smoke.py",
         ):
@@ -89,6 +92,10 @@ class RelayStaticTestCase(unittest.TestCase):
         self.assertIn("RENDER_API_KEY", render_api_preflight)
         self.assertIn("/blueprints/validate", render_api_preflight)
         self.assertIn("multipart/form-data", render_api_preflight)
+        self.assertIn("api_key_only_no_account_password", render_credentials_handshake)
+        self.assertIn("RENDER_ACCOUNT_PASSWORD", render_credentials_handshake)
+        self.assertIn("render_account_password_present_do_not_use", render_credentials_handshake)
+        self.assertIn("render_preflight_evidence", render_credentials_handshake)
         self.assertIn("dispatch_queue_item", simulation)
         self.assertIn("SQX_RELAY_STAGING_BASE_URL", staging_smoke)
         self.assertIn("--send-webhook", staging_smoke)

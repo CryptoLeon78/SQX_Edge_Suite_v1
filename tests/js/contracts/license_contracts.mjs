@@ -29,7 +29,7 @@ assert.equal(productManifest.upgrade.checkout.primaryProvider, 'Lemon Squeezy');
 assert.equal(productManifest.upgrade.checkout.fallbackProvider, 'Gumroad');
 assert.equal(productManifest.upgrade.checkout.fulfillmentMode, 'manual_signed_license');
 assert.ok(productManifest.upgrade.checkout.deliveryTool.includes('prepare_customer_delivery.ps1'));
-assert.equal(productManifest.upgrade.checkout.automation.status, 'relay_render_api_preflight_ready');
+assert.equal(productManifest.upgrade.checkout.automation.status, 'relay_render_credentials_handshake_ready');
 assert.equal(productManifest.upgrade.checkout.automation.webhookSignatureHeader, 'X-Signature');
 assert.equal(productManifest.upgrade.checkout.automation.webhookSecretEnv, 'SQX_LEMON_WEBHOOK_SECRET');
 assert.equal(productManifest.upgrade.checkout.automation.receiverEndpoint, '/api/fulfillment/webhook/lemon');
@@ -43,6 +43,8 @@ assert.ok(productManifest.upgrade.checkout.automation.relayDeploymentCheckTool.i
 assert.ok(productManifest.upgrade.checkout.automation.relayStagingSmokeTool.includes('staging_smoke.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayStagingEvidenceTool.includes('staging_evidence.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderApiPreflightTool.includes('render_api_preflight.py'));
+assert.ok(productManifest.upgrade.checkout.automation.relayRenderCredentialsHandshakeTool.includes('render_credentials_handshake.py'));
+assert.equal(productManifest.upgrade.checkout.automation.relayRenderCredentialPolicy, 'api_key_only_no_account_password');
 assert.equal(productManifest.upgrade.checkout.automation.requestStatusEndpoint, '/api/fulfillment/request-status');
 assert.ok(productManifest.upgrade.checkout.automation.normalizerTool.includes('fulfillment_request.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayBundleTool.includes('relay_bundle.py'));

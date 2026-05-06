@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Render credential handshake
+
+- Anade `render_credentials_handshake.py` para validar politica de credenciales antes del deploy real.
+- Bloquea el uso de password de cuenta Render mediante `RENDER_PASSWORD` o `RENDER_ACCOUNT_PASSWORD`.
+- Guarda evidencia local JSON/Markdown ignorada por git.
+- Actualiza manifiesto a `relay_render_credentials_handshake_ready`.
+
 ## 2026-05-06 - Render API preflight
 
 - Anade `render_api_preflight.py` para validar API key, owner/workspace y blueprint staging.

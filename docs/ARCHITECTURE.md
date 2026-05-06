@@ -52,6 +52,7 @@ flowchart TD
   RELAYSIM --> RELAYOBS
   RELAYDEPLOY["backend/sqx-edge-relay/tools/deployment_check.py"] --> RELAYS
   RENDERAPI["backend/sqx-edge-relay/tools/render_api_preflight.py"] --> RENDER["Render API"]
+  RENDERHANDSHAKE["backend/sqx-edge-relay/tools/render_credentials_handshake.py"] --> RENDERAPI
   RELAYSTAGE["backend/sqx-edge-relay/tools/staging_smoke.py"] --> RELAY
   RELAYEVIDENCE["backend/sqx-edge-relay/tools/staging_evidence.py"] --> RELAYSTAGE
   RELAYEVIDENCE --> RELAYDEPLOY

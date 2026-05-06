@@ -24,7 +24,7 @@ assert.ok(fulfillmentJs.includes("SQX.registerModule('fulfillment'"));
 assert.ok(html.includes('id="fulfillment-panel"'));
 assert.ok(html.includes('id="fulfillment-request-list"'));
 assert.ok(html.includes('js/modules/fulfillment.js'));
-assert.equal(productManifest.upgrade.checkout.automation.status, 'relay_render_api_preflight_ready');
+assert.equal(productManifest.upgrade.checkout.automation.status, 'relay_render_credentials_handshake_ready');
 assert.equal(productManifest.upgrade.checkout.automation.relayIngestEndpoint, '/api/fulfillment/relay-ingest');
 assert.equal(productManifest.upgrade.checkout.automation.requestStatusEndpoint, '/api/fulfillment/request-status');
 assert.equal(productManifest.upgrade.checkout.automation.retryMode, 'manual_retry_with_attempt_log');
@@ -40,6 +40,9 @@ assert.ok(productManifest.upgrade.checkout.automation.relayDeploymentCheckTool.i
 assert.ok(productManifest.upgrade.checkout.automation.relayStagingSmokeTool.includes('staging_smoke.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayStagingEvidenceTool.includes('staging_evidence.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderApiPreflightTool.includes('render_api_preflight.py'));
+assert.ok(productManifest.upgrade.checkout.automation.relayRenderCredentialsHandshakeTool.includes('render_credentials_handshake.py'));
+assert.equal(productManifest.upgrade.checkout.automation.relayRenderCredentialPolicy, 'api_key_only_no_account_password');
+assert.ok(productManifest.upgrade.checkout.automation.relayRenderPreflightEvidenceDir.includes('render_preflight_evidence'));
 assert.ok(productManifest.upgrade.checkout.automation.relayStagingEnvExample.includes('.env.staging.example'));
 assert.equal(productManifest.upgrade.checkout.automation.relayRecommendedStagingProvider, 'render');
 assert.ok(productManifest.upgrade.checkout.automation.relayDockerfile.includes('Dockerfile'));

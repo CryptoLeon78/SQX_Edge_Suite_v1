@@ -1023,7 +1023,7 @@ window.SQX_MANIFEST = {
         "licenseIssuerTool": "backend/sqx-edge-tool/tools/license_issue.py",
         "deliveryTool": "backend/sqx-edge-tool/tools/prepare_customer_delivery.ps1",
         "automation": {
-          "status": "relay_render_api_preflight_ready",
+          "status": "relay_render_credentials_handshake_ready",
           "webhookProvider": "Lemon Squeezy",
           "webhookSignatureHeader": "X-Signature",
           "webhookSigningAlgorithm": "hmac_sha256_hex",
@@ -1050,6 +1050,9 @@ window.SQX_MANIFEST = {
           "relayStagingSmokeTool": "backend/sqx-edge-relay/tools/staging_smoke.py",
           "relayStagingEvidenceTool": "backend/sqx-edge-relay/tools/staging_evidence.py",
           "relayRenderApiPreflightTool": "backend/sqx-edge-relay/tools/render_api_preflight.py",
+          "relayRenderCredentialsHandshakeTool": "backend/sqx-edge-relay/tools/render_credentials_handshake.py",
+          "relayRenderCredentialPolicy": "api_key_only_no_account_password",
+          "relayRenderPreflightEvidenceDir": "backend/sqx-edge-relay/data/render_preflight_evidence",
           "relayStagingEnvExample": "backend/sqx-edge-relay/.env.staging.example",
           "relayRecommendedStagingProvider": "render",
           "relayDockerfile": "backend/sqx-edge-relay/Dockerfile",

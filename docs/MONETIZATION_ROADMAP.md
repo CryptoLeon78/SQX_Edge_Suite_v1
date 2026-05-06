@@ -497,3 +497,23 @@ Decision M22:
 - No se usa password de cuenta en scripts.
 - Render API key es el mecanismo seguro para avanzar.
 - El siguiente paso natural es ejecutar el preflight con API key real y validar el blueprint contra el workspace.
+
+## Phase M23 - Render Credential Handshake
+
+Objetivo: preparar un handshake seguro y auditable de credenciales Render antes de crear servicios reales.
+
+Entregables:
+
+- Estado `relay_render_credentials_handshake_ready`.
+- `render_credentials_handshake.py`.
+- Politica `api_key_only_no_account_password`.
+- Evidencia local ignorada por git.
+- Guia `RENDER_CREDENTIAL_HANDSHAKE.md`.
+
+Estado: Done.
+
+Decision M23:
+
+- Si aparece password de cuenta Render en entorno, la decision es `NO-GO`.
+- El deploy real solo avanza con `RENDER_API_KEY`, `RENDER_OWNER_ID` y blueprint validado.
+- La evidencia del handshake queda en `backend/sqx-edge-relay/data/render_preflight_evidence`.

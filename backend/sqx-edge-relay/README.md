@@ -111,6 +111,16 @@ Variables esperadas:
 - `RENDER_OWNER_ID`
 - `SQX_RENDER_STAGING_BLUEPRINT`
 
+## Render credential handshake
+
+Antes de lanzar un deploy real, genera evidencia local con politica de credenciales:
+
+```powershell
+python tools\render_credentials_handshake.py
+```
+
+El handshake devuelve `NO-GO` si faltan `RENDER_API_KEY` o `RENDER_OWNER_ID`, si detecta placeholders o si aparece una password de cuenta en `RENDER_PASSWORD` o `RENDER_ACCOUNT_PASSWORD`. Las evidencias se guardan en `data/render_preflight_evidence`, que no se sube al repo.
+
 ## Worker de dispatch
 
 Una vez configurado `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_LOCAL_INGEST_URL`, puedes lanzar el worker:
