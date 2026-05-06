@@ -1,0 +1,28 @@
+services:
+  relay-web:
+    build:
+      context: ../../..
+      dockerfile: backend/sqx-edge-relay/Dockerfile
+    ports:
+      - "6060:6060"
+    env_file:
+      - ../.env
+    environment:
+      PORT: "6060"
+    volumes:
+      - relay-data:/srv/sqx-edge-relay/data
+
+  relay-worker:
+    build:
+      context: ../../..
+      dockerfile: backend/sqx-edge-relay/Dockerfile
+    command: ["python", "worker/dispatch_worker.py"]
+    env_file:
+      - ../.env
+    volumes:
+      - relay-data:/srv/sqx-edge-relay/data
+    depends_on:
+      - relay-web
+
+volumes:
+  relay-data:

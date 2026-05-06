@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Production relay deployment package
+
+- Anade Dockerfile, `.dockerignore` y plantillas de despliegue para el relay.
+- Anade `deployment_check.py` para preflight de produccion.
+- Documenta Render, Railway, Fly.io y VPS/systemd en la guia de despliegue.
+- Actualiza manifiesto a `relay_production_deploy_ready`.
+
 ## 2026-05-06 - Relay observability and simulation
 
 - Anade eventos JSONL y snapshots de cola para el relay remoto.

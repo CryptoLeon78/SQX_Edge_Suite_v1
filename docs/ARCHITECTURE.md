@@ -50,6 +50,7 @@ flowchart TD
   RELAYW --> RELAYS
   RELAYSIM["backend/sqx-edge-relay/tools/simulate_purchase_flow.py"] --> RELAYQ
   RELAYSIM --> RELAYOBS
+  RELAYDEPLOY["backend/sqx-edge-relay/tools/deployment_check.py"] --> RELAYS
   RELAY --> RELAYIN
 ```
 
@@ -156,6 +157,8 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `backend/sqx-edge-relay/core/relay_observability.py` | JSONL relay events, redaction and queue snapshots. |
 | `backend/sqx-edge-relay/worker/dispatch_worker.py` | Supervised relay dispatch loop for pending bundles. |
 | `backend/sqx-edge-relay/tools/simulate_purchase_flow.py` | Local purchase flow simulation for relay observability checks. |
+| `backend/sqx-edge-relay/tools/deployment_check.py` | Production preflight for files, Docker readiness and required secrets. |
+| `backend/sqx-edge-relay/deploy/*` | Docker Compose, provider examples and systemd deployment templates. |
 | `backend/sqx-edge-tool/config/*.json` | Dynamic catalogs for assets, instruments, profiles, plan and UI manifest. |
 | `backend/sqx-edge-tool/templates/*.cfx` | StrategyQuant template files used by generation. |
 

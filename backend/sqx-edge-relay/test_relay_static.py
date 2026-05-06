@@ -11,6 +11,8 @@ class RelayStaticTestCase(unittest.TestCase):
     def test_relay_project_files_exist(self):
         expected = [
             RELAY_ROOT / ".env.example",
+            RELAY_ROOT / ".dockerignore",
+            RELAY_ROOT / "Dockerfile",
             RELAY_ROOT / "README.md",
             RELAY_ROOT / "requirements.txt",
             RELAY_ROOT / "run-web.bat",
@@ -22,9 +24,16 @@ class RelayStaticTestCase(unittest.TestCase):
             RELAY_ROOT / "core" / "relay_observability.py",
             RELAY_ROOT / "core" / "relay_settings.py",
             RELAY_ROOT / "tools" / "__init__.py",
+            RELAY_ROOT / "tools" / "deployment_check.py",
             RELAY_ROOT / "tools" / "simulate_purchase_flow.py",
             RELAY_ROOT / "worker" / "__init__.py",
             RELAY_ROOT / "worker" / "dispatch_worker.py",
+            RELAY_ROOT / "deploy" / "docker-compose.yml",
+            RELAY_ROOT / "deploy" / "render.yaml.example",
+            RELAY_ROOT / "deploy" / "railway.json",
+            RELAY_ROOT / "deploy" / "fly.toml.example",
+            RELAY_ROOT / "deploy" / "systemd" / "sqx-edge-relay.service",
+            RELAY_ROOT / "deploy" / "systemd" / "sqx-edge-relay-worker.service",
         ]
         for path in expected:
             with self.subTest(path=path.name):
@@ -36,8 +45,10 @@ class RelayStaticTestCase(unittest.TestCase):
         queue = (RELAY_ROOT / "core" / "relay_queue.py").read_text(encoding="utf-8-sig")
         observability = (RELAY_ROOT / "core" / "relay_observability.py").read_text(encoding="utf-8-sig")
         settings = (RELAY_ROOT / "core" / "relay_settings.py").read_text(encoding="utf-8-sig")
+        deployment_check = (RELAY_ROOT / "tools" / "deployment_check.py").read_text(encoding="utf-8-sig")
         simulation = (RELAY_ROOT / "tools" / "simulate_purchase_flow.py").read_text(encoding="utf-8-sig")
         worker = (RELAY_ROOT / "worker" / "dispatch_worker.py").read_text(encoding="utf-8-sig")
+        dockerfile = (RELAY_ROOT / "Dockerfile").read_text(encoding="utf-8-sig")
 
         for pattern in (
             "/relay/health",
@@ -52,6 +63,7 @@ class RelayStaticTestCase(unittest.TestCase):
             "SQX_RELAY_OPERATOR_TOKEN",
             "SQX_LOCAL_INGEST_URL",
             "SQX_RELAY_WORKER_INTERVAL_SECONDS",
+            "deployment_check.py",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme + server + settings)
@@ -61,8 +73,12 @@ class RelayStaticTestCase(unittest.TestCase):
         self.assertIn("log_event", queue)
         self.assertIn("write_snapshot", observability)
         self.assertIn("relay_events.jsonl", observability)
+        self.assertIn("production_ready", deployment_check)
+        self.assertIn("--strict", deployment_check)
         self.assertIn("dispatch_queue_item", simulation)
         self.assertIn("dispatch_due_items", worker)
+        self.assertIn("gunicorn api.server:app", dockerfile)
+        self.assertIn("backend/sqx-edge-tool/core/fulfillment_normalizer.py", dockerfile)
         self.assertIn("--once", worker)
         self.assertIn("exponential", "exponential backoff remote queue")
 

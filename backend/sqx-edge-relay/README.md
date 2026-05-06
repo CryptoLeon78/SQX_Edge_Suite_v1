@@ -57,6 +57,22 @@ o:
 python api\server.py
 ```
 
+## Preflight de despliegue
+
+Antes de exponer el relay a compras reales:
+
+```powershell
+python tools\deployment_check.py
+```
+
+En produccion, con secretos reales:
+
+```powershell
+python tools\deployment_check.py --strict
+```
+
+El modo estricto exige `SQX_LEMON_WEBHOOK_SECRET`, `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_RELAY_OPERATOR_TOKEN` configurados con valores largos y no placeholder.
+
 ## Worker de dispatch
 
 Una vez configurado `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_LOCAL_INGEST_URL`, puedes lanzar el worker:
@@ -89,3 +105,20 @@ python tools\simulate_purchase_flow.py
 ```
 
 La simulacion recorre webhook firmado, cola, dispatch firmado y snapshot sin llamar a servicios externos.
+
+## Despliegue
+
+Ruta principal recomendada: Docker.
+
+```powershell
+docker build -f backend/sqx-edge-relay/Dockerfile -t sqx-edge-relay .
+docker run --env-file backend/sqx-edge-relay/.env -p 6060:6060 sqx-edge-relay
+```
+
+Plantillas incluidas:
+
+- `deploy/docker-compose.yml`
+- `deploy/render.yaml.example`
+- `deploy/railway.json`
+- `deploy/fly.toml.example`
+- `deploy/systemd/*.service`

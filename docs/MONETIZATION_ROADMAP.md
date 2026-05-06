@@ -414,3 +414,25 @@ Decision M18:
 - Los snapshots capturan cola, configuracion y eventos recientes.
 - La simulacion permite validar compra -> relay -> ingest local sin depender de Lemon en vivo.
 - El siguiente paso natural es M19: preparar despliegue real por proveedor y supervisor.
+
+## Phase M19 - Production Relay Deployment Package
+
+Objetivo: dejar el relay listo para decidir proveedor y desplegar con checks previos.
+
+Entregables:
+
+- Estado `relay_production_deploy_ready`.
+- Dockerfile y `.dockerignore`.
+- `deployment_check.py`.
+- Plantillas Docker Compose, Render, Railway, Fly.io y systemd.
+- Guia `RELAY_DEPLOYMENT_GUIDE.md`.
+- Contratos y tests para archivos de despliegue y preflight.
+
+Estado: Done.
+
+Decision M19:
+
+- Docker es la ruta principal de despliegue.
+- Render/Railway/Fly.io/VPS quedan como caminos documentados con plantilla.
+- Los secretos se validan por preflight y nunca se versionan.
+- El siguiente paso natural es M20: staging real con proveedor elegido y webhook test.

@@ -44,3 +44,4 @@ Persistent planning note for the next SQX Edge phases.
 16. Phase M16: add deployable remote relay service with queue and dispatch. Done.
 17. Phase M17: harden relay deployment with config checks, operator token and worker. Done.
 18. Phase M18: add relay observability, snapshots and simulated purchase flow. Done.
+19. Phase M19: prepare production relay deployment package and provider runbook. Done.

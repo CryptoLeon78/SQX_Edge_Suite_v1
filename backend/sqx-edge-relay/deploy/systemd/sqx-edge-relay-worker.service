@@ -1,0 +1,15 @@
+[Unit]
+Description=SQX Edge Relay Dispatch Worker
+After=network.target sqx-edge-relay.service
+
+[Service]
+WorkingDirectory=/opt/sqx-edge-relay
+EnvironmentFile=/etc/sqx-edge-relay/sqx-edge-relay.env
+ExecStart=/opt/sqx-edge-relay/venv/bin/python worker/dispatch_worker.py
+Restart=always
+RestartSec=5
+User=sqxrelay
+Group=sqxrelay
+
+[Install]
+WantedBy=multi-user.target

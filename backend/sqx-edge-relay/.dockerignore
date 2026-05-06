@@ -1,0 +1,15 @@
+.git
+.env
+.env.*
+!*.example
+__pycache__/
+*.py[cod]
+data/
+dist/
+node_modules/
+backups/
+output/
+backend/sqx-edge-tool/runtime/
+backend/sqx-edge-tool/venv/
+backend/sqx-edge-tool/output/
+backend/sqx-edge-relay/data/

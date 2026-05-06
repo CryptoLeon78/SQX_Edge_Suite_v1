@@ -24,6 +24,7 @@ def _load_module(name: str, relative_path: str):
 server = _load_module("sqx_edge_relay_server_test", "api/server.py")
 relay_queue = _load_module("sqx_edge_relay_queue_test", "core/relay_queue.py")
 relay_observability = _load_module("sqx_edge_relay_observability_test", "core/relay_observability.py")
+deployment_check = _load_module("sqx_edge_relay_deployment_check_test", "tools/deployment_check.py")
 
 
 class RelayApiTestCase(unittest.TestCase):
@@ -154,3 +155,17 @@ class RelayQueueTestCase(unittest.TestCase):
                 self.assertTrue((obs_root / "snapshots" / snapshot["snapshot_file"]).is_file())
                 events = relay_observability.recent_events()
                 self.assertEqual(events[0]["secret_value"], "[redacted]")
+
+    def test_deployment_check_reports_secret_readiness(self):
+        env = {
+            "SQX_LEMON_WEBHOOK_SECRET": "l" * 40,
+            "SQX_FULFILLMENT_RELAY_SECRET": "r" * 40,
+            "SQX_RELAY_OPERATOR_TOKEN": "o" * 40,
+            "SQX_LOCAL_INGEST_URL": "https://relay-target.example.com/api/fulfillment/relay-ingest",
+        }
+        with patch.dict(deployment_check.os.environ, env, clear=True):
+            report = deployment_check.run_check()
+        self.assertTrue(report["files_ready"])
+        self.assertTrue(report["docker_ready"])
+        self.assertTrue(report["secrets_ready"])
+        self.assertTrue(report["production_ready"])

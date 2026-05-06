@@ -1,0 +1,15 @@
+[Unit]
+Description=SQX Edge Relay Web
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/sqx-edge-relay
+EnvironmentFile=/etc/sqx-edge-relay/sqx-edge-relay.env
+ExecStart=/opt/sqx-edge-relay/venv/bin/gunicorn api.server:app --bind 0.0.0.0:${PORT} --workers 1 --threads 4 --timeout 60
+Restart=always
+RestartSec=5
+User=sqxrelay
+Group=sqxrelay
+
+[Install]
+WantedBy=multi-user.target
