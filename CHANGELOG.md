@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Launch assets kit
+
+- Anade `launch_assets_kit.py` para validar ZIP, SHA256, capturas, copy, README comercial y release draft.
+- Bloquea publicacion sin capturas desktop/mobile, support macro o checklist de publicacion.
+- Genera evidencia JSON/Markdown en `backend/sqx-edge-tool/data/launch_assets_kit`.
+- Actualiza manifiesto a `launch_assets_kit_ready`.
+
 ## 2026-05-06 - Public offer pack
 
 - Anade `public_offer_pack.py` para validar copy, FAQ, release notes, buyer steps y pagina publica.

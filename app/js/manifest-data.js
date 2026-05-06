@@ -872,6 +872,7 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/tools/post_launch_control.py",
         "backend/sqx-edge-tool/tools/commercial_feedback_loop.py",
         "backend/sqx-edge-tool/tools/public_offer_pack.py",
+        "backend/sqx-edge-tool/tools/launch_assets_kit.py",
         "backend/sqx-edge-tool/tools/fulfillment_request.py",
         "backend/sqx-edge-tool/tools/fulfill_from_request.ps1",
         "backend/sqx-edge-tool/tools/relay_bundle.py"
@@ -1018,7 +1019,7 @@ window.SQX_MANIFEST = {
       "checkoutLabel": "Comprar Pro",
       "checkoutUrl": "",
       "checkout": {
-        "status": "public_offer_pack_ready",
+        "status": "launch_assets_kit_ready",
         "primaryProvider": "Lemon Squeezy",
         "fallbackProvider": "Gumroad",
         "mode": "hosted_checkout",
@@ -1047,9 +1048,12 @@ window.SQX_MANIFEST = {
         "publicOfferPackTool": "backend/sqx-edge-tool/tools/public_offer_pack.py",
         "publicOfferPackEvidenceDir": "backend/sqx-edge-tool/data/public_offer_pack",
         "publicOfferPackPolicy": "review_copy_faq_release_notes_before_public_page",
+        "launchAssetsKitTool": "backend/sqx-edge-tool/tools/launch_assets_kit.py",
+        "launchAssetsKitEvidenceDir": "backend/sqx-edge-tool/data/launch_assets_kit",
+        "launchAssetsKitPolicy": "prepare_assets_release_draft_and_publication_checklist",
         "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
         "automation": {
-          "status": "public_offer_pack_ready",
+          "status": "launch_assets_kit_ready",
           "webhookProvider": "Lemon Squeezy",
           "webhookSignatureHeader": "X-Signature",
           "webhookSigningAlgorithm": "hmac_sha256_hex",

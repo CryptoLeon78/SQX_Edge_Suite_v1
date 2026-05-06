@@ -863,3 +863,23 @@ Decision M39:
 - No se publica oferta si faltan instrucciones de comprador, FAQ, release notes o checkout.
 - Los claims financieros prohibidos bloquean la publicacion.
 - El siguiente paso real es preparar assets de lanzamiento y draft de GitHub Release/pagina publica.
+
+## Phase M40 - Launch Assets Kit
+
+Objetivo: preparar activos finales para publicar una oferta o release visible.
+
+Entregables:
+
+- Estado `launch_assets_kit_ready`.
+- `launch_assets_kit.py`.
+- Consumo de evidencia M39.
+- Validacion de ZIP, SHA256, capturas desktop/mobile, copy corto/largo, README comercial, support macro y GitHub Release draft.
+- Evidencia local en `backend/sqx-edge-tool/data/launch_assets_kit`.
+- Guia `LAUNCH_ASSETS_KIT.md`.
+
+Estado: Done.
+
+Decision M40:
+
+- No se publica sin ZIP final, checksum, capturas, copy y checklist de publicacion.
+- El siguiente paso real es un public release gate con tag, release draft final y rollback operativo.
