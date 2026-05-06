@@ -51,6 +51,7 @@ MONETIZATION_M37_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M37.md"
 MONETIZATION_M38_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M38.md"
 MONETIZATION_M39_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M39.md"
 MONETIZATION_M40_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M40.md"
+MONETIZATION_M41_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M41.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -355,8 +356,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "launch_assets_kit_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "launch_assets_kit_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "public_release_gate_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "public_release_gate_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
@@ -371,6 +372,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("public_offer_pack", product_manifest["upgrade"]["checkout"]["publicOfferPackEvidenceDir"])
         self.assertIn("launch_assets_kit.py", product_manifest["upgrade"]["checkout"]["launchAssetsKitTool"])
         self.assertIn("launch_assets_kit", product_manifest["upgrade"]["checkout"]["launchAssetsKitEvidenceDir"])
+        self.assertIn("public_release_gate.py", product_manifest["upgrade"]["checkout"]["publicReleaseGateTool"])
+        self.assertIn("public_release_gate", product_manifest["upgrade"]["checkout"]["publicReleaseGateEvidenceDir"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayIngestEndpoint"], "/api/fulfillment/relay-ingest")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayConfigCheckEndpoint"], "/relay/config-check")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayObservabilityEndpoint"], "/relay/observability")
@@ -798,7 +801,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "launch_assets_kit_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "public_release_gate_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
@@ -821,7 +824,11 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("launch_assets_kit.py", product_manifest["upgrade"]["checkout"]["launchAssetsKitTool"])
         self.assertIn("launch_assets_kit", product_manifest["upgrade"]["checkout"]["launchAssetsKitEvidenceDir"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["launchAssetsKitPolicy"], "prepare_assets_release_draft_and_publication_checklist")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "launch_assets_kit_ready")
+        self.assertIn("public_release_gate.py", product_manifest["upgrade"]["checkout"]["publicReleaseGateTool"])
+        self.assertIn("public_release_gate", product_manifest["upgrade"]["checkout"]["publicReleaseGateEvidenceDir"])
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["publicReleaseGatePolicy"], "confirm_tag_release_zip_checksum_support_and_rollback")
+        self.assertIn("backend/sqx-edge-tool/tools/public_release_gate.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "public_release_gate_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -932,7 +939,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m40_decisions(self):
+    def test_monetization_docs_capture_m1_to_m41_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -974,6 +981,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m38 = MONETIZATION_M38_DOC.read_text(encoding="utf-8-sig")
         m39 = MONETIZATION_M39_DOC.read_text(encoding="utf-8-sig")
         m40 = MONETIZATION_M40_DOC.read_text(encoding="utf-8-sig")
+        m41 = MONETIZATION_M41_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
@@ -1024,6 +1032,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M38", roadmap)
         self.assertIn("Phase M39", roadmap)
         self.assertIn("Phase M40", roadmap)
+        self.assertIn("Phase M41", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -1063,6 +1072,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M38: add commercial feedback loop for issue classification, pricing, copy and version decisions. Done.", next_steps)
         self.assertIn("Phase M39: add public offer pack for controlled offer copy, FAQ, release notes and buyer steps. Done.", next_steps)
         self.assertIn("Phase M40: add launch assets kit for screenshots, copy, release draft and publication checklist. Done.", next_steps)
+        self.assertIn("Phase M41: add public release gate for tag, GitHub Release, ZIP, SHA256, support and rollback. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -1688,6 +1698,21 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("launch_assets_kit.py", launch_assets)
         self.assertIn("publication checklist", launch_assets)
 
+        m41_patterns = [
+            "public_release_gate_ready",
+            "public_release_gate.py",
+            "release_tag",
+            "GitHub Release",
+            "Estado: Done.",
+        ]
+        for pattern in m41_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m41)
+        public_release_gate = (PROJECT_ROOT / "docs" / "sales" / "PUBLIC_RELEASE_GATE.md").read_text(encoding="utf-8-sig")
+        self.assertIn("Public Release Gate", public_release_gate)
+        self.assertIn("public_release_gate.py", public_release_gate)
+        self.assertIn("release_tag", public_release_gate)
+
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
@@ -1952,6 +1977,20 @@ class DashboardStaticTestCase(unittest.TestCase):
             "github_release_draft_not_ready",
             "zip_sha256_not_confirmed",
             "publication_checklist_not_ready",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, text)
+
+    def test_public_release_gate_tool_is_present_and_guarded(self):
+        path = TOOL_ROOT / "tools" / "public_release_gate.py"
+        py_compile.compile(str(path), doraise=True)
+        text = path.read_text(encoding="utf-8")
+        for pattern in (
+            "public_release_gate",
+            "launch_assets_kit_not_go",
+            "release_tag_missing",
+            "sha256_not_published",
+            "rollback_not_ready",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, text)

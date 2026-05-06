@@ -264,3 +264,9 @@ El ZIP final se genera en:
 ```text
 dist/SQX_Edge_Tool_Portable_*.zip
 ```
+# 2026-05-06 - Public release gate
+
+- Anade `public_release_gate.py` como compuerta final antes de publicar GitHub Release.
+- Valida tag, URL HTTPS de release, ZIP adjunto, SHA256 publicado, soporte y rollback.
+- Refuerza exclusiones del ZIP portable para la nueva herramienta interna.
+- Documenta M41 y el runbook de publicacion controlada.

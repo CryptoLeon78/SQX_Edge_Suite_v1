@@ -883,3 +883,24 @@ Decision M40:
 
 - No se publica sin ZIP final, checksum, capturas, copy y checklist de publicacion.
 - El siguiente paso real es un public release gate con tag, release draft final y rollback operativo.
+
+## Phase M41 - Public Release Gate
+
+Objetivo: bloquear la publicacion visible hasta tener tag, GitHub Release, ZIP, SHA256, soporte y rollback confirmados.
+
+Entregables:
+
+- Estado `public_release_gate_ready`.
+- `public_release_gate.py`.
+- Consumo de evidencia M40.
+- Validacion de `release_tag`, URL HTTPS de GitHub Release, ZIP adjunto, SHA256 publicado, checkout, soporte y rollback.
+- Evidencia local en `backend/sqx-edge-tool/data/public_release_gate`.
+- Guia `PUBLIC_RELEASE_GATE.md`.
+
+Estado: Done.
+
+Decision M41:
+
+- No se publica release publica sin release revisada, ZIP adjunto y SHA256 publicado.
+- Soporte y rollback deben tener owner antes de abrir una ventana publica.
+- El siguiente paso real es ejecutar una publicacion controlada y registrar evidencia post-release.

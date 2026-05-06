@@ -15,6 +15,7 @@
 - `commercial_feedback_loop.py` ejecutado antes de cambiar precio, copy u oferta.
 - `public_offer_pack.py` ejecutado antes de publicar pagina u oferta abierta.
 - `launch_assets_kit.py` ejecutado antes de crear release publica o publicar assets.
+- `public_release_gate.py` ejecutado antes de publicar tag/release final con ZIP y SHA256.
 
 ## Sale To Delivery
 

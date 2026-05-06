@@ -32,6 +32,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "commercial_feedback_loop.py",
             TOOL_ROOT / "tools" / "public_offer_pack.py",
             TOOL_ROOT / "tools" / "launch_assets_kit.py",
+            TOOL_ROOT / "tools" / "public_release_gate.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
             TOOL_ROOT / "tools" / "relay_bundle.py",
@@ -75,6 +76,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("commercial_feedback_loop\\.py", text)
         self.assertIn("public_offer_pack\\.py", text)
         self.assertIn("launch_assets_kit\\.py", text)
+        self.assertIn("public_release_gate\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
         self.assertIn("relay_bundle\\.py", text)
@@ -113,6 +115,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("commercial_feedback_loop.py", text)
         self.assertIn("public_offer_pack.py", text)
         self.assertIn("launch_assets_kit.py", text)
+        self.assertIn("public_release_gate.py", text)
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
         self.assertIn("relay_bundle.py", text)
@@ -143,6 +146,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "commercial_feedback_loop.py",
             "public_offer_pack.py",
             "launch_assets_kit.py",
+            "public_release_gate.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
             "relay_bundle.py",
