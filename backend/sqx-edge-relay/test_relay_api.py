@@ -25,6 +25,7 @@ server = _load_module("sqx_edge_relay_server_test", "api/server.py")
 relay_queue = _load_module("sqx_edge_relay_queue_test", "core/relay_queue.py")
 relay_observability = _load_module("sqx_edge_relay_observability_test", "core/relay_observability.py")
 deployment_check = _load_module("sqx_edge_relay_deployment_check_test", "tools/deployment_check.py")
+staging_smoke = _load_module("sqx_edge_relay_staging_smoke_test", "tools/staging_smoke.py")
 
 
 class RelayApiTestCase(unittest.TestCase):
@@ -169,3 +170,44 @@ class RelayQueueTestCase(unittest.TestCase):
         self.assertTrue(report["docker_ready"])
         self.assertTrue(report["secrets_ready"])
         self.assertTrue(report["production_ready"])
+
+    def test_staging_smoke_builds_signed_remote_checks(self):
+        calls = []
+
+        class FakeResponse:
+            status = 200
+
+            def __init__(self, payload):
+                self.payload = payload
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, _exc_type, _exc, _tb):
+                return False
+
+            def read(self):
+                return json.dumps(self.payload).encode("utf-8")
+
+        def fake_urlopen(request, timeout=20):
+            calls.append({
+                "url": request.full_url,
+                "method": request.get_method(),
+                "headers": dict(request.header_items()),
+            })
+            return FakeResponse({"ok": True})
+
+        with patch.object(staging_smoke.urlrequest, "urlopen", side_effect=fake_urlopen):
+            report = staging_smoke.run_smoke(
+                "https://staging.example.com/",
+                "operator-token",
+                "lemon-secret",
+                send_webhook=True,
+                timeout=5,
+            )
+        self.assertTrue(report["ok"])
+        self.assertEqual(len(calls), 5)
+        self.assertIn("/relay/health", calls[0]["url"])
+        self.assertIn("/relay/webhook/lemon", calls[-1]["url"])
+        self.assertEqual(calls[-1]["method"], "POST")
+        self.assertIn("X-signature", calls[-1]["headers"])

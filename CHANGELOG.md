@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Relay staging validation kit
+
+- Anade `.env.staging.example` para entorno staging.
+- Anade `staging_smoke.py` para validar health, config, observability, snapshot y webhook firmado.
+- Anade checklist go/no-go de staging.
+- Actualiza manifiesto a `relay_staging_ready`.
+
 ## 2026-05-06 - Production relay deployment package
 
 - Anade Dockerfile, `.dockerignore` y plantillas de despliegue para el relay.

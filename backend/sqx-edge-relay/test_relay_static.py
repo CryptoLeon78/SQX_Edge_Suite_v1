@@ -13,6 +13,7 @@ class RelayStaticTestCase(unittest.TestCase):
             RELAY_ROOT / ".env.example",
             RELAY_ROOT / ".dockerignore",
             RELAY_ROOT / "Dockerfile",
+            RELAY_ROOT / ".env.staging.example",
             RELAY_ROOT / "README.md",
             RELAY_ROOT / "requirements.txt",
             RELAY_ROOT / "run-web.bat",
@@ -26,6 +27,7 @@ class RelayStaticTestCase(unittest.TestCase):
             RELAY_ROOT / "tools" / "__init__.py",
             RELAY_ROOT / "tools" / "deployment_check.py",
             RELAY_ROOT / "tools" / "simulate_purchase_flow.py",
+            RELAY_ROOT / "tools" / "staging_smoke.py",
             RELAY_ROOT / "worker" / "__init__.py",
             RELAY_ROOT / "worker" / "dispatch_worker.py",
             RELAY_ROOT / "deploy" / "docker-compose.yml",
@@ -47,6 +49,7 @@ class RelayStaticTestCase(unittest.TestCase):
         settings = (RELAY_ROOT / "core" / "relay_settings.py").read_text(encoding="utf-8-sig")
         deployment_check = (RELAY_ROOT / "tools" / "deployment_check.py").read_text(encoding="utf-8-sig")
         simulation = (RELAY_ROOT / "tools" / "simulate_purchase_flow.py").read_text(encoding="utf-8-sig")
+        staging_smoke = (RELAY_ROOT / "tools" / "staging_smoke.py").read_text(encoding="utf-8-sig")
         worker = (RELAY_ROOT / "worker" / "dispatch_worker.py").read_text(encoding="utf-8-sig")
         dockerfile = (RELAY_ROOT / "Dockerfile").read_text(encoding="utf-8-sig")
 
@@ -64,6 +67,7 @@ class RelayStaticTestCase(unittest.TestCase):
             "SQX_LOCAL_INGEST_URL",
             "SQX_RELAY_WORKER_INTERVAL_SECONDS",
             "deployment_check.py",
+            "staging_smoke.py",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme + server + settings)
@@ -76,6 +80,9 @@ class RelayStaticTestCase(unittest.TestCase):
         self.assertIn("production_ready", deployment_check)
         self.assertIn("--strict", deployment_check)
         self.assertIn("dispatch_queue_item", simulation)
+        self.assertIn("SQX_RELAY_STAGING_BASE_URL", staging_smoke)
+        self.assertIn("--send-webhook", staging_smoke)
+        self.assertIn("wh_m20_staging_demo", staging_smoke)
         self.assertIn("dispatch_due_items", worker)
         self.assertIn("gunicorn api.server:app", dockerfile)
         self.assertIn("backend/sqx-edge-tool/core/fulfillment_normalizer.py", dockerfile)

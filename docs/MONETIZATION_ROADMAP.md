@@ -436,3 +436,23 @@ Decision M19:
 - Render/Railway/Fly.io/VPS quedan como caminos documentados con plantilla.
 - Los secretos se validan por preflight y nunca se versionan.
 - El siguiente paso natural es M20: staging real con proveedor elegido y webhook test.
+
+## Phase M20 - Relay Staging Validation Kit
+
+Objetivo: preparar validacion staging real antes de conectar ventas.
+
+Entregables:
+
+- Estado `relay_staging_ready`.
+- `.env.staging.example`.
+- `staging_smoke.py`.
+- Checklist `RELAY_STAGING_CHECKLIST.md`.
+- Tests para smoke remoto firmado.
+
+Estado: Done.
+
+Decision M20:
+
+- El proveedor se elige en la siguiente fase operativa.
+- El proyecto ya puede validar una URL staging con health, config, observability, snapshot y webhook firmado.
+- El siguiente paso natural es M21: desplegar staging real en el proveedor elegido y capturar evidencia go/no-go.

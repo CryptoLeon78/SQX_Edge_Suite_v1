@@ -73,6 +73,22 @@ python tools\deployment_check.py --strict
 
 El modo estricto exige `SQX_LEMON_WEBHOOK_SECRET`, `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_RELAY_OPERATOR_TOKEN` configurados con valores largos y no placeholder.
 
+## Staging smoke test
+
+Con una URL de staging real:
+
+```powershell
+python tools\staging_smoke.py --base-url https://tu-relay-staging.example.com
+```
+
+Para enviar un evento demo firmado:
+
+```powershell
+python tools\staging_smoke.py --base-url https://tu-relay-staging.example.com --send-webhook
+```
+
+Usa `.env.staging.example` como lista de variables necesarias.
+
 ## Worker de dispatch
 
 Una vez configurado `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_LOCAL_INGEST_URL`, puedes lanzar el worker:
