@@ -22,12 +22,22 @@ function Add-FileInfo {
     [System.Collections.Generic.List[object]]$Files,
     [string]$Path
   )
+  $sha256 = [System.Security.Cryptography.SHA256]::Create()
+  try {
+    $stream = [System.IO.File]::OpenRead($Path)
+    try {
+      $hashBytes = $sha256.ComputeHash($stream)
+    } finally {
+      $stream.Dispose()
+    }
+  } finally {
+    $sha256.Dispose()
+  }
   $item = Get-Item -LiteralPath $Path
-  $hash = Get-FileHash -Algorithm SHA256 -LiteralPath $item.FullName
   $Files.Add([ordered]@{
     name = $item.Name
     bytes = $item.Length
-    sha256 = $hash.Hash
+    sha256 = ([System.BitConverter]::ToString($hashBytes)).Replace("-", "")
   }) | Out-Null
 }
 

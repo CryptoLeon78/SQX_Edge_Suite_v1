@@ -67,9 +67,15 @@
       "signed_license_*.json",
       "license_payload_*.json",
       "unsigned_license_*.json",
+      "fulfillment_request_*.json",
+      "webhook_event_*.json",
+      "fulfillment_requests",
       "backend/sqx-edge-tool/tools/license_signer.py",
       "backend/sqx-edge-tool/tools/license_keypair.ps1",
-      "backend/sqx-edge-tool/tools/license_issue.py"
+      "backend/sqx-edge-tool/tools/license_issue.py",
+      "backend/sqx-edge-tool/tools/prepare_customer_delivery.ps1",
+      "backend/sqx-edge-tool/tools/fulfillment_request.py",
+      "backend/sqx-edge-tool/tools/fulfill_from_request.ps1"
     ],
     "releaseAudit": "backend/sqx-edge-tool/tools/audit_distribution.ps1"
   },
@@ -224,6 +230,24 @@
       "deliveryArtifact": "SQX_Edge_Tool_Portable_*.zip",
       "licenseIssuerTool": "backend/sqx-edge-tool/tools/license_issue.py",
       "deliveryTool": "backend/sqx-edge-tool/tools/prepare_customer_delivery.ps1",
+      "automation": {
+        "status": "local_queue_ready",
+        "webhookProvider": "Lemon Squeezy",
+        "webhookSignatureHeader": "X-Signature",
+        "webhookSigningAlgorithm": "hmac_sha256_hex",
+        "normalizerTool": "backend/sqx-edge-tool/tools/fulfillment_request.py",
+        "fulfillmentTool": "backend/sqx-edge-tool/tools/fulfill_from_request.ps1",
+        "handledEvents": [
+          "order_created",
+          "subscription_created",
+          "subscription_updated",
+          "subscription_payment_success",
+          "subscription_cancelled",
+          "subscription_expired"
+        ],
+        "eventStorePolicy": "store_raw_event_then_process_offline",
+        "publicEndpointStatus": "not_enabled"
+      },
       "variants": [
         {
           "plan": "pro_monthly",

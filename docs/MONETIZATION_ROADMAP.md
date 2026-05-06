@@ -266,3 +266,24 @@ Decision M11:
 - La licencia Pro real sigue siendo nuestro JSON firmado offline.
 - El cliente recibe ZIP portable + licencia JSON + instrucciones.
 - La siguiente fase natural es webhook/automatizacion de fulfillment.
+
+## Phase M12 - Local Fulfillment Automation Bridge
+
+Objetivo: preparar una automatizacion asistida para pasar de evento de checkout a entrega, sin exponer aun un endpoint publico.
+
+Entregables:
+
+- `fulfillment_request.py` para normalizar eventos de proveedor.
+- `fulfill_from_request.ps1` para emitir licencia y preparar entrega.
+- Politica de firma `X-Signature` + `HMAC SHA256`.
+- Exclusion del ZIP para requests/eventos/tools internos.
+- Documentacion operativa del puente de automatizacion.
+
+Estado: Done.
+
+Decision M12:
+
+- La automatizacion inicial sera local y con cola asistida.
+- Lemon Squeezy sigue siendo la fuente principal de eventos.
+- Primero se guarda/verifica el evento; despues se normaliza; despues se cumple.
+- La siguiente fase natural es un receiver privado con deduplicacion.

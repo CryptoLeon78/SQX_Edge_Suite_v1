@@ -40,9 +40,13 @@ license_signed_*.json
 signed_license_*.json
 license_payload_*.json
 unsigned_license_*.json
+fulfillment_request_*.json
+webhook_event_*.json
+fulfillment_requests/
 backend/sqx-edge-tool/license_keys/
 backend/sqx-edge-tool/licenses_private/
 backend/sqx-edge-tool/private_keys/
+backend/sqx-edge-tool/fulfillment_requests/
 
 # ── Backups and temporary refactor snapshots ────────
 backups/

@@ -26,7 +26,8 @@ $denySegments = @(
   ".playwright-cli",
   "license_keys",
   "licenses_private",
-  "private_keys"
+  "private_keys",
+  "fulfillment_requests"
 )
 
 $denyFiles = @(
@@ -36,6 +37,8 @@ $denyFiles = @(
   "license_keypair.ps1",
   "license_issue.py",
   "prepare_customer_delivery.ps1",
+  "fulfillment_request.py",
+  "fulfill_from_request.ps1",
   ".env",
   "RELEASE_SQX_EDGE.bat"
 )
@@ -46,7 +49,9 @@ $denyFilePatterns = @(
   "license_signed_.*\.json$",
   "signed_license_.*\.json$",
   "license_payload_.*\.json$",
-  "unsigned_license_.*\.json$"
+  "unsigned_license_.*\.json$",
+  "fulfillment_request_.*\.json$",
+  "webhook_event_.*\.json$"
 )
 
 $requiredPackageGuards = @(
@@ -67,12 +72,16 @@ $requiredPackageGuards = @(
   'license_keypair\.ps1',
   'license_issue\.py',
   'prepare_customer_delivery\.ps1',
+  'fulfillment_request\.py',
+  'fulfill_from_request\.ps1',
   '_private_key\.json',
   '\.private_key\.json',
   'license_signed_',
   'signed_license_',
   'license_payload_',
   'unsigned_license_',
+  'fulfillment_request_',
+  'webhook_event_',
   '\\\.env',
   'RELEASE_SQX_EDGE'
 )

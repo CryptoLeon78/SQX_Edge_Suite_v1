@@ -22,6 +22,7 @@ MONETIZATION_M8_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M8.md"
 MONETIZATION_M9_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M9.md"
 MONETIZATION_M10_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M10.md"
 MONETIZATION_M11_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M11.md"
+MONETIZATION_M12_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M12.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -679,6 +680,11 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "local_queue_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
+        self.assertIn("fulfillment_request.py", product_manifest["upgrade"]["checkout"]["automation"]["normalizerTool"])
+        self.assertIn("fulfill_from_request.ps1", product_manifest["upgrade"]["checkout"]["automation"]["fulfillmentTool"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["variants"][0]["plan"], "pro_monthly")
         self.assertIn("No promete rentabilidad", product_manifest["upgrade"]["disclaimer"])
         self.assertIn("De idea a pipeline operativo SQX", product_manifest["marketing"]["tagline"])
@@ -697,6 +703,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("*_private_key.json", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/license_keypair.ps1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/license_issue.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/fulfillment_request.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/fulfill_from_request.ps1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("fulfillment_request_*.json", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("/api/license/status", server_py)
         self.assertIn("/api/license/check", server_py)
         self.assertIn("/api/license/import", server_py)
@@ -738,7 +747,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m11_decisions(self):
+    def test_monetization_docs_capture_m1_to_m12_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -751,7 +760,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         m9 = MONETIZATION_M9_DOC.read_text(encoding="utf-8-sig")
         m10 = MONETIZATION_M10_DOC.read_text(encoding="utf-8-sig")
         m11 = MONETIZATION_M11_DOC.read_text(encoding="utf-8-sig")
+        m12 = MONETIZATION_M12_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
+        webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
         public_roadmap = (PROJECT_ROOT / "docs" / "PUBLIC_ROADMAP.md").read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
@@ -767,6 +778,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M9", roadmap)
         self.assertIn("Phase M10", roadmap)
         self.assertIn("Phase M11", roadmap)
+        self.assertIn("Phase M12", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -777,6 +789,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M9: prepare production license key management and release guardrails. Done.", next_steps)
         self.assertIn("Phase M10: add manual Pro license issuer for first paid sales. Done.", next_steps)
         self.assertIn("Phase M11: prepare checkout wiring and manual sales fulfillment. Done.", next_steps)
+        self.assertIn("Phase M12: prepare local webhook-to-fulfillment automation bridge. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -945,6 +958,23 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, m11)
         self.assertIn("Sale To Delivery", sales_runbook)
         self.assertIn("Customer Email Template", sales_runbook)
+
+        m12_patterns = [
+            "fulfillment_request.py",
+            "fulfill_from_request.ps1",
+            "X-Signature",
+            "HMAC SHA256",
+            "order_created",
+            "subscription_payment_success",
+            "eligible_for_fulfillment",
+            "Lemon Squeezy",
+            "Estado: Done.",
+        ]
+        for pattern in m12_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m12)
+        self.assertIn("Manual To Assisted Automation", webhook_notes)
+        self.assertIn("provider_event_id", webhook_notes)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))

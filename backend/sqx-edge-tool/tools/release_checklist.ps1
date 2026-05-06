@@ -89,9 +89,12 @@ function Test-PortableZip {
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\license_keypair.ps1")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\license_issue.py")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\prepare_customer_delivery.ps1")
+    Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\fulfillment_request.py")
+    Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\fulfill_from_request.ps1")
     Assert-DirExcluded (Join-Path $TempRoot "license_keys")
     Assert-DirExcluded (Join-Path $TempRoot "private_keys")
     Assert-DirExcluded (Join-Path $TempRoot "licenses_private")
+    Assert-DirExcluded (Join-Path $TempRoot "fulfillment_requests")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\venv")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\config.json")
 

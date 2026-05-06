@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Fulfillment automation bridge
+
+- Anade `fulfillment_request.py` para validar firma y normalizar eventos de Lemon Squeezy.
+- Anade `fulfill_from_request.ps1` para convertir una request en licencia firmada y entrega final.
+- Refuerza exclusiones del ZIP para requests, eventos y tools internos de automatizacion.
+- Documenta la fase M12 y las notas de automatizacion futura.
+
 ## 2026-05-06 - Checkout and fulfillment
 
 - Prepara `upgrade.checkout` para Lemon Squeezy con Gumroad como fallback.
