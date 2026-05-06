@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Render API preflight
+
+- Anade `render_api_preflight.py` para validar API key, owner/workspace y blueprint staging.
+- Amplia `.env.staging.example` con variables Render API.
+- Documenta el flujo seguro sin usar password de cuenta en scripts.
+- Actualiza manifiesto a `relay_render_api_preflight_ready`.
+
 ## 2026-05-06 - Render staging evidence pack
 
 - Recomienda Render como primer proveedor de staging para el relay.

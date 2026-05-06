@@ -97,6 +97,20 @@ Para generar un paquete de evidencia:
 python tools\staging_evidence.py --provider render --base-url https://tu-relay-staging.example.com --send-webhook
 ```
 
+## Render API preflight
+
+Para validar API key, workspace y blueprint antes de crear servicios:
+
+```powershell
+python tools\render_api_preflight.py
+```
+
+Variables esperadas:
+
+- `RENDER_API_KEY`
+- `RENDER_OWNER_ID`
+- `SQX_RENDER_STAGING_BLUEPRINT`
+
 ## Worker de dispatch
 
 Una vez configurado `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_LOCAL_INGEST_URL`, puedes lanzar el worker:

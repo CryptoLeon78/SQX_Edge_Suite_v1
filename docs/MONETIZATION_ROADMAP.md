@@ -477,3 +477,23 @@ Decision M21:
 - Sin URL staging real, la decision debe quedar en NO-GO.
 - La evidencia se genera en JSON y Markdown para auditoria.
 - El siguiente paso natural es ejecutar el deploy real en Render y adjuntar evidencia.
+
+## Phase M22 - Render API Preflight
+
+Objetivo: validar API key, owner/workspace y blueprint staging antes de crear recursos.
+
+Entregables:
+
+- Estado `relay_render_api_preflight_ready`.
+- `render_api_preflight.py`.
+- Variables `RENDER_API_KEY`, `RENDER_OWNER_ID` y `SQX_RENDER_STAGING_BLUEPRINT`.
+- Guia `RENDER_API_PREFLIGHT.md`.
+- Tests para bloqueo sin credenciales y validacion mock de blueprint.
+
+Estado: Done.
+
+Decision M22:
+
+- No se usa password de cuenta en scripts.
+- Render API key es el mecanismo seguro para avanzar.
+- El siguiente paso natural es ejecutar el preflight con API key real y validar el blueprint contra el workspace.

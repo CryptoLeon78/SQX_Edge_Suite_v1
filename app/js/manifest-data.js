@@ -1023,7 +1023,7 @@ window.SQX_MANIFEST = {
         "licenseIssuerTool": "backend/sqx-edge-tool/tools/license_issue.py",
         "deliveryTool": "backend/sqx-edge-tool/tools/prepare_customer_delivery.ps1",
         "automation": {
-          "status": "relay_staging_execution_ready",
+          "status": "relay_render_api_preflight_ready",
           "webhookProvider": "Lemon Squeezy",
           "webhookSignatureHeader": "X-Signature",
           "webhookSigningAlgorithm": "hmac_sha256_hex",
@@ -1049,6 +1049,7 @@ window.SQX_MANIFEST = {
           "relayDeploymentCheckTool": "backend/sqx-edge-relay/tools/deployment_check.py",
           "relayStagingSmokeTool": "backend/sqx-edge-relay/tools/staging_smoke.py",
           "relayStagingEvidenceTool": "backend/sqx-edge-relay/tools/staging_evidence.py",
+          "relayRenderApiPreflightTool": "backend/sqx-edge-relay/tools/render_api_preflight.py",
           "relayStagingEnvExample": "backend/sqx-edge-relay/.env.staging.example",
           "relayRecommendedStagingProvider": "render",
           "relayDockerfile": "backend/sqx-edge-relay/Dockerfile",
@@ -1067,6 +1068,9 @@ window.SQX_MANIFEST = {
             "vps_systemd"
           ],
           "relayStagingChecks": [
+            "render_api_key",
+            "render_owner_id",
+            "render_blueprint_validation",
             "/relay/health",
             "/relay/config-check",
             "/relay/observability",

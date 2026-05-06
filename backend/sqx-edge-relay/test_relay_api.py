@@ -25,6 +25,7 @@ server = _load_module("sqx_edge_relay_server_test", "api/server.py")
 relay_queue = _load_module("sqx_edge_relay_queue_test", "core/relay_queue.py")
 relay_observability = _load_module("sqx_edge_relay_observability_test", "core/relay_observability.py")
 deployment_check = _load_module("sqx_edge_relay_deployment_check_test", "tools/deployment_check.py")
+render_api_preflight = _load_module("sqx_edge_relay_render_api_preflight_test", "tools/render_api_preflight.py")
 staging_smoke = _load_module("sqx_edge_relay_staging_smoke_test", "tools/staging_smoke.py")
 staging_evidence = _load_module("sqx_edge_relay_staging_evidence_test", "tools/staging_evidence.py")
 
@@ -231,3 +232,20 @@ class RelayQueueTestCase(unittest.TestCase):
             self.assertTrue(Path(paths["json"]).is_file())
             self.assertTrue(Path(paths["markdown"]).is_file())
             self.assertTrue(report["decision"]["go"])
+
+    def test_render_api_preflight_blocks_without_key(self):
+        report = render_api_preflight.run_preflight("", "", render_api_preflight.DEFAULT_BLUEPRINT)
+        self.assertFalse(report["ok"])
+        self.assertIn("render_api_key_missing", report["blockers"])
+        self.assertIn("render_owner_id_missing", report["blockers"])
+
+    def test_render_api_preflight_validates_blueprint_with_api(self):
+        responses = [
+            {"ok": True, "status": 200, "payload": [{"service": {"name": "existing"}}]},
+            {"ok": True, "status": 200, "payload": {"valid": True, "previews": []}},
+        ]
+        with patch.object(render_api_preflight, "api_request", side_effect=responses) as api_request:
+            report = render_api_preflight.run_preflight("render-key", "owner-id", render_api_preflight.DEFAULT_BLUEPRINT)
+        self.assertTrue(report["ok"])
+        self.assertEqual(api_request.call_count, 2)
+        self.assertTrue(report["blueprint_validation"]["payload"]["valid"])
