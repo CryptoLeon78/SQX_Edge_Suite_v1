@@ -78,6 +78,7 @@
       "backend/sqx-edge-tool/tools/checkout_live_readiness.py",
       "backend/sqx-edge-tool/tools/commercial_release_candidate.py",
       "backend/sqx-edge-tool/tools/pilot_purchase_kit.py",
+      "backend/sqx-edge-tool/tools/limited_public_launch.py",
       "backend/sqx-edge-tool/tools/fulfillment_request.py",
       "backend/sqx-edge-tool/tools/fulfill_from_request.ps1",
       "backend/sqx-edge-tool/tools/relay_bundle.py"
@@ -224,7 +225,7 @@
     "checkoutLabel": "Comprar Pro",
     "checkoutUrl": "",
     "checkout": {
-      "status": "pilot_purchase_kit_ready",
+      "status": "limited_public_launch_ready",
       "primaryProvider": "Lemon Squeezy",
       "fallbackProvider": "Gumroad",
       "mode": "hosted_checkout",
@@ -241,9 +242,12 @@
       "commercialReleaseCandidateEvidenceDir": "backend/sqx-edge-tool/data/commercial_release_candidate",
       "pilotPurchaseKitTool": "backend/sqx-edge-tool/tools/pilot_purchase_kit.py",
       "pilotPurchaseKitEvidenceDir": "backend/sqx-edge-tool/data/pilot_purchase_kit",
+      "limitedPublicLaunchTool": "backend/sqx-edge-tool/tools/limited_public_launch.py",
+      "limitedPublicLaunchEvidenceDir": "backend/sqx-edge-tool/data/limited_public_launch",
+      "limitedPublicLaunchPolicy": "soft_launch_first_5_sales_then_review",
       "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
       "automation": {
-        "status": "pilot_purchase_kit_ready",
+        "status": "limited_public_launch_ready",
         "webhookProvider": "Lemon Squeezy",
         "webhookSignatureHeader": "X-Signature",
         "webhookSigningAlgorithm": "hmac_sha256_hex",

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Limited public launch gate
+
+- Anade `limited_public_launch.py` para validar una venta publica limitada tras el piloto.
+- Bloquea `GO` sin piloto valido, checkout HTTPS, variantes reales, soporte, first sale cap y rollback owner.
+- Genera evidencia JSON/Markdown en `backend/sqx-edge-tool/data/limited_public_launch`.
+- Actualiza manifiesto a `limited_public_launch_ready`.
+
 ## 2026-05-06 - Pilot purchase kit
 
 - Anade `pilot_purchase_kit.py` para preparar compra piloto privada con orden, licencia, entrega e importacion verificada.

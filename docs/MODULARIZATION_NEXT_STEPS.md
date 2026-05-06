@@ -61,3 +61,4 @@ Persistent planning note for the next SQX Edge phases.
 33. Phase M33: add checkout live readiness gate for Lemon Squeezy URLs, variants and rollback. Done.
 34. Phase M34: add commercial release candidate gate for ZIP, readiness, pilot purchase and rollback evidence. Done.
 35. Phase M35: add pilot purchase kit for private checkout, license issue, delivery and import evidence. Done.
+36. Phase M36: add limited public launch gate for first sale cap, support, checkout and rollback evidence. Done.

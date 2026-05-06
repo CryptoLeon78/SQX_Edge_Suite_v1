@@ -779,3 +779,24 @@ Decision M35:
 - La compra piloto no queda en `GO` sin order id, licencia firmada, manifest de entrega e importacion Pro confirmada.
 - El kit no publica checkout ni toca proveedor; convierte los pasos manuales en evidencia auditable.
 - El siguiente paso real es usar una compra piloto `GO` para abrir una venta publica limitada.
+
+## Phase M36 - Limited Public Launch
+
+Objetivo: abrir una venta publica pequena, controlada y reversible despues de una compra piloto verificada.
+
+Entregables:
+
+- Estado `limited_public_launch_ready`.
+- `limited_public_launch.py`.
+- Consumo de evidencia M35.
+- Validacion de checkout HTTPS, variantes, soporte, first sale cap, launch window y rollback owner.
+- Evidencia local en `backend/sqx-edge-tool/data/limited_public_launch`.
+- Guia `LIMITED_PUBLIC_LAUNCH.md`.
+
+Estado: Done.
+
+Decision M36:
+
+- La venta publica limitada no queda en `GO` sin piloto `GO`, soporte preparado y checkout confirmado.
+- El limite inicial recomendado es `5` ventas antes de revisar soporte y activaciones.
+- El siguiente paso real es post-launch control: registrar primeras ventas, incidencias y decision de escalar o pausar.

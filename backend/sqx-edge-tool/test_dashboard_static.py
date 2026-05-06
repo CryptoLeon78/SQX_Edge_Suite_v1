@@ -46,6 +46,7 @@ MONETIZATION_M32_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M32.md"
 MONETIZATION_M33_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M33.md"
 MONETIZATION_M34_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M34.md"
 MONETIZATION_M35_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M35.md"
+MONETIZATION_M36_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M36.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -350,12 +351,14 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "pilot_purchase_kit_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "pilot_purchase_kit_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "limited_public_launch_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "limited_public_launch_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
         self.assertIn("pilot_purchase_kit", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitEvidenceDir"])
+        self.assertIn("limited_public_launch.py", product_manifest["upgrade"]["checkout"]["limitedPublicLaunchTool"])
+        self.assertIn("limited_public_launch", product_manifest["upgrade"]["checkout"]["limitedPublicLaunchEvidenceDir"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayIngestEndpoint"], "/api/fulfillment/relay-ingest")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayConfigCheckEndpoint"], "/relay/config-check")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayObservabilityEndpoint"], "/relay/observability")
@@ -783,7 +786,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "pilot_purchase_kit_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "limited_public_launch_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
@@ -791,7 +794,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("commercial_release_candidate", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateEvidenceDir"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
         self.assertIn("pilot_purchase_kit", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitEvidenceDir"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "pilot_purchase_kit_ready")
+        self.assertIn("limited_public_launch.py", product_manifest["upgrade"]["checkout"]["limitedPublicLaunchTool"])
+        self.assertIn("limited_public_launch", product_manifest["upgrade"]["checkout"]["limitedPublicLaunchEvidenceDir"])
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["limitedPublicLaunchPolicy"], "soft_launch_first_5_sales_then_review")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "limited_public_launch_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -849,6 +855,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/checkout_live_readiness.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/commercial_release_candidate.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/pilot_purchase_kit.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/limited_public_launch.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/fulfillment_request.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/fulfill_from_request.ps1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/relay_bundle.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
@@ -897,7 +904,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m35_decisions(self):
+    def test_monetization_docs_capture_m1_to_m36_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -934,6 +941,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m33 = MONETIZATION_M33_DOC.read_text(encoding="utf-8-sig")
         m34 = MONETIZATION_M34_DOC.read_text(encoding="utf-8-sig")
         m35 = MONETIZATION_M35_DOC.read_text(encoding="utf-8-sig")
+        m36 = MONETIZATION_M36_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
@@ -979,6 +987,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M33", roadmap)
         self.assertIn("Phase M34", roadmap)
         self.assertIn("Phase M35", roadmap)
+        self.assertIn("Phase M36", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -1013,6 +1022,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M33: add checkout live readiness gate for Lemon Squeezy URLs, variants and rollback. Done.", next_steps)
         self.assertIn("Phase M34: add commercial release candidate gate for ZIP, readiness, pilot purchase and rollback evidence. Done.", next_steps)
         self.assertIn("Phase M35: add pilot purchase kit for private checkout, license issue, delivery and import evidence. Done.", next_steps)
+        self.assertIn("Phase M36: add limited public launch gate for first sale cap, support, checkout and rollback evidence. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -1563,6 +1573,21 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("license_issue.py", pilot_purchase_kit)
         self.assertIn("prepare_customer_delivery.ps1", pilot_purchase_kit)
 
+        m36_patterns = [
+            "limited_public_launch_ready",
+            "limited_public_launch.py",
+            "first sale cap",
+            "support inbox",
+            "Estado: Done.",
+        ]
+        for pattern in m36_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m36)
+        limited_launch = (PROJECT_ROOT / "docs" / "sales" / "LIMITED_PUBLIC_LAUNCH.md").read_text(encoding="utf-8-sig")
+        self.assertIn("Limited Public Launch", limited_launch)
+        self.assertIn("limited_public_launch.py", limited_launch)
+        self.assertIn("first sale cap", limited_launch)
+
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
@@ -1757,6 +1782,20 @@ class DashboardStaticTestCase(unittest.TestCase):
             "license_import_not_confirmed",
             "prepare_customer_delivery.ps1",
             "license_issue.py",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, text)
+
+    def test_limited_public_launch_tool_is_present_and_guarded(self):
+        path = TOOL_ROOT / "tools" / "limited_public_launch.py"
+        py_compile.compile(str(path), doraise=True)
+        text = path.read_text(encoding="utf-8")
+        for pattern in (
+            "limited_public_launch",
+            "pilot_purchase_kit_not_go",
+            "public_checkout_not_confirmed",
+            "support_inbox_not_confirmed",
+            "first_sale_cap_out_of_range",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, text)

@@ -10,6 +10,7 @@
 - `checkout_live_readiness.py` ejecutado y en `GO` antes de publicar enlaces.
 - `commercial_release_candidate.py` ejecutado y en `GO` antes de abrir venta publica.
 - `pilot_purchase_kit.py` ejecutado y en `GO` para el primer piloto antes de abrir venta publica.
+- `limited_public_launch.py` ejecutado y en `GO` antes de compartir un enlace publico limitado.
 
 ## Sale To Delivery
 
