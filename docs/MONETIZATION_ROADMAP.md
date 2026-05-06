@@ -370,3 +370,25 @@ Decision M16:
 - El relay pasa a ser una pieza de infraestructura separada del producto portable.
 - El relay conserva cola y reintentos propios antes del ingest local.
 - El siguiente paso natural es M17: automatizar worker/scheduler del relay o elegir despliegue real.
+
+## Phase M17 - Relay Deployment Hardening
+
+Objetivo: preparar el relay para operar con mas seguridad y menos intervencion manual.
+
+Entregables:
+
+- Estado `relay_deployment_ready`.
+- Endpoint `GET /relay/config-check`.
+- Proteccion opcional de endpoints operativos con `SQX_RELAY_OPERATOR_TOKEN`.
+- Plantilla `.env.example` para despliegue.
+- Worker `dispatch_worker.py` y `run-worker.bat`.
+- Documentacion de readiness y operacion supervisada.
+
+Estado: Done.
+
+Decision M17:
+
+- Lemon Squeezy mantiene entrada publica por webhook firmado.
+- Cola, detalle, dispatch y requeue quedan protegibles con token.
+- El dispatch pasa a poder ejecutarse como `supervised_dispatch_loop`.
+- El siguiente paso natural es M18: observabilidad, logs rotables y prueba E2E de fulfillment completo.

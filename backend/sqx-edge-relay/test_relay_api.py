@@ -38,6 +38,15 @@ class RelayApiTestCase(unittest.TestCase):
         data = self.get_json(response)
         self.assertTrue(data["ok"])
         self.assertIn("summary", data)
+        self.assertIn("operator_token_configured", data)
+
+    def test_config_check_reports_missing_secrets(self):
+        with patch.dict(server.os.environ, {}, clear=True):
+            response = self.client.get("/relay/config-check")
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertIn("SQX_LEMON_WEBHOOK_SECRET", data["config"]["missing"])
+        self.assertIn("SQX_FULFILLMENT_RELAY_SECRET", data["config"]["missing"])
 
     def test_webhook_requires_lemon_secret(self):
         with patch.dict(server.os.environ, {}, clear=True):
@@ -57,6 +66,13 @@ class RelayApiTestCase(unittest.TestCase):
         with patch.dict(server.os.environ, {}, clear=True):
             response = self.client.post("/relay/dispatch", json={})
         self.assertEqual(response.status_code, 503)
+
+    def test_operator_token_protects_queue(self):
+        with patch.dict(server.os.environ, {"SQX_RELAY_OPERATOR_TOKEN": "operator-token"}, clear=True):
+            blocked = self.client.get("/relay/queue")
+            allowed = self.client.get("/relay/queue", headers={"X-SQX-Operator-Token": "operator-token"})
+        self.assertEqual(blocked.status_code, 401)
+        self.assertEqual(allowed.status_code, 200)
 
     def test_dispatch_single_item(self):
         result = {"ok": True, "bundle": {"status": "sent"}}

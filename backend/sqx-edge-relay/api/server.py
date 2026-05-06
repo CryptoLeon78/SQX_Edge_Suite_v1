@@ -22,42 +22,68 @@ def _load_relay_queue_module():
     return module
 
 
+def _load_relay_settings_module():
+    module_path = ROOT / "core" / "relay_settings.py"
+    spec = importlib.util.spec_from_file_location("sqx_edge_relay_settings", module_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Unable to load relay settings module from {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 _RELAY_QUEUE = _load_relay_queue_module()
+_RELAY_SETTINGS = _load_relay_settings_module()
 dispatch_due_items = _RELAY_QUEUE.dispatch_due_items
 dispatch_queue_item = _RELAY_QUEUE.dispatch_queue_item
 enqueue_lemon_webhook = _RELAY_QUEUE.enqueue_lemon_webhook
 load_queue_item = _RELAY_QUEUE.load_queue_item
 queue_overview = _RELAY_QUEUE.queue_overview
 requeue_failed_item = _RELAY_QUEUE.requeue_failed_item
+config_status = _RELAY_SETTINGS.config_status
+is_operator_authorized = _RELAY_SETTINGS.is_operator_authorized
 
 
 app = Flask(__name__)
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 
 
 def relay_secret() -> str:
-    return os.environ.get("SQX_FULFILLMENT_RELAY_SECRET", "").strip()
+    return _RELAY_SETTINGS.relay_secret()
 
 
 def lemon_secret() -> str:
-    return os.environ.get("SQX_LEMON_WEBHOOK_SECRET", "").strip()
+    return _RELAY_SETTINGS.lemon_secret()
 
 
 def target_url() -> str:
-    return os.environ.get("SQX_LOCAL_INGEST_URL", "http://127.0.0.1:5050/api/fulfillment/relay-ingest").strip()
+    return _RELAY_SETTINGS.target_url()
+
+
+def operator_guard():
+    if is_operator_authorized(request.headers):
+        return None
+    return jsonify({"ok": False, "error": "operator_token_required"}), 401
 
 
 @app.get("/relay/health")
 def health():
     overview = queue_overview()
+    status = config_status()
     return jsonify({
         "ok": True,
         "version": VERSION,
-        "relay_secret_configured": bool(relay_secret()),
-        "lemon_secret_configured": bool(lemon_secret()),
+        "relay_secret_configured": "SQX_FULFILLMENT_RELAY_SECRET" not in status["missing"],
+        "lemon_secret_configured": "SQX_LEMON_WEBHOOK_SECRET" not in status["missing"],
+        "operator_token_configured": status["operator_token_configured"],
         "target_url": target_url(),
         "summary": overview["summary"],
     })
+
+
+@app.get("/relay/config-check")
+def config_check():
+    return jsonify({"ok": True, "config": config_status()})
 
 
 @app.post("/relay/webhook/lemon")
@@ -72,11 +98,17 @@ def webhook_lemon():
 
 @app.get("/relay/queue")
 def queue_list():
+    guarded = operator_guard()
+    if guarded:
+        return guarded
     return jsonify({"ok": True, **queue_overview()})
 
 
 @app.get("/relay/queue/<path:name>")
 def queue_detail(name: str):
+    guarded = operator_guard()
+    if guarded:
+        return guarded
     try:
         payload = load_queue_item(name)
     except FileNotFoundError:
@@ -86,6 +118,9 @@ def queue_detail(name: str):
 
 @app.post("/relay/dispatch")
 def dispatch():
+    guarded = operator_guard()
+    if guarded:
+        return guarded
     secret = relay_secret()
     if not secret:
         return jsonify({"ok": False, "error": "relay_secret_missing"}), 503
@@ -104,6 +139,9 @@ def dispatch():
 
 @app.post("/relay/requeue")
 def requeue():
+    guarded = operator_guard()
+    if guarded:
+        return guarded
     data = request.get_json(silent=True) or {}
     name = str(data.get("name") or "").strip()
     if not name:

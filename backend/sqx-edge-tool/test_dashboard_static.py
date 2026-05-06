@@ -27,6 +27,7 @@ MONETIZATION_M13_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M13.md"
 MONETIZATION_M14_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M14.md"
 MONETIZATION_M15_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M15.md"
 MONETIZATION_M16_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M16.md"
+MONETIZATION_M17_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M17.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -331,9 +332,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "remote_relay_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_deployment_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayIngestEndpoint"], "/api/fulfillment/relay-ingest")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayConfigCheckEndpoint"], "/relay/config-check")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayDispatchEndpoint"], "/relay/dispatch")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayOperatorTokenEnv"], "SQX_RELAY_OPERATOR_TOKEN")
+        self.assertIn("dispatch_worker.py", product_manifest["upgrade"]["checkout"]["automation"]["relayWorkerScript"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["requestStatusEndpoint"], "/api/fulfillment/request-status")
         self.assertTrue(product_manifest["upgrade"]["checkout"]["automation"]["operatorPanelEnabled"])
 
@@ -737,7 +741,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "remote_relay_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_deployment_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -747,10 +751,14 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relaySecretEnv"], "SQX_FULFILLMENT_RELAY_SECRET")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayServiceProject"], "backend/sqx-edge-relay")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayHealthEndpoint"], "/relay/health")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayConfigCheckEndpoint"], "/relay/config-check")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayWebhookEndpoint"], "/relay/webhook/lemon")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayQueueEndpoint"], "/relay/queue")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayDispatchEndpoint"], "/relay/dispatch")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayRequeueEndpoint"], "/relay/requeue")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayOperatorTokenEnv"], "SQX_RELAY_OPERATOR_TOKEN")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayWorkerMode"], "supervised_dispatch_loop")
+        self.assertIn("dispatch_worker.py", product_manifest["upgrade"]["checkout"]["automation"]["relayWorkerScript"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["queueListEndpoint"], "/api/fulfillment/requests")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["processEndpoint"], "/api/fulfillment/process")
         self.assertIn("fulfillment_request.py", product_manifest["upgrade"]["checkout"]["automation"]["normalizerTool"])
@@ -824,7 +832,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m16_decisions(self):
+    def test_monetization_docs_capture_m1_to_m17_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -842,6 +850,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m14 = MONETIZATION_M14_DOC.read_text(encoding="utf-8-sig")
         m15 = MONETIZATION_M15_DOC.read_text(encoding="utf-8-sig")
         m16 = MONETIZATION_M16_DOC.read_text(encoding="utf-8-sig")
+        m17 = MONETIZATION_M17_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
@@ -868,6 +877,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M14", roadmap)
         self.assertIn("Phase M15", roadmap)
         self.assertIn("Phase M16", roadmap)
+        self.assertIn("Phase M17", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -883,6 +893,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M14: add operator states, retries and dashboard queue cockpit. Done.", next_steps)
         self.assertIn("Phase M15: add trusted relay ingest for remote webhook forwarding. Done.", next_steps)
         self.assertIn("Phase M16: add deployable remote relay service with queue and dispatch. Done.", next_steps)
+        self.assertIn("Phase M17: harden relay deployment with config checks, operator token and worker. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -1134,6 +1145,21 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, m16)
         self.assertIn("Dispatch Loop", relay_service_ops)
         self.assertIn("Failure And Requeue", relay_service_ops)
+
+        m17_patterns = [
+            "relay_deployment_ready",
+            "/relay/config-check",
+            "SQX_RELAY_OPERATOR_TOKEN",
+            "dispatch_worker.py",
+            "supervised_dispatch_loop",
+            ".env.example",
+            "Estado: Done.",
+        ]
+        for pattern in m17_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m17)
+        self.assertIn("Production Readiness", relay_service_ops)
+        self.assertIn("Worker Operation", relay_service_ops)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))

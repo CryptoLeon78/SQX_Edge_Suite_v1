@@ -25,3 +25,33 @@
 - Desplegar este servicio separado del dashboard portable.
 - Proteger los secretos en variables de entorno del host.
 - Mantener logs por `relay_event_id` y `provider_event_id`.
+
+## Production Readiness
+
+- Copiar `.env.example` como referencia y guardar el `.env` real fuera del repo.
+- Configurar secretos largos y distintos: `SQX_LEMON_WEBHOOK_SECRET`, `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_RELAY_OPERATOR_TOKEN`.
+- Comprobar `GET /relay/config-check` antes de exponer el webhook.
+- Proteger cola, detalle, dispatch y requeue con `X-SQX-Operator-Token` o `Authorization: Bearer`.
+- Mantener el relay fuera del ZIP portable del cliente.
+
+## Worker Operation
+
+El worker permite enviar bundles pendientes sin operacion manual constante.
+
+```powershell
+python worker\dispatch_worker.py --once
+```
+
+Para modo continuo:
+
+```bat
+run-worker.bat
+```
+
+Variables relevantes:
+
+- `SQX_RELAY_WORKER_INTERVAL_SECONDS`
+- `SQX_RELAY_WORKER_LIMIT`
+- `SQX_LOCAL_INGEST_URL`
+
+El proceso debe ejecutarse supervisado por el host elegido. Si el ingest local no esta disponible, los bundles fallan con backoff y quedan trazados en `failed`.

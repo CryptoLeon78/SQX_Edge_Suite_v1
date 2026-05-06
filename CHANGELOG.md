@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Relay deployment hardening
+
+- Anade `GET /relay/config-check` para validar configuracion sin exponer secretos.
+- Protege endpoints operativos con `SQX_RELAY_OPERATOR_TOKEN` cuando esta configurado.
+- Anade `.env.example`, `dispatch_worker.py` y `run-worker.bat` para operacion supervisada.
+- Actualiza manifiesto, contratos y documentacion a estado `relay_deployment_ready`.
+
 ## 2026-05-06 - Deployable remote relay service
 
 - Anade `backend/sqx-edge-relay` como servicio remoto separado del ZIP portable.
