@@ -27,7 +27,8 @@ $denySegments = @(
   "license_keys",
   "licenses_private",
   "private_keys",
-  "fulfillment_requests"
+  "fulfillment_requests",
+  "sqx-edge-relay"
 )
 
 $denyFiles = @(
@@ -68,6 +69,7 @@ $requiredPackageGuards = @(
   '"license_keys"',
   '"licenses_private"',
   '"private_keys"',
+  '"sqx-edge-relay"',
   'config\.json',
   'license\.json',
   'license_signer\.py',

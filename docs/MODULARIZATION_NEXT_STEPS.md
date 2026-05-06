@@ -41,3 +41,4 @@ Persistent planning note for the next SQX Edge phases.
 13. Phase M13: add private receiver with persistent queue and deduplication. Done.
 14. Phase M14: add operator states, retries and dashboard queue cockpit. Done.
 15. Phase M15: add trusted relay ingest for remote webhook forwarding. Done.
+16. Phase M16: add deployable remote relay service with queue and dispatch. Done.

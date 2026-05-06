@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Deployable remote relay service
+
+- Anade `backend/sqx-edge-relay` como servicio remoto separado del ZIP portable.
+- Implementa cola remota con `pending`, `sent`, `failed`, dispatch y requeue.
+- Conecta Lemon webhook -> relay bundle -> ingest local firmado.
+- Refuerza packaging para excluir el relay del paquete final de cliente.
+
 ## 2026-05-06 - Trusted relay ingest
 
 - Anade `POST /api/fulfillment/relay-ingest` para bundles firmados por relay remoto.

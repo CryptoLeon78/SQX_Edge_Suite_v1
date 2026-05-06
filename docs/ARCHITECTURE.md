@@ -40,8 +40,11 @@ flowchart TD
 
   PGM --> API["backend/sqx-edge-tool/api/server.py"]
   API --> COREPY["backend/sqx-edge-tool/core/*"]
+  API --> RELAYIN["Relay ingest endpoint"]
   COREPY --> CONFIG["backend/sqx-edge-tool/config/*.json"]
   COREPY --> TPL["backend/sqx-edge-tool/templates/*.cfx"]
+  RELAY["backend/sqx-edge-relay/api/server.py"] --> RELAYQ["backend/sqx-edge-relay/core/relay_queue.py"]
+  RELAY --> RELAYIN
 ```
 
 ## Frontend Load Order
@@ -141,6 +144,8 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `backend/sqx-edge-tool/core/support_diagnostics.py` | Redacted support diagnostics payload builder. |
 | `backend/sqx-edge-tool/core/fulfillment_normalizer.py` | Shared Lemon Squeezy normalization and signature verification. |
 | `backend/sqx-edge-tool/core/fulfillment_queue.py` | Persistent fulfillment queue, operator status, trusted relay ingest and retry tracking. |
+| `backend/sqx-edge-relay/api/server.py` | Deployable remote relay service for Lemon webhooks, queue inspection and dispatch. |
+| `backend/sqx-edge-relay/core/relay_queue.py` | Remote relay queue, signed bundle dispatch and requeue logic. |
 | `backend/sqx-edge-tool/config/*.json` | Dynamic catalogs for assets, instruments, profiles, plan and UI manifest. |
 | `backend/sqx-edge-tool/templates/*.cfx` | StrategyQuant template files used by generation. |
 

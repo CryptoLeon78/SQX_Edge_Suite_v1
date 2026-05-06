@@ -350,3 +350,23 @@ Decision M15:
 - El backend local solo confia en bundles firmados por el relay.
 - La deduplicacion sigue ocurriendo por `provider_event_id`.
 - La siguiente fase natural es M16: desplegar o disenar el relay remoto real con cola/reintentos propios.
+
+## Phase M16 - Deployable Remote Relay Service
+
+Objetivo: materializar el relay remoto dentro del repo como servicio separado y desplegable.
+
+Entregables:
+
+- Proyecto `backend/sqx-edge-relay`
+- Cola remota con `pending`, `sent` y `failed`
+- Endpoints de health, queue, dispatch y requeue
+- Target configurable por `SQX_LOCAL_INGEST_URL`
+- Exclusion del relay del ZIP portable final
+
+Estado: Done.
+
+Decision M16:
+
+- El relay pasa a ser una pieza de infraestructura separada del producto portable.
+- El relay conserva cola y reintentos propios antes del ingest local.
+- El siguiente paso natural es M17: automatizar worker/scheduler del relay o elegir despliegue real.

@@ -38,7 +38,8 @@ $excludeNames = @(
   "license_keys",
   "licenses_private",
   "private_keys",
-  "fulfillment_requests"
+  "fulfillment_requests",
+  "sqx-edge-relay"
 )
 $excludePatterns = @(
   "\\backend\\sqx-edge-tool\\runtime\\downloads\\",

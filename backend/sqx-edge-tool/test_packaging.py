@@ -62,6 +62,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
         self.assertIn("relay_bundle\\.py", text)
+        self.assertIn('"sqx-edge-relay"', text)
         self.assertIn("_private_key\\.json", text)
         self.assertIn("license_signed_", text)
         self.assertIn("license_payload_", text)
@@ -91,6 +92,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
         self.assertIn("relay_bundle.py", text)
+        self.assertIn("sqx-edge-relay", text)
         self.assertIn("fulfillment_requests", text)
         self.assertIn("license_keys", text)
         self.assertIn("private_keys", text)
@@ -112,6 +114,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
             "relay_bundle.py",
+            "sqx-edge-relay",
             "license_keys",
             "private_keys",
             "_private_key\\.json",
