@@ -48,6 +48,7 @@ MONETIZATION_M34_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M34.md"
 MONETIZATION_M35_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M35.md"
 MONETIZATION_M36_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M36.md"
 MONETIZATION_M37_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M37.md"
+MONETIZATION_M38_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M38.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -352,8 +353,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "post_launch_control_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "post_launch_control_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "commercial_feedback_loop_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "commercial_feedback_loop_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
@@ -362,6 +363,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("limited_public_launch", product_manifest["upgrade"]["checkout"]["limitedPublicLaunchEvidenceDir"])
         self.assertIn("post_launch_control.py", product_manifest["upgrade"]["checkout"]["postLaunchControlTool"])
         self.assertIn("post_launch_control", product_manifest["upgrade"]["checkout"]["postLaunchControlEvidenceDir"])
+        self.assertIn("commercial_feedback_loop.py", product_manifest["upgrade"]["checkout"]["commercialFeedbackLoopTool"])
+        self.assertIn("commercial_feedback_loop", product_manifest["upgrade"]["checkout"]["commercialFeedbackLoopEvidenceDir"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayIngestEndpoint"], "/api/fulfillment/relay-ingest")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayConfigCheckEndpoint"], "/relay/config-check")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayObservabilityEndpoint"], "/relay/observability")
@@ -789,7 +792,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "post_launch_control_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "commercial_feedback_loop_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
@@ -803,7 +806,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("post_launch_control.py", product_manifest["upgrade"]["checkout"]["postLaunchControlTool"])
         self.assertIn("post_launch_control", product_manifest["upgrade"]["checkout"]["postLaunchControlEvidenceDir"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["postLaunchControlPolicy"], "review_first_sales_before_scaling")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "post_launch_control_ready")
+        self.assertIn("commercial_feedback_loop.py", product_manifest["upgrade"]["checkout"]["commercialFeedbackLoopTool"])
+        self.assertIn("commercial_feedback_loop", product_manifest["upgrade"]["checkout"]["commercialFeedbackLoopEvidenceDir"])
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["commercialFeedbackLoopPolicy"], "classify_feedback_before_offer_changes")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "commercial_feedback_loop_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -863,6 +869,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/pilot_purchase_kit.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/limited_public_launch.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/post_launch_control.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/commercial_feedback_loop.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/fulfillment_request.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/fulfill_from_request.ps1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/relay_bundle.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
@@ -911,7 +918,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m37_decisions(self):
+    def test_monetization_docs_capture_m1_to_m38_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -950,6 +957,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m35 = MONETIZATION_M35_DOC.read_text(encoding="utf-8-sig")
         m36 = MONETIZATION_M36_DOC.read_text(encoding="utf-8-sig")
         m37 = MONETIZATION_M37_DOC.read_text(encoding="utf-8-sig")
+        m38 = MONETIZATION_M38_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
@@ -997,6 +1005,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M35", roadmap)
         self.assertIn("Phase M36", roadmap)
         self.assertIn("Phase M37", roadmap)
+        self.assertIn("Phase M38", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -1033,6 +1042,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M35: add pilot purchase kit for private checkout, license issue, delivery and import evidence. Done.", next_steps)
         self.assertIn("Phase M36: add limited public launch gate for first sale cap, support, checkout and rollback evidence. Done.", next_steps)
         self.assertIn("Phase M37: add post-launch control for sales, activations, support, refunds and scale decision evidence. Done.", next_steps)
+        self.assertIn("Phase M38: add commercial feedback loop for issue classification, pricing, copy and version decisions. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -1613,6 +1623,21 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("post_launch_control.py", post_launch)
         self.assertIn("support tickets", post_launch)
 
+        m38_patterns = [
+            "commercial_feedback_loop_ready",
+            "commercial_feedback_loop.py",
+            "pricing_decision",
+            "copy_decision",
+            "Estado: Done.",
+        ]
+        for pattern in m38_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m38)
+        feedback_loop = (PROJECT_ROOT / "docs" / "sales" / "COMMERCIAL_FEEDBACK_LOOP.md").read_text(encoding="utf-8-sig")
+        self.assertIn("Commercial Feedback Loop", feedback_loop)
+        self.assertIn("commercial_feedback_loop.py", feedback_loop)
+        self.assertIn("pricing_decision", feedback_loop)
+
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
@@ -1835,6 +1860,20 @@ class DashboardStaticTestCase(unittest.TestCase):
             "no_paid_sales_recorded",
             "activations_below_paid_sales",
             "scale_public_not_supported_by_metrics",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, text)
+
+    def test_commercial_feedback_loop_tool_is_present_and_guarded(self):
+        path = TOOL_ROOT / "tools" / "commercial_feedback_loop.py"
+        py_compile.compile(str(path), doraise=True)
+        text = path.read_text(encoding="utf-8")
+        for pattern in (
+            "commercial_feedback_loop",
+            "post_launch_control_not_go",
+            "no_feedback_recorded",
+            "pricing_objection_blocks_raise_price",
+            "copy_confusion_blocks_keep_copy",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, text)

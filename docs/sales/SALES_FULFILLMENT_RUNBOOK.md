@@ -12,6 +12,7 @@
 - `pilot_purchase_kit.py` ejecutado y en `GO` para el primer piloto antes de abrir venta publica.
 - `limited_public_launch.py` ejecutado y en `GO` antes de compartir un enlace publico limitado.
 - `post_launch_control.py` ejecutado antes de escalar mas alla de la venta limitada.
+- `commercial_feedback_loop.py` ejecutado antes de cambiar precio, copy u oferta.
 
 ## Sale To Delivery
 

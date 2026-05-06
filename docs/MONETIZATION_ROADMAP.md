@@ -821,3 +821,24 @@ Decision M37:
 - No se escala a venta publica con tickets sin resolver, activaciones pendientes o fulfillment fallido.
 - `scale_public` exige al menos 3 ventas, cero tickets sin resolver y cero fallos de fulfillment.
 - El siguiente paso real es clasificar feedback, priorizar mejoras y decidir si se ajustan precio/copy antes de escalar.
+
+## Phase M38 - Commercial Feedback Loop
+
+Objetivo: clasificar feedback comercial y decidir version, precio, copy y siguiente accion antes de escalar mas.
+
+Entregables:
+
+- Estado `commercial_feedback_loop_ready`.
+- `commercial_feedback_loop.py`.
+- Consumo de evidencia M37.
+- Clasificacion de bugs, friccion de activacion, documentacion, features, precio, copy y senales positivas.
+- Evidencia local en `backend/sqx-edge-tool/data/commercial_feedback_loop`.
+- Guia `COMMERCIAL_FEEDBACK_LOOP.md`.
+
+Estado: Done.
+
+Decision M38:
+
+- No se cambia precio ni copy sin feedback revisado, roadmap actualizado y owner de release notes.
+- Bugs severos y friccion de activacion bloquean escalar la oferta hasta tener fix o docs.
+- El siguiente paso real es preparar pagina/oferta publica controlada con copy revisado y FAQ comercial.

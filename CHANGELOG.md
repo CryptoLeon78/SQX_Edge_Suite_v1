@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Commercial feedback loop
+
+- Anade `commercial_feedback_loop.py` para clasificar feedback y decidir version, precio, copy y siguiente accion.
+- Bloquea cambios de oferta si falta feedback revisado, roadmap actualizado o owner de release notes.
+- Genera evidencia JSON/Markdown en `backend/sqx-edge-tool/data/commercial_feedback_loop`.
+- Actualiza manifiesto a `commercial_feedback_loop_ready`.
+
 ## 2026-05-06 - Post launch control
 
 - Anade `post_launch_control.py` para revisar primeras ventas, activaciones, soporte, refunds y fallos.
