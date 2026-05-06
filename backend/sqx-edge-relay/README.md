@@ -225,6 +225,16 @@ python tools\render_staging_apply_gate.py --use-latest-handoff --confirm-env-app
 
 La evidencia queda en `data/render_staging_apply_gate`. El gate no guarda secretos y bloquea si falta confirmar la aplicacion de variables o si `render_staging_gate.py` no devuelve `GO`.
 
+## Render staging purchase drill
+
+Para probar webhook, cola y dispatch en staging:
+
+```powershell
+python tools\render_staging_purchase_drill.py --use-latest-apply-gate --base-url https://tu-relay-staging.onrender.com --send-webhook --dispatch
+```
+
+La evidencia queda en `data/render_staging_purchase_drill`. Sin `--send-webhook` y `--dispatch`, el drill queda `NO-GO` de forma intencionada para evitar efectos accidentales.
+
 ## Worker de dispatch
 
 Una vez configurado `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_LOCAL_INGEST_URL`, puedes lanzar el worker:

@@ -688,3 +688,26 @@ Decision M31:
 - La herramienta no cambia Render por API ni guarda secretos.
 - El `GO` requiere handoff M30 `GO`, valores confirmados y gate remoto `GO`.
 - La siguiente fase real es una compra staging completa con webhook demo, cola y dispatch hacia ingest local.
+
+## Phase M32 - Render Staging Purchase Drill
+
+Objetivo: probar el flujo de compra staging contra Render con webhook demo, cola remota y dispatch hacia ingest local.
+
+Entregables:
+
+- Estado `relay_render_staging_purchase_drill_ready`.
+- `render_staging_purchase_drill.py`.
+- Consumo de apply gate M31.
+- Envio opt-in de webhook demo con `--send-webhook`.
+- Dispatch opt-in con `--dispatch`.
+- Evidencia antes/despues de `/relay/queue`.
+- Evidencia local en `backend/sqx-edge-relay/data/render_staging_purchase_drill`.
+- Guia `RENDER_STAGING_PURCHASE_DRILL.md`.
+
+Estado: Done.
+
+Decision M32:
+
+- Las operaciones mutantes requieren flags explicitos.
+- El `GO` requiere apply gate M31 `GO`, webhook aceptado, cola accesible y dispatch sin fallo.
+- La siguiente fase real es preparar conexion de checkout real con Lemon Squeezy, variantes definitivas y rollback.

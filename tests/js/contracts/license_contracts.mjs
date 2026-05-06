@@ -29,7 +29,7 @@ assert.equal(productManifest.upgrade.checkout.primaryProvider, 'Lemon Squeezy');
 assert.equal(productManifest.upgrade.checkout.fallbackProvider, 'Gumroad');
 assert.equal(productManifest.upgrade.checkout.fulfillmentMode, 'manual_signed_license');
 assert.ok(productManifest.upgrade.checkout.deliveryTool.includes('prepare_customer_delivery.ps1'));
-assert.equal(productManifest.upgrade.checkout.automation.status, 'relay_render_staging_apply_gate_ready');
+assert.equal(productManifest.upgrade.checkout.automation.status, 'relay_render_staging_purchase_drill_ready');
 assert.equal(productManifest.upgrade.checkout.automation.webhookSignatureHeader, 'X-Signature');
 assert.equal(productManifest.upgrade.checkout.automation.webhookSecretEnv, 'SQX_LEMON_WEBHOOK_SECRET');
 assert.equal(productManifest.upgrade.checkout.automation.receiverEndpoint, '/api/fulfillment/webhook/lemon');
@@ -46,6 +46,7 @@ assert.ok(productManifest.upgrade.checkout.automation.relayRenderApiPreflightToo
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderCredentialsHandshakeTool.includes('render_credentials_handshake.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingGateTool.includes('render_staging_gate.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingApplyGateTool.includes('render_staging_apply_gate.py'));
+assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingPurchaseDrillTool.includes('render_staging_purchase_drill.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingLaunchPackTool.includes('render_staging_launch_pack.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingSecretsKitTool.includes('render_staging_secrets_kit.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayLocalIngestTunnelCheckTool.includes('local_ingest_tunnel_check.py'));

@@ -24,7 +24,7 @@ assert.ok(fulfillmentJs.includes("SQX.registerModule('fulfillment'"));
 assert.ok(html.includes('id="fulfillment-panel"'));
 assert.ok(html.includes('id="fulfillment-request-list"'));
 assert.ok(html.includes('js/modules/fulfillment.js'));
-assert.equal(productManifest.upgrade.checkout.automation.status, 'relay_render_staging_apply_gate_ready');
+assert.equal(productManifest.upgrade.checkout.automation.status, 'relay_render_staging_purchase_drill_ready');
 assert.equal(productManifest.upgrade.checkout.automation.relayIngestEndpoint, '/api/fulfillment/relay-ingest');
 assert.equal(productManifest.upgrade.checkout.automation.requestStatusEndpoint, '/api/fulfillment/request-status');
 assert.equal(productManifest.upgrade.checkout.automation.retryMode, 'manual_retry_with_attempt_log');
@@ -43,6 +43,7 @@ assert.ok(productManifest.upgrade.checkout.automation.relayRenderApiPreflightToo
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderCredentialsHandshakeTool.includes('render_credentials_handshake.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingGateTool.includes('render_staging_gate.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingApplyGateTool.includes('render_staging_apply_gate.py'));
+assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingPurchaseDrillTool.includes('render_staging_purchase_drill.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingLaunchPackTool.includes('render_staging_launch_pack.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingSecretsKitTool.includes('render_staging_secrets_kit.py'));
 assert.ok(productManifest.upgrade.checkout.automation.relayLocalIngestTunnelCheckTool.includes('local_ingest_tunnel_check.py'));
@@ -53,6 +54,7 @@ assert.equal(productManifest.upgrade.checkout.automation.relayRenderCredentialPo
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderPreflightEvidenceDir.includes('render_preflight_evidence'));
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingGateEvidenceDir.includes('render_staging_gate'));
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingApplyGateEvidenceDir.includes('render_staging_apply_gate'));
+assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingPurchaseDrillEvidenceDir.includes('render_staging_purchase_drill'));
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingLaunchPackEvidenceDir.includes('render_staging_launch_pack'));
 assert.ok(productManifest.upgrade.checkout.automation.relayRenderStagingSecretsKitEvidenceDir.includes('render_staging_secrets_kit'));
 assert.ok(productManifest.upgrade.checkout.automation.relayLocalIngestTunnelCheckEvidenceDir.includes('local_ingest_tunnel_check'));

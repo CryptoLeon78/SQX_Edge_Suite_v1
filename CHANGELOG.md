@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Render staging purchase drill
+
+- Anade `render_staging_purchase_drill.py` para probar webhook, cola y dispatch en Render staging.
+- Exige flags explicitos `--send-webhook` y `--dispatch` para operaciones mutantes.
+- Genera evidencia JSON/Markdown en `backend/sqx-edge-relay/data/render_staging_purchase_drill`.
+- Actualiza manifiesto a `relay_render_staging_purchase_drill_ready`.
+
 ## 2026-05-06 - Render staging apply gate
 
 - Anade `render_staging_apply_gate.py` para validar la aplicacion final de variables en Render.

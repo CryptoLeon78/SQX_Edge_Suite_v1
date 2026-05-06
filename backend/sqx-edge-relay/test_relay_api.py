@@ -33,6 +33,7 @@ render_api_preflight = _load_module("sqx_edge_relay_render_api_preflight_test", 
 render_credentials_handshake = _load_module("sqx_edge_relay_render_credentials_handshake_test", "tools/render_credentials_handshake.py")
 render_staging_gate = _load_module("sqx_edge_relay_render_staging_gate_test", "tools/render_staging_gate.py")
 render_staging_apply_gate = _load_module("sqx_edge_relay_render_staging_apply_gate_test", "tools/render_staging_apply_gate.py")
+render_staging_purchase_drill = _load_module("sqx_edge_relay_render_staging_purchase_drill_test", "tools/render_staging_purchase_drill.py")
 render_staging_launch_pack = _load_module("sqx_edge_relay_render_staging_launch_pack_test", "tools/render_staging_launch_pack.py")
 render_staging_secrets_kit = _load_module("sqx_edge_relay_render_staging_secrets_kit_test", "tools/render_staging_secrets_kit.py")
 staging_smoke = _load_module("sqx_edge_relay_staging_smoke_test", "tools/staging_smoke.py")
@@ -381,6 +382,50 @@ class RelayQueueTestCase(unittest.TestCase):
             self.assertTrue(Path(report["evidence_paths"]["json"]).is_file())
         self.assertTrue(report["decision"]["go"])
         self.assertEqual(report["remote_gate"], gate)
+
+    def test_render_staging_purchase_drill_blocks_without_mutating_flags(self):
+        apply_gate = {"decision": {"go": True, "blockers": []}}
+        with tempfile.TemporaryDirectory() as tmp:
+            apply_gate_path = Path(tmp) / "render_staging_apply_gate_demo.json"
+            apply_gate_path.write_text(json.dumps(apply_gate), encoding="utf-8")
+            report = render_staging_purchase_drill.collect_purchase_drill(
+                apply_gate_file=apply_gate_path,
+                base_url="https://staging.example.com",
+                operator_token="operator-token",
+                lemon_secret="lemon-secret",
+                output_dir=Path(tmp),
+            )
+        self.assertFalse(report["decision"]["go"])
+        self.assertIn("staging_purchase_webhook_not_sent", report["decision"]["blockers"])
+        self.assertIn("staging_purchase_dispatch_not_run", report["decision"]["blockers"])
+
+    def test_render_staging_purchase_drill_go_with_mocked_remote_flow(self):
+        apply_gate = {"decision": {"go": True, "blockers": []}}
+        calls = []
+
+        def fake_request(url, method="GET", body=None, headers=None, timeout=20):
+            calls.append({"url": url, "method": method, "headers": headers or {}, "body": body})
+            if url.endswith("/relay/dispatch"):
+                return {"ok": True, "status": 200, "payload": {"ok": True, "results": [{"ok": True}]}}
+            return {"ok": True, "status": 200, "payload": {"ok": True}}
+
+        with tempfile.TemporaryDirectory() as tmp, \
+                patch.object(render_staging_purchase_drill.staging_smoke, "request_json", side_effect=fake_request):
+            apply_gate_path = Path(tmp) / "render_staging_apply_gate_demo.json"
+            apply_gate_path.write_text(json.dumps(apply_gate), encoding="utf-8")
+            report = render_staging_purchase_drill.collect_purchase_drill(
+                apply_gate_file=apply_gate_path,
+                base_url="https://staging.example.com",
+                operator_token="operator-token",
+                lemon_secret="lemon-secret",
+                send_webhook=True,
+                run_dispatch=True,
+                output_dir=Path(tmp),
+            )
+            self.assertTrue(Path(report["evidence_paths"]["json"]).is_file())
+        self.assertTrue(report["decision"]["go"])
+        self.assertTrue(any(call["url"].endswith("/relay/webhook/lemon") for call in calls))
+        self.assertTrue(any(call["url"].endswith("/relay/dispatch") for call in calls))
 
     def test_render_staging_launch_pack_extracts_blueprint_env_keys(self):
         text = "envVars:\n  - key: SQX_LEMON_WEBHOOK_SECRET\n  - key: SQX_LOCAL_INGEST_URL\n"
