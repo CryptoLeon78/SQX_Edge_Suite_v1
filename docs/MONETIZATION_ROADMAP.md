@@ -758,3 +758,24 @@ Decision M34:
 - La venta publica sigue bloqueada hasta tener RC `GO`.
 - La compra piloto debe ser explicita y trazable.
 - El siguiente paso real es actualizar URLs/variant IDs reales y ejecutar la compra piloto privada.
+
+## Phase M35 - Pilot Purchase Kit
+
+Objetivo: preparar y auditar una compra piloto privada con orden, licencia firmada, entrega final e importacion Pro verificada.
+
+Entregables:
+
+- Estado `pilot_purchase_kit_ready`.
+- `pilot_purchase_kit.py`.
+- Consumo de evidencia M34.
+- Comandos guiados para `license_issue.py` y `prepare_customer_delivery.ps1`.
+- Evidencia local en `backend/sqx-edge-tool/data/pilot_purchase_kit`.
+- Guia `PILOT_PURCHASE_KIT.md`.
+
+Estado: Done.
+
+Decision M35:
+
+- La compra piloto no queda en `GO` sin order id, licencia firmada, manifest de entrega e importacion Pro confirmada.
+- El kit no publica checkout ni toca proveedor; convierte los pasos manuales en evidencia auditable.
+- El siguiente paso real es usar una compra piloto `GO` para abrir una venta publica limitada.

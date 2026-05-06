@@ -26,6 +26,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "prepare_customer_delivery.ps1",
             TOOL_ROOT / "tools" / "checkout_live_readiness.py",
             TOOL_ROOT / "tools" / "commercial_release_candidate.py",
+            TOOL_ROOT / "tools" / "pilot_purchase_kit.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
             TOOL_ROOT / "tools" / "relay_bundle.py",
@@ -63,6 +64,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("prepare_customer_delivery\\.ps1", text)
         self.assertIn("checkout_live_readiness\\.py", text)
         self.assertIn("commercial_release_candidate\\.py", text)
+        self.assertIn("pilot_purchase_kit\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
         self.assertIn("relay_bundle\\.py", text)
@@ -95,6 +97,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("prepare_customer_delivery.ps1", text)
         self.assertIn("checkout_live_readiness.py", text)
         self.assertIn("commercial_release_candidate.py", text)
+        self.assertIn("pilot_purchase_kit.py", text)
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
         self.assertIn("relay_bundle.py", text)
@@ -119,6 +122,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "prepare_customer_delivery.ps1",
             "checkout_live_readiness.py",
             "commercial_release_candidate.py",
+            "pilot_purchase_kit.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
             "relay_bundle.py",

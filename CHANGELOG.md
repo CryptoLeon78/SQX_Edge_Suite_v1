@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Pilot purchase kit
+
+- Anade `pilot_purchase_kit.py` para preparar compra piloto privada con orden, licencia, entrega e importacion verificada.
+- Consume evidencia M34 y bloquea `GO` si falta licencia firmada, manifest de entrega o confirmacion Pro en app.
+- Genera evidencia JSON/Markdown en `backend/sqx-edge-tool/data/pilot_purchase_kit`.
+- Actualiza manifiesto a `pilot_purchase_kit_ready`.
+
 ## 2026-05-06 - Commercial release candidate
 
 - Anade `commercial_release_candidate.py` para validar ZIP, SHA256, readiness, clave publica y compra piloto.
