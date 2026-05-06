@@ -62,3 +62,4 @@ Persistent planning note for the next SQX Edge phases.
 34. Phase M34: add commercial release candidate gate for ZIP, readiness, pilot purchase and rollback evidence. Done.
 35. Phase M35: add pilot purchase kit for private checkout, license issue, delivery and import evidence. Done.
 36. Phase M36: add limited public launch gate for first sale cap, support, checkout and rollback evidence. Done.
+37. Phase M37: add post-launch control for sales, activations, support, refunds and scale decision evidence. Done.

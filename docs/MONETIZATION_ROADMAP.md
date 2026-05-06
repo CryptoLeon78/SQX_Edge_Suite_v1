@@ -800,3 +800,24 @@ Decision M36:
 - La venta publica limitada no queda en `GO` sin piloto `GO`, soporte preparado y checkout confirmado.
 - El limite inicial recomendado es `5` ventas antes de revisar soporte y activaciones.
 - El siguiente paso real es post-launch control: registrar primeras ventas, incidencias y decision de escalar o pausar.
+
+## Phase M37 - Post Launch Control
+
+Objetivo: convertir las primeras ventas y activaciones en una decision auditable de escalado, pausa o rollback.
+
+Entregables:
+
+- Estado `post_launch_control_ready`.
+- `post_launch_control.py`.
+- Consumo de evidencia M36.
+- Validacion de ventas, activaciones, support tickets, refunds, fallos de fulfillment, review window y decision owner.
+- Evidencia local en `backend/sqx-edge-tool/data/post_launch_control`.
+- Guia `POST_LAUNCH_CONTROL.md`.
+
+Estado: Done.
+
+Decision M37:
+
+- No se escala a venta publica con tickets sin resolver, activaciones pendientes o fulfillment fallido.
+- `scale_public` exige al menos 3 ventas, cero tickets sin resolver y cero fallos de fulfillment.
+- El siguiente paso real es clasificar feedback, priorizar mejoras y decidir si se ajustan precio/copy antes de escalar.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Post launch control
+
+- Anade `post_launch_control.py` para revisar primeras ventas, activaciones, soporte, refunds y fallos.
+- Bloquea escalado publico si hay tickets sin resolver, activaciones pendientes o fulfillment fallido.
+- Genera evidencia JSON/Markdown en `backend/sqx-edge-tool/data/post_launch_control`.
+- Actualiza manifiesto a `post_launch_control_ready`.
+
 ## 2026-05-06 - Limited public launch gate
 
 - Anade `limited_public_launch.py` para validar una venta publica limitada tras el piloto.
