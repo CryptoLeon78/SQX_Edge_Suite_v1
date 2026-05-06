@@ -64,6 +64,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("license_signed_", text)
         self.assertIn("license_payload_", text)
         self.assertIn("fulfillment_request_", text)
+        self.assertIn("webhook_event_", text)
         self.assertIn('"fulfillment_requests"', text)
         self.assertIn('"license_keys"', text)
         self.assertIn("\\\\.env", text)
@@ -112,6 +113,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "license_signed_",
             "license_payload_",
             "fulfillment_request_",
+            "webhook_event_",
             ".env",
             ".git",
             "node_modules",

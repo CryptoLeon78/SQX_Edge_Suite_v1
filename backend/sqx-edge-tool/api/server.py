@@ -49,6 +49,13 @@ from core.strategy_cleaner import (
     institutional_name, rename_sqx, process_files,
 )
 from core.support_diagnostics import build_support_diagnostics
+from core.fulfillment_queue import (
+    list_processed_receipts,
+    list_requests as list_fulfillment_requests,
+    load_request as load_fulfillment_request,
+    process_request as process_fulfillment_request,
+    store_lemon_webhook,
+)
 
 app = Flask(__name__)
 
@@ -395,6 +402,56 @@ def api_support_diagnostics():
         config_exists=CONFIG_PATH.is_file(),
         project_root=PROJECT_ROOT,
     ))
+
+
+@app.post("/api/fulfillment/webhook/lemon")
+def api_fulfillment_webhook_lemon():
+    secret = os.environ.get("SQX_LEMON_WEBHOOK_SECRET", "").strip()
+    if not secret:
+        return jsonify({
+            "ok": False,
+            "error": "webhook_secret_missing",
+            "message": "Set SQX_LEMON_WEBHOOK_SECRET before enabling the local receiver.",
+        }), 503
+    signature = request.headers.get("X-Signature", "")
+    result = store_lemon_webhook(request.get_data(), signature, secret)
+    if not result.get("ok"):
+        return jsonify(result), 401
+    return jsonify(result)
+
+
+@app.get("/api/fulfillment/requests")
+def api_fulfillment_requests():
+    return jsonify({"ok": True, "requests": list_fulfillment_requests(), "processed": list_processed_receipts()})
+
+
+@app.get("/api/fulfillment/requests/<path:filename>")
+def api_fulfillment_request_detail(filename: str):
+    try:
+        payload = load_fulfillment_request(filename)
+    except FileNotFoundError:
+        return jsonify({"ok": False, "error": "request_not_found"}), 404
+    return jsonify({"ok": True, "request": payload})
+
+
+@app.post("/api/fulfillment/process")
+def api_fulfillment_process():
+    data = request.get_json(silent=True) or {}
+    filename = str(data.get("request_file") or "").strip()
+    private_key = str(data.get("private_key") or "").strip()
+    zip_path = str(data.get("zip_path") or "").strip()
+    support_email = str(data.get("support_email") or "").strip()
+    allow_ineligible = bool(data.get("allow_ineligible"))
+    if not filename or not private_key or not zip_path:
+        return jsonify({"ok": False, "error": "missing request_file/private_key/zip_path"}), 400
+    result = process_fulfillment_request(
+        filename=filename,
+        private_key=private_key,
+        zip_path=zip_path,
+        support_email=support_email,
+        allow_ineligible=allow_ineligible,
+    )
+    return jsonify(result), 200 if result.get("ok") else 500
 
 
 @app.get("/api/plan")

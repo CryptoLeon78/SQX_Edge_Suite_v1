@@ -287,3 +287,24 @@ Decision M12:
 - Lemon Squeezy sigue siendo la fuente principal de eventos.
 - Primero se guarda/verifica el evento; despues se normaliza; despues se cumple.
 - La siguiente fase natural es un receiver privado con deduplicacion.
+
+## Phase M13 - Private Receiver And Persistent Queue
+
+Objetivo: habilitar un receiver privado local con persistencia y deduplicacion real de eventos.
+
+Entregables:
+
+- Receiver `POST /api/fulfillment/webhook/lemon`.
+- Cola persistente de `events`, `requests` y `processed`.
+- Deduplicacion por `provider_event_id`.
+- Endpoints de listado, detalle y proceso.
+- Documentacion operativa del receiver.
+
+Estado: Done.
+
+Decision M13:
+
+- El receiver usa `SQX_LEMON_WEBHOOK_SECRET`.
+- La cola sigue siendo local y privada.
+- El operador conserva control manual del paso final de fulfillment.
+- La siguiente fase natural es exponerlo de forma controlada con receiver privado/tunel y reintentos.

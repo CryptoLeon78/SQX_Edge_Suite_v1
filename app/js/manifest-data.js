@@ -1021,12 +1021,18 @@ window.SQX_MANIFEST = {
         "licenseIssuerTool": "backend/sqx-edge-tool/tools/license_issue.py",
         "deliveryTool": "backend/sqx-edge-tool/tools/prepare_customer_delivery.ps1",
         "automation": {
-          "status": "local_queue_ready",
+          "status": "private_receiver_ready",
           "webhookProvider": "Lemon Squeezy",
           "webhookSignatureHeader": "X-Signature",
           "webhookSigningAlgorithm": "hmac_sha256_hex",
+          "webhookSecretEnv": "SQX_LEMON_WEBHOOK_SECRET",
+          "receiverEndpoint": "/api/fulfillment/webhook/lemon",
+          "queueListEndpoint": "/api/fulfillment/requests",
+          "processEndpoint": "/api/fulfillment/process",
           "normalizerTool": "backend/sqx-edge-tool/tools/fulfillment_request.py",
           "fulfillmentTool": "backend/sqx-edge-tool/tools/fulfill_from_request.ps1",
+          "queueRoot": "backend/sqx-edge-tool/fulfillment_requests",
+          "deduplicationKey": "provider_event_id",
           "handledEvents": [
             "order_created",
             "subscription_created",
@@ -1036,7 +1042,8 @@ window.SQX_MANIFEST = {
             "subscription_expired"
           ],
           "eventStorePolicy": "store_raw_event_then_process_offline",
-          "publicEndpointStatus": "not_enabled"
+          "publicEndpointStatus": "not_enabled",
+          "receiverScope": "local_private_operator_only"
         },
         "variants": [
           {

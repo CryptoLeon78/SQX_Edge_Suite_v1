@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Private receiver and queue
+
+- Anade receiver privado local para webhooks de Lemon Squeezy.
+- Persiste `events`, `requests` y `processed` con deduplicacion por `provider_event_id`.
+- Expone endpoints locales para listar, inspeccionar y procesar requests.
+- Documenta la fase M13 y la operativa del receiver.
+
 ## 2026-05-06 - Fulfillment automation bridge
 
 - Anade `fulfillment_request.py` para validar firma y normalizar eventos de Lemon Squeezy.

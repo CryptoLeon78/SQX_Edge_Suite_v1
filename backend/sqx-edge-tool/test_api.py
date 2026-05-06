@@ -108,6 +108,83 @@ class ApiTestCase(unittest.TestCase):
         self.assertNotIn("NDXm", raw)
         self.assertRegex(data["filename"], r"^SQX_support_diagnostic_[a-f0-9]{12}\.json$")
 
+    def test_fulfillment_receiver_requires_secret(self):
+        with patch.dict(server.os.environ, {}, clear=True):
+            response = self.client.post("/api/fulfillment/webhook/lemon", data=b"{}")
+        self.assertEqual(response.status_code, 503)
+        data = self.get_json(response)
+        self.assertEqual(data["error"], "webhook_secret_missing")
+
+    def test_fulfillment_receiver_accepts_signed_event(self):
+        stored = {
+            "ok": True,
+            "stored": True,
+            "duplicate": False,
+            "provider_event_id": "wh_123",
+            "request": {"request_file": "fulfillment_request_1.json"},
+        }
+        with patch.dict(server.os.environ, {"SQX_LEMON_WEBHOOK_SECRET": "secret"}, clear=False), \
+                patch.object(server, "store_lemon_webhook", return_value=stored) as store:
+            response = self.client.post(
+                "/api/fulfillment/webhook/lemon",
+                data=b'{"ok":true}',
+                headers={"X-Signature": "abc123"},
+            )
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertTrue(data["stored"])
+        store.assert_called_once_with(b'{"ok":true}', "abc123", "secret")
+
+    def test_fulfillment_queue_endpoints(self):
+        queued = [{
+            "name": "fulfillment_request_20260506_1.json",
+            "provider_event_id": "wh_123",
+            "order_id": "LS-001",
+            "plan": "pro_monthly",
+            "eligible_for_fulfillment": True,
+        }]
+        processed = [{
+            "name": "delivery_receipt_20260506_1.json",
+            "request_file": "fulfillment_request_20260506_1.json",
+        }]
+        detail = {
+            "request_file": "fulfillment_request_20260506_1.json",
+            "provider_event_id": "wh_123",
+            "plan": "pro_monthly",
+        }
+        done = {"ok": True, "receipt_file": "delivery_receipt_20260506_1.json"}
+
+        with patch.object(server, "list_fulfillment_requests", return_value=queued), \
+                patch.object(server, "list_processed_receipts", return_value=processed):
+            listed = self.client.get("/api/fulfillment/requests")
+        self.assertEqual(listed.status_code, 200)
+        listed_data = self.get_json(listed)
+        self.assertEqual(len(listed_data["requests"]), 1)
+        self.assertEqual(len(listed_data["processed"]), 1)
+
+        with patch.object(server, "load_fulfillment_request", return_value=detail):
+            got = self.client.get("/api/fulfillment/requests/fulfillment_request_20260506_1.json")
+        self.assertEqual(got.status_code, 200)
+        self.assertEqual(self.get_json(got)["request"]["plan"], "pro_monthly")
+
+        with patch.object(server, "load_fulfillment_request", side_effect=FileNotFoundError):
+            missing = self.client.get("/api/fulfillment/requests/fulfillment_request_missing.json")
+        self.assertEqual(missing.status_code, 404)
+
+        with patch.object(server, "process_fulfillment_request", return_value=done) as process:
+            processed_response = self.client.post(
+                "/api/fulfillment/process",
+                json={
+                    "request_file": "fulfillment_request_20260506_1.json",
+                    "private_key": "C:/private/key.json",
+                    "zip_path": "C:/dist/SQX.zip",
+                    "support_email": "support@example.com",
+                },
+            )
+        self.assertEqual(processed_response.status_code, 200)
+        self.assertTrue(self.get_json(processed_response)["ok"])
+        process.assert_called_once()
+
     def test_minings_follow_plan_manifest(self):
         response = self.client.get("/api/minings")
         self.assertEqual(response.status_code, 200)
