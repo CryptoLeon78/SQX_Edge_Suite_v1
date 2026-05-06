@@ -14,6 +14,7 @@ from tools.fulfillment_request import (
     normalize_payload,
     verify_lemon_signature,
 )
+from tools.relay_bundle import sign_bundle
 
 # Test-only RSA key. Production private keys must never be committed.
 TEST_PRIVATE_KEY = {
@@ -189,6 +190,33 @@ class FulfillmentRequestTestCase(unittest.TestCase):
             written = json.loads(out_path.read_text(encoding="utf-8"))
             self.assertEqual(written["plan"], "pro_annual")
 
+    def test_relay_bundle_cli_writes_signed_bundle(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            payload_path = Path(tmp) / "webhook_event_test.json"
+            out_path = Path(tmp) / "relay_bundle_test.json"
+            raw = json.dumps(lemon_order_payload()).encode("utf-8")
+            payload_path.write_bytes(raw)
+
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    str(Path(__file__).resolve().parent / "tools" / "relay_bundle.py"),
+                    "--payload",
+                    str(payload_path),
+                    "--out",
+                    str(out_path),
+                    "--relay-secret",
+                    "relay-secret",
+                ],
+                text=True,
+                capture_output=True,
+                timeout=20,
+            )
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            bundle = json.loads(out_path.read_text(encoding="utf-8"))
+            self.assertEqual(bundle["provider"], "lemon")
+            self.assertIn("Relay signature:", result.stdout)
+
     def test_fulfill_from_request_prepares_delivery(self):
         with tempfile.TemporaryDirectory() as tmp:
             request_path = Path(tmp) / "fulfillment_request_test.json"
@@ -286,6 +314,37 @@ class FulfillmentRequestTestCase(unittest.TestCase):
                 self.assertEqual(overview["summary"]["failed"], 1)
                 self.assertEqual(overview["summary"]["processed_receipts"], 1)
                 self.assertEqual(overview["requests"][0]["attempt_count"], 2)
+
+    def test_store_relay_bundle_accepts_signed_payload(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch.object(fulfillment_queue, "QUEUE_ROOT", root), \
+                    patch.object(fulfillment_queue, "EVENTS_DIR", root / "events"), \
+                    patch.object(fulfillment_queue, "REQUESTS_DIR", root / "requests"), \
+                    patch.object(fulfillment_queue, "PROCESSED_DIR", root / "processed"):
+                fulfillment_queue.ensure_queue_dirs()
+                bundle = {
+                    "schema_version": 1,
+                    "relay_event_id": "relay_001",
+                    "relay_source": "trusted_remote_relay",
+                    "provider": "lemon",
+                    "normalized_request": {
+                        "provider": "Lemon Squeezy",
+                        "provider_event_id": "wh_777",
+                        "order_id": "LS-777",
+                        "customer_email": "relay@example.com",
+                        "plan": "pro_monthly",
+                        "eligible_for_fulfillment": True,
+                        "fulfillment_status": "ready_for_license",
+                    },
+                }
+                raw = json.dumps(bundle, sort_keys=True).encode("utf-8")
+                signature = sign_bundle(raw, "relay-secret")
+                result = fulfillment_queue.store_relay_bundle(raw, signature, "relay-secret")
+                self.assertTrue(result["ok"])
+                self.assertTrue(result["stored"])
+                self.assertEqual(result["request"]["relay_event_id"], "relay_001")
+                self.assertEqual(len(list(fulfillment_queue.REQUESTS_DIR.glob("fulfillment_request_*.json"))), 1)
 
     def test_update_request_status_changes_request_json(self):
         with tempfile.TemporaryDirectory() as tmp:

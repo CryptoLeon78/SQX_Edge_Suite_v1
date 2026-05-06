@@ -39,6 +39,7 @@ $denyFiles = @(
   "prepare_customer_delivery.ps1",
   "fulfillment_request.py",
   "fulfill_from_request.ps1",
+  "relay_bundle.py",
   ".env",
   "RELEASE_SQX_EDGE.bat"
 )
@@ -51,7 +52,8 @@ $denyFilePatterns = @(
   "license_payload_.*\.json$",
   "unsigned_license_.*\.json$",
   "fulfillment_request_.*\.json$",
-  "webhook_event_.*\.json$"
+  "webhook_event_.*\.json$",
+  "relay_event_.*\.json$"
 )
 
 $requiredPackageGuards = @(
@@ -74,6 +76,7 @@ $requiredPackageGuards = @(
   'prepare_customer_delivery\.ps1',
   'fulfillment_request\.py',
   'fulfill_from_request\.ps1',
+  'relay_bundle\.py',
   '_private_key\.json',
   '\.private_key\.json',
   'license_signed_',
@@ -82,6 +85,7 @@ $requiredPackageGuards = @(
   'unsigned_license_',
   'fulfillment_request_',
   'webhook_event_',
+  'relay_event_',
   '\\\.env',
   'RELEASE_SQX_EDGE'
 )

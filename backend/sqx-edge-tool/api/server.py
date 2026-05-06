@@ -53,6 +53,7 @@ from core.fulfillment_queue import (
     load_request as load_fulfillment_request,
     process_request as process_fulfillment_request,
     queue_overview as fulfillment_queue_overview,
+    store_relay_bundle,
     store_lemon_webhook,
     update_request_status as set_fulfillment_request_status,
 )
@@ -420,6 +421,22 @@ def api_fulfillment_webhook_lemon():
     return jsonify(result)
 
 
+@app.post("/api/fulfillment/relay-ingest")
+def api_fulfillment_relay_ingest():
+    secret = os.environ.get("SQX_FULFILLMENT_RELAY_SECRET", "").strip()
+    if not secret:
+        return jsonify({
+            "ok": False,
+            "error": "relay_secret_missing",
+            "message": "Set SQX_FULFILLMENT_RELAY_SECRET before enabling relay ingest.",
+        }), 503
+    signature = request.headers.get("X-SQX-Relay-Signature", "")
+    result = store_relay_bundle(request.get_data(), signature, secret)
+    if not result.get("ok"):
+        return jsonify(result), 401
+    return jsonify(result)
+
+
 @app.get("/api/fulfillment/requests")
 def api_fulfillment_requests():
     overview = fulfillment_queue_overview()
@@ -430,6 +447,7 @@ def api_fulfillment_requests():
         "summary": overview["summary"],
         "receiver": {
             "secret_configured": bool(os.environ.get("SQX_LEMON_WEBHOOK_SECRET", "").strip()),
+            "relay_secret_configured": bool(os.environ.get("SQX_FULFILLMENT_RELAY_SECRET", "").strip()),
         },
     })
 

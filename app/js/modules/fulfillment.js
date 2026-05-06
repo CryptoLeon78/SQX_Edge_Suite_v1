@@ -206,8 +206,10 @@
     cache.processed = payload.processed || [];
     cache.summary = payload.summary || {};
     cache.receiver = payload.receiver || {};
-    var receiverReady = cache.receiver.secret_configured ? 'receiver listo' : 'receiver sin secreto';
-    setStatus('Cola actualizada: ' + (cache.summary.total_requests || 0) + ' requests, ' + receiverReady + '.', cache.receiver.secret_configured ? 'ok' : 'warn');
+    var lemonReady = cache.receiver.secret_configured ? 'Lemon receiver listo' : 'Lemon receiver sin secreto';
+    var relayReady = cache.receiver.relay_secret_configured ? 'relay listo' : 'relay sin secreto';
+    var healthy = !!(cache.receiver.secret_configured || cache.receiver.relay_secret_configured);
+    setStatus('Cola actualizada: ' + (cache.summary.total_requests || 0) + ' requests, ' + lemonReady + ', ' + relayReady + '.', healthy ? 'ok' : 'warn');
     renderQueue();
     return payload;
   }

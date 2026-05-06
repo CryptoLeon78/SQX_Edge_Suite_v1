@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Trusted relay ingest
+
+- Anade `POST /api/fulfillment/relay-ingest` para bundles firmados por relay remoto.
+- Anade `relay_bundle.py` para preparar bundles de prueba y validar el flujo de relay.
+- Refuerza exclusiones del ZIP con `relay_event_*.json` y tooling interno del relay.
+- Actualiza la documentacion de M15 y las notas operativas del relay.
+
 ## 2026-05-06 - Operator retry cockpit
 
 - Anade estados operativos y contador de intentos persistidos por request de fulfillment.

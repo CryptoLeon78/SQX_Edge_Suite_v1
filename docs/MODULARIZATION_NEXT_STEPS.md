@@ -40,3 +40,4 @@ Persistent planning note for the next SQX Edge phases.
 12. Phase M12: prepare local webhook-to-fulfillment automation bridge. Done.
 13. Phase M13: add private receiver with persistent queue and deduplication. Done.
 14. Phase M14: add operator states, retries and dashboard queue cockpit. Done.
+15. Phase M15: add trusted relay ingest for remote webhook forwarding. Done.

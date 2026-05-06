@@ -25,6 +25,7 @@ MONETIZATION_M11_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M11.md"
 MONETIZATION_M12_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M12.md"
 MONETIZATION_M13_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M13.md"
 MONETIZATION_M14_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M14.md"
+MONETIZATION_M15_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M15.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -327,8 +328,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("js/modules/fulfillment.js", self.html)
         self.assertIn("window.SQX.fulfillment.init()", main_js)
         self.assertIn("/api/fulfillment/request-status", server_py)
+        self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "operator_retry_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_ingest_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayIngestEndpoint"], "/api/fulfillment/relay-ingest")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["requestStatusEndpoint"], "/api/fulfillment/request-status")
         self.assertTrue(product_manifest["upgrade"]["checkout"]["automation"]["operatorPanelEnabled"])
 
@@ -732,15 +735,19 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "operator_retry_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_ingest_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["receiverEndpoint"], "/api/fulfillment/webhook/lemon")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayIngestEndpoint"], "/api/fulfillment/relay-ingest")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relaySignatureHeader"], "X-SQX-Relay-Signature")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relaySecretEnv"], "SQX_FULFILLMENT_RELAY_SECRET")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["queueListEndpoint"], "/api/fulfillment/requests")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["processEndpoint"], "/api/fulfillment/process")
         self.assertIn("fulfillment_request.py", product_manifest["upgrade"]["checkout"]["automation"]["normalizerTool"])
         self.assertIn("fulfill_from_request.ps1", product_manifest["upgrade"]["checkout"]["automation"]["fulfillmentTool"])
+        self.assertIn("relay_bundle.py", product_manifest["upgrade"]["checkout"]["automation"]["relayBundleTool"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["deduplicationKey"], "provider_event_id")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["variants"][0]["plan"], "pro_monthly")
         self.assertIn("No promete rentabilidad", product_manifest["upgrade"]["disclaimer"])
@@ -762,12 +769,15 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/license_issue.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/fulfillment_request.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/fulfill_from_request.ps1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/relay_bundle.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("fulfillment_request_*.json", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("webhook_event_*.json", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("relay_event_*.json", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("/api/license/status", server_py)
         self.assertIn("/api/license/check", server_py)
         self.assertIn("/api/license/import", server_py)
         self.assertIn("/api/license/clear", server_py)
+        self.assertIn("store_relay_bundle", server_py)
         self.assertIn("def require_feature", server_py)
         self.assertIn('require_feature("project_generator.generate")', server_py)
         self.assertIn('require_feature("strategy_cleaner.apply")', server_py)
@@ -805,7 +815,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m14_decisions(self):
+    def test_monetization_docs_capture_m1_to_m15_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -821,10 +831,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         m12 = MONETIZATION_M12_DOC.read_text(encoding="utf-8-sig")
         m13 = MONETIZATION_M13_DOC.read_text(encoding="utf-8-sig")
         m14 = MONETIZATION_M14_DOC.read_text(encoding="utf-8-sig")
+        m15 = MONETIZATION_M15_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
         operator_ops = (PROJECT_ROOT / "docs" / "sales" / "FULFILLMENT_OPERATOR_PLAYBOOK.md").read_text(encoding="utf-8-sig")
+        relay_ops = (PROJECT_ROOT / "docs" / "sales" / "RELAY_INGEST_NOTES.md").read_text(encoding="utf-8-sig")
         commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
         public_roadmap = (PROJECT_ROOT / "docs" / "PUBLIC_ROADMAP.md").read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
@@ -843,6 +855,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M12", roadmap)
         self.assertIn("Phase M13", roadmap)
         self.assertIn("Phase M14", roadmap)
+        self.assertIn("Phase M15", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -856,6 +869,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M12: prepare local webhook-to-fulfillment automation bridge. Done.", next_steps)
         self.assertIn("Phase M13: add private receiver with persistent queue and deduplication. Done.", next_steps)
         self.assertIn("Phase M14: add operator states, retries and dashboard queue cockpit. Done.", next_steps)
+        self.assertIn("Phase M15: add trusted relay ingest for remote webhook forwarding. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -1075,6 +1089,22 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, m14)
         self.assertIn("Retry Loop", operator_ops)
         self.assertIn("Ignore And Requeue Rules", operator_ops)
+
+        m15_patterns = [
+            "relay_ingest_ready",
+            "/api/fulfillment/relay-ingest",
+            "X-SQX-Relay-Signature",
+            "SQX_FULFILLMENT_RELAY_SECRET",
+            "trusted_remote_relay_signed_bundle",
+            "relay_bundle.py",
+            "relay_event_id",
+            "Estado: Done.",
+        ]
+        for pattern in m15_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m15)
+        self.assertIn("Trusted Relay Flow", relay_ops)
+        self.assertIn("Security Notes", relay_ops)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))

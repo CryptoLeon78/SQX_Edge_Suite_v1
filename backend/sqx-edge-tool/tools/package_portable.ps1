@@ -62,6 +62,7 @@ function Test-IncludedPath {
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\prepare_customer_delivery\.ps1$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfillment_request\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfill_from_request\.ps1$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\tools\\relay_bundle\.py$") { return $false }
   if ($Path -match "\\[^\\]*_private_key\.json$") { return $false }
   if ($Path -match "\\[^\\]*\.private_key\.json$") { return $false }
   if ($Path -match "\\license_signed_[^\\]*\.json$") { return $false }
@@ -70,6 +71,7 @@ function Test-IncludedPath {
   if ($Path -match "\\unsigned_license_[^\\]*\.json$") { return $false }
   if ($Path -match "\\fulfillment_request_[^\\]*\.json$") { return $false }
   if ($Path -match "\\webhook_event_[^\\]*\.json$") { return $false }
+  if ($Path -match "\\relay_event_[^\\]*\.json$") { return $false }
   if ($Path -match "\\\.env(\..*)?$") { return $false }
   if ($Path -match "\\RELEASE_SQX_EDGE\.bat$") { return $false }
   if ($Path -match "_backup") { return $false }

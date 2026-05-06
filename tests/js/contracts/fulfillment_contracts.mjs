@@ -24,9 +24,11 @@ assert.ok(fulfillmentJs.includes("SQX.registerModule('fulfillment'"));
 assert.ok(html.includes('id="fulfillment-panel"'));
 assert.ok(html.includes('id="fulfillment-request-list"'));
 assert.ok(html.includes('js/modules/fulfillment.js'));
-assert.equal(productManifest.upgrade.checkout.automation.status, 'operator_retry_ready');
+assert.equal(productManifest.upgrade.checkout.automation.status, 'relay_ingest_ready');
+assert.equal(productManifest.upgrade.checkout.automation.relayIngestEndpoint, '/api/fulfillment/relay-ingest');
 assert.equal(productManifest.upgrade.checkout.automation.requestStatusEndpoint, '/api/fulfillment/request-status');
 assert.equal(productManifest.upgrade.checkout.automation.retryMode, 'manual_retry_with_attempt_log');
+assert.equal(productManifest.upgrade.checkout.automation.relayMode, 'trusted_remote_relay_signed_bundle');
 assert.ok(productManifest.upgrade.checkout.automation.requestStatuses.includes('failed'));
 assert.ok(productManifest.upgrade.checkout.automation.operatorPanelEnabled);
 

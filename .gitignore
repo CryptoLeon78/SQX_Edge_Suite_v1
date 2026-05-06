@@ -42,6 +42,7 @@ license_payload_*.json
 unsigned_license_*.json
 fulfillment_request_*.json
 webhook_event_*.json
+relay_event_*.json
 fulfillment_requests/
 backend/sqx-edge-tool/license_keys/
 backend/sqx-edge-tool/licenses_private/

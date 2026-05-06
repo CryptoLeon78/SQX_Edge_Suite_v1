@@ -329,3 +329,24 @@ Decision M14:
 - El dashboard interno actua como queue cockpit ligero para operador.
 - Los requests no se eliminan al fallar; conservan `attempt_count`, `last_error` y ultimo recibo.
 - El siguiente paso natural es M15: receiver remoto controlado o integracion webhook segura hacia esta cola privada.
+
+## Phase M15 - Trusted Relay Ingest
+
+Objetivo: aceptar bundles firmados por un relay remoto controlado sin abrir directamente la API local a internet.
+
+Entregables:
+
+- `POST /api/fulfillment/relay-ingest`
+- Secreto dedicado `SQX_FULFILLMENT_RELAY_SECRET`
+- Header dedicado `X-SQX-Relay-Signature`
+- Tool interna `relay_bundle.py`
+- Exclusion del ZIP para `relay_event_*.json` y tooling del relay
+
+Estado: Done.
+
+Decision M15:
+
+- El relay verifica Lemon fuera del backend local.
+- El backend local solo confia en bundles firmados por el relay.
+- La deduplicacion sigue ocurriendo por `provider_event_id`.
+- La siguiente fase natural es M16: desplegar o disenar el relay remoto real con cola/reintentos propios.

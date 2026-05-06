@@ -140,7 +140,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `backend/sqx-edge-tool/core/sqx_db.py` | SQX database verification and access helpers. |
 | `backend/sqx-edge-tool/core/support_diagnostics.py` | Redacted support diagnostics payload builder. |
 | `backend/sqx-edge-tool/core/fulfillment_normalizer.py` | Shared Lemon Squeezy normalization and signature verification. |
-| `backend/sqx-edge-tool/core/fulfillment_queue.py` | Persistent fulfillment queue, operator status and retry tracking. |
+| `backend/sqx-edge-tool/core/fulfillment_queue.py` | Persistent fulfillment queue, operator status, trusted relay ingest and retry tracking. |
 | `backend/sqx-edge-tool/config/*.json` | Dynamic catalogs for assets, instruments, profiles, plan and UI manifest. |
 | `backend/sqx-edge-tool/templates/*.cfx` | StrategyQuant template files used by generation. |
 

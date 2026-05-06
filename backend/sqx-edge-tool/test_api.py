@@ -135,6 +135,32 @@ class ApiTestCase(unittest.TestCase):
         self.assertTrue(data["stored"])
         store.assert_called_once_with(b'{"ok":true}', "abc123", "secret")
 
+    def test_fulfillment_relay_ingest_requires_secret(self):
+        with patch.dict(server.os.environ, {}, clear=True):
+            response = self.client.post("/api/fulfillment/relay-ingest", data=b"{}")
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(self.get_json(response)["error"], "relay_secret_missing")
+
+    def test_fulfillment_relay_ingest_accepts_signed_bundle(self):
+        stored = {
+            "ok": True,
+            "stored": True,
+            "duplicate": False,
+            "provider_event_id": "wh_456",
+            "relay_event_id": "relay_456",
+            "request": {"request_file": "fulfillment_request_2.json"},
+        }
+        with patch.dict(server.os.environ, {"SQX_FULFILLMENT_RELAY_SECRET": "relay-secret"}, clear=False), \
+                patch.object(server, "store_relay_bundle", return_value=stored) as store:
+            response = self.client.post(
+                "/api/fulfillment/relay-ingest",
+                data=b'{"relay":true}',
+                headers={"X-SQX-Relay-Signature": "sig123"},
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.get_json(response)["relay_event_id"], "relay_456")
+        store.assert_called_once_with(b'{"relay":true}', "sig123", "relay-secret")
+
     def test_fulfillment_queue_endpoints(self):
         queued = [{
             "name": "fulfillment_request_20260506_1.json",
@@ -172,7 +198,7 @@ class ApiTestCase(unittest.TestCase):
         done = {"ok": True, "receipt_file": "delivery_receipt_20260506_1.json"}
 
         with patch.object(server, "fulfillment_queue_overview", return_value=overview), \
-                patch.dict(server.os.environ, {"SQX_LEMON_WEBHOOK_SECRET": "secret"}, clear=False):
+                patch.dict(server.os.environ, {"SQX_LEMON_WEBHOOK_SECRET": "secret", "SQX_FULFILLMENT_RELAY_SECRET": "relay-secret"}, clear=False):
             listed = self.client.get("/api/fulfillment/requests")
         self.assertEqual(listed.status_code, 200)
         listed_data = self.get_json(listed)
@@ -180,6 +206,7 @@ class ApiTestCase(unittest.TestCase):
         self.assertEqual(len(listed_data["processed"]), 1)
         self.assertEqual(listed_data["summary"]["queued"], 1)
         self.assertTrue(listed_data["receiver"]["secret_configured"])
+        self.assertTrue(listed_data["receiver"]["relay_secret_configured"])
 
         with patch.object(server, "load_fulfillment_request", return_value=detail):
             got = self.client.get("/api/fulfillment/requests/fulfillment_request_20260506_1.json")

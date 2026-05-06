@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import subprocess
 from datetime import datetime
@@ -91,6 +92,13 @@ def _request_defaults(request: dict[str, Any]) -> dict[str, Any]:
     payload.setdefault("completed_at", "")
     payload.setdefault("updated_at", payload.get("stored_at", ""))
     return payload
+
+
+def _verify_signature_hex(raw_body: bytes, signature: str, secret: str) -> bool:
+    if not secret or not signature:
+        return False
+    expected = hmac.new(secret.encode("utf-8"), raw_body, hashlib.sha256).hexdigest()
+    return hmac.compare_digest(expected, signature)
 
 
 def _request_summary(payload: dict[str, Any]) -> dict[str, Any]:
@@ -195,6 +203,68 @@ def store_lemon_webhook(
         "stored": True,
         "duplicate": False,
         "provider_event_id": provider_event_id,
+        "request": request,
+    }
+
+
+def store_relay_bundle(
+    raw_body: bytes,
+    signature: str,
+    secret: str,
+) -> dict[str, Any]:
+    ensure_queue_dirs()
+    if not _verify_signature_hex(raw_body, signature, secret):
+        return {"ok": False, "error": "invalid_relay_signature"}
+
+    bundle = json.loads(raw_body.decode("utf-8-sig"))
+    raw_request = dict(bundle.get("normalized_request") or {})
+    if not raw_request:
+        return {"ok": False, "error": "invalid_relay_bundle"}
+    request = _request_defaults(raw_request)
+
+    provider_event_id = str(request.get("provider_event_id") or bundle.get("provider_event_id") or "").strip()
+    if not provider_event_id:
+        provider_event_id = hashlib.sha256(raw_body).hexdigest()[:16]
+        request["provider_event_id"] = provider_event_id
+    existing = _find_existing_request(provider_event_id)
+    if existing:
+        return {
+            "ok": True,
+            "stored": False,
+            "duplicate": True,
+            "request": _request_defaults(existing),
+            "provider_event_id": provider_event_id,
+            "relay_event_id": bundle.get("relay_event_id", ""),
+        }
+
+    token = _safe_token(provider_event_id)
+    stamp = _stamp()
+    event_filename = f"relay_event_{stamp}_{token}.json"
+    request_filename = f"fulfillment_request_{stamp}_{token}.json"
+
+    event_record = {
+        "provider": request.get("provider", bundle.get("provider", "relay")),
+        "stored_at": datetime.now().isoformat(timespec="seconds"),
+        "signature_header": "X-SQX-Relay-Signature",
+        "provider_event_id": provider_event_id,
+        "relay_event_id": str(bundle.get("relay_event_id") or ""),
+        "bundle": bundle,
+    }
+    request["stored_at"] = datetime.now().isoformat(timespec="seconds")
+    request["request_file"] = request_filename
+    request["raw_event_file"] = event_filename
+    request["relay_event_id"] = str(bundle.get("relay_event_id") or "")
+    request["relay_source"] = str(bundle.get("relay_source") or "trusted_remote_relay")
+
+    request = _request_defaults(request)
+    _write_json(EVENTS_DIR / event_filename, event_record)
+    _write_json(REQUESTS_DIR / request_filename, request)
+    return {
+        "ok": True,
+        "stored": True,
+        "duplicate": False,
+        "provider_event_id": provider_event_id,
+        "relay_event_id": request.get("relay_event_id"),
         "request": request,
     }
 
