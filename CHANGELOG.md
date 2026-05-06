@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Local ingest tunnel launcher
+
+- Anade `local_ingest_tunnel_launcher.py` para detectar `cloudflared`, `ngrok` o `localtunnel`.
+- Valida el backend local en `/api/health` antes de lanzar tunel.
+- Puede arrancar tunel con `--start` y parsear la URL publica de ingest.
+- Actualiza manifiesto a `relay_local_ingest_tunnel_launcher_ready`.
+
 ## 2026-05-06 - Local ingest tunnel check
 
 - Anade `local_ingest_tunnel_check.py` para validar `SQX_LOCAL_INGEST_URL` antes de configurarlo en Render.

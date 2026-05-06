@@ -601,3 +601,25 @@ Decision M27:
 - `SQX_LOCAL_INGEST_URL` no se pega en Render hasta que health y politica de URL pasen.
 - El bundle firmado demo es opt-in para no contaminar la cola durante pruebas secas.
 - La siguiente fase real es obtener URL/tunnel real y ejecutar el check con `--send-bundle`.
+
+## Phase M28 - Local Ingest Tunnel Launcher
+
+Objetivo: preparar el lanzamiento del tunel publico hacia el backend local y detectar proveedores disponibles.
+
+Entregables:
+
+- Estado `relay_local_ingest_tunnel_launcher_ready`.
+- `local_ingest_tunnel_launcher.py`.
+- Deteccion de `cloudflared`, `ngrok` y `npx localtunnel`.
+- Validacion de backend local en `/api/health`.
+- Lanzamiento opt-in con `--start`.
+- Parseo de URL publica y calculo de `/api/fulfillment/relay-ingest`.
+- Guia `LOCAL_INGEST_TUNNEL_LAUNCHER.md`.
+
+Estado: Done.
+
+Decision M28:
+
+- No se arranca ningun tunel por defecto.
+- `cloudflared` es el proveedor recomendado si esta instalado.
+- El siguiente paso real es instalar/usar un proveedor y ejecutar `--start` con el backend local encendido.

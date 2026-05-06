@@ -26,6 +26,7 @@ relay_queue = _load_module("sqx_edge_relay_queue_test", "core/relay_queue.py")
 relay_observability = _load_module("sqx_edge_relay_observability_test", "core/relay_observability.py")
 deployment_check = _load_module("sqx_edge_relay_deployment_check_test", "tools/deployment_check.py")
 local_ingest_tunnel_check = _load_module("sqx_edge_relay_local_ingest_tunnel_check_test", "tools/local_ingest_tunnel_check.py")
+local_ingest_tunnel_launcher = _load_module("sqx_edge_relay_local_ingest_tunnel_launcher_test", "tools/local_ingest_tunnel_launcher.py")
 render_api_preflight = _load_module("sqx_edge_relay_render_api_preflight_test", "tools/render_api_preflight.py")
 render_credentials_handshake = _load_module("sqx_edge_relay_render_credentials_handshake_test", "tools/render_credentials_handshake.py")
 render_staging_gate = _load_module("sqx_edge_relay_render_staging_gate_test", "tools/render_staging_gate.py")
@@ -408,3 +409,38 @@ class RelayQueueTestCase(unittest.TestCase):
         self.assertTrue(report["decision"]["go"])
         self.assertEqual(calls[1]["method"], "POST")
         self.assertIn("X-SQX-Relay-Signature", calls[1]["headers"])
+
+    def test_local_ingest_tunnel_launcher_parses_public_url(self):
+        text = "INF Requesting new quick Tunnel on https://demo.trycloudflare.com"
+        self.assertEqual(local_ingest_tunnel_launcher.parse_public_url(text), "https://demo.trycloudflare.com")
+        self.assertEqual(
+            local_ingest_tunnel_launcher.ingest_url("https://demo.trycloudflare.com"),
+            "https://demo.trycloudflare.com/api/fulfillment/relay-ingest",
+        )
+
+    def test_local_ingest_tunnel_launcher_dry_run_go_with_provider_and_health(self):
+        providers = {
+            "cloudflared": {"available": True, "executable": "cloudflared", "recommended": True},
+            "ngrok": {"available": False, "executable": "", "recommended": False},
+            "localtunnel": {"available": False, "executable": "", "recommended": False},
+        }
+        with patch.object(local_ingest_tunnel_launcher, "detect_providers", return_value=providers), \
+                patch.object(local_ingest_tunnel_launcher, "request_json", return_value={"ok": True, "status": 200, "payload": {"ok": True}}):
+            report = local_ingest_tunnel_launcher.collect_launch(write=False)
+        self.assertTrue(report["decision"]["go"])
+        self.assertIn("tunnel_not_started", report["decision"]["warnings"])
+        self.assertEqual(report["command"], ["cloudflared", "tunnel", "--url", "http://127.0.0.1:5050"])
+
+    def test_local_ingest_tunnel_launcher_started_url_go(self):
+        providers = {
+            "cloudflared": {"available": True, "executable": "cloudflared", "recommended": True},
+            "ngrok": {"available": False, "executable": "", "recommended": False},
+            "localtunnel": {"available": False, "executable": "", "recommended": False},
+        }
+        start = {"started": True, "pid": 1234, "returncode": None, "public_url": "https://demo.trycloudflare.com", "output_tail": []}
+        with patch.object(local_ingest_tunnel_launcher, "detect_providers", return_value=providers), \
+                patch.object(local_ingest_tunnel_launcher, "request_json", return_value={"ok": True, "status": 200, "payload": {"ok": True}}), \
+                patch.object(local_ingest_tunnel_launcher, "start_tunnel", return_value=start):
+            report = local_ingest_tunnel_launcher.collect_launch(start=True, write=False)
+        self.assertTrue(report["decision"]["go"])
+        self.assertEqual(report["ingest_url"], "https://demo.trycloudflare.com/api/fulfillment/relay-ingest")

@@ -167,6 +167,22 @@ python tools\local_ingest_tunnel_check.py --ingest-url https://tu-tunnel.example
 
 La evidencia queda en `data/local_ingest_tunnel_check`.
 
+## Local ingest tunnel launcher
+
+Para preparar o lanzar un tunel hacia el backend local:
+
+```powershell
+python tools\local_ingest_tunnel_launcher.py
+```
+
+Para intentar lanzarlo con el proveedor detectado:
+
+```powershell
+python tools\local_ingest_tunnel_launcher.py --start
+```
+
+Detecta `cloudflared`, `ngrok` o `npx localtunnel`, valida `http://127.0.0.1:5050/api/health` y, si detecta URL publica, calcula la URL final `/api/fulfillment/relay-ingest`.
+
 ## Worker de dispatch
 
 Una vez configurado `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_LOCAL_INGEST_URL`, puedes lanzar el worker:
