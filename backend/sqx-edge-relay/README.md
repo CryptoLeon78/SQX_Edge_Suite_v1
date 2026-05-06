@@ -17,6 +17,8 @@ Usa `.env.example` como plantilla. No subas `.env` real al repo.
 
 - `GET /relay/health`
 - `GET /relay/config-check`
+- `GET /relay/observability`
+- `POST /relay/observability/snapshot`
 - `POST /relay/webhook/lemon`
 - `GET /relay/queue`
 - `GET /relay/queue/<name>`
@@ -77,3 +79,13 @@ python worker\dispatch_worker.py --once
 4. Apuntar Lemon Squeezy a `POST /relay/webhook/lemon`.
 5. Ejecutar worker como proceso supervisado.
 6. Monitorizar `pending`, `failed` y logs del worker.
+
+## Observabilidad
+
+El relay escribe eventos JSONL en `data/observability/logs/relay_events.jsonl` y snapshots en `data/observability/snapshots`.
+
+```powershell
+python tools\simulate_purchase_flow.py
+```
+
+La simulacion recorre webhook firmado, cola, dispatch firmado y snapshot sin llamar a servicios externos.

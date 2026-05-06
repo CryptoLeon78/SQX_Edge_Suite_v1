@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Relay observability and simulation
+
+- Anade eventos JSONL y snapshots de cola para el relay remoto.
+- Expone `GET /relay/observability` y `POST /relay/observability/snapshot`.
+- Anade `simulate_purchase_flow.py` para probar compra -> relay -> dispatch -> snapshot.
+- Actualiza manifiesto a `relay_observability_ready`.
+
 ## 2026-05-06 - Relay deployment hardening
 
 - Anade `GET /relay/config-check` para validar configuracion sin exponer secretos.

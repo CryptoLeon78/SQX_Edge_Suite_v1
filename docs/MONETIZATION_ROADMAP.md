@@ -392,3 +392,25 @@ Decision M17:
 - Cola, detalle, dispatch y requeue quedan protegibles con token.
 - El dispatch pasa a poder ejecutarse como `supervised_dispatch_loop`.
 - El siguiente paso natural es M18: observabilidad, logs rotables y prueba E2E de fulfillment completo.
+
+## Phase M18 - Relay Observability And Simulation
+
+Objetivo: hacer observable el relay remoto y poder validar el flujo comercial sin eventos reales.
+
+Entregables:
+
+- Estado `relay_observability_ready`.
+- Eventos JSONL en `data/observability/logs/relay_events.jsonl`.
+- Snapshots de cola en `data/observability/snapshots`.
+- Endpoints `GET /relay/observability` y `POST /relay/observability/snapshot`.
+- Simulador `simulate_purchase_flow.py`.
+- Contratos y tests del flujo webhook -> cola -> dispatch -> snapshot.
+
+Estado: Done.
+
+Decision M18:
+
+- Los logs operativos se guardan en JSONL y redactan secretos.
+- Los snapshots capturan cola, configuracion y eventos recientes.
+- La simulacion permite validar compra -> relay -> ingest local sin depender de Lemon en vivo.
+- El siguiente paso natural es M19: preparar despliegue real por proveedor y supervisor.

@@ -23,6 +23,7 @@ def _load_module(name: str, relative_path: str):
 
 server = _load_module("sqx_edge_relay_server_test", "api/server.py")
 relay_queue = _load_module("sqx_edge_relay_queue_test", "core/relay_queue.py")
+relay_observability = _load_module("sqx_edge_relay_observability_test", "core/relay_observability.py")
 
 
 class RelayApiTestCase(unittest.TestCase):
@@ -74,6 +75,16 @@ class RelayApiTestCase(unittest.TestCase):
         self.assertEqual(blocked.status_code, 401)
         self.assertEqual(allowed.status_code, 200)
 
+    def test_observability_endpoints_are_operator_protected(self):
+        status = {"ok": True, "recent_events": [], "summary": {"pending": 0}}
+        with patch.dict(server.os.environ, {"SQX_RELAY_OPERATOR_TOKEN": "operator-token"}, clear=True), \
+                patch.object(server, "observability_status", return_value=status):
+            blocked = self.client.get("/relay/observability")
+            allowed = self.client.get("/relay/observability", headers={"Authorization": "Bearer operator-token"})
+        self.assertEqual(blocked.status_code, 401)
+        self.assertEqual(allowed.status_code, 200)
+        self.assertEqual(self.get_json(allowed)["summary"]["pending"], 0)
+
     def test_dispatch_single_item(self):
         result = {"ok": True, "bundle": {"status": "sent"}}
         with patch.dict(server.os.environ, {"SQX_FULFILLMENT_RELAY_SECRET": "relay-secret"}, clear=False), \
@@ -120,3 +131,26 @@ class RelayQueueTestCase(unittest.TestCase):
                 name = next((relay_queue.PENDING_DIR).glob("relay_bundle_*.json")).name
                 bundle = relay_queue.requeue_failed_item(name)
                 self.assertTrue(bundle["ok"])
+
+    def test_simulated_purchase_flow_writes_observability_snapshot(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            obs_root = root / "observability"
+            with patch.object(relay_queue, "QUEUE_ROOT", root / "queue"), \
+                    patch.object(relay_queue, "INCOMING_DIR", root / "queue" / "incoming"), \
+                    patch.object(relay_queue, "PENDING_DIR", root / "queue" / "pending"), \
+                    patch.object(relay_queue, "SENT_DIR", root / "queue" / "sent"), \
+                    patch.object(relay_queue, "FAILED_DIR", root / "queue" / "failed"), \
+                    patch.object(relay_observability, "OBS_ROOT", obs_root), \
+                    patch.object(relay_observability, "LOG_DIR", obs_root / "logs"), \
+                    patch.object(relay_observability, "SNAPSHOT_DIR", obs_root / "snapshots"), \
+                    patch.object(relay_observability, "EVENT_LOG", obs_root / "logs" / "relay_events.jsonl"), \
+                    patch.object(relay_queue, "log_event", relay_observability.log_event):
+                relay_queue.ensure_queue_dirs()
+                relay_observability.log_event("test_event", provider_event_id="demo", secret_value="hidden")
+                snapshot = relay_observability.write_snapshot(relay_queue.queue_overview(), {"ok": True})
+                self.assertTrue(snapshot["ok"])
+                self.assertTrue((obs_root / "logs" / "relay_events.jsonl").is_file())
+                self.assertTrue((obs_root / "snapshots" / snapshot["snapshot_file"]).is_file())
+                events = relay_observability.recent_events()
+                self.assertEqual(events[0]["secret_value"], "[redacted]")

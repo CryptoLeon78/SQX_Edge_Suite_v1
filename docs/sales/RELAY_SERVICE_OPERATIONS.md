@@ -55,3 +55,21 @@ Variables relevantes:
 - `SQX_LOCAL_INGEST_URL`
 
 El proceso debe ejecutarse supervisado por el host elegido. Si el ingest local no esta disponible, los bundles fallan con backoff y quedan trazados en `failed`.
+
+## Observability
+
+- `GET /relay/observability` devuelve resumen de cola, eventos recientes y rutas de logs.
+- `POST /relay/observability/snapshot` escribe un snapshot JSON de cola, config y eventos recientes.
+- Los eventos se guardan en `data/observability/logs/relay_events.jsonl`.
+- Los snapshots se guardan en `data/observability/snapshots`.
+- Los campos sensibles se redactan antes de escribir logs.
+
+## Purchase Flow Simulation
+
+Usa:
+
+```powershell
+python tools\simulate_purchase_flow.py
+```
+
+La simulacion crea un evento de compra firmado, lo encola, simula el ingest local, mueve el bundle a `sent` y genera un snapshot. Sirve como prueba rapida antes de tocar Lemon Squeezy real.

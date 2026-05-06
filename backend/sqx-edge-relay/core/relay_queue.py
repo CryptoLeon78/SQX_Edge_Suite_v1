@@ -18,6 +18,20 @@ if str(TOOL_ROOT) not in sys.path:
 
 from core.fulfillment_normalizer import normalize_payload, verify_lemon_signature
 
+try:
+    import importlib.util
+
+    _OBS_PATH = RELAY_ROOT / "core" / "relay_observability.py"
+    _OBS_SPEC = importlib.util.spec_from_file_location("sqx_edge_relay_observability_queue", _OBS_PATH)
+    if _OBS_SPEC is None or _OBS_SPEC.loader is None:
+        raise ImportError
+    _OBS = importlib.util.module_from_spec(_OBS_SPEC)
+    _OBS_SPEC.loader.exec_module(_OBS)
+    log_event = _OBS.log_event
+except ImportError:
+    def log_event(_event_type: str, **_fields: Any) -> dict[str, Any]:
+        return {}
+
 
 QUEUE_ROOT = RELAY_ROOT / "data" / "queue"
 INCOMING_DIR = QUEUE_ROOT / "incoming"
@@ -143,6 +157,7 @@ def enqueue_lemon_webhook(raw_body: bytes, signature: str, secret: str) -> dict[
     provider_event_id = str(normalized_request.get("provider_event_id") or "") or hashlib.sha256(raw_body).hexdigest()[:16]
     existing = _find_existing(provider_event_id)
     if existing:
+        log_event("webhook_duplicate", provider_event_id=provider_event_id, source_event=normalized_request.get("source_event"))
         return {"ok": True, "stored": False, "duplicate": True, "bundle": existing}
 
     relay_event_id = "relay_" + hashlib.sha256((provider_event_id + _stamp()).encode("utf-8")).hexdigest()[:16]
@@ -172,6 +187,14 @@ def enqueue_lemon_webhook(raw_body: bytes, signature: str, secret: str) -> dict[
     _write_json(INCOMING_DIR / incoming_name, event_record)
     _write_json(PENDING_DIR / bundle_name, bundle)
     bundle["name"] = bundle_name
+    log_event(
+        "webhook_enqueued",
+        relay_event_id=relay_event_id,
+        provider_event_id=provider_event_id,
+        source_event=normalized_request.get("source_event"),
+        customer_email=normalized_request.get("customer_email"),
+        plan=normalized_request.get("plan"),
+    )
     return {"ok": True, "stored": True, "duplicate": False, "bundle": bundle}
 
 
@@ -198,6 +221,7 @@ def dispatch_queue_item(name: str, target_url: str, relay_secret: str) -> dict[s
     ensure_queue_dirs()
     path, bundle = _read_queue_item(name)
     if not _can_attempt(bundle):
+        log_event("dispatch_skipped_not_due", bundle_name=name, provider_event_id=bundle.get("provider_event_id"))
         return {"ok": False, "error": "not_due_yet", "bundle": bundle}
 
     payload = dict(bundle)
@@ -223,6 +247,13 @@ def dispatch_queue_item(name: str, target_url: str, relay_secret: str) -> dict[s
             payload["last_response_body"] = body[:1000]
             payload["next_attempt_at"] = ""
             _move_bundle(path, SENT_DIR, payload)
+            log_event(
+                "dispatch_sent",
+                bundle_name=name,
+                relay_event_id=payload.get("relay_event_id"),
+                provider_event_id=payload.get("provider_event_id"),
+                response_status=response.status,
+            )
             return {"ok": True, "bundle": payload}
     except (urlerror.URLError, urlerror.HTTPError, TimeoutError) as exc:
         attempts = int(payload.get("attempt_count") or 1)
@@ -231,6 +262,14 @@ def dispatch_queue_item(name: str, target_url: str, relay_secret: str) -> dict[s
         payload["last_error"] = str(exc)
         payload["next_attempt_at"] = (datetime.now() + timedelta(seconds=delay)).isoformat(timespec="seconds")
         _move_bundle(path, FAILED_DIR, payload)
+        log_event(
+            "dispatch_failed",
+            bundle_name=name,
+            relay_event_id=payload.get("relay_event_id"),
+            provider_event_id=payload.get("provider_event_id"),
+            attempt_count=payload.get("attempt_count"),
+            error=str(exc),
+        )
         return {"ok": False, "error": "dispatch_failed", "bundle": payload}
 
 
@@ -241,6 +280,7 @@ def requeue_failed_item(name: str) -> dict[str, Any]:
     payload["status"] = "pending"
     payload["next_attempt_at"] = ""
     _move_bundle(path, PENDING_DIR, payload)
+    log_event("bundle_requeued", bundle_name=name, relay_event_id=payload.get("relay_event_id"), provider_event_id=payload.get("provider_event_id"))
     return {"ok": True, "bundle": payload}
 
 

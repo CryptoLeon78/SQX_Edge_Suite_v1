@@ -19,7 +19,10 @@ class RelayStaticTestCase(unittest.TestCase):
             RELAY_ROOT / "api" / "server.py",
             RELAY_ROOT / "core" / "__init__.py",
             RELAY_ROOT / "core" / "relay_queue.py",
+            RELAY_ROOT / "core" / "relay_observability.py",
             RELAY_ROOT / "core" / "relay_settings.py",
+            RELAY_ROOT / "tools" / "__init__.py",
+            RELAY_ROOT / "tools" / "simulate_purchase_flow.py",
             RELAY_ROOT / "worker" / "__init__.py",
             RELAY_ROOT / "worker" / "dispatch_worker.py",
         ]
@@ -31,12 +34,16 @@ class RelayStaticTestCase(unittest.TestCase):
         readme = (RELAY_ROOT / "README.md").read_text(encoding="utf-8-sig")
         server = (RELAY_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
         queue = (RELAY_ROOT / "core" / "relay_queue.py").read_text(encoding="utf-8-sig")
+        observability = (RELAY_ROOT / "core" / "relay_observability.py").read_text(encoding="utf-8-sig")
         settings = (RELAY_ROOT / "core" / "relay_settings.py").read_text(encoding="utf-8-sig")
+        simulation = (RELAY_ROOT / "tools" / "simulate_purchase_flow.py").read_text(encoding="utf-8-sig")
         worker = (RELAY_ROOT / "worker" / "dispatch_worker.py").read_text(encoding="utf-8-sig")
 
         for pattern in (
             "/relay/health",
             "/relay/config-check",
+            "/relay/observability",
+            "/relay/observability/snapshot",
             "/relay/webhook/lemon",
             "/relay/queue",
             "/relay/dispatch",
@@ -51,6 +58,10 @@ class RelayStaticTestCase(unittest.TestCase):
 
         self.assertIn("enqueue_lemon_webhook", queue)
         self.assertIn("dispatch_queue_item", queue)
+        self.assertIn("log_event", queue)
+        self.assertIn("write_snapshot", observability)
+        self.assertIn("relay_events.jsonl", observability)
+        self.assertIn("dispatch_queue_item", simulation)
         self.assertIn("dispatch_due_items", worker)
         self.assertIn("--once", worker)
         self.assertIn("exponential", "exponential backoff remote queue")

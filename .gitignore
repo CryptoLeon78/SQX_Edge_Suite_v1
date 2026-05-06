@@ -49,6 +49,7 @@ backend/sqx-edge-tool/license_keys/
 backend/sqx-edge-tool/licenses_private/
 backend/sqx-edge-tool/private_keys/
 backend/sqx-edge-tool/fulfillment_requests/
+backend/sqx-edge-relay/data/
 
 # ── Backups and temporary refactor snapshots ────────
 backups/

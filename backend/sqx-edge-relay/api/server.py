@@ -32,8 +32,19 @@ def _load_relay_settings_module():
     return module
 
 
+def _load_relay_observability_module():
+    module_path = ROOT / "core" / "relay_observability.py"
+    spec = importlib.util.spec_from_file_location("sqx_edge_relay_observability", module_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Unable to load relay observability module from {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 _RELAY_QUEUE = _load_relay_queue_module()
 _RELAY_SETTINGS = _load_relay_settings_module()
+_RELAY_OBSERVABILITY = _load_relay_observability_module()
 dispatch_due_items = _RELAY_QUEUE.dispatch_due_items
 dispatch_queue_item = _RELAY_QUEUE.dispatch_queue_item
 enqueue_lemon_webhook = _RELAY_QUEUE.enqueue_lemon_webhook
@@ -42,6 +53,9 @@ queue_overview = _RELAY_QUEUE.queue_overview
 requeue_failed_item = _RELAY_QUEUE.requeue_failed_item
 config_status = _RELAY_SETTINGS.config_status
 is_operator_authorized = _RELAY_SETTINGS.is_operator_authorized
+log_event = _RELAY_OBSERVABILITY.log_event
+observability_status = _RELAY_OBSERVABILITY.observability_status
+write_snapshot = _RELAY_OBSERVABILITY.write_snapshot
 
 
 app = Flask(__name__)
@@ -86,6 +100,22 @@ def config_check():
     return jsonify({"ok": True, "config": config_status()})
 
 
+@app.get("/relay/observability")
+def observability():
+    guarded = operator_guard()
+    if guarded:
+        return guarded
+    return jsonify(observability_status(queue_overview()))
+
+
+@app.post("/relay/observability/snapshot")
+def observability_snapshot():
+    guarded = operator_guard()
+    if guarded:
+        return guarded
+    return jsonify(write_snapshot(queue_overview(), config_status()))
+
+
 @app.post("/relay/webhook/lemon")
 def webhook_lemon():
     secret = lemon_secret()
@@ -93,6 +123,7 @@ def webhook_lemon():
         return jsonify({"ok": False, "error": "webhook_secret_missing"}), 503
     signature = request.headers.get("X-Signature", "")
     result = enqueue_lemon_webhook(request.get_data(), signature, secret)
+    log_event("webhook_received", ok=result.get("ok"), stored=result.get("stored"), duplicate=result.get("duplicate"))
     return jsonify(result), 200 if result.get("ok") else 401
 
 
