@@ -735,3 +735,26 @@ Decision M33:
 - La herramienta no publica checkout ni activa webhooks.
 - El `GO` requiere URLs reales, variantes reales, soporte valido y M32 `GO`.
 - La siguiente fase real es preparar una release candidate comercial y compra piloto controlada.
+
+## Phase M34 - Commercial Release Candidate
+
+Objetivo: consolidar ZIP portable, hash, readiness, clave publica, compra piloto y rollback en una compuerta comercial.
+
+Entregables:
+
+- Estado `commercial_release_candidate_ready`.
+- `commercial_release_candidate.py`.
+- Validacion de ZIP portable y `ZIP SHA256`.
+- Consumo de evidencia M33.
+- Bloqueo de public key placeholder.
+- Confirmacion explicita de compra piloto.
+- Evidencia local en `backend/sqx-edge-tool/data/commercial_release_candidate`.
+- Guia `COMMERCIAL_RELEASE_CANDIDATE.md`.
+
+Estado: Done.
+
+Decision M34:
+
+- La venta publica sigue bloqueada hasta tener RC `GO`.
+- La compra piloto debe ser explicita y trazable.
+- El siguiente paso real es actualizar URLs/variant IDs reales y ejecutar la compra piloto privada.

@@ -44,6 +44,7 @@ MONETIZATION_M30_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M30.md"
 MONETIZATION_M31_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M31.md"
 MONETIZATION_M32_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M32.md"
 MONETIZATION_M33_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M33.md"
+MONETIZATION_M34_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M34.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -348,9 +349,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "checkout_live_readiness_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "checkout_live_readiness_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "commercial_release_candidate_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "commercial_release_candidate_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
+        self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayIngestEndpoint"], "/api/fulfillment/relay-ingest")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayConfigCheckEndpoint"], "/relay/config-check")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayObservabilityEndpoint"], "/relay/observability")
@@ -778,11 +780,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "checkout_live_readiness_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "commercial_release_candidate_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "checkout_live_readiness_ready")
+        self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
+        self.assertIn("commercial_release_candidate", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateEvidenceDir"])
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "commercial_release_candidate_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -838,6 +842,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/license_keypair.ps1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/license_issue.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/checkout_live_readiness.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/commercial_release_candidate.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/fulfillment_request.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/fulfill_from_request.ps1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/relay_bundle.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
@@ -886,7 +891,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m33_decisions(self):
+    def test_monetization_docs_capture_m1_to_m34_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -921,6 +926,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m31 = MONETIZATION_M31_DOC.read_text(encoding="utf-8-sig")
         m32 = MONETIZATION_M32_DOC.read_text(encoding="utf-8-sig")
         m33 = MONETIZATION_M33_DOC.read_text(encoding="utf-8-sig")
+        m34 = MONETIZATION_M34_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
@@ -964,6 +970,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M31", roadmap)
         self.assertIn("Phase M32", roadmap)
         self.assertIn("Phase M33", roadmap)
+        self.assertIn("Phase M34", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -996,6 +1003,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M31: add Render staging apply gate for handoff confirmation and remote gate evidence. Done.", next_steps)
         self.assertIn("Phase M32: add Render staging purchase drill for webhook, queue and dispatch evidence. Done.", next_steps)
         self.assertIn("Phase M33: add checkout live readiness gate for Lemon Squeezy URLs, variants and rollback. Done.", next_steps)
+        self.assertIn("Phase M34: add commercial release candidate gate for ZIP, readiness, pilot purchase and rollback evidence. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -1516,6 +1524,21 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("providerVariantId", checkout_live_readiness)
         self.assertIn("rollback", checkout_live_readiness)
 
+        m34_patterns = [
+            "commercial_release_candidate_ready",
+            "commercial_release_candidate.py",
+            "pilot purchase",
+            "ZIP SHA256",
+            "Estado: Done.",
+        ]
+        for pattern in m34_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m34)
+        commercial_rc = (PROJECT_ROOT / "docs" / "sales" / "COMMERCIAL_RELEASE_CANDIDATE.md").read_text(encoding="utf-8-sig")
+        self.assertIn("Commercial Release Candidate", commercial_rc)
+        self.assertIn("pilot purchase", commercial_rc)
+        self.assertIn("ZIP SHA256", commercial_rc)
+
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
@@ -1682,6 +1705,20 @@ class DashboardStaticTestCase(unittest.TestCase):
             "render_staging_purchase_drill_missing",
             "rollback_steps",
             "SQX_RELAY_PUBLIC_BASE_URL",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, text)
+
+    def test_commercial_release_candidate_tool_is_present_and_guarded(self):
+        path = TOOL_ROOT / "tools" / "commercial_release_candidate.py"
+        py_compile.compile(str(path), doraise=True)
+        text = path.read_text(encoding="utf-8")
+        for pattern in (
+            "commercial_release_candidate_ready",
+            "production_public_key_placeholder",
+            "pilot_purchase_not_confirmed",
+            "ZIP SHA256",
+            "checkout_live_readiness_not_go",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, text)

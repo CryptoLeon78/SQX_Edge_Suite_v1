@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Commercial release candidate
+
+- Anade `commercial_release_candidate.py` para validar ZIP, SHA256, readiness, clave publica y compra piloto.
+- Bloquea venta publica si falta evidencia M33 `GO`, compra piloto o clave publica final.
+- Genera evidencia JSON/Markdown en `backend/sqx-edge-tool/data/commercial_release_candidate`.
+- Actualiza manifiesto a `commercial_release_candidate_ready`.
+
 ## 2026-05-06 - Checkout live readiness
 
 - Anade `checkout_live_readiness.py` para validar URLs Lemon, variantes, soporte y rollback antes de venta publica.
