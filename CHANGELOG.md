@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Render staging gate
+
+- Anade `render_staging_gate.py` como compuerta GO/NO-GO antes del despliegue vivo.
+- Exige handshake Render `GO`, URL staging y evidencia remota `GO`.
+- Guarda evidencia local en `backend/sqx-edge-relay/data/render_staging_gate`.
+- Actualiza manifiesto a `relay_render_staging_gate_ready`.
+
 ## 2026-05-06 - Render credential handshake
 
 - Anade `render_credentials_handshake.py` para validar politica de credenciales antes del deploy real.

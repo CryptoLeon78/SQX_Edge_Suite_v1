@@ -121,6 +121,16 @@ python tools\render_credentials_handshake.py
 
 El handshake devuelve `NO-GO` si faltan `RENDER_API_KEY` o `RENDER_OWNER_ID`, si detecta placeholders o si aparece una password de cuenta en `RENDER_PASSWORD` o `RENDER_ACCOUNT_PASSWORD`. Las evidencias se guardan en `data/render_preflight_evidence`, que no se sube al repo.
 
+## Render staging gate
+
+Antes de conectar pagos o webhooks reales, ejecuta la compuerta final de staging:
+
+```powershell
+python tools\render_staging_gate.py
+```
+
+La compuerta exige handshake `GO`, URL staging y evidencia remota `GO`. Sin credenciales reales o sin URL staging devuelve `NO-GO` y guarda el reporte en `data/render_staging_gate`.
+
 ## Worker de dispatch
 
 Una vez configurado `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_LOCAL_INGEST_URL`, puedes lanzar el worker:

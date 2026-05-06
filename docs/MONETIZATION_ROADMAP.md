@@ -517,3 +517,23 @@ Decision M23:
 - Si aparece password de cuenta Render en entorno, la decision es `NO-GO`.
 - El deploy real solo avanza con `RENDER_API_KEY`, `RENDER_OWNER_ID` y blueprint validado.
 - La evidencia del handshake queda en `backend/sqx-edge-relay/data/render_preflight_evidence`.
+
+## Phase M24 - Render Staging Gate
+
+Objetivo: crear una compuerta GO/NO-GO que impida avanzar a staging vivo sin credenciales, URL y smoke remoto validados.
+
+Entregables:
+
+- Estado `relay_render_staging_gate_ready`.
+- `render_staging_gate.py`.
+- Evidencia local en `backend/sqx-edge-relay/data/render_staging_gate`.
+- Integracion con handshake Render y `staging_evidence.py`.
+- Guia `RENDER_STAGING_GATE.md`.
+
+Estado: Done.
+
+Decision M24:
+
+- Sin handshake Render `GO`, la compuerta devuelve `NO-GO`.
+- Sin URL staging, la compuerta devuelve `NO-GO`.
+- Antes de conectar pagos reales, `staging_evidence.py` debe devolver `GO`.

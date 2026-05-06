@@ -27,6 +27,7 @@ relay_observability = _load_module("sqx_edge_relay_observability_test", "core/re
 deployment_check = _load_module("sqx_edge_relay_deployment_check_test", "tools/deployment_check.py")
 render_api_preflight = _load_module("sqx_edge_relay_render_api_preflight_test", "tools/render_api_preflight.py")
 render_credentials_handshake = _load_module("sqx_edge_relay_render_credentials_handshake_test", "tools/render_credentials_handshake.py")
+render_staging_gate = _load_module("sqx_edge_relay_render_staging_gate_test", "tools/render_staging_gate.py")
 staging_smoke = _load_module("sqx_edge_relay_staging_smoke_test", "tools/staging_smoke.py")
 staging_evidence = _load_module("sqx_edge_relay_staging_evidence_test", "tools/staging_evidence.py")
 
@@ -300,3 +301,30 @@ class RelayQueueTestCase(unittest.TestCase):
             )
         self.assertTrue(report["decision"]["go"])
         self.assertEqual(report["credential_policy"], "api_key_only_no_account_password")
+
+    def test_render_staging_gate_blocks_without_go_handshake(self):
+        handshake = {"decision": {"go": False, "blockers": ["render_api_key_missing"]}}
+        with tempfile.TemporaryDirectory() as tmp:
+            handshake_path = Path(tmp) / "render_credential_handshake_demo.json"
+            handshake_path.write_text(json.dumps(handshake), encoding="utf-8")
+            report = render_staging_gate.collect_gate(handshake_file=handshake_path, output_dir=Path(tmp))
+            self.assertTrue(Path(report["evidence_paths"]["json"]).is_file())
+        self.assertFalse(report["decision"]["go"])
+        self.assertIn("render_credential_handshake_not_go", report["decision"]["blockers"])
+        self.assertIn("render_staging_url_missing", report["decision"]["blockers"])
+
+    def test_render_staging_gate_go_with_mocked_remote_evidence(self):
+        handshake = {"decision": {"go": True, "blockers": []}}
+        staging = {"decision": {"go": True, "blockers": [], "warnings": []}}
+        with tempfile.TemporaryDirectory() as tmp, \
+                patch.object(render_staging_gate.staging_evidence, "collect_evidence", return_value=staging), \
+                patch.object(render_staging_gate.staging_evidence, "write_evidence", return_value={"json": "staging.json", "markdown": "staging.md"}):
+            handshake_path = Path(tmp) / "render_credential_handshake_demo.json"
+            handshake_path.write_text(json.dumps(handshake), encoding="utf-8")
+            report = render_staging_gate.collect_gate(
+                handshake_file=handshake_path,
+                base_url="https://staging.example.com",
+                output_dir=Path(tmp),
+            )
+        self.assertTrue(report["decision"]["go"])
+        self.assertEqual(report["staging_evidence"]["evidence_paths"]["json"], "staging.json")

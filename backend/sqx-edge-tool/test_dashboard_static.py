@@ -34,6 +34,7 @@ MONETIZATION_M20_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M20.md"
 MONETIZATION_M21_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M21.md"
 MONETIZATION_M22_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M22.md"
 MONETIZATION_M23_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M23.md"
+MONETIZATION_M24_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M24.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -338,7 +339,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_render_credentials_handshake_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_render_staging_gate_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayIngestEndpoint"], "/api/fulfillment/relay-ingest")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayConfigCheckEndpoint"], "/relay/config-check")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayObservabilityEndpoint"], "/relay/observability")
@@ -352,6 +353,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("staging_evidence.py", product_manifest["upgrade"]["checkout"]["automation"]["relayStagingEvidenceTool"])
         self.assertIn("render_api_preflight.py", product_manifest["upgrade"]["checkout"]["automation"]["relayRenderApiPreflightTool"])
         self.assertIn("render_credentials_handshake.py", product_manifest["upgrade"]["checkout"]["automation"]["relayRenderCredentialsHandshakeTool"])
+        self.assertIn("render_staging_gate.py", product_manifest["upgrade"]["checkout"]["automation"]["relayRenderStagingGateTool"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayRenderCredentialPolicy"], "api_key_only_no_account_password")
         self.assertIn(".env.staging.example", product_manifest["upgrade"]["checkout"]["automation"]["relayStagingEnvExample"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayRecommendedStagingProvider"], "render")
@@ -759,7 +761,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_render_credentials_handshake_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_render_staging_gate_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -862,7 +864,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m23_decisions(self):
+    def test_monetization_docs_capture_m1_to_m24_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -887,6 +889,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m21 = MONETIZATION_M21_DOC.read_text(encoding="utf-8-sig")
         m22 = MONETIZATION_M22_DOC.read_text(encoding="utf-8-sig")
         m23 = MONETIZATION_M23_DOC.read_text(encoding="utf-8-sig")
+        m24 = MONETIZATION_M24_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
@@ -920,6 +923,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M21", roadmap)
         self.assertIn("Phase M22", roadmap)
         self.assertIn("Phase M23", roadmap)
+        self.assertIn("Phase M24", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -942,6 +946,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M21: choose Render staging path and add evidence go/no-go collector. Done.", next_steps)
         self.assertIn("Phase M22: add Render API preflight for key, owner and blueprint validation. Done.", next_steps)
         self.assertIn("Phase M23: add Render credential handshake and no-password guardrail. Done.", next_steps)
+        self.assertIn("Phase M24: add Render staging go/no-go gate before live deployment. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -1307,6 +1312,23 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Render Credential Handshake", render_handshake)
         self.assertIn("NO-GO", render_handshake)
         self.assertIn("RENDER_PASSWORD", render_handshake)
+
+        m24_patterns = [
+            "relay_render_staging_gate_ready",
+            "render_staging_gate.py",
+            "render_credentials_handshake.py",
+            "staging_evidence.py",
+            "render_staging_gate",
+            "Estado: Done.",
+        ]
+        for pattern in m24_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m24)
+        render_gate = (PROJECT_ROOT / "docs" / "sales" / "RENDER_STAGING_GATE.md").read_text(encoding="utf-8-sig")
+        self.assertIn("Render Staging Gate", render_gate)
+        self.assertIn("render_staging_gate.py", render_gate)
+        self.assertIn("GO", render_gate)
+        self.assertIn("NO-GO", render_gate)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
