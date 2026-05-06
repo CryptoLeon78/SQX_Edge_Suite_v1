@@ -64,3 +64,4 @@ Persistent planning note for the next SQX Edge phases.
 36. Phase M36: add limited public launch gate for first sale cap, support, checkout and rollback evidence. Done.
 37. Phase M37: add post-launch control for sales, activations, support, refunds and scale decision evidence. Done.
 38. Phase M38: add commercial feedback loop for issue classification, pricing, copy and version decisions. Done.
+39. Phase M39: add public offer pack for controlled offer copy, FAQ, release notes and buyer steps. Done.

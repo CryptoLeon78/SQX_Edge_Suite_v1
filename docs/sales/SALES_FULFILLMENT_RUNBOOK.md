@@ -13,6 +13,7 @@
 - `limited_public_launch.py` ejecutado y en `GO` antes de compartir un enlace publico limitado.
 - `post_launch_control.py` ejecutado antes de escalar mas alla de la venta limitada.
 - `commercial_feedback_loop.py` ejecutado antes de cambiar precio, copy u oferta.
+- `public_offer_pack.py` ejecutado antes de publicar pagina u oferta abierta.
 
 ## Sale To Delivery
 

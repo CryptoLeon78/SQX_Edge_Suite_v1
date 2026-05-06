@@ -871,6 +871,7 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/tools/limited_public_launch.py",
         "backend/sqx-edge-tool/tools/post_launch_control.py",
         "backend/sqx-edge-tool/tools/commercial_feedback_loop.py",
+        "backend/sqx-edge-tool/tools/public_offer_pack.py",
         "backend/sqx-edge-tool/tools/fulfillment_request.py",
         "backend/sqx-edge-tool/tools/fulfill_from_request.ps1",
         "backend/sqx-edge-tool/tools/relay_bundle.py"
@@ -1017,7 +1018,7 @@ window.SQX_MANIFEST = {
       "checkoutLabel": "Comprar Pro",
       "checkoutUrl": "",
       "checkout": {
-        "status": "commercial_feedback_loop_ready",
+        "status": "public_offer_pack_ready",
         "primaryProvider": "Lemon Squeezy",
         "fallbackProvider": "Gumroad",
         "mode": "hosted_checkout",
@@ -1043,9 +1044,12 @@ window.SQX_MANIFEST = {
         "commercialFeedbackLoopTool": "backend/sqx-edge-tool/tools/commercial_feedback_loop.py",
         "commercialFeedbackLoopEvidenceDir": "backend/sqx-edge-tool/data/commercial_feedback_loop",
         "commercialFeedbackLoopPolicy": "classify_feedback_before_offer_changes",
+        "publicOfferPackTool": "backend/sqx-edge-tool/tools/public_offer_pack.py",
+        "publicOfferPackEvidenceDir": "backend/sqx-edge-tool/data/public_offer_pack",
+        "publicOfferPackPolicy": "review_copy_faq_release_notes_before_public_page",
         "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
         "automation": {
-          "status": "commercial_feedback_loop_ready",
+          "status": "public_offer_pack_ready",
           "webhookProvider": "Lemon Squeezy",
           "webhookSignatureHeader": "X-Signature",
           "webhookSigningAlgorithm": "hmac_sha256_hex",

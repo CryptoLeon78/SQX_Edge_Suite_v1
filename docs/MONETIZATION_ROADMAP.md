@@ -842,3 +842,24 @@ Decision M38:
 - No se cambia precio ni copy sin feedback revisado, roadmap actualizado y owner de release notes.
 - Bugs severos y friccion de activacion bloquean escalar la oferta hasta tener fix o docs.
 - El siguiente paso real es preparar pagina/oferta publica controlada con copy revisado y FAQ comercial.
+
+## Phase M39 - Public Offer Pack
+
+Objetivo: convertir feedback revisado en una oferta publica controlada, clara y segura para comprador basico.
+
+Entregables:
+
+- Estado `public_offer_pack_ready`.
+- `public_offer_pack.py`.
+- Consumo de evidencia M38.
+- Validacion de headline, subheadline, FAQ, release notes, buyer steps, soporte, checkout y claims seguros.
+- Evidencia local en `backend/sqx-edge-tool/data/public_offer_pack`.
+- Guia `PUBLIC_OFFER_PACK.md`.
+
+Estado: Done.
+
+Decision M39:
+
+- No se publica oferta si faltan instrucciones de comprador, FAQ, release notes o checkout.
+- Los claims financieros prohibidos bloquean la publicacion.
+- El siguiente paso real es preparar assets de lanzamiento y draft de GitHub Release/pagina publica.

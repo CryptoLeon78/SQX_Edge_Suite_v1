@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Public offer pack
+
+- Anade `public_offer_pack.py` para validar copy, FAQ, release notes, buyer steps y pagina publica.
+- Bloquea claims financieros prohibidos y oferta publica incompleta.
+- Genera evidencia JSON/Markdown en `backend/sqx-edge-tool/data/public_offer_pack`.
+- Actualiza manifiesto a `public_offer_pack_ready`.
+
 ## 2026-05-06 - Commercial feedback loop
 
 - Anade `commercial_feedback_loop.py` para clasificar feedback y decidir version, precio, copy y siguiente accion.
