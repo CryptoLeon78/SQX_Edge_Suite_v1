@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Local ingest staging session
+
+- Anade `local_ingest_staging_session.py` para orquestar backend local, tunel e ingest check.
+- Mantiene arranque de backend/tunel como opt-in con `--start-backend` y `--start-tunnel`.
+- Genera evidencia unica para la sesion previa a Render staging.
+- Actualiza manifiesto a `relay_local_ingest_staging_session_ready`.
+
 ## 2026-05-06 - Local ingest tunnel launcher
 
 - Anade `local_ingest_tunnel_launcher.py` para detectar `cloudflared`, `ngrok` o `localtunnel`.

@@ -28,6 +28,7 @@ class RelayStaticTestCase(unittest.TestCase):
             RELAY_ROOT / "tools" / "deployment_check.py",
             RELAY_ROOT / "tools" / "local_ingest_tunnel_check.py",
             RELAY_ROOT / "tools" / "local_ingest_tunnel_launcher.py",
+            RELAY_ROOT / "tools" / "local_ingest_staging_session.py",
             RELAY_ROOT / "tools" / "render_api_preflight.py",
             RELAY_ROOT / "tools" / "render_credentials_handshake.py",
             RELAY_ROOT / "tools" / "render_staging_gate.py",
@@ -59,6 +60,7 @@ class RelayStaticTestCase(unittest.TestCase):
         deployment_check = (RELAY_ROOT / "tools" / "deployment_check.py").read_text(encoding="utf-8-sig")
         local_ingest_tunnel_check = (RELAY_ROOT / "tools" / "local_ingest_tunnel_check.py").read_text(encoding="utf-8-sig")
         local_ingest_tunnel_launcher = (RELAY_ROOT / "tools" / "local_ingest_tunnel_launcher.py").read_text(encoding="utf-8-sig")
+        local_ingest_staging_session = (RELAY_ROOT / "tools" / "local_ingest_staging_session.py").read_text(encoding="utf-8-sig")
         render_api_preflight = (RELAY_ROOT / "tools" / "render_api_preflight.py").read_text(encoding="utf-8-sig")
         render_credentials_handshake = (RELAY_ROOT / "tools" / "render_credentials_handshake.py").read_text(encoding="utf-8-sig")
         render_staging_gate = (RELAY_ROOT / "tools" / "render_staging_gate.py").read_text(encoding="utf-8-sig")
@@ -86,6 +88,7 @@ class RelayStaticTestCase(unittest.TestCase):
             "deployment_check.py",
             "local_ingest_tunnel_check.py",
             "local_ingest_tunnel_launcher.py",
+            "local_ingest_staging_session.py",
             "render_api_preflight.py",
             "render_credentials_handshake.py",
             "render_staging_gate.py",
@@ -111,6 +114,9 @@ class RelayStaticTestCase(unittest.TestCase):
         self.assertIn("ngrok", local_ingest_tunnel_launcher)
         self.assertIn("localtunnel", local_ingest_tunnel_launcher)
         self.assertIn("public_tunnel_url_not_detected", local_ingest_tunnel_launcher)
+        self.assertIn("--start-backend", local_ingest_staging_session)
+        self.assertIn("--start-tunnel", local_ingest_staging_session)
+        self.assertIn("local_ingest_staging_session", local_ingest_staging_session)
         self.assertIn("RENDER_API_KEY", render_api_preflight)
         self.assertIn("/blueprints/validate", render_api_preflight)
         self.assertIn("multipart/form-data", render_api_preflight)

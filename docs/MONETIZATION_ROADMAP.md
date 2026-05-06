@@ -623,3 +623,25 @@ Decision M28:
 - No se arranca ningun tunel por defecto.
 - `cloudflared` es el proveedor recomendado si esta instalado.
 - El siguiente paso real es instalar/usar un proveedor y ejecutar `--start` con el backend local encendido.
+
+## Phase M29 - Local Ingest Staging Session
+
+Objetivo: orquestar backend local, tunel publico e ingest check firmado desde una unica evidencia.
+
+Entregables:
+
+- Estado `relay_local_ingest_staging_session_ready`.
+- `local_ingest_staging_session.py`.
+- Arranque opt-in de backend con `--start-backend`.
+- Arranque opt-in de tunel con `--start-tunnel`.
+- Check firmado opcional con `--send-bundle`.
+- Evidencia local en `backend/sqx-edge-relay/data/local_ingest_staging_session`.
+- Guia `LOCAL_INGEST_STAGING_SESSION.md`.
+
+Estado: Done.
+
+Decision M29:
+
+- El comando por defecto no abre procesos persistentes.
+- Una sesion `GO` exige backend sano, URL publica detectada e ingest check correcto si hay tunnel.
+- El siguiente paso real es ejecutar la sesion con backend/tunel reales y pasar la URL a Render.

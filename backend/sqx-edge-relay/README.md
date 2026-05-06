@@ -183,6 +183,22 @@ python tools\local_ingest_tunnel_launcher.py --start
 
 Detecta `cloudflared`, `ngrok` o `npx localtunnel`, valida `http://127.0.0.1:5050/api/health` y, si detecta URL publica, calcula la URL final `/api/fulfillment/relay-ingest`.
 
+## Local ingest staging session
+
+Para orquestar backend local, tunel e ingest check desde un solo reporte:
+
+```powershell
+python tools\local_ingest_staging_session.py
+```
+
+Con arranque opt-in:
+
+```powershell
+python tools\local_ingest_staging_session.py --start-backend --start-tunnel --relay-secret <SQX_FULFILLMENT_RELAY_SECRET> --send-bundle
+```
+
+La evidencia queda en `data/local_ingest_staging_session`.
+
 ## Worker de dispatch
 
 Una vez configurado `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_LOCAL_INGEST_URL`, puedes lanzar el worker:

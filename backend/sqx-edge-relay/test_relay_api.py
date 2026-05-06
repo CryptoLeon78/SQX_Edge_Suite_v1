@@ -27,6 +27,7 @@ relay_observability = _load_module("sqx_edge_relay_observability_test", "core/re
 deployment_check = _load_module("sqx_edge_relay_deployment_check_test", "tools/deployment_check.py")
 local_ingest_tunnel_check = _load_module("sqx_edge_relay_local_ingest_tunnel_check_test", "tools/local_ingest_tunnel_check.py")
 local_ingest_tunnel_launcher = _load_module("sqx_edge_relay_local_ingest_tunnel_launcher_test", "tools/local_ingest_tunnel_launcher.py")
+local_ingest_staging_session = _load_module("sqx_edge_relay_local_ingest_staging_session_test", "tools/local_ingest_staging_session.py")
 render_api_preflight = _load_module("sqx_edge_relay_render_api_preflight_test", "tools/render_api_preflight.py")
 render_credentials_handshake = _load_module("sqx_edge_relay_render_credentials_handshake_test", "tools/render_credentials_handshake.py")
 render_staging_gate = _load_module("sqx_edge_relay_render_staging_gate_test", "tools/render_staging_gate.py")
@@ -444,3 +445,33 @@ class RelayQueueTestCase(unittest.TestCase):
             report = local_ingest_tunnel_launcher.collect_launch(start=True, write=False)
         self.assertTrue(report["decision"]["go"])
         self.assertEqual(report["ingest_url"], "https://demo.trycloudflare.com/api/fulfillment/relay-ingest")
+
+    def test_local_ingest_staging_session_blocks_when_backend_down(self):
+        health = {"ok": False, "status": 0, "payload": {"error": "down"}}
+        tunnel = {"provider": "cloudflared", "public_url": "", "ingest_url": "", "decision": {"go": False}}
+        with patch.object(local_ingest_staging_session, "wait_for_health", return_value=health), \
+                patch.object(local_ingest_staging_session.local_ingest_tunnel_launcher, "collect_launch", return_value=tunnel):
+            report = local_ingest_staging_session.collect_session(write=False)
+        self.assertFalse(report["decision"]["go"])
+        self.assertIn("local_backend_health_failed", report["decision"]["blockers"])
+
+    def test_local_ingest_staging_session_go_with_tunnel_and_check(self):
+        health = {"ok": True, "status": 200, "payload": {"ok": True}}
+        tunnel = {
+            "provider": "cloudflared",
+            "public_url": "https://demo.trycloudflare.com",
+            "ingest_url": "https://demo.trycloudflare.com/api/fulfillment/relay-ingest",
+            "decision": {"go": True, "blockers": [], "warnings": []},
+        }
+        ingest = {"decision": {"go": True, "blockers": [], "warnings": []}}
+        with patch.object(local_ingest_staging_session, "wait_for_health", return_value=health), \
+                patch.object(local_ingest_staging_session.local_ingest_tunnel_launcher, "collect_launch", return_value=tunnel), \
+                patch.object(local_ingest_staging_session.local_ingest_tunnel_check, "collect_check", return_value=ingest):
+            report = local_ingest_staging_session.collect_session(
+                relay_secret="r" * 40,
+                start_tunnel=True,
+                send_bundle=True,
+                write=False,
+            )
+        self.assertTrue(report["decision"]["go"])
+        self.assertEqual(report["ingest_check"], ingest)

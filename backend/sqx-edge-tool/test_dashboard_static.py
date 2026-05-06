@@ -39,6 +39,7 @@ MONETIZATION_M25_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M25.md"
 MONETIZATION_M26_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M26.md"
 MONETIZATION_M27_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M27.md"
 MONETIZATION_M28_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M28.md"
+MONETIZATION_M29_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M29.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -343,7 +344,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_local_ingest_tunnel_launcher_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_local_ingest_staging_session_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayIngestEndpoint"], "/api/fulfillment/relay-ingest")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayConfigCheckEndpoint"], "/relay/config-check")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayObservabilityEndpoint"], "/relay/observability")
@@ -362,6 +363,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("render_staging_secrets_kit.py", product_manifest["upgrade"]["checkout"]["automation"]["relayRenderStagingSecretsKitTool"])
         self.assertIn("local_ingest_tunnel_check.py", product_manifest["upgrade"]["checkout"]["automation"]["relayLocalIngestTunnelCheckTool"])
         self.assertIn("local_ingest_tunnel_launcher.py", product_manifest["upgrade"]["checkout"]["automation"]["relayLocalIngestTunnelLauncherTool"])
+        self.assertIn("local_ingest_staging_session.py", product_manifest["upgrade"]["checkout"]["automation"]["relayLocalIngestStagingSessionTool"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayRenderCredentialPolicy"], "api_key_only_no_account_password")
         self.assertIn(".env.staging.example", product_manifest["upgrade"]["checkout"]["automation"]["relayStagingEnvExample"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayRecommendedStagingProvider"], "render")
@@ -769,7 +771,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_local_ingest_tunnel_launcher_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "relay_local_ingest_staging_session_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -872,7 +874,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m28_decisions(self):
+    def test_monetization_docs_capture_m1_to_m29_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -902,6 +904,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m26 = MONETIZATION_M26_DOC.read_text(encoding="utf-8-sig")
         m27 = MONETIZATION_M27_DOC.read_text(encoding="utf-8-sig")
         m28 = MONETIZATION_M28_DOC.read_text(encoding="utf-8-sig")
+        m29 = MONETIZATION_M29_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
@@ -940,6 +943,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M26", roadmap)
         self.assertIn("Phase M27", roadmap)
         self.assertIn("Phase M28", roadmap)
+        self.assertIn("Phase M29", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -967,6 +971,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M26: add Render staging secrets kit for safe provider setup. Done.", next_steps)
         self.assertIn("Phase M27: add local ingest tunnel readiness check before Render staging. Done.", next_steps)
         self.assertIn("Phase M28: add local ingest tunnel launcher and provider detection. Done.", next_steps)
+        self.assertIn("Phase M29: add local ingest staging session orchestrator. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -1411,6 +1416,21 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Local Ingest Tunnel Launcher", local_ingest_launcher)
         self.assertIn("--start", local_ingest_launcher)
         self.assertIn("local_ingest_tunnel_check.py", local_ingest_launcher)
+
+        m29_patterns = [
+            "relay_local_ingest_staging_session_ready",
+            "local_ingest_staging_session.py",
+            "--start-backend",
+            "--start-tunnel",
+            "Estado: Done.",
+        ]
+        for pattern in m29_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m29)
+        local_ingest_session = (PROJECT_ROOT / "docs" / "sales" / "LOCAL_INGEST_STAGING_SESSION.md").read_text(encoding="utf-8-sig")
+        self.assertIn("Local Ingest Staging Session", local_ingest_session)
+        self.assertIn("--send-bundle", local_ingest_session)
+        self.assertIn("SQX_FULFILLMENT_RELAY_SECRET", local_ingest_session)
 
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
