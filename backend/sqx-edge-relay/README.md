@@ -215,6 +215,16 @@ python tools\local_ingest_render_handoff.py --ingest-url https://tu-tunnel.examp
 
 Genera evidencia y un `.env` local en `data/local_ingest_render_handoff`.
 
+## Render staging apply gate
+
+Despues de pegar los valores del handoff en Render staging:
+
+```powershell
+python tools\render_staging_apply_gate.py --use-latest-handoff --confirm-env-applied --use-latest-handshake --base-url https://tu-relay-staging.onrender.com
+```
+
+La evidencia queda en `data/render_staging_apply_gate`. El gate no guarda secretos y bloquea si falta confirmar la aplicacion de variables o si `render_staging_gate.py` no devuelve `GO`.
+
 ## Worker de dispatch
 
 Una vez configurado `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_LOCAL_INGEST_URL`, puedes lanzar el worker:

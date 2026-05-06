@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Render staging apply gate
+
+- Anade `render_staging_apply_gate.py` para validar la aplicacion final de variables en Render.
+- Exige handoff M30 `GO`, confirmacion manual y `render_staging_gate.py` remoto `GO`.
+- Genera evidencia JSON/Markdown en `backend/sqx-edge-relay/data/render_staging_apply_gate`.
+- Actualiza manifiesto a `relay_render_staging_apply_gate_ready`.
+
 ## 2026-05-06 - Local ingest Render handoff
 
 - Anade `local_ingest_render_handoff.py` para convertir sesion local GO en variables listas para Render.

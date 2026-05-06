@@ -32,6 +32,7 @@ local_ingest_render_handoff = _load_module("sqx_edge_relay_local_ingest_render_h
 render_api_preflight = _load_module("sqx_edge_relay_render_api_preflight_test", "tools/render_api_preflight.py")
 render_credentials_handshake = _load_module("sqx_edge_relay_render_credentials_handshake_test", "tools/render_credentials_handshake.py")
 render_staging_gate = _load_module("sqx_edge_relay_render_staging_gate_test", "tools/render_staging_gate.py")
+render_staging_apply_gate = _load_module("sqx_edge_relay_render_staging_apply_gate_test", "tools/render_staging_apply_gate.py")
 render_staging_launch_pack = _load_module("sqx_edge_relay_render_staging_launch_pack_test", "tools/render_staging_launch_pack.py")
 render_staging_secrets_kit = _load_module("sqx_edge_relay_render_staging_secrets_kit_test", "tools/render_staging_secrets_kit.py")
 staging_smoke = _load_module("sqx_edge_relay_staging_smoke_test", "tools/staging_smoke.py")
@@ -334,6 +335,52 @@ class RelayQueueTestCase(unittest.TestCase):
             )
         self.assertTrue(report["decision"]["go"])
         self.assertEqual(report["staging_evidence"]["evidence_paths"]["json"], "staging.json")
+
+    def test_render_staging_apply_gate_blocks_without_confirmation(self):
+        handoff = {
+            "decision": {"go": True, "blockers": []},
+            "render_env_lines": [
+                "SQX_LOCAL_INGEST_URL=https://demo.trycloudflare.com/api/fulfillment/relay-ingest",
+                "SQX_RELAY_WORKER_INTERVAL_SECONDS=30",
+                "SQX_RELAY_WORKER_LIMIT=10",
+            ],
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            handoff_path = Path(tmp) / "local_ingest_render_handoff_demo.json"
+            handoff_path.write_text(json.dumps(handoff), encoding="utf-8")
+            report = render_staging_apply_gate.collect_apply_gate(
+                handoff_file=handoff_path,
+                base_url="https://staging.example.com",
+                skip_remote_gate=True,
+                output_dir=Path(tmp),
+            )
+        self.assertFalse(report["decision"]["go"])
+        self.assertIn("render_env_values_not_confirmed", report["decision"]["blockers"])
+        self.assertIn("render_staging_gate_not_run", report["decision"]["blockers"])
+
+    def test_render_staging_apply_gate_go_with_confirmed_gate(self):
+        handoff = {
+            "decision": {"go": True, "blockers": []},
+            "render_env_lines": [
+                "SQX_LOCAL_INGEST_URL=https://demo.trycloudflare.com/api/fulfillment/relay-ingest",
+                "SQX_RELAY_WORKER_INTERVAL_SECONDS=30",
+                "SQX_RELAY_WORKER_LIMIT=10",
+            ],
+        }
+        gate = {"decision": {"go": True, "blockers": [], "warnings": []}}
+        with tempfile.TemporaryDirectory() as tmp, \
+                patch.object(render_staging_apply_gate.render_staging_gate, "collect_gate", return_value=gate):
+            handoff_path = Path(tmp) / "local_ingest_render_handoff_demo.json"
+            handoff_path.write_text(json.dumps(handoff), encoding="utf-8")
+            report = render_staging_apply_gate.collect_apply_gate(
+                handoff_file=handoff_path,
+                base_url="https://staging.example.com",
+                confirm_env_applied=True,
+                output_dir=Path(tmp),
+            )
+            self.assertTrue(Path(report["evidence_paths"]["json"]).is_file())
+        self.assertTrue(report["decision"]["go"])
+        self.assertEqual(report["remote_gate"], gate)
 
     def test_render_staging_launch_pack_extracts_blueprint_env_keys(self):
         text = "envVars:\n  - key: SQX_LEMON_WEBHOOK_SECRET\n  - key: SQX_LOCAL_INGEST_URL\n"

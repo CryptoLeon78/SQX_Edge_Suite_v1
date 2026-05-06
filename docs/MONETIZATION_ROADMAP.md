@@ -666,3 +666,25 @@ Decision M30:
 - Si se usa evidencia de sesion, por defecto debe ser `GO`.
 - El handoff no contiene secretos de firma, solo URL y valores no sensibles de worker.
 - La siguiente fase real es pegar los valores en Render y ejecutar el staging gate contra URL Render real.
+
+## Phase M31 - Render Staging Apply Gate
+
+Objetivo: validar que los valores del handoff local se han aplicado en Render staging y que el gate remoto devuelve `GO`.
+
+Entregables:
+
+- Estado `relay_render_staging_apply_gate_ready`.
+- `render_staging_apply_gate.py`.
+- Confirmacion obligatoria `--confirm-env-applied`.
+- Consumo de `local_ingest_render_handoff_*.json`.
+- Ejecucion de `render_staging_gate.py` con URL staging real.
+- Evidencia local en `backend/sqx-edge-relay/data/render_staging_apply_gate`.
+- Guia `RENDER_STAGING_APPLY_GATE.md`.
+
+Estado: Done.
+
+Decision M31:
+
+- La herramienta no cambia Render por API ni guarda secretos.
+- El `GO` requiere handoff M30 `GO`, valores confirmados y gate remoto `GO`.
+- La siguiente fase real es una compra staging completa con webhook demo, cola y dispatch hacia ingest local.
