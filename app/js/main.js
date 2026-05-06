@@ -20,6 +20,10 @@ if (window.SQX && window.SQX.support) {
   window.SQX.support.init();
 }
 
+if (window.SQX && window.SQX.fulfillment) {
+  window.SQX.fulfillment.init();
+}
+
 if (window.SQX && window.SQX.workflow) {
   window.SQX.workflow.init();
 }

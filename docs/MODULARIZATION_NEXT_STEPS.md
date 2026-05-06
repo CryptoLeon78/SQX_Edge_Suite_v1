@@ -39,3 +39,4 @@ Persistent planning note for the next SQX Edge phases.
 11. Phase M11: prepare checkout wiring and manual sales fulfillment. Done.
 12. Phase M12: prepare local webhook-to-fulfillment automation bridge. Done.
 13. Phase M13: add private receiver with persistent queue and deduplication. Done.
+14. Phase M14: add operator states, retries and dashboard queue cockpit. Done.

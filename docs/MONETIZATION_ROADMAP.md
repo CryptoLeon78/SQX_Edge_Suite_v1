@@ -308,3 +308,24 @@ Decision M13:
 - La cola sigue siendo local y privada.
 - El operador conserva control manual del paso final de fulfillment.
 - La siguiente fase natural es exponerlo de forma controlada con receiver privado/tunel y reintentos.
+
+## Phase M14 - Operator States And Retry Cockpit
+
+Objetivo: dar al operador una forma clara de revisar la cola, cambiar estados y reintentar fulfillment desde el propio dashboard.
+
+Entregables:
+
+- Estado operativo por request (`queued`, `needs_review`, `failed`, `completed`, `ignored`).
+- Contador de intentos y ultimo error persistidos en cada request.
+- Endpoint `POST /api/fulfillment/request-status`.
+- Resumen de cola y receiver en `GET /api/fulfillment/requests`.
+- Panel de fulfillment en Inicio para refrescar, ignorar, recolar y procesar.
+
+Estado: Done.
+
+Decision M14:
+
+- El reintento sigue siendo manual y consciente, pero ahora queda trazado.
+- El dashboard interno actua como queue cockpit ligero para operador.
+- Los requests no se eliminan al fallar; conservan `attempt_count`, `last_error` y ultimo recibo.
+- El siguiente paso natural es M15: receiver remoto controlado o integracion webhook segura hacia esta cola privada.

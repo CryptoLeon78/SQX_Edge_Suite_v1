@@ -28,7 +28,7 @@ flowchart TD
   DATA --> CFG["app-config.js"]
 
   MOD --> CORE["core.js"]
-  MOD --> FEAT["domain/renderers/charts/strategies/home/support/workflow"]
+  MOD --> FEAT["domain/renderers/charts/strategies/home/support/fulfillment/workflow"]
   MOD --> PG["project-generator-* modules"]
   MOD --> IDX["index.js boot"]
 
@@ -65,20 +65,21 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 15. `js/modules/strategies.js`
 16. `js/modules/home.js`
 17. `js/modules/support.js`
-18. `js/modules/workflow.js`
-19. `js/modules/project-generator-core.js`
-20. `js/modules/project-generator-config.js`
-21. `js/modules/project-generator-dom.js`
-22. `js/modules/project-generator-bindings.js`
-23. `js/modules/project-generator-renderers.js`
-24. `js/modules/project-generator-status.js`
-25. `js/modules/project-generator-cleaner.js`
-26. `js/modules/project-generator.js`
-27. `js/modules/index.js`
-28. `js/data.js`
-29. `js/dashboard.js`
-30. `js/main.js`
-31. `js/project-generator-main.js`
+18. `js/modules/fulfillment.js`
+19. `js/modules/workflow.js`
+20. `js/modules/project-generator-core.js`
+21. `js/modules/project-generator-config.js`
+22. `js/modules/project-generator-dom.js`
+23. `js/modules/project-generator-bindings.js`
+24. `js/modules/project-generator-renderers.js`
+25. `js/modules/project-generator-status.js`
+26. `js/modules/project-generator-cleaner.js`
+27. `js/modules/project-generator.js`
+28. `js/modules/index.js`
+29. `js/data.js`
+30. `js/dashboard.js`
+31. `js/main.js`
+32. `js/project-generator-main.js`
 
 ## Why This Order Matters
 
@@ -107,6 +108,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/strategies.js` | Strategy UI contracts, deletion/import state, strategy metadata. |
 | `modules/home.js` | Inicio tab model, trace and summary helpers. |
 | `modules/support.js` | Safe support diagnostics download from the local API. |
+| `modules/fulfillment.js` | Internal operator queue cockpit for manual fulfillment states and retries. |
 | `modules/workflow.js` | Workflow tab initialization and subtab behavior. |
 | `modules/project-generator-core.js` | Project Generator shared helpers and API primitives. |
 | `modules/project-generator-config.js` | Project Generator config read/write helpers. |
@@ -137,6 +139,8 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `backend/sqx-edge-tool/core/config_loader.py` | Config loading and defaults. |
 | `backend/sqx-edge-tool/core/sqx_db.py` | SQX database verification and access helpers. |
 | `backend/sqx-edge-tool/core/support_diagnostics.py` | Redacted support diagnostics payload builder. |
+| `backend/sqx-edge-tool/core/fulfillment_normalizer.py` | Shared Lemon Squeezy normalization and signature verification. |
+| `backend/sqx-edge-tool/core/fulfillment_queue.py` | Persistent fulfillment queue, operator status and retry tracking. |
 | `backend/sqx-edge-tool/config/*.json` | Dynamic catalogs for assets, instruments, profiles, plan and UI manifest. |
 | `backend/sqx-edge-tool/templates/*.cfx` | StrategyQuant template files used by generation. |
 

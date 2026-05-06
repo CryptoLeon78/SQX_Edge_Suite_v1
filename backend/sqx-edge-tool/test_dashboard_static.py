@@ -24,6 +24,7 @@ MONETIZATION_M10_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M10.md"
 MONETIZATION_M11_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M11.md"
 MONETIZATION_M12_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M12.md"
 MONETIZATION_M13_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M13.md"
+MONETIZATION_M14_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M14.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -53,6 +54,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/strategies.js",
                 "js/modules/home.js",
                 "js/modules/support.js",
+                "js/modules/fulfillment.js",
                 "js/modules/workflow.js",
                 "js/modules/project-generator-core.js",
                 "js/modules/project-generator-config.js",
@@ -101,6 +103,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/strategies.js",
             "js/modules/home.js",
             "js/modules/support.js",
+            "js/modules/fulfillment.js",
             "js/modules/workflow.js",
             "js/modules/project-generator-core.js",
             "js/modules/project-generator-config.js",
@@ -130,6 +133,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         strategies_js = (APP_ROOT / "js" / "modules" / "strategies.js").read_text(encoding="utf-8-sig")
         home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
         support_js = (APP_ROOT / "js" / "modules" / "support.js").read_text(encoding="utf-8-sig")
+        fulfillment_js = (APP_ROOT / "js" / "modules" / "fulfillment.js").read_text(encoding="utf-8-sig")
         workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
         project_generator_core_js = (APP_ROOT / "js" / "modules" / "project-generator-core.js").read_text(encoding="utf-8-sig")
         project_generator_config_js = (APP_ROOT / "js" / "modules" / "project-generator-config.js").read_text(encoding="utf-8-sig")
@@ -156,6 +160,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.strategies", strategies_js)
         self.assertIn("SQX.home", home_js)
         self.assertIn("SQX.support", support_js)
+        self.assertIn("SQX.fulfillment", fulfillment_js)
         self.assertIn("SQX.workflow", workflow_js)
         self.assertIn("SQX.projectGenerator", project_generator_core_js)
         self.assertIn("SQX.projectGenerator", project_generator_config_js)
@@ -280,6 +285,52 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("strategy_files", support_py)
         self.assertEqual(product_manifest["support"]["diagnosticsEndpoint"], "/api/support/diagnostics")
         self.assertTrue(product_manifest["support"]["safeToSend"])
+
+    def test_fulfillment_operator_module_and_ui_are_wired(self):
+        main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
+        fulfillment_js = (APP_ROOT / "js" / "modules" / "fulfillment.js").read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        expected_ids = [
+            "fulfillment-panel",
+            "fulfillment-refresh-btn",
+            "fulfillment-queue-count",
+            "fulfillment-needs-review-count",
+            "fulfillment-failed-count",
+            "fulfillment-processed-count",
+            "fulfillment-private-key",
+            "fulfillment-zip-path",
+            "fulfillment-support-email",
+            "fulfillment-queue-status",
+            "fulfillment-request-list",
+            "fulfillment-empty",
+        ]
+        for element_id in expected_ids:
+            with self.subTest(element_id=element_id):
+                self.assertIn(f'id="{element_id}"', self.html)
+
+        for export in [
+            "fetchQueue",
+            "handleAction",
+            "loadSettings",
+            "processRequest",
+            "renderQueue",
+            "saveSettings",
+            "setStatus",
+            "storageKey",
+            "updateRequestStatus",
+        ]:
+            with self.subTest(export=export):
+                self.assertIn(export, fulfillment_js)
+
+        self.assertIn("js/modules/fulfillment.js", self.html)
+        self.assertIn("window.SQX.fulfillment.init()", main_js)
+        self.assertIn("/api/fulfillment/request-status", server_py)
+        self.assertIn("fulfillment_queue_overview", server_py)
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "operator_retry_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["requestStatusEndpoint"], "/api/fulfillment/request-status")
+        self.assertTrue(product_manifest["upgrade"]["checkout"]["automation"]["operatorPanelEnabled"])
 
     def test_dashboard_navigation_delegates_to_ui_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
@@ -681,7 +732,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "private_receiver_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "operator_retry_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -754,7 +805,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m13_decisions(self):
+    def test_monetization_docs_capture_m1_to_m14_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -769,9 +820,11 @@ class DashboardStaticTestCase(unittest.TestCase):
         m11 = MONETIZATION_M11_DOC.read_text(encoding="utf-8-sig")
         m12 = MONETIZATION_M12_DOC.read_text(encoding="utf-8-sig")
         m13 = MONETIZATION_M13_DOC.read_text(encoding="utf-8-sig")
+        m14 = MONETIZATION_M14_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
+        operator_ops = (PROJECT_ROOT / "docs" / "sales" / "FULFILLMENT_OPERATOR_PLAYBOOK.md").read_text(encoding="utf-8-sig")
         commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
         public_roadmap = (PROJECT_ROOT / "docs" / "PUBLIC_ROADMAP.md").read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
@@ -789,6 +842,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M11", roadmap)
         self.assertIn("Phase M12", roadmap)
         self.assertIn("Phase M13", roadmap)
+        self.assertIn("Phase M14", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -801,6 +855,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M11: prepare checkout wiring and manual sales fulfillment. Done.", next_steps)
         self.assertIn("Phase M12: prepare local webhook-to-fulfillment automation bridge. Done.", next_steps)
         self.assertIn("Phase M13: add private receiver with persistent queue and deduplication. Done.", next_steps)
+        self.assertIn("Phase M14: add operator states, retries and dashboard queue cockpit. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -1005,6 +1060,22 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Receiver Daily Flow", receiver_ops)
         self.assertIn("Duplicate Event Rule", receiver_ops)
 
+        m14_patterns = [
+            "operator_retry_ready",
+            "/api/fulfillment/request-status",
+            "manual_retry_with_attempt_log",
+            "operator_status",
+            "attempt_count",
+            "queue cockpit",
+            "dashboard",
+            "Estado: Done.",
+        ]
+        for pattern in m14_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m14)
+        self.assertIn("Retry Loop", operator_ops)
+        self.assertIn("Ignore And Requeue Rules", operator_ops)
+
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
@@ -1075,6 +1146,11 @@ class DashboardStaticTestCase(unittest.TestCase):
             "support-panel",
             "support-diagnostic-btn",
             "support-diagnostic-status",
+            "fulfillment-panel",
+            "fulfillment-queue-count",
+            "fulfillment-request-list",
+            "fulfillment-private-key",
+            "fulfillment-zip-path",
         ]
         for element_id in expected_ids:
             with self.subTest(element_id=element_id):

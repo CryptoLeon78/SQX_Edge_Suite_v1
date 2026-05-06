@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-06 - Operator retry cockpit
+
+- Anade estados operativos y contador de intentos persistidos por request de fulfillment.
+- Anade `POST /api/fulfillment/request-status` y resumen enriquecido en la cola local.
+- Anade panel de fulfillment en Inicio para refrescar, procesar, ignorar y recolar requests.
+- Separa la normalizacion compartida en `core/fulfillment_normalizer.py` para mantener el ZIP portable limpio.
+
 ## 2026-05-06 - Private receiver and queue
 
 - Anade receiver privado local para webhooks de Lemon Squeezy.

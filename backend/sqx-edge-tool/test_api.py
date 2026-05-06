@@ -142,11 +142,28 @@ class ApiTestCase(unittest.TestCase):
             "order_id": "LS-001",
             "plan": "pro_monthly",
             "eligible_for_fulfillment": True,
+            "operator_status": "queued",
+            "attempt_count": 0,
         }]
         processed = [{
             "name": "delivery_receipt_20260506_1.json",
             "request_file": "fulfillment_request_20260506_1.json",
+            "status": "completed",
         }]
+        overview = {
+            "requests": queued,
+            "processed": processed,
+            "summary": {
+                "queued": 1,
+                "processing": 0,
+                "needs_review": 0,
+                "failed": 0,
+                "completed": 0,
+                "ignored": 0,
+                "processed_receipts": 1,
+                "total_requests": 1,
+            },
+        }
         detail = {
             "request_file": "fulfillment_request_20260506_1.json",
             "provider_event_id": "wh_123",
@@ -154,13 +171,15 @@ class ApiTestCase(unittest.TestCase):
         }
         done = {"ok": True, "receipt_file": "delivery_receipt_20260506_1.json"}
 
-        with patch.object(server, "list_fulfillment_requests", return_value=queued), \
-                patch.object(server, "list_processed_receipts", return_value=processed):
+        with patch.object(server, "fulfillment_queue_overview", return_value=overview), \
+                patch.dict(server.os.environ, {"SQX_LEMON_WEBHOOK_SECRET": "secret"}, clear=False):
             listed = self.client.get("/api/fulfillment/requests")
         self.assertEqual(listed.status_code, 200)
         listed_data = self.get_json(listed)
         self.assertEqual(len(listed_data["requests"]), 1)
         self.assertEqual(len(listed_data["processed"]), 1)
+        self.assertEqual(listed_data["summary"]["queued"], 1)
+        self.assertTrue(listed_data["receiver"]["secret_configured"])
 
         with patch.object(server, "load_fulfillment_request", return_value=detail):
             got = self.client.get("/api/fulfillment/requests/fulfillment_request_20260506_1.json")
@@ -184,6 +203,34 @@ class ApiTestCase(unittest.TestCase):
         self.assertEqual(processed_response.status_code, 200)
         self.assertTrue(self.get_json(processed_response)["ok"])
         process.assert_called_once()
+
+    def test_fulfillment_operator_status_endpoint(self):
+        updated = {
+            "ok": True,
+            "summary": {
+                "name": "fulfillment_request_20260506_1.json",
+                "operator_status": "ignored",
+            },
+        }
+        with patch.object(server, "set_fulfillment_request_status", return_value=updated) as setter:
+            response = self.client.post(
+                "/api/fulfillment/request-status",
+                json={
+                    "request_file": "fulfillment_request_20260506_1.json",
+                    "operator_status": "ignored",
+                    "note": "manual skip",
+                },
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.get_json(response)["summary"]["operator_status"], "ignored")
+        setter.assert_called_once()
+
+        with patch.object(server, "set_fulfillment_request_status", side_effect=ValueError("bad status")):
+            invalid = self.client.post(
+                "/api/fulfillment/request-status",
+                json={"request_file": "fulfillment_request_20260506_1.json", "operator_status": "bad"},
+            )
+        self.assertEqual(invalid.status_code, 400)
 
     def test_minings_follow_plan_manifest(self):
         response = self.client.get("/api/minings")

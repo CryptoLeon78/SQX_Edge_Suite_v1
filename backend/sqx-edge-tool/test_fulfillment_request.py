@@ -7,7 +7,9 @@ import tempfile
 import unittest
 from datetime import date
 from pathlib import Path
+from unittest.mock import patch
 
+import core.fulfillment_queue as fulfillment_queue
 from tools.fulfillment_request import (
     normalize_payload,
     verify_lemon_signature,
@@ -248,6 +250,75 @@ class FulfillmentRequestTestCase(unittest.TestCase):
             self.assertTrue((deliveries[0] / "SQX_Edge_Pro_license.json").is_file())
             self.assertTrue((deliveries[0] / "LEEME_PRIMERO.txt").is_file())
             self.assertTrue((deliveries[0] / "delivery_manifest.json").is_file())
+
+    def test_queue_overview_tracks_operator_status_and_attempts(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch.object(fulfillment_queue, "QUEUE_ROOT", root), \
+                    patch.object(fulfillment_queue, "EVENTS_DIR", root / "events"), \
+                    patch.object(fulfillment_queue, "REQUESTS_DIR", root / "requests"), \
+                    patch.object(fulfillment_queue, "PROCESSED_DIR", root / "processed"):
+                fulfillment_queue.ensure_queue_dirs()
+                request_path = fulfillment_queue.REQUESTS_DIR / "fulfillment_request_demo.json"
+                request_path.write_text(
+                    json.dumps(
+                        {
+                            "request_file": "fulfillment_request_demo.json",
+                            "provider_event_id": "wh_demo",
+                            "plan": "pro_monthly",
+                            "customer_email": "demo@example.com",
+                            "eligible_for_fulfillment": True,
+                            "fulfillment_status": "ready_for_license",
+                            "operator_status": "failed",
+                            "attempt_count": 2,
+                            "last_error": "zip missing",
+                            "stored_at": "2026-05-06T15:00:00",
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                (fulfillment_queue.PROCESSED_DIR / "delivery_receipt_demo.json").write_text(
+                    json.dumps({"request_file": "fulfillment_request_demo.json", "status": "failed", "attempt_number": 2}),
+                    encoding="utf-8",
+                )
+
+                overview = fulfillment_queue.queue_overview()
+                self.assertEqual(overview["summary"]["failed"], 1)
+                self.assertEqual(overview["summary"]["processed_receipts"], 1)
+                self.assertEqual(overview["requests"][0]["attempt_count"], 2)
+
+    def test_update_request_status_changes_request_json(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            with patch.object(fulfillment_queue, "QUEUE_ROOT", root), \
+                    patch.object(fulfillment_queue, "EVENTS_DIR", root / "events"), \
+                    patch.object(fulfillment_queue, "REQUESTS_DIR", root / "requests"), \
+                    patch.object(fulfillment_queue, "PROCESSED_DIR", root / "processed"):
+                fulfillment_queue.ensure_queue_dirs()
+                request_path = fulfillment_queue.REQUESTS_DIR / "fulfillment_request_demo.json"
+                request_path.write_text(
+                    json.dumps(
+                        {
+                            "request_file": "fulfillment_request_demo.json",
+                            "provider_event_id": "wh_demo",
+                            "eligible_for_fulfillment": False,
+                            "fulfillment_status": "ignored",
+                            "operator_status": "needs_review",
+                            "stored_at": "2026-05-06T15:00:00",
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+
+                updated = fulfillment_queue.update_request_status(
+                    filename="fulfillment_request_demo.json",
+                    operator_status="ignored",
+                    note="manual skip",
+                )
+                self.assertEqual(updated["summary"]["operator_status"], "ignored")
+                payload = json.loads(request_path.read_text(encoding="utf-8"))
+                self.assertEqual(payload["operator_note"], "manual skip")
+                self.assertEqual(payload["fulfillment_status"], "ignored_by_operator")
 
 
 if __name__ == "__main__":

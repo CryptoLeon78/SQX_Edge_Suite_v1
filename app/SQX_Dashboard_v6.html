@@ -191,6 +191,41 @@
           <button class="export-btn" id="support-diagnostic-btn" type="button">Generar diagnostico</button>
           <small id="support-diagnostic-status" class="support-status">Listo para generar un informe seguro.</small>
         </div>
+        <div class="home-panel fulfillment-panel" id="fulfillment-panel">
+          <div class="fulfillment-head">
+            <div>
+              <div class="home-panel-title">Fulfillment</div>
+              <strong>Cola privada de operador</strong>
+            </div>
+            <button class="export-btn fulfillment-refresh-btn" id="fulfillment-refresh-btn" type="button">Actualizar</button>
+          </div>
+          <div class="fulfillment-metrics">
+            <div class="fulfillment-metric">
+              <span>Pendientes</span>
+              <strong id="fulfillment-queue-count">--</strong>
+            </div>
+            <div class="fulfillment-metric">
+              <span>Revision</span>
+              <strong id="fulfillment-needs-review-count">--</strong>
+            </div>
+            <div class="fulfillment-metric">
+              <span>Fallidos</span>
+              <strong id="fulfillment-failed-count">--</strong>
+            </div>
+            <div class="fulfillment-metric">
+              <span>Recibos</span>
+              <strong id="fulfillment-processed-count">--</strong>
+            </div>
+          </div>
+          <div class="fulfillment-settings">
+            <input id="fulfillment-private-key" class="search-input fulfillment-input" type="text" placeholder="Ruta private key JSON">
+            <input id="fulfillment-zip-path" class="search-input fulfillment-input" type="text" placeholder="Ruta ZIP portable final">
+            <input id="fulfillment-support-email" class="search-input fulfillment-input" type="text" placeholder="Email soporte (opcional)">
+          </div>
+          <small id="fulfillment-queue-status" class="support-status">Esperando conexion con la API local.</small>
+          <div id="fulfillment-request-list" class="fulfillment-request-list"></div>
+          <div id="fulfillment-empty" class="home-history-empty">No hay requests pendientes en la cola.</div>
+        </div>
         <div class="home-panel home-history">
           <div class="home-history-head">
             <div class="home-panel-title">Actividad reciente</div>
@@ -2944,6 +2979,7 @@ Ret/DD > 1.0          ← más estricto que Capa 1 (era 0.5)</pre>
 <script src="js/modules/strategies.js"></script>
 <script src="js/modules/home.js"></script>
 <script src="js/modules/support.js"></script>
+<script src="js/modules/fulfillment.js"></script>
 <script src="js/modules/workflow.js"></script>
 <script src="js/modules/project-generator-core.js"></script>
 <script src="js/modules/project-generator-config.js"></script>

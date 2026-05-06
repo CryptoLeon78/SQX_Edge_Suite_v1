@@ -231,7 +231,7 @@
       "licenseIssuerTool": "backend/sqx-edge-tool/tools/license_issue.py",
       "deliveryTool": "backend/sqx-edge-tool/tools/prepare_customer_delivery.ps1",
       "automation": {
-        "status": "private_receiver_ready",
+        "status": "operator_retry_ready",
         "webhookProvider": "Lemon Squeezy",
         "webhookSignatureHeader": "X-Signature",
         "webhookSigningAlgorithm": "hmac_sha256_hex",
@@ -239,10 +239,21 @@
         "receiverEndpoint": "/api/fulfillment/webhook/lemon",
         "queueListEndpoint": "/api/fulfillment/requests",
         "processEndpoint": "/api/fulfillment/process",
+        "requestStatusEndpoint": "/api/fulfillment/request-status",
         "normalizerTool": "backend/sqx-edge-tool/tools/fulfillment_request.py",
         "fulfillmentTool": "backend/sqx-edge-tool/tools/fulfill_from_request.ps1",
         "queueRoot": "backend/sqx-edge-tool/fulfillment_requests",
         "deduplicationKey": "provider_event_id",
+        "operatorPanelEnabled": true,
+        "retryMode": "manual_retry_with_attempt_log",
+        "requestStatuses": [
+          "queued",
+          "processing",
+          "needs_review",
+          "failed",
+          "completed",
+          "ignored"
+        ],
         "handledEvents": [
           "order_created",
           "subscription_created",

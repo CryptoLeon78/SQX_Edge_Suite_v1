@@ -50,11 +50,11 @@ from core.strategy_cleaner import (
 )
 from core.support_diagnostics import build_support_diagnostics
 from core.fulfillment_queue import (
-    list_processed_receipts,
-    list_requests as list_fulfillment_requests,
     load_request as load_fulfillment_request,
     process_request as process_fulfillment_request,
+    queue_overview as fulfillment_queue_overview,
     store_lemon_webhook,
+    update_request_status as set_fulfillment_request_status,
 )
 
 app = Flask(__name__)
@@ -422,7 +422,16 @@ def api_fulfillment_webhook_lemon():
 
 @app.get("/api/fulfillment/requests")
 def api_fulfillment_requests():
-    return jsonify({"ok": True, "requests": list_fulfillment_requests(), "processed": list_processed_receipts()})
+    overview = fulfillment_queue_overview()
+    return jsonify({
+        "ok": True,
+        "requests": overview["requests"],
+        "processed": overview["processed"],
+        "summary": overview["summary"],
+        "receiver": {
+            "secret_configured": bool(os.environ.get("SQX_LEMON_WEBHOOK_SECRET", "").strip()),
+        },
+    })
 
 
 @app.get("/api/fulfillment/requests/<path:filename>")
@@ -452,6 +461,27 @@ def api_fulfillment_process():
         allow_ineligible=allow_ineligible,
     )
     return jsonify(result), 200 if result.get("ok") else 500
+
+
+@app.post("/api/fulfillment/request-status")
+def api_fulfillment_request_status():
+    data = request.get_json(silent=True) or {}
+    filename = str(data.get("request_file") or "").strip()
+    operator_status = str(data.get("operator_status") or "").strip()
+    note = str(data.get("note") or "").strip()
+    if not filename or not operator_status:
+        return jsonify({"ok": False, "error": "missing request_file/operator_status"}), 400
+    try:
+        result = set_fulfillment_request_status(
+            filename=filename,
+            operator_status=operator_status,
+            note=note,
+        )
+    except FileNotFoundError:
+        return jsonify({"ok": False, "error": "request_not_found"}), 404
+    except ValueError as exc:
+        return jsonify({"ok": False, "error": "invalid_operator_status", "message": str(exc)}), 400
+    return jsonify(result)
 
 
 @app.get("/api/plan")

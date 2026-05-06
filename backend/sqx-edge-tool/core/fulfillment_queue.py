@@ -15,6 +15,14 @@ QUEUE_ROOT = ROOT / "fulfillment_requests"
 EVENTS_DIR = QUEUE_ROOT / "events"
 REQUESTS_DIR = QUEUE_ROOT / "requests"
 PROCESSED_DIR = QUEUE_ROOT / "processed"
+REQUEST_OPERATOR_STATUSES = {
+    "queued",
+    "processing",
+    "needs_review",
+    "failed",
+    "completed",
+    "ignored",
+}
 
 
 def ensure_queue_dirs() -> None:
@@ -52,6 +60,10 @@ def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8-sig"))
 
 
+def _write_json(path: Path, payload: dict[str, Any]) -> None:
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+
+
 def _find_existing_request(provider_event_id: str) -> dict[str, Any] | None:
     event_id = str(provider_event_id or "").strip()
     if not event_id:
@@ -64,6 +76,75 @@ def _find_existing_request(provider_event_id: str) -> dict[str, Any] | None:
         if str(payload.get("provider_event_id") or "") == event_id:
             return payload
     return None
+
+
+def _request_defaults(request: dict[str, Any]) -> dict[str, Any]:
+    payload = dict(request)
+    eligible = bool(payload.get("eligible_for_fulfillment"))
+    payload.setdefault("operator_status", "queued" if eligible else "needs_review")
+    payload.setdefault("operator_note", "")
+    payload.setdefault("attempt_count", 0)
+    payload.setdefault("last_attempt_at", "")
+    payload.setdefault("last_error", "")
+    payload.setdefault("processed_receipt_file", "")
+    payload.setdefault("last_delivery_dir", "")
+    payload.setdefault("completed_at", "")
+    payload.setdefault("updated_at", payload.get("stored_at", ""))
+    return payload
+
+
+def _request_summary(payload: dict[str, Any]) -> dict[str, Any]:
+    request = _request_defaults(payload)
+    return {
+        "name": request.get("request_file") or "",
+        "provider": request.get("provider"),
+        "source_event": request.get("source_event"),
+        "provider_event_id": request.get("provider_event_id"),
+        "order_id": request.get("order_id"),
+        "customer_email": request.get("customer_email"),
+        "plan": request.get("plan"),
+        "eligible_for_fulfillment": bool(request.get("eligible_for_fulfillment")),
+        "fulfillment_status": request.get("fulfillment_status"),
+        "operator_status": request.get("operator_status"),
+        "operator_note": request.get("operator_note"),
+        "attempt_count": int(request.get("attempt_count") or 0),
+        "last_attempt_at": request.get("last_attempt_at"),
+        "last_error": request.get("last_error"),
+        "processed_receipt_file": request.get("processed_receipt_file"),
+        "stored_at": request.get("stored_at"),
+        "updated_at": request.get("updated_at"),
+    }
+
+
+def _save_request(path: Path, payload: dict[str, Any]) -> dict[str, Any]:
+    request = _request_defaults(payload)
+    request["updated_at"] = datetime.now().isoformat(timespec="seconds")
+    _write_json(path, request)
+    return request
+
+
+def _request_list_path(filename: str) -> Path:
+    path = _request_path(filename)
+    if not path.is_file():
+        raise FileNotFoundError(filename)
+    return path
+
+
+def _queue_summary(rows: list[dict[str, Any]], processed: list[dict[str, Any]]) -> dict[str, Any]:
+    status_counts: dict[str, int] = {}
+    for row in rows:
+        status = str(row.get("operator_status") or "queued")
+        status_counts[status] = status_counts.get(status, 0) + 1
+    return {
+        "queued": status_counts.get("queued", 0),
+        "processing": status_counts.get("processing", 0),
+        "needs_review": status_counts.get("needs_review", 0),
+        "failed": status_counts.get("failed", 0),
+        "completed": status_counts.get("completed", 0),
+        "ignored": status_counts.get("ignored", 0),
+        "processed_receipts": len(processed),
+        "total_requests": len(rows),
+    }
 
 
 def store_lemon_webhook(
@@ -105,9 +186,10 @@ def store_lemon_webhook(
     request["stored_at"] = datetime.now().isoformat(timespec="seconds")
     request["request_file"] = request_filename
     request["raw_event_file"] = event_filename
+    request = _request_defaults(request)
 
-    (EVENTS_DIR / event_filename).write_text(json.dumps(event_record, indent=2, sort_keys=True), encoding="utf-8")
-    (REQUESTS_DIR / request_filename).write_text(json.dumps(request, indent=2, sort_keys=True), encoding="utf-8")
+    _write_json(EVENTS_DIR / event_filename, event_record)
+    _write_json(REQUESTS_DIR / request_filename, request)
     return {
         "ok": True,
         "stored": True,
@@ -125,29 +207,14 @@ def list_requests() -> list[dict[str, Any]]:
             payload = _load_json(path)
         except (OSError, json.JSONDecodeError):
             continue
-        rows.append(
-            {
-                "name": path.name,
-                "provider": payload.get("provider"),
-                "source_event": payload.get("source_event"),
-                "provider_event_id": payload.get("provider_event_id"),
-                "order_id": payload.get("order_id"),
-                "customer_email": payload.get("customer_email"),
-                "plan": payload.get("plan"),
-                "eligible_for_fulfillment": bool(payload.get("eligible_for_fulfillment")),
-                "fulfillment_status": payload.get("fulfillment_status"),
-                "stored_at": payload.get("stored_at"),
-            }
-        )
+        payload["request_file"] = payload.get("request_file") or path.name
+        rows.append(_request_summary(payload))
     return rows
 
 
 def load_request(filename: str) -> dict[str, Any]:
     ensure_queue_dirs()
-    path = _request_path(filename)
-    if not path.is_file():
-        raise FileNotFoundError(filename)
-    return _load_json(path)
+    return _request_defaults(_load_json(_request_list_path(filename)))
 
 
 def list_processed_receipts() -> list[dict[str, Any]]:
@@ -161,14 +228,44 @@ def list_processed_receipts() -> list[dict[str, Any]]:
         rows.append(
             {
                 "name": path.name,
+                "status": payload.get("status", "completed"),
                 "request_file": payload.get("request_file"),
+                "attempt_number": int(payload.get("attempt_number") or 0),
                 "processed_at": payload.get("processed_at"),
                 "provider_event_id": payload.get("provider_event_id"),
                 "order_id": payload.get("order_id"),
                 "delivery_dir": payload.get("delivery_dir"),
+                "error": payload.get("error", ""),
             }
         )
     return rows
+
+
+def queue_overview() -> dict[str, Any]:
+    requests = list_requests()
+    processed = list_processed_receipts()
+    return {
+        "requests": requests,
+        "processed": processed,
+        "summary": _queue_summary(requests, processed),
+    }
+
+
+def update_request_status(*, filename: str, operator_status: str, note: str = "") -> dict[str, Any]:
+    ensure_queue_dirs()
+    status = str(operator_status or "").strip().lower()
+    if status not in REQUEST_OPERATOR_STATUSES:
+        raise ValueError(f"unsupported operator_status: {operator_status}")
+    path = _request_list_path(filename)
+    request = _request_defaults(_load_json(path))
+    request["operator_status"] = status
+    request["operator_note"] = str(note or "").strip()
+    if status == "ignored":
+        request["fulfillment_status"] = "ignored_by_operator"
+    if status == "queued" and not request.get("eligible_for_fulfillment"):
+        request["fulfillment_status"] = "operator_requeued_manual_review"
+    request = _save_request(path, request)
+    return {"ok": True, "request": request, "summary": _request_summary(request)}
 
 
 def process_request(
@@ -180,7 +277,14 @@ def process_request(
     allow_ineligible: bool = False,
 ) -> dict[str, Any]:
     ensure_queue_dirs()
-    request = load_request(filename)
+    path = _request_list_path(filename)
+    request = _request_defaults(_load_json(path))
+    attempt_number = int(request.get("attempt_count") or 0) + 1
+    request["attempt_count"] = attempt_number
+    request["last_attempt_at"] = datetime.now().isoformat(timespec="seconds")
+    request["operator_status"] = "processing"
+    request["last_error"] = ""
+    request = _save_request(path, request)
     script = ROOT / "tools" / "fulfill_from_request.ps1"
     args = [
         "powershell",
@@ -201,15 +305,6 @@ def process_request(
     if allow_ineligible:
         args.append("-AllowIneligible")
     result = subprocess.run(args, text=True, capture_output=True, timeout=120)
-    if result.returncode != 0:
-        return {
-            "ok": False,
-            "error": "fulfillment_failed",
-            "stdout": result.stdout,
-            "stderr": result.stderr,
-            "request": request,
-        }
-
     token = _safe_token(str(request.get("provider_event_id") or request.get("order_id") or filename))
     receipt_filename = f"delivery_receipt_{_stamp()}_{token}.json"
     delivery_dir = ""
@@ -219,9 +314,35 @@ def process_request(
             continue
         if "SQX_delivery_" in candidate:
             delivery_dir = candidate
+    if result.returncode != 0:
+        error_text = (result.stderr or result.stdout or "fulfillment failed").strip()
+        request["operator_status"] = "failed"
+        request["fulfillment_status"] = "fulfillment_failed"
+        request["last_error"] = error_text
+        request["processed_receipt_file"] = receipt_filename
+        request = _save_request(path, request)
+        receipt = {
+            "status": "failed",
+            "processed_at": datetime.now().isoformat(timespec="seconds"),
+            "request_file": filename,
+            "attempt_number": attempt_number,
+            "provider_event_id": request.get("provider_event_id"),
+            "order_id": request.get("order_id"),
+            "customer_email": request.get("customer_email"),
+            "plan": request.get("plan"),
+            "delivery_dir": delivery_dir,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+            "error": error_text,
+        }
+        _write_json(PROCESSED_DIR / receipt_filename, receipt)
+        return {"ok": False, "error": "fulfillment_failed", "receipt_file": receipt_filename, "receipt": receipt, "request": request}
+
     receipt = {
+        "status": "completed",
         "processed_at": datetime.now().isoformat(timespec="seconds"),
         "request_file": filename,
+        "attempt_number": attempt_number,
         "provider_event_id": request.get("provider_event_id"),
         "order_id": request.get("order_id"),
         "customer_email": request.get("customer_email"),
@@ -229,5 +350,12 @@ def process_request(
         "delivery_dir": delivery_dir,
         "stdout": result.stdout,
     }
-    (PROCESSED_DIR / receipt_filename).write_text(json.dumps(receipt, indent=2, sort_keys=True), encoding="utf-8")
-    return {"ok": True, "receipt_file": receipt_filename, "receipt": receipt}
+    _write_json(PROCESSED_DIR / receipt_filename, receipt)
+    request["operator_status"] = "completed"
+    request["fulfillment_status"] = "delivered"
+    request["completed_at"] = receipt["processed_at"]
+    request["processed_receipt_file"] = receipt_filename
+    request["last_delivery_dir"] = delivery_dir
+    request["last_error"] = ""
+    request = _save_request(path, request)
+    return {"ok": True, "receipt_file": receipt_filename, "receipt": receipt, "request": request}
