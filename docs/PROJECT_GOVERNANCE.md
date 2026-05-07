@@ -7,7 +7,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current phase completed: M51 - Template Pack 1 Live Checkout Values And Controlled Publication Gate.
 - Current product/commercial state: `template_pack_1_live_checkout_gate_ready`.
 - Next implementation phase: M52 - Template Pack 1 Controlled Purchase Drill.
-- Governance baseline: G1 - Specialist Agent Operating Model.
+- Governance baseline: G2 - Governance Lookup Before Work.
+- Previous governance baseline: G1 - Specialist Agent Operating Model.
 
 ## Specialist Agents
 
@@ -35,20 +36,30 @@ Use prefixed phase IDs for new work.
 
 Legacy references such as "Phase 46" in the modularization track remain historical. New work should use the prefix in titles and commits when practical.
 
+## Operational Rule
+
+G2 - Governance Lookup Before Work:
+
+- Before every work phase/message, consult `docs/PROJECT_GOVERNANCE.md` or the Specialist Agents ownership matrix.
+- Declare active ownership, expected touched areas and required checks before implementation when work is more than a direct answer.
+- If specialized agents are available and the user asks for agent consultation, use them for bounded review or execution tasks that match the ownership matrix.
+- If no specialized agent is needed, explicitly use Project Governance as the source of ownership and verification discipline.
+
 ## Phase Workflow
 
 Every implementation phase must follow this loop:
 
-1. Confirm working tree state.
-2. Create a backup before changing files.
-3. Define active agent ownership and expected touched areas.
-4. Implement narrowly against the phase objective.
-5. Update docs, manifests and tests in the same phase when contracts move.
-6. Run required checks for touched areas.
-7. Run E2E screenshots when frontend behavior or `manifest-data.js` changes.
-8. Clean temporary Playwright/npm artifacts.
-9. Commit once per phase after verification.
-10. Push only when explicitly requested.
+1. Consult Project Governance or the Specialist Agents ownership matrix before every work phase/message.
+2. Confirm working tree state.
+3. Create a backup before changing files.
+4. Define active agent ownership and expected touched areas.
+5. Implement narrowly against the phase objective.
+6. Update docs, manifests and tests in the same phase when contracts move.
+7. Run required checks for touched areas.
+8. Run E2E screenshots when frontend behavior or `manifest-data.js` changes.
+9. Clean temporary Playwright/npm artifacts.
+10. Commit once per phase after verification.
+11. Push only when explicitly requested.
 
 ## M46 Entry Criteria
 

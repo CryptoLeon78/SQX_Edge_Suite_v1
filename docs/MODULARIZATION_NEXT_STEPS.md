@@ -7,7 +7,7 @@ Persistent planning note for the next SQX Edge phases.
 - Last updated: 2026-05-07.
 - Current completed phase: M51 - Template Pack 1 Live Checkout Values And Controlled Publication Gate.
 - Current product/commercial state: `template_pack_1_live_checkout_gate_ready`.
-- Governance baseline: G1 - Specialist Agent Operating Model.
+- Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before M51: `62e20fd`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
@@ -29,6 +29,7 @@ Persistent planning note for the next SQX Edge phases.
 
 ## Working Discipline
 
+- Before every work phase/message, consult `docs/PROJECT_GOVERNANCE.md` or the Specialist Agents ownership matrix and state the active ownership/checks.
 - Create a backup before changing files.
 - Verify with JS contracts, Python tests, and E2E screenshots when frontend behavior is touched.
 - Remove temporary Playwright dependencies after E2E.
@@ -41,6 +42,7 @@ Persistent planning note for the next SQX Edge phases.
 ## Governance Track
 
 1. Phase G1: define specialist agent ownership, phase namespaces, workflow and M46 entry criteria. Done.
+2. Phase G2: require governance/ownership lookup before each work phase/message. Done.
 
 ## Monetization Track
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - Governance lookup discipline
+
+- Anade G2 como regla operativa: consultar Project Governance o matriz de agentes antes de cada fase/mensaje de trabajo.
+- Actualiza Project Governance, roadmap, ADR y README para reflejar ownership activo y checks esperados.
+- Refuerza el contrato estatico de gobernanza.
+
 ## 2026-05-07 - Template Pack 1 live checkout gate
 
 - Anade M51 con gate de publicacion controlada para Template Pack 1.

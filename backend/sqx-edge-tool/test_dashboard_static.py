@@ -135,6 +135,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "G1 - Specialist Agent Operating Model",
+            "G2 - Governance Lookup Before Work",
             "Frontend/UI",
             "Backend/API",
             "QA/Release",
@@ -142,6 +143,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Security/Distribution",
             "Architecture/Docs",
             "M46 Entry Criteria",
+            "Before every work phase/message",
+            "Specialist Agents ownership matrix",
+            "active ownership",
             "Customer cockpit source of truth",
             "no license payloads",
             "Use prefixed phase IDs",
@@ -156,12 +160,16 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Frontend/UI",
             "Mxx",
             "G1: Specialist Agent Operating Model",
+            "G2 extends the baseline",
+            "consult `docs/PROJECT_GOVERNANCE.md`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, adr)
 
         self.assertIn("Phase G1: define specialist agent ownership, phase namespaces, workflow and M46 entry criteria. Done.", next_steps)
+        self.assertIn("Phase G2: require governance/ownership lookup before each work phase/message. Done.", next_steps)
         self.assertIn("docs/PROJECT_GOVERNANCE.md", readme)
+        self.assertIn("consulta obligatoria antes de fases/mensajes de trabajo", readme)
 
     def test_modular_scaffold_loads_before_legacy_logic(self):
         scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)

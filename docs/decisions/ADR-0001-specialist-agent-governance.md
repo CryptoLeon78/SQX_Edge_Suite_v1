@@ -32,9 +32,12 @@ Use prefixed phase namespaces for new work:
 
 The first governance baseline is G1: Specialist Agent Operating Model.
 
+G2 extends the baseline with a mandatory governance lookup: before every work phase/message, consult `docs/PROJECT_GOVERNANCE.md` or the Specialist Agents ownership matrix, then derive active ownership, touched areas and required checks from that source.
+
 ## Consequences
 
 - Future phases should declare active owner areas before implementation.
+- Each work phase/message starts from Project Governance or the Specialist Agents ownership matrix.
 - M46 should start from a defined customer cockpit data model and privacy boundary.
 - Roadmap references should avoid ambiguous unprefixed phase numbers where possible.
 - Documentation and tests become part of the phase deliverable, not cleanup after the fact.
