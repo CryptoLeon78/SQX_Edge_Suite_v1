@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Buyer-ready checkout closeout
+
+- Anade M65 con cierre buyer-ready para checkout, release, licencia, soporte y rollback.
+- Anade `buyer_ready_checkout_closeout.py` para validar una ruta de comprador basico antes de ventas controladas.
+- Actualiza estado comercial a `buyer_ready_checkout_release_closeout_ready`.
+- Mantiene evidencia interna y herramientas comerciales fuera del ZIP portable.
+
 ## 2026-05-07 - Template Pack 2 feedback cohort
 
 - Anade M64 con revision de cohorte temprana de Template Pack 2.

@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "state": "buyer_ready_checkout_release_closeout_ready",
+  "reviewId": "buyer_ready_checkout_closeout",
+  "offerId": "sqx_edge_pro_and_template_pack_2",
+  "name": "Buyer-Ready Checkout Release Closeout",
+  "dependsOn": {
+    "feedbackCohortConfig": "backend/sqx-edge-tool/config/template_pack_2_feedback_cohort.json",
+    "feedbackCohortState": "template_pack_2_feedback_cohort_ready"
+  },
+  "requiredFiles": [
+    "README.md",
+    "START_SQX_EDGE.bat",
+    "STOP_SQX_EDGE.bat",
+    "backend/sqx-edge-tool/config/template_pack_2_feedback_cohort.json",
+    "backend/sqx-edge-tool/tools/template_pack_2_feedback_cohort.py",
+    "docs/sales/TEMPLATE_PACK_2_FEEDBACK_COHORT.md",
+    "docs/sales/BUYER_READY_CHECKOUT_RELEASE.md",
+    "resources/pro-buyer-pack/onboarding/START_HERE.md",
+    "resources/pro-buyer-pack/onboarding/faq_basic_user.md",
+    "resources/pro-buyer-pack/onboarding/support_contact_template.md",
+    "resources/pro-template-pack-2/README.md",
+    "resources/pro-template-pack-2/offer/delivery_email_macro.md",
+    "resources/pro-template-pack-2/offer/support_macro.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "requiredConfirmations": [
+    "feedback_cohort_go",
+    "checkout_copy_reviewed",
+    "portable_release_reviewed",
+    "license_delivery_reviewed",
+    "support_path_reviewed",
+    "safe_claims_reviewed",
+    "rollback_reviewed"
+  ],
+  "allowedDecisions": [
+    "open_controlled_sales",
+    "keep_private_pilot",
+    "iterate_buyer_pack",
+    "pause_sales"
+  ],
+  "minimumBuyerSteps": 5,
+  "privacyPolicy": "store_redacted_checkout_release_support_and_delivery_readiness_only",
+  "releasePolicy": "confirm_basic_user_download_unzip_double_click_license_support_and_rollback_before_controlled_sales",
+  "decisionRules": [
+    "open_controlled_sales requires a GO feedback cohort, buyer ZIP review, start launcher verification, license delivery, support path, safe claims and rollback.",
+    "keep_private_pilot is valid when the buyer path is ready but traffic should remain controlled.",
+    "iterate_buyer_pack is the default when copy, docs, support or delivery steps need refinement.",
+    "pause_sales is required when release, license, support, refund or claims risk is unresolved."
+  ]
+}

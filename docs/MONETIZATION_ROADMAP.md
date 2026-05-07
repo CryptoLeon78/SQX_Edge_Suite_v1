@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M64 - Template Pack 2 Feedback Cohort Review.
-- Current state: `template_pack_2_feedback_cohort_ready`.
+- Completed through: M65 - Buyer-Ready Checkout Release Closeout.
+- Current state: `buyer_ready_checkout_release_closeout_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M65 - Buyer-Ready Checkout Release Closeout.
+- Next recommended phase: M66 - Public Buyer Page Checklist And First-Sale Cadence.
 
 ## Decision Base
 
@@ -1405,3 +1405,24 @@ Decision M64:
 - `expand_traffic` exige compradores suficientes, feedback suficiente, cero bugs bloqueantes, cero friccion de activacion, cero soporte abierto y cero refunds.
 - `prepare_pack_3` exige senales positivas claras y ausencia de riesgo operativo.
 - El siguiente paso real es M65: cierre buyer-ready de checkout, release, soporte y entrega para primeras ventas controladas.
+
+## Phase M65 - Buyer-Ready Checkout Release Closeout
+
+Objetivo: cerrar checkout, release, soporte, entrega de licencia y rollback con una ruta entendible para compradores basicos antes de abrir ventas controladas.
+
+Entregables:
+
+- Estado `buyer_ready_checkout_release_closeout_ready`.
+- Configuracion `backend/sqx-edge-tool/config/buyer_ready_checkout_closeout.json`.
+- Guia interna `docs/sales/BUYER_READY_CHECKOUT_RELEASE.md`.
+- Gate interno `backend/sqx-edge-tool/tools/buyer_ready_checkout_closeout.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/buyer_ready_checkout_closeout`.
+
+Estado: Done.
+
+Decision M65:
+
+- El cierre exige feedback cohort GO, copy revisado, portable revisado, licencia/entrega revisada, soporte visible, claims seguros y rollback.
+- La evidencia guarda solo estado operativo agregado, sin emails completos, licencias firmadas, secretos ni payloads de proveedor.
+- `open_controlled_sales` queda reservado para una venta controlada con soporte/rollback operativo.
+- El siguiente paso real es M66: preparar pagina/checklist publico de comprador y cadencia tranquila de primera venta.

@@ -34,7 +34,7 @@ Last updated: 2026-05-07.
 
 ## Next
 
-- Cerrar checkout/release buyer-ready para primeras ventas controladas.
+- Preparar pagina/checklist publico de comprador y cadencia tranquila de primera venta.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.
