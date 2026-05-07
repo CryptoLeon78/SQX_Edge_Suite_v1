@@ -25,10 +25,11 @@ Last updated: 2026-05-07.
 - Plan accionable preparado para convertir feedback en iteracion de oferta, expansion controlada, pausa/fix o specs de Template Pack 2.
 - Especificacion inicial de Template Pack 2 preparada con alcance, presets, soporte, entrega y claims seguros.
 - Recursos iniciales de Template Pack 2 preparados como add-on separado con perfiles, presets y checklists.
+- Oferta controlada de Template Pack 2 preparada con copy, FAQ, checkout draft y macros.
 
 ## Next
 
-- Preparar oferta controlada de Template Pack 2 con copy publico, FAQ, checkout draft y macros.
+- Preparar publicacion controlada de Template Pack 2 con checkout real, soporte, rollback y purchase drill.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.

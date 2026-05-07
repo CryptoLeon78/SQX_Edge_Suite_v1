@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M58 - Template Pack 2 Initial Assets.
-- Current state: `template_pack_2_assets_ready`.
+- Completed through: M59 - Template Pack 2 Offer Pack.
+- Current state: `template_pack_2_offer_pack_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M59 - Template Pack 2 Offer Pack.
+- Next recommended phase: M60 - Template Pack 2 Controlled Publication.
 
 ## Decision Base
 
@@ -1277,3 +1277,25 @@ Decision M58:
 - El pack se entrega como ZIP add-on separado y no forma parte del portable principal.
 - No contiene licencias, claves privadas, payloads de proveedor ni eventos crudos.
 - El siguiente paso real es M59: preparar oferta controlada de Template Pack 2 con copy publico, FAQ, checkout draft y macros.
+
+## Phase M59 - Template Pack 2 Offer Pack
+
+Objetivo: preparar venta controlada de Template Pack 2 con copy, FAQ, checkout draft, delivery macro y support macro antes de activar checkout real.
+
+Entregables:
+
+- Estado `template_pack_2_offer_pack_ready`.
+- Configuracion `backend/sqx-edge-tool/config/template_pack_2_offer_pack.json`.
+- Recursos en `resources/pro-template-pack-2/offer`.
+- Guia interna `docs/sales/TEMPLATE_PACK_2_OFFER_PACK.md`.
+- Gate interno `backend/sqx-edge-tool/tools/template_pack_2_offer_pack.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_2_offer_pack`.
+
+Estado: Done.
+
+Decision M59:
+
+- Template Pack 2 queda con oferta controlada lista para revisar.
+- Checkout queda en draft hasta completar URL, variant ID y soporte reales.
+- La fase no guarda credenciales, licencias, claves privadas ni payloads de proveedor.
+- El siguiente paso real es M60: preparar publicacion controlada con checkout real, soporte, rollback y purchase drill.

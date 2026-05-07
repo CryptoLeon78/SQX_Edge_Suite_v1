@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "state": "template_pack_2_offer_pack_ready",
+  "offerId": "template_pack_2",
+  "name": "Template Pack 2",
+  "price": "79 EUR",
+  "primaryProvider": "Lemon Squeezy",
+  "fallbackProvider": "Gumroad",
+  "checkoutMode": "draft_checkout_wiring",
+  "allowDraftCheckout": true,
+  "dependsOn": {
+    "templatePack2AssetsConfig": "backend/sqx-edge-tool/config/template_pack_2_assets.json",
+    "templatePack2AssetsState": "template_pack_2_assets_ready"
+  },
+  "requiredFiles": [
+    "resources/pro-template-pack-2/offer/public_offer.md",
+    "resources/pro-template-pack-2/offer/faq.md",
+    "resources/pro-template-pack-2/offer/checkout_wiring.md",
+    "resources/pro-template-pack-2/offer/delivery_email_macro.md",
+    "resources/pro-template-pack-2/offer/support_macro.md",
+    "docs/sales/TEMPLATE_PACK_2_OFFER_PACK.md"
+  ],
+  "requiredOfferFields": [
+    "headline",
+    "subheadline",
+    "buyerSteps",
+    "deliveryMacro",
+    "supportMacro",
+    "responsibleNotice"
+  ],
+  "requiredConfirmations": [
+    "template_pack_2_assets_ready",
+    "offer_copy_reviewed",
+    "faq_reviewed",
+    "checkout_draft_ready",
+    "delivery_macro_ready",
+    "support_macro_ready",
+    "safe_claims_reviewed"
+  ],
+  "safeClaims": [
+    "Pack de perfiles y presets para ampliar exploracion operativa.",
+    "Entrega separada como add-on para compradores Pro.",
+    "Material local, documentado y facil de revisar.",
+    "Ayuda a ordenar discovery, regimenes y confirmacion multi-timeframe."
+  ],
+  "forbiddenClaims": [
+    "beneficios garantizados",
+    "estrategias ganadoras",
+    "rentabilidad asegurada",
+    "resultados financieros garantizados",
+    "sin riesgo",
+    "asesoramiento financiero",
+    "senales de compra"
+  ]
+}

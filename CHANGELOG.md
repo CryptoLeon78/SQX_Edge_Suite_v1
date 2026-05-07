@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 2 offer pack
+
+- Anade M59 con oferta controlada para Template Pack 2.
+- Anade `template_pack_2_offer_pack.py` para validar copy, FAQ, checkout draft, macros, soporte y safe claims.
+- Actualiza estado comercial a `template_pack_2_offer_pack_ready`.
+- Mantiene checkout en modo draft hasta completar URL, variant ID y soporte reales.
+
 ## 2026-05-07 - Template Pack 2 assets
 
 - Anade M58 con recursos iniciales reales para Template Pack 2.
