@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - M81 controlled traffic expansion review
+
+- Anade gate interno para revisar si procede una ampliacion minima y reversible de trafico.
+- Actualiza estado comercial a `controlled_traffic_expansion_review_ready`.
+- Mantiene la guia operativa completa en el repo privado y deja punteros publicos para M81.
+
 ## 2026-05-07 - M80 manual publication monitor
 
 - Anade gate interno para monitorizar la publicacion manual limitada antes de ampliar trafico.

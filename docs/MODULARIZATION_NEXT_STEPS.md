@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M80 - Manual Publication Monitor.
-- Current product/commercial state: `manual_publication_monitor_ready`.
+- Current completed phase: M81 - Controlled Traffic Expansion Review.
+- Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M81 - controlled traffic expansion review only if M80 selects it.
+- Next recommended phase: M82 - tiny reversible traffic expansion step only if M81 selects `approve_tiny_traffic_expansion`.
 
 ## Recommended Order
 
@@ -135,4 +135,5 @@ Persistent planning note for the next SQX Edge phases.
 78. Phase M78: review the limited publication draft before any manual publication. Done.
 79. Phase M79: record a manual limited publication only if M78 approves. Done.
 80. Phase M80: monitor the manual limited publication before any traffic expansion. Done.
-81. Phase M81: review controlled traffic expansion only if M80 selects it. Recommended next.
+81. Phase M81: review controlled traffic expansion only if M80 selects it. Done.
+82. Phase M82: execute one tiny reversible traffic expansion step only if M81 approves it. Recommended next.

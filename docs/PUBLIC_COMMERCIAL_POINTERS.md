@@ -30,5 +30,6 @@ M77 continues this rule: limited publication draft details live privately, while
 M78 continues this rule: operator publication review details live privately, while public files keep traceability only.
 M79 continues this rule: manual limited publication record details live privately, while public files keep traceability only.
 M80 continues this rule: manual publication monitor details live privately, while public files keep traceability only.
+M81 continues this rule: controlled traffic expansion review details live privately, while public files keep traceability only.
 
 Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

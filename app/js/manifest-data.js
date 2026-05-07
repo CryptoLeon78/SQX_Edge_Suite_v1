@@ -953,7 +953,9 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/data/manual_limited_publication_record",
         "backend/sqx-edge-tool/tools/manual_limited_publication_record.py",
         "backend/sqx-edge-tool/data/manual_publication_monitor",
-        "backend/sqx-edge-tool/tools/manual_publication_monitor.py"
+        "backend/sqx-edge-tool/tools/manual_publication_monitor.py",
+        "backend/sqx-edge-tool/data/controlled_traffic_expansion_review",
+        "backend/sqx-edge-tool/tools/controlled_traffic_expansion_review.py"
       ],
       "releaseAudit": "backend/sqx-edge-tool/tools/audit_distribution.ps1"
     },
@@ -1109,7 +1111,7 @@ window.SQX_MANIFEST = {
       "checkoutLabel": "Comprar Pro",
       "checkoutUrl": "",
       "checkout": {
-        "status": "manual_publication_monitor_ready",
+        "status": "controlled_traffic_expansion_review_ready",
         "primaryProvider": "Lemon Squeezy",
         "fallbackProvider": "Gumroad",
         "mode": "hosted_checkout",
@@ -1282,7 +1284,7 @@ window.SQX_MANIFEST = {
         "privateAssetReviewPolicy": "approve_asset_for_controlled_publication_only_after_private_review_safe_claims_support_release_notes_and_rollback",
         "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
         "automation": {
-          "status": "manual_publication_monitor_ready",
+          "status": "controlled_traffic_expansion_review_ready",
           "webhookProvider": "Lemon Squeezy",
           "webhookSignatureHeader": "X-Signature",
           "webhookSigningAlgorithm": "hmac_sha256_hex",
@@ -1468,7 +1470,11 @@ window.SQX_MANIFEST = {
         "manualPublicationMonitorConfig": "backend/sqx-edge-tool/config/manual_publication_monitor.json",
         "manualPublicationMonitorTool": "backend/sqx-edge-tool/tools/manual_publication_monitor.py",
         "manualPublicationMonitorEvidenceDir": "backend/sqx-edge-tool/data/manual_publication_monitor",
-        "manualPublicationMonitorPolicy": "monitor_manual_limited_publication_before_any_traffic_expansion_and_block_scaling_when_support_claims_refunds_or_incidents_are_unresolved"
+        "manualPublicationMonitorPolicy": "monitor_manual_limited_publication_before_any_traffic_expansion_and_block_scaling_when_support_claims_refunds_or_incidents_are_unresolved",
+        "controlledTrafficExpansionReviewConfig": "backend/sqx-edge-tool/config/controlled_traffic_expansion_review.json",
+        "controlledTrafficExpansionReviewTool": "backend/sqx-edge-tool/tools/controlled_traffic_expansion_review.py",
+        "controlledTrafficExpansionReviewEvidenceDir": "backend/sqx-edge-tool/data/controlled_traffic_expansion_review",
+        "controlledTrafficExpansionReviewPolicy": "approve_only_tiny_controlled_traffic_expansion_after_m80_monitoring_support_claims_refunds_incidents_rollback_and_pause_rule_are_clean"
       }
     },
     "marketing": {

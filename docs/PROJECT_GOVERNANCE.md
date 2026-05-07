@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M80 - Manual Publication Monitor.
-- Current product/commercial state: `manual_publication_monitor_ready`.
-- Next implementation phase: M81 - controlled traffic expansion review only if M80 selects `prepare_traffic_expansion_review`.
+- Current phase completed: M81 - Controlled Traffic Expansion Review.
+- Current product/commercial state: `controlled_traffic_expansion_review_ready`.
+- Next implementation phase: M82 - tiny reversible traffic expansion step only if M81 selects `approve_tiny_traffic_expansion`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 
