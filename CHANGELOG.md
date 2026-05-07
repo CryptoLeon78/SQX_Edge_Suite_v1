@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Post-sale improvement loop
+
+- Anade M68 con bucle de mejora post-venta para onboarding, soporte y copy publico.
+- Anade `post_sale_improvement_loop.py` para validar acciones agregadas desde el primer comprador controlado.
+- Actualiza estado comercial a `post_sale_improvement_loop_ready`.
+- Mantiene evidencia post-venta y herramienta interna fuera del ZIP portable.
+
 ## 2026-05-07 - First controlled buyer log
 
 - Anade M67 con registro operativo del primer comprador controlado y revision post-venta ligera.

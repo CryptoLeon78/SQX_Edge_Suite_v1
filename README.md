@@ -4,11 +4,11 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: M67 completada, `first_controlled_buyer_log_ready`.
-- Ultimo commit base verificado antes de M67: `2747f3f`.
+- Estado interno: M68 completada, `post_sale_improvement_loop_ready`.
+- Ultimo commit base verificado antes de M68: `dc316a2`.
 - Ultimo ZIP portable verificado antes de M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - SHA256 del ZIP: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Siguiente paso recomendado: M68, bucle pequeno de mejora post-venta para onboarding, soporte y copy publico.
+- Siguiente paso recomendado: M69, aplicar micro-mejoras aprobadas y preparar siguiente comprador controlado.
 
 ## SQX Edge Pro
 
@@ -48,6 +48,7 @@ Documentos comerciales:
 - `docs/sales/BUYER_READY_CHECKOUT_RELEASE.md`
 - `docs/sales/PUBLIC_BUYER_PAGE_CADENCE.md`
 - `docs/sales/FIRST_CONTROLLED_BUYER_LOG.md`
+- `docs/sales/POST_SALE_IMPROVEMENT_LOOP.md`
 
 Activacion Pro prevista:
 

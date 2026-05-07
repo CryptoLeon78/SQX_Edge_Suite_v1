@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M67 - First Controlled Buyer Operating Log And Post-Sale Review.
-- Current state: `first_controlled_buyer_log_ready`.
+- Completed through: M68 - Post-Sale Improvement Loop.
+- Current state: `post_sale_improvement_loop_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M68 - Post-Sale Improvement Loop.
+- Next recommended phase: M69 - Apply Post-Sale Micro Updates.
 
 ## Decision Base
 
@@ -1468,3 +1468,24 @@ Decision M67:
 - La evidencia no guarda emails completos, licencias firmadas, payloads de proveedor, claves ni mensajes crudos.
 - `continue_private_sales` exige primer valor confirmado, cero soporte abierto, cero refunds y cero fallos de fulfillment.
 - El siguiente paso real es M68: preparar un bucle pequeno de mejora post-venta para onboarding, soporte y copy publico.
+
+## Phase M68 - Post-Sale Improvement Loop
+
+Objetivo: convertir la primera experiencia de comprador controlado en mejoras pequenas de onboarding, macros de soporte, copy publico y safe claims antes de sumar trafico.
+
+Entregables:
+
+- Estado `post_sale_improvement_loop_ready`.
+- Configuracion `backend/sqx-edge-tool/config/post_sale_improvement_loop.json`.
+- Guia interna `docs/sales/POST_SALE_IMPROVEMENT_LOOP.md`.
+- Gate interno `backend/sqx-edge-tool/tools/post_sale_improvement_loop.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/post_sale_improvement_loop`.
+
+Estado: Done.
+
+Decision M68:
+
+- El gate exige M67 GO, onboarding revisado, macros de soporte revisadas, copy publico revisado, safe claims revisados, owner y siguiente revision.
+- La evidencia guarda solo acciones agregadas, owner, siguiente revision y resumen operativo, sin mensajes crudos ni datos personales.
+- `ship_micro_updates` queda bloqueado si hay claims risk, soporte abierto, refunds o fallos de fulfillment.
+- El siguiente paso real es M69: aplicar las micro-mejoras aprobadas y preparar el siguiente comprador controlado.

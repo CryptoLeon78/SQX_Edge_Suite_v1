@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "state": "post_sale_improvement_loop_ready",
+  "reviewId": "post_sale_improvement_loop",
+  "offerId": "sqx_edge_pro_post_sale_improvement",
+  "name": "Post-Sale Improvement Loop",
+  "dependsOn": {
+    "firstControlledBuyerLogConfig": "backend/sqx-edge-tool/config/first_controlled_buyer_log.json",
+    "firstControlledBuyerLogState": "first_controlled_buyer_log_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/FIRST_CONTROLLED_BUYER_LOG.md",
+    "docs/sales/POST_SALE_IMPROVEMENT_LOOP.md",
+    "docs/sales/PUBLIC_BUYER_PAGE_CADENCE.md",
+    "resources/pro-buyer-pack/onboarding/START_HERE.md",
+    "resources/pro-buyer-pack/onboarding/license_activation_walkthrough.md",
+    "resources/pro-buyer-pack/onboarding/support_contact_template.md",
+    "resources/pro-template-pack-2/offer/support_macro.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "requiredConfirmations": [
+    "first_buyer_log_go",
+    "onboarding_reviewed",
+    "support_macros_reviewed",
+    "public_copy_reviewed",
+    "safe_claims_reviewed",
+    "owner_assigned",
+    "next_review_recorded"
+  ],
+  "allowedDecisions": [
+    "ship_micro_updates",
+    "revise_onboarding",
+    "revise_support_macros",
+    "revise_public_copy",
+    "pause_sales"
+  ],
+  "allowedPriorities": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "minimumTotalUpdates": 2,
+  "maximumClaimsRiskForShipping": 0,
+  "maximumSupportRiskForShipping": 1,
+  "privacyPolicy": "store_aggregated_post_sale_improvement_actions_without_personal_data_or_raw_buyer_messages",
+  "reviewPolicy": "convert_first_buyer_operational_feedback_into_onboarding_support_macro_public_copy_and_safe_claim_updates",
+  "decisionRules": [
+    "ship_micro_updates requires first buyer log GO, safe claims reviewed, zero claims risk and low support risk.",
+    "revise_onboarding is valid when activation or first-value friction points to buyer instructions.",
+    "revise_support_macros is valid when support questions need clearer answer templates.",
+    "revise_public_copy is valid when buyer expectations or page wording need tightening.",
+    "pause_sales is required when fulfillment, refund, claims or unresolved support risk is present."
+  ]
+}

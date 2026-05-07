@@ -31,10 +31,11 @@ Last updated: 2026-05-07.
 - Handoff post-compra de Template Pack 2 preparado con soporte inicial y decision de escala/pausa.
 - Registro interno de ventas de Template Pack 2 preparado para revisar entrega, soporte, refunds y decision de escala.
 - Revision de cohorte temprana de Template Pack 2 preparada con feedback agregado y decision de roadmap.
+- Bucle de mejora post-venta preparado para ajustar onboarding, macros de soporte y copy publico tras la primera venta controlada.
 
 ## Next
 
-- Mejorar onboarding, soporte y copy publico tras la primera venta controlada.
+- Aplicar micro-mejoras aprobadas y preparar el siguiente comprador controlado.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.

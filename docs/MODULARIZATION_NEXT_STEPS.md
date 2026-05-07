@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M67 - First Controlled Buyer Operating Log And Post-Sale Review.
-- Current product/commercial state: `first_controlled_buyer_log_ready`.
+- Current completed phase: M68 - Post-Sale Improvement Loop.
+- Current product/commercial state: `post_sale_improvement_loop_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
-- Last synced base commit before M67: `2747f3f`.
+- Last synced base commit before M68: `dc316a2`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M68 - Post-Sale Improvement Loop.
+- Next recommended phase: M69 - Apply Post-Sale Micro Updates.
 
 ## Recommended Order
 
@@ -113,4 +113,5 @@ Persistent planning note for the next SQX Edge phases.
 65. Phase M65: close buyer-ready checkout, release, support and delivery readiness for controlled first sales. Done.
 66. Phase M66: prepare public buyer page checklist and a calm first-sale operating cadence. Done.
 67. Phase M67: prepare first controlled buyer operating log and lightweight post-sale review. Done.
-68. Phase M68: prepare a small post-sale improvement loop for onboarding, support macros and public copy. Recommended next.
+68. Phase M68: prepare a small post-sale improvement loop for onboarding, support macros and public copy. Done.
+69. Phase M69: apply approved buyer-facing micro-updates and prepare the next controlled buyer readiness check. Recommended next.

@@ -58,6 +58,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "buyer_ready_checkout_closeout.py",
             TOOL_ROOT / "tools" / "public_buyer_page_cadence.py",
             TOOL_ROOT / "tools" / "first_controlled_buyer_log.py",
+            TOOL_ROOT / "tools" / "post_sale_improvement_loop.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
             TOOL_ROOT / "tools" / "relay_bundle.py",
@@ -127,6 +128,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("buyer_ready_checkout_closeout\\.py", text)
         self.assertIn("public_buyer_page_cadence\\.py", text)
         self.assertIn("first_controlled_buyer_log\\.py", text)
+        self.assertIn("post_sale_improvement_loop\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
         self.assertIn("relay_bundle\\.py", text)
@@ -161,6 +163,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn('"buyer_ready_checkout_closeout"', text)
         self.assertIn('"public_buyer_page_cadence"', text)
         self.assertIn('"first_controlled_buyer_log"', text)
+        self.assertIn('"post_sale_improvement_loop"', text)
         self.assertIn('"pro-template-pack-1"', text)
         self.assertIn('"pro-template-pack-2"', text)
         self.assertIn('"license_keys"', text)
@@ -216,6 +219,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("buyer_ready_checkout_closeout.py", text)
         self.assertIn("public_buyer_page_cadence.py", text)
         self.assertIn("first_controlled_buyer_log.py", text)
+        self.assertIn("post_sale_improvement_loop.py", text)
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
         self.assertIn("relay_bundle.py", text)
@@ -244,6 +248,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("buyer_ready_checkout_closeout", text)
         self.assertIn("public_buyer_page_cadence", text)
         self.assertIn("first_controlled_buyer_log", text)
+        self.assertIn("post_sale_improvement_loop", text)
         self.assertIn("pro-template-pack-1", text)
         self.assertIn("pro-template-pack-2", text)
         self.assertIn("license_keys", text)
@@ -297,6 +302,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "buyer_ready_checkout_closeout.py",
             "public_buyer_page_cadence.py",
             "first_controlled_buyer_log.py",
+            "post_sale_improvement_loop.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
             "relay_bundle.py",
@@ -324,6 +330,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "buyer_ready_checkout_closeout",
             "public_buyer_page_cadence",
             "first_controlled_buyer_log",
+            "post_sale_improvement_loop",
             "pro-template-pack-1",
             "pro-template-pack-2",
             "license_keys",
@@ -371,6 +378,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/data/buyer_ready_checkout_closeout/", text)
         self.assertIn("backend/sqx-edge-tool/data/public_buyer_page_cadence/", text)
         self.assertIn("backend/sqx-edge-tool/data/first_controlled_buyer_log/", text)
+        self.assertIn("backend/sqx-edge-tool/data/post_sale_improvement_loop/", text)
 
     def test_release_bat_runs_strict_checklist(self):
         text = (PROJECT_ROOT / "RELEASE_SQX_EDGE.bat").read_text(encoding="utf-8-sig")
