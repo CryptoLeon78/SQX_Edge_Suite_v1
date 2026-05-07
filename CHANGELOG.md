@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - M80 manual publication monitor
+
+- Anade gate interno para monitorizar la publicacion manual limitada antes de ampliar trafico.
+- Actualiza estado comercial a `manual_publication_monitor_ready`.
+- Mantiene la guia operativa completa en el repo privado y deja punteros publicos para M80.
+
 ## 2026-05-07 - M79 manual limited publication record
 
 - Anade gate interno para registrar una publicacion manual limitada despues de M78.

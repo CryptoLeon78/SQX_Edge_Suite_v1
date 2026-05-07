@@ -91,6 +91,7 @@ MONETIZATION_M76_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M76.md"
 MONETIZATION_M77_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M77.md"
 MONETIZATION_M78_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M78.md"
 MONETIZATION_M79_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M79.md"
+MONETIZATION_M80_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M80.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -455,8 +456,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "manual_limited_publication_record_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "manual_limited_publication_record_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "manual_publication_monitor_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "manual_publication_monitor_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
@@ -550,8 +551,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("customer_cockpit_overview", server_py)
         self.assertIn("redacted_operator_summary", customer_cockpit_py)
         self.assertIn("license payloads", customer_cockpit_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "manual_limited_publication_record_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "manual_limited_publication_record_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "manual_publication_monitor_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "manual_publication_monitor_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitEndpoint"], "/api/customer-cockpit")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitConfig"], "backend/sqx-edge-tool/config/customer_cockpit.json")
         self.assertEqual(
@@ -832,6 +833,16 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(
             product_manifest["upgrade"]["checkout"]["manualLimitedPublicationRecordPolicy"],
             "record_manual_limited_publication_only_after_m78_approval_support_rollback_pause_rule_monitoring_and_redacted_channel_evidence_are_ready",
+        )
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["manualPublicationMonitorConfig"],
+            "backend/sqx-edge-tool/config/manual_publication_monitor.json",
+        )
+        self.assertIn("manual_publication_monitor.py", product_manifest["upgrade"]["checkout"]["manualPublicationMonitorTool"])
+        self.assertIn("manual_publication_monitor", product_manifest["upgrade"]["checkout"]["manualPublicationMonitorEvidenceDir"])
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["manualPublicationMonitorPolicy"],
+            "monitor_manual_limited_publication_before_any_traffic_expansion_and_block_scaling_when_support_claims_refunds_or_incidents_are_unresolved",
         )
 
     def test_dashboard_navigation_delegates_to_ui_module(self):
@@ -1234,7 +1245,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "manual_limited_publication_record_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "manual_publication_monitor_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
@@ -1373,10 +1384,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/operator_publication_review.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/manual_limited_publication_record", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/manual_limited_publication_record.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/manual_publication_monitor", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/manual_publication_monitor.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/private_commercial_split.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-2", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "manual_limited_publication_record_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "manual_publication_monitor_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -1459,6 +1472,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/operator_publication_review.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/manual_limited_publication_record", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/manual_limited_publication_record.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/manual_publication_monitor", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/manual_publication_monitor.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/private_commercial_split.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/customer_success_renewal", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/customer_cockpit", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
@@ -1542,11 +1557,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             "M77_limited_publication_draft",
             "M78_operator_publication_review",
             "M79_manual_limited_publication_record",
+            "M80_manual_publication_monitor",
         }
 
         self.assertEqual(manifest["migrationStage"], "public_redacted_private_repo_published")
-        self.assertEqual(manifest["phase"], "M79_manual_limited_publication_record")
-        self.assertEqual(manifest["latestPrivateCommercialPhase"], "M79")
+        self.assertEqual(manifest["phase"], "M80_manual_publication_monitor")
+        self.assertEqual(manifest["latestPrivateCommercialPhase"], "M80")
         self.assertEqual(manifest["privateRepositoryUrl"], private_repo)
         self.assertEqual(manifest["privateBaselineCommit"], private_commit)
         self.assertIn("public_repository_keeps_only_traceability_pointers", manifest["publicRedactionPolicy"])
@@ -2882,6 +2898,44 @@ class DashboardStaticTestCase(unittest.TestCase):
             "record_manual_publication_requires_monitoring",
             "--use-latest-review",
             "--confirm-redacted-url",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, tool_text)
+
+    def test_manual_publication_monitor_gate_is_present(self):
+        tool_path = TOOL_ROOT / "tools" / "manual_publication_monitor.py"
+        config_path = TOOL_ROOT / "config" / "manual_publication_monitor.json"
+        public_doc = PROJECT_ROOT / "docs" / "sales" / "MANUAL_PUBLICATION_MONITOR.md"
+        py_compile.compile(str(tool_path), doraise=True)
+        config = json.loads(config_path.read_text(encoding="utf-8-sig"))
+        tool_text = tool_path.read_text(encoding="utf-8")
+
+        self.assertEqual(config["state"], "manual_publication_monitor_ready")
+        self.assertEqual(config["offerId"], "sqx_edge_pro_manual_publication_monitor")
+        self.assertEqual(config["dependsOn"]["manualLimitedPublicationRecordState"], "manual_limited_publication_record_ready")
+        self.assertEqual(
+            config["privacyPolicy"],
+            "store_only_redacted_monitoring_counts_decision_owner_and_next_action_without_buyer_identity_checkout_payloads_or_license_files",
+        )
+        self.assertIn("record_manual_publication", config["allowedSourceDecisions"])
+        self.assertIn("prepare_traffic_expansion_review", config["allowedDecisions"])
+        self.assertEqual(config["minimumObservationHours"], 24)
+        self.assertEqual(config["maximumIncidents"], 0)
+        for required in config["requiredFiles"]:
+            with self.subTest(required=required):
+                self.assertTrue((PROJECT_ROOT / required).is_file(), required)
+        self.assert_public_redaction_pointer(public_doc)
+        self.assert_public_redaction_pointer(MONETIZATION_M80_DOC)
+
+        for pattern in (
+            "manual_publication_monitor_ready",
+            "manual_limited_publication_record_state_invalid",
+            "manual_limited_publication_record_evidence_missing",
+            "m79_did_not_select_record_manual_publication",
+            "prepare_traffic_expansion_review_requires_observation_time",
+            "risky_counts_block_traffic_expansion_review",
+            "--use-latest-record",
+            "--confirm-redacted-metrics",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, tool_text)

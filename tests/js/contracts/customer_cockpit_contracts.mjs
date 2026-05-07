@@ -38,8 +38,8 @@ assert.ok(cockpitJs.includes("SQX.registerModule('customer-cockpit'"));
 assert.ok(cockpitJs.includes("endpoint('/customer-cockpit')"));
 assert.ok(html.includes('js/modules/customer-cockpit.js'));
 assert.ok(mainJs.includes('window.SQX.customerCockpit.init()'));
-assert.equal(productManifest.upgrade.checkout.status, 'manual_limited_publication_record_ready');
-assert.equal(productManifest.upgrade.checkout.automation.status, 'manual_limited_publication_record_ready');
+assert.equal(productManifest.upgrade.checkout.status, 'manual_publication_monitor_ready');
+assert.equal(productManifest.upgrade.checkout.automation.status, 'manual_publication_monitor_ready');
 assert.equal(productManifest.upgrade.checkout.customerCockpitEndpoint, '/api/customer-cockpit');
 assert.equal(productManifest.upgrade.checkout.customerCockpitConfig, 'backend/sqx-edge-tool/config/customer_cockpit.json');
 assert.equal(
@@ -106,6 +106,8 @@ assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('
 assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('backend/sqx-edge-tool/tools/operator_publication_review.py'));
 assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('backend/sqx-edge-tool/data/manual_limited_publication_record'));
 assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('backend/sqx-edge-tool/tools/manual_limited_publication_record.py'));
+assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('backend/sqx-edge-tool/data/manual_publication_monitor'));
+assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('backend/sqx-edge-tool/tools/manual_publication_monitor.py'));
 assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('resources/pro-template-pack-1'));
 assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('resources/pro-template-pack-2'));
 
