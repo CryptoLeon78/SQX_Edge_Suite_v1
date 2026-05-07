@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - M73 controlled distribution review
+
+- Anade gate interno para revisar evidencia M72 y decidir repetir, corregir, pausar o preparar el siguiente asset buyer-facing.
+- Actualiza estado comercial a `controlled_distribution_review_ready`.
+- Mantiene la guia operativa completa en el repo privado y deja punteros publicos para M73.
+
 ## 2026-05-07 - M72 controlled distribution step
 
 - Anade gate interno para ejecutar la decision M71 como paso de distribucion minimo, reversible y sin datos personales.

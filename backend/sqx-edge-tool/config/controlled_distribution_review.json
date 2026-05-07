@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "state": "controlled_distribution_review_ready",
+  "reviewId": "controlled_distribution_review",
+  "offerId": "sqx_edge_pro_controlled_distribution_review",
+  "name": "Controlled Distribution Evidence Review",
+  "dependsOn": {
+    "controlledDistributionStepConfig": "backend/sqx-edge-tool/config/controlled_distribution_step.json",
+    "controlledDistributionStepState": "controlled_distribution_step_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/CONTROLLED_DISTRIBUTION_REVIEW.md",
+    "docs/sales/CONTROLLED_DISTRIBUTION_STEP.md",
+    "docs/sales/NEXT_CONTROLLED_BUYER_OUTCOME.md",
+    "resources/pro-buyer-pack/onboarding/START_HERE.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "allowedSourceActions": [
+    "prepare_single_private_slot",
+    "open_tiny_private_batch",
+    "create_fix_list",
+    "pause_checkout_and_review"
+  ],
+  "allowedReviewStatuses": [
+    "completed",
+    "partial",
+    "blocked",
+    "paused"
+  ],
+  "allowedDecisions": [
+    "repeat_distribution_step",
+    "prepare_buyer_facing_asset",
+    "hold_for_fix",
+    "pause_sales"
+  ],
+  "minimumPositiveSignalsForAsset": 2,
+  "maximumOpenSupportItems": 0,
+  "maximumRefundRequests": 0,
+  "maximumClaimsIssues": 0,
+  "privacyPolicy": "store_only_redacted_distribution_review_metrics_decision_and_next_action_without_buyer_identity_checkout_payloads_or_license_files",
+  "reviewPolicy": "review_m72_evidence_before_repeating_holding_pausing_or_preparing_the_next_buyer_facing_asset",
+  "decisionRules": [
+    "prepare_buyer_facing_asset requires completed M72 evidence, at least two positive signals, zero support, zero refunds and zero claims issues.",
+    "repeat_distribution_step requires completed or partial M72 evidence with no refund or claims risk.",
+    "hold_for_fix is valid when the step was partial, blocked or needs onboarding/support/copy repair.",
+    "pause_sales is required when refunds, claims issues or paused distribution are present."
+  ]
+}

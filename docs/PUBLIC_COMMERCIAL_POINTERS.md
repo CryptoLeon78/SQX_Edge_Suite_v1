@@ -22,5 +22,6 @@ This preserves path-level traceability without publishing operational buyer evid
 
 New commercial phases after S5 follow the same rule: public files are pointer stubs, while the complete operational documents live in the private repository.
 M72 continues this rule: the controlled distribution details live privately, while public files keep traceability only.
+M73 continues this rule: controlled distribution review details live privately, while public files keep traceability only.
 
 Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.
