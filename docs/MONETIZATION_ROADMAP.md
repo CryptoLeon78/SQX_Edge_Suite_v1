@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M59 - Template Pack 2 Offer Pack.
-- Current state: `template_pack_2_offer_pack_ready`.
+- Completed through: M60 - Template Pack 2 Controlled Publication.
+- Current state: `template_pack_2_controlled_publication_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M60 - Template Pack 2 Controlled Publication.
+- Next recommended phase: M61 - Template Pack 2 Controlled Purchase Drill.
 
 ## Decision Base
 
@@ -1299,3 +1299,24 @@ Decision M59:
 - Checkout queda en draft hasta completar URL, variant ID y soporte reales.
 - La fase no guarda credenciales, licencias, claves privadas ni payloads de proveedor.
 - El siguiente paso real es M60: preparar publicacion controlada con checkout real, soporte, rollback y purchase drill.
+
+## Phase M60 - Template Pack 2 Controlled Publication
+
+Objetivo: preparar publicacion controlada de Template Pack 2 con URL real, soporte, rollback y purchase drill antes de escalar ventas.
+
+Entregables:
+
+- Estado `template_pack_2_controlled_publication_ready`.
+- Configuracion `backend/sqx-edge-tool/config/template_pack_2_publication.json`.
+- Guia interna `docs/sales/TEMPLATE_PACK_2_CONTROLLED_PUBLICATION.md`.
+- Gate interno `backend/sqx-edge-tool/tools/template_pack_2_publication.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_2_publication`.
+
+Estado: Done.
+
+Decision M60:
+
+- El checkout real queda validable mediante URL HTTPS, variant ID y soporte.
+- El purchase drill queda como checklist previo a la primera venta controlada.
+- La escritura de valores reales en manifest requiere `--apply`.
+- El siguiente paso real es M61: ejecutar purchase drill controlado con evidencia redacted.

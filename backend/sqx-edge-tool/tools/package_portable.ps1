@@ -54,6 +54,7 @@ $excludeNames = @(
   "template_pack_2_specs",
   "template_pack_2_assets",
   "template_pack_2_offer_pack",
+  "template_pack_2_publication",
   "pro-template-pack-1",
   "pro-template-pack-2",
   "sqx-edge-relay"
@@ -104,6 +105,7 @@ function Test-IncludedPath {
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\template_pack_2_specs\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\template_pack_2_assets\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\template_pack_2_offer_pack\.py$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\tools\\template_pack_2_publication\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfillment_request\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfill_from_request\.ps1$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\relay_bundle\.py$") { return $false }

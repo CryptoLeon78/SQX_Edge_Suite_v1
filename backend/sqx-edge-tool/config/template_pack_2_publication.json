@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "state": "template_pack_2_controlled_publication_ready",
+  "publicationId": "template_pack_2_controlled_publication",
+  "offerId": "template_pack_2",
+  "name": "Template Pack 2 Controlled Publication",
+  "primaryProvider": "Lemon Squeezy",
+  "fallbackProvider": "Gumroad",
+  "price": "79 EUR",
+  "draftStatus": "template_pack_2_controlled_publication_ready",
+  "liveStatusWhenApplied": "template_pack_2_controlled_publication_live",
+  "publicationMode": "controlled_first_sales",
+  "firstSaleCap": 5,
+  "dependsOn": {
+    "offerPackConfig": "backend/sqx-edge-tool/config/template_pack_2_offer_pack.json",
+    "offerPackState": "template_pack_2_offer_pack_ready",
+    "assetsConfig": "backend/sqx-edge-tool/config/template_pack_2_assets.json",
+    "assetsState": "template_pack_2_assets_ready"
+  },
+  "env": {
+    "checkoutUrl": "SQX_TEMPLATE_PACK_2_CHECKOUT_URL",
+    "fallbackUrl": "SQX_TEMPLATE_PACK_2_FALLBACK_URL",
+    "providerVariantId": "SQX_TEMPLATE_PACK_2_PROVIDER_VARIANT_ID",
+    "supportEmail": "SQX_TEMPLATE_PACK_2_SUPPORT_EMAIL"
+  },
+  "requiredFiles": [
+    "backend/sqx-edge-tool/config/template_pack_2_offer_pack.json",
+    "backend/sqx-edge-tool/config/template_pack_2_assets.json",
+    "backend/sqx-edge-tool/tools/template_pack_2_offer_pack.py",
+    "backend/sqx-edge-tool/tools/template_pack_2_assets.py",
+    "docs/sales/TEMPLATE_PACK_2_OFFER_PACK.md",
+    "docs/sales/TEMPLATE_PACK_2_ASSETS.md",
+    "docs/sales/TEMPLATE_PACK_2_CONTROLLED_PUBLICATION.md",
+    "resources/pro-template-pack-2/offer/public_offer.md",
+    "resources/pro-template-pack-2/offer/checkout_wiring.md",
+    "resources/pro-template-pack-2/offer/delivery_email_macro.md",
+    "resources/pro-template-pack-2/offer/support_macro.md"
+  ],
+  "requiredConfirmations": [
+    "offer_pack_reviewed",
+    "checkout_url_tested",
+    "provider_variant_confirmed",
+    "support_inbox_ready",
+    "delivery_macro_ready",
+    "rollback_ready",
+    "purchase_drill_ready",
+    "controlled_publication_approved"
+  ],
+  "forbiddenPlaceholders": [
+    "example.com",
+    "localhost",
+    "127.0.0.1",
+    "TODO",
+    "draft",
+    "placeholder",
+    "test_order"
+  ],
+  "purchaseDrillChecklist": [
+    "Confirm checkout variant is template_pack_2 and price is 79 EUR.",
+    "Confirm controlled paid purchase can be recorded with redacted buyer reference.",
+    "Confirm Template Pack 2 ZIP is generated as separate add-on.",
+    "Confirm delivery email macro and support macro are ready.",
+    "Confirm refund or pause path is ready before scaling."
+  ],
+  "safePublicationRules": [
+    "No publicar si falta URL HTTPS real.",
+    "No publicar si el provider variant ID esta vacio o parece placeholder.",
+    "No publicar si no hay email de soporte operativo.",
+    "Limitar las primeras ventas y revisar soporte antes de escalar.",
+    "Mantener rollback: pausar checkout, pausar webhook/relay y entregar manualmente si hace falta."
+  ]
+}

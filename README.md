@@ -4,11 +4,11 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: M59 completada, `template_pack_2_offer_pack_ready`.
-- Ultimo commit base verificado antes de M59: `56f02fb`.
+- Estado interno: M60 completada, `template_pack_2_controlled_publication_ready`.
+- Ultimo commit base verificado antes de M60: `eb5100b`.
 - Ultimo ZIP portable verificado antes de M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - SHA256 del ZIP: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Siguiente paso recomendado: M60, preparar publicacion controlada de Template Pack 2 con URL real, soporte, rollback y purchase drill.
+- Siguiente paso recomendado: M61, ejecutar purchase drill controlado de Template Pack 2 con evidencia redacted.
 
 ## SQX Edge Pro
 

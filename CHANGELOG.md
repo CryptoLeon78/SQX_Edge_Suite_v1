@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 2 controlled publication
+
+- Anade M60 con puerta de publicacion controlada para Template Pack 2.
+- Anade `template_pack_2_publication.py` para validar checkout URL, variant ID, soporte, rollback y purchase drill.
+- Actualiza estado comercial a `template_pack_2_controlled_publication_ready`.
+- Mantiene la escritura de valores reales detras de `--apply`.
+
 ## 2026-05-07 - Template Pack 2 offer pack
 
 - Anade M59 con oferta controlada para Template Pack 2.

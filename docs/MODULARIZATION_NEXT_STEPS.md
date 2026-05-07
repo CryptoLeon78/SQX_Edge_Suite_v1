@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M59 - Template Pack 2 Offer Pack.
-- Current product/commercial state: `template_pack_2_offer_pack_ready`.
+- Current completed phase: M60 - Template Pack 2 Controlled Publication.
+- Current product/commercial state: `template_pack_2_controlled_publication_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
-- Last synced base commit before M59: `56f02fb`.
+- Last synced base commit before M60: `eb5100b`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M60 - Template Pack 2 Controlled Publication.
+- Next recommended phase: M61 - Template Pack 2 Controlled Purchase Drill.
 
 ## Recommended Order
 
@@ -105,4 +105,5 @@ Persistent planning note for the next SQX Edge phases.
 57. Phase M57: execute the selected action plan as Template Pack 2 initial specs with scope, assets, support, delivery and next phase. Done.
 58. Phase M58: create Template Pack 2 initial assets from the specs gate. Done.
 59. Phase M59: prepare Template Pack 2 offer pack with public copy, FAQ, checkout draft, delivery macro and support macro. Done.
-60. Phase M60: prepare controlled Template Pack 2 publication with live checkout URL, support, rollback and purchase drill. Recommended next.
+60. Phase M60: prepare controlled Template Pack 2 publication with live checkout URL, support, rollback and purchase drill. Done.
+61. Phase M61: execute Template Pack 2 controlled purchase drill with redacted payment, delivery, support and refund/pause evidence. Recommended next.
