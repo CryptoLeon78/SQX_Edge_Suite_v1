@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "state": "next_controlled_buyer_outcome_ready",
+  "reviewId": "next_controlled_buyer_outcome",
+  "offerId": "sqx_edge_pro_next_controlled_private_buyer",
+  "name": "Next Controlled Buyer Outcome Review",
+  "dependsOn": {
+    "nextControlledBuyerReadinessConfig": "backend/sqx-edge-tool/config/next_controlled_buyer_readiness.json",
+    "nextControlledBuyerReadinessState": "next_controlled_buyer_readiness_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/NEXT_CONTROLLED_BUYER_OUTCOME.md",
+    "docs/sales/NEXT_CONTROLLED_BUYER_READINESS.md",
+    "docs/sales/FIRST_CONTROLLED_BUYER_LOG.md",
+    "docs/sales/POST_SALE_MICRO_UPDATES.md",
+    "resources/pro-buyer-pack/onboarding/START_HERE.md",
+    "resources/pro-buyer-pack/onboarding/support_contact_template.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "requiredConfirmations": [
+    "readiness_go_reviewed",
+    "purchase_outcome_recorded",
+    "license_activation_reviewed",
+    "first_value_reviewed",
+    "support_outcome_reviewed",
+    "refund_risk_reviewed",
+    "safe_claims_reviewed",
+    "next_decision_recorded"
+  ],
+  "allowedOutcomeStatuses": [
+    "completed",
+    "partial",
+    "no_show",
+    "failed",
+    "refunded"
+  ],
+  "allowedDecisions": [
+    "repeat_private_slot",
+    "carefully_widen",
+    "hold_for_fix",
+    "pause_sales"
+  ],
+  "minimumFollowupHours": 24,
+  "maximumOpenSupportItems": 0,
+  "maximumRefundRequests": 0,
+  "maximumFulfillmentFailures": 0,
+  "maximumClaimsIssues": 0,
+  "minimumFirstValueScore": 7,
+  "privacyPolicy": "store_redacted_next_buyer_outcome_metrics_decision_and_actions_without_personal_data_checkout_payloads_or_license_files",
+  "reviewPolicy": "record_controlled_buyer_result_activation_first_value_support_refund_risk_safe_claims_and_next_distribution_decision",
+  "decisionRules": [
+    "carefully_widen requires completed outcome, activation, first value, follow-up, zero open support, zero refunds, zero fulfillment failures and zero claims issues.",
+    "repeat_private_slot requires a completed or partial outcome with no unresolved refund, fulfillment or claims risk.",
+    "hold_for_fix is valid when onboarding, support or delivery needs repair before another buyer.",
+    "pause_sales is required for refunds, fulfillment failures, claims issues, unresolved support or failed/no-show outcome."
+  ]
+}

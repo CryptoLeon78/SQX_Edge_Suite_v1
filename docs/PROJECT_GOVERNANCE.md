@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: S5/M-pre - Public Commercial Redaction Applied.
-- Current product/commercial state: `next_controlled_buyer_readiness_ready`.
-- Next implementation phase: continue buyer-readiness work from private commercial docs, or start M71 once the private/public boundary remains clean.
+- Current phase completed: M71 - Next Controlled Buyer Outcome Review.
+- Current product/commercial state: `next_controlled_buyer_outcome_ready`.
+- Next implementation phase: decide M72 from the private commercial outcome: repeat private slot, hold fixes, pause sales or carefully widen.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

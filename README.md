@@ -4,11 +4,11 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: S5/M-pre completada tras M70; estado comercial vigente `next_controlled_buyer_readiness_ready`.
+- Estado interno: M71 completada; estado comercial vigente `next_controlled_buyer_outcome_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado antes de M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - SHA256 del ZIP: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Siguiente paso recomendado: continuar M71 desde el repo privado comercial cuando toque abrir el siguiente ciclo de comprador controlado.
+- Siguiente paso recomendado: decidir M72 desde la evidencia privada de resultado: repetir slot privado, pausar, corregir o ampliar con mucho control.
 
 ## SQX Edge Pro
 
@@ -55,6 +55,7 @@ Documentos comerciales:
 - `docs/sales/POST_SALE_IMPROVEMENT_LOOP.md`
 - `docs/sales/POST_SALE_MICRO_UPDATES.md`
 - `docs/sales/NEXT_CONTROLLED_BUYER_READINESS.md`
+- `docs/sales/NEXT_CONTROLLED_BUYER_OUTCOME.md`
 
 Nota de seguridad comercial: los documentos de venta interna, buyer logs, gates privados, evidencias de checkout/soporte y plantillas operativas ya fueron migrados al repositorio privado `CryptoLeon78/sqx-edge-commercial-private`. El repo publico conserva arquitectura, releases, claims seguros y punteros de trazabilidad; `docs/MONETIZATION_*`, `docs/sales/*` y los packs Pro bajo `resources/` son stubs publicos redactados.
 

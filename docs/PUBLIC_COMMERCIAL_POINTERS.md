@@ -20,4 +20,6 @@ The public repository intentionally keeps only pointer files for these source se
 
 This preserves path-level traceability without publishing operational buyer evidence, pricing experiments, checkout details, support macros or paid template payloads.
 
+New commercial phases after S5 follow the same rule: public files are pointer stubs, while the complete operational documents live in the private repository.
+
 Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

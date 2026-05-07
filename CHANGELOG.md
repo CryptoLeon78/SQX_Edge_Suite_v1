@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - M71 next controlled buyer outcome
+
+- Anade gate interno para registrar el resultado del siguiente comprador controlado sin datos personales, payloads de checkout ni licencias.
+- Actualiza estado comercial a `next_controlled_buyer_outcome_ready`.
+- Mantiene el documento operativo completo en el repo privado y deja punteros publicos para M71.
+
 ## 2026-05-07 - Public commercial redaction
 
 - Redacta roadmap comercial, runbooks de venta y packs Pro buyer/template en el repo publico como punteros de trazabilidad.

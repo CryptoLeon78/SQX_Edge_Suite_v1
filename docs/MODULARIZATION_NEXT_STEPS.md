@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: S5/M-pre - Public Commercial Redaction Applied.
-- Current product/commercial state: `next_controlled_buyer_readiness_ready`.
+- Current completed phase: M71 - Next Controlled Buyer Outcome Review.
+- Current product/commercial state: `next_controlled_buyer_outcome_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: resume commercial execution from the private repository and run M71 when ready.
+- Next recommended phase: decide M72 from private outcome evidence: repeat private slot, hold fixes, pause sales or carefully widen.
 
 ## Recommended Order
 
@@ -125,4 +125,5 @@ Persistent planning note for the next SQX Edge phases.
 68. Phase M68: prepare a small post-sale improvement loop for onboarding, support macros and public copy. Done.
 69. Phase M69: apply approved buyer-facing micro-updates and prepare the next controlled buyer readiness check. Done.
 70. Phase M70: run the next controlled buyer readiness check before sharing another private checkout link. Done.
-71. Phase M71: record the next controlled buyer outcome and decide repeat, pause or carefully widen. Recommended next.
+71. Phase M71: record the next controlled buyer outcome and decide repeat, pause or carefully widen. Done.
+72. Phase M72: execute the selected outcome decision with a tiny, reversible distribution step. Recommended next.
