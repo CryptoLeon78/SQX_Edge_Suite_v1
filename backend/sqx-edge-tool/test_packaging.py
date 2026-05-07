@@ -46,6 +46,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "template_pack_1_handoff.py",
             TOOL_ROOT / "tools" / "template_pack_1_sales_register.py",
             TOOL_ROOT / "tools" / "template_pack_1_feedback_cohort.py",
+            TOOL_ROOT / "tools" / "template_pack_1_action_plan.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
             TOOL_ROOT / "tools" / "relay_bundle.py",
@@ -103,6 +104,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("template_pack_1_handoff\\.py", text)
         self.assertIn("template_pack_1_sales_register\\.py", text)
         self.assertIn("template_pack_1_feedback_cohort\\.py", text)
+        self.assertIn("template_pack_1_action_plan\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
         self.assertIn("relay_bundle\\.py", text)
@@ -125,6 +127,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn('"template_pack_1_handoff"', text)
         self.assertIn('"template_pack_1_sales_register"', text)
         self.assertIn('"template_pack_1_feedback_cohort"', text)
+        self.assertIn('"template_pack_1_action_plan"', text)
         self.assertIn('"pro-template-pack-1"', text)
         self.assertIn('"license_keys"', text)
         self.assertIn("\\\\.env", text)
@@ -167,6 +170,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("template_pack_1_handoff.py", text)
         self.assertIn("template_pack_1_sales_register.py", text)
         self.assertIn("template_pack_1_feedback_cohort.py", text)
+        self.assertIn("template_pack_1_action_plan.py", text)
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
         self.assertIn("relay_bundle.py", text)
@@ -183,6 +187,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("template_pack_1_handoff", text)
         self.assertIn("template_pack_1_sales_register", text)
         self.assertIn("template_pack_1_feedback_cohort", text)
+        self.assertIn("template_pack_1_action_plan", text)
         self.assertIn("pro-template-pack-1", text)
         self.assertIn("license_keys", text)
         self.assertIn("private_keys", text)
@@ -223,6 +228,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "template_pack_1_handoff.py",
             "template_pack_1_sales_register.py",
             "template_pack_1_feedback_cohort.py",
+            "template_pack_1_action_plan.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
             "relay_bundle.py",
@@ -238,6 +244,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "template_pack_1_handoff",
             "template_pack_1_sales_register",
             "template_pack_1_feedback_cohort",
+            "template_pack_1_action_plan",
             "pro-template-pack-1",
             "license_keys",
             "private_keys",
@@ -272,6 +279,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/data/template_pack_1_handoff/", text)
         self.assertIn("backend/sqx-edge-tool/data/template_pack_1_sales_register/", text)
         self.assertIn("backend/sqx-edge-tool/data/template_pack_1_feedback_cohort/", text)
+        self.assertIn("backend/sqx-edge-tool/data/template_pack_1_action_plan/", text)
 
     def test_release_bat_runs_strict_checklist(self):
         text = (PROJECT_ROOT / "RELEASE_SQX_EDGE.bat").read_text(encoding="utf-8-sig")

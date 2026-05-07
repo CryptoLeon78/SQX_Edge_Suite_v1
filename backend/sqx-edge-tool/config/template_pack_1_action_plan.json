@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "state": "template_pack_1_action_plan_ready",
+  "planId": "template_pack_1_iteration_or_pack_2_action_plan",
+  "offerId": "template_pack_1",
+  "name": "Template Pack 1 Iteration Or Pack 2 Action Plan",
+  "dependsOn": {
+    "feedbackCohortConfig": "backend/sqx-edge-tool/config/template_pack_1_feedback_cohort.json",
+    "feedbackCohortState": "template_pack_1_feedback_cohort_ready"
+  },
+  "requiredFiles": [
+    "backend/sqx-edge-tool/config/template_pack_1_feedback_cohort.json",
+    "backend/sqx-edge-tool/tools/template_pack_1_feedback_cohort.py",
+    "docs/sales/TEMPLATE_PACK_1_FEEDBACK_COHORT.md",
+    "docs/sales/TEMPLATE_PACK_1_ACTION_PLAN.md",
+    "resources/pro-template-pack-1/README.md"
+  ],
+  "requiredConfirmations": [
+    "feedback_cohort_go",
+    "action_owner_assigned",
+    "support_impact_reviewed",
+    "safe_claims_reviewed",
+    "distribution_impact_reviewed",
+    "next_phase_recorded"
+  ],
+  "allowedPlans": [
+    "offer_iteration",
+    "traffic_expansion",
+    "template_pack_2",
+    "pause_sales"
+  ],
+  "allowedPriorities": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "allowedNextPhases": [
+    "M57_offer_iteration",
+    "M57_template_pack_2_specs",
+    "M57_traffic_expansion",
+    "M57_pause_and_fix"
+  ],
+  "minimumActions": 3,
+  "maxSupportImpactForTrafficExpansion": 1,
+  "privacyPolicy": "store_redacted_action_plan_owner_priority_support_claims_distribution_and_next_phase_only",
+  "planPolicy": "convert_feedback_into_operator_actions_without_raw_buyer_messages_or_provider_payloads",
+  "decisionRules": [
+    "offer_iteration requires at least one documentation, copy, onboarding or feature action.",
+    "traffic_expansion requires low support impact and safe claims reviewed.",
+    "template_pack_2 requires positive feedback evidence and a dedicated scope action.",
+    "pause_sales requires explicit fix/support actions before traffic resumes."
+  ]
+}

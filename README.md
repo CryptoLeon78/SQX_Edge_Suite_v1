@@ -4,11 +4,11 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: M55 completada, `template_pack_1_feedback_cohort_ready`.
-- Ultimo commit base verificado antes de M55: `0913083`.
+- Estado interno: M56 completada, `template_pack_1_action_plan_ready`.
+- Ultimo commit base verificado antes de M56: `c2f3c91`.
 - Ultimo ZIP portable verificado antes de M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - SHA256 del ZIP: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Siguiente paso recomendado: M56, preparar plan accionable de iteracion de oferta o Template Pack 2 segun feedback real.
+- Siguiente paso recomendado: M57, ejecutar el plan elegido: iteracion de oferta, specs de Template Pack 2, expansion controlada o pausa/fix.
 
 ## SQX Edge Pro
 
@@ -39,6 +39,7 @@ Documentos comerciales:
 - `docs/sales/TEMPLATE_PACK_1_HANDOFF.md`
 - `docs/sales/TEMPLATE_PACK_1_SALES_REGISTER.md`
 - `docs/sales/TEMPLATE_PACK_1_FEEDBACK_COHORT.md`
+- `docs/sales/TEMPLATE_PACK_1_ACTION_PLAN.md`
 
 Activacion Pro prevista:
 

@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M55 - Template Pack 1 Feedback Cohort Review.
-- Current state: `template_pack_1_feedback_cohort_ready`.
+- Completed through: M56 - Template Pack 1 Iteration Or Pack 2 Action Plan.
+- Current state: `template_pack_1_action_plan_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M56 - Template Pack 1 Iteration Or Pack 2 Action Plan.
+- Next recommended phase: M57 - Execute Selected Template Pack 1 Action Plan.
 
 ## Decision Base
 
@@ -1213,3 +1213,24 @@ Decision M55:
 - `expand_traffic` exige compradores suficientes, feedback suficiente, cero bugs bloqueantes, cero friccion de activacion, cero soporte abierto y cero refunds.
 - `build_template_pack_2` exige senales positivas claras y ausencia de riesgo operativo.
 - El siguiente paso real es M56: convertir el feedback en plan accionable de iteracion de oferta o Template Pack 2.
+
+## Phase M56 - Template Pack 1 Iteration Or Pack 2 Action Plan
+
+Objetivo: convertir la decision de cohorte M55 en un plan accionable para iterar la oferta, ampliar trafico, preparar Template Pack 2 o pausar ventas.
+
+Entregables:
+
+- Estado `template_pack_1_action_plan_ready`.
+- Configuracion `backend/sqx-edge-tool/config/template_pack_1_action_plan.json`.
+- Guia interna `docs/sales/TEMPLATE_PACK_1_ACTION_PLAN.md`.
+- Gate interno `backend/sqx-edge-tool/tools/template_pack_1_action_plan.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_1_action_plan`.
+
+Estado: Done.
+
+Decision M56:
+
+- El plan conserva owner, prioridad, numero de acciones, impacto de soporte/distribucion/claims y siguiente fase.
+- No guarda mensajes crudos de comprador ni payloads de proveedor.
+- El plan debe derivar de la decision M55 y apuntar a `M57_offer_iteration`, `M57_template_pack_2_specs`, `M57_traffic_expansion` o `M57_pause_and_fix`.
+- El siguiente paso real es M57: ejecutar el plan elegido.

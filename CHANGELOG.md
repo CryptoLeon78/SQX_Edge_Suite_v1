@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 1 action plan
+
+- Anade M56 con plan accionable para iterar oferta, ampliar trafico, preparar Template Pack 2 o pausar ventas.
+- Anade `template_pack_1_action_plan.py` para validar owner, prioridad, acciones, soporte, claims, distribucion y siguiente fase.
+- Actualiza estado comercial a `template_pack_1_action_plan_ready`.
+- Mantiene el plan como evidencia redactada sin mensajes crudos de comprador ni payloads de proveedor.
+
 ## 2026-05-07 - Template Pack 1 feedback cohort
 
 - Anade M55 con revision de cohorte y feedback real para Template Pack 1.
