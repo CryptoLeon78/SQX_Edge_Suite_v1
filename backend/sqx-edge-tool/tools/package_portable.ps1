@@ -61,6 +61,7 @@ $excludeNames = @(
   "template_pack_2_feedback_cohort",
   "buyer_ready_checkout_closeout",
   "public_buyer_page_cadence",
+  "first_controlled_buyer_log",
   "pro-template-pack-1",
   "pro-template-pack-2",
   "sqx-edge-relay"
@@ -118,6 +119,7 @@ function Test-IncludedPath {
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\template_pack_2_feedback_cohort\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\buyer_ready_checkout_closeout\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\public_buyer_page_cadence\.py$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\tools\\first_controlled_buyer_log\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfillment_request\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfill_from_request\.ps1$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\relay_bundle\.py$") { return $false }

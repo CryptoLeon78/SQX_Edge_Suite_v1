@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M66 - Public Buyer Page Checklist And First-Sale Cadence.
-- Current state: `public_buyer_page_cadence_ready`.
+- Completed through: M67 - First Controlled Buyer Operating Log And Post-Sale Review.
+- Current state: `first_controlled_buyer_log_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M67 - First Controlled Buyer Operating Log And Post-Sale Review.
+- Next recommended phase: M68 - Post-Sale Improvement Loop.
 
 ## Decision Base
 
@@ -1447,3 +1447,24 @@ Decision M66:
 - La evidencia no guarda compradores, emails, licencias firmadas, secretos ni payloads del proveedor.
 - `publish_private_page` queda limitado a enlace privado/controlado con cadencia y soporte revisados.
 - El siguiente paso real es M67: registrar primer comprador controlado con activacion, soporte y revision post-venta ligera.
+
+## Phase M67 - First Controlled Buyer Operating Log And Post-Sale Review
+
+Objetivo: registrar la primera venta controlada con activacion, soporte, feedback y decision post-venta ligera antes de sumar mas presion comercial.
+
+Entregables:
+
+- Estado `first_controlled_buyer_log_ready`.
+- Configuracion `backend/sqx-edge-tool/config/first_controlled_buyer_log.json`.
+- Guia interna `docs/sales/FIRST_CONTROLLED_BUYER_LOG.md`.
+- Gate interno `backend/sqx-edge-tool/tools/first_controlled_buyer_log.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/first_controlled_buyer_log`.
+
+Estado: Done.
+
+Decision M67:
+
+- El gate exige page cadence M66 GO, venta registrada, entrega confirmada, activacion revisada, soporte revisado, feedback revisado, claims seguros y decision post-venta.
+- La evidencia no guarda emails completos, licencias firmadas, payloads de proveedor, claves ni mensajes crudos.
+- `continue_private_sales` exige primer valor confirmado, cero soporte abierto, cero refunds y cero fallos de fulfillment.
+- El siguiente paso real es M68: preparar un bucle pequeno de mejora post-venta para onboarding, soporte y copy publico.

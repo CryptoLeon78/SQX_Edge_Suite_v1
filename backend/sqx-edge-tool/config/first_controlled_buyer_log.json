@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "state": "first_controlled_buyer_log_ready",
+  "reviewId": "first_controlled_buyer_operating_log",
+  "offerId": "sqx_edge_pro_first_controlled_buyer",
+  "name": "First Controlled Buyer Operating Log And Post-Sale Review",
+  "dependsOn": {
+    "publicBuyerPageCadenceConfig": "backend/sqx-edge-tool/config/public_buyer_page_cadence.json",
+    "publicBuyerPageCadenceState": "public_buyer_page_cadence_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/PUBLIC_BUYER_PAGE_CADENCE.md",
+    "docs/sales/FIRST_CONTROLLED_BUYER_LOG.md",
+    "resources/pro-buyer-pack/onboarding/START_HERE.md",
+    "resources/pro-buyer-pack/onboarding/license_activation_walkthrough.md",
+    "resources/pro-buyer-pack/onboarding/support_contact_template.md",
+    "resources/pro-template-pack-2/offer/delivery_email_macro.md",
+    "resources/pro-template-pack-2/offer/support_macro.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "requiredConfirmations": [
+    "public_page_cadence_go",
+    "sale_recorded",
+    "delivery_confirmed",
+    "license_activation_reviewed",
+    "support_reviewed",
+    "feedback_reviewed",
+    "safe_claims_reviewed",
+    "post_sale_decision_recorded"
+  ],
+  "allowedDecisions": [
+    "continue_private_sales",
+    "iterate_onboarding",
+    "schedule_followup",
+    "pause_sales"
+  ],
+  "minimumActivationEvents": 1,
+  "maximumOpenSupportItemsForContinue": 0,
+  "maximumRefundsForContinue": 0,
+  "privacyPolicy": "store_redacted_first_buyer_order_activation_support_feedback_and_decision_only",
+  "reviewPolicy": "record_operational_status_without_raw_provider_payloads_license_files_or_personal_data",
+  "decisionRules": [
+    "continue_private_sales requires page cadence GO, sale recorded, delivery confirmed, activation reviewed, support reviewed, feedback reviewed, safe claims reviewed and zero open support/refunds.",
+    "iterate_onboarding is valid when buyer steps or docs need refinement after the first sale.",
+    "schedule_followup is valid when first value is not yet confirmed but no blocking risk exists.",
+    "pause_sales is required when delivery, activation, support, refund or claims risk is unresolved."
+  ]
+}

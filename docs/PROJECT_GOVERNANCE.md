@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M66 - Public Buyer Page Checklist And First-Sale Cadence.
-- Current product/commercial state: `public_buyer_page_cadence_ready`.
-- Next implementation phase: M67 - First Controlled Buyer Operating Log And Post-Sale Review.
+- Current phase completed: M67 - First Controlled Buyer Operating Log And Post-Sale Review.
+- Current product/commercial state: `first_controlled_buyer_log_ready`.
+- Next implementation phase: M68 - Post-Sale Improvement Loop.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

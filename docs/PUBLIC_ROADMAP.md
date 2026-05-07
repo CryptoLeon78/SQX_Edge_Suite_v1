@@ -34,7 +34,7 @@ Last updated: 2026-05-07.
 
 ## Next
 
-- Registrar primera venta controlada con soporte, activacion y revision post-venta ligera.
+- Mejorar onboarding, soporte y copy publico tras la primera venta controlada.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.

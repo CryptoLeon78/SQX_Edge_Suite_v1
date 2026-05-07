@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - First controlled buyer log
+
+- Anade M67 con registro operativo del primer comprador controlado y revision post-venta ligera.
+- Anade `first_controlled_buyer_log.py` para validar compra, entrega, activacion, soporte, feedback y decision.
+- Actualiza estado comercial a `first_controlled_buyer_log_ready`.
+- Mantiene evidencia de primera venta controlada fuera del ZIP portable.
+
 ## 2026-05-07 - Public buyer page cadence
 
 - Anade M66 con checklist de pagina publica de comprador y cadencia de primera venta.
