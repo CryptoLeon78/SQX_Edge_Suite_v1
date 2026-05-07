@@ -1,6 +1,6 @@
 # Private Commercial Split Plan
 
-Estado: local_private_repo_prepared.
+Estado: private_repo_published.
 
 Esta fase prepara la migracion de documentos comerciales sensibles a un repositorio privado sin borrar todavia las fuentes publicas. La razon es trazabilidad: primero se exporta, se valida el indice SHA256 y solo despues se sustituyen documentos publicos por punteros redactados.
 
@@ -11,6 +11,8 @@ Esta fase prepara la migracion de documentos comerciales sensibles a un reposito
 - Herramienta: `backend/sqx-edge-tool/tools/private_commercial_split.py`.
 - Indices generados en el export: `MIGRATION_INDEX.json` y `MIGRATION_INDEX.md`.
 - Commit local privado preparado: `ed79719 Initial private commercial export`.
+- Repo privado publicado: `https://github.com/CryptoLeon78/sqx-edge-commercial-private`.
+- Visibilidad verificada con GitHub CLI: private.
 
 ## Material Que Debe Migrar
 
@@ -37,9 +39,9 @@ Esta fase prepara la migracion de documentos comerciales sensibles a un reposito
 backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\private_commercial_split.py
 ```
 
-2. Crear el repositorio privado `sqx-edge-commercial-private`.
-3. Desde `commercial-private/sqx-edge-commercial-private/`, configurar `origin` y ejecutar `git push -u origin main`.
-4. Verificar `MIGRATION_INDEX.json`, los hashes SHA256 y que GitHub marca el repo como privado.
+2. Crear el repositorio privado `sqx-edge-commercial-private`. Done.
+3. Desde `commercial-private/sqx-edge-commercial-private/`, configurar `origin` y ejecutar `git push -u origin main`. Done.
+4. Verificar `MIGRATION_INDEX.json`, los hashes SHA256 y que GitHub marca el repo como privado. Done.
 5. Solo despues, en otra fase, sustituir documentos publicos sensibles por punteros redactados.
 
 ## Regla De Seguridad

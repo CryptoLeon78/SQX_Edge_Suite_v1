@@ -4,11 +4,11 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: S3/M-pre completada tras M70; estado comercial vigente `next_controlled_buyer_readiness_ready`.
-- Ultimo commit base verificado antes de S3/M-pre: `a060207`.
+- Estado interno: S4/M-pre completada tras M70; estado comercial vigente `next_controlled_buyer_readiness_ready`.
+- Ultimo commit base verificado antes de S4/M-pre: `c428baf`.
 - Ultimo ZIP portable verificado antes de M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - SHA256 del ZIP: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Siguiente paso recomendado: crear el repo privado `sqx-edge-commercial-private`, subir el commit privado local `ed79719` y despues sustituir documentos publicos sensibles por punteros redactados.
+- Siguiente paso recomendado: sustituir documentos publicos comerciales sensibles por punteros redactados, ahora que el repo privado ya esta publicado.
 
 ## SQX Edge Pro
 
@@ -65,7 +65,7 @@ backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\privat
 
 El export se genera en `commercial-private/sqx-edge-commercial-private/`, carpeta ignorada por git.
 
-El export privado local ya fue inicializado como repo git en `main` con commit `ed79719 Initial private commercial export`.
+El export privado local ya fue inicializado como repo git en `main` con commit `ed79719 Initial private commercial export` y publicado en el repo privado `CryptoLeon78/sqx-edge-commercial-private`.
 
 Activacion Pro prevista:
 

@@ -468,9 +468,10 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertTrue(any(source.startswith("resources/pro-template-pack-2/") for source in sources))
 
         split_plan = (PROJECT_ROOT / "docs" / "PRIVATE_COMMERCIAL_SPLIT_PLAN.md").read_text(encoding="utf-8-sig")
-        self.assertIn("local_private_repo_prepared", split_plan)
+        self.assertIn("private_repo_published", split_plan)
         self.assertIn("ed79719 Initial private commercial export", split_plan)
-        self.assertIn("git push -u origin main", split_plan)
+        self.assertIn("https://github.com/CryptoLeon78/sqx-edge-commercial-private", split_plan)
+        self.assertIn("Visibilidad verificada", split_plan)
 
     def test_release_bat_runs_strict_checklist(self):
         text = (PROJECT_ROOT / "RELEASE_SQX_EDGE.bat").read_text(encoding="utf-8-sig")

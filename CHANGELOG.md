@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Private commercial repository published
+
+- Instala GitHub CLI en modo portable local bajo `private-commercial/tools/gh`.
+- Crea el repo privado `CryptoLeon78/sqx-edge-commercial-private`.
+- Sube el export comercial privado con commit `ed79719 Initial private commercial export`.
+- Verifica con GitHub CLI que el repositorio remoto es privado.
+
 ## 2026-05-07 - Local private commercial repository prepared
 
 - Inicializa el export comercial privado como repositorio git local ignorado por el repo publico.

@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: S3/M-pre - Local Private Commercial Repository Prepared.
+- Current phase completed: S4/M-pre - Private Commercial Repository Published.
 - Current product/commercial state: `next_controlled_buyer_readiness_ready`.
-- Next implementation phase: create the private GitHub repository, push local private commit `ed79719`, then replace public sensitive docs with redacted pointers.
+- Next implementation phase: replace public sensitive commercial docs with redacted pointers now that private repo `CryptoLeon78/sqx-edge-commercial-private` is published.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 
@@ -80,6 +80,7 @@ M46 is accepted when these criteria are true:
 - Commercial gates: `backend/sqx-edge-tool/tools/*` and `docs/sales/*`.
 - CI baseline: `.github/workflows/tests.yml` and `requirements-dev.txt`.
 - Private commercial boundary: `docs/PRIVATE_COMMERCIAL_DOCS.md`, `docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md`, `docs/private_commercial_manifest.json` and `private_commercial_split.py`.
+- Private commercial repository: `https://github.com/CryptoLeon78/sqx-edge-commercial-private` (private, commit `ed79719`).
 - Roadmap state: `docs/MODULARIZATION_NEXT_STEPS.md` and `docs/MONETIZATION_ROADMAP.md`.
 
 ## Security Notes
