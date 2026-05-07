@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: V6 - SQX Views Buyer-Ready Examples.
+- Current completed phase: PG3 - Project Generator Custom Preset Packs.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: PG3 - portable custom preset import/export, or V7 - buyer profile SQX Views packs.
+- Next recommended phase: V7 - buyer profile SQX Views packs, or R40 - regenerate portable ZIP after V6/PG3.
 
 ## Recommended Order
 
@@ -31,7 +31,8 @@ Persistent planning note for the next SQX Edge phases.
 
 1. Phase PG1: add Custom Libre generation outside the plan mining while preserving plan-based bulk generation. Done.
 2. Phase PG2: add reusable local custom presets for frequent buyer assets/timeframes. Done.
-3. Phase PG3: consider export/import for custom preset packs if buyer portability becomes important.
+3. Phase PG3: add portable export/import JSON packs for custom preset portability between installations. Done.
+4. Phase PG4: add starter custom preset examples by asset/timeframe profile if Project Generator needs a buyer-facing pack.
 
 ## Working Discipline
 
@@ -154,3 +155,7 @@ Persistent planning note for the next SQX Edge phases.
 5. Phase V5: close the native SQX View Creator integration, archive the staging prototype in backup and remove the local staging folder. Done.
 6. Phase V6: add buyer-ready SQX View template examples for first review, robustness, risk and full audit, with load/save/export flow. Done.
 7. Phase V7: expand SQX Views packs by buyer profile, asset family or validation workflow if the View Creator track continues.
+
+## Release Track
+
+1. Phase R40: regenerate and test the portable ZIP after V6/PG3 because frontend behavior and dev tooling changed.

@@ -110,6 +110,10 @@ function pgSetCustomStatus(text, level) {
   }
 }
 
+function pgSetCustomPackStatus(text) {
+  pgSetText('pg-custom-pack-status', text || '');
+}
+
 function pgWriteCustomInputs(config) {
   if (SQX_PG_DOM.writeCustomProjectInputs) SQX_PG_DOM.writeCustomProjectInputs(document, config);
 }
@@ -120,6 +124,18 @@ function pgRenderCustomPresets(selectedId) {
   pgSetHtml('pg-custom-presets-select', SQX_PG_MODULE.customProjectPresetOptionsHtml(presets));
   if (selectedId) pgSetInputValue('pg-custom-presets-select', selectedId);
   return presets;
+}
+
+function pgDownloadJson(filename, payload) {
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
 }
 
 function pgUpdateMiningSummary(count) {
@@ -384,6 +400,53 @@ function pgDeleteCustomPreset() {
   pgRenderCustomPresets();
   pgSetCustomStatus(result.deleted ? 'Preset eliminado: ' + preset.name : 'No se pudo eliminar el preset.', result.deleted ? 'ok' : 'err');
   pgLog((result.deleted ? 'Preset custom eliminado: ' : 'Preset custom no encontrado: ') + preset.name, result.deleted ? 'info' : 'err');
+}
+
+function pgExportCustomPresets() {
+  const presets = SQX_PG_MODULE.getCustomProjectPresets ? SQX_PG_MODULE.getCustomProjectPresets() : [];
+  if (!presets.length) {
+    pgSetCustomStatus('Guarda al menos un preset custom antes de exportar.', 'err');
+    pgSetCustomPackStatus('No hay presets para exportar.');
+    return;
+  }
+  const pack = SQX_PG_MODULE.buildCustomProjectPresetPackage(presets);
+  const day = new Date().toISOString().slice(0, 10);
+  pgDownloadJson('sqx-custom-project-presets-' + day + '.json', pack);
+  pgSetCustomStatus('Pack exportado: ' + pack.presets.length + ' presets.', 'ok');
+  pgSetCustomPackStatus('Pack JSON listo para otra instalacion.');
+  pgLog('Pack de presets custom exportado: ' + pack.presets.length + ' presets.', 'ok');
+}
+
+function pgOpenImportCustomPresets() {
+  const fileInput = pgDom('pg-custom-import-presets-file');
+  if (fileInput) fileInput.click();
+}
+
+function pgImportCustomPresets(event) {
+  const file = event && event.target && event.target.files && event.target.files[0];
+  if (!file) {
+    pgSetCustomStatus('Selecciona un pack JSON de presets custom.', 'err');
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    const result = SQX_PG_MODULE.importCustomProjectPresetPackageFromText(reader.result || '');
+    pgRenderCustomPresets(result.presets[0] && result.presets[0].id);
+    if (result.imported) {
+      pgSetCustomStatus('Pack importado: ' + result.imported + ' presets.', 'ok');
+      pgSetCustomPackStatus('Presets importados y fusionados con los locales.');
+      pgLog('Pack de presets custom importado: ' + result.imported + ' presets.', 'ok');
+    } else {
+      pgSetCustomStatus('El pack no contiene presets custom validos.', 'err');
+      pgSetCustomPackStatus('Importacion sin cambios.');
+    }
+  };
+  reader.onerror = () => {
+    pgSetCustomStatus('No se pudo leer el pack de presets custom.', 'err');
+    pgSetCustomPackStatus('Error leyendo el archivo.');
+  };
+  reader.readAsText(file);
+  if (event && event.target) event.target.value = '';
 }
 
 async function pgGenerateAll(capa) {
@@ -651,12 +714,15 @@ async function pgRunOnboardingTertiaryAction() {
     autodetectSqx: pgAutodetectSqx,
     checkHealth: pgCheckHealth,
     deleteCustomPreset: pgDeleteCustomPreset,
+    exportCustomPresets: pgExportCustomPresets,
     generateAll: pgGenerateAll,
     generateCustom: pgGenerateCustom,
+    importCustomPresets: pgImportCustomPresets,
     loadCustomPreset: pgLoadCustomPreset,
     loadConfig: pgLoadConfig,
     loadOutput: pgLoadOutput,
     openOutputFolder: pgOpenOutputFolder,
+    openImportCustomPresets: pgOpenImportCustomPresets,
     runOnboardingAction: pgRunOnboardingAction,
     runOnboardingSecondaryAction: pgRunOnboardingSecondaryAction,
     runOnboardingTertiaryAction: pgRunOnboardingTertiaryAction,

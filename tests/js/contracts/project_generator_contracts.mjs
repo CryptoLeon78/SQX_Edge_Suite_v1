@@ -51,6 +51,7 @@ assert.equal(document.getElementById('pg-custom-dir').value, 'short');
   'pg-autodetect', 'pg-aliases-suggest', 'pg-validate', 'pg-gen-all-c1',
   'pg-gen-all-c2', 'pg-custom-generate', 'pg-custom-save-preset', 'pg-custom-load-preset',
   'pg-custom-delete-preset', 'pg-output-refresh', 'pg-open-output', 'pg-log-clear',
+  'pg-custom-export-presets', 'pg-custom-import-presets', 'pg-custom-import-presets-file',
   'pg-settings-body', 'pg-log'
 ].forEach(id => document.add(new Element(id)));
 let checkHealthCalls = 0;
@@ -59,13 +60,19 @@ let generateCustomCalls = 0;
 let saveCustomPresetCalls = 0;
 let loadCustomPresetCalls = 0;
 let deleteCustomPresetCalls = 0;
+let exportCustomPresetCalls = 0;
+let openImportCustomPresetCalls = 0;
+let importCustomPresetCalls = 0;
 PG.bindings.bindProjectGeneratorEvents(document, {
   checkHealth: () => { checkHealthCalls++; },
+  exportCustomPresets: () => { exportCustomPresetCalls++; },
   generateAll: capa => { generateAllCapa = capa; },
   generateCustom: () => { generateCustomCalls++; },
+  importCustomPresets: () => { importCustomPresetCalls++; },
   saveCustomPreset: () => { saveCustomPresetCalls++; },
   loadCustomPreset: () => { loadCustomPresetCalls++; },
   deleteCustomPreset: () => { deleteCustomPresetCalls++; },
+  openImportCustomPresets: () => { openImportCustomPresetCalls++; },
   setSettingsOpen: open => { document.getElementById('pg-settings-body').style.display = open ? 'block' : 'none'; },
 });
 document.getElementById('pg-status-refresh').click();
@@ -74,12 +81,18 @@ document.getElementById('pg-custom-generate').click();
 document.getElementById('pg-custom-save-preset').click();
 document.getElementById('pg-custom-load-preset').click();
 document.getElementById('pg-custom-delete-preset').click();
+document.getElementById('pg-custom-export-presets').click();
+document.getElementById('pg-custom-import-presets').click();
+document.getElementById('pg-custom-import-presets-file').dispatch('change');
 assert.equal(checkHealthCalls, 1);
 assert.equal(generateAllCapa, 2);
 assert.equal(generateCustomCalls, 1);
 assert.equal(saveCustomPresetCalls, 1);
 assert.equal(loadCustomPresetCalls, 1);
 assert.equal(deleteCustomPresetCalls, 1);
+assert.equal(exportCustomPresetCalls, 1);
+assert.equal(openImportCustomPresetCalls, 1);
+assert.equal(importCustomPresetCalls, 1);
 document.getElementById('pg-log').textContent = 'old';
 document.getElementById('pg-log-clear').click();
 assert.equal(document.getElementById('pg-log').textContent, '[esperando primera acción…]');
@@ -270,10 +283,27 @@ const savedCustom = PG.upsertCustomProjectPreset(normalizedCustom, 'EURUSD H1 Co
 assert.equal(savedCustom.ok, true);
 assert.equal(savedCustom.preset.id, 'eurusd-h1-core');
 assert.equal(PG.getCustomProjectPresets(sandbox.localStorage).length, 1);
+const customPack = PG.buildCustomProjectPresetPackage(null, sandbox.localStorage);
+assert.equal(customPack.type, 'sqx-edge.project-generator-custom-presets');
+assert.equal(customPack.version, 1);
+assert.equal(customPack.presets.length, 1);
+const customImport = PG.importCustomProjectPresetPackageFromText(JSON.stringify({
+  type: 'sqx-edge.project-generator-custom-presets',
+  version: 1,
+  presets: [{
+    id: 'gbpusd-m15-short',
+    name: 'GBPUSD M15 Short',
+    config: { asset: 'gbpusd', tf: 'm15', bs: '', dir: 'short', capa: 2, template: 'Tpl.cfx' },
+  }],
+}), sandbox.localStorage);
+assert.equal(customImport.imported, 1);
+assert.equal(PG.getCustomProjectPresets(sandbox.localStorage).length, 2);
+assert.equal(PG.findCustomProjectPreset('gbpusd-m15-short', sandbox.localStorage).config.asset, 'GBPUSD');
 assert.match(PG.customProjectPresetOptionsHtml(savedCustom.presets), /EURUSD H1 Core/);
 assert.equal(PG.customProjectPresetCountLabel(1), '1 guardado');
 assert.equal(PG.findCustomProjectPreset('eurusd-h1-core', sandbox.localStorage).config.asset, 'EURUSD');
 assert.equal(PG.deleteCustomProjectPreset('eurusd-h1-core', sandbox.localStorage).deleted, true);
+assert.equal(PG.deleteCustomProjectPreset('gbpusd-m15-short', sandbox.localStorage).deleted, true);
 assert.equal(PG.getCustomProjectPresets(sandbox.localStorage).length, 0);
 assert.equal(PG.upsertCustomProjectPreset({ asset: '', tf: '' }, '', sandbox.localStorage).ok, false);
 const candidateFields = PG.sqxCandidateFields({ sqx_path: 'C:/SQX', data_db: 'db', projects_dir: 'projects' });

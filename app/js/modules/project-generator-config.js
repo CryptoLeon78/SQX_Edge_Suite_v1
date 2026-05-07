@@ -6,6 +6,8 @@
   var escapeHtml = PG.escapeHtml;
   var storageKeys = (global.SQX_CONFIG && global.SQX_CONFIG.storageKeys) || {};
   var CUSTOM_PRESETS_STORAGE_KEY = storageKeys.projectGeneratorCustomPresets || 'sqx_pg_custom_presets_v1';
+  var CUSTOM_PRESET_PACKAGE_TYPE = 'sqx-edge.project-generator-custom-presets';
+  var CUSTOM_PRESET_PACKAGE_VERSION = 1;
 
 function safeJsonParse(raw, fallback) {
     try {
@@ -62,6 +64,44 @@ function setCustomProjectPresets(presets, storage) {
     var clean = (presets || []).map(normalizeCustomPreset).filter(Boolean).slice(0, 30);
     store.setItem(CUSTOM_PRESETS_STORAGE_KEY, JSON.stringify(clean));
     return getCustomProjectPresets(store);
+  }
+
+function buildCustomProjectPresetPackage(presets, storage) {
+    return {
+      type: CUSTOM_PRESET_PACKAGE_TYPE,
+      version: CUSTOM_PRESET_PACKAGE_VERSION,
+      app: 'SQX Edge',
+      exportedAt: new Date().toISOString(),
+      presets: (presets || getCustomProjectPresets(storage)).map(normalizeCustomPreset).filter(Boolean)
+    };
+  }
+
+function parseCustomProjectPresetPackage(payload) {
+    var data = typeof payload === 'string' ? safeJsonParse(payload, null) : payload;
+    if (!data) return [];
+    if (Array.isArray(data)) return data.map(normalizeCustomPreset).filter(Boolean);
+    if (Array.isArray(data.presets)) return data.presets.map(normalizeCustomPreset).filter(Boolean);
+    if (data.config || data.asset || data.tf) return [normalizeCustomPreset(data)].filter(Boolean);
+    return [];
+  }
+
+function importCustomProjectPresetPackage(payload, storage) {
+    var incoming = parseCustomProjectPresetPackage(payload);
+    if (!incoming.length) {
+      return { imported: 0, presets: getCustomProjectPresets(storage) };
+    }
+    var incomingIds = incoming.reduce(function(acc, preset) {
+      acc[preset.id] = true;
+      return acc;
+    }, {});
+    var merged = incoming.concat(getCustomProjectPresets(storage).filter(function(preset) {
+      return !incomingIds[preset.id];
+    }));
+    return { imported: incoming.length, presets: setCustomProjectPresets(merged, storage) };
+  }
+
+function importCustomProjectPresetPackageFromText(text, storage) {
+    return importCustomProjectPresetPackage(String(text || ''), storage);
   }
 
 function upsertCustomProjectPreset(input, presetName, storage) {
@@ -321,12 +361,17 @@ function validateSqxPathHtml(result) {
     configSaveBody: configSaveBody,
     configSaveError: configSaveError,
     configSaveStatus: configSaveStatus,
+    customPresetPackageType: CUSTOM_PRESET_PACKAGE_TYPE,
+    customPresetPackageVersion: CUSTOM_PRESET_PACKAGE_VERSION,
     customPresetIdFromName: customPresetIdFromName,
     customProjectPresetCountLabel: customProjectPresetCountLabel,
     customProjectPresetOptionsHtml: customProjectPresetOptionsHtml,
     deleteCustomProjectPreset: deleteCustomProjectPreset,
     findCustomProjectPreset: findCustomProjectPreset,
     getCustomProjectPresets: getCustomProjectPresets,
+    buildCustomProjectPresetPackage: buildCustomProjectPresetPackage,
+    importCustomProjectPresetPackage: importCustomProjectPresetPackage,
+    importCustomProjectPresetPackageFromText: importCustomProjectPresetPackageFromText,
     messageHtml: messageHtml,
     normalizeCustomPreset: normalizeCustomPreset,
     normalizeCustomProjectConfig: normalizeCustomProjectConfig,

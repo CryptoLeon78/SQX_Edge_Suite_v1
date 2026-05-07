@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - PG3 Custom libre portable preset packs
+
+- Anade exportacion/importacion JSON para presets de `Custom libre` en Project Generator.
+- Fusiona packs importados con presets locales sin duplicar IDs y mantiene validacion de asset/timeframe.
+- Refuerza contratos JS, tests estaticos y E2E para cubrir portabilidad de presets custom.
+
 ## 2026-05-08 - V6 SQX Views buyer-ready examples
 
 - Anade ejemplos buyer-ready en `SQX Views` para primera revision, robustez, riesgo y auditoria completa.

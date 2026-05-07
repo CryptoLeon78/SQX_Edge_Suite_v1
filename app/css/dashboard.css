@@ -2004,6 +2004,21 @@
     font-size:12px;
     font-family:inherit;
   }
+  .pg-custom-preset-tools {
+    display:flex;
+    align-items:center;
+    gap:9px;
+    flex-wrap:wrap;
+    margin-top:9px;
+  }
+  .pg-custom-preset-tools .export-btn {
+    flex:0 1 180px;
+    white-space:nowrap;
+  }
+  .pg-custom-preset-tools small {
+    color:var(--text2);
+    font-size:12px;
+  }
   #pg-custom-status {
     color:var(--text2);
     font-size:12px;
@@ -2520,6 +2535,7 @@
     .pg-assistant-checks { grid-template-columns:1fr; }
     .pg-custom-grid { grid-template-columns:1fr; }
     .pg-custom-presets { grid-template-columns:1fr; }
+    .pg-custom-preset-tools .export-btn { width:100%; flex-basis:100%; }
     .pg-onboarding-actions { flex-direction:column; }
     .pg-onboarding-actions .export-btn { width:100%; justify-content:center; }
   }

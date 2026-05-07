@@ -971,11 +971,16 @@ class DashboardStaticTestCase(unittest.TestCase):
             "configSaveError",
             "configSaveStatus",
             "customPresetIdFromName",
+            "customPresetPackageType",
+            "customPresetPackageVersion",
             "customProjectPresetCountLabel",
             "customProjectPresetOptionsHtml",
             "deleteCustomProjectPreset",
             "findCustomProjectPreset",
             "getCustomProjectPresets",
+            "buildCustomProjectPresetPackage",
+            "importCustomProjectPresetPackage",
+            "importCustomProjectPresetPackageFromText",
             "generateAllConfirmMessage",
             "generateAllResultLines",
             "generateAllResultSummary",
@@ -1028,6 +1033,11 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.generateAllConfirmMessage", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.generateAllResultLines", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.configSaveBody", project_generator_main_js)
+        self.assertIn("SQX_PG_MODULE.buildCustomProjectPresetPackage", project_generator_main_js)
+        self.assertIn("SQX_PG_MODULE.importCustomProjectPresetPackageFromText", project_generator_main_js)
+        self.assertIn('id="pg-custom-export-presets"', self.html)
+        self.assertIn('id="pg-custom-import-presets"', self.html)
+        self.assertIn('id="pg-custom-import-presets-file"', self.html)
         self.assertIn("SQX_PG_MODULE.configSaveStatus", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.sqxCandidateFields", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.validateSqxShouldApply", project_generator_main_js)

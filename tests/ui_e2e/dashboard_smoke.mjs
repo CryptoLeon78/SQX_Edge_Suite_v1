@@ -88,9 +88,18 @@ async function run() {
     await desktop.locator('#pg-custom-asset').fill('GBPUSD');
     await desktop.locator('#pg-custom-load-preset').click();
     await desktop.waitForFunction(() => document.getElementById('pg-custom-asset')?.value === 'EURUSD');
+    const customPresetPack = await desktop.evaluate(() => window.SQX.projectGenerator.buildCustomProjectPresetPackage());
+    if (customPresetPack.type !== 'sqx-edge.project-generator-custom-presets' || customPresetPack.presets.length !== 1) throw new Error('Project Generator custom preset pack contract failed');
     await desktop.locator('#pg-custom-delete-preset').click();
     await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_pg_custom_presets_v1') || '[]').length === 0);
     await desktop.waitForFunction(() => document.getElementById('pg-custom-status')?.textContent.includes('Preset eliminado'));
+    const customPackPath = path.join(screenshotDir, 'pg-custom-preset-pack-smoke.json');
+    await mkdir(screenshotDir, { recursive: true });
+    await writeFile(customPackPath, JSON.stringify(customPresetPack, null, 2), 'utf8');
+    await desktop.locator('#pg-custom-import-presets-file').setInputFiles(customPackPath);
+    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_pg_custom_presets_v1') || '[]').length === 1);
+    await desktop.locator('#pg-custom-load-preset').click();
+    await desktop.waitForFunction(() => document.getElementById('pg-custom-asset')?.value === 'EURUSD');
     await saveShot(desktop, 'e2e-projectgen-desktop.png');
     await desktop.locator('.tab[data-tab="views"]').click();
     await desktop.waitForSelector('.tab[data-tab="views"].active');

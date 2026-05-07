@@ -38,6 +38,9 @@
     bind(doc, 'pg-custom-save-preset', 'click', h.saveCustomPreset);
     bind(doc, 'pg-custom-load-preset', 'click', h.loadCustomPreset);
     bind(doc, 'pg-custom-delete-preset', 'click', h.deleteCustomPreset);
+    bind(doc, 'pg-custom-export-presets', 'click', h.exportCustomPresets);
+    bind(doc, 'pg-custom-import-presets', 'click', h.openImportCustomPresets);
+    bind(doc, 'pg-custom-import-presets-file', 'change', h.importCustomPresets);
     bind(doc, 'pg-gen-all-c1', 'click', function() { h.generateAll(1); });
     bind(doc, 'pg-gen-all-c2', 'click', function() { h.generateAll(2); });
     bind(doc, 'pg-output-refresh', 'click', h.loadOutput);
