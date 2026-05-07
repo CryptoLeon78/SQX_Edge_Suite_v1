@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: PG2 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: V5 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado antes de M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - SHA256 del ZIP: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Siguiente paso recomendado: V5 - ejemplos buyer-ready para SQX Views, o PG3 - export/import de presets custom si queremos portabilidad entre instalaciones.
-- Ultima mejora funcional: Project Generator permite guardar, cargar y eliminar presets locales para Custom libre.
+- Siguiente paso recomendado: V6 - ejemplos buyer-ready para SQX Views, o PG3 - export/import de presets custom si queremos portabilidad entre instalaciones.
+- Ultima mejora funcional: cierre de integracion de SQX Views, con prototipo anual archivado en backup y carpeta staging eliminada del workspace.
 
 ## SQX Edge Pro
 
@@ -90,6 +90,7 @@ Activacion Pro prevista:
 SQX Views:
 
 - El tab `SQX Views` genera archivos `.vw` para Databank sin depender de Python externo.
+- La fuente prototipo Tkinter quedo migrada al flujo nativo del dashboard y archivada en backup previo de V5.
 - Free incluye el preset `EGT Core`; Pro desbloquea el catalogo completo y presets avanzados.
 - Puedes guardar presets propios en el navegador y moverlos entre instalaciones con packs JSON exportables/importables.
 - Workflow y Estrategias incluyen accesos directos para abrir SQX Views con vistas recomendadas ya preparadas.

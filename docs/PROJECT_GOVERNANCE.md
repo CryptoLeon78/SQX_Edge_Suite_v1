@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: PG2 - Project Generator Custom Presets.
+- Current phase completed: V5 - SQX View Creator Integration Closeout.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
-- Next implementation phase: V5 - View Creator buyer-ready template examples, or PG3 - portable custom preset import/export.
+- Next implementation phase: V6 - View Creator buyer-ready template examples, or PG3 - portable custom preset import/export.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

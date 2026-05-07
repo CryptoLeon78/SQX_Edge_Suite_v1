@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - V5 SQX View Creator integration closeout
+
+- Cierra la integracion del prototipo anual de SQX View Creator dentro del tab nativo `SQX Views`.
+- Archiva la carpeta staging `tab a integrar como nueva funcion/` en backup previo y la elimina del workspace local.
+- Actualiza trazabilidad de roadmap, gobernanza y arquitectura para dejar el siguiente paso real en V6 o PG3.
+
 ## 2026-05-08 - PG2 Custom libre reusable presets
 
 - Anade presets locales para guardar, cargar y eliminar configuraciones de `Custom libre`.
