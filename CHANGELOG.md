@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Specialist agent governance
+
+- Anade `docs/PROJECT_GOVERNANCE.md` con agentes especializados, ownership, namespaces de fase y criterios de entrada M46.
+- Anade ADR-0001 para registrar el modelo de gobernanza por agentes.
+- Refuerza `.gitignore` para excluir `config/license.json` local.
+- Actualiza roadmap y README con la baseline `G1`.
+
 ## 2026-05-07 - Customer success renewal loop
 
 - Anade `customer_success_renewal.py` para revisar onboarding, activacion, soporte, renovacion y expansion responsable.

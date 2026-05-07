@@ -7,6 +7,7 @@ Persistent planning note for the next SQX Edge phases.
 - Last updated: 2026-05-07.
 - Current completed phase: M45 - Customer Success Renewal Loop.
 - Current product/commercial state: `customer_success_renewal_ready`.
+- Governance baseline: G1 - Specialist Agent Operating Model.
 - Last synced base commit before M45: `7810801`.
 - Latest verified portable ZIP before M45: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
@@ -33,6 +34,13 @@ Persistent planning note for the next SQX Edge phases.
 - Remove temporary Playwright dependencies after E2E.
 - Use one commit per phase.
 - Push only when explicitly requested or when the active instruction includes continuing the planned push step.
+- Declare active specialist ownership before broad phases.
+- Use prefixed phase IDs for new work: `Mxx`, `Axx`, `Rxx`, `Sxx`, `Qxx`, `Gxx`.
+- Follow `docs/PROJECT_GOVERNANCE.md` for phase workflow and M46 entry criteria.
+
+## Governance Track
+
+1. Phase G1: define specialist agent ownership, phase namespaces, workflow and M46 entry criteria. Done.
 
 ## Monetization Track
 

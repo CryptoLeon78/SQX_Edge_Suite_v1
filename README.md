@@ -29,6 +29,7 @@ Documentos comerciales:
 - `docs/COMMERCIAL_README.md`
 - `docs/MONETIZATION_ROADMAP.md`
 - `docs/PUBLIC_ROADMAP.md`
+- `docs/PROJECT_GOVERNANCE.md`
 
 Activacion Pro prevista:
 

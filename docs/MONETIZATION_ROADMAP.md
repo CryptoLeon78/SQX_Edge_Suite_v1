@@ -7,6 +7,7 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 - Last updated: 2026-05-07.
 - Completed through: M45 - Customer Success Renewal Loop.
 - Current state: `customer_success_renewal_ready`.
+- Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M45: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
 - Next recommended phase: M46 - Commercial Customer Cockpit.

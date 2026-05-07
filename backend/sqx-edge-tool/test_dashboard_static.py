@@ -10,6 +10,8 @@ APP_ROOT = PROJECT_ROOT / "app"
 TOOL_ROOT = PROJECT_ROOT / "backend" / "sqx-edge-tool"
 ANALYSIS_ROOT = PROJECT_ROOT / "analysis"
 ARCHITECTURE_DOC = PROJECT_ROOT / "docs" / "ARCHITECTURE.md"
+PROJECT_GOVERNANCE_DOC = PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md"
+GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
 MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
 MONETIZATION_M1_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M1.md"
 MONETIZATION_M2_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M2.md"
@@ -117,6 +119,42 @@ class DashboardStaticTestCase(unittest.TestCase):
         documented_scripts = re.findall(r"^\d+\.\s+`([^`]+)`", match.group(0), flags=re.M)
 
         self.assertEqual(documented_scripts, scripts)
+
+    def test_project_governance_defines_agent_ownership_and_m46_entry(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        adr = GOVERNANCE_ADR_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "G1 - Specialist Agent Operating Model",
+            "Frontend/UI",
+            "Backend/API",
+            "QA/Release",
+            "Monetization/Product",
+            "Security/Distribution",
+            "Architecture/Docs",
+            "M46 Entry Criteria",
+            "Customer cockpit source of truth",
+            "no license payloads",
+            "Use prefixed phase IDs",
+            "Never commit `backend/sqx-edge-tool/config/license.json`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "ADR-0001",
+            "Status: Accepted",
+            "Frontend/UI",
+            "Mxx",
+            "G1: Specialist Agent Operating Model",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, adr)
+
+        self.assertIn("Phase G1: define specialist agent ownership, phase namespaces, workflow and M46 entry criteria. Done.", next_steps)
+        self.assertIn("docs/PROJECT_GOVERNANCE.md", readme)
 
     def test_modular_scaffold_loads_before_legacy_logic(self):
         scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)

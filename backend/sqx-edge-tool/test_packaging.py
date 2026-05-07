@@ -185,6 +185,11 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, text)
 
+    def test_gitignore_guards_local_license_file(self):
+        text = (PROJECT_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        self.assertIn("backend/sqx-edge-tool/config/license.json", text)
+        self.assertIn("sqx-edge-tool/config/license.json", text)
+
     def test_release_bat_runs_strict_checklist(self):
         text = (PROJECT_ROOT / "RELEASE_SQX_EDGE.bat").read_text(encoding="utf-8-sig")
         self.assertIn("release_checklist.ps1", text)

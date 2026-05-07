@@ -29,6 +29,8 @@ SQX_Edge_Suite_v*.zip
 # ── Local config / sensitive machine state ──────────
 sqx-edge-tool/config.json
 backend/sqx-edge-tool/config.json
+sqx-edge-tool/config/license.json
+backend/sqx-edge-tool/config/license.json
 .env
 .env.*
 !.env.example
