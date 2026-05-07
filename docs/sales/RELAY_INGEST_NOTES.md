@@ -1,22 +1,16 @@
-# Relay Ingest Notes
+# Public Redaction Pointer: RELAY INGEST NOTES
 
-## Trusted Relay Flow
+This public file is intentionally redacted.
 
-1. Recibir webhook de Lemon Squeezy en un endpoint publico controlado.
-2. Verificar `X-Signature` con el secreto del webhook.
-3. Crear bundle con `relay_event_id`, `provider_event_id`, payload y `normalized_request`.
-4. Firmar el JSON del bundle con `X-SQX-Relay-Signature`.
-5. Enviar el bundle a `POST /api/fulfillment/relay-ingest`.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Security Notes
+- Original path: docs/sales/RELAY_INGEST_NOTES.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Usar un secreto distinto para Lemon y para el relay.
-- No guardar private keys de licencia en el relay.
-- Registrar logs minimos: `relay_event_id`, fecha, `provider_event_id`, resultado.
-- Si el POST local no devuelve `200`, dejar el evento en cola de reintentos del relay.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Operational Advice
-
-- Empezar con un relay muy pequeno y cerrado.
-- Permitir solo los eventos comerciales necesarios.
-- Mantener el bundle estable y versionado para no romper la cola local.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

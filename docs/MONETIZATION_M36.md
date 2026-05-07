@@ -1,39 +1,16 @@
-# Monetization M36 - Limited Public Launch
+# Public Redaction Pointer: MONETIZATION M36
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M36.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Convertir la compra piloto verificada en una compuerta para apertura publica limitada, con limite de primeras ventas, soporte preparado, checkout confirmado y rollback responsable.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `limited_public_launch_ready`.
-- Tool `backend/sqx-edge-tool/tools/limited_public_launch.py`.
-- Evidencia JSON/Markdown en `backend/sqx-edge-tool/data/limited_public_launch`.
-- Consumo de evidencia M35 `pilot_purchase_kit`.
-- Validacion de checkout HTTPS, variantes Lemon/Gumroad, email de soporte, first sale cap y ventana de lanzamiento.
-- Confirmacion explicita de public checkout y support inbox.
-- Guia `docs/sales/LIMITED_PUBLIC_LAUNCH.md`.
-
-## Decision
-
-M36 no declara `GO` sin piloto `GO`, URLs y variantes reales, soporte operativo, limite de ventas inicial y rollback con responsable.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-tool\tools\limited_public_launch.py --use-latest-pilot-kit --support-email soporte@example.com --first-sale-cap 5 --launch-window "2026-05-07 10:00-14:00 Europe/Madrid" --rollback-owner "Ivan" --confirm-public-checkout --confirm-support-inbox
-```
-
-Revision seca:
-
-```powershell
-python backend\sqx-edge-tool\tools\limited_public_launch.py --allow-no-go-pilot --no-write
-```
-
-## Siguiente Paso
-
-M37 debe preparar el post-launch control: registro de primeras ventas, soporte de activaciones, decisiones de escalar/pausar y versionado de feedback.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

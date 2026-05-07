@@ -1,21 +1,16 @@
-# SQX Edge Pro - Webhook Receiver Operations
+# Public Redaction Pointer: WEBHOOK RECEIVER OPERATIONS
 
-## Receiver Daily Flow
+This public file is intentionally redacted.
 
-1. Verificar que `SQX_LEMON_WEBHOOK_SECRET` esta definido.
-2. Recibir o reenviar webhook al endpoint local.
-3. Revisar `GET /api/fulfillment/requests`.
-4. Procesar la request elegible.
-5. Confirmar que existe un `delivery_receipt_*.json`.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Duplicate Event Rule
+- Original path: docs/sales/WEBHOOK_RECEIVER_OPERATIONS.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- La clave de deduplicacion es `provider_event_id`.
-- Si llega el mismo evento dos veces, no se crea una segunda request.
-- Esto permite tolerar reintentos normales del proveedor.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Operator Notes
-
-- No procesar requests con `eligible_for_fulfillment = false` salvo revision manual.
-- Mantener la private key fuera del repo y fuera del ZIP.
-- Conservar receipts y requests hasta cerrar soporte o renovacion.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

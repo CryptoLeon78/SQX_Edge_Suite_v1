@@ -1,37 +1,16 @@
-# Customer Cockpit
+# Public Redaction Pointer: CUSTOMER COCKPIT
 
-El cockpit comercial es una vista interna para revisar usuarios Pro sin exponer datos sensibles.
+This public file is intentionally redacted.
 
-## Fuente De Datos
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- Evidencia local `backend/sqx-edge-tool/data/customer_success_renewal/customer_success_renewal_*.json`.
-- Configuracion segura `backend/sqx-edge-tool/config/customer_cockpit.json`.
-- Endpoint read-only `GET /api/customer-cockpit`.
+- Original path: docs/sales/CUSTOMER_COCKPIT.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Datos Permitidos
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-- Referencia de cliente redactada.
-- Plan Pro.
-- Owner de customer success.
-- Activacion confirmada o pendiente.
-- Dias hasta renovacion.
-- Tickets abiertos y errores de activacion.
-- Riesgo de refund agregado.
-- Decision: renovar, mantener, mejorar onboarding, plantillas, Setup Assist o revisar pausa/refund.
-
-## Datos Prohibidos
-
-- Payload de licencia.
-- Private keys.
-- Eventos checkout crudos.
-- Secretos del relay.
-- Archivos de entrega al cliente.
-
-## Operacion
-
-1. Revisar cockpit antes de contactar renovacion.
-2. Resolver activaciones o tickets antes de proponer upsell.
-3. Ofrecer plantillas o Setup Assist solo si hay valor observado.
-4. Mantener claims seguros: productividad, orden, trazabilidad y reduccion de errores operativos.
-
-No usar esta vista para prometer resultados financieros.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

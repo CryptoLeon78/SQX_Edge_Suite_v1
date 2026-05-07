@@ -1,19 +1,16 @@
-# Template Pack 1 - Limites de Soporte
+# Public Redaction Pointer: support boundaries
 
-## Incluido
+This public file is intentionally redacted.
 
-- Ayuda para localizar archivos del pack.
-- Explicacion del contenido de los perfiles.
-- Orientacion para adaptar rutas y activos.
-- Revision basica de importacion o lectura del CSV.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## No incluido
+- Original path: resources/pro-template-pack-1/checklists/support_boundaries.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Construccion personalizada ilimitada.
-- Revision de carteras externas.
-- Consejos de inversion.
-- Promesas sobre rendimiento futuro.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Escalado
-
-Si el comprador necesita configuracion guiada completa, ofrecer `Setup Assist`.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

@@ -1,32 +1,16 @@
-# Template Pack 2 Assets
+# Public Redaction Pointer: TEMPLATE PACK 2 ASSETS
 
-## Objetivo
+This public file is intentionally redacted.
 
-Template Pack 2 convierte las specs M57 en un primer set de recursos vendibles para usuarios Pro: perfiles editables, presets CSV y checklists de entrega.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Comando de validacion
+- Original path: docs/sales/TEMPLATE_PACK_2_ASSETS.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-```powershell
-backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\template_pack_2_assets.py --use-latest-specs --confirm-specs-go --confirm-asset-files-present --confirm-profile-schema-validated --confirm-preset-csv-validated --confirm-support-boundaries-included --confirm-safe-claims-reviewed --confirm-addon-delivery-separate --no-write
-```
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Empaquetado add-on
-
-```powershell
-backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\template_pack_2_assets.py --use-latest-specs --confirm-specs-go --confirm-asset-files-present --confirm-profile-schema-validated --confirm-preset-csv-validated --confirm-support-boundaries-included --confirm-safe-claims-reviewed --confirm-addon-delivery-separate --package
-```
-
-## Estado
-
-- Estado: Done.
-- State: `template_pack_2_assets_ready`.
-- Tool: `template_pack_2_assets.py`.
-- Resource dir: `resources/pro-template-pack-2`.
-- Next phase: `M59_template_pack_2_offer_pack`.
-
-## Guardrails
-
-- El pack se entrega como ZIP add-on separado.
-- No viaja dentro del ZIP portable principal.
-- No contiene licencias, claves privadas, payloads de checkout ni eventos crudos.
-- No promete resultados financieros.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

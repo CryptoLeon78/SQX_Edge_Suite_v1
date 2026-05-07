@@ -1,64 +1,16 @@
-# Template Pack 2 Purchase Drill
+# Public Redaction Pointer: TEMPLATE PACK 2 PURCHASE DRILL
 
-## Purpose
+This public file is intentionally redacted.
 
-Use this runbook for the first controlled Template Pack 2 purchase before sending broader traffic to the add-on.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Required Evidence
+- Original path: docs/sales/TEMPLATE_PACK_2_PURCHASE_DRILL.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Checkout URL used.
-- Provider variant ID.
-- Provider order ID.
-- Buyer email, stored only as redacted evidence by the gate.
-- Payment status: `paid`, `succeeded` or `completed`.
-- Amount `79.00` and currency `EUR`.
-- Add-on ZIP delivery path, when package verification is required.
-- Delivery email, support inbox and refund/pause path ready.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Delivery Package
-
-Generate the separate add-on ZIP with:
-
-```powershell
-backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\template_pack_2_assets.py `
-  --use-latest-specs `
-  --confirm-specs-go `
-  --confirm-asset-files-present `
-  --confirm-profile-schema-validated `
-  --confirm-preset-csv-validated `
-  --confirm-support-boundaries-included `
-  --confirm-safe-claims-reviewed `
-  --confirm-addon-delivery-separate `
-  --package
-```
-
-## Purchase Drill Gate
-
-```powershell
-backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\template_pack_2_purchase_drill.py `
-  --checkout-url "https://checkout.your-provider.com/template-pack-2" `
-  --provider-variant-id "real-provider-variant-id" `
-  --provider-order-id "real-order-id" `
-  --buyer-email "buyer@example.com" `
-  --payment-status "paid" `
-  --amount "79.00" `
-  --currency "EUR" `
-  --delivery-package-path "backend\sqx-edge-tool\data\template_pack_2_assets\SQX_Template_Pack_2_YYYYMMDD_HHMMSS.zip" `
-  --confirm-live-checkout-values-confirmed `
-  --confirm-controlled-purchase-paid `
-  --confirm-provider-order-recorded `
-  --confirm-delivery-package-ready `
-  --confirm-delivery-email-ready `
-  --confirm-support-inbox-ready `
-  --confirm-safe-claims-reviewed `
-  --confirm-refund-or-pause-ready `
-  --require-delivery-package
-```
-
-## GO Criteria
-
-- Payment is confirmed by the provider.
-- Delivery package is a separate add-on ZIP.
-- Support inbox is ready.
-- Refund or pause path is ready.
-- No financial-result claims are used.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

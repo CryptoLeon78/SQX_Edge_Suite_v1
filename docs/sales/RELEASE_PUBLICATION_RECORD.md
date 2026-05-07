@@ -1,53 +1,16 @@
-# Release Publication Record
+# Public Redaction Pointer: RELEASE PUBLICATION RECORD
 
-Este runbook registra la evidencia despues de publicar una release visible. No publica por API ni modifica GitHub; valida y documenta que la salida quedo completa.
+This public file is intentionally redacted.
 
-## Requisitos
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- `public_release_gate.py` en `GO`.
-- Tag creado.
-- GitHub Release publicada.
-- ZIP portable adjunto.
-- `.sha256` publicado y coincidente.
-- Descarga probada por operador.
-- Release notes visibles.
-- Ventana de soporte abierta.
-- Ventana de rollback abierta.
+- Original path: docs/sales/RELEASE_PUBLICATION_RECORD.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Dry Run
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-```powershell
-python backend\sqx-edge-tool\tools\release_publication_record.py --allow-no-go-gate --no-write
-```
-
-Bloqueos esperados hasta publicar de verdad:
-
-- `public_release_gate_missing` o `public_release_gate_not_go`
-- `github_release_not_published`
-- `git_tag_not_confirmed`
-- `release_url_missing_or_not_https`
-- `sha256_file_missing`
-- `sha256_mismatch`
-- `zip_download_not_tested`
-- `release_notes_not_visible`
-- `support_window_not_open`
-- `rollback_window_not_open`
-
-## Flujo Real
-
-```powershell
-python backend\sqx-edge-tool\tools\release_publication_record.py --use-latest-public-release-gate --release-tag v1.0.0 --release-url https://github.com/CryptoLeon78/SQX_Edge_Suite_v1/releases/tag/v1.0.0 --download-url https://github.com/CryptoLeon78/SQX_Edge_Suite_v1/releases/download/v1.0.0/SQX_Edge_Tool_Portable_20260506_233908.zip --published-by "Ivan" --confirm-git-tag-created --confirm-github-release-published --confirm-zip-download-tested --confirm-sha256-matches --confirm-release-notes-visible --confirm-support-window-open --confirm-rollback-window-open
-```
-
-## Evidencia Minima
-
-- Tag y URL de release.
-- Campo `github_release_published` confirmado.
-- ZIP local usado para el hash.
-- `.sha256` publicado.
-- Confirmacion de descarga probada.
-- Responsable que publica.
-- Estado de soporte.
-- Estado de rollback.
-
-No cierres la ventana de salida hasta haber probado la descarga publicada como si fueras un usuario basico.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

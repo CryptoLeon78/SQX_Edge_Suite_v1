@@ -1,53 +1,16 @@
-# Local Ingest Tunnel Launcher
+# Public Redaction Pointer: LOCAL INGEST TUNNEL LAUNCHER
 
-Este runbook prepara una URL publica temporal para que Render pueda llegar al backend local.
+This public file is intentionally redacted.
 
-## Backend local
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-Primero arranca SQX Edge local:
+- Original path: docs/sales/LOCAL_INGEST_TUNNEL_LAUNCHER.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-```powershell
-backend\sqx-edge-tool\run-web.bat
-```
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-Health esperado:
-
-```text
-http://127.0.0.1:5050/api/health
-```
-
-## Detectar proveedor
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_tunnel_launcher.py
-```
-
-Proveedores soportados:
-
-- `cloudflared`
-- `ngrok`
-- `npx localtunnel`
-
-## Lanzar tunel
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_tunnel_launcher.py --start
-```
-
-Si detecta URL publica, el reporte calcula:
-
-```text
-https://.../api/fulfillment/relay-ingest
-```
-
-## Validar URL generada
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_tunnel_check.py --ingest-url https://TU_URL_PUBLICA/api/fulfillment/relay-ingest --relay-secret <SQX_FULFILLMENT_RELAY_SECRET> --send-bundle
-```
-
-## Reglas
-
-- Mantener el proceso de tunel abierto mientras se prueba staging.
-- No usar URL antigua despues de reiniciar el tunel.
-- No pegar secretos en consola compartida o commits.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

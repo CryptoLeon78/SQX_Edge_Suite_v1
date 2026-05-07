@@ -1,49 +1,16 @@
-# Render Staging Gate
+# Public Redaction Pointer: RENDER STAGING GATE
 
-Este runbook define la compuerta previa a conectar pagos o webhooks reales.
+This public file is intentionally redacted.
 
-## Regla principal
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-La decision final debe ser `GO` solo si:
+- Original path: docs/sales/RENDER_STAGING_GATE.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- `render_credentials_handshake.py` devuelve `GO`.
-- Existe una URL staging real.
-- `staging_evidence.py` valida la URL staging.
-- El smoke remoto no falla.
-- No hay password de cuenta Render en entorno.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Comando basico
-
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_gate.py
-```
-
-Sin credenciales ni URL real, el resultado correcto es `NO-GO`.
-
-## Usar evidencia previa
-
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_gate.py --use-latest-handshake
-```
-
-## Usar URL staging real
-
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_gate.py --use-latest-handshake --base-url https://tu-relay-staging.onrender.com
-```
-
-## Activar webhook firmado demo
-
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_gate.py --use-latest-handshake --base-url https://tu-relay-staging.onrender.com --send-webhook
-```
-
-## Evidencia
-
-La compuerta escribe JSON y Markdown en:
-
-```text
-backend/sqx-edge-relay/data/render_staging_gate
-```
-
-Esta carpeta esta ignorada por git.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

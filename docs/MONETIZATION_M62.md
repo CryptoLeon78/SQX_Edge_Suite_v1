@@ -1,25 +1,16 @@
-# M62 - Template Pack 2 Post-Purchase Handoff
+# Public Redaction Pointer: MONETIZATION M62
 
-## Objective
+This public file is intentionally redacted.
 
-Prepare Template Pack 2 post-purchase handoff with redacted buyer reference, delivery confirmation, support window, first-value evidence and a responsible scale/hold/pause decision.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Implemented
+- Original path: docs/MONETIZATION_M62.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Added `backend/sqx-edge-tool/config/template_pack_2_handoff.json`.
-- Added `backend/sqx-edge-tool/tools/template_pack_2_handoff.py`.
-- Added `docs/sales/TEMPLATE_PACK_2_HANDOFF.md`.
-- Added portable exclusions for handoff evidence and internal tooling.
-- Updated product manifest, roadmap, governance and static/contracts tests.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Decision
-
-Estado: Done.
-
-Current state: `template_pack_2_handoff_ready`.
-
-Allowed handoff decisions: `scale_limited`, `hold_review` or `pause_sales`.
-
-## Next Step
-
-M63 - Template Pack 2 sales register and early cohort tracking.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

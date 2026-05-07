@@ -1,76 +1,16 @@
-# Phase M4 - Free Pro Internal Product Separation
+# Public Redaction Pointer: MONETIZATION M4
 
-## Goal
+This public file is intentionally redacted.
 
-Preparar la app para funcionar como producto comercial con tres perfiles claros:
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- Free
-- Pro
-- Internal
+- Original path: docs/MONETIZATION_M4.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Esta fase crea la arquitectura de acceso sin activar todavia cobro automatico ni verificacion criptografica final.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Implemented
-
-- `product_manifest.json` como fuente de verdad de producto, features, planes y perfiles de release.
-- `license_manager.py` en backend con estado de licencia y chequeo de capacidades.
-- Endpoints:
-  - `GET /api/license/status`
-  - `POST /api/license/check`
-- Panel de licencia en Inicio.
-- Modulo frontend `SQX.license`.
-- Carga del manifest de producto dentro de `SQX_MANIFEST`.
-- Contratos estaticos y API actualizados.
-
-## Current Build Mode
-
-La build del repositorio queda en modo `internal`.
-
-Motivo:
-
-- no rompe el uso actual del Project Generator
-- permite seguir desarrollando y probando todo
-- separa el vocabulario Free/Pro/Internal antes de bloquear acciones reales
-
-Cuando preparemos una build publica Free, el perfil debera cambiar a `free` y los endpoints Pro podran empezar a exigir `required_feature`.
-
-## Access Contract
-
-Feature flags iniciales:
-
-- `dashboard.view`
-- `strategies.basic`
-- `strategies.import_full`
-- `strategies.export_advanced`
-- `project_generator.demo`
-- `project_generator.generate`
-- `strategy_cleaner.preview`
-- `strategy_cleaner.apply`
-- `backups.advanced`
-- `workflows.premium`
-- `templates.premium`
-- `support.priority`
-
-Regla:
-
-- la UI puede mostrar estado y mensajes
-- el backend debe decidir permisos para acciones con escritura
-- una licencia sin firma no activa Pro
-- el modo Internal habilita todo para desarrollo
-
-## Next Step
-
-M5 deberia preparar la capa visual/comercial:
-
-- mensajes de upgrade mejorados
-- pantalla de licencia dedicada si hace falta
-- textos de venta in-app
-- primer README comercial
-- assets para landing
-
-M6 deberia endurecer seguridad:
-
-- firma real con clave publica
-- no incluir claves privadas
-- enforcement en endpoints Pro
-- release Free sin herramientas internas
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

@@ -1,25 +1,16 @@
-# M70 - Next Controlled Buyer Readiness Check
+# Public Redaction Pointer: MONETIZATION M70
 
-## Objective
+This public file is intentionally redacted.
 
-Run a formal readiness check before sharing another private checkout link with the next controlled buyer.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Implemented
+- Original path: docs/MONETIZATION_M70.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Added `backend/sqx-edge-tool/config/next_controlled_buyer_readiness.json`.
-- Added `backend/sqx-edge-tool/tools/next_controlled_buyer_readiness.py`.
-- Added `docs/sales/NEXT_CONTROLLED_BUYER_READINESS.md`.
-- Added portable exclusions for next-buyer readiness evidence and internal tooling.
-- Updated product manifest, roadmap, governance, architecture and tests.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Decision
-
-Estado: Done.
-
-Current state: `next_controlled_buyer_readiness_ready`.
-
-Allowed readiness decisions: `share_private_link`, `hold_for_fix` or `pause_sales`.
-
-## Next Step
-
-M71 - Record the next controlled buyer outcome after sharing the private link, then decide whether to repeat, pause or widen carefully.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

@@ -1,41 +1,16 @@
-# Monetization M34 - Commercial Release Candidate
+# Public Redaction Pointer: MONETIZATION M34
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M34.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Preparar una release candidate comercial controlada, uniendo ZIP portable, SHA256, readiness M33, compra piloto y rollback antes de publicar venta abierta.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `commercial_release_candidate_ready`.
-- Tool `backend/sqx-edge-tool/tools/commercial_release_candidate.py`.
-- Evidencia JSON/Markdown en `backend/sqx-edge-tool/data/commercial_release_candidate`.
-- Validacion de ZIP portable y `ZIP SHA256`.
-- Consumo de evidencia M33 `checkout_live_readiness`.
-- Bloqueo de public key de produccion placeholder.
-- Confirmacion explicita de `pilot purchase`.
-- Checklist de piloto y rollback.
-- Guia `docs/sales/COMMERCIAL_RELEASE_CANDIDATE.md`.
-
-## Decision
-
-M34 no declara lista la venta publica si faltan URLs reales, readiness `GO`, clave publica final, ZIP portable o compra piloto confirmada.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-tool\tools\commercial_release_candidate.py --use-latest-readiness --zip dist\SQX_Edge_Tool_Portable_YYYYMMDD_HHMMSS.zip --pilot-purchase-confirmed
-```
-
-Revision seca:
-
-```powershell
-python backend\sqx-edge-tool\tools\commercial_release_candidate.py --allow-no-go-readiness --no-write
-```
-
-## Siguiente Paso
-
-M35 debe preparar la compra piloto real: actualizar URLs/variant IDs, ejecutar checkout privado y emitir una licencia Pro verificable en la app.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

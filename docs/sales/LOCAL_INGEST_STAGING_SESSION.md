@@ -1,38 +1,16 @@
-# Local Ingest Staging Session
+# Public Redaction Pointer: LOCAL INGEST STAGING SESSION
 
-Este runbook une backend local, tunnel e ingest check.
+This public file is intentionally redacted.
 
-## Dry run
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_staging_session.py
-```
+- Original path: docs/sales/LOCAL_INGEST_STAGING_SESSION.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-No abre procesos persistentes.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Sesion real
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_staging_session.py --start-backend --start-tunnel --relay-secret <SQX_FULFILLMENT_RELAY_SECRET> --send-bundle
-```
-
-La sesion:
-
-- arranca backend local si no responde,
-- lanza tunnel si hay proveedor disponible,
-- detecta URL publica,
-- calcula `/api/fulfillment/relay-ingest`,
-- valida con bundle firmado si se usa `--send-bundle`.
-
-## Resultado esperado
-
-Un reporte `GO` incluye:
-
-- health local OK,
-- URL publica detectada,
-- ingest URL calculada,
-- check firmado OK.
-
-## Despues
-
-Copiar la URL de ingest a `SQX_LOCAL_INGEST_URL` en Render staging y mantener backend/tunnel vivos mientras duren las pruebas.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

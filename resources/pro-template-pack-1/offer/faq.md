@@ -1,21 +1,16 @@
-# Template Pack 1 - FAQ
+# Public Redaction Pointer: faq
 
-## Necesito SQX Edge Pro?
+This public file is intentionally redacted.
 
-Si. El pack esta pensado como complemento de SQX Edge Pro.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Viene dentro del ZIP base?
+- Original path: resources/pro-template-pack-1/offer/faq.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-No. Template Pack 1 se entrega como ZIP add-on separado.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Puedo editar los perfiles?
-
-Si. Los perfiles son JSON editables.
-
-## Incluye soporte?
-
-Incluye soporte basico para localizar archivos, entender el contenido e identificar el flujo recomendado. Configuraciones guiadas completas pertenecen a Setup Assist.
-
-## Sustituye mis pruebas?
-
-No. El pack acelera preparacion y orden. Cada usuario debe probar y validar su propio flujo.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

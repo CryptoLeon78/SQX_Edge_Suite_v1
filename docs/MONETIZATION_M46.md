@@ -1,40 +1,16 @@
-# Monetization M46 - Commercial Customer Cockpit
+# Public Redaction Pointer: MONETIZATION M46
 
-Fecha: 2026-05-07
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M46.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Crear un cockpit comercial interno, ligero y redactado para revisar usuarios Pro, renovaciones, soporte, activacion y oportunidades de expansion sin convertir SQX Edge en un CRM pesado.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `customer_cockpit_ready`.
-- Endpoint read-only `GET /api/customer-cockpit`.
-- Agregador `backend/sqx-edge-tool/core/customer_cockpit.py`.
-- Configuracion `backend/sqx-edge-tool/config/customer_cockpit.json`.
-- Modulo frontend `app/js/modules/customer-cockpit.js`.
-- Panel `Customer Success` en Inicio.
-- Contratos JS, tests backend/staticos y E2E con capturas.
-
-## Decision
-
-M46 solo muestra resumen operativo redactado:
-
-- Cliente como referencia segura, no payload completo.
-- Plan, owner, renovacion, tickets, activacion, decision y oportunidad.
-- Sin licencia JSON, claves privadas, eventos checkout crudos, relay secrets ni archivos de entrega.
-
-## Uso
-
-1. Genera evidencia con `customer_success_renewal.py`.
-2. Abre Inicio.
-3. Pulsa `Actualizar` en `Customer Success`.
-4. Revisa clientes, renovaciones, tickets y oportunidades.
-
-Si no hay evidencia, el cockpit muestra estado vacio y queda preparado para datos reales.
-
-## Siguiente Paso
-
-M47 debe endurecer onboarding y soporte para comprador basico: descarga, instalacion, activacion de licencia, FAQ, macro de soporte, SLA realista y criterio de pausa/refund.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

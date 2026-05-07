@@ -1,29 +1,16 @@
-# Monetization Phase M47 - Pro Buyer Data And Template Pack
+# Public Redaction Pointer: MONETIZATION M47
 
-Fecha: 2026-05-07.
-Estado: Done.
+This public file is intentionally redacted.
 
-## Objetivo
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-Preparar datos y plantillas reales para compradores Pro, incluidos en el portable, sin exponer material sensible ni prometer resultados financieros.
+- Original path: docs/MONETIZATION_M47.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Entregables
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-- Estado `pro_buyer_pack_ready`.
-- Configuracion `backend/sqx-edge-tool/config/pro_buyer_pack.json`.
-- Pack buyer-facing `resources/pro-buyer-pack`.
-- Universo inicial de 28 Forex, 4 indices y oro.
-- CSV importable `strategy_import_template.csv` compatible con Estrategias.
-- Plantillas de activacion, soporte, Project Generator y primer valor.
-- Validador interno `backend/sqx-edge-tool/tools/pro_buyer_pack.py`.
-
-## Decision
-
-El pack Pro se considera parte del producto portable. Las herramientas internas de validacion y la evidencia generada no se empaquetan para compradores.
-
-## Criterios
-
-- No incluir payloads de licencia, claves privadas, eventos checkout crudos ni secretos.
-- No incluir promesas de rentabilidad, beneficio garantizado, senales de compra ni asesoramiento financiero.
-- Mantener los datos en formato simple para usuarios no tecnicos.
-- Hacer que el CSV de estrategias sea compatible con el importador actual.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

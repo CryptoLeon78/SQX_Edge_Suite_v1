@@ -1,31 +1,16 @@
-# Monetization M60 - Template Pack 2 Controlled Publication
+# Public Redaction Pointer: MONETIZATION M60
 
-Estado: Done.
+This public file is intentionally redacted.
 
-## Resultado
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-M60 prepara la publicacion controlada de Template Pack 2 con checkout real, soporte, rollback y purchase drill.
+- Original path: docs/MONETIZATION_M60.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Entregables
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-- Config: `backend/sqx-edge-tool/config/template_pack_2_publication.json`.
-- Tool: `backend/sqx-edge-tool/tools/template_pack_2_publication.py`.
-- Sales doc: `docs/sales/TEMPLATE_PACK_2_CONTROLLED_PUBLICATION.md`.
-- Manifest state: `template_pack_2_controlled_publication_ready`.
-
-## Alcance
-
-- Validacion de URL HTTPS real.
-- Validacion de variant ID.
-- Validacion de email de soporte.
-- Confirmacion de rollback.
-- Checklist de purchase drill.
-- Opcion `--apply` para escribir valores definitivos en manifest local.
-
-## Politica
-
-No se guardan credenciales, payloads de proveedor ni datos crudos de comprador. El estado queda listo para publicacion controlada; la escritura de valores reales exige confirmacion explicita con `--apply`.
-
-## Siguiente paso recomendado
-
-M61 - ejecutar purchase drill controlado de Template Pack 2 con evidencia redacted de pago, entrega, soporte y pausa/reembolso.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

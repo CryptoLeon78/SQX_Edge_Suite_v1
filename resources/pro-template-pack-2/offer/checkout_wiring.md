@@ -1,26 +1,16 @@
-# Template Pack 2 - Checkout Wiring
+# Public Redaction Pointer: checkout wiring
 
-## Estado
+This public file is intentionally redacted.
 
-Draft listo para conectar a Lemon Squeezy o Gumroad.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Variante
+- Original path: resources/pro-template-pack-2/offer/checkout_wiring.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Plan: `template_pack_2`
-- Precio: `79 EUR`
-- Tipo: `one_time_addon`
-- Entrega: ZIP add-on separado
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Campos a completar antes de publicacion
-
-- `providerVariantId`
-- `checkoutUrl`
-- `supportEmail`
-
-## Flujo
-
-1. Pago confirmado.
-2. Ejecutar `template_pack_2_assets.py`.
-3. Adjuntar ZIP del pack.
-4. Enviar macro de entrega.
-5. Registrar evidencia local.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

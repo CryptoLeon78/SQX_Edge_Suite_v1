@@ -1,31 +1,16 @@
-# Fulfillment Operator Playbook
+# Public Redaction Pointer: FULFILLMENT OPERATOR PLAYBOOK
 
-## Daily Loop
+This public file is intentionally redacted.
 
-1. Abrir `Inicio`.
-2. Revisar el panel de fulfillment.
-3. Comprobar `queued`, `needs_review` y `failed`.
-4. Confirmar que private key y ZIP apuntan a los artefactos correctos.
-5. Procesar o recolocar solo las requests que correspondan.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Retry Loop
+- Original path: docs/sales/FULFILLMENT_OPERATOR_PLAYBOOK.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- `failed` significa que hubo al menos un intento con error registrado.
-- Antes de reintentar, revisar `last_error`.
-- Corregir rutas, clave o ZIP si el error fue operativo.
-- Pulsar `Reintentar` desde el mismo panel.
-- Verificar que la request termina en `completed`.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Ignore And Requeue Rules
-
-- Usar `ignored` para eventos no entregables o cancelaciones.
-- Usar `queued` para devolver una request al circuito tras una revision.
-- `needs_review` es el estado natural cuando el evento no es elegible automaticamente.
-- No borrar requests manualmente del disco salvo operacion extraordinaria.
-
-## Good Practices
-
-- Mantener un unico ZIP final aprobado por release checklist.
-- Usar siempre la private key privada correcta para produccion.
-- Comprobar que `attempt_count` no crece sin entender el motivo del fallo.
-- Si hay duda comercial, detenerse antes de emitir una licencia incorrecta.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

@@ -1,40 +1,16 @@
-# Local Ingest Tunnel Check
+# Public Redaction Pointer: LOCAL INGEST TUNNEL CHECK
 
-Este runbook valida la URL que Render usara para enviar bundles firmados al backend local.
+This public file is intentionally redacted.
 
-## Requisitos
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- Backend local SQX corriendo.
-- URL publica/tunnel apuntando al backend local.
-- `SQX_FULFILLMENT_RELAY_SECRET` igual al que se pegara en Render.
+- Original path: docs/sales/LOCAL_INGEST_TUNNEL_CHECK.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Check seco
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_tunnel_check.py --ingest-url https://tu-tunnel.example.com/api/fulfillment/relay-ingest --relay-secret <SQX_FULFILLMENT_RELAY_SECRET>
-```
-
-Este modo valida URL y `/api/health`, pero no envia bundle.
-
-## Check firmado
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_tunnel_check.py --ingest-url https://tu-tunnel.example.com/api/fulfillment/relay-ingest --relay-secret <SQX_FULFILLMENT_RELAY_SECRET> --send-bundle
-```
-
-Este modo envia un bundle demo firmado. Usarlo solo cuando aceptes que se cree una request demo en la cola local.
-
-## Evidencia
-
-La evidencia se escribe en:
-
-```text
-backend/sqx-edge-relay/data/local_ingest_tunnel_check
-```
-
-## Criterio GO
-
-- URL no placeholder.
-- URL HTTPS, salvo pruebas locales con localhost.
-- Health remoto responde OK.
-- Si se usa `--send-bundle`, el ingest firmado responde OK.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

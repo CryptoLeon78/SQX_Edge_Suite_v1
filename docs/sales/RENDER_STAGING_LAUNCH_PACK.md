@@ -1,49 +1,16 @@
-# Render Staging Launch Pack
+# Public Redaction Pointer: RENDER STAGING LAUNCH PACK
 
-Este runbook convierte el despliegue de staging en una secuencia auditable.
+This public file is intentionally redacted.
 
-## Generar launch pack
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_launch_pack.py
-```
+- Original path: docs/sales/RENDER_STAGING_LAUNCH_PACK.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-El resultado incluye:
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-- ruta del blueprint,
-- SHA256 del blueprint,
-- variables Render requeridas,
-- comandos de operador,
-- estado actual del staging gate,
-- decision `GO` o `NO-GO`.
-
-## Variables Render requeridas
-
-Estas variables salen del blueprint staging:
-
-- `SQX_LEMON_WEBHOOK_SECRET`
-- `SQX_FULFILLMENT_RELAY_SECRET`
-- `SQX_RELAY_OPERATOR_TOKEN`
-- `SQX_LOCAL_INGEST_URL`
-- `SQX_RELAY_WORKER_INTERVAL_SECONDS`
-- `SQX_RELAY_WORKER_LIMIT`
-
-Los secretos se configuran en Render. No se versionan en git.
-
-## Comandos post-deploy
-
-```powershell
-python backend\sqx-edge-relay\tools\render_credentials_handshake.py
-python backend\sqx-edge-relay\tools\render_staging_gate.py --use-latest-handshake --base-url https://tu-relay-staging.onrender.com
-python backend\sqx-edge-relay\tools\render_staging_gate.py --use-latest-handshake --base-url https://tu-relay-staging.onrender.com --send-webhook
-```
-
-## Criterio para M26
-
-Avanzar solo si:
-
-- el launch pack existe,
-- el blueprint SHA256 coincide,
-- Render tiene los secretos configurados,
-- el staging gate devuelve `GO`,
-- no hay password de cuenta Render en ningun entorno operativo.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

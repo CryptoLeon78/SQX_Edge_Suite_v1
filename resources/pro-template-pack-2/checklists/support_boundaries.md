@@ -1,15 +1,16 @@
-# Template Pack 2 Support Boundaries
+# Public Redaction Pointer: support boundaries
 
-Soporte incluido:
+This public file is intentionally redacted.
 
-- Ayuda para localizar carpetas del pack.
-- Aclaracion de estructura de perfiles y CSV.
-- Primer uso del pack junto a SQX Edge Pro.
-- Correccion de errores de empaquetado o archivos faltantes.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-Fuera de alcance:
+- Original path: resources/pro-template-pack-2/checklists/support_boundaries.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Promesas de rentabilidad.
-- Optimizacion financiera personalizada.
-- Creacion de estrategias por encargo.
-- Soporte sobre decisiones de inversion o trading real.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
+
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

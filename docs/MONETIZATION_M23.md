@@ -1,34 +1,16 @@
-# Monetization M23 - Render Credential Handshake
+# Public Redaction Pointer: MONETIZATION M23
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M23.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Convertir el paso hacia Render en un handshake seguro y auditable antes de crear servicios reales.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `relay_render_credentials_handshake_ready`.
-- Tool `backend/sqx-edge-relay/tools/render_credentials_handshake.py`.
-- Evidencia local en `backend/sqx-edge-relay/data/render_preflight_evidence`.
-- Politica `api_key_only_no_account_password`.
-- Guia `docs/sales/RENDER_CREDENTIAL_HANDSHAKE.md`.
-- Tests para bloqueo sin credenciales, rechazo de password de cuenta y GO mockeado.
-
-## Decision
-
-Render se integra solo con `RENDER_API_KEY` y `RENDER_OWNER_ID`. No se acepta password de cuenta en variables de entorno, scripts, docs ni commits. Si aparecen `RENDER_PASSWORD` o `RENDER_ACCOUNT_PASSWORD`, el handshake devuelve `NO-GO`.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-relay\tools\render_credentials_handshake.py
-```
-
-Sin API key y owner ID reales, devuelve `NO-GO` con bloqueos esperados. Con credenciales reales, delega en `render_api_preflight.py`, valida acceso API y blueprint, y escribe evidencia JSON/Markdown local ignorada por git.
-
-## Siguiente Paso
-
-M24 deberia ejecutar el handshake con API key real, owner ID real y blueprint staging. Si devuelve `GO`, el siguiente paso real es crear el servicio staging en Render y ejecutar `staging_evidence.py` contra la URL resultante.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

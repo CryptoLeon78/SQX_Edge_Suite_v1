@@ -1,24 +1,16 @@
-# M54 - Template Pack 1 Add-On Sales Register
+# Public Redaction Pointer: MONETIZATION M54
 
-Objetivo: consolidar un registro interno de ventas de Template Pack 1 antes de abrir mas trafico publico.
+This public file is intentionally redacted.
 
-## Entregables
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- Estado `template_pack_1_sales_register_ready`.
-- Configuracion `backend/sqx-edge-tool/config/template_pack_1_sales_register.json`.
-- Gate interno `backend/sqx-edge-tool/tools/template_pack_1_sales_register.py`.
-- Guia operativa `docs/sales/TEMPLATE_PACK_1_SALES_REGISTER.md`.
-- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_1_sales_register`.
-- Manifiesto preparado con politica de registro redactado y decision de escala.
+- Original path: docs/MONETIZATION_M54.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Decision
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-El registro de ventas no guarda emails en claro ni payloads crudos del proveedor. Solo conserva referencia redactada del comprador, order id, canal, importe, estado de entrega, soporte, refunds, fallos de fulfillment y decision operativa.
-
-Politica de privacidad: `store_redacted_buyer_reference_order_status_support_metrics_and_scale_decision_only`.
-
-`scale_limited` exige venta pagada, add-on entregado, cero soporte abierto, cero refunds y cero fallos de fulfillment. Si hay dudas, la decision responsable es `keep_tracking` o `pause_sales`.
-
-Estado: Done.
-
-Siguiente paso recomendado: M55, revisar cohorte de compradores del add-on y feedback real antes de ampliar trafico o crear Template Pack 2.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

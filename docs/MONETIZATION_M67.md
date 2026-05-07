@@ -1,25 +1,16 @@
-# M67 - First Controlled Buyer Operating Log And Post-Sale Review
+# Public Redaction Pointer: MONETIZATION M67
 
-## Objective
+This public file is intentionally redacted.
 
-Prepare the first controlled buyer operating log and lightweight post-sale review before adding more sales pressure.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Implemented
+- Original path: docs/MONETIZATION_M67.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Added `backend/sqx-edge-tool/config/first_controlled_buyer_log.json`.
-- Added `backend/sqx-edge-tool/tools/first_controlled_buyer_log.py`.
-- Added `docs/sales/FIRST_CONTROLLED_BUYER_LOG.md`.
-- Added portable exclusions for first-buyer evidence and internal tooling.
-- Updated product manifest, roadmap, governance and static/contracts tests.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Decision
-
-Estado: Done.
-
-Current state: `first_controlled_buyer_log_ready`.
-
-Allowed post-sale decisions: `continue_private_sales`, `iterate_onboarding`, `schedule_followup` or `pause_sales`.
-
-## Next Step
-
-M68 - Prepare a small post-sale improvement loop for onboarding, support macros and public copy.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

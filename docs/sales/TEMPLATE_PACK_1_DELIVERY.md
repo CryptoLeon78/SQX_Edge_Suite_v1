@@ -1,52 +1,16 @@
-# Template Pack 1 Delivery
+# Public Redaction Pointer: TEMPLATE PACK 1 DELIVERY
 
-## Objetivo
+This public file is intentionally redacted.
 
-Entregar Template Pack 1 como add-on separado, con evidencia de que el comprador recibe material claro, seguro y con soporte acotado.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Contenido
+- Original path: docs/sales/TEMPLATE_PACK_1_DELIVERY.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- `README.md`
-- `profiles/edge-discovery-momentum.json`
-- `profiles/risk-controlled-continuation.json`
-- `profiles/mean-reversion-lab.json`
-- `presets/strategy_import_template_pack_1.csv`
-- `checklists/delivery_checklist.md`
-- `checklists/support_boundaries.md`
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Criterios GO
-
-- Buyer onboarding support gate revisado.
-- Orden del add-on confirmada.
-- ZIP del pack generado.
-- Perfiles JSON validados.
-- CSV revisado.
-- Limites de soporte incluidos.
-- Claims seguros revisados.
-
-## Criterios NO-GO
-
-- Falta comprador u order id.
-- Falta pack ZIP.
-- Falta cualquier archivo requerido.
-- Hay claims prohibidos.
-- El comprador espera resultados financieros.
-- El soporte requerido ya corresponde a `Setup Assist`.
-
-## Comando recomendado
-
-```powershell
-backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\template_pack_1_delivery.py `
-  --customer-email cliente@example.com `
-  --order-id ORDER-TP1-001 `
-  --confirm-buyer-onboarding-gate-go `
-  --confirm-addon-order-confirmed `
-  --confirm-pack-zip-ready `
-  --confirm-readme-included `
-  --confirm-profiles-validated `
-  --confirm-support-boundaries-included `
-  --confirm-safe-claims-reviewed `
-  --package
-```
-
-La evidencia y el ZIP generado se guardan en `backend/sqx-edge-tool/data/template_pack_1_delivery` y no deben viajar dentro del ZIP base de SQX Edge.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

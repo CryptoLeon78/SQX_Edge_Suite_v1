@@ -1,8 +1,16 @@
-# Template Pack 2 Delivery Checklist
+# Public Redaction Pointer: delivery checklist
 
-- Confirmar compra del add-on y referencia de cliente.
-- Generar ZIP separado del pack, nunca dentro del portable principal.
-- Incluir `README.md`, perfiles, CSV y checklists.
-- Confirmar que el cliente ya tiene SQX Edge Pro operativo.
-- Registrar entrega de forma redacted, sin payloads de licencia ni eventos crudos.
-- Mantener una nota clara de soporte cubierto y no cubierto.
+This public file is intentionally redacted.
+
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
+
+- Original path: resources/pro-template-pack-2/checklists/delivery_checklist.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
+
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
+
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

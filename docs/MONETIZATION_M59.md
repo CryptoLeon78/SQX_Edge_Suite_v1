@@ -1,32 +1,16 @@
-# Monetization M59 - Template Pack 2 Offer Pack
+# Public Redaction Pointer: MONETIZATION M59
 
-Estado: Done.
+This public file is intentionally redacted.
 
-## Resultado
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-M59 prepara la venta controlada de Template Pack 2 como add-on separado para usuarios Pro.
+- Original path: docs/MONETIZATION_M59.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Entregables
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-- Config: `backend/sqx-edge-tool/config/template_pack_2_offer_pack.json`.
-- Tool: `backend/sqx-edge-tool/tools/template_pack_2_offer_pack.py`.
-- Resource dir: `resources/pro-template-pack-2/offer`.
-- Sales doc: `docs/sales/TEMPLATE_PACK_2_OFFER_PACK.md`.
-- Manifest state: `template_pack_2_offer_pack_ready`.
-
-## Alcance
-
-- Copy publico/controlado.
-- FAQ de comprador.
-- Draft de checkout.
-- Macro de entrega.
-- Macro de soporte.
-- Gate de safe claims y checkout wiring.
-
-## Politica
-
-Template Pack 2 sigue siendo un add-on separado. El checkout queda en modo draft hasta completar URL, variant ID y soporte reales. No se guardan credenciales ni payloads de proveedor.
-
-## Siguiente paso recomendado
-
-M60 - preparar publicacion controlada de Template Pack 2 con URL real, soporte, rollback y purchase drill.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

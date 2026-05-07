@@ -1,47 +1,16 @@
-# Template Pack 1 Action Plan
+# Public Redaction Pointer: TEMPLATE PACK 1 ACTION PLAN
 
-Este gate convierte el feedback de cohorte en una siguiente fase ejecutable.
+This public file is intentionally redacted.
 
-## Datos minimos
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- Feedback cohort M55 en `GO`.
-- Plan elegido: `offer_iteration`, `traffic_expansion`, `template_pack_2` o `pause_sales`.
-- Owner del plan.
-- Prioridad.
-- Numero de acciones concretas.
-- Impacto de soporte, distribucion y claims.
-- Siguiente fase M57.
+- Original path: docs/sales/TEMPLATE_PACK_1_ACTION_PLAN.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Comando base
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-```powershell
-backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\template_pack_1_action_plan.py `
-  --use-latest-feedback-cohort `
-  --action-plan template_pack_2 `
-  --action-owner Ivan `
-  --priority high `
-  --action-count 4 `
-  --support-impact 1 `
-  --distribution-impact 1 `
-  --claims-risk 0 `
-  --next-phase M57_template_pack_2_specs `
-  --action-summary "Define Pack 2 scope, asset presets, docs improvements and delivery checklist." `
-  --plan-notes "Cohort supports Pack 2 planning without unresolved support or claims risk." `
-  --confirm-feedback-cohort-go `
-  --confirm-action-owner-assigned `
-  --confirm-support-impact-reviewed `
-  --confirm-safe-claims-reviewed `
-  --confirm-distribution-impact-reviewed `
-  --confirm-next-phase-recorded
-```
-
-## Reglas
-
-- `offer_iteration` debe ir a `M57_offer_iteration`.
-- `traffic_expansion` debe ir a `M57_traffic_expansion` y tener bajo impacto de soporte.
-- `template_pack_2` debe ir a `M57_template_pack_2_specs`.
-- `pause_sales` debe ir a `M57_pause_and_fix`.
-
-## Privacidad
-
-No pegues mensajes completos de compradores, emails, capturas ni datos de pago. Resume acciones y riesgos de forma agregada.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

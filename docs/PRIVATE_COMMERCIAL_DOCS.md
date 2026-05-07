@@ -38,4 +38,6 @@ Use the prepared export tool before creating redacted public pointers:
 backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\private_commercial_split.py
 ```
 
-The tool copies the sensitive commercial source set into `commercial-private/sqx-edge-commercial-private/` and writes `MIGRATION_INDEX.json` plus `MIGRATION_INDEX.md` with SHA256 hashes. Public files remain in place until the private repository copy is verified.
+The tool copies the sensitive commercial source set into `commercial-private/sqx-edge-commercial-private/` and writes `MIGRATION_INDEX.json` plus `MIGRATION_INDEX.md` with SHA256 hashes.
+
+Current state: the private repository is published at `https://github.com/CryptoLeon78/sqx-edge-commercial-private` and the public repository has been redacted in phase S5. Public files now remain as traceability pointers only. See `docs/PUBLIC_COMMERCIAL_POINTERS.md`.

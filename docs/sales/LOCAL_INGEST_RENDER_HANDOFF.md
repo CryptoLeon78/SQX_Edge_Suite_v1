@@ -1,45 +1,16 @@
-# Local Ingest Render Handoff
+# Public Redaction Pointer: LOCAL INGEST RENDER HANDOFF
 
-Este runbook prepara los valores finales que se pegaran en Render staging.
+This public file is intentionally redacted.
 
-## Desde ultima sesion
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_render_handoff.py --use-latest-session
-```
+- Original path: docs/sales/LOCAL_INGEST_RENDER_HANDOFF.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Por defecto exige que la sesion local sea `GO`.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Desde URL explicita
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_render_handoff.py --ingest-url https://tu-tunnel.example.com/api/fulfillment/relay-ingest
-```
-
-## Validacion seca
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_render_handoff.py --ingest-url https://tu-tunnel.example.com/api/fulfillment/relay-ingest --validate --relay-secret <SQX_FULFILLMENT_RELAY_SECRET>
-```
-
-## Valores Render
-
-El `.env` generado incluye:
-
-```text
-SQX_LOCAL_INGEST_URL=https://...
-SQX_RELAY_WORKER_INTERVAL_SECONDS=30
-SQX_RELAY_WORKER_LIMIT=10
-```
-
-Los secretos siguen saliendo de `render_staging_secrets_kit.py`.
-
-## Despues de pegar en Render
-
-Cuando Render staging ya tenga los valores anteriores, ejecuta el gate remoto:
-
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_gate.py --use-latest-handshake --base-url https://tu-relay-staging.onrender.com
-```
-
-El handoff no sustituye ese gate: solo prepara la URL local y los ajustes de worker para que el relay pueda llamar al ingest local.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

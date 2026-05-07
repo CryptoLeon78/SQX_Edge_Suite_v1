@@ -1,33 +1,9 @@
 {
-  "id": "breakout_expansion_lab",
-  "label": "Breakout Expansion Lab",
-  "description": "Perfil para explorar rupturas con expansion de rango y confirmacion de tendencia.",
-  "buyerFeedbackTheme": "mas_presets_de_discovery",
-  "presetFamily": "breakout_expansion",
-  "assetClasses": [
-    "indices",
-    "gold"
-  ],
-  "timeframes": [
-    "M15",
-    "M30",
-    "H1"
-  ],
-  "indicatorFamilies": [
-    "ATR",
-    "Donchian",
-    "ADX",
-    "EMA"
-  ],
-  "riskNotes": [
-    "Evitar optimizar solo tramos de volatilidad extrema.",
-    "Separar sesiones con comportamiento distinto.",
-    "Comprobar estabilidad fuera de muestra antes de ampliar activos."
-  ],
-  "expectedWorkflow": [
-    "Definir rango base.",
-    "Filtrar expansion con volatilidad.",
-    "Validar continuidad tras ruptura.",
-    "Comparar resultados por sesion y activo."
-  ]
+  "publicRedactionPointer": true,
+  "originalPath": "resources/pro-template-pack-2/profiles/breakout-expansion-lab.json",
+  "privateRepository": "https://github.com/CryptoLeon78/sqx-edge-commercial-private",
+  "privateBaselineCommit": "ed79719",
+  "redactionPhase": "S5_public_commercial_redaction",
+  "redactionDate": "2026-05-07",
+  "policy": "complete commercial buyer/template asset moved to private repository; public repository keeps traceability only"
 }

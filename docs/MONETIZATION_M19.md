@@ -1,54 +1,16 @@
-# Monetization M19 - Production Relay Deployment Package
+# Public Redaction Pointer: MONETIZATION M19
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M19.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Preparar el relay remoto para un despliegue real con un camino principal claro, checks previos y alternativas documentadas por proveedor.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `relay_production_deploy_ready`.
-- `backend/sqx-edge-relay/Dockerfile`.
-- `backend/sqx-edge-relay/.dockerignore`.
-- `backend/sqx-edge-relay/tools/deployment_check.py`.
-- `backend/sqx-edge-relay/deploy/docker-compose.yml`.
-- `backend/sqx-edge-relay/deploy/render.yaml.example`.
-- `backend/sqx-edge-relay/deploy/railway.json`.
-- `backend/sqx-edge-relay/deploy/fly.toml.example`.
-- `backend/sqx-edge-relay/deploy/systemd/sqx-edge-relay.service`.
-- `backend/sqx-edge-relay/deploy/systemd/sqx-edge-relay-worker.service`.
-- Guia `docs/sales/RELAY_DEPLOYMENT_GUIDE.md`.
-
-## Decision
-
-Docker queda como ruta principal. Render, Railway, Fly.io y VPS/systemd quedan como caminos soportados por plantilla, no como promesa de despliegue automatico sin revisar.
-
-## Preflight
-
-Antes de abrir ventas reales:
-
-```powershell
-python backend\sqx-edge-relay\tools\deployment_check.py --strict
-```
-
-Debe validar:
-
-- archivos de despliegue presentes,
-- Dockerfile listo para `gunicorn`,
-- secretos reales, largos y no placeholder,
-- `SQX_RELAY_OPERATOR_TOKEN` activo,
-- health/config/observability paths documentados.
-
-## Riesgos Controlados
-
-- Los secretos no se versionan.
-- El relay sigue fuera del ZIP portable del cliente.
-- `backend/sqx-edge-relay/data/` queda ignorado para evitar subir logs y snapshots.
-- La cola remota necesita persistencia si el proveedor puede reiniciar contenedores.
-
-## Siguiente Paso
-
-M20 deberia ser una fase de ensayo de produccion: elegir proveedor, configurar secretos reales de prueba, levantar relay staging, apuntar un webhook test y validar compra simulada contra el ingest local.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

@@ -1,34 +1,16 @@
-# Monetization M17 - Relay Deployment Hardening
+# Public Redaction Pointer: MONETIZATION M17
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M17.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Preparar el relay remoto para una puesta en produccion mas seria sin convertirlo todavia en una plataforma SaaS completa.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado de automatizacion `relay_deployment_ready`.
-- Endpoint `GET /relay/config-check`.
-- Token operativo `SQX_RELAY_OPERATOR_TOKEN` para proteger cola, dispatch y requeue.
-- Plantilla `backend/sqx-edge-relay/.env.example`.
-- Worker `backend/sqx-edge-relay/worker/dispatch_worker.py`.
-- Arranque rapido `run-worker.bat`.
-- Documentacion operativa de readiness y worker.
-
-## Decision
-
-El relay queda como infraestructura separada y supervisable. Lemon Squeezy solo entra por `/relay/webhook/lemon`; las operaciones internas de cola se protegen con token; el dispatch puede ejecutarse por worker en modo `supervised_dispatch_loop`.
-
-## Notas De Seguridad
-
-- `SQX_LEMON_WEBHOOK_SECRET`, `SQX_FULFILLMENT_RELAY_SECRET` y `SQX_RELAY_OPERATOR_TOKEN` deben ser secretos distintos.
-- `.env` real no debe ir al repo ni al ZIP portable.
-- `GET /relay/config-check` permite validar preparacion sin exponer secretos.
-- Los endpoints operativos aceptan `X-SQX-Operator-Token` o `Authorization: Bearer`.
-
-## Siguiente Paso
-
-M18 deberia centrarse en observabilidad: logs rotables, snapshot de cola, alertas simples y una prueba end-to-end simulando compra -> relay -> ingest local.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

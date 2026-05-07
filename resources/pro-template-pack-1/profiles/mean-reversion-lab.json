@@ -1,31 +1,9 @@
 {
-  "id": "mean_reversion_lab",
-  "label": "Mean Reversion Lab",
-  "description": "Perfil de laboratorio para estudiar reversion con osciladores y bandas.",
-  "assetClasses": [
-    "forex_major",
-    "indices"
-  ],
-  "timeframes": [
-    "M5",
-    "M15",
-    "M30"
-  ],
-  "indicatorFamilies": [
-    "Bollinger",
-    "Stochastic",
-    "PercentRank",
-    "ZScore"
-  ],
-  "riskNotes": [
-    "Evitar conclusiones por una sola ventana temporal.",
-    "Controlar costes y spread en timeframes bajos.",
-    "Validar fuera de muestra antes de conservar candidatos."
-  ],
-  "expectedWorkflow": [
-    "Preparar lote pequeno.",
-    "Comparar resultados por activo.",
-    "Revisar distribucion de operaciones.",
-    "Promover solo candidatos trazables."
-  ]
+  "publicRedactionPointer": true,
+  "originalPath": "resources/pro-template-pack-1/profiles/mean-reversion-lab.json",
+  "privateRepository": "https://github.com/CryptoLeon78/sqx-edge-commercial-private",
+  "privateBaselineCommit": "ed79719",
+  "redactionPhase": "S5_public_commercial_redaction",
+  "redactionDate": "2026-05-07",
+  "policy": "complete commercial buyer/template asset moved to private repository; public repository keeps traceability only"
 }

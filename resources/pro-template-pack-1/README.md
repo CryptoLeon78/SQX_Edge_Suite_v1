@@ -1,22 +1,16 @@
-# SQX Template Pack 1
+# Public Redaction Pointer: README
 
-Template Pack 1 es un complemento para usuarios Pro que quieren empezar con perfiles de trabajo ya ordenados.
+This public file is intentionally redacted.
 
-## Incluye
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- 3 perfiles JSON editables.
-- 1 CSV resumen para revisar casos de uso.
-- Checklist de entrega.
-- Limites de soporte del pack.
+- Original path: resources/pro-template-pack-1/README.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Como usarlo
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-1. Abre SQX Edge Pro.
-2. Revisa los perfiles en `profiles`.
-3. Usa el CSV de `presets` para elegir un flujo inicial.
-4. Adapta los perfiles a tus rutas, activos y criterios.
-5. Documenta cualquier cambio importante en tu pipeline.
-
-## Alcance responsable
-
-Este pack ayuda a estructurar trabajo. No promete resultados financieros ni sustituye tus pruebas, validacion ni criterio.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

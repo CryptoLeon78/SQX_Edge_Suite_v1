@@ -1,25 +1,16 @@
-# M53 - Template Pack 1 Post-Purchase Handoff
+# Public Redaction Pointer: MONETIZATION M53
 
-## Objetivo
+This public file is intentionally redacted.
 
-Preparar el handoff posterior a la primera compra controlada de Template Pack 1, con soporte inicial, primer valor y decision de escalar o pausar.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Entregables
+- Original path: docs/MONETIZATION_M53.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Configuracion `backend/sqx-edge-tool/config/template_pack_1_handoff.json`.
-- Gate interno `backend/sqx-edge-tool/tools/template_pack_1_handoff.py`.
-- Guia operativa `docs/sales/TEMPLATE_PACK_1_HANDOFF.md`.
-- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_1_handoff`.
-- Manifiesto preparado con estado `template_pack_1_handoff_ready`.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Decision
-
-El gate exige evidencia del purchase drill, entrega enviada, comprador informado, soporte abierto, primer valor confirmado, notas de soporte y decision `scale_limited`, `hold_review` o `pause_sales`.
-
-Politica de privacidad: `store_redacted_buyer_reference_handoff_notes_and_scale_decision_only`.
-
-Estado: Done.
-
-## Siguiente Paso
-
-M54: consolidar un mini panel o registro de ventas add-on para revisar varios handoffs antes de abrir trafico publico.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

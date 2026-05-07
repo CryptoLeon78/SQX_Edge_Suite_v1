@@ -1,28 +1,16 @@
-# Monetization Phase M50 - Template Pack 1 Public Add-On Offer And Checkout Wiring
+# Public Redaction Pointer: MONETIZATION M50
 
-Fecha: 2026-05-07.
-Estado: Done.
+This public file is intentionally redacted.
 
-## Objetivo
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-Preparar la oferta publica de Template Pack 1 como add-on, con copy revisado, FAQ, wiring de checkout, macro de entrega y soporte responsable.
+- Original path: docs/MONETIZATION_M50.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Entregables
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-- Estado `template_pack_1_public_offer_ready`.
-- Configuracion `backend/sqx-edge-tool/config/template_pack_1_offer.json`.
-- Recursos de oferta en `resources/pro-template-pack-1/offer`.
-- Guia interna `docs/sales/TEMPLATE_PACK_1_PUBLIC_OFFER.md`.
-- Gate interno `backend/sqx-edge-tool/tools/template_pack_1_offer.py`.
-- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_1_offer`.
-
-## Decision
-
-La oferta queda preparada en modo draft: el plan, precio, copy, FAQ y macros estan listos; URLs y variant IDs reales deben completarse antes de publicacion abierta.
-
-## Criterios
-
-- No publicar sin checkout real, soporte y macro revisados.
-- No entregar sin pasar por `template_pack_1_delivery.py`.
-- No mezclar el ZIP add-on dentro del ZIP base.
-- Mantener claims centrados en productividad, orden y trazabilidad.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

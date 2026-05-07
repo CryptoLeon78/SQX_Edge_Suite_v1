@@ -1,42 +1,16 @@
-# Monetization M22 - Render API Preflight
+# Public Redaction Pointer: MONETIZATION M22
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M22.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Dar el siguiente paso real hacia staging en Render sin crear recursos a ciegas: validar API key, workspace owner y blueprint antes del deploy.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `relay_render_api_preflight_ready`.
-- Tool `backend/sqx-edge-relay/tools/render_api_preflight.py`.
-- Variables staging ampliadas:
-  - `RENDER_API_KEY`
-  - `RENDER_OWNER_ID`
-  - `SQX_RENDER_STAGING_BLUEPRINT`
-- Guia `docs/sales/RENDER_API_PREFLIGHT.md`.
-- Tests para bloqueo sin API key y validacion mock de blueprint.
-
-## Decision
-
-No se usa password de cuenta en scripts. El camino seguro es una API key de Render con permisos adecuados, guardada como variable local o secreta del entorno.
-
-## Preflight
-
-```powershell
-python backend\sqx-edge-relay\tools\render_api_preflight.py
-```
-
-Sin `RENDER_API_KEY` y `RENDER_OWNER_ID`, devuelve bloqueo esperado.
-
-Con ambas variables, valida:
-
-- acceso a Render API,
-- listado de servicios,
-- blueprint staging por `/blueprints/validate`.
-
-## Siguiente Paso
-
-M23 deberia usar una API key real para validar el blueprint contra el workspace y, si sale GO, iniciar el deploy desde el Dashboard/Blueprint o desde API segun el plan elegido.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

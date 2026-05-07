@@ -1,38 +1,16 @@
-# Monetization M41 - Public Release Gate
+# Public Redaction Pointer: MONETIZATION M41
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M41.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Preparar la compuerta final antes de publicar una release visible: tag, GitHub Release, ZIP, SHA256, soporte y rollback.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `public_release_gate_ready`.
-- Tool `backend/sqx-edge-tool/tools/public_release_gate.py`.
-- Evidencia JSON/Markdown en `backend/sqx-edge-tool/data/public_release_gate`.
-- Consumo de evidencia M40 `launch_assets_kit`.
-- Validacion de `release_tag`, titulo, URL HTTPS de GitHub Release, ZIP adjunto, SHA256 publicado, checkout confirmado, soporte y rollback.
-- Guia `docs/sales/PUBLIC_RELEASE_GATE.md`.
-
-## Decision
-
-M41 no declara `GO` sin release revisada, ZIP adjunto, checksum publicado, soporte preparado y rollback con owner claro.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-tool\tools\public_release_gate.py --use-latest-launch-assets --release-tag v1.0.0 --release-title "SQX Edge Suite v1.0.0" --release-draft-url https://github.com/CryptoLeon78/SQX_Edge_Suite_v1/releases/tag/v1.0.0 --rollback-owner "Ivan" --support-owner "Ivan" --confirm-github-release-reviewed --confirm-zip-attached --confirm-sha256-published --confirm-checkout-paused-or-ready --confirm-support-ready --confirm-rollback-ready
-```
-
-Revision seca:
-
-```powershell
-python backend\sqx-edge-tool\tools\public_release_gate.py --allow-no-go-assets --no-write
-```
-
-## Siguiente Paso
-
-M42 debe convertir una compuerta `GO` en publicacion real controlada: crear tag/release final, adjuntar ZIP/SHA256 y registrar evidencia post-publicacion.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

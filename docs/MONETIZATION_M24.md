@@ -1,44 +1,16 @@
-# Monetization M24 - Render Staging Gate
+# Public Redaction Pointer: MONETIZATION M24
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M24.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Anadir una compuerta operacional antes del despliegue vivo en Render: ninguna conexion comercial avanza sin handshake, URL staging y evidencia remota.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `relay_render_staging_gate_ready`.
-- Tool `backend/sqx-edge-relay/tools/render_staging_gate.py`.
-- Evidencia local en `backend/sqx-edge-relay/data/render_staging_gate`.
-- Uso de `render_credentials_handshake.py` como requisito previo.
-- Uso de `staging_evidence.py` cuando existe URL staging.
-- Guia `docs/sales/RENDER_STAGING_GATE.md`.
-
-## Decision
-
-M24 no crea servicios en Render. M24 crea la disciplina de despliegue: primero `GO` de credenciales, despues servicio staging, despues smoke/evidencia remota, y solo entonces pagos/webhooks reales.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_gate.py
-```
-
-Con una evidencia de handshake previa:
-
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_gate.py --use-latest-handshake
-```
-
-Con URL staging:
-
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_gate.py --use-latest-handshake --base-url https://tu-relay-staging.onrender.com
-```
-
-## Siguiente Paso
-
-M25 deberia usar credenciales reales para obtener handshake `GO`, crear el servicio staging en Render y ejecutar esta compuerta contra la URL real.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

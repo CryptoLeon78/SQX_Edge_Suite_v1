@@ -1,25 +1,16 @@
-# M65 - Buyer-Ready Checkout Release Closeout
+# Public Redaction Pointer: MONETIZATION M65
 
-## Objective
+This public file is intentionally redacted.
 
-Prepare the controlled buyer-ready closeout for checkout, portable release, license delivery, support and rollback.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Implemented
+- Original path: docs/MONETIZATION_M65.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Added `backend/sqx-edge-tool/config/buyer_ready_checkout_closeout.json`.
-- Added `backend/sqx-edge-tool/tools/buyer_ready_checkout_closeout.py`.
-- Added `docs/sales/BUYER_READY_CHECKOUT_RELEASE.md`.
-- Added portable exclusions for closeout evidence and internal tooling.
-- Updated product manifest, roadmap, governance and static/contracts tests.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Decision
-
-Estado: Done.
-
-Current state: `buyer_ready_checkout_release_closeout_ready`.
-
-Allowed closeout decisions: `open_controlled_sales`, `keep_private_pilot`, `iterate_buyer_pack` or `pause_sales`.
-
-## Next Step
-
-M66 - Create a calm public buyer page checklist and final first-sale operating cadence.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

@@ -1,35 +1,16 @@
-# Monetization M18 - Relay Observability And Simulation
+# Public Redaction Pointer: MONETIZATION M18
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M18.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Dar visibilidad operativa al relay remoto y validar el flujo comercial sin depender de eventos reales de Lemon Squeezy.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado de automatizacion `relay_observability_ready`.
-- Eventos JSONL en `data/observability/logs/relay_events.jsonl`.
-- Snapshots de cola en `data/observability/snapshots`.
-- Endpoint `GET /relay/observability`.
-- Endpoint `POST /relay/observability/snapshot`.
-- Tool `backend/sqx-edge-relay/tools/simulate_purchase_flow.py`.
-- Modo `jsonl_events_and_queue_snapshots`.
-
-## Decision
-
-El relay debe poder responder tres preguntas sin abrir archivos a mano:
-
-1. Que ha pasado recientemente.
-2. Como esta la cola ahora mismo.
-3. Si el flujo webhook -> cola -> dispatch -> snapshot sigue funcionando.
-
-## Seguridad
-
-Los eventos redactan campos sensibles como `secret`, `signature`, `token` y `authorization`. Los endpoints de observabilidad quedan bajo el mismo `SQX_RELAY_OPERATOR_TOKEN` que cola, dispatch y requeue.
-
-## Siguiente Paso
-
-M19 deberia preparar una guia de despliegue real por proveedor: local VPS, Render/Railway/Fly.io o servidor propio, con variables, reverse proxy y supervisor.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

@@ -438,7 +438,8 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("recommendedTarget", manifest)
         self.assertIn("private_github_repository", manifest)
         self.assertIn("private_commercial_split.py", manifest)
-        self.assertIn("prepared_not_deleted", manifest)
+        self.assertIn("public_redacted_private_repo_published", manifest)
+        self.assertIn("public_repository_keeps_only_traceability_pointers", manifest)
         self.assertIn("copy_sensitive_docs_to_private_repo_with_sha256_index", manifest)
         self.assertIn("docs/MONETIZATION_M*.md", manifest)
         self.assertIn("docs/sales/", manifest)
@@ -459,7 +460,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         index = json.loads(result.stdout)
         sources = {item["source"] for item in index["sources"]}
 
-        self.assertEqual(index["migrationStage"], "prepared_not_deleted")
+        self.assertEqual(index["migrationStage"], "public_redacted_private_repo_published")
         self.assertGreater(index["sourceCount"], 80)
         self.assertIn("commercial-private", index["outputDir"])
         self.assertIn("docs/MONETIZATION_ROADMAP.md", sources)

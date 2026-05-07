@@ -1,52 +1,16 @@
-# Template Pack 2 Add-On Sales Register
+# Public Redaction Pointer: TEMPLATE PACK 2 SALES REGISTER
 
-Este registro sirve para revisar ventas reales de Template Pack 2 sin exponer datos sensibles ni improvisar decisiones comerciales.
+This public file is intentionally redacted.
 
-## Datos minimos
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- Handoff M62 en `GO`.
-- Buyer reference redactada o buyer id interno.
-- Provider order id.
-- Canal de venta y estado de pago.
-- Importe y moneda.
-- Estado de entrega del add-on.
-- Estado de soporte, incidencias abiertas, refunds y fallos de fulfillment.
-- Decision: `keep_tracking`, `scale_limited` o `pause_sales`.
+- Original path: docs/sales/TEMPLATE_PACK_2_SALES_REGISTER.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Comando base
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-```powershell
-backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\template_pack_2_sales_register.py `
-  --use-latest-handoff `
-  --buyer-email buyer@example.org `
-  --provider-order-id order_live_001 `
-  --sale-channel "Lemon Squeezy" `
-  --sale-status paid `
-  --amount 79.00 `
-  --currency EUR `
-  --delivery-status delivered `
-  --support-status open `
-  --sales-count 1 `
-  --open-support-items 0 `
-  --refund-count 0 `
-  --fulfillment-failures 0 `
-  --scale-decision keep_tracking `
-  --register-notes "First Template Pack 2 sale recorded; support window remains open." `
-  --confirm-handoff-go `
-  --confirm-sale-recorded `
-  --confirm-delivery-status-recorded `
-  --confirm-support-status-recorded `
-  --confirm-safe-claims-reviewed `
-  --confirm-scale-decision-recorded `
-  --append-register
-```
-
-## Reglas de decision
-
-- `keep_tracking`: decision por defecto mientras hay pocas ventas o soporte inicial abierto.
-- `scale_limited`: solo con venta pagada, entrega confirmada, cero soporte abierto, cero refunds y cero fallos.
-- `pause_sales`: usar si hay disputa, refund, entrega fallida, soporte sin resolver o dudas en claims.
-
-## Privacidad
-
-No pegues payloads crudos de Lemon Squeezy, Gumroad ni correos completos en notas. El gate redacta email, pero el operador debe mantener las notas sin datos personales innecesarios.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

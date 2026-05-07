@@ -1,25 +1,16 @@
-# Support Request Template
+# Public Redaction Pointer: support request template
 
-Completa esto antes de escribir a soporte.
+This public file is intentionally redacted.
 
-## Producto
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- Version ZIP:
-- Windows:
-- Estado licencia:
-- Paso exacto donde falla:
+- Original path: resources/pro-buyer-pack/templates/support_request_template.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Contexto
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-- Estoy usando `START_SQX_EDGE.bat`: si/no
-- La API local aparece conectada: si/no
-- Ruta aproximada de StrategyQuant X:
-- Ruta aproximada de salida:
-
-## Error
-
-Pega aqui el mensaje visible. No pegues claves privadas, payloads de licencia completos ni datos personales innecesarios.
-
-## Capturas
-
-Adjunta una captura de Inicio y otra del tab donde ocurre el problema.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

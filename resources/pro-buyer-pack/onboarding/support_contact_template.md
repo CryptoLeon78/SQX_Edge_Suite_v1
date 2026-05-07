@@ -1,34 +1,16 @@
-# Plantilla de Contacto con Soporte
+# Public Redaction Pointer: support contact template
 
-Completa esto si necesitas ayuda.
+This public file is intentionally redacted.
 
-```text
-Email de compra:
-Plan:
-Fecha aproximada de compra:
-Version de SQX Edge:
-Windows:
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-Que intentaba hacer:
+- Original path: resources/pro-buyer-pack/onboarding/support_contact_template.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Paso exacto donde me quede:
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-Estado de licencia mostrado:
-
-Primer valor conseguido:
-Si / No
-
-Que ocurrio:
-
-Mensaje de error, si aparece:
-
-Pasos que ya probe:
-
-Captura adjunta:
-Si / No
-
-Diagnostico generado desde Inicio:
-Si / No
-```
-
-No incluyas claves privadas, licencias de otros usuarios, credenciales de servicios externos, capturas con datos personales ni datos que no quieras compartir.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

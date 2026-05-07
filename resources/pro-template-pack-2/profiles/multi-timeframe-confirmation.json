@@ -1,33 +1,9 @@
 {
-  "id": "multi_timeframe_confirmation",
-  "label": "Multi-Timeframe Confirmation",
-  "description": "Perfil para preparar confirmacion entre timeframes sin perder trazabilidad del pipeline.",
-  "buyerFeedbackTheme": "perfiles_mas_guiados",
-  "presetFamily": "multi_timeframe",
-  "assetClasses": [
-    "forex_cross",
-    "gold"
-  ],
-  "timeframes": [
-    "M15",
-    "H1",
-    "H4"
-  ],
-  "indicatorFamilies": [
-    "EMA",
-    "RSI",
-    "SuperTrend",
-    "PercentRank"
-  ],
-  "riskNotes": [
-    "Mantener la direccion principal separada de la entrada.",
-    "Medir retardo introducido por confirmaciones superiores.",
-    "Controlar duplicidad de filtros equivalentes."
-  ],
-  "expectedWorkflow": [
-    "Definir timeframe director.",
-    "Configurar entrada en timeframe operativo.",
-    "Anotar filtros de confirmacion.",
-    "Exportar solo candidatos con trazabilidad completa."
-  ]
+  "publicRedactionPointer": true,
+  "originalPath": "resources/pro-template-pack-2/profiles/multi-timeframe-confirmation.json",
+  "privateRepository": "https://github.com/CryptoLeon78/sqx-edge-commercial-private",
+  "privateBaselineCommit": "ed79719",
+  "redactionPhase": "S5_public_commercial_redaction",
+  "redactionDate": "2026-05-07",
+  "policy": "complete commercial buyer/template asset moved to private repository; public repository keeps traceability only"
 }

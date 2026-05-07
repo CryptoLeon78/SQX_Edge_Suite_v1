@@ -1,38 +1,16 @@
-# Monetization M40 - Launch Assets Kit
+# Public Redaction Pointer: MONETIZATION M40
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M40.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Preparar el launch assets kit: capturas definitivas, copy corto/largo, README comercial, GitHub Release draft y checklist de publicacion.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `launch_assets_kit_ready`.
-- Tool `backend/sqx-edge-tool/tools/launch_assets_kit.py`.
-- Evidencia JSON/Markdown en `backend/sqx-edge-tool/data/launch_assets_kit`.
-- Consumo de evidencia M39 `public_offer_pack`.
-- Validacion de ZIP, SHA256, capturas desktop/mobile, copy corto/largo, README comercial, support macro y `github_release_draft`.
-- Guia `docs/sales/LAUNCH_ASSETS_KIT.md`.
-
-## Decision
-
-M40 no declara `GO` sin ZIP final, SHA256 confirmado, capturas desktop/mobile, copy preparado, release draft y publication checklist.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-tool\tools\launch_assets_kit.py --use-latest-public-offer --confirm-short-copy --confirm-long-copy --confirm-commercial-readme --confirm-github-release-draft --confirm-support-macro --confirm-publication-checklist --confirm-zip-sha256
-```
-
-Revision seca:
-
-```powershell
-python backend\sqx-edge-tool\tools\launch_assets_kit.py --allow-no-go-offer --no-write
-```
-
-## Siguiente Paso
-
-M41 debe preparar el public release gate: revisar GitHub Release, tag, ZIP, checksum, copy final, rollback y soporte antes de publicar.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

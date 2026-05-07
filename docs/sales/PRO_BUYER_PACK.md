@@ -1,31 +1,16 @@
-# Pro Buyer Pack
+# Public Redaction Pointer: PRO BUYER PACK
 
-El Pro Buyer Pack es el material que acompana al comprador Pro dentro del ZIP portable.
+This public file is intentionally redacted.
 
-## Incluido
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- Universo inicial de activos: 28 Forex, 4 indices y oro.
-- CSV importable en Estrategias.
-- Checklist de activacion de licencia.
-- Plantilla starter para Project Generator.
-- Plantilla de solicitud de soporte.
-- Checklist de primer valor.
+- Original path: docs/sales/PRO_BUYER_PACK.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## No incluido
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-- Payloads de licencia de clientes.
-- Private keys.
-- Eventos checkout crudos.
-- Secretos del relay.
-- Datos personales de compradores.
-- Promesas de rentabilidad o asesoramiento financiero.
-
-## Operacion
-
-Antes de publicar un ZIP comercial, ejecutar:
-
-```powershell
-backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\pro_buyer_pack.py
-```
-
-El resultado debe ser `GO` y generar evidencia local en `backend/sqx-edge-tool/data/pro_buyer_pack`.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

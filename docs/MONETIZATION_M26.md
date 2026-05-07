@@ -1,38 +1,16 @@
-# Monetization M26 - Render Staging Secrets Kit
+# Public Redaction Pointer: MONETIZATION M26
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M26.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Preparar secretos fuertes para Render staging sin meter valores sensibles en git, ZIP portable ni documentacion publica.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `relay_render_staging_secrets_kit_ready`.
-- Tool `backend/sqx-edge-relay/tools/render_staging_secrets_kit.py`.
-- `.env` local generado en `backend/sqx-edge-relay/data/render_staging_secrets_kit`.
-- Evidencia JSON/Markdown redactada.
-- Validacion de placeholders, longitud minima y password de cuenta Render.
-- Guia `docs/sales/RENDER_STAGING_SECRETS_KIT.md`.
-
-## Decision
-
-El siguiente desbloqueo real es tener secretos listos para pegar en Render y Lemon. La herramienta genera secretos staging, pero devuelve `NO-GO` si falta `SQX_LOCAL_INGEST_URL` real.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_secrets_kit.py --local-ingest-url https://tu-local-ingest-tunnel.example.com/api/fulfillment/relay-ingest
-```
-
-Para forzar secretos nuevos:
-
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_secrets_kit.py --fresh --local-ingest-url https://tu-local-ingest-tunnel.example.com/api/fulfillment/relay-ingest
-```
-
-## Siguiente Paso
-
-M27 debe configurar estos valores en Render, ejecutar handshake con API key real y obtener la primera URL staging real.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

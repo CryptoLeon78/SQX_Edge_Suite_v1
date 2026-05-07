@@ -1,25 +1,16 @@
-# M64 - Template Pack 2 Feedback Cohort Review
+# Public Redaction Pointer: MONETIZATION M64
 
-## Objective
+This public file is intentionally redacted.
 
-Prepare a redacted early-cohort review for Template Pack 2 before expanding traffic.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Implemented
+- Original path: docs/MONETIZATION_M64.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Added `backend/sqx-edge-tool/config/template_pack_2_feedback_cohort.json`.
-- Added `backend/sqx-edge-tool/tools/template_pack_2_feedback_cohort.py`.
-- Added `docs/sales/TEMPLATE_PACK_2_FEEDBACK_COHORT.md`.
-- Added portable exclusions for feedback-cohort evidence and internal tooling.
-- Updated product manifest, roadmap, governance and static/contracts tests.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Decision
-
-Estado: Done.
-
-Current state: `template_pack_2_feedback_cohort_ready`.
-
-Allowed roadmap decisions: `expand_traffic`, `iterate_offer`, `prepare_pack_3` or `pause_sales`.
-
-## Next Step
-
-M65 - Buyer-ready checkout/release closeout for controlled first sales.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

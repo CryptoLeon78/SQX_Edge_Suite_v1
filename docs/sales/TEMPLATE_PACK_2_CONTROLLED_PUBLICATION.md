@@ -1,52 +1,16 @@
-# Template Pack 2 Controlled Publication
+# Public Redaction Pointer: TEMPLATE PACK 2 CONTROLLED PUBLICATION
 
-## Objetivo
+This public file is intentionally redacted.
 
-Preparar la publicacion controlada de Template Pack 2 con checkout real, soporte, rollback y purchase drill antes de escalar ventas.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Valores requeridos
+- Original path: docs/sales/TEMPLATE_PACK_2_CONTROLLED_PUBLICATION.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- `SQX_TEMPLATE_PACK_2_CHECKOUT_URL`
-- `SQX_TEMPLATE_PACK_2_PROVIDER_VARIANT_ID`
-- `SQX_TEMPLATE_PACK_2_SUPPORT_EMAIL`
-- `SQX_TEMPLATE_PACK_2_FALLBACK_URL` opcional
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Criterios GO
-
-- Offer pack revisado.
-- URL HTTPS real probada.
-- Variant ID real confirmado.
-- Inbox de soporte operativo.
-- Macro de entrega preparada.
-- Rollback listo.
-- Purchase drill listo.
-- Publicacion controlada aprobada.
-
-## Purchase drill
-
-- Confirmar que el checkout corresponde a `template_pack_2`.
-- Confirmar precio `79 EUR`.
-- Registrar compra pagada con referencia redacted.
-- Generar ZIP add-on separado.
-- Enviar macro de entrega.
-- Confirmar ruta de reembolso o pausa.
-
-## Comando recomendado
-
-```powershell
-backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\template_pack_2_publication.py `
-  --checkout-url "https://checkout.tu-proveedor.com/template-pack-2" `
-  --provider-variant-id "variant_template_pack_2" `
-  --support-email "soporte@tu-dominio.com" `
-  --confirm-offer-pack-reviewed `
-  --confirm-checkout-url-tested `
-  --confirm-provider-variant-confirmed `
-  --confirm-support-inbox-ready `
-  --confirm-delivery-macro-ready `
-  --confirm-rollback-ready `
-  --confirm-purchase-drill-ready `
-  --confirm-controlled-publication-approved `
-  --no-write
-```
-
-Usar `--apply` solo cuando los valores sean definitivos y se quiera escribirlos en el manifest local.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

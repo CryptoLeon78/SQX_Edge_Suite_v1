@@ -1,45 +1,16 @@
-# Monetization M44 - Hotfix Rollback Release
+# Public Redaction Pointer: MONETIZATION M44
 
-Fecha: 2026-05-07
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M44.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Preparar el ciclo de hotfix/rollback release despues de una senal post-release: accion, owner, notas, comunicacion, verificacion y cierre.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `hotfix_rollback_release_ready`.
-- Tool `backend/sqx-edge-tool/tools/hotfix_rollback_release.py`.
-- Evidencia JSON/Markdown en `backend/sqx-edge-tool/data/hotfix_rollback_release`.
-- Consumo de evidencia M43 `post_release_monitor`.
-- Validacion de accion `close_no_action`, `pause_and_watch`, `hotfix` o `rollback`.
-- Bloqueos para `rollback_target_missing`, `hotfix_notes_missing`, `customer_comms_not_ready`, soporte, verificacion y evidencia de cierre.
-- Guia `docs/sales/HOTFIX_ROLLBACK_RELEASE.md`.
-
-## Decision
-
-M44 no declara `GO` si no hay owner, referencia de incidente cuando aplica, notas de hotfix/rollback, comunicacion a clientes, macro de soporte, plan de verificacion y evidencia de cierre.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-tool\tools\hotfix_rollback_release.py --use-latest-post-release-monitor --action hotfix --action-owner "Ivan" --incident-id INC-001 --hotfix-version v1.0.1 --post-action-decision monitor --confirm-hotfix-notes-ready --confirm-customer-comms-ready --confirm-support-macro-ready --confirm-verification-plan-ready --confirm-release-package-ready --confirm-closure-evidence-ready
-```
-
-Rollback:
-
-```powershell
-python backend\sqx-edge-tool\tools\hotfix_rollback_release.py --use-latest-post-release-monitor --action rollback --action-owner "Ivan" --incident-id INC-001 --rollback-target v1.0.0 --post-action-decision close --confirm-rollback-checklist-ready --confirm-customer-comms-ready --confirm-support-macro-ready --confirm-verification-plan-ready --confirm-closure-evidence-ready
-```
-
-Revision seca:
-
-```powershell
-python backend\sqx-edge-tool\tools\hotfix_rollback_release.py --allow-no-go-monitor --no-write
-```
-
-## Siguiente Paso
-
-M45 debe preparar customer success/renewal loop: seguimiento de clientes Pro, renovaciones, plantillas, soporte prioritario y oportunidades de upsell sin promesas financieras.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

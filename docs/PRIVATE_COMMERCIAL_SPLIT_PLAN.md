@@ -42,7 +42,14 @@ backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\privat
 2. Crear el repositorio privado `sqx-edge-commercial-private`. Done.
 3. Desde `commercial-private/sqx-edge-commercial-private/`, configurar `origin` y ejecutar `git push -u origin main`. Done.
 4. Verificar `MIGRATION_INDEX.json`, los hashes SHA256 y que GitHub marca el repo como privado. Done.
-5. Solo despues, en otra fase, sustituir documentos publicos sensibles por punteros redactados.
+5. Sustituir documentos publicos sensibles por punteros redactados. Done in S5.
+
+## Public Redaction State
+
+- Public redaction phase: `S5_public_commercial_redaction`.
+- Public files now keep path-level pointer stubs only.
+- Complete commercial content remains in the private repo at commit `ed79719`.
+- Pointer index: `docs/PUBLIC_COMMERCIAL_POINTERS.md`.
 
 ## Regla De Seguridad
 

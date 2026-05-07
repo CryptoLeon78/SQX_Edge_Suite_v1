@@ -1,24 +1,16 @@
-# SQX Edge Pro Buyer Pack
+# Public Redaction Pointer: README
 
-Este pack acompana al ZIP portable para que un comprador Pro empiece con datos y plantillas realistas sin depender de Python ni de configuracion avanzada.
+This public file is intentionally redacted.
 
-## Contenido
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- `data/asset_universe_pro.csv`: universo inicial de 28 Forex, 4 indices y oro.
-- `data/strategy_import_template.csv`: CSV compatible con el importador de Estrategias.
-- `templates/license_activation_checklist.md`: pasos para activar la licencia Pro.
-- `templates/project_generator_starter.json`: punto de partida para configurar Project Generator.
-- `templates/support_request_template.md`: plantilla para pedir soporte con datos utiles.
-- `templates/buyer_success_checklist.md`: checklist de primer valor para comprador Pro.
+- Original path: resources/pro-buyer-pack/README.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Uso recomendado
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-1. Abrir `START_SQX_EDGE.bat`.
-2. Revisar Inicio y Project Generator.
-3. Importar `strategy_import_template.csv` desde el tab Estrategias si se quiere probar el flujo CSV.
-4. Usar `asset_universe_pro.csv` como referencia del universo base.
-5. Completar el checklist de activacion antes de pedir soporte.
-
-## Aviso responsable
-
-SQX Edge Pro no promete rentabilidad ni resultados financieros. Este pack ayuda a organizar, preparar y revisar trabajo operativo en StrategyQuant X.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

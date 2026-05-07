@@ -1,52 +1,16 @@
-# Commercial Release Candidate
+# Public Redaction Pointer: COMMERCIAL RELEASE CANDIDATE
 
-Este runbook crea la compuerta final antes de una compra piloto real.
+This public file is intentionally redacted.
 
-## Requisitos
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- `checkout_live_readiness.py` en `GO`.
-- ZIP portable generado con `release_checklist.ps1`.
-- `ZIP SHA256` registrado.
-- Clave publica de produccion real, sin placeholder.
-- Checkout privado o enlace de test controlado.
-- Rollback claro antes de tocar venta publica.
+- Original path: docs/sales/COMMERCIAL_RELEASE_CANDIDATE.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Ejecutar RC
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-```powershell
-python backend\sqx-edge-tool\tools\commercial_release_candidate.py --use-latest-readiness --zip dist\SQX_Edge_Tool_Portable_YYYYMMDD_HHMMSS.zip --pilot-purchase-confirmed
-```
-
-## Bloqueos esperados ahora
-
-Es normal ver `NO-GO` hasta completar:
-
-- `primary_checkout_url_missing_or_not_https`
-- `checkout_live_readiness_not_go`
-- `production_public_key_placeholder`
-- `pilot_purchase_not_confirmed`
-
-## pilot purchase
-
-La compra piloto debe verificar:
-
-- Pago privado o enlace limitado.
-- Webhook Lemon recibido por Render.
-- Dispatch hacia ingest local.
-- Licencia Pro emitida o confirmada.
-- ZIP portable abre correctamente.
-- Licencia importada desbloquea funciones Pro.
-- Cliente piloto recibe instrucciones y soporte.
-
-## Rollback
-
-Si algo falla:
-
-- Despublica checkout links.
-- Pausa webhook Lemon.
-- Pausa worker Render.
-- Vuelve a entrega manual firmada.
-- Rota secretos si hubo exposicion.
-- Entrega manualmente al cliente piloto si ya pago.
-
-No abras venta publica hasta que esta RC devuelva `GO`.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

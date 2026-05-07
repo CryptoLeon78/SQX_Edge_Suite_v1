@@ -1,28 +1,16 @@
-# Monetization Phase M48 - Basic Buyer Onboarding And Support Gate
+# Public Redaction Pointer: MONETIZATION M48
 
-Fecha: 2026-05-07.
-Estado: Done.
+This public file is intentionally redacted.
 
-## Objetivo
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-Preparar una entrada basica para comprador Pro: compra confirmada, ZIP, licencia, instrucciones de arranque, FAQ, soporte inicial y criterios claros de pausa o reembolso.
+- Original path: docs/MONETIZATION_M48.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Entregables
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-- Estado `buyer_onboarding_support_gate_ready`.
-- Configuracion `backend/sqx-edge-tool/config/buyer_onboarding_support_gate.json`.
-- Recursos buyer-facing en `resources/pro-buyer-pack/onboarding`, incluido `START_HERE.md`.
-- Guia interna `docs/sales/BUYER_ONBOARDING_SUPPORT_GATE.md`.
-- Validador interno `backend/sqx-edge-tool/tools/buyer_onboarding_support_gate.py`.
-- Exclusiones de packaging para evidencia y herramienta interna.
-
-## Decision
-
-El onboarding basico viaja en el portable para que el comprador pueda empezar sin Python ni conocimiento tecnico. La herramienta de gate y la evidencia local quedan fuera del ZIP final.
-
-## Criterios
-
-- No entregar sin ZIP, licencia, instrucciones y FAQ.
-- No escalar sin soporte inicial preparado.
-- No prometer rentabilidad, senales, estrategias ganadoras ni asesoramiento financiero.
-- Si el comprador esperaba resultados financieros, la respuesta correcta es aclarar alcance, pausar o revisar reembolso.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

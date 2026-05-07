@@ -1,39 +1,16 @@
-# Monetization M37 - Post Launch Control
+# Public Redaction Pointer: MONETIZATION M37
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M37.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Preparar el control posterior al lanzamiento limitado: ventas reales, activaciones, support tickets, refunds, fallos de fulfillment y decision de escalar, continuar limitado, pausar o hacer rollback.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `post_launch_control_ready`.
-- Tool `backend/sqx-edge-tool/tools/post_launch_control.py`.
-- Evidencia JSON/Markdown en `backend/sqx-edge-tool/data/post_launch_control`.
-- Consumo de evidencia M36 `limited_public_launch`.
-- Validacion de ventas pagadas, activaciones, tickets, refunds, fallos de fulfillment, review window y decision owner.
-- Decisiones permitidas: `continue_limited`, `scale_public`, `pause_sales`, `rollback`.
-- Guia `docs/sales/POST_LAUNCH_CONTROL.md`.
-
-## Decision
-
-M37 no permite escalar a venta publica si hay activaciones pendientes, support tickets sin resolver, fallos de fulfillment o metricas sin revisar.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-tool\tools\post_launch_control.py --use-latest-limited-launch --sales-count 5 --activation-count 5 --support-ticket-count 1 --unresolved-ticket-count 0 --refund-count 0 --failed-fulfillment-count 0 --review-window "2026-05-07 18:00 Europe/Madrid" --decision-owner "Ivan" --scale-decision continue_limited --confirm-metrics-reviewed --confirm-support-sla
-```
-
-Revision seca:
-
-```powershell
-python backend\sqx-edge-tool\tools\post_launch_control.py --allow-no-go-launch --no-write
-```
-
-## Siguiente Paso
-
-M38 debe preparar el sistema de feedback comercial: clasificacion de incidencias, versionado de mejoras y decision de precio/copy antes de escalar mas.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

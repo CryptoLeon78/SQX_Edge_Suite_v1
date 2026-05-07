@@ -1,50 +1,16 @@
-# Checkout Live Readiness
+# Public Redaction Pointer: CHECKOUT LIVE READINESS
 
-Este runbook valida si SQX Edge esta listo para publicar checkout real.
+This public file is intentionally redacted.
 
-## Requisitos
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- M32 `Render Staging Purchase Drill` en `GO`.
-- URL publica HTTPS del relay.
-- Checkout URL real de Lemon Squeezy.
-- `providerVariantId` real para cada plan.
-- Email de soporte operativo.
-- ZIP portable final validado.
+- Original path: docs/sales/CHECKOUT_LIVE_READINESS.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Ejecutar readiness
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-```powershell
-python backend\sqx-edge-tool\tools\checkout_live_readiness.py --relay-base-url https://tu-relay.onrender.com --support-email soporte@tu-dominio.com --use-latest-purchase-drill
-```
-
-La herramienta valida:
-
-- `primaryUrl` HTTPS.
-- URL de webhook `/relay/webhook/lemon`.
-- `providerVariantId` de `pro_monthly`, `pro_annual` y `setup_assist`.
-- Email de soporte.
-- Evidencia M32.
-- Plan de rollback.
-
-## Bloqueos esperados hasta configurar Lemon
-
-Es normal ver `NO-GO` mientras falten:
-
-- `primary_checkout_url_missing_or_not_https`
-- `pro_monthly_provider_variant_id_missing`
-- `pro_annual_provider_variant_id_missing`
-- `setup_assist_provider_variant_id_missing`
-- `support_email_missing_or_invalid`
-
-## Rollback
-
-Si una venta real falla:
-
-- Despublica o desactiva los checkout links.
-- Pausa el webhook Lemon hacia `/relay/webhook/lemon`.
-- Pausa el worker del relay.
-- Revisa `/relay/queue` y reintenta manualmente lo necesario.
-- Vuelve a entrega manual firmada hasta resolver la causa.
-- Rota `SQX_LEMON_WEBHOOK_SECRET` si hubo exposicion.
-
-No conectes el webhook real ni publiques los enlaces hasta que esta compuerta devuelva `GO`.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

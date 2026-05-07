@@ -1,9 +1,2 @@
-Template;Asset Family;Buyer Theme;Use Case;Asset Class;Timeframes;Indicator Families;Risk Note;Workflow Step
-Breakout Expansion Lab;breakout_expansion;mas_presets_de_discovery;Ruptura con expansion controlada;indices|gold;M15|M30|H1;ATR|Donchian|ADX|EMA;Separar sesiones y evitar sobreajuste a volatilidad extrema;Discovery
-Opening Range Continuation;breakout_expansion;mas_presets_de_discovery;Continuacion tras rango inicial;indices;M5|M15|M30;Donchian|EMA|ATR|Volume;Comparar comportamiento por franja horaria;Discovery
-Compression Release Scout;breakout_expansion;perfiles_mas_guiados;Salida de compresion;forex_major|indices;M15|M30;Bollinger|Keltner|ATR|ADX;Validar falsos rompimientos por activo;Filtering
-Volatility Regime Switchboard;volatility_regime;mejor_guia_para_regimenes;Clasificacion previa de regimen;forex_major|indices;M30|H1|H4;Bollinger|Keltner|ATR|ZScore;No mezclar regimenes sin etiquetado;Preparation
-Low Volatility Continuation;volatility_regime;mejor_guia_para_regimenes;Continuacion en compresion;forex_major;M30|H1;Keltner|EMA|RSI|ATR;Revisar costes y rango medio;Filtering
-High Volatility Containment;volatility_regime;mejor_guia_para_regimenes;Filtro de contencion en expansion;gold|indices;M15|H1;ATR|SuperTrend|ADX|PercentRank;Evitar reglas fragiles en gaps;Validation
-Multi-Timeframe Confirmation;multi_timeframe;perfiles_mas_guiados;Confirmacion entre timeframes;forex_cross|gold;M15|H1|H4;EMA|RSI|SuperTrend|PercentRank;Medir retardo de confirmacion;Validation
-Trend Pullback Confirmation;multi_timeframe;perfiles_mas_guiados;Pullback con direccion superior;forex_major|indices;M15|M30|H1;EMA|CCI|RSI|ADX;Separar direccion y entrada para evitar duplicidad;Filtering
+public_redaction_pointer,original_path,private_repository,private_baseline_commit,redaction_phase,redaction_date
+true,resources/pro-template-pack-2/presets/strategy_import_template_pack_2.csv,https://github.com/CryptoLeon78/sqx-edge-commercial-private,ed79719,S5_public_commercial_redaction,2026-05-07

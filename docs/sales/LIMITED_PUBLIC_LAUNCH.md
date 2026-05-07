@@ -1,69 +1,16 @@
-# Limited Public Launch
+# Public Redaction Pointer: LIMITED PUBLIC LAUNCH
 
-Este runbook abre una venta publica pequena y controlada solo cuando el piloto ya esta probado.
+This public file is intentionally redacted.
 
-## Requisitos
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- `pilot_purchase_kit.py` en `GO`.
-- ZIP portable final validado.
-- Checkout HTTPS real configurado.
-- Variant IDs reales para `pro_monthly`, `pro_annual` y `setup_assist`.
-- Email de soporte operativo.
-- Bandeja de soporte revisada y lista.
-- Responsable de rollback disponible durante la ventana.
-- First sale cap recomendado: `5`.
+- Original path: docs/sales/LIMITED_PUBLIC_LAUNCH.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Dry Run
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-```powershell
-python backend\sqx-edge-tool\tools\limited_public_launch.py --allow-no-go-pilot --no-write
-```
-
-Bloqueos esperados hasta completar la operativa real:
-
-- `pilot_purchase_kit_missing` o `pilot_purchase_kit_not_go`
-- `primary_checkout_url_missing_or_not_https`
-- `provider_variant_missing_pro_monthly`
-- `provider_variant_missing_pro_annual`
-- `provider_variant_missing_setup_assist`
-- `support_email_missing_or_invalid`
-- `launch_window_missing`
-- `rollback_owner_missing`
-- `public_checkout_not_confirmed`
-- `support_inbox_not_confirmed`
-
-## Flujo Real
-
-1. Configurar checkout publico limitado.
-2. Mantener first sale cap en `5` hasta revisar soporte.
-3. Ejecutar:
-
-```powershell
-python backend\sqx-edge-tool\tools\limited_public_launch.py --use-latest-pilot-kit --support-email soporte@example.com --first-sale-cap 5 --launch-window "2026-05-07 10:00-14:00 Europe/Madrid" --rollback-owner "Ivan" --confirm-public-checkout --confirm-support-inbox
-```
-
-4. Publicar solo el enlace limitado.
-5. Vigilar Lemon/Gumroad, Render relay, cola local y support inbox.
-6. Confirmar primera activacion Pro real.
-7. Registrar order id, license id, ZIP SHA256 y resultado de soporte.
-
-## Criterios GO
-
-- Piloto M35 en `GO`.
-- Checkout primario HTTPS.
-- Variantes reales configuradas.
-- Support inbox confirmado.
-- First sale cap entre `1` y `25`, recomendado `5`.
-- Ventana de lanzamiento definida.
-- Rollback owner definido.
-- Checkout publico confirmado.
-
-## Rollback
-
-- Despublicar o pausar checkout.
-- Pausar webhook Lemon si los eventos duplican o fallan.
-- Pausar worker Render si el dispatch falla repetidamente.
-- Cambiar a fulfillment manual para clientes pagados.
-- Reembolsar si no se puede entregar dentro del SLA de soporte.
-
-No escales a venta abierta hasta revisar las primeras ventas y activaciones.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

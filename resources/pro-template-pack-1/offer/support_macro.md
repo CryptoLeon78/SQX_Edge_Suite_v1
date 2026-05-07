@@ -1,21 +1,16 @@
-# Template Pack 1 - Support Macro
+# Public Redaction Pointer: support macro
 
-Hola,
+This public file is intentionally redacted.
 
-Gracias por escribir sobre Template Pack 1.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-Para ayudarte, revisare:
+- Original path: resources/pro-template-pack-1/offer/support_macro.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Que el ZIP se haya descomprimido correctamente.
-- Que puedas localizar `README.md`, `profiles`, `presets` y `checklists`.
-- Que entiendas que perfil corresponde a cada caso de uso.
-- Que el CSV pueda abrirse y revisarse.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-Si necesitas una configuracion guiada completa o adaptacion personalizada, lo adecuado es Setup Assist.
-
-Por favor envia:
-
-- Email de compra.
-- Nombre del archivo ZIP recibido.
-- Captura del error o bloqueo.
-- Paso exacto donde te quedaste.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

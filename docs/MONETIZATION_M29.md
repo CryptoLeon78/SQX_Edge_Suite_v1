@@ -1,39 +1,16 @@
-# Monetization M29 - Local Ingest Staging Session
+# Public Redaction Pointer: MONETIZATION M29
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M29.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Unificar las piezas de backend local, tunnel publico e ingest validation en una sesion operativa auditable.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `relay_local_ingest_staging_session_ready`.
-- Tool `backend/sqx-edge-relay/tools/local_ingest_staging_session.py`.
-- Arranque opt-in del backend local.
-- Arranque opt-in del tunnel.
-- Check firmado opcional del ingest.
-- Evidencia local en `backend/sqx-edge-relay/data/local_ingest_staging_session`.
-- Guia `docs/sales/LOCAL_INGEST_STAGING_SESSION.md`.
-
-## Decision
-
-La sesion no abre procesos por defecto. Para una prueba real hay que pedirlo expresamente con `--start-backend` y `--start-tunnel`.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_staging_session.py
-```
-
-Sesion real:
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_staging_session.py --start-backend --start-tunnel --relay-secret <SQX_FULFILLMENT_RELAY_SECRET> --send-bundle
-```
-
-## Siguiente Paso
-
-M30 debe ejecutar la sesion real, capturar la URL publica de ingest y alimentar Render staging con esa URL.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

@@ -1,30 +1,16 @@
-# Monetization M58 - Template Pack 2 Initial Assets
+# Public Redaction Pointer: MONETIZATION M58
 
-Estado: Done.
+This public file is intentionally redacted.
 
-## Resultado
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-M58 convierte la decision M57 `draft_pack_2_assets` en recursos iniciales reales para Template Pack 2.
+- Original path: docs/MONETIZATION_M58.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Entregables
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-- Config: `backend/sqx-edge-tool/config/template_pack_2_assets.json`.
-- Tool: `backend/sqx-edge-tool/tools/template_pack_2_assets.py`.
-- Resource dir: `resources/pro-template-pack-2`.
-- Sales doc: `docs/sales/TEMPLATE_PACK_2_ASSETS.md`.
-- Manifest state: `template_pack_2_assets_ready`.
-
-## Alcance del pack
-
-- 3 perfiles JSON editables.
-- 8 presets CSV.
-- 2+ familias de assets.
-- Checklists de entrega, soporte y safe claims.
-
-## Politica
-
-Template Pack 2 se entrega como add-on separado para usuarios Pro. No forma parte del ZIP portable principal y no debe contener licencias, claves privadas, payloads de proveedor ni claims financieros.
-
-## Siguiente paso recomendado
-
-M59 - preparar offer pack publico/controlado para Template Pack 2: copy de oferta, FAQ, checkout draft, email macro y soporte macro.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

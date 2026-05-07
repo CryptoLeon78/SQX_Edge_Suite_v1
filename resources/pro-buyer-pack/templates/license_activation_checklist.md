@@ -1,13 +1,16 @@
-# License Activation Checklist
+# Public Redaction Pointer: license activation checklist
 
-Usa esta lista antes de pedir soporte de activacion.
+This public file is intentionally redacted.
 
-- [ ] He descomprimido el ZIP portable en una carpeta local sin caracteres raros.
-- [ ] He abierto `START_SQX_EDGE.bat`.
-- [ ] He esperado a que el navegador abra Inicio.
-- [ ] He pegado el JSON de licencia recibido en el panel Licencia.
-- [ ] He pulsado `Cargar licencia`.
-- [ ] Veo estado Pro o Internal en la app.
-- [ ] Si falla, guardo captura del error y no comparto claves privadas ni archivos internos.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-No modifiques `config/license.json` manualmente salvo que soporte te lo pida.
+- Original path: resources/pro-buyer-pack/templates/license_activation_checklist.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
+
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
+
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

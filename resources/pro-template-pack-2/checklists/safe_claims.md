@@ -1,17 +1,16 @@
-# Template Pack 2 Safe Claims
+# Public Redaction Pointer: safe claims
 
-Mensajes permitidos:
+This public file is intentionally redacted.
 
-- Acelera preparacion operativa.
-- Ordena discovery, filtrado y validacion.
-- Entrega perfiles editables y trazables.
-- Ayuda a reducir friccion de configuracion.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-Mensajes prohibidos:
+- Original path: resources/pro-template-pack-2/checklists/safe_claims.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Garantias de beneficio.
-- Sistemas presentados como vencedores.
-- Promesas de retorno.
-- Resultados economicos prometidos.
-- Ausencia de riesgo.
-- Consejo personalizado de inversion.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
+
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

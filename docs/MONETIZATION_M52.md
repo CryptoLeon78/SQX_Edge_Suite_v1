@@ -1,25 +1,16 @@
-# M52 - Template Pack 1 Controlled Purchase Drill
+# Public Redaction Pointer: MONETIZATION M52
 
-## Objetivo
+This public file is intentionally redacted.
 
-Preparar y validar una compra controlada real de Template Pack 1 antes de escalar la publicacion del add-on.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Entregables
+- Original path: docs/MONETIZATION_M52.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Configuracion `backend/sqx-edge-tool/config/template_pack_1_purchase_drill.json`.
-- Gate interno `backend/sqx-edge-tool/tools/template_pack_1_purchase_drill.py`.
-- Guia operativa `docs/sales/TEMPLATE_PACK_1_PURCHASE_DRILL.md`.
-- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_1_purchase_drill`.
-- Manifiesto preparado con estado `template_pack_1_purchase_drill_ready`.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Decision
-
-La fase no inventa una compra real. El gate exige URL de checkout, provider variant ID, order ID, email de comprador, estado de pago, importe, moneda, confirmaciones de entrega/soporte y, si se pide, verificacion del ZIP add-on separado.
-
-Politica de privacidad: `store_redacted_buyer_email_and_order_reference_only`.
-
-Estado: Done.
-
-## Siguiente Paso
-
-M53: ejecutar el primer handoff real posterior a compra, con seguimiento de entrega, soporte y decision de escalar o pausar.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

@@ -1,14 +1,16 @@
-# Buyer Success Checklist
+# Public Redaction Pointer: buyer success checklist
 
-Objetivo: conseguir primer valor operativo en menos de una sesion de trabajo.
+This public file is intentionally redacted.
 
-- [ ] Abrir app con un click.
-- [ ] Confirmar licencia activa.
-- [ ] Revisar Inicio sin errores rojos.
-- [ ] Revisar universo `asset_universe_pro.csv`.
-- [ ] Importar `strategy_import_template.csv` en Estrategias.
-- [ ] Generar un proyecto pequeno con Project Generator.
-- [ ] Abrir la carpeta de salida.
-- [ ] Registrar cualquier friccion para soporte.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-El criterio de exito es operacional: app abierta, licencia activa, datos cargados y primer flujo probado.
+- Original path: resources/pro-buyer-pack/templates/buyer_success_checklist.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
+
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
+
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

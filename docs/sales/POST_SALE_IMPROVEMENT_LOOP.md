@@ -1,42 +1,16 @@
-# Post-Sale Improvement Loop
+# Public Redaction Pointer: POST SALE IMPROVEMENT LOOP
 
-Use this note after the first controlled buyer log is GO. The goal is not to scale sales immediately. The goal is to turn the first buyer experience into small buyer-safe updates.
+This public file is intentionally redacted.
 
-## Command
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-```powershell
-backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\post_sale_improvement_loop.py `
-  --use-latest-first-buyer-log `
-  --onboarding-updates 1 `
-  --support-macro-updates 1 `
-  --public-copy-updates 0 `
-  --safe-claims-updates 0 `
-  --followup-actions 1 `
-  --support-risk 0 `
-  --claims-risk 0 `
-  --decision ship_micro_updates `
-  --priority medium `
-  --owner operator `
-  --next-review M69 `
-  --improvement-summary "Tighten START_HERE and support macro from first buyer questions." `
-  --review-notes "Keep the page private until the buyer confirms first value." `
-  --confirm-first-buyer-log-go `
-  --confirm-onboarding-reviewed `
-  --confirm-support-macros-reviewed `
-  --confirm-public-copy-reviewed `
-  --confirm-safe-claims-reviewed `
-  --confirm-owner-assigned `
-  --confirm-next-review-recorded
-```
+- Original path: docs/sales/POST_SALE_IMPROVEMENT_LOOP.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Decisions
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-- `ship_micro_updates`: apply small onboarding/support/copy improvements before more traffic.
-- `revise_onboarding`: buyer instructions need another pass.
-- `revise_support_macros`: support templates need clearer replies.
-- `revise_public_copy`: public wording created wrong expectations.
-- `pause_sales`: unresolved support, refund, fulfillment or claims risk exists.
-
-## Privacy Boundary
-
-Store only aggregated action counts, owner, next review and short operational summaries. Do not store buyer names, email, raw messages, checkout payloads, licenses, private keys, signed files or secrets.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

@@ -1,31 +1,9 @@
 {
-  "id": "risk_controlled_continuation",
-  "label": "Risk Controlled Continuation",
-  "description": "Perfil para ordenar busquedas de continuacion con controles de drawdown y estancamiento.",
-  "assetClasses": [
-    "forex_cross",
-    "gold"
-  ],
-  "timeframes": [
-    "M30",
-    "H1",
-    "H4"
-  ],
-  "indicatorFamilies": [
-    "SuperTrend",
-    "Keltner",
-    "ATR",
-    "CCI"
-  ],
-  "riskNotes": [
-    "Priorizar lectura de drawdown y stagnation.",
-    "Usar minimos de operaciones realistas.",
-    "Revisar sensibilidad por timeframe."
-  ],
-  "expectedWorkflow": [
-    "Crear proyecto con parametros prudentes.",
-    "Aplicar filtros de riesgo.",
-    "Revisar lista corta en Estrategias.",
-    "Guardar notas de decision."
-  ]
+  "publicRedactionPointer": true,
+  "originalPath": "resources/pro-template-pack-1/profiles/risk-controlled-continuation.json",
+  "privateRepository": "https://github.com/CryptoLeon78/sqx-edge-commercial-private",
+  "privateBaselineCommit": "ed79719",
+  "redactionPhase": "S5_public_commercial_redaction",
+  "redactionDate": "2026-05-07",
+  "policy": "complete commercial buyer/template asset moved to private repository; public repository keeps traceability only"
 }

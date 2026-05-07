@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - Public commercial redaction
+
+- Redacta roadmap comercial, runbooks de venta y packs Pro buyer/template en el repo publico como punteros de trazabilidad.
+- Mantiene la copia completa en `CryptoLeon78/sqx-edge-commercial-private` con commit base `ed79719 Initial private commercial export`.
+- Anade `docs/PUBLIC_COMMERCIAL_POINTERS.md` y actualiza gobernanza/manifiesto/tests para la frontera publico/privado.
+
 ## 2026-05-07 - Private commercial repository published
 
 - Instala GitHub CLI en modo portable local bajo `private-commercial/tools/gh`.

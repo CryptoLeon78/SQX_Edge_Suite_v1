@@ -1,4 +1,2 @@
-Template;Use Case;Asset Class;Timeframes;Indicator Families;Risk Note;Workflow Step
-Edge Discovery Momentum;Exploracion de continuidad;forex_major|indices;M15|M30|H1;EMA|MACD|RSI|ADX;Comparar estabilidad entre activos;Discovery
-Risk Controlled Continuation;Continuacion con control operativo;forex_cross|gold;M30|H1|H4;SuperTrend|Keltner|ATR|CCI;Revisar drawdown y estancamiento;Filtering
-Mean Reversion Lab;Laboratorio de reversion;forex_major|indices;M5|M15|M30;Bollinger|Stochastic|PercentRank|ZScore;Controlar costes y spread;Validation
+public_redaction_pointer,original_path,private_repository,private_baseline_commit,redaction_phase,redaction_date
+true,resources/pro-template-pack-1/presets/strategy_import_template_pack_1.csv,https://github.com/CryptoLeon78/sqx-edge-commercial-private,ed79719,S5_public_commercial_redaction,2026-05-07

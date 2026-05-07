@@ -1,41 +1,16 @@
-# Monetization M30 - Local Ingest Render Handoff
+# Public Redaction Pointer: MONETIZATION M30
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M30.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Preparar el paquete final de handoff entre la sesion local de ingest y Render staging.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `relay_local_ingest_render_handoff_ready`.
-- Tool `backend/sqx-edge-relay/tools/local_ingest_render_handoff.py`.
-- `.env` local con:
-  - `SQX_LOCAL_INGEST_URL`
-  - `SQX_RELAY_WORKER_INTERVAL_SECONDS`
-  - `SQX_RELAY_WORKER_LIMIT`
-- Evidencia JSON/Markdown en `backend/sqx-edge-relay/data/local_ingest_render_handoff`.
-- Consumo de ultima sesion M29 o URL explicita.
-- Guia `docs/sales/LOCAL_INGEST_RENDER_HANDOFF.md`.
-
-## Decision
-
-El handoff no debe guardar secretos de firma. Solo prepara valores no sensibles y la URL de ingest que Render necesita.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_render_handoff.py --use-latest-session
-```
-
-Con URL explicita:
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_render_handoff.py --ingest-url https://tu-tunnel.example.com/api/fulfillment/relay-ingest
-```
-
-## Siguiente Paso
-
-M31 debe configurar Render staging con estos valores y ejecutar `render_staging_gate.py` contra la URL real de Render.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

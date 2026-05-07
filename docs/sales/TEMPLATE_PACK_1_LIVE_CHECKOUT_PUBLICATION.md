@@ -1,40 +1,16 @@
-# Template Pack 1 Live Checkout Publication
+# Public Redaction Pointer: TEMPLATE PACK 1 LIVE CHECKOUT PUBLICATION
 
-## Purpose
+This public file is intentionally redacted.
 
-This runbook connects real checkout values for Template Pack 1 without committing fake URLs or provider IDs.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Required Values
+- Original path: docs/sales/TEMPLATE_PACK_1_LIVE_CHECKOUT_PUBLICATION.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- `SQX_TEMPLATE_PACK_1_CHECKOUT_URL`: real hosted checkout URL.
-- `SQX_TEMPLATE_PACK_1_PROVIDER_VARIANT_ID`: provider variant or product ID for Template Pack 1.
-- `SQX_TEMPLATE_PACK_1_SUPPORT_EMAIL`: support inbox that buyers can contact.
-- `SQX_TEMPLATE_PACK_1_FALLBACK_URL`: optional fallback checkout URL.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Dry Run
-
-```powershell
-backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\template_pack_1_publication.py `
-  --checkout-url "https://checkout.your-provider.com/template-pack-1" `
-  --provider-variant-id "tpl_pack_1_real_id" `
-  --support-email "support@yourdomain.com" `
-  --confirm-offer-reviewed `
-  --confirm-checkout-url-tested `
-  --confirm-provider-variant-confirmed `
-  --confirm-support-inbox-ready `
-  --confirm-delivery-macro-ready `
-  --confirm-rollback-ready `
-  --confirm-controlled-publication-approved `
-  --no-write
-```
-
-## Apply
-
-Run the same command with `--apply` only after the dry run returns `GO`. The tool updates the Template Pack 1 plan checkout URL, provider variant ID, support email and `templatePack1LiveCheckout` manifest block.
-
-## Rollback
-
-- Pause or unpublish the provider checkout link.
-- Pause webhook/relay if orders are arriving incorrectly.
-- Keep manual signed-license fulfillment available.
-- Review first 5 sales before scaling public traffic.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

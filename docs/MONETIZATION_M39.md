@@ -1,39 +1,16 @@
-# Monetization M39 - Public Offer Pack
+# Public Redaction Pointer: MONETIZATION M39
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M39.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Preparar la pagina/oferta publica controlada con copy revisado, FAQ comercial, pruebas visuales y release notes legibles para comprador basico.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `public_offer_pack_ready`.
-- Tool `backend/sqx-edge-tool/tools/public_offer_pack.py`.
-- Evidencia JSON/Markdown en `backend/sqx-edge-tool/data/public_offer_pack`.
-- Consumo de evidencia M38 `commercial_feedback_loop`.
-- Validacion de `offer_headline`, subheadline, FAQ, release notes, buyer steps, soporte y claims seguros.
-- Bloqueo de claims financieros prohibidos.
-- Guia `docs/sales/PUBLIC_OFFER_PACK.md`.
-
-## Decision
-
-M39 no declara `GO` sin oferta revisada, FAQ lista, release notes listas, instrucciones para comprador basico, checkout preparado y claims seguros.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-tool\tools\public_offer_pack.py --use-latest-feedback --offer-headline "SQX Edge Pro" --offer-subheadline "Ordena tu flujo StrategyQuant X con una app portable, local y guiada." --confirm-faq-ready --confirm-release-notes-ready --confirm-buyer-steps-ready --confirm-support-copy-ready --confirm-safe-claims-reviewed --confirm-checkout-ready --confirm-public-page-ready
-```
-
-Revision seca:
-
-```powershell
-python backend\sqx-edge-tool\tools\public_offer_pack.py --allow-no-go-feedback --no-write
-```
-
-## Siguiente Paso
-
-M40 debe preparar el launch assets kit: capturas definitivas, copy corto/largo, README comercial, GitHub Release draft y checklist de publicacion.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

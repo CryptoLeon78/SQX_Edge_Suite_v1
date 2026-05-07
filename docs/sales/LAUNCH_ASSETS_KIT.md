@@ -1,66 +1,16 @@
-# Launch Assets Kit
+# Public Redaction Pointer: LAUNCH ASSETS KIT
 
-Este runbook agrupa los activos necesarios antes de publicar una oferta o release visible.
+This public file is intentionally redacted.
 
-## Requisitos
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- `public_offer_pack.py` en `GO`.
-- ZIP portable final.
-- SHA256 confirmado.
-- Capturas desktop y mobile.
-- Copy corto.
-- Copy largo.
-- README comercial revisado.
-- Draft de GitHub Release.
-- Macro de soporte.
-- publication checklist completada.
+- Original path: docs/sales/LAUNCH_ASSETS_KIT.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Activos Obligatorios
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-- `portable_zip`
-- `zip_sha256`
-- `desktop_screenshots`
-- `mobile_screenshots`
-- `short_copy`
-- `long_copy`
-- `commercial_readme`
-- `github_release_draft`
-- `support_macro`
-- `publication_checklist`
-
-## Dry Run
-
-```powershell
-python backend\sqx-edge-tool\tools\launch_assets_kit.py --allow-no-go-offer --no-write
-```
-
-Bloqueos esperados hasta tener activos finales:
-
-- `public_offer_pack_missing` o `public_offer_pack_not_go`
-- `zip_sha256_not_confirmed`
-- `desktop_screenshot_missing`
-- `mobile_screenshot_missing`
-- `short_copy_not_ready`
-- `long_copy_not_ready`
-- `commercial_readme_not_ready`
-- `github_release_draft_not_ready`
-- `support_macro_not_ready`
-- `publication_checklist_not_ready`
-
-## Flujo Real
-
-```powershell
-python backend\sqx-edge-tool\tools\launch_assets_kit.py --use-latest-public-offer --confirm-short-copy --confirm-long-copy --confirm-commercial-readme --confirm-github-release-draft --confirm-support-macro --confirm-publication-checklist --confirm-zip-sha256
-```
-
-## publication checklist
-
-- Adjuntar ZIP portable final y SHA256.
-- Incluir copy corto y largo.
-- Incluir capturas desktop y mobile.
-- Incluir buyer steps y ruta de soporte.
-- Enlazar README comercial y release notes.
-- Confirmar checkout y support inbox antes de publicar.
-- Mantener rollback owner disponible durante la ventana de publicacion.
-
-No publiques una release visible si no puedes responder rapidamente a una instalacion fallida.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

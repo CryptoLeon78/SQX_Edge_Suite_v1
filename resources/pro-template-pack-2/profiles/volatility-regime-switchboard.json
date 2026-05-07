@@ -1,33 +1,9 @@
 {
-  "id": "volatility_regime_switchboard",
-  "label": "Volatility Regime Switchboard",
-  "description": "Perfil para clasificar regimenes de volatilidad antes de ejecutar discovery o filtrado.",
-  "buyerFeedbackTheme": "mejor_guia_para_regimenes",
-  "presetFamily": "volatility_regime",
-  "assetClasses": [
-    "forex_major",
-    "indices"
-  ],
-  "timeframes": [
-    "M30",
-    "H1",
-    "H4"
-  ],
-  "indicatorFamilies": [
-    "Bollinger",
-    "Keltner",
-    "ATR",
-    "ZScore"
-  ],
-  "riskNotes": [
-    "No mezclar regimenes sin etiquetado previo.",
-    "Revisar sensibilidad a spread y gaps.",
-    "Evitar reglas demasiado dependientes de un unico indicador."
-  ],
-  "expectedWorkflow": [
-    "Etiquetar regimen inicial.",
-    "Separar compresion y expansion.",
-    "Aplicar filtros por familia de indicador.",
-    "Documentar cambios de estado antes de exportar."
-  ]
+  "publicRedactionPointer": true,
+  "originalPath": "resources/pro-template-pack-2/profiles/volatility-regime-switchboard.json",
+  "privateRepository": "https://github.com/CryptoLeon78/sqx-edge-commercial-private",
+  "privateBaselineCommit": "ed79719",
+  "redactionPhase": "S5_public_commercial_redaction",
+  "redactionDate": "2026-05-07",
+  "policy": "complete commercial buyer/template asset moved to private repository; public repository keeps traceability only"
 }

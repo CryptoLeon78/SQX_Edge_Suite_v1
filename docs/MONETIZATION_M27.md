@@ -1,39 +1,16 @@
-# Monetization M27 - Local Ingest Tunnel Readiness
+# Public Redaction Pointer: MONETIZATION M27
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M27.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Validar la URL publica/tunnel que Render usara como `SQX_LOCAL_INGEST_URL` para reenviar bundles firmados al backend local.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `relay_local_ingest_tunnel_check_ready`.
-- Tool `backend/sqx-edge-relay/tools/local_ingest_tunnel_check.py`.
-- Validacion de URL HTTPS y path `/api/fulfillment/relay-ingest`.
-- Health check contra `/api/health`.
-- Bundle demo firmado opcional con `--send-bundle`.
-- Evidencia local en `backend/sqx-edge-relay/data/local_ingest_tunnel_check`.
-- Guia `docs/sales/LOCAL_INGEST_TUNNEL_CHECK.md`.
-
-## Decision
-
-M27 no crea tunel por si solo. M27 prepara la validacion para que, cuando exista un tunnel real, sepamos si la URL se puede pegar en Render con confianza.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_tunnel_check.py --ingest-url https://tu-tunnel.example.com/api/fulfillment/relay-ingest --relay-secret <SQX_FULFILLMENT_RELAY_SECRET>
-```
-
-Con bundle firmado:
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_tunnel_check.py --ingest-url https://tu-tunnel.example.com/api/fulfillment/relay-ingest --relay-secret <SQX_FULFILLMENT_RELAY_SECRET> --send-bundle
-```
-
-## Siguiente Paso
-
-M28 debe crear o configurar un tunnel real para el backend local, ejecutar este check con `--send-bundle` y usar esa URL en el secrets kit/Render.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

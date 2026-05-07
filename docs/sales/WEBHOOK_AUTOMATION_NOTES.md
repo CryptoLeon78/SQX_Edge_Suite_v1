@@ -1,43 +1,16 @@
-# SQX Edge Pro - Webhook Automation Notes
+# Public Redaction Pointer: WEBHOOK AUTOMATION NOTES
 
-## Current State
+This public file is intentionally redacted.
 
-- Checkout: preparado.
-- Licencia firmada: preparada.
-- Entrega por cliente: preparada.
-- Puente de automatizacion local: preparado.
-- Endpoint publico: no activado.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Manual To Assisted Automation
+- Original path: docs/sales/WEBHOOK_AUTOMATION_NOTES.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-1. Exportar o capturar payload bruto del proveedor.
-2. Guardarlo como `webhook_event_*.json`.
-3. Ejecutar `fulfillment_request.py`.
-4. Revisar `eligible_for_fulfillment`.
-5. Ejecutar `fulfill_from_request.ps1`.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Recommended Future M13+
-
-- Receiver local o privado para webhooks.
-- Carpeta/cola persistente para eventos y requests.
-- Deduplicacion por `provider_event_id`.
-- Registro de fulfillment completado.
-- Reintento seguro para errores temporales.
-
-## Event Rules
-
-- `order_created`: candidato a fulfillment.
-- `subscription_created`: candidato a fulfillment.
-- `subscription_payment_success`: candidato a renovacion/fulfillment.
-- `subscription_updated`: evento contable, no siempre entrega.
-- `subscription_cancelled`: no emitir nueva licencia.
-- `subscription_expired`: no emitir nueva licencia.
-
-## Request Fields To Preserve
-
-- `provider_event_id`
-- `order_id`
-- `customer_email`
-- `plan`
-- `provider_variant_id`
-- `eligible_for_fulfillment`
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

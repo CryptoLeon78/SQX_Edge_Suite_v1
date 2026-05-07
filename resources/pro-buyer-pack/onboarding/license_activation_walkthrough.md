@@ -1,33 +1,16 @@
-# Activacion de Licencia Pro
+# Public Redaction Pointer: license activation walkthrough
 
-## Antes de empezar
+This public file is intentionally redacted.
 
-- Ten localizado el archivo de licencia `.json`.
-- No cambies el nombre ni edites el contenido del archivo.
-- Abre SQX Edge desde `START_SQX_EDGE.bat`.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Pasos
+- Original path: resources/pro-buyer-pack/onboarding/license_activation_walkthrough.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-1. Abre `Inicio`.
-2. En el panel de licencia, pulsa `Cargar licencia`.
-3. Selecciona tu archivo `.json`.
-4. Espera la confirmacion de estado.
-5. Si aparece Pro activo, puedes usar las funciones Pro habilitadas.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Comprobacion rapida
-
-- Estado esperado: `Pro activo`.
-- Si el estado no cambia en 10 segundos, cierra con `STOP_SQX_EDGE.bat` y vuelve a abrir con `START_SQX_EDGE.bat`.
-- Si sigue fallando, envia a soporte el texto exacto del estado y el paso donde se detuvo la activacion.
-- No pegues el contenido completo de tu licencia en el email salvo que soporte te lo pida expresamente.
-
-## Problemas comunes
-
-- Licencia no valida: revisa que estas usando el archivo correcto.
-- Licencia expirada: contacta soporte con tu email de compra.
-- No aparece el panel: cierra con `STOP_SQX_EDGE.bat` y vuelve a abrir.
-- El navegador no conecta: comprueba que el puerto `5050` no esta ocupado.
-
-## Privacidad
-
-La licencia se valida localmente. SQX Edge no necesita enviar tus estrategias ni tus archivos personales para activar Pro.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

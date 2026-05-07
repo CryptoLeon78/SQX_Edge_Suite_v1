@@ -1,25 +1,16 @@
-# M66 - Public Buyer Page Checklist And First-Sale Cadence
+# Public Redaction Pointer: MONETIZATION M66
 
-## Objective
+This public file is intentionally redacted.
 
-Prepare a public buyer page checklist and calm first-sale cadence before wider distribution.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Implemented
+- Original path: docs/MONETIZATION_M66.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Added `backend/sqx-edge-tool/config/public_buyer_page_cadence.json`.
-- Added `backend/sqx-edge-tool/tools/public_buyer_page_cadence.py`.
-- Added `docs/sales/PUBLIC_BUYER_PAGE_CADENCE.md`.
-- Added portable exclusions for page/cadence evidence and internal tooling.
-- Updated product manifest, roadmap, governance and static/contracts tests.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Decision
-
-Estado: Done.
-
-Current state: `public_buyer_page_cadence_ready`.
-
-Allowed page decisions: `publish_private_page`, `keep_draft`, `revise_copy` or `pause_sales`.
-
-## Next Step
-
-M67 - Prepare first controlled buyer operating log and lightweight post-sale review.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

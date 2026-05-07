@@ -1,28 +1,16 @@
-# M69 - Apply Post-Sale Micro Updates
+# Public Redaction Pointer: MONETIZATION M69
 
-## Objective
+This public file is intentionally redacted.
 
-Apply the approved post-sale micro-updates to buyer onboarding, support macros and public copy, then prepare the next controlled buyer readiness check.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Implemented
+- Original path: docs/MONETIZATION_M69.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Updated `resources/pro-buyer-pack/onboarding/START_HERE.md` with a first-value path.
-- Updated `resources/pro-buyer-pack/onboarding/license_activation_walkthrough.md` with a quick Pro-active check.
-- Updated support templates/macros to capture exact stuck step and first-value status.
-- Updated public copy with a calm first operational promise without financial claims.
-- Added `backend/sqx-edge-tool/config/post_sale_micro_updates.json`.
-- Added `backend/sqx-edge-tool/tools/post_sale_micro_updates.py`.
-- Added `docs/sales/POST_SALE_MICRO_UPDATES.md`.
-- Added portable exclusions for post-sale micro-update evidence and internal tooling.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Decision
-
-Estado: Done.
-
-Current state: `post_sale_micro_updates_ready`.
-
-Allowed readiness decisions: `next_controlled_buyer_ready`, `revise_more` or `pause_sales`.
-
-## Next Step
-
-M70 - Run the next controlled buyer readiness check and decide whether to share another private checkout link or pause for fixes.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

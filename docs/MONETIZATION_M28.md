@@ -1,42 +1,16 @@
-# Monetization M28 - Local Ingest Tunnel Launcher
+# Public Redaction Pointer: MONETIZATION M28
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M28.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Preparar el lanzamiento controlado del tunel que dara a Render una URL publica hacia el backend local.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `relay_local_ingest_tunnel_launcher_ready`.
-- Tool `backend/sqx-edge-relay/tools/local_ingest_tunnel_launcher.py`.
-- Deteccion de proveedores:
-  - `cloudflared`
-  - `ngrok`
-  - `npx localtunnel`
-- Validacion de `http://127.0.0.1:5050/api/health`.
-- Comandos de tunel sin arrancar por defecto.
-- `--start` opt-in para lanzar tunel y parsear URL publica.
-- Guia `docs/sales/LOCAL_INGEST_TUNNEL_LAUNCHER.md`.
-
-## Decision
-
-M28 evita automatizar a ciegas. Primero detecta proveedor y backend local. Solo con `--start` intenta abrir tunel. La URL publica resultante se pasa despues a `local_ingest_tunnel_check.py`.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_tunnel_launcher.py
-```
-
-Lanzamiento:
-
-```powershell
-python backend\sqx-edge-relay\tools\local_ingest_tunnel_launcher.py --start
-```
-
-## Siguiente Paso
-
-M29 debe ejecutar el launcher con un proveedor real instalado, obtener URL publica, validar con `local_ingest_tunnel_check.py --send-bundle` y actualizar el secrets kit con la URL final.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

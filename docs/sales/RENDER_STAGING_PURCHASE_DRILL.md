@@ -1,45 +1,16 @@
-# Render Staging Purchase Drill
+# Public Redaction Pointer: RENDER STAGING PURCHASE DRILL
 
-Este runbook prueba el camino de compra en staging antes de conectar checkout real.
+This public file is intentionally redacted.
 
-## Requisitos
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- Apply gate M31 en `GO`.
-- Render staging desplegado.
-- Backend local accesible desde `SQX_LOCAL_INGEST_URL`.
-- `SQX_RELAY_OPERATOR_TOKEN` disponible localmente.
-- `SQX_LEMON_WEBHOOK_SECRET` disponible localmente.
+- Original path: docs/sales/RENDER_STAGING_PURCHASE_DRILL.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Revision seca
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_purchase_drill.py --use-latest-apply-gate --base-url https://tu-relay-staging.onrender.com
-```
-
-Debe quedar `NO-GO` porque no envia webhook ni ejecuta dispatch.
-
-## Prueba completa
-
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_purchase_drill.py --use-latest-apply-gate --base-url https://tu-relay-staging.onrender.com --send-webhook --dispatch
-```
-
-La herramienta recorre:
-
-- `GET /relay/queue`
-- `POST /relay/webhook/lemon`
-- `GET /relay/queue`
-- `POST /relay/dispatch`
-- `GET /relay/queue`
-
-## Criterio GO
-
-- Apply gate M31 en `GO`.
-- Webhook demo aceptado por Render.
-- Cola remota accesible con token de operador.
-- Dispatch ejecutado sin fallo.
-- Evidencia JSON/Markdown generada en `backend/sqx-edge-relay/data/render_staging_purchase_drill`.
-
-## Seguridad
-
-Usa solo staging. No conectes el webhook real de Lemon Squeezy ni publiques enlaces de checkout hasta que esta prueba sea `GO`.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

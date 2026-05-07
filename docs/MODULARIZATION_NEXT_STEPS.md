@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: S4/M-pre - Private Commercial Repository Published.
+- Current completed phase: S5/M-pre - Public Commercial Redaction Applied.
 - Current product/commercial state: `next_controlled_buyer_readiness_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: replace public sensitive commercial docs with redacted pointers now that private repo `CryptoLeon78/sqx-edge-commercial-private` is published.
+- Next recommended phase: resume commercial execution from the private repository and run M71 when ready.
 
 ## Recommended Order
 
@@ -51,6 +51,7 @@ Persistent planning note for the next SQX Edge phases.
 3. Phase S2/M-pre: prepare private commercial docs split with export tool, SHA256 migration index and public traceability plan. Done.
 4. Phase S3/M-pre: initialize the ignored private commercial export as a local git repository with publication and security instructions. Done.
 5. Phase S4/M-pre: create the private GitHub repository and push private export commit `ed79719`. Done.
+6. Phase S5/M-pre: replace public sensitive commercial docs and Pro resource packs with traceability pointers. Done.
 
 ## Monetization Track
 

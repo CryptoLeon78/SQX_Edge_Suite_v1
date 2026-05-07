@@ -1,25 +1,16 @@
-# M68 - Post-Sale Improvement Loop
+# Public Redaction Pointer: MONETIZATION M68
 
-## Objective
+This public file is intentionally redacted.
 
-Prepare a small post-sale improvement loop that turns first controlled buyer evidence into onboarding, support macro and public copy improvements before adding sales pressure.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Implemented
+- Original path: docs/MONETIZATION_M68.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-- Added `backend/sqx-edge-tool/config/post_sale_improvement_loop.json`.
-- Added `backend/sqx-edge-tool/tools/post_sale_improvement_loop.py`.
-- Added `docs/sales/POST_SALE_IMPROVEMENT_LOOP.md`.
-- Added portable exclusions for post-sale improvement evidence and internal tooling.
-- Updated product manifest, roadmap, governance and static/contracts tests.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Decision
-
-Estado: Done.
-
-Current state: `post_sale_improvement_loop_ready`.
-
-Allowed improvement decisions: `ship_micro_updates`, `revise_onboarding`, `revise_support_macros`, `revise_public_copy` or `pause_sales`.
-
-## Next Step
-
-M69 - Apply the approved micro-updates to buyer onboarding, support macros and public copy, then prepare the next controlled buyer readiness check.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

@@ -1,47 +1,16 @@
-# Template Pack 2 Feedback Cohort Review
+# Public Redaction Pointer: TEMPLATE PACK 2 FEEDBACK COHORT
 
-Este review convierte las primeras ventas y soporte de Template Pack 2 en una decision tranquila antes de abrir mas trafico.
+This public file is intentionally redacted.
 
-## Datos minimos
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- Sales register M63 en `GO`.
-- Numero de compradores revisados.
-- Numero de feedback items agregados.
-- Bugs bloqueantes, friccion de activacion, gaps de documentacion y feature requests.
-- Senales positivas, soporte abierto y refunds.
-- Decision: `expand_traffic`, `iterate_offer`, `prepare_pack_3` o `pause_sales`.
+- Original path: docs/sales/TEMPLATE_PACK_2_FEEDBACK_COHORT.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Comando base
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-```powershell
-backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\template_pack_2_feedback_cohort.py `
-  --use-latest-sales-register `
-  --buyer-count 1 `
-  --feedback-count 2 `
-  --blocking-bugs 0 `
-  --activation-friction 0 `
-  --docs-gaps 1 `
-  --feature-requests 1 `
-  --positive-signals 2 `
-  --open-support-items 0 `
-  --refund-count 0 `
-  --roadmap-decision iterate_offer `
-  --feedback-themes "Buyer asks for clearer setup notes and likes the multi-timeframe profiles." `
-  --review-notes "Keep traffic controlled while improving copy and docs. No raw buyer messages stored." `
-  --confirm-sales-register-go `
-  --confirm-feedback-reviewed `
-  --confirm-support-reviewed `
-  --confirm-safe-claims-reviewed `
-  --confirm-roadmap-decision-recorded
-```
-
-## Reglas de decision
-
-- `expand_traffic`: solo con suficientes compradores, feedback y cero soporte/refund/friccion.
-- `iterate_offer`: decision normal si hay mejoras de copy, docs, activacion o material de soporte.
-- `prepare_pack_3`: solo con senales positivas claras y sin riesgo operativo.
-- `pause_sales`: si aparecen bugs, refunds, soporte abierto o riesgo de claims.
-
-## Privacidad
-
-Guarda temas agregados, no mensajes crudos. No pegues correos completos, payloads del proveedor ni datos personales en `feedback-themes` o `review-notes`.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

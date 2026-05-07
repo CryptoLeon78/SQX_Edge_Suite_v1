@@ -1,29 +1,16 @@
-# FAQ Basica para Comprador Pro
+# Public Redaction Pointer: faq basic user
 
-## Necesito instalar Python?
+This public file is intentionally redacted.
 
-No. El paquete portable incluye el runtime necesario.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Que archivo abro?
+- Original path: resources/pro-buyer-pack/onboarding/faq_basic_user.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Abre `START_SQX_EDGE.bat` con doble click.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Como cierro la aplicacion?
-
-Usa `STOP_SQX_EDGE.bat`.
-
-## Puedo mover la carpeta despues de descomprimir?
-
-Si, pero mueve la carpeta completa. No muevas archivos internos por separado.
-
-## Donde pongo la licencia?
-
-Carga el archivo `.json` desde `Inicio -> Licencia -> Cargar licencia`.
-
-## SQX Edge promete estrategias rentables?
-
-No. SQX Edge es una herramienta de productividad, orden y trazabilidad para trabajar con StrategyQuant X.
-
-## Que envio a soporte?
-
-Envia tu email de compra, plan, sistema operativo, captura del error y los pasos exactos que hiciste. Si te lo piden, genera un diagnostico desde la app.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

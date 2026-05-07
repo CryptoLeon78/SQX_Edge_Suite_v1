@@ -1,28 +1,16 @@
-# Monetization Phase M49 - Pro Template Pack 1 Packaging And Delivery
+# Public Redaction Pointer: MONETIZATION M49
 
-Fecha: 2026-05-07.
-Estado: Done.
+This public file is intentionally redacted.
 
-## Objetivo
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-Empaquetar Template Pack 1 como add-on comercial separado del ZIP base, con perfiles reales, entrega controlada, claims seguros y soporte acotado.
+- Original path: docs/MONETIZATION_M49.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Entregables
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-- Estado `template_pack_1_delivery_ready`.
-- Configuracion `backend/sqx-edge-tool/config/template_pack_1.json`.
-- Recursos buyer-facing en `resources/pro-template-pack-1`.
-- Guia interna `docs/sales/TEMPLATE_PACK_1_DELIVERY.md`.
-- Validador y packager interno `backend/sqx-edge-tool/tools/template_pack_1_delivery.py`.
-- Evidencia local excluida de ZIP en `backend/sqx-edge-tool/data/template_pack_1_delivery`.
-
-## Decision
-
-Template Pack 1 no viaja en el ZIP base. Se entrega como add-on separado para compradores Pro o compradores con Setup Assist.
-
-## Criterios
-
-- No empaquetar si el onboarding basico Pro no esta listo.
-- No entregar sin README, perfiles, CSV, checklist y limites de soporte.
-- No prometer resultados financieros, rendimiento futuro ni asesoramiento.
-- Mantener el add-on editable, local y facil de revisar.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

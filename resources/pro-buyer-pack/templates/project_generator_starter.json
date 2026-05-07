@@ -1,24 +1,9 @@
 {
-  "profile": "pro_buyer_starter",
-  "brokerPostfix": "_darwinex",
-  "starterAssets": [
-    "EURUSD",
-    "GBPUSD",
-    "USDJPY",
-    "XAUUSD",
-    "USTEC",
-    "US500"
-  ],
-  "starterTimeframes": [
-    "H1",
-    "H4"
-  ],
-  "recommendedFlow": [
-    "validar rutas SQX",
-    "revisar asset aliases",
-    "generar un proyecto pequeno",
-    "guardar evidencia de salida",
-    "revisar resultados en StrategyQuant X"
-  ],
-  "safeClaim": "Plantilla para acelerar preparacion operativa, no para prometer resultados financieros."
+  "publicRedactionPointer": true,
+  "originalPath": "resources/pro-buyer-pack/templates/project_generator_starter.json",
+  "privateRepository": "https://github.com/CryptoLeon78/sqx-edge-commercial-private",
+  "privateBaselineCommit": "ed79719",
+  "redactionPhase": "S5_public_commercial_redaction",
+  "redactionDate": "2026-05-07",
+  "policy": "complete commercial buyer/template asset moved to private repository; public repository keeps traceability only"
 }

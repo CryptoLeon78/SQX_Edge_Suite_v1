@@ -1,39 +1,16 @@
-# Monetization M35 - Pilot Purchase Kit
+# Public Redaction Pointer: MONETIZATION M35
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M35.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Preparar la compra piloto privada con checkout real o controlado, orden trazable, licencia Pro firmada, entrega al cliente e importacion verificada en la app.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `pilot_purchase_kit_ready`.
-- Tool `backend/sqx-edge-tool/tools/pilot_purchase_kit.py`.
-- Evidencia JSON/Markdown en `backend/sqx-edge-tool/data/pilot_purchase_kit`.
-- Consumo de evidencia M34 `commercial_release_candidate`.
-- Comandos guiados para `license_issue.py` y `prepare_customer_delivery.ps1`.
-- Validacion de customer, order id, plan, licencia firmada, manifest de entrega e importacion Pro.
-- Guia `docs/sales/PILOT_PURCHASE_KIT.md`.
-
-## Decision
-
-M35 no declara `GO` sin licencia Pro firmada, manifest de entrega y confirmacion explicita de que la licencia se importo en SQX Edge.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-tool\tools\pilot_purchase_kit.py --use-latest-commercial-rc --customer-name "Cliente Piloto" --customer-email piloto@example.com --order-id lemon-order-123 --plan pro_monthly --signed-license dist\pilot_licenses\SQX_Edge_Pro_license.json --delivery-manifest dist\customer_deliveries\cliente_piloto\delivery_manifest.json --confirm-license-imported
-```
-
-Revision seca:
-
-```powershell
-python backend\sqx-edge-tool\tools\pilot_purchase_kit.py --allow-no-go-commercial-rc --no-write
-```
-
-## Siguiente Paso
-
-M36 debe convertir la evidencia del piloto en una checklist de lanzamiento publico limitado: primera venta abierta, soporte post-compra y cierre de rollback.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

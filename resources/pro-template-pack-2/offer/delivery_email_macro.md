@@ -1,19 +1,16 @@
-# Template Pack 2 - Delivery Email Macro
+# Public Redaction Pointer: delivery email macro
 
-Asunto: Tu Template Pack 2 para SQX Edge Pro
+This public file is intentionally redacted.
 
-Hola,
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-Gracias por comprar Template Pack 2.
+- Original path: resources/pro-template-pack-2/offer/delivery_email_macro.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Adjunto tienes el ZIP del pack. Para usarlo:
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-1. Descomprime el ZIP en una carpeta de trabajo.
-2. Abre `README.md`.
-3. Revisa los perfiles en `profiles`.
-4. Usa el CSV de `presets` para elegir una linea inicial.
-5. Consulta los checklists antes de adaptar activos, timeframes e indicadores.
-
-Este pack esta pensado para ampliar y ordenar preparacion operativa. Conserva siempre tus propias pruebas y validaciones.
-
-Si necesitas ayuda basica, responde a este email con una captura y una descripcion breve del bloqueo.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

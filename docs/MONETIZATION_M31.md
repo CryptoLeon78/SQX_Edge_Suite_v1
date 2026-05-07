@@ -1,39 +1,16 @@
-# Monetization M31 - Render Staging Apply Gate
+# Public Redaction Pointer: MONETIZATION M31
 
-Fecha: 2026-05-06
+This public file is intentionally redacted.
 
-Estado: Done.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Objetivo
+- Original path: docs/MONETIZATION_M31.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-Convertir el handoff de M30 en una compuerta final para confirmar que Render staging ya tiene los valores aplicados y que el gate remoto devuelve `GO`.
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-## Entregables
-
-- Estado `relay_render_staging_apply_gate_ready`.
-- Tool `backend/sqx-edge-relay/tools/render_staging_apply_gate.py`.
-- Evidencia JSON/Markdown en `backend/sqx-edge-relay/data/render_staging_apply_gate`.
-- Consumo de ultimo handoff M30 o fichero explicito.
-- Confirmacion manual obligatoria con `--confirm-env-applied`.
-- Ejecucion del `render_staging_gate.py` remoto salvo bloqueo explicito con `--skip-remote-gate`.
-- Guia `docs/sales/RENDER_STAGING_APPLY_GATE.md`.
-
-## Decision
-
-M31 no automatiza cambios en Render ni guarda secretos. La fase verifica la aplicacion manual de variables y exige un gate remoto `GO` antes de conectar checkout real.
-
-## Uso
-
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_apply_gate.py --use-latest-handoff --confirm-env-applied --use-latest-handshake --base-url https://tu-relay-staging.onrender.com
-```
-
-Para una revision seca sin llamadas remotas:
-
-```powershell
-python backend\sqx-edge-relay\tools\render_staging_apply_gate.py --use-latest-handoff --skip-remote-gate
-```
-
-## Siguiente Paso
-
-M32 debe ejecutar la prueba de compra staging completa contra Render y el ingest local, con webhook demo firmado y trazabilidad de cola/dispatch.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

@@ -1,48 +1,16 @@
-# Phase M9 - Production License Key Management
+# Public Redaction Pointer: MONETIZATION M9
 
-Objetivo: convertir la activacion offline firmada de M8 en un flujo mas serio para venta Pro, separando claves publicas, claves privadas y artefactos de entrega.
+This public file is intentionally redacted.
 
-## Decision
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- La app sigue verificando licencias offline con `rsa_sha256_pkcs1_v1_5` (`RS256`).
-- La clave publica vive en `config/product_manifest.json` y se distribuye dentro del ZIP.
-- La clave privada se genera y se guarda fuera del repo, fuera de backups y fuera del ZIP portable.
-- La politica formal del manifiesto es `never_commit_never_ship` para cualquier private key.
-- `license_keypair.ps1` genera un par RSA local compatible con `license_signer.py`.
-- `license_signer.py` y `license_keypair.ps1` son herramientas internas y no se empaquetan para usuario final.
-- Antes de vender un build publico hay que sustituir la public key placeholder por una public key de produccion real.
+- Original path: docs/MONETIZATION_M9.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Manual License Issuance Flow
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-1. Generar claves:
-
-   ```powershell
-   powershell -NoProfile -ExecutionPolicy Bypass -File backend\sqx-edge-tool\tools\license_keypair.ps1 -OutDir C:\SQX_PRIVATE_KEYS -KeyId sqx-prod-2026-05-v1
-   ```
-
-2. Copiar solo el JSON publico a `backend/sqx-edge-tool/config/product_manifest.json`, dentro de `licensing.publicKey`.
-
-3. Crear un payload de licencia sin `signature`.
-
-4. Firmar la licencia con la private key guardada fuera del repo:
-
-   ```powershell
-   backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\license_signer.py --private-key C:\SQX_PRIVATE_KEYS\sqx-prod-2026-05-v1_private_key.json --payload C:\SQX_PRIVATE_KEYS\payload.json --out C:\SQX_PRIVATE_KEYS\license_signed_cliente.json
-   ```
-
-5. Entregar al cliente solo `license_signed_cliente.json`.
-
-## Release Guardrails
-
-- `.gitignore` ignora carpetas locales de claves y patrones de licencias firmadas.
-- `package_portable.ps1` excluye claves privadas, licencias firmadas y tools internos de licencias.
-- `audit_distribution.ps1` falla si detecta claves privadas, licencias firmadas o tools internos dentro del ZIP.
-- `release_checklist.ps1` valida que el ZIP final no contenga herramientas de firma ni carpetas privadas.
-
-## Residual Risks
-
-- La public key placeholder no debe usarse para venta publica.
-- El flujo manual es correcto para beta/primeras ventas, pero conviene automatizar fulfillment cuando haya volumen.
-- La proteccion offline reduce manipulacion casual, pero no sustituye ofuscacion o hardening avanzado si el producto escala.
-
-Estado: Done.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

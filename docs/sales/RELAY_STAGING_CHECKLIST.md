@@ -1,84 +1,16 @@
-# SQX Edge Relay Staging Checklist
+# Public Redaction Pointer: RELAY STAGING CHECKLIST
 
-## Inputs
+This public file is intentionally redacted.
 
-- Provider elegido: Render, Railway, Fly.io o VPS.
-- URL staging: `SQX_RELAY_STAGING_BASE_URL`.
-- Webhook secret staging: `SQX_LEMON_WEBHOOK_SECRET`.
-- Relay shared secret staging: `SQX_FULFILLMENT_RELAY_SECRET`.
-- Operator token staging: `SQX_RELAY_OPERATOR_TOKEN`.
-- Local ingest staging/tunnel: `SQX_LOCAL_INGEST_URL`.
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-## Preflight Local
+- Original path: docs/sales/RELAY_STAGING_CHECKLIST.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-```powershell
-python backend\sqx-edge-relay\tools\deployment_check.py --strict
-```
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-Debe devolver `production_ready: true` con secretos de staging cargados.
-
-## Remote Smoke
-
-```powershell
-python backend\sqx-edge-relay\tools\staging_smoke.py --base-url https://tu-relay-staging.example.com
-```
-
-Debe validar:
-
-- `/relay/health`
-- `/relay/config-check`
-- `/relay/observability`
-- `/relay/observability/snapshot`
-
-## Signed Webhook Smoke
-
-```powershell
-python backend\sqx-edge-relay\tools\staging_smoke.py --base-url https://tu-relay-staging.example.com --send-webhook
-```
-
-Debe crear un evento demo `wh_m20_staging_demo` y dejar trazas en observabilidad.
-
-## Lemon Test
-
-1. Configurar Lemon Squeezy webhook URL:
-   `https://tu-relay-staging.example.com/relay/webhook/lemon`
-2. Usar el secret staging.
-3. Enviar evento test desde Lemon.
-4. Confirmar que aparece en cola.
-5. Confirmar que el worker intenta dispatch.
-6. Confirmar snapshot posterior.
-
-## Evidence Pack
-
-Guarda para la decision go/no-go:
-
-- salida de `deployment_check.py --strict`,
-- salida de `staging_smoke.py`,
-- salida de `staging_smoke.py --send-webhook`,
-- captura/log de `/relay/observability`,
-- snapshot JSON,
-- estado final de cola.
-
-## Go
-
-Puede avanzarse a produccion si:
-
-- health estable,
-- config check limpio,
-- operator token requerido,
-- eventos firmados aceptados,
-- eventos sin firma rechazados,
-- worker activo,
-- cola sin fallos persistentes,
-- snapshots y logs disponibles.
-
-## No-Go
-
-No avanzar si:
-
-- falta cualquier secreto,
-- observability/queue responden sin token,
-- Lemon no firma como esperamos,
-- el worker no puede llegar al ingest,
-- se pierden eventos tras reinicio,
-- no hay persistencia configurada para cola/logs en el proveedor.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

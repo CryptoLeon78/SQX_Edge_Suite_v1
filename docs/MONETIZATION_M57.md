@@ -1,24 +1,16 @@
-# M57 - Template Pack 2 Initial Specs
+# Public Redaction Pointer: MONETIZATION M57
 
-Objetivo: ejecutar el plan M56 cuando la ruta elegida es Template Pack 2, definiendo alcance, activos, presets, soporte, entrega y siguiente fase antes de crear recursos comerciales.
+This public file is intentionally redacted.
 
-## Entregables
+The complete commercial document or buyer/template asset was migrated to the private repository before this public redaction.
 
-- Estado `template_pack_2_specs_ready`.
-- Configuracion `backend/sqx-edge-tool/config/template_pack_2_specs.json`.
-- Gate interno `backend/sqx-edge-tool/tools/template_pack_2_specs.py`.
-- Guia operativa `docs/sales/TEMPLATE_PACK_2_SPECS.md`.
-- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_2_specs`.
-- Manifiesto preparado con politica de especificacion redactada para Pack 2.
+- Original path: docs/MONETIZATION_M57.md
+- Private repository: https://github.com/CryptoLeon78/sqx-edge-commercial-private
+- Private baseline commit: ed79719 Initial private commercial export
+- Public redaction phase: S5_public_commercial_redaction
+- Redaction date: 2026-05-07
+- Public policy: keep only traceability pointers in the public repository; keep operational buyer, pricing, checkout, support and template details private.
 
-## Decision
+See docs/PRIVATE_COMMERCIAL_DOCS.md, docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md and docs/private_commercial_manifest.json for the boundary contract.
 
-Template Pack 2 no se construye todavia como producto entregable. Primero queda definido como especificacion trazable derivada de feedback agregado y del action plan M56.
-
-Politica de privacidad: `store_redacted_pack_2_scope_assets_support_delivery_and_next_phase_only`.
-
-`draft_pack_2_assets` exige action plan GO, feedback mapeado, familias de activos, presets, soporte, entrega y cero riesgo de claims. Si Pack 1 necesita correccion previa se usa `iterate_pack_1_first`; si hay riesgo operativo se usa `pause_pack_2`.
-
-Estado: Done.
-
-Siguiente paso recomendado: M58, crear los recursos iniciales de Template Pack 2 o ejecutar la alternativa indicada por la especificacion.
+Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.
