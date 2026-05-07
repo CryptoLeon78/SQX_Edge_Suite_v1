@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M69 - Apply Post-Sale Micro Updates.
-- Current state: `post_sale_micro_updates_ready`.
+- Completed through: M70 - Next Controlled Buyer Readiness Check.
+- Current state: `next_controlled_buyer_readiness_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M70 - Next Controlled Buyer Readiness Check.
+- Next recommended phase: M71 - Next Controlled Buyer Outcome Record.
 
 ## Decision Base
 
@@ -1511,3 +1511,24 @@ Decision M69:
 - La evidencia guarda solo conteos, owner, notas de readiness y decision, sin datos personales ni mensajes crudos.
 - `next_controlled_buyer_ready` queda bloqueado si falta onboarding, soporte, copy publico, safe claims o si hay claims risk.
 - El siguiente paso real es M70: ejecutar el readiness check del siguiente comprador controlado antes de compartir otro enlace privado.
+
+## Phase M70 - Next Controlled Buyer Readiness Check
+
+Objetivo: comprobar readiness formal antes de compartir otro enlace privado con un unico comprador controlado.
+
+Entregables:
+
+- Estado `next_controlled_buyer_readiness_ready`.
+- Configuracion `backend/sqx-edge-tool/config/next_controlled_buyer_readiness.json`.
+- Guia interna `docs/sales/NEXT_CONTROLLED_BUYER_READINESS.md`.
+- Gate interno `backend/sqx-edge-tool/tools/next_controlled_buyer_readiness.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/next_controlled_buyer_readiness`.
+
+Estado: Done.
+
+Decision M70:
+
+- El gate exige M69 GO, un unico slot de comprador, enlace privado listo, checkout revisado, licencia/entrega listas, soporte disponible, safe claims y regla de pausa.
+- La evidencia guarda solo conteos, estados y notas operativas, sin datos personales, payloads de checkout ni licencias firmadas.
+- `share_private_link` queda bloqueado si falta enlace privado listo, hay mas de un slot, soporte abierto, claims risk o M69 no esta GO.
+- El siguiente paso real es M71: registrar el resultado del siguiente comprador controlado y decidir repetir, pausar o ampliar con cuidado.

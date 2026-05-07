@@ -82,6 +82,7 @@ MONETIZATION_M66_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M66.md"
 MONETIZATION_M67_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M67.md"
 MONETIZATION_M68_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M68.md"
 MONETIZATION_M69_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M69.md"
+MONETIZATION_M70_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M70.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -434,8 +435,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "post_sale_micro_updates_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "post_sale_micro_updates_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "next_controlled_buyer_readiness_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "next_controlled_buyer_readiness_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
@@ -529,8 +530,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("customer_cockpit_overview", server_py)
         self.assertIn("redacted_operator_summary", customer_cockpit_py)
         self.assertIn("license payloads", customer_cockpit_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "post_sale_micro_updates_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "post_sale_micro_updates_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "next_controlled_buyer_readiness_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "next_controlled_buyer_readiness_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitEndpoint"], "/api/customer-cockpit")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitConfig"], "backend/sqx-edge-tool/config/customer_cockpit.json")
         self.assertEqual(
@@ -711,6 +712,16 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(
             product_manifest["upgrade"]["checkout"]["postSaleMicroUpdatesPolicy"],
             "verify_applied_buyer_facing_micro_updates_and_next_controlled_buyer_readiness",
+        )
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["nextControlledBuyerReadinessConfig"],
+            "backend/sqx-edge-tool/config/next_controlled_buyer_readiness.json",
+        )
+        self.assertIn("next_controlled_buyer_readiness.py", product_manifest["upgrade"]["checkout"]["nextControlledBuyerReadinessTool"])
+        self.assertIn("next_controlled_buyer_readiness", product_manifest["upgrade"]["checkout"]["nextControlledBuyerReadinessEvidenceDir"])
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["nextControlledBuyerReadinessPolicy"],
+            "confirm_single_private_buyer_slot_checkout_license_delivery_support_followup_safe_claims_and_pause_rule",
         )
 
     def test_dashboard_navigation_delegates_to_ui_module(self):
@@ -1113,7 +1124,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "post_sale_micro_updates_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "next_controlled_buyer_readiness_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
@@ -1232,9 +1243,11 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/post_sale_improvement_loop.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/post_sale_micro_updates", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/post_sale_micro_updates.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/next_controlled_buyer_readiness", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/next_controlled_buyer_readiness.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-2", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "post_sale_micro_updates_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "next_controlled_buyer_readiness_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -1297,6 +1310,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/commercial_feedback_loop.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/public_offer_pack.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/launch_assets_kit.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/next_controlled_buyer_readiness", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/next_controlled_buyer_readiness.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/customer_success_renewal", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/customer_cockpit", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/pro_buyer_pack", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
@@ -1433,6 +1448,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m67 = MONETIZATION_M67_DOC.read_text(encoding="utf-8-sig")
         m68 = MONETIZATION_M68_DOC.read_text(encoding="utf-8-sig")
         m69 = MONETIZATION_M69_DOC.read_text(encoding="utf-8-sig")
+        m70 = MONETIZATION_M70_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
@@ -1461,6 +1477,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         first_buyer_log = (PROJECT_ROOT / "docs" / "sales" / "FIRST_CONTROLLED_BUYER_LOG.md").read_text(encoding="utf-8-sig")
         post_sale_improvement = (PROJECT_ROOT / "docs" / "sales" / "POST_SALE_IMPROVEMENT_LOOP.md").read_text(encoding="utf-8-sig")
         post_sale_micro_updates = (PROJECT_ROOT / "docs" / "sales" / "POST_SALE_MICRO_UPDATES.md").read_text(encoding="utf-8-sig")
+        next_buyer_readiness = (PROJECT_ROOT / "docs" / "sales" / "NEXT_CONTROLLED_BUYER_READINESS.md").read_text(encoding="utf-8-sig")
         start_here = (PROJECT_ROOT / "resources" / "pro-buyer-pack" / "onboarding" / "START_HERE.md").read_text(encoding="utf-8-sig")
         license_walkthrough = (PROJECT_ROOT / "resources" / "pro-buyer-pack" / "onboarding" / "license_activation_walkthrough.md").read_text(encoding="utf-8-sig")
         support_contact = (PROJECT_ROOT / "resources" / "pro-buyer-pack" / "onboarding" / "support_contact_template.md").read_text(encoding="utf-8-sig")
@@ -1540,6 +1557,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M67", roadmap)
         self.assertIn("Phase M68", roadmap)
         self.assertIn("Phase M69", roadmap)
+        self.assertIn("Phase M70", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -1608,6 +1626,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M67: prepare first controlled buyer operating log and lightweight post-sale review. Done.", next_steps)
         self.assertIn("Phase M68: prepare a small post-sale improvement loop for onboarding, support macros and public copy. Done.", next_steps)
         self.assertIn("Phase M69: apply approved buyer-facing micro-updates and prepare the next controlled buyer readiness check. Done.", next_steps)
+        self.assertIn("Phase M70: run the next controlled buyer readiness check before sharing another private checkout link. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -2644,6 +2663,19 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Post-Sale Micro Updates And Next Buyer Readiness", post_sale_micro_updates)
         self.assertIn("--confirm-next-buyer-check-recorded", post_sale_micro_updates)
         self.assertIn("pause_sales", post_sale_micro_updates)
+        m70_patterns = [
+            "next_controlled_buyer_readiness_ready",
+            "next_controlled_buyer_readiness.py",
+            "NEXT_CONTROLLED_BUYER_READINESS.md",
+            "share_private_link",
+            "Estado: Done.",
+        ]
+        for pattern in m70_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m70)
+        self.assertIn("Next Controlled Buyer Readiness Check", next_buyer_readiness)
+        self.assertIn("--confirm-followup-window-recorded", next_buyer_readiness)
+        self.assertIn("pause_sales", next_buyer_readiness)
         self.assertIn("Primer valor en 10 minutos", start_here)
         self.assertIn("Comprobacion rapida", license_walkthrough)
         self.assertIn("Primer valor conseguido", support_contact)
@@ -3742,6 +3774,37 @@ class DashboardStaticTestCase(unittest.TestCase):
             "claims_risk_requires_pause_sales",
             "--use-latest-improvement-loop",
             "--confirm-next-buyer-check-recorded",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, tool_text)
+
+    def test_next_controlled_buyer_readiness_gate_is_present(self):
+        tool_path = TOOL_ROOT / "tools" / "next_controlled_buyer_readiness.py"
+        config_path = TOOL_ROOT / "config" / "next_controlled_buyer_readiness.json"
+        py_compile.compile(str(tool_path), doraise=True)
+        config = json.loads(config_path.read_text(encoding="utf-8-sig"))
+        tool_text = tool_path.read_text(encoding="utf-8")
+
+        self.assertEqual(config["state"], "next_controlled_buyer_readiness_ready")
+        self.assertEqual(config["offerId"], "sqx_edge_pro_next_controlled_private_buyer")
+        self.assertEqual(config["dependsOn"]["postSaleMicroUpdatesState"], "post_sale_micro_updates_ready")
+        self.assertEqual(config["privacyPolicy"], "store_next_buyer_readiness_counts_and_decision_without_personal_data_or_checkout_payloads")
+        self.assertIn("share_private_link", config["allowedDecisions"])
+        self.assertIn("hold_for_fix", config["allowedDecisions"])
+        self.assertIn("pause_sales", config["allowedDecisions"])
+        for required in config["requiredFiles"]:
+            with self.subTest(required=required):
+                self.assertTrue((PROJECT_ROOT / required).is_file(), required)
+
+        for pattern in (
+            "next_controlled_buyer_readiness_ready",
+            "post_sale_micro_updates_state_invalid",
+            "post_sale_micro_updates_evidence_missing",
+            "share_private_link_requires_ready_private_link",
+            "share_private_link_requires_single_buyer_slot",
+            "claims_risk_requires_pause_sales",
+            "--use-latest-micro-updates",
+            "--confirm-followup-window-recorded",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, tool_text)

@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M69 - Apply Post-Sale Micro Updates.
-- Current product/commercial state: `post_sale_micro_updates_ready`.
+- Current completed phase: M70 - Next Controlled Buyer Readiness Check.
+- Current product/commercial state: `next_controlled_buyer_readiness_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
-- Last synced base commit before M69: `26a3373`.
+- Last synced base commit before M70: `702cc95`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M70 - Next Controlled Buyer Readiness Check.
+- Next recommended phase: M71 - Next Controlled Buyer Outcome Record.
 
 ## Recommended Order
 
@@ -115,4 +115,5 @@ Persistent planning note for the next SQX Edge phases.
 67. Phase M67: prepare first controlled buyer operating log and lightweight post-sale review. Done.
 68. Phase M68: prepare a small post-sale improvement loop for onboarding, support macros and public copy. Done.
 69. Phase M69: apply approved buyer-facing micro-updates and prepare the next controlled buyer readiness check. Done.
-70. Phase M70: run the next controlled buyer readiness check before sharing another private checkout link. Recommended next.
+70. Phase M70: run the next controlled buyer readiness check before sharing another private checkout link. Done.
+71. Phase M71: record the next controlled buyer outcome and decide repeat, pause or carefully widen. Recommended next.

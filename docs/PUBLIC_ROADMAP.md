@@ -33,10 +33,11 @@ Last updated: 2026-05-07.
 - Revision de cohorte temprana de Template Pack 2 preparada con feedback agregado y decision de roadmap.
 - Bucle de mejora post-venta preparado para ajustar onboarding, macros de soporte y copy publico tras la primera venta controlada.
 - Micro-mejoras post-venta aplicadas a onboarding, activacion, soporte y copy publico.
+- Readiness del siguiente comprador controlado preparado antes de compartir otro enlace privado.
 
 ## Next
 
-- Comprobar readiness del siguiente comprador controlado antes de compartir otro enlace privado.
+- Registrar el resultado del siguiente comprador controlado y decidir repetir, pausar o ampliar con cuidado.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.

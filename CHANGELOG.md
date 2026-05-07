@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Next controlled buyer readiness
+
+- Anade M70 con check formal antes de compartir otro enlace privado con un comprador controlado.
+- Anade `next_controlled_buyer_readiness.py` para validar slot unico, checkout, licencia, entrega, soporte, follow-up, safe claims y regla de pausa.
+- Actualiza estado comercial a `next_controlled_buyer_readiness_ready`.
+- Mantiene evidencia de readiness y herramienta interna fuera del ZIP portable.
+
 ## 2026-05-07 - Post-sale micro updates
 
 - Anade M69 con micro-mejoras aplicadas a onboarding, activacion, soporte y copy publico.

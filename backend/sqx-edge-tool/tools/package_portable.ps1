@@ -64,6 +64,7 @@ $excludeNames = @(
   "first_controlled_buyer_log",
   "post_sale_improvement_loop",
   "post_sale_micro_updates",
+  "next_controlled_buyer_readiness",
   "pro-template-pack-1",
   "pro-template-pack-2",
   "sqx-edge-relay"
@@ -124,6 +125,7 @@ function Test-IncludedPath {
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\first_controlled_buyer_log\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\post_sale_improvement_loop\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\post_sale_micro_updates\.py$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\tools\\next_controlled_buyer_readiness\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfillment_request\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfill_from_request\.ps1$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\relay_bundle\.py$") { return $false }

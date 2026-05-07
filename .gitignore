@@ -73,6 +73,7 @@ backend/sqx-edge-tool/data/public_buyer_page_cadence/
 backend/sqx-edge-tool/data/first_controlled_buyer_log/
 backend/sqx-edge-tool/data/post_sale_improvement_loop/
 backend/sqx-edge-tool/data/post_sale_micro_updates/
+backend/sqx-edge-tool/data/next_controlled_buyer_readiness/
 backend/sqx-edge-tool/license_keys/
 backend/sqx-edge-tool/licenses_private/
 backend/sqx-edge-tool/private_keys/

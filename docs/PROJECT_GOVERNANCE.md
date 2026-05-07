@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M69 - Apply Post-Sale Micro Updates.
-- Current product/commercial state: `post_sale_micro_updates_ready`.
-- Next implementation phase: M70 - Next Controlled Buyer Readiness Check.
+- Current phase completed: M70 - Next Controlled Buyer Readiness Check.
+- Current product/commercial state: `next_controlled_buyer_readiness_ready`.
+- Next implementation phase: M71 - Next Controlled Buyer Outcome Record.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

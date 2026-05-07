@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "state": "next_controlled_buyer_readiness_ready",
+  "reviewId": "next_controlled_buyer_readiness",
+  "offerId": "sqx_edge_pro_next_controlled_private_buyer",
+  "name": "Next Controlled Buyer Readiness Check",
+  "dependsOn": {
+    "postSaleMicroUpdatesConfig": "backend/sqx-edge-tool/config/post_sale_micro_updates.json",
+    "postSaleMicroUpdatesState": "post_sale_micro_updates_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/NEXT_CONTROLLED_BUYER_READINESS.md",
+    "docs/sales/POST_SALE_MICRO_UPDATES.md",
+    "docs/sales/PUBLIC_BUYER_PAGE_CADENCE.md",
+    "docs/sales/FIRST_CONTROLLED_BUYER_LOG.md",
+    "resources/pro-buyer-pack/onboarding/START_HERE.md",
+    "resources/pro-buyer-pack/onboarding/license_activation_walkthrough.md",
+    "resources/pro-buyer-pack/onboarding/support_contact_template.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "requiredConfirmations": [
+    "post_sale_micro_updates_go",
+    "private_link_reviewed",
+    "checkout_readiness_reviewed",
+    "license_delivery_ready",
+    "support_capacity_ready",
+    "safe_claims_reviewed",
+    "pause_rule_reviewed",
+    "followup_window_recorded"
+  ],
+  "allowedDecisions": [
+    "share_private_link",
+    "hold_for_fix",
+    "pause_sales"
+  ],
+  "allowedPrivateLinkStatuses": [
+    "not_shared",
+    "ready_private_link",
+    "shared_controlled"
+  ],
+  "minimumBuyerSlots": 1,
+  "maximumBuyerSlots": 1,
+  "minimumFollowupHours": 24,
+  "maximumOpenSupportItems": 0,
+  "maximumClaimsRisk": 0,
+  "privacyPolicy": "store_next_buyer_readiness_counts_and_decision_without_personal_data_or_checkout_payloads",
+  "reviewPolicy": "confirm_private_link_license_delivery_support_followup_safe_claims_and_pause_rule_before_next_controlled_buyer",
+  "decisionRules": [
+    "share_private_link requires M69 GO, exactly one buyer slot, private link ready, license delivery ready, support capacity ready, zero open support and zero claims risk.",
+    "hold_for_fix is valid when buyer-facing material or operational readiness still needs work.",
+    "pause_sales is required when support, fulfillment, refund, claims or checkout risk remains unresolved."
+  ]
+}
