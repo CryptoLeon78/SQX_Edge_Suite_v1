@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M74 - Next Buyer-Facing Asset Prep.
-- Current product/commercial state: `next_buyer_facing_asset_ready`.
-- Next implementation phase: M75 - privately review the M74 asset before any publication or checkout traffic.
+- Current phase completed: M75 - Private Buyer-Facing Asset Review.
+- Current product/commercial state: `private_asset_review_ready`.
+- Next implementation phase: M76 - prepare a controlled publication gate only if M75 selects `prepare_controlled_publication`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

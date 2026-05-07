@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - M75 private asset review
+
+- Anade gate interno para revisar privadamente el asset comprador-facing antes de publicacion o trafico.
+- Actualiza estado comercial a `private_asset_review_ready`.
+- Mantiene la guia operativa completa en el repo privado y deja punteros publicos para M75.
+
 ## 2026-05-07 - M74 next buyer-facing asset
 
 - Anade gate interno para preparar un unico asset comprador-facing para review privado tras M73.

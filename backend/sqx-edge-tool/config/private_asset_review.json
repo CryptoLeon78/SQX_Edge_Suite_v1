@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "state": "private_asset_review_ready",
+  "reviewId": "private_asset_review",
+  "offerId": "sqx_edge_pro_private_asset_review",
+  "name": "Private Buyer-Facing Asset Review",
+  "dependsOn": {
+    "nextBuyerFacingAssetConfig": "backend/sqx-edge-tool/config/next_buyer_facing_asset.json",
+    "nextBuyerFacingAssetState": "next_buyer_facing_asset_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/PRIVATE_ASSET_REVIEW.md",
+    "docs/sales/NEXT_BUYER_FACING_ASSET.md",
+    "docs/sales/CONTROLLED_DISTRIBUTION_REVIEW.md",
+    "resources/pro-buyer-pack/onboarding/START_HERE.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "allowedSourceDecisions": [
+    "prepare_private_review"
+  ],
+  "allowedReviewStatuses": [
+    "approved_private",
+    "changes_requested",
+    "blocked"
+  ],
+  "allowedDecisions": [
+    "prepare_controlled_publication",
+    "hold_for_fix",
+    "pause_sales"
+  ],
+  "minimumReviewers": 1,
+  "maximumClaimsIssues": 0,
+  "maximumSupportGaps": 0,
+  "privacyPolicy": "store_only_redacted_private_review_status_decision_and_risk_counts_without_buyer_identity_checkout_payloads_or_license_files",
+  "reviewPolicy": "approve_asset_for_controlled_publication_only_after_private_review_safe_claims_support_release_notes_and_rollback_are_ready",
+  "decisionRules": [
+    "prepare_controlled_publication requires approved_private status, safe claims, support, release notes, rollback and at least one reviewer.",
+    "changes_requested requires hold_for_fix unless the operator chooses pause_sales.",
+    "blocked requires pause_sales or hold_for_fix.",
+    "claims or support gaps block publication and require hold or pause."
+  ]
+}
