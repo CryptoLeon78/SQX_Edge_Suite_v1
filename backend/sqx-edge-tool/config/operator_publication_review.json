@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "state": "operator_publication_review_ready",
+  "reviewId": "operator_publication_review",
+  "offerId": "sqx_edge_pro_operator_publication_review",
+  "name": "Operator Publication Review",
+  "dependsOn": {
+    "limitedPublicationDraftConfig": "backend/sqx-edge-tool/config/limited_publication_draft.json",
+    "limitedPublicationDraftState": "limited_publication_draft_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/OPERATOR_PUBLICATION_REVIEW.md",
+    "docs/sales/LIMITED_PUBLICATION_DRAFT.md",
+    "docs/sales/CONTROLLED_PUBLICATION_GATE.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "allowedSourceDecisions": [
+    "ready_for_operator_review"
+  ],
+  "allowedReviewStatuses": [
+    "approved_manual_review",
+    "changes_requested",
+    "blocked"
+  ],
+  "allowedDecisions": [
+    "approve_manual_limited_publication",
+    "hold_for_final_fix",
+    "pause_sales"
+  ],
+  "minimumReviewers": 1,
+  "maximumOpenRisks": 0,
+  "privacyPolicy": "store_only_redacted_operator_review_status_decision_owner_and_risk_counts_without_buyer_identity_checkout_payloads_or_license_files",
+  "reviewPolicy": "approve_manual_limited_publication_only_after_human_review_safe_copy_support_rollback_pause_rule_channel_limit_and_basic_user_flow_are_ready",
+  "decisionRules": [
+    "approve_manual_limited_publication requires a GO M77 draft, approved manual review, at least one reviewer and zero open risks.",
+    "safe copy, support path, rollback, pause rule, limited channel and basic-user flow must be confirmed.",
+    "changes_requested requires hold_for_final_fix unless the operator chooses pause_sales.",
+    "blocked requires hold_for_final_fix or pause_sales.",
+    "this gate never publishes automatically; it only approves a manual publication preparation step."
+  ]
+}

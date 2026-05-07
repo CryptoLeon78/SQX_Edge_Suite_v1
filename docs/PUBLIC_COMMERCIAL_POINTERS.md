@@ -27,5 +27,6 @@ M74 continues this rule: buyer-facing asset preparation details live privately, 
 M75 continues this rule: private asset review details live privately, while public files keep traceability only.
 M76 continues this rule: controlled publication gate details live privately, while public files keep traceability only.
 M77 continues this rule: limited publication draft details live privately, while public files keep traceability only.
+M78 continues this rule: operator publication review details live privately, while public files keep traceability only.
 
 Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

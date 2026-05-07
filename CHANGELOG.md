@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - M78 operator publication review
+
+- Anade gate interno para revisar manualmente el borrador limitado antes de cualquier publicacion.
+- Actualiza estado comercial a `operator_publication_review_ready`.
+- Mantiene la guia operativa completa en el repo privado y deja punteros publicos para M78.
+
 ## 2026-05-07 - M77 limited publication draft
 
 - Anade gate interno para preparar un borrador de publicacion limitada despues de M76.
