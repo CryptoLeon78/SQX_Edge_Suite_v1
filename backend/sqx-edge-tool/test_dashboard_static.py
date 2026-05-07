@@ -54,6 +54,7 @@ MONETIZATION_M40_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M40.md"
 MONETIZATION_M41_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M41.md"
 MONETIZATION_M42_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M42.md"
 MONETIZATION_M43_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M43.md"
+MONETIZATION_M44_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M44.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -358,8 +359,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "post_release_monitor_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "post_release_monitor_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "hotfix_rollback_release_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "hotfix_rollback_release_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
@@ -380,6 +381,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("release_publication_record", product_manifest["upgrade"]["checkout"]["releasePublicationRecordEvidenceDir"])
         self.assertIn("post_release_monitor.py", product_manifest["upgrade"]["checkout"]["postReleaseMonitorTool"])
         self.assertIn("post_release_monitor", product_manifest["upgrade"]["checkout"]["postReleaseMonitorEvidenceDir"])
+        self.assertIn("hotfix_rollback_release.py", product_manifest["upgrade"]["checkout"]["hotfixRollbackReleaseTool"])
+        self.assertIn("hotfix_rollback_release", product_manifest["upgrade"]["checkout"]["hotfixRollbackReleaseEvidenceDir"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayIngestEndpoint"], "/api/fulfillment/relay-ingest")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayConfigCheckEndpoint"], "/relay/config-check")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["relayObservabilityEndpoint"], "/relay/observability")
@@ -807,7 +810,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "post_release_monitor_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "hotfix_rollback_release_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
@@ -842,7 +845,11 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("post_release_monitor", product_manifest["upgrade"]["checkout"]["postReleaseMonitorEvidenceDir"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["postReleaseMonitorPolicy"], "monitor_incidents_activation_support_refunds_and_scale_decision")
         self.assertIn("backend/sqx-edge-tool/tools/post_release_monitor.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "post_release_monitor_ready")
+        self.assertIn("hotfix_rollback_release.py", product_manifest["upgrade"]["checkout"]["hotfixRollbackReleaseTool"])
+        self.assertIn("hotfix_rollback_release", product_manifest["upgrade"]["checkout"]["hotfixRollbackReleaseEvidenceDir"])
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["hotfixRollbackReleasePolicy"], "prepare_hotfix_or_rollback_release_notes_comms_and_closure_evidence")
+        self.assertIn("backend/sqx-edge-tool/tools/hotfix_rollback_release.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "hotfix_rollback_release_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -953,7 +960,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m43_decisions(self):
+    def test_monetization_docs_capture_m1_to_m44_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -998,6 +1005,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m41 = MONETIZATION_M41_DOC.read_text(encoding="utf-8-sig")
         m42 = MONETIZATION_M42_DOC.read_text(encoding="utf-8-sig")
         m43 = MONETIZATION_M43_DOC.read_text(encoding="utf-8-sig")
+        m44 = MONETIZATION_M44_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
@@ -1051,6 +1059,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M41", roadmap)
         self.assertIn("Phase M42", roadmap)
         self.assertIn("Phase M43", roadmap)
+        self.assertIn("Phase M44", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -1093,6 +1102,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M41: add public release gate for tag, GitHub Release, ZIP, SHA256, support and rollback. Done.", next_steps)
         self.assertIn("Phase M42: add release publication record for published tag, release, ZIP, SHA256 and rollback evidence. Done.", next_steps)
         self.assertIn("Phase M43: add post-release monitor for incidents, activation errors, support, refunds and scale decision. Done.", next_steps)
+        self.assertIn("Phase M44: add hotfix/rollback release kit for action owner, notes, comms, verification and closure evidence. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -1763,6 +1773,21 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("post_release_monitor.py", post_release_monitor)
         self.assertIn("activation_error_rate_high", post_release_monitor)
 
+        m44_patterns = [
+            "hotfix_rollback_release_ready",
+            "hotfix_rollback_release.py",
+            "rollback_target_missing",
+            "customer_comms_not_ready",
+            "Estado: Done.",
+        ]
+        for pattern in m44_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m44)
+        hotfix_rollback = (PROJECT_ROOT / "docs" / "sales" / "HOTFIX_ROLLBACK_RELEASE.md").read_text(encoding="utf-8-sig")
+        self.assertIn("Hotfix Rollback Release", hotfix_rollback)
+        self.assertIn("hotfix_rollback_release.py", hotfix_rollback)
+        self.assertIn("rollback_target_missing", hotfix_rollback)
+
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
@@ -2069,6 +2094,20 @@ class DashboardStaticTestCase(unittest.TestCase):
             "severe_incidents_open",
             "activation_error_rate_high",
             "rollback_not_available",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, text)
+
+    def test_hotfix_rollback_release_tool_is_present_and_guarded(self):
+        path = TOOL_ROOT / "tools" / "hotfix_rollback_release.py"
+        py_compile.compile(str(path), doraise=True)
+        text = path.read_text(encoding="utf-8")
+        for pattern in (
+            "hotfix_rollback_release",
+            "post_release_monitor_not_go",
+            "rollback_target_missing",
+            "hotfix_notes_missing",
+            "customer_comms_not_ready",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, text)

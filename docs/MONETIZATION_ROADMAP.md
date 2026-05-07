@@ -946,3 +946,24 @@ Decision M43:
 - No se escala con tickets abiertos, incidencias severas, `activation_error_rate_high`, refunds altos o rollback no disponible.
 - `scale_public` exige ventana minima y senal comercial minima.
 - El siguiente paso real es preparar el flujo de hotfix/rollback para cerrar incidentes sin improvisar.
+
+## Phase M44 - Hotfix Rollback Release
+
+Objetivo: preparar el paquete operativo para pausar, corregir, hacer rollback o cerrar una incidencia post-release.
+
+Entregables:
+
+- Estado `hotfix_rollback_release_ready`.
+- `hotfix_rollback_release.py`.
+- Consumo de evidencia M43.
+- Validacion de accion, owner, incidente, notas, target de rollback, comunicacion, soporte, verificacion y cierre.
+- Evidencia local en `backend/sqx-edge-tool/data/hotfix_rollback_release`.
+- Guia `HOTFIX_ROLLBACK_RELEASE.md`.
+
+Estado: Done.
+
+Decision M44:
+
+- No hay hotfix sin notas, version, paquete y plan de verificacion.
+- No hay rollback sin `rollback_target_missing` resuelto, checklist y comunicacion preparada.
+- El siguiente paso real es customer success/renewal loop para convertir usuarios Pro en relaciones sostenibles.

@@ -69,3 +69,4 @@ Persistent planning note for the next SQX Edge phases.
 41. Phase M41: add public release gate for tag, GitHub Release, ZIP, SHA256, support and rollback. Done.
 42. Phase M42: add release publication record for published tag, release, ZIP, SHA256 and rollback evidence. Done.
 43. Phase M43: add post-release monitor for incidents, activation errors, support, refunds and scale decision. Done.
+44. Phase M44: add hotfix/rollback release kit for action owner, notes, comms, verification and closure evidence. Done.

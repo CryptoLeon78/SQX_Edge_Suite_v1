@@ -264,6 +264,13 @@ El ZIP final se genera en:
 ```text
 dist/SQX_Edge_Tool_Portable_*.zip
 ```
+# 2026-05-07 - Hotfix rollback release kit
+
+- Anade `hotfix_rollback_release.py` para preparar acciones de hotfix, rollback, pausa o cierre.
+- Valida owner, incidente, notas, target de rollback, comunicacion a clientes, soporte, verificacion y evidencia de cierre.
+- Refuerza empaquetado, auditoria y checklist para excluir la nueva herramienta interna.
+- Documenta M44 y el runbook de hotfix/rollback post-release.
+
 # 2026-05-07 - Post release monitor
 
 - Anade `post_release_monitor.py` para decidir mantener, pausar, hotfix, rollback o `scale_public`.
