@@ -73,6 +73,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "controlled_publication_gate.py",
             TOOL_ROOT / "tools" / "limited_publication_draft.py",
             TOOL_ROOT / "tools" / "operator_publication_review.py",
+            TOOL_ROOT / "tools" / "manual_limited_publication_record.py",
             TOOL_ROOT / "tools" / "private_commercial_split.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
@@ -154,6 +155,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("controlled_publication_gate\\.py", text)
         self.assertIn("limited_publication_draft\\.py", text)
         self.assertIn("operator_publication_review\\.py", text)
+        self.assertIn("manual_limited_publication_record\\.py", text)
         self.assertIn("private_commercial_split\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
@@ -200,6 +202,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn('"controlled_publication_gate"', text)
         self.assertIn('"limited_publication_draft"', text)
         self.assertIn('"operator_publication_review"', text)
+        self.assertIn('"manual_limited_publication_record"', text)
         self.assertIn('"private-commercial"', text)
         self.assertIn('"commercial-private"', text)
         self.assertIn('"pro-template-pack-1"', text)
@@ -268,6 +271,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("controlled_publication_gate.py", text)
         self.assertIn("limited_publication_draft.py", text)
         self.assertIn("operator_publication_review.py", text)
+        self.assertIn("manual_limited_publication_record.py", text)
         self.assertIn("private_commercial_split.py", text)
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
@@ -308,6 +312,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("controlled_publication_gate", text)
         self.assertIn("limited_publication_draft", text)
         self.assertIn("operator_publication_review", text)
+        self.assertIn("manual_limited_publication_record", text)
         self.assertIn("private-commercial", text)
         self.assertIn("commercial-private", text)
         self.assertIn("pro-template-pack-1", text)
@@ -374,6 +379,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "controlled_publication_gate.py",
             "limited_publication_draft.py",
             "operator_publication_review.py",
+            "manual_limited_publication_record.py",
             "private_commercial_split.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
@@ -413,6 +419,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "controlled_publication_gate",
             "limited_publication_draft",
             "operator_publication_review",
+            "manual_limited_publication_record",
             "private-commercial",
             "commercial-private",
             "pro-template-pack-1",
@@ -473,6 +480,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/data/controlled_publication_gate/", text)
         self.assertIn("backend/sqx-edge-tool/data/limited_publication_draft/", text)
         self.assertIn("backend/sqx-edge-tool/data/operator_publication_review/", text)
+        self.assertIn("backend/sqx-edge-tool/data/manual_limited_publication_record/", text)
         self.assertIn("docs/private-commercial/", text)
         self.assertIn("commercial-private/", text)
         self.assertIn("private-commercial/", text)

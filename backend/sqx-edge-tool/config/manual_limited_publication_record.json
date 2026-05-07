@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "state": "manual_limited_publication_record_ready",
+  "recordId": "manual_limited_publication_record",
+  "offerId": "sqx_edge_pro_manual_limited_publication_record",
+  "name": "Manual Limited Publication Record",
+  "dependsOn": {
+    "operatorPublicationReviewConfig": "backend/sqx-edge-tool/config/operator_publication_review.json",
+    "operatorPublicationReviewState": "operator_publication_review_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/MANUAL_LIMITED_PUBLICATION_RECORD.md",
+    "docs/sales/OPERATOR_PUBLICATION_REVIEW.md",
+    "docs/sales/LIMITED_PUBLICATION_DRAFT.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "allowedSourceDecisions": [
+    "approve_manual_limited_publication"
+  ],
+  "allowedChannels": [
+    "private_link",
+    "limited_public_page",
+    "controlled_existing_audience"
+  ],
+  "allowedDecisions": [
+    "record_manual_publication",
+    "hold_publication",
+    "pause_sales"
+  ],
+  "maximumAudienceCap": 10,
+  "maximumOpenRisks": 0,
+  "minimumEvidenceItems": 4,
+  "privacyPolicy": "store_only_redacted_manual_publication_channel_url_owner_time_audience_counts_and_next_action_without_buyer_identity_checkout_payloads_or_license_files",
+  "recordPolicy": "record_manual_limited_publication_only_after_m78_approval_support_rollback_pause_rule_monitoring_and_redacted_channel_evidence_are_ready",
+  "decisionRules": [
+    "record_manual_publication requires a GO M78 decision, limited channel, redacted URL, audience cap, support, rollback, pause rule and monitoring.",
+    "open risks require hold_publication or pause_sales.",
+    "audience cap above maximum blocks recording as limited publication.",
+    "this gate records the manual publication decision only; it never publishes automatically."
+  ]
+}

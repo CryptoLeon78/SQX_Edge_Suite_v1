@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M78 - Operator Publication Review.
-- Current product/commercial state: `operator_publication_review_ready`.
-- Next implementation phase: M79 - manual limited publication record only if M78 approves `approve_manual_limited_publication`.
+- Current phase completed: M79 - Manual Limited Publication Record.
+- Current product/commercial state: `manual_limited_publication_record_ready`.
+- Next implementation phase: M80 - monitor the manual limited publication before any traffic expansion.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

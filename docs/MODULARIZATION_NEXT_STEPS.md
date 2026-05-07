@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M78 - Operator Publication Review.
-- Current product/commercial state: `operator_publication_review_ready`.
+- Current completed phase: M79 - Manual Limited Publication Record.
+- Current product/commercial state: `manual_limited_publication_record_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M79 - manual limited publication record only if M78 approves.
+- Next recommended phase: M80 - monitor the manual limited publication before any traffic expansion.
 
 ## Recommended Order
 
@@ -133,4 +133,5 @@ Persistent planning note for the next SQX Edge phases.
 76. Phase M76: prepare a controlled publication gate only if M75 selects it. Done.
 77. Phase M77: prepare a limited publication draft only if M76 selects it. Done.
 78. Phase M78: review the limited publication draft before any manual publication. Done.
-79. Phase M79: record a manual limited publication only if M78 approves. Recommended next.
+79. Phase M79: record a manual limited publication only if M78 approves. Done.
+80. Phase M80: monitor the manual limited publication before any traffic expansion. Recommended next.

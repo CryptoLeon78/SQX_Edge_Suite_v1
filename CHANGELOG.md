@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - M79 manual limited publication record
+
+- Anade gate interno para registrar una publicacion manual limitada despues de M78.
+- Actualiza estado comercial a `manual_limited_publication_record_ready`.
+- Mantiene la guia operativa completa en el repo privado y deja punteros publicos para M79.
+
 ## 2026-05-07 - M78 operator publication review
 
 - Anade gate interno para revisar manualmente el borrador limitado antes de cualquier publicacion.

@@ -949,7 +949,9 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/data/limited_publication_draft",
         "backend/sqx-edge-tool/tools/limited_publication_draft.py",
         "backend/sqx-edge-tool/data/operator_publication_review",
-        "backend/sqx-edge-tool/tools/operator_publication_review.py"
+        "backend/sqx-edge-tool/tools/operator_publication_review.py",
+        "backend/sqx-edge-tool/data/manual_limited_publication_record",
+        "backend/sqx-edge-tool/tools/manual_limited_publication_record.py"
       ],
       "releaseAudit": "backend/sqx-edge-tool/tools/audit_distribution.ps1"
     },
@@ -1105,7 +1107,7 @@ window.SQX_MANIFEST = {
       "checkoutLabel": "Comprar Pro",
       "checkoutUrl": "",
       "checkout": {
-        "status": "operator_publication_review_ready",
+        "status": "manual_limited_publication_record_ready",
         "primaryProvider": "Lemon Squeezy",
         "fallbackProvider": "Gumroad",
         "mode": "hosted_checkout",
@@ -1278,7 +1280,7 @@ window.SQX_MANIFEST = {
         "privateAssetReviewPolicy": "approve_asset_for_controlled_publication_only_after_private_review_safe_claims_support_release_notes_and_rollback",
         "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
         "automation": {
-          "status": "operator_publication_review_ready",
+          "status": "manual_limited_publication_record_ready",
           "webhookProvider": "Lemon Squeezy",
           "webhookSignatureHeader": "X-Signature",
           "webhookSigningAlgorithm": "hmac_sha256_hex",
@@ -1456,7 +1458,11 @@ window.SQX_MANIFEST = {
         "operatorPublicationReviewConfig": "backend/sqx-edge-tool/config/operator_publication_review.json",
         "operatorPublicationReviewTool": "backend/sqx-edge-tool/tools/operator_publication_review.py",
         "operatorPublicationReviewEvidenceDir": "backend/sqx-edge-tool/data/operator_publication_review",
-        "operatorPublicationReviewPolicy": "approve_manual_limited_publication_only_after_human_review_safe_copy_support_rollback_pause_rule_channel_limit_and_basic_user_flow_are_ready"
+        "operatorPublicationReviewPolicy": "approve_manual_limited_publication_only_after_human_review_safe_copy_support_rollback_pause_rule_channel_limit_and_basic_user_flow_are_ready",
+        "manualLimitedPublicationRecordConfig": "backend/sqx-edge-tool/config/manual_limited_publication_record.json",
+        "manualLimitedPublicationRecordTool": "backend/sqx-edge-tool/tools/manual_limited_publication_record.py",
+        "manualLimitedPublicationRecordEvidenceDir": "backend/sqx-edge-tool/data/manual_limited_publication_record",
+        "manualLimitedPublicationRecordPolicy": "record_manual_limited_publication_only_after_m78_approval_support_rollback_pause_rule_monitoring_and_redacted_channel_evidence_are_ready"
       }
     },
     "marketing": {
