@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "state": "limited_publication_draft_ready",
+  "draftId": "limited_publication_draft",
+  "offerId": "sqx_edge_pro_limited_publication_draft",
+  "name": "Limited Publication Draft",
+  "dependsOn": {
+    "controlledPublicationGateConfig": "backend/sqx-edge-tool/config/controlled_publication_gate.json",
+    "controlledPublicationGateState": "controlled_publication_gate_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/LIMITED_PUBLICATION_DRAFT.md",
+    "docs/sales/CONTROLLED_PUBLICATION_GATE.md",
+    "docs/sales/PRIVATE_ASSET_REVIEW.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "allowedSourceDecisions": [
+    "prepare_limited_publication"
+  ],
+  "allowedDraftChannels": [
+    "private_link",
+    "limited_public_page",
+    "controlled_existing_audience"
+  ],
+  "allowedDecisions": [
+    "ready_for_operator_review",
+    "hold_for_copy_fix",
+    "pause_sales"
+  ],
+  "maximumAudienceCap": 10,
+  "minimumCopySections": 4,
+  "maximumOpenRisks": 0,
+  "blockedClaimPatterns": [
+    "rentabilidad asegurada",
+    "beneficios garantizados",
+    "estrategias ganadoras",
+    "resultados garantizados"
+  ],
+  "privacyPolicy": "store_only_redacted_publication_draft_metadata_copy_checks_owner_and_next_action_without_buyer_identity_checkout_payloads_or_license_files",
+  "draftPolicy": "prepare_limited_publication_copy_for_operator_review_only_after_m76_support_safe_claims_rollback_pause_rule_and_channel_limits_are_ready",
+  "decisionRules": [
+    "ready_for_operator_review requires a GO M76 decision, limited channel, audience cap, safe copy, CTA, support path, rollback note and pause rule.",
+    "blocked claim patterns always require hold_for_copy_fix or pause_sales.",
+    "open risks require hold_for_copy_fix or pause_sales.",
+    "this gate produces draft evidence only; an operator must review before publication."
+  ]
+}

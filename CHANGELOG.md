@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - M77 limited publication draft
+
+- Anade gate interno para preparar un borrador de publicacion limitada despues de M76.
+- Actualiza estado comercial a `limited_publication_draft_ready`.
+- Mantiene la guia operativa completa en el repo privado y deja punteros publicos para M77.
+
 ## 2026-05-07 - M76 controlled publication gate
 
 - Anade gate interno para preparar publicacion controlada solo despues de la revision privada M75.

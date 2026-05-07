@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M76 - Controlled Publication Gate.
-- Current product/commercial state: `controlled_publication_gate_ready`.
-- Next implementation phase: M77 - prepare a limited publication draft only if M76 selects `prepare_limited_publication`.
+- Current phase completed: M77 - Limited Publication Draft.
+- Current product/commercial state: `limited_publication_draft_ready`.
+- Next implementation phase: M78 - operator review gate for the limited publication draft before any manual publication.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M76 - Controlled Publication Gate.
-- Current product/commercial state: `controlled_publication_gate_ready`.
+- Current completed phase: M77 - Limited Publication Draft.
+- Current product/commercial state: `limited_publication_draft_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M77 - prepare a limited publication draft only if M76 selects it.
+- Next recommended phase: M78 - operator review gate for the limited publication draft before any manual publication.
 
 ## Recommended Order
 
@@ -131,4 +131,5 @@ Persistent planning note for the next SQX Edge phases.
 74. Phase M74: prepare the next buyer-facing asset if M73 selects it, or route to repeat/hold/pause. Done.
 75. Phase M75: privately review the prepared buyer-facing asset before publication or traffic. Done.
 76. Phase M76: prepare a controlled publication gate only if M75 selects it. Done.
-77. Phase M77: prepare a limited publication draft only if M76 selects it. Recommended next.
+77. Phase M77: prepare a limited publication draft only if M76 selects it. Done.
+78. Phase M78: review the limited publication draft before any manual publication. Recommended next.

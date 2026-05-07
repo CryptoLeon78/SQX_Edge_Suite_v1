@@ -80,6 +80,7 @@ backend/sqx-edge-tool/data/controlled_distribution_review/
 backend/sqx-edge-tool/data/next_buyer_facing_asset/
 backend/sqx-edge-tool/data/private_asset_review/
 backend/sqx-edge-tool/data/controlled_publication_gate/
+backend/sqx-edge-tool/data/limited_publication_draft/
 backend/sqx-edge-tool/license_keys/
 backend/sqx-edge-tool/licenses_private/
 backend/sqx-edge-tool/private_keys/
