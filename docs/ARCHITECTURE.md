@@ -28,7 +28,7 @@ flowchart TD
   DATA --> CFG["app-config.js"]
 
   MOD --> CORE["core.js"]
-  MOD --> FEAT["domain/renderers/charts/strategies/home/support/fulfillment/customer cockpit/workflow"]
+  MOD --> FEAT["domain/renderers/charts/strategies/home/support/fulfillment/customer cockpit/workflow/view creator"]
   MOD --> PG["project-generator-* modules"]
   MOD --> IDX["index.js boot"]
 
@@ -98,19 +98,20 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 18. `js/modules/fulfillment.js`
 19. `js/modules/customer-cockpit.js`
 20. `js/modules/workflow.js`
-21. `js/modules/project-generator-core.js`
-22. `js/modules/project-generator-config.js`
-23. `js/modules/project-generator-dom.js`
-24. `js/modules/project-generator-bindings.js`
-25. `js/modules/project-generator-renderers.js`
-26. `js/modules/project-generator-status.js`
-27. `js/modules/project-generator-cleaner.js`
-28. `js/modules/project-generator.js`
-29. `js/modules/index.js`
-30. `js/data.js`
-31. `js/dashboard.js`
-32. `js/main.js`
-33. `js/project-generator-main.js`
+21. `js/modules/view-creator.js`
+22. `js/modules/project-generator-core.js`
+23. `js/modules/project-generator-config.js`
+24. `js/modules/project-generator-dom.js`
+25. `js/modules/project-generator-bindings.js`
+26. `js/modules/project-generator-renderers.js`
+27. `js/modules/project-generator-status.js`
+28. `js/modules/project-generator-cleaner.js`
+29. `js/modules/project-generator.js`
+30. `js/modules/index.js`
+31. `js/data.js`
+32. `js/dashboard.js`
+33. `js/main.js`
+34. `js/project-generator-main.js`
 
 ## Why This Order Matters
 
@@ -142,6 +143,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/fulfillment.js` | Internal operator queue cockpit for manual fulfillment states and retries. |
 | `modules/customer-cockpit.js` | Redacted customer success cockpit for Pro renewal, support and expansion state. |
 | `modules/workflow.js` | Workflow tab initialization and subtab behavior. |
+| `modules/view-creator.js` | Native SQX `.vw` generator for annual Databank views, EGT presets and XML downloads. |
 | `modules/project-generator-core.js` | Project Generator shared helpers and API primitives. |
 | `modules/project-generator-config.js` | Project Generator config read/write helpers. |
 | `modules/project-generator-dom.js` | Project Generator DOM helpers, config inputs, settings panel and log output. |

@@ -37,6 +37,10 @@ window.SQX_MANIFEST = {
         "label": "Project Generator"
       },
       {
+        "id": "views",
+        "label": "SQX Views"
+      },
+      {
         "id": "estrategias",
         "label": "Estrategias"
       },
@@ -1005,6 +1009,14 @@ window.SQX_MANIFEST = {
         "label": "Strategy Cleaner aplicar cambios",
         "tier": "pro"
       },
+      "view_creator.core": {
+        "label": "SQX View Creator EGT Core",
+        "tier": "free"
+      },
+      "view_creator.full": {
+        "label": "SQX View Creator completo",
+        "tier": "pro"
+      },
       "backups.advanced": {
         "label": "Backups avanzados",
         "tier": "pro"
@@ -1030,7 +1042,8 @@ window.SQX_MANIFEST = {
           "dashboard.view",
           "strategies.basic",
           "project_generator.demo",
-          "strategy_cleaner.preview"
+          "strategy_cleaner.preview",
+          "view_creator.core"
         ]
       },
       "pro": {
@@ -1045,6 +1058,8 @@ window.SQX_MANIFEST = {
           "project_generator.generate",
           "strategy_cleaner.preview",
           "strategy_cleaner.apply",
+          "view_creator.core",
+          "view_creator.full",
           "backups.advanced",
           "workflows.premium"
         ]

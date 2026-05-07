@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - V1 native SQX View Creator
+
+- Integra `SQX Views` como tab nativo para generar vistas `.vw` anuales de StrategyQuant X.
+- Migra el prototipo Tkinter a un flujo portable de navegador con preset EGT Core, preview XML y descarga directa.
+- Anade contratos JS, cobertura estatica, E2E visual y documentacion de arquitectura.
+
 ## 2026-05-07 - M81 controlled traffic expansion review
 
 - Anade gate interno para revisar si procede una ampliacion minima y reversible de trafico.

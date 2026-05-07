@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M81 - Controlled Traffic Expansion Review.
+- Current completed phase: V1 - Native SQX View Creator.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M82 - tiny reversible traffic expansion step only if M81 selects `approve_tiny_traffic_expansion`.
+- Next recommended phase: V2 - View Creator presets/persistence polish, or M82 - tiny reversible traffic expansion step only if M81 selects `approve_tiny_traffic_expansion`.
 
 ## Recommended Order
 
@@ -37,6 +37,7 @@ Persistent planning note for the next SQX Edge phases.
 - Push only when explicitly requested or when the active instruction includes continuing the planned push step.
 - Declare active specialist ownership before broad phases.
 - Use prefixed phase IDs for new work: `Mxx`, `Axx`, `Rxx`, `Sxx`, `Qxx`, `Gxx`.
+- Use `Vxx` for SQX view/template generation and StrategyQuant operator tools.
 - Follow `docs/PROJECT_GOVERNANCE.md` for phase workflow and M46 entry criteria.
 
 ## Governance Track
@@ -137,3 +138,8 @@ Persistent planning note for the next SQX Edge phases.
 80. Phase M80: monitor the manual limited publication before any traffic expansion. Done.
 81. Phase M81: review controlled traffic expansion only if M80 selects it. Done.
 82. Phase M82: execute one tiny reversible traffic expansion step only if M81 approves it. Recommended next.
+
+## SQX View Creator Track
+
+1. Phase V1: integrate the annual SQX `.vw` creator as a native dashboard tab with EGT Core preset, XML preview and portable download. Done.
+2. Phase V2: add saved view presets, reusable operator templates and optional handoff links from Workflow/Estrategias. Recommended when improving the new tool.

@@ -71,6 +71,15 @@ async function run() {
     await desktop.waitForFunction(() => document.getElementById('pg-onboarding-progress')?.textContent.trim() === '0/4');
     await desktop.waitForFunction(() => document.getElementById('pg-onboarding-steps')?.querySelectorAll('.pg-step').length === 4);
     await saveShot(desktop, 'e2e-projectgen-desktop.png');
+    await desktop.locator('.tab[data-tab="views"]').click();
+    await desktop.waitForSelector('.tab[data-tab="views"].active');
+    await desktop.waitForSelector('#vc-metric-list .views-metric-row');
+    await desktop.waitForFunction(() => document.getElementById('vc-column-count')?.textContent.trim() === '104');
+    await desktop.locator('#vc-year-count').fill('5');
+    await desktop.waitForFunction(() => document.getElementById('vc-column-count')?.textContent.trim() === '64');
+    await desktop.locator('[data-vc-preset="risk"]').click();
+    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
+    await saveShot(desktop, 'e2e-view-creator-desktop.png');
     await desktop.locator('.tab[data-tab="estrategias"]').click();
     await desktop.waitForSelector('#tab-estrategias .strat-card');
     const cards = await desktop.locator('#tab-estrategias .strat-card').count();
@@ -95,6 +104,9 @@ async function run() {
     collectBrowserErrors(mobile, mobileErrors);
     await mobile.goto(dashboardUrl, { waitUntil: 'load' });
     await mobile.waitForSelector('.tab[data-tab="inicio"].active');
+    await mobile.locator('.tab[data-tab="views"]').click();
+    await mobile.waitForSelector('#vc-preview');
+    await assertNoMobileOverflow(mobile);
     await mobile.locator('.tab[data-tab="estrategias"]').click();
     await mobile.waitForSelector('#tab-estrategias .strat-card');
     const activeTabBox = await mobile.locator('.tab.active').boundingBox();

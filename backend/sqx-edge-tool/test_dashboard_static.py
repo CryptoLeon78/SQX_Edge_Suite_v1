@@ -137,6 +137,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/fulfillment.js",
                 "js/modules/customer-cockpit.js",
                 "js/modules/workflow.js",
+                "js/modules/view-creator.js",
                 "js/modules/project-generator-core.js",
                 "js/modules/project-generator-config.js",
                 "js/modules/project-generator-dom.js",
@@ -231,6 +232,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/fulfillment.js",
             "js/modules/customer-cockpit.js",
             "js/modules/workflow.js",
+            "js/modules/view-creator.js",
             "js/modules/project-generator-core.js",
             "js/modules/project-generator-config.js",
             "js/modules/project-generator-dom.js",
@@ -262,6 +264,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         fulfillment_js = (APP_ROOT / "js" / "modules" / "fulfillment.js").read_text(encoding="utf-8-sig")
         customer_cockpit_js = (APP_ROOT / "js" / "modules" / "customer-cockpit.js").read_text(encoding="utf-8-sig")
         workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
+        view_creator_js = (APP_ROOT / "js" / "modules" / "view-creator.js").read_text(encoding="utf-8-sig")
         project_generator_core_js = (APP_ROOT / "js" / "modules" / "project-generator-core.js").read_text(encoding="utf-8-sig")
         project_generator_config_js = (APP_ROOT / "js" / "modules" / "project-generator-config.js").read_text(encoding="utf-8-sig")
         project_generator_dom_js = (APP_ROOT / "js" / "modules" / "project-generator-dom.js").read_text(encoding="utf-8-sig")
@@ -290,6 +293,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.fulfillment", fulfillment_js)
         self.assertIn("SQX.customerCockpit", customer_cockpit_js)
         self.assertIn("SQX.workflow", workflow_js)
+        self.assertIn("SQX.viewCreator", view_creator_js)
+        self.assertIn("buildViewXml", view_creator_js)
         self.assertIn("SQX.projectGenerator", project_generator_core_js)
         self.assertIn("SQX.projectGenerator", project_generator_config_js)
         self.assertIn("SQX.projectGenerator", project_generator_dom_js)

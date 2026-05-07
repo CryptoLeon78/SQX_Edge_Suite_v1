@@ -120,6 +120,10 @@
             <span>Project Generator</span>
             <strong>Generar .cfx</strong>
           </button>
+          <button class="home-action" data-home-tab="views">
+            <span>SQX Views</span>
+            <strong>Crear .vw anual</strong>
+          </button>
           <button class="home-action" data-home-tab="categorias">
             <span>Por Categoria</span>
             <strong>Mapa de edges</strong>
@@ -594,6 +598,99 @@
         <button class="export-btn" id="pg-log-clear">Limpiar</button>
       </div>
       <pre class="code-block" id="pg-log" style="max-height:280px;overflow:auto;font-size:12px;">[esperando primera acción…]</pre>
+    </div>
+  </div>
+
+  <!-- TAB: SQX VIEWS — genera vistas .vw para Databank y analisis anual -->
+  <div id="tab-views" class="tab-content" style="display:none">
+    <div class="views-shell">
+      <section class="views-hero">
+        <div>
+          <span class="views-eyebrow">Databank View Builder</span>
+          <h2>SQX Views</h2>
+          <p>Genera vistas <code>.vw</code> para StrategyQuant X con columnas anuales por <code>sampleType</code>. El preset EGT Core esta listo para Regimen, Champion vs Challenger y export CSV posterior.</p>
+        </div>
+        <div class="views-hero-stats">
+          <div><span id="vc-selected-count">0</span><small>metricas</small></div>
+          <div><span id="vc-column-count">0</span><small>columnas</small></div>
+          <div><span id="vc-year-range">21..29</span><small>samples</small></div>
+        </div>
+      </section>
+
+      <section class="views-grid">
+        <div class="views-panel views-config-panel">
+          <div class="views-panel-head">
+            <div>
+              <span>Configuracion</span>
+              <strong>Vista anual portable</strong>
+            </div>
+            <small id="vc-license-note">Preset EGT Core activo.</small>
+          </div>
+
+          <div class="views-form-grid">
+            <label class="views-field">
+              <span>Nombre</span>
+              <input id="vc-view-name" class="search-input" type="text" value="EGT - Anual">
+            </label>
+            <label class="views-field">
+              <span>Anos</span>
+              <input id="vc-year-count" class="search-input" type="number" min="1" max="30" value="9">
+            </label>
+            <label class="views-field">
+              <span>Sample base</span>
+              <input id="vc-sample-start" class="search-input" type="number" min="0" max="126" value="21">
+            </label>
+            <label class="views-field">
+              <span>Orden</span>
+              <select id="vc-group-mode" class="filter-select">
+                <option value="by_year">Por ano</option>
+                <option value="by_metric">Por metrica</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="views-check">
+            <input id="vc-include-total" type="checkbox" checked>
+            <span>Incluir total consolidado <code>sampleType=127</code></span>
+          </label>
+
+          <div class="views-presets" id="vc-presets">
+            <button class="filter-btn active" data-vc-preset="egt-core" type="button">EGT Core</button>
+            <button class="filter-btn" data-vc-preset="robustness" type="button">Robustez</button>
+            <button class="filter-btn" data-vc-preset="risk" type="button">Risk</button>
+            <button class="filter-btn" data-vc-preset="full-audit" type="button">Full Audit</button>
+            <button class="filter-btn" data-vc-preset="clear" type="button">Limpiar</button>
+          </div>
+
+          <div class="views-actions">
+            <button class="export-btn" id="vc-download-btn" type="button">Descargar .vw</button>
+            <button class="filter-btn" id="vc-copy-btn" type="button">Copiar XML</button>
+            <small id="vc-status" class="views-status">Listo para generar la vista.</small>
+          </div>
+        </div>
+
+        <div class="views-panel views-preview-panel">
+          <div class="views-panel-head">
+            <div>
+              <span>Preview</span>
+              <strong id="vc-preview-title">EGT - Anual</strong>
+            </div>
+            <small id="vc-mode-label">Agrupado por ano</small>
+          </div>
+          <pre id="vc-preview" class="views-preview"></pre>
+        </div>
+      </section>
+
+      <section class="views-panel views-metrics-panel">
+        <div class="views-panel-head">
+          <div>
+            <span>Catalogo</span>
+            <strong>Metricas SQX por categoria</strong>
+          </div>
+          <input id="vc-search" class="search-input" type="search" placeholder="Buscar metrica o class">
+        </div>
+        <div id="vc-metric-list" class="views-metric-list"></div>
+      </section>
     </div>
   </div>
 
@@ -3012,6 +3109,7 @@ Ret/DD > 1.0          ← más estricto que Capa 1 (era 0.5)</pre>
 <script src="js/modules/fulfillment.js"></script>
 <script src="js/modules/customer-cockpit.js"></script>
 <script src="js/modules/workflow.js"></script>
+<script src="js/modules/view-creator.js"></script>
 <script src="js/modules/project-generator-core.js"></script>
 <script src="js/modules/project-generator-config.js"></script>
 <script src="js/modules/project-generator-dom.js"></script>

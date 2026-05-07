@@ -35,6 +35,10 @@
       "label": "Project Generator"
     },
     {
+      "id": "views",
+      "label": "SQX Views"
+    },
+    {
       "id": "estrategias",
       "label": "Estrategias"
     },
