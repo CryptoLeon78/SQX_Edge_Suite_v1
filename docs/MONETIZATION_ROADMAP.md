@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M50 - Template Pack 1 Public Add-On Offer And Checkout Wiring.
-- Current state: `template_pack_1_public_offer_ready`.
+- Completed through: M51 - Template Pack 1 Live Checkout Values And Controlled Publication Gate.
+- Current state: `template_pack_1_live_checkout_gate_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M51 - Template Pack 1 Live Checkout Values And Controlled Publication.
+- Next recommended phase: M52 - Template Pack 1 Controlled Purchase Drill.
 
 ## Decision Base
 
@@ -1107,3 +1107,24 @@ Decision M50:
 - El plan `template_pack_1`, precio `49 EUR`, copy, FAQ y macros quedan conectados al manifiesto.
 - La publicacion abierta queda bloqueada hasta tener URL, variant ID y email de soporte reales.
 - El siguiente paso real es M51: conectar valores reales de checkout y publicar de forma controlada.
+
+## Phase M51 - Template Pack 1 Live Checkout Values And Controlled Publication Gate
+
+Objetivo: preparar la conexion de valores reales de checkout del add-on sin commitear enlaces falsos ni publicar antes de validar soporte, rollback y entrega.
+
+Entregables:
+
+- Estado `template_pack_1_live_checkout_gate_ready`.
+- Configuracion `backend/sqx-edge-tool/config/template_pack_1_publication.json`.
+- Guia interna `docs/sales/TEMPLATE_PACK_1_LIVE_CHECKOUT_PUBLICATION.md`.
+- Gate interno `backend/sqx-edge-tool/tools/template_pack_1_publication.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_1_publication`.
+
+Estado: Done.
+
+Decision M51:
+
+- Los valores reales se aceptan por CLI o variables de entorno.
+- El gate valida URL HTTPS, provider variant ID, email de soporte, placeholders, dependencia M50 y confirmaciones de rollback.
+- `--apply` queda disponible para escribir los valores reales en el manifiesto solo despues de un GO.
+- El siguiente paso real es M52: compra controlada del add-on con evidencia de pedido, entrega y soporte inicial.

@@ -17,10 +17,11 @@ Last updated: 2026-05-07.
 - Onboarding basico de comprador preparado: arranque, activacion de licencia, FAQ y plantilla de soporte.
 - Template Pack 1 preparado como add-on separado con perfiles, checklist y soporte acotado.
 - Oferta publica draft de Template Pack 1 preparada con FAQ, checkout wiring y macros de entrega/soporte.
+- Gate de publicacion controlada preparado para conectar checkout real del add-on sin placeholders.
 
 ## Next
 
-- Conectar checkout real y publicar Template Pack 1 de forma controlada.
+- Ejecutar compra controlada real de Template Pack 1 y validar pedido, entrega y soporte inicial.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.

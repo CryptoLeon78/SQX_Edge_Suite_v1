@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M50 - Template Pack 1 Public Add-On Offer And Checkout Wiring.
-- Current product/commercial state: `template_pack_1_public_offer_ready`.
+- Current completed phase: M51 - Template Pack 1 Live Checkout Values And Controlled Publication Gate.
+- Current product/commercial state: `template_pack_1_live_checkout_gate_ready`.
 - Governance baseline: G1 - Specialist Agent Operating Model.
-- Last synced base commit before M50: `07c2f11`.
+- Last synced base commit before M51: `62e20fd`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M51 - Template Pack 1 Live Checkout Values And Controlled Publication.
+- Next recommended phase: M52 - Template Pack 1 Controlled Purchase Drill.
 
 ## Recommended Order
 
@@ -94,4 +94,5 @@ Persistent planning note for the next SQX Edge phases.
 48. Phase M48: add a basic buyer onboarding and support gate for purchase, install, license activation, FAQ, support macro and refund/pause criteria. Done.
 49. Phase M49: package Template Pack 1 as a controlled add-on with sample profiles, safe claims, delivery checklist and support boundaries. Done.
 50. Phase M50: prepare public add-on offer, checkout variant wiring and delivery macro for Template Pack 1. Done.
-51. Phase M51: connect real checkout URL, variant ID and support email for controlled Template Pack 1 publication. Recommended next.
+51. Phase M51: connect real checkout URL, variant ID and support email through a controlled publication gate. Done.
+52. Phase M52: run a controlled Template Pack 1 purchase drill and validate delivery/support evidence. Recommended next.

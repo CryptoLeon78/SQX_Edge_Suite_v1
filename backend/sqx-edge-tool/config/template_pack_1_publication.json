@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "state": "template_pack_1_live_checkout_gate_ready",
+  "publicationId": "template_pack_1_controlled_publication",
+  "offerId": "template_pack_1",
+  "name": "Template Pack 1 Controlled Publication",
+  "primaryProvider": "Lemon Squeezy",
+  "fallbackProvider": "Gumroad",
+  "price": "49 EUR",
+  "draftStatus": "template_pack_1_live_checkout_gate_ready",
+  "liveStatusWhenApplied": "template_pack_1_controlled_publication_live",
+  "publicationMode": "controlled_first_sales",
+  "firstSaleCap": 5,
+  "dependsOn": {
+    "offerConfig": "backend/sqx-edge-tool/config/template_pack_1_offer.json",
+    "offerState": "template_pack_1_public_offer_ready"
+  },
+  "env": {
+    "checkoutUrl": "SQX_TEMPLATE_PACK_1_CHECKOUT_URL",
+    "fallbackUrl": "SQX_TEMPLATE_PACK_1_FALLBACK_URL",
+    "providerVariantId": "SQX_TEMPLATE_PACK_1_PROVIDER_VARIANT_ID",
+    "supportEmail": "SQX_TEMPLATE_PACK_1_SUPPORT_EMAIL"
+  },
+  "requiredFiles": [
+    "backend/sqx-edge-tool/config/template_pack_1_offer.json",
+    "docs/sales/TEMPLATE_PACK_1_PUBLIC_OFFER.md",
+    "docs/sales/TEMPLATE_PACK_1_LIVE_CHECKOUT_PUBLICATION.md",
+    "resources/pro-template-pack-1/offer/public_offer.md",
+    "resources/pro-template-pack-1/offer/checkout_wiring.md",
+    "resources/pro-template-pack-1/offer/delivery_email_macro.md",
+    "resources/pro-template-pack-1/offer/support_macro.md"
+  ],
+  "requiredConfirmations": [
+    "offer_reviewed",
+    "checkout_url_tested",
+    "provider_variant_confirmed",
+    "support_inbox_ready",
+    "delivery_macro_ready",
+    "rollback_ready",
+    "controlled_publication_approved"
+  ],
+  "forbiddenPlaceholders": [
+    "example.com",
+    "localhost",
+    "127.0.0.1",
+    "TODO",
+    "draft",
+    "placeholder"
+  ],
+  "safePublicationRules": [
+    "No publicar si falta URL HTTPS real.",
+    "No publicar si el provider variant ID esta vacio o parece placeholder.",
+    "No publicar si no hay email de soporte operativo.",
+    "Limitar las primeras ventas y revisar soporte antes de escalar.",
+    "Mantener rollback: pausar checkout, pausar webhook/relay y entregar manualmente si hace falta."
+  ]
+}

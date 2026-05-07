@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 1 live checkout gate
+
+- Anade M51 con gate de publicacion controlada para Template Pack 1.
+- Anade `template_pack_1_publication.py` para validar URL real, provider variant ID, email de soporte y rollback.
+- Actualiza estado comercial a `template_pack_1_live_checkout_gate_ready`.
+- Mantiene la publicacion bloqueada hasta recibir valores reales del proveedor.
+
 ## 2026-05-07 - Template Pack 1 public offer
 
 - Anade M50 con oferta publica draft de Template Pack 1, FAQ, checkout wiring y macros de entrega/soporte.
