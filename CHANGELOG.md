@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - V4 SQX View Creator workflow handoff
+
+- Conecta Workflow y Estrategias con SQX Views mediante handoffs con preset y nombre precargados.
+- Mantiene la navegacion y preparacion de vistas dentro de `view-creator.js` para evitar enlaces sueltos.
+- Refuerza contratos JS y smoke E2E para cubrir handoff desde ambas zonas operativas.
+
 ## 2026-05-07 - V3 SQX View Creator preset packs
 
 - Anade exportacion/importacion JSON para presets propios de SQX Views.

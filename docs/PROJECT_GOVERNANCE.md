@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: V3 - SQX View Creator Preset Packs.
+- Current phase completed: V4 - SQX View Creator Workflow Handoff.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
-- Next implementation phase: V4 - View Creator workflow handoff links, or M82 - tiny reversible traffic expansion step only if M81 selects `approve_tiny_traffic_expansion`.
+- Next implementation phase: V5 - View Creator buyer-ready template examples, or M82 - tiny reversible traffic expansion step only if M81 selects `approve_tiny_traffic_expansion`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

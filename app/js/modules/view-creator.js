@@ -548,6 +548,42 @@
     updatePreview();
   }
 
+  function setFieldValue(id, value) {
+    var el = byId(id);
+    if (!el || value == null || value === '') return;
+    el.value = value;
+  }
+
+  function openHandoff(options) {
+    var opts = options || {};
+    var preset = opts.preset || opts.handoff || 'egt-core';
+    if (SQX.ui && SQX.ui.activateTabById) SQX.ui.activateTabById('views', global.document);
+    setFieldValue('vc-view-name', opts.viewName || opts.name);
+    setFieldValue('vc-year-count', opts.yearCount || opts.years);
+    setFieldValue('vc-sample-start', opts.sampleStart);
+    if (opts.groupMode) setFieldValue('vc-group-mode', opts.groupMode);
+    applyPreset(preset);
+    var shell = global.document.querySelector('.views-shell');
+    if (shell && shell.scrollIntoView) shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setStatus('Handoff cargado: ' + (opts.viewName || opts.name || preset) + '.', 'ok');
+    if (global.addHomeTrace) global.addHomeTrace('SQX Views', 'Handoff ' + preset + ' preparado', 'ok');
+    return updatePreview();
+  }
+
+  function bindHandoffLinks() {
+    Array.from(global.document.querySelectorAll('[data-vc-handoff]')).forEach(function(button) {
+      button.addEventListener('click', function() {
+        openHandoff({
+          preset: button.dataset.vcHandoff,
+          viewName: button.dataset.vcName,
+          yearCount: button.dataset.vcYears,
+          sampleStart: button.dataset.vcSampleStart,
+          groupMode: button.dataset.vcGroupMode
+        });
+      });
+    });
+  }
+
   function saveCurrentPreset() {
     var input = byId('vc-preset-name');
     var viewName = byId('vc-view-name') ? byId('vc-view-name').value.trim() : '';
@@ -708,6 +744,7 @@
         event.target.value = '';
       });
     }
+    bindHandoffLinks();
   }
 
   function init() {
@@ -728,6 +765,7 @@
     columnSpecs: columnSpecs,
     countColumns: countColumns,
     downloadView: downloadView,
+    bindHandoffLinks: bindHandoffLinks,
     buildPresetPackage: buildPresetPackage,
     importPresetPackage: importPresetPackage,
     importPresetPackageFromText: importPresetPackageFromText,
@@ -737,6 +775,7 @@
     metrics: METRICS,
     packageType: PRESET_PACKAGE_TYPE,
     packageVersion: PRESET_PACKAGE_VERSION,
+    openHandoff: openHandoff,
     previewLines: previewLines,
     sanitizeInt: sanitizeInt,
     saveCurrentPreset: saveCurrentPreset,

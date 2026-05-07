@@ -65,6 +65,13 @@ async function run() {
     const workflowChecked = await desktop.locator('input[data-check="capa1-pre-mm"]').isChecked();
     if (workflowChecked) throw new Error('Workflow checklist clear should uncheck capa1 items');
     await saveShot(desktop, 'e2e-workflow-desktop.png');
+    await desktop.locator('.subtab[data-subtab="wf-overview"]').click();
+    await desktop.waitForSelector('#wf-overview.active');
+    await saveShot(desktop, 'e2e-workflow-handoff-desktop.png');
+    await desktop.locator('#workflow-views-handoff [data-vc-handoff="robustness"]').click();
+    await desktop.waitForSelector('.tab[data-tab="views"].active');
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'SQX Robustez');
+    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 104);
     await desktop.locator('.tab[data-tab="projectgen"]').click();
     await desktop.waitForSelector('.tab[data-tab="projectgen"].active');
     await desktop.waitForSelector('#pg-onboarding-title');
@@ -74,6 +81,7 @@ async function run() {
     await desktop.locator('.tab[data-tab="views"]').click();
     await desktop.waitForSelector('.tab[data-tab="views"].active');
     await desktop.waitForSelector('#vc-metric-list .views-metric-row');
+    await desktop.locator('[data-vc-preset="egt-core"]').click();
     await desktop.waitForFunction(() => document.getElementById('vc-column-count')?.textContent.trim() === '104');
     await desktop.locator('#vc-year-count').fill('5');
     await desktop.waitForFunction(() => document.getElementById('vc-column-count')?.textContent.trim() === '64');
@@ -114,6 +122,10 @@ async function run() {
     const afterRestore = await desktop.locator('#tab-estrategias .strat-card').count();
     if (afterRestore !== cards) throw new Error(`Restoring hidden strategies should recover cards, got ${afterRestore} from ${cards}`);
     await saveShot(desktop, 'e2e-strategies-desktop.png');
+    await desktop.locator('#strat-views-handoff [data-vc-handoff="risk"]').click();
+    await desktop.waitForSelector('.tab[data-tab="views"].active');
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'SQX Risk Review');
+    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
     assertNoBrowserErrors(desktopErrors, 'desktop');
     await desktop.close();
 

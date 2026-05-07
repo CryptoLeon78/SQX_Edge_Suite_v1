@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { assert, createLoadedSandbox, repoRoot } from './harness.mjs';
+import { assert, createLoadedSandbox, Element, repoRoot } from './harness.mjs';
 
 const html = fs.readFileSync(path.join(repoRoot, 'app/SQX_Dashboard_v6.html'), 'utf8');
 const mainJs = fs.readFileSync(path.join(repoRoot, 'app/js/main.js'), 'utf8');
@@ -17,6 +17,10 @@ assert.ok(html.includes('id="vc-save-preset-btn"'), 'missing saved preset button
 assert.ok(html.includes('id="vc-saved-select"'), 'missing saved preset selector');
 assert.ok(html.includes('id="vc-export-presets-btn"'), 'missing preset pack export button');
 assert.ok(html.includes('id="vc-import-presets-btn"'), 'missing preset pack import button');
+assert.ok(html.includes('id="strat-views-handoff"'), 'missing strategies to SQX Views handoff');
+assert.ok(html.includes('id="workflow-views-handoff"'), 'missing workflow to SQX Views handoff');
+assert.ok(html.includes('data-vc-handoff="risk"'), 'missing risk view handoff preset');
+assert.ok(html.includes('data-vc-handoff="robustness"'), 'missing robustness view handoff preset');
 assert.ok(html.includes('js/modules/view-creator.js'), 'missing view creator script');
 assert.ok(mainJs.includes('window.SQX.viewCreator.init()'), 'main.js must initialize view creator');
 assert.ok(uiManifest.tabs.some(tab => tab.id === 'views' && tab.label === 'SQX Views'), 'ui manifest missing SQX Views tab');
@@ -103,5 +107,30 @@ assert.equal(importResult.imported, 1);
 assert.equal(viewCreator.getSavedPresets().length, 1);
 assert.equal(viewCreator.getSavedPresets()[0].name, 'Risk View Imported');
 assert.equal(viewCreator.getSavedPresets()[0].config.metrics.length, 2);
+
+const handoffSandbox = createLoadedSandbox(['app/js/modules/ui.js', 'app/js/modules/view-creator.js']);
+handoffSandbox.document.addTab('inicio', true);
+handoffSandbox.document.addTab('views', false);
+[
+  'vc-view-name',
+  'vc-year-count',
+  'vc-sample-start',
+  'vc-group-mode',
+  'vc-include-total',
+  'vc-preview',
+  'vc-selected-count',
+  'vc-column-count',
+  'vc-year-range',
+  'vc-preview-title',
+  'vc-mode-label',
+  'vc-status',
+].forEach(id => handoffSandbox.document.add(new Element(id)));
+handoffSandbox.document.getElementById('vc-include-total').checked = true;
+handoffSandbox.document.getElementById('vc-group-mode').value = 'by_year';
+handoffSandbox.SQX.viewCreator.openHandoff({ preset: 'risk', viewName: 'SQX Risk Review', yearCount: 5 });
+assert.ok(handoffSandbox.document.getElementById('tab-btn-views').classList.contains('active'));
+assert.equal(handoffSandbox.document.getElementById('vc-view-name').value, 'SQX Risk Review');
+assert.equal(handoffSandbox.document.getElementById('vc-year-count').value, 5);
+assert.ok(Number(handoffSandbox.document.getElementById('vc-column-count').textContent) > 64);
 
 console.log('view creator contracts ok');

@@ -191,6 +191,37 @@
   .views-saved-tools .filter-btn {
     flex:1 1 130px;
   }
+  .views-handoff {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    margin:0 0 14px;
+    padding:12px 14px;
+    border:1px solid rgba(20,184,166,.25);
+    border-radius:8px;
+    background:linear-gradient(135deg, rgba(20,184,166,.10), rgba(59,130,246,.06));
+  }
+  .views-handoff span {
+    display:block;
+    color:var(--accent2);
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.45px;
+    text-transform:uppercase;
+  }
+  .views-handoff strong {
+    display:block;
+    margin-top:3px;
+    color:var(--text);
+    font-size:14px;
+  }
+  .views-handoff-actions {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
   .views-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:14px; }
   .views-preview {
     width:100%;
@@ -3567,7 +3598,17 @@
     .views-actions .filter-btn,
     .views-actions .export-btn,
     .views-saved-grid .filter-btn,
-    .views-saved-tools .filter-btn {
+    .views-saved-tools .filter-btn,
+    .views-handoff-actions .filter-btn {
+      width:100%;
+    }
+
+    .views-handoff {
+      align-items:flex-start;
+      flex-direction:column;
+    }
+
+    .views-handoff-actions {
       width:100%;
     }
 
