@@ -147,6 +147,40 @@
   .views-check input,
   .views-metric-row input { accent-color:var(--accent); }
   .views-presets { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .views-saved {
+    margin-top:12px;
+    padding:11px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#101827;
+  }
+  .views-saved-title {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin-bottom:9px;
+  }
+  .views-saved-title span {
+    color:var(--text2);
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.4px;
+    text-transform:uppercase;
+  }
+  .views-saved-title small { color:var(--text2); font-size:11px; }
+  .views-saved-grid {
+    display:grid;
+    grid-template-columns:minmax(0, 1fr) auto;
+    gap:8px;
+  }
+  .views-saved-grid .search-input,
+  .views-saved-grid .filter-select { width:100%; min-height:36px; }
+  .views-saved-grid .filter-select { grid-column:1 / 2; }
+  .views-saved-grid .danger {
+    border-color:rgba(239,68,68,.44);
+    color:#fca5a5;
+  }
   .views-actions { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-top:14px; }
   .views-preview {
     width:100%;
@@ -3521,8 +3555,17 @@
     }
 
     .views-actions .filter-btn,
-    .views-actions .export-btn {
+    .views-actions .export-btn,
+    .views-saved-grid .filter-btn {
       width:100%;
+    }
+
+    .views-saved-grid {
+      grid-template-columns:1fr;
+    }
+
+    .views-saved-grid .filter-select {
+      grid-column:auto;
     }
 
     #tab-pipeline .card-header {

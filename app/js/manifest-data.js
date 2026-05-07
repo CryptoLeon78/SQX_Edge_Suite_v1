@@ -569,6 +569,7 @@ window.SQX_MANIFEST = {
       "strategiesUser": "sqx_strategies_user_v1",
       "strategiesDeleted": "sqx_strategies_deleted_v1",
       "workflowChecklist": "sqx_workflow_checklist_v1",
+      "viewCreatorPresets": "sqx_view_creator_presets_v1",
       "apiBase": "sqx_pg_api_base_v1"
     },
     "chart": {

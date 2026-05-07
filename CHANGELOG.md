@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - V2 SQX View Creator preset persistence
+
+- Anade presets propios guardados en `localStorage` para SQX Views.
+- Permite guardar, cargar y eliminar combinaciones de metricas sin depender de archivos externos.
+- Refuerza contratos JS y E2E para cubrir persistencia del View Creator.
+
 ## 2026-05-07 - V1 native SQX View Creator
 
 - Integra `SQX Views` como tab nativo para generar vistas `.vw` anuales de StrategyQuant X.

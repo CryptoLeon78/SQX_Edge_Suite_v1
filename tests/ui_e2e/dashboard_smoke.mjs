@@ -79,6 +79,15 @@ async function run() {
     await desktop.waitForFunction(() => document.getElementById('vc-column-count')?.textContent.trim() === '64');
     await desktop.locator('[data-vc-preset="risk"]').click();
     await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
+    await desktop.locator('#vc-preset-name').fill('Risk V2 Smoke');
+    await desktop.locator('#vc-save-preset-btn').click();
+    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').length === 1);
+    await desktop.locator('[data-vc-preset="egt-core"]').click();
+    await desktop.waitForFunction(() => document.getElementById('vc-column-count')?.textContent.trim() === '64');
+    await desktop.locator('#vc-load-preset-btn').click();
+    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
+    await desktop.locator('#vc-delete-preset-btn').click();
+    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').length === 0);
     await saveShot(desktop, 'e2e-view-creator-desktop.png');
     await desktop.locator('.tab[data-tab="estrategias"]').click();
     await desktop.waitForSelector('#tab-estrategias .strat-card');

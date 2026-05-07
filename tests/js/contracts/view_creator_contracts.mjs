@@ -13,9 +13,12 @@ const viewCreator = SQX.viewCreator;
 assert.ok(html.includes('id="tab-views"'), 'missing SQX Views tab panel');
 assert.ok(html.includes('id="vc-metric-list"'), 'missing metric catalog mount');
 assert.ok(html.includes('id="vc-download-btn"'), 'missing .vw download button');
+assert.ok(html.includes('id="vc-save-preset-btn"'), 'missing saved preset button');
+assert.ok(html.includes('id="vc-saved-select"'), 'missing saved preset selector');
 assert.ok(html.includes('js/modules/view-creator.js'), 'missing view creator script');
 assert.ok(mainJs.includes('window.SQX.viewCreator.init()'), 'main.js must initialize view creator');
 assert.ok(uiManifest.tabs.some(tab => tab.id === 'views' && tab.label === 'SQX Views'), 'ui manifest missing SQX Views tab');
+assert.equal(uiManifest.storageKeys.viewCreatorPresets, 'sqx_view_creator_presets_v1');
 assert.equal(productManifest.features['view_creator.core'].tier, 'free');
 assert.equal(productManifest.features['view_creator.full'].tier, 'pro');
 assert.ok(productManifest.accessLevels.free.features.includes('view_creator.core'));
@@ -50,5 +53,21 @@ assert.ok(xml.startsWith('<View name="EGT - Anual" originalName="EGT - Anual">')
 assert.ok(xml.includes('class="AnnualPctReturnDDRatio"'));
 assert.ok(xml.includes('sampleType="29"'));
 assert.ok(xml.endsWith('</View>'));
+
+const savedConfig = viewCreator.serializeConfig({
+  viewName: 'Risk View',
+  yearCount: 5,
+  sampleStart: 21,
+  includeTotal: false,
+  groupMode: 'by_metric',
+  selected: egtCore.slice(0, 3),
+});
+assert.equal(savedConfig.viewName, 'Risk View');
+assert.equal(savedConfig.metrics.length, 3);
+assert.equal(savedConfig.groupMode, 'by_metric');
+assert.equal(viewCreator.storageKey, 'sqx_view_creator_presets_v1');
+viewCreator.setSavedPresets([{ id: 'risk-view', name: 'Risk View', config: savedConfig }]);
+assert.equal(viewCreator.getSavedPresets().length, 1);
+assert.equal(viewCreator.getSavedPresets()[0].config.yearCount, 5);
 
 console.log('view creator contracts ok');

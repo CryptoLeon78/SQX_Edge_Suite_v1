@@ -3,6 +3,10 @@
 
   var SQX = global.SQX = global.SQX || {};
   var ui = SQX.ui || {};
+  var config = SQX.config || {};
+  var raw = config.raw || global.SQX_CONFIG || {};
+  var storageKeys = raw.storageKeys || {};
+  var presetsStorageKey = storageKeys.viewCreatorPresets || 'sqx_view_creator_presets_v1';
 
   var CATEGORY_LABELS = {
     fixed: 'Identificacion / contexto',
@@ -129,6 +133,13 @@
     'full-audit': function(metric) { return metric.category !== 'fixed' || metric.selectedDefault; },
     clear: function(metric) { return metric.category === 'fixed' && metric.selectedDefault; }
   };
+  var metricState = {};
+  METRICS.forEach(function(metric) {
+    metricState[metric.className] = {
+      selected: !!metric.selectedDefault,
+      annual: !!(metric.annualDefault && metric.category !== 'fixed')
+    };
+  });
 
   function byId(id) {
     return global.document.getElementById(id);
@@ -158,6 +169,26 @@
 
   function metricByClass(className) {
     return METRICS.find(function(metric) { return metric.className === className; });
+  }
+
+  function safeJsonParse(rawValue, fallback) {
+    try {
+      return JSON.parse(rawValue);
+    } catch (_err) {
+      return fallback;
+    }
+  }
+
+  function getSavedPresets() {
+    var payload = safeJsonParse(global.localStorage.getItem(presetsStorageKey), []);
+    return Array.isArray(payload) ? payload.filter(function(item) {
+      return item && typeof item === 'object' && item.id && item.name && item.config;
+    }) : [];
+  }
+
+  function setSavedPresets(presets) {
+    global.localStorage.setItem(presetsStorageKey, JSON.stringify((presets || []).slice(0, 30)));
+    return getSavedPresets();
   }
 
   function countColumns(selected, yearCount, includeTotal) {
@@ -234,19 +265,56 @@
 
   function selectedMetrics() {
     return METRICS.filter(function(metric) {
-      var checked = byId('vc-metric-' + metric.className);
-      if (!checked || !checked.checked) return false;
-      var annual = byId('vc-annual-' + metric.className);
-      return true;
+      var state = metricState[metric.className] || {};
+      return !!state.selected;
     }).map(function(metric) {
-      var annual = byId('vc-annual-' + metric.className);
+      var state = metricState[metric.className] || {};
       return {
         display: metric.display,
         className: metric.className,
         category: metric.category,
-        annual: metric.category !== 'fixed' && !!(annual && annual.checked)
+        annual: metric.category !== 'fixed' && !!state.annual
       };
     });
+  }
+
+  function serializeConfig(options) {
+    var opts = options || optionsFromDom();
+    return {
+      viewName: String(opts.viewName || 'EGT - Anual').trim() || 'EGT - Anual',
+      yearCount: sanitizeInt(opts.yearCount, 9, 1, 30),
+      sampleStart: sanitizeInt(opts.sampleStart, 21, 0, 126),
+      includeTotal: opts.includeTotal !== false,
+      groupMode: opts.groupMode === 'by_metric' ? 'by_metric' : 'by_year',
+      metrics: (opts.selected || []).map(function(metric) {
+        return {
+          className: metric.className,
+          annual: !!metric.annual
+        };
+      })
+    };
+  }
+
+  function applyConfig(savedConfig) {
+    var cfg = savedConfig || {};
+    if (byId('vc-view-name')) byId('vc-view-name').value = cfg.viewName || 'EGT - Anual';
+    if (byId('vc-year-count')) byId('vc-year-count').value = sanitizeInt(cfg.yearCount, 9, 1, 30);
+    if (byId('vc-sample-start')) byId('vc-sample-start').value = sanitizeInt(cfg.sampleStart, 21, 0, 126);
+    if (byId('vc-include-total')) byId('vc-include-total').checked = cfg.includeTotal !== false;
+    if (byId('vc-group-mode')) byId('vc-group-mode').value = cfg.groupMode === 'by_metric' ? 'by_metric' : 'by_year';
+    if (byId('vc-search')) byId('vc-search').value = '';
+    METRICS.forEach(function(metric) {
+      setMetric(metric.className, false, metric.annualDefault);
+    });
+    (cfg.metrics || []).forEach(function(item) {
+      var metric = metricByClass(item.className);
+      if (metric) setMetric(metric.className, true, item.annual);
+    });
+    Array.from(global.document.querySelectorAll('[data-vc-preset]')).forEach(function(button) {
+      button.classList.remove('active');
+    });
+    renderMetrics();
+    updatePreview();
   }
 
   function optionsFromDom() {
@@ -287,6 +355,31 @@
     if (state) el.classList.add('is-' + state);
   }
 
+  function presetIdFromName(name) {
+    return String(name || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 48) || 'preset';
+  }
+
+  function renderSavedPresets() {
+    var presets = getSavedPresets();
+    var select = byId('vc-saved-select');
+    var count = byId('vc-saved-count');
+    if (count) count.textContent = presets.length + (presets.length === 1 ? ' guardado' : ' guardados');
+    if (!select) return presets;
+    if (!presets.length) {
+      select.innerHTML = '<option value="">Sin presets guardados</option>';
+      return presets;
+    }
+    select.innerHTML = presets.map(function(preset) {
+      return '<option value="' + escapeHtml(preset.id) + '">' + escapeHtml(preset.name) + '</option>';
+    }).join('');
+    return presets;
+  }
+
   function updatePreview() {
     var opts = optionsFromDom();
     var selected = opts.selected || [];
@@ -318,8 +411,9 @@
   }
 
   function metricRow(metric) {
-    var selected = metric.selectedDefault ? ' checked' : '';
-    var annual = metric.annualDefault && metric.category !== 'fixed' ? ' checked' : '';
+    var state = metricState[metric.className] || {};
+    var selected = state.selected ? ' checked' : '';
+    var annual = state.annual && metric.category !== 'fixed' ? ' checked' : '';
     var annualControl = metric.category === 'fixed'
       ? '<span class="views-annual-pill total">127</span>'
       : '<label class="views-annual-pill"><input id="vc-annual-' + escapeHtml(metric.className) + '" type="checkbox" data-vc-annual="' + escapeHtml(metric.className) + '"' + annual + '> anual</label>';
@@ -352,6 +446,10 @@
 
   function setMetric(className, selected, annual) {
     var metric = metricByClass(className);
+    metricState[className] = {
+      selected: !!selected,
+      annual: !!(metric && metric.category !== 'fixed' && annual !== false)
+    };
     var selectedEl = byId('vc-metric-' + className);
     var annualEl = byId('vc-annual-' + className);
     if (selectedEl) selectedEl.checked = !!selected;
@@ -372,7 +470,54 @@
     Array.from(global.document.querySelectorAll('[data-vc-preset]')).forEach(function(button) {
       button.classList.toggle('active', button.dataset.vcPreset === name);
     });
+    renderMetrics();
     updatePreview();
+  }
+
+  function saveCurrentPreset() {
+    var input = byId('vc-preset-name');
+    var viewName = byId('vc-view-name') ? byId('vc-view-name').value.trim() : '';
+    var name = input && input.value.trim() ? input.value.trim() : (viewName || 'Vista SQX');
+    var id = presetIdFromName(name);
+    var presets = getSavedPresets().filter(function(preset) { return preset.id !== id; });
+    presets.unshift({
+      id: id,
+      name: name,
+      savedAt: new Date().toISOString(),
+      config: serializeConfig(optionsFromDom())
+    });
+    setSavedPresets(presets);
+    renderSavedPresets();
+    if (byId('vc-saved-select')) byId('vc-saved-select').value = id;
+    setStatus('Preset guardado: ' + name, 'ok');
+    if (input) input.value = '';
+  }
+
+  function selectedSavedPreset() {
+    var select = byId('vc-saved-select');
+    var id = select ? select.value : '';
+    return getSavedPresets().find(function(preset) { return preset.id === id; }) || null;
+  }
+
+  function loadSavedPreset() {
+    var preset = selectedSavedPreset();
+    if (!preset) {
+      setStatus('No hay preset guardado seleccionado.', 'warn');
+      return;
+    }
+    applyConfig(preset.config);
+    setStatus('Preset cargado: ' + preset.name, 'ok');
+  }
+
+  function deleteSavedPreset() {
+    var preset = selectedSavedPreset();
+    if (!preset) {
+      setStatus('No hay preset guardado seleccionado.', 'warn');
+      return;
+    }
+    setSavedPresets(getSavedPresets().filter(function(item) { return item.id !== preset.id; }));
+    renderSavedPresets();
+    setStatus('Preset eliminado: ' + preset.name, 'ok');
   }
 
   function downloadView() {
@@ -411,7 +556,14 @@
 
   function bindMetricChanges() {
     Array.from(global.document.querySelectorAll('[data-vc-metric], [data-vc-annual]')).forEach(function(input) {
-      input.addEventListener('change', updatePreview);
+      input.addEventListener('change', function() {
+        var className = input.dataset.vcMetric || input.dataset.vcAnnual;
+        var state = metricState[className] || { selected: false, annual: false };
+        if (input.dataset.vcMetric) state.selected = input.checked;
+        if (input.dataset.vcAnnual) state.annual = input.checked;
+        metricState[className] = state;
+        updatePreview();
+      });
     });
   }
 
@@ -430,12 +582,16 @@
     });
     if (byId('vc-download-btn')) byId('vc-download-btn').addEventListener('click', downloadView);
     if (byId('vc-copy-btn')) byId('vc-copy-btn').addEventListener('click', copyXml);
+    if (byId('vc-save-preset-btn')) byId('vc-save-preset-btn').addEventListener('click', saveCurrentPreset);
+    if (byId('vc-load-preset-btn')) byId('vc-load-preset-btn').addEventListener('click', loadSavedPreset);
+    if (byId('vc-delete-preset-btn')) byId('vc-delete-preset-btn').addEventListener('click', deleteSavedPreset);
   }
 
   function init() {
     if (!byId('vc-metric-list')) return;
     renderMetrics();
     bindControls();
+    renderSavedPresets();
     var note = byId('vc-license-note');
     if (note) note.textContent = hasFullAccess() ? 'Catalogo completo habilitado.' : 'Free: preset EGT Core. Pro desbloquea presets avanzados.';
     updatePreview();
@@ -443,17 +599,23 @@
 
   SQX.viewCreator = SQX.viewCreator || {
     applyPreset: applyPreset,
+    applyConfig: applyConfig,
     buildViewXml: buildViewXml,
     categoryLabels: CATEGORY_LABELS,
     columnSpecs: columnSpecs,
     countColumns: countColumns,
     downloadView: downloadView,
+    getSavedPresets: getSavedPresets,
     groupedMetrics: groupedMetrics,
     init: init,
     metrics: METRICS,
     previewLines: previewLines,
     sanitizeInt: sanitizeInt,
-    selectedMetrics: selectedMetrics
+    saveCurrentPreset: saveCurrentPreset,
+    selectedMetrics: selectedMetrics,
+    serializeConfig: serializeConfig,
+    setSavedPresets: setSavedPresets,
+    storageKey: presetsStorageKey
   };
 
   if (SQX.registerModule) {
