@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - M72 controlled distribution step
+
+- Anade gate interno para ejecutar la decision M71 como paso de distribucion minimo, reversible y sin datos personales.
+- Actualiza estado comercial a `controlled_distribution_step_ready`.
+- Mantiene la guia operativa completa en el repo privado y deja punteros publicos para M72.
+
 ## 2026-05-07 - M71 next controlled buyer outcome
 
 - Anade gate interno para registrar el resultado del siguiente comprador controlado sin datos personales, payloads de checkout ni licencias.

@@ -38,8 +38,8 @@ assert.ok(cockpitJs.includes("SQX.registerModule('customer-cockpit'"));
 assert.ok(cockpitJs.includes("endpoint('/customer-cockpit')"));
 assert.ok(html.includes('js/modules/customer-cockpit.js'));
 assert.ok(mainJs.includes('window.SQX.customerCockpit.init()'));
-assert.equal(productManifest.upgrade.checkout.status, 'next_controlled_buyer_outcome_ready');
-assert.equal(productManifest.upgrade.checkout.automation.status, 'next_controlled_buyer_outcome_ready');
+assert.equal(productManifest.upgrade.checkout.status, 'controlled_distribution_step_ready');
+assert.equal(productManifest.upgrade.checkout.automation.status, 'controlled_distribution_step_ready');
 assert.equal(productManifest.upgrade.checkout.customerCockpitEndpoint, '/api/customer-cockpit');
 assert.equal(productManifest.upgrade.checkout.customerCockpitConfig, 'backend/sqx-edge-tool/config/customer_cockpit.json');
 assert.equal(
@@ -90,6 +90,8 @@ assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('
 assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('backend/sqx-edge-tool/tools/next_controlled_buyer_readiness.py'));
 assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('backend/sqx-edge-tool/data/next_controlled_buyer_outcome'));
 assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('backend/sqx-edge-tool/tools/next_controlled_buyer_outcome.py'));
+assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('backend/sqx-edge-tool/data/controlled_distribution_step'));
+assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('backend/sqx-edge-tool/tools/controlled_distribution_step.py'));
 assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('resources/pro-template-pack-1'));
 assert.ok(productManifest.security.sensitiveFilesExcludedFromPortable.includes('resources/pro-template-pack-2'));
 

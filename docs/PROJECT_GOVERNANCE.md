@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M71 - Next Controlled Buyer Outcome Review.
-- Current product/commercial state: `next_controlled_buyer_outcome_ready`.
-- Next implementation phase: decide M72 from the private commercial outcome: repeat private slot, hold fixes, pause sales or carefully widen.
+- Current phase completed: M72 - Controlled Distribution Step.
+- Current product/commercial state: `controlled_distribution_step_ready`.
+- Next implementation phase: M73 - review the M72 distribution evidence and choose repeat, hold, pause or prepare the next buyer-facing asset.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 
@@ -80,7 +80,7 @@ M46 is accepted when these criteria are true:
 - Commercial gates: `backend/sqx-edge-tool/tools/*` and `docs/sales/*`.
 - CI baseline: `.github/workflows/tests.yml` and `requirements-dev.txt`.
 - Private commercial boundary: `docs/PRIVATE_COMMERCIAL_DOCS.md`, `docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md`, `docs/private_commercial_manifest.json` and `private_commercial_split.py`.
-- Private commercial repository: `https://github.com/CryptoLeon78/sqx-edge-commercial-private` (private, commit `ed79719`).
+- Private commercial repository: `https://github.com/CryptoLeon78/sqx-edge-commercial-private` (private, baseline commit `ed79719`).
 - Public commercial pointers: `docs/PUBLIC_COMMERCIAL_POINTERS.md`; public `docs/MONETIZATION_*`, `docs/sales/*` and Pro resource packs are redacted pointers.
 - Roadmap state: `docs/MODULARIZATION_NEXT_STEPS.md` plus private commercial roadmap copies.
 

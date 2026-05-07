@@ -66,6 +66,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "post_sale_micro_updates.py",
             TOOL_ROOT / "tools" / "next_controlled_buyer_readiness.py",
             TOOL_ROOT / "tools" / "next_controlled_buyer_outcome.py",
+            TOOL_ROOT / "tools" / "controlled_distribution_step.py",
             TOOL_ROOT / "tools" / "private_commercial_split.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
@@ -140,6 +141,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("post_sale_micro_updates\\.py", text)
         self.assertIn("next_controlled_buyer_readiness\\.py", text)
         self.assertIn("next_controlled_buyer_outcome\\.py", text)
+        self.assertIn("controlled_distribution_step\\.py", text)
         self.assertIn("private_commercial_split\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
@@ -179,6 +181,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn('"post_sale_micro_updates"', text)
         self.assertIn('"next_controlled_buyer_readiness"', text)
         self.assertIn('"next_controlled_buyer_outcome"', text)
+        self.assertIn('"controlled_distribution_step"', text)
         self.assertIn('"private-commercial"', text)
         self.assertIn('"commercial-private"', text)
         self.assertIn('"pro-template-pack-1"', text)
@@ -240,6 +243,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("post_sale_micro_updates.py", text)
         self.assertIn("next_controlled_buyer_readiness.py", text)
         self.assertIn("next_controlled_buyer_outcome.py", text)
+        self.assertIn("controlled_distribution_step.py", text)
         self.assertIn("private_commercial_split.py", text)
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
@@ -273,6 +277,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("post_sale_micro_updates", text)
         self.assertIn("next_controlled_buyer_readiness", text)
         self.assertIn("next_controlled_buyer_outcome", text)
+        self.assertIn("controlled_distribution_step", text)
         self.assertIn("private-commercial", text)
         self.assertIn("commercial-private", text)
         self.assertIn("pro-template-pack-1", text)
@@ -332,6 +337,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "post_sale_micro_updates.py",
             "next_controlled_buyer_readiness.py",
             "next_controlled_buyer_outcome.py",
+            "controlled_distribution_step.py",
             "private_commercial_split.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
@@ -364,6 +370,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "post_sale_micro_updates",
             "next_controlled_buyer_readiness",
             "next_controlled_buyer_outcome",
+            "controlled_distribution_step",
             "private-commercial",
             "commercial-private",
             "pro-template-pack-1",
@@ -417,6 +424,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/data/post_sale_micro_updates/", text)
         self.assertIn("backend/sqx-edge-tool/data/next_controlled_buyer_readiness/", text)
         self.assertIn("backend/sqx-edge-tool/data/next_controlled_buyer_outcome/", text)
+        self.assertIn("backend/sqx-edge-tool/data/controlled_distribution_step/", text)
         self.assertIn("docs/private-commercial/", text)
         self.assertIn("commercial-private/", text)
         self.assertIn("private-commercial/", text)

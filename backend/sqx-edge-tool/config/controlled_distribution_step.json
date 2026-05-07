@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "state": "controlled_distribution_step_ready",
+  "reviewId": "controlled_distribution_step",
+  "offerId": "sqx_edge_pro_controlled_distribution_step",
+  "name": "Controlled Distribution Step",
+  "dependsOn": {
+    "nextControlledBuyerOutcomeConfig": "backend/sqx-edge-tool/config/next_controlled_buyer_outcome.json",
+    "nextControlledBuyerOutcomeState": "next_controlled_buyer_outcome_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/CONTROLLED_DISTRIBUTION_STEP.md",
+    "docs/sales/NEXT_CONTROLLED_BUYER_OUTCOME.md",
+    "docs/sales/NEXT_CONTROLLED_BUYER_READINESS.md",
+    "resources/pro-buyer-pack/onboarding/START_HERE.md",
+    "resources/pro-buyer-pack/onboarding/support_contact_template.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "allowedSourceDecisions": [
+    "repeat_private_slot",
+    "carefully_widen",
+    "hold_for_fix",
+    "pause_sales"
+  ],
+  "allowedActions": [
+    "prepare_single_private_slot",
+    "open_tiny_private_batch",
+    "create_fix_list",
+    "pause_checkout_and_review"
+  ],
+  "allowedCheckoutStates": [
+    "disabled",
+    "ready_private_link",
+    "limited_private_link"
+  ],
+  "maximumRepeatPrivateSlots": 1,
+  "maximumTinyBatchSlots": 3,
+  "maximumTinyAudienceInvites": 5,
+  "minimumFollowupHours": 24,
+  "privacyPolicy": "store_only_redacted_distribution_action_metrics_without_buyer_identity_checkout_payloads_or_license_files",
+  "executionPolicy": "execute_only_the_selected_m71_decision_as_a_tiny_reversible_distribution_step_with_rollback_owner_and_support_capacity",
+  "decisionRules": [
+    "repeat_private_slot maps to prepare_single_private_slot with one slot, private link only and support capacity confirmed.",
+    "carefully_widen maps to open_tiny_private_batch with at most three slots and five private invites.",
+    "hold_for_fix maps to create_fix_list with checkout disabled or not shared.",
+    "pause_sales maps to pause_checkout_and_review with checkout disabled and rollback confirmed."
+  ]
+}
