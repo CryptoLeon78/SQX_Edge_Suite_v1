@@ -11,11 +11,12 @@ Last updated: 2026-05-07.
 - Panel de licencia Pro offline preparado.
 - Diagnostico local de soporte sin telemetria automatica.
 - Flujo comercial interno con checkout, licencia, fulfillment, release, monitorizacion, hotfix y rollback preparado.
+- Customer success y renovacion Pro preparados con trazabilidad interna.
 
 ## Next
 
-- Customer success y renewal loop para primeros usuarios Pro.
 - Onboarding basico de comprador: compra, descarga, licencia, activacion y soporte.
+- Cockpit comercial ligero para renovaciones, tickets y oportunidades responsables.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.

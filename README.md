@@ -4,11 +4,11 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: M44 completada, `hotfix_rollback_release_ready`.
-- Ultimo commit base verificado antes de este refresco: `8aee951`.
-- Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
+- Estado interno: M45 completada, `customer_success_renewal_ready`.
+- Ultimo commit base verificado antes de M45: `7810801`.
+- Ultimo ZIP portable verificado antes de M45: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - SHA256 del ZIP: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Siguiente paso recomendado: M45, customer success y renewal loop para usuarios Pro.
+- Siguiente paso recomendado: M46, cockpit comercial ligero para customer success y renovaciones.
 
 ## SQX Edge Pro
 

@@ -877,6 +877,7 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/tools/release_publication_record.py",
         "backend/sqx-edge-tool/tools/post_release_monitor.py",
         "backend/sqx-edge-tool/tools/hotfix_rollback_release.py",
+        "backend/sqx-edge-tool/tools/customer_success_renewal.py",
         "backend/sqx-edge-tool/tools/fulfillment_request.py",
         "backend/sqx-edge-tool/tools/fulfill_from_request.ps1",
         "backend/sqx-edge-tool/tools/relay_bundle.py"
@@ -1023,7 +1024,7 @@ window.SQX_MANIFEST = {
       "checkoutLabel": "Comprar Pro",
       "checkoutUrl": "",
       "checkout": {
-        "status": "hotfix_rollback_release_ready",
+        "status": "customer_success_renewal_ready",
         "primaryProvider": "Lemon Squeezy",
         "fallbackProvider": "Gumroad",
         "mode": "hosted_checkout",
@@ -1067,9 +1068,12 @@ window.SQX_MANIFEST = {
         "hotfixRollbackReleaseTool": "backend/sqx-edge-tool/tools/hotfix_rollback_release.py",
         "hotfixRollbackReleaseEvidenceDir": "backend/sqx-edge-tool/data/hotfix_rollback_release",
         "hotfixRollbackReleasePolicy": "prepare_hotfix_or_rollback_release_notes_comms_and_closure_evidence",
+        "customerSuccessRenewalTool": "backend/sqx-edge-tool/tools/customer_success_renewal.py",
+        "customerSuccessRenewalEvidenceDir": "backend/sqx-edge-tool/data/customer_success_renewal",
+        "customerSuccessRenewalPolicy": "track_onboarding_activation_support_renewal_and_safe_expansion",
         "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
         "automation": {
-          "status": "hotfix_rollback_release_ready",
+          "status": "customer_success_renewal_ready",
           "webhookProvider": "Lemon Squeezy",
           "webhookSignatureHeader": "X-Signature",
           "webhookSigningAlgorithm": "hmac_sha256_hex",

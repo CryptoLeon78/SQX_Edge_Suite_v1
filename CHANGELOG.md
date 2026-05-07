@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Customer success renewal loop
+
+- Anade `customer_success_renewal.py` para revisar onboarding, activacion, soporte, renovacion y expansion responsable.
+- Bloquea decisiones sin cliente, owner, activacion confirmada, soporte triado, notas de exito y claims seguros.
+- Genera evidencia JSON/Markdown en `backend/sqx-edge-tool/data/customer_success_renewal`.
+- Actualiza manifiesto a `customer_success_renewal_ready`.
+
 ## 2026-05-07 - Status and roadmap refresh
 
 - Actualiza el estado visible del proyecto hasta M44 `hotfix_rollback_release_ready`.

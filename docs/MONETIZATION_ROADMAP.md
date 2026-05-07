@@ -5,11 +5,11 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M44 - Hotfix Rollback Release.
-- Current state: `hotfix_rollback_release_ready`.
-- Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
+- Completed through: M45 - Customer Success Renewal Loop.
+- Current state: `customer_success_renewal_ready`.
+- Latest verified portable ZIP before M45: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M45 - Customer Success And Renewal Loop.
+- Next recommended phase: M46 - Commercial Customer Cockpit.
 
 ## Decision Base
 
@@ -977,11 +977,11 @@ Decision M44:
 - No hay rollback sin `rollback_target_missing` resuelto, checklist y comunicacion preparada.
 - El siguiente paso real es customer success/renewal loop para convertir usuarios Pro en relaciones sostenibles.
 
-## Phase M45 - Customer Success And Renewal Loop
+## Phase M45 - Customer Success Renewal Loop
 
 Objetivo: preparar el seguimiento de usuarios Pro despues de compra, activacion y soporte para mejorar retencion sin prometer resultados financieros.
 
-Entregables previstos:
+Entregables:
 
 - Checklist de onboarding del comprador Pro.
 - Registro de activacion, soporte inicial, bloqueos y resolucion.
@@ -989,4 +989,10 @@ Entregables previstos:
 - Senales de expansion: plantillas, Setup Assist y soporte prioritario.
 - Decision auditada de mantener, mejorar, pausar oferta o preparar siguiente release comercial.
 
-Estado: Recommended next.
+Estado: Done.
+
+Decision M45:
+
+- No hay decision de renovacion sin cliente, owner, onboarding, activacion y soporte triado.
+- Las oportunidades de expansion exigen oferta preparada y claims seguros revisados.
+- El siguiente paso real es M46: cockpit comercial ligero para ver renovaciones, tickets y oportunidades en una sola vista.

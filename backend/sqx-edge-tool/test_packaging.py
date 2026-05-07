@@ -36,6 +36,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "release_publication_record.py",
             TOOL_ROOT / "tools" / "post_release_monitor.py",
             TOOL_ROOT / "tools" / "hotfix_rollback_release.py",
+            TOOL_ROOT / "tools" / "customer_success_renewal.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
             TOOL_ROOT / "tools" / "relay_bundle.py",
@@ -83,6 +84,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("release_publication_record\\.py", text)
         self.assertIn("post_release_monitor\\.py", text)
         self.assertIn("hotfix_rollback_release\\.py", text)
+        self.assertIn("customer_success_renewal\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
         self.assertIn("relay_bundle\\.py", text)
@@ -125,6 +127,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("release_publication_record.py", text)
         self.assertIn("post_release_monitor.py", text)
         self.assertIn("hotfix_rollback_release.py", text)
+        self.assertIn("customer_success_renewal.py", text)
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
         self.assertIn("relay_bundle.py", text)
@@ -159,6 +162,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "release_publication_record.py",
             "post_release_monitor.py",
             "hotfix_rollback_release.py",
+            "customer_success_renewal.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
             "relay_bundle.py",

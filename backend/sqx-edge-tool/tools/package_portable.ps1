@@ -73,6 +73,7 @@ function Test-IncludedPath {
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\release_publication_record\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\post_release_monitor\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\hotfix_rollback_release\.py$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\tools\\customer_success_renewal\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfillment_request\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfill_from_request\.ps1$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\relay_bundle\.py$") { return $false }
