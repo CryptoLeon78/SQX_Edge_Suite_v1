@@ -2,6 +2,14 @@
 
 Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custom Projects `.cfx` para StrategyQuant X y limpiar estrategias `.sqx` post-mining.
 
+## Estado Actual
+
+- Estado interno: M44 completada, `hotfix_rollback_release_ready`.
+- Ultimo commit base verificado antes de este refresco: `8aee951`.
+- Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
+- SHA256 del ZIP: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
+- Siguiente paso recomendado: M45, customer success y renewal loop para usuarios Pro.
+
 ## SQX Edge Pro
 
 El proyecto esta preparando una edicion comercial Pro con suscripcion mensual/anual, soporte opcional y packs de plantillas alrededor de la herramienta.

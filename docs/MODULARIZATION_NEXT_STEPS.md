@@ -2,6 +2,16 @@
 
 Persistent planning note for the next SQX Edge phases.
 
+## Current Status
+
+- Last updated: 2026-05-07.
+- Current completed phase: M44 - Hotfix Rollback Release.
+- Current product/commercial state: `hotfix_rollback_release_ready`.
+- Last synced base commit before this roadmap refresh: `8aee951`.
+- Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
+- Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
+- Next recommended phase: M45 - Customer Success And Renewal Loop.
+
 ## Recommended Order
 
 1. Phase 36: harden Project Generator module boundaries. Done.
@@ -70,3 +80,4 @@ Persistent planning note for the next SQX Edge phases.
 42. Phase M42: add release publication record for published tag, release, ZIP, SHA256 and rollback evidence. Done.
 43. Phase M43: add post-release monitor for incidents, activation errors, support, refunds and scale decision. Done.
 44. Phase M44: add hotfix/rollback release kit for action owner, notes, comms, verification and closure evidence. Done.
+45. Phase M45: add customer success and renewal loop for Pro onboarding, support outcomes, retention decisions and upsell evidence. Recommended next.

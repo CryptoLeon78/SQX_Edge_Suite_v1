@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Status and roadmap refresh
+
+- Actualiza el estado visible del proyecto hasta M44 `hotfix_rollback_release_ready`.
+- Registra el ultimo ZIP portable verificado y su SHA256 en README y roadmaps.
+- Marca M45 como siguiente paso recomendado: customer success y renewal loop.
+- Refresca el roadmap publico para reflejar el estado comercial real sin promesas financieras.
+
 ## 2026-05-06 - Launch assets kit
 
 - Anade `launch_assets_kit.py` para validar ZIP, SHA256, capturas, copy, README comercial y release draft.

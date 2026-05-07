@@ -2,6 +2,15 @@
 
 Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, con servicios y plantillas alrededor del producto.
 
+## Current Status
+
+- Last updated: 2026-05-07.
+- Completed through: M44 - Hotfix Rollback Release.
+- Current state: `hotfix_rollback_release_ready`.
+- Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
+- Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
+- Next recommended phase: M45 - Customer Success And Renewal Loop.
+
 ## Decision Base
 
 La estrategia elegida es vender:
@@ -967,3 +976,17 @@ Decision M44:
 - No hay hotfix sin notas, version, paquete y plan de verificacion.
 - No hay rollback sin `rollback_target_missing` resuelto, checklist y comunicacion preparada.
 - El siguiente paso real es customer success/renewal loop para convertir usuarios Pro en relaciones sostenibles.
+
+## Phase M45 - Customer Success And Renewal Loop
+
+Objetivo: preparar el seguimiento de usuarios Pro despues de compra, activacion y soporte para mejorar retencion sin prometer resultados financieros.
+
+Entregables previstos:
+
+- Checklist de onboarding del comprador Pro.
+- Registro de activacion, soporte inicial, bloqueos y resolucion.
+- Seguimiento de renovacion mensual/anual.
+- Senales de expansion: plantillas, Setup Assist y soporte prioritario.
+- Decision auditada de mantener, mejorar, pausar oferta o preparar siguiente release comercial.
+
+Estado: Recommended next.
