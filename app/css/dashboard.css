@@ -148,6 +148,61 @@
   .views-check input,
   .views-metric-row input { accent-color:var(--accent); }
   .views-presets { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .views-templates {
+    margin-top:12px;
+    padding:11px;
+    border:1px solid rgba(96,165,250,.24);
+    border-radius:8px;
+    background:linear-gradient(135deg, rgba(59,130,246,.08), rgba(20,184,166,.05)), #101827;
+  }
+  .views-template-list { display:grid; gap:8px; }
+  .views-template-card {
+    display:grid;
+    gap:8px;
+    padding:10px;
+    border:1px solid rgba(148,163,184,.16);
+    border-radius:7px;
+    background:rgba(15,23,42,.76);
+  }
+  .views-template-card.is-pro {
+    border-color:rgba(168,85,247,.28);
+    background:linear-gradient(135deg, rgba(168,85,247,.10), rgba(15,23,42,.76));
+  }
+  .views-template-top {
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .views-template-name { color:var(--text); font-size:13px; font-weight:850; line-height:1.25; }
+  .views-template-desc { color:var(--text2); font-size:12px; line-height:1.45; }
+  .views-template-meta {
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .views-template-meta span,
+  .views-template-tier {
+    display:inline-flex;
+    align-items:center;
+    min-height:22px;
+    padding:2px 7px;
+    border-radius:5px;
+    border:1px solid rgba(148,163,184,.18);
+    background:rgba(148,163,184,.08);
+    color:var(--text2);
+    font-size:10px;
+    font-weight:850;
+    text-transform:uppercase;
+  }
+  .views-template-tier.free { color:#86efac; border-color:rgba(34,197,94,.30); background:rgba(34,197,94,.10); }
+  .views-template-tier.pro { color:#d8b4fe; border-color:rgba(168,85,247,.34); background:rgba(168,85,247,.13); }
+  .views-template-actions {
+    display:flex;
+    gap:7px;
+    flex-wrap:wrap;
+  }
+  .views-template-actions .filter-btn { flex:1 1 110px; }
   .views-saved {
     margin-top:12px;
     padding:11px;
@@ -3665,6 +3720,7 @@
 
     .views-actions .filter-btn,
     .views-actions .export-btn,
+    .views-template-actions .filter-btn,
     .views-saved-grid .filter-btn,
     .views-saved-tools .filter-btn,
     .views-handoff-actions .filter-btn {

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - V6 SQX Views buyer-ready examples
+
+- Anade ejemplos buyer-ready en `SQX Views` para primera revision, robustez, riesgo y auditoria completa.
+- Permite cargar cada ejemplo, guardarlo como preset propio y exportar el pack de ejemplos en JSON.
+- Activa los contratos JS de SQX Views en la suite principal y refuerza static/E2E para cubrir los ejemplos.
+
 ## 2026-05-08 - V5 SQX View Creator integration closeout
 
 - Cierra la integracion del prototipo anual de SQX View Creator dentro del tab nativo `SQX Views`.

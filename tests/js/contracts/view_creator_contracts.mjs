@@ -17,6 +17,8 @@ assert.ok(html.includes('id="vc-save-preset-btn"'), 'missing saved preset button
 assert.ok(html.includes('id="vc-saved-select"'), 'missing saved preset selector');
 assert.ok(html.includes('id="vc-export-presets-btn"'), 'missing preset pack export button');
 assert.ok(html.includes('id="vc-import-presets-btn"'), 'missing preset pack import button');
+assert.ok(html.includes('id="vc-template-list"'), 'missing buyer-ready template list');
+assert.ok(html.includes('id="vc-export-template-pack-btn"'), 'missing buyer-ready template pack export button');
 assert.ok(html.includes('id="strat-views-handoff"'), 'missing strategies to SQX Views handoff');
 assert.ok(html.includes('id="workflow-views-handoff"'), 'missing workflow to SQX Views handoff');
 assert.ok(html.includes('data-vc-handoff="risk"'), 'missing risk view handoff preset');
@@ -78,6 +80,16 @@ assert.equal(viewCreator.getSavedPresets()[0].config.yearCount, 5);
 assert.equal(viewCreator.packageType, 'sqx-edge.view-presets');
 assert.equal(viewCreator.packageVersion, 1);
 
+const buyerTemplates = viewCreator.buyerReadyTemplates();
+assert.equal(buyerTemplates.length, 4);
+assert.ok(buyerTemplates.some(template => template.id === 'egt-first-review' && template.tier === 'free'));
+assert.ok(buyerTemplates.some(template => template.id === 'full-audit-handoff' && template.config.groupMode === 'by_metric'));
+assert.ok(buyerTemplates.every(template => template.config.metrics.length > 0));
+const buyerPack = viewCreator.buildBuyerReadyTemplatePack();
+assert.equal(buyerPack.type, 'sqx-edge.view-presets');
+assert.equal(buyerPack.presets.length, 4);
+assert.ok(buyerPack.presets.some(preset => preset.id === 'buyer-risk-capital-review'));
+
 const presetPack = viewCreator.buildPresetPackage();
 assert.equal(presetPack.type, 'sqx-edge.view-presets');
 assert.equal(presetPack.presets.length, 1);
@@ -132,5 +144,32 @@ assert.ok(handoffSandbox.document.getElementById('tab-btn-views').classList.cont
 assert.equal(handoffSandbox.document.getElementById('vc-view-name').value, 'SQX Risk Review');
 assert.equal(handoffSandbox.document.getElementById('vc-year-count').value, 5);
 assert.ok(Number(handoffSandbox.document.getElementById('vc-column-count').textContent) > 64);
+
+const templateSandbox = createLoadedSandbox(['app/js/modules/view-creator.js']);
+[
+  'vc-view-name',
+  'vc-year-count',
+  'vc-sample-start',
+  'vc-group-mode',
+  'vc-include-total',
+  'vc-preview',
+  'vc-selected-count',
+  'vc-column-count',
+  'vc-year-range',
+  'vc-preview-title',
+  'vc-mode-label',
+  'vc-status',
+  'vc-saved-select',
+  'vc-saved-count',
+].forEach(id => templateSandbox.document.add(new Element(id)));
+templateSandbox.document.getElementById('vc-include-total').checked = true;
+templateSandbox.document.getElementById('vc-group-mode').value = 'by_year';
+const loadedTemplate = templateSandbox.SQX.viewCreator.loadBuyerReadyTemplate('risk-capital-review');
+assert.equal(loadedTemplate.name, 'Risk Capital Review');
+assert.equal(templateSandbox.document.getElementById('vc-view-name').value, 'Risk Capital Review');
+assert.ok(Number(templateSandbox.document.getElementById('vc-column-count').textContent) > 64);
+const savedTemplate = templateSandbox.SQX.viewCreator.saveBuyerReadyTemplate('risk-capital-review');
+assert.equal(savedTemplate.id, 'buyer-risk-capital-review');
+assert.equal(templateSandbox.SQX.viewCreator.getSavedPresets().length, 1);
 
 console.log('view creator contracts ok');

@@ -135,6 +135,42 @@
     'full-audit': function(metric) { return metric.category !== 'fixed' || metric.selectedDefault; },
     clear: function(metric) { return metric.category === 'fixed' && metric.selectedDefault; }
   };
+
+  var BUYER_READY_TEMPLATE_DEFINITIONS = [
+    {
+      id: 'egt-first-review',
+      name: 'EGT First Review',
+      tier: 'free',
+      preset: 'egt-core',
+      description: 'Vista inicial para revisar candidatos con el set EGT Core anual.',
+      config: { viewName: 'EGT First Review', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_year' }
+    },
+    {
+      id: 'robustness-pack-screen',
+      name: 'Robustness Pack Screen',
+      tier: 'pro',
+      preset: 'robustness',
+      description: 'Revision de estabilidad, anos malos, stagnation y ratios para filtrar antes de portfolio.',
+      config: { viewName: 'Robustness Pack Screen', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
+    },
+    {
+      id: 'risk-capital-review',
+      name: 'Risk Capital Review',
+      tier: 'pro',
+      preset: 'risk',
+      description: 'Vista de riesgo para drawdown, dispersion, rachas negativas y stress previo a entrega.',
+      config: { viewName: 'Risk Capital Review', yearCount: 7, sampleStart: 23, includeTotal: true, groupMode: 'by_year' }
+    },
+    {
+      id: 'full-audit-handoff',
+      name: 'Full Audit Handoff',
+      tier: 'pro',
+      preset: 'full-audit',
+      description: 'Salida amplia para auditoria completa y CSV posterior cuando una tanda ya merece investigacion.',
+      config: { viewName: 'Full Audit Handoff', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
+    }
+  ];
+
   var metricState = {};
   METRICS.forEach(function(metric) {
     metricState[metric.className] = {
@@ -341,6 +377,64 @@
     };
   }
 
+  function configFromPresetName(presetName, config) {
+    var selector = PRESETS[presetName] || PRESETS['egt-core'];
+    var cfg = config || {};
+    return normalizeConfig({
+      viewName: cfg.viewName,
+      yearCount: cfg.yearCount,
+      sampleStart: cfg.sampleStart,
+      includeTotal: cfg.includeTotal,
+      groupMode: cfg.groupMode,
+      metrics: METRICS.filter(function(metric) { return selector(metric); }).map(function(metric) {
+        return {
+          className: metric.className,
+          annual: metric.category !== 'fixed' && metric.annualDefault
+        };
+      })
+    });
+  }
+
+  function buyerTemplateFromDefinition(definition) {
+    return {
+      id: definition.id,
+      name: definition.name,
+      tier: definition.tier || 'pro',
+      preset: definition.preset || 'egt-core',
+      description: definition.description || '',
+      config: configFromPresetName(definition.preset, definition.config)
+    };
+  }
+
+  function getBuyerReadyTemplates() {
+    return BUYER_READY_TEMPLATE_DEFINITIONS.map(buyerTemplateFromDefinition);
+  }
+
+  function findBuyerReadyTemplate(id) {
+    return getBuyerReadyTemplates().find(function(template) { return template.id === id; }) || null;
+  }
+
+  function templateToPreset(template) {
+    if (!template) return null;
+    return normalizePreset({
+      id: 'buyer-' + template.id,
+      name: template.name,
+      savedAt: new Date().toISOString(),
+      config: template.config
+    });
+  }
+
+  function accessibleBuyerReadyTemplates() {
+    var full = hasFullAccess();
+    return getBuyerReadyTemplates().filter(function(template) {
+      return full || template.tier !== 'pro';
+    });
+  }
+
+  function buildBuyerReadyTemplatePack() {
+    return buildPresetPackage(accessibleBuyerReadyTemplates().map(templateToPreset));
+  }
+
   function parsePresetPackage(payload) {
     var data = typeof payload === 'string' ? safeJsonParse(payload, null) : payload;
     if (!data) return [];
@@ -518,6 +612,36 @@
     bindMetricChanges();
   }
 
+  function renderBuyerReadyTemplates() {
+    var list = byId('vc-template-list');
+    var count = byId('vc-template-count');
+    var templates = getBuyerReadyTemplates();
+    var full = hasFullAccess();
+    if (count) count.textContent = templates.length + (templates.length === 1 ? ' ejemplo' : ' ejemplos');
+    if (!list) return templates;
+    list.innerHTML = templates.map(function(template) {
+      var disabled = template.tier === 'pro' && !full;
+      var actionAttrs = disabled ? ' disabled aria-disabled="true"' : '';
+      return '<article class="views-template-card ' + (template.tier === 'pro' ? 'is-pro' : 'is-free') + '">' +
+        '<div class="views-template-top">' +
+          '<div><div class="views-template-name">' + escapeHtml(template.name) + '</div>' +
+          '<p class="views-template-desc">' + escapeHtml(template.description) + '</p></div>' +
+          '<span class="views-template-tier ' + escapeHtml(template.tier) + '">' + escapeHtml(template.tier) + '</span>' +
+        '</div>' +
+        '<div class="views-template-meta">' +
+          '<span>' + template.config.metrics.length + ' metricas</span>' +
+          '<span>' + template.config.yearCount + ' anos</span>' +
+          '<span>s' + template.config.sampleStart + '..' + (template.config.sampleStart + template.config.yearCount - 1) + '</span>' +
+        '</div>' +
+        '<div class="views-template-actions">' +
+          '<button class="filter-btn" data-vc-template-load="' + escapeHtml(template.id) + '" type="button"' + actionAttrs + '>Cargar</button>' +
+          '<button class="filter-btn" data-vc-template-save="' + escapeHtml(template.id) + '" type="button"' + actionAttrs + '>Guardar</button>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+    return templates;
+  }
+
   function setMetric(className, selected, annual) {
     var metric = metricByClass(className);
     metricState[className] = {
@@ -630,6 +754,42 @@
     setStatus('Preset eliminado: ' + preset.name, 'ok');
   }
 
+  function loadBuyerReadyTemplate(id) {
+    var template = findBuyerReadyTemplate(id);
+    if (!template) {
+      setStatus('Ejemplo no encontrado.', 'warn');
+      return null;
+    }
+    if (template.tier === 'pro' && !hasFullAccess()) {
+      setStatus('Este ejemplo requiere SQX Edge Pro.', 'warn');
+      return null;
+    }
+    applyConfig(template.config);
+    setStatus('Ejemplo cargado: ' + template.name + '.', 'ok');
+    if (global.addHomeTrace) global.addHomeTrace('SQX Views', 'Ejemplo ' + template.name + ' cargado', 'ok');
+    return template;
+  }
+
+  function saveBuyerReadyTemplate(id) {
+    var template = findBuyerReadyTemplate(id);
+    var preset = templateToPreset(template);
+    if (!preset) {
+      setStatus('Ejemplo no encontrado.', 'warn');
+      return null;
+    }
+    if (template.tier === 'pro' && !hasFullAccess()) {
+      setStatus('Este ejemplo requiere SQX Edge Pro.', 'warn');
+      return null;
+    }
+    var presets = getSavedPresets().filter(function(item) { return item.id !== preset.id; });
+    presets.unshift(preset);
+    setSavedPresets(presets);
+    renderSavedPresets();
+    if (byId('vc-saved-select')) byId('vc-saved-select').value = preset.id;
+    setStatus('Ejemplo guardado como preset: ' + preset.name + '.', 'ok');
+    return preset;
+  }
+
   function downloadJson(filename, payload) {
     var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     var url = URL.createObjectURL(blob);
@@ -652,6 +812,16 @@
     var day = new Date().toISOString().slice(0, 10);
     downloadJson('sqx-view-presets-' + day + '.json', pack);
     setStatus('Pack exportado: ' + pack.presets.length + ' presets.', 'ok');
+  }
+
+  function exportBuyerReadyTemplatePack() {
+    var pack = buildBuyerReadyTemplatePack();
+    if (!pack.presets.length) {
+      setStatus('No hay ejemplos disponibles para exportar.', 'warn');
+      return;
+    }
+    downloadJson('sqx-view-buyer-ready-pack-v' + PRESET_PACKAGE_VERSION + '.json', pack);
+    setStatus('Ejemplos exportados: ' + pack.presets.length + ' presets.', 'ok');
   }
 
   function importPresetFile(file) {
@@ -737,6 +907,15 @@
     if (byId('vc-load-preset-btn')) byId('vc-load-preset-btn').addEventListener('click', loadSavedPreset);
     if (byId('vc-delete-preset-btn')) byId('vc-delete-preset-btn').addEventListener('click', deleteSavedPreset);
     if (byId('vc-export-presets-btn')) byId('vc-export-presets-btn').addEventListener('click', exportPresetPackage);
+    if (byId('vc-export-template-pack-btn')) byId('vc-export-template-pack-btn').addEventListener('click', exportBuyerReadyTemplatePack);
+    if (byId('vc-template-list')) {
+      byId('vc-template-list').addEventListener('click', function(event) {
+        var loadId = event.target && event.target.dataset ? event.target.dataset.vcTemplateLoad : '';
+        var saveId = event.target && event.target.dataset ? event.target.dataset.vcTemplateSave : '';
+        if (loadId) loadBuyerReadyTemplate(loadId);
+        if (saveId) saveBuyerReadyTemplate(saveId);
+      });
+    }
     if (byId('vc-import-presets-btn') && byId('vc-import-presets-file')) {
       byId('vc-import-presets-btn').addEventListener('click', function() { byId('vc-import-presets-file').click(); });
       byId('vc-import-presets-file').addEventListener('change', function(event) {
@@ -751,6 +930,7 @@
     if (!byId('vc-metric-list')) return;
     renderMetrics();
     bindControls();
+    renderBuyerReadyTemplates();
     renderSavedPresets();
     var note = byId('vc-license-note');
     if (note) note.textContent = hasFullAccess() ? 'Catalogo completo habilitado.' : 'Free: preset EGT Core. Pro desbloquea presets avanzados.';
@@ -766,18 +946,23 @@
     countColumns: countColumns,
     downloadView: downloadView,
     bindHandoffLinks: bindHandoffLinks,
+    buildBuyerReadyTemplatePack: buildBuyerReadyTemplatePack,
     buildPresetPackage: buildPresetPackage,
+    buyerReadyTemplates: getBuyerReadyTemplates,
     importPresetPackage: importPresetPackage,
     importPresetPackageFromText: importPresetPackageFromText,
     getSavedPresets: getSavedPresets,
     groupedMetrics: groupedMetrics,
     init: init,
+    loadBuyerReadyTemplate: loadBuyerReadyTemplate,
     metrics: METRICS,
     packageType: PRESET_PACKAGE_TYPE,
     packageVersion: PRESET_PACKAGE_VERSION,
     openHandoff: openHandoff,
     previewLines: previewLines,
+    renderBuyerReadyTemplates: renderBuyerReadyTemplates,
     sanitizeInt: sanitizeInt,
+    saveBuyerReadyTemplate: saveBuyerReadyTemplate,
     saveCurrentPreset: saveCurrentPreset,
     selectedMetrics: selectedMetrics,
     serializeConfig: serializeConfig,

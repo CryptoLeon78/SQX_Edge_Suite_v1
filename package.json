@@ -1,0 +1,11 @@
+{
+  "name": "sqx-edge-suite-v1",
+  "private": true,
+  "scripts": {
+    "test:js": "node tests/js/module_contracts.mjs",
+    "test:e2e": "node tests/ui_e2e/dashboard_smoke.mjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.59.1"
+  }
+}

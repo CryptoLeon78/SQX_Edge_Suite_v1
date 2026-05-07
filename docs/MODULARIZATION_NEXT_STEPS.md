@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: V5 - SQX View Creator Integration Closeout.
+- Current completed phase: V6 - SQX Views Buyer-Ready Examples.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: V6 - View Creator buyer-ready template examples, or PG3 - portable custom preset import/export.
+- Next recommended phase: PG3 - portable custom preset import/export, or V7 - buyer profile SQX Views packs.
 
 ## Recommended Order
 
@@ -152,4 +152,5 @@ Persistent planning note for the next SQX Edge phases.
 3. Phase V3: add JSON export/import packs for saved SQX Views presets. Done.
 4. Phase V4: add optional handoff links from Workflow/Estrategias and richer saved-template guidance. Done.
 5. Phase V5: close the native SQX View Creator integration, archive the staging prototype in backup and remove the local staging folder. Done.
-6. Phase V6: add buyer-ready SQX View template examples or pack seeds if continuing the View Creator track. Recommended when improving the new tool.
+6. Phase V6: add buyer-ready SQX View template examples for first review, robustness, risk and full audit, with load/save/export flow. Done.
+7. Phase V7: expand SQX Views packs by buyer profile, asset family or validation workflow if the View Creator track continues.
