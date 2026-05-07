@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M52 - Template Pack 1 Controlled Purchase Drill.
-- Current product/commercial state: `template_pack_1_purchase_drill_ready`.
+- Current completed phase: M53 - Template Pack 1 Post-Purchase Handoff And Scale Decision.
+- Current product/commercial state: `template_pack_1_handoff_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
-- Last synced base commit before M52: `30d5b8b`.
+- Last synced base commit before M53: `3e89916`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M53 - Template Pack 1 Post-Purchase Handoff And Scale Decision.
+- Next recommended phase: M54 - Template Pack 1 Add-On Sales Register.
 
 ## Recommended Order
 
@@ -98,4 +98,5 @@ Persistent planning note for the next SQX Edge phases.
 50. Phase M50: prepare public add-on offer, checkout variant wiring and delivery macro for Template Pack 1. Done.
 51. Phase M51: connect real checkout URL, variant ID and support email through a controlled publication gate. Done.
 52. Phase M52: run a controlled Template Pack 1 purchase drill and validate delivery/support evidence. Done.
-53. Phase M53: execute post-purchase handoff, support follow-up and scale/pause decision. Recommended next.
+53. Phase M53: execute post-purchase handoff, support follow-up and scale/pause decision. Done.
+54. Phase M54: consolidate a lightweight add-on sales register before wider public traffic. Recommended next.

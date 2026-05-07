@@ -65,6 +65,7 @@ MONETIZATION_M49_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M49.md"
 MONETIZATION_M50_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M50.md"
 MONETIZATION_M51_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M51.md"
 MONETIZATION_M52_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M52.md"
+MONETIZATION_M53_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M53.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -417,8 +418,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "template_pack_1_purchase_drill_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "template_pack_1_purchase_drill_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "template_pack_1_handoff_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "template_pack_1_handoff_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
@@ -512,8 +513,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("customer_cockpit_overview", server_py)
         self.assertIn("redacted_operator_summary", customer_cockpit_py)
         self.assertIn("license payloads", customer_cockpit_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "template_pack_1_purchase_drill_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "template_pack_1_purchase_drill_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "template_pack_1_handoff_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "template_pack_1_handoff_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitEndpoint"], "/api/customer-cockpit")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitConfig"], "backend/sqx-edge-tool/config/customer_cockpit.json")
         self.assertEqual(
@@ -573,6 +574,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(
             product_manifest["upgrade"]["checkout"]["templatePack1PurchaseDrillPolicy"],
             "record_controlled_addon_order_payment_delivery_support_and_refund_pause_before_scaling",
+        )
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["templatePack1HandoffConfig"], "backend/sqx-edge-tool/config/template_pack_1_handoff.json")
+        self.assertIn("template_pack_1_handoff.py", product_manifest["upgrade"]["checkout"]["templatePack1HandoffTool"])
+        self.assertIn("template_pack_1_handoff", product_manifest["upgrade"]["checkout"]["templatePack1HandoffEvidenceDir"])
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["templatePack1HandoffPolicy"],
+            "confirm_delivery_support_first_value_and_scale_or_pause_decision_after_controlled_purchase",
         )
 
     def test_dashboard_navigation_delegates_to_ui_module(self):
@@ -975,7 +983,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "template_pack_1_purchase_drill_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "template_pack_1_handoff_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
@@ -1060,8 +1068,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/template_pack_1_publication.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/template_pack_1_purchase_drill", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/template_pack_1_purchase_drill.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/template_pack_1_handoff", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/template_pack_1_handoff.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "template_pack_1_purchase_drill_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "template_pack_1_handoff_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -1138,6 +1148,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/template_pack_1_publication.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/template_pack_1_purchase_drill", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/template_pack_1_purchase_drill.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/template_pack_1_handoff", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/template_pack_1_handoff.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/fulfillment_request.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/fulfill_from_request.ps1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
@@ -1241,6 +1253,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m50 = MONETIZATION_M50_DOC.read_text(encoding="utf-8-sig")
         m51 = MONETIZATION_M51_DOC.read_text(encoding="utf-8-sig")
         m52 = MONETIZATION_M52_DOC.read_text(encoding="utf-8-sig")
+        m53 = MONETIZATION_M53_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
@@ -1252,6 +1265,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         template_pack_1_offer = (PROJECT_ROOT / "docs" / "sales" / "TEMPLATE_PACK_1_PUBLIC_OFFER.md").read_text(encoding="utf-8-sig")
         template_pack_1_publication = (PROJECT_ROOT / "docs" / "sales" / "TEMPLATE_PACK_1_LIVE_CHECKOUT_PUBLICATION.md").read_text(encoding="utf-8-sig")
         template_pack_1_purchase_drill = (PROJECT_ROOT / "docs" / "sales" / "TEMPLATE_PACK_1_PURCHASE_DRILL.md").read_text(encoding="utf-8-sig")
+        template_pack_1_handoff = (PROJECT_ROOT / "docs" / "sales" / "TEMPLATE_PACK_1_HANDOFF.md").read_text(encoding="utf-8-sig")
         relay_ops = (PROJECT_ROOT / "docs" / "sales" / "RELAY_INGEST_NOTES.md").read_text(encoding="utf-8-sig")
         relay_service_ops = (PROJECT_ROOT / "docs" / "sales" / "RELAY_SERVICE_OPERATIONS.md").read_text(encoding="utf-8-sig")
         commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
@@ -1310,6 +1324,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M50", roadmap)
         self.assertIn("Phase M51", roadmap)
         self.assertIn("Phase M52", roadmap)
+        self.assertIn("Phase M53", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -1361,6 +1376,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M50: prepare public add-on offer, checkout variant wiring and delivery macro for Template Pack 1. Done.", next_steps)
         self.assertIn("Phase M51: connect real checkout URL, variant ID and support email through a controlled publication gate. Done.", next_steps)
         self.assertIn("Phase M52: run a controlled Template Pack 1 purchase drill and validate delivery/support evidence. Done.", next_steps)
+        self.assertIn("Phase M53: execute post-purchase handoff, support follow-up and scale/pause decision. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -2160,6 +2176,20 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("--provider-order-id", template_pack_1_purchase_drill)
         self.assertIn("--require-delivery-package", template_pack_1_purchase_drill)
 
+        m53_patterns = [
+            "template_pack_1_handoff_ready",
+            "template_pack_1_handoff.py",
+            "TEMPLATE_PACK_1_HANDOFF.md",
+            "store_redacted_buyer_reference_handoff_notes_and_scale_decision_only",
+            "Estado: Done.",
+        ]
+        for pattern in m53_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m53)
+        self.assertIn("Template Pack 1 Post-Purchase Handoff", template_pack_1_handoff)
+        self.assertIn("--scale-decision", template_pack_1_handoff)
+        self.assertIn("pause_sales", template_pack_1_handoff)
+
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
@@ -2703,6 +2733,35 @@ class DashboardStaticTestCase(unittest.TestCase):
             "delivery_package_content_not_verified",
             "buyer_email_redacted",
             "--require-delivery-package",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, tool_text)
+
+    def test_template_pack_1_handoff_gate_is_present(self):
+        tool_path = TOOL_ROOT / "tools" / "template_pack_1_handoff.py"
+        config_path = TOOL_ROOT / "config" / "template_pack_1_handoff.json"
+        py_compile.compile(str(tool_path), doraise=True)
+        config = json.loads(config_path.read_text(encoding="utf-8-sig"))
+        tool_text = tool_path.read_text(encoding="utf-8")
+
+        self.assertEqual(config["state"], "template_pack_1_handoff_ready")
+        self.assertEqual(config["offerId"], "template_pack_1")
+        self.assertEqual(config["privacyPolicy"], "store_redacted_buyer_reference_handoff_notes_and_scale_decision_only")
+        self.assertIn("scale_limited", config["allowedDecisions"])
+        self.assertIn("hold_review", config["allowedDecisions"])
+        self.assertIn("pause_sales", config["allowedDecisions"])
+        for required in config["requiredFiles"]:
+            with self.subTest(required=required):
+                self.assertTrue((PROJECT_ROOT / required).is_file(), required)
+
+        for pattern in (
+            "latest_purchase_drill_file",
+            "buyer_email_redacted",
+            "template_pack_1_purchase_drill_evidence_missing",
+            "support_first_response_sla_missed",
+            "scale_limited_not_supported_by_handoff",
+            "refund_risk_requires_pause_sales",
+            "--use-latest-purchase-drill",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, tool_text)

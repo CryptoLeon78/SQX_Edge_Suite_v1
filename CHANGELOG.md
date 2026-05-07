@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 1 handoff
+
+- Anade M53 con gate de handoff post-compra para Template Pack 1.
+- Anade `template_pack_1_handoff.py` para validar entrega, soporte inicial, primer valor y decision de escalar o pausar.
+- Actualiza estado comercial a `template_pack_1_handoff_ready`.
+- Mantiene datos de comprador redactados y evidencia local fuera del ZIP base.
+
 ## 2026-05-07 - Template Pack 1 purchase drill
 
 - Anade M52 con gate de compra controlada para Template Pack 1.

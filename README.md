@@ -4,11 +4,11 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: M52 completada, `template_pack_1_purchase_drill_ready`.
-- Ultimo commit base verificado antes de M52: `30d5b8b`.
+- Estado interno: M53 completada, `template_pack_1_handoff_ready`.
+- Ultimo commit base verificado antes de M53: `3e89916`.
 - Ultimo ZIP portable verificado antes de M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - SHA256 del ZIP: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Siguiente paso recomendado: M53, ejecutar handoff real posterior a compra y decidir escalar o pausar.
+- Siguiente paso recomendado: M54, consolidar registro/panel ligero de ventas add-on antes de abrir mas trafico.
 
 ## SQX Edge Pro
 
@@ -36,6 +36,7 @@ Documentos comerciales:
 - `docs/sales/TEMPLATE_PACK_1_PUBLIC_OFFER.md`
 - `docs/sales/TEMPLATE_PACK_1_LIVE_CHECKOUT_PUBLICATION.md`
 - `docs/sales/TEMPLATE_PACK_1_PURCHASE_DRILL.md`
+- `docs/sales/TEMPLATE_PACK_1_HANDOFF.md`
 
 Activacion Pro prevista:
 

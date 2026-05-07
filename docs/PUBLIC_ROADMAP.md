@@ -19,10 +19,11 @@ Last updated: 2026-05-07.
 - Oferta publica draft de Template Pack 1 preparada con FAQ, checkout wiring y macros de entrega/soporte.
 - Gate de publicacion controlada preparado para conectar checkout real del add-on sin placeholders.
 - Purchase drill controlado preparado para validar pedido, entrega separada y soporte inicial.
+- Handoff post-compra preparado para revisar entrega, soporte inicial y decision de escalar o pausar.
 
 ## Next
 
-- Ejecutar handoff real posterior a compra de Template Pack 1 y decidir escalar o pausar.
+- Consolidar registro ligero de ventas add-on antes de abrir mas trafico.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.
