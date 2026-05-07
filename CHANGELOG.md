@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 2 feedback cohort
+
+- Anade M64 con revision de cohorte temprana de Template Pack 2.
+- Anade `template_pack_2_feedback_cohort.py` para validar feedback agregado, soporte, refunds y decision de roadmap.
+- Actualiza estado comercial a `template_pack_2_feedback_cohort_ready`.
+- Mantiene evidencia agregada/redactada y fuera del ZIP portable.
+
 ## 2026-05-07 - Template Pack 2 sales register
 
 - Anade M63 con registro interno de ventas de Template Pack 2.

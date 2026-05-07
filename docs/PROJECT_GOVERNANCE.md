@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M63 - Template Pack 2 Sales Register.
-- Current product/commercial state: `template_pack_2_sales_register_ready`.
-- Next implementation phase: M64 - Template Pack 2 Feedback Cohort Review.
+- Current phase completed: M64 - Template Pack 2 Feedback Cohort Review.
+- Current product/commercial state: `template_pack_2_feedback_cohort_ready`.
+- Next implementation phase: M65 - Buyer-Ready Checkout Release Closeout.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

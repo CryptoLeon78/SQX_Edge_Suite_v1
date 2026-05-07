@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "state": "template_pack_2_feedback_cohort_ready",
+  "reviewId": "template_pack_2_feedback_cohort_review",
+  "offerId": "template_pack_2",
+  "name": "Template Pack 2 Feedback Cohort Review",
+  "dependsOn": {
+    "salesRegisterConfig": "backend/sqx-edge-tool/config/template_pack_2_sales_register.json",
+    "salesRegisterState": "template_pack_2_sales_register_ready"
+  },
+  "requiredFiles": [
+    "backend/sqx-edge-tool/config/template_pack_2_sales_register.json",
+    "backend/sqx-edge-tool/tools/template_pack_2_sales_register.py",
+    "docs/sales/TEMPLATE_PACK_2_SALES_REGISTER.md",
+    "docs/sales/TEMPLATE_PACK_2_FEEDBACK_COHORT.md",
+    "resources/pro-template-pack-2/README.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "requiredConfirmations": [
+    "sales_register_go",
+    "feedback_reviewed",
+    "support_reviewed",
+    "safe_claims_reviewed",
+    "roadmap_decision_recorded"
+  ],
+  "allowedDecisions": [
+    "expand_traffic",
+    "iterate_offer",
+    "prepare_pack_3",
+    "pause_sales"
+  ],
+  "minimumBuyersForExpand": 3,
+  "minimumFeedbackItems": 2,
+  "minimumPositiveSignalsForPack3": 2,
+  "maxBlockingBugsForExpand": 0,
+  "maxActivationFrictionForExpand": 0,
+  "maxOpenSupportItemsForExpand": 0,
+  "maxRefundsForExpand": 0,
+  "privacyPolicy": "store_redacted_cohort_metrics_feedback_themes_support_counts_and_roadmap_decision_only",
+  "reviewPolicy": "summarize_feedback_themes_without_raw_messages_provider_payloads_or_personal_data",
+  "decisionRules": [
+    "expand_traffic requires enough buyers, feedback, positive signals, no blocking bugs, no activation friction, no open support and no refunds.",
+    "prepare_pack_3 requires positive buyer signals and no unresolved support/refund risk.",
+    "iterate_offer is the default when docs, copy, activation or feature feedback needs work.",
+    "pause_sales is required when support, refunds, bugs or claims risk are unresolved."
+  ]
+}

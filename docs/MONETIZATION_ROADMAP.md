@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M63 - Template Pack 2 Sales Register.
-- Current state: `template_pack_2_sales_register_ready`.
+- Completed through: M64 - Template Pack 2 Feedback Cohort Review.
+- Current state: `template_pack_2_feedback_cohort_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M64 - Template Pack 2 Feedback Cohort Review.
+- Next recommended phase: M65 - Buyer-Ready Checkout Release Closeout.
 
 ## Decision Base
 
@@ -1383,3 +1383,25 @@ Decision M63:
 - No guarda emails en claro ni payloads crudos del proveedor.
 - `scale_limited` exige venta pagada, entrega confirmada, cero soporte abierto, cero refunds y cero fallos.
 - El siguiente paso real es M64: revisar cohorte temprana y feedback real de Template Pack 2 antes de ampliar trafico.
+
+## Phase M64 - Template Pack 2 Feedback Cohort Review
+
+Objetivo: revisar la cohorte temprana de compradores de Template Pack 2 antes de ampliar trafico publico.
+
+Entregables:
+
+- Estado `template_pack_2_feedback_cohort_ready`.
+- Configuracion `backend/sqx-edge-tool/config/template_pack_2_feedback_cohort.json`.
+- Guia interna `docs/sales/TEMPLATE_PACK_2_FEEDBACK_COHORT.md`.
+- Gate interno `backend/sqx-edge-tool/tools/template_pack_2_feedback_cohort.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_2_feedback_cohort`.
+
+Estado: Done.
+
+Decision M64:
+
+- La revision conserva metricas agregadas, temas de feedback, soporte, refunds, senales positivas y decision de roadmap.
+- No guarda mensajes crudos, emails en claro ni payloads de proveedor.
+- `expand_traffic` exige compradores suficientes, feedback suficiente, cero bugs bloqueantes, cero friccion de activacion, cero soporte abierto y cero refunds.
+- `prepare_pack_3` exige senales positivas claras y ausencia de riesgo operativo.
+- El siguiente paso real es M65: cierre buyer-ready de checkout, release, soporte y entrega para primeras ventas controladas.

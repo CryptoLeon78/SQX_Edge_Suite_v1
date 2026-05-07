@@ -76,6 +76,7 @@ MONETIZATION_M60_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M60.md"
 MONETIZATION_M61_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M61.md"
 MONETIZATION_M62_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M62.md"
 MONETIZATION_M63_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M63.md"
+MONETIZATION_M64_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M64.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -428,8 +429,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "template_pack_2_sales_register_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "template_pack_2_sales_register_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "template_pack_2_feedback_cohort_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "template_pack_2_feedback_cohort_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
@@ -523,8 +524,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("customer_cockpit_overview", server_py)
         self.assertIn("redacted_operator_summary", customer_cockpit_py)
         self.assertIn("license payloads", customer_cockpit_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "template_pack_2_sales_register_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "template_pack_2_sales_register_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "template_pack_2_feedback_cohort_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "template_pack_2_feedback_cohort_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitEndpoint"], "/api/customer-cockpit")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitConfig"], "backend/sqx-edge-tool/config/customer_cockpit.json")
         self.assertEqual(
@@ -663,6 +664,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(
             product_manifest["upgrade"]["checkout"]["templatePack2SalesRegisterPolicy"],
             "track_redacted_pack_2_sales_delivery_support_refunds_and_scale_decision_before_more_traffic",
+        )
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["templatePack2FeedbackCohortConfig"], "backend/sqx-edge-tool/config/template_pack_2_feedback_cohort.json")
+        self.assertIn("template_pack_2_feedback_cohort.py", product_manifest["upgrade"]["checkout"]["templatePack2FeedbackCohortTool"])
+        self.assertIn("template_pack_2_feedback_cohort", product_manifest["upgrade"]["checkout"]["templatePack2FeedbackCohortEvidenceDir"])
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["templatePack2FeedbackCohortPolicy"],
+            "review_redacted_pack_2_buyer_feedback_support_refunds_and_positive_signals_before_expanding_traffic",
         )
 
     def test_dashboard_navigation_delegates_to_ui_module(self):
@@ -1065,7 +1073,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "template_pack_2_sales_register_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "template_pack_2_feedback_cohort_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
@@ -1172,9 +1180,11 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/template_pack_2_handoff.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/template_pack_2_sales_register", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/template_pack_2_sales_register.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/template_pack_2_feedback_cohort", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/template_pack_2_feedback_cohort.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-2", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "template_pack_2_sales_register_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "template_pack_2_feedback_cohort_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -1367,6 +1377,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m61 = MONETIZATION_M61_DOC.read_text(encoding="utf-8-sig")
         m62 = MONETIZATION_M62_DOC.read_text(encoding="utf-8-sig")
         m63 = MONETIZATION_M63_DOC.read_text(encoding="utf-8-sig")
+        m64 = MONETIZATION_M64_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
@@ -1389,6 +1400,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         template_pack_2_purchase_drill = (PROJECT_ROOT / "docs" / "sales" / "TEMPLATE_PACK_2_PURCHASE_DRILL.md").read_text(encoding="utf-8-sig")
         template_pack_2_handoff = (PROJECT_ROOT / "docs" / "sales" / "TEMPLATE_PACK_2_HANDOFF.md").read_text(encoding="utf-8-sig")
         template_pack_2_sales_register = (PROJECT_ROOT / "docs" / "sales" / "TEMPLATE_PACK_2_SALES_REGISTER.md").read_text(encoding="utf-8-sig")
+        template_pack_2_feedback_cohort = (PROJECT_ROOT / "docs" / "sales" / "TEMPLATE_PACK_2_FEEDBACK_COHORT.md").read_text(encoding="utf-8-sig")
         relay_ops = (PROJECT_ROOT / "docs" / "sales" / "RELAY_INGEST_NOTES.md").read_text(encoding="utf-8-sig")
         relay_service_ops = (PROJECT_ROOT / "docs" / "sales" / "RELAY_SERVICE_OPERATIONS.md").read_text(encoding="utf-8-sig")
         commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
@@ -1458,6 +1470,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M61", roadmap)
         self.assertIn("Phase M62", roadmap)
         self.assertIn("Phase M63", roadmap)
+        self.assertIn("Phase M64", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -1520,6 +1533,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M61: execute Template Pack 2 controlled purchase drill with redacted payment, delivery, support and refund/pause evidence. Done.", next_steps)
         self.assertIn("Phase M62: prepare Template Pack 2 post-purchase handoff, first-value support and scale/pause decision. Done.", next_steps)
         self.assertIn("Phase M63: consolidate Template Pack 2 sales register and early cohort tracking before more traffic. Done.", next_steps)
+        self.assertIn("Phase M64: review Template Pack 2 early buyer feedback, support signals, refunds and scale decision. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -2473,6 +2487,20 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("--append-register", template_pack_2_sales_register)
         self.assertIn("scale_limited", template_pack_2_sales_register)
 
+        m64_patterns = [
+            "template_pack_2_feedback_cohort_ready",
+            "template_pack_2_feedback_cohort.py",
+            "TEMPLATE_PACK_2_FEEDBACK_COHORT.md",
+            "prepare_pack_3",
+            "Estado: Done.",
+        ]
+        for pattern in m64_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m64)
+        self.assertIn("Template Pack 2 Feedback Cohort Review", template_pack_2_feedback_cohort)
+        self.assertIn("--roadmap-decision", template_pack_2_feedback_cohort)
+        self.assertIn("pause_sales", template_pack_2_feedback_cohort)
+
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
@@ -3365,6 +3393,38 @@ class DashboardStaticTestCase(unittest.TestCase):
             "scale_limited_needs_minimum_sales",
             "template_pack_2_sales_register.jsonl",
             "--append-register",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, tool_text)
+
+    def test_template_pack_2_feedback_cohort_gate_is_present(self):
+        tool_path = TOOL_ROOT / "tools" / "template_pack_2_feedback_cohort.py"
+        config_path = TOOL_ROOT / "config" / "template_pack_2_feedback_cohort.json"
+        py_compile.compile(str(tool_path), doraise=True)
+        config = json.loads(config_path.read_text(encoding="utf-8-sig"))
+        tool_text = tool_path.read_text(encoding="utf-8")
+
+        self.assertEqual(config["state"], "template_pack_2_feedback_cohort_ready")
+        self.assertEqual(config["offerId"], "template_pack_2")
+        self.assertEqual(config["dependsOn"]["salesRegisterState"], "template_pack_2_sales_register_ready")
+        self.assertEqual(config["privacyPolicy"], "store_redacted_cohort_metrics_feedback_themes_support_counts_and_roadmap_decision_only")
+        self.assertIn("expand_traffic", config["allowedDecisions"])
+        self.assertIn("iterate_offer", config["allowedDecisions"])
+        self.assertIn("prepare_pack_3", config["allowedDecisions"])
+        self.assertIn("pause_sales", config["allowedDecisions"])
+        for required in config["requiredFiles"]:
+            with self.subTest(required=required):
+                self.assertTrue((PROJECT_ROOT / required).is_file(), required)
+
+        for pattern in (
+            "template_pack_2_feedback_cohort_ready",
+            "template_pack_2_sales_register_state_invalid",
+            "template_pack_2_sales_register_evidence_missing",
+            "feedback_cohort_metrics_invalid",
+            "expand_traffic_needs_minimum_buyers",
+            "pack_3_needs_positive_signals",
+            "--use-latest-sales-register",
+            "--roadmap-decision",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, tool_text)
