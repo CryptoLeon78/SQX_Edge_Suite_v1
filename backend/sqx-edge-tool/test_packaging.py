@@ -434,6 +434,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("private GitHub repository", boundary)
         self.assertIn("Treat existing public Git history as already exposed", boundary)
         self.assertIn("docs/private-commercial/", boundary)
+        self.assertIn("Prepared Export", boundary)
         self.assertIn("recommendedTarget", manifest)
         self.assertIn("private_github_repository", manifest)
         self.assertIn("private_commercial_split.py", manifest)
@@ -465,6 +466,11 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("docs/MONETIZATION_M70.md", sources)
         self.assertIn("docs/sales/NEXT_CONTROLLED_BUYER_READINESS.md", sources)
         self.assertTrue(any(source.startswith("resources/pro-template-pack-2/") for source in sources))
+
+        split_plan = (PROJECT_ROOT / "docs" / "PRIVATE_COMMERCIAL_SPLIT_PLAN.md").read_text(encoding="utf-8-sig")
+        self.assertIn("local_private_repo_prepared", split_plan)
+        self.assertIn("ed79719 Initial private commercial export", split_plan)
+        self.assertIn("git push -u origin main", split_plan)
 
     def test_release_bat_runs_strict_checklist(self):
         text = (PROJECT_ROOT / "RELEASE_SQX_EDGE.bat").read_text(encoding="utf-8-sig")

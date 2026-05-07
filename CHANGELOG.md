@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Local private commercial repository prepared
+
+- Inicializa el export comercial privado como repositorio git local ignorado por el repo publico.
+- Anade `.gitignore`, `PUBLISH_TO_GITHUB.md` y `SECURITY.md` dentro del export privado.
+- Registra el commit privado local `ed79719 Initial private commercial export` como base para subir al repo privado.
+- Mantiene pendiente la creacion del remoto privado y la posterior redaccion de docs publicos sensibles.
+
 ## 2026-05-07 - Private commercial docs split prepared
 
 - Anade `private_commercial_split.py` para exportar docs comerciales sensibles a un staging privado ignorado por git.

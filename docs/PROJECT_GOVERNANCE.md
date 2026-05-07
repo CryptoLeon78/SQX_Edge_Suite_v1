@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: S2/M-pre - Private Commercial Docs Split Prepared.
+- Current phase completed: S3/M-pre - Local Private Commercial Repository Prepared.
 - Current product/commercial state: `next_controlled_buyer_readiness_ready`.
-- Next implementation phase: create the private commercial repository, push the verified private export, then replace public sensitive docs with redacted pointers.
+- Next implementation phase: create the private GitHub repository, push local private commit `ed79719`, then replace public sensitive docs with redacted pointers.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

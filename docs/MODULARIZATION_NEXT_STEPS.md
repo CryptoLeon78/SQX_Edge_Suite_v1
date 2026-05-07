@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: S2/M-pre - Private Commercial Docs Split Prepared.
+- Current completed phase: S3/M-pre - Local Private Commercial Repository Prepared.
 - Current product/commercial state: `next_controlled_buyer_readiness_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: create `sqx-edge-commercial-private`, push the verified private export, then replace public sensitive docs with redacted pointers.
+- Next recommended phase: create private GitHub repo `sqx-edge-commercial-private`, push local private commit `ed79719`, then replace public sensitive docs with redacted pointers.
 
 ## Recommended Order
 
@@ -49,6 +49,7 @@ Persistent planning note for the next SQX Edge phases.
 1. Phase Q1: add GitHub Actions baseline plus root development requirements for Python tests and JS contracts. Done.
 2. Phase S1: define private commercial repository boundary, manifest and ignored local staging paths. Done.
 3. Phase S2/M-pre: prepare private commercial docs split with export tool, SHA256 migration index and public traceability plan. Done.
+4. Phase S3/M-pre: initialize the ignored private commercial export as a local git repository with publication and security instructions. Done.
 
 ## Monetization Track
 
