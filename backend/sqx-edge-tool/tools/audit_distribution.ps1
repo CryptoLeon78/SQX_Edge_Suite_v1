@@ -41,7 +41,9 @@ $denySegments = @(
   "template_pack_1_feedback_cohort",
   "template_pack_1_action_plan",
   "template_pack_2_specs",
+  "template_pack_2_assets",
   "pro-template-pack-1",
+  "pro-template-pack-2",
   "sqx-edge-relay"
 )
 
@@ -76,6 +78,7 @@ $denyFiles = @(
   "template_pack_1_feedback_cohort.py",
   "template_pack_1_action_plan.py",
   "template_pack_2_specs.py",
+  "template_pack_2_assets.py",
   "fulfillment_request.py",
   "fulfill_from_request.ps1",
   "relay_bundle.py",
@@ -120,7 +123,9 @@ $requiredPackageGuards = @(
   '"template_pack_1_feedback_cohort"',
   '"template_pack_1_action_plan"',
   '"template_pack_2_specs"',
+  '"template_pack_2_assets"',
   '"pro-template-pack-1"',
+  '"pro-template-pack-2"',
   '"sqx-edge-relay"',
   'config\.json',
   'license\.json',
@@ -152,6 +157,7 @@ $requiredPackageGuards = @(
   'template_pack_1_feedback_cohort\.py',
   'template_pack_1_action_plan\.py',
   'template_pack_2_specs\.py',
+  'template_pack_2_assets\.py',
   'fulfillment_request\.py',
   'fulfill_from_request\.ps1',
   'relay_bundle\.py',

@@ -874,7 +874,9 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/data/template_pack_1_feedback_cohort",
         "backend/sqx-edge-tool/data/template_pack_1_action_plan",
         "backend/sqx-edge-tool/data/template_pack_2_specs",
+        "backend/sqx-edge-tool/data/template_pack_2_assets",
         "resources/pro-template-pack-1",
+        "resources/pro-template-pack-2",
         "backend/sqx-edge-tool/tools/license_signer.py",
         "backend/sqx-edge-tool/tools/license_keypair.ps1",
         "backend/sqx-edge-tool/tools/license_issue.py",
@@ -903,6 +905,7 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/tools/template_pack_1_feedback_cohort.py",
         "backend/sqx-edge-tool/tools/template_pack_1_action_plan.py",
         "backend/sqx-edge-tool/tools/template_pack_2_specs.py",
+        "backend/sqx-edge-tool/tools/template_pack_2_assets.py",
         "backend/sqx-edge-tool/tools/fulfillment_request.py",
         "backend/sqx-edge-tool/tools/fulfill_from_request.ps1",
         "backend/sqx-edge-tool/tools/relay_bundle.py"
@@ -1048,6 +1051,12 @@ window.SQX_MANIFEST = {
           "label": "Template Pack 1",
           "price": "49 EUR",
           "checkoutUrl": ""
+        },
+        {
+          "id": "template_pack_2",
+          "label": "Template Pack 2",
+          "price": "79 EUR",
+          "checkoutUrl": ""
         }
       ],
       "disclaimer": "No promete rentabilidad ni resultados financieros. La propuesta es productividad, orden y reduccion de errores operativos.",
@@ -1055,7 +1064,7 @@ window.SQX_MANIFEST = {
       "checkoutLabel": "Comprar Pro",
       "checkoutUrl": "",
       "checkout": {
-        "status": "template_pack_2_specs_ready",
+        "status": "template_pack_2_assets_ready",
         "primaryProvider": "Lemon Squeezy",
         "fallbackProvider": "Gumroad",
         "mode": "hosted_checkout",
@@ -1152,9 +1161,14 @@ window.SQX_MANIFEST = {
         "templatePack2SpecsTool": "backend/sqx-edge-tool/tools/template_pack_2_specs.py",
         "templatePack2SpecsEvidenceDir": "backend/sqx-edge-tool/data/template_pack_2_specs",
         "templatePack2SpecsPolicy": "define_pack_2_scope_assets_presets_support_delivery_and_next_phase_before_building_resources",
+        "templatePack2AssetsConfig": "backend/sqx-edge-tool/config/template_pack_2_assets.json",
+        "templatePack2ResourceDir": "resources/pro-template-pack-2",
+        "templatePack2AssetsTool": "backend/sqx-edge-tool/tools/template_pack_2_assets.py",
+        "templatePack2AssetsEvidenceDir": "backend/sqx-edge-tool/data/template_pack_2_assets",
+        "templatePack2AssetsPolicy": "deliver_initial_pack_2_assets_as_separate_addon_zip_after_specs_gate_and_safe_claims_review",
         "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
         "automation": {
-          "status": "template_pack_2_specs_ready",
+          "status": "template_pack_2_assets_ready",
           "webhookProvider": "Lemon Squeezy",
           "webhookSignatureHeader": "X-Signature",
           "webhookSigningAlgorithm": "hmac_sha256_hex",
@@ -1302,6 +1316,15 @@ window.SQX_MANIFEST = {
             "billing": "one_time_addon",
             "licenseDurationDays": 0,
             "activationLimit": 0
+          },
+          {
+            "plan": "template_pack_2",
+            "label": "Template Pack 2",
+            "providerVariantId": "",
+            "price": "79 EUR",
+            "billing": "one_time_addon",
+            "licenseDurationDays": 0,
+            "activationLimit": 0
           }
         ],
         "postPurchaseSteps": [
@@ -1310,7 +1333,7 @@ window.SQX_MANIFEST = {
           "Preparar entrega con prepare_customer_delivery.ps1.",
           "Validar buyer onboarding support gate antes de entregar.",
           "Enviar ZIP portable, licencia JSON, START_HERE.md, FAQ y plantilla de soporte al cliente.",
-          "Si compra Template Pack 1, generar y entregar el ZIP add-on separado."
+          "Si compra Template Pack 1 o Template Pack 2, generar y entregar el ZIP add-on separado."
         ]
       }
     },

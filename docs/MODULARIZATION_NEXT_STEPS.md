@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M57 - Template Pack 2 Initial Specs.
-- Current product/commercial state: `template_pack_2_specs_ready`.
+- Current completed phase: M58 - Template Pack 2 Initial Assets.
+- Current product/commercial state: `template_pack_2_assets_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
-- Last synced base commit before M57: `3ca1a36`.
+- Last synced base commit before M58: `f393267`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M58 - Template Pack 2 Initial Assets Or Selected Alternative.
+- Next recommended phase: M59 - Template Pack 2 Offer Pack.
 
 ## Recommended Order
 
@@ -103,4 +103,5 @@ Persistent planning note for the next SQX Edge phases.
 55. Phase M55: review the add-on buyer cohort and real feedback before expanding traffic or building Template Pack 2. Done.
 56. Phase M56: turn feedback into an offer iteration or Template Pack 2 action plan. Done.
 57. Phase M57: execute the selected action plan as Template Pack 2 initial specs with scope, assets, support, delivery and next phase. Done.
-58. Phase M58: create Template Pack 2 initial assets or execute the selected alternative from the specs gate. Recommended next.
+58. Phase M58: create Template Pack 2 initial assets from the specs gate. Done.
+59. Phase M59: prepare Template Pack 2 offer pack with public copy, FAQ, checkout draft, delivery macro and support macro. Recommended next.

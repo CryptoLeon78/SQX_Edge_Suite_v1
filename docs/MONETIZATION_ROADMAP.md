@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M57 - Template Pack 2 Initial Specs.
-- Current state: `template_pack_2_specs_ready`.
+- Completed through: M58 - Template Pack 2 Initial Assets.
+- Current state: `template_pack_2_assets_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M58 - Template Pack 2 Initial Assets Or Selected Alternative.
+- Next recommended phase: M59 - Template Pack 2 Offer Pack.
 
 ## Decision Base
 
@@ -1255,3 +1255,25 @@ Decision M57:
 - `draft_pack_2_assets` exige action plan GO, feedback mapeado, familias de activos, presets, soporte, entrega y cero riesgo de claims.
 - Si Pack 1 necesita correccion previa se usa `iterate_pack_1_first`; si hay riesgo operativo se usa `pause_pack_2`.
 - El siguiente paso real es M58: crear recursos iniciales de Template Pack 2 o ejecutar la alternativa indicada por la especificacion.
+
+## Phase M58 - Template Pack 2 Initial Assets
+
+Objetivo: convertir las specs M57 en recursos iniciales reales para Template Pack 2 como add-on separado.
+
+Entregables:
+
+- Estado `template_pack_2_assets_ready`.
+- Configuracion `backend/sqx-edge-tool/config/template_pack_2_assets.json`.
+- Recursos buyer-facing en `resources/pro-template-pack-2`.
+- Guia interna `docs/sales/TEMPLATE_PACK_2_ASSETS.md`.
+- Gate interno `backend/sqx-edge-tool/tools/template_pack_2_assets.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_2_assets`.
+
+Estado: Done.
+
+Decision M58:
+
+- Template Pack 2 queda materializado con 3 perfiles JSON, 8 presets CSV y checklists de entrega/soporte/claims.
+- El pack se entrega como ZIP add-on separado y no forma parte del portable principal.
+- No contiene licencias, claves privadas, payloads de proveedor ni eventos crudos.
+- El siguiente paso real es M59: preparar oferta controlada de Template Pack 2 con copy publico, FAQ, checkout draft y macros.

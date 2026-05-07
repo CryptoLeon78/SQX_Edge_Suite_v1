@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 2 assets
+
+- Anade M58 con recursos iniciales reales para Template Pack 2.
+- Anade `template_pack_2_assets.py` para validar perfiles, presets CSV, soporte, safe claims y empaquetado add-on separado.
+- Actualiza estado comercial a `template_pack_2_assets_ready`.
+- Mantiene Template Pack 2 fuera del ZIP portable principal y listo como add-on separado.
+
 ## 2026-05-07 - Template Pack 2 specs
 
 - Anade M57 con especificacion inicial de Template Pack 2 derivada del action plan M56.

@@ -113,6 +113,7 @@ function Test-PortableZip {
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\template_pack_1_feedback_cohort.py")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\template_pack_1_action_plan.py")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\template_pack_2_specs.py")
+    Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\template_pack_2_assets.py")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\fulfillment_request.py")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\fulfill_from_request.ps1")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\relay_bundle.py")
@@ -134,7 +135,9 @@ function Test-PortableZip {
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\data\template_pack_1_feedback_cohort")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\data\template_pack_1_action_plan")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\data\template_pack_2_specs")
+    Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\data\template_pack_2_assets")
     Assert-DirExcluded (Join-Path $TempRoot "resources\pro-template-pack-1")
+    Assert-DirExcluded (Join-Path $TempRoot "resources\pro-template-pack-2")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\venv")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\config.json")
 

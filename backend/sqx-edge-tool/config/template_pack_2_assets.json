@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "state": "template_pack_2_assets_ready",
+  "name": "Template Pack 2",
+  "offerId": "template_pack_2",
+  "resourceDir": "resources/pro-template-pack-2",
+  "includedInPortable": false,
+  "includedInAddOnDelivery": true,
+  "packageNamePrefix": "SQX_Template_Pack_2",
+  "dependsOn": {
+    "templatePack2SpecsConfig": "backend/sqx-edge-tool/config/template_pack_2_specs.json",
+    "templatePack2SpecsState": "template_pack_2_specs_ready",
+    "requiredSpecDecision": "draft_pack_2_assets",
+    "requiredNextPhase": "M58_template_pack_2_assets"
+  },
+  "requiredFiles": [
+    "resources/pro-template-pack-2/README.md",
+    "resources/pro-template-pack-2/profiles/breakout-expansion-lab.json",
+    "resources/pro-template-pack-2/profiles/volatility-regime-switchboard.json",
+    "resources/pro-template-pack-2/profiles/multi-timeframe-confirmation.json",
+    "resources/pro-template-pack-2/presets/strategy_import_template_pack_2.csv",
+    "resources/pro-template-pack-2/checklists/delivery_checklist.md",
+    "resources/pro-template-pack-2/checklists/support_boundaries.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md",
+    "docs/sales/TEMPLATE_PACK_2_ASSETS.md"
+  ],
+  "profileRequiredFields": [
+    "id",
+    "label",
+    "description",
+    "assetClasses",
+    "timeframes",
+    "indicatorFamilies",
+    "riskNotes",
+    "expectedWorkflow",
+    "buyerFeedbackTheme",
+    "presetFamily"
+  ],
+  "csvDelimiter": ";",
+  "csvRequiredColumns": [
+    "Template",
+    "Asset Family",
+    "Buyer Theme",
+    "Use Case",
+    "Asset Class",
+    "Timeframes",
+    "Indicator Families",
+    "Risk Note",
+    "Workflow Step"
+  ],
+  "minimumProfiles": 3,
+  "minimumPresetRows": 8,
+  "minimumAssetFamilies": 2,
+  "deliveryConfirmations": [
+    "specs_go",
+    "asset_files_present",
+    "profile_schema_validated",
+    "preset_csv_validated",
+    "support_boundaries_included",
+    "safe_claims_reviewed",
+    "addon_delivery_separate"
+  ],
+  "safeClaims": [
+    "Plantillas operativas para ampliar exploracion y orden de trabajo.",
+    "Perfiles editables para preparar discovery, confirmacion multi-timeframe y regimen de volatilidad.",
+    "Material local para usuarios Pro que ya validan sus propios criterios.",
+    "No sustituye pruebas, control de riesgo ni decision del usuario."
+  ],
+  "forbiddenClaims": [
+    "beneficios garantizados",
+    "estrategias ganadoras",
+    "rentabilidad asegurada",
+    "resultados financieros garantizados",
+    "sin riesgo",
+    "asesoramiento financiero"
+  ]
+}
