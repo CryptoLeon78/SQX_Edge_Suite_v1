@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "state": "template_pack_2_purchase_drill_ready",
+  "drillId": "template_pack_2_controlled_purchase_drill",
+  "offerId": "template_pack_2",
+  "name": "Template Pack 2 Controlled Purchase Drill",
+  "provider": "Lemon Squeezy",
+  "fallbackProvider": "Gumroad",
+  "price": "79 EUR",
+  "amount": "79.00",
+  "currency": "EUR",
+  "billing": "one_time_addon",
+  "dependsOn": {
+    "publicationConfig": "backend/sqx-edge-tool/config/template_pack_2_publication.json",
+    "publicationState": "template_pack_2_controlled_publication_ready",
+    "assetsConfig": "backend/sqx-edge-tool/config/template_pack_2_assets.json",
+    "assetsState": "template_pack_2_assets_ready"
+  },
+  "requiredFiles": [
+    "backend/sqx-edge-tool/config/template_pack_2_publication.json",
+    "backend/sqx-edge-tool/config/template_pack_2_assets.json",
+    "backend/sqx-edge-tool/tools/template_pack_2_publication.py",
+    "backend/sqx-edge-tool/tools/template_pack_2_assets.py",
+    "docs/sales/TEMPLATE_PACK_2_CONTROLLED_PUBLICATION.md",
+    "docs/sales/TEMPLATE_PACK_2_ASSETS.md",
+    "docs/sales/TEMPLATE_PACK_2_PURCHASE_DRILL.md",
+    "resources/pro-template-pack-2/README.md",
+    "resources/pro-template-pack-2/presets/strategy_import_template_pack_2.csv",
+    "resources/pro-template-pack-2/checklists/delivery_checklist.md",
+    "resources/pro-template-pack-2/checklists/support_boundaries.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "requiredConfirmations": [
+    "live_checkout_values_confirmed",
+    "controlled_purchase_paid",
+    "provider_order_recorded",
+    "delivery_package_ready",
+    "delivery_email_ready",
+    "support_inbox_ready",
+    "safe_claims_reviewed",
+    "refund_or_pause_ready"
+  ],
+  "allowedPaymentStatuses": [
+    "paid",
+    "succeeded",
+    "completed"
+  ],
+  "forbiddenPlaceholders": [
+    "example.com",
+    "localhost",
+    "127.0.0.1",
+    "TODO",
+    "draft",
+    "placeholder",
+    "test_order"
+  ],
+  "privacyPolicy": "store_redacted_buyer_email_and_order_reference_only",
+  "successCriteria": [
+    "Checkout matches template_pack_2.",
+    "Provider order id and variant id are recorded.",
+    "Payment status is paid/succeeded/completed.",
+    "Add-on ZIP is separate from the base portable ZIP.",
+    "Delivery email and support inbox are ready.",
+    "Refund or pause path is ready before scaling."
+  ]
+}

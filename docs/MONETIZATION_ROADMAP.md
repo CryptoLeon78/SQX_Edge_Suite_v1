@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M60 - Template Pack 2 Controlled Publication.
-- Current state: `template_pack_2_controlled_publication_ready`.
+- Completed through: M61 - Template Pack 2 Controlled Purchase Drill.
+- Current state: `template_pack_2_purchase_drill_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M61 - Template Pack 2 Controlled Purchase Drill.
+- Next recommended phase: M62 - Template Pack 2 Post-Purchase Handoff.
 
 ## Decision Base
 
@@ -1320,3 +1320,24 @@ Decision M60:
 - El purchase drill queda como checklist previo a la primera venta controlada.
 - La escritura de valores reales en manifest requiere `--apply`.
 - El siguiente paso real es M61: ejecutar purchase drill controlado con evidencia redacted.
+
+## Phase M61 - Template Pack 2 Controlled Purchase Drill
+
+Objetivo: preparar y validar una compra controlada real de Template Pack 2 antes de escalar la publicacion del add-on.
+
+Entregables:
+
+- Estado `template_pack_2_purchase_drill_ready`.
+- Configuracion `backend/sqx-edge-tool/config/template_pack_2_purchase_drill.json`.
+- Guia interna `docs/sales/TEMPLATE_PACK_2_PURCHASE_DRILL.md`.
+- Gate interno `backend/sqx-edge-tool/tools/template_pack_2_purchase_drill.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_2_purchase_drill`.
+
+Estado: Done.
+
+Decision M61:
+
+- El gate exige checkout URL, provider variant ID, order ID, buyer email, estado de pago, importe, moneda y confirmaciones operativas.
+- La evidencia redacta el email del comprador y no guarda payloads crudos del proveedor.
+- Puede verificar el ZIP add-on separado cuando se pasa `--require-delivery-package`.
+- El siguiente paso real es M62: handoff posterior a compra, soporte inicial y decision de escalar o pausar Template Pack 2.

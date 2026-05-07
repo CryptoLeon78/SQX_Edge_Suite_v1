@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 2 purchase drill
+
+- Anade M61 con compra controlada de Template Pack 2.
+- Anade `template_pack_2_purchase_drill.py` para validar pedido, pago, entrega, soporte y refund/pause.
+- Actualiza estado comercial a `template_pack_2_purchase_drill_ready`.
+- Mantiene evidencia redactada y fuera del ZIP portable.
+
 ## 2026-05-07 - Template Pack 2 controlled publication
 
 - Anade M60 con puerta de publicacion controlada para Template Pack 2.
