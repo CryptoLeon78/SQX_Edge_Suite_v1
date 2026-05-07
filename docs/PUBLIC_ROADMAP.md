@@ -23,10 +23,11 @@ Last updated: 2026-05-07.
 - Registro interno de ventas add-on preparado para revisar comprador, entrega, soporte, refunds y decision de escala con datos redactados.
 - Revision de cohorte de compradores preparada para decidir iteracion, mas trafico, pausa o Template Pack 2 con feedback agregado.
 - Plan accionable preparado para convertir feedback en iteracion de oferta, expansion controlada, pausa/fix o specs de Template Pack 2.
+- Especificacion inicial de Template Pack 2 preparada con alcance, presets, soporte, entrega y claims seguros.
 
 ## Next
 
-- Ejecutar el plan elegido: iteracion de oferta, specs de Template Pack 2, expansion controlada o pausa/fix.
+- Crear recursos iniciales de Template Pack 2 o ejecutar la alternativa indicada por la especificacion.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.

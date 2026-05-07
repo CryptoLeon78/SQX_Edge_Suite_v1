@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M56 - Template Pack 1 Iteration Or Pack 2 Action Plan.
-- Current state: `template_pack_1_action_plan_ready`.
+- Completed through: M57 - Template Pack 2 Initial Specs.
+- Current state: `template_pack_2_specs_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M57 - Execute Selected Template Pack 1 Action Plan.
+- Next recommended phase: M58 - Template Pack 2 Initial Assets Or Selected Alternative.
 
 ## Decision Base
 
@@ -1234,3 +1234,24 @@ Decision M56:
 - No guarda mensajes crudos de comprador ni payloads de proveedor.
 - El plan debe derivar de la decision M55 y apuntar a `M57_offer_iteration`, `M57_template_pack_2_specs`, `M57_traffic_expansion` o `M57_pause_and_fix`.
 - El siguiente paso real es M57: ejecutar el plan elegido.
+
+## Phase M57 - Template Pack 2 Initial Specs
+
+Objetivo: ejecutar el plan M56 cuando la ruta elegida es Template Pack 2, definiendo alcance, activos, presets, soporte, entrega y siguiente fase antes de crear recursos comerciales.
+
+Entregables:
+
+- Estado `template_pack_2_specs_ready`.
+- Configuracion `backend/sqx-edge-tool/config/template_pack_2_specs.json`.
+- Guia interna `docs/sales/TEMPLATE_PACK_2_SPECS.md`.
+- Gate interno `backend/sqx-edge-tool/tools/template_pack_2_specs.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_2_specs`.
+
+Estado: Done.
+
+Decision M57:
+
+- Template Pack 2 queda como especificacion trazable antes de crear recursos buyer-facing.
+- `draft_pack_2_assets` exige action plan GO, feedback mapeado, familias de activos, presets, soporte, entrega y cero riesgo de claims.
+- Si Pack 1 necesita correccion previa se usa `iterate_pack_1_first`; si hay riesgo operativo se usa `pause_pack_2`.
+- El siguiente paso real es M58: crear recursos iniciales de Template Pack 2 o ejecutar la alternativa indicada por la especificacion.

@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "state": "template_pack_2_specs_ready",
+  "specId": "template_pack_2_initial_specs",
+  "offerId": "template_pack_2",
+  "name": "Template Pack 2 Initial Specs",
+  "dependsOn": {
+    "actionPlanConfig": "backend/sqx-edge-tool/config/template_pack_1_action_plan.json",
+    "actionPlanState": "template_pack_1_action_plan_ready",
+    "requiredActionPlan": "template_pack_2"
+  },
+  "requiredFiles": [
+    "backend/sqx-edge-tool/config/template_pack_1_action_plan.json",
+    "backend/sqx-edge-tool/tools/template_pack_1_action_plan.py",
+    "docs/sales/TEMPLATE_PACK_1_ACTION_PLAN.md",
+    "docs/sales/TEMPLATE_PACK_2_SPECS.md",
+    "resources/pro-template-pack-1/README.md"
+  ],
+  "requiredConfirmations": [
+    "action_plan_go",
+    "buyer_feedback_mapped",
+    "scope_defined",
+    "safe_claims_reviewed",
+    "support_boundaries_defined",
+    "delivery_model_defined",
+    "next_phase_recorded"
+  ],
+  "allowedSpecDecisions": [
+    "draft_pack_2_assets",
+    "iterate_pack_1_first",
+    "pause_pack_2"
+  ],
+  "allowedNextPhases": [
+    "M58_template_pack_2_assets",
+    "M58_pack_1_iteration",
+    "M58_pause_pack_2"
+  ],
+  "minimumAssetFamilies": 2,
+  "minimumPresetCount": 6,
+  "minimumFeedbackThemesMapped": 2,
+  "maxClaimsRisk": 0,
+  "privacyPolicy": "store_redacted_pack_2_scope_assets_support_delivery_and_next_phase_only",
+  "specPolicy": "derive_pack_2_scope_from_feedback_without_raw_buyer_messages_or_provider_payloads",
+  "decisionRules": [
+    "draft_pack_2_assets requires action plan GO, enough feedback themes, asset families, presets, support boundaries and zero claims risk.",
+    "iterate_pack_1_first is used when feedback points to documentation, onboarding or Pack 1 fixes before a new pack.",
+    "pause_pack_2 is required when support, delivery or claims risk is unresolved."
+  ]
+}

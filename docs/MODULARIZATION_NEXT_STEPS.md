@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M56 - Template Pack 1 Iteration Or Pack 2 Action Plan.
-- Current product/commercial state: `template_pack_1_action_plan_ready`.
+- Current completed phase: M57 - Template Pack 2 Initial Specs.
+- Current product/commercial state: `template_pack_2_specs_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
-- Last synced base commit before M56: `c2f3c91`.
+- Last synced base commit before M57: `3ca1a36`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M57 - Execute Selected Template Pack 1 Action Plan.
+- Next recommended phase: M58 - Template Pack 2 Initial Assets Or Selected Alternative.
 
 ## Recommended Order
 
@@ -102,4 +102,5 @@ Persistent planning note for the next SQX Edge phases.
 54. Phase M54: consolidate a lightweight add-on sales register before wider public traffic. Done.
 55. Phase M55: review the add-on buyer cohort and real feedback before expanding traffic or building Template Pack 2. Done.
 56. Phase M56: turn feedback into an offer iteration or Template Pack 2 action plan. Done.
-57. Phase M57: execute the selected action plan: offer iteration, Template Pack 2 specs, traffic expansion or pause/fix. Recommended next.
+57. Phase M57: execute the selected action plan as Template Pack 2 initial specs with scope, assets, support, delivery and next phase. Done.
+58. Phase M58: create Template Pack 2 initial assets or execute the selected alternative from the specs gate. Recommended next.

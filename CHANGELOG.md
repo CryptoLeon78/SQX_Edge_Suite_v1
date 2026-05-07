@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 2 specs
+
+- Anade M57 con especificacion inicial de Template Pack 2 derivada del action plan M56.
+- Anade `template_pack_2_specs.py` para validar alcance, familias de activos, presets, soporte, entrega, claims y siguiente fase.
+- Actualiza estado comercial a `template_pack_2_specs_ready`.
+- Mantiene Pack 2 como especificacion trazable antes de crear recursos comerciales.
+
 ## 2026-05-07 - Template Pack 1 action plan
 
 - Anade M56 con plan accionable para iterar oferta, ampliar trafico, preparar Template Pack 2 o pausar ventas.
