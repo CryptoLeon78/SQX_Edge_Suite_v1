@@ -15,6 +15,8 @@ assert.ok(html.includes('id="vc-metric-list"'), 'missing metric catalog mount');
 assert.ok(html.includes('id="vc-download-btn"'), 'missing .vw download button');
 assert.ok(html.includes('id="vc-save-preset-btn"'), 'missing saved preset button');
 assert.ok(html.includes('id="vc-saved-select"'), 'missing saved preset selector');
+assert.ok(html.includes('id="vc-export-presets-btn"'), 'missing preset pack export button');
+assert.ok(html.includes('id="vc-import-presets-btn"'), 'missing preset pack import button');
 assert.ok(html.includes('js/modules/view-creator.js'), 'missing view creator script');
 assert.ok(mainJs.includes('window.SQX.viewCreator.init()'), 'main.js must initialize view creator');
 assert.ok(uiManifest.tabs.some(tab => tab.id === 'views' && tab.label === 'SQX Views'), 'ui manifest missing SQX Views tab');
@@ -69,5 +71,37 @@ assert.equal(viewCreator.storageKey, 'sqx_view_creator_presets_v1');
 viewCreator.setSavedPresets([{ id: 'risk-view', name: 'Risk View', config: savedConfig }]);
 assert.equal(viewCreator.getSavedPresets().length, 1);
 assert.equal(viewCreator.getSavedPresets()[0].config.yearCount, 5);
+assert.equal(viewCreator.packageType, 'sqx-edge.view-presets');
+assert.equal(viewCreator.packageVersion, 1);
+
+const presetPack = viewCreator.buildPresetPackage();
+assert.equal(presetPack.type, 'sqx-edge.view-presets');
+assert.equal(presetPack.presets.length, 1);
+assert.equal(presetPack.presets[0].id, 'risk-view');
+
+const importResult = viewCreator.importPresetPackageFromText(JSON.stringify({
+  type: 'sqx-edge.view-presets',
+  version: 1,
+  presets: [{
+    id: 'risk-view',
+    name: 'Risk View Imported',
+    config: {
+      viewName: 'Risk View Imported',
+      yearCount: 6,
+      sampleStart: 22,
+      includeTotal: true,
+      groupMode: 'by_year',
+      metrics: [
+        { className: 'Symbol', annual: false },
+        { className: 'NetProfit', annual: true },
+        { className: 'UnknownMetric', annual: true },
+      ],
+    },
+  }],
+}));
+assert.equal(importResult.imported, 1);
+assert.equal(viewCreator.getSavedPresets().length, 1);
+assert.equal(viewCreator.getSavedPresets()[0].name, 'Risk View Imported');
+assert.equal(viewCreator.getSavedPresets()[0].config.metrics.length, 2);
 
 console.log('view creator contracts ok');

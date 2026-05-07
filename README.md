@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: V2 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: V3 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado antes de M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - SHA256 del ZIP: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
 - Siguiente paso recomendado: ejecutar solo una ampliacion minima y reversible de trafico si M81 emite `approve_tiny_traffic_expansion`; mantener monitorizacion si no.
-- Ultima mejora funcional: SQX Views genera vistas `.vw` anuales nativas y guarda presets propios reutilizables.
+- Ultima mejora funcional: SQX Views genera vistas `.vw` anuales nativas y permite exportar/importar packs JSON de presets propios.
 
 ## SQX Edge Pro
 
@@ -91,7 +91,7 @@ SQX Views:
 
 - El tab `SQX Views` genera archivos `.vw` para Databank sin depender de Python externo.
 - Free incluye el preset `EGT Core`; Pro desbloquea el catalogo completo y presets avanzados.
-- Puedes guardar presets propios en el navegador para reutilizar combinaciones de metricas.
+- Puedes guardar presets propios en el navegador y moverlos entre instalaciones con packs JSON exportables/importables.
 - La vista descargada puede cargarse en StrategyQuant X desde Databank -> Load View.
 
 ## Entrega Final

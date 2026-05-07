@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - V3 SQX View Creator preset packs
+
+- Anade exportacion/importacion JSON para presets propios de SQX Views.
+- Valida metricas conocidas al importar y fusiona packs sin duplicar presets existentes.
+- Refuerza contratos JS y E2E para cubrir handoff portable entre instalaciones.
+
 ## 2026-05-07 - V2 SQX View Creator preset persistence
 
 - Anade presets propios guardados en `localStorage` para SQX Views.

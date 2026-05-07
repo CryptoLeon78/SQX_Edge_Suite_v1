@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { mkdir } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -82,12 +82,21 @@ async function run() {
     await desktop.locator('#vc-preset-name').fill('Risk V2 Smoke');
     await desktop.locator('#vc-save-preset-btn').click();
     await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').length === 1);
+    const exportedPack = await desktop.evaluate(() => window.SQX.viewCreator.buildPresetPackage());
+    if (exportedPack.type !== 'sqx-edge.view-presets' || exportedPack.presets.length !== 1) throw new Error('SQX Views export pack contract failed');
     await desktop.locator('[data-vc-preset="egt-core"]').click();
     await desktop.waitForFunction(() => document.getElementById('vc-column-count')?.textContent.trim() === '64');
     await desktop.locator('#vc-load-preset-btn').click();
     await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
     await desktop.locator('#vc-delete-preset-btn').click();
     await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').length === 0);
+    await mkdir(screenshotDir, { recursive: true });
+    const importPackPath = path.join(screenshotDir, 'view-preset-pack-smoke.json');
+    await writeFile(importPackPath, JSON.stringify(exportedPack, null, 2), 'utf8');
+    await desktop.locator('#vc-import-presets-file').setInputFiles(importPackPath);
+    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').length === 1);
+    await desktop.locator('#vc-load-preset-btn').click();
+    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
     await saveShot(desktop, 'e2e-view-creator-desktop.png');
     await desktop.locator('.tab[data-tab="estrategias"]').click();
     await desktop.waitForSelector('#tab-estrategias .strat-card');

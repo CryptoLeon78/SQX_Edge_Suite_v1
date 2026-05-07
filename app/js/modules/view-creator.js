@@ -7,6 +7,8 @@
   var raw = config.raw || global.SQX_CONFIG || {};
   var storageKeys = raw.storageKeys || {};
   var presetsStorageKey = storageKeys.viewCreatorPresets || 'sqx_view_creator_presets_v1';
+  var PRESET_PACKAGE_TYPE = 'sqx-edge.view-presets';
+  var PRESET_PACKAGE_VERSION = 1;
 
   var CATEGORY_LABELS = {
     fixed: 'Identificacion / contexto',
@@ -187,7 +189,8 @@
   }
 
   function setSavedPresets(presets) {
-    global.localStorage.setItem(presetsStorageKey, JSON.stringify((presets || []).slice(0, 30)));
+    var clean = (presets || []).map(normalizePreset).filter(Boolean).slice(0, 30);
+    global.localStorage.setItem(presetsStorageKey, JSON.stringify(clean));
     return getSavedPresets();
   }
 
@@ -293,6 +296,77 @@
         };
       })
     };
+  }
+
+  function normalizeConfig(config) {
+    var cfg = config || {};
+    var metrics = Array.isArray(cfg.metrics) ? cfg.metrics.map(function(item) {
+      var metric = item && metricByClass(item.className);
+      if (!metric) return null;
+      return {
+        className: metric.className,
+        annual: metric.category !== 'fixed' && item.annual !== false
+      };
+    }).filter(Boolean) : [];
+    return {
+      viewName: String(cfg.viewName || 'EGT - Anual').trim() || 'EGT - Anual',
+      yearCount: sanitizeInt(cfg.yearCount, 9, 1, 30),
+      sampleStart: sanitizeInt(cfg.sampleStart, 21, 0, 126),
+      includeTotal: cfg.includeTotal !== false,
+      groupMode: cfg.groupMode === 'by_metric' ? 'by_metric' : 'by_year',
+      metrics: metrics
+    };
+  }
+
+  function normalizePreset(item) {
+    if (!item || typeof item !== 'object') return null;
+    var config = normalizeConfig(item.config);
+    if (!config.metrics.length) return null;
+    var name = String(item.name || config.viewName || 'Vista SQX').trim() || 'Vista SQX';
+    return {
+      id: presetIdFromName(item.id || name),
+      name: name,
+      savedAt: String(item.savedAt || new Date().toISOString()),
+      config: config
+    };
+  }
+
+  function buildPresetPackage(presets) {
+    return {
+      type: PRESET_PACKAGE_TYPE,
+      version: PRESET_PACKAGE_VERSION,
+      app: 'SQX Edge',
+      exportedAt: new Date().toISOString(),
+      presets: (presets || getSavedPresets()).map(normalizePreset).filter(Boolean)
+    };
+  }
+
+  function parsePresetPackage(payload) {
+    var data = typeof payload === 'string' ? safeJsonParse(payload, null) : payload;
+    if (!data) return [];
+    if (Array.isArray(data)) return data.map(normalizePreset).filter(Boolean);
+    if (Array.isArray(data.presets)) return data.presets.map(normalizePreset).filter(Boolean);
+    if (data.config) return [normalizePreset(data)].filter(Boolean);
+    return [];
+  }
+
+  function importPresetPackage(payload) {
+    var incoming = parsePresetPackage(payload);
+    if (!incoming.length) {
+      return { imported: 0, presets: getSavedPresets() };
+    }
+    var incomingIds = incoming.reduce(function(acc, preset) {
+      acc[preset.id] = true;
+      return acc;
+    }, {});
+    var merged = incoming.concat(getSavedPresets().filter(function(preset) {
+      return !incomingIds[preset.id];
+    }));
+    return { imported: incoming.length, presets: setSavedPresets(merged) };
+  }
+
+  function importPresetPackageFromText(text) {
+    return importPresetPackage(String(text || ''));
   }
 
   function applyConfig(savedConfig) {
@@ -520,6 +594,47 @@
     setStatus('Preset eliminado: ' + preset.name, 'ok');
   }
 
+  function downloadJson(filename, payload) {
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var link = global.document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    global.document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function exportPresetPackage() {
+    var presets = getSavedPresets();
+    if (!presets.length) {
+      setStatus('Guarda al menos un preset antes de exportar.', 'warn');
+      return;
+    }
+    var pack = buildPresetPackage(presets);
+    var day = new Date().toISOString().slice(0, 10);
+    downloadJson('sqx-view-presets-' + day + '.json', pack);
+    setStatus('Pack exportado: ' + pack.presets.length + ' presets.', 'ok');
+  }
+
+  function importPresetFile(file) {
+    if (!file) {
+      setStatus('Selecciona un pack JSON de presets.', 'warn');
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function() {
+      var result = importPresetPackageFromText(reader.result || '');
+      renderSavedPresets();
+      setStatus(result.imported ? 'Pack importado: ' + result.imported + ' presets.' : 'El pack no contiene presets validos.', result.imported ? 'ok' : 'warn');
+    };
+    reader.onerror = function() {
+      setStatus('No se pudo leer el pack de presets.', 'error');
+    };
+    reader.readAsText(file);
+  }
+
   function downloadView() {
     var opts = updatePreview();
     if (!opts.selected.length) {
@@ -585,6 +700,14 @@
     if (byId('vc-save-preset-btn')) byId('vc-save-preset-btn').addEventListener('click', saveCurrentPreset);
     if (byId('vc-load-preset-btn')) byId('vc-load-preset-btn').addEventListener('click', loadSavedPreset);
     if (byId('vc-delete-preset-btn')) byId('vc-delete-preset-btn').addEventListener('click', deleteSavedPreset);
+    if (byId('vc-export-presets-btn')) byId('vc-export-presets-btn').addEventListener('click', exportPresetPackage);
+    if (byId('vc-import-presets-btn') && byId('vc-import-presets-file')) {
+      byId('vc-import-presets-btn').addEventListener('click', function() { byId('vc-import-presets-file').click(); });
+      byId('vc-import-presets-file').addEventListener('change', function(event) {
+        importPresetFile(event.target.files && event.target.files[0]);
+        event.target.value = '';
+      });
+    }
   }
 
   function init() {
@@ -605,10 +728,15 @@
     columnSpecs: columnSpecs,
     countColumns: countColumns,
     downloadView: downloadView,
+    buildPresetPackage: buildPresetPackage,
+    importPresetPackage: importPresetPackage,
+    importPresetPackageFromText: importPresetPackageFromText,
     getSavedPresets: getSavedPresets,
     groupedMetrics: groupedMetrics,
     init: init,
     metrics: METRICS,
+    packageType: PRESET_PACKAGE_TYPE,
+    packageVersion: PRESET_PACKAGE_VERSION,
     previewLines: previewLines,
     sanitizeInt: sanitizeInt,
     saveCurrentPreset: saveCurrentPreset,
