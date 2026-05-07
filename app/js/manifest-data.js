@@ -943,7 +943,9 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/tools/private_commercial_split.py",
         "backend/sqx-edge-tool/tools/fulfillment_request.py",
         "backend/sqx-edge-tool/tools/fulfill_from_request.ps1",
-        "backend/sqx-edge-tool/tools/relay_bundle.py"
+        "backend/sqx-edge-tool/tools/relay_bundle.py",
+        "backend/sqx-edge-tool/data/controlled_publication_gate",
+        "backend/sqx-edge-tool/tools/controlled_publication_gate.py"
       ],
       "releaseAudit": "backend/sqx-edge-tool/tools/audit_distribution.ps1"
     },
@@ -1099,7 +1101,7 @@ window.SQX_MANIFEST = {
       "checkoutLabel": "Comprar Pro",
       "checkoutUrl": "",
       "checkout": {
-        "status": "private_asset_review_ready",
+        "status": "controlled_publication_gate_ready",
         "primaryProvider": "Lemon Squeezy",
         "fallbackProvider": "Gumroad",
         "mode": "hosted_checkout",
@@ -1272,7 +1274,7 @@ window.SQX_MANIFEST = {
         "privateAssetReviewPolicy": "approve_asset_for_controlled_publication_only_after_private_review_safe_claims_support_release_notes_and_rollback",
         "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
         "automation": {
-          "status": "private_asset_review_ready",
+          "status": "controlled_publication_gate_ready",
           "webhookProvider": "Lemon Squeezy",
           "webhookSignatureHeader": "X-Signature",
           "webhookSigningAlgorithm": "hmac_sha256_hex",
@@ -1438,7 +1440,11 @@ window.SQX_MANIFEST = {
           "Validar buyer onboarding support gate antes de entregar.",
           "Enviar ZIP portable, licencia JSON, START_HERE.md, FAQ y plantilla de soporte al cliente.",
           "Si compra Template Pack 1 o Template Pack 2, generar y entregar el ZIP add-on separado."
-        ]
+        ],
+        "controlledPublicationGateConfig": "backend/sqx-edge-tool/config/controlled_publication_gate.json",
+        "controlledPublicationGateTool": "backend/sqx-edge-tool/tools/controlled_publication_gate.py",
+        "controlledPublicationGateEvidenceDir": "backend/sqx-edge-tool/data/controlled_publication_gate",
+        "controlledPublicationGatePolicy": "prepare_controlled_publication_only_after_private_asset_review_support_safe_claims_release_notes_rollback_and_pause_rule_are_ready"
       }
     },
     "marketing": {

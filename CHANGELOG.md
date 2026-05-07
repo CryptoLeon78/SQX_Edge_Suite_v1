@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - M76 controlled publication gate
+
+- Anade gate interno para preparar publicacion controlada solo despues de la revision privada M75.
+- Actualiza estado comercial a `controlled_publication_gate_ready`.
+- Mantiene la guia operativa completa en el repo privado y deja punteros publicos para M76.
+
 ## 2026-05-07 - M75 private asset review
 
 - Anade gate interno para revisar privadamente el asset comprador-facing antes de publicacion o trafico.

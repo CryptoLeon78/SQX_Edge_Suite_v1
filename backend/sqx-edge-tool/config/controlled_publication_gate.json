@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "state": "controlled_publication_gate_ready",
+  "gateId": "controlled_publication_gate",
+  "offerId": "sqx_edge_pro_controlled_publication_gate",
+  "name": "Controlled Publication Gate",
+  "dependsOn": {
+    "privateAssetReviewConfig": "backend/sqx-edge-tool/config/private_asset_review.json",
+    "privateAssetReviewState": "private_asset_review_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/CONTROLLED_PUBLICATION_GATE.md",
+    "docs/sales/PRIVATE_ASSET_REVIEW.md",
+    "docs/sales/NEXT_BUYER_FACING_ASSET.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "allowedSourceDecisions": [
+    "prepare_controlled_publication"
+  ],
+  "allowedChannels": [
+    "private_link",
+    "limited_public_page",
+    "controlled_existing_audience"
+  ],
+  "allowedDecisions": [
+    "prepare_limited_publication",
+    "hold_for_fix",
+    "pause_sales"
+  ],
+  "maximumAudienceCap": 10,
+  "minimumReviewers": 1,
+  "maximumOpenRisks": 0,
+  "privacyPolicy": "store_only_redacted_publication_channel_cap_decision_owner_and_risk_counts_without_buyer_identity_checkout_payloads_or_license_files",
+  "publicationPolicy": "prepare_controlled_publication_only_after_private_asset_review_support_safe_claims_release_notes_rollback_and_pause_rule_are_ready",
+  "decisionRules": [
+    "prepare_limited_publication requires an approved M75 decision, limited channel, audience cap, safe claims, support, release notes, rollback and pause rule.",
+    "open risks require hold_for_fix or pause_sales.",
+    "audience cap above maximum blocks limited publication.",
+    "this gate never publishes automatically; it only prepares the operator decision."
+  ]
+}
