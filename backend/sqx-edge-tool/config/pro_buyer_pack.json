@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "state": "pro_buyer_pack_ready",
+  "resourceDir": "resources/pro-buyer-pack",
+  "includedInPortable": true,
+  "policy": "ship_safe_buyer_material_without_license_payloads_private_keys_or_financial_promises",
+  "requiredFiles": [
+    "resources/pro-buyer-pack/README.md",
+    "resources/pro-buyer-pack/data/asset_universe_pro.csv",
+    "resources/pro-buyer-pack/data/strategy_import_template.csv",
+    "resources/pro-buyer-pack/templates/license_activation_checklist.md",
+    "resources/pro-buyer-pack/templates/project_generator_starter.json",
+    "resources/pro-buyer-pack/templates/support_request_template.md",
+    "resources/pro-buyer-pack/templates/buyer_success_checklist.md"
+  ],
+  "csvContracts": {
+    "strategyImportDelimiter": ";",
+    "strategyImportRequiredColumns": [
+      "Strategy Name",
+      "Net profit",
+      "Profit factor",
+      "Sharpe Ratio",
+      "Ret/DD Ratio",
+      "Max DD %",
+      "# of trades",
+      "Winning Percent",
+      "SQN Score",
+      "R Expectancy",
+      "Stagnation",
+      "Entry indicators"
+    ],
+    "assetUniverseRequiredColumns": [
+      "symbol",
+      "class",
+      "session",
+      "default_timeframes",
+      "buyer_note"
+    ]
+  },
+  "safeClaims": [
+    "organizar el pipeline SQX",
+    "reducir errores operativos",
+    "acelerar la preparacion de proyectos",
+    "mejorar trazabilidad de pruebas"
+  ],
+  "forbiddenClaims": [
+    "rentabilidad garantizada",
+    "beneficio garantizado",
+    "sin riesgo",
+    "senales de compra",
+    "asesoramiento financiero"
+  ]
+}

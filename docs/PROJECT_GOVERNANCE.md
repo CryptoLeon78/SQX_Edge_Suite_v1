@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M46 - Commercial Customer Cockpit.
-- Current product/commercial state: `customer_cockpit_ready`.
-- Next implementation phase: M47 - Basic Buyer Onboarding And Support Gate.
+- Current phase completed: M47 - Pro Buyer Data And Template Pack.
+- Current product/commercial state: `pro_buyer_pack_ready`.
+- Next implementation phase: M48 - Basic Buyer Onboarding And Support Gate.
 - Governance baseline: G1 - Specialist Agent Operating Model.
 
 ## Specialist Agents

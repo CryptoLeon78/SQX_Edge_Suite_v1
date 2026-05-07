@@ -1,0 +1,4 @@
+Strategy Name;Net profit;Profit factor;Sharpe Ratio;Ret/DD Ratio;Max DD %;# of trades;Winning Percent;SQN Score;R Expectancy;Stagnation;Entry indicators
+Strategy PRO-DEMO-001;9412;1.94;1.42;12.32;0.76;315;49.84;1.18;0.47;180;ATR + LinearRegression
+Strategy PRO-DEMO-002;8303;2.13;1.33;15.56;0.50;225;53.54;1.05;0.42;220;KaufmanEfficiencyRatio + LinearRegression
+Strategy PRO-DEMO-003;14822;1.62;1.12;9.11;1.58;273;44.69;0.58;0.34;451;MACD + ADX dual

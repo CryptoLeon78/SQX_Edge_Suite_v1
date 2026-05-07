@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Pro buyer data and template pack
+
+- Anade `resources/pro-buyer-pack` con universo de activos, CSV importable y plantillas de activacion, soporte y primer valor.
+- Anade `pro_buyer_pack.py` para validar el pack antes de publicar un ZIP comercial.
+- Actualiza estado comercial a `pro_buyer_pack_ready`.
+- Refuerza empaquetado para excluir la herramienta interna y evidencia local.
+
 ## 2026-05-07 - Commercial customer cockpit
 
 - Anade endpoint read-only `GET /api/customer-cockpit`.

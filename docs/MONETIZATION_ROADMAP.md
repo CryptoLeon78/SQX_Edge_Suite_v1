@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M46 - Commercial Customer Cockpit.
-- Current state: `customer_cockpit_ready`.
+- Completed through: M47 - Pro Buyer Data And Template Pack.
+- Current state: `pro_buyer_pack_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
-- Latest verified portable ZIP before M46: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
+- Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M47 - Basic Buyer Onboarding And Support Gate.
+- Next recommended phase: M48 - Basic Buyer Onboarding And Support Gate.
 
 ## Decision Base
 
@@ -1018,4 +1018,26 @@ Decision M46:
 
 - El cockpit muestra resumen operativo redactado; no muestra payloads de licencia, claves privadas, eventos checkout crudos ni secretos de relay.
 - La fuente real prioritaria son evidencias locales `customer_success_renewal`; sin datos reales, el cockpit queda listo con estado vacio.
-- El siguiente paso real es M47: buyer onboarding y support gate para usuario basico.
+- El siguiente paso real es M47: pack de datos y plantillas para comprador Pro.
+
+## Phase M47 - Pro Buyer Data And Template Pack
+
+Objetivo: preparar datos y plantillas reales para compradores Pro, incluidos en el portable, sin exponer material sensible ni prometer resultados financieros.
+
+Entregables:
+
+- Estado `pro_buyer_pack_ready`.
+- Configuracion `backend/sqx-edge-tool/config/pro_buyer_pack.json`.
+- Recursos buyer-facing `resources/pro-buyer-pack`.
+- Universo inicial de 28 Forex, 4 indices y oro.
+- CSV importable compatible con el tab Estrategias.
+- Plantillas de activacion, soporte, Project Generator y primer valor.
+- Validador interno `backend/sqx-edge-tool/tools/pro_buyer_pack.py`.
+
+Estado: Done.
+
+Decision M47:
+
+- El pack buyer-facing viaja en el portable.
+- La herramienta interna y la evidencia `backend/sqx-edge-tool/data/pro_buyer_pack` no se empaquetan.
+- El siguiente paso real es M48: buyer onboarding y support gate para usuario basico.

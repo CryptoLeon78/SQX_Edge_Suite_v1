@@ -1,0 +1,24 @@
+{
+  "profile": "pro_buyer_starter",
+  "brokerPostfix": "_darwinex",
+  "starterAssets": [
+    "EURUSD",
+    "GBPUSD",
+    "USDJPY",
+    "XAUUSD",
+    "USTEC",
+    "US500"
+  ],
+  "starterTimeframes": [
+    "H1",
+    "H4"
+  ],
+  "recommendedFlow": [
+    "validar rutas SQX",
+    "revisar asset aliases",
+    "generar un proyecto pequeno",
+    "guardar evidencia de salida",
+    "revisar resultados en StrategyQuant X"
+  ],
+  "safeClaim": "Plantilla para acelerar preparacion operativa, no para prometer resultados financieros."
+}

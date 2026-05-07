@@ -13,11 +13,11 @@ Last updated: 2026-05-07.
 - Flujo comercial interno con checkout, licencia, fulfillment, release, monitorizacion, hotfix y rollback preparado.
 - Customer success y renovacion Pro preparados con trazabilidad interna.
 - Cockpit interno de customer success preparado con datos redactados.
+- Pack Pro de datos y plantillas preparado para compradores: universo de activos, CSV importable, activacion, soporte y primer valor.
 
 ## Next
 
 - Onboarding basico de comprador: compra, descarga, licencia, activacion y soporte.
-- Buyer onboarding y soporte para comprador basico.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.
