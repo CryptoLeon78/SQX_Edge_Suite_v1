@@ -145,7 +145,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/workflow.js` | Workflow tab initialization and subtab behavior. |
 | `modules/view-creator.js` | Native SQX `.vw` generator for annual Databank views, EGT presets, saved local presets, JSON preset packs, workflow handoffs and XML downloads. |
 | `modules/project-generator-core.js` | Project Generator shared helpers and API primitives. |
-| `modules/project-generator-config.js` | Project Generator config read/write helpers. |
+| `modules/project-generator-config.js` | Project Generator config read/write helpers and local custom preset persistence. |
 | `modules/project-generator-dom.js` | Project Generator DOM helpers, config inputs, custom project inputs, settings panel and log output. |
 | `modules/project-generator-bindings.js` | Project Generator event bindings and polling wiring. |
 | `modules/project-generator-renderers.js` | Project Generator DOM render output helpers. |

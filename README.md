@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: PG1 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: PG2 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado antes de M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - SHA256 del ZIP: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Siguiente paso recomendado: V5 - ejemplos buyer-ready para SQX Views, o PG2 - presets custom frecuentes si priorizamos Project Generator.
-- Ultima mejora funcional: Project Generator permite crear un custom libre fuera del plan mining con asset, timeframe, direccion, blocksetting y nombre propios.
+- Siguiente paso recomendado: V5 - ejemplos buyer-ready para SQX Views, o PG3 - export/import de presets custom si queremos portabilidad entre instalaciones.
+- Ultima mejora funcional: Project Generator permite guardar, cargar y eliminar presets locales para Custom libre.
 
 ## SQX Edge Pro
 
@@ -200,6 +200,7 @@ El resultado se escribe en `app\js\manifest-data.js`.
 - `Generacion masiva` mantiene el flujo original: genera `.cfx` desde los minings del plan.
 - `Custom libre` permite crear un proyecto fuera del plan con nombre, asset, timeframe, blocksetting, direccion y capa propios.
 - El custom libre usa el template configurado de la capa seleccionada, o un template opcional indicado en el formulario.
+- Los presets custom se guardan en el navegador local para reutilizar combinaciones frecuentes sin reescribir campos.
 - La API local expone `/api/generate-custom` y aplica la misma licencia Pro que `/api/generate`.
 
 ## Backend

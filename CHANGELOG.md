@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - PG2 Custom libre reusable presets
+
+- Anade presets locales para guardar, cargar y eliminar configuraciones de `Custom libre`.
+- Mantiene los presets en `localStorage` bajo `sqx_pg_custom_presets_v1` sin tocar backend ni rutas personales.
+- Refuerza contratos JS, tests estaticos y E2E para cubrir el flujo de presets custom.
+
 ## 2026-05-08 - PG1 Custom libre fuera del plan
 
 - Anade un flujo `Custom libre` en Project Generator para crear `.cfx` sin depender de un mining del plan.

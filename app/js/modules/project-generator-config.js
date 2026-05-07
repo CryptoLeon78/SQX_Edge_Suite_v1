@@ -4,6 +4,108 @@
   var SQX = global.SQX = global.SQX || {};
   var PG = SQX.projectGenerator = SQX.projectGenerator || {};
   var escapeHtml = PG.escapeHtml;
+  var storageKeys = (global.SQX_CONFIG && global.SQX_CONFIG.storageKeys) || {};
+  var CUSTOM_PRESETS_STORAGE_KEY = storageKeys.projectGeneratorCustomPresets || 'sqx_pg_custom_presets_v1';
+
+function safeJsonParse(raw, fallback) {
+    try {
+      return JSON.parse(raw);
+    } catch (_err) {
+      return fallback;
+    }
+  }
+
+function customPresetIdFromName(name) {
+    return String(name || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 48) || 'custom';
+  }
+
+function normalizeCustomProjectConfig(input) {
+    var data = input || {};
+    return {
+      name: String(data.name || '').trim(),
+      asset: String(data.asset || '').trim().toUpperCase(),
+      tf: String(data.tf || '').trim().toUpperCase(),
+      bs: String(data.bs || 'BS_Custom').trim() || 'BS_Custom',
+      dir: ['long', 'short', 'both'].indexOf(data.dir) >= 0 ? data.dir : 'long',
+      capa: parseInt(data.capa || 1, 10) === 2 ? 2 : 1,
+      template: String(data.template || '').trim()
+    };
+  }
+
+function normalizeCustomPreset(item) {
+    if (!item || typeof item !== 'object') return null;
+    var config = normalizeCustomProjectConfig(item.config || item);
+    if (!config.asset || !config.tf) return null;
+    var defaultName = config.name || (config.asset + ' ' + config.tf + ' ' + config.dir);
+    var name = String(item.name || defaultName).trim() || defaultName;
+    return {
+      id: customPresetIdFromName(item.id || name),
+      name: name,
+      savedAt: String(item.savedAt || new Date().toISOString()),
+      config: config
+    };
+  }
+
+function getCustomProjectPresets(storage) {
+    var store = storage || global.localStorage;
+    var payload = safeJsonParse(store.getItem(CUSTOM_PRESETS_STORAGE_KEY), []);
+    return Array.isArray(payload) ? payload.map(normalizeCustomPreset).filter(Boolean) : [];
+  }
+
+function setCustomProjectPresets(presets, storage) {
+    var store = storage || global.localStorage;
+    var clean = (presets || []).map(normalizeCustomPreset).filter(Boolean).slice(0, 30);
+    store.setItem(CUSTOM_PRESETS_STORAGE_KEY, JSON.stringify(clean));
+    return getCustomProjectPresets(store);
+  }
+
+function upsertCustomProjectPreset(input, presetName, storage) {
+    var config = normalizeCustomProjectConfig(input);
+    if (!config.asset || !config.tf) {
+      return { ok: false, error: 'Completa Asset y Timeframe antes de guardar.' };
+    }
+    var name = String(presetName || config.name || (config.asset + ' ' + config.tf + ' ' + config.dir)).trim();
+    var preset = normalizeCustomPreset({
+      id: customPresetIdFromName(name),
+      name: name,
+      savedAt: new Date().toISOString(),
+      config: config
+    });
+    var presets = getCustomProjectPresets(storage).filter(function(existing) { return existing.id !== preset.id; });
+    presets.unshift(preset);
+    return { ok: true, preset: preset, presets: setCustomProjectPresets(presets, storage) };
+  }
+
+function findCustomProjectPreset(id, storage) {
+    return getCustomProjectPresets(storage).find(function(preset) { return preset.id === id; }) || null;
+  }
+
+function deleteCustomProjectPreset(id, storage) {
+    var current = getCustomProjectPresets(storage);
+    var next = current.filter(function(preset) { return preset.id !== id; });
+    return {
+      deleted: next.length !== current.length,
+      presets: setCustomProjectPresets(next, storage)
+    };
+  }
+
+function customProjectPresetCountLabel(count) {
+    var n = count || 0;
+    return n + (n === 1 ? ' guardado' : ' guardados');
+  }
+
+function customProjectPresetOptionsHtml(presets) {
+    var list = presets || [];
+    if (!list.length) return '<option value="">Sin presets guardados</option>';
+    return '<option value="">Selecciona preset</option>' + list.map(function(preset) {
+      return '<option value="' + escapeHtml(preset.id) + '">' + escapeHtml(preset.name) + '</option>';
+    }).join('');
+  }
 
 function uniqueAssets(minings) {
     var seen = {};
@@ -219,12 +321,22 @@ function validateSqxPathHtml(result) {
     configSaveBody: configSaveBody,
     configSaveError: configSaveError,
     configSaveStatus: configSaveStatus,
+    customPresetIdFromName: customPresetIdFromName,
+    customProjectPresetCountLabel: customProjectPresetCountLabel,
+    customProjectPresetOptionsHtml: customProjectPresetOptionsHtml,
+    deleteCustomProjectPreset: deleteCustomProjectPreset,
+    findCustomProjectPreset: findCustomProjectPreset,
+    getCustomProjectPresets: getCustomProjectPresets,
     messageHtml: messageHtml,
+    normalizeCustomPreset: normalizeCustomPreset,
+    normalizeCustomProjectConfig: normalizeCustomProjectConfig,
+    setCustomProjectPresets: setCustomProjectPresets,
     sqxAppliedHtml: sqxAppliedHtml,
     sqxCandidateFields: sqxCandidateFields,
     sqxCandidateSelectedStatus: sqxCandidateSelectedStatus,
     sqxNotFoundHtml: sqxNotFoundHtml,
     uniqueAssets: uniqueAssets,
+    upsertCustomProjectPreset: upsertCustomProjectPreset,
     validateSqxMissingPathHtml: validateSqxMissingPathHtml,
     validateSqxPathHtml: validateSqxPathHtml,
     validateSqxResolvedFields: validateSqxResolvedFields,

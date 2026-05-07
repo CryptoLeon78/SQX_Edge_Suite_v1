@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: PG1 - Project Generator Custom Libre.
+- Current completed phase: PG2 - Project Generator Custom Presets.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: V5 - View Creator buyer-ready template examples, or PG2 - reusable custom project presets.
+- Next recommended phase: V5 - View Creator buyer-ready template examples, or PG3 - portable custom preset import/export.
 
 ## Recommended Order
 
@@ -30,7 +30,8 @@ Persistent planning note for the next SQX Edge phases.
 ## Project Generator Track
 
 1. Phase PG1: add Custom Libre generation outside the plan mining while preserving plan-based bulk generation. Done.
-2. Phase PG2: consider reusable custom presets for frequent buyer assets/timeframes after PG1 field usage is validated.
+2. Phase PG2: add reusable local custom presets for frequent buyer assets/timeframes. Done.
+3. Phase PG3: consider export/import for custom preset packs if buyer portability becomes important.
 
 ## Working Discipline
 

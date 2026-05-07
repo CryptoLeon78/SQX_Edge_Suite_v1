@@ -82,7 +82,15 @@ async function run() {
     await desktop.locator('#pg-custom-tf').fill('H1');
     await desktop.locator('#pg-custom-name').fill('Custom_EURUSD_H1');
     await desktop.locator('#pg-custom-capa').selectOption('1');
-    await desktop.waitForFunction(() => document.getElementById('pg-custom-status')?.textContent.includes('plan mining'));
+    await desktop.locator('#pg-custom-preset-name').fill('EURUSD H1 Smoke');
+    await desktop.locator('#pg-custom-save-preset').click();
+    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_pg_custom_presets_v1') || '[]').length === 1);
+    await desktop.locator('#pg-custom-asset').fill('GBPUSD');
+    await desktop.locator('#pg-custom-load-preset').click();
+    await desktop.waitForFunction(() => document.getElementById('pg-custom-asset')?.value === 'EURUSD');
+    await desktop.locator('#pg-custom-delete-preset').click();
+    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_pg_custom_presets_v1') || '[]').length === 0);
+    await desktop.waitForFunction(() => document.getElementById('pg-custom-status')?.textContent.includes('Preset eliminado'));
     await saveShot(desktop, 'e2e-projectgen-desktop.png');
     await desktop.locator('.tab[data-tab="views"]').click();
     await desktop.waitForSelector('.tab[data-tab="views"].active');

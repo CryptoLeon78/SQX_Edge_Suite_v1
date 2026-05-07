@@ -1,6 +1,6 @@
 import { assert, Element, createLoadedSandbox } from './harness.mjs';
 
-const { SQX, document } = createLoadedSandbox();
+const { SQX, document, sandbox } = createLoadedSandbox();
 const PG = SQX.projectGenerator;
 
 assert.equal(PG.escapeHtml('<x>'), '&lt;x&gt;');
@@ -42,28 +42,44 @@ assert.equal(customInputs.template, 'C2.cfx');
 assert.equal(PG.dom.setCustomProjectStatus(document, { text: 'Generado', level: 'ok' }), true);
 assert.equal(document.getElementById('pg-custom-status').textContent, 'Generado');
 assert.equal(document.getElementById('pg-custom-status').classList.contains('is-ok'), true);
+PG.dom.writeCustomProjectInputs(document, { name: 'Preset EURUSD', asset: 'GBPUSD', tf: 'M15', bs: 'BS_Momentum', dir: 'short', capa: 2, template: 'Tpl.cfx' });
+assert.equal(document.getElementById('pg-custom-asset').value, 'GBPUSD');
+assert.equal(document.getElementById('pg-custom-dir').value, 'short');
 [
   'pg-status-refresh', 'pg-settings-toggle', 'pg-settings-save', 'pg-settings-reload',
   'pg-onboarding-action', 'pg-onboarding-secondary', 'pg-onboarding-tertiary',
   'pg-autodetect', 'pg-aliases-suggest', 'pg-validate', 'pg-gen-all-c1',
-  'pg-gen-all-c2', 'pg-custom-generate', 'pg-output-refresh', 'pg-open-output', 'pg-log-clear',
+  'pg-gen-all-c2', 'pg-custom-generate', 'pg-custom-save-preset', 'pg-custom-load-preset',
+  'pg-custom-delete-preset', 'pg-output-refresh', 'pg-open-output', 'pg-log-clear',
   'pg-settings-body', 'pg-log'
 ].forEach(id => document.add(new Element(id)));
 let checkHealthCalls = 0;
 let generateAllCapa = 0;
 let generateCustomCalls = 0;
+let saveCustomPresetCalls = 0;
+let loadCustomPresetCalls = 0;
+let deleteCustomPresetCalls = 0;
 PG.bindings.bindProjectGeneratorEvents(document, {
   checkHealth: () => { checkHealthCalls++; },
   generateAll: capa => { generateAllCapa = capa; },
   generateCustom: () => { generateCustomCalls++; },
+  saveCustomPreset: () => { saveCustomPresetCalls++; },
+  loadCustomPreset: () => { loadCustomPresetCalls++; },
+  deleteCustomPreset: () => { deleteCustomPresetCalls++; },
   setSettingsOpen: open => { document.getElementById('pg-settings-body').style.display = open ? 'block' : 'none'; },
 });
 document.getElementById('pg-status-refresh').click();
 document.getElementById('pg-gen-all-c2').click();
 document.getElementById('pg-custom-generate').click();
+document.getElementById('pg-custom-save-preset').click();
+document.getElementById('pg-custom-load-preset').click();
+document.getElementById('pg-custom-delete-preset').click();
 assert.equal(checkHealthCalls, 1);
 assert.equal(generateAllCapa, 2);
 assert.equal(generateCustomCalls, 1);
+assert.equal(saveCustomPresetCalls, 1);
+assert.equal(loadCustomPresetCalls, 1);
+assert.equal(deleteCustomPresetCalls, 1);
 document.getElementById('pg-log').textContent = 'old';
 document.getElementById('pg-log-clear').click();
 assert.equal(document.getElementById('pg-log').textContent, '[esperando primera acción…]');
@@ -245,6 +261,21 @@ assert.equal(configStatus.message, '✓ Guardado: sqx_path, output_dir');
 assert.equal(configStatus.logText, 'Config actualizada (2 keys)');
 assert.equal(configStatus.traceDetail, 'sqx_path, output_dir');
 assert.equal(PG.configSaveError('disk full').message, '✗ Error: disk full');
+assert.equal(PG.customPresetIdFromName('EURUSD H1 Long'), 'eurusd-h1-long');
+const normalizedCustom = PG.normalizeCustomProjectConfig({ asset: ' eurusd ', tf: ' h1 ', bs: '', dir: 'both', capa: 2 });
+assert.equal(normalizedCustom.asset, 'EURUSD');
+assert.equal(normalizedCustom.bs, 'BS_Custom');
+assert.equal(normalizedCustom.dir, 'both');
+const savedCustom = PG.upsertCustomProjectPreset(normalizedCustom, 'EURUSD H1 Core', sandbox.localStorage);
+assert.equal(savedCustom.ok, true);
+assert.equal(savedCustom.preset.id, 'eurusd-h1-core');
+assert.equal(PG.getCustomProjectPresets(sandbox.localStorage).length, 1);
+assert.match(PG.customProjectPresetOptionsHtml(savedCustom.presets), /EURUSD H1 Core/);
+assert.equal(PG.customProjectPresetCountLabel(1), '1 guardado');
+assert.equal(PG.findCustomProjectPreset('eurusd-h1-core', sandbox.localStorage).config.asset, 'EURUSD');
+assert.equal(PG.deleteCustomProjectPreset('eurusd-h1-core', sandbox.localStorage).deleted, true);
+assert.equal(PG.getCustomProjectPresets(sandbox.localStorage).length, 0);
+assert.equal(PG.upsertCustomProjectPreset({ asset: '', tf: '' }, '', sandbox.localStorage).ok, false);
 const candidateFields = PG.sqxCandidateFields({ sqx_path: 'C:/SQX', data_db: 'db', projects_dir: 'projects' });
 assert.equal(candidateFields.sqxPath, 'C:/SQX');
 assert.equal(candidateFields.dataDb, 'db');

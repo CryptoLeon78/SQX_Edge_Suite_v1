@@ -554,6 +554,19 @@
           <input type="text" id="pg-custom-template" placeholder="Usa el template configurado para la capa si lo dejas vacio">
         </label>
       </div>
+      <div class="pg-custom-presets">
+        <div>
+          <strong>Presets custom</strong>
+          <small id="pg-custom-presets-count">0 guardados</small>
+        </div>
+        <select id="pg-custom-presets-select">
+          <option value="">Sin presets guardados</option>
+        </select>
+        <input type="text" id="pg-custom-preset-name" placeholder="Nombre del preset">
+        <button class="export-btn pg-ghost-btn" id="pg-custom-load-preset">Cargar</button>
+        <button class="export-btn pg-ghost-btn" id="pg-custom-save-preset">Guardar preset</button>
+        <button class="export-btn pg-ghost-btn" id="pg-custom-delete-preset">Eliminar</button>
+      </div>
       <div class="pg-custom-actions">
         <button class="export-btn" id="pg-custom-generate">Generar custom</button>
         <small id="pg-custom-status">Crea un .cfx libre sin añadirlo al plan mining.</small>

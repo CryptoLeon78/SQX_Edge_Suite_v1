@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: PG1 - Project Generator Custom Libre.
+- Current phase completed: PG2 - Project Generator Custom Presets.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
-- Next implementation phase: V5 - View Creator buyer-ready template examples, or PG2 - reusable custom project presets.
+- Next implementation phase: V5 - View Creator buyer-ready template examples, or PG3 - portable custom preset import/export.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 
@@ -34,6 +34,7 @@ Use prefixed phase IDs for new work.
 - `Qxx`: test, QA and observability hardening phases.
 - `Gxx`: governance, ownership and decision-process phases.
 - `Vxx`: SQX view/template generation and StrategyQuant operator tools.
+- `PGxx`: Project Generator user workflows and reusable generation helpers.
 
 Legacy references such as "Phase 46" in the modularization track remain historical. New work should use the prefix in titles and commits when practical.
 

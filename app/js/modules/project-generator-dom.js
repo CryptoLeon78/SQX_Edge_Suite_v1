@@ -68,6 +68,17 @@
     };
   }
 
+  function writeCustomProjectInputs(doc, config) {
+    var data = config || {};
+    setInputValue(doc, 'pg-custom-name', data.name);
+    setInputValue(doc, 'pg-custom-asset', data.asset);
+    setInputValue(doc, 'pg-custom-tf', data.tf);
+    setInputValue(doc, 'pg-custom-bs', data.bs || 'BS_Custom');
+    setInputValue(doc, 'pg-custom-dir', data.dir || 'long');
+    setInputValue(doc, 'pg-custom-capa', data.capa || 1);
+    setInputValue(doc, 'pg-custom-template', data.template);
+  }
+
   function setCustomProjectStatus(doc, status) {
     var el = byId(doc, 'pg-custom-status');
     var data = status || {};
@@ -167,6 +178,7 @@
       setText: setText,
       trace: trace,
       trimmedInputValue: trimmedInputValue,
+      writeCustomProjectInputs: writeCustomProjectInputs,
       writeConfigInputs: writeConfigInputs
     }
   });

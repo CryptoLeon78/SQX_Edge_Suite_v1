@@ -966,6 +966,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             "configSaveBody",
             "configSaveError",
             "configSaveStatus",
+            "customPresetIdFromName",
+            "customProjectPresetCountLabel",
+            "customProjectPresetOptionsHtml",
+            "deleteCustomProjectPreset",
+            "findCustomProjectPreset",
+            "getCustomProjectPresets",
             "generateAllConfirmMessage",
             "generateAllResultLines",
             "generateAllResultSummary",
@@ -980,6 +986,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "enrichMiningsWithSymbolInfo",
             "miningRowsHtml",
             "miningsCountLabel",
+            "normalizeCustomPreset",
+            "normalizeCustomProjectConfig",
             "outputCountLabel",
             "outputListHtml",
             "outputState",
@@ -987,6 +995,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "openOutputErrorStatus",
             "openOutputSuccessStatus",
             "prepareRequestOptions",
+            "setCustomProjectPresets",
             "sqxCandidateFields",
             "sqxCandidateSelectedStatus",
             "sqxAppliedHtml",
@@ -997,6 +1006,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "validateSqxShouldApply",
             "validateSqxTrace",
             "uniqueAssets",
+            "upsertCustomProjectPreset",
         ]
         for export in expected_exports:
             with self.subTest(export=export):

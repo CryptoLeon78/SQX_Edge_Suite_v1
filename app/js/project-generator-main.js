@@ -110,6 +110,18 @@ function pgSetCustomStatus(text, level) {
   }
 }
 
+function pgWriteCustomInputs(config) {
+  if (SQX_PG_DOM.writeCustomProjectInputs) SQX_PG_DOM.writeCustomProjectInputs(document, config);
+}
+
+function pgRenderCustomPresets(selectedId) {
+  const presets = SQX_PG_MODULE.getCustomProjectPresets ? SQX_PG_MODULE.getCustomProjectPresets() : [];
+  pgSetText('pg-custom-presets-count', SQX_PG_MODULE.customProjectPresetCountLabel(presets.length));
+  pgSetHtml('pg-custom-presets-select', SQX_PG_MODULE.customProjectPresetOptionsHtml(presets));
+  if (selectedId) pgSetInputValue('pg-custom-presets-select', selectedId);
+  return presets;
+}
+
 function pgUpdateMiningSummary(count) {
   pgSetText('pg-minings-count', SQX_PG_MODULE.miningsCountLabel(count));
   pgSetText('pg-bulk-count', SQX_PG_MODULE.bulkGenerateLabel(count));
@@ -329,6 +341,51 @@ async function pgGenerateCustom() {
   }
 }
 
+function pgSaveCustomPreset() {
+  const body = pgReadCustomInputs();
+  const presetName = pgTrimmedInputValue('pg-custom-preset-name');
+  const result = SQX_PG_MODULE.upsertCustomProjectPreset(body, presetName);
+  if (!result.ok) {
+    pgSetCustomStatus(result.error, 'err');
+    pgLog(result.error, 'err');
+    return;
+  }
+  pgRenderCustomPresets(result.preset.id);
+  pgSetInputValue('pg-custom-preset-name', '');
+  pgSetCustomStatus('Preset guardado: ' + result.preset.name, 'ok');
+  pgLog('Preset custom guardado: ' + result.preset.name, 'ok');
+  pgTrace('Preset custom guardado', result.preset.name, 'ok');
+}
+
+function pgSelectedCustomPreset() {
+  const id = pgInputValue('pg-custom-presets-select');
+  return id && SQX_PG_MODULE.findCustomProjectPreset(id);
+}
+
+function pgLoadCustomPreset() {
+  const preset = pgSelectedCustomPreset();
+  if (!preset) {
+    pgSetCustomStatus('Selecciona un preset custom para cargar.', 'err');
+    return;
+  }
+  pgWriteCustomInputs(preset.config);
+  pgSetCustomStatus('Preset cargado: ' + preset.name, 'ok');
+  pgLog('Preset custom cargado: ' + preset.name, 'info');
+  pgTrace('Preset custom cargado', preset.name, 'info');
+}
+
+function pgDeleteCustomPreset() {
+  const preset = pgSelectedCustomPreset();
+  if (!preset) {
+    pgSetCustomStatus('Selecciona un preset custom para eliminar.', 'err');
+    return;
+  }
+  const result = SQX_PG_MODULE.deleteCustomProjectPreset(preset.id);
+  pgRenderCustomPresets();
+  pgSetCustomStatus(result.deleted ? 'Preset eliminado: ' + preset.name : 'No se pudo eliminar el preset.', result.deleted ? 'ok' : 'err');
+  pgLog((result.deleted ? 'Preset custom eliminado: ' : 'Preset custom no encontrado: ') + preset.name, result.deleted ? 'info' : 'err');
+}
+
 async function pgGenerateAll(capa) {
   if (!confirm(SQX_PG_MODULE.generateAllConfirmMessage(capa, PG_STATE.planCount))) return;
   pgLog(SQX_PG_MODULE.generateAllStartMessage(capa), 'info');
@@ -482,6 +539,7 @@ async function pgRunOnboardingTertiaryAction() {
 (function pgInit(){
   const refresh = document.getElementById('pg-status-refresh');
   if (!refresh) return; // tab no está en el HTML
+  pgRenderCustomPresets();
 
   // ── Strategy Cleaner ──
   const CLN_STATE = {
@@ -592,14 +650,17 @@ async function pgRunOnboardingTertiaryAction() {
   SQX_PG_BINDINGS.bindProjectGeneratorEvents(document, {
     autodetectSqx: pgAutodetectSqx,
     checkHealth: pgCheckHealth,
+    deleteCustomPreset: pgDeleteCustomPreset,
     generateAll: pgGenerateAll,
     generateCustom: pgGenerateCustom,
+    loadCustomPreset: pgLoadCustomPreset,
     loadConfig: pgLoadConfig,
     loadOutput: pgLoadOutput,
     openOutputFolder: pgOpenOutputFolder,
     runOnboardingAction: pgRunOnboardingAction,
     runOnboardingSecondaryAction: pgRunOnboardingSecondaryAction,
     runOnboardingTertiaryAction: pgRunOnboardingTertiaryAction,
+    saveCustomPreset: pgSaveCustomPreset,
     saveConfig: pgSaveConfig,
     setSettingsOpen: pgSetSettingsOpen,
     suggestAll: pgSuggestAll,
