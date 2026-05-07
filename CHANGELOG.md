@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 1 purchase drill
+
+- Anade M52 con gate de compra controlada para Template Pack 1.
+- Anade `template_pack_1_purchase_drill.py` para validar pedido, pago, entrega separada, soporte y rollback.
+- Actualiza estado comercial a `template_pack_1_purchase_drill_ready`.
+- Mantiene evidencia de comprador redactada y el gate fuera del ZIP base.
+
 ## 2026-05-07 - Governance lookup discipline
 
 - Anade G2 como regla operativa: consultar Project Governance o matriz de agentes antes de cada fase/mensaje de trabajo.

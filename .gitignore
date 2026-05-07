@@ -55,6 +55,7 @@ backend/sqx-edge-tool/data/buyer_onboarding_support_gate/
 backend/sqx-edge-tool/data/template_pack_1_delivery/
 backend/sqx-edge-tool/data/template_pack_1_offer/
 backend/sqx-edge-tool/data/template_pack_1_publication/
+backend/sqx-edge-tool/data/template_pack_1_purchase_drill/
 backend/sqx-edge-tool/license_keys/
 backend/sqx-edge-tool/licenses_private/
 backend/sqx-edge-tool/private_keys/

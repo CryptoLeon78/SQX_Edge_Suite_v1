@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M51 - Template Pack 1 Live Checkout Values And Controlled Publication Gate.
-- Current state: `template_pack_1_live_checkout_gate_ready`.
+- Completed through: M52 - Template Pack 1 Controlled Purchase Drill.
+- Current state: `template_pack_1_purchase_drill_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M52 - Template Pack 1 Controlled Purchase Drill.
+- Next recommended phase: M53 - Template Pack 1 Post-Purchase Handoff And Scale Decision.
 
 ## Decision Base
 
@@ -1128,3 +1128,24 @@ Decision M51:
 - El gate valida URL HTTPS, provider variant ID, email de soporte, placeholders, dependencia M50 y confirmaciones de rollback.
 - `--apply` queda disponible para escribir los valores reales en el manifiesto solo despues de un GO.
 - El siguiente paso real es M52: compra controlada del add-on con evidencia de pedido, entrega y soporte inicial.
+
+## Phase M52 - Template Pack 1 Controlled Purchase Drill
+
+Objetivo: preparar y validar una compra controlada real de Template Pack 1 antes de escalar la publicacion del add-on.
+
+Entregables:
+
+- Estado `template_pack_1_purchase_drill_ready`.
+- Configuracion `backend/sqx-edge-tool/config/template_pack_1_purchase_drill.json`.
+- Guia interna `docs/sales/TEMPLATE_PACK_1_PURCHASE_DRILL.md`.
+- Gate interno `backend/sqx-edge-tool/tools/template_pack_1_purchase_drill.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_1_purchase_drill`.
+
+Estado: Done.
+
+Decision M52:
+
+- El gate exige checkout URL, provider variant ID, order ID, buyer email, estado de pago, importe, moneda y confirmaciones operativas.
+- La evidencia redacta el email del comprador y no guarda payloads crudos del proveedor.
+- Puede verificar el ZIP add-on separado cuando se pasa `--require-delivery-package`.
+- El siguiente paso real es M53: handoff real posterior a compra, soporte inicial y decision de escalar o pausar.
