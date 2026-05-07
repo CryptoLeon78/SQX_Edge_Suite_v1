@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "state": "template_pack_2_handoff_ready",
+  "handoffId": "template_pack_2_post_purchase_handoff",
+  "offerId": "template_pack_2",
+  "name": "Template Pack 2 Post-Purchase Handoff",
+  "dependsOn": {
+    "purchaseDrillConfig": "backend/sqx-edge-tool/config/template_pack_2_purchase_drill.json",
+    "purchaseDrillState": "template_pack_2_purchase_drill_ready"
+  },
+  "requiredFiles": [
+    "backend/sqx-edge-tool/config/template_pack_2_purchase_drill.json",
+    "backend/sqx-edge-tool/tools/template_pack_2_purchase_drill.py",
+    "docs/sales/TEMPLATE_PACK_2_PURCHASE_DRILL.md",
+    "docs/sales/TEMPLATE_PACK_2_HANDOFF.md",
+    "resources/pro-template-pack-2/README.md",
+    "resources/pro-template-pack-2/checklists/delivery_checklist.md",
+    "resources/pro-template-pack-2/checklists/support_boundaries.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "requiredConfirmations": [
+    "purchase_drill_go",
+    "delivery_sent",
+    "buyer_acknowledged",
+    "support_window_opened",
+    "first_value_confirmed",
+    "support_notes_recorded",
+    "safe_claims_reviewed",
+    "scale_or_pause_decision_recorded"
+  ],
+  "allowedDecisions": [
+    "scale_limited",
+    "hold_review",
+    "pause_sales"
+  ],
+  "privacyPolicy": "store_redacted_buyer_reference_handoff_notes_and_scale_decision_only",
+  "scaleRules": [
+    "scale_limited requires buyer acknowledgement, first value confirmed, no unresolved support and no refund risk.",
+    "hold_review is the default when support confidence is forming.",
+    "pause_sales is required when delivery, support or buyer outcome is unclear."
+  ],
+  "supportSlaHours": 24,
+  "maxFirstResponseHours": 24
+}

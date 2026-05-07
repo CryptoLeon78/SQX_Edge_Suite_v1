@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M61 - Template Pack 2 Controlled Purchase Drill.
-- Current product/commercial state: `template_pack_2_purchase_drill_ready`.
-- Next implementation phase: M62 - Template Pack 2 Post-Purchase Handoff.
+- Current phase completed: M62 - Template Pack 2 Post-Purchase Handoff.
+- Current product/commercial state: `template_pack_2_handoff_ready`.
+- Next implementation phase: M63 - Template Pack 2 Sales Register.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

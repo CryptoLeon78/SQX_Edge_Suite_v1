@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M61 - Template Pack 2 Controlled Purchase Drill.
-- Current product/commercial state: `template_pack_2_purchase_drill_ready`.
+- Current completed phase: M62 - Template Pack 2 Post-Purchase Handoff.
+- Current product/commercial state: `template_pack_2_handoff_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
-- Last synced base commit before M61: `dff0ba8`.
+- Last synced base commit before M62: `6fce393`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M62 - Template Pack 2 Post-Purchase Handoff.
+- Next recommended phase: M63 - Template Pack 2 Sales Register.
 
 ## Recommended Order
 
@@ -107,4 +107,5 @@ Persistent planning note for the next SQX Edge phases.
 59. Phase M59: prepare Template Pack 2 offer pack with public copy, FAQ, checkout draft, delivery macro and support macro. Done.
 60. Phase M60: prepare controlled Template Pack 2 publication with live checkout URL, support, rollback and purchase drill. Done.
 61. Phase M61: execute Template Pack 2 controlled purchase drill with redacted payment, delivery, support and refund/pause evidence. Done.
-62. Phase M62: prepare Template Pack 2 post-purchase handoff, first-value support and scale/pause decision. Recommended next.
+62. Phase M62: prepare Template Pack 2 post-purchase handoff, first-value support and scale/pause decision. Done.
+63. Phase M63: consolidate Template Pack 2 sales register and early cohort tracking before more traffic. Recommended next.

@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M61 - Template Pack 2 Controlled Purchase Drill.
-- Current state: `template_pack_2_purchase_drill_ready`.
+- Completed through: M62 - Template Pack 2 Post-Purchase Handoff.
+- Current state: `template_pack_2_handoff_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M62 - Template Pack 2 Post-Purchase Handoff.
+- Next recommended phase: M63 - Template Pack 2 Sales Register.
 
 ## Decision Base
 
@@ -1341,3 +1341,24 @@ Decision M61:
 - La evidencia redacta el email del comprador y no guarda payloads crudos del proveedor.
 - Puede verificar el ZIP add-on separado cuando se pasa `--require-delivery-package`.
 - El siguiente paso real es M62: handoff posterior a compra, soporte inicial y decision de escalar o pausar Template Pack 2.
+
+## Phase M62 - Template Pack 2 Post-Purchase Handoff
+
+Objetivo: preparar el handoff posterior a la primera compra controlada de Template Pack 2, con entrega, soporte inicial, primer valor y decision de escalar o pausar.
+
+Entregables:
+
+- Estado `template_pack_2_handoff_ready`.
+- Configuracion `backend/sqx-edge-tool/config/template_pack_2_handoff.json`.
+- Guia interna `docs/sales/TEMPLATE_PACK_2_HANDOFF.md`.
+- Gate interno `backend/sqx-edge-tool/tools/template_pack_2_handoff.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_2_handoff`.
+
+Estado: Done.
+
+Decision M62:
+
+- El gate exige purchase drill GO, entrega enviada, comprador informado, soporte abierto, primer valor confirmado y notas de soporte.
+- La decision queda restringida a `scale_limited`, `hold_review` o `pause_sales`.
+- La evidencia redacta el email del comprador y no guarda payloads crudos del proveedor.
+- El siguiente paso real es M63: registro de ventas y cohorte temprana de Template Pack 2 antes de ampliar trafico.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 2 post-purchase handoff
+
+- Anade M62 con handoff post-compra de Template Pack 2.
+- Anade `template_pack_2_handoff.py` para validar entrega, soporte, primer valor y decision de escala/pausa.
+- Actualiza estado comercial a `template_pack_2_handoff_ready`.
+- Mantiene evidencia redactada y fuera del ZIP portable.
+
 ## 2026-05-07 - Template Pack 2 purchase drill
 
 - Anade M61 con compra controlada de Template Pack 2.
