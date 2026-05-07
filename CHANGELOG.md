@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 1 feedback cohort
+
+- Anade M55 con revision de cohorte y feedback real para Template Pack 1.
+- Anade `template_pack_1_feedback_cohort.py` para validar compradores, feedback, bugs, friccion, soporte, refunds y decision de roadmap.
+- Actualiza estado comercial a `template_pack_1_feedback_cohort_ready`.
+- Bloquea escalado o Template Pack 2 sin senales positivas, soporte controlado y claims seguros.
+
 ## 2026-05-07 - Template Pack 1 sales register
 
 - Anade M54 con registro interno de ventas add-on para Template Pack 1.

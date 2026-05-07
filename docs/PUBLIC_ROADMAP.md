@@ -21,10 +21,11 @@ Last updated: 2026-05-07.
 - Purchase drill controlado preparado para validar pedido, entrega separada y soporte inicial.
 - Handoff post-compra preparado para revisar entrega, soporte inicial y decision de escalar o pausar.
 - Registro interno de ventas add-on preparado para revisar comprador, entrega, soporte, refunds y decision de escala con datos redactados.
+- Revision de cohorte de compradores preparada para decidir iteracion, mas trafico, pausa o Template Pack 2 con feedback agregado.
 
 ## Next
 
-- Revisar cohorte de compradores del add-on y feedback real antes de ampliar trafico o crear Template Pack 2.
+- Preparar plan accionable de iteracion de oferta o Template Pack 2 segun feedback real.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.

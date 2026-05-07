@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M54 - Template Pack 1 Add-On Sales Register.
-- Current state: `template_pack_1_sales_register_ready`.
+- Completed through: M55 - Template Pack 1 Feedback Cohort Review.
+- Current state: `template_pack_1_feedback_cohort_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M55 - Template Pack 1 Feedback Cohort Review.
+- Next recommended phase: M56 - Template Pack 1 Iteration Or Pack 2 Action Plan.
 
 ## Decision Base
 
@@ -1191,3 +1191,25 @@ Decision M54:
 - No guarda emails en claro ni payloads crudos del proveedor.
 - `scale_limited` exige venta pagada, entrega confirmada, cero soporte abierto, cero refunds y cero fallos.
 - El siguiente paso real es M55: revisar cohorte de compradores del add-on y feedback real antes de ampliar trafico o crear Template Pack 2.
+
+## Phase M55 - Template Pack 1 Feedback Cohort Review
+
+Objetivo: revisar la primera cohorte de compradores de Template Pack 1 antes de ampliar trafico o crear Template Pack 2.
+
+Entregables:
+
+- Estado `template_pack_1_feedback_cohort_ready`.
+- Configuracion `backend/sqx-edge-tool/config/template_pack_1_feedback_cohort.json`.
+- Guia interna `docs/sales/TEMPLATE_PACK_1_FEEDBACK_COHORT.md`.
+- Gate interno `backend/sqx-edge-tool/tools/template_pack_1_feedback_cohort.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_1_feedback_cohort`.
+
+Estado: Done.
+
+Decision M55:
+
+- La revision conserva metricas agregadas, temas de feedback, soporte, refunds, senales positivas y decision de roadmap.
+- No guarda mensajes crudos, emails en claro ni payloads de proveedor.
+- `expand_traffic` exige compradores suficientes, feedback suficiente, cero bugs bloqueantes, cero friccion de activacion, cero soporte abierto y cero refunds.
+- `build_template_pack_2` exige senales positivas claras y ausencia de riesgo operativo.
+- El siguiente paso real es M56: convertir el feedback en plan accionable de iteracion de oferta o Template Pack 2.
