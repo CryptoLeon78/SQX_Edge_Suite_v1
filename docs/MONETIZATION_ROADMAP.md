@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M62 - Template Pack 2 Post-Purchase Handoff.
-- Current state: `template_pack_2_handoff_ready`.
+- Completed through: M63 - Template Pack 2 Sales Register.
+- Current state: `template_pack_2_sales_register_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M63 - Template Pack 2 Sales Register.
+- Next recommended phase: M64 - Template Pack 2 Feedback Cohort Review.
 
 ## Decision Base
 
@@ -1362,3 +1362,24 @@ Decision M62:
 - La decision queda restringida a `scale_limited`, `hold_review` o `pause_sales`.
 - La evidencia redacta el email del comprador y no guarda payloads crudos del proveedor.
 - El siguiente paso real es M63: registro de ventas y cohorte temprana de Template Pack 2 antes de ampliar trafico.
+
+## Phase M63 - Template Pack 2 Sales Register
+
+Objetivo: consolidar un registro interno de ventas de Template Pack 2 antes de abrir mas trafico publico.
+
+Entregables:
+
+- Estado `template_pack_2_sales_register_ready`.
+- Configuracion `backend/sqx-edge-tool/config/template_pack_2_sales_register.json`.
+- Guia interna `docs/sales/TEMPLATE_PACK_2_SALES_REGISTER.md`.
+- Gate interno `backend/sqx-edge-tool/tools/template_pack_2_sales_register.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_2_sales_register`.
+
+Estado: Done.
+
+Decision M63:
+
+- El registro conserva referencia redactada de comprador, order id, canal, importe, delivery/support status, refunds, fallos de fulfillment y decision.
+- No guarda emails en claro ni payloads crudos del proveedor.
+- `scale_limited` exige venta pagada, entrega confirmada, cero soporte abierto, cero refunds y cero fallos.
+- El siguiente paso real es M64: revisar cohorte temprana y feedback real de Template Pack 2 antes de ampliar trafico.

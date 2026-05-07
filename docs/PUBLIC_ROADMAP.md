@@ -29,10 +29,11 @@ Last updated: 2026-05-07.
 - Publicacion controlada de Template Pack 2 preparada con checkout real, soporte, rollback y purchase drill.
 - Purchase drill controlado de Template Pack 2 preparado con evidencia redactada de pago, entrega y soporte.
 - Handoff post-compra de Template Pack 2 preparado con soporte inicial y decision de escala/pausa.
+- Registro interno de ventas de Template Pack 2 preparado para revisar entrega, soporte, refunds y decision de escala.
 
 ## Next
 
-- Consolidar registro de ventas y cohorte temprana de Template Pack 2 antes de ampliar trafico.
+- Revisar feedback y cohorte temprana de Template Pack 2 antes de ampliar trafico.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.

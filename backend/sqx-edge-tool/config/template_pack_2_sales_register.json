@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "state": "template_pack_2_sales_register_ready",
+  "registerId": "template_pack_2_addon_sales_register",
+  "offerId": "template_pack_2",
+  "name": "Template Pack 2 Add-On Sales Register",
+  "dependsOn": {
+    "handoffConfig": "backend/sqx-edge-tool/config/template_pack_2_handoff.json",
+    "handoffState": "template_pack_2_handoff_ready"
+  },
+  "requiredFiles": [
+    "backend/sqx-edge-tool/config/template_pack_2_handoff.json",
+    "backend/sqx-edge-tool/tools/template_pack_2_handoff.py",
+    "docs/sales/TEMPLATE_PACK_2_HANDOFF.md",
+    "docs/sales/TEMPLATE_PACK_2_SALES_REGISTER.md",
+    "resources/pro-template-pack-2/README.md",
+    "resources/pro-template-pack-2/checklists/delivery_checklist.md",
+    "resources/pro-template-pack-2/checklists/support_boundaries.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "requiredConfirmations": [
+    "handoff_go",
+    "sale_recorded",
+    "delivery_status_recorded",
+    "support_status_recorded",
+    "safe_claims_reviewed",
+    "scale_decision_recorded"
+  ],
+  "allowedChannels": [
+    "Lemon Squeezy",
+    "Gumroad",
+    "manual_invoice",
+    "test_checkout"
+  ],
+  "allowedSaleStatuses": [
+    "paid",
+    "refunded",
+    "disputed"
+  ],
+  "allowedDeliveryStatuses": [
+    "delivered",
+    "pending",
+    "failed"
+  ],
+  "allowedSupportStatuses": [
+    "open",
+    "resolved",
+    "needs_review"
+  ],
+  "allowedDecisions": [
+    "keep_tracking",
+    "scale_limited",
+    "pause_sales"
+  ],
+  "minimumSalesForScale": 1,
+  "maxOpenSupportItemsForScale": 0,
+  "maxRefundsForScale": 0,
+  "maxFulfillmentFailuresForScale": 0,
+  "privacyPolicy": "store_redacted_buyer_reference_order_status_support_metrics_and_scale_decision_only",
+  "registerPolicy": "append_redacted_jsonl_records_and_separate_evidence_reports_for_internal_operator_review",
+  "scaleRules": [
+    "scale_limited requires at least one paid sale, delivered add-on, no open support items, no refunds and no fulfillment failures.",
+    "keep_tracking is the default while the operator collects more buyer evidence.",
+    "pause_sales is required when delivery, refunds, disputes or support outcomes are unclear."
+  ]
+}

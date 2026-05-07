@@ -53,6 +53,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "template_pack_2_publication.py",
             TOOL_ROOT / "tools" / "template_pack_2_purchase_drill.py",
             TOOL_ROOT / "tools" / "template_pack_2_handoff.py",
+            TOOL_ROOT / "tools" / "template_pack_2_sales_register.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
             TOOL_ROOT / "tools" / "relay_bundle.py",
@@ -117,6 +118,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("template_pack_2_publication\\.py", text)
         self.assertIn("template_pack_2_purchase_drill\\.py", text)
         self.assertIn("template_pack_2_handoff\\.py", text)
+        self.assertIn("template_pack_2_sales_register\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
         self.assertIn("relay_bundle\\.py", text)
@@ -146,6 +148,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn('"template_pack_2_publication"', text)
         self.assertIn('"template_pack_2_purchase_drill"', text)
         self.assertIn('"template_pack_2_handoff"', text)
+        self.assertIn('"template_pack_2_sales_register"', text)
         self.assertIn('"pro-template-pack-1"', text)
         self.assertIn('"pro-template-pack-2"', text)
         self.assertIn('"license_keys"', text)
@@ -196,6 +199,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("template_pack_2_publication.py", text)
         self.assertIn("template_pack_2_purchase_drill.py", text)
         self.assertIn("template_pack_2_handoff.py", text)
+        self.assertIn("template_pack_2_sales_register.py", text)
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
         self.assertIn("relay_bundle.py", text)
@@ -219,6 +223,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("template_pack_2_publication", text)
         self.assertIn("template_pack_2_purchase_drill", text)
         self.assertIn("template_pack_2_handoff", text)
+        self.assertIn("template_pack_2_sales_register", text)
         self.assertIn("pro-template-pack-1", text)
         self.assertIn("pro-template-pack-2", text)
         self.assertIn("license_keys", text)
@@ -267,6 +272,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "template_pack_2_publication.py",
             "template_pack_2_purchase_drill.py",
             "template_pack_2_handoff.py",
+            "template_pack_2_sales_register.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
             "relay_bundle.py",
@@ -289,6 +295,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "template_pack_2_publication",
             "template_pack_2_purchase_drill",
             "template_pack_2_handoff",
+            "template_pack_2_sales_register",
             "pro-template-pack-1",
             "pro-template-pack-2",
             "license_keys",
@@ -331,6 +338,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/data/template_pack_2_publication/", text)
         self.assertIn("backend/sqx-edge-tool/data/template_pack_2_purchase_drill/", text)
         self.assertIn("backend/sqx-edge-tool/data/template_pack_2_handoff/", text)
+        self.assertIn("backend/sqx-edge-tool/data/template_pack_2_sales_register/", text)
 
     def test_release_bat_runs_strict_checklist(self):
         text = (PROJECT_ROOT / "RELEASE_SQX_EDGE.bat").read_text(encoding="utf-8-sig")

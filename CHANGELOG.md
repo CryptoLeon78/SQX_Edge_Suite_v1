@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 2 sales register
+
+- Anade M63 con registro interno de ventas de Template Pack 2.
+- Anade `template_pack_2_sales_register.py` para validar venta, entrega, soporte, refunds, fallos y decision de escala.
+- Actualiza estado comercial a `template_pack_2_sales_register_ready`.
+- Mantiene evidencia redactada y fuera del ZIP portable.
+
 ## 2026-05-07 - Template Pack 2 post-purchase handoff
 
 - Anade M62 con handoff post-compra de Template Pack 2.
