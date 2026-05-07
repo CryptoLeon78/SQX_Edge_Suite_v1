@@ -34,6 +34,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "launch_assets_kit.py",
             TOOL_ROOT / "tools" / "public_release_gate.py",
             TOOL_ROOT / "tools" / "release_publication_record.py",
+            TOOL_ROOT / "tools" / "post_release_monitor.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
             TOOL_ROOT / "tools" / "relay_bundle.py",
@@ -79,6 +80,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("launch_assets_kit\\.py", text)
         self.assertIn("public_release_gate\\.py", text)
         self.assertIn("release_publication_record\\.py", text)
+        self.assertIn("post_release_monitor\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
         self.assertIn("relay_bundle\\.py", text)
@@ -119,6 +121,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("launch_assets_kit.py", text)
         self.assertIn("public_release_gate.py", text)
         self.assertIn("release_publication_record.py", text)
+        self.assertIn("post_release_monitor.py", text)
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
         self.assertIn("relay_bundle.py", text)
@@ -151,6 +154,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "launch_assets_kit.py",
             "public_release_gate.py",
             "release_publication_record.py",
+            "post_release_monitor.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
             "relay_bundle.py",

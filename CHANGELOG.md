@@ -264,6 +264,13 @@ El ZIP final se genera en:
 ```text
 dist/SQX_Edge_Tool_Portable_*.zip
 ```
+# 2026-05-07 - Post release monitor
+
+- Anade `post_release_monitor.py` para decidir mantener, pausar, hotfix, rollback o `scale_public`.
+- Valida descargas, ventas, activaciones, tickets, incidencias severas, refunds y fallos de fulfillment.
+- Refuerza empaquetado, auditoria y checklist para excluir la nueva herramienta interna.
+- Documenta M43 y el runbook de monitorizacion post-release.
+
 # 2026-05-06 - Release publication record
 
 - Anade `release_publication_record.py` para registrar evidencia post-publicacion.

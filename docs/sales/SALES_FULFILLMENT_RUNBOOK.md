@@ -17,6 +17,7 @@
 - `launch_assets_kit.py` ejecutado antes de crear release publica o publicar assets.
 - `public_release_gate.py` ejecutado antes de publicar tag/release final con ZIP y SHA256.
 - `release_publication_record.py` ejecutado despues de publicar para registrar tag, release, ZIP, SHA256 y rollback.
+- `post_release_monitor.py` ejecutado durante la ventana post-release para decidir mantener, pausar, hotfix, rollback o escalar.
 
 ## Sale To Delivery
 

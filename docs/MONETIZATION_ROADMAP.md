@@ -925,3 +925,24 @@ Decision M42:
 - La publicacion no se considera cerrada sin checksum coincidente y descarga probada.
 - Soporte y rollback deben permanecer abiertos durante la ventana inicial.
 - El siguiente paso real es monitorizar incidencias, activaciones y descargas post-release.
+
+## Phase M43 - Post Release Monitor
+
+Objetivo: monitorizar la ventana posterior a una release visible y decidir mantener, pausar, hotfix, rollback o escalar.
+
+Entregables:
+
+- Estado `post_release_monitor_ready`.
+- `post_release_monitor.py`.
+- Consumo de evidencia M42.
+- Validacion de descargas, ventas, activaciones, tickets, incidencias, refunds, fulfillment failures y rollback.
+- Evidencia local en `backend/sqx-edge-tool/data/post_release_monitor`.
+- Guia `POST_RELEASE_MONITOR.md`.
+
+Estado: Done.
+
+Decision M43:
+
+- No se escala con tickets abiertos, incidencias severas, `activation_error_rate_high`, refunds altos o rollback no disponible.
+- `scale_public` exige ventana minima y senal comercial minima.
+- El siguiente paso real es preparar el flujo de hotfix/rollback para cerrar incidentes sin improvisar.
