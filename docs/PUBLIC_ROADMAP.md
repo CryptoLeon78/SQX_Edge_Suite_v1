@@ -20,10 +20,11 @@ Last updated: 2026-05-07.
 - Gate de publicacion controlada preparado para conectar checkout real del add-on sin placeholders.
 - Purchase drill controlado preparado para validar pedido, entrega separada y soporte inicial.
 - Handoff post-compra preparado para revisar entrega, soporte inicial y decision de escalar o pausar.
+- Registro interno de ventas add-on preparado para revisar comprador, entrega, soporte, refunds y decision de escala con datos redactados.
 
 ## Next
 
-- Consolidar registro ligero de ventas add-on antes de abrir mas trafico.
+- Revisar cohorte de compradores del add-on y feedback real antes de ampliar trafico o crear Template Pack 2.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.

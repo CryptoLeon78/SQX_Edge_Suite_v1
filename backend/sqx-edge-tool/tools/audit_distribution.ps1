@@ -37,6 +37,7 @@ $denySegments = @(
   "template_pack_1_publication",
   "template_pack_1_purchase_drill",
   "template_pack_1_handoff",
+  "template_pack_1_sales_register",
   "pro-template-pack-1",
   "sqx-edge-relay"
 )
@@ -68,6 +69,7 @@ $denyFiles = @(
   "template_pack_1_publication.py",
   "template_pack_1_purchase_drill.py",
   "template_pack_1_handoff.py",
+  "template_pack_1_sales_register.py",
   "fulfillment_request.py",
   "fulfill_from_request.ps1",
   "relay_bundle.py",
@@ -108,6 +110,7 @@ $requiredPackageGuards = @(
   '"template_pack_1_publication"',
   '"template_pack_1_purchase_drill"',
   '"template_pack_1_handoff"',
+  '"template_pack_1_sales_register"',
   '"pro-template-pack-1"',
   '"sqx-edge-relay"',
   'config\.json',
@@ -136,6 +139,7 @@ $requiredPackageGuards = @(
   'template_pack_1_publication\.py',
   'template_pack_1_purchase_drill\.py',
   'template_pack_1_handoff\.py',
+  'template_pack_1_sales_register\.py',
   'fulfillment_request\.py',
   'fulfill_from_request\.ps1',
   'relay_bundle\.py',

@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M53 - Template Pack 1 Post-Purchase Handoff And Scale Decision.
-- Current product/commercial state: `template_pack_1_handoff_ready`.
-- Next implementation phase: M54 - Template Pack 1 Add-On Sales Register.
+- Current phase completed: M54 - Template Pack 1 Add-On Sales Register.
+- Current product/commercial state: `template_pack_1_sales_register_ready`.
+- Next implementation phase: M55 - Template Pack 1 Feedback Cohort Review.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

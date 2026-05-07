@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 1 sales register
+
+- Anade M54 con registro interno de ventas add-on para Template Pack 1.
+- Anade `template_pack_1_sales_register.py` para validar venta, entrega, soporte, refunds, fulfillment y decision de escala.
+- Actualiza estado comercial a `template_pack_1_sales_register_ready`.
+- Mantiene referencia de comprador redactada, evidencia local fuera del ZIP base y decision responsable antes de abrir mas trafico.
+
 ## 2026-05-07 - Template Pack 1 handoff
 
 - Anade M53 con gate de handoff post-compra para Template Pack 1.
