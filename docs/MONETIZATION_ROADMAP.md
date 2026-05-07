@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M65 - Buyer-Ready Checkout Release Closeout.
-- Current state: `buyer_ready_checkout_release_closeout_ready`.
+- Completed through: M66 - Public Buyer Page Checklist And First-Sale Cadence.
+- Current state: `public_buyer_page_cadence_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M66 - Public Buyer Page Checklist And First-Sale Cadence.
+- Next recommended phase: M67 - First Controlled Buyer Operating Log And Post-Sale Review.
 
 ## Decision Base
 
@@ -1426,3 +1426,24 @@ Decision M65:
 - La evidencia guarda solo estado operativo agregado, sin emails completos, licencias firmadas, secretos ni payloads de proveedor.
 - `open_controlled_sales` queda reservado para una venta controlada con soporte/rollback operativo.
 - El siguiente paso real es M66: preparar pagina/checklist publico de comprador y cadencia tranquila de primera venta.
+
+## Phase M66 - Public Buyer Page Checklist And First-Sale Cadence
+
+Objetivo: preparar una pagina/checklist publico de comprador y una cadencia tranquila de primera venta antes de ampliar distribucion.
+
+Entregables:
+
+- Estado `public_buyer_page_cadence_ready`.
+- Configuracion `backend/sqx-edge-tool/config/public_buyer_page_cadence.json`.
+- Guia interna `docs/sales/PUBLIC_BUYER_PAGE_CADENCE.md`.
+- Gate interno `backend/sqx-edge-tool/tools/public_buyer_page_cadence.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/public_buyer_page_cadence`.
+
+Estado: Done.
+
+Decision M66:
+
+- El gate exige closeout M65 GO, copy publico revisado, precios/terminos revisados, pasos de comprador, soporte, cadencia de primera venta, claims seguros y rollback.
+- La evidencia no guarda compradores, emails, licencias firmadas, secretos ni payloads del proveedor.
+- `publish_private_page` queda limitado a enlace privado/controlado con cadencia y soporte revisados.
+- El siguiente paso real es M67: registrar primer comprador controlado con activacion, soporte y revision post-venta ligera.

@@ -78,6 +78,7 @@ MONETIZATION_M62_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M62.md"
 MONETIZATION_M63_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M63.md"
 MONETIZATION_M64_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M64.md"
 MONETIZATION_M65_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M65.md"
+MONETIZATION_M66_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M66.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -430,8 +431,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "buyer_ready_checkout_release_closeout_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "buyer_ready_checkout_release_closeout_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "public_buyer_page_cadence_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "public_buyer_page_cadence_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
@@ -525,8 +526,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("customer_cockpit_overview", server_py)
         self.assertIn("redacted_operator_summary", customer_cockpit_py)
         self.assertIn("license payloads", customer_cockpit_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "buyer_ready_checkout_release_closeout_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "buyer_ready_checkout_release_closeout_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "public_buyer_page_cadence_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "public_buyer_page_cadence_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitEndpoint"], "/api/customer-cockpit")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitConfig"], "backend/sqx-edge-tool/config/customer_cockpit.json")
         self.assertEqual(
@@ -679,6 +680,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(
             product_manifest["upgrade"]["checkout"]["buyerReadyCheckoutCloseoutPolicy"],
             "confirm_basic_user_checkout_release_license_support_and_rollback_before_controlled_sales",
+        )
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["publicBuyerPageCadenceConfig"], "backend/sqx-edge-tool/config/public_buyer_page_cadence.json")
+        self.assertIn("public_buyer_page_cadence.py", product_manifest["upgrade"]["checkout"]["publicBuyerPageCadenceTool"])
+        self.assertIn("public_buyer_page_cadence", product_manifest["upgrade"]["checkout"]["publicBuyerPageCadenceEvidenceDir"])
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["publicBuyerPageCadencePolicy"],
+            "prepare_public_buyer_page_checklist_support_cadence_and_first_sale_operations_before_wider_distribution",
         )
 
     def test_dashboard_navigation_delegates_to_ui_module(self):
@@ -1081,7 +1089,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "buyer_ready_checkout_release_closeout_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "public_buyer_page_cadence_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
@@ -1192,9 +1200,11 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/template_pack_2_feedback_cohort.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/buyer_ready_checkout_closeout", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/buyer_ready_checkout_closeout.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/public_buyer_page_cadence", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/public_buyer_page_cadence.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-2", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "buyer_ready_checkout_release_closeout_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "public_buyer_page_cadence_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -1389,6 +1399,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         m63 = MONETIZATION_M63_DOC.read_text(encoding="utf-8-sig")
         m64 = MONETIZATION_M64_DOC.read_text(encoding="utf-8-sig")
         m65 = MONETIZATION_M65_DOC.read_text(encoding="utf-8-sig")
+        m66 = MONETIZATION_M66_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
@@ -1413,6 +1424,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         template_pack_2_sales_register = (PROJECT_ROOT / "docs" / "sales" / "TEMPLATE_PACK_2_SALES_REGISTER.md").read_text(encoding="utf-8-sig")
         template_pack_2_feedback_cohort = (PROJECT_ROOT / "docs" / "sales" / "TEMPLATE_PACK_2_FEEDBACK_COHORT.md").read_text(encoding="utf-8-sig")
         buyer_ready_closeout = (PROJECT_ROOT / "docs" / "sales" / "BUYER_READY_CHECKOUT_RELEASE.md").read_text(encoding="utf-8-sig")
+        public_buyer_page = (PROJECT_ROOT / "docs" / "sales" / "PUBLIC_BUYER_PAGE_CADENCE.md").read_text(encoding="utf-8-sig")
         relay_ops = (PROJECT_ROOT / "docs" / "sales" / "RELAY_INGEST_NOTES.md").read_text(encoding="utf-8-sig")
         relay_service_ops = (PROJECT_ROOT / "docs" / "sales" / "RELAY_SERVICE_OPERATIONS.md").read_text(encoding="utf-8-sig")
         commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
@@ -1484,6 +1496,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M63", roadmap)
         self.assertIn("Phase M64", roadmap)
         self.assertIn("Phase M65", roadmap)
+        self.assertIn("Phase M66", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -1548,6 +1561,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M63: consolidate Template Pack 2 sales register and early cohort tracking before more traffic. Done.", next_steps)
         self.assertIn("Phase M64: review Template Pack 2 early buyer feedback, support signals, refunds and scale decision. Done.", next_steps)
         self.assertIn("Phase M65: close buyer-ready checkout, release, support and delivery readiness for controlled first sales. Done.", next_steps)
+        self.assertIn("Phase M66: prepare public buyer page checklist and a calm first-sale operating cadence. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -2529,6 +2543,20 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("--confirm-license-delivery-reviewed", buyer_ready_closeout)
         self.assertIn("pause_sales", buyer_ready_closeout)
 
+        m66_patterns = [
+            "public_buyer_page_cadence_ready",
+            "public_buyer_page_cadence.py",
+            "PUBLIC_BUYER_PAGE_CADENCE.md",
+            "publish_private_page",
+            "Estado: Done.",
+        ]
+        for pattern in m66_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m66)
+        self.assertIn("Public Buyer Page Checklist And First-Sale Cadence", public_buyer_page)
+        self.assertIn("--confirm-first-sale-cadence-reviewed", public_buyer_page)
+        self.assertIn("pause_sales", public_buyer_page)
+
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
@@ -3485,6 +3513,38 @@ class DashboardStaticTestCase(unittest.TestCase):
             "open_sales_needs_positive_feedback_decision",
             "--use-latest-feedback-cohort",
             "--confirm-license-delivery-reviewed",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, tool_text)
+
+    def test_public_buyer_page_cadence_gate_is_present(self):
+        tool_path = TOOL_ROOT / "tools" / "public_buyer_page_cadence.py"
+        config_path = TOOL_ROOT / "config" / "public_buyer_page_cadence.json"
+        py_compile.compile(str(tool_path), doraise=True)
+        config = json.loads(config_path.read_text(encoding="utf-8-sig"))
+        tool_text = tool_path.read_text(encoding="utf-8")
+
+        self.assertEqual(config["state"], "public_buyer_page_cadence_ready")
+        self.assertEqual(config["offerId"], "sqx_edge_pro_public_buyer_page")
+        self.assertEqual(config["dependsOn"]["buyerReadyCloseoutState"], "buyer_ready_checkout_release_closeout_ready")
+        self.assertEqual(config["privacyPolicy"], "store_public_page_checklist_and_first_sale_cadence_without_customer_data")
+        self.assertIn("publish_private_page", config["allowedDecisions"])
+        self.assertIn("keep_draft", config["allowedDecisions"])
+        self.assertIn("revise_copy", config["allowedDecisions"])
+        self.assertIn("pause_sales", config["allowedDecisions"])
+        for required in config["requiredFiles"]:
+            with self.subTest(required=required):
+                self.assertTrue((PROJECT_ROOT / required).is_file(), required)
+
+        for pattern in (
+            "public_buyer_page_cadence_ready",
+            "buyer_ready_checkout_closeout_state_invalid",
+            "buyer_ready_checkout_closeout_evidence_missing",
+            "public_page_sections_incomplete",
+            "first_sale_cadence_incomplete",
+            "publish_private_page_needs_private_link_ready",
+            "--use-latest-buyer-ready-closeout",
+            "--confirm-first-sale-cadence-reviewed",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, tool_text)

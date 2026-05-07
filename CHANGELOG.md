@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Public buyer page cadence
+
+- Anade M66 con checklist de pagina publica de comprador y cadencia de primera venta.
+- Anade `public_buyer_page_cadence.py` para validar copy, pasos de comprador, soporte, claims y rollback.
+- Actualiza estado comercial a `public_buyer_page_cadence_ready`.
+- Mantiene evidencia de pagina/cadencia fuera del ZIP portable.
+
 ## 2026-05-07 - Buyer-ready checkout closeout
 
 - Anade M65 con cierre buyer-ready para checkout, release, licencia, soporte y rollback.

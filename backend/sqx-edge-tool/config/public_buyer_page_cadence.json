@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "state": "public_buyer_page_cadence_ready",
+  "reviewId": "public_buyer_page_cadence",
+  "offerId": "sqx_edge_pro_public_buyer_page",
+  "name": "Public Buyer Page Checklist And First-Sale Cadence",
+  "dependsOn": {
+    "buyerReadyCloseoutConfig": "backend/sqx-edge-tool/config/buyer_ready_checkout_closeout.json",
+    "buyerReadyCloseoutState": "buyer_ready_checkout_release_closeout_ready"
+  },
+  "requiredFiles": [
+    "README.md",
+    "docs/sales/BUYER_READY_CHECKOUT_RELEASE.md",
+    "docs/sales/PUBLIC_BUYER_PAGE_CADENCE.md",
+    "resources/pro-buyer-pack/onboarding/START_HERE.md",
+    "resources/pro-buyer-pack/onboarding/faq_basic_user.md",
+    "resources/pro-buyer-pack/onboarding/support_contact_template.md",
+    "resources/pro-template-pack-2/offer/public_offer.md",
+    "resources/pro-template-pack-2/offer/faq.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "requiredConfirmations": [
+    "buyer_ready_closeout_go",
+    "public_copy_reviewed",
+    "price_terms_reviewed",
+    "buyer_steps_reviewed",
+    "support_cadence_reviewed",
+    "first_sale_cadence_reviewed",
+    "safe_claims_reviewed",
+    "rollback_reviewed"
+  ],
+  "allowedDecisions": [
+    "publish_private_page",
+    "keep_draft",
+    "revise_copy",
+    "pause_sales"
+  ],
+  "allowedPageStatuses": [
+    "draft_reviewed",
+    "private_link_ready",
+    "published_controlled"
+  ],
+  "minimumPublicPageSections": 6,
+  "minimumCadenceSteps": 5,
+  "privacyPolicy": "store_public_page_checklist_and_first_sale_cadence_without_customer_data",
+  "publicationPolicy": "prepare_public_buyer_page_copy_checklist_support_cadence_and_first_sale_operations_before_wider_distribution",
+  "decisionRules": [
+    "publish_private_page requires buyer-ready closeout GO, reviewed copy, pricing terms, buyer steps, support cadence, safe claims and rollback.",
+    "keep_draft is valid when the material is ready but the page remains private while confidence grows.",
+    "revise_copy is the default when copy, FAQ, claims, pricing or first-sale cadence need refinement.",
+    "pause_sales is required when support, rollback, claims or delivery risk is unresolved."
+  ]
+}

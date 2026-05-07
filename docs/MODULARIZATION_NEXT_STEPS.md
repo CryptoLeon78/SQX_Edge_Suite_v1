@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M65 - Buyer-Ready Checkout Release Closeout.
-- Current product/commercial state: `buyer_ready_checkout_release_closeout_ready`.
+- Current completed phase: M66 - Public Buyer Page Checklist And First-Sale Cadence.
+- Current product/commercial state: `public_buyer_page_cadence_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
-- Last synced base commit before M65: `7215328`.
+- Last synced base commit before M66: `244f8b3`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M66 - Public Buyer Page Checklist And First-Sale Cadence.
+- Next recommended phase: M67 - First Controlled Buyer Operating Log And Post-Sale Review.
 
 ## Recommended Order
 
@@ -111,4 +111,5 @@ Persistent planning note for the next SQX Edge phases.
 63. Phase M63: consolidate Template Pack 2 sales register and early cohort tracking before more traffic. Done.
 64. Phase M64: review Template Pack 2 early buyer feedback, support signals, refunds and scale decision. Done.
 65. Phase M65: close buyer-ready checkout, release, support and delivery readiness for controlled first sales. Done.
-66. Phase M66: prepare public buyer page checklist and a calm first-sale operating cadence. Recommended next.
+66. Phase M66: prepare public buyer page checklist and a calm first-sale operating cadence. Done.
+67. Phase M67: prepare first controlled buyer operating log and lightweight post-sale review. Recommended next.
