@@ -188,6 +188,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `backend/sqx-edge-tool/tools/hotfix_rollback_release.py` | Hotfix/rollback release kit for incident action, owner, notes, customer comms, verification and closure evidence. |
 | `backend/sqx-edge-tool/tools/pro_buyer_pack.py` | Internal validator for buyer-facing Pro data/templates before packaging. |
 | `backend/sqx-edge-tool/tools/buyer_onboarding_support_gate.py` | Internal buyer handoff gate for purchase, ZIP, license, START_HERE, FAQ, support contact and safe claims. |
+| `backend/sqx-edge-tool/tools/template_pack_1_delivery.py` | Internal validator and packager for Template Pack 1 add-on delivery. |
 | `backend/sqx-edge-relay/api/server.py` | Deployable remote relay service for Lemon webhooks, queue inspection and dispatch. |
 | `backend/sqx-edge-relay/core/relay_queue.py` | Remote relay queue, signed bundle dispatch and requeue logic. |
 | `backend/sqx-edge-relay/core/relay_settings.py` | Relay environment settings, config readiness and operator token checks. |
@@ -204,6 +205,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `backend/sqx-edge-tool/config/*.json` | Dynamic catalogs for assets, instruments, profiles, plan and UI manifest. |
 | `backend/sqx-edge-tool/templates/*.cfx` | StrategyQuant template files used by generation. |
 | `resources/pro-buyer-pack/*` | Buyer-facing Pro starter data, CSV import template, onboarding, activation/support checklists and first-value material. |
+| `resources/pro-template-pack-1/*` | Buyer-facing add-on source for Template Pack 1, packaged separately from the base portable ZIP. |
 
 ## Portable Packaging
 
@@ -229,6 +231,7 @@ The package excludes:
 - `.pytest_cache`
 - downloaded runtime cache
 - local `backend/sqx-edge-tool/config.json`
+- `resources/pro-template-pack-1/` because Template Pack 1 is a separate paid add-on delivery.
 
 ## Contract Tests
 

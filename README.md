@@ -4,11 +4,11 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: M48 completada, `buyer_onboarding_support_gate_ready`.
-- Ultimo commit base verificado antes de M48: `bc07341`.
+- Estado interno: M49 completada, `template_pack_1_delivery_ready`.
+- Ultimo commit base verificado antes de M49: `a004f44`.
 - Ultimo ZIP portable verificado antes de M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - SHA256 del ZIP: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Siguiente paso recomendado: M49, empaquetar Template Pack 1 y flujo de entrega complementaria.
+- Siguiente paso recomendado: M50, flujo de publicacion/venta del add-on Template Pack 1.
 
 ## SQX Edge Pro
 
@@ -20,7 +20,7 @@ Oferta inicial prevista:
 - SQX Edge Pro Mensual: 24 EUR/mes.
 - SQX Edge Pro Anual: 199 EUR/ano.
 - Setup Assist: instalacion y configuracion guiada.
-- Premium Template Pack 1: pack comercial separado.
+- Template Pack 1: pack comercial separado.
 
 Aviso responsable: SQX Edge Pro no promete rentabilidad ni resultados financieros. La propuesta es productividad, orden, trazabilidad y reduccion de errores operativos dentro de StrategyQuant X.
 
@@ -32,6 +32,7 @@ Documentos comerciales:
 - `docs/PROJECT_GOVERNANCE.md`
 - `resources/pro-buyer-pack/README.md`
 - `resources/pro-buyer-pack/onboarding/START_HERE.md`
+- `docs/sales/TEMPLATE_PACK_1_DELIVERY.md`
 
 Activacion Pro prevista:
 

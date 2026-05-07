@@ -1,0 +1,31 @@
+{
+  "id": "edge_discovery_momentum",
+  "label": "Edge Discovery Momentum",
+  "description": "Perfil inicial para explorar continuacion con familias de momentum y tendencia.",
+  "assetClasses": [
+    "forex_major",
+    "indices"
+  ],
+  "timeframes": [
+    "M15",
+    "M30",
+    "H1"
+  ],
+  "indicatorFamilies": [
+    "EMA",
+    "MACD",
+    "RSI",
+    "ADX"
+  ],
+  "riskNotes": [
+    "Evitar optimizaciones demasiado estrechas.",
+    "Separar discovery, filtrado y validacion.",
+    "Comparar estabilidad entre activos antes de ampliar uso."
+  ],
+  "expectedWorkflow": [
+    "Seleccionar universo pequeno.",
+    "Generar candidatos.",
+    "Exportar resultados a Estrategias.",
+    "Filtrar por robustez y trazabilidad."
+  ]
+}

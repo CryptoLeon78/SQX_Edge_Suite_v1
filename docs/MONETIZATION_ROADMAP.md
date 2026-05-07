@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M48 - Basic Buyer Onboarding And Support Gate.
-- Current state: `buyer_onboarding_support_gate_ready`.
+- Completed through: M49 - Pro Template Pack 1 Packaging And Delivery.
+- Current state: `template_pack_1_delivery_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M49 - Pro Template Pack 1 Packaging And Delivery.
+- Next recommended phase: M50 - Template Pack 1 Public Add-On Offer And Checkout Wiring.
 
 ## Decision Base
 
@@ -1063,3 +1063,25 @@ Decision M48:
 - El gate interno valida que compra, ZIP, licencia, guia, FAQ, soporte y claims seguros estan listos antes de entregar.
 - La evidencia y herramienta interna no se empaquetan.
 - El siguiente paso real es M49: empaquetar Template Pack 1 como add-on comercial controlado.
+
+## Phase M49 - Pro Template Pack 1 Packaging And Delivery
+
+Objetivo: empaquetar Template Pack 1 como add-on comercial separado del ZIP base, con perfiles reales, entrega controlada, claims seguros y soporte acotado.
+
+Entregables:
+
+- Estado `template_pack_1_delivery_ready`.
+- Configuracion `backend/sqx-edge-tool/config/template_pack_1.json`.
+- Recursos buyer-facing en `resources/pro-template-pack-1`.
+- Guia interna `docs/sales/TEMPLATE_PACK_1_DELIVERY.md`.
+- Validador y packager interno `backend/sqx-edge-tool/tools/template_pack_1_delivery.py`.
+- Evidencia local excluida de ZIP en `backend/sqx-edge-tool/data/template_pack_1_delivery`.
+
+Estado: Done.
+
+Decision M49:
+
+- Template Pack 1 no viaja en el ZIP base.
+- Se entrega como ZIP add-on separado despues de validar buyer onboarding, orden del add-on, perfiles, soporte y claims seguros.
+- La herramienta interna y la evidencia local no se empaquetan.
+- El siguiente paso real es M50: preparar oferta publica y checkout del add-on.

@@ -865,6 +865,8 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/data/customer_cockpit",
         "backend/sqx-edge-tool/data/pro_buyer_pack",
         "backend/sqx-edge-tool/data/buyer_onboarding_support_gate",
+        "backend/sqx-edge-tool/data/template_pack_1_delivery",
+        "resources/pro-template-pack-1",
         "backend/sqx-edge-tool/tools/license_signer.py",
         "backend/sqx-edge-tool/tools/license_keypair.ps1",
         "backend/sqx-edge-tool/tools/license_issue.py",
@@ -884,6 +886,7 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/tools/customer_success_renewal.py",
         "backend/sqx-edge-tool/tools/pro_buyer_pack.py",
         "backend/sqx-edge-tool/tools/buyer_onboarding_support_gate.py",
+        "backend/sqx-edge-tool/tools/template_pack_1_delivery.py",
         "backend/sqx-edge-tool/tools/fulfillment_request.py",
         "backend/sqx-edge-tool/tools/fulfill_from_request.ps1",
         "backend/sqx-edge-tool/tools/relay_bundle.py"
@@ -1023,6 +1026,12 @@ window.SQX_MANIFEST = {
           "label": "Setup Assist",
           "price": "149 EUR",
           "checkoutUrl": ""
+        },
+        {
+          "id": "template_pack_1",
+          "label": "Template Pack 1",
+          "price": "49 EUR",
+          "checkoutUrl": ""
         }
       ],
       "disclaimer": "No promete rentabilidad ni resultados financieros. La propuesta es productividad, orden y reduccion de errores operativos.",
@@ -1030,7 +1039,7 @@ window.SQX_MANIFEST = {
       "checkoutLabel": "Comprar Pro",
       "checkoutUrl": "",
       "checkout": {
-        "status": "buyer_onboarding_support_gate_ready",
+        "status": "template_pack_1_delivery_ready",
         "primaryProvider": "Lemon Squeezy",
         "fallbackProvider": "Gumroad",
         "mode": "hosted_checkout",
@@ -1089,9 +1098,14 @@ window.SQX_MANIFEST = {
         "buyerOnboardingSupportGateTool": "backend/sqx-edge-tool/tools/buyer_onboarding_support_gate.py",
         "buyerOnboardingSupportGateEvidenceDir": "backend/sqx-edge-tool/data/buyer_onboarding_support_gate",
         "buyerOnboardingSupportGatePolicy": "confirm_purchase_zip_license_start_here_faq_support_and_safe_claims_before_handoff",
+        "templatePack1Config": "backend/sqx-edge-tool/config/template_pack_1.json",
+        "templatePack1ResourceDir": "resources/pro-template-pack-1",
+        "templatePack1DeliveryTool": "backend/sqx-edge-tool/tools/template_pack_1_delivery.py",
+        "templatePack1EvidenceDir": "backend/sqx-edge-tool/data/template_pack_1_delivery",
+        "templatePack1Policy": "deliver_as_separate_addon_zip_after_buyer_onboarding_gate_and_safe_claims_review",
         "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
         "automation": {
-          "status": "buyer_onboarding_support_gate_ready",
+          "status": "template_pack_1_delivery_ready",
           "webhookProvider": "Lemon Squeezy",
           "webhookSignatureHeader": "X-Signature",
           "webhookSigningAlgorithm": "hmac_sha256_hex",
@@ -1230,6 +1244,15 @@ window.SQX_MANIFEST = {
             "billing": "one_time_service",
             "licenseDurationDays": 31,
             "activationLimit": 1
+          },
+          {
+            "plan": "template_pack_1",
+            "label": "Template Pack 1",
+            "providerVariantId": "",
+            "price": "49 EUR",
+            "billing": "one_time_addon",
+            "licenseDurationDays": 0,
+            "activationLimit": 0
           }
         ],
         "postPurchaseSteps": [
@@ -1237,7 +1260,8 @@ window.SQX_MANIFEST = {
           "Generar licencia firmada con license_issue.py.",
           "Preparar entrega con prepare_customer_delivery.ps1.",
           "Validar buyer onboarding support gate antes de entregar.",
-          "Enviar ZIP portable, licencia JSON, START_HERE.md, FAQ y plantilla de soporte al cliente."
+          "Enviar ZIP portable, licencia JSON, START_HERE.md, FAQ y plantilla de soporte al cliente.",
+          "Si compra Template Pack 1, generar y entregar el ZIP add-on separado."
         ]
       }
     },

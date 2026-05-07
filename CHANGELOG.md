@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 1 delivery
+
+- Anade Template Pack 1 como add-on separado con perfiles JSON, CSV resumen, checklist y limites de soporte.
+- Anade `template_pack_1_delivery.py` para validar y empaquetar el add-on.
+- Actualiza estado comercial a `template_pack_1_delivery_ready`.
+- Refuerza empaquetado para excluir el add-on del ZIP base y generar entrega separada.
+
 ## 2026-05-07 - Buyer onboarding support gate
 
 - Anade recursos M48 de onboarding para comprador Pro basico.

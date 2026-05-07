@@ -1,0 +1,4 @@
+Template;Use Case;Asset Class;Timeframes;Indicator Families;Risk Note;Workflow Step
+Edge Discovery Momentum;Exploracion de continuidad;forex_major|indices;M15|M30|H1;EMA|MACD|RSI|ADX;Comparar estabilidad entre activos;Discovery
+Risk Controlled Continuation;Continuacion con control operativo;forex_cross|gold;M30|H1|H4;SuperTrend|Keltner|ATR|CCI;Revisar drawdown y estancamiento;Filtering
+Mean Reversion Lab;Laboratorio de reversion;forex_major|indices;M5|M15|M30;Bollinger|Stochastic|PercentRank|ZScore;Controlar costes y spread;Validation
