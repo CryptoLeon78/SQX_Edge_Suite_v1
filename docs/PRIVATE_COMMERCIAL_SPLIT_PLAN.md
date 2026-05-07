@@ -1,0 +1,46 @@
+# Private Commercial Split Plan
+
+Estado: prepared_not_deleted.
+
+Esta fase prepara la migracion de documentos comerciales sensibles a un repositorio privado sin borrar todavia las fuentes publicas. La razon es trazabilidad: primero se exporta, se valida el indice SHA256 y solo despues se sustituyen documentos publicos por punteros redactados.
+
+## Destino Recomendado
+
+- Repositorio privado: `sqx-edge-commercial-private`.
+- Export local ignorado: `commercial-private/sqx-edge-commercial-private/`.
+- Herramienta: `backend/sqx-edge-tool/tools/private_commercial_split.py`.
+- Indices generados en el export: `MIGRATION_INDEX.json` y `MIGRATION_INDEX.md`.
+
+## Material Que Debe Migrar
+
+- `docs/MONETIZATION_ROADMAP.md`
+- `docs/MONETIZATION_M*.md`
+- `docs/sales/`
+- `resources/pro-buyer-pack/`
+- `resources/pro-template-pack-1/`
+- `resources/pro-template-pack-2/`
+
+## Material Que Puede Seguir Publico
+
+- README, CHANGELOG y documentacion de release.
+- `docs/PUBLIC_ROADMAP.md`.
+- `docs/ARCHITECTURE.md`.
+- `docs/COMMERCIAL_README.md`, siempre que mantenga claims seguros y no incluya evidencias privadas.
+- `docs/PRIVATE_COMMERCIAL_DOCS.md`, este plan y el manifiesto de frontera.
+
+## Procedimiento
+
+1. Ejecutar el export local:
+
+```powershell
+backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\private_commercial_split.py
+```
+
+2. Crear el repositorio privado `sqx-edge-commercial-private`.
+3. Copiar el contenido de `commercial-private/sqx-edge-commercial-private/` al repo privado.
+4. Verificar `MIGRATION_INDEX.json` y los hashes SHA256.
+5. Solo despues, en otra fase, sustituir documentos publicos sensibles por punteros redactados.
+
+## Regla De Seguridad
+
+El historial publico se considera ya expuesto. Si algun documento contuvo secretos reales, datos personales o credenciales, no basta con moverlo: hay que rotar el secreto o tratar el historial con una fase separada.

@@ -128,6 +128,7 @@ function Test-IncludedPath {
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\post_sale_improvement_loop\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\post_sale_micro_updates\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\next_controlled_buyer_readiness\.py$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\tools\\private_commercial_split\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfillment_request\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfill_from_request\.ps1$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\relay_bundle\.py$") { return $false }

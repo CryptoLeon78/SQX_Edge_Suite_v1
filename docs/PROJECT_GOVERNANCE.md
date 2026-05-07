@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: Q1/S1 - CI Baseline And Private Commercial Docs Boundary.
+- Current phase completed: S2/M-pre - Private Commercial Docs Split Prepared.
 - Current product/commercial state: `next_controlled_buyer_readiness_ready`.
-- Next implementation phase: create/connect the private commercial repository, then M71 - Next Controlled Buyer Outcome Record.
+- Next implementation phase: create the private commercial repository, push the verified private export, then replace public sensitive docs with redacted pointers.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 
@@ -79,7 +79,7 @@ M46 is accepted when these criteria are true:
 - Portable distribution: `package_portable.ps1`, `audit_distribution.ps1`, `release_checklist.ps1`.
 - Commercial gates: `backend/sqx-edge-tool/tools/*` and `docs/sales/*`.
 - CI baseline: `.github/workflows/tests.yml` and `requirements-dev.txt`.
-- Private commercial boundary: `docs/PRIVATE_COMMERCIAL_DOCS.md` and `docs/private_commercial_manifest.json`.
+- Private commercial boundary: `docs/PRIVATE_COMMERCIAL_DOCS.md`, `docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md`, `docs/private_commercial_manifest.json` and `private_commercial_split.py`.
 - Roadmap state: `docs/MODULARIZATION_NEXT_STEPS.md` and `docs/MONETIZATION_ROADMAP.md`.
 
 ## Security Notes

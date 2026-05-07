@@ -930,6 +930,7 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/tools/post_sale_improvement_loop.py",
         "backend/sqx-edge-tool/tools/post_sale_micro_updates.py",
         "backend/sqx-edge-tool/tools/next_controlled_buyer_readiness.py",
+        "backend/sqx-edge-tool/tools/private_commercial_split.py",
         "backend/sqx-edge-tool/tools/fulfillment_request.py",
         "backend/sqx-edge-tool/tools/fulfill_from_request.ps1",
         "backend/sqx-edge-tool/tools/relay_bundle.py"

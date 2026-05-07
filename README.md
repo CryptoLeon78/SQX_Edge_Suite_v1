@@ -4,11 +4,11 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: Q1/S1 completadas tras M70; estado comercial vigente `next_controlled_buyer_readiness_ready`.
-- Ultimo commit base verificado antes de Q1/S1: `bab431f`.
+- Estado interno: S2/M-pre completada tras M70; estado comercial vigente `next_controlled_buyer_readiness_ready`.
+- Ultimo commit base verificado antes de S2/M-pre: `cc8dbf0`.
 - Ultimo ZIP portable verificado antes de M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - SHA256 del ZIP: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Siguiente paso recomendado: crear/conectar repo privado comercial y despues M71, registrar resultado del siguiente comprador controlado.
+- Siguiente paso recomendado: crear el repo privado `sqx-edge-commercial-private`, subir el export privado verificado y despues sustituir documentos publicos sensibles por punteros redactados.
 
 ## SQX Edge Pro
 
@@ -28,6 +28,7 @@ Documentos comerciales:
 
 - `docs/COMMERCIAL_README.md`
 - `docs/PRIVATE_COMMERCIAL_DOCS.md`
+- `docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md`
 - `docs/private_commercial_manifest.json`
 - `docs/MONETIZATION_ROADMAP.md`
 - `docs/PUBLIC_ROADMAP.md`
@@ -55,6 +56,14 @@ Documentos comerciales:
 - `docs/sales/NEXT_CONTROLLED_BUYER_READINESS.md`
 
 Nota de seguridad comercial: los documentos de venta interna, buyer logs, gates privados, evidencias de checkout/soporte y plantillas operativas deben migrarse a un repositorio privado antes de ampliar distribucion. El repo publico conserva documentacion buyer-facing, arquitectura, releases y claims seguros.
+
+Export privado preparado:
+
+```powershell
+backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\private_commercial_split.py
+```
+
+El export se genera en `commercial-private/sqx-edge-commercial-private/`, carpeta ignorada por git.
 
 Activacion Pro prevista:
 

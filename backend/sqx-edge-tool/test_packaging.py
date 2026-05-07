@@ -1,3 +1,7 @@
+import json
+import py_compile
+import subprocess
+import sys
 import unittest
 from pathlib import Path
 
@@ -61,6 +65,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "post_sale_improvement_loop.py",
             TOOL_ROOT / "tools" / "post_sale_micro_updates.py",
             TOOL_ROOT / "tools" / "next_controlled_buyer_readiness.py",
+            TOOL_ROOT / "tools" / "private_commercial_split.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
             TOOL_ROOT / "tools" / "relay_bundle.py",
@@ -133,6 +138,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("post_sale_improvement_loop\\.py", text)
         self.assertIn("post_sale_micro_updates\\.py", text)
         self.assertIn("next_controlled_buyer_readiness\\.py", text)
+        self.assertIn("private_commercial_split\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
         self.assertIn("relay_bundle\\.py", text)
@@ -230,6 +236,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("post_sale_improvement_loop.py", text)
         self.assertIn("post_sale_micro_updates.py", text)
         self.assertIn("next_controlled_buyer_readiness.py", text)
+        self.assertIn("private_commercial_split.py", text)
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
         self.assertIn("relay_bundle.py", text)
@@ -319,6 +326,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "post_sale_improvement_loop.py",
             "post_sale_micro_updates.py",
             "next_controlled_buyer_readiness.py",
+            "private_commercial_split.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
             "relay_bundle.py",
@@ -428,9 +436,35 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("docs/private-commercial/", boundary)
         self.assertIn("recommendedTarget", manifest)
         self.assertIn("private_github_repository", manifest)
+        self.assertIn("private_commercial_split.py", manifest)
+        self.assertIn("prepared_not_deleted", manifest)
+        self.assertIn("copy_sensitive_docs_to_private_repo_with_sha256_index", manifest)
         self.assertIn("docs/MONETIZATION_M*.md", manifest)
         self.assertIn("docs/sales/", manifest)
         self.assertIn("resources/pro-template-pack-2/", manifest)
+
+    def test_private_commercial_split_tool_builds_traceable_index(self):
+        tool_path = TOOL_ROOT / "tools" / "private_commercial_split.py"
+        py_compile.compile(str(tool_path), doraise=True)
+
+        result = subprocess.run(
+            [sys.executable, str(tool_path), "--no-write"],
+            cwd=PROJECT_ROOT,
+            text=True,
+            capture_output=True,
+            timeout=30,
+        )
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        index = json.loads(result.stdout)
+        sources = {item["source"] for item in index["sources"]}
+
+        self.assertEqual(index["migrationStage"], "prepared_not_deleted")
+        self.assertGreater(index["sourceCount"], 80)
+        self.assertIn("commercial-private", index["outputDir"])
+        self.assertIn("docs/MONETIZATION_ROADMAP.md", sources)
+        self.assertIn("docs/MONETIZATION_M70.md", sources)
+        self.assertIn("docs/sales/NEXT_CONTROLLED_BUYER_READINESS.md", sources)
+        self.assertTrue(any(source.startswith("resources/pro-template-pack-2/") for source in sources))
 
     def test_release_bat_runs_strict_checklist(self):
         text = (PROJECT_ROOT / "RELEASE_SQX_EDGE.bat").read_text(encoding="utf-8-sig")

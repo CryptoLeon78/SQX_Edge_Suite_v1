@@ -29,3 +29,13 @@ The following paths are ignored and can be used as a temporary local staging are
 - `private-commercial/`
 
 Do not package these folders into the portable ZIP and do not attach them to public releases.
+
+## Prepared Export
+
+Use the prepared export tool before creating redacted public pointers:
+
+```powershell
+backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\private_commercial_split.py
+```
+
+The tool copies the sensitive commercial source set into `commercial-private/sqx-edge-commercial-private/` and writes `MIGRATION_INDEX.json` plus `MIGRATION_INDEX.md` with SHA256 hashes. Public files remain in place until the private repository copy is verified.

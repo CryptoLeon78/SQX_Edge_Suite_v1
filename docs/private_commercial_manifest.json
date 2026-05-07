@@ -1,14 +1,23 @@
 {
-  "version": 1,
+  "version": 2,
+  "phase": "S2_private_commercial_docs_split_prepared",
+  "migrationStage": "prepared_not_deleted",
   "policy": "move_sensitive_commercial_operations_to_private_repository_before_wider_distribution",
   "recommendedTarget": "private_github_repository",
+  "privateRepositoryName": "sqx-edge-commercial-private",
+  "exportTool": "backend/sqx-edge-tool/tools/private_commercial_split.py",
+  "defaultExportRoot": "commercial-private/sqx-edge-commercial-private",
+  "splitPlan": "docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md",
+  "traceabilityPolicy": "copy_sensitive_docs_to_private_repo_with_sha256_index_before_public_redaction_or_deletion",
   "publicRepositoryKeeps": [
     "README.md",
     "CHANGELOG.md",
     "docs/PUBLIC_ROADMAP.md",
     "docs/ARCHITECTURE.md",
     "docs/COMMERCIAL_README.md",
-    "docs/PRIVATE_COMMERCIAL_DOCS.md"
+    "docs/PRIVATE_COMMERCIAL_DOCS.md",
+    "docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md",
+    "docs/private_commercial_manifest.json"
   ],
   "privateRepositoryMoves": [
     "docs/MONETIZATION_ROADMAP.md",

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Private commercial docs split prepared
+
+- Anade `private_commercial_split.py` para exportar docs comerciales sensibles a un staging privado ignorado por git.
+- Anade plan de split con indice SHA256, destino privado recomendado y regla de no borrar fuentes publicas hasta verificar copia privada.
+- Actualiza exclusiones de portable, audit, release checklist y manifest para no enviar la herramienta interna al usuario final.
+- Mantiene trazabilidad publica mediante manifiesto y tests sin mover todavia el historial expuesto.
+
 ## 2026-05-07 - CI baseline and private commercial docs boundary
 
 - Anade `requirements-dev.txt` para separar runtime de dependencias de test/CI.
