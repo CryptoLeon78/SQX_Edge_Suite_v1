@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M49 - Pro Template Pack 1 Packaging And Delivery.
-- Current state: `template_pack_1_delivery_ready`.
+- Completed through: M50 - Template Pack 1 Public Add-On Offer And Checkout Wiring.
+- Current state: `template_pack_1_public_offer_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M50 - Template Pack 1 Public Add-On Offer And Checkout Wiring.
+- Next recommended phase: M51 - Template Pack 1 Live Checkout Values And Controlled Publication.
 
 ## Decision Base
 
@@ -1085,3 +1085,25 @@ Decision M49:
 - Se entrega como ZIP add-on separado despues de validar buyer onboarding, orden del add-on, perfiles, soporte y claims seguros.
 - La herramienta interna y la evidencia local no se empaquetan.
 - El siguiente paso real es M50: preparar oferta publica y checkout del add-on.
+
+## Phase M50 - Template Pack 1 Public Add-On Offer And Checkout Wiring
+
+Objetivo: preparar la oferta publica de Template Pack 1 como add-on, con copy revisado, FAQ, wiring de checkout, macro de entrega y soporte responsable.
+
+Entregables:
+
+- Estado `template_pack_1_public_offer_ready`.
+- Configuracion `backend/sqx-edge-tool/config/template_pack_1_offer.json`.
+- Recursos de oferta en `resources/pro-template-pack-1/offer`.
+- Guia interna `docs/sales/TEMPLATE_PACK_1_PUBLIC_OFFER.md`.
+- Gate interno `backend/sqx-edge-tool/tools/template_pack_1_offer.py`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/template_pack_1_offer`.
+
+Estado: Done.
+
+Decision M50:
+
+- La oferta queda lista en modo draft.
+- El plan `template_pack_1`, precio `49 EUR`, copy, FAQ y macros quedan conectados al manifiesto.
+- La publicacion abierta queda bloqueada hasta tener URL, variant ID y email de soporte reales.
+- El siguiente paso real es M51: conectar valores reales de checkout y publicar de forma controlada.

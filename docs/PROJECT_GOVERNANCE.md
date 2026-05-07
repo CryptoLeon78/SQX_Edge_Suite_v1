@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M49 - Pro Template Pack 1 Packaging And Delivery.
-- Current product/commercial state: `template_pack_1_delivery_ready`.
-- Next implementation phase: M50 - Template Pack 1 Public Add-On Offer And Checkout Wiring.
+- Current phase completed: M50 - Template Pack 1 Public Add-On Offer And Checkout Wiring.
+- Current product/commercial state: `template_pack_1_public_offer_ready`.
+- Next implementation phase: M51 - Template Pack 1 Live Checkout Values And Controlled Publication.
 - Governance baseline: G1 - Specialist Agent Operating Model.
 
 ## Specialist Agents

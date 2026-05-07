@@ -16,10 +16,11 @@ Last updated: 2026-05-07.
 - Pack Pro de datos y plantillas preparado para compradores: universo de activos, CSV importable, activacion, soporte y primer valor.
 - Onboarding basico de comprador preparado: arranque, activacion de licencia, FAQ y plantilla de soporte.
 - Template Pack 1 preparado como add-on separado con perfiles, checklist y soporte acotado.
+- Oferta publica draft de Template Pack 1 preparada con FAQ, checkout wiring y macros de entrega/soporte.
 
 ## Next
 
-- Oferta publica y checkout del add-on Template Pack 1.
+- Conectar checkout real y publicar Template Pack 1 de forma controlada.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.

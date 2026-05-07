@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Template Pack 1 public offer
+
+- Anade M50 con oferta publica draft de Template Pack 1, FAQ, checkout wiring y macros de entrega/soporte.
+- Anade `template_pack_1_offer.py` para validar copy, plan, precio, draft de checkout y claims seguros.
+- Actualiza estado comercial a `template_pack_1_public_offer_ready`.
+- Mantiene el add-on fuera del ZIP base y listo para conectar checkout real.
+
 ## 2026-05-07 - Template Pack 1 delivery
 
 - Anade Template Pack 1 como add-on separado con perfiles JSON, CSV resumen, checklist y limites de soporte.
