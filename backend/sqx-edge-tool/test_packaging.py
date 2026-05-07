@@ -170,6 +170,8 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn('"post_sale_improvement_loop"', text)
         self.assertIn('"post_sale_micro_updates"', text)
         self.assertIn('"next_controlled_buyer_readiness"', text)
+        self.assertIn('"private-commercial"', text)
+        self.assertIn('"commercial-private"', text)
         self.assertIn('"pro-template-pack-1"', text)
         self.assertIn('"pro-template-pack-2"', text)
         self.assertIn('"license_keys"', text)
@@ -259,6 +261,8 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("post_sale_improvement_loop", text)
         self.assertIn("post_sale_micro_updates", text)
         self.assertIn("next_controlled_buyer_readiness", text)
+        self.assertIn("private-commercial", text)
+        self.assertIn("commercial-private", text)
         self.assertIn("pro-template-pack-1", text)
         self.assertIn("pro-template-pack-2", text)
         self.assertIn("license_keys", text)
@@ -345,6 +349,8 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "post_sale_improvement_loop",
             "post_sale_micro_updates",
             "next_controlled_buyer_readiness",
+            "private-commercial",
+            "commercial-private",
             "pro-template-pack-1",
             "pro-template-pack-2",
             "license_keys",
@@ -395,6 +401,36 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/data/post_sale_improvement_loop/", text)
         self.assertIn("backend/sqx-edge-tool/data/post_sale_micro_updates/", text)
         self.assertIn("backend/sqx-edge-tool/data/next_controlled_buyer_readiness/", text)
+        self.assertIn("docs/private-commercial/", text)
+        self.assertIn("commercial-private/", text)
+        self.assertIn("private-commercial/", text)
+
+    def test_ci_baseline_and_dev_requirements_are_present(self):
+        requirements = (PROJECT_ROOT / "requirements-dev.txt").read_text(encoding="utf-8-sig")
+        workflow = (PROJECT_ROOT / ".github" / "workflows" / "tests.yml").read_text(encoding="utf-8-sig")
+
+        self.assertIn("-r backend/sqx-edge-tool/requirements.txt", requirements)
+        self.assertIn("-r backend/sqx-edge-relay/requirements.txt", requirements)
+        self.assertIn("pytest", requirements)
+        self.assertIn("actions/setup-python@v5", workflow)
+        self.assertIn("actions/setup-node@v4", workflow)
+        self.assertIn("python -m compileall backend", workflow)
+        self.assertIn("python -m pytest", workflow)
+        self.assertIn("tests/js/contracts", workflow)
+        self.assertIn("git diff --check", workflow)
+
+    def test_private_commercial_docs_boundary_is_documented(self):
+        boundary = (PROJECT_ROOT / "docs" / "PRIVATE_COMMERCIAL_DOCS.md").read_text(encoding="utf-8-sig")
+        manifest = (PROJECT_ROOT / "docs" / "private_commercial_manifest.json").read_text(encoding="utf-8-sig")
+
+        self.assertIn("private GitHub repository", boundary)
+        self.assertIn("Treat existing public Git history as already exposed", boundary)
+        self.assertIn("docs/private-commercial/", boundary)
+        self.assertIn("recommendedTarget", manifest)
+        self.assertIn("private_github_repository", manifest)
+        self.assertIn("docs/MONETIZATION_M*.md", manifest)
+        self.assertIn("docs/sales/", manifest)
+        self.assertIn("resources/pro-template-pack-2/", manifest)
 
     def test_release_bat_runs_strict_checklist(self):
         text = (PROJECT_ROOT / "RELEASE_SQX_EDGE.bat").read_text(encoding="utf-8-sig")

@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M70 - Next Controlled Buyer Readiness Check.
+- Current phase completed: Q1/S1 - CI Baseline And Private Commercial Docs Boundary.
 - Current product/commercial state: `next_controlled_buyer_readiness_ready`.
-- Next implementation phase: M71 - Next Controlled Buyer Outcome Record.
+- Next implementation phase: create/connect the private commercial repository, then M71 - Next Controlled Buyer Outcome Record.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 
@@ -78,6 +78,8 @@ M46 is accepted when these criteria are true:
 - Product/commercial state: `backend/sqx-edge-tool/config/product_manifest.json`.
 - Portable distribution: `package_portable.ps1`, `audit_distribution.ps1`, `release_checklist.ps1`.
 - Commercial gates: `backend/sqx-edge-tool/tools/*` and `docs/sales/*`.
+- CI baseline: `.github/workflows/tests.yml` and `requirements-dev.txt`.
+- Private commercial boundary: `docs/PRIVATE_COMMERCIAL_DOCS.md` and `docs/private_commercial_manifest.json`.
 - Roadmap state: `docs/MODULARIZATION_NEXT_STEPS.md` and `docs/MONETIZATION_ROADMAP.md`.
 
 ## Security Notes
@@ -85,3 +87,5 @@ M46 is accepted when these criteria are true:
 - Never commit `backend/sqx-edge-tool/config/license.json`.
 - Never package private keys, signed customer licenses, fulfillment events, relay data, `.env` files, backups or internal release tools.
 - Any new internal M46+ tool must be added to product manifest exclusions, packaging exclusions, audit deny-lists, release checklist assertions and tests.
+- Move buyer logs, commercial gates, pricing experiments, support scripts and checkout evidence to a private repository before wider public distribution.
+- Keep `docs/private-commercial/`, `commercial-private/` and `private-commercial/` local-only staging folders ignored by git.

@@ -4,11 +4,11 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: M70 completada, `next_controlled_buyer_readiness_ready`.
-- Ultimo commit base verificado antes de M70: `702cc95`.
+- Estado interno: Q1/S1 completadas tras M70; estado comercial vigente `next_controlled_buyer_readiness_ready`.
+- Ultimo commit base verificado antes de Q1/S1: `bab431f`.
 - Ultimo ZIP portable verificado antes de M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - SHA256 del ZIP: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Siguiente paso recomendado: M71, registrar resultado del siguiente comprador controlado y decidir repetir, pausar o ampliar con cuidado.
+- Siguiente paso recomendado: crear/conectar repo privado comercial y despues M71, registrar resultado del siguiente comprador controlado.
 
 ## SQX Edge Pro
 
@@ -27,6 +27,8 @@ Aviso responsable: SQX Edge Pro no promete rentabilidad ni resultados financiero
 Documentos comerciales:
 
 - `docs/COMMERCIAL_README.md`
+- `docs/PRIVATE_COMMERCIAL_DOCS.md`
+- `docs/private_commercial_manifest.json`
 - `docs/MONETIZATION_ROADMAP.md`
 - `docs/PUBLIC_ROADMAP.md`
 - `docs/PROJECT_GOVERNANCE.md` consulta obligatoria antes de fases/mensajes de trabajo.
@@ -51,6 +53,8 @@ Documentos comerciales:
 - `docs/sales/POST_SALE_IMPROVEMENT_LOOP.md`
 - `docs/sales/POST_SALE_MICRO_UPDATES.md`
 - `docs/sales/NEXT_CONTROLLED_BUYER_READINESS.md`
+
+Nota de seguridad comercial: los documentos de venta interna, buyer logs, gates privados, evidencias de checkout/soporte y plantillas operativas deben migrarse a un repositorio privado antes de ampliar distribucion. El repo publico conserva documentacion buyer-facing, arquitectura, releases y claims seguros.
 
 Activacion Pro prevista:
 
@@ -100,6 +104,28 @@ Para cerrar la API local:
 ```bat
 STOP_SQX_EDGE.bat
 ```
+
+## Tests y CI
+
+Dependencias de desarrollo:
+
+```bat
+python -m pip install -r requirements-dev.txt
+```
+
+Validacion local recomendada:
+
+```bat
+python -m pytest
+```
+
+Contratos JS:
+
+```powershell
+Get-ChildItem tests/js/contracts -Filter *.mjs | Sort-Object Name | ForEach-Object { node $_.FullName; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE } }
+```
+
+GitHub Actions ejecuta el baseline en cada push/PR a `main`: compilacion Python, pytest, contratos JS y `git diff --check`.
 
 ## Estructura
 

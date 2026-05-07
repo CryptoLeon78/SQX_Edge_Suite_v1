@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - CI baseline and private commercial docs boundary
+
+- Anade `requirements-dev.txt` para separar runtime de dependencias de test/CI.
+- Anade GitHub Actions para compilar Python, ejecutar pytest, contratos JS y `git diff --check`.
+- Define la frontera de documentos comerciales privados con manifiesto de migracion y staging local ignorado.
+- Mantiene el estado comercial vigente en `next_controlled_buyer_readiness_ready`.
+
 ## 2026-05-07 - Next controlled buyer readiness
 
 - Anade M70 con check formal antes de compartir otro enlace privado con un comprador controlado.

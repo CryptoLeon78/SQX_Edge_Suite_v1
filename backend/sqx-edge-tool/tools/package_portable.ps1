@@ -65,6 +65,8 @@ $excludeNames = @(
   "post_sale_improvement_loop",
   "post_sale_micro_updates",
   "next_controlled_buyer_readiness",
+  "private-commercial",
+  "commercial-private",
   "pro-template-pack-1",
   "pro-template-pack-2",
   "sqx-edge-relay"
