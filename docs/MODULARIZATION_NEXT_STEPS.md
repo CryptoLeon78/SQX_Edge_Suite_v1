@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M73 - Controlled Distribution Evidence Review.
-- Current product/commercial state: `controlled_distribution_review_ready`.
+- Current completed phase: M74 - Next Buyer-Facing Asset Prep.
+- Current product/commercial state: `next_buyer_facing_asset_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M74 - prepare the next buyer-facing asset only if M73 evidence selects it; otherwise repeat, hold or pause.
+- Next recommended phase: M75 - privately review the M74 buyer-facing asset before publication or traffic.
 
 ## Recommended Order
 
@@ -128,4 +128,5 @@ Persistent planning note for the next SQX Edge phases.
 71. Phase M71: record the next controlled buyer outcome and decide repeat, pause or carefully widen. Done.
 72. Phase M72: execute the selected outcome decision with a tiny, reversible distribution step. Done.
 73. Phase M73: review controlled distribution evidence and choose repeat, hold, pause or prepare the next buyer-facing asset. Done.
-74. Phase M74: prepare the next buyer-facing asset if M73 selects it, or route to repeat/hold/pause. Recommended next.
+74. Phase M74: prepare the next buyer-facing asset if M73 selects it, or route to repeat/hold/pause. Done.
+75. Phase M75: privately review the prepared buyer-facing asset before publication or traffic. Recommended next.

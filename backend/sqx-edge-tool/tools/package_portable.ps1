@@ -68,6 +68,7 @@ $excludeNames = @(
   "next_controlled_buyer_outcome",
   "controlled_distribution_step",
   "controlled_distribution_review",
+  "next_buyer_facing_asset",
   "private-commercial",
   "commercial-private",
   "pro-template-pack-1",
@@ -134,6 +135,7 @@ function Test-IncludedPath {
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\next_controlled_buyer_outcome\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\controlled_distribution_step\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\controlled_distribution_review\.py$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\tools\\next_buyer_facing_asset\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\private_commercial_split\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfillment_request\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfill_from_request\.ps1$") { return $false }

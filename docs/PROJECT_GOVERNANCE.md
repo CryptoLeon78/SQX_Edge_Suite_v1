@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M73 - Controlled Distribution Evidence Review.
-- Current product/commercial state: `controlled_distribution_review_ready`.
-- Next implementation phase: M74 - prepare the next buyer-facing asset only if M73 evidence selects `prepare_buyer_facing_asset`; otherwise repeat, hold or pause.
+- Current phase completed: M74 - Next Buyer-Facing Asset Prep.
+- Current product/commercial state: `next_buyer_facing_asset_ready`.
+- Next implementation phase: M75 - privately review the M74 asset before any publication or checkout traffic.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

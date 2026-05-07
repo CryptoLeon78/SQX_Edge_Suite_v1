@@ -85,6 +85,7 @@ MONETIZATION_M69_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M69.md"
 MONETIZATION_M70_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M70.md"
 MONETIZATION_M72_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M72.md"
 MONETIZATION_M73_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M73.md"
+MONETIZATION_M74_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M74.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -449,8 +450,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_distribution_review_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_distribution_review_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "next_buyer_facing_asset_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "next_buyer_facing_asset_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
@@ -544,8 +545,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("customer_cockpit_overview", server_py)
         self.assertIn("redacted_operator_summary", customer_cockpit_py)
         self.assertIn("license payloads", customer_cockpit_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_distribution_review_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_distribution_review_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "next_buyer_facing_asset_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "next_buyer_facing_asset_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitEndpoint"], "/api/customer-cockpit")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitConfig"], "backend/sqx-edge-tool/config/customer_cockpit.json")
         self.assertEqual(
@@ -766,6 +767,16 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(
             product_manifest["upgrade"]["checkout"]["controlledDistributionReviewPolicy"],
             "review_m72_evidence_before_repeating_holding_pausing_or_preparing_next_buyer_facing_asset",
+        )
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["nextBuyerFacingAssetConfig"],
+            "backend/sqx-edge-tool/config/next_buyer_facing_asset.json",
+        )
+        self.assertIn("next_buyer_facing_asset.py", product_manifest["upgrade"]["checkout"]["nextBuyerFacingAssetTool"])
+        self.assertIn("next_buyer_facing_asset", product_manifest["upgrade"]["checkout"]["nextBuyerFacingAssetEvidenceDir"])
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["nextBuyerFacingAssetPolicy"],
+            "prepare_one_small_buyer_facing_asset_for_private_review_only_after_m73",
         )
 
     def test_dashboard_navigation_delegates_to_ui_module(self):
@@ -1168,7 +1179,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_distribution_review_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "next_buyer_facing_asset_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
@@ -1295,10 +1306,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/controlled_distribution_step.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/controlled_distribution_review", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/controlled_distribution_review.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/next_buyer_facing_asset", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/next_buyer_facing_asset.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/private_commercial_split.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-2", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_distribution_review_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "next_buyer_facing_asset_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -1369,6 +1382,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/controlled_distribution_step.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/controlled_distribution_review", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/controlled_distribution_review.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/next_buyer_facing_asset", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/next_buyer_facing_asset.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/private_commercial_split.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/customer_success_renewal", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/customer_cockpit", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
@@ -1446,11 +1461,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             "M71_next_controlled_buyer_outcome",
             "M72_controlled_distribution_step",
             "M73_controlled_distribution_review",
+            "M74_next_buyer_facing_asset",
         }
 
         self.assertEqual(manifest["migrationStage"], "public_redacted_private_repo_published")
-        self.assertEqual(manifest["phase"], "M73_controlled_distribution_review")
-        self.assertEqual(manifest["latestPrivateCommercialPhase"], "M73")
+        self.assertEqual(manifest["phase"], "M74_next_buyer_facing_asset")
+        self.assertEqual(manifest["latestPrivateCommercialPhase"], "M74")
         self.assertEqual(manifest["privateRepositoryUrl"], private_repo)
         self.assertEqual(manifest["privateBaselineCommit"], private_commit)
         self.assertIn("public_repository_keeps_only_traceability_pointers", manifest["publicRedactionPolicy"])
@@ -2556,6 +2572,45 @@ class DashboardStaticTestCase(unittest.TestCase):
             "paused_distribution_requires_pause_sales",
             "--use-latest-distribution",
             "--confirm-next-decision-recorded",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, tool_text)
+
+    def test_next_buyer_facing_asset_gate_is_present(self):
+        tool_path = TOOL_ROOT / "tools" / "next_buyer_facing_asset.py"
+        config_path = TOOL_ROOT / "config" / "next_buyer_facing_asset.json"
+        public_doc = PROJECT_ROOT / "docs" / "sales" / "NEXT_BUYER_FACING_ASSET.md"
+        py_compile.compile(str(tool_path), doraise=True)
+        config = json.loads(config_path.read_text(encoding="utf-8-sig"))
+        tool_text = tool_path.read_text(encoding="utf-8")
+
+        self.assertEqual(config["state"], "next_buyer_facing_asset_ready")
+        self.assertEqual(config["offerId"], "sqx_edge_pro_next_buyer_facing_asset")
+        self.assertEqual(config["dependsOn"]["controlledDistributionReviewState"], "controlled_distribution_review_ready")
+        self.assertEqual(
+            config["privacyPolicy"],
+            "store_only_redacted_asset_scope_status_decision_and_review_metadata_without_buyer_identity_checkout_payloads_or_license_files",
+        )
+        self.assertIn("prepare_buyer_facing_asset", config["allowedReviewDecisions"])
+        self.assertIn("public_offer_section", config["allowedAssetTypes"])
+        self.assertIn("ready_private_review", config["allowedAssetStatuses"])
+        self.assertIn("prepare_private_review", config["allowedDecisions"])
+        self.assertEqual(config["maximumAssetScopeItems"], 5)
+        for required in config["requiredFiles"]:
+            with self.subTest(required=required):
+                self.assertTrue((PROJECT_ROOT / required).is_file(), required)
+        self.assert_public_redaction_pointer(public_doc)
+        self.assert_public_redaction_pointer(MONETIZATION_M74_DOC)
+
+        for pattern in (
+            "next_buyer_facing_asset_ready",
+            "controlled_distribution_review_state_invalid",
+            "controlled_distribution_review_evidence_missing",
+            "m73_did_not_select_prepare_buyer_facing_asset",
+            "prepare_private_review_requires_safe_claims",
+            "blocked_asset_requires_hold_or_pause",
+            "--use-latest-review",
+            "--confirm-private-review-owner",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, tool_text)

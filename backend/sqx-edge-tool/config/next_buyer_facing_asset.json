@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "state": "next_buyer_facing_asset_ready",
+  "reviewId": "next_buyer_facing_asset",
+  "offerId": "sqx_edge_pro_next_buyer_facing_asset",
+  "name": "Next Buyer-Facing Asset Prep",
+  "dependsOn": {
+    "controlledDistributionReviewConfig": "backend/sqx-edge-tool/config/controlled_distribution_review.json",
+    "controlledDistributionReviewState": "controlled_distribution_review_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/NEXT_BUYER_FACING_ASSET.md",
+    "docs/sales/CONTROLLED_DISTRIBUTION_REVIEW.md",
+    "docs/sales/CONTROLLED_DISTRIBUTION_STEP.md",
+    "resources/pro-buyer-pack/onboarding/START_HERE.md",
+    "resources/pro-buyer-pack/onboarding/support_contact_template.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "allowedReviewDecisions": [
+    "prepare_buyer_facing_asset"
+  ],
+  "allowedAssetTypes": [
+    "onboarding_quickstart",
+    "public_offer_section",
+    "template_preview_pack",
+    "support_faq"
+  ],
+  "allowedAssetStatuses": [
+    "draft_private_review",
+    "ready_private_review",
+    "blocked"
+  ],
+  "allowedDecisions": [
+    "prepare_private_review",
+    "hold_for_fix",
+    "pause_sales"
+  ],
+  "minimumReviewers": 1,
+  "maximumAssetScopeItems": 5,
+  "privacyPolicy": "store_only_redacted_asset_scope_status_decision_and_review_metadata_without_buyer_identity_checkout_payloads_or_license_files",
+  "assetPolicy": "prepare_one_small_buyer_facing_asset_for_private_review_only_after_m73_selects_prepare_buyer_facing_asset",
+  "decisionRules": [
+    "prepare_private_review requires M73 prepare_buyer_facing_asset, safe claims, support readiness, release notes and at least one reviewer.",
+    "asset scope must stay at five items or fewer.",
+    "blocked status requires hold_for_fix or pause_sales.",
+    "pause_sales remains available if claims, support or delivery risk appears during asset prep."
+  ]
+}

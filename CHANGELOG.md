@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-07 - M74 next buyer-facing asset
+
+- Anade gate interno para preparar un unico asset comprador-facing para review privado tras M73.
+- Actualiza estado comercial a `next_buyer_facing_asset_ready`.
+- Mantiene la guia operativa completa en el repo privado y deja punteros publicos para M74.
+
 ## 2026-05-07 - M73 controlled distribution review
 
 - Anade gate interno para revisar evidencia M72 y decidir repetir, corregir, pausar o preparar el siguiente asset buyer-facing.

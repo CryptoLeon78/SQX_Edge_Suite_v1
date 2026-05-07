@@ -77,6 +77,7 @@ backend/sqx-edge-tool/data/next_controlled_buyer_readiness/
 backend/sqx-edge-tool/data/next_controlled_buyer_outcome/
 backend/sqx-edge-tool/data/controlled_distribution_step/
 backend/sqx-edge-tool/data/controlled_distribution_review/
+backend/sqx-edge-tool/data/next_buyer_facing_asset/
 backend/sqx-edge-tool/license_keys/
 backend/sqx-edge-tool/licenses_private/
 backend/sqx-edge-tool/private_keys/
