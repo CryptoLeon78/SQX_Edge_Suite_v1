@@ -31,6 +31,7 @@ $denySegments = @(
   "customer_success_renewal",
   "customer_cockpit",
   "pro_buyer_pack",
+  "buyer_onboarding_support_gate",
   "sqx-edge-relay"
 )
 
@@ -55,6 +56,7 @@ $denyFiles = @(
   "hotfix_rollback_release.py",
   "customer_success_renewal.py",
   "pro_buyer_pack.py",
+  "buyer_onboarding_support_gate.py",
   "fulfillment_request.py",
   "fulfill_from_request.ps1",
   "relay_bundle.py",
@@ -89,6 +91,7 @@ $requiredPackageGuards = @(
   '"customer_success_renewal"',
   '"customer_cockpit"',
   '"pro_buyer_pack"',
+  '"buyer_onboarding_support_gate"',
   '"sqx-edge-relay"',
   'config\.json',
   'license\.json',
@@ -110,6 +113,7 @@ $requiredPackageGuards = @(
   'hotfix_rollback_release\.py',
   'customer_success_renewal\.py',
   'pro_buyer_pack\.py',
+  'buyer_onboarding_support_gate\.py',
   'fulfillment_request\.py',
   'fulfill_from_request\.ps1',
   'relay_bundle\.py',

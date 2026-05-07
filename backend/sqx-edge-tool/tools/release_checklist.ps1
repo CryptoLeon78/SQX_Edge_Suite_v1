@@ -103,6 +103,7 @@ function Test-PortableZip {
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\hotfix_rollback_release.py")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\customer_success_renewal.py")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\pro_buyer_pack.py")
+    Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\buyer_onboarding_support_gate.py")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\fulfillment_request.py")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\fulfill_from_request.ps1")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\tools\relay_bundle.py")
@@ -114,6 +115,7 @@ function Test-PortableZip {
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\data\customer_success_renewal")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\data\customer_cockpit")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\data\pro_buyer_pack")
+    Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\data\buyer_onboarding_support_gate")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\venv")
     Assert-DirExcluded (Join-Path $TempRoot "backend\sqx-edge-tool\config.json")
 

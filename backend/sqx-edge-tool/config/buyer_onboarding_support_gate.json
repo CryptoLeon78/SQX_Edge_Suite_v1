@@ -1,0 +1,68 @@
+{
+  "version": 1,
+  "state": "buyer_onboarding_support_gate_ready",
+  "resourceDir": "resources/pro-buyer-pack/onboarding",
+  "includedInPortable": true,
+  "dependsOn": {
+    "proBuyerPackConfig": "backend/sqx-edge-tool/config/pro_buyer_pack.json",
+    "proBuyerPackState": "pro_buyer_pack_ready"
+  },
+  "requiredFiles": [
+    "resources/pro-buyer-pack/onboarding/START_HERE.md",
+    "resources/pro-buyer-pack/onboarding/license_activation_walkthrough.md",
+    "resources/pro-buyer-pack/onboarding/faq_basic_user.md",
+    "resources/pro-buyer-pack/onboarding/support_contact_template.md",
+    "docs/sales/BUYER_ONBOARDING_SUPPORT_GATE.md"
+  ],
+  "plans": [
+    "pro_monthly",
+    "pro_annual",
+    "setup_assist"
+  ],
+  "requiredConfirmations": [
+    "purchase_confirmed",
+    "portable_zip_ready",
+    "license_file_ready",
+    "start_here_attached",
+    "activation_steps_reviewed",
+    "support_contact_ready",
+    "faq_ready",
+    "safe_claims_reviewed"
+  ],
+  "noGoBlockers": [
+    "customer_reference_missing",
+    "order_id_missing",
+    "plan_missing_or_invalid",
+    "portable_zip_not_ready",
+    "license_file_not_ready",
+    "start_here_not_attached",
+    "activation_steps_not_reviewed",
+    "support_contact_not_ready",
+    "faq_not_ready",
+    "safe_claims_not_reviewed",
+    "activation_errors_open",
+    "support_tickets_open",
+    "refund_or_pause_risk_unreviewed",
+    "forbidden_claims_present"
+  ],
+  "refundPauseCriteria": [
+    "El comprador no puede arrancar el ZIP tras seguir START_HERE.md.",
+    "La licencia no activa Pro y no se resuelve con soporte inicial.",
+    "El comprador esperaba senales, resultados financieros o asesoramiento de inversion.",
+    "Hay fallo critico reproducible que bloquea el uso basico."
+  ],
+  "safeClaims": [
+    "Herramienta local para ordenar el flujo SQX.",
+    "ZIP portable para usuario basico.",
+    "Activacion Pro mediante archivo de licencia firmado.",
+    "Soporte inicial orientado a instalacion, activacion y uso operativo."
+  ],
+  "forbiddenClaims": [
+    "beneficios garantizados",
+    "estrategias ganadoras",
+    "rentabilidad asegurada",
+    "resultados financieros garantizados",
+    "senales de compra",
+    "asesoramiento financiero"
+  ]
+}

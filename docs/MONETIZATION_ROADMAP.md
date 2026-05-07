@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M47 - Pro Buyer Data And Template Pack.
-- Current state: `pro_buyer_pack_ready`.
+- Completed through: M48 - Basic Buyer Onboarding And Support Gate.
+- Current state: `buyer_onboarding_support_gate_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M48 - Basic Buyer Onboarding And Support Gate.
+- Next recommended phase: M49 - Pro Template Pack 1 Packaging And Delivery.
 
 ## Decision Base
 
@@ -1041,3 +1041,25 @@ Decision M47:
 - El pack buyer-facing viaja en el portable.
 - La herramienta interna y la evidencia `backend/sqx-edge-tool/data/pro_buyer_pack` no se empaquetan.
 - El siguiente paso real es M48: buyer onboarding y support gate para usuario basico.
+
+## Phase M48 - Basic Buyer Onboarding And Support Gate
+
+Objetivo: preparar una entrada basica para comprador Pro, con compra confirmada, ZIP, licencia, instrucciones, FAQ, soporte inicial y criterios de pausa/reembolso.
+
+Entregables:
+
+- Estado `buyer_onboarding_support_gate_ready`.
+- Configuracion `backend/sqx-edge-tool/config/buyer_onboarding_support_gate.json`.
+- Recursos buyer-facing en `resources/pro-buyer-pack/onboarding`.
+- Guia interna `docs/sales/BUYER_ONBOARDING_SUPPORT_GATE.md`.
+- Validador interno `backend/sqx-edge-tool/tools/buyer_onboarding_support_gate.py`.
+- Evidencia local excluida de ZIP en `backend/sqx-edge-tool/data/buyer_onboarding_support_gate`.
+
+Estado: Done.
+
+Decision M48:
+
+- El onboarding basico viaja en el portable.
+- El gate interno valida que compra, ZIP, licencia, guia, FAQ, soporte y claims seguros estan listos antes de entregar.
+- La evidencia y herramienta interna no se empaquetan.
+- El siguiente paso real es M49: empaquetar Template Pack 1 como add-on comercial controlado.

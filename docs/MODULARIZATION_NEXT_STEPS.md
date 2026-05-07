@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M47 - Pro Buyer Data And Template Pack.
-- Current product/commercial state: `pro_buyer_pack_ready`.
+- Current completed phase: M48 - Basic Buyer Onboarding And Support Gate.
+- Current product/commercial state: `buyer_onboarding_support_gate_ready`.
 - Governance baseline: G1 - Specialist Agent Operating Model.
-- Last synced base commit before M47: `e0e69e7`.
+- Last synced base commit before M48: `bc07341`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M48 - Basic Buyer Onboarding And Support Gate.
+- Next recommended phase: M49 - Pro Template Pack 1 Packaging And Delivery.
 
 ## Recommended Order
 
@@ -91,4 +91,5 @@ Persistent planning note for the next SQX Edge phases.
 45. Phase M45: add customer success and renewal loop for Pro onboarding, support outcomes, retention decisions and upsell evidence. Done.
 46. Phase M46: add a lightweight commercial customer cockpit for renewals, support state, template opportunities and customer success decisions. Done.
 47. Phase M47: prepare real Pro buyer data and templates with safe CSV import, asset universe, activation, support and first-value material. Done.
-48. Phase M48: add a basic buyer onboarding and support gate for purchase, install, license activation, FAQ, support macro and refund/pause criteria. Recommended next.
+48. Phase M48: add a basic buyer onboarding and support gate for purchase, install, license activation, FAQ, support macro and refund/pause criteria. Done.
+49. Phase M49: package Template Pack 1 as a controlled add-on with sample profiles, safe claims, delivery checklist and support boundaries. Recommended next.

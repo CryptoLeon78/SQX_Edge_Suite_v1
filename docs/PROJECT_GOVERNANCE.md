@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M47 - Pro Buyer Data And Template Pack.
-- Current product/commercial state: `pro_buyer_pack_ready`.
-- Next implementation phase: M48 - Basic Buyer Onboarding And Support Gate.
+- Current phase completed: M48 - Basic Buyer Onboarding And Support Gate.
+- Current product/commercial state: `buyer_onboarding_support_gate_ready`.
+- Next implementation phase: M49 - Pro Template Pack 1 Packaging And Delivery.
 - Governance baseline: G1 - Specialist Agent Operating Model.
 
 ## Specialist Agents

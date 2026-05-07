@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Buyer onboarding support gate
+
+- Anade recursos M48 de onboarding para comprador Pro basico.
+- Anade `buyer_onboarding_support_gate.py` para validar compra, ZIP, licencia, instrucciones, FAQ, soporte y claims seguros.
+- Actualiza estado comercial a `buyer_onboarding_support_gate_ready`.
+- Refuerza empaquetado para excluir la herramienta interna y evidencia local.
+
 ## 2026-05-07 - Pro buyer data and template pack
 
 - Anade `resources/pro-buyer-pack` con universo de activos, CSV importable y plantillas de activacion, soporte y primer valor.

@@ -14,10 +14,11 @@ Last updated: 2026-05-07.
 - Customer success y renovacion Pro preparados con trazabilidad interna.
 - Cockpit interno de customer success preparado con datos redactados.
 - Pack Pro de datos y plantillas preparado para compradores: universo de activos, CSV importable, activacion, soporte y primer valor.
+- Onboarding basico de comprador preparado: arranque, activacion de licencia, FAQ y plantilla de soporte.
 
 ## Next
 
-- Onboarding basico de comprador: compra, descarga, licencia, activacion y soporte.
+- Template Pack 1 como complemento Pro con entrega controlada.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.

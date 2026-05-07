@@ -187,6 +187,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `backend/sqx-edge-tool/tools/post_release_monitor.py` | Post-release monitor for downloads, sales, activations, support tickets, incidents, refunds, hotfix and scale decision evidence. |
 | `backend/sqx-edge-tool/tools/hotfix_rollback_release.py` | Hotfix/rollback release kit for incident action, owner, notes, customer comms, verification and closure evidence. |
 | `backend/sqx-edge-tool/tools/pro_buyer_pack.py` | Internal validator for buyer-facing Pro data/templates before packaging. |
+| `backend/sqx-edge-tool/tools/buyer_onboarding_support_gate.py` | Internal buyer handoff gate for purchase, ZIP, license, START_HERE, FAQ, support contact and safe claims. |
 | `backend/sqx-edge-relay/api/server.py` | Deployable remote relay service for Lemon webhooks, queue inspection and dispatch. |
 | `backend/sqx-edge-relay/core/relay_queue.py` | Remote relay queue, signed bundle dispatch and requeue logic. |
 | `backend/sqx-edge-relay/core/relay_settings.py` | Relay environment settings, config readiness and operator token checks. |
@@ -202,7 +203,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `backend/sqx-edge-relay/deploy/*` | Docker Compose, provider examples and systemd deployment templates. |
 | `backend/sqx-edge-tool/config/*.json` | Dynamic catalogs for assets, instruments, profiles, plan and UI manifest. |
 | `backend/sqx-edge-tool/templates/*.cfx` | StrategyQuant template files used by generation. |
-| `resources/pro-buyer-pack/*` | Buyer-facing Pro starter data, CSV import template, activation/support checklists and first-value material. |
+| `resources/pro-buyer-pack/*` | Buyer-facing Pro starter data, CSV import template, onboarding, activation/support checklists and first-value material. |
 
 ## Portable Packaging
 
@@ -215,7 +216,7 @@ The package includes:
 - `app/` dashboard assets.
 - `backend/sqx-edge-tool/` API, core code, templates, config templates and embedded runtime.
 - `backend/sqx-edge-tool/runtime/python/python.exe`.
-- `resources/pro-buyer-pack/` buyer-facing starter material.
+- `resources/pro-buyer-pack/` buyer-facing starter and onboarding material.
 
 The package excludes:
 

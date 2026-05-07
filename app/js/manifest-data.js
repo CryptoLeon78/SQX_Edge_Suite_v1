@@ -864,6 +864,7 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/data/customer_success_renewal",
         "backend/sqx-edge-tool/data/customer_cockpit",
         "backend/sqx-edge-tool/data/pro_buyer_pack",
+        "backend/sqx-edge-tool/data/buyer_onboarding_support_gate",
         "backend/sqx-edge-tool/tools/license_signer.py",
         "backend/sqx-edge-tool/tools/license_keypair.ps1",
         "backend/sqx-edge-tool/tools/license_issue.py",
@@ -882,6 +883,7 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/tools/hotfix_rollback_release.py",
         "backend/sqx-edge-tool/tools/customer_success_renewal.py",
         "backend/sqx-edge-tool/tools/pro_buyer_pack.py",
+        "backend/sqx-edge-tool/tools/buyer_onboarding_support_gate.py",
         "backend/sqx-edge-tool/tools/fulfillment_request.py",
         "backend/sqx-edge-tool/tools/fulfill_from_request.ps1",
         "backend/sqx-edge-tool/tools/relay_bundle.py"
@@ -1028,7 +1030,7 @@ window.SQX_MANIFEST = {
       "checkoutLabel": "Comprar Pro",
       "checkoutUrl": "",
       "checkout": {
-        "status": "pro_buyer_pack_ready",
+        "status": "buyer_onboarding_support_gate_ready",
         "primaryProvider": "Lemon Squeezy",
         "fallbackProvider": "Gumroad",
         "mode": "hosted_checkout",
@@ -1082,9 +1084,14 @@ window.SQX_MANIFEST = {
         "proBuyerPackResourceDir": "resources/pro-buyer-pack",
         "proBuyerPackValidationTool": "backend/sqx-edge-tool/tools/pro_buyer_pack.py",
         "proBuyerPackPolicy": "ship_safe_buyer_material_without_license_payloads_private_keys_or_financial_promises",
+        "buyerOnboardingSupportGateConfig": "backend/sqx-edge-tool/config/buyer_onboarding_support_gate.json",
+        "buyerOnboardingResourceDir": "resources/pro-buyer-pack/onboarding",
+        "buyerOnboardingSupportGateTool": "backend/sqx-edge-tool/tools/buyer_onboarding_support_gate.py",
+        "buyerOnboardingSupportGateEvidenceDir": "backend/sqx-edge-tool/data/buyer_onboarding_support_gate",
+        "buyerOnboardingSupportGatePolicy": "confirm_purchase_zip_license_start_here_faq_support_and_safe_claims_before_handoff",
         "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
         "automation": {
-          "status": "pro_buyer_pack_ready",
+          "status": "buyer_onboarding_support_gate_ready",
           "webhookProvider": "Lemon Squeezy",
           "webhookSignatureHeader": "X-Signature",
           "webhookSigningAlgorithm": "hmac_sha256_hex",
@@ -1229,7 +1236,8 @@ window.SQX_MANIFEST = {
           "Confirmar pago en Lemon Squeezy o Gumroad.",
           "Generar licencia firmada con license_issue.py.",
           "Preparar entrega con prepare_customer_delivery.ps1.",
-          "Enviar ZIP portable, licencia JSON e instrucciones al cliente."
+          "Validar buyer onboarding support gate antes de entregar.",
+          "Enviar ZIP portable, licencia JSON, START_HERE.md, FAQ y plantilla de soporte al cliente."
         ]
       }
     },

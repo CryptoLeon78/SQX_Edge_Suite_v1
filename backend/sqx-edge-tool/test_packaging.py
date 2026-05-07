@@ -38,6 +38,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "hotfix_rollback_release.py",
             TOOL_ROOT / "tools" / "customer_success_renewal.py",
             TOOL_ROOT / "tools" / "pro_buyer_pack.py",
+            TOOL_ROOT / "tools" / "buyer_onboarding_support_gate.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
             TOOL_ROOT / "tools" / "relay_bundle.py",
@@ -87,6 +88,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("hotfix_rollback_release\\.py", text)
         self.assertIn("customer_success_renewal\\.py", text)
         self.assertIn("pro_buyer_pack\\.py", text)
+        self.assertIn("buyer_onboarding_support_gate\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
         self.assertIn("relay_bundle\\.py", text)
@@ -101,6 +103,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn('"customer_success_renewal"', text)
         self.assertIn('"customer_cockpit"', text)
         self.assertIn('"pro_buyer_pack"', text)
+        self.assertIn('"buyer_onboarding_support_gate"', text)
         self.assertIn('"license_keys"', text)
         self.assertIn("\\\\.env", text)
 
@@ -134,6 +137,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("hotfix_rollback_release.py", text)
         self.assertIn("customer_success_renewal.py", text)
         self.assertIn("pro_buyer_pack.py", text)
+        self.assertIn("buyer_onboarding_support_gate.py", text)
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
         self.assertIn("relay_bundle.py", text)
@@ -142,6 +146,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("customer_success_renewal", text)
         self.assertIn("customer_cockpit", text)
         self.assertIn("pro_buyer_pack", text)
+        self.assertIn("buyer_onboarding_support_gate", text)
         self.assertIn("license_keys", text)
         self.assertIn("private_keys", text)
         self.assertIn("/api/health", text)
@@ -173,6 +178,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "hotfix_rollback_release.py",
             "customer_success_renewal.py",
             "pro_buyer_pack.py",
+            "buyer_onboarding_support_gate.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
             "relay_bundle.py",
@@ -180,6 +186,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "customer_success_renewal",
             "customer_cockpit",
             "pro_buyer_pack",
+            "buyer_onboarding_support_gate",
             "license_keys",
             "private_keys",
             "_private_key\\.json",
@@ -205,6 +212,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/data/customer_success_renewal/", text)
         self.assertIn("backend/sqx-edge-tool/data/customer_cockpit/", text)
         self.assertIn("backend/sqx-edge-tool/data/pro_buyer_pack/", text)
+        self.assertIn("backend/sqx-edge-tool/data/buyer_onboarding_support_gate/", text)
 
     def test_release_bat_runs_strict_checklist(self):
         text = (PROJECT_ROOT / "RELEASE_SQX_EDGE.bat").read_text(encoding="utf-8-sig")
