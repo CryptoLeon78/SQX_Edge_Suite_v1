@@ -11,6 +11,13 @@ Windows:
 
 Que intentaba hacer:
 
+Paso exacto donde me quede:
+
+Estado de licencia mostrado:
+
+Primer valor conseguido:
+Si / No
+
 Que ocurrio:
 
 Mensaje de error, si aparece:
@@ -24,4 +31,4 @@ Diagnostico generado desde Inicio:
 Si / No
 ```
 
-No incluyas claves privadas, licencias de otros usuarios, credenciales de servicios externos ni datos que no quieras compartir.
+No incluyas claves privadas, licencias de otros usuarios, credenciales de servicios externos, capturas con datos personales ni datos que no quieras compartir.

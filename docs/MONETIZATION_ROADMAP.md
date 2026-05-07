@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M68 - Post-Sale Improvement Loop.
-- Current state: `post_sale_improvement_loop_ready`.
+- Completed through: M69 - Apply Post-Sale Micro Updates.
+- Current state: `post_sale_micro_updates_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M69 - Apply Post-Sale Micro Updates.
+- Next recommended phase: M70 - Next Controlled Buyer Readiness Check.
 
 ## Decision Base
 
@@ -1489,3 +1489,25 @@ Decision M68:
 - La evidencia guarda solo acciones agregadas, owner, siguiente revision y resumen operativo, sin mensajes crudos ni datos personales.
 - `ship_micro_updates` queda bloqueado si hay claims risk, soporte abierto, refunds o fallos de fulfillment.
 - El siguiente paso real es M69: aplicar las micro-mejoras aprobadas y preparar el siguiente comprador controlado.
+
+## Phase M69 - Apply Post-Sale Micro Updates
+
+Objetivo: aplicar las micro-mejoras aprobadas a onboarding, activacion, soporte y copy publico, y dejar listo el check del siguiente comprador controlado.
+
+Entregables:
+
+- Estado `post_sale_micro_updates_ready`.
+- Configuracion `backend/sqx-edge-tool/config/post_sale_micro_updates.json`.
+- Guia interna `docs/sales/POST_SALE_MICRO_UPDATES.md`.
+- Gate interno `backend/sqx-edge-tool/tools/post_sale_micro_updates.py`.
+- Micro-mejoras aplicadas en `START_HERE.md`, `license_activation_walkthrough.md`, `support_contact_template.md`, `support_macro.md`, `COMMERCIAL_README.md` y `PUBLIC_BUYER_PAGE_CADENCE.md`.
+- Evidencia local excluida en `backend/sqx-edge-tool/data/post_sale_micro_updates`.
+
+Estado: Done.
+
+Decision M69:
+
+- El gate exige M68 GO, marcadores buyer-facing aplicados, safe claims preservados y pasos minimos para el siguiente comprador.
+- La evidencia guarda solo conteos, owner, notas de readiness y decision, sin datos personales ni mensajes crudos.
+- `next_controlled_buyer_ready` queda bloqueado si falta onboarding, soporte, copy publico, safe claims o si hay claims risk.
+- El siguiente paso real es M70: ejecutar el readiness check del siguiente comprador controlado antes de compartir otro enlace privado.

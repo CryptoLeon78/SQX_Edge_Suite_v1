@@ -2,6 +2,8 @@
 
 SQX Edge Pro es una herramienta local para usuarios de StrategyQuant X que quieren organizar su pipeline de investigacion, generacion, limpieza y validacion de estrategias desde una interfaz portable.
 
+Primera promesa operativa: en pocos minutos el comprador debe poder abrir la app, activar Pro, localizar los CSV/plantillas incluidos y saber como pedir ayuda sin tocar datos sensibles.
+
 ## What It Does
 
 - Organiza activos, categorias y configuraciones SQX.
@@ -45,6 +47,7 @@ SQX Edge Pro:
 4. Abrir Inicio.
 5. Pegar el JSON de licencia firmado en Inicio -> Licencia.
 6. Pulsar `Cargar licencia`.
+7. Confirmar `Pro activo` y revisar el bloque de primer valor del onboarding.
 
 No hace falta instalar Python.
 

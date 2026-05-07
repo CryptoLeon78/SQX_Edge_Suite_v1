@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "state": "post_sale_micro_updates_ready",
+  "reviewId": "post_sale_micro_updates",
+  "offerId": "sqx_edge_pro_next_controlled_buyer",
+  "name": "Post-Sale Micro Updates And Next Buyer Readiness",
+  "dependsOn": {
+    "postSaleImprovementLoopConfig": "backend/sqx-edge-tool/config/post_sale_improvement_loop.json",
+    "postSaleImprovementLoopState": "post_sale_improvement_loop_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/POST_SALE_MICRO_UPDATES.md",
+    "docs/sales/POST_SALE_IMPROVEMENT_LOOP.md",
+    "docs/sales/PUBLIC_BUYER_PAGE_CADENCE.md",
+    "docs/COMMERCIAL_README.md",
+    "resources/pro-buyer-pack/onboarding/START_HERE.md",
+    "resources/pro-buyer-pack/onboarding/license_activation_walkthrough.md",
+    "resources/pro-buyer-pack/onboarding/support_contact_template.md",
+    "resources/pro-template-pack-2/offer/support_macro.md",
+    "resources/pro-template-pack-2/checklists/safe_claims.md"
+  ],
+  "requiredMarkers": {
+    "resources/pro-buyer-pack/onboarding/START_HERE.md": [
+      "Primer valor en 10 minutos",
+      "Pro activo",
+      "paso exacto donde te quedaste"
+    ],
+    "resources/pro-buyer-pack/onboarding/license_activation_walkthrough.md": [
+      "Comprobacion rapida",
+      "Estado esperado: `Pro activo`",
+      "No pegues el contenido completo de tu licencia"
+    ],
+    "resources/pro-buyer-pack/onboarding/support_contact_template.md": [
+      "Paso exacto donde me quede",
+      "Estado de licencia mostrado",
+      "Primer valor conseguido"
+    ],
+    "resources/pro-template-pack-2/offer/support_macro.md": [
+      "primer valor esperado",
+      "Estado de primer valor",
+      "No envies licencias completas"
+    ],
+    "docs/COMMERCIAL_README.md": [
+      "Primera promesa operativa",
+      "Confirmar `Pro activo`",
+      "primer valor"
+    ],
+    "docs/sales/PUBLIC_BUYER_PAGE_CADENCE.md": [
+      "Primer valor esperado",
+      "CSV/plantillas iniciales",
+      "sin tocar datos sensibles"
+    ]
+  },
+  "requiredConfirmations": [
+    "post_sale_improvement_go",
+    "start_here_updated",
+    "license_walkthrough_updated",
+    "support_macros_updated",
+    "public_copy_updated",
+    "safe_claims_preserved",
+    "next_buyer_check_recorded"
+  ],
+  "allowedDecisions": [
+    "next_controlled_buyer_ready",
+    "revise_more",
+    "pause_sales"
+  ],
+  "allowedPriorities": [
+    "low",
+    "medium",
+    "high"
+  ],
+  "minimumAppliedUpdates": 4,
+  "minimumNextBuyerSteps": 4,
+  "privacyPolicy": "store_applied_micro_update_counts_and_next_buyer_readiness_without_personal_data",
+  "reviewPolicy": "verify_buyer_facing_micro_updates_are_applied_before_the_next_controlled_buyer",
+  "decisionRules": [
+    "next_controlled_buyer_ready requires M68 GO, buyer-facing markers applied, safe claims preserved and at least four next-buyer steps.",
+    "revise_more is valid when wording or onboarding still needs another pass.",
+    "pause_sales is required when support, refund, fulfillment or claims risk remains unresolved."
+  ]
+}

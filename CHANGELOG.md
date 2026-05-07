@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Post-sale micro updates
+
+- Anade M69 con micro-mejoras aplicadas a onboarding, activacion, soporte y copy publico.
+- Anade `post_sale_micro_updates.py` para validar marcadores buyer-facing y readiness del siguiente comprador controlado.
+- Actualiza estado comercial a `post_sale_micro_updates_ready`.
+- Mantiene evidencia de readiness y herramienta interna fuera del ZIP portable.
+
 ## 2026-05-07 - Post-sale improvement loop
 
 - Anade M68 con bucle de mejora post-venta para onboarding, soporte y copy publico.

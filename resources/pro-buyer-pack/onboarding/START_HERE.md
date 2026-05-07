@@ -26,10 +26,23 @@ Este documento esta pensado para un comprador Pro sin conocimientos tecnicos.
 
 ## Primer uso recomendado
 
-1. Revisa `resources/pro-buyer-pack/data/asset_universe_pro.csv`.
-2. Importa o revisa `resources/pro-buyer-pack/data/strategy_import_template.csv` desde el tab `Estrategias`.
-3. Abre `Project Generator` y carga la plantilla inicial si quieres preparar un primer proyecto.
-4. Genera un diagnostico solo si soporte te lo pide.
+1. Confirma que la licencia aparece como Pro activo en `Inicio`.
+2. Revisa `resources/pro-buyer-pack/data/asset_universe_pro.csv`.
+3. Importa o revisa `resources/pro-buyer-pack/data/strategy_import_template.csv` desde el tab `Estrategias`.
+4. Abre `Project Generator` y carga la plantilla inicial si quieres preparar un primer proyecto.
+5. Genera un diagnostico solo si soporte te lo pide.
+
+## Primer valor en 10 minutos
+
+Objetivo sencillo: abrir la app, activar Pro y localizar una plantilla o CSV util sin tocar archivos sensibles.
+
+1. Arranca con `START_SQX_EDGE.bat`.
+2. Comprueba `Inicio -> Licencia -> Pro activo`.
+3. Abre `Estrategias` y confirma que puedes ver o importar el CSV de ejemplo.
+4. Abre `Project Generator` y revisa la plantilla inicial sin generar nada todavia.
+5. Escribe a soporte si te bloqueas antes del paso 4.
+
+Si llegas al paso 4, el primer valor esta conseguido: la herramienta abre, la licencia funciona y ya tienes material de partida local.
 
 ## Como cerrar
 
@@ -37,4 +50,4 @@ Haz doble click en `STOP_SQX_EDGE.bat`.
 
 ## Si algo falla
 
-Usa `support_contact_template.md` y envia una descripcion breve del problema. No envies claves privadas, licencias de otros usuarios ni archivos sensibles.
+Usa `support_contact_template.md` y envia una descripcion breve del problema, el paso exacto donde te quedaste y si ya conseguiste ver `Pro activo`. No envies claves privadas, licencias de otros usuarios ni archivos sensibles.

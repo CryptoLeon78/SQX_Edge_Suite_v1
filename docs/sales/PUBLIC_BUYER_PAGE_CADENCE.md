@@ -9,6 +9,7 @@ Esta fase prepara una pagina/checklist publico de comprador sin prisa: copy clar
 - Que recibe el comprador: ZIP portable, licencia Pro, onboarding y soporte.
 - Precio, condiciones y politica de soporte/refund explicadas sin letra pequena.
 - Pasos basicos: descargar, descomprimir, doble click, importar licencia, pedir ayuda.
+- Primer valor esperado: abrir la app, ver Pro activo y localizar CSV/plantillas iniciales sin tocar datos sensibles.
 - Aviso responsable: no promete rentabilidad ni resultados financieros.
 - Preguntas frecuentes y soporte visible.
 - Rollback operativo: pausar checkout, pausar webhook/worker y volver a entrega manual.
