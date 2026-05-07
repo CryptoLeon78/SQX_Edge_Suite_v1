@@ -5,7 +5,11 @@ const PG = SQX.projectGenerator;
 
 assert.equal(PG.escapeHtml('<x>'), '&lt;x&gt;');
 assert.equal(PG.dom.escapeHtml('<x>'), '&lt;x&gt;');
-['pg-sqx-path', 'pg-sqx-db', 'pg-sqx-projects', 'pg-output-dir', 'pg-tpl-c1', 'pg-tpl-c2'].forEach(id => {
+[
+  'pg-sqx-path', 'pg-sqx-db', 'pg-sqx-projects', 'pg-output-dir', 'pg-tpl-c1', 'pg-tpl-c2',
+  'pg-custom-name', 'pg-custom-asset', 'pg-custom-tf', 'pg-custom-bs',
+  'pg-custom-dir', 'pg-custom-capa', 'pg-custom-template', 'pg-custom-status'
+].forEach(id => {
   document.add(new Element(id));
 });
 document.getElementById('pg-sqx-path').value = ' C:/SQX ';
@@ -22,24 +26,44 @@ assert.equal(document.getElementById('pg-sqx-path').value, 'D:/SQX');
 assert.equal(document.getElementById('pg-output-dir').value, 'D:/out');
 PG.dom.applySqxFields(document, { sqxPath: 'E:/SQX', dataDb: 'E:/db', projectsDir: 'E:/projects' });
 assert.equal(document.getElementById('pg-sqx-db').value, 'E:/db');
+document.getElementById('pg-custom-name').value = ' Custom EURUSD H1 ';
+document.getElementById('pg-custom-asset').value = ' eurusd ';
+document.getElementById('pg-custom-tf').value = ' h1 ';
+document.getElementById('pg-custom-bs').value = '';
+document.getElementById('pg-custom-dir').value = 'both';
+document.getElementById('pg-custom-capa').value = '2';
+document.getElementById('pg-custom-template').value = ' C2.cfx ';
+const customInputs = PG.dom.readCustomProjectInputs(document);
+assert.equal(customInputs.asset, 'EURUSD');
+assert.equal(customInputs.tf, 'H1');
+assert.equal(customInputs.bs, 'BS_Custom');
+assert.equal(customInputs.capa, 2);
+assert.equal(customInputs.template, 'C2.cfx');
+assert.equal(PG.dom.setCustomProjectStatus(document, { text: 'Generado', level: 'ok' }), true);
+assert.equal(document.getElementById('pg-custom-status').textContent, 'Generado');
+assert.equal(document.getElementById('pg-custom-status').classList.contains('is-ok'), true);
 [
   'pg-status-refresh', 'pg-settings-toggle', 'pg-settings-save', 'pg-settings-reload',
   'pg-onboarding-action', 'pg-onboarding-secondary', 'pg-onboarding-tertiary',
   'pg-autodetect', 'pg-aliases-suggest', 'pg-validate', 'pg-gen-all-c1',
-  'pg-gen-all-c2', 'pg-output-refresh', 'pg-open-output', 'pg-log-clear',
+  'pg-gen-all-c2', 'pg-custom-generate', 'pg-output-refresh', 'pg-open-output', 'pg-log-clear',
   'pg-settings-body', 'pg-log'
 ].forEach(id => document.add(new Element(id)));
 let checkHealthCalls = 0;
 let generateAllCapa = 0;
+let generateCustomCalls = 0;
 PG.bindings.bindProjectGeneratorEvents(document, {
   checkHealth: () => { checkHealthCalls++; },
   generateAll: capa => { generateAllCapa = capa; },
+  generateCustom: () => { generateCustomCalls++; },
   setSettingsOpen: open => { document.getElementById('pg-settings-body').style.display = open ? 'block' : 'none'; },
 });
 document.getElementById('pg-status-refresh').click();
 document.getElementById('pg-gen-all-c2').click();
+document.getElementById('pg-custom-generate').click();
 assert.equal(checkHealthCalls, 1);
 assert.equal(generateAllCapa, 2);
+assert.equal(generateCustomCalls, 1);
 document.getElementById('pg-log').textContent = 'old';
 document.getElementById('pg-log-clear').click();
 assert.equal(document.getElementById('pg-log').textContent, '[esperando primera acción…]');
@@ -185,6 +209,12 @@ const generateOneOk = PG.generateOneResult({ ok: true, filename: 'M03.cfx' }, 3,
 assert.equal(generateOneOk.logText, '✓ M03.cfx');
 assert.equal(generateOneOk.traceDetail, 'Mining 3 · Capa 2 · M03.cfx');
 assert.equal(PG.generateOneResult({ ok: false, error: 'bad template' }, 3, 1).traceLevel, 'err');
+assert.equal(PG.generateCustomStartMessage({ asset: 'EURUSD', tf: 'H1', capa: 2 }), 'Generando custom EURUSD H1 · Capa 2…');
+assert.equal(PG.generateCustomMissingStatus().level, 'err');
+const generateCustomOk = PG.generateCustomResult({ ok: true, filename: 'Custom_EURUSD_H1_Capa1.cfx', project_name: 'Custom_EURUSD_H1', capa: 1 }, { asset: 'EURUSD' });
+assert.equal(generateCustomOk.text, 'Generado: Custom_EURUSD_H1_Capa1.cfx');
+assert.equal(generateCustomOk.traceTitle, 'Custom libre generado');
+assert.equal(PG.generateCustomResult({ ok: false, error: 'missing asset' }, {}).level, 'err');
 assert.equal(PG.generateErrorResult('offline').logText, '✗ Error: offline');
 assert.equal(PG.generateAllConfirmMessage(1, 12), '¿Generar 12 minings en Capa 1? Sobrescribe los existentes en output/.');
 assert.equal(PG.generateAllConfirmMessage(2, 0), '¿Generar todos los minings en Capa 2? Sobrescribe los existentes en output/.');

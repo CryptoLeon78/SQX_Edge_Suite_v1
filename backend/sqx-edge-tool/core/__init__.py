@@ -1,6 +1,6 @@
 """SQX Edge Tool — core modules."""
 from .cfx_editor import CfxEditor
-from .plan import PLAN, Mining, get as get_mining, all_minings
+from .plan import PLAN, Mining, get as get_mining, all_minings, normalize_direction
 from .project_generator import generate_project
 from .xml_patcher import (
     RETEST_PERIODS,
@@ -18,6 +18,7 @@ __all__ = [
     "PLAN",
     "get_mining",
     "all_minings",
+    "normalize_direction",
     "generate_project",
     "RETEST_PERIODS",
     "apply_mining_to_xml",

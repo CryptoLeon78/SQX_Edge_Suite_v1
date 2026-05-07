@@ -56,6 +56,30 @@
     };
   }
 
+  function readCustomProjectInputs(doc) {
+    return {
+      name: trimmedInputValue(doc, 'pg-custom-name'),
+      asset: trimmedInputValue(doc, 'pg-custom-asset').toUpperCase(),
+      tf: trimmedInputValue(doc, 'pg-custom-tf').toUpperCase(),
+      bs: trimmedInputValue(doc, 'pg-custom-bs') || 'BS_Custom',
+      dir: inputValue(doc, 'pg-custom-dir') || 'long',
+      capa: parseInt(inputValue(doc, 'pg-custom-capa') || '1', 10) || 1,
+      template: trimmedInputValue(doc, 'pg-custom-template')
+    };
+  }
+
+  function setCustomProjectStatus(doc, status) {
+    var el = byId(doc, 'pg-custom-status');
+    var data = status || {};
+    if (!el) return false;
+    el.textContent = data.text || '';
+    el.classList.remove('is-ok', 'is-error', 'is-info');
+    if (data.level === 'ok') el.classList.add('is-ok');
+    else if (data.level === 'err') el.classList.add('is-error');
+    else if (data.level) el.classList.add('is-info');
+    return true;
+  }
+
   function writeConfigInputs(doc, config) {
     var c = config || {};
     setInputValue(doc, 'pg-sqx-path', c.sqx_path);
@@ -134,7 +158,9 @@
       focusSettingsField: focusSettingsField,
       inputValue: inputValue,
       readConfigInputs: readConfigInputs,
+      readCustomProjectInputs: readCustomProjectInputs,
       setHtml: setHtml,
+      setCustomProjectStatus: setCustomProjectStatus,
       setInputValue: setInputValue,
       setSettingsMessage: setSettingsMessage,
       setSettingsOpen: setSettingsOpen,

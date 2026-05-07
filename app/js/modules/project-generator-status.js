@@ -53,6 +53,48 @@ function generateOneResult(result, mining, capa) {
     };
   }
 
+function generateCustomStartMessage(payload) {
+    var data = payload || {};
+    var asset = data.asset || 'custom';
+    var tf = data.tf || '';
+    return 'Generando custom ' + asset + (tf ? ' ' + tf : '') + ' · Capa ' + (data.capa || 1) + '…';
+  }
+
+function generateCustomMissingStatus() {
+    return {
+      text: 'Completa al menos Asset y Timeframe.',
+      level: 'err',
+      logText: 'Custom libre incompleto: faltan Asset o Timeframe',
+      logLevel: 'err'
+    };
+  }
+
+function generateCustomResult(result, payload) {
+    var data = result || {};
+    var request = payload || {};
+    if (data.ok) {
+      return {
+        text: 'Generado: ' + data.filename,
+        level: 'ok',
+        logText: '✓ Custom libre → ' + data.filename,
+        logLevel: 'ok',
+        traceTitle: 'Custom libre generado',
+        traceDetail: (data.project_name || request.name || request.asset || 'custom') + ' · Capa ' + (data.capa || request.capa || 1),
+        traceLevel: 'ok'
+      };
+    }
+    var error = data.error || 'fallo';
+    return {
+      text: 'Error: ' + error,
+      level: 'err',
+      logText: '✗ Custom libre → ' + error,
+      logLevel: 'err',
+      traceTitle: 'Error generando custom libre',
+      traceDetail: error,
+      traceLevel: 'err'
+    };
+  }
+
 function generateErrorResult(message, title) {
     return {
       logText: '✗ Error: ' + message,
@@ -113,6 +155,9 @@ function generateAllResultLines(results) {
     generateAllResultSummary: generateAllResultSummary,
     generateAllStartMessage: generateAllStartMessage,
     generateAllTrace: generateAllTrace,
+    generateCustomMissingStatus: generateCustomMissingStatus,
+    generateCustomResult: generateCustomResult,
+    generateCustomStartMessage: generateCustomStartMessage,
     generateErrorResult: generateErrorResult,
     generateOneResult: generateOneResult,
     generateOneStartMessage: generateOneStartMessage,

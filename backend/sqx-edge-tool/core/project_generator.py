@@ -110,6 +110,7 @@ def generate_project(
     broker_postfix: str = DEFAULT_BROKER_POSTFIX,
     alias_override: Optional[dict] = None,
     overwrite: bool = True,
+    project_name: Optional[str] = None,
 ) -> str:
     """
     Genera un .cfx para el mining especificado.
@@ -122,6 +123,7 @@ def generate_project(
         suffix: sufijo opcional para el nombre (ej. "_v1")
         sqx_data: dict con datos extraídos de data.db (si None, usa ASSET_DEFAULTS)
         overwrite: sobreescribir si existe
+        project_name: nombre base opcional para proyectos custom fuera del plan
 
     Returns:
         Path absoluto al .cfx generado.
@@ -130,6 +132,7 @@ def generate_project(
         raise FileNotFoundError(f"Template not found: {template_path}")
     if capa not in CAPA_TASK_MAPS:
         raise ValueError(f"capa must be 1 or 2, got {capa}")
+    base_project_name = project_name or mining.name
 
     editor = CfxEditor(template_path)
     task_map = CAPA_TASK_MAPS[capa]
@@ -173,11 +176,11 @@ def generate_project(
     # Renombrar el proyecto en config.xml (incluye capa en el nombre)
     if editor.has("config.xml"):
         config_tree = editor.parse_xml("config.xml")
-        config_tree.getroot().set("name", f"{mining.name}_Capa{capa}")
+        config_tree.getroot().set("name", f"{base_project_name}_Capa{capa}")
         editor.update_xml("config.xml", config_tree)
 
     # Guardar el .cfx
-    out_name = f"{mining.name}_Capa{capa}{suffix}.cfx"
+    out_name = f"{base_project_name}_Capa{capa}{suffix}.cfx"
     out_path = os.path.abspath(os.path.join(output_dir, out_name))
     if overwrite and os.path.isfile(out_path):
         backup_dir = os.path.join(output_dir, "__cfx_backups")

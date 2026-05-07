@@ -77,6 +77,12 @@ async function run() {
     await desktop.waitForSelector('#pg-onboarding-title');
     await desktop.waitForFunction(() => document.getElementById('pg-onboarding-progress')?.textContent.trim() === '0/4');
     await desktop.waitForFunction(() => document.getElementById('pg-onboarding-steps')?.querySelectorAll('.pg-step').length === 4);
+    await desktop.waitForSelector('#pg-custom-generate');
+    await desktop.locator('#pg-custom-asset').fill('EURUSD');
+    await desktop.locator('#pg-custom-tf').fill('H1');
+    await desktop.locator('#pg-custom-name').fill('Custom_EURUSD_H1');
+    await desktop.locator('#pg-custom-capa').selectOption('1');
+    await desktop.waitForFunction(() => document.getElementById('pg-custom-status')?.textContent.includes('plan mining'));
     await saveShot(desktop, 'e2e-projectgen-desktop.png');
     await desktop.locator('.tab[data-tab="views"]').click();
     await desktop.waitForSelector('.tab[data-tab="views"].active');

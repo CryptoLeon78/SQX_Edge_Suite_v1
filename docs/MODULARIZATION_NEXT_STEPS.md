@@ -4,14 +4,14 @@ Persistent planning note for the next SQX Edge phases.
 
 ## Current Status
 
-- Last updated: 2026-05-07.
-- Current completed phase: V4 - SQX View Creator Workflow Handoff.
+- Last updated: 2026-05-08.
+- Current completed phase: PG1 - Project Generator Custom Libre.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: V5 - View Creator buyer-ready template examples, or M82 - tiny reversible traffic expansion step only if M81 selects `approve_tiny_traffic_expansion`.
+- Next recommended phase: V5 - View Creator buyer-ready template examples, or PG2 - reusable custom project presets.
 
 ## Recommended Order
 
@@ -26,6 +26,11 @@ Persistent planning note for the next SQX Edge phases.
 9. Phase 44: polish release flow with one-click strict release, summary output and package guardrails. Done.
 10. Phase 45: extract Project Generator event bindings and polling from the legacy bridge. Done.
 11. Phase 46: apply operational visual polish for Project Generator, Strategies and responsive dense views. Done.
+
+## Project Generator Track
+
+1. Phase PG1: add Custom Libre generation outside the plan mining while preserving plan-based bulk generation. Done.
+2. Phase PG2: consider reusable custom presets for frequent buyer assets/timeframes after PG1 field usage is validated.
 
 ## Working Discipline
 

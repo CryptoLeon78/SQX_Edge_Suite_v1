@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - PG1 Custom libre fuera del plan
+
+- Anade un flujo `Custom libre` en Project Generator para crear `.cfx` sin depender de un mining del plan.
+- Expone `/api/generate-custom` con asset, timeframe, direccion, blocksetting, nombre y capa propios.
+- Mantiene intacta la generacion masiva por plan y refuerza contratos JS, API y E2E.
+
 ## 2026-05-07 - V4 SQX View Creator workflow handoff
 
 - Conecta Workflow y Estrategias con SQX Views mediante handoffs con preset y nombre precargados.

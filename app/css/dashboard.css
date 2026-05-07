@@ -1899,6 +1899,31 @@
     background:rgba(148,163,184,.14);
   }
 
+  .pg-custom-card {
+    margin-bottom:18px;
+    border-color:rgba(59,130,246,.22);
+    background:
+      linear-gradient(135deg, rgba(59,130,246,.10), rgba(20,184,166,.04)),
+      var(--surface);
+  }
+  .pg-custom-grid {
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+  }
+  .pg-custom-actions {
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+  #pg-custom-status {
+    color:var(--text2);
+    font-size:12px;
+  }
+  #pg-custom-status.is-ok { color:var(--green); }
+  #pg-custom-status.is-error { color:var(--red); }
+  #pg-custom-status.is-info { color:var(--accent); }
+
   .pg-settings-card .card-header { user-select:none; }
 
   /* ──────────────────────────────────────────────────────────────
@@ -2393,10 +2418,15 @@
     .pg-assistant-panel {
       grid-template-columns:1fr;
     }
+
+    .pg-custom-grid {
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
   }
   @media (max-width: 640px) {
     .pg-onboarding-steps { grid-template-columns:1fr; }
     .pg-assistant-checks { grid-template-columns:1fr; }
+    .pg-custom-grid { grid-template-columns:1fr; }
     .pg-onboarding-actions { flex-direction:column; }
     .pg-onboarding-actions .export-btn { width:100%; justify-content:center; }
   }

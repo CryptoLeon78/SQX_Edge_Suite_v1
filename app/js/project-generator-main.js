@@ -100,6 +100,16 @@ function pgSetSettingsMessage(status) {
   SQX_PG_DOM.setSettingsMessage(document, status);
 }
 
+function pgReadCustomInputs() {
+  return SQX_PG_DOM.readCustomProjectInputs ? SQX_PG_DOM.readCustomProjectInputs(document) : {};
+}
+
+function pgSetCustomStatus(text, level) {
+  if (SQX_PG_DOM.setCustomProjectStatus) {
+    SQX_PG_DOM.setCustomProjectStatus(document, { text, level });
+  }
+}
+
 function pgUpdateMiningSummary(count) {
   pgSetText('pg-minings-count', SQX_PG_MODULE.miningsCountLabel(count));
   pgSetText('pg-bulk-count', SQX_PG_MODULE.bulkGenerateLabel(count));
@@ -289,6 +299,31 @@ async function pgGenerateOne(mining, capa) {
     if (r.ok) await pgLoadOutput();
   } catch(e) {
     const result = SQX_PG_MODULE.generateErrorResult(e.message, 'Error generando proyecto');
+    pgLog(result.logText, result.logLevel);
+    pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
+  }
+}
+
+async function pgGenerateCustom() {
+  const body = pgReadCustomInputs();
+  if (!body.asset || !body.tf) {
+    const status = SQX_PG_MODULE.generateCustomMissingStatus();
+    pgSetCustomStatus(status.text, status.level);
+    pgLog(status.logText, status.logLevel);
+    return;
+  }
+  pgSetCustomStatus(SQX_PG_MODULE.generateCustomStartMessage(body), 'info');
+  pgLog(SQX_PG_MODULE.generateCustomStartMessage(body), 'info');
+  try {
+    const r = await pgFetch('/generate-custom', { method:'POST', body });
+    const result = SQX_PG_MODULE.generateCustomResult(r, body);
+    pgSetCustomStatus(result.text, result.level);
+    pgLog(result.logText, result.logLevel);
+    pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
+    if (r.ok) await pgLoadOutput();
+  } catch(e) {
+    const result = SQX_PG_MODULE.generateCustomResult({ ok:false, error:e.message }, body);
+    pgSetCustomStatus(result.text, result.level);
     pgLog(result.logText, result.logLevel);
     pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
   }
@@ -558,6 +593,7 @@ async function pgRunOnboardingTertiaryAction() {
     autodetectSqx: pgAutodetectSqx,
     checkHealth: pgCheckHealth,
     generateAll: pgGenerateAll,
+    generateCustom: pgGenerateCustom,
     loadConfig: pgLoadConfig,
     loadOutput: pgLoadOutput,
     openOutputFolder: pgOpenOutputFolder,

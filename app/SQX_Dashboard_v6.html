@@ -433,7 +433,7 @@
   <!-- TAB: PROJECT GENERATOR — genera Custom Projects .cfx para SQX vía API local -->
   <div id="tab-projectgen" class="tab-content" style="display:none">
     <div style="margin-bottom:14px;color:var(--text2);font-size:14px;">
-      Generador de <code>.cfx</code> Custom Projects para SQX. Toma tus templates Capa 1 / Capa 2 validados y los clona para cada mining del plan, parametrizando símbolo, TF, dirección, fechas y costos. Requiere el backend Python corriendo en <code id="pg-api-base-inline">API local</code>.
+      Generador de <code>.cfx</code> Custom Projects para SQX. Puede clonar tus templates Capa 1 / Capa 2 para el plan de minings o crear un custom libre con asset, TF y dirección propios. Requiere el backend Python corriendo en <code id="pg-api-base-inline">API local</code>.
     </div>
 
     <!-- Banner status backend -->
@@ -516,6 +516,47 @@
           <div id="pg-aliases-table" style="margin-bottom:10px;"></div>
           <button class="export-btn" id="pg-aliases-suggest" style="border-color:var(--accent);color:var(--accent);">Auto-sugerir desde DB</button>
         </div>
+      </div>
+    </div>
+
+    <div class="card pg-custom-card">
+      <div class="card-header">
+        <h2>Custom libre</h2>
+        <span class="badge info">Fuera del plan mining</span>
+      </div>
+      <div class="strat-form-grid pg-custom-grid">
+        <label>Nombre del proyecto
+          <input type="text" id="pg-custom-name" placeholder="Custom_EURUSD_H1">
+        </label>
+        <label>Asset / Simbolo
+          <input type="text" id="pg-custom-asset" placeholder="EURUSD">
+        </label>
+        <label>Timeframe
+          <input type="text" id="pg-custom-tf" placeholder="H1">
+        </label>
+        <label>Blocksetting
+          <input type="text" id="pg-custom-bs" placeholder="BS_Custom">
+        </label>
+        <label>Direccion
+          <select id="pg-custom-dir">
+            <option value="long">Long</option>
+            <option value="short">Short</option>
+            <option value="both">Long + Short</option>
+          </select>
+        </label>
+        <label>Capa
+          <select id="pg-custom-capa">
+            <option value="1">Capa 1</option>
+            <option value="2">Capa 2</option>
+          </select>
+        </label>
+        <label class="full">Template opcional
+          <input type="text" id="pg-custom-template" placeholder="Usa el template configurado para la capa si lo dejas vacio">
+        </label>
+      </div>
+      <div class="pg-custom-actions">
+        <button class="export-btn" id="pg-custom-generate">Generar custom</button>
+        <small id="pg-custom-status">Crea un .cfx libre sin añadirlo al plan mining.</small>
       </div>
     </div>
 

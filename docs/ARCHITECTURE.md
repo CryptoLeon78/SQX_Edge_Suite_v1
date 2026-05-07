@@ -9,7 +9,7 @@ SQX Edge Suite is a portable local web application:
 - The dashboard runs from `app/SQX_Dashboard_v6.html`.
 - Frontend behavior is loaded through plain browser scripts, without a bundler.
 - Shared frontend namespaces live under `window.SQX`.
-- The Project Generator tab talks to the local Python API at `http://127.0.0.1:5050`.
+- The Project Generator tab talks to the local Python API at `http://127.0.0.1:5050` for both plan-based generation and custom projects outside the plan.
 - The portable package includes an embedded Python runtime and one-click launchers.
 
 ## Top-Level Map
@@ -146,10 +146,10 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/view-creator.js` | Native SQX `.vw` generator for annual Databank views, EGT presets, saved local presets, JSON preset packs, workflow handoffs and XML downloads. |
 | `modules/project-generator-core.js` | Project Generator shared helpers and API primitives. |
 | `modules/project-generator-config.js` | Project Generator config read/write helpers. |
-| `modules/project-generator-dom.js` | Project Generator DOM helpers, config inputs, settings panel and log output. |
+| `modules/project-generator-dom.js` | Project Generator DOM helpers, config inputs, custom project inputs, settings panel and log output. |
 | `modules/project-generator-bindings.js` | Project Generator event bindings and polling wiring. |
 | `modules/project-generator-renderers.js` | Project Generator DOM render output helpers. |
-| `modules/project-generator-status.js` | Project Generator health/status and polling helpers. |
+| `modules/project-generator-status.js` | Project Generator health/status, custom generation result and polling helpers. |
 | `modules/project-generator-cleaner.js` | Strategy cleaner helpers used by Project Generator. |
 | `modules/project-generator.js` | Public Project Generator facade that composes the split modules. |
 | `modules/index.js` | Module boot marker and final module-order registry. |
@@ -167,8 +167,8 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 
 | Path | Responsibility |
 | --- | --- |
-| `backend/sqx-edge-tool/api/server.py` | Flask API, health, config, generation, backup and strategy endpoints. |
-| `backend/sqx-edge-tool/core/project_generator.py` | Project generation flow and SQX project assets. |
+| `backend/sqx-edge-tool/api/server.py` | Flask API, health, config, plan/custom generation, backup and strategy endpoints. |
+| `backend/sqx-edge-tool/core/project_generator.py` | Project generation flow and SQX project assets, including optional custom project names. |
 | `backend/sqx-edge-tool/core/strategy_cleaner.py` | Strategy cleaning and deletion support. |
 | `backend/sqx-edge-tool/core/config_loader.py` | Config loading and defaults. |
 | `backend/sqx-edge-tool/core/sqx_db.py` | SQX database verification and access helpers. |

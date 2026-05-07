@@ -11,6 +11,7 @@ Endpoints:
   GET  /api/minings           -> lista de los 14 minings del plan
   GET  /api/templates         -> lista de .cfx en templates/
   POST /api/generate          -> body: {mining: int, capa: 1|2, output?: str} -> genera 1 .cfx
+  POST /api/generate-custom   -> body: {asset, tf, dir, capa, name?, bs?} -> genera 1 .cfx fuera del plan
   POST /api/generate-all      -> body: {capa: 1|2} -> genera los 14
   GET  /api/output            -> lista de .cfx en output_dir
   POST /api/open-folder       -> body: {path} -> abre carpeta en Explorer
@@ -33,7 +34,7 @@ if str(ROOT) not in sys.path:
 
 from flask import Flask, abort, jsonify, request  # type: ignore
 
-from core import all_minings, generate_project, get_mining
+from core import Mining, all_minings, generate_project, get_mining, normalize_direction
 from core.config_loader import load_manifest
 from core.license_manager import (
     check_feature,
@@ -73,6 +74,7 @@ LOCAL_CORS_ORIGINS = set(API_PROFILE.get("corsOrigins") or ["null"])
 LOCAL_HTTP_ORIGIN_RE = re.compile(API_PROFILE.get("localOriginPattern", r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$"))
 LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1"}
 LOCAL_REMOTE_ADDRS = {"127.0.0.1", "::1"}
+SAFE_PROJECT_TOKEN_RE = re.compile(r"[^A-Za-z0-9._-]+")
 
 
 # ── CORS manual local-only (zero deps) ────────────────────────────
@@ -193,6 +195,38 @@ def require_feature(feature: str):
     if result.get("allowed"):
         return None
     return jsonify(result), 402
+
+
+def safe_project_token(value: str | None, fallback: str) -> str:
+    cleaned = SAFE_PROJECT_TOKEN_RE.sub("_", (value or "").strip())
+    cleaned = cleaned.strip("._-")
+    return cleaned or fallback
+
+
+def parse_generation_capa(raw) -> int:
+    try:
+        capa = int(raw or 1)
+    except (TypeError, ValueError):
+        raise ValueError("capa must be 1 or 2")
+    if capa not in (1, 2):
+        raise ValueError("capa must be 1 or 2")
+    return capa
+
+
+def build_custom_mining(data: dict) -> tuple[Mining, str]:
+    asset = safe_project_token(str(data.get("asset", "")).upper(), "")
+    tf = safe_project_token(str(data.get("tf", "")).upper(), "")
+    if not asset:
+        raise ValueError("missing 'asset'")
+    if not tf:
+        raise ValueError("missing 'tf'")
+    blocksetting = safe_project_token(str(data.get("bs") or data.get("blocksetting") or "BS_Custom"), "BS_Custom")
+    direction = normalize_direction(str(data.get("dir") or data.get("direction") or "long"))
+    mining = Mining(num=0, phase=0, asset=asset, tf=tf, bs=blocksetting, dir=direction)
+    direction_tag = {"long": "L", "short": "S", "both": "LS"}[direction]
+    default_name = f"Custom_{asset}_{tf}_{blocksetting}_{direction_tag}"
+    project_name = safe_project_token(str(data.get("name") or data.get("project_name") or default_name), default_name)
+    return mining, project_name
 
 
 # ── Endpoints ─────────────────────────────────────────────────────
@@ -607,6 +641,45 @@ def generate_one():
         return jsonify({
             "ok": True, "mining": mining.num, "capa": capa,
             "output_path": out_path, "filename": os.path.basename(out_path),
+            "costs_source": costs["source"], "symbol": costs["symbol"],
+            "spread": costs["spread"], "swap_long": costs["swap_long"], "swap_short": costs["swap_short"],
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
+
+
+@app.post("/api/generate-custom")
+def generate_custom():
+    locked = require_feature("project_generator.generate")
+    if locked:
+        return locked
+    data = request.get_json(silent=True) or {}
+    try:
+        capa = parse_generation_capa(data.get("capa", 1))
+        mining, project_name = build_custom_mining(data)
+    except ValueError as e:
+        return jsonify({"ok": False, "error": str(e)}), 400
+
+    cfg = load_config()
+    template = data.get("template") or resolve_template(cfg, capa)
+    output = data.get("output") or resolve_output_dir(cfg)
+    if not os.path.isfile(template):
+        return jsonify({"ok": False, "error": f"template not found: {template}"}), 404
+
+    db_path = cfg.get("sqx_data_db") or None
+    postfix = cfg.get("darwinex_suffix") or DEFAULT_BROKER_POSTFIX
+    aliases = cfg.get("asset_aliases") or {}
+    try:
+        out_path = generate_project(
+            mining, template_path=template, output_dir=output, capa=capa,
+            sqx_db_path=db_path, broker_postfix=postfix, alias_override=aliases,
+            project_name=project_name,
+        )
+        costs = resolve_costs(mining, db_path, postfix, alias_override=aliases)
+        return jsonify({
+            "ok": True, "custom": True, "project_name": project_name,
+            "asset": mining.asset, "tf": mining.tf, "bs": mining.bs, "dir": mining.dir,
+            "capa": capa, "output_path": out_path, "filename": os.path.basename(out_path),
             "costs_source": costs["source"], "symbol": costs["symbol"],
             "spread": costs["spread"], "swap_long": costs["swap_long"], "swap_short": costs["swap_short"],
         })

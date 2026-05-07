@@ -22,7 +22,7 @@ class Mining:
         return f"Mining{self.num:02d}_{self.asset}_{self.tf}_{self.bs}"
 
 
-def _dir(d: str) -> str:
+def normalize_direction(d: str) -> str:
     """Normalize dashboard directions to SQX internal direction names."""
     normalized = d.strip().upper()
     mapping = {
@@ -36,6 +36,10 @@ def _dir(d: str) -> str:
     if normalized not in mapping:
         raise ValueError(f"Unknown mining direction: {d!r}")
     return mapping[normalized]
+
+
+def _dir(d: str) -> str:
+    return normalize_direction(d)
 
 
 def _load_plan() -> list[Mining]:

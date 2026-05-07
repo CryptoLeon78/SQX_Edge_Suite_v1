@@ -322,10 +322,12 @@ class ApiTestCase(unittest.TestCase):
         }
         with patch.object(server, "check_feature", return_value=denied):
             generate = self.client.post("/api/generate", json={"mining": 1, "capa": 1})
+            generate_custom = self.client.post("/api/generate-custom", json={"asset": "EURUSD", "tf": "H1", "capa": 1})
             generate_all = self.client.post("/api/generate-all", json={"capa": 1})
             clean = self.client.post("/api/sqx-clean", json={"files": ["x.sqx"], "options": {}})
 
         self.assertEqual(generate.status_code, 402)
+        self.assertEqual(generate_custom.status_code, 402)
         self.assertEqual(generate_all.status_code, 402)
         self.assertEqual(clean.status_code, 402)
         self.assertEqual(self.get_json(generate)["error"], "pro_required")
@@ -403,6 +405,52 @@ class ApiTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(gen.call_args.kwargs["alias_override"], {"USTEC": "NDXm"})
+
+    def test_generate_custom_accepts_project_outside_plan(self):
+        cfg = {
+            "template_capa1": "templates/Capa1_Long.cfx",
+            "output_dir": "output",
+            "sqx_data_db": "",
+            "darwinex_suffix": "_darwinex",
+            "asset_aliases": {},
+        }
+        fake_path = str(server.ROOT / "output" / "Custom_EURUSD_H1_Capa1.cfx")
+        with patch.object(server, "load_config", return_value=cfg), \
+                patch.object(server.os.path, "isfile", return_value=True), \
+                patch.object(server, "generate_project", return_value=fake_path) as gen, \
+                patch.object(server, "resolve_costs", return_value={
+                    "source": "fallback",
+                    "symbol": "EURUSD_darwinex",
+                    "spread": 1,
+                    "swap_long": -1,
+                    "swap_short": 0,
+                }):
+            response = self.client.post("/api/generate-custom", json={
+                "name": "Custom EURUSD H1",
+                "asset": "eurusd",
+                "tf": "h1",
+                "bs": "BS Manual",
+                "dir": "both",
+                "capa": 1,
+            })
+
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertTrue(data["custom"])
+        self.assertEqual(data["asset"], "EURUSD")
+        self.assertEqual(data["tf"], "H1")
+        self.assertEqual(data["dir"], "both")
+        self.assertEqual(data["project_name"], "Custom_EURUSD_H1")
+        mining = gen.call_args.args[0]
+        self.assertEqual(mining.asset, "EURUSD")
+        self.assertEqual(mining.tf, "H1")
+        self.assertEqual(mining.bs, "BS_Manual")
+        self.assertEqual(gen.call_args.kwargs["project_name"], "Custom_EURUSD_H1")
+
+    def test_generate_custom_requires_asset_and_timeframe(self):
+        response = self.client.post("/api/generate-custom", json={"asset": "EURUSD", "capa": 1})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(self.get_json(response)["error"], "missing 'tf'")
 
     def test_state_backup_roundtrip_uses_safe_directory(self):
         with tempfile.TemporaryDirectory() as tmp:
