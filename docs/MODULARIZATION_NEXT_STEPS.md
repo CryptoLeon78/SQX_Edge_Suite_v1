@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Current completed phase: M45 - Customer Success Renewal Loop.
-- Current product/commercial state: `customer_success_renewal_ready`.
+- Current completed phase: M46 - Commercial Customer Cockpit.
+- Current product/commercial state: `customer_cockpit_ready`.
 - Governance baseline: G1 - Specialist Agent Operating Model.
-- Last synced base commit before M45: `7810801`.
-- Latest verified portable ZIP before M45: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
+- Last synced base commit before M46: `90e873f`.
+- Latest verified portable ZIP before M46: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M46 - Commercial Customer Cockpit.
+- Next recommended phase: M47 - Basic Buyer Onboarding And Support Gate.
 
 ## Recommended Order
 
@@ -89,4 +89,5 @@ Persistent planning note for the next SQX Edge phases.
 43. Phase M43: add post-release monitor for incidents, activation errors, support, refunds and scale decision. Done.
 44. Phase M44: add hotfix/rollback release kit for action owner, notes, comms, verification and closure evidence. Done.
 45. Phase M45: add customer success and renewal loop for Pro onboarding, support outcomes, retention decisions and upsell evidence. Done.
-46. Phase M46: add a lightweight commercial customer cockpit for renewals, support state, template opportunities and customer success decisions. Recommended next.
+46. Phase M46: add a lightweight commercial customer cockpit for renewals, support state, template opportunities and customer success decisions. Done.
+47. Phase M47: add a basic buyer onboarding and support gate for purchase, install, license activation, FAQ, support macro and refund/pause criteria. Recommended next.

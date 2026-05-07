@@ -24,6 +24,10 @@ if (window.SQX && window.SQX.fulfillment) {
   window.SQX.fulfillment.init();
 }
 
+if (window.SQX && window.SQX.customerCockpit) {
+  window.SQX.customerCockpit.init();
+}
+
 if (window.SQX && window.SQX.workflow) {
   window.SQX.workflow.init();
 }

@@ -5,12 +5,12 @@ Documento vivo para convertir SQX Edge Suite en una herramienta Pro comercial, c
 ## Current Status
 
 - Last updated: 2026-05-07.
-- Completed through: M45 - Customer Success Renewal Loop.
-- Current state: `customer_success_renewal_ready`.
+- Completed through: M46 - Commercial Customer Cockpit.
+- Current state: `customer_cockpit_ready`.
 - Governance baseline before M46: G1 - Specialist Agent Operating Model.
-- Latest verified portable ZIP before M45: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
+- Latest verified portable ZIP before M46: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
 - Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: M46 - Commercial Customer Cockpit.
+- Next recommended phase: M47 - Basic Buyer Onboarding And Support Gate.
 
 ## Decision Base
 
@@ -997,3 +997,25 @@ Decision M45:
 - No hay decision de renovacion sin cliente, owner, onboarding, activacion y soporte triado.
 - Las oportunidades de expansion exigen oferta preparada y claims seguros revisados.
 - El siguiente paso real es M46: cockpit comercial ligero para ver renovaciones, tickets y oportunidades en una sola vista.
+
+## Phase M46 - Commercial Customer Cockpit
+
+Objetivo: convertir la evidencia de customer success en un cockpit interno ligero para revisar clientes Pro, renovaciones, soporte, activacion y oportunidades responsables.
+
+Entregables:
+
+- Estado `customer_cockpit_ready`.
+- Endpoint read-only `GET /api/customer-cockpit`.
+- Agregador `backend/sqx-edge-tool/core/customer_cockpit.py`.
+- Configuracion segura `backend/sqx-edge-tool/config/customer_cockpit.json`.
+- Modulo frontend `app/js/modules/customer-cockpit.js`.
+- Panel Inicio `Customer Success` con clientes redactados, renovaciones, tickets y oportunidades.
+- Contratos JS, tests backend/staticos y E2E con capturas.
+
+Estado: Done.
+
+Decision M46:
+
+- El cockpit muestra resumen operativo redactado; no muestra payloads de licencia, claves privadas, eventos checkout crudos ni secretos de relay.
+- La fuente real prioritaria son evidencias locales `customer_success_renewal`; sin datos reales, el cockpit queda listo con estado vacio.
+- El siguiente paso real es M47: buyer onboarding y support gate para usuario basico.

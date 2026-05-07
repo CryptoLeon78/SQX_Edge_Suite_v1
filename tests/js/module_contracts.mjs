@@ -3,6 +3,7 @@ import './contracts/formatters_domain_contracts.mjs';
 import './contracts/storage_ui_contracts.mjs';
 import './contracts/license_contracts.mjs';
 import './contracts/fulfillment_contracts.mjs';
+import './contracts/customer_cockpit_contracts.mjs';
 import './contracts/support_contracts.mjs';
 import './contracts/renderers_charts_contracts.mjs';
 import './contracts/strategies_granular_contracts.mjs';

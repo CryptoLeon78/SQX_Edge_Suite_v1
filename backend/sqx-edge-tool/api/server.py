@@ -57,6 +57,7 @@ from core.fulfillment_queue import (
     store_lemon_webhook,
     update_request_status as set_fulfillment_request_status,
 )
+from core.customer_cockpit import cockpit_overview as customer_cockpit_overview
 
 app = Flask(__name__)
 
@@ -500,6 +501,12 @@ def api_fulfillment_request_status():
     except ValueError as exc:
         return jsonify({"ok": False, "error": "invalid_operator_status", "message": str(exc)}), 400
     return jsonify(result)
+
+
+@app.get("/api/customer-cockpit")
+def api_customer_cockpit():
+    """Resumen comercial interno con clientes redactados, renovaciones y soporte."""
+    return jsonify(customer_cockpit_overview())
 
 
 @app.get("/api/plan")

@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "privacy": {
+    "mode": "redacted_operator_summary",
+    "safeToRender": true,
+    "excluded": [
+      "license payloads",
+      "private keys",
+      "raw checkout events",
+      "relay secrets",
+      "customer delivery files"
+    ]
+  },
+  "thresholds": {
+    "renewalWindowDays": 14,
+    "minValueCheckins": 1
+  },
+  "customers": []
+}

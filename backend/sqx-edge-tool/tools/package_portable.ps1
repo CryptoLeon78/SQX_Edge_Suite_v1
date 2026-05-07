@@ -39,6 +39,8 @@ $excludeNames = @(
   "licenses_private",
   "private_keys",
   "fulfillment_requests",
+  "customer_success_renewal",
+  "customer_cockpit",
   "sqx-edge-relay"
 )
 $excludePatterns = @(

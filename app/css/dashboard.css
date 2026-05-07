@@ -585,6 +585,113 @@
   .fulfillment-btn:hover {
     filter:brightness(1.08);
   }
+  .customer-cockpit-panel {
+    display:grid;
+    gap:12px;
+  }
+  .customer-cockpit-head {
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .customer-cockpit-head strong {
+    color:var(--text);
+    font-size:14px;
+    line-height:1.3;
+  }
+  .customer-cockpit-refresh-btn {
+    border-color:rgba(53,208,198,.36);
+    background:rgba(53,208,198,.10);
+    color:var(--cyan);
+  }
+  .customer-cockpit-metrics {
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:8px;
+  }
+  .customer-cockpit-metric {
+    display:grid;
+    gap:4px;
+    border:1px solid rgba(148,163,184,.16);
+    border-radius:8px;
+    background:rgba(15,23,42,.24);
+    padding:10px;
+  }
+  .customer-cockpit-metric span {
+    color:var(--text2);
+    font-size:10px;
+    text-transform:uppercase;
+    font-weight:800;
+  }
+  .customer-cockpit-metric strong {
+    color:var(--text);
+    font-size:20px;
+    line-height:1;
+  }
+  .customer-cockpit-list {
+    display:grid;
+    gap:8px;
+  }
+  .customer-cockpit-card {
+    display:grid;
+    gap:7px;
+    border:1px solid rgba(148,163,184,.16);
+    border-radius:8px;
+    background:rgba(15,23,42,.28);
+    padding:10px;
+  }
+  .customer-cockpit-card-top,
+  .customer-cockpit-meta {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .customer-cockpit-pill,
+  .customer-cockpit-plan {
+    border:1px solid var(--border);
+    border-radius:999px;
+    padding:4px 8px;
+    font-size:10px;
+    font-weight:800;
+    white-space:nowrap;
+  }
+  .customer-cockpit-pill.is-ok {
+    border-color:rgba(34,197,94,.35);
+    background:rgba(34,197,94,.12);
+    color:var(--green);
+  }
+  .customer-cockpit-pill.is-warn {
+    border-color:rgba(234,179,8,.35);
+    background:rgba(234,179,8,.12);
+    color:var(--yellow);
+  }
+  .customer-cockpit-pill.is-error {
+    border-color:rgba(239,68,68,.35);
+    background:rgba(239,68,68,.12);
+    color:var(--red);
+  }
+  .customer-cockpit-pill.is-neutral,
+  .customer-cockpit-plan {
+    border-color:rgba(53,208,198,.28);
+    background:rgba(53,208,198,.10);
+    color:var(--cyan);
+  }
+  .customer-cockpit-card strong {
+    color:var(--text);
+    font-size:13px;
+    line-height:1.3;
+    word-break:break-word;
+  }
+  .customer-cockpit-meta,
+  .customer-cockpit-card p,
+  .customer-cockpit-card small {
+    color:var(--text2);
+    font-size:11px;
+    line-height:1.4;
+    margin:0;
+  }
   .home-focus-row span { color:var(--text2); font-size:13px; }
   .home-focus-row strong { color:var(--text); font-size:13px; text-align:right; }
   .home-focus-row strong.is-ok { color:var(--green); }

@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M45 - Customer Success Renewal Loop.
-- Current product/commercial state: `customer_success_renewal_ready`.
-- Next implementation phase: M46 - Commercial Customer Cockpit.
+- Current phase completed: M46 - Commercial Customer Cockpit.
+- Current product/commercial state: `customer_cockpit_ready`.
+- Next implementation phase: M47 - Basic Buyer Onboarding And Support Gate.
 - Governance baseline: G1 - Specialist Agent Operating Model.
 
 ## Specialist Agents
@@ -52,9 +52,9 @@ Every implementation phase must follow this loop:
 
 ## M46 Entry Criteria
 
-Before implementing M46, decide and document:
+M46 is accepted when these criteria are true:
 
-- Customer cockpit source of truth: JSON evidence, local config, generated manifest or API endpoint.
+- Customer cockpit source of truth: local `customer_success_renewal` evidence plus `customer_cockpit.json` metadata.
 - Data privacy boundary: no license payloads, private keys, raw checkout events or relay secrets in the UI.
 - Ownership: Product defines fields, Backend owns persistence/API, Frontend owns cockpit UI, Security owns redaction/exclusions, QA owns tests.
 - GO/NO-GO criteria: customers listed, renewal window visible, activation/support state visible, expansion opportunity visible, safe claims preserved.

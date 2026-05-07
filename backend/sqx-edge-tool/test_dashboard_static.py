@@ -58,6 +58,7 @@ MONETIZATION_M42_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M42.md"
 MONETIZATION_M43_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M43.md"
 MONETIZATION_M44_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M44.md"
 MONETIZATION_M45_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M45.md"
+MONETIZATION_M46_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M46.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -88,6 +89,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/home.js",
                 "js/modules/support.js",
                 "js/modules/fulfillment.js",
+                "js/modules/customer-cockpit.js",
                 "js/modules/workflow.js",
                 "js/modules/project-generator-core.js",
                 "js/modules/project-generator-config.js",
@@ -173,6 +175,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/home.js",
             "js/modules/support.js",
             "js/modules/fulfillment.js",
+            "js/modules/customer-cockpit.js",
             "js/modules/workflow.js",
             "js/modules/project-generator-core.js",
             "js/modules/project-generator-config.js",
@@ -203,6 +206,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
         support_js = (APP_ROOT / "js" / "modules" / "support.js").read_text(encoding="utf-8-sig")
         fulfillment_js = (APP_ROOT / "js" / "modules" / "fulfillment.js").read_text(encoding="utf-8-sig")
+        customer_cockpit_js = (APP_ROOT / "js" / "modules" / "customer-cockpit.js").read_text(encoding="utf-8-sig")
         workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
         project_generator_core_js = (APP_ROOT / "js" / "modules" / "project-generator-core.js").read_text(encoding="utf-8-sig")
         project_generator_config_js = (APP_ROOT / "js" / "modules" / "project-generator-config.js").read_text(encoding="utf-8-sig")
@@ -230,6 +234,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.home", home_js)
         self.assertIn("SQX.support", support_js)
         self.assertIn("SQX.fulfillment", fulfillment_js)
+        self.assertIn("SQX.customerCockpit", customer_cockpit_js)
         self.assertIn("SQX.workflow", workflow_js)
         self.assertIn("SQX.projectGenerator", project_generator_core_js)
         self.assertIn("SQX.projectGenerator", project_generator_config_js)
@@ -398,8 +403,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "customer_success_renewal_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "customer_success_renewal_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "customer_cockpit_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "customer_cockpit_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
@@ -450,6 +455,57 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Dockerfile", product_manifest["upgrade"]["checkout"]["automation"]["relayDockerfile"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["requestStatusEndpoint"], "/api/fulfillment/request-status")
         self.assertTrue(product_manifest["upgrade"]["checkout"]["automation"]["operatorPanelEnabled"])
+
+    def test_customer_cockpit_module_and_ui_are_wired(self):
+        main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
+        customer_cockpit_js = (APP_ROOT / "js" / "modules" / "customer-cockpit.js").read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        customer_cockpit_py = (TOOL_ROOT / "core" / "customer_cockpit.py").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        expected_ids = [
+            "customer-cockpit-panel",
+            "customer-cockpit-refresh-btn",
+            "customer-cockpit-customer-count",
+            "customer-cockpit-renewal-count",
+            "customer-cockpit-support-count",
+            "customer-cockpit-opportunity-count",
+            "customer-cockpit-status",
+            "customer-cockpit-list",
+            "customer-cockpit-empty",
+        ]
+        for element_id in expected_ids:
+            with self.subTest(element_id=element_id):
+                self.assertIn(f'id="{element_id}"', self.html)
+
+        for export in [
+            "apiBase",
+            "endpoint",
+            "fetchCockpit",
+            "init",
+            "renderCockpit",
+            "riskClass",
+            "riskLabel",
+            "setStatus",
+        ]:
+            with self.subTest(export=export):
+                self.assertIn(export, customer_cockpit_js)
+
+        self.assertIn("SQX.registerModule('customer-cockpit'", customer_cockpit_js)
+        self.assertIn("js/modules/customer-cockpit.js", self.html)
+        self.assertIn("window.SQX.customerCockpit.init()", main_js)
+        self.assertIn("/api/customer-cockpit", server_py)
+        self.assertIn("customer_cockpit_overview", server_py)
+        self.assertIn("redacted_operator_summary", customer_cockpit_py)
+        self.assertIn("license payloads", customer_cockpit_py)
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "customer_cockpit_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "customer_cockpit_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitEndpoint"], "/api/customer-cockpit")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitConfig"], "backend/sqx-edge-tool/config/customer_cockpit.json")
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["customerCockpitPolicy"],
+            "render_redacted_operator_summary_without_license_payloads_or_raw_events",
+        )
 
     def test_dashboard_navigation_delegates_to_ui_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
@@ -851,7 +907,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "customer_success_renewal_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "customer_cockpit_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
@@ -893,8 +949,16 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("customer_success_renewal.py", product_manifest["upgrade"]["checkout"]["customerSuccessRenewalTool"])
         self.assertIn("customer_success_renewal", product_manifest["upgrade"]["checkout"]["customerSuccessRenewalEvidenceDir"])
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerSuccessRenewalPolicy"], "track_onboarding_activation_support_renewal_and_safe_expansion")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitEndpoint"], "/api/customer-cockpit")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitConfig"], "backend/sqx-edge-tool/config/customer_cockpit.json")
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["customerCockpitPolicy"],
+            "render_redacted_operator_summary_without_license_payloads_or_raw_events",
+        )
         self.assertIn("backend/sqx-edge-tool/tools/customer_success_renewal.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "customer_success_renewal_ready")
+        self.assertIn("backend/sqx-edge-tool/data/customer_success_renewal", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/customer_cockpit", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "customer_cockpit_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -957,6 +1021,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/commercial_feedback_loop.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/public_offer_pack.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/launch_assets_kit.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/customer_success_renewal", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/customer_cockpit", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/fulfillment_request.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/fulfill_from_request.ps1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/relay_bundle.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
@@ -1005,7 +1071,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_monetization_docs_capture_m1_to_m45_decisions(self):
+    def test_monetization_docs_capture_m1_to_m46_decisions(self):
         roadmap = MONETIZATION_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         m1 = MONETIZATION_M1_DOC.read_text(encoding="utf-8-sig")
         m2 = MONETIZATION_M2_DOC.read_text(encoding="utf-8-sig")
@@ -1052,10 +1118,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         m43 = MONETIZATION_M43_DOC.read_text(encoding="utf-8-sig")
         m44 = MONETIZATION_M44_DOC.read_text(encoding="utf-8-sig")
         m45 = MONETIZATION_M45_DOC.read_text(encoding="utf-8-sig")
+        m46 = MONETIZATION_M46_DOC.read_text(encoding="utf-8-sig")
         sales_runbook = (PROJECT_ROOT / "docs" / "sales" / "SALES_FULFILLMENT_RUNBOOK.md").read_text(encoding="utf-8-sig")
         webhook_notes = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_AUTOMATION_NOTES.md").read_text(encoding="utf-8-sig")
         receiver_ops = (PROJECT_ROOT / "docs" / "sales" / "WEBHOOK_RECEIVER_OPERATIONS.md").read_text(encoding="utf-8-sig")
         operator_ops = (PROJECT_ROOT / "docs" / "sales" / "FULFILLMENT_OPERATOR_PLAYBOOK.md").read_text(encoding="utf-8-sig")
+        customer_cockpit = (PROJECT_ROOT / "docs" / "sales" / "CUSTOMER_COCKPIT.md").read_text(encoding="utf-8-sig")
         relay_ops = (PROJECT_ROOT / "docs" / "sales" / "RELAY_INGEST_NOTES.md").read_text(encoding="utf-8-sig")
         relay_service_ops = (PROJECT_ROOT / "docs" / "sales" / "RELAY_SERVICE_OPERATIONS.md").read_text(encoding="utf-8-sig")
         commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
@@ -1107,6 +1175,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M43", roadmap)
         self.assertIn("Phase M44", roadmap)
         self.assertIn("Phase M45", roadmap)
+        self.assertIn("Phase M46", roadmap)
         self.assertIn("Phase M2: design licensing and access model. Done.", next_steps)
         self.assertIn("Phase M3: define distribution channels and paid delivery flow. Done.", next_steps)
         self.assertIn("Phase M4: separate Free/Pro/internal product packaging. Done.", next_steps)
@@ -1151,6 +1220,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase M43: add post-release monitor for incidents, activation errors, support, refunds and scale decision. Done.", next_steps)
         self.assertIn("Phase M44: add hotfix/rollback release kit for action owner, notes, comms, verification and closure evidence. Done.", next_steps)
         self.assertIn("Phase M45: add customer success and renewal loop for Pro onboarding, support outcomes, retention decisions and upsell evidence. Done.", next_steps)
+        self.assertIn("Phase M46: add a lightweight commercial customer cockpit for renewals, support state, template opportunities and customer success decisions. Done.", next_steps)
 
         m1_patterns = [
             "SQX Edge Pro",
@@ -1852,6 +1922,20 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("customer_success_renewal.py", customer_success)
         self.assertIn("renewal_contact_not_ready", customer_success)
 
+        m46_patterns = [
+            "customer_cockpit_ready",
+            "customer_cockpit.py",
+            "/api/customer-cockpit",
+            "customer-cockpit.js",
+            "Estado: Done.",
+        ]
+        for pattern in m46_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, m46)
+        self.assertIn("Customer Cockpit", customer_cockpit)
+        self.assertIn("payload de licencia", customer_cockpit.lower())
+        self.assertIn("eventos checkout crudos", customer_cockpit.lower())
+
     def test_tabs_have_matching_panels(self):
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         tabs = [tab["id"] for tab in ui_manifest["tabs"]]
@@ -1927,6 +2011,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             "fulfillment-request-list",
             "fulfillment-private-key",
             "fulfillment-zip-path",
+            "customer-cockpit-panel",
+            "customer-cockpit-customer-count",
+            "customer-cockpit-renewal-count",
+            "customer-cockpit-support-count",
+            "customer-cockpit-opportunity-count",
+            "customer-cockpit-list",
         ]
         for element_id in expected_ids:
             with self.subTest(element_id=element_id):
@@ -2188,6 +2278,20 @@ class DashboardStaticTestCase(unittest.TestCase):
             "support_tickets_open",
             "safe_claims_not_reviewed",
             "template_pack_offer_not_ready",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, text)
+
+    def test_customer_cockpit_core_is_present_and_redacted(self):
+        path = TOOL_ROOT / "core" / "customer_cockpit.py"
+        py_compile.compile(str(path), doraise=True)
+        text = path.read_text(encoding="utf-8")
+        for pattern in (
+            "customer_cockpit_ready",
+            "redacted_operator_summary",
+            "mask_email",
+            "license payloads",
+            "raw checkout events",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, text)

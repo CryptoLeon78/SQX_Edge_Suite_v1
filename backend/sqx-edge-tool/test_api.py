@@ -259,6 +259,30 @@ class ApiTestCase(unittest.TestCase):
             )
         self.assertEqual(invalid.status_code, 400)
 
+    def test_customer_cockpit_endpoint_returns_redacted_summary(self):
+        overview = {
+            "ok": True,
+            "state": "customer_cockpit_ready",
+            "privacy": {
+                "mode": "redacted_operator_summary",
+                "safe_to_render": True,
+                "excluded": ["license payloads", "private keys", "raw checkout events"],
+            },
+            "summary": {"customers": 1, "renewal_due": 1, "support_open": 0},
+            "customers": [{"customer_ref": "iv***@example.com", "plan": "pro_monthly"}],
+        }
+        with patch.object(server, "customer_cockpit_overview", return_value=overview) as cockpit:
+            response = self.client.get("/api/customer-cockpit")
+
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertTrue(data["ok"])
+        self.assertEqual(data["state"], "customer_cockpit_ready")
+        self.assertEqual(data["customers"][0]["customer_ref"], "iv***@example.com")
+        self.assertIn("license payloads", data["privacy"]["excluded"])
+        self.assertNotIn("ivan@example.com", json.dumps(data, ensure_ascii=False))
+        cockpit.assert_called_once()
+
     def test_minings_follow_plan_manifest(self):
         response = self.client.get("/api/minings")
         self.assertEqual(response.status_code, 200)

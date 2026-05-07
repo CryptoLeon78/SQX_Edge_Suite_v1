@@ -48,6 +48,8 @@ fulfillment_request_*.json
 webhook_event_*.json
 relay_event_*.json
 fulfillment_requests/
+backend/sqx-edge-tool/data/customer_success_renewal/
+backend/sqx-edge-tool/data/customer_cockpit/
 backend/sqx-edge-tool/license_keys/
 backend/sqx-edge-tool/licenses_private/
 backend/sqx-edge-tool/private_keys/

@@ -226,6 +226,36 @@
           <div id="fulfillment-request-list" class="fulfillment-request-list"></div>
           <div id="fulfillment-empty" class="home-history-empty">No hay requests pendientes en la cola.</div>
         </div>
+        <div class="home-panel customer-cockpit-panel" id="customer-cockpit-panel">
+          <div class="customer-cockpit-head">
+            <div>
+              <div class="home-panel-title">Customer Success</div>
+              <strong>Cockpit comercial Pro</strong>
+            </div>
+            <button class="export-btn customer-cockpit-refresh-btn" id="customer-cockpit-refresh-btn" type="button">Actualizar</button>
+          </div>
+          <div class="customer-cockpit-metrics">
+            <div class="customer-cockpit-metric">
+              <span>Clientes</span>
+              <strong id="customer-cockpit-customer-count">--</strong>
+            </div>
+            <div class="customer-cockpit-metric">
+              <span>Renovar</span>
+              <strong id="customer-cockpit-renewal-count">--</strong>
+            </div>
+            <div class="customer-cockpit-metric">
+              <span>Tickets</span>
+              <strong id="customer-cockpit-support-count">--</strong>
+            </div>
+            <div class="customer-cockpit-metric">
+              <span>Upsell</span>
+              <strong id="customer-cockpit-opportunity-count">--</strong>
+            </div>
+          </div>
+          <small id="customer-cockpit-status" class="support-status">Esperando resumen comercial seguro.</small>
+          <div id="customer-cockpit-list" class="customer-cockpit-list"></div>
+          <div id="customer-cockpit-empty" class="home-history-empty">Sin clientes Pro registrados aun.</div>
+        </div>
         <div class="home-panel home-history">
           <div class="home-history-head">
             <div class="home-panel-title">Actividad reciente</div>
@@ -2980,6 +3010,7 @@ Ret/DD > 1.0          ← más estricto que Capa 1 (era 0.5)</pre>
 <script src="js/modules/home.js"></script>
 <script src="js/modules/support.js"></script>
 <script src="js/modules/fulfillment.js"></script>
+<script src="js/modules/customer-cockpit.js"></script>
 <script src="js/modules/workflow.js"></script>
 <script src="js/modules/project-generator-core.js"></script>
 <script src="js/modules/project-generator-config.js"></script>

@@ -96,6 +96,8 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("webhook_event_", text)
         self.assertIn("relay_event_", text)
         self.assertIn('"fulfillment_requests"', text)
+        self.assertIn('"customer_success_renewal"', text)
+        self.assertIn('"customer_cockpit"', text)
         self.assertIn('"license_keys"', text)
         self.assertIn("\\\\.env", text)
 
@@ -133,6 +135,8 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("relay_bundle.py", text)
         self.assertIn("sqx-edge-relay", text)
         self.assertIn("fulfillment_requests", text)
+        self.assertIn("customer_success_renewal", text)
+        self.assertIn("customer_cockpit", text)
         self.assertIn("license_keys", text)
         self.assertIn("private_keys", text)
         self.assertIn("/api/health", text)
@@ -167,6 +171,8 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "fulfill_from_request.ps1",
             "relay_bundle.py",
             "sqx-edge-relay",
+            "customer_success_renewal",
+            "customer_cockpit",
             "license_keys",
             "private_keys",
             "_private_key\\.json",
@@ -189,6 +195,8 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         text = (PROJECT_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
         self.assertIn("backend/sqx-edge-tool/config/license.json", text)
         self.assertIn("sqx-edge-tool/config/license.json", text)
+        self.assertIn("backend/sqx-edge-tool/data/customer_success_renewal/", text)
+        self.assertIn("backend/sqx-edge-tool/data/customer_cockpit/", text)
 
     def test_release_bat_runs_strict_checklist(self):
         text = (PROJECT_ROOT / "RELEASE_SQX_EDGE.bat").read_text(encoding="utf-8-sig")

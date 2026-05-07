@@ -28,6 +28,8 @@ $denySegments = @(
   "licenses_private",
   "private_keys",
   "fulfillment_requests",
+  "customer_success_renewal",
+  "customer_cockpit",
   "sqx-edge-relay"
 )
 
@@ -82,6 +84,8 @@ $requiredPackageGuards = @(
   '"license_keys"',
   '"licenses_private"',
   '"private_keys"',
+  '"customer_success_renewal"',
+  '"customer_cockpit"',
   '"sqx-edge-relay"',
   'config\.json',
   'license\.json',

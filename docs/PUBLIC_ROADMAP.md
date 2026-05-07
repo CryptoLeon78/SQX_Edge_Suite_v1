@@ -12,11 +12,12 @@ Last updated: 2026-05-07.
 - Diagnostico local de soporte sin telemetria automatica.
 - Flujo comercial interno con checkout, licencia, fulfillment, release, monitorizacion, hotfix y rollback preparado.
 - Customer success y renovacion Pro preparados con trazabilidad interna.
+- Cockpit interno de customer success preparado con datos redactados.
 
 ## Next
 
 - Onboarding basico de comprador: compra, descarga, licencia, activacion y soporte.
-- Cockpit comercial ligero para renovaciones, tickets y oportunidades responsables.
+- Buyer onboarding y soporte para comprador basico.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.

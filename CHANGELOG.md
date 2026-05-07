@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-07 - Commercial customer cockpit
+
+- Anade endpoint read-only `GET /api/customer-cockpit`.
+- Anade agregador redactado `customer_cockpit.py` para evidencia de customer success.
+- Anade panel `Customer Success` en Inicio con clientes, renovaciones, tickets y oportunidades.
+- Actualiza estado comercial a `customer_cockpit_ready`.
+
 ## 2026-05-07 - Specialist agent governance
 
 - Anade `docs/PROJECT_GOVERNANCE.md` con agentes especializados, ownership, namespaces de fase y criterios de entrada M46.
