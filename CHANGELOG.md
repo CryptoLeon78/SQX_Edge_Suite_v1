@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - R40 portable ZIP after V6/PG3
+
+- Regenera el ZIP portable final tras los ejemplos buyer-ready de SQX Views y los packs JSON de `Custom libre`.
+- Ejecuta release checklist completo: contratos JS, pytest, `git diff --check`, audit distribution y prueba de API desde ZIP extraido.
+- Publica trazabilidad del nuevo ZIP `SQX_Edge_Tool_Portable_20260508_004141.zip` con SHA256 `EB4031FE3A6035DA0F04D569A2963B120CCA6957C5EB4A7F994A078F56556E4C`.
+
 ## 2026-05-08 - PG3 Custom libre portable preset packs
 
 - Anade exportacion/importacion JSON para presets de `Custom libre` en Project Generator.

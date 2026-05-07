@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: PG3 - Project Generator Custom Preset Packs.
+- Current completed phase: R40 - Portable ZIP After V6/PG3.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
-- Latest verified portable ZIP before M47: `dist/SQX_Edge_Tool_Portable_20260507_075847.zip`.
-- Latest ZIP SHA256: `FE573CADCB79E2D93E1D1491BADC35DF0295C37DD08017AF3A9C784581E47E09`.
-- Next recommended phase: V7 - buyer profile SQX Views packs, or R40 - regenerate portable ZIP after V6/PG3.
+- Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_004141.zip`.
+- Latest ZIP SHA256: `EB4031FE3A6035DA0F04D569A2963B120CCA6957C5EB4A7F994A078F56556E4C`.
+- Next recommended phase: V7 - buyer profile SQX Views packs, or PG4 - starter custom preset profiles.
 
 ## Recommended Order
 
@@ -158,4 +158,5 @@ Persistent planning note for the next SQX Edge phases.
 
 ## Release Track
 
-1. Phase R40: regenerate and test the portable ZIP after V6/PG3 because frontend behavior and dev tooling changed.
+1. Phase R40: regenerate and test the portable ZIP after V6/PG3 because frontend behavior and dev tooling changed. Done.
+2. Phase R41: prepare a fresh public release record only when we decide to publish this ZIP.
