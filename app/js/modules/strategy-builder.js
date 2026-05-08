@@ -20,6 +20,7 @@
     sendViews: 'sb-send-views-btn',
     prepareCleaner: 'sb-prepare-cleaner-btn',
     prepareBuyerPack: 'sb-prepare-buyer-pack-btn',
+    buyerSession: 'sb-buyer-session-btn',
     clear: 'sb-clear-btn',
     exportPackage: 'sb-export-btn',
     status: 'sb-status',
@@ -34,6 +35,8 @@
   };
 
   var lastPackage = null;
+  var lastBuyerHandoffPack = null;
+  var lastBuyerPackReview = null;
   var currentHandoff = null;
   var currentSourceSummary = null;
   var handoffAuditTrail = [];
@@ -229,6 +232,8 @@
       setStatus('Strategy Builder core missing.', 'error', doc);
       return null;
     }
+    lastBuyerHandoffPack = null;
+    lastBuyerPackReview = null;
     lastPackage = api.buildPackage(inputModel(doc));
     return renderPackage(lastPackage, doc);
   }
@@ -254,6 +259,8 @@
     currentHandoff = null;
     currentSourceSummary = null;
     lastPackage = null;
+    lastBuyerHandoffPack = null;
+    lastBuyerPackReview = null;
     setValue(IDS.sourceMode, 'blank', doc);
     setValue(IDS.asset, 'EURUSD', doc);
     setValue(IDS.timeframe, 'H1', doc);
@@ -450,8 +457,30 @@
     }
     var preview = byId(IDS.preview, doc);
     if (preview) preview.textContent = JSON.stringify(result.pack, null, 2);
+    lastBuyerHandoffPack = result.pack;
+    lastBuyerPackReview = null;
     addAuditEntry('Buyer Handoff Pack', payload, result, doc);
     setStatus('Buyer handoff pack prepared in preview. No destination action was triggered.', 'ok', doc);
+    return result;
+  }
+
+  function prepareBuyerSessionChecklist(options) {
+    var doc = options && options.document ? options.document : global.document;
+    var api = core();
+    var payload = lastBuyerPackReview || lastBuyerHandoffPack || lastPackage || build({ document: doc });
+    if (!api || !api.guidedBuyerSessionChecklist) {
+      setStatus('Buyer session checklist contract missing.', 'error', doc);
+      return null;
+    }
+    var result = api.guidedBuyerSessionChecklist(payload);
+    if (!result.ok) {
+      setStatus('Buyer session checklist blocked: ' + result.errors.join(', ') + '.', 'warn', doc);
+      return result;
+    }
+    var preview = byId(IDS.preview, doc);
+    if (preview) preview.textContent = JSON.stringify(result.checklist, null, 2);
+    addAuditEntry('Buyer Session Checklist', lastPackage, result, doc);
+    setStatus('Buyer session checklist prepared in preview. No destination action was triggered.', 'ok', doc);
     return result;
   }
 
@@ -469,10 +498,13 @@
     }
     applyModel(result.model, doc);
     lastPackage = result.package;
+    lastBuyerHandoffPack = null;
+    lastBuyerPackReview = null;
     renderPackage(lastPackage, doc);
     if (result.buyer_pack_review) {
       var preview = byId(IDS.preview, doc);
       if (preview) preview.textContent = JSON.stringify(result.buyer_pack_review, null, 2);
+      lastBuyerPackReview = result.buyer_pack_review;
       addAuditEntry('Buyer Pack Import Review', lastPackage, { ok: true, guardrails: result.buyer_pack_review.guardrails || [] }, doc);
       setStatus('Buyer pack imported for local review. Confirm manual review before export or handoffs.', 'warn', doc);
       return result;
@@ -531,6 +563,7 @@
     bind(doc, IDS.sendViews, function() { sendToViews({ document: doc }); });
     bind(doc, IDS.prepareCleaner, function() { prepareStrategyCleaner({ document: doc }); });
     bind(doc, IDS.prepareBuyerPack, function() { prepareBuyerHandoffPack({ document: doc }); });
+    bind(doc, IDS.buyerSession, function() { prepareBuyerSessionChecklist({ document: doc }); });
     bind(doc, IDS.importPackage, function() {
       var input = byId(IDS.importFile, doc);
       if (input && input.click) input.click();
@@ -554,6 +587,7 @@
     init: init,
     loadCvcSample: loadCvcSample,
     prepareBuyerHandoffPack: prepareBuyerHandoffPack,
+    prepareBuyerSessionChecklist: prepareBuyerSessionChecklist,
     prepareProjectGeneratorPreset: prepareProjectGeneratorPreset,
     prepareStrategyCleaner: prepareStrategyCleaner,
     renderAuditTrail: renderAuditTrail,

@@ -27,6 +27,7 @@
   var HANDOFF_TYPE = 'sqx-edge.strategy-builder-handoff';
   var BUYER_HANDOFF_PACK_TYPE = 'sqx-edge.strategy-builder-buyer-handoff-pack';
   var BUYER_HANDOFF_PACK_REVIEW_TYPE = 'sqx-edge.strategy-builder-buyer-handoff-pack-review';
+  var BUYER_SESSION_CHECKLIST_TYPE = 'sqx-edge.strategy-builder-buyer-session-checklist';
   var REQUIRED_BUYER_HANDOFFS = [
     'project_generator_prefill',
     'project_generator_preset_draft',
@@ -849,6 +850,131 @@
     };
   }
 
+  function includedHandoffMap(input) {
+    var data = input || {};
+    var map = {};
+    if (data.type === BUYER_HANDOFF_PACK_TYPE) {
+      var handoffs = data.handoffs || {};
+      REQUIRED_BUYER_HANDOFFS.forEach(function(id) {
+        map[id] = !!handoffs[id];
+      });
+      return map;
+    }
+    if (data.type === BUYER_HANDOFF_PACK_REVIEW_TYPE) {
+      (data.included_handoffs || []).forEach(function(item) {
+        map[item.id] = !!item.present;
+      });
+      return map;
+    }
+    REQUIRED_BUYER_HANDOFFS.forEach(function(id) {
+      map[id] = true;
+    });
+    return map;
+  }
+
+  function guidedBuyerSessionChecklist(input, options) {
+    var source = input || {};
+    var review = source.type === BUYER_HANDOFF_PACK_REVIEW_TYPE ? source : null;
+    var pack = source.type === BUYER_HANDOFF_PACK_TYPE ? source : null;
+    var payload = pack ? pack.strategy_builder_package : (source.type === PACKAGE_TYPE ? source : null);
+    if (!payload && !review) payload = buildPackage(source, options);
+    var assetProfile = payload && payload.asset_profile || {};
+    var workflowState = review
+      ? normalizeText(review.rebuilt_workflow_state || review.original_workflow_state, 'blocked_operator_review')
+      : normalizeText(payload && payload.workflow_state, 'blocked_operator_review');
+    var asset = normalizeAsset(review && review.asset || assetProfile.asset);
+    var timeframe = normalizeTimeframe(review && review.timeframe || assetProfile.timeframe);
+    var reviewConfirmed = workflowState === 'package_exportable' && !(review && review.re_review_required);
+    var handoffMap = includedHandoffMap(review || pack || payload);
+    var destinationReady = reviewConfirmed ? 'pending' : 'blocked';
+    var destinationNote = reviewConfirmed ? 'Ready for manual operator action.' : 'Confirm manual review first.';
+    var steps = [
+      {
+        id: 'manual_review_gate',
+        label: 'Confirm manual review gate',
+        status: reviewConfirmed ? 'done' : 'pending',
+        owner: 'operator',
+        action: 'Check the source evidence, asset, timeframe, validation pack and safe-claims boundary.'
+      },
+      {
+        id: 'project_generator_prefill',
+        label: 'Prepare Project Generator fields',
+        status: handoffMap.project_generator_prefill ? destinationReady : 'blocked',
+        owner: 'operator',
+        action: 'Press Enviar a Project Generator, review fields and do not generate until they are correct.',
+        note: handoffMap.project_generator_prefill ? destinationNote : 'Project Generator prefill handoff missing.'
+      },
+      {
+        id: 'project_generator_generate',
+        label: 'Generate custom project manually',
+        status: destinationReady,
+        owner: 'operator',
+        action: 'In Project Generator, press Generar custom manually only after reviewing the prefilled fields.',
+        note: destinationNote
+      },
+      {
+        id: 'project_generator_preset',
+        label: 'Prepare and save preset manually',
+        status: handoffMap.project_generator_preset_draft ? destinationReady : 'blocked',
+        owner: 'operator',
+        action: 'Press Preparar preset PG, review the preset name and press Guardar preset manually if desired.',
+        note: handoffMap.project_generator_preset_draft ? destinationNote : 'Project Generator preset draft missing.'
+      },
+      {
+        id: 'sqx_views_review',
+        label: 'Open SQX Views validation review',
+        status: handoffMap.sqx_views ? destinationReady : 'blocked',
+        owner: 'operator',
+        action: 'Press Enviar a SQX Views, review columns and download or save the template manually.',
+        note: handoffMap.sqx_views ? destinationNote : 'SQX Views handoff missing.'
+      },
+      {
+        id: 'strategy_cleaner_review',
+        label: 'Prepare Strategy Cleaner draft',
+        status: handoffMap.strategy_cleaner ? destinationReady : 'blocked',
+        owner: 'operator',
+        action: 'Press Preparar Cleaner, select the .sqx folder manually, then scan and process manually.',
+        note: handoffMap.strategy_cleaner ? destinationNote : 'Strategy Cleaner draft missing.'
+      },
+      {
+        id: 'strategyquant_validation',
+        label: 'Run StrategyQuant validation manually',
+        status: destinationReady,
+        owner: 'operator',
+        action: 'Run StrategyQuant validation before making any trading or performance claim.',
+        note: destinationNote
+      }
+    ];
+    return {
+      ok: true,
+      errors: [],
+      checklist: {
+        type: BUYER_SESSION_CHECKLIST_TYPE,
+        version: 1,
+        created_at: nowIso(options),
+        asset: asset,
+        timeframe: timeframe,
+        source_type: normalizeText(source.type || (payload && payload.type), 'sqx-edge.strategy-builder-package'),
+        workflow_state: workflowState,
+        review_required: !reviewConfirmed,
+        steps: steps,
+        guardrails: [
+          'guided_session_only',
+          'no_destination_action_triggered',
+          'no_local_storage_write',
+          'no_backend_endpoint',
+          'operator_executes_every_step_manually',
+          'no_profitability_claim'
+        ]
+      },
+      guardrails: [
+        'checklist_preview_only',
+        'no_destination_action_triggered',
+        'operator_executes_every_step_manually'
+      ]
+    };
+  }
+
   function buyerWorkflowSummary(input, options) {
     var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {}, options);
     var review = reviewChecklistSummary(payload);
@@ -910,6 +1036,7 @@
     buyerHandoffPackReview: buyerHandoffPackReview,
     buyerWorkflowSummary: buyerWorkflowSummary,
     defaultValidationPack: defaultValidationPack,
+    guidedBuyerSessionChecklist: guidedBuyerSessionChecklist,
     handoffAuditEntry: handoffAuditEntry,
     importPayload: importPayload,
     projectGeneratorPrefillFromPackage: projectGeneratorPrefillFromPackage,

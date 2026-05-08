@@ -32,6 +32,7 @@ assert.equal(typeof core.sqxViewsHandoffFromPackage, 'function');
 assert.equal(typeof core.buyerWorkflowSummary, 'function');
 assert.equal(typeof core.buyerHandoffPackReview, 'function');
 assert.equal(typeof core.handoffAuditEntry, 'function');
+assert.equal(typeof core.guidedBuyerSessionChecklist, 'function');
 assert.equal(typeof core.strategyCleanerDraftFromPackage, 'function');
 assert.equal(typeof core.unifiedBuyerHandoffPackFromPackage, 'function');
 assert.equal(typeof core.validateImportPayload, 'function');
@@ -134,6 +135,19 @@ assert.equal(buyerPackReview.review.rebuilt_workflow_state, 'blocked_operator_re
 assert.equal(buyerPackReview.review.included_handoffs.length, 4);
 assert.equal(buyerPackReview.review.missing_handoffs.length, 0);
 assert.equal(buyerPackReview.guardrails.includes('no_destination_action_triggered'), true);
+const buyerSessionChecklist = core.guidedBuyerSessionChecklist(buyerPack.pack, { createdAt: '2026-05-09T01:35:00.000Z' });
+assert.equal(buyerSessionChecklist.ok, true);
+assert.equal(buyerSessionChecklist.checklist.type, 'sqx-edge.strategy-builder-buyer-session-checklist');
+assert.equal(buyerSessionChecklist.checklist.review_required, false);
+assert.equal(buyerSessionChecklist.checklist.steps.length, 7);
+assert.equal(buyerSessionChecklist.checklist.steps[0].status, 'done');
+assert.match(buyerSessionChecklist.checklist.steps.map(step => step.action).join(' '), /Generar custom/);
+assert.equal(buyerSessionChecklist.checklist.guardrails.includes('operator_executes_every_step_manually'), true);
+const importedBuyerSessionChecklist = core.guidedBuyerSessionChecklist(buyerPackReview.review);
+assert.equal(importedBuyerSessionChecklist.ok, true);
+assert.equal(importedBuyerSessionChecklist.checklist.review_required, true);
+assert.equal(importedBuyerSessionChecklist.checklist.steps[0].status, 'pending');
+assert.equal(importedBuyerSessionChecklist.checklist.steps[1].status, 'blocked');
 
 const importedPackage = core.importPayload(JSON.stringify(ready), { createdAt: '2026-05-09T01:00:00.000Z' });
 assert.equal(importedPackage.ok, true);
@@ -188,6 +202,7 @@ assert.match(blockedImport.errors.join(' '), /forbidden_raw_payload_keys/);
   'sb-send-views-btn',
   'sb-prepare-cleaner-btn',
   'sb-prepare-buyer-pack-btn',
+  'sb-buyer-session-btn',
   'sb-clear-btn',
   'sb-export-btn',
   'sb-status',
@@ -305,6 +320,11 @@ assert.match(document.getElementById('sb-status').textContent, /No destination a
 assert.match(document.getElementById('sb-audit-list').innerHTML, /Buyer Handoff Pack/);
 assert.equal(SQX.viewCreator.getSavedPresets().length, viewPresetCountBefore);
 assert.equal(sandbox.localStorage.getItem('sqx_strategy_builder_buyer_pack_v1'), null);
+document.getElementById('sb-buyer-session-btn').click();
+assert.match(document.getElementById('sb-package-preview').textContent, /sqx-edge\.strategy-builder-buyer-session-checklist/);
+assert.match(document.getElementById('sb-package-preview').textContent, /operator_executes_every_step_manually/);
+assert.match(document.getElementById('sb-status').textContent, /Buyer session checklist prepared/);
+assert.match(document.getElementById('sb-audit-list').innerHTML, /Buyer Session Checklist/);
 const importedBuyerPackUiResult = ui.importText(JSON.stringify(buyerPack.pack), { document });
 assert.equal(importedBuyerPackUiResult.ok, true);
 assert.equal(document.getElementById('sb-state').textContent, 'blocked_operator_review');
@@ -313,6 +333,10 @@ assert.match(document.getElementById('sb-package-preview').textContent, /include
 assert.match(document.getElementById('sb-status').textContent, /Buyer pack imported for local review/);
 assert.match(document.getElementById('sb-audit-list').innerHTML, /Buyer Pack Import Review/);
 assert.equal(sandbox.localStorage.getItem('sqx_strategy_builder_buyer_pack_v1'), null);
+document.getElementById('sb-buyer-session-btn').click();
+assert.match(document.getElementById('sb-package-preview').textContent, /sqx-edge\.strategy-builder-buyer-session-checklist/);
+assert.match(document.getElementById('sb-package-preview').textContent, /Confirm manual review first/);
+assert.match(document.getElementById('sb-status').textContent, /Buyer session checklist prepared/);
 
 const importedUiResult = ui.importText(JSON.stringify(ready), { document });
 assert.equal(importedUiResult.ok, true);

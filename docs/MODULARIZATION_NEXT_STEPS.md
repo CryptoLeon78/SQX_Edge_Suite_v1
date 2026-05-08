@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: SB11 - Strategy Builder buyer handoff pack import and review.
+- Current completed phase: SB12 - Strategy Builder guided buyer session checklist.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_201652.zip`.
 - Latest ZIP SHA256: `2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E`.
-- Next recommended phase: SB12 - Strategy Builder guided buyer session checklist, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: SB13 - Strategy Builder buyer session handoff summary export, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -97,7 +97,8 @@ Persistent planning note for the next SQX Edge phases.
 9. Phase SB9: add Strategy Builder Strategy Cleaner draft handoff. Done; see `docs/SB9_STRATEGY_BUILDER_CLEANER_HANDOFF.md`.
 10. Phase SB10: add Strategy Builder unified buyer handoff pack. Done; see `docs/SB10_STRATEGY_BUILDER_BUYER_HANDOFF_PACK.md`.
 11. Phase SB11: add Strategy Builder buyer handoff pack import and review. Done; see `docs/SB11_STRATEGY_BUILDER_BUYER_PACK_IMPORT_REVIEW.md`.
-12. Phase SB12: add Strategy Builder guided buyer session checklist.
+12. Phase SB12: add Strategy Builder guided buyer session checklist. Done; see `docs/SB12_STRATEGY_BUILDER_BUYER_SESSION_CHECKLIST.md`.
+13. Phase SB13: add Strategy Builder buyer session handoff summary export.
 
 ## QA / Security Track
 
