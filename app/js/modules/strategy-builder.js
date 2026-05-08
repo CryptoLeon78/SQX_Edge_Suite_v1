@@ -470,6 +470,13 @@
     applyModel(result.model, doc);
     lastPackage = result.package;
     renderPackage(lastPackage, doc);
+    if (result.buyer_pack_review) {
+      var preview = byId(IDS.preview, doc);
+      if (preview) preview.textContent = JSON.stringify(result.buyer_pack_review, null, 2);
+      addAuditEntry('Buyer Pack Import Review', lastPackage, { ok: true, guardrails: result.buyer_pack_review.guardrails || [] }, doc);
+      setStatus('Buyer pack imported for local review. Confirm manual review before export or handoffs.', 'warn', doc);
+      return result;
+    }
     addAuditEntry('Import JSON', lastPackage, { ok: true, guardrails: ['local_json_import', 'fresh_review_required'] }, doc);
     setStatus('Package imported locally. Confirm manual review before export.', 'warn', doc);
     return result;

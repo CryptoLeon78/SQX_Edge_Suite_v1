@@ -26,6 +26,13 @@
   var PACKAGE_TYPE = 'sqx-edge.strategy-builder-package';
   var HANDOFF_TYPE = 'sqx-edge.strategy-builder-handoff';
   var BUYER_HANDOFF_PACK_TYPE = 'sqx-edge.strategy-builder-buyer-handoff-pack';
+  var BUYER_HANDOFF_PACK_REVIEW_TYPE = 'sqx-edge.strategy-builder-buyer-handoff-pack-review';
+  var REQUIRED_BUYER_HANDOFFS = [
+    'project_generator_prefill',
+    'project_generator_preset_draft',
+    'sqx_views',
+    'strategy_cleaner'
+  ];
   var IMPORT_BLOCKED_KEYS = {
     raw_csv: true,
     rawCsv: true,
@@ -428,6 +435,37 @@
     };
   }
 
+  function validatePackageShape(payload, errors, warnings, manifest, prefix) {
+    var label = prefix || '';
+    if (!payload || payload.type !== PACKAGE_TYPE) {
+      errors.push(label + 'invalid_strategy_builder_package');
+      return;
+    }
+    if (payload.version !== 1) errors.push(label + 'unsupported_package_version');
+    if (!payload.asset_profile || !payload.asset_profile.asset) errors.push(label + 'missing_asset_profile');
+    if (!payload.asset_profile || !payload.asset_profile.timeframe) errors.push(label + 'missing_timeframe');
+    if (!payload.idea_archetype || !payload.idea_archetype.id) errors.push(label + 'missing_idea_archetype');
+    if (!payload.validation_requirements || !payload.validation_requirements.validation_pack_id) errors.push(label + 'missing_validation_pack');
+    if (payload.asset_profile && payload.asset_profile.asset && !supportedAsset(payload.asset_profile.asset, manifest)) errors.push(label + 'unsupported_asset');
+    if (payload.workflow_state && WORKFLOW_STATES.concat(BLOCKED_STATES).indexOf(payload.workflow_state) === -1) {
+      warnings.push(label + 'unknown_workflow_state:' + payload.workflow_state);
+    }
+  }
+
+  function validateBuyerHandoffPackShape(payload, errors, warnings, manifest) {
+    if (payload.version !== 1) errors.push('unsupported_buyer_pack_version');
+    if (!payload.strategy_builder_package) {
+      errors.push('missing_strategy_builder_package');
+    } else {
+      validatePackageShape(payload.strategy_builder_package, errors, warnings, manifest, 'nested_');
+    }
+    var handoffs = payload.handoffs || {};
+    REQUIRED_BUYER_HANDOFFS.forEach(function(id) {
+      if (!handoffs[id]) errors.push('missing_buyer_pack_handoff:' + id);
+    });
+    if (payload.workflow && payload.workflow.ready !== true) warnings.push('buyer_pack_workflow_not_ready');
+  }
+
   function validateImportPayload(input, options) {
     var parsed = parseJsonPayload(input);
     var errors = parsed.errors.slice();
@@ -440,17 +478,9 @@
     }
     var forbidden = collectForbiddenKeys(payload, '', []);
     if (forbidden.length) errors.push('forbidden_raw_payload_keys:' + forbidden.join(','));
-    if (payload.type !== PACKAGE_TYPE && payload.type !== HANDOFF_TYPE) errors.push('unsupported_type:' + normalizeText(payload.type, 'missing'));
+    if (payload.type !== PACKAGE_TYPE && payload.type !== HANDOFF_TYPE && payload.type !== BUYER_HANDOFF_PACK_TYPE) errors.push('unsupported_type:' + normalizeText(payload.type, 'missing'));
     if (payload.type === PACKAGE_TYPE) {
-      if (payload.version !== 1) errors.push('unsupported_package_version');
-      if (!payload.asset_profile || !payload.asset_profile.asset) errors.push('missing_asset_profile');
-      if (!payload.asset_profile || !payload.asset_profile.timeframe) errors.push('missing_timeframe');
-      if (!payload.idea_archetype || !payload.idea_archetype.id) errors.push('missing_idea_archetype');
-      if (!payload.validation_requirements || !payload.validation_requirements.validation_pack_id) errors.push('missing_validation_pack');
-      if (payload.asset_profile && payload.asset_profile.asset && !supportedAsset(payload.asset_profile.asset, manifest)) errors.push('unsupported_asset');
-      if (payload.workflow_state && WORKFLOW_STATES.concat(BLOCKED_STATES).indexOf(payload.workflow_state) === -1) {
-        warnings.push('unknown_workflow_state:' + payload.workflow_state);
-      }
+      validatePackageShape(payload, errors, warnings, manifest, '');
     }
     if (payload.type === HANDOFF_TYPE) {
       if (!payload.recommended_candidate) errors.push('missing_recommended_candidate');
@@ -458,7 +488,74 @@
         errors.push('unsupported_asset');
       }
     }
+    if (payload.type === BUYER_HANDOFF_PACK_TYPE) {
+      validateBuyerHandoffPackShape(payload, errors, warnings, manifest);
+    }
     return { ok: errors.length === 0, errors: errors, warnings: warnings, payload: payload };
+  }
+
+  function buyerHandoffPackReview(input, options) {
+    var validation = validateImportPayload(input, options);
+    if (!validation.ok || !validation.payload || validation.payload.type !== BUYER_HANDOFF_PACK_TYPE) {
+      return {
+        ok: false,
+        errors: validation.errors.length ? validation.errors : ['unsupported_buyer_handoff_pack'],
+        warnings: validation.warnings,
+        review: null,
+        package: null,
+        guardrails: ['review_only', 'no_destination_action_triggered']
+      };
+    }
+    var opts = options || {};
+    var pack = validation.payload;
+    var sourcePackage = pack.strategy_builder_package;
+    var model = modelFromPackage(sourcePackage);
+    if (opts.operatorReviewed === true || opts.operator_reviewed === true) model.operator_reviewed = true;
+    var rebuilt = buildPackage(model, opts);
+    var handoffs = pack.handoffs || {};
+    var included = REQUIRED_BUYER_HANDOFFS.map(function(id) {
+      return {
+        id: id,
+        present: !!handoffs[id],
+        ok: !!(handoffs[id] && handoffs[id].ok !== false)
+      };
+    });
+    var missing = included.filter(function(item) { return !item.present; }).map(function(item) { return item.id; });
+    return {
+      ok: true,
+      errors: [],
+      warnings: validation.warnings,
+      package: rebuilt,
+      review: {
+        type: BUYER_HANDOFF_PACK_REVIEW_TYPE,
+        version: 1,
+        imported_at: nowIso(opts),
+        source_created_at: normalizeText(pack.created_at),
+        source_type: pack.type,
+        asset: rebuilt.asset_profile.asset,
+        timeframe: rebuilt.asset_profile.timeframe,
+        original_workflow_state: normalizeText(sourcePackage.workflow_state, 'unknown'),
+        rebuilt_workflow_state: rebuilt.workflow_state,
+        re_review_required: !model.operator_reviewed,
+        included_handoffs: included,
+        missing_handoffs: missing,
+        manual_next_steps: (pack.manual_next_steps || []).concat([
+          'Confirm manual review before exporting or preparing handoffs from the imported pack.'
+        ]),
+        guardrails: [
+          'review_only',
+          'no_destination_action_triggered',
+          'no_local_storage_write',
+          'no_backend_endpoint',
+          'operator_must_confirm_manual_review'
+        ]
+      },
+      guardrails: [
+        'buyer_pack_import_review_only',
+        'no_destination_action_triggered',
+        'operator_must_confirm_manual_review'
+      ]
+    };
   }
 
   function importPayload(input, options) {
@@ -474,14 +571,17 @@
       };
     }
     var opts = options || {};
-    var model = validation.payload.type === HANDOFF_TYPE ? modelFromHandoff(validation.payload) : modelFromPackage(validation.payload);
+    var sourcePayload = validation.payload.type === BUYER_HANDOFF_PACK_TYPE ? validation.payload.strategy_builder_package : validation.payload;
+    var model = validation.payload.type === HANDOFF_TYPE ? modelFromHandoff(validation.payload) : modelFromPackage(sourcePayload);
     if (opts.operatorReviewed === true || opts.operator_reviewed === true) model.operator_reviewed = true;
     var built = buildPackage(model, opts);
+    var buyerReviewResult = validation.payload.type === BUYER_HANDOFF_PACK_TYPE ? buyerHandoffPackReview(validation.payload, opts) : null;
     built.import_metadata = {
       source_type: validation.payload.type,
       imported_at: nowIso(opts),
       re_review_required: !model.operator_reviewed,
-      warnings: validation.warnings.slice()
+      warnings: validation.warnings.slice(),
+      buyer_pack_review: !!buyerReviewResult
     };
     return {
       ok: true,
@@ -489,7 +589,8 @@
       warnings: validation.warnings,
       model: model,
       package: built,
-      source_handoff: validation.payload.type === HANDOFF_TYPE ? validation.payload : null
+      source_handoff: validation.payload.type === HANDOFF_TYPE ? validation.payload : null,
+      buyer_pack_review: buyerReviewResult ? buyerReviewResult.review : null
     };
   }
 
@@ -806,6 +907,7 @@
     blockedStates: BLOCKED_STATES,
     buildContext: buildContext,
     buildPackage: buildPackage,
+    buyerHandoffPackReview: buyerHandoffPackReview,
     buyerWorkflowSummary: buyerWorkflowSummary,
     defaultValidationPack: defaultValidationPack,
     handoffAuditEntry: handoffAuditEntry,

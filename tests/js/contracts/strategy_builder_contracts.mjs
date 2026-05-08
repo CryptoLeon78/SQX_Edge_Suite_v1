@@ -30,6 +30,7 @@ assert.equal(typeof core.projectGeneratorPresetDraftFromPackage, 'function');
 assert.equal(typeof core.reviewChecklistSummary, 'function');
 assert.equal(typeof core.sqxViewsHandoffFromPackage, 'function');
 assert.equal(typeof core.buyerWorkflowSummary, 'function');
+assert.equal(typeof core.buyerHandoffPackReview, 'function');
 assert.equal(typeof core.handoffAuditEntry, 'function');
 assert.equal(typeof core.strategyCleanerDraftFromPackage, 'function');
 assert.equal(typeof core.unifiedBuyerHandoffPackFromPackage, 'function');
@@ -125,6 +126,14 @@ assert.equal(buyerPack.pack.guardrails.includes('no_backend_endpoint'), true);
 assert.equal(buyerPack.pack.guardrails.includes('no_api_call'), true);
 assert.match(buyerPack.pack.manual_next_steps.join(' '), /StrategyQuant validation/);
 assert.equal(core.unifiedBuyerHandoffPackFromPackage(blocked).ok, false);
+const buyerPackReview = core.buyerHandoffPackReview(buyerPack.pack, { createdAt: '2026-05-09T01:25:00.000Z' });
+assert.equal(buyerPackReview.ok, true);
+assert.equal(buyerPackReview.review.type, 'sqx-edge.strategy-builder-buyer-handoff-pack-review');
+assert.equal(buyerPackReview.review.re_review_required, true);
+assert.equal(buyerPackReview.review.rebuilt_workflow_state, 'blocked_operator_review');
+assert.equal(buyerPackReview.review.included_handoffs.length, 4);
+assert.equal(buyerPackReview.review.missing_handoffs.length, 0);
+assert.equal(buyerPackReview.guardrails.includes('no_destination_action_triggered'), true);
 
 const importedPackage = core.importPayload(JSON.stringify(ready), { createdAt: '2026-05-09T01:00:00.000Z' });
 assert.equal(importedPackage.ok, true);
@@ -133,6 +142,15 @@ assert.equal(importedPackage.package.workflow_state, 'blocked_operator_review');
 assert.equal(importedPackage.package.source_summary.candidate, 'Challenger A');
 assert.equal(importedPackage.package.import_metadata.re_review_required, true);
 assert.equal(importedPackage.model.operator_reviewed, false);
+
+const importedBuyerPack = core.importPayload(JSON.stringify(buyerPack.pack), { createdAt: '2026-05-09T01:30:00.000Z' });
+assert.equal(importedBuyerPack.ok, true);
+assert.equal(importedBuyerPack.package.workflow_state, 'blocked_operator_review');
+assert.equal(importedBuyerPack.package.import_metadata.source_type, 'sqx-edge.strategy-builder-buyer-handoff-pack');
+assert.equal(importedBuyerPack.package.import_metadata.buyer_pack_review, true);
+assert.equal(importedBuyerPack.buyer_pack_review.type, 'sqx-edge.strategy-builder-buyer-handoff-pack-review');
+assert.equal(importedBuyerPack.buyer_pack_review.included_handoffs.every(item => item.present), true);
+assert.equal(importedBuyerPack.model.operator_reviewed, false);
 
 const reviewedImport = core.importPayload(ready, { operatorReviewed: true, createdAt: '2026-05-09T01:05:00.000Z' });
 assert.equal(reviewedImport.ok, true);
@@ -286,6 +304,14 @@ assert.match(document.getElementById('sb-package-preview').textContent, /strateg
 assert.match(document.getElementById('sb-status').textContent, /No destination action/);
 assert.match(document.getElementById('sb-audit-list').innerHTML, /Buyer Handoff Pack/);
 assert.equal(SQX.viewCreator.getSavedPresets().length, viewPresetCountBefore);
+assert.equal(sandbox.localStorage.getItem('sqx_strategy_builder_buyer_pack_v1'), null);
+const importedBuyerPackUiResult = ui.importText(JSON.stringify(buyerPack.pack), { document });
+assert.equal(importedBuyerPackUiResult.ok, true);
+assert.equal(document.getElementById('sb-state').textContent, 'blocked_operator_review');
+assert.match(document.getElementById('sb-package-preview').textContent, /sqx-edge\.strategy-builder-buyer-handoff-pack-review/);
+assert.match(document.getElementById('sb-package-preview').textContent, /included_handoffs/);
+assert.match(document.getElementById('sb-status').textContent, /Buyer pack imported for local review/);
+assert.match(document.getElementById('sb-audit-list').innerHTML, /Buyer Pack Import Review/);
 assert.equal(sandbox.localStorage.getItem('sqx_strategy_builder_buyer_pack_v1'), null);
 
 const importedUiResult = ui.importText(JSON.stringify(ready), { document });

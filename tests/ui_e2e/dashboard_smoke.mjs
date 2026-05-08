@@ -288,6 +288,7 @@ async function run() {
     await desktop.locator('#sb-prepare-buyer-pack-btn').click();
     const buyerHandoffPack = await desktop.evaluate(() => ({
       preview: document.getElementById('sb-package-preview')?.textContent || '',
+      pack: JSON.parse(document.getElementById('sb-package-preview')?.textContent || '{}'),
       status: document.getElementById('sb-status')?.textContent || '',
       auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
       storageText: localStorage.getItem('sqx_strategy_builder_buyer_pack_v1'),
@@ -311,6 +312,29 @@ async function run() {
     if (!auditTrail.rows.some(text => text.includes('SQX Views')) || !auditTrail.rows.some(text => text.includes('Project Generator')) || !auditTrail.rows.some(text => text.includes('PG Preset Draft')) || !auditTrail.rows.some(text => text.includes('Strategy Cleaner')) || !auditTrail.rows.some(text => text.includes('Buyer Handoff Pack'))) throw new Error(`Strategy Builder audit trail missing handoffs: ${JSON.stringify(auditTrail)}`);
     if (auditTrail.storageText !== null) throw new Error('Strategy Builder audit trail should stay session-only, not localStorage');
     await saveShot(desktop, 'e2e-strategy-builder-audit-desktop.png');
+    const buyerPackImport = await desktop.evaluate(pack => {
+      const beforeViewPresets = window.SQX.viewCreator.getSavedPresets(localStorage).length;
+      const beforePgPresets = window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length;
+      const result = window.SQX.strategyBuilder.importText(JSON.stringify(pack));
+      return {
+        ok: result.ok,
+        workflowState: result.package && result.package.workflow_state,
+        reviewType: result.buyer_pack_review && result.buyer_pack_review.type,
+        preview: document.getElementById('sb-package-preview')?.textContent || '',
+        status: document.getElementById('sb-status')?.textContent || '',
+        auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
+        storageText: localStorage.getItem('sqx_strategy_builder_buyer_pack_v1'),
+        viewPresetDelta: window.SQX.viewCreator.getSavedPresets(localStorage).length - beforeViewPresets,
+        pgPresetDelta: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length - beforePgPresets,
+      };
+    }, buyerHandoffPack.pack);
+    if (!buyerPackImport.ok || buyerPackImport.workflowState !== 'blocked_operator_review') throw new Error(`Strategy Builder buyer pack import should require fresh review: ${JSON.stringify(buyerPackImport)}`);
+    if (buyerPackImport.reviewType !== 'sqx-edge.strategy-builder-buyer-handoff-pack-review') throw new Error(`Strategy Builder buyer pack import review missing: ${JSON.stringify(buyerPackImport)}`);
+    if (!buyerPackImport.preview.includes('included_handoffs')) throw new Error('Strategy Builder buyer pack import preview should show review handoffs');
+    if (!buyerPackImport.status.includes('Buyer pack imported for local review')) throw new Error(`Strategy Builder buyer pack import status missing: ${JSON.stringify(buyerPackImport)}`);
+    if (!buyerPackImport.auditRows.some(text => text.includes('Buyer Pack Import Review'))) throw new Error(`Strategy Builder buyer pack import audit missing: ${JSON.stringify(buyerPackImport)}`);
+    if (buyerPackImport.storageText !== null || buyerPackImport.viewPresetDelta !== 0 || buyerPackImport.pgPresetDelta !== 0) throw new Error(`Strategy Builder buyer pack import should not persist destination state: ${JSON.stringify(buyerPackImport)}`);
+    await saveShot(desktop, 'e2e-strategy-builder-buyer-pack-import-desktop.png');
     const importResult = await desktop.evaluate(pkg => window.SQX.strategyBuilder.importText(JSON.stringify(pkg)), builderPackage);
     if (!importResult.ok || importResult.package.workflow_state !== 'blocked_operator_review') throw new Error('Strategy Builder import should require fresh operator review');
     await desktop.waitForFunction(() => document.getElementById('sb-status')?.textContent.includes('Confirm manual review'));
