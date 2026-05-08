@@ -23,6 +23,8 @@
     status: 'sb-status',
     preview: 'sb-package-preview',
     reviewList: 'sb-review-list',
+    workflowSteps: 'sb-workflow-steps',
+    auditList: 'sb-audit-list',
     state: 'sb-state',
     source: 'sb-source',
     assetOut: 'sb-asset-out',
@@ -32,6 +34,7 @@
   var lastPackage = null;
   var currentHandoff = null;
   var currentSourceSummary = null;
+  var handoffAuditTrail = [];
 
   function core() {
     return SQX.strategyBuilderCore || null;
@@ -142,6 +145,7 @@
     setText(IDS.checks, confirmed + '/' + (payload.operator_checklist || []).length, doc);
     if (preview) preview.textContent = JSON.stringify(payload, null, 2);
     renderReviewList(payload, doc);
+    renderBuyerWorkflow(payload, doc);
     setStatus(
       payload.workflow_state === 'package_exportable'
         ? 'Package ready for local export. Review remains mandatory before StrategyQuant use.'
@@ -171,6 +175,49 @@
     if (!list || !payload) return false;
     list.innerHTML = reviewListHtml(payload);
     return true;
+  }
+
+  function renderBuyerWorkflow(payload, doc) {
+    var list = byId(IDS.workflowSteps, doc);
+    var api = core();
+    if (!list || !api || !api.buyerWorkflowSummary || !payload) return false;
+    var summary = api.buyerWorkflowSummary(payload);
+    list.innerHTML = summary.steps.map(function(step) {
+      return ''
+        + '<div class="sb-workflow-step is-' + escapeHtml(step.status) + '">'
+        +   '<span>' + (step.status === 'done' ? 'OK' : '--') + '</span>'
+        +   '<div><strong>' + escapeHtml(step.label) + '</strong><small>' + escapeHtml(step.note) + '</small></div>'
+        + '</div>';
+    }).join('');
+    return true;
+  }
+
+  function renderAuditTrail(doc) {
+    var list = byId(IDS.auditList, doc);
+    if (!list) return false;
+    if (!handoffAuditTrail.length) {
+      list.innerHTML = '<div class="sb-audit-empty">Sin handoffs preparados en esta sesion.</div>';
+      return true;
+    }
+    list.innerHTML = handoffAuditTrail.map(function(entry) {
+      return ''
+        + '<div class="sb-audit-row ' + (entry.ok ? 'is-ok' : 'is-warn') + '">'
+        +   '<span>' + escapeHtml(entry.target) + '</span>'
+        +   '<strong>' + escapeHtml(entry.asset + ' ' + entry.timeframe) + '</strong>'
+        +   '<small>' + escapeHtml(entry.workflow_state + ' - accion final manual') + '</small>'
+        + '</div>';
+    }).join('');
+    return true;
+  }
+
+  function addAuditEntry(target, payload, result, doc) {
+    var api = core();
+    if (!api || !api.handoffAuditEntry || !payload) return null;
+    var entry = api.handoffAuditEntry(target, payload, result);
+    handoffAuditTrail.unshift(entry);
+    handoffAuditTrail = handoffAuditTrail.slice(0, 6);
+    renderAuditTrail(doc);
+    return entry;
   }
 
   function build(options) {
@@ -239,6 +286,7 @@
       return null;
     }
     var downloaded = downloadJson(payload, safeFilename(), doc);
+    addAuditEntry('Export JSON', payload, { ok: !!downloaded, guardrails: ['local_json_export'] }, doc);
     setStatus(downloaded ? 'Strategy Builder package exported locally.' : 'Strategy Builder package prepared in memory.', 'ok', doc);
     return payload;
   }
@@ -274,6 +322,7 @@
       dom.appendLog(doc, 'Strategy Builder prefill aplicado a Custom libre. Generacion manual pendiente.', 'info');
     }
     if (SQX.ui && SQX.ui.activateTabById) SQX.ui.activateTabById('projectgen', doc);
+    addAuditEntry('Project Generator', payload, { ok: true, guardrails: prefill.guardrails }, doc);
     setStatus('Project Generator prefilled. No generation was triggered.', 'ok', doc);
     return { ok: true, errors: [], config: config, source: prefill.source, guardrails: prefill.guardrails };
   }
@@ -310,6 +359,7 @@
       dom.appendLog(doc, 'Strategy Builder preparo un borrador de preset. Guardado manual pendiente.', 'info');
     }
     if (SQX.ui && SQX.ui.activateTabById) SQX.ui.activateTabById('projectgen', doc);
+    addAuditEntry('PG Preset Draft', payload, { ok: true, guardrails: draft.guardrails }, doc);
     setStatus('Project Generator preset draft prepared. No preset was saved.', 'ok', doc);
     return { ok: true, errors: [], config: config, preset_name: draft.preset_name, guardrails: draft.guardrails };
   }
@@ -338,6 +388,7 @@
       sampleStart: result.handoff.sampleStart,
       groupMode: result.handoff.groupMode
     });
+    addAuditEntry('SQX Views', payload, result, doc);
     setStatus('SQX Views prepared. No template was saved.', 'ok', doc);
     return result;
   }
@@ -357,6 +408,7 @@
     applyModel(result.model, doc);
     lastPackage = result.package;
     renderPackage(lastPackage, doc);
+    addAuditEntry('Import JSON', lastPackage, { ok: true, guardrails: ['local_json_import', 'fresh_review_required'] }, doc);
     setStatus('Package imported locally. Confirm manual review before export.', 'warn', doc);
     return result;
   }
@@ -417,6 +469,7 @@
       bindChange(doc, id, function() { build({ document: doc }); });
     });
     clear({ document: doc });
+    renderAuditTrail(doc);
     return true;
   }
 
@@ -430,6 +483,7 @@
     init: init,
     loadCvcSample: loadCvcSample,
     prepareProjectGeneratorPreset: prepareProjectGeneratorPreset,
+    renderAuditTrail: renderAuditTrail,
     sendToViews: sendToViews,
     sendToProjectGenerator: sendToProjectGenerator
   };

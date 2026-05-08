@@ -130,6 +130,14 @@
     'no profitability claim is inferred from the package',
     'export is local and reviewable'
   ];
+  var BUYER_WORKFLOW_STEPS = [
+    { id: 'source', label: 'Evidence source selected', blocked: 'Select or import a source.' },
+    { id: 'review', label: 'Manual review confirmed', blocked: 'Confirm manual review.' },
+    { id: 'package', label: 'Package exportable', blocked: 'Resolve package gate.' },
+    { id: 'project_generator', label: 'Project Generator handoff available', blocked: 'Package must be exportable.' },
+    { id: 'sqx_views', label: 'SQX Views validation available', blocked: 'Package must be exportable.' },
+    { id: 'operator', label: 'Operator runs StrategyQuant manually', blocked: 'Use the prepared handoffs manually.' }
+  ];
 
   function nowIso(options) {
     return options && options.createdAt ? options.createdAt : new Date().toISOString();
@@ -633,12 +641,67 @@
     };
   }
 
+  function buyerWorkflowSummary(input, options) {
+    var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {}, options);
+    var review = reviewChecklistSummary(payload);
+    var exportable = payload && payload.workflow_state === 'package_exportable';
+    var hasSource = payload && payload.source_mode && payload.source_mode !== 'blank';
+    var states = {
+      source: hasSource,
+      review: review.ready,
+      package: exportable,
+      project_generator: exportable,
+      sqx_views: exportable,
+      operator: false
+    };
+    return {
+      ready: exportable,
+      workflow_state: payload ? payload.workflow_state : 'blocked_missing_source',
+      next_action: exportable
+        ? 'Prepare a handoff, then run StrategyQuant actions manually.'
+        : 'Complete the manual review gate before preparing buyer handoffs.',
+      steps: BUYER_WORKFLOW_STEPS.map(function(step) {
+        return {
+          id: step.id,
+          label: step.label,
+          status: states[step.id] ? 'done' : 'pending',
+          note: states[step.id] ? 'Ready' : step.blocked
+        };
+      })
+    };
+  }
+
+  function handoffAuditEntry(target, input, result, options) {
+    var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {}, options);
+    var assetProfile = payload && payload.asset_profile || {};
+    var handoffResult = result || {};
+    return {
+      type: 'sqx-edge.strategy-builder-audit-entry',
+      version: 1,
+      created_at: nowIso(options),
+      target: normalizeText(target, 'unknown'),
+      ok: handoffResult.ok !== false,
+      workflow_state: payload ? payload.workflow_state : 'unknown',
+      asset: normalizeAsset(assetProfile.asset),
+      timeframe: normalizeTimeframe(assetProfile.timeframe),
+      guardrails: (handoffResult.guardrails || []).concat([
+        'visible_session_trace',
+        'no_local_storage_write',
+        'no_remote_call',
+        'operator_manual_next_step'
+      ]),
+      manual_next_action: 'Review the destination screen and press the final action manually.'
+    };
+  }
+
   SQX.strategyBuilderCore = SQX.strategyBuilderCore || {
     archetypes: ARCHETYPES,
     blockedStates: BLOCKED_STATES,
     buildContext: buildContext,
     buildPackage: buildPackage,
+    buyerWorkflowSummary: buyerWorkflowSummary,
     defaultValidationPack: defaultValidationPack,
+    handoffAuditEntry: handoffAuditEntry,
     importPayload: importPayload,
     projectGeneratorPrefillFromPackage: projectGeneratorPrefillFromPackage,
     projectGeneratorPresetDraftFromPackage: projectGeneratorPresetDraftFromPackage,

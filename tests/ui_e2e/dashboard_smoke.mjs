@@ -209,6 +209,7 @@ async function run() {
     await desktop.waitForSelector('#sb-build-btn');
     await desktop.locator('#sb-sample-cvc-btn').click();
     await desktop.waitForFunction(() => document.getElementById('sb-state')?.textContent.trim() === 'package_exportable');
+    await desktop.waitForFunction(() => document.getElementById('sb-workflow-steps')?.querySelectorAll('.sb-workflow-step.is-done').length >= 5);
     const builderPackage = await desktop.evaluate(() => window.SQX.strategyBuilderCore.buildPackage({
       source_mode: 'cvc_handoff',
       source_handoff: window.SQX.strategyBuilderCore.sampleCvcHandoff(),
@@ -266,6 +267,15 @@ async function run() {
     await saveShot(desktop, 'e2e-strategy-builder-views-handoff-desktop.png');
     await desktop.locator('.tab[data-tab="strategybuilder"]').click();
     await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
+    const auditTrail = await desktop.evaluate(() => ({
+      rows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
+      workflowDone: document.querySelectorAll('#sb-workflow-steps .sb-workflow-step.is-done').length,
+      storageText: localStorage.getItem('sqx_strategy_builder_audit_v1'),
+    }));
+    if (auditTrail.workflowDone < 5) throw new Error(`Strategy Builder workflow polish missing ready steps: ${JSON.stringify(auditTrail)}`);
+    if (!auditTrail.rows.some(text => text.includes('SQX Views')) || !auditTrail.rows.some(text => text.includes('Project Generator')) || !auditTrail.rows.some(text => text.includes('PG Preset Draft'))) throw new Error(`Strategy Builder audit trail missing handoffs: ${JSON.stringify(auditTrail)}`);
+    if (auditTrail.storageText !== null) throw new Error('Strategy Builder audit trail should stay session-only, not localStorage');
+    await saveShot(desktop, 'e2e-strategy-builder-audit-desktop.png');
     const importResult = await desktop.evaluate(pkg => window.SQX.strategyBuilder.importText(JSON.stringify(pkg)), builderPackage);
     if (!importResult.ok || importResult.package.workflow_state !== 'blocked_operator_review') throw new Error('Strategy Builder import should require fresh operator review');
     await desktop.waitForFunction(() => document.getElementById('sb-status')?.textContent.includes('Confirm manual review'));

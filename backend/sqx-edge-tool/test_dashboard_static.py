@@ -24,6 +24,7 @@ SB4_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB4_STRATEGY_BUILDER_IMPORT_
 SB5_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB5_STRATEGY_BUILDER_PROJECT_GENERATOR_PREFILL.md"
 SB6_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB6_STRATEGY_BUILDER_PRESET_HANDOFF.md"
 SB7_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB7_STRATEGY_BUILDER_VIEWS_HANDOFF.md"
+SB8_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB8_STRATEGY_BUILDER_AUDIT_WORKFLOW.md"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
 MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
@@ -357,6 +358,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         sb5 = SB5_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
         sb6 = SB6_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
         sb7 = SB7_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
+        sb8 = SB8_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
 
@@ -484,8 +486,20 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb7)
 
-        self.assertIn("Current phase completed: SB7 - Strategy Builder SQX Views validation-pack handoff.", governance)
-        self.assertIn("Next implementation phase: SB8 - Strategy Builder handoff audit trail and buyer workflow polish", governance)
+        for pattern in (
+            "SB8 Strategy Builder Audit Trail and Buyer Workflow Polish",
+            "`buyerWorkflowSummary`",
+            "`handoffAuditEntry`",
+            "No hidden localStorage write.",
+            "No backend endpoint.",
+            "No API call.",
+            "The operator must press every final destination action manually.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, sb8)
+
+        self.assertIn("Current phase completed: SB8 - Strategy Builder handoff audit trail and buyer workflow polish.", governance)
+        self.assertIn("Next implementation phase: SB9 - Strategy Builder Strategy Cleaner draft handoff", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
         self.assertIn("docs/SB2_STRATEGY_BUILDER_WORKFLOW.md", governance)
@@ -494,6 +508,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("docs/SB5_STRATEGY_BUILDER_PROJECT_GENERATOR_PREFILL.md", governance)
         self.assertIn("docs/SB6_STRATEGY_BUILDER_PRESET_HANDOFF.md", governance)
         self.assertIn("docs/SB7_STRATEGY_BUILDER_VIEWS_HANDOFF.md", governance)
+        self.assertIn("docs/SB8_STRATEGY_BUILDER_AUDIT_WORKFLOW.md", governance)
         self.assertIn("app/js/modules/strategy-builder-core.js", governance)
         self.assertIn("app/js/modules/strategy-builder.js", governance)
         self.assertIn("Phase SB1: discover the minimum viable Strategy Builder scope", next_steps)
@@ -511,6 +526,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase SB7: add Strategy Builder SQX Views validation-pack handoff", next_steps)
         self.assertIn("Done; see `docs/SB7_STRATEGY_BUILDER_VIEWS_HANDOFF.md`", next_steps)
         self.assertIn("Phase SB8: add Strategy Builder handoff audit trail and buyer workflow polish", next_steps)
+        self.assertIn("Done; see `docs/SB8_STRATEGY_BUILDER_AUDIT_WORKFLOW.md`", next_steps)
+        self.assertIn("Phase SB9: add Strategy Builder Strategy Cleaner draft handoff", next_steps)
 
     def test_modular_scaffold_loads_before_legacy_logic(self):
         scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)
@@ -620,6 +637,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("projectGeneratorPresetDraftFromPackage", strategy_builder_core_js)
         self.assertIn("reviewChecklistSummary", strategy_builder_core_js)
         self.assertIn("sqxViewsHandoffFromPackage", strategy_builder_core_js)
+        self.assertIn("buyerWorkflowSummary", strategy_builder_core_js)
+        self.assertIn("handoffAuditEntry", strategy_builder_core_js)
         self.assertIn("SQX.strategyBuilder", strategy_builder_js)
         self.assertIn("loadCvcSample", strategy_builder_js)
         self.assertIn("exportPackage", strategy_builder_js)
@@ -627,7 +646,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("sendToProjectGenerator", strategy_builder_js)
         self.assertIn("prepareProjectGeneratorPreset", strategy_builder_js)
         self.assertIn("sendToViews", strategy_builder_js)
+        self.assertIn("renderAuditTrail", strategy_builder_js)
         self.assertIn("openHandoff", strategy_builder_js)
+        self.assertNotIn("localStorage.setItem", strategy_builder_js)
         self.assertIn("writeCustomProjectInputs", strategy_builder_js)
         self.assertIn("FileReader", strategy_builder_js)
         self.assertNotIn("fetch(", strategy_builder_js)
@@ -637,6 +658,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn('id="tab-strategybuilder"', self.html)
         self.assertIn('id="sb-build-btn"', self.html)
         self.assertIn('id="sb-send-views-btn"', self.html)
+        self.assertIn('id="sb-workflow-steps"', self.html)
+        self.assertIn('id="sb-audit-list"', self.html)
         self.assertIn('id="sb-import-btn"', self.html)
         self.assertIn('id="sb-import-file"', self.html)
         self.assertIn('id="sb-send-pg-btn"', self.html)

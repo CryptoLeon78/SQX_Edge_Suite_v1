@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: SB7 - Strategy Builder SQX Views validation-pack handoff.
+- Current completed phase: SB8 - Strategy Builder handoff audit trail and buyer workflow polish.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_201652.zip`.
 - Latest ZIP SHA256: `2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E`.
-- Next recommended phase: SB8 - Strategy Builder handoff audit trail and buyer workflow polish, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: SB9 - Strategy Builder Strategy Cleaner draft handoff, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -93,7 +93,8 @@ Persistent planning note for the next SQX Edge phases.
 5. Phase SB5: add Strategy Builder to Project Generator prefill bridge without auto-running generation. Done; see `docs/SB5_STRATEGY_BUILDER_PROJECT_GENERATOR_PREFILL.md`.
 6. Phase SB6: add Strategy Builder review checklist and Project Generator save-as-preset handoff without auto-saving. Done; see `docs/SB6_STRATEGY_BUILDER_PRESET_HANDOFF.md`.
 7. Phase SB7: add Strategy Builder SQX Views validation-pack handoff without auto-saving templates. Done; see `docs/SB7_STRATEGY_BUILDER_VIEWS_HANDOFF.md`.
-8. Phase SB8: add Strategy Builder handoff audit trail and buyer workflow polish.
+8. Phase SB8: add Strategy Builder handoff audit trail and buyer workflow polish. Done; see `docs/SB8_STRATEGY_BUILDER_AUDIT_WORKFLOW.md`.
+9. Phase SB9: add Strategy Builder Strategy Cleaner draft handoff.
 
 ## QA / Security Track
 

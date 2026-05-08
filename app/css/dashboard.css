@@ -327,6 +327,73 @@
       background:rgba(34,197,94,.14);
       color:var(--green);
     }
+  .sb-flow-panel {
+    margin-top:12px;
+    padding:12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:rgba(15,23,42,.32);
+  }
+  .sb-workflow-steps,
+  .sb-audit-list {
+    display:grid;
+    gap:8px;
+    margin-top:10px;
+  }
+  .sb-workflow-step,
+  .sb-audit-row,
+  .sb-audit-empty {
+    display:grid;
+    grid-template-columns:34px minmax(0,1fr);
+    gap:9px;
+    align-items:center;
+    min-height:50px;
+    padding:9px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:rgba(11,18,32,.46);
+    color:var(--text2);
+    font-size:12px;
+  }
+  .sb-workflow-step span {
+    display:grid;
+    place-items:center;
+    width:28px;
+    height:28px;
+    border-radius:8px;
+    background:rgba(148,163,184,.12);
+    color:var(--text2);
+    font-size:10px;
+    font-weight:900;
+  }
+  .sb-workflow-step strong,
+  .sb-audit-row strong { display:block; color:var(--text); font-size:12px; line-height:1.2; }
+  .sb-workflow-step small,
+  .sb-audit-row small { display:block; margin-top:3px; color:var(--text2); overflow-wrap:anywhere; }
+  .sb-workflow-step.is-done { border-color:rgba(34,197,94,.25); background:rgba(34,197,94,.07); }
+  .sb-workflow-step.is-done span { background:rgba(34,197,94,.14); color:var(--green); }
+  .sb-audit-row {
+    grid-template-columns:112px minmax(0,1fr);
+    border-color:rgba(56,189,248,.22);
+  }
+  .sb-audit-row > span {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:26px;
+    padding:4px 8px;
+    border:1px solid rgba(56,189,248,.28);
+    border-radius:7px;
+    color:#93c5fd;
+    font-size:10px;
+    font-weight:900;
+    text-transform:uppercase;
+  }
+  .sb-audit-row.is-ok { border-color:rgba(34,197,94,.25); }
+  .sb-audit-empty {
+    grid-template-columns:1fr;
+    color:var(--text2);
+  }
   .sb-preview {
       min-height:480px;
     margin:0;
