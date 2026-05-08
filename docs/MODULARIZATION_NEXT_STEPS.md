@@ -4,14 +4,14 @@ Persistent planning note for the next SQX Edge phases.
 
 ## Current Status
 
-- Last updated: 2026-05-08.
-- Current completed phase: R45 - controlled publication plan prepared for the verified portable ZIP without publishing a GitHub Release.
+- Last updated: 2026-05-09.
+- Current completed phase: SB2 - controlled Strategy Builder workflow design.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_201652.zip`.
 - Latest ZIP SHA256: `2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E`.
-- Next recommended phase: SB2 - controlled Strategy Builder workflow design, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: SB3 - read-only Strategy Builder package prototype, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -87,7 +87,7 @@ Persistent planning note for the next SQX Edge phases.
 ## Strategy Builder / Only One Platform Track
 
 1. Phase SB1: discover the minimum viable Strategy Builder scope as a commercial "only one platform" hook, starting from existing SQX indicators, project presets and strategy cleaner outputs. Done; see `docs/SB1_STRATEGY_BUILDER_DISCOVERY.md`.
-2. Phase SB2: design a controlled Builder flow that creates a strategy idea/package without bypassing StrategyQuant validation.
+2. Phase SB2: design a controlled Builder flow that creates a strategy idea/package without bypassing StrategyQuant validation. Done; see `docs/SB2_STRATEGY_BUILDER_WORKFLOW.md`.
 3. Phase SB3: prototype read-only previews and export handoff artifacts before any live generation feature is offered to buyers.
 
 ## QA / Security Track

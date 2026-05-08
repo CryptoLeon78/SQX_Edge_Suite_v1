@@ -18,6 +18,7 @@ J4_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J4_CHAMPION_CHALLENGER_UI.
 J5_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J5_CHAMPION_CHALLENGER_REGIME_EGT.md"
 J6_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J6_CHAMPION_CHALLENGER_EXPORT_HANDOFF.md"
 SB1_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB1_STRATEGY_BUILDER_DISCOVERY.md"
+SB2_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB2_STRATEGY_BUILDER_WORKFLOW.md"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
 MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
@@ -343,6 +344,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
     def test_strategy_builder_discovery_is_documented_before_runtime(self):
         sb1 = SB1_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
+        sb2 = SB2_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
 
@@ -370,13 +372,45 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb1)
 
-        self.assertIn("Current phase completed: SB1 - Strategy Builder discovery and minimum viable scope.", governance)
-        self.assertIn("Next implementation phase: SB2 - controlled Strategy Builder workflow design", governance)
+        for pattern in (
+            "SB2 Strategy Builder Controlled Workflow Design",
+            "This phase is workflow and contract design only.",
+            "`source_selected`",
+            "`context_resolved`",
+            "`idea_framed`",
+            "`validation_planned`",
+            "`handoff_prepared`",
+            "`operator_reviewed`",
+            "`package_exportable`",
+            "`blocked_missing_source`",
+            "`blocked_claims_boundary`",
+            "`blank`",
+            "`cvc_handoff`",
+            "`project_generator_profile`",
+            "`views_workflow`",
+            "Every mode must resolve to the same internal context shape.",
+            "`sqx-edge.strategy-builder-package`",
+            "`indicator_family_candidates`",
+            "`blocked_claims`",
+            "Accept J6 reduced summary only.",
+            "Preserve custom project freedom outside plan mining.",
+            "StrategyQuant settings will be reviewed manually",
+            "`app/js/modules/strategy-builder-core.js`",
+            "No frontend, backend or packaging behavior changes in SB2.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, sb2)
+
+        self.assertIn("Current phase completed: SB2 - controlled Strategy Builder workflow design.", governance)
+        self.assertIn("Next implementation phase: SB3 - read-only Strategy Builder package prototype", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
+        self.assertIn("docs/SB2_STRATEGY_BUILDER_WORKFLOW.md", governance)
         self.assertIn("Phase SB1: discover the minimum viable Strategy Builder scope", next_steps)
         self.assertIn("Done; see `docs/SB1_STRATEGY_BUILDER_DISCOVERY.md`", next_steps)
         self.assertIn("Phase SB2: design a controlled Builder flow", next_steps)
+        self.assertIn("Done; see `docs/SB2_STRATEGY_BUILDER_WORKFLOW.md`", next_steps)
+        self.assertIn("Phase SB3: prototype read-only previews", next_steps)
 
     def test_modular_scaffold_loads_before_legacy_logic(self):
         scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)
