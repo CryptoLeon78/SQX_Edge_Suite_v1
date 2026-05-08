@@ -28,10 +28,12 @@ class FakeMT5:
         self.known_symbols = known_symbols or {"EURUSD", "USA500.IDX"}
         self.bars = bars
         self.initialized_path = None
+        self.initialized_timeout = None
         self.shutdown_called = False
 
-    def initialize(self, path=None):
+    def initialize(self, path=None, timeout=None):
         self.initialized_path = path
+        self.initialized_timeout = timeout
         return True
 
     def last_error(self):
@@ -163,6 +165,24 @@ def test_dukas_download_dry_run_does_not_require_mt5(tmp_path):
     assert report["status"] == "GO"
     assert report["coverage"][0]["status"] == "dry_run"
     assert report["coverage"][0]["path"].endswith("US500_H4.csv")
+
+
+def test_dukas_download_can_use_active_terminal_without_path(tmp_path):
+    tool = load_module()
+    config_path = tmp_path / "config.json"
+    output_dir = tmp_path / "ohlc"
+    coverage_dir = tmp_path / "coverage"
+    write_config(config_path, output_dir, coverage_dir, timeframes=["H1"], symbolMap={"EURUSD": "EURUSD"}, initializeTimeoutMs=90000)
+    mt5 = FakeMT5()
+
+    report = tool.download_ohlc(config_path=config_path, mt5_module=mt5, use_active_terminal=True)
+
+    assert report["status"] == "GO"
+    assert report["metadata"]["initializeMode"] == "active_terminal"
+    assert report["metadata"]["terminalPath"] == ""
+    assert report["metadata"]["initializeTimeoutMs"] == 90000
+    assert mt5.initialized_path is None
+    assert mt5.initialized_timeout == 90000
 
 
 def test_rows_from_rates_accepts_numpy_like_rates():

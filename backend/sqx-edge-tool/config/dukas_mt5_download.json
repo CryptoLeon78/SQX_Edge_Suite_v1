@@ -9,6 +9,7 @@
   "startDate": "2010-01-01",
   "endDate": "2026-05-01",
   "startupDelaySeconds": 8,
+  "initializeTimeoutMs": 120000,
   "retryCount": 3,
   "retryDelaySeconds": 4.0,
   "minimumBars": 120,

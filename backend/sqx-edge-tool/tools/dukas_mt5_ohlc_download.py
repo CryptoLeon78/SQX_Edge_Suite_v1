@@ -170,6 +170,17 @@ def fetch_with_retry(
     return rates, attempts
 
 
+def initialize_mt5(mt5: Any, terminal: str, timeout_ms: int) -> bool:
+    try:
+        if terminal:
+            return bool(mt5.initialize(path=str(terminal), timeout=timeout_ms))
+        return bool(mt5.initialize(timeout=timeout_ms))
+    except TypeError:
+        if terminal:
+            return bool(mt5.initialize(path=str(terminal)))
+        return bool(mt5.initialize())
+
+
 def build_record(
     *,
     asset: str,
@@ -304,6 +315,8 @@ def download_ohlc(
     mt5_module: Any | None = None,
     dry_run: bool = False,
     force: bool = False,
+    use_active_terminal: bool = False,
+    initialize_timeout_ms: int | None = None,
 ) -> dict[str, Any]:
     config = read_json(config_path)
     selected_timeframes = select_timeframes(config, timeframes)
@@ -311,8 +324,11 @@ def download_ohlc(
     out_dir = resolve_project_path(output_dir or config["outputDir"])
     cov_dir = resolve_project_path(coverage_dir or config["coverageDir"])
     report = base_report(config, out_dir, cov_dir, selected_timeframes)
-    terminal = terminal_path or config.get("terminalPath", "")
+    terminal = "" if use_active_terminal else (terminal_path if terminal_path is not None else config.get("terminalPath", ""))
+    init_timeout = int(initialize_timeout_ms if initialize_timeout_ms is not None else config.get("initializeTimeoutMs", 60000))
     report["metadata"]["terminalPath"] = str(terminal)
+    report["metadata"]["initializeMode"] = "active_terminal" if use_active_terminal else "configured_path"
+    report["metadata"]["initializeTimeoutMs"] = init_timeout
 
     if dry_run:
         for asset, symbol in selected_assets.items():
@@ -352,7 +368,7 @@ def download_ohlc(
     initialized = False
 
     try:
-        initialized = bool(mt5.initialize(path=str(terminal))) if terminal else bool(mt5.initialize())
+        initialized = initialize_mt5(mt5, str(terminal), init_timeout)
         if not initialized:
             last_error = mt5.last_error() if hasattr(mt5, "last_error") else "unknown"
             report["failures"].append(f"MT5 initialize failed: {last_error}")
@@ -426,6 +442,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Download MT5/Dukascopy OHLC CSVs for the SQX A56 real-data pipeline.")
     parser.add_argument("--config", default=str(DEFAULT_CONFIG_PATH))
     parser.add_argument("--terminal-path", default=None)
+    parser.add_argument("--use-active-terminal", action="store_true", help="Connect to the already-open MT5 terminal instead of launching the configured terminal path.")
+    parser.add_argument("--initialize-timeout-ms", type=int, default=None)
     parser.add_argument("--output-dir", default=None)
     parser.add_argument("--coverage-dir", default=None)
     parser.add_argument("--tf", action="append", dest="timeframes", help="Timeframe to download. Repeatable.")
@@ -447,6 +465,8 @@ def main() -> int:
         assets=args.assets,
         dry_run=args.dry_run,
         force=args.force,
+        use_active_terminal=args.use_active_terminal,
+        initialize_timeout_ms=args.initialize_timeout_ms,
     )
     if args.as_json:
         print(json.dumps(report, indent=2, ensure_ascii=True))

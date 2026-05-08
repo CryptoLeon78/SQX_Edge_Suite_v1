@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: A59 - local MT5/Dukascopy real-data smoke, NO-GO because MT5 returned IPC timeout.
+- Current phase completed: A60 - MT5 active-terminal retry mode, NO-GO because MT5 IPC still times out.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
-- Next implementation phase: A60/R44 - rerun A59 after manually opening/logging into Dukascopy MT5, validate `data/ohlc` through A56 until GO and refresh portable release if publishing the MTF evidence panel, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB1 - Strategy Builder discovery as a future commercial hook.
+- Next implementation phase: A61/R44 - resolve local MT5 IPC readiness, rerun A60 until `EURUSD_H1.csv` is produced, validate `data/ohlc` through A56 until GO and refresh portable release if publishing the MTF evidence panel, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB1 - Strategy Builder discovery as a future commercial hook.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 
@@ -86,7 +86,7 @@ M46 is accepted when these criteria are true:
 - Public commercial pointers: `docs/PUBLIC_COMMERCIAL_POINTERS.md`; public `docs/MONETIZATION_*`, `docs/sales/*` and Pro resource packs are redacted pointers.
 - Roadmap state: `docs/MODULARIZATION_NEXT_STEPS.md` plus private commercial roadmap copies.
 - External repo comparison: `docs/EXTERNAL_REPO_COMPARISON_JOSE.md`, `backend/sqx-edge-tool/tools/plan_quality_advisor.py`, `backend/sqx-edge-tool/tools/multi_timeframe_scoring.py`, `backend/sqx-edge-tool/tools/multi_timeframe_metric_gate.py`, `backend/sqx-edge-tool/tools/first_party_metric_source.py`, `backend/sqx-edge-tool/tools/multi_timeframe_source_intake.py`, `backend/sqx-edge-tool/tools/multi_timeframe_plan_artifacts.py`, `backend/sqx-edge-tool/tools/ohlc_metric_builder.py`, `backend/sqx-edge-tool/tools/real_mtf_pipeline_run.py`, `backend/sqx-edge-tool/tools/dukas_mt5_ohlc_download.py`, `backend/sqx-edge-tool/core/mtf_evidence.py` and `app/js/modules/mtf-evidence.js`.
-- Real-data validation evidence: `docs/A59_REAL_DATA_VALIDATION.md`.
+- Real-data validation evidence: `docs/A59_REAL_DATA_VALIDATION.md` and `docs/A60_MT5_ACTIVE_TERMINAL_MODE.md`.
 
 ## Security Notes
 

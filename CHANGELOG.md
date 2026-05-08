@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - A60 MT5 active-terminal retry mode
+
+- Adds `--use-active-terminal` and `--initialize-timeout-ms` to the internal MT5/Dukascopy downloader so the operator can connect to an already-open terminal without forcing the configured executable path.
+- Confirms Dukascopy MT5 is open and responsive locally, but records another controlled NO_GO because the Python IPC bridge still returns timeout.
+- Adds `docs/A60_MT5_ACTIVE_TERMINAL_MODE.md` with the exact retry command and the remaining manual MT5 checks before full OHLC download.
+
 ## 2026-05-08 - A59 local MT5 real-data validation smoke
 
 - Runs the first local A58 smoke against Dukascopy MT5 for `EURUSD/H1`.

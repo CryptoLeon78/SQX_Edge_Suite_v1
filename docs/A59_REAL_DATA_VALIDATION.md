@@ -28,7 +28,7 @@ The smoke reached the MT5 initialization boundary but returned:
 MT5 initialize failed: (-10005, 'IPC timeout')
 ```
 
-This means the local terminal did not answer the Python IPC connection in time. It is normally resolved outside the code by opening the terminal manually, logging in, letting Market Watch load symbols and then rerunning the smoke.
+This means the local terminal did not answer the Python IPC connection in time. A60 added an active-terminal retry mode and confirmed the timeout persists even when MT5 is already open and responsive.
 
 Generated local evidence is intentionally ignored by git:
 
@@ -62,4 +62,3 @@ A59 can be promoted only when:
 - Full A58 download produces all required `H1`, `M30`, `M15` and `H4` CSV files for the configured manifest assets.
 - A56 returns GO in manifest mode.
 - The read-only MTF evidence panel continues to show only validated A56 GO output.
-
