@@ -23,6 +23,19 @@
   ];
 
   var SOURCE_MODES = ['blank', 'cvc_handoff', 'project_generator_profile', 'views_workflow'];
+  var PACKAGE_TYPE = 'sqx-edge.strategy-builder-package';
+  var HANDOFF_TYPE = 'sqx-edge.strategy-builder-handoff';
+  var IMPORT_BLOCKED_KEYS = {
+    raw_csv: true,
+    rawCsv: true,
+    rawCSV: true,
+    csv_payload: true,
+    csvPayload: true,
+    raw_payload: true,
+    rawPayload: true,
+    raw_data: true,
+    rawData: true
+  };
 
   var ARCHETYPES = {
     trend_following: {
@@ -90,6 +103,25 @@
     return normalizeText(value, 'H1').toUpperCase();
   }
 
+  function parseJsonPayload(input) {
+    if (input && typeof input === 'object') return { payload: input, errors: [] };
+    try {
+      return { payload: JSON.parse(String(input == null ? '' : input)), errors: [] };
+    } catch (_err) {
+      return { payload: null, errors: ['invalid_json'] };
+    }
+  }
+
+  function collectForbiddenKeys(value, path, hits) {
+    if (!value || typeof value !== 'object') return hits;
+    Object.keys(value).forEach(function(key) {
+      var nextPath = path ? path + '.' + key : key;
+      if (IMPORT_BLOCKED_KEYS[key]) hits.push(nextPath);
+      collectForbiddenKeys(value[key], nextPath, hits);
+    });
+    return hits;
+  }
+
   function manifestAssets(manifest) {
     var source = manifest || global.SQX_MANIFEST || {};
     return source.assets && Array.isArray(source.assets.assets) ? source.assets.assets : [];
@@ -135,7 +167,7 @@
   function sourceSummary(input) {
     var mode = input.source_mode || input.sourceMode || 'blank';
     var handoff = input.source_handoff || input.sourceHandoff || null;
-    if (mode === 'cvc_handoff' && handoff && handoff.type === 'sqx-edge.strategy-builder-handoff') {
+    if (mode === 'cvc_handoff' && handoff && handoff.type === HANDOFF_TYPE) {
       var candidate = handoff.recommended_candidate || {};
       return {
         type: handoff.type,
@@ -144,6 +176,17 @@
         decision: candidate.decision || 'review_required',
         oos: candidate.oos || null,
         regime: candidate.regime || null
+      };
+    }
+    if (input.source_summary && typeof input.source_summary === 'object') {
+      return {
+        type: normalizeText(input.source_summary.type, mode),
+        candidate: normalizeText(input.source_summary.candidate),
+        rank: input.source_summary.rank || null,
+        decision: normalizeText(input.source_summary.decision, 'review_required'),
+        oos: input.source_summary.oos || null,
+        regime: input.source_summary.regime || null,
+        note: normalizeText(input.source_summary.note)
       };
     }
     if (mode === 'project_generator_profile') {
@@ -215,7 +258,7 @@
     var state = resolveWorkflowState(context, data, manifest);
     var validationEmphasis = archetype ? archetype.validation.slice() : [];
     return {
-      type: 'sqx-edge.strategy-builder-package',
+      type: PACKAGE_TYPE,
       version: 1,
       created_at: nowIso(options),
       workflow_state: state,
@@ -267,7 +310,7 @@
 
   function sampleCvcHandoff() {
     return {
-      type: 'sqx-edge.strategy-builder-handoff',
+      type: HANDOFF_TYPE,
       version: 1,
       generated_at: '2026-05-09T00:00:00.000Z',
       source_review: {
@@ -292,16 +335,116 @@
     };
   }
 
+  function modelFromPackage(payload) {
+    var assetProfile = payload.asset_profile || {};
+    var idea = payload.idea_archetype || {};
+    var validation = payload.validation_requirements || {};
+    var project = payload.project_generator_handoff || {};
+    return {
+      source_mode: normalizeText(payload.source_mode, 'blank'),
+      source_summary: payload.source_summary || null,
+      asset: normalizeAsset(assetProfile.asset),
+      timeframe: normalizeTimeframe(assetProfile.timeframe),
+      idea_archetype: normalizeText(idea.id, 'trend_following'),
+      validation_pack_id: normalizeText(validation.validation_pack_id, defaultValidationPack(idea.id)),
+      project_profile_id: normalizeText(project.profile_id, 'starter-forex-h1-balanced'),
+      operator_reviewed: false,
+      traceability: (payload.traceability || []).concat(['SB4 imported package re-review'])
+    };
+  }
+
+  function modelFromHandoff(payload) {
+    var candidate = payload.recommended_candidate || {};
+    return {
+      source_mode: 'cvc_handoff',
+      source_handoff: payload,
+      asset: normalizeAsset(candidate.symbol || 'EURUSD'),
+      timeframe: normalizeTimeframe(candidate.timeframe || 'H1'),
+      idea_archetype: 'trend_following',
+      validation_pack_id: 'robustness',
+      project_profile_id: 'starter-forex-h1-balanced',
+      operator_reviewed: false,
+      traceability: ['SB4 imported CVC handoff re-review']
+    };
+  }
+
+  function validateImportPayload(input, options) {
+    var parsed = parseJsonPayload(input);
+    var errors = parsed.errors.slice();
+    var warnings = [];
+    var payload = parsed.payload;
+    var manifest = options && options.manifest ? options.manifest : global.SQX_MANIFEST;
+    if (!payload || typeof payload !== 'object') {
+      errors.push('payload_must_be_object');
+      return { ok: false, errors: errors, warnings: warnings, payload: null };
+    }
+    var forbidden = collectForbiddenKeys(payload, '', []);
+    if (forbidden.length) errors.push('forbidden_raw_payload_keys:' + forbidden.join(','));
+    if (payload.type !== PACKAGE_TYPE && payload.type !== HANDOFF_TYPE) errors.push('unsupported_type:' + normalizeText(payload.type, 'missing'));
+    if (payload.type === PACKAGE_TYPE) {
+      if (payload.version !== 1) errors.push('unsupported_package_version');
+      if (!payload.asset_profile || !payload.asset_profile.asset) errors.push('missing_asset_profile');
+      if (!payload.asset_profile || !payload.asset_profile.timeframe) errors.push('missing_timeframe');
+      if (!payload.idea_archetype || !payload.idea_archetype.id) errors.push('missing_idea_archetype');
+      if (!payload.validation_requirements || !payload.validation_requirements.validation_pack_id) errors.push('missing_validation_pack');
+      if (payload.asset_profile && payload.asset_profile.asset && !supportedAsset(payload.asset_profile.asset, manifest)) errors.push('unsupported_asset');
+      if (payload.workflow_state && WORKFLOW_STATES.concat(BLOCKED_STATES).indexOf(payload.workflow_state) === -1) {
+        warnings.push('unknown_workflow_state:' + payload.workflow_state);
+      }
+    }
+    if (payload.type === HANDOFF_TYPE) {
+      if (!payload.recommended_candidate) errors.push('missing_recommended_candidate');
+      if (payload.recommended_candidate && payload.recommended_candidate.symbol && !supportedAsset(payload.recommended_candidate.symbol, manifest)) {
+        errors.push('unsupported_asset');
+      }
+    }
+    return { ok: errors.length === 0, errors: errors, warnings: warnings, payload: payload };
+  }
+
+  function importPayload(input, options) {
+    var validation = validateImportPayload(input, options);
+    if (!validation.ok) {
+      return {
+        ok: false,
+        errors: validation.errors,
+        warnings: validation.warnings,
+        model: null,
+        package: null,
+        source_handoff: null
+      };
+    }
+    var opts = options || {};
+    var model = validation.payload.type === HANDOFF_TYPE ? modelFromHandoff(validation.payload) : modelFromPackage(validation.payload);
+    if (opts.operatorReviewed === true || opts.operator_reviewed === true) model.operator_reviewed = true;
+    var built = buildPackage(model, opts);
+    built.import_metadata = {
+      source_type: validation.payload.type,
+      imported_at: nowIso(opts),
+      re_review_required: !model.operator_reviewed,
+      warnings: validation.warnings.slice()
+    };
+    return {
+      ok: true,
+      errors: [],
+      warnings: validation.warnings,
+      model: model,
+      package: built,
+      source_handoff: validation.payload.type === HANDOFF_TYPE ? validation.payload : null
+    };
+  }
+
   SQX.strategyBuilderCore = SQX.strategyBuilderCore || {
     archetypes: ARCHETYPES,
     blockedStates: BLOCKED_STATES,
     buildContext: buildContext,
     buildPackage: buildPackage,
     defaultValidationPack: defaultValidationPack,
+    importPayload: importPayload,
     sampleCvcHandoff: sampleCvcHandoff,
     sourceModes: SOURCE_MODES,
     states: WORKFLOW_STATES,
-    supportedAsset: supportedAsset
+    supportedAsset: supportedAsset,
+    validateImportPayload: validateImportPayload
   };
 
   if (SQX.registerModule) {

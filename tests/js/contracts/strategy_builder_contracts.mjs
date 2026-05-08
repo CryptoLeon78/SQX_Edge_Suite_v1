@@ -20,6 +20,8 @@ assert.ok(core, 'strategy builder core should register');
 assert.equal(core.states[core.states.length - 1], 'package_exportable');
 assert.ok(core.sourceModes.includes('cvc_handoff'));
 assert.ok(core.archetypes.trend_following.indicators.includes('EMA'));
+assert.equal(typeof core.importPayload, 'function');
+assert.equal(typeof core.validateImportPayload, 'function');
 
 const blocked = core.buildPackage({
   source_mode: 'blank',
@@ -60,6 +62,33 @@ assert.equal(ready.source_summary.candidate, 'Challenger A');
 assert.equal(ready.views_handoff.validation_pack_id, 'robustness');
 assert.equal(JSON.stringify(ready).includes('raw_csv'), false);
 
+const importedPackage = core.importPayload(JSON.stringify(ready), { createdAt: '2026-05-09T01:00:00.000Z' });
+assert.equal(importedPackage.ok, true);
+assert.equal(importedPackage.package.type, 'sqx-edge.strategy-builder-package');
+assert.equal(importedPackage.package.workflow_state, 'blocked_operator_review');
+assert.equal(importedPackage.package.source_summary.candidate, 'Challenger A');
+assert.equal(importedPackage.package.import_metadata.re_review_required, true);
+assert.equal(importedPackage.model.operator_reviewed, false);
+
+const reviewedImport = core.importPayload(ready, { operatorReviewed: true, createdAt: '2026-05-09T01:05:00.000Z' });
+assert.equal(reviewedImport.ok, true);
+assert.equal(reviewedImport.package.workflow_state, 'package_exportable');
+assert.equal(reviewedImport.package.import_metadata.re_review_required, false);
+
+const importedHandoff = core.importPayload(cvcHandoff, { createdAt: '2026-05-09T01:10:00.000Z' });
+assert.equal(importedHandoff.ok, true);
+assert.equal(importedHandoff.model.source_mode, 'cvc_handoff');
+assert.equal(importedHandoff.package.asset_profile.asset, 'EURUSD');
+assert.equal(importedHandoff.package.workflow_state, 'blocked_operator_review');
+
+const blockedImport = core.importPayload({
+  type: 'sqx-edge.strategy-builder-package',
+  version: 1,
+  raw_csv: 'forbidden',
+});
+assert.equal(blockedImport.ok, false);
+assert.match(blockedImport.errors.join(' '), /forbidden_raw_payload_keys/);
+
 [
   'sb-source-mode',
   'sb-asset',
@@ -70,6 +99,8 @@ assert.equal(JSON.stringify(ready).includes('raw_csv'), false);
   'sb-reviewed',
   'sb-build-btn',
   'sb-sample-cvc-btn',
+  'sb-import-btn',
+  'sb-import-file',
   'sb-clear-btn',
   'sb-export-btn',
   'sb-status',
@@ -102,6 +133,15 @@ assert.equal(document.getElementById('sb-state').textContent, 'package_exportabl
 assert.equal(document.getElementById('sb-source').textContent, 'cvc_handoff');
 assert.match(document.getElementById('sb-package-preview').textContent, /sqx-edge\.strategy-builder-package/);
 assert.match(document.getElementById('sb-status').textContent, /Package ready/);
+
+const importedUiResult = ui.importText(JSON.stringify(ready), { document });
+assert.equal(importedUiResult.ok, true);
+assert.equal(document.getElementById('sb-state').textContent, 'blocked_operator_review');
+assert.match(document.getElementById('sb-status').textContent, /Confirm manual review/);
+document.getElementById('sb-reviewed').checked = true;
+document.getElementById('sb-reviewed').dispatch('change');
+assert.equal(document.getElementById('sb-state').textContent, 'package_exportable');
+assert.match(document.getElementById('sb-package-preview').textContent, /Challenger A/);
 
 document.getElementById('sb-clear-btn').click();
 assert.equal(document.getElementById('sb-state').textContent, 'blocked_operator_review');

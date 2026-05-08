@@ -13,6 +13,8 @@
     reviewed: 'sb-reviewed',
     build: 'sb-build-btn',
     sampleCvc: 'sb-sample-cvc-btn',
+    importPackage: 'sb-import-btn',
+    importFile: 'sb-import-file',
     clear: 'sb-clear-btn',
     exportPackage: 'sb-export-btn',
     status: 'sb-status',
@@ -25,6 +27,7 @@
 
   var lastPackage = null;
   var currentHandoff = null;
+  var currentSourceSummary = null;
 
   function core() {
     return SQX.strategyBuilderCore || null;
@@ -102,14 +105,28 @@
     return {
       source_mode: value(IDS.sourceMode, doc) || 'blank',
       source_handoff: currentHandoff,
+      source_summary: currentSourceSummary,
       asset: value(IDS.asset, doc) || 'EURUSD',
       timeframe: value(IDS.timeframe, doc) || 'H1',
       idea_archetype: value(IDS.archetype, doc) || 'trend_following',
       validation_pack_id: value(IDS.validationPack, doc) || '',
       project_profile_id: value(IDS.projectProfile, doc) || '',
       operator_reviewed: checked(IDS.reviewed, doc),
-      traceability: ['SB3 dashboard preview']
+      traceability: ['SB4 dashboard import/export hardening']
     };
+  }
+
+  function applyModel(model, doc) {
+    if (!model) return;
+    currentHandoff = model.source_handoff || model.sourceHandoff || null;
+    currentSourceSummary = model.source_summary || model.sourceSummary || null;
+    setValue(IDS.sourceMode, model.source_mode || model.sourceMode || 'blank', doc);
+    setValue(IDS.asset, model.asset || 'EURUSD', doc);
+    setValue(IDS.timeframe, model.timeframe || 'H1', doc);
+    setValue(IDS.archetype, model.idea_archetype || model.ideaArchetype || 'trend_following', doc);
+    setValue(IDS.validationPack, model.validation_pack_id || model.validationPackId || 'robustness', doc);
+    setValue(IDS.projectProfile, model.project_profile_id || model.projectProfileId || 'starter-forex-h1-balanced', doc);
+    setChecked(IDS.reviewed, !!(model.operator_reviewed || model.operatorReviewed), doc);
   }
 
   function renderPackage(payload, doc) {
@@ -146,6 +163,7 @@
     var api = core();
     if (!api) return null;
     currentHandoff = api.sampleCvcHandoff();
+    currentSourceSummary = null;
     setValue(IDS.sourceMode, 'cvc_handoff', doc);
     setValue(IDS.asset, 'EURUSD', doc);
     setValue(IDS.timeframe, 'H1', doc);
@@ -159,6 +177,7 @@
   function clear(options) {
     var doc = options && options.document ? options.document : global.document;
     currentHandoff = null;
+    currentSourceSummary = null;
     lastPackage = null;
     setValue(IDS.sourceMode, 'blank', doc);
     setValue(IDS.asset, 'EURUSD', doc);
@@ -198,6 +217,47 @@
     return payload;
   }
 
+  function importText(raw, options) {
+    var doc = options && options.document ? options.document : global.document;
+    var api = core();
+    if (!api || !api.importPayload) {
+      setStatus('Strategy Builder import contract missing.', 'error', doc);
+      return null;
+    }
+    var result = api.importPayload(raw);
+    if (!result.ok) {
+      setStatus('Import blocked: ' + result.errors.join(', ') + '.', 'error', doc);
+      return result;
+    }
+    applyModel(result.model, doc);
+    lastPackage = result.package;
+    renderPackage(lastPackage, doc);
+    setStatus('Package imported locally. Confirm manual review before export.', 'warn', doc);
+    return result;
+  }
+
+  function importFile(options) {
+    var doc = options && options.document ? options.document : global.document;
+    var input = byId(IDS.importFile, doc);
+    if (!input || !input.files || !input.files[0]) {
+      setStatus('Select a Strategy Builder JSON package first.', 'warn', doc);
+      return null;
+    }
+    if (!global.FileReader) {
+      setStatus('Local file reader is not available in this browser.', 'error', doc);
+      return null;
+    }
+    var reader = new global.FileReader();
+    reader.onload = function(evt) {
+      importText(evt && evt.target ? evt.target.result : '', { document: doc });
+    };
+    reader.onerror = function() {
+      setStatus('Import failed while reading the local JSON file.', 'error', doc);
+    };
+    reader.readAsText(input.files[0]);
+    return true;
+  }
+
   function bind(doc, id, handler) {
     var node = byId(id, doc);
     if (!node) return;
@@ -220,6 +280,11 @@
     bind(doc, IDS.sampleCvc, function() { loadCvcSample({ document: doc }); });
     bind(doc, IDS.clear, function() { clear({ document: doc }); });
     bind(doc, IDS.exportPackage, function() { exportPackage({ document: doc }); });
+    bind(doc, IDS.importPackage, function() {
+      var input = byId(IDS.importFile, doc);
+      if (input && input.click) input.click();
+    });
+    bindChange(doc, IDS.importFile, function() { importFile({ document: doc }); });
     [IDS.sourceMode, IDS.asset, IDS.timeframe, IDS.archetype, IDS.validationPack, IDS.projectProfile, IDS.reviewed].forEach(function(id) {
       bindChange(doc, id, function() { build({ document: doc }); });
     });
@@ -232,6 +297,8 @@
     clear: clear,
     exportPackage: exportPackage,
     ids: IDS,
+    importFile: importFile,
+    importText: importText,
     init: init,
     loadCvcSample: loadCvcSample
   };
