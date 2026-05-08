@@ -8,6 +8,7 @@ diversified, data-informed candidate plan.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import re
 from collections import Counter
@@ -26,6 +27,16 @@ DEFAULT_MIN_COMPOSITE = 60.0
 DEFAULT_MAX_PER_ASSET = 2
 DEFAULT_MAX_PER_CATEGORY = 4
 DEFAULT_MAX_PER_SUBTYPE = 5
+
+
+def load_multi_timeframe_scoring():
+    path = Path(__file__).with_name("multi_timeframe_scoring.py")
+    spec = importlib.util.spec_from_file_location("multi_timeframe_scoring", path)
+    if not spec or not spec.loader:
+        raise RuntimeError(f"Could not load {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def read_json(path: Path) -> Any:
@@ -251,6 +262,96 @@ def summarize_current_plan(current: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def mtf_entry(mtf_report: dict[str, Any] | None, asset: str, category: str | None) -> dict[str, Any] | None:
+    if not mtf_report or not category:
+        return None
+    entry = ((mtf_report.get("consensus") or {}).get(asset) or {}).get(category)
+    return entry if isinstance(entry, dict) else None
+
+
+def mtf_pct(entry: dict[str, Any] | None) -> float | None:
+    if not entry:
+        return None
+    weighted = entry.get("weighted_composite")
+    if weighted is None:
+        return None
+    return round(float(weighted) * 100, 1)
+
+
+def mtf_assessment(entry: dict[str, Any] | None) -> str:
+    if not entry:
+        return "missing"
+    weighted = float(entry.get("weighted_composite") or 0)
+    coverage = int(entry.get("coverage") or 0)
+    consensus = entry.get("consensus")
+    if coverage < 2:
+        return "limited"
+    if consensus == "divergent":
+        return "divergent"
+    if weighted >= 0.75:
+        return "strong"
+    if weighted >= 0.50:
+        return "moderate"
+    return "weak"
+
+
+def enrich_with_mtf(items: list[dict[str, Any]], mtf_report: dict[str, Any] | None) -> list[dict[str, Any]]:
+    if not mtf_report:
+        return items
+    enriched: list[dict[str, Any]] = []
+    for item in items:
+        entry = mtf_entry(mtf_report, item.get("asset", ""), item.get("category"))
+        if not entry:
+            enriched.append({**item, "mtf_assessment": "missing"})
+            continue
+        enriched.append(
+            {
+                **item,
+                "mtf_composite": mtf_pct(entry),
+                "mtf_objective_rating": entry.get("objective"),
+                "mtf_coverage": entry.get("coverage"),
+                "mtf_consensus": entry.get("consensus"),
+                "mtf_best_tf": entry.get("best_tf"),
+                "mtf_assessment": mtf_assessment(entry),
+            }
+        )
+    return enriched
+
+
+def summarize_mtf_plan(items: list[dict[str, Any]]) -> dict[str, Any]:
+    assessments = Counter(item.get("mtf_assessment", "missing") for item in items)
+    covered = sum(1 for item in items if item.get("mtf_composite") is not None)
+    strong = assessments.get("strong", 0)
+    review = sum(assessments.get(key, 0) for key in ("divergent", "weak", "limited", "missing"))
+    return {
+        "covered": covered,
+        "strong": strong,
+        "needsReview": review,
+        "assessments": dict(sorted(assessments.items())),
+    }
+
+
+def maybe_build_mtf_report(
+    metrics_dir: Path | None,
+    timeframes: list[str] | None,
+    weights: dict[str, float] | None,
+) -> tuple[dict[str, Any] | None, dict[str, Any]]:
+    if metrics_dir is None:
+        return None, {"available": False, "reason": "not_requested"}
+    try:
+        mtf = load_multi_timeframe_scoring()
+        report = mtf.build_report(metrics_dir=metrics_dir, timeframes=timeframes, weights=weights)
+        meta = report["metadata"]
+        return report, {
+            "available": True,
+            "source": str(metrics_dir),
+            "timeframesLoaded": meta.get("timeframesLoaded", []),
+            "weights": meta.get("weights", {}),
+        }
+    except Exception as exc:  # Keep H1 plan review usable if optional MTF data is absent.
+        return None, {"available": False, "source": str(metrics_dir), "reason": str(exc)}
+
+
 def build_report(
     *,
     limit: int = DEFAULT_LIMIT,
@@ -258,6 +359,10 @@ def build_report(
     max_per_asset: int = DEFAULT_MAX_PER_ASSET,
     max_per_category: int = DEFAULT_MAX_PER_CATEGORY,
     max_per_subtype: int = DEFAULT_MAX_PER_SUBTYPE,
+    mtf_report: dict[str, Any] | None = None,
+    mtf_metrics_dir: Path | None = None,
+    mtf_timeframes: list[str] | None = None,
+    mtf_weights: dict[str, float] | None = None,
 ) -> dict[str, Any]:
     assets_manifest = read_json(CONFIG_DIR / "assets.json")
     ui_manifest = read_json(CONFIG_DIR / "ui_manifest.json")
@@ -274,12 +379,26 @@ def build_report(
         max_per_subtype=max_per_subtype,
     )
     current = annotate_current_plan(plan_manifest, scores, build_bs_to_category(ui_manifest))
+    mtf_meta: dict[str, Any]
+    if mtf_report is None:
+        mtf_report, mtf_meta = maybe_build_mtf_report(mtf_metrics_dir, mtf_timeframes, mtf_weights)
+    else:
+        meta = mtf_report.get("metadata") or {}
+        mtf_meta = {
+            "available": True,
+            "source": "provided_report",
+            "timeframesLoaded": meta.get("timeframesLoaded", []),
+            "weights": meta.get("weights", {}),
+        }
+    current = enrich_with_mtf(current, mtf_report)
+    recommended = enrich_with_mtf(recommended, mtf_report)
     return {
         "metadata": {
             "generatedAt": datetime.now(timezone.utc).isoformat(),
-            "phase": "A47",
+            "phase": "A50",
             "sourceImprovement": "Data-driven plan recommender pattern from compared Jose Livan repository",
             "scoreDataset": "app/js/scores-data.js H1 baseline",
+            "multiTimeframe": mtf_meta,
             "candidateCount": len(candidates),
             "currentPlanCount": len(current),
             "recommendedPlanCount": len(recommended),
@@ -290,9 +409,10 @@ def build_report(
                 "maxPerCategory": max_per_category,
                 "maxPerSubtype": max_per_subtype,
             },
-            "caveat": "Current implementation uses the available H1 score baseline; multi-timeframe metrics remain a future upgrade.",
+            "caveat": "Recommendations still use the H1 baseline for ordering; optional multi-timeframe consensus is added as review evidence, not an automatic replacement.",
         },
         "currentPlanSummary": summarize_current_plan(current),
+        "multiTimeframePlanSummary": summarize_mtf_plan(current) if mtf_meta.get("available") else None,
         "currentPlan": current,
         "recommendedPlan": recommended,
         "diff": diff_plan(current, recommended),
@@ -306,6 +426,7 @@ def render_markdown(report: dict[str, Any]) -> str:
         "",
         f"- Phase: `{meta['phase']}`",
         f"- Score dataset: `{meta['scoreDataset']}`",
+        f"- Multi-timeframe: `{', '.join(meta['multiTimeframe']['timeframesLoaded']) if meta['multiTimeframe']['available'] else meta['multiTimeframe']['reason']}`",
         f"- Candidates analyzed: `{meta['candidateCount']}`",
         f"- Current plan items: `{meta['currentPlanCount']}`",
         f"- Recommended items: `{meta['recommendedPlanCount']}`",
@@ -315,14 +436,18 @@ def render_markdown(report: dict[str, Any]) -> str:
         "",
         "## Current Plan Review",
         "",
-        "| # | Asset | TF | BS | Dir | Composite | Verdict |",
-        "| ---: | --- | --- | --- | --- | ---: | --- |",
+        "| # | Asset | TF | BS | Dir | H1 Composite | Verdict | MTF Composite | MTF Evidence |",
+        "| ---: | --- | --- | --- | --- | ---: | --- | ---: | --- |",
     ]
     for item in report["currentPlan"]:
         comp = "-" if item["composite"] is None else f"{item['composite']:.1f}"
+        mtf_comp = "-" if item.get("mtf_composite") is None else f"{item['mtf_composite']:.1f}"
+        mtf_evidence = item.get("mtf_assessment", "-")
+        if item.get("mtf_consensus") and item.get("mtf_consensus") != item.get("mtf_assessment"):
+            mtf_evidence += f" / {item['mtf_consensus']}"
         lines.append(
             f"| {item['num']} | {item['asset']} | {item['tf']} | {item['bs']} | "
-            f"{item['direction']} | {comp} | {item['verdict']} |"
+            f"{item['direction']} | {comp} | {item['verdict']} | {mtf_comp} | {mtf_evidence} |"
         )
     lines += [
         "",
@@ -353,9 +478,19 @@ def main() -> int:
     parser.add_argument("--out", help="Optional output path.")
     parser.add_argument("--limit", type=int, default=DEFAULT_LIMIT)
     parser.add_argument("--min-composite", type=float, default=DEFAULT_MIN_COMPOSITE)
+    parser.add_argument("--mtf-metrics-dir", help="Optional directory with asset_metrics[_TF].json files.")
+    parser.add_argument("--mtf-tf", default="H1,M30,M15,H4", help="Comma-separated TF list for optional MTF evidence.")
+    parser.add_argument("--mtf-weights", help="Optional weights, e.g. H1=0.5,M30=0.3,M15=0.2")
     args = parser.parse_args()
 
-    report = build_report(limit=args.limit, min_composite=args.min_composite)
+    mtf_weights = load_multi_timeframe_scoring().parse_weights(args.mtf_weights) if args.mtf_weights else None
+    report = build_report(
+        limit=args.limit,
+        min_composite=args.min_composite,
+        mtf_metrics_dir=Path(args.mtf_metrics_dir) if args.mtf_metrics_dir else None,
+        mtf_timeframes=[part.strip().upper() for part in args.mtf_tf.split(",") if part.strip()],
+        mtf_weights=mtf_weights,
+    )
     text = json.dumps(report, indent=2, ensure_ascii=False) if args.json else render_markdown(report)
     if args.out:
         Path(args.out).write_text(text, encoding="utf-8")

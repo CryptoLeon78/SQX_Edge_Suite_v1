@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: A49 - controlled multi-timeframe scoring backend tools.
+- Current phase completed: A50 - multi-timeframe plan review evidence.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
-- Next implementation phase: A50 - connect multi-timeframe scoring to plan review, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next implementation phase: A51 - generate/validate first-party multi-timeframe metrics, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

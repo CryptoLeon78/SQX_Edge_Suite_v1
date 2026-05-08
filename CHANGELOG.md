@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - A50 multi-timeframe plan review
+
+- Conecta el consenso multi-timeframe de `multi_timeframe_scoring.py` al `Plan Quality Advisor` como evidencia opcional.
+- Mantiene la recomendacion ordenada por baseline H1 para no sustituir automaticamente el plan con metricas no verificadas.
+- Anade resumen MTF, cobertura, consenso, mejor TF y assessment por mining cuando existe `asset_metrics[_TF].json`.
+
 ## 2026-05-08 - A49 controlled multi-timeframe scoring
 
 - Anade `multi_timeframe_scoring.py` como herramienta backend aislada para convertir `asset_metrics[_TF].json` en scores por timeframe y consenso ponderado.

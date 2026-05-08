@@ -55,11 +55,17 @@ It consumes supplied `asset_metrics.json` / `asset_metrics_<TF>.json` files and 
 
 It intentionally does not download market data, alter HTML or update dashboard scores automatically.
 
+Phase A50 connects that consensus to `Plan Quality Advisor` as optional evidence:
+
+- `plan_quality_advisor.py --mtf-metrics-dir <dir>` keeps H1 ordering but enriches each current/recommended mining with MTF weighted score, coverage, consensus state and best timeframe.
+- If no metric directory is supplied, the advisor remains fully compatible with the H1-only report.
+- The dashboard UI remains unchanged until first-party metric files are generated and validated.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:
 
-1. Multi-timeframe score ingestion: A49 added the dependency-isolated scoring tool; remaining work is collecting real metric JSON files and connecting consensus to plan review.
+1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool and A50 connected it to plan review; remaining work is generating/validating first-party `asset_metrics[_TF].json` files.
 2. Optional market data acquisition: evaluate MT5/Dukascopy data download as an operator-only script, excluded from portable buyer builds unless explicitly needed.
 3. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
 4. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
