@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: PG4 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: R41 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
-- Ultimo ZIP portable verificado antes de PG4: `dist/SQX_Edge_Tool_Portable_20260508_004141.zip`.
-- SHA256 del ZIP: `EB4031FE3A6035DA0F04D569A2963B120CCA6957C5EB4A7F994A078F56556E4C`.
-- Siguiente paso recomendado: R41 - regenerar y probar ZIP portable tras PG4, o V7 - ampliar packs SQX Views con ejemplos por perfil de comprador.
-- Ultima mejora funcional: Project Generator incluye perfiles starter para `Custom libre`, cargables, guardables como preset y exportables como pack JSON.
+- Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_075208.zip`.
+- SHA256 del ZIP: `CCB398057E5DEC6AC5AE2993E58E8DCEDBDB0686DD09539E30F9017D54F3A34D`.
+- Siguiente paso recomendado: V7 - ampliar packs SQX Views con ejemplos por perfil de comprador, o R42 - preparar registro publico de release si decidimos publicar este ZIP.
+- Ultima mejora funcional: ZIP portable regenerado y validado tras PG4, incluyendo prueba de `START_SQX_EDGE.bat`, API local, dashboard y `STOP_SQX_EDGE.bat`.
 
 ## SQX Edge Pro
 

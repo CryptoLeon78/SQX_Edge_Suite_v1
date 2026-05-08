@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-08 - R41 portable ZIP after PG4
+
+- Regenera el ZIP portable tras los perfiles starter de `Custom libre`.
+- Ejecuta release checklist completo: contratos JS, pytest, `git diff --check`, audit distribution y prueba de API desde ZIP extraido.
+- Verifica flujo de usuario basico con `START_SQX_EDGE.bat`, `/api/health`, marcador PG4 en dashboard extraido y `STOP_SQX_EDGE.bat`.
+- Publica trazabilidad del ZIP `SQX_Edge_Tool_Portable_20260508_075208.zip` con SHA256 `CCB398057E5DEC6AC5AE2993E58E8DCEDBDB0686DD09539E30F9017D54F3A34D`.
+
 ## 2026-05-08 - PG4 starter custom preset profiles
 
 - Anade perfiles starter en `Custom libre` para arrancar proyectos Forex, indices y oro sin depender del plan mining.
