@@ -21,6 +21,7 @@ for (const exportName of [
 }
 
 assert.ok(fulfillmentJs.includes("SQX.registerModule('fulfillment'"));
+assert.ok(fulfillmentJs.includes("suffix.indexOf('/api/') === 0"));
 assert.ok(html.includes('id="fulfillment-panel"'));
 assert.ok(html.includes('id="fulfillment-request-list"'));
 assert.ok(html.includes('js/modules/fulfillment.js'));

@@ -20,6 +20,10 @@ if (window.SQX && window.SQX.support) {
   window.SQX.support.init();
 }
 
+if (window.SQX && window.SQX.mtfEvidence) {
+  window.SQX.mtfEvidence.init();
+}
+
 if (window.SQX && window.SQX.fulfillment) {
   window.SQX.fulfillment.init();
 }

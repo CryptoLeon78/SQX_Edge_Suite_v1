@@ -28,7 +28,7 @@ flowchart TD
   DATA --> CFG["app-config.js"]
 
   MOD --> CORE["core.js"]
-  MOD --> FEAT["domain/renderers/charts/strategies/home/state backup/support/fulfillment/customer cockpit/workflow/view creator"]
+  MOD --> FEAT["domain/renderers/charts/strategies/home/state backup/MTF evidence/support/fulfillment/customer cockpit/workflow/view creator"]
   MOD --> PG["project-generator-* modules"]
   MOD --> IDX["index.js boot"]
 
@@ -95,24 +95,25 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 15. `js/modules/charts.js`
 16. `js/modules/strategies.js`
 17. `js/modules/home.js`
-18. `js/modules/support.js`
-19. `js/modules/fulfillment.js`
-20. `js/modules/customer-cockpit.js`
-21. `js/modules/workflow.js`
-22. `js/modules/view-creator.js`
-23. `js/modules/project-generator-core.js`
-24. `js/modules/project-generator-config.js`
-25. `js/modules/project-generator-dom.js`
-26. `js/modules/project-generator-bindings.js`
-27. `js/modules/project-generator-renderers.js`
-28. `js/modules/project-generator-status.js`
-29. `js/modules/project-generator-cleaner.js`
-30. `js/modules/project-generator.js`
-31. `js/modules/index.js`
-32. `js/data.js`
-33. `js/dashboard.js`
-34. `js/main.js`
-35. `js/project-generator-main.js`
+18. `js/modules/mtf-evidence.js`
+19. `js/modules/support.js`
+20. `js/modules/fulfillment.js`
+21. `js/modules/customer-cockpit.js`
+22. `js/modules/workflow.js`
+23. `js/modules/view-creator.js`
+24. `js/modules/project-generator-core.js`
+25. `js/modules/project-generator-config.js`
+26. `js/modules/project-generator-dom.js`
+27. `js/modules/project-generator-bindings.js`
+28. `js/modules/project-generator-renderers.js`
+29. `js/modules/project-generator-status.js`
+30. `js/modules/project-generator-cleaner.js`
+31. `js/modules/project-generator.js`
+32. `js/modules/index.js`
+33. `js/data.js`
+34. `js/dashboard.js`
+35. `js/main.js`
+36. `js/project-generator-main.js`
 
 ## Why This Order Matters
 
@@ -141,6 +142,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/charts.js` | Chart and visual summary helpers. |
 | `modules/strategies.js` | Strategy UI contracts, deletion/import state, strategy metadata. |
 | `modules/home.js` | Inicio tab model, trace and summary helpers. |
+| `modules/mtf-evidence.js` | Read-only MTF evidence panel that consumes `/api/mtf/evidence` and only surfaces A56 GO summaries. |
 | `modules/support.js` | Safe support diagnostics download from the local API. |
 | `modules/fulfillment.js` | Internal operator queue cockpit for manual fulfillment states and retries. |
 | `modules/customer-cockpit.js` | Redacted customer success cockpit for Pro renewal, support and expansion state. |
@@ -175,6 +177,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `backend/sqx-edge-tool/core/config_loader.py` | Config loading and defaults. |
 | `backend/sqx-edge-tool/core/sqx_db.py` | SQX database verification and access helpers. |
 | `backend/sqx-edge-tool/core/support_diagnostics.py` | Redacted support diagnostics payload builder. |
+| `backend/sqx-edge-tool/core/mtf_evidence.py` | Read-only A56 MTF evidence summarizer for dashboard use, redacting full paths and blocking non-GO reports. |
 | `backend/sqx-edge-tool/core/customer_cockpit.py` | Redacted commercial customer cockpit aggregation from local success evidence. |
 | `backend/sqx-edge-tool/core/fulfillment_normalizer.py` | Shared Lemon Squeezy normalization and signature verification. |
 | `backend/sqx-edge-tool/core/fulfillment_queue.py` | Persistent fulfillment queue, operator status, trusted relay ingest and retry tracking. |

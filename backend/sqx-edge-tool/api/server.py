@@ -49,6 +49,7 @@ from core.strategy_cleaner import (
     extract_metadata, list_sqx_directory, clean_exit_after_bars,
     institutional_name, rename_sqx, process_files,
 )
+from core.mtf_evidence import build_mtf_evidence
 from core.support_diagnostics import build_support_diagnostics
 from core.fulfillment_queue import (
     load_request as load_fulfillment_request,
@@ -438,6 +439,12 @@ def api_support_diagnostics():
         config_exists=CONFIG_PATH.is_file(),
         project_root=PROJECT_ROOT,
     ))
+
+
+@app.get("/api/mtf/evidence")
+def api_mtf_evidence():
+    """Devuelve evidencia A56 MTF resumida, solo lectura y sin rutas completas."""
+    return jsonify(build_mtf_evidence())
 
 
 @app.post("/api/fulfillment/webhook/lemon")

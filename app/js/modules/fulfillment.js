@@ -27,7 +27,12 @@
   }
 
   function endpoint(path) {
-    return apiBase() + path;
+    var base = apiBase();
+    var suffix = String(path || '');
+    if (base.slice(-4) === '/api' && suffix.indexOf('/api/') === 0) {
+      suffix = suffix.slice(4);
+    }
+    return base + (suffix.charAt(0) === '/' ? suffix : '/' + suffix);
   }
 
   function escapeHtml(value) {

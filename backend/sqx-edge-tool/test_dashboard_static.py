@@ -134,6 +134,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/charts.js",
                 "js/modules/strategies.js",
                 "js/modules/home.js",
+                "js/modules/mtf-evidence.js",
                 "js/modules/support.js",
                 "js/modules/fulfillment.js",
                 "js/modules/customer-cockpit.js",
@@ -230,6 +231,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/charts.js",
             "js/modules/strategies.js",
             "js/modules/home.js",
+            "js/modules/mtf-evidence.js",
             "js/modules/support.js",
             "js/modules/fulfillment.js",
             "js/modules/customer-cockpit.js",
@@ -263,6 +265,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         charts_js = (APP_ROOT / "js" / "modules" / "charts.js").read_text(encoding="utf-8-sig")
         strategies_js = (APP_ROOT / "js" / "modules" / "strategies.js").read_text(encoding="utf-8-sig")
         home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
+        mtf_evidence_js = (APP_ROOT / "js" / "modules" / "mtf-evidence.js").read_text(encoding="utf-8-sig")
         support_js = (APP_ROOT / "js" / "modules" / "support.js").read_text(encoding="utf-8-sig")
         fulfillment_js = (APP_ROOT / "js" / "modules" / "fulfillment.js").read_text(encoding="utf-8-sig")
         customer_cockpit_js = (APP_ROOT / "js" / "modules" / "customer-cockpit.js").read_text(encoding="utf-8-sig")
@@ -301,6 +304,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.charts", charts_js)
         self.assertIn("SQX.strategies", strategies_js)
         self.assertIn("SQX.home", home_js)
+        self.assertIn("SQX.mtfEvidence", mtf_evidence_js)
         self.assertIn("SQX.support", support_js)
         self.assertIn("SQX.fulfillment", fulfillment_js)
         self.assertIn("SQX.customerCockpit", customer_cockpit_js)
@@ -449,6 +453,51 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("strategy_files", support_py)
         self.assertEqual(product_manifest["support"]["diagnosticsEndpoint"], "/api/support/diagnostics")
         self.assertTrue(product_manifest["support"]["safeToSend"])
+
+    def test_mtf_evidence_module_and_ui_are_wired(self):
+        main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
+        mtf_evidence_js = (APP_ROOT / "js" / "modules" / "mtf-evidence.js").read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        mtf_evidence_py = (TOOL_ROOT / "core" / "mtf_evidence.py").read_text(encoding="utf-8-sig")
+
+        expected_ids = [
+            "mtf-evidence-panel",
+            "mtf-evidence-refresh-btn",
+            "mtf-evidence-tf-count",
+            "mtf-evidence-asset-count",
+            "mtf-evidence-covered-count",
+            "mtf-evidence-badge",
+            "mtf-evidence-status",
+            "mtf-evidence-list",
+            "mtf-evidence-empty",
+            "priority-source-current",
+            "priority-source-note",
+        ]
+        for element_id in expected_ids:
+            with self.subTest(element_id=element_id):
+                self.assertIn(f'id="{element_id}"', self.html)
+
+        for export in [
+            "apiBase",
+            "endpoint",
+            "fetchEvidence",
+            "init",
+            "refreshEvidence",
+            "renderEvidence",
+            "setStatus",
+            "statusClass",
+            "updatePriorityStrip",
+        ]:
+            with self.subTest(export=export):
+                self.assertIn(export, mtf_evidence_js)
+
+        self.assertIn("js/modules/mtf-evidence.js", self.html)
+        self.assertIn("window.SQX.mtfEvidence.init()", main_js)
+        self.assertIn("/api/mtf/evidence", server_py)
+        self.assertIn("build_mtf_evidence", server_py)
+        self.assertIn("read_only_after_a56_go", mtf_evidence_py)
+        self.assertIn("a56_real_mtf_pipeline_run.json", mtf_evidence_py)
+        self.assertIn("available && payload.status === 'GO'", mtf_evidence_js)
 
     def test_fulfillment_operator_module_and_ui_are_wired(self):
         main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")

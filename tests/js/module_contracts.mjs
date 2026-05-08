@@ -6,6 +6,7 @@ import './contracts/license_contracts.mjs';
 import './contracts/fulfillment_contracts.mjs';
 import './contracts/customer_cockpit_contracts.mjs';
 import './contracts/support_contracts.mjs';
+import './contracts/mtf_evidence_contracts.mjs';
 import './contracts/renderers_charts_contracts.mjs';
 import './contracts/strategies_granular_contracts.mjs';
 import './contracts/ui_home_workflow_contracts.mjs';

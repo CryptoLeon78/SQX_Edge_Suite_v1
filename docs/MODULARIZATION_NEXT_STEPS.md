@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: A56 - real MTF pipeline run.
+- Current completed phase: A57 - read-only MTF evidence UI.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
 - Latest ZIP SHA256: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Next recommended phase: A57 - expose read-only MTF evidence in dashboard only after A56 returns GO, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: A58/R44 - validate real OHLC inputs through A56 until GO and refresh the portable release if the MTF evidence panel is part of the next delivery, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -67,7 +67,8 @@ Persistent planning note for the next SQX Edge phases.
 8. Phase A54: connect a validated full multi-timeframe source to Plan Quality Advisor artifacts only after A53 returns GO, otherwise write a blocked NO-GO report. Done.
 9. Phase A55: add an OHLC CSV metric builder that converts reviewable market CSVs into `asset_metrics[_TF].json` without synthetic timeframes. Done.
 10. Phase A56: add an end-to-end real-data pipeline runner for OHLC CSV -> metrics -> intake -> guarded plan artifacts, returning GO only when every stage passes. Done.
-11. Phase A57: expose read-only MTF evidence in dashboard only after A56 returns GO with real data.
+11. Phase A57: expose read-only MTF evidence in dashboard only after A56 returns GO with real data. Done.
+12. Phase A58: validate real OHLC input coverage through A56 until GO and decide whether to package the evidence panel in the next portable release.
 
 ## QA / Security Track
 

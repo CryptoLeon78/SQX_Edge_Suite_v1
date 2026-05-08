@@ -895,6 +895,105 @@
   .support-status.is-ok { color:var(--green); }
   .support-status.is-warn { color:var(--yellow); }
   .support-status.is-error { color:var(--red); }
+  .mtf-evidence-panel {
+    display:grid;
+    gap:12px;
+  }
+  .mtf-evidence-head {
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .mtf-evidence-head strong {
+    color:var(--text);
+    font-size:14px;
+    line-height:1.3;
+  }
+  .mtf-evidence-refresh-btn {
+    border-color:rgba(20,184,166,.35);
+    background:rgba(20,184,166,.10);
+    color:var(--cyan);
+  }
+  .mtf-evidence-metrics {
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:8px;
+  }
+  .mtf-evidence-metric {
+    display:grid;
+    gap:4px;
+    border:1px solid rgba(148,163,184,.16);
+    border-radius:8px;
+    background:rgba(15,23,42,.30);
+    padding:9px;
+    min-width:0;
+  }
+  .mtf-evidence-metric span {
+    color:var(--text2);
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.45px;
+    text-transform:uppercase;
+  }
+  .mtf-evidence-metric strong {
+    color:var(--text);
+    font-size:18px;
+    line-height:1;
+  }
+  .mtf-evidence-badge {
+    justify-self:start;
+    border:1px solid rgba(148,163,184,.22);
+    border-radius:999px;
+    padding:4px 9px;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.45px;
+    text-transform:uppercase;
+  }
+  .mtf-evidence-badge.is-ok {
+    border-color:rgba(34,197,94,.35);
+    background:rgba(34,197,94,.12);
+    color:var(--green);
+  }
+  .mtf-evidence-badge.is-warn {
+    border-color:rgba(234,179,8,.35);
+    background:rgba(234,179,8,.12);
+    color:var(--yellow);
+  }
+  .mtf-evidence-badge.is-error {
+    border-color:rgba(239,68,68,.35);
+    background:rgba(239,68,68,.12);
+    color:var(--red);
+  }
+  .mtf-evidence-list {
+    display:grid;
+    gap:7px;
+  }
+  .mtf-evidence-row {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    border:1px solid rgba(148,163,184,.14);
+    border-radius:8px;
+    background:rgba(15,23,42,.26);
+    padding:8px 9px;
+    min-width:0;
+  }
+  .mtf-evidence-row span {
+    color:var(--cyan);
+    font-size:11px;
+    font-weight:900;
+    text-transform:uppercase;
+  }
+  .mtf-evidence-row strong {
+    color:var(--text2);
+    font-size:11px;
+    font-weight:700;
+    text-align:right;
+    word-break:break-word;
+  }
   .fulfillment-panel {
     display:grid;
     gap:12px;

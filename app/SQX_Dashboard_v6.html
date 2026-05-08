@@ -151,6 +151,33 @@
             <strong id="home-data-status">Manifest activo</strong>
           </div>
         </div>
+        <div class="home-panel mtf-evidence-panel" id="mtf-evidence-panel">
+          <div class="mtf-evidence-head">
+            <div>
+              <div class="home-panel-title">MTF Evidence</div>
+              <strong>Lectura A56</strong>
+            </div>
+            <button class="export-btn mtf-evidence-refresh-btn" id="mtf-evidence-refresh-btn" type="button">Actualizar</button>
+          </div>
+          <div class="mtf-evidence-metrics">
+            <div class="mtf-evidence-metric">
+              <span>TF</span>
+              <strong id="mtf-evidence-tf-count">--</strong>
+            </div>
+            <div class="mtf-evidence-metric">
+              <span>Activos</span>
+              <strong id="mtf-evidence-asset-count">--</strong>
+            </div>
+            <div class="mtf-evidence-metric">
+              <span>Plan</span>
+              <strong id="mtf-evidence-covered-count">--</strong>
+            </div>
+          </div>
+          <span id="mtf-evidence-badge" class="mtf-evidence-badge is-warn">Pendiente</span>
+          <small id="mtf-evidence-status" class="support-status">Esperando evidencia A56 GO.</small>
+          <div class="mtf-evidence-list" id="mtf-evidence-list"></div>
+          <div class="home-history-empty" id="mtf-evidence-empty">Sin evidencia multi-timeframe validada.</div>
+        </div>
         <div class="home-panel license-panel" id="license-panel">
           <div class="license-head">
             <div>
@@ -3307,6 +3334,7 @@ Ret/DD > 1.0          ← más estricto que Capa 1 (era 0.5)</pre>
 <script src="js/modules/charts.js"></script>
 <script src="js/modules/strategies.js"></script>
 <script src="js/modules/home.js"></script>
+<script src="js/modules/mtf-evidence.js"></script>
 <script src="js/modules/support.js"></script>
 <script src="js/modules/fulfillment.js"></script>
 <script src="js/modules/customer-cockpit.js"></script>

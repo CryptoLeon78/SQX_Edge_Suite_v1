@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - A57 read-only MTF evidence UI
+
+- Anade `core/mtf_evidence.py` y `/api/mtf/evidence` para resumir la salida A56 sin rutas completas ni payloads crudos.
+- Incorpora un panel `MTF Evidence` en Inicio y actualiza la franja de `SQX Priority` solo cuando existe evidencia A56 GO.
+- Mantiene el dashboard bloqueado/pendiente si A56 devuelve NO_GO, falta el reporte o la API local no esta disponible.
+
 ## 2026-05-08 - A56 real MTF pipeline run
 
 - Anade `real_mtf_pipeline_run.py` para orquestar A55 -> A53 -> A54 desde CSV OHLC reales hasta artefactos del Plan Quality Advisor.
