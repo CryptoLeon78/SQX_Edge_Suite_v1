@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-08 - A58 internal MT5/Dukascopy OHLC download gate
+
+- Adds `dukas_mt5_ohlc_download.py` as an operator-only, config-driven downloader for MT5/Dukascopy OHLC CSV files feeding A55/A56 real-data validation.
+- Adds coverage JSON/Markdown/CSV output, dry-run support and tests with a fake MT5 module so CI does not require MetaTrader5.
+- Excludes the downloader, config and generated OHLC/coverage data from portable buyer packaging, distribution audit, release checklist and product manifest.
+- Updates roadmap/governance notes and records Strategy Builder as a future "only one platform" commercial hook, separate from this data-acquisition phase.
+
 ## 2026-05-08 - A57 read-only MTF evidence UI
 
 - Anade `core/mtf_evidence.py` y `/api/mtf/evidence` para resumir la salida A56 sin rutas completas ni payloads crudos.

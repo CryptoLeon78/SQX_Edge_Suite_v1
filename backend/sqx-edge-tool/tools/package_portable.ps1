@@ -80,7 +80,8 @@ $excludeNames = @(
   "commercial-private",
   "pro-template-pack-1",
   "pro-template-pack-2",
-  "sqx-edge-relay"
+  "sqx-edge-relay",
+  "dukas_mt5_download"
 )
 $excludePatterns = @(
   "\\backend\\sqx-edge-tool\\runtime\\downloads\\",
@@ -154,6 +155,10 @@ function Test-IncludedPath {
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfillment_request\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfill_from_request\.ps1$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\relay_bundle\.py$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\tools\\dukas_mt5_ohlc_download\.py$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\config\\dukas_mt5_download\.json$") { return $false }
+  if ($Path -match "\\data\\ohlc\\") { return $false }
+  if ($Path -match "\\analysis_output\\dukas_mt5_download\\") { return $false }
   if ($Path -match "\\[^\\]*_private_key\.json$") { return $false }
   if ($Path -match "\\[^\\]*\.private_key\.json$") { return $false }
   if ($Path -match "\\license_signed_[^\\]*\.json$") { return $false }

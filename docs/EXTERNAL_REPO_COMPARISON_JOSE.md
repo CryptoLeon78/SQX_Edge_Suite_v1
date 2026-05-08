@@ -114,12 +114,19 @@ Phase A57 adds the first dashboard exposure, deliberately read-only:
 
 The panel appears in Inicio and only shows validated A56 GO summaries. Missing reports, API errors or A56 NO_GO remain blocked/pending, so Priority is not silently promoted to multi-timeframe scoring without real evidence.
 
+Phase A58 adds the internal data-acquisition bridge:
+
+- `backend/sqx-edge-tool/tools/dukas_mt5_ohlc_download.py`
+- `backend/sqx-edge-tool/config/dukas_mt5_download.json`
+
+The downloader maps the 33 target assets to MT5/Dukascopy symbols, writes reviewable `ASSET_TF.csv` files into `data/ohlc`, and emits JSON/Markdown/CSV coverage reports. It is intentionally excluded from buyer portable builds because MetaTrader5 and terminal paths are operator dependencies, not basic-user requirements.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:
 
-1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts, A55 added the OHLC metric builder, A56 added the end-to-end real-data runner and A57 exposed read-only dashboard evidence after GO; remaining work is supplying real exported M15/M30/H4 CSVs until A56 returns GO.
-2. Optional market data acquisition: evaluate MT5/Dukascopy data download as an operator-only script, excluded from portable buyer builds unless explicitly needed.
+1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts, A55 added the OHLC metric builder, A56 added the end-to-end real-data runner, A57 exposed read-only dashboard evidence after GO and A58 added the internal MT5/Dukascopy download gate; remaining work is running A58/A56 with real local terminal data until GO.
+2. Optional market data acquisition: keep MT5/Dukascopy as an operator-only script, excluded from portable buyer builds unless explicitly needed.
 3. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
 4. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
 
@@ -141,4 +148,4 @@ Explicitly excluded by product decision:
 - No legacy HTML tabs were restored.
 - No sensitive commercial material was imported.
 - No third-party credentials, tokens or account passwords were introduced.
-- The current advisor uses the available H1 score baseline; A49/A50/A51/A52/A53/A54/A55/A56/A57 now provide a safe backend-to-dashboard path for real multi-timeframe metrics once supplied and validated.
+- The current advisor uses the available H1 score baseline; A49/A50/A51/A52/A53/A54/A55/A56/A57/A58 now provide a safe backend-to-dashboard path for real multi-timeframe metrics once supplied and validated.

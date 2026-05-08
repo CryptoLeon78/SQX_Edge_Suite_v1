@@ -187,6 +187,8 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `backend/sqx-edge-tool/tools/multi_timeframe_plan_artifacts.py` | Guarded A54 artifact generator that runs A53, writes intake reports, and only produces Plan Quality Advisor MTF artifacts when intake status is GO. |
 | `backend/sqx-edge-tool/tools/ohlc_metric_builder.py` | A55 market-data bridge that converts reviewable operator-supplied OHLC CSV files into `asset_metrics[_TF].json` files for the MTF pipeline. |
 | `backend/sqx-edge-tool/tools/real_mtf_pipeline_run.py` | A56 end-to-end runner for real OHLC CSV inputs through metric building, source intake and guarded plan artifacts. |
+| `backend/sqx-edge-tool/tools/dukas_mt5_ohlc_download.py` | A58 internal MT5/Dukascopy downloader that writes reviewable OHLC CSVs for A55/A56, with coverage reports and optional MetaTrader5 dependency. |
+| `backend/sqx-edge-tool/config/dukas_mt5_download.json` | A58 operator config for terminal path, assets, mapped MT5 symbols, timeframes, output paths and portable exclusion policy. |
 | `backend/sqx-edge-tool/tools/multi_timeframe_scoring.py` | Dependency-isolated scoring tool that converts supplied `asset_metrics[_TF].json` files into per-timeframe scores and weighted multi-timeframe consensus. |
 | `backend/sqx-edge-tool/tools/multi_timeframe_metric_gate.py` | First-party metric intake gate for supplied `asset_metrics[_TF].json` folders with coverage, completeness, unknown-asset checks, scoring compatibility and SHA256 traceability. |
 | `backend/sqx-edge-tool/config/multi_timeframe_source_policy.json` | A53 GO/NO-GO policy for required timeframes, accepted metric filenames, minimum coverage/completeness and no-synthetic-TF rules. |
@@ -270,6 +272,7 @@ The package excludes:
 - `.pytest_cache`
 - downloaded runtime cache
 - local `backend/sqx-edge-tool/config.json`
+- internal MT5/Dukascopy downloader, config, `data/ohlc/` and A58 coverage output
 - `resources/pro-template-pack-1/` because Template Pack 1 is a separate paid add-on delivery.
 
 ## Contract Tests

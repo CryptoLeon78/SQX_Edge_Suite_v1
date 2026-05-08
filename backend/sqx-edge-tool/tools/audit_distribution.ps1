@@ -69,7 +69,8 @@ $denySegments = @(
   "commercial-private",
   "pro-template-pack-1",
   "pro-template-pack-2",
-  "sqx-edge-relay"
+  "sqx-edge-relay",
+  "dukas_mt5_download"
 )
 
 $denyFiles = @(
@@ -131,6 +132,8 @@ $denyFiles = @(
   "fulfillment_request.py",
   "fulfill_from_request.ps1",
   "relay_bundle.py",
+  "dukas_mt5_ohlc_download.py",
+  "dukas_mt5_download.json",
   ".env",
   "RELEASE_SQX_EDGE.bat"
 )
@@ -259,6 +262,10 @@ $requiredPackageGuards = @(
   'fulfillment_request\.py',
   'fulfill_from_request\.ps1',
   'relay_bundle\.py',
+  'dukas_mt5_ohlc_download\.py',
+  'dukas_mt5_download\.json',
+  '"dukas_mt5_download"',
+  '\\data\\ohlc\\',
   '_private_key\.json',
   '\.private_key\.json',
   'license_signed_',

@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: A57 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: A58 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
 - SHA256 del ZIP: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Siguiente paso recomendado: A58/R44 - validar datos OHLC reales hasta GO y regenerar el ZIP portable si se decide publicar la evidencia MTF en una entrega.
-- Ultima mejora funcional: panel `MTF Evidence` en Inicio y endpoint `/api/mtf/evidence`, ambos en modo solo lectura y bloqueados salvo A56 GO real.
+- Siguiente paso recomendado: A59/R44 - ejecutar el downloader MT5/Dukascopy interno con terminal local, correr A56 sobre `data/ohlc` hasta GO y regenerar el ZIP portable si se decide publicar la evidencia MTF en una entrega.
+- Ultima mejora funcional: downloader interno `dukas_mt5_ohlc_download.py` para generar CSV OHLC reales desde MT5/Dukascopy hacia la pipeline A55/A56, excluido del portable de comprador.
 
 ## SQX Edge Pro
 

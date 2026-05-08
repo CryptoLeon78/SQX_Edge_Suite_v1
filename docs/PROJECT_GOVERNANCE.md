@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: A57 - read-only MTF evidence UI.
+- Current phase completed: A58 - internal MT5/Dukascopy OHLC download gate.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
-- Next implementation phase: A58/R44 - validate real OHLC inputs to A56 GO and refresh portable release if publishing the MTF evidence panel, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next implementation phase: A59/R44 - run A58 with local MT5/Dukascopy, validate `data/ohlc` through A56 until GO and refresh portable release if publishing the MTF evidence panel, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB1 - Strategy Builder discovery as a future commercial hook.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 
@@ -85,12 +85,12 @@ M46 is accepted when these criteria are true:
 - Private commercial repository: `https://github.com/CryptoLeon78/sqx-edge-commercial-private` (private, baseline commit `ed79719`).
 - Public commercial pointers: `docs/PUBLIC_COMMERCIAL_POINTERS.md`; public `docs/MONETIZATION_*`, `docs/sales/*` and Pro resource packs are redacted pointers.
 - Roadmap state: `docs/MODULARIZATION_NEXT_STEPS.md` plus private commercial roadmap copies.
-- External repo comparison: `docs/EXTERNAL_REPO_COMPARISON_JOSE.md`, `backend/sqx-edge-tool/tools/plan_quality_advisor.py`, `backend/sqx-edge-tool/tools/multi_timeframe_scoring.py`, `backend/sqx-edge-tool/tools/multi_timeframe_metric_gate.py`, `backend/sqx-edge-tool/tools/first_party_metric_source.py`, `backend/sqx-edge-tool/tools/multi_timeframe_source_intake.py`, `backend/sqx-edge-tool/tools/multi_timeframe_plan_artifacts.py`, `backend/sqx-edge-tool/tools/ohlc_metric_builder.py`, `backend/sqx-edge-tool/tools/real_mtf_pipeline_run.py`, `backend/sqx-edge-tool/core/mtf_evidence.py` and `app/js/modules/mtf-evidence.js`.
+- External repo comparison: `docs/EXTERNAL_REPO_COMPARISON_JOSE.md`, `backend/sqx-edge-tool/tools/plan_quality_advisor.py`, `backend/sqx-edge-tool/tools/multi_timeframe_scoring.py`, `backend/sqx-edge-tool/tools/multi_timeframe_metric_gate.py`, `backend/sqx-edge-tool/tools/first_party_metric_source.py`, `backend/sqx-edge-tool/tools/multi_timeframe_source_intake.py`, `backend/sqx-edge-tool/tools/multi_timeframe_plan_artifacts.py`, `backend/sqx-edge-tool/tools/ohlc_metric_builder.py`, `backend/sqx-edge-tool/tools/real_mtf_pipeline_run.py`, `backend/sqx-edge-tool/tools/dukas_mt5_ohlc_download.py`, `backend/sqx-edge-tool/core/mtf_evidence.py` and `app/js/modules/mtf-evidence.js`.
 
 ## Security Notes
 
 - Never commit `backend/sqx-edge-tool/config/license.json`.
 - Never package private keys, signed customer licenses, fulfillment events, relay data, `.env` files, backups or internal release tools.
-- Any new internal M46+ tool must be added to product manifest exclusions, packaging exclusions, audit deny-lists, release checklist assertions and tests.
+- Any new internal M46+ or A58+ operator tool must be added to product manifest exclusions, packaging exclusions, audit deny-lists, release checklist assertions and tests.
 - Move buyer logs, commercial gates, pricing experiments, support scripts and checkout evidence to a private repository before wider public distribution.
 - Keep `docs/private-commercial/`, `commercial-private/` and `private-commercial/` local-only staging folders ignored by git.

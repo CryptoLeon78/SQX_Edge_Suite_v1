@@ -80,6 +80,8 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
             TOOL_ROOT / "tools" / "relay_bundle.py",
+            TOOL_ROOT / "tools" / "dukas_mt5_ohlc_download.py",
+            TOOL_ROOT / "config" / "dukas_mt5_download.json",
         ]
         for path in expected:
             with self.subTest(path=path.name):
@@ -164,6 +166,10 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
         self.assertIn("relay_bundle\\.py", text)
+        self.assertIn("dukas_mt5_ohlc_download\\.py", text)
+        self.assertIn("dukas_mt5_download\\.json", text)
+        self.assertIn('"dukas_mt5_download"', text)
+        self.assertIn("\\\\data\\\\ohlc\\\\", text)
         self.assertIn('"sqx-edge-relay"', text)
         self.assertIn("_private_key\\.json", text)
         self.assertIn("license_signed_", text)
@@ -284,6 +290,9 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
         self.assertIn("relay_bundle.py", text)
+        self.assertIn("dukas_mt5_ohlc_download.py", text)
+        self.assertIn("dukas_mt5_download.json", text)
+        self.assertIn("data\\ohlc", text)
         self.assertIn("sqx-edge-relay", text)
         self.assertIn("fulfillment_requests", text)
         self.assertIn("customer_success_renewal", text)
@@ -396,6 +405,9 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
             "relay_bundle.py",
+            "dukas_mt5_ohlc_download.py",
+            "dukas_mt5_download.json",
+            "dukas_mt5_download",
             "sqx-edge-relay",
             "customer_success_renewal",
             "customer_cockpit",
