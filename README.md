@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: V9 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: R42 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
-- Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_075208.zip`.
-- SHA256 del ZIP: `CCB398057E5DEC6AC5AE2993E58E8DCEDBDB0686DD09539E30F9017D54F3A34D`.
-- Siguiente paso recomendado: R42 - preparar registro publico de release si decidimos publicar este ZIP, o PG7 - notas de handoff `.cfx` por comprador en Project Generator.
-- Ultima mejora funcional: SQX Views muestra preview de packs JSON antes de fusionar presets, con metricas, columnas, anos, orden y reemplazos.
+- Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
+- SHA256 del ZIP: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
+- Siguiente paso recomendado: PG7 - notas de handoff `.cfx` por comprador en Project Generator, o V10 - comparador de packs SQX Views.
+- Ultima mejora funcional: ZIP portable regenerado y validado tras V9 con preview de importacion SQX Views incluido.
 
 ## SQX Edge Pro
 

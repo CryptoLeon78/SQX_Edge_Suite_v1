@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: V9 - SQX Views import preview.
+- Current completed phase: R42 - portable release candidate refresh after V9.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
-- Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_075208.zip`.
-- Latest ZIP SHA256: `CCB398057E5DEC6AC5AE2993E58E8DCEDBDB0686DD09539E30F9017D54F3A34D`.
-- Next recommended phase: R42 - public release record if the R41 ZIP is published, or PG7 - Project Generator buyer-specific `.cfx` handoff notes.
+- Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
+- Latest ZIP SHA256: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
+- Next recommended phase: PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -166,4 +166,5 @@ Persistent planning note for the next SQX Edge phases.
 
 1. Phase R40: regenerate and test the portable ZIP after V6/PG3 because frontend behavior and dev tooling changed. Done.
 2. Phase R41: regenerate and test the portable ZIP after PG4 because frontend behavior changed. Done.
-3. Phase R42: prepare a fresh public release record only when we decide to publish this ZIP. Recommended if publishing.
+3. Phase R42: regenerate and validate a fresh portable release candidate after V9. Done.
+4. Phase R43: prepare a public GitHub Release record only when we decide to publish the verified ZIP.

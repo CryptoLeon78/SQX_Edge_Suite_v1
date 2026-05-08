@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - R42 portable release candidate refresh
+
+- Regenera el ZIP portable final tras V9 con `SQX_Edge_Tool_Portable_20260508_164956.zip`.
+- Verifica contratos frontend, suite Python, `git diff --check`, auditoria de distribucion y arranque del API portable extraido.
+- Publica trazabilidad local con SHA256 `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
+
 ## 2026-05-08 - V9 SQX Views import preview
 
 - Anade preview visual al importar packs JSON de presets en `SQX Views`.
