@@ -975,10 +975,16 @@ class DashboardStaticTestCase(unittest.TestCase):
             "customPresetPackageVersion",
             "customProjectPresetCountLabel",
             "customProjectPresetOptionsHtml",
+            "customStarterProfileCardsHtml",
+            "customStarterProfileCountLabel",
+            "customStarterProfileToPreset",
             "deleteCustomProjectPreset",
             "findCustomProjectPreset",
+            "findCustomStarterProfile",
             "getCustomProjectPresets",
+            "getCustomStarterProfiles",
             "buildCustomProjectPresetPackage",
+            "buildCustomStarterProfilePack",
             "importCustomProjectPresetPackage",
             "importCustomProjectPresetPackageFromText",
             "generateAllConfirmMessage",
@@ -1033,8 +1039,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.generateAllConfirmMessage", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.generateAllResultLines", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.configSaveBody", project_generator_main_js)
+        self.assertIn("SQX_PG_MODULE.buildCustomStarterProfilePack", project_generator_main_js)
+        self.assertIn("SQX_PG_MODULE.customStarterProfileCardsHtml", project_generator_main_js)
+        self.assertIn("SQX_PG_MODULE.customStarterProfileToPreset", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.buildCustomProjectPresetPackage", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.importCustomProjectPresetPackageFromText", project_generator_main_js)
+        self.assertIn('id="pg-custom-starter-list"', self.html)
+        self.assertIn('id="pg-custom-export-starter-profiles"', self.html)
         self.assertIn('id="pg-custom-export-presets"', self.html)
         self.assertIn('id="pg-custom-import-presets"', self.html)
         self.assertIn('id="pg-custom-import-presets-file"', self.html)

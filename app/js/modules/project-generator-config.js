@@ -8,6 +8,36 @@
   var CUSTOM_PRESETS_STORAGE_KEY = storageKeys.projectGeneratorCustomPresets || 'sqx_pg_custom_presets_v1';
   var CUSTOM_PRESET_PACKAGE_TYPE = 'sqx-edge.project-generator-custom-presets';
   var CUSTOM_PRESET_PACKAGE_VERSION = 1;
+  var CUSTOM_STARTER_PROFILES = [
+    {
+      id: 'forex-h1-balanced',
+      name: 'Forex H1 Balanced',
+      tag: 'Forex',
+      description: 'Punto de partida equilibrado para pares major en H1.',
+      config: { name: 'Custom_EURUSD_H1_Balanced', asset: 'EURUSD', tf: 'H1', bs: 'BS_Forex_H1_Balanced', dir: 'both', capa: 1, template: '' }
+    },
+    {
+      id: 'forex-m15-scalp',
+      name: 'Forex M15 Scalp',
+      tag: 'Scalp',
+      description: 'Perfil rapido para explorar intradia con control por Capa 1.',
+      config: { name: 'Custom_GBPUSD_M15_Scalp', asset: 'GBPUSD', tf: 'M15', bs: 'BS_Forex_M15_Scalp', dir: 'both', capa: 1, template: '' }
+    },
+    {
+      id: 'index-h1-trend',
+      name: 'Index H1 Trend',
+      tag: 'Index',
+      description: 'Base direccional para indices con sesgo long y timeframe H1.',
+      config: { name: 'Custom_US500_H1_Trend', asset: 'US500', tf: 'H1', bs: 'BS_Index_H1_Trend', dir: 'long', capa: 1, template: '' }
+    },
+    {
+      id: 'gold-h1-risk',
+      name: 'Gold H1 Risk',
+      tag: 'Gold',
+      description: 'Arranque prudente para oro con Capa 2 y direccion dual.',
+      config: { name: 'Custom_XAUUSD_H1_Risk', asset: 'XAUUSD', tf: 'H1', bs: 'BS_Gold_H1_Risk', dir: 'both', capa: 2, template: '' }
+    }
+  ];
 
 function safeJsonParse(raw, fallback) {
     try {
@@ -51,6 +81,71 @@ function normalizeCustomPreset(item) {
       savedAt: String(item.savedAt || new Date().toISOString()),
       config: config
     };
+  }
+
+function getCustomStarterProfiles() {
+    return CUSTOM_STARTER_PROFILES.map(function(profile) {
+      return {
+        id: profile.id,
+        name: profile.name,
+        tag: profile.tag,
+        description: profile.description,
+        config: normalizeCustomProjectConfig(profile.config)
+      };
+    });
+  }
+
+function findCustomStarterProfile(id) {
+    var profileId = String(id || '').trim();
+    return getCustomStarterProfiles().find(function(profile) { return profile.id === profileId; }) || null;
+  }
+
+function customStarterProfileToPreset(profile) {
+    var starter = typeof profile === 'string' ? findCustomStarterProfile(profile) : profile;
+    if (!starter) return null;
+    return normalizeCustomPreset({
+      id: 'starter-' + starter.id,
+      name: starter.name,
+      savedAt: new Date().toISOString(),
+      config: starter.config
+    });
+  }
+
+function buildCustomStarterProfilePack() {
+    return buildCustomProjectPresetPackage(getCustomStarterProfiles().map(customStarterProfileToPreset));
+  }
+
+function customStarterProfileCountLabel(count) {
+    var n = count || 0;
+    return n + (n === 1 ? ' perfil listo' : ' perfiles listos');
+  }
+
+function customStarterProfileCardsHtml(profiles) {
+    var list = profiles || getCustomStarterProfiles();
+    if (!list.length) return messageHtml('No hay perfiles starter disponibles.', 'warning');
+    return list.map(function(profile) {
+      var config = normalizeCustomProjectConfig(profile.config);
+      var title = escapeHtml(profile.name);
+      var id = escapeHtml(profile.id);
+      return ''
+        + '<article class="pg-custom-starter-card">'
+        +   '<div class="pg-custom-starter-title">'
+        +     '<strong>' + title + '</strong>'
+        +     '<span class="pg-custom-starter-tag">' + escapeHtml(profile.tag || 'Starter') + '</span>'
+        +   '</div>'
+        +   '<div class="pg-custom-starter-desc">' + escapeHtml(profile.description || '') + '</div>'
+        +   '<div class="pg-custom-starter-meta">'
+        +     '<span>' + escapeHtml(config.asset) + '</span>'
+        +     '<span>' + escapeHtml(config.tf) + '</span>'
+        +     '<span>' + escapeHtml(config.dir.toUpperCase()) + '</span>'
+        +     '<span>C' + escapeHtml(config.capa) + '</span>'
+        +   '</div>'
+        +   '<div class="pg-custom-starter-actions">'
+        +     '<button class="export-btn pg-ghost-btn" data-pg-starter-load="' + id + '">Cargar</button>'
+        +     '<button class="export-btn pg-ghost-btn" data-pg-starter-save="' + id + '">Guardar</button>'
+        +   '</div>'
+        + '</article>';
+    }).join('');
   }
 
 function getCustomProjectPresets(storage) {
@@ -366,9 +461,15 @@ function validateSqxPathHtml(result) {
     customPresetIdFromName: customPresetIdFromName,
     customProjectPresetCountLabel: customProjectPresetCountLabel,
     customProjectPresetOptionsHtml: customProjectPresetOptionsHtml,
+    customStarterProfileCardsHtml: customStarterProfileCardsHtml,
+    customStarterProfileCountLabel: customStarterProfileCountLabel,
+    customStarterProfileToPreset: customStarterProfileToPreset,
     deleteCustomProjectPreset: deleteCustomProjectPreset,
+    findCustomStarterProfile: findCustomStarterProfile,
     findCustomProjectPreset: findCustomProjectPreset,
+    getCustomStarterProfiles: getCustomStarterProfiles,
     getCustomProjectPresets: getCustomProjectPresets,
+    buildCustomStarterProfilePack: buildCustomStarterProfilePack,
     buildCustomProjectPresetPackage: buildCustomProjectPresetPackage,
     importCustomProjectPresetPackage: importCustomProjectPresetPackage,
     importCustomProjectPresetPackageFromText: importCustomProjectPresetPackageFromText,

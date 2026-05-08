@@ -38,6 +38,8 @@
     bind(doc, 'pg-custom-save-preset', 'click', h.saveCustomPreset);
     bind(doc, 'pg-custom-load-preset', 'click', h.loadCustomPreset);
     bind(doc, 'pg-custom-delete-preset', 'click', h.deleteCustomPreset);
+    bind(doc, 'pg-custom-starter-list', 'click', h.handleCustomStarterProfileClick);
+    bind(doc, 'pg-custom-export-starter-profiles', 'click', h.exportCustomStarterProfiles);
     bind(doc, 'pg-custom-export-presets', 'click', h.exportCustomPresets);
     bind(doc, 'pg-custom-import-presets', 'click', h.openImportCustomPresets);
     bind(doc, 'pg-custom-import-presets-file', 'change', h.importCustomPresets);

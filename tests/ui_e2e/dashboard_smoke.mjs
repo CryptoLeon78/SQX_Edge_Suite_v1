@@ -78,6 +78,17 @@ async function run() {
     await desktop.waitForFunction(() => document.getElementById('pg-onboarding-progress')?.textContent.trim() === '0/4');
     await desktop.waitForFunction(() => document.getElementById('pg-onboarding-steps')?.querySelectorAll('.pg-step').length === 4);
     await desktop.waitForSelector('#pg-custom-generate');
+    await desktop.waitForSelector('#pg-custom-starter-list .pg-custom-starter-card');
+    const customStarterCount = await desktop.locator('#pg-custom-starter-list .pg-custom-starter-card').count();
+    if (customStarterCount < 4) throw new Error(`Expected Project Generator starter profiles, got ${customStarterCount}`);
+    await desktop.locator('[data-pg-starter-load="forex-h1-balanced"]').click();
+    await desktop.waitForFunction(() => document.getElementById('pg-custom-asset')?.value === 'EURUSD');
+    await desktop.waitForFunction(() => document.getElementById('pg-custom-tf')?.value === 'H1');
+    await desktop.locator('[data-pg-starter-save="forex-h1-balanced"]').click();
+    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_pg_custom_presets_v1') || '[]').some(preset => preset.id === 'starter-forex-h1-balanced'));
+    const starterPack = await desktop.evaluate(() => window.SQX.projectGenerator.buildCustomStarterProfilePack());
+    if (starterPack.type !== 'sqx-edge.project-generator-custom-presets' || starterPack.presets.length < 4) throw new Error('Project Generator starter pack contract failed');
+    await desktop.evaluate(() => localStorage.removeItem('sqx_pg_custom_presets_v1'));
     await desktop.locator('#pg-custom-asset').fill('EURUSD');
     await desktop.locator('#pg-custom-tf').fill('H1');
     await desktop.locator('#pg-custom-name').fill('Custom_EURUSD_H1');

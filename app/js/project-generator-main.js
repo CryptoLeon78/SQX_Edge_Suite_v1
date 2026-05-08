@@ -126,6 +126,17 @@ function pgRenderCustomPresets(selectedId) {
   return presets;
 }
 
+function pgRenderCustomStarterProfiles() {
+  const profiles = SQX_PG_MODULE.getCustomStarterProfiles ? SQX_PG_MODULE.getCustomStarterProfiles() : [];
+  if (SQX_PG_MODULE.customStarterProfileCountLabel) {
+    pgSetText('pg-custom-starter-count', SQX_PG_MODULE.customStarterProfileCountLabel(profiles.length));
+  }
+  if (SQX_PG_MODULE.customStarterProfileCardsHtml) {
+    pgSetHtml('pg-custom-starter-list', SQX_PG_MODULE.customStarterProfileCardsHtml(profiles));
+  }
+  return profiles;
+}
+
 function pgDownloadJson(filename, payload) {
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -417,6 +428,49 @@ function pgExportCustomPresets() {
   pgLog('Pack de presets custom exportado: ' + pack.presets.length + ' presets.', 'ok');
 }
 
+function pgLoadCustomStarterProfile(id) {
+  const profile = SQX_PG_MODULE.findCustomStarterProfile && SQX_PG_MODULE.findCustomStarterProfile(id);
+  if (!profile) {
+    pgSetCustomStatus('No se encontro el perfil starter seleccionado.', 'err');
+    return;
+  }
+  pgWriteCustomInputs(profile.config);
+  pgSetCustomStatus('Perfil starter cargado: ' + profile.name, 'ok');
+  pgSetCustomPackStatus('Ajusta cualquier campo y genera el custom libre.');
+  pgLog('Perfil starter cargado: ' + profile.name, 'info');
+  pgTrace('Perfil starter cargado', profile.name, 'info');
+}
+
+function pgSaveCustomStarterProfile(id) {
+  const preset = SQX_PG_MODULE.customStarterProfileToPreset && SQX_PG_MODULE.customStarterProfileToPreset(id);
+  if (!preset) {
+    pgSetCustomStatus('No se pudo guardar el perfil starter.', 'err');
+    return;
+  }
+  const result = SQX_PG_MODULE.importCustomProjectPresetPackage({ presets: [preset] });
+  pgRenderCustomPresets(preset.id);
+  pgSetCustomStatus('Starter guardado como preset: ' + preset.name, 'ok');
+  pgSetCustomPackStatus('Preset disponible en el selector local.');
+  pgLog('Starter guardado como preset: ' + preset.name + ' (' + result.presets.length + ' totales).', 'ok');
+  pgTrace('Starter guardado como preset', preset.name, 'ok');
+}
+
+function pgExportCustomStarterProfiles() {
+  if (!SQX_PG_MODULE.buildCustomStarterProfilePack) return;
+  const pack = SQX_PG_MODULE.buildCustomStarterProfilePack();
+  pgDownloadJson('sqx-custom-starter-profiles-v1.json', pack);
+  pgSetCustomStatus('Pack starter exportado: ' + pack.presets.length + ' perfiles.', 'ok');
+  pgSetCustomPackStatus('Pack starter listo para importar como presets custom.');
+  pgLog('Pack starter custom exportado: ' + pack.presets.length + ' perfiles.', 'ok');
+}
+
+function pgHandleCustomStarterProfileClick(event) {
+  const target = event && event.target;
+  if (!target || !target.dataset) return;
+  if (target.dataset.pgStarterLoad) pgLoadCustomStarterProfile(target.dataset.pgStarterLoad);
+  if (target.dataset.pgStarterSave) pgSaveCustomStarterProfile(target.dataset.pgStarterSave);
+}
+
 function pgOpenImportCustomPresets() {
   const fileInput = pgDom('pg-custom-import-presets-file');
   if (fileInput) fileInput.click();
@@ -602,6 +656,7 @@ async function pgRunOnboardingTertiaryAction() {
 (function pgInit(){
   const refresh = document.getElementById('pg-status-refresh');
   if (!refresh) return; // tab no está en el HTML
+  pgRenderCustomStarterProfiles();
   pgRenderCustomPresets();
 
   // ── Strategy Cleaner ──
@@ -714,9 +769,11 @@ async function pgRunOnboardingTertiaryAction() {
     autodetectSqx: pgAutodetectSqx,
     checkHealth: pgCheckHealth,
     deleteCustomPreset: pgDeleteCustomPreset,
+    exportCustomStarterProfiles: pgExportCustomStarterProfiles,
     exportCustomPresets: pgExportCustomPresets,
     generateAll: pgGenerateAll,
     generateCustom: pgGenerateCustom,
+    handleCustomStarterProfileClick: pgHandleCustomStarterProfileClick,
     importCustomPresets: pgImportCustomPresets,
     loadCustomPreset: pgLoadCustomPreset,
     loadConfig: pgLoadConfig,

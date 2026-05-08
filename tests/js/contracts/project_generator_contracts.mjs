@@ -51,6 +51,7 @@ assert.equal(document.getElementById('pg-custom-dir').value, 'short');
   'pg-autodetect', 'pg-aliases-suggest', 'pg-validate', 'pg-gen-all-c1',
   'pg-gen-all-c2', 'pg-custom-generate', 'pg-custom-save-preset', 'pg-custom-load-preset',
   'pg-custom-delete-preset', 'pg-output-refresh', 'pg-open-output', 'pg-log-clear',
+  'pg-custom-starter-list', 'pg-custom-export-starter-profiles',
   'pg-custom-export-presets', 'pg-custom-import-presets', 'pg-custom-import-presets-file',
   'pg-settings-body', 'pg-log'
 ].forEach(id => document.add(new Element(id)));
@@ -60,15 +61,19 @@ let generateCustomCalls = 0;
 let saveCustomPresetCalls = 0;
 let loadCustomPresetCalls = 0;
 let deleteCustomPresetCalls = 0;
+let starterProfileClickCalls = 0;
+let exportStarterProfileCalls = 0;
 let exportCustomPresetCalls = 0;
 let openImportCustomPresetCalls = 0;
 let importCustomPresetCalls = 0;
 PG.bindings.bindProjectGeneratorEvents(document, {
   checkHealth: () => { checkHealthCalls++; },
+  exportCustomStarterProfiles: () => { exportStarterProfileCalls++; },
   exportCustomPresets: () => { exportCustomPresetCalls++; },
   generateAll: capa => { generateAllCapa = capa; },
   generateCustom: () => { generateCustomCalls++; },
   importCustomPresets: () => { importCustomPresetCalls++; },
+  handleCustomStarterProfileClick: () => { starterProfileClickCalls++; },
   saveCustomPreset: () => { saveCustomPresetCalls++; },
   loadCustomPreset: () => { loadCustomPresetCalls++; },
   deleteCustomPreset: () => { deleteCustomPresetCalls++; },
@@ -81,6 +86,8 @@ document.getElementById('pg-custom-generate').click();
 document.getElementById('pg-custom-save-preset').click();
 document.getElementById('pg-custom-load-preset').click();
 document.getElementById('pg-custom-delete-preset').click();
+document.getElementById('pg-custom-starter-list').dispatch('click', { target: new Element('', [], { pgStarterLoad: 'forex-h1-balanced' }) });
+document.getElementById('pg-custom-export-starter-profiles').click();
 document.getElementById('pg-custom-export-presets').click();
 document.getElementById('pg-custom-import-presets').click();
 document.getElementById('pg-custom-import-presets-file').dispatch('change');
@@ -90,6 +97,8 @@ assert.equal(generateCustomCalls, 1);
 assert.equal(saveCustomPresetCalls, 1);
 assert.equal(loadCustomPresetCalls, 1);
 assert.equal(deleteCustomPresetCalls, 1);
+assert.equal(starterProfileClickCalls, 1);
+assert.equal(exportStarterProfileCalls, 1);
 assert.equal(exportCustomPresetCalls, 1);
 assert.equal(openImportCustomPresetCalls, 1);
 assert.equal(importCustomPresetCalls, 1);
@@ -302,6 +311,15 @@ assert.equal(PG.findCustomProjectPreset('gbpusd-m15-short', sandbox.localStorage
 assert.match(PG.customProjectPresetOptionsHtml(savedCustom.presets), /EURUSD H1 Core/);
 assert.equal(PG.customProjectPresetCountLabel(1), '1 guardado');
 assert.equal(PG.findCustomProjectPreset('eurusd-h1-core', sandbox.localStorage).config.asset, 'EURUSD');
+const starterProfiles = PG.getCustomStarterProfiles();
+assert.equal(starterProfiles.length, 4);
+assert.equal(PG.customStarterProfileCountLabel(starterProfiles.length), '4 perfiles listos');
+assert.equal(PG.findCustomStarterProfile('forex-h1-balanced').config.asset, 'EURUSD');
+assert.equal(PG.customStarterProfileToPreset('forex-h1-balanced').id, 'starter-forex-h1-balanced');
+assert.match(PG.customStarterProfileCardsHtml(starterProfiles), /data-pg-starter-load="forex-h1-balanced"/);
+const starterPack = PG.buildCustomStarterProfilePack();
+assert.equal(starterPack.type, 'sqx-edge.project-generator-custom-presets');
+assert.equal(starterPack.presets.length, 4);
 assert.equal(PG.deleteCustomProjectPreset('eurusd-h1-core', sandbox.localStorage).deleted, true);
 assert.equal(PG.deleteCustomProjectPreset('gbpusd-m15-short', sandbox.localStorage).deleted, true);
 assert.equal(PG.getCustomProjectPresets(sandbox.localStorage).length, 0);

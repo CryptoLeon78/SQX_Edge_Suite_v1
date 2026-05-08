@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - PG4 starter custom preset profiles
+
+- Anade perfiles starter en `Custom libre` para arrancar proyectos Forex, indices y oro sin depender del plan mining.
+- Permite cargar cada starter en el formulario, guardarlo como preset local y exportar el pack starter como JSON.
+- Refuerza contratos JS, tests estaticos y E2E para cubrir render, eventos y contrato portable del pack starter.
+
 ## 2026-05-08 - R40 portable ZIP after V6/PG3
 
 - Regenera el ZIP portable final tras los ejemplos buyer-ready de SQX Views y los packs JSON de `Custom libre`.

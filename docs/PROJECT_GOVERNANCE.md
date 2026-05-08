@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: R40 - Portable ZIP After V6/PG3.
+- Current phase completed: PG4 - Starter custom preset profiles.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
-- Next implementation phase: V7 - buyer profile SQX Views packs, or PG4 - starter custom preset profiles.
+- Next implementation phase: R41 - regenerate/test portable ZIP after PG4, or V7 - buyer profile SQX Views packs.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

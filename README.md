@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: R40 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: PG4 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
-- Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_004141.zip`.
+- Ultimo ZIP portable verificado antes de PG4: `dist/SQX_Edge_Tool_Portable_20260508_004141.zip`.
 - SHA256 del ZIP: `EB4031FE3A6035DA0F04D569A2963B120CCA6957C5EB4A7F994A078F56556E4C`.
-- Siguiente paso recomendado: V7 - ampliar packs SQX Views con ejemplos por perfil de comprador, o PG4 - presets custom iniciales por perfil.
-- Ultima mejora funcional: ZIP portable regenerado y validado tras V6/PG3, con API portable probada desde extraccion temporal.
+- Siguiente paso recomendado: R41 - regenerar y probar ZIP portable tras PG4, o V7 - ampliar packs SQX Views con ejemplos por perfil de comprador.
+- Ultima mejora funcional: Project Generator incluye perfiles starter para `Custom libre`, cargables, guardables como preset y exportables como pack JSON.
 
 ## SQX Edge Pro
 
@@ -96,6 +96,11 @@ SQX Views:
 - Puedes guardar presets propios en el navegador y moverlos entre instalaciones con packs JSON exportables/importables.
 - Workflow y Estrategias incluyen accesos directos para abrir SQX Views con vistas recomendadas ya preparadas.
 - La vista descargada puede cargarse en StrategyQuant X desde Databank -> Load View.
+
+Project Generator:
+
+- `Custom libre` permite crear `.cfx` fuera del plan mining con asset, timeframe, blocksetting, direccion y capa propios.
+- Incluye presets locales reutilizables, exportacion/importacion JSON y perfiles starter para usuarios que quieren empezar sin configurar todo desde cero.
 
 ## Entrega Final
 
