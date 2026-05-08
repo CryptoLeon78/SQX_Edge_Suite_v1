@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: A52 - first-party H1 metric source.
+- Current completed phase: A53 - multi-timeframe source intake.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
 - Latest ZIP SHA256: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Next recommended phase: A53 - select/generate real M15/M30/H4 metric source, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: A54 - connect validated full multi-timeframe source to plan review artifacts or dashboard read-only evidence, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -63,7 +63,8 @@ Persistent planning note for the next SQX Edge phases.
 4. Phase A50: connect multi-timeframe consensus to plan review without changing the dashboard UI until real metrics are available. Done.
 5. Phase A51: add a multi-timeframe metric gate for supplied `asset_metrics[_TF].json` folders before exposing or using them as first-party evidence. Done.
 6. Phase A52: implement a first-party H1 metric source from existing dashboard scores, write provenance and validate it through the A51 gate without synthetic lower/higher TFs. Done.
-7. Phase A53: select or generate real M15/M30/H4 market-derived metrics, then run the A51 gate before any UI exposure.
+7. Phase A53: add a controlled intake gate for real H1/M30/M15/H4 metric folders, with first-party H1 support and strict blocking for missing synthetic lower/higher TFs. Done.
+8. Phase A54: connect a validated full multi-timeframe source to plan review artifacts or dashboard read-only evidence only after A53 returns GO.
 
 ## QA / Security Track
 

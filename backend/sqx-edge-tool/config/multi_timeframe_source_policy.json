@@ -1,0 +1,22 @@
+{
+  "state": "mtf_source_intake_ready",
+  "phase": "A53",
+  "requiredTimeframes": ["H1", "M30", "M15", "H4"],
+  "firstPartyH1Allowed": true,
+  "syntheticTimeframesAllowed": false,
+  "minimumAssetCoverage": 0.95,
+  "minimumMetricCompleteness": 0.9,
+  "acceptedMetricFiles": {
+    "H1": "asset_metrics.json",
+    "M30": "asset_metrics_M30.json",
+    "M15": "asset_metrics_M15.json",
+    "H4": "asset_metrics_H4.json"
+  },
+  "acceptedSourceTypes": [
+    "operator_supplied_metric_json",
+    "market_data_pipeline_export",
+    "external_research_export_after_manual_review"
+  ],
+  "goPolicy": "GO only when every required timeframe has a real metric file, the A51 gate passes, and no synthetic M15/M30/H4 data is introduced.",
+  "nextPhase": "A54 - connect validated full multi-timeframe source to plan review artifacts or dashboard read-only evidence."
+}

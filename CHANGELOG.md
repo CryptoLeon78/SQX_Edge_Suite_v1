@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - A53 multi-timeframe source intake
+
+- Anade `multi_timeframe_source_intake.py` y `multi_timeframe_source_policy.json` para preparar y validar una carpeta real de metricas H1/M30/M15/H4.
+- Permite reutilizar el H1 first-party de A52, pero bloquea M15/M30/H4 si faltan archivos reales.
+- Deja un flujo GO/NO-GO trazable antes de conectar evidencia multi-timeframe al advisor o a la UI.
+
 ## 2026-05-08 - A52 first-party H1 metric source
 
 - Anade `first_party_metric_source.py` para convertir `scores-data.js` en `asset_metrics.json` H1 con manifiesto de procedencia y hashes.
