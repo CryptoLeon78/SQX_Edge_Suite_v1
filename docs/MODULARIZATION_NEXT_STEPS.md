@@ -11,7 +11,7 @@ Persistent planning note for the next SQX Edge phases.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_201652.zip`.
 - Latest ZIP SHA256: `2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E`.
-- Next recommended phase: J5 - add regime/EGT evidence through first-party historical-data adapters, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB1 - Strategy Builder discovery.
+- Next recommended phase: J6 - Champion vs Challenger export and future Strategy Builder handoff, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB1 - Strategy Builder discovery.
 
 ## Recommended Order
 
@@ -81,7 +81,7 @@ Persistent planning note for the next SQX Edge phases.
 2. Phase J2: implement the pure parser, alias resolver and formal comparison core with contracts, without dashboard UI. Done; see `docs/J2_CHAMPION_CHALLENGER_CORE.md`.
 3. Phase J3: add OOS block parsing and stability scoring with contracts. Done; see `docs/J3_CHAMPION_CHALLENGER_OOS.md`.
 4. Phase J4: add native dashboard UI using the current SQX module architecture and visual system, without restoring removed Top Picks or Matrix surfaces. Done; see `docs/J4_CHAMPION_CHALLENGER_UI.md`.
-5. Phase J5: add regime/EGT evidence through first-party historical-data adapters.
+5. Phase J5: add regime/EGT evidence through first-party historical-data adapters. Done; see `docs/J5_CHAMPION_CHALLENGER_REGIME_EGT.md`.
 6. Phase J6: add export and future Strategy Builder handoff.
 
 ## Strategy Builder / Only One Platform Track

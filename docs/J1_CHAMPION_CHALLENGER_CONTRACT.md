@@ -183,7 +183,7 @@ No OOS-derived label should be shown when fewer than the configured minimum bloc
 
 ## Regime / EGT Contract
 
-J4 may add a regime/EGT layer after the core comparison is stable.
+J5 adds a regime/EGT layer after the core comparison and native UI are stable.
 
 Required constraints:
 
@@ -236,8 +236,8 @@ Future implementation should use a J-prefixed phase track:
 1. `J1` - Champion vs Challenger contract and integration design. Done.
 2. `J2` - Pure parser, alias resolver and formal comparison core with tests. Done; see `docs/J2_CHAMPION_CHALLENGER_CORE.md`.
 3. `J3` - OOS block parser and stability scoring with tests. Done; see `docs/J3_CHAMPION_CHALLENGER_OOS.md`.
-4. `J4` - Native dashboard UI using SQX modules and current visual system.
-5. `J5` - Regime/EGT evidence adapter using first-party historical data.
+4. `J4` - Native dashboard UI using SQX modules and current visual system. Done; see `docs/J4_CHAMPION_CHALLENGER_UI.md`.
+5. `J5` - Regime/EGT evidence adapter using first-party historical data. Done; see `docs/J5_CHAMPION_CHALLENGER_REGIME_EGT.md`.
 6. `J6` - Export and future Strategy Builder handoff.
 
 ## Acceptance Criteria For J1

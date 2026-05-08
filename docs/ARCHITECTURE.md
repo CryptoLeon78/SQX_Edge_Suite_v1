@@ -90,32 +90,33 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 10. `js/modules/ui.js`
 11. `js/modules/formatters.js`
 12. `js/modules/champion-challenger-core.js`
-13. `js/modules/champion-challenger.js`
-14. `js/modules/domain.js`
-15. `js/modules/datasets.js`
-16. `js/modules/renderers.js`
-17. `js/modules/charts.js`
-18. `js/modules/strategies.js`
-19. `js/modules/home.js`
-20. `js/modules/mtf-evidence.js`
-21. `js/modules/support.js`
-22. `js/modules/fulfillment.js`
-23. `js/modules/customer-cockpit.js`
-24. `js/modules/workflow.js`
-25. `js/modules/view-creator.js`
-26. `js/modules/project-generator-core.js`
-27. `js/modules/project-generator-config.js`
-28. `js/modules/project-generator-dom.js`
-29. `js/modules/project-generator-bindings.js`
-30. `js/modules/project-generator-renderers.js`
-31. `js/modules/project-generator-status.js`
-32. `js/modules/project-generator-cleaner.js`
-33. `js/modules/project-generator.js`
-34. `js/modules/index.js`
-35. `js/data.js`
-36. `js/dashboard.js`
-37. `js/main.js`
-38. `js/project-generator-main.js`
+13. `js/modules/domain.js`
+14. `js/modules/datasets.js`
+15. `js/modules/champion-challenger-regime.js`
+16. `js/modules/champion-challenger.js`
+17. `js/modules/renderers.js`
+18. `js/modules/charts.js`
+19. `js/modules/strategies.js`
+20. `js/modules/home.js`
+21. `js/modules/mtf-evidence.js`
+22. `js/modules/support.js`
+23. `js/modules/fulfillment.js`
+24. `js/modules/customer-cockpit.js`
+25. `js/modules/workflow.js`
+26. `js/modules/view-creator.js`
+27. `js/modules/project-generator-core.js`
+28. `js/modules/project-generator-config.js`
+29. `js/modules/project-generator-dom.js`
+30. `js/modules/project-generator-bindings.js`
+31. `js/modules/project-generator-renderers.js`
+32. `js/modules/project-generator-status.js`
+33. `js/modules/project-generator-cleaner.js`
+34. `js/modules/project-generator.js`
+35. `js/modules/index.js`
+36. `js/data.js`
+37. `js/dashboard.js`
+38. `js/main.js`
+39. `js/project-generator-main.js`
 
 ## Why This Order Matters
 
@@ -123,6 +124,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 - `app-config.js` loads before modules so API base and feature options are available everywhere.
 - `modules/core.js` creates `window.SQX`, module registration, and ready callbacks.
 - Focused modules attach stable contracts under `window.SQX`.
+- `champion-challenger-regime.js` loads after `datasets.js` because it adapts first-party historical and score evidence.
 - `modules/index.js` marks the module layer as booted and flushes ready callbacks.
 - `data.js` and `dashboard.js` preserve existing global render functions and dashboard behavior.
 - `main.js` runs shell-level initial rendering and workflow initialization.
@@ -139,9 +141,10 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/ui.js` | Shared DOM/UI helpers and tab helpers. |
 | `modules/formatters.js` | Display formatting, escaping, labels, badges. |
 | `modules/champion-challenger-core.js` | Pure CSV parsing, alias resolution, Champion vs Challenger comparison and OOS stability scoring. |
-| `modules/champion-challenger.js` | Native dashboard UI facade for `tab-cvc`, delegating parsing and scoring to the core without local persistence. |
 | `modules/domain.js` | Domain rules that are independent from DOM rendering. |
 | `modules/datasets.js` | Normalized access to asset, score and manifest datasets. |
+| `modules/champion-challenger-regime.js` | First-party Regime/EGT evidence adapter for Champion vs Challenger using historical and score datasets. |
+| `modules/champion-challenger.js` | Native dashboard UI facade for `tab-cvc`, delegating parsing, scoring and contextual evidence to focused modules without local persistence. |
 | `modules/renderers.js` | Reusable HTML rendering helpers for dashboard lists/tables. |
 | `modules/charts.js` | Chart and visual summary helpers. |
 | `modules/strategies.js` | Strategy UI contracts, deletion/import state, strategy metadata. |

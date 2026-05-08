@@ -175,6 +175,14 @@ Phase J4 exposes the comparison workflow as native SQX dashboard UI:
 
 It adds the `Champion vs Challenger` tab from our manifest, keeps the visual system aligned with SQX Edge, delegates all parsing/scoring to `SQX.championChallengerCore`, avoids CSV persistence, and still excludes Top Picks and matrix/heatmap surfaces.
 
+Phase J5 adds first-party Regime/EGT evidence:
+
+- `docs/J5_CHAMPION_CHALLENGER_REGIME_EGT.md`
+- `app/js/modules/champion-challenger-regime.js`
+- `tests/js/contracts/champion_challenger_regime_contracts.mjs`
+
+It enriches the native comparison board with contextual `COMPLIANT`, `RISK`, `FLAT` and `UNKNOWN` labels derived from our maintained `SQX_HISTORICAL_DATA` and `SQX_SCORES_DATA` layers, not from copied inline HTML assumptions.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:

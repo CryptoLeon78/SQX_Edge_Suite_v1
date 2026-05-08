@@ -17,7 +17,8 @@
     oosSummary: 'cvc-oos-summary',
     candidateCount: 'cvc-candidate-count',
     readyCount: 'cvc-ready-count',
-    oosReadyCount: 'cvc-oos-ready-count'
+    oosReadyCount: 'cvc-oos-ready-count',
+    regimeReadyCount: 'cvc-regime-ready-count'
   };
 
   function getCore() {
@@ -158,6 +159,7 @@
 
   function buildRankings(champion, challengers, oos) {
     var core = getCore();
+    var regime = SQX.championChallengerRegime || null;
     var oosByName = {};
     if (oos && oos.records) {
       oos.records.forEach(function(record) {
@@ -172,6 +174,7 @@
       var oosRecord = oosByName[keyFor(item.strategy_name)] || null;
       item.oos = oosRecord;
       item.oos_stable = isStableOos(oosRecord);
+      item.regime_evidence = regime && regime.assessCandidate ? regime.assessCandidate(item) : null;
       return item;
     }).sort(function(a, b) {
       if (a.formal_fail_count !== b.formal_fail_count) return a.formal_fail_count - b.formal_fail_count;
@@ -198,13 +201,18 @@
 
   function renderRow(item, index) {
     var core = getCore();
+    var regime = SQX.championChallengerRegime || null;
     var metrics = item.normalized_metrics || {};
     var oos = item.oos;
     var oosText = oos
       ? 'OOS ' + pct(oos.positive_block_ratio) + ' positivo, ' + (oos.stable_enough ? oos.block_count + ' bloques' : 'bloques insuficientes')
       : 'Sin OOS asociado';
+    var regimeText = regime && regime.evidenceSummary
+      ? regime.evidenceSummary(item.regime_evidence)
+      : 'UNKNOWN - sin evidencia';
     var statusClass = item.formal_fail_count === 0 ? 'is-pass' : 'is-review';
     if (item.oos_stable) statusClass += ' is-stable';
+    if (item.regime_evidence && item.regime_evidence.label) statusClass += ' is-regime-' + item.regime_evidence.label.toLowerCase();
 
     return [
       '<article class="cvc-result-row ' + statusClass + '">',
@@ -221,6 +229,7 @@
       renderMetric('Ret/DD', fmt(metrics.return_drawdown, 2)),
       renderMetric('Trades', fmt(metrics.trades, 0)),
       renderMetric('OOS', core.escapeHtml(oosText)),
+      renderMetric('EGT', core.escapeHtml(regimeText)),
       '</div>',
       '</article>'
     ].join('');
@@ -230,24 +239,30 @@
     var total = model.rankings.length;
     var ready = model.rankings.filter(function(item) { return item.formal_fail_count === 0; }).length;
     var stable = model.rankings.filter(function(item) { return item.oos_stable; }).length;
+    var regimeReady = model.rankings.filter(function(item) {
+      return item.regime_evidence && item.regime_evidence.label === 'COMPLIANT';
+    }).length;
     var warnings = model.warnings.length;
 
     setText(IDS.candidateCount, total, doc);
     setText(IDS.readyCount, ready, doc);
     setText(IDS.oosReadyCount, stable, doc);
+    setText(IDS.regimeReadyCount, regimeReady, doc);
     setHtml(IDS.summary, [
       renderMetric('Candidatas evaluadas', total),
       renderMetric('Sin fallos formales', ready),
       renderMetric('OOS estable', stable),
+      renderMetric('EGT compliant', regimeReady),
       renderMetric('Avisos de datos', warnings)
     ].join(''), doc);
-    setText(IDS.oosSummary, stable + ' candidatas con estabilidad OOS fuerte.', doc);
+    setText(IDS.oosSummary, stable + ' OOS estable | ' + regimeReady + ' EGT compliant.', doc);
   }
 
   function renderEmpty(doc) {
     setText(IDS.candidateCount, 0, doc);
     setText(IDS.readyCount, 0, doc);
     setText(IDS.oosReadyCount, 0, doc);
+    setText(IDS.regimeReadyCount, 0, doc);
     setHtml(IDS.summary, '', doc);
     setHtml(IDS.ranking, '', doc);
     setText(IDS.oosSummary, 'OOS pendiente.', doc);

@@ -113,7 +113,7 @@
   }
   .cvc-hero h2 { margin:0; font-size:28px; line-height:1.1; }
   .cvc-hero p { margin:8px 0 0; max-width:760px; color:var(--text2); font-size:13px; line-height:1.5; }
-  .cvc-hero-stats { display:grid; grid-template-columns:repeat(3, minmax(92px, 1fr)); gap:8px; min-width:320px; }
+  .cvc-hero-stats { display:grid; grid-template-columns:repeat(4, minmax(82px, 1fr)); gap:8px; min-width:420px; }
   .cvc-hero-stats div {
     min-height:74px;
     padding:12px;
@@ -168,7 +168,7 @@
   .cvc-status.is-ok { border-color:rgba(34,197,94,.35); color:#86efac; background:rgba(34,197,94,.08); }
   .cvc-status.is-warn { border-color:rgba(234,179,8,.34); color:#fde68a; background:rgba(234,179,8,.08); }
   .cvc-status.is-error { border-color:rgba(239,68,68,.34); color:#fecaca; background:rgba(239,68,68,.08); }
-  .cvc-summary { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:8px; margin-bottom:12px; }
+  .cvc-summary { display:grid; grid-template-columns:repeat(auto-fit, minmax(118px,1fr)); gap:8px; margin-bottom:12px; }
   .cvc-metric {
     min-width:0;
     padding:10px;
@@ -201,6 +201,8 @@
   .cvc-result-row.is-pass { border-color:rgba(34,197,94,.24); }
   .cvc-result-row.is-review { border-color:rgba(234,179,8,.22); }
   .cvc-result-row.is-stable { background:linear-gradient(135deg, rgba(34,197,94,.08), rgba(15,23,42,.95)); }
+  .cvc-result-row.is-regime-risk { border-color:rgba(249,115,22,.30); }
+  .cvc-result-row.is-regime-flat { border-color:rgba(234,179,8,.26); }
   .cvc-rank {
     width:34px;
     height:34px;
@@ -229,7 +231,7 @@
   }
   .cvc-check.is-pass { color:#86efac; border-color:rgba(34,197,94,.30); background:rgba(34,197,94,.08); }
   .cvc-check.is-fail { color:#fecaca; border-color:rgba(239,68,68,.28); background:rgba(239,68,68,.07); }
-  .cvc-result-metrics { grid-column:1/-1; display:grid; grid-template-columns:repeat(3, minmax(72px,.6fr)) minmax(150px,1.2fr); gap:7px; }
+  .cvc-result-metrics { grid-column:1/-1; display:grid; grid-template-columns:repeat(3, minmax(72px,.55fr)) repeat(2, minmax(150px,1.2fr)); gap:7px; }
   .views-grid { display:grid; grid-template-columns:minmax(360px, .9fr) minmax(420px, 1.1fr); gap:16px; align-items:stretch; }
   .views-panel {
     border:1px solid var(--border);

@@ -1,11 +1,20 @@
 import { assert, Element, createLoadedSandbox } from './harness.mjs';
 
-const { SQX, document } = createLoadedSandbox([
+const { SQX, document, sandbox } = createLoadedSandbox([
   'app/js/modules/formatters.js',
   'app/js/modules/ui.js',
+  'app/js/modules/datasets.js',
   'app/js/modules/champion-challenger-core.js',
+  'app/js/modules/champion-challenger-regime.js',
   'app/js/modules/champion-challenger.js',
 ]);
+
+sandbox.SQX_HISTORICAL_DATA = {
+  EURUSD: { start: '2020-01', v: Array.from({ length: 72 }, (_value, index) => 100 + index * 1.2) },
+};
+sandbox.SQX_SCORES_DATA = {
+  EURUSD: { regimen: { objective: '+', composite_score: 0.67, scope: 'global' }, metrics: { regimen: { sma200_persistence_bars: 32 } } },
+};
 
 [
   'cvc-champion-input',
@@ -22,6 +31,7 @@ const { SQX, document } = createLoadedSandbox([
   'cvc-candidate-count',
   'cvc-ready-count',
   'cvc-oos-ready-count',
+  'cvc-regime-ready-count',
 ].forEach(id => document.add(new Element(id)));
 
 const cvc = SQX.championChallenger;
@@ -32,9 +42,12 @@ document.getElementById('cvc-sample-btn').click();
 assert.equal(document.getElementById('cvc-candidate-count').textContent, '3');
 assert.equal(document.getElementById('cvc-ready-count').textContent, '1');
 assert.equal(document.getElementById('cvc-oos-ready-count').textContent, '1');
+assert.equal(document.getElementById('cvc-regime-ready-count').textContent, '3');
 assert.match(document.getElementById('cvc-status').textContent, /Comparacion lista/);
 assert.match(document.getElementById('cvc-ranking').innerHTML, /Challenger A/);
 assert.match(document.getElementById('cvc-ranking').innerHTML, /OOS 100% positivo/);
+assert.match(document.getElementById('cvc-ranking').innerHTML, /EGT/);
+assert.match(document.getElementById('cvc-ranking').innerHTML, /COMPLIANT/);
 
 document.getElementById('cvc-champion-input').value = [
   'Strategy Name,Symbol,Profit factor,Return/Drawdown,# trades',
@@ -56,6 +69,7 @@ document.getElementById('cvc-clear-btn').click();
 assert.equal(document.getElementById('cvc-champion-input').value, '');
 assert.equal(document.getElementById('cvc-ranking').innerHTML, '');
 assert.equal(document.getElementById('cvc-candidate-count').textContent, '0');
+assert.equal(document.getElementById('cvc-regime-ready-count').textContent, '0');
 
 document.getElementById('cvc-run-btn').click();
 assert.match(document.getElementById('cvc-status').textContent, /Revisa los datos/);

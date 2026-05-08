@@ -15,6 +15,7 @@ J1_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J1_CHAMPION_CHALLENGER_CON
 J2_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J2_CHAMPION_CHALLENGER_CORE.md"
 J3_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J3_CHAMPION_CHALLENGER_OOS.md"
 J4_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J4_CHAMPION_CHALLENGER_UI.md"
+J5_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J5_CHAMPION_CHALLENGER_REGIME_EGT.md"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
 MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
@@ -134,9 +135,10 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/ui.js",
                 "js/modules/formatters.js",
                 "js/modules/champion-challenger-core.js",
-                "js/modules/champion-challenger.js",
                 "js/modules/domain.js",
                 "js/modules/datasets.js",
+                "js/modules/champion-challenger-regime.js",
+                "js/modules/champion-challenger.js",
                 "js/modules/renderers.js",
                 "js/modules/charts.js",
                 "js/modules/strategies.js",
@@ -234,6 +236,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         j2 = J2_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
         j3 = J3_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
         j4 = J4_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
+        j5 = J5_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
         comparison = (PROJECT_ROOT / "docs" / "EXTERNAL_REPO_COMPARISON_JOSE.md").read_text(encoding="utf-8-sig")
@@ -256,6 +259,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Phase J2: implement the pure parser, alias resolver and formal comparison core with contracts",
             "Phase J3: add OOS block parsing and stability scoring with contracts",
             "Phase J4: add native dashboard UI using the current SQX module architecture",
+            "Phase J5: add regime/EGT evidence through first-party historical-data adapters",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
@@ -265,10 +269,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("docs/J2_CHAMPION_CHALLENGER_CORE.md", governance)
         self.assertIn("docs/J3_CHAMPION_CHALLENGER_OOS.md", governance)
         self.assertIn("docs/J4_CHAMPION_CHALLENGER_UI.md", governance)
+        self.assertIn("docs/J5_CHAMPION_CHALLENGER_REGIME_EGT.md", governance)
         self.assertIn("Phase J1 starts the selective Champion vs Challenger track", comparison)
         self.assertIn("Phase J2 implements the first native Champion vs Challenger core", comparison)
         self.assertIn("Phase J3 adds the OOS stability layer", comparison)
         self.assertIn("Phase J4 exposes the comparison workflow as native SQX dashboard UI", comparison)
+        self.assertIn("Phase J5 adds first-party Regime/EGT evidence", comparison)
 
         for pattern in (
             "J2 Champion vs Challenger Core",
@@ -301,6 +307,20 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, j4)
 
+        for pattern in (
+            "J5 Champion vs Challenger Regime/EGT Evidence",
+            "`SQX.championChallengerRegime`",
+            "`SQX_HISTORICAL_DATA`",
+            "`SQX_SCORES_DATA`",
+            "`COMPLIANT`",
+            "`RISK`",
+            "`FLAT`",
+            "`UNKNOWN`",
+            "contextual evidence, not final truth",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, j5)
+
     def test_modular_scaffold_loads_before_legacy_logic(self):
         scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)
         module_scripts = [
@@ -312,9 +332,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/ui.js",
             "js/modules/formatters.js",
             "js/modules/champion-challenger-core.js",
-            "js/modules/champion-challenger.js",
             "js/modules/domain.js",
             "js/modules/datasets.js",
+            "js/modules/champion-challenger-regime.js",
+            "js/modules/champion-challenger.js",
             "js/modules/renderers.js",
             "js/modules/charts.js",
             "js/modules/strategies.js",
@@ -351,6 +372,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         champion_ui_js = (APP_ROOT / "js" / "modules" / "champion-challenger.js").read_text(encoding="utf-8-sig")
         domain_js = (APP_ROOT / "js" / "modules" / "domain.js").read_text(encoding="utf-8-sig")
         datasets_js = (APP_ROOT / "js" / "modules" / "datasets.js").read_text(encoding="utf-8-sig")
+        champion_regime_js = (APP_ROOT / "js" / "modules" / "champion-challenger-regime.js").read_text(encoding="utf-8-sig")
         renderers_js = (APP_ROOT / "js" / "modules" / "renderers.js").read_text(encoding="utf-8-sig")
         charts_js = (APP_ROOT / "js" / "modules" / "charts.js").read_text(encoding="utf-8-sig")
         strategies_js = (APP_ROOT / "js" / "modules" / "strategies.js").read_text(encoding="utf-8-sig")
@@ -397,6 +419,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn('data-home-tab="cvc"', self.html)
         self.assertIn("SQX.domain", domain_js)
         self.assertIn("SQX.datasets", datasets_js)
+        self.assertIn("SQX.championChallengerRegime", champion_regime_js)
+        self.assertIn("SQX_HISTORICAL_DATA", champion_regime_js)
+        self.assertIn("SQX_SCORES_DATA", champion_regime_js)
+        self.assertIn('id="cvc-regime-ready-count"', self.html)
         self.assertIn("SQX.renderers", renderers_js)
         self.assertIn("SQX.charts", charts_js)
         self.assertIn("SQX.strategies", strategies_js)

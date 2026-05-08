@@ -192,8 +192,10 @@ async function run() {
     await desktop.locator('#cvc-sample-btn').click();
     await desktop.waitForSelector('#cvc-ranking .cvc-result-row');
     await desktop.waitForFunction(() => document.getElementById('cvc-ready-count')?.textContent.trim() === '1');
+    await desktop.waitForFunction(() => Number(document.getElementById('cvc-regime-ready-count')?.textContent.trim() || 0) > 0);
     const cvcModel = await desktop.evaluate(() => window.SQX.championChallenger.evaluate());
     if (!cvcModel.ok || cvcModel.rankings.length !== 3) throw new Error('Champion vs Challenger sample contract failed');
+    if (!cvcModel.rankings.every(row => row.regime_evidence && row.regime_evidence.symbol === 'EURUSD')) throw new Error('Champion vs Challenger regime evidence missing');
     await saveShot(desktop, 'e2e-champion-challenger-desktop.png');
     await desktop.locator('.tab[data-tab="estrategias"]').click();
     await desktop.waitForSelector('#tab-estrategias .strat-card');
@@ -230,6 +232,7 @@ async function run() {
     await mobile.waitForSelector('#cvc-run-btn');
     await mobile.locator('#cvc-sample-btn').click();
     await mobile.waitForSelector('#cvc-ranking .cvc-result-row');
+    await mobile.waitForFunction(() => Number(document.getElementById('cvc-regime-ready-count')?.textContent.trim() || 0) > 0);
     await assertNoMobileOverflow(mobile);
     await saveShot(mobile, 'e2e-champion-challenger-mobile.png');
     await mobile.locator('.tab[data-tab="estrategias"]').click();
