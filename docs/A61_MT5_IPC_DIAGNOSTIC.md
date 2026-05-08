@@ -58,4 +58,4 @@ Before attempting full OHLC download:
 2. Rerun the `EURUSD/H1` smoke with recent bars.
 3. Only after `data\ohlc\EURUSD_H1.csv` exists, attempt broader asset/timeframe coverage.
 
-Only after that should A62 run the full OHLC universe download and A56 validation.
+Only after that should A62 run the full OHLC universe download and A56 validation. A62 must use the product manifest universe (`USDMXN` and `USDZAR`) rather than the external-folder draft universe (`AUDCHF` and `NZDCHF`).

@@ -159,10 +159,14 @@ def fetch_with_retry(
     end: datetime,
     retries: int,
     delay_seconds: float,
+    recent_bars: int | None = None,
 ) -> tuple[Any, int]:
     attempts = max(1, int(retries))
     for attempt in range(1, attempts + 1):
-        rates = mt5.copy_rates_range(symbol, tf_code, start, end)
+        if recent_bars is not None and recent_bars > 0:
+            rates = mt5.copy_rates_from_pos(symbol, tf_code, 0, int(recent_bars))
+        else:
+            rates = mt5.copy_rates_range(symbol, tf_code, start, end)
         if rates is not None and len(rates) > 0:
             return rates, attempt
         if attempt < attempts and delay_seconds > 0:
@@ -317,6 +321,7 @@ def download_ohlc(
     force: bool = False,
     use_active_terminal: bool = False,
     initialize_timeout_ms: int | None = None,
+    recent_bars: int | None = None,
 ) -> dict[str, Any]:
     config = read_json(config_path)
     selected_timeframes = select_timeframes(config, timeframes)
@@ -326,9 +331,13 @@ def download_ohlc(
     report = base_report(config, out_dir, cov_dir, selected_timeframes)
     terminal = "" if use_active_terminal else (terminal_path if terminal_path is not None else config.get("terminalPath", ""))
     init_timeout = int(initialize_timeout_ms if initialize_timeout_ms is not None else config.get("initializeTimeoutMs", 60000))
+    recent_count = int(recent_bars) if recent_bars is not None else None
     report["metadata"]["terminalPath"] = str(terminal)
     report["metadata"]["initializeMode"] = "active_terminal" if use_active_terminal else "configured_path"
     report["metadata"]["initializeTimeoutMs"] = init_timeout
+    report["metadata"]["downloadMode"] = "recent_bars" if recent_count else "date_range"
+    if recent_count:
+        report["metadata"]["recentBars"] = recent_count
 
     if dry_run:
         for asset, symbol in selected_assets.items():
@@ -408,7 +417,7 @@ def download_ohlc(
                     )
                     continue
                 tf_code = timeframe_code(mt5, tf)
-                rates, attempts = fetch_with_retry(mt5, symbol, tf_code, start, end, retries, retry_delay)
+                rates, attempts = fetch_with_retry(mt5, symbol, tf_code, start, end, retries, retry_delay, recent_bars=recent_count)
                 bars = len(rates) if rates is not None else 0
                 if rates is None or bars == 0:
                     message = "no bars returned"
@@ -444,6 +453,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--terminal-path", default=None)
     parser.add_argument("--use-active-terminal", action="store_true", help="Connect to the already-open MT5 terminal instead of launching the configured terminal path.")
     parser.add_argument("--initialize-timeout-ms", type=int, default=None)
+    parser.add_argument("--recent-bars", type=int, default=None, help="Download the latest N bars via copy_rates_from_pos instead of a fixed date range.")
     parser.add_argument("--output-dir", default=None)
     parser.add_argument("--coverage-dir", default=None)
     parser.add_argument("--tf", action="append", dest="timeframes", help="Timeframe to download. Repeatable.")
@@ -467,6 +477,7 @@ def main() -> int:
         force=args.force,
         use_active_terminal=args.use_active_terminal,
         initialize_timeout_ms=args.initialize_timeout_ms,
+        recent_bars=args.recent_bars,
     )
     if args.as_json:
         print(json.dumps(report, indent=2, ensure_ascii=True))

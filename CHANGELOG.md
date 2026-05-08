@@ -1,11 +1,17 @@
 # Changelog
 
+## 2026-05-08 - A62 recent-bars OHLC download mode
+
+- Adds `--recent-bars` to the MT5/Dukascopy downloader, using `copy_rates_from_pos` for controlled recent OHLC acquisition when fixed historical ranges return no data.
+- Aligns the MT5 symbol map with the product manifest universe by using `USDMXN` and `USDZAR` instead of the external-folder draft `AUDCHF` and `NZDCHF`.
+- Downloads 33 assets x 4 timeframes from local Dukascopy MT5 and validates the resulting OHLC folder through A56 with GO across A55/A53/A54.
+
 ## 2026-05-08 - A61 MT5 IPC diagnostic
 
 - Adds `mt5_ipc_diagnostic.py` as an internal operator diagnostic for MT5 Python IPC readiness before full OHLC download.
 - Captures Python/MetaTrader5 versions, terminal process state and configured/active/portable initialization variants into JSON and Markdown evidence.
 - Keeps the diagnostic and generated evidence excluded from portable buyer builds, distribution audit and release checklist.
-- Records the current blocker as local MT5 IPC timeout despite the terminal being open and responsive.
+- Records MT5 IPC as GO after active-terminal initialization succeeds; remaining work moves to OHLC retrieval mode and universe alignment.
 
 ## 2026-05-08 - A60 MT5 active-terminal retry mode
 

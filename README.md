@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: A61 completada con diagnostico MT5 IPC GO; el siguiente bloqueo es que el modo historico por rango no devuelve barras y necesitamos modo de barras recientes.
+- Estado interno: A62 completada con descarga OHLC real MT5 y A56 GO en modo manifest.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
 - SHA256 del ZIP: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Siguiente paso recomendado: A62/R44 - anadir modo de barras recientes al downloader, generar `data/ohlc/EURUSD_H1.csv`, descargar universo OHLC completo y correr A56 hasta GO.
-- Ultima mejora funcional: `mt5_ipc_diagnostic.py` genera evidencia JSON/Markdown de Python, terminal y variantes de inicializacion MT5 antes de descargar datos reales.
+- Siguiente paso recomendado: R44/A63 - refrescar la entrega portable/release story y decidir como publicar la evidencia MTF validada sin incluir datos locales ni herramientas internas.
+- Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
 
