@@ -204,6 +204,23 @@ async function run() {
     await desktop.locator('#cvc-handoff-btn').click();
     await desktop.waitForFunction(() => document.getElementById('cvc-handoff-preview')?.textContent.includes('Strategy Builder handoff'));
     await saveShot(desktop, 'e2e-champion-challenger-desktop.png');
+    await desktop.locator('.tab[data-tab="strategybuilder"]').click();
+    await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
+    await desktop.waitForSelector('#sb-build-btn');
+    await desktop.locator('#sb-sample-cvc-btn').click();
+    await desktop.waitForFunction(() => document.getElementById('sb-state')?.textContent.trim() === 'package_exportable');
+    const builderPackage = await desktop.evaluate(() => window.SQX.strategyBuilderCore.buildPackage({
+      source_mode: 'cvc_handoff',
+      source_handoff: window.SQX.strategyBuilderCore.sampleCvcHandoff(),
+      timeframe: 'H1',
+      idea_archetype: 'trend_following',
+      validation_pack_id: 'robustness',
+      project_profile_id: 'starter-forex-h1-balanced',
+      operator_reviewed: true,
+    }));
+    if (builderPackage.type !== 'sqx-edge.strategy-builder-package' || builderPackage.workflow_state !== 'package_exportable') throw new Error('Strategy Builder package contract failed');
+    if (JSON.stringify(builderPackage).includes('Guaranteed profitable')) throw new Error('Strategy Builder package should not include blocked marketing claims');
+    await saveShot(desktop, 'e2e-strategy-builder-desktop.png');
     await desktop.locator('.tab[data-tab="estrategias"]').click();
     await desktop.waitForSelector('#tab-estrategias .strat-card');
     const cards = await desktop.locator('#tab-estrategias .strat-card').count();
@@ -244,6 +261,12 @@ async function run() {
     if (mobileHandoff.type !== 'sqx-edge.strategy-builder-handoff') throw new Error('Mobile CVC handoff contract failed');
     await assertNoMobileOverflow(mobile);
     await saveShot(mobile, 'e2e-champion-challenger-mobile.png');
+    await mobile.locator('.tab[data-tab="strategybuilder"]').click();
+    await mobile.waitForSelector('#sb-build-btn');
+    await mobile.locator('#sb-sample-cvc-btn').click();
+    await mobile.waitForFunction(() => document.getElementById('sb-state')?.textContent.trim() === 'package_exportable');
+    await assertNoMobileOverflow(mobile);
+    await saveShot(mobile, 'e2e-strategy-builder-mobile.png');
     await mobile.locator('.tab[data-tab="estrategias"]').click();
     await mobile.waitForSelector('#tab-estrategias .strat-card');
     const activeTabBox = await mobile.locator('.tab.active').boundingBox();

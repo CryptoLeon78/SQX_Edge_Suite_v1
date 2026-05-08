@@ -45,6 +45,10 @@ window.SQX_MANIFEST = {
         "label": "Champion vs Challenger"
       },
       {
+        "id": "strategybuilder",
+        "label": "Strategy Builder"
+      },
+      {
         "id": "estrategias",
         "label": "Estrategias"
       },

@@ -28,7 +28,7 @@ flowchart TD
   DATA --> CFG["app-config.js"]
 
   MOD --> CORE["core.js"]
-  MOD --> FEAT["domain/renderers/charts/strategies/home/state backup/MTF evidence/Champion vs Challenger/support/fulfillment/customer cockpit/workflow/view creator"]
+  MOD --> FEAT["domain/renderers/charts/strategies/home/state backup/MTF evidence/Champion vs Challenger/Strategy Builder/support/fulfillment/customer cockpit/workflow/view creator"]
   MOD --> PG["project-generator-* modules"]
   MOD --> IDX["index.js boot"]
 
@@ -94,29 +94,31 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 14. `js/modules/datasets.js`
 15. `js/modules/champion-challenger-regime.js`
 16. `js/modules/champion-challenger.js`
-17. `js/modules/renderers.js`
-18. `js/modules/charts.js`
-19. `js/modules/strategies.js`
-20. `js/modules/home.js`
-21. `js/modules/mtf-evidence.js`
-22. `js/modules/support.js`
-23. `js/modules/fulfillment.js`
-24. `js/modules/customer-cockpit.js`
-25. `js/modules/workflow.js`
-26. `js/modules/view-creator.js`
-27. `js/modules/project-generator-core.js`
-28. `js/modules/project-generator-config.js`
-29. `js/modules/project-generator-dom.js`
-30. `js/modules/project-generator-bindings.js`
-31. `js/modules/project-generator-renderers.js`
-32. `js/modules/project-generator-status.js`
-33. `js/modules/project-generator-cleaner.js`
-34. `js/modules/project-generator.js`
-35. `js/modules/index.js`
-36. `js/data.js`
-37. `js/dashboard.js`
-38. `js/main.js`
-39. `js/project-generator-main.js`
+17. `js/modules/strategy-builder-core.js`
+18. `js/modules/strategy-builder.js`
+19. `js/modules/renderers.js`
+20. `js/modules/charts.js`
+21. `js/modules/strategies.js`
+22. `js/modules/home.js`
+23. `js/modules/mtf-evidence.js`
+24. `js/modules/support.js`
+25. `js/modules/fulfillment.js`
+26. `js/modules/customer-cockpit.js`
+27. `js/modules/workflow.js`
+28. `js/modules/view-creator.js`
+29. `js/modules/project-generator-core.js`
+30. `js/modules/project-generator-config.js`
+31. `js/modules/project-generator-dom.js`
+32. `js/modules/project-generator-bindings.js`
+33. `js/modules/project-generator-renderers.js`
+34. `js/modules/project-generator-status.js`
+35. `js/modules/project-generator-cleaner.js`
+36. `js/modules/project-generator.js`
+37. `js/modules/index.js`
+38. `js/data.js`
+39. `js/dashboard.js`
+40. `js/main.js`
+41. `js/project-generator-main.js`
 
 ## Why This Order Matters
 
@@ -125,6 +127,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 - `modules/core.js` creates `window.SQX`, module registration, and ready callbacks.
 - Focused modules attach stable contracts under `window.SQX`.
 - `champion-challenger-regime.js` loads after `datasets.js` because it adapts first-party historical and score evidence.
+- `strategy-builder-core.js` and `strategy-builder.js` load after Champion vs Challenger so the Builder can consume the reduced J6 handoff shape without coupling to raw CSV.
 - `modules/index.js` marks the module layer as booted and flushes ready callbacks.
 - `data.js` and `dashboard.js` preserve existing global render functions and dashboard behavior.
 - `main.js` runs shell-level initial rendering and workflow initialization.
@@ -145,6 +148,8 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/datasets.js` | Normalized access to asset, score and manifest datasets. |
 | `modules/champion-challenger-regime.js` | First-party Regime/EGT evidence adapter for Champion vs Challenger using historical and score datasets. |
 | `modules/champion-challenger.js` | Native dashboard UI facade for `tab-cvc`, delegating parsing, scoring, contextual evidence, safe JSON export and future Strategy Builder handoff to focused contracts without local persistence. |
+| `modules/strategy-builder-core.js` | Pure read-only Strategy Builder package builder for local `sqx-edge.strategy-builder-package` previews. |
+| `modules/strategy-builder.js` | Native dashboard UI facade for `tab-strategybuilder`, building local previews and gated JSON export without backend calls or generated trading logic. |
 | `modules/renderers.js` | Reusable HTML rendering helpers for dashboard lists/tables. |
 | `modules/charts.js` | Chart and visual summary helpers. |
 | `modules/strategies.js` | Strategy UI contracts, deletion/import state, strategy metadata. |
@@ -171,7 +176,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | --- | --- |
 | `data.js` | Compatibility layer for static dashboard data. |
 | `dashboard.js` | Existing dashboard render functions and tab behavior. |
-| `main.js` | First render pass for Inicio, assets, categories, filters, priority, strategies, pipeline, Champion vs Challenger and workflow. |
+| `main.js` | First render pass for Inicio, assets, categories, filters, priority, strategies, pipeline, Champion vs Challenger, Strategy Builder and workflow. |
 | `project-generator-main.js` | Project Generator orchestration, DOM bindings, backend calls and polling. |
 
 ## Backend Map

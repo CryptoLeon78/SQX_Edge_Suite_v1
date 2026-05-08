@@ -249,6 +249,55 @@
   }
   .cvc-handoff-card strong { display:block; margin-top:5px; color:var(--text); font-size:14px; overflow-wrap:anywhere; }
   .cvc-handoff-card small { display:block; margin-top:4px; color:var(--text2); font-size:12px; overflow-wrap:anywhere; }
+
+  /* STRATEGY BUILDER */
+  .sb-shell { display:grid; gap:16px; }
+  .sb-hero {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    padding:20px 22px;
+    border:1px solid rgba(45,212,191,.28);
+    border-radius:10px;
+    background:
+      linear-gradient(135deg, rgba(20,184,166,.13), rgba(79,140,255,.08) 52%, rgba(17,24,39,.82)),
+      var(--surface);
+  }
+  .sb-hero h2 { margin:0; font-size:28px; line-height:1.1; }
+  .sb-hero p { margin:8px 0 0; max-width:780px; color:var(--text2); font-size:13px; line-height:1.5; }
+  .sb-hero-stats { display:grid; grid-template-columns:repeat(4, minmax(92px, 1fr)); gap:8px; min-width:460px; }
+  .sb-hero-stats div {
+    min-height:74px;
+    padding:12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:rgba(15,23,42,.80);
+  }
+  .sb-hero-stats span { display:block; color:var(--text); font-size:16px; font-weight:900; line-height:1.15; overflow-wrap:anywhere; }
+  .sb-hero-stats small { display:block; margin-top:7px; color:var(--text2); font-size:11px; text-transform:uppercase; font-weight:800; }
+  .sb-workspace { display:grid; grid-template-columns:minmax(380px,.86fr) minmax(460px,1.14fr); gap:16px; align-items:start; }
+  .sb-panel {
+    min-width:0;
+    padding:15px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:var(--surface);
+  }
+  .sb-form-grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
+  .sb-review-check { margin-top:12px; }
+  .sb-preview {
+    min-height:480px;
+    margin:0;
+    padding:12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:#101827;
+    color:var(--text);
+    font:12px/1.5 Consolas, 'Courier New', monospace;
+    overflow:auto;
+    white-space:pre-wrap;
+  }
   .views-grid { display:grid; grid-template-columns:minmax(360px, .9fr) minmax(420px, 1.1fr); gap:16px; align-items:stretch; }
   .views-panel {
     border:1px solid var(--border);
@@ -4311,7 +4360,8 @@
     }
 
     .views-grid,
-    .cvc-workspace {
+    .cvc-workspace,
+    .sb-workspace {
       grid-template-columns:1fr;
     }
   }
@@ -4331,13 +4381,15 @@
     }
 
     .views-hero,
-    .cvc-hero {
+    .cvc-hero,
+    .sb-hero {
       align-items:flex-start;
       flex-direction:column;
     }
 
     .views-hero-stats,
-    .cvc-hero-stats {
+    .cvc-hero-stats,
+    .sb-hero-stats {
       width:100%;
       min-width:0;
     }
@@ -4391,8 +4443,10 @@
     .views-form-grid,
     .views-hero-stats,
     .cvc-hero-stats,
+    .sb-hero-stats,
     .cvc-summary,
     .cvc-result-metrics,
+    .sb-form-grid,
     .views-metric-grid {
       grid-template-columns:1fr;
     }

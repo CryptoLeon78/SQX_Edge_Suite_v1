@@ -19,6 +19,7 @@ J5_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J5_CHAMPION_CHALLENGER_REG
 J6_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J6_CHAMPION_CHALLENGER_EXPORT_HANDOFF.md"
 SB1_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB1_STRATEGY_BUILDER_DISCOVERY.md"
 SB2_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB2_STRATEGY_BUILDER_WORKFLOW.md"
+SB3_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB3_STRATEGY_BUILDER_PROTOTYPE.md"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
 MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
@@ -142,6 +143,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/datasets.js",
                 "js/modules/champion-challenger-regime.js",
                 "js/modules/champion-challenger.js",
+                "js/modules/strategy-builder-core.js",
+                "js/modules/strategy-builder.js",
                 "js/modules/renderers.js",
                 "js/modules/charts.js",
                 "js/modules/strategies.js",
@@ -345,6 +348,7 @@ class DashboardStaticTestCase(unittest.TestCase):
     def test_strategy_builder_discovery_is_documented_before_runtime(self):
         sb1 = SB1_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
         sb2 = SB2_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
+        sb3 = SB3_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
 
@@ -401,16 +405,40 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb2)
 
-        self.assertIn("Current phase completed: SB2 - controlled Strategy Builder workflow design.", governance)
-        self.assertIn("Next implementation phase: SB3 - read-only Strategy Builder package prototype", governance)
+        for pattern in (
+            "SB3 Strategy Builder Read-Only Prototype",
+            "`app/js/modules/strategy-builder-core.js`",
+            "`app/js/modules/strategy-builder.js`",
+            "`Strategy Builder` tab",
+            "`sqx-edge.strategy-builder-package`",
+            "No backend endpoint.",
+            "No remote calls.",
+            "No generated trading logic.",
+            "No Top Picks restoration.",
+            "No matrix/heatmap restoration.",
+            "`SQX.strategyBuilderCore`",
+            "`SQX.strategyBuilder`",
+            "`loadCvcSample`",
+            "E2E smoke opens the Strategy Builder tab",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, sb3)
+
+        self.assertIn("Current phase completed: SB3 - read-only Strategy Builder package prototype.", governance)
+        self.assertIn("Next implementation phase: SB4 - Strategy Builder handoff import/export hardening", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
         self.assertIn("docs/SB2_STRATEGY_BUILDER_WORKFLOW.md", governance)
+        self.assertIn("docs/SB3_STRATEGY_BUILDER_PROTOTYPE.md", governance)
+        self.assertIn("app/js/modules/strategy-builder-core.js", governance)
+        self.assertIn("app/js/modules/strategy-builder.js", governance)
         self.assertIn("Phase SB1: discover the minimum viable Strategy Builder scope", next_steps)
         self.assertIn("Done; see `docs/SB1_STRATEGY_BUILDER_DISCOVERY.md`", next_steps)
         self.assertIn("Phase SB2: design a controlled Builder flow", next_steps)
         self.assertIn("Done; see `docs/SB2_STRATEGY_BUILDER_WORKFLOW.md`", next_steps)
         self.assertIn("Phase SB3: prototype read-only previews", next_steps)
+        self.assertIn("Done; see `docs/SB3_STRATEGY_BUILDER_PROTOTYPE.md`", next_steps)
+        self.assertIn("Phase SB4: harden Strategy Builder handoff import/export", next_steps)
 
     def test_modular_scaffold_loads_before_legacy_logic(self):
         scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)
@@ -427,6 +455,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/datasets.js",
             "js/modules/champion-challenger-regime.js",
             "js/modules/champion-challenger.js",
+            "js/modules/strategy-builder-core.js",
+            "js/modules/strategy-builder.js",
             "js/modules/renderers.js",
             "js/modules/charts.js",
             "js/modules/strategies.js",
@@ -461,6 +491,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         formatters_js = (APP_ROOT / "js" / "modules" / "formatters.js").read_text(encoding="utf-8-sig")
         champion_core_js = (APP_ROOT / "js" / "modules" / "champion-challenger-core.js").read_text(encoding="utf-8-sig")
         champion_ui_js = (APP_ROOT / "js" / "modules" / "champion-challenger.js").read_text(encoding="utf-8-sig")
+        strategy_builder_core_js = (APP_ROOT / "js" / "modules" / "strategy-builder-core.js").read_text(encoding="utf-8-sig")
+        strategy_builder_js = (APP_ROOT / "js" / "modules" / "strategy-builder.js").read_text(encoding="utf-8-sig")
         domain_js = (APP_ROOT / "js" / "modules" / "domain.js").read_text(encoding="utf-8-sig")
         datasets_js = (APP_ROOT / "js" / "modules" / "datasets.js").read_text(encoding="utf-8-sig")
         champion_regime_js = (APP_ROOT / "js" / "modules" / "champion-challenger-regime.js").read_text(encoding="utf-8-sig")
@@ -506,8 +538,20 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("buildReviewExport", champion_ui_js)
         self.assertIn("buildStrategyBuilderHandoff", champion_ui_js)
         self.assertNotIn("localStorage.setItem", champion_ui_js)
+        self.assertIn("SQX.strategyBuilderCore", strategy_builder_core_js)
+        self.assertIn("buildPackage", strategy_builder_core_js)
+        self.assertIn("sqx-edge.strategy-builder-package", strategy_builder_core_js)
+        self.assertIn("sampleCvcHandoff", strategy_builder_core_js)
+        self.assertIn("SQX.strategyBuilder", strategy_builder_js)
+        self.assertIn("loadCvcSample", strategy_builder_js)
+        self.assertIn("exportPackage", strategy_builder_js)
+        self.assertNotIn("fetch(", strategy_builder_js)
         self.assertIn("window.SQX.championChallenger.init()", main_js)
+        self.assertIn("window.SQX.strategyBuilder.init()", main_js)
         self.assertIn('id="tab-cvc"', self.html)
+        self.assertIn('id="tab-strategybuilder"', self.html)
+        self.assertIn('id="sb-build-btn"', self.html)
+        self.assertIn('id="sb-package-preview"', self.html)
         self.assertIn('id="cvc-run-btn"', self.html)
         self.assertIn('id="cvc-export-btn"', self.html)
         self.assertIn('id="cvc-handoff-btn"', self.html)

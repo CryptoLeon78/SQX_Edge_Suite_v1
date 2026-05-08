@@ -28,6 +28,10 @@ if (window.SQX && window.SQX.championChallenger) {
   window.SQX.championChallenger.init();
 }
 
+if (window.SQX && window.SQX.strategyBuilder) {
+  window.SQX.strategyBuilder.init();
+}
+
 if (window.SQX && window.SQX.fulfillment) {
   window.SQX.fulfillment.init();
 }
