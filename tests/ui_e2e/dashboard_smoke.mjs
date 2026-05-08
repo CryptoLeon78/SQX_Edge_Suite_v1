@@ -236,6 +236,20 @@ async function run() {
     await saveShot(desktop, 'e2e-strategy-builder-pg-prefill-desktop.png');
     await desktop.locator('.tab[data-tab="strategybuilder"]').click();
     await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
+    const presetCountBeforeDraft = await desktop.evaluate(() => window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length);
+    await desktop.locator('#sb-prepare-preset-btn').click();
+    await desktop.waitForSelector('.tab[data-tab="projectgen"].active');
+    const pgPresetDraft = await desktop.evaluate(() => ({
+      presetName: document.getElementById('pg-custom-preset-name')?.value,
+      status: document.getElementById('pg-custom-status')?.textContent,
+      savedCount: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length,
+    }));
+    if (pgPresetDraft.presetName !== 'SB EURUSD H1 trend following') throw new Error(`Strategy Builder preset draft failed: ${JSON.stringify(pgPresetDraft)}`);
+    if (!pgPresetDraft.status.includes('Guardar preset manualmente')) throw new Error('Strategy Builder preset draft status missing manual save boundary');
+    if (pgPresetDraft.savedCount !== presetCountBeforeDraft) throw new Error('Strategy Builder preset draft should not auto-save a preset');
+    await saveShot(desktop, 'e2e-strategy-builder-pg-preset-draft-desktop.png');
+    await desktop.locator('.tab[data-tab="strategybuilder"]').click();
+    await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
     const importResult = await desktop.evaluate(pkg => window.SQX.strategyBuilder.importText(JSON.stringify(pkg)), builderPackage);
     if (!importResult.ok || importResult.package.workflow_state !== 'blocked_operator_review') throw new Error('Strategy Builder import should require fresh operator review');
     await desktop.waitForFunction(() => document.getElementById('sb-status')?.textContent.includes('Confirm manual review'));

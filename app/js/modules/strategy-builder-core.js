@@ -491,6 +491,60 @@
     };
   }
 
+  function reviewChecklistSummary(input) {
+    var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {});
+    var items = payload && payload.operator_checklist || [];
+    var confirmed = items.filter(function(item) { return !!item.confirmed; }).length;
+    return {
+      total: items.length,
+      confirmed: confirmed,
+      ready: !!items.length && confirmed === items.length,
+      items: items.map(function(item) {
+        return {
+          label: normalizeText(item.label, 'review item'),
+          confirmed: !!item.confirmed
+        };
+      })
+    };
+  }
+
+  function presetNameFromConfig(config, source) {
+    var data = config || {};
+    var sourceData = source || {};
+    var archetype = normalizeText(sourceData.archetype, 'idea').replace(/_/g, ' ');
+    return ['SB', data.asset, data.tf, archetype]
+      .filter(Boolean)
+      .join(' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 80);
+  }
+
+  function projectGeneratorPresetDraftFromPackage(input, options) {
+    var prefill = projectGeneratorPrefillFromPackage(input, options);
+    if (!prefill.ok) {
+      return {
+        ok: false,
+        errors: prefill.errors,
+        config: null,
+        preset_name: '',
+        guardrails: ['no_auto_save']
+      };
+    }
+    return {
+      ok: true,
+      errors: [],
+      config: prefill.config,
+      preset_name: presetNameFromConfig(prefill.config, prefill.source),
+      source: prefill.source,
+      guardrails: prefill.guardrails.concat([
+        'preset_name_prefill_only',
+        'no_auto_save',
+        'operator_must_press_save_preset'
+      ])
+    };
+  }
+
   SQX.strategyBuilderCore = SQX.strategyBuilderCore || {
     archetypes: ARCHETYPES,
     blockedStates: BLOCKED_STATES,
@@ -499,6 +553,8 @@
     defaultValidationPack: defaultValidationPack,
     importPayload: importPayload,
     projectGeneratorPrefillFromPackage: projectGeneratorPrefillFromPackage,
+    projectGeneratorPresetDraftFromPackage: projectGeneratorPresetDraftFromPackage,
+    reviewChecklistSummary: reviewChecklistSummary,
     sampleCvcHandoff: sampleCvcHandoff,
     sourceModes: SOURCE_MODES,
     states: WORKFLOW_STATES,

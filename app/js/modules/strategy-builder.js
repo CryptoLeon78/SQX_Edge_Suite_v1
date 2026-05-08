@@ -16,10 +16,12 @@
     importPackage: 'sb-import-btn',
     importFile: 'sb-import-file',
     sendProjectGenerator: 'sb-send-pg-btn',
+    preparePreset: 'sb-prepare-preset-btn',
     clear: 'sb-clear-btn',
     exportPackage: 'sb-export-btn',
     status: 'sb-status',
     preview: 'sb-package-preview',
+    reviewList: 'sb-review-list',
     state: 'sb-state',
     source: 'sb-source',
     assetOut: 'sb-asset-out',
@@ -138,6 +140,7 @@
     setText(IDS.assetOut, payload.asset_profile.asset + ' ' + payload.asset_profile.timeframe, doc);
     setText(IDS.checks, confirmed + '/' + (payload.operator_checklist || []).length, doc);
     if (preview) preview.textContent = JSON.stringify(payload, null, 2);
+    renderReviewList(payload, doc);
     setStatus(
       payload.workflow_state === 'package_exportable'
         ? 'Package ready for local export. Review remains mandatory before StrategyQuant use.'
@@ -146,6 +149,27 @@
       doc
     );
     return payload;
+  }
+
+  function reviewListHtml(payload) {
+    var api = core();
+    var summary = api && api.reviewChecklistSummary ? api.reviewChecklistSummary(payload) : {
+      items: payload.operator_checklist || []
+    };
+    return (summary.items || []).map(function(item) {
+      return ''
+        + '<div class="sb-review-item ' + (item.confirmed ? 'is-ok' : 'is-warn') + '">'
+        +   '<span>' + (item.confirmed ? 'OK' : '!') + '</span>'
+        +   '<p>' + escapeHtml(item.label) + '</p>'
+        + '</div>';
+    }).join('');
+  }
+
+  function renderReviewList(payload, doc) {
+    var list = byId(IDS.reviewList, doc);
+    if (!list || !payload) return false;
+    list.innerHTML = reviewListHtml(payload);
+    return true;
   }
 
   function build(options) {
@@ -253,6 +277,42 @@
     return { ok: true, errors: [], config: config, source: prefill.source, guardrails: prefill.guardrails };
   }
 
+  function prepareProjectGeneratorPreset(options) {
+    var doc = options && options.document ? options.document : global.document;
+    var api = core();
+    var payload = lastPackage || build({ document: doc });
+    if (!api || !api.projectGeneratorPresetDraftFromPackage) {
+      setStatus('Project Generator preset draft contract missing.', 'error', doc);
+      return null;
+    }
+    var draft = api.projectGeneratorPresetDraftFromPackage(payload);
+    if (!draft.ok) {
+      setStatus('Preset draft blocked: ' + draft.errors.join(', ') + '.', 'warn', doc);
+      return draft;
+    }
+    var PG = SQX.projectGenerator || {};
+    var dom = PG.dom || {};
+    var config = PG.normalizeCustomProjectConfig ? PG.normalizeCustomProjectConfig(draft.config) : draft.config;
+    if (!dom.writeCustomProjectInputs || !dom.setInputValue) {
+      setStatus('Project Generator preset fields are not available yet.', 'error', doc);
+      return { ok: false, errors: ['project_generator_preset_form_missing'], config: config };
+    }
+    dom.writeCustomProjectInputs(doc, config);
+    dom.setInputValue(doc, 'pg-custom-preset-name', draft.preset_name);
+    if (dom.setCustomProjectStatus) {
+      dom.setCustomProjectStatus(doc, {
+        text: 'Preset preparado desde Strategy Builder. Revisa y pulsa Guardar preset manualmente.',
+        level: 'info'
+      });
+    }
+    if (dom.appendLog) {
+      dom.appendLog(doc, 'Strategy Builder preparo un borrador de preset. Guardado manual pendiente.', 'info');
+    }
+    if (SQX.ui && SQX.ui.activateTabById) SQX.ui.activateTabById('projectgen', doc);
+    setStatus('Project Generator preset draft prepared. No preset was saved.', 'ok', doc);
+    return { ok: true, errors: [], config: config, preset_name: draft.preset_name, guardrails: draft.guardrails };
+  }
+
   function importText(raw, options) {
     var doc = options && options.document ? options.document : global.document;
     var api = core();
@@ -317,6 +377,7 @@
     bind(doc, IDS.clear, function() { clear({ document: doc }); });
     bind(doc, IDS.exportPackage, function() { exportPackage({ document: doc }); });
     bind(doc, IDS.sendProjectGenerator, function() { sendToProjectGenerator({ document: doc }); });
+    bind(doc, IDS.preparePreset, function() { prepareProjectGeneratorPreset({ document: doc }); });
     bind(doc, IDS.importPackage, function() {
       var input = byId(IDS.importFile, doc);
       if (input && input.click) input.click();
@@ -338,6 +399,7 @@
     importText: importText,
     init: init,
     loadCvcSample: loadCvcSample,
+    prepareProjectGeneratorPreset: prepareProjectGeneratorPreset,
     sendToProjectGenerator: sendToProjectGenerator
   };
 

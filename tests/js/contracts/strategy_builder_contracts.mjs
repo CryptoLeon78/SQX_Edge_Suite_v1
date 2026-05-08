@@ -25,6 +25,8 @@ assert.ok(core.sourceModes.includes('cvc_handoff'));
 assert.ok(core.archetypes.trend_following.indicators.includes('EMA'));
 assert.equal(typeof core.importPayload, 'function');
 assert.equal(typeof core.projectGeneratorPrefillFromPackage, 'function');
+assert.equal(typeof core.projectGeneratorPresetDraftFromPackage, 'function');
+assert.equal(typeof core.reviewChecklistSummary, 'function');
 assert.equal(typeof core.validateImportPayload, 'function');
 
 const blocked = core.buildPackage({
@@ -73,6 +75,13 @@ assert.equal(pgPrefill.config.bs, 'BS_Tendencia');
 assert.equal(pgPrefill.config.dir, 'both');
 assert.equal(pgPrefill.guardrails.includes('no_generation_triggered'), true);
 assert.equal(core.projectGeneratorPrefillFromPackage(blocked).ok, false);
+const reviewSummary = core.reviewChecklistSummary(ready);
+assert.equal(reviewSummary.ready, true);
+assert.equal(reviewSummary.confirmed, 7);
+const presetDraft = core.projectGeneratorPresetDraftFromPackage(ready);
+assert.equal(presetDraft.ok, true);
+assert.equal(presetDraft.preset_name, 'SB EURUSD H1 trend following');
+assert.equal(presetDraft.guardrails.includes('no_auto_save'), true);
 
 const importedPackage = core.importPayload(JSON.stringify(ready), { createdAt: '2026-05-09T01:00:00.000Z' });
 assert.equal(importedPackage.ok, true);
@@ -114,10 +123,12 @@ assert.match(blockedImport.errors.join(' '), /forbidden_raw_payload_keys/);
   'sb-import-btn',
   'sb-import-file',
   'sb-send-pg-btn',
+  'sb-prepare-preset-btn',
   'sb-clear-btn',
   'sb-export-btn',
   'sb-status',
   'sb-package-preview',
+  'sb-review-list',
   'sb-state',
   'sb-source',
   'sb-asset-out',
@@ -133,6 +144,7 @@ document.addTab('projectgen', false);
   'pg-custom-dir',
   'pg-custom-capa',
   'pg-custom-template',
+  'pg-custom-preset-name',
   'pg-custom-status',
   'pg-log',
 ].forEach(id => document.add(new Element(id)));
@@ -166,6 +178,11 @@ assert.equal(document.getElementById('pg-custom-asset').value, 'EURUSD');
 assert.equal(document.getElementById('pg-custom-tf').value, 'H1');
 assert.equal(document.getElementById('pg-custom-bs').value, 'BS_Tendencia');
 assert.equal(document.getElementById('pg-custom-status').textContent, 'Prefill desde Strategy Builder. Revisa y pulsa Generar custom manualmente.');
+assert.match(document.getElementById('sb-review-list').innerHTML, /source evidence has been reviewed/);
+document.getElementById('sb-prepare-preset-btn').click();
+assert.equal(document.getElementById('pg-custom-preset-name').value, 'SB EURUSD H1 trend following');
+assert.equal(document.getElementById('pg-custom-status').textContent, 'Preset preparado desde Strategy Builder. Revisa y pulsa Guardar preset manualmente.');
+assert.match(document.getElementById('pg-log').textContent, /Guardado manual pendiente/);
 
 const importedUiResult = ui.importText(JSON.stringify(ready), { document });
 assert.equal(importedUiResult.ok, true);
