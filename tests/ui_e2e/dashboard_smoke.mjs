@@ -150,6 +150,15 @@ async function run() {
     await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').some(preset => preset.id === 'profile-pro-setup-assist-risk-capital-review'));
     const profilePack = await desktop.evaluate(() => window.SQX.viewCreator.buildBuyerProfilePack('pro-setup-assist'));
     if (profilePack.type !== 'sqx-edge.view-presets' || profilePack.presets.length !== 3) throw new Error('SQX Views buyer profile pack contract failed');
+    await desktop.waitForSelector('#vc-workflow-pack-list .views-workflow-card');
+    const workflowPackCount = await desktop.locator('#vc-workflow-pack-list .views-workflow-card').count();
+    if (workflowPackCount < 4) throw new Error(`Expected SQX Views workflow packs, got ${workflowPackCount}`);
+    await desktop.locator('[data-vc-workflow-load="asset-family-review"]').click();
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Forex First Review');
+    await desktop.locator('[data-vc-workflow-save="asset-family-review"]').click();
+    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').some(preset => preset.id === 'workflow-asset-family-review-gold-risk-review'));
+    const workflowPack = await desktop.evaluate(() => window.SQX.viewCreator.buildValidationWorkflowPack('asset-family-review'));
+    if (workflowPack.type !== 'sqx-edge.view-presets' || workflowPack.presets.length !== 3) throw new Error('SQX Views workflow pack contract failed');
     await desktop.evaluate(() => localStorage.removeItem('sqx_view_creator_presets_v1'));
     await desktop.locator('#vc-year-count').fill('5');
     await desktop.locator('[data-vc-preset="risk"]').click();

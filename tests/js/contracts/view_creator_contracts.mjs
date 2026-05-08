@@ -21,6 +21,8 @@ assert.ok(html.includes('id="vc-template-list"'), 'missing buyer-ready template 
 assert.ok(html.includes('id="vc-export-template-pack-btn"'), 'missing buyer-ready template pack export button');
 assert.ok(html.includes('id="vc-profile-list"'), 'missing buyer profile pack list');
 assert.ok(html.includes('id="vc-profile-count"'), 'missing buyer profile pack count');
+assert.ok(html.includes('id="vc-workflow-pack-list"'), 'missing validation workflow pack list');
+assert.ok(html.includes('id="vc-workflow-pack-count"'), 'missing validation workflow pack count');
 assert.ok(html.includes('id="strat-views-handoff"'), 'missing strategies to SQX Views handoff');
 assert.ok(html.includes('id="workflow-views-handoff"'), 'missing workflow to SQX Views handoff');
 assert.ok(html.includes('data-vc-handoff="risk"'), 'missing risk view handoff preset');
@@ -100,6 +102,15 @@ assert.equal(setupPack.type, 'sqx-edge.view-presets');
 assert.equal(setupPack.presets.length, 3);
 assert.ok(setupPack.presets.some(preset => preset.id === 'profile-pro-setup-assist-risk-capital-review'));
 assert.ok(viewCreator.buildAllBuyerProfilePacks().presets.length >= 9);
+const workflowPacks = viewCreator.validationWorkflowPacks();
+assert.equal(workflowPacks.length, 4);
+assert.ok(workflowPacks.some(pack => pack.id === 'free-core-validation' && pack.tier === 'free'));
+assert.ok(workflowPacks.some(pack => pack.id === 'asset-family-review' && pack.type === 'asset'));
+const assetFamilyPack = viewCreator.buildValidationWorkflowPack('asset-family-review');
+assert.equal(assetFamilyPack.type, 'sqx-edge.view-presets');
+assert.equal(assetFamilyPack.presets.length, 3);
+assert.ok(assetFamilyPack.presets.some(preset => preset.id === 'workflow-asset-family-review-gold-risk-review'));
+assert.ok(viewCreator.buildAllValidationWorkflowPacks().presets.length >= 10);
 
 const presetPack = viewCreator.buildPresetPackage();
 assert.equal(presetPack.type, 'sqx-edge.view-presets');
@@ -188,5 +199,11 @@ assert.equal(templateSandbox.document.getElementById('vc-view-name').value, 'Ris
 const savedProfile = templateSandbox.SQX.viewCreator.saveBuyerProfilePack('risk-capital-buyer');
 assert.equal(savedProfile.length, 2);
 assert.ok(templateSandbox.SQX.viewCreator.getSavedPresets().some(preset => preset.id === 'profile-risk-capital-buyer-risk-capital-review'));
+const loadedWorkflow = templateSandbox.SQX.viewCreator.loadValidationWorkflowPack('asset-family-review');
+assert.equal(loadedWorkflow.name, 'Asset Family Review');
+assert.equal(templateSandbox.document.getElementById('vc-view-name').value, 'Forex First Review');
+const savedWorkflow = templateSandbox.SQX.viewCreator.saveValidationWorkflowPack('asset-family-review');
+assert.equal(savedWorkflow.length, 3);
+assert.ok(templateSandbox.SQX.viewCreator.getSavedPresets().some(preset => preset.id === 'workflow-asset-family-review-gold-risk-review'));
 
 console.log('view creator contracts ok');

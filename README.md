@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: PG5 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: V8 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_075208.zip`.
 - SHA256 del ZIP: `CCB398057E5DEC6AC5AE2993E58E8DCEDBDB0686DD09539E30F9017D54F3A34D`.
-- Siguiente paso recomendado: R42 - preparar registro publico de release si decidimos publicar este ZIP, o V8 - packs SQX Views por familia de activos/flujo de validacion.
-- Ultima mejora funcional: Project Generator incluye perfiles custom enriquecidos y familias por objetivo para cargar, guardar o exportar packs `.cfx` orientados a comprador.
+- Siguiente paso recomendado: R42 - preparar registro publico de release si decidimos publicar este ZIP, o PG6 - notas de handoff `.cfx`/preview de importacion para Project Generator.
+- Ultima mejora funcional: SQX Views incluye packs por familia de activo y flujos de validacion para cargar, guardar o exportar vistas `.vw` operativas.
 
 ## SQX Edge Pro
 
@@ -94,6 +94,7 @@ SQX Views:
 - Free incluye el preset `EGT Core`; Pro desbloquea el catalogo completo y presets avanzados.
 - Incluye ejemplos buyer-ready para primera revision, robustez, riesgo y auditoria completa.
 - Incluye packs por perfil de comprador para evaluacion Free, Setup Assist Pro, comprador centrado en riesgo y entrega de auditoria.
+- Incluye packs por familia de activo y flujos de validacion para revisar Forex, indices, oro, intake, robustez, riesgo y auditoria.
 - Puedes guardar presets propios en el navegador y moverlos entre instalaciones con packs JSON exportables/importables.
 - Workflow y Estrategias incluyen accesos directos para abrir SQX Views con vistas recomendadas ya preparadas.
 - La vista descargada puede cargarse en StrategyQuant X desde Databank -> Load View.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-08 - V8 SQX Views asset and validation workflow packs
+
+- Anade packs de `SQX Views` por familia de activo y flujo de validacion.
+- Incluye Free Core Validation, Asset Family Review, Validation Screen Flow y Audit Export Flow.
+- Permite cargar la primera vista del flujo, guardar el pack completo como presets locales o exportarlo como JSON portable.
+- Refuerza contratos JS, tests estaticos y E2E para cubrir los nuevos packs operativos.
+
 ## 2026-05-08 - PG5 Project Generator richer custom profile families
 
 - Amplia `Project Generator` con ocho perfiles custom starter y guia de uso por perfil.

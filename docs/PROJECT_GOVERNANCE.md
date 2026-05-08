@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: PG5 - Project Generator richer custom profile families.
+- Current phase completed: V8 - SQX Views asset-family and validation workflow packs.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
-- Next implementation phase: R42 - public release record if the R41 ZIP is published, or V8 - SQX Views asset-family/validation workflow packs.
+- Next implementation phase: R42 - public release record if the R41 ZIP is published, or PG6 - Project Generator handoff notes/import preview.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

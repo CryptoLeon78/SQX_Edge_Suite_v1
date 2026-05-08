@@ -214,6 +214,17 @@
     display:grid;
     gap:8px;
   }
+  .views-workflow-packs {
+    margin-top:12px;
+    padding:11px;
+    border:1px solid rgba(34,211,238,.24);
+    border-radius:8px;
+    background:linear-gradient(135deg, rgba(34,211,238,.08), rgba(59,130,246,.05)), #101827;
+  }
+  .views-workflow-list {
+    display:grid;
+    gap:8px;
+  }
   .views-profile-card {
     display:grid;
     gap:9px;
@@ -225,6 +236,18 @@
   .views-profile-card.is-pro {
     border-color:rgba(20,184,166,.30);
     background:linear-gradient(135deg, rgba(20,184,166,.10), rgba(15,23,42,.78));
+  }
+  .views-workflow-card {
+    display:grid;
+    gap:9px;
+    padding:10px;
+    border:1px solid rgba(148,163,184,.16);
+    border-radius:7px;
+    background:rgba(15,23,42,.78);
+  }
+  .views-workflow-card.is-pro {
+    border-color:rgba(34,211,238,.30);
+    background:linear-gradient(135deg, rgba(34,211,238,.10), rgba(15,23,42,.78));
   }
   .views-profile-top {
     display:flex;

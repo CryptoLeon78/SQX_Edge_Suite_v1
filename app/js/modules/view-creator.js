@@ -201,6 +201,54 @@
       templateIds: ['full-audit-handoff', 'risk-capital-review', 'robustness-pack-screen']
     }
   ];
+  var VALIDATION_WORKFLOW_PACK_DEFINITIONS = [
+    {
+      id: 'free-core-validation',
+      name: 'Free Core Validation',
+      tier: 'free',
+      type: 'validation',
+      description: 'Flujo minimo para validar que SQX Views carga y exporta una vista anual base.',
+      views: [
+        { id: 'free-egt-intake', name: 'Free EGT Intake', preset: 'egt-core', config: { viewName: 'Free EGT Intake', yearCount: 5, sampleStart: 25, includeTotal: true, groupMode: 'by_year' } }
+      ]
+    },
+    {
+      id: 'asset-family-review',
+      name: 'Asset Family Review',
+      tier: 'pro',
+      type: 'asset',
+      description: 'Tres vistas preparadas para revisar Forex, indices y oro con enfoque distinto por familia.',
+      views: [
+        { id: 'forex-first-review', name: 'Forex First Review', preset: 'egt-core', config: { viewName: 'Forex First Review', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_year' } },
+        { id: 'index-robustness-review', name: 'Index Robustness Review', preset: 'robustness', config: { viewName: 'Index Robustness Review', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' } },
+        { id: 'gold-risk-review', name: 'Gold Risk Review', preset: 'risk', config: { viewName: 'Gold Risk Review', yearCount: 7, sampleStart: 23, includeTotal: true, groupMode: 'by_year' } }
+      ]
+    },
+    {
+      id: 'validation-screen-flow',
+      name: 'Validation Screen Flow',
+      tier: 'pro',
+      type: 'validation',
+      description: 'Secuencia intake -> robustez -> capital risk para revisar candidatos antes de portfolio.',
+      views: [
+        { id: 'intake-egt-core', name: 'Intake EGT Core', preset: 'egt-core', config: { viewName: 'Intake EGT Core', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_year' } },
+        { id: 'stability-stress-screen', name: 'Stability Stress Screen', preset: 'robustness', config: { viewName: 'Stability Stress Screen', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' } },
+        { id: 'capital-risk-cut', name: 'Capital Risk Cut', preset: 'risk', config: { viewName: 'Capital Risk Cut', yearCount: 7, sampleStart: 23, includeTotal: true, groupMode: 'by_year' } }
+      ]
+    },
+    {
+      id: 'audit-export-flow',
+      name: 'Audit Export Flow',
+      tier: 'pro',
+      type: 'handoff',
+      description: 'Pack de entrega para auditoria: vista amplia, apendice de riesgo y apendice de robustez.',
+      views: [
+        { id: 'full-audit-export', name: 'Full Audit Export', preset: 'full-audit', config: { viewName: 'Full Audit Export', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' } },
+        { id: 'risk-appendix', name: 'Risk Appendix', preset: 'risk', config: { viewName: 'Risk Appendix', yearCount: 7, sampleStart: 23, includeTotal: true, groupMode: 'by_year' } },
+        { id: 'robustness-appendix', name: 'Robustness Appendix', preset: 'robustness', config: { viewName: 'Robustness Appendix', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' } }
+      ]
+    }
+  ];
 
   var metricState = {};
   METRICS.forEach(function(metric) {
@@ -521,6 +569,73 @@
     return buildPresetPackage(presets);
   }
 
+  function validationWorkflowViewFromDefinition(definition) {
+    var view = definition || {};
+    return {
+      id: view.id,
+      name: view.name,
+      preset: view.preset || 'egt-core',
+      config: configFromPresetName(view.preset || 'egt-core', view.config || {})
+    };
+  }
+
+  function validationWorkflowPackFromDefinition(definition) {
+    var views = (definition.views || []).map(validationWorkflowViewFromDefinition).filter(function(view) {
+      return view.id && view.name && view.config.metrics.length;
+    });
+    return {
+      id: definition.id,
+      name: definition.name,
+      tier: definition.tier || 'pro',
+      type: definition.type || 'validation',
+      description: definition.description || '',
+      views: views
+    };
+  }
+
+  function getValidationWorkflowPacks() {
+    return VALIDATION_WORKFLOW_PACK_DEFINITIONS.map(validationWorkflowPackFromDefinition);
+  }
+
+  function findValidationWorkflowPack(id) {
+    return getValidationWorkflowPacks().find(function(pack) { return pack.id === id; }) || null;
+  }
+
+  function canUseValidationWorkflowPack(pack) {
+    return !!(pack && (pack.tier !== 'pro' || hasFullAccess()));
+  }
+
+  function validationWorkflowViewToPreset(pack, view) {
+    if (!pack || !view) return null;
+    return normalizePreset({
+      id: 'workflow-' + pack.id + '-' + view.id,
+      name: pack.name + ' - ' + view.name,
+      savedAt: new Date().toISOString(),
+      config: view.config
+    });
+  }
+
+  function validationWorkflowPackPresets(id) {
+    var pack = typeof id === 'string' ? findValidationWorkflowPack(id) : id;
+    if (!pack) return [];
+    return pack.views.map(function(view) {
+      return validationWorkflowViewToPreset(pack, view);
+    }).filter(Boolean);
+  }
+
+  function buildValidationWorkflowPack(id) {
+    return buildPresetPackage(validationWorkflowPackPresets(id));
+  }
+
+  function buildAllValidationWorkflowPacks() {
+    var packs = getValidationWorkflowPacks().filter(canUseValidationWorkflowPack);
+    var presets = [];
+    packs.forEach(function(pack) {
+      presets = presets.concat(validationWorkflowPackPresets(pack));
+    });
+    return buildPresetPackage(presets);
+  }
+
   function parsePresetPackage(payload) {
     var data = typeof payload === 'string' ? safeJsonParse(payload, null) : payload;
     if (!data) return [];
@@ -762,6 +877,40 @@
     return packs;
   }
 
+  function renderValidationWorkflowPacks() {
+    var list = byId('vc-workflow-pack-list');
+    var count = byId('vc-workflow-pack-count');
+    var packs = getValidationWorkflowPacks();
+    var full = hasFullAccess();
+    if (count) count.textContent = packs.length + (packs.length === 1 ? ' flujo' : ' flujos');
+    if (!list) return packs;
+    list.innerHTML = packs.map(function(pack) {
+      var disabled = pack.tier === 'pro' && !full;
+      var actionAttrs = disabled ? ' disabled aria-disabled="true"' : '';
+      var flow = pack.views.map(function(view) {
+        return '<span>' + escapeHtml(view.name) + '</span>';
+      }).join('');
+      return '<article class="views-workflow-card ' + (pack.tier === 'pro' ? 'is-pro' : 'is-free') + '">' +
+        '<div class="views-profile-top">' +
+          '<div><div class="views-profile-name">' + escapeHtml(pack.name) + '</div>' +
+          '<p class="views-profile-desc">' + escapeHtml(pack.description) + '</p></div>' +
+          '<span class="views-template-tier ' + escapeHtml(pack.tier) + '">' + escapeHtml(pack.type) + '</span>' +
+        '</div>' +
+        '<div class="views-profile-meta">' +
+          '<span>' + pack.views.length + ' vistas</span>' +
+          '<span>' + pack.views.reduce(function(total, view) { return total + view.config.metrics.length; }, 0) + ' metricas base</span>' +
+        '</div>' +
+        '<div class="views-profile-flow">' + flow + '</div>' +
+        '<div class="views-profile-actions">' +
+          '<button class="filter-btn" data-vc-workflow-load="' + escapeHtml(pack.id) + '" type="button"' + actionAttrs + '>Cargar</button>' +
+          '<button class="filter-btn" data-vc-workflow-save="' + escapeHtml(pack.id) + '" type="button"' + actionAttrs + '>Guardar pack</button>' +
+          '<button class="filter-btn" data-vc-workflow-export="' + escapeHtml(pack.id) + '" type="button"' + actionAttrs + '>Exportar</button>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+    return packs;
+  }
+
   function setMetric(className, selected, annual) {
     var metric = metricByClass(className);
     metricState[className] = {
@@ -957,6 +1106,53 @@
     return incoming;
   }
 
+  function loadValidationWorkflowPack(id) {
+    var pack = findValidationWorkflowPack(id);
+    if (!pack) {
+      setStatus('Flujo de validacion no encontrado.', 'warn');
+      return null;
+    }
+    if (!canUseValidationWorkflowPack(pack)) {
+      setStatus('Este flujo requiere SQX Edge Pro.', 'warn');
+      return null;
+    }
+    var first = pack.views[0];
+    if (!first) {
+      setStatus('El flujo no contiene vistas validas.', 'warn');
+      return null;
+    }
+    applyConfig(first.config);
+    setStatus('Flujo cargado: ' + pack.name + ' (' + first.name + ').', 'ok');
+    if (global.addHomeTrace) global.addHomeTrace('SQX Views', 'Flujo ' + pack.name + ' cargado', 'ok');
+    return pack;
+  }
+
+  function saveValidationWorkflowPack(id) {
+    var pack = findValidationWorkflowPack(id);
+    if (!pack) {
+      setStatus('Flujo de validacion no encontrado.', 'warn');
+      return null;
+    }
+    if (!canUseValidationWorkflowPack(pack)) {
+      setStatus('Este flujo requiere SQX Edge Pro.', 'warn');
+      return null;
+    }
+    var incoming = validationWorkflowPackPresets(pack);
+    if (!incoming.length) {
+      setStatus('El flujo no contiene presets validos.', 'warn');
+      return null;
+    }
+    var incomingIds = incoming.reduce(function(acc, preset) {
+      acc[preset.id] = true;
+      return acc;
+    }, {});
+    setSavedPresets(incoming.concat(getSavedPresets().filter(function(preset) { return !incomingIds[preset.id]; })));
+    renderSavedPresets();
+    if (byId('vc-saved-select')) byId('vc-saved-select').value = incoming[0].id;
+    setStatus('Flujo guardado: ' + pack.name + ' (' + incoming.length + ' presets).', 'ok');
+    return incoming;
+  }
+
   function downloadJson(filename, payload) {
     var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     var url = URL.createObjectURL(blob);
@@ -1008,6 +1204,26 @@
     }
     downloadJson('sqx-view-profile-' + packDef.id + '-pack-v' + PRESET_PACKAGE_VERSION + '.json', pack);
     setStatus('Pack exportado: ' + packDef.name + ' (' + pack.presets.length + ' presets).', 'ok');
+    return pack;
+  }
+
+  function exportValidationWorkflowPack(id) {
+    var packDef = findValidationWorkflowPack(id);
+    if (!packDef) {
+      setStatus('Flujo de validacion no encontrado.', 'warn');
+      return null;
+    }
+    if (!canUseValidationWorkflowPack(packDef)) {
+      setStatus('Este flujo requiere SQX Edge Pro.', 'warn');
+      return null;
+    }
+    var pack = buildValidationWorkflowPack(packDef);
+    if (!pack.presets.length) {
+      setStatus('El flujo no contiene presets validos.', 'warn');
+      return null;
+    }
+    downloadJson('sqx-view-workflow-' + packDef.id + '-pack-v' + PRESET_PACKAGE_VERSION + '.json', pack);
+    setStatus('Flujo exportado: ' + packDef.name + ' (' + pack.presets.length + ' presets).', 'ok');
     return pack;
   }
 
@@ -1113,6 +1329,16 @@
         if (exportId) exportBuyerProfilePack(exportId);
       });
     }
+    if (byId('vc-workflow-pack-list')) {
+      byId('vc-workflow-pack-list').addEventListener('click', function(event) {
+        var loadId = event.target && event.target.dataset ? event.target.dataset.vcWorkflowLoad : '';
+        var saveId = event.target && event.target.dataset ? event.target.dataset.vcWorkflowSave : '';
+        var exportId = event.target && event.target.dataset ? event.target.dataset.vcWorkflowExport : '';
+        if (loadId) loadValidationWorkflowPack(loadId);
+        if (saveId) saveValidationWorkflowPack(saveId);
+        if (exportId) exportValidationWorkflowPack(exportId);
+      });
+    }
     if (byId('vc-import-presets-btn') && byId('vc-import-presets-file')) {
       byId('vc-import-presets-btn').addEventListener('click', function() { byId('vc-import-presets-file').click(); });
       byId('vc-import-presets-file').addEventListener('change', function(event) {
@@ -1129,6 +1355,7 @@
     bindControls();
     renderBuyerReadyTemplates();
     renderBuyerProfilePacks();
+    renderValidationWorkflowPacks();
     renderSavedPresets();
     var note = byId('vc-license-note');
     if (note) note.textContent = hasFullAccess() ? 'Catalogo completo habilitado.' : 'Free: preset EGT Core. Pro desbloquea presets avanzados.';
@@ -1145,12 +1372,15 @@
     downloadView: downloadView,
     bindHandoffLinks: bindHandoffLinks,
     buildAllBuyerProfilePacks: buildAllBuyerProfilePacks,
+    buildAllValidationWorkflowPacks: buildAllValidationWorkflowPacks,
     buildBuyerReadyTemplatePack: buildBuyerReadyTemplatePack,
     buildBuyerProfilePack: buildBuyerProfilePack,
     buildPresetPackage: buildPresetPackage,
+    buildValidationWorkflowPack: buildValidationWorkflowPack,
     buyerProfilePacks: getBuyerProfilePacks,
     buyerReadyTemplates: getBuyerReadyTemplates,
     exportBuyerProfilePack: exportBuyerProfilePack,
+    exportValidationWorkflowPack: exportValidationWorkflowPack,
     importPresetPackage: importPresetPackage,
     importPresetPackageFromText: importPresetPackageFromText,
     getSavedPresets: getSavedPresets,
@@ -1158,6 +1388,7 @@
     init: init,
     loadBuyerReadyTemplate: loadBuyerReadyTemplate,
     loadBuyerProfilePack: loadBuyerProfilePack,
+    loadValidationWorkflowPack: loadValidationWorkflowPack,
     metrics: METRICS,
     packageType: PRESET_PACKAGE_TYPE,
     packageVersion: PRESET_PACKAGE_VERSION,
@@ -1165,14 +1396,17 @@
     previewLines: previewLines,
     renderBuyerReadyTemplates: renderBuyerReadyTemplates,
     renderBuyerProfilePacks: renderBuyerProfilePacks,
+    renderValidationWorkflowPacks: renderValidationWorkflowPacks,
     sanitizeInt: sanitizeInt,
     saveBuyerReadyTemplate: saveBuyerReadyTemplate,
     saveBuyerProfilePack: saveBuyerProfilePack,
+    saveValidationWorkflowPack: saveValidationWorkflowPack,
     saveCurrentPreset: saveCurrentPreset,
     selectedMetrics: selectedMetrics,
     serializeConfig: serializeConfig,
     setSavedPresets: setSavedPresets,
-    storageKey: presetsStorageKey
+    storageKey: presetsStorageKey,
+    validationWorkflowPacks: getValidationWorkflowPacks
   };
 
   if (SQX.registerModule) {
