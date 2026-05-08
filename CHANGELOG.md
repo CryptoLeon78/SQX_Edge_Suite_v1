@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - A56 real MTF pipeline run
+
+- Anade `real_mtf_pipeline_run.py` para orquestar A55 -> A53 -> A54 desde CSV OHLC reales hasta artefactos del Plan Quality Advisor.
+- Devuelve GO solo si el builder genera metricas, el intake valida la fuente y los artefactos guardados se crean correctamente.
+- Mantiene salida NO_GO trazable cuando faltan CSV o cobertura, sin sintetizar datos ni tocar dashboard.
+
 ## 2026-05-08 - A55 OHLC metric builder
 
 - Anade `ohlc_metric_builder.py` para generar `asset_metrics[_TF].json` desde CSV OHLC revisables aportados por el operador.

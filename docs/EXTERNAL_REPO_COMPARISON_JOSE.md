@@ -98,11 +98,19 @@ Phase A55 adds the real-data bridge needed before A53 can pass with M30/M15/H4:
 
 The builder converts reviewable operator-supplied OHLC CSV files named like `EURUSD_M30.csv` into `asset_metrics[_TF].json`. It computes the metric fields expected by the scoring model and refuses files with insufficient bars. It does not download data or synthesize missing timeframes.
 
+Phase A56 adds the end-to-end real-data run:
+
+- `backend/sqx-edge-tool/tools/real_mtf_pipeline_run.py`
+- `backend/sqx-edge-tool/config/real_mtf_pipeline_run.json`
+- `backend/sqx-edge-tool/test_real_mtf_pipeline_run.py`
+
+The runner orchestrates A55, A53 and A54. It returns GO only when OHLC CSV metrics are generated, the source intake validates and guarded Plan Quality Advisor artifacts are produced. Empty or incomplete inputs return a traceable NO_GO.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:
 
-1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts and A55 added the OHLC metric builder; remaining work is running the builder on real exported M15/M30/H4 CSVs and then rerunning A53/A54.
+1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts, A55 added the OHLC metric builder and A56 added the end-to-end real-data runner; remaining work is supplying real exported M15/M30/H4 CSVs and then exposing evidence read-only after GO.
 2. Optional market data acquisition: evaluate MT5/Dukascopy data download as an operator-only script, excluded from portable buyer builds unless explicitly needed.
 3. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
 4. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
@@ -125,4 +133,4 @@ Explicitly excluded by product decision:
 - No legacy HTML tabs were restored.
 - No sensitive commercial material was imported.
 - No third-party credentials, tokens or account passwords were introduced.
-- The current advisor uses the available H1 score baseline; A49/A50/A51/A52/A53/A54/A55 now provide a safe backend path for real multi-timeframe metrics once supplied and validated.
+- The current advisor uses the available H1 score baseline; A49/A50/A51/A52/A53/A54/A55/A56 now provide a safe backend path for real multi-timeframe metrics once supplied and validated.

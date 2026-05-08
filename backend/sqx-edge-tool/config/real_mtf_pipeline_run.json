@@ -1,0 +1,16 @@
+{
+  "state": "real_mtf_pipeline_run_ready",
+  "phase": "A56",
+  "pipeline": [
+    "A55 ohlc_metric_builder",
+    "A53 multi_timeframe_source_intake",
+    "A54 multi_timeframe_plan_artifacts"
+  ],
+  "defaultInputDir": "data/ohlc",
+  "defaultWorkDir": "analysis_output/real_mtf_pipeline_run",
+  "expectedAssetsMode": "manifest",
+  "allowedExpectedAssetsModes": ["manifest", "observed"],
+  "goPolicy": "GO only when OHLC metrics are generated, A53 intake returns GO, and A54 guarded plan artifacts return GO.",
+  "noDataPolicy": "Return NO_GO with instructions; do not synthesize missing OHLC or missing timeframes.",
+  "nextPhase": "A57 - expose read-only MTF evidence in dashboard only after A56 returns GO with real data."
+}
