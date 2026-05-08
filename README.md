@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: R42 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: A47 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
 - SHA256 del ZIP: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Siguiente paso recomendado: PG7 - notas de handoff `.cfx` por comprador en Project Generator, o V10 - comparador de packs SQX Views.
-- Ultima mejora funcional: ZIP portable regenerado y validado tras V9 con preview de importacion SQX Views incluido.
+- Siguiente paso recomendado: A48 - scoring multi-timeframe controlado, PG7 - notas de handoff `.cfx`, o V10 - comparador de packs SQX Views.
+- Ultima mejora funcional: Plan Quality Advisor inspirado en el repo de Jose Livan, adaptado a nuestros manifests y scores.
 
 ## SQX Edge Pro
 
@@ -215,6 +215,22 @@ El resultado se escribe en `app\js\manifest-data.js`.
 - Los presets custom se pueden exportar/importar como packs JSON para moverlos entre instalaciones.
 - Las familias por objetivo agrupan perfiles custom para comprador inicial, validacion intradia, revision de riesgo o muestra Pro completa.
 - La API local expone `/api/generate-custom` y aplica la misma licencia Pro que `/api/generate`.
+
+## Plan Quality Advisor
+
+Herramienta backend para revisar el plan actual contra los scores objetivos del dashboard y generar una propuesta diversificada:
+
+```powershell
+backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\plan_quality_advisor.py
+```
+
+Para integraciones o auditoria:
+
+```powershell
+backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\plan_quality_advisor.py --json
+```
+
+Es una guia de revision, no una orden automatica de reemplazo. La version actual usa el baseline H1 disponible en `app/js/scores-data.js`; el scoring multi-timeframe queda planificado como fase A48.
 
 ## Backend
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - A47 Jose repo value extraction
+
+- Compara el repo `jlivanmaseda-maker/sqx-edge-pipeline` con nuestra arquitectura actual.
+- Integra un `Plan Quality Advisor` propio para revisar el plan de minings contra scores objetivos y proponer alternativas diversificadas.
+- Documenta mejoras aprovechables, duplicados ya absorbidos y fases futuras para scoring multi-timeframe.
+
 ## 2026-05-08 - R42 portable release candidate refresh
 
 - Regenera el ZIP portable final tras V9 con `SQX_Edge_Tool_Portable_20260508_164956.zip`.
