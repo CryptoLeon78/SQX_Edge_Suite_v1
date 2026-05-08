@@ -36,6 +36,14 @@
     raw_data: true,
     rawData: true
   };
+  var PG_BLOCKSETTINGS = {
+    trend_following: 'BS_Tendencia',
+    mean_reversion: 'BS_Reversion',
+    breakout: 'BS_Breakout',
+    pullback: 'BS_Pullback',
+    volatility_filter: 'BS_Volatility',
+    regime_filter: 'BS_Regime'
+  };
 
   var ARCHETYPES = {
     trend_following: {
@@ -155,6 +163,12 @@
       .join('_')
       .replace(/[^A-Za-z0-9_-]/g, '_')
       .slice(0, 80);
+  }
+
+  function normalizeDirection(value) {
+    var text = normalizeText(value, '').toLowerCase();
+    if (text === 'long' || text === 'short' || text === 'both') return text;
+    return 'both';
   }
 
   function defaultValidationPack(archetype) {
@@ -433,6 +447,50 @@
     };
   }
 
+  function projectGeneratorPrefillFromPackage(input, options) {
+    var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {}, options);
+    var errors = [];
+    if (!payload || payload.type !== PACKAGE_TYPE) errors.push('invalid_strategy_builder_package');
+    if (payload && payload.workflow_state !== 'package_exportable' && !(options && options.allowBlocked)) {
+      errors.push('package_not_exportable');
+    }
+    var assetProfile = payload && payload.asset_profile || {};
+    var idea = payload && payload.idea_archetype || {};
+    var handoff = payload && payload.project_generator_handoff || {};
+    var asset = normalizeAsset(assetProfile.asset);
+    var timeframe = normalizeTimeframe(assetProfile.timeframe);
+    if (!asset) errors.push('missing_asset');
+    if (!timeframe) errors.push('missing_timeframe');
+    if (errors.length) {
+      return { ok: false, errors: errors, config: null };
+    }
+    return {
+      ok: true,
+      errors: [],
+      config: {
+        name: normalizeText(handoff.suggested_project_name, safeProjectName(asset, timeframe, idea.id)),
+        asset: asset,
+        tf: timeframe,
+        bs: PG_BLOCKSETTINGS[idea.id] || 'BS_Custom',
+        dir: normalizeDirection(assetProfile.direction_bias),
+        capa: 1,
+        template: ''
+      },
+      source: {
+        package_type: payload.type,
+        package_version: payload.version,
+        workflow_state: payload.workflow_state,
+        archetype: idea.id || 'unknown',
+        validation_pack_id: payload.validation_requirements && payload.validation_requirements.validation_pack_id || ''
+      },
+      guardrails: [
+        'prefill_only',
+        'no_generation_triggered',
+        'operator_must_press_generate_custom'
+      ]
+    };
+  }
+
   SQX.strategyBuilderCore = SQX.strategyBuilderCore || {
     archetypes: ARCHETYPES,
     blockedStates: BLOCKED_STATES,
@@ -440,6 +498,7 @@
     buildPackage: buildPackage,
     defaultValidationPack: defaultValidationPack,
     importPayload: importPayload,
+    projectGeneratorPrefillFromPackage: projectGeneratorPrefillFromPackage,
     sampleCvcHandoff: sampleCvcHandoff,
     sourceModes: SOURCE_MODES,
     states: WORKFLOW_STATES,

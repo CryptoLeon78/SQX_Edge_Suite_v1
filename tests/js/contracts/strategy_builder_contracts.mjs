@@ -2,6 +2,9 @@ import { assert, Element, createLoadedSandbox } from './harness.mjs';
 
 const { SQX, document, sandbox } = createLoadedSandbox([
   'app/js/modules/ui.js',
+  'app/js/modules/project-generator-core.js',
+  'app/js/modules/project-generator-config.js',
+  'app/js/modules/project-generator-dom.js',
   'app/js/modules/strategy-builder-core.js',
   'app/js/modules/strategy-builder.js',
 ]);
@@ -21,6 +24,7 @@ assert.equal(core.states[core.states.length - 1], 'package_exportable');
 assert.ok(core.sourceModes.includes('cvc_handoff'));
 assert.ok(core.archetypes.trend_following.indicators.includes('EMA'));
 assert.equal(typeof core.importPayload, 'function');
+assert.equal(typeof core.projectGeneratorPrefillFromPackage, 'function');
 assert.equal(typeof core.validateImportPayload, 'function');
 
 const blocked = core.buildPackage({
@@ -61,6 +65,14 @@ assert.equal(ready.asset_profile.asset, 'EURUSD');
 assert.equal(ready.source_summary.candidate, 'Challenger A');
 assert.equal(ready.views_handoff.validation_pack_id, 'robustness');
 assert.equal(JSON.stringify(ready).includes('raw_csv'), false);
+const pgPrefill = core.projectGeneratorPrefillFromPackage(ready);
+assert.equal(pgPrefill.ok, true);
+assert.equal(pgPrefill.config.asset, 'EURUSD');
+assert.equal(pgPrefill.config.tf, 'H1');
+assert.equal(pgPrefill.config.bs, 'BS_Tendencia');
+assert.equal(pgPrefill.config.dir, 'both');
+assert.equal(pgPrefill.guardrails.includes('no_generation_triggered'), true);
+assert.equal(core.projectGeneratorPrefillFromPackage(blocked).ok, false);
 
 const importedPackage = core.importPayload(JSON.stringify(ready), { createdAt: '2026-05-09T01:00:00.000Z' });
 assert.equal(importedPackage.ok, true);
@@ -101,6 +113,7 @@ assert.match(blockedImport.errors.join(' '), /forbidden_raw_payload_keys/);
   'sb-sample-cvc-btn',
   'sb-import-btn',
   'sb-import-file',
+  'sb-send-pg-btn',
   'sb-clear-btn',
   'sb-export-btn',
   'sb-status',
@@ -109,6 +122,19 @@ assert.match(blockedImport.errors.join(' '), /forbidden_raw_payload_keys/);
   'sb-source',
   'sb-asset-out',
   'sb-check-count',
+].forEach(id => document.add(new Element(id)));
+document.addTab('strategybuilder', true);
+document.addTab('projectgen', false);
+[
+  'pg-custom-name',
+  'pg-custom-asset',
+  'pg-custom-tf',
+  'pg-custom-bs',
+  'pg-custom-dir',
+  'pg-custom-capa',
+  'pg-custom-template',
+  'pg-custom-status',
+  'pg-log',
 ].forEach(id => document.add(new Element(id)));
 
 const selectDefaults = {
@@ -133,6 +159,13 @@ assert.equal(document.getElementById('sb-state').textContent, 'package_exportabl
 assert.equal(document.getElementById('sb-source').textContent, 'cvc_handoff');
 assert.match(document.getElementById('sb-package-preview').textContent, /sqx-edge\.strategy-builder-package/);
 assert.match(document.getElementById('sb-status').textContent, /Package ready/);
+document.getElementById('sb-send-pg-btn').click();
+assert.equal(document.getElementById('tab-projectgen').style.display, 'block');
+assert.equal(document.getElementById('pg-custom-name').value, 'SB_EURUSD_H1_trend_following');
+assert.equal(document.getElementById('pg-custom-asset').value, 'EURUSD');
+assert.equal(document.getElementById('pg-custom-tf').value, 'H1');
+assert.equal(document.getElementById('pg-custom-bs').value, 'BS_Tendencia');
+assert.equal(document.getElementById('pg-custom-status').textContent, 'Prefill desde Strategy Builder. Revisa y pulsa Generar custom manualmente.');
 
 const importedUiResult = ui.importText(JSON.stringify(ready), { document });
 assert.equal(importedUiResult.ok, true);

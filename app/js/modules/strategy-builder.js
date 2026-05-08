@@ -15,6 +15,7 @@
     sampleCvc: 'sb-sample-cvc-btn',
     importPackage: 'sb-import-btn',
     importFile: 'sb-import-file',
+    sendProjectGenerator: 'sb-send-pg-btn',
     clear: 'sb-clear-btn',
     exportPackage: 'sb-export-btn',
     status: 'sb-status',
@@ -217,6 +218,41 @@
     return payload;
   }
 
+  function sendToProjectGenerator(options) {
+    var doc = options && options.document ? options.document : global.document;
+    var api = core();
+    var payload = lastPackage || build({ document: doc });
+    if (!api || !api.projectGeneratorPrefillFromPackage) {
+      setStatus('Project Generator prefill contract missing.', 'error', doc);
+      return null;
+    }
+    var prefill = api.projectGeneratorPrefillFromPackage(payload);
+    if (!prefill.ok) {
+      setStatus('Project Generator prefill blocked: ' + prefill.errors.join(', ') + '.', 'warn', doc);
+      return prefill;
+    }
+    var PG = SQX.projectGenerator || {};
+    var dom = PG.dom || {};
+    var config = PG.normalizeCustomProjectConfig ? PG.normalizeCustomProjectConfig(prefill.config) : prefill.config;
+    if (!dom.writeCustomProjectInputs) {
+      setStatus('Project Generator form is not available yet.', 'error', doc);
+      return { ok: false, errors: ['project_generator_form_missing'], config: config };
+    }
+    dom.writeCustomProjectInputs(doc, config);
+    if (dom.setCustomProjectStatus) {
+      dom.setCustomProjectStatus(doc, {
+        text: 'Prefill desde Strategy Builder. Revisa y pulsa Generar custom manualmente.',
+        level: 'info'
+      });
+    }
+    if (dom.appendLog) {
+      dom.appendLog(doc, 'Strategy Builder prefill aplicado a Custom libre. Generacion manual pendiente.', 'info');
+    }
+    if (SQX.ui && SQX.ui.activateTabById) SQX.ui.activateTabById('projectgen', doc);
+    setStatus('Project Generator prefilled. No generation was triggered.', 'ok', doc);
+    return { ok: true, errors: [], config: config, source: prefill.source, guardrails: prefill.guardrails };
+  }
+
   function importText(raw, options) {
     var doc = options && options.document ? options.document : global.document;
     var api = core();
@@ -280,6 +316,7 @@
     bind(doc, IDS.sampleCvc, function() { loadCvcSample({ document: doc }); });
     bind(doc, IDS.clear, function() { clear({ document: doc }); });
     bind(doc, IDS.exportPackage, function() { exportPackage({ document: doc }); });
+    bind(doc, IDS.sendProjectGenerator, function() { sendToProjectGenerator({ document: doc }); });
     bind(doc, IDS.importPackage, function() {
       var input = byId(IDS.importFile, doc);
       if (input && input.click) input.click();
@@ -300,7 +337,8 @@
     importFile: importFile,
     importText: importText,
     init: init,
-    loadCvcSample: loadCvcSample
+    loadCvcSample: loadCvcSample,
+    sendToProjectGenerator: sendToProjectGenerator
   };
 
   if (SQX.registerModule) {

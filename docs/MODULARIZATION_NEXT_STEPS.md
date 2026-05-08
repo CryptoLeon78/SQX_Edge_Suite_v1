@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: SB4 - Strategy Builder handoff import/export hardening.
+- Current completed phase: SB5 - Strategy Builder to Project Generator prefill bridge.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_201652.zip`.
 - Latest ZIP SHA256: `2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E`.
-- Next recommended phase: SB5 - Strategy Builder to Project Generator prefill bridge, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: SB6 - Strategy Builder review checklist and Project Generator save-as-preset handoff, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -90,7 +90,8 @@ Persistent planning note for the next SQX Edge phases.
 2. Phase SB2: design a controlled Builder flow that creates a strategy idea/package without bypassing StrategyQuant validation. Done; see `docs/SB2_STRATEGY_BUILDER_WORKFLOW.md`.
 3. Phase SB3: prototype read-only previews and export handoff artifacts before any live generation feature is offered to buyers. Done; see `docs/SB3_STRATEGY_BUILDER_PROTOTYPE.md`.
 4. Phase SB4: harden Strategy Builder handoff import/export and decide whether it remains a tab or becomes a compact workflow panel. Done; see `docs/SB4_STRATEGY_BUILDER_IMPORT_EXPORT.md`.
-5. Phase SB5: add Strategy Builder to Project Generator prefill bridge without auto-running generation.
+5. Phase SB5: add Strategy Builder to Project Generator prefill bridge without auto-running generation. Done; see `docs/SB5_STRATEGY_BUILDER_PROJECT_GENERATOR_PREFILL.md`.
+6. Phase SB6: add Strategy Builder review checklist and Project Generator save-as-preset handoff without auto-saving.
 
 ## QA / Security Track
 

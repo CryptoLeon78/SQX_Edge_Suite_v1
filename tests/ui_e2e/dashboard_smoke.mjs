@@ -220,6 +220,22 @@ async function run() {
     }));
     if (builderPackage.type !== 'sqx-edge.strategy-builder-package' || builderPackage.workflow_state !== 'package_exportable') throw new Error('Strategy Builder package contract failed');
     if (JSON.stringify(builderPackage).includes('Guaranteed profitable')) throw new Error('Strategy Builder package should not include blocked marketing claims');
+    await desktop.locator('#sb-send-pg-btn').click();
+    await desktop.waitForSelector('.tab[data-tab="projectgen"].active');
+    const pgPrefill = await desktop.evaluate(() => ({
+      name: document.getElementById('pg-custom-name')?.value,
+      asset: document.getElementById('pg-custom-asset')?.value,
+      tf: document.getElementById('pg-custom-tf')?.value,
+      bs: document.getElementById('pg-custom-bs')?.value,
+      status: document.getElementById('pg-custom-status')?.textContent,
+      outputText: document.getElementById('pg-output-list')?.textContent || '',
+    }));
+    if (pgPrefill.name !== 'SB_EURUSD_H1_trend_following' || pgPrefill.asset !== 'EURUSD' || pgPrefill.tf !== 'H1' || pgPrefill.bs !== 'BS_Tendencia') throw new Error(`Strategy Builder Project Generator prefill failed: ${JSON.stringify(pgPrefill)}`);
+    if (!pgPrefill.status.includes('Prefill desde Strategy Builder')) throw new Error('Strategy Builder prefill status missing');
+    if (/Custom_EURUSD_H1_Capa/.test(pgPrefill.outputText)) throw new Error('Strategy Builder prefill should not generate custom output');
+    await saveShot(desktop, 'e2e-strategy-builder-pg-prefill-desktop.png');
+    await desktop.locator('.tab[data-tab="strategybuilder"]').click();
+    await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
     const importResult = await desktop.evaluate(pkg => window.SQX.strategyBuilder.importText(JSON.stringify(pkg)), builderPackage);
     if (!importResult.ok || importResult.package.workflow_state !== 'blocked_operator_review') throw new Error('Strategy Builder import should require fresh operator review');
     await desktop.waitForFunction(() => document.getElementById('sb-status')?.textContent.includes('Confirm manual review'));
