@@ -17,6 +17,7 @@ J3_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J3_CHAMPION_CHALLENGER_OOS
 J4_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J4_CHAMPION_CHALLENGER_UI.md"
 J5_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J5_CHAMPION_CHALLENGER_REGIME_EGT.md"
 J6_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J6_CHAMPION_CHALLENGER_EXPORT_HANDOFF.md"
+SB1_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB1_STRATEGY_BUILDER_DISCOVERY.md"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
 MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
@@ -203,6 +204,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Customer cockpit source of truth",
             "no license payloads",
             "Use prefixed phase IDs",
+            "`SBxx`: Strategy Builder and \"only one platform\" workflow phases.",
             "Never commit `backend/sqx-edge-tool/config/license.json`",
         ):
             with self.subTest(pattern=pattern):
@@ -338,6 +340,43 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, j6)
+
+    def test_strategy_builder_discovery_is_documented_before_runtime(self):
+        sb1 = SB1_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "SB1 Strategy Builder Discovery",
+            "minimum viable Strategy Builder scope",
+            "only one platform",
+            "This phase is discovery and contract work only.",
+            "The buyer-facing promise is not \"the app prints profitable strategies\".",
+            "Champion vs Challenger",
+            "`sqx-edge.strategy-builder-handoff`",
+            "Project Generator",
+            "SQX Views",
+            "Plan Quality / MTF evidence",
+            "Strategy Cleaner",
+            "`sqx-edge.strategy-builder-scope`",
+            "`sqx-edge.strategy-builder-package`",
+            "No auto-trading.",
+            "No promise of profitability.",
+            "No remote AI calls with strategy data.",
+            "No Top Picks or matrix/heatmap restoration.",
+            "SB2 should design the workflow before UI",
+            "No frontend, backend or packaging behavior changes in SB1.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, sb1)
+
+        self.assertIn("Current phase completed: SB1 - Strategy Builder discovery and minimum viable scope.", governance)
+        self.assertIn("Next implementation phase: SB2 - controlled Strategy Builder workflow design", governance)
+        self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
+        self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
+        self.assertIn("Phase SB1: discover the minimum viable Strategy Builder scope", next_steps)
+        self.assertIn("Done; see `docs/SB1_STRATEGY_BUILDER_DISCOVERY.md`", next_steps)
+        self.assertIn("Phase SB2: design a controlled Builder flow", next_steps)
 
     def test_modular_scaffold_loads_before_legacy_logic(self):
         scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)
