@@ -25,6 +25,7 @@
   var SOURCE_MODES = ['blank', 'cvc_handoff', 'project_generator_profile', 'views_workflow'];
   var PACKAGE_TYPE = 'sqx-edge.strategy-builder-package';
   var HANDOFF_TYPE = 'sqx-edge.strategy-builder-handoff';
+  var BUYER_HANDOFF_PACK_TYPE = 'sqx-edge.strategy-builder-buyer-handoff-pack';
   var IMPORT_BLOCKED_KEYS = {
     raw_csv: true,
     rawCsv: true,
@@ -684,6 +685,69 @@
     };
   }
 
+  function unifiedBuyerHandoffPackFromPackage(input, options) {
+    var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {}, options);
+    var errors = [];
+    if (!payload || payload.type !== PACKAGE_TYPE) errors.push('invalid_strategy_builder_package');
+    if (payload && payload.workflow_state !== 'package_exportable' && !(options && options.allowBlocked)) {
+      errors.push('package_not_exportable');
+    }
+    var pgPrefill = errors.length ? null : projectGeneratorPrefillFromPackage(payload, options);
+    var pgPreset = errors.length ? null : projectGeneratorPresetDraftFromPackage(payload, options);
+    var views = errors.length ? null : sqxViewsHandoffFromPackage(payload, options);
+    var cleaner = errors.length ? null : strategyCleanerDraftFromPackage(payload, options);
+    [pgPrefill, pgPreset, views, cleaner].forEach(function(result) {
+      if (result && result.ok === false) errors = errors.concat(result.errors || []);
+    });
+    if (errors.length) {
+      return {
+        ok: false,
+        errors: errors,
+        pack: null,
+        guardrails: ['no_destination_action_triggered']
+      };
+    }
+    return {
+      ok: true,
+      errors: [],
+      pack: {
+        type: BUYER_HANDOFF_PACK_TYPE,
+        version: 1,
+        created_at: nowIso(options),
+        strategy_builder_package: payload,
+        workflow: buyerWorkflowSummary(payload),
+        handoffs: {
+          project_generator_prefill: pgPrefill,
+          project_generator_preset_draft: pgPreset,
+          sqx_views: views,
+          strategy_cleaner: cleaner
+        },
+        manual_next_steps: [
+          'Review Project Generator fields before pressing Generar custom.',
+          'Review preset name before pressing Guardar preset.',
+          'Review SQX Views columns before pressing Descargar .vw or Guardar preset.',
+          'Choose a .sqx folder before pressing Escanear and Procesar seleccion in Strategy Cleaner.',
+          'Run StrategyQuant validation manually before making any trading claim.'
+        ],
+        guardrails: [
+          'local_review_pack_only',
+          'no_backend_endpoint',
+          'no_api_call',
+          'no_generation_triggered',
+          'no_template_saved',
+          'no_scan_triggered',
+          'no_cleaning_triggered',
+          'no_profitability_claim'
+        ]
+      },
+      guardrails: [
+        'pack_prepared_only',
+        'no_destination_action_triggered',
+        'operator_must_execute_each_destination_manually'
+      ]
+    };
+  }
+
   function buyerWorkflowSummary(input, options) {
     var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {}, options);
     var review = reviewChecklistSummary(payload);
@@ -755,7 +819,8 @@
     states: WORKFLOW_STATES,
     strategyCleanerDraftFromPackage: strategyCleanerDraftFromPackage,
     supportedAsset: supportedAsset,
-    validateImportPayload: validateImportPayload
+    validateImportPayload: validateImportPayload,
+    unifiedBuyerHandoffPackFromPackage: unifiedBuyerHandoffPackFromPackage
   };
 
   if (SQX.registerModule) {

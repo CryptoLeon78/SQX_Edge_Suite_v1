@@ -32,6 +32,7 @@ assert.equal(typeof core.sqxViewsHandoffFromPackage, 'function');
 assert.equal(typeof core.buyerWorkflowSummary, 'function');
 assert.equal(typeof core.handoffAuditEntry, 'function');
 assert.equal(typeof core.strategyCleanerDraftFromPackage, 'function');
+assert.equal(typeof core.unifiedBuyerHandoffPackFromPackage, 'function');
 assert.equal(typeof core.validateImportPayload, 'function');
 
 const blocked = core.buildPackage({
@@ -110,6 +111,20 @@ assert.equal(cleanerDraft.draft.rename_institutional, true);
 assert.equal(cleanerDraft.draft.rename_pattern, '{asset}_{tf}_{dir}_{id}');
 assert.equal(cleanerDraft.guardrails.includes('no_cleaning_triggered'), true);
 assert.equal(core.strategyCleanerDraftFromPackage(blocked).ok, false);
+const buyerPack = core.unifiedBuyerHandoffPackFromPackage(ready, { createdAt: '2026-05-09T01:20:00.000Z' });
+assert.equal(buyerPack.ok, true);
+assert.equal(buyerPack.pack.type, 'sqx-edge.strategy-builder-buyer-handoff-pack');
+assert.equal(buyerPack.pack.created_at, '2026-05-09T01:20:00.000Z');
+assert.equal(buyerPack.pack.workflow.ready, true);
+assert.equal(buyerPack.pack.handoffs.project_generator_prefill.ok, true);
+assert.equal(buyerPack.pack.handoffs.project_generator_preset_draft.ok, true);
+assert.equal(buyerPack.pack.handoffs.sqx_views.ok, true);
+assert.equal(buyerPack.pack.handoffs.strategy_cleaner.ok, true);
+assert.equal(buyerPack.guardrails.includes('no_destination_action_triggered'), true);
+assert.equal(buyerPack.pack.guardrails.includes('no_backend_endpoint'), true);
+assert.equal(buyerPack.pack.guardrails.includes('no_api_call'), true);
+assert.match(buyerPack.pack.manual_next_steps.join(' '), /StrategyQuant validation/);
+assert.equal(core.unifiedBuyerHandoffPackFromPackage(blocked).ok, false);
 
 const importedPackage = core.importPayload(JSON.stringify(ready), { createdAt: '2026-05-09T01:00:00.000Z' });
 assert.equal(importedPackage.ok, true);
@@ -154,6 +169,7 @@ assert.match(blockedImport.errors.join(' '), /forbidden_raw_payload_keys/);
   'sb-prepare-preset-btn',
   'sb-send-views-btn',
   'sb-prepare-cleaner-btn',
+  'sb-prepare-buyer-pack-btn',
   'sb-clear-btn',
   'sb-export-btn',
   'sb-status',
@@ -263,6 +279,14 @@ assert.equal(document.getElementById('cln-info').textContent, 'Draft desde Strat
 assert.match(document.getElementById('pg-log').textContent, /limpieza manual pendientes/);
 assert.match(document.getElementById('sb-status').textContent, /No scan or cleanup/);
 assert.match(document.getElementById('sb-audit-list').innerHTML, /Strategy Cleaner/);
+document.getElementById('sb-prepare-buyer-pack-btn').click();
+assert.match(document.getElementById('sb-package-preview').textContent, /sqx-edge\.strategy-builder-buyer-handoff-pack/);
+assert.match(document.getElementById('sb-package-preview').textContent, /project_generator_prefill/);
+assert.match(document.getElementById('sb-package-preview').textContent, /strategy_cleaner/);
+assert.match(document.getElementById('sb-status').textContent, /No destination action/);
+assert.match(document.getElementById('sb-audit-list').innerHTML, /Buyer Handoff Pack/);
+assert.equal(SQX.viewCreator.getSavedPresets().length, viewPresetCountBefore);
+assert.equal(sandbox.localStorage.getItem('sqx_strategy_builder_buyer_pack_v1'), null);
 
 const importedUiResult = ui.importText(JSON.stringify(ready), { document });
 assert.equal(importedUiResult.ok, true);

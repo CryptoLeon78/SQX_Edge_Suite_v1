@@ -19,6 +19,7 @@
     preparePreset: 'sb-prepare-preset-btn',
     sendViews: 'sb-send-views-btn',
     prepareCleaner: 'sb-prepare-cleaner-btn',
+    prepareBuyerPack: 'sb-prepare-buyer-pack-btn',
     clear: 'sb-clear-btn',
     exportPackage: 'sb-export-btn',
     status: 'sb-status',
@@ -434,6 +435,26 @@
     return result;
   }
 
+  function prepareBuyerHandoffPack(options) {
+    var doc = options && options.document ? options.document : global.document;
+    var api = core();
+    var payload = lastPackage || build({ document: doc });
+    if (!api || !api.unifiedBuyerHandoffPackFromPackage) {
+      setStatus('Buyer handoff pack contract missing.', 'error', doc);
+      return null;
+    }
+    var result = api.unifiedBuyerHandoffPackFromPackage(payload);
+    if (!result.ok) {
+      setStatus('Buyer handoff pack blocked: ' + result.errors.join(', ') + '.', 'warn', doc);
+      return result;
+    }
+    var preview = byId(IDS.preview, doc);
+    if (preview) preview.textContent = JSON.stringify(result.pack, null, 2);
+    addAuditEntry('Buyer Handoff Pack', payload, result, doc);
+    setStatus('Buyer handoff pack prepared in preview. No destination action was triggered.', 'ok', doc);
+    return result;
+  }
+
   function importText(raw, options) {
     var doc = options && options.document ? options.document : global.document;
     var api = core();
@@ -502,6 +523,7 @@
     bind(doc, IDS.preparePreset, function() { prepareProjectGeneratorPreset({ document: doc }); });
     bind(doc, IDS.sendViews, function() { sendToViews({ document: doc }); });
     bind(doc, IDS.prepareCleaner, function() { prepareStrategyCleaner({ document: doc }); });
+    bind(doc, IDS.prepareBuyerPack, function() { prepareBuyerHandoffPack({ document: doc }); });
     bind(doc, IDS.importPackage, function() {
       var input = byId(IDS.importFile, doc);
       if (input && input.click) input.click();
@@ -524,6 +546,7 @@
     importText: importText,
     init: init,
     loadCvcSample: loadCvcSample,
+    prepareBuyerHandoffPack: prepareBuyerHandoffPack,
     prepareProjectGeneratorPreset: prepareProjectGeneratorPreset,
     prepareStrategyCleaner: prepareStrategyCleaner,
     renderAuditTrail: renderAuditTrail,

@@ -285,13 +285,30 @@ async function run() {
     await saveShot(desktop, 'e2e-strategy-builder-cleaner-draft-desktop.png');
     await desktop.locator('.tab[data-tab="strategybuilder"]').click();
     await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
+    await desktop.locator('#sb-prepare-buyer-pack-btn').click();
+    const buyerHandoffPack = await desktop.evaluate(() => ({
+      preview: document.getElementById('sb-package-preview')?.textContent || '',
+      status: document.getElementById('sb-status')?.textContent || '',
+      auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
+      storageText: localStorage.getItem('sqx_strategy_builder_buyer_pack_v1'),
+      viewPresetCount: window.SQX.viewCreator.getSavedPresets(localStorage).length,
+      pgPresetCount: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length,
+    }));
+    if (!buyerHandoffPack.preview.includes('sqx-edge.strategy-builder-buyer-handoff-pack')) throw new Error('Strategy Builder buyer pack preview missing type');
+    if (!buyerHandoffPack.preview.includes('project_generator_prefill') || !buyerHandoffPack.preview.includes('sqx_views') || !buyerHandoffPack.preview.includes('strategy_cleaner')) throw new Error(`Strategy Builder buyer pack missing destination handoffs: ${buyerHandoffPack.preview}`);
+    if (!buyerHandoffPack.status.includes('No destination action')) throw new Error(`Strategy Builder buyer pack status missing manual boundary: ${JSON.stringify(buyerHandoffPack)}`);
+    if (!buyerHandoffPack.auditRows.some(text => text.includes('Buyer Handoff Pack'))) throw new Error(`Strategy Builder buyer pack audit row missing: ${JSON.stringify(buyerHandoffPack)}`);
+    if (buyerHandoffPack.storageText !== null) throw new Error('Strategy Builder buyer pack should stay preview-only, not localStorage');
+    if (buyerHandoffPack.viewPresetCount !== viewPresetCountBeforeHandoff) throw new Error('Strategy Builder buyer pack should not auto-save SQX Views presets');
+    if (buyerHandoffPack.pgPresetCount !== presetCountBeforeDraft) throw new Error('Strategy Builder buyer pack should not auto-save Project Generator presets');
+    await saveShot(desktop, 'e2e-strategy-builder-buyer-pack-desktop.png');
     const auditTrail = await desktop.evaluate(() => ({
       rows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
       workflowDone: document.querySelectorAll('#sb-workflow-steps .sb-workflow-step.is-done').length,
       storageText: localStorage.getItem('sqx_strategy_builder_audit_v1'),
     }));
     if (auditTrail.workflowDone < 5) throw new Error(`Strategy Builder workflow polish missing ready steps: ${JSON.stringify(auditTrail)}`);
-    if (!auditTrail.rows.some(text => text.includes('SQX Views')) || !auditTrail.rows.some(text => text.includes('Project Generator')) || !auditTrail.rows.some(text => text.includes('PG Preset Draft')) || !auditTrail.rows.some(text => text.includes('Strategy Cleaner'))) throw new Error(`Strategy Builder audit trail missing handoffs: ${JSON.stringify(auditTrail)}`);
+    if (!auditTrail.rows.some(text => text.includes('SQX Views')) || !auditTrail.rows.some(text => text.includes('Project Generator')) || !auditTrail.rows.some(text => text.includes('PG Preset Draft')) || !auditTrail.rows.some(text => text.includes('Strategy Cleaner')) || !auditTrail.rows.some(text => text.includes('Buyer Handoff Pack'))) throw new Error(`Strategy Builder audit trail missing handoffs: ${JSON.stringify(auditTrail)}`);
     if (auditTrail.storageText !== null) throw new Error('Strategy Builder audit trail should stay session-only, not localStorage');
     await saveShot(desktop, 'e2e-strategy-builder-audit-desktop.png');
     const importResult = await desktop.evaluate(pkg => window.SQX.strategyBuilder.importText(JSON.stringify(pkg)), builderPackage);
