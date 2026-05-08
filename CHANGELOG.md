@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-08 - PG5 Project Generator richer custom profile families
+
+- Amplia `Project Generator` con ocho perfiles custom starter y guia de uso por perfil.
+- Anade familias por objetivo: comprador inicial, validacion intradia, revision de riesgo y muestra Pro completa.
+- Permite cargar el primer perfil de una familia, guardar el pack completo como presets locales o exportarlo como JSON portable.
+- Refuerza contratos JS, tests estaticos y E2E para cubrir los nuevos packs de familias.
+
 ## 2026-05-08 - V7 SQX Views buyer profile packs
 
 - Anade packs por perfil en `SQX Views`: evaluacion Free, Setup Assist Pro, comprador centrado en riesgo y entrega de auditoria.

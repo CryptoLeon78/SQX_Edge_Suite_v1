@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: V7 - SQX Views buyer profile packs.
+- Current completed phase: PG5 - Project Generator richer custom profile families.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_075208.zip`.
 - Latest ZIP SHA256: `CCB398057E5DEC6AC5AE2993E58E8DCEDBDB0686DD09539E30F9017D54F3A34D`.
-- Next recommended phase: R42 - public release record if the R41 ZIP is published, or PG5 - richer Project Generator custom profiles.
+- Next recommended phase: R42 - public release record if the R41 ZIP is published, or V8 - SQX Views asset-family/validation workflow packs.
 
 ## Recommended Order
 
@@ -33,7 +33,8 @@ Persistent planning note for the next SQX Edge phases.
 2. Phase PG2: add reusable local custom presets for frequent buyer assets/timeframes. Done.
 3. Phase PG3: add portable export/import JSON packs for custom preset portability between installations. Done.
 4. Phase PG4: add starter custom preset examples by asset/timeframe profile with load/save/export flow. Done.
-5. Phase PG5: add richer custom profile families or buyer-specific `.cfx` starter guidance if Project Generator continues.
+5. Phase PG5: add richer custom profile families or buyer-specific `.cfx` starter guidance if Project Generator continues. Done.
+6. Phase PG6: add buyer-specific `.cfx` handoff notes or Project Generator pack import preview if this track continues.
 
 ## Working Discipline
 

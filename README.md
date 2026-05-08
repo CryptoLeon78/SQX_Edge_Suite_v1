@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: V7 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: PG5 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_075208.zip`.
 - SHA256 del ZIP: `CCB398057E5DEC6AC5AE2993E58E8DCEDBDB0686DD09539E30F9017D54F3A34D`.
-- Siguiente paso recomendado: R42 - preparar registro publico de release si decidimos publicar este ZIP, o PG5 - enriquecer perfiles custom del Project Generator.
-- Ultima mejora funcional: SQX Views incluye packs por perfil de comprador para cargar, guardar o exportar conjuntos de vistas `.vw`.
+- Siguiente paso recomendado: R42 - preparar registro publico de release si decidimos publicar este ZIP, o V8 - packs SQX Views por familia de activos/flujo de validacion.
+- Ultima mejora funcional: Project Generator incluye perfiles custom enriquecidos y familias por objetivo para cargar, guardar o exportar packs `.cfx` orientados a comprador.
 
 ## SQX Edge Pro
 
@@ -101,7 +101,7 @@ SQX Views:
 Project Generator:
 
 - `Custom libre` permite crear `.cfx` fuera del plan mining con asset, timeframe, blocksetting, direccion y capa propios.
-- Incluye presets locales reutilizables, exportacion/importacion JSON y perfiles starter para usuarios que quieren empezar sin configurar todo desde cero.
+- Incluye presets locales reutilizables, exportacion/importacion JSON, perfiles starter y familias por objetivo para usuarios que quieren empezar sin configurar todo desde cero.
 
 ## Entrega Final
 
@@ -210,6 +210,7 @@ El resultado se escribe en `app\js\manifest-data.js`.
 - El custom libre usa el template configurado de la capa seleccionada, o un template opcional indicado en el formulario.
 - Los presets custom se guardan en el navegador local para reutilizar combinaciones frecuentes sin reescribir campos.
 - Los presets custom se pueden exportar/importar como packs JSON para moverlos entre instalaciones.
+- Las familias por objetivo agrupan perfiles custom para comprador inicial, validacion intradia, revision de riesgo o muestra Pro completa.
 - La API local expone `/api/generate-custom` y aplica la misma licencia Pro que `/api/generate`.
 
 ## Backend

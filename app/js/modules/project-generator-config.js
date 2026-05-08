@@ -14,6 +14,7 @@
       name: 'Forex H1 Balanced',
       tag: 'Forex',
       description: 'Punto de partida equilibrado para pares major en H1.',
+      guidance: 'Usalo como primer .cfx de validacion para compradores que quieren algo estable y facil de auditar.',
       config: { name: 'Custom_EURUSD_H1_Balanced', asset: 'EURUSD', tf: 'H1', bs: 'BS_Forex_H1_Balanced', dir: 'both', capa: 1, template: '' }
     },
     {
@@ -21,6 +22,7 @@
       name: 'Forex M15 Scalp',
       tag: 'Scalp',
       description: 'Perfil rapido para explorar intradia con control por Capa 1.',
+      guidance: 'Buen candidato para demos cortas, siempre con filtro de robustez posterior.',
       config: { name: 'Custom_GBPUSD_M15_Scalp', asset: 'GBPUSD', tf: 'M15', bs: 'BS_Forex_M15_Scalp', dir: 'both', capa: 1, template: '' }
     },
     {
@@ -28,6 +30,7 @@
       name: 'Index H1 Trend',
       tag: 'Index',
       description: 'Base direccional para indices con sesgo long y timeframe H1.',
+      guidance: 'Ideal para mostrar una linea de investigacion direccional sin saturar al comprador.',
       config: { name: 'Custom_US500_H1_Trend', asset: 'US500', tf: 'H1', bs: 'BS_Index_H1_Trend', dir: 'long', capa: 1, template: '' }
     },
     {
@@ -35,7 +38,79 @@
       name: 'Gold H1 Risk',
       tag: 'Gold',
       description: 'Arranque prudente para oro con Capa 2 y direccion dual.',
+      guidance: 'Conviene presentarlo como perfil de riesgo controlado, no como promesa de resultado.',
       config: { name: 'Custom_XAUUSD_H1_Risk', asset: 'XAUUSD', tf: 'H1', bs: 'BS_Gold_H1_Risk', dir: 'both', capa: 2, template: '' }
+    },
+    {
+      id: 'forex-h4-swing',
+      name: 'Forex H4 Swing',
+      tag: 'Swing',
+      description: 'Perfil calmado para swing en EURJPY con menos ruido intradia.',
+      guidance: 'Util para compradores que prefieren menos operaciones y una lectura mas tranquila.',
+      config: { name: 'Custom_EURJPY_H4_Swing', asset: 'EURJPY', tf: 'H4', bs: 'BS_Forex_H4_Swing', dir: 'both', capa: 2, template: '' }
+    },
+    {
+      id: 'index-m15-breakout',
+      name: 'Index M15 Breakout',
+      tag: 'Breakout',
+      description: 'Exploracion de rupturas para US100 en M15 con sesgo long.',
+      guidance: 'Perfil de validacion agresiva: debe pasar por comparativas fuera de muestra.',
+      config: { name: 'Custom_US100_M15_Breakout', asset: 'US100', tf: 'M15', bs: 'BS_Index_M15_Breakout', dir: 'long', capa: 1, template: '' }
+    },
+    {
+      id: 'gold-m30-volatility',
+      name: 'Gold M30 Volatility',
+      tag: 'Volatility',
+      description: 'Perfil de oro para sesiones activas y validacion de volatilidad.',
+      guidance: 'Buen complemento al perfil Gold H1 para explicar sensibilidad por timeframe.',
+      config: { name: 'Custom_XAUUSD_M30_Volatility', asset: 'XAUUSD', tf: 'M30', bs: 'BS_Gold_M30_Volatility', dir: 'both', capa: 2, template: '' }
+    },
+    {
+      id: 'index-h1-meanrevert',
+      name: 'Index H1 Mean Revert',
+      tag: 'MeanRev',
+      description: 'Perfil alternativo para DE40 H1 orientado a reversion.',
+      guidance: 'Sirve para contrastar tendencia vs reversion dentro de un mismo paquete comprador.',
+      config: { name: 'Custom_DE40_H1_MeanRevert', asset: 'DE40', tf: 'H1', bs: 'BS_Index_H1_MeanRevert', dir: 'both', capa: 2, template: '' }
+    }
+  ];
+  var CUSTOM_PROFILE_FAMILY_DEFINITIONS = [
+    {
+      id: 'buyer-first-setup',
+      name: 'Buyer First Setup',
+      tag: 'Buyer',
+      description: 'Pack minimo para entregar una primera propuesta Pro con Forex, indice y oro.',
+      profileIds: ['forex-h1-balanced', 'index-h1-trend', 'gold-h1-risk']
+    },
+    {
+      id: 'intraday-validation',
+      name: 'Intraday Validation',
+      tag: 'Validation',
+      description: 'Perfiles intradia para comparar scalp, breakout y volatilidad sin tocar el plan mining.',
+      profileIds: ['forex-m15-scalp', 'index-m15-breakout', 'gold-m30-volatility']
+    },
+    {
+      id: 'swing-risk-review',
+      name: 'Swing Risk Review',
+      tag: 'Risk',
+      description: 'Familia tranquila para revisar H1/H4, capa 2 y sensibilidad direccional.',
+      profileIds: ['forex-h4-swing', 'gold-h1-risk', 'index-h1-meanrevert']
+    },
+    {
+      id: 'full-buyer-sample',
+      name: 'Full Buyer Sample',
+      tag: 'Pro',
+      description: 'Muestra completa para compradores Pro: ocho perfiles base con narrativa de validacion.',
+      profileIds: [
+        'forex-h1-balanced',
+        'forex-m15-scalp',
+        'forex-h4-swing',
+        'index-h1-trend',
+        'index-m15-breakout',
+        'index-h1-meanrevert',
+        'gold-h1-risk',
+        'gold-m30-volatility'
+      ]
     }
   ];
 
@@ -90,6 +165,7 @@ function getCustomStarterProfiles() {
         name: profile.name,
         tag: profile.tag,
         description: profile.description,
+        guidance: profile.guidance,
         config: normalizeCustomProjectConfig(profile.config)
       };
     });
@@ -115,6 +191,82 @@ function buildCustomStarterProfilePack() {
     return buildCustomProjectPresetPackage(getCustomStarterProfiles().map(customStarterProfileToPreset));
   }
 
+function getCustomProfileFamilies() {
+    return CUSTOM_PROFILE_FAMILY_DEFINITIONS.map(function(family) {
+      var profiles = (family.profileIds || []).map(findCustomStarterProfile).filter(Boolean);
+      return {
+        id: family.id,
+        name: family.name,
+        tag: family.tag,
+        description: family.description,
+        profileIds: profiles.map(function(profile) { return profile.id; }),
+        profiles: profiles
+      };
+    });
+  }
+
+function findCustomProfileFamily(id) {
+    var familyId = String(id || '').trim();
+    return getCustomProfileFamilies().find(function(family) { return family.id === familyId; }) || null;
+  }
+
+function buildCustomProfileFamilyPack(id) {
+    var family = findCustomProfileFamily(id);
+    if (!family) return null;
+    return buildCustomProjectPresetPackage(family.profiles.map(function(profile) {
+      var preset = customStarterProfileToPreset(profile);
+      if (preset) preset.id = 'family-' + family.id + '-' + profile.id;
+      return preset;
+    }).filter(Boolean));
+  }
+
+function buildAllCustomProfileFamilyPack() {
+    var seen = {};
+    var presets = [];
+    getCustomProfileFamilies().forEach(function(family) {
+      var pack = buildCustomProfileFamilyPack(family.id);
+      (pack && pack.presets || []).forEach(function(preset) {
+        if (seen[preset.id]) return;
+        seen[preset.id] = true;
+        presets.push(preset);
+      });
+    });
+    return buildCustomProjectPresetPackage(presets);
+  }
+
+function customProfileFamilyCountLabel(count) {
+    var n = count || 0;
+    return n + (n === 1 ? ' familia lista' : ' familias listas');
+  }
+
+function customProfileFamilyCardsHtml(families) {
+    var list = families || getCustomProfileFamilies();
+    if (!list.length) return messageHtml('No hay familias de perfiles disponibles.', 'warning');
+    return list.map(function(family) {
+      var id = escapeHtml(family.id);
+      var profiles = family.profiles || [];
+      return ''
+        + '<article class="pg-custom-family-card">'
+        +   '<div class="pg-custom-starter-title">'
+        +     '<strong>' + escapeHtml(family.name) + '</strong>'
+        +     '<span class="pg-custom-starter-tag">' + escapeHtml(family.tag || 'Pack') + '</span>'
+        +   '</div>'
+        +   '<div class="pg-custom-starter-desc">' + escapeHtml(family.description || '') + '</div>'
+        +   '<div class="pg-custom-family-flow">'
+        +     profiles.map(function(profile) {
+                var cfg = normalizeCustomProjectConfig(profile.config);
+                return '<span>' + escapeHtml(cfg.asset + ' ' + cfg.tf) + '</span>';
+              }).join('')
+        +   '</div>'
+        +   '<div class="pg-custom-starter-actions">'
+        +     '<button class="export-btn pg-ghost-btn" data-pg-family-load="' + id + '">Cargar primero</button>'
+        +     '<button class="export-btn pg-ghost-btn" data-pg-family-save="' + id + '">Guardar pack</button>'
+        +     '<button class="export-btn pg-ghost-btn" data-pg-family-export="' + id + '">Exportar</button>'
+        +   '</div>'
+        + '</article>';
+    }).join('');
+  }
+
 function customStarterProfileCountLabel(count) {
     var n = count || 0;
     return n + (n === 1 ? ' perfil listo' : ' perfiles listos');
@@ -134,6 +286,7 @@ function customStarterProfileCardsHtml(profiles) {
         +     '<span class="pg-custom-starter-tag">' + escapeHtml(profile.tag || 'Starter') + '</span>'
         +   '</div>'
         +   '<div class="pg-custom-starter-desc">' + escapeHtml(profile.description || '') + '</div>'
+        +   '<div class="pg-custom-starter-guidance">' + escapeHtml(profile.guidance || '') + '</div>'
         +   '<div class="pg-custom-starter-meta">'
         +     '<span>' + escapeHtml(config.asset) + '</span>'
         +     '<span>' + escapeHtml(config.tf) + '</span>'
@@ -459,6 +612,8 @@ function validateSqxPathHtml(result) {
     customPresetPackageType: CUSTOM_PRESET_PACKAGE_TYPE,
     customPresetPackageVersion: CUSTOM_PRESET_PACKAGE_VERSION,
     customPresetIdFromName: customPresetIdFromName,
+    customProfileFamilyCardsHtml: customProfileFamilyCardsHtml,
+    customProfileFamilyCountLabel: customProfileFamilyCountLabel,
     customProjectPresetCountLabel: customProjectPresetCountLabel,
     customProjectPresetOptionsHtml: customProjectPresetOptionsHtml,
     customStarterProfileCardsHtml: customStarterProfileCardsHtml,
@@ -466,9 +621,13 @@ function validateSqxPathHtml(result) {
     customStarterProfileToPreset: customStarterProfileToPreset,
     deleteCustomProjectPreset: deleteCustomProjectPreset,
     findCustomStarterProfile: findCustomStarterProfile,
+    findCustomProfileFamily: findCustomProfileFamily,
     findCustomProjectPreset: findCustomProjectPreset,
+    getCustomProfileFamilies: getCustomProfileFamilies,
     getCustomStarterProfiles: getCustomStarterProfiles,
     getCustomProjectPresets: getCustomProjectPresets,
+    buildAllCustomProfileFamilyPack: buildAllCustomProfileFamilyPack,
+    buildCustomProfileFamilyPack: buildCustomProfileFamilyPack,
     buildCustomStarterProfilePack: buildCustomStarterProfilePack,
     buildCustomProjectPresetPackage: buildCustomProjectPresetPackage,
     importCustomProjectPresetPackage: importCustomProjectPresetPackage,
