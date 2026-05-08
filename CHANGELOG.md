@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - A54 guarded multi-timeframe plan artifacts
+
+- Anade `multi_timeframe_plan_artifacts.py` para conectar A53 con `Plan Quality Advisor` solo cuando el intake multi-timeframe devuelve GO.
+- Genera reportes A53/A54 trazables y bloquea la salida MTF cuando faltan M30/M15/H4 reales.
+- Cubre rutas GO/NO-GO con tests sin modificar dashboard ni exponer evidencia parcial en UI.
+
 ## 2026-05-08 - A53 multi-timeframe source intake
 
 - Anade `multi_timeframe_source_intake.py` y `multi_timeframe_source_policy.json` para preparar y validar una carpeta real de metricas H1/M30/M15/H4.

@@ -83,11 +83,18 @@ Phase A53 adds the controlled intake layer for a full multi-timeframe source:
 
 The intake prepares a reviewable H1/M30/M15/H4 bundle, can generate the A52 H1 baseline, copies only real supplied metric files for M30/M15/H4 and runs the A51 gate. It returns NO_GO when lower/higher timeframe files are missing rather than replacing them with synthetic values.
 
+Phase A54 connects the validated source to review artifacts:
+
+- `backend/sqx-edge-tool/tools/multi_timeframe_plan_artifacts.py`
+- `backend/sqx-edge-tool/test_multi_timeframe_plan_artifacts.py`
+
+The artifact generator runs A53 first. When A53 returns GO it writes `Plan Quality Advisor` JSON/Markdown with MTF evidence. When A53 returns NO_GO it writes blocked A53/A54 reports and does not produce plan-review MTF artifacts, avoiding partial or misleading evidence.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:
 
-1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source and A53 added the full-source intake; remaining work is supplying real M15/M30/H4 metric files or building the actual market-data pipeline that produces them.
+1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake and A54 added guarded plan artifacts; remaining work is supplying real M15/M30/H4 metric files or building the actual market-data pipeline that produces them.
 2. Optional market data acquisition: evaluate MT5/Dukascopy data download as an operator-only script, excluded from portable buyer builds unless explicitly needed.
 3. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
 4. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
@@ -110,4 +117,4 @@ Explicitly excluded by product decision:
 - No legacy HTML tabs were restored.
 - No sensitive commercial material was imported.
 - No third-party credentials, tokens or account passwords were introduced.
-- The current advisor uses the available H1 score baseline; A49/A50/A51/A52/A53 now provide a safe backend path for real multi-timeframe metrics once supplied and validated.
+- The current advisor uses the available H1 score baseline; A49/A50/A51/A52/A53/A54 now provide a safe backend path for real multi-timeframe metrics once supplied and validated.
