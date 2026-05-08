@@ -31,6 +31,7 @@ assert.equal(typeof core.reviewChecklistSummary, 'function');
 assert.equal(typeof core.sqxViewsHandoffFromPackage, 'function');
 assert.equal(typeof core.buyerWorkflowSummary, 'function');
 assert.equal(typeof core.handoffAuditEntry, 'function');
+assert.equal(typeof core.strategyCleanerDraftFromPackage, 'function');
 assert.equal(typeof core.validateImportPayload, 'function');
 
 const blocked = core.buildPackage({
@@ -102,6 +103,13 @@ assert.equal(auditEntry.type, 'sqx-edge.strategy-builder-audit-entry');
 assert.equal(auditEntry.target, 'SQX Views');
 assert.equal(auditEntry.asset, 'EURUSD');
 assert.equal(auditEntry.guardrails.includes('no_local_storage_write'), true);
+const cleanerDraft = core.strategyCleanerDraftFromPackage(ready);
+assert.equal(cleanerDraft.ok, true);
+assert.equal(cleanerDraft.draft.remove_exit_bars, true);
+assert.equal(cleanerDraft.draft.rename_institutional, true);
+assert.equal(cleanerDraft.draft.rename_pattern, '{asset}_{tf}_{dir}_{id}');
+assert.equal(cleanerDraft.guardrails.includes('no_cleaning_triggered'), true);
+assert.equal(core.strategyCleanerDraftFromPackage(blocked).ok, false);
 
 const importedPackage = core.importPayload(JSON.stringify(ready), { createdAt: '2026-05-09T01:00:00.000Z' });
 assert.equal(importedPackage.ok, true);
@@ -145,6 +153,7 @@ assert.match(blockedImport.errors.join(' '), /forbidden_raw_payload_keys/);
   'sb-send-pg-btn',
   'sb-prepare-preset-btn',
   'sb-send-views-btn',
+  'sb-prepare-cleaner-btn',
   'sb-clear-btn',
   'sb-export-btn',
   'sb-status',
@@ -171,6 +180,13 @@ document.addTab('views', false);
   'pg-custom-preset-name',
   'pg-custom-status',
   'pg-log',
+  'cln-dir',
+  'cln-recursive',
+  'cln-opt-eab',
+  'cln-opt-rename',
+  'cln-pattern',
+  'cln-pattern-wrap',
+  'cln-info',
 ].forEach(id => document.add(new Element(id)));
 [
   'vc-view-name',
@@ -237,6 +253,16 @@ assert.equal(document.getElementById('pg-custom-preset-name').value, 'SB EURUSD 
 assert.equal(document.getElementById('pg-custom-status').textContent, 'Preset preparado desde Strategy Builder. Revisa y pulsa Guardar preset manualmente.');
 assert.match(document.getElementById('pg-log').textContent, /Guardado manual pendiente/);
 assert.match(document.getElementById('sb-audit-list').innerHTML, /PG Preset Draft/);
+document.getElementById('sb-prepare-cleaner-btn').click();
+assert.equal(document.getElementById('tab-projectgen').style.display, 'block');
+assert.equal(document.getElementById('cln-recursive').checked, true);
+assert.equal(document.getElementById('cln-opt-eab').checked, true);
+assert.equal(document.getElementById('cln-opt-rename').checked, true);
+assert.equal(document.getElementById('cln-pattern').value, '{asset}_{tf}_{dir}_{id}');
+assert.equal(document.getElementById('cln-info').textContent, 'Draft desde Strategy Builder: elige carpeta .sqx, pulsa Escanear y procesa manualmente.');
+assert.match(document.getElementById('pg-log').textContent, /limpieza manual pendientes/);
+assert.match(document.getElementById('sb-status').textContent, /No scan or cleanup/);
+assert.match(document.getElementById('sb-audit-list').innerHTML, /Strategy Cleaner/);
 
 const importedUiResult = ui.importText(JSON.stringify(ready), { document });
 assert.equal(importedUiResult.ok, true);

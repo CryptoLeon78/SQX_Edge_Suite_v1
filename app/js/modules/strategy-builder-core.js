@@ -641,6 +641,49 @@
     };
   }
 
+  function strategyCleanerDraftFromPackage(input, options) {
+    var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {}, options);
+    var errors = [];
+    if (!payload || payload.type !== PACKAGE_TYPE) errors.push('invalid_strategy_builder_package');
+    if (payload && payload.workflow_state !== 'package_exportable' && !(options && options.allowBlocked)) {
+      errors.push('package_not_exportable');
+    }
+    var assetProfile = payload && payload.asset_profile || {};
+    var asset = normalizeAsset(assetProfile.asset);
+    var timeframe = normalizeTimeframe(assetProfile.timeframe);
+    if (!asset) errors.push('missing_asset');
+    if (!timeframe) errors.push('missing_timeframe');
+    if (errors.length) {
+      return { ok: false, errors: errors, draft: null, guardrails: ['no_cleaning_triggered'] };
+    }
+    return {
+      ok: true,
+      errors: [],
+      draft: {
+        asset: asset,
+        timeframe: timeframe,
+        recursive: true,
+        remove_exit_bars: true,
+        rename_institutional: true,
+        rename_pattern: '{asset}_{tf}_{dir}_{id}',
+        directory_hint: 'Select the StrategyQuant databank or generated .sqx folder manually.'
+      },
+      source: {
+        package_type: payload.type,
+        package_version: payload.version,
+        workflow_state: payload.workflow_state,
+        validation_pack_id: payload.validation_requirements && payload.validation_requirements.validation_pack_id || ''
+      },
+      guardrails: [
+        'draft_only',
+        'no_scan_triggered',
+        'no_cleaning_triggered',
+        'no_file_mutation',
+        'operator_must_press_scan_and_process'
+      ]
+    };
+  }
+
   function buyerWorkflowSummary(input, options) {
     var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {}, options);
     var review = reviewChecklistSummary(payload);
@@ -710,6 +753,7 @@
     sourceModes: SOURCE_MODES,
     sqxViewsHandoffFromPackage: sqxViewsHandoffFromPackage,
     states: WORKFLOW_STATES,
+    strategyCleanerDraftFromPackage: strategyCleanerDraftFromPackage,
     supportedAsset: supportedAsset,
     validateImportPayload: validateImportPayload
   };

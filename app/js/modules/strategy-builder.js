@@ -18,6 +18,7 @@
     sendProjectGenerator: 'sb-send-pg-btn',
     preparePreset: 'sb-prepare-preset-btn',
     sendViews: 'sb-send-views-btn',
+    prepareCleaner: 'sb-prepare-cleaner-btn',
     clear: 'sb-clear-btn',
     exportPackage: 'sb-export-btn',
     status: 'sb-status',
@@ -393,6 +394,46 @@
     return result;
   }
 
+  function setCleanerCheckbox(doc, id, checked) {
+    var node = byId(id, doc);
+    if (node) node.checked = !!checked;
+  }
+
+  function prepareStrategyCleaner(options) {
+    var doc = options && options.document ? options.document : global.document;
+    var api = core();
+    var payload = lastPackage || build({ document: doc });
+    if (!api || !api.strategyCleanerDraftFromPackage) {
+      setStatus('Strategy Cleaner draft contract missing.', 'error', doc);
+      return null;
+    }
+    var result = api.strategyCleanerDraftFromPackage(payload);
+    if (!result.ok) {
+      setStatus('Strategy Cleaner draft blocked: ' + result.errors.join(', ') + '.', 'warn', doc);
+      return result;
+    }
+    setCleanerCheckbox(doc, 'cln-recursive', result.draft.recursive);
+    setCleanerCheckbox(doc, 'cln-opt-eab', result.draft.remove_exit_bars);
+    setCleanerCheckbox(doc, 'cln-opt-rename', result.draft.rename_institutional);
+    setValue('cln-pattern', result.draft.rename_pattern, doc);
+    var patternWrap = byId('cln-pattern-wrap', doc);
+    if (patternWrap) patternWrap.style.display = result.draft.rename_institutional ? 'inline-block' : 'none';
+    var info = byId('cln-info', doc);
+    if (info) {
+      info.textContent = 'Draft desde Strategy Builder: elige carpeta .sqx, pulsa Escanear y procesa manualmente.';
+      info.style.color = 'var(--accent)';
+    }
+    var PG = SQX.projectGenerator || {};
+    var dom = PG.dom || {};
+    if (dom.appendLog) {
+      dom.appendLog(doc, 'Strategy Builder preparo opciones para Strategy Cleaner. Escaneo y limpieza manual pendientes.', 'info');
+    }
+    if (SQX.ui && SQX.ui.activateTabById) SQX.ui.activateTabById('projectgen', doc);
+    addAuditEntry('Strategy Cleaner', payload, result, doc);
+    setStatus('Strategy Cleaner draft prepared. No scan or cleanup was triggered.', 'ok', doc);
+    return result;
+  }
+
   function importText(raw, options) {
     var doc = options && options.document ? options.document : global.document;
     var api = core();
@@ -460,6 +501,7 @@
     bind(doc, IDS.sendProjectGenerator, function() { sendToProjectGenerator({ document: doc }); });
     bind(doc, IDS.preparePreset, function() { prepareProjectGeneratorPreset({ document: doc }); });
     bind(doc, IDS.sendViews, function() { sendToViews({ document: doc }); });
+    bind(doc, IDS.prepareCleaner, function() { prepareStrategyCleaner({ document: doc }); });
     bind(doc, IDS.importPackage, function() {
       var input = byId(IDS.importFile, doc);
       if (input && input.click) input.click();
@@ -483,6 +525,7 @@
     init: init,
     loadCvcSample: loadCvcSample,
     prepareProjectGeneratorPreset: prepareProjectGeneratorPreset,
+    prepareStrategyCleaner: prepareStrategyCleaner,
     renderAuditTrail: renderAuditTrail,
     sendToViews: sendToViews,
     sendToProjectGenerator: sendToProjectGenerator

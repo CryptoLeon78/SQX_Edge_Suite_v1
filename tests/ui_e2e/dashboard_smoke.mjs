@@ -267,13 +267,31 @@ async function run() {
     await saveShot(desktop, 'e2e-strategy-builder-views-handoff-desktop.png');
     await desktop.locator('.tab[data-tab="strategybuilder"]').click();
     await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
+    await desktop.locator('#sb-prepare-cleaner-btn').click();
+    await desktop.waitForSelector('.tab[data-tab="projectgen"].active');
+    const cleanerDraft = await desktop.evaluate(() => ({
+      recursive: document.getElementById('cln-recursive')?.checked,
+      removeExitBars: document.getElementById('cln-opt-eab')?.checked,
+      rename: document.getElementById('cln-opt-rename')?.checked,
+      pattern: document.getElementById('cln-pattern')?.value,
+      info: document.getElementById('cln-info')?.textContent,
+      tableText: document.getElementById('cln-table')?.textContent || '',
+      log: document.getElementById('pg-log')?.textContent || '',
+    }));
+    if (!cleanerDraft.recursive || !cleanerDraft.removeExitBars || !cleanerDraft.rename || cleanerDraft.pattern !== '{asset}_{tf}_{dir}_{id}') throw new Error(`Strategy Cleaner draft options failed: ${JSON.stringify(cleanerDraft)}`);
+    if (!cleanerDraft.info.includes('procesa manualmente')) throw new Error(`Strategy Cleaner draft info missing manual boundary: ${JSON.stringify(cleanerDraft)}`);
+    if (cleanerDraft.tableText.trim() !== '') throw new Error('Strategy Cleaner draft should not scan .sqx files');
+    if (!cleanerDraft.log.includes('limpieza manual pendientes')) throw new Error('Strategy Cleaner draft should log manual cleanup boundary');
+    await saveShot(desktop, 'e2e-strategy-builder-cleaner-draft-desktop.png');
+    await desktop.locator('.tab[data-tab="strategybuilder"]').click();
+    await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
     const auditTrail = await desktop.evaluate(() => ({
       rows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
       workflowDone: document.querySelectorAll('#sb-workflow-steps .sb-workflow-step.is-done').length,
       storageText: localStorage.getItem('sqx_strategy_builder_audit_v1'),
     }));
     if (auditTrail.workflowDone < 5) throw new Error(`Strategy Builder workflow polish missing ready steps: ${JSON.stringify(auditTrail)}`);
-    if (!auditTrail.rows.some(text => text.includes('SQX Views')) || !auditTrail.rows.some(text => text.includes('Project Generator')) || !auditTrail.rows.some(text => text.includes('PG Preset Draft'))) throw new Error(`Strategy Builder audit trail missing handoffs: ${JSON.stringify(auditTrail)}`);
+    if (!auditTrail.rows.some(text => text.includes('SQX Views')) || !auditTrail.rows.some(text => text.includes('Project Generator')) || !auditTrail.rows.some(text => text.includes('PG Preset Draft')) || !auditTrail.rows.some(text => text.includes('Strategy Cleaner'))) throw new Error(`Strategy Builder audit trail missing handoffs: ${JSON.stringify(auditTrail)}`);
     if (auditTrail.storageText !== null) throw new Error('Strategy Builder audit trail should stay session-only, not localStorage');
     await saveShot(desktop, 'e2e-strategy-builder-audit-desktop.png');
     const importResult = await desktop.evaluate(pkg => window.SQX.strategyBuilder.importText(JSON.stringify(pkg)), builderPackage);
