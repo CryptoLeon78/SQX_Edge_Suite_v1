@@ -144,7 +144,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/domain.js` | Domain rules that are independent from DOM rendering. |
 | `modules/datasets.js` | Normalized access to asset, score and manifest datasets. |
 | `modules/champion-challenger-regime.js` | First-party Regime/EGT evidence adapter for Champion vs Challenger using historical and score datasets. |
-| `modules/champion-challenger.js` | Native dashboard UI facade for `tab-cvc`, delegating parsing, scoring and contextual evidence to focused modules without local persistence. |
+| `modules/champion-challenger.js` | Native dashboard UI facade for `tab-cvc`, delegating parsing, scoring, contextual evidence, safe JSON export and future Strategy Builder handoff to focused contracts without local persistence. |
 | `modules/renderers.js` | Reusable HTML rendering helpers for dashboard lists/tables. |
 | `modules/charts.js` | Chart and visual summary helpers. |
 | `modules/strategies.js` | Strategy UI contracts, deletion/import state, strategy metadata. |

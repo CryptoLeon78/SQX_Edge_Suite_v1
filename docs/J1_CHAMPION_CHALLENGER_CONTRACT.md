@@ -238,7 +238,7 @@ Future implementation should use a J-prefixed phase track:
 3. `J3` - OOS block parser and stability scoring with tests. Done; see `docs/J3_CHAMPION_CHALLENGER_OOS.md`.
 4. `J4` - Native dashboard UI using SQX modules and current visual system. Done; see `docs/J4_CHAMPION_CHALLENGER_UI.md`.
 5. `J5` - Regime/EGT evidence adapter using first-party historical data. Done; see `docs/J5_CHAMPION_CHALLENGER_REGIME_EGT.md`.
-6. `J6` - Export and future Strategy Builder handoff.
+6. `J6` - Export and future Strategy Builder handoff. Done; see `docs/J6_CHAMPION_CHALLENGER_EXPORT_HANDOFF.md`.
 
 ## Acceptance Criteria For J1
 

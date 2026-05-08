@@ -16,6 +16,7 @@ J2_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J2_CHAMPION_CHALLENGER_COR
 J3_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J3_CHAMPION_CHALLENGER_OOS.md"
 J4_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J4_CHAMPION_CHALLENGER_UI.md"
 J5_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J5_CHAMPION_CHALLENGER_REGIME_EGT.md"
+J6_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J6_CHAMPION_CHALLENGER_EXPORT_HANDOFF.md"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
 MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
@@ -237,6 +238,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         j3 = J3_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
         j4 = J4_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
         j5 = J5_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
+        j6 = J6_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
         comparison = (PROJECT_ROOT / "docs" / "EXTERNAL_REPO_COMPARISON_JOSE.md").read_text(encoding="utf-8-sig")
@@ -260,6 +262,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Phase J3: add OOS block parsing and stability scoring with contracts",
             "Phase J4: add native dashboard UI using the current SQX module architecture",
             "Phase J5: add regime/EGT evidence through first-party historical-data adapters",
+            "Phase J6: add export and future Strategy Builder handoff",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
@@ -270,11 +273,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("docs/J3_CHAMPION_CHALLENGER_OOS.md", governance)
         self.assertIn("docs/J4_CHAMPION_CHALLENGER_UI.md", governance)
         self.assertIn("docs/J5_CHAMPION_CHALLENGER_REGIME_EGT.md", governance)
+        self.assertIn("docs/J6_CHAMPION_CHALLENGER_EXPORT_HANDOFF.md", governance)
         self.assertIn("Phase J1 starts the selective Champion vs Challenger track", comparison)
         self.assertIn("Phase J2 implements the first native Champion vs Challenger core", comparison)
         self.assertIn("Phase J3 adds the OOS stability layer", comparison)
         self.assertIn("Phase J4 exposes the comparison workflow as native SQX dashboard UI", comparison)
         self.assertIn("Phase J5 adds first-party Regime/EGT evidence", comparison)
+        self.assertIn("Phase J6 closes the first Champion vs Challenger integration track", comparison)
 
         for pattern in (
             "J2 Champion vs Challenger Core",
@@ -320,6 +325,19 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, j5)
+
+        for pattern in (
+            "J6 Champion vs Challenger Export and Strategy Builder Handoff",
+            "`SQX.championChallenger`",
+            "`buildReviewExport(model)`",
+            "`buildStrategyBuilderHandoff(reviewOrModel)`",
+            "No raw CSV payloads.",
+            "No remote calls.",
+            "No automatic localStorage writes.",
+            "No `Matriz Completa`, matrix tab or heatmap panel restoration.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, j6)
 
     def test_modular_scaffold_loads_before_legacy_logic(self):
         scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)
@@ -412,9 +430,15 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.formatters", formatters_js)
         self.assertIn("SQX.championChallengerCore", champion_core_js)
         self.assertIn("SQX.championChallenger", champion_ui_js)
+        self.assertIn("buildReviewExport", champion_ui_js)
+        self.assertIn("buildStrategyBuilderHandoff", champion_ui_js)
+        self.assertNotIn("localStorage.setItem", champion_ui_js)
         self.assertIn("window.SQX.championChallenger.init()", main_js)
         self.assertIn('id="tab-cvc"', self.html)
         self.assertIn('id="cvc-run-btn"', self.html)
+        self.assertIn('id="cvc-export-btn"', self.html)
+        self.assertIn('id="cvc-handoff-btn"', self.html)
+        self.assertIn('id="cvc-handoff-preview"', self.html)
         self.assertIn('id="cvc-ranking"', self.html)
         self.assertIn('data-home-tab="cvc"', self.html)
         self.assertIn("SQX.domain", domain_js)

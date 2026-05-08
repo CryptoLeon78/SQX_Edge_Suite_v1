@@ -183,6 +183,14 @@ Phase J5 adds first-party Regime/EGT evidence:
 
 It enriches the native comparison board with contextual `COMPLIANT`, `RISK`, `FLAT` and `UNKNOWN` labels derived from our maintained `SQX_HISTORICAL_DATA` and `SQX_SCORES_DATA` layers, not from copied inline HTML assumptions.
 
+Phase J6 closes the first Champion vs Challenger integration track:
+
+- `docs/J6_CHAMPION_CHALLENGER_EXPORT_HANDOFF.md`
+- `app/js/modules/champion-challenger.js`
+- `tests/js/contracts/champion_challenger_ui_contracts.mjs`
+
+It adds safe local JSON exports for the reviewed ranking and a future Strategy Builder handoff contract. The payloads include normalized metrics, OOS summaries and first-party Regime/EGT evidence, while excluding raw CSV payloads, localStorage writes, remote calls, Top Picks surfaces and matrix/heatmap surfaces.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:

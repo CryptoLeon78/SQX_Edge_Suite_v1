@@ -23,11 +23,14 @@ sandbox.SQX_SCORES_DATA = {
   'cvc-run-btn',
   'cvc-sample-btn',
   'cvc-clear-btn',
+  'cvc-export-btn',
+  'cvc-handoff-btn',
   'cvc-status',
   'cvc-summary',
   'cvc-ranking',
   'cvc-empty',
   'cvc-oos-summary',
+  'cvc-handoff-preview',
   'cvc-candidate-count',
   'cvc-ready-count',
   'cvc-oos-ready-count',
@@ -48,6 +51,27 @@ assert.match(document.getElementById('cvc-ranking').innerHTML, /Challenger A/);
 assert.match(document.getElementById('cvc-ranking').innerHTML, /OOS 100% positivo/);
 assert.match(document.getElementById('cvc-ranking').innerHTML, /EGT/);
 assert.match(document.getElementById('cvc-ranking').innerHTML, /COMPLIANT/);
+
+const reviewExport = cvc.buildReviewExport(cvc.evaluate({ document }), { generatedAt: '2026-05-08T00:00:00.000Z' });
+assert.equal(reviewExport.type, 'sqx-edge.champion-challenger-review');
+assert.equal(reviewExport.summary.candidate_count, 3);
+assert.equal(reviewExport.summary.oos_stable_count, 1);
+assert.equal(reviewExport.redaction.raw_csv, 'excluded');
+assert.equal(reviewExport.redaction.remote_calls, 'none');
+assert.equal(reviewExport.candidates[0].strategy_name, 'Challenger A');
+assert.equal(Object.prototype.hasOwnProperty.call(reviewExport.candidates[0], 'raw'), false);
+
+const handoff = cvc.buildStrategyBuilderHandoff(reviewExport, { generatedAt: '2026-05-08T00:01:00.000Z' });
+assert.equal(handoff.type, 'sqx-edge.strategy-builder-handoff');
+assert.equal(handoff.source_review.candidate_count, 3);
+assert.equal(handoff.recommended_candidate.strategy_name, 'Challenger A');
+assert.match(handoff.guardrails.join(' '), /No raw CSV payloads/);
+
+document.getElementById('cvc-handoff-btn').click();
+assert.match(document.getElementById('cvc-status').textContent, /Handoff Strategy Builder/);
+assert.match(document.getElementById('cvc-handoff-preview').innerHTML, /Strategy Builder handoff/);
+document.getElementById('cvc-export-btn').click();
+assert.match(document.getElementById('cvc-status').textContent, /Resumen CVC/);
 
 document.getElementById('cvc-champion-input').value = [
   'Strategy Name,Symbol,Profit factor,Return/Drawdown,# trades',
@@ -70,6 +94,7 @@ assert.equal(document.getElementById('cvc-champion-input').value, '');
 assert.equal(document.getElementById('cvc-ranking').innerHTML, '');
 assert.equal(document.getElementById('cvc-candidate-count').textContent, '0');
 assert.equal(document.getElementById('cvc-regime-ready-count').textContent, '0');
+assert.equal(document.getElementById('cvc-handoff-preview').innerHTML, '');
 
 document.getElementById('cvc-run-btn').click();
 assert.match(document.getElementById('cvc-status').textContent, /Revisa los datos/);

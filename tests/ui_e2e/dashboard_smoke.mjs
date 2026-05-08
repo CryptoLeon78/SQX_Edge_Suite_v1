@@ -196,6 +196,13 @@ async function run() {
     const cvcModel = await desktop.evaluate(() => window.SQX.championChallenger.evaluate());
     if (!cvcModel.ok || cvcModel.rankings.length !== 3) throw new Error('Champion vs Challenger sample contract failed');
     if (!cvcModel.rankings.every(row => row.regime_evidence && row.regime_evidence.symbol === 'EURUSD')) throw new Error('Champion vs Challenger regime evidence missing');
+    const cvcReview = await desktop.evaluate(() => window.SQX.championChallenger.buildReviewExport(window.SQX.championChallenger.evaluate()));
+    if (cvcReview.type !== 'sqx-edge.champion-challenger-review' || cvcReview.summary.candidate_count !== 3) throw new Error('Champion vs Challenger export contract failed');
+    if (JSON.stringify(cvcReview).includes('Champion CSV')) throw new Error('Champion vs Challenger export should not include raw CSV payloads');
+    const cvcHandoff = await desktop.evaluate(review => window.SQX.championChallenger.buildStrategyBuilderHandoff(review), cvcReview);
+    if (cvcHandoff.type !== 'sqx-edge.strategy-builder-handoff' || !cvcHandoff.recommended_candidate) throw new Error('Strategy Builder handoff contract failed');
+    await desktop.locator('#cvc-handoff-btn').click();
+    await desktop.waitForFunction(() => document.getElementById('cvc-handoff-preview')?.textContent.includes('Strategy Builder handoff'));
     await saveShot(desktop, 'e2e-champion-challenger-desktop.png');
     await desktop.locator('.tab[data-tab="estrategias"]').click();
     await desktop.waitForSelector('#tab-estrategias .strat-card');
@@ -233,6 +240,8 @@ async function run() {
     await mobile.locator('#cvc-sample-btn').click();
     await mobile.waitForSelector('#cvc-ranking .cvc-result-row');
     await mobile.waitForFunction(() => Number(document.getElementById('cvc-regime-ready-count')?.textContent.trim() || 0) > 0);
+    const mobileHandoff = await mobile.evaluate(() => window.SQX.championChallenger.buildStrategyBuilderHandoff(window.SQX.championChallenger.buildReviewExport(window.SQX.championChallenger.evaluate())));
+    if (mobileHandoff.type !== 'sqx-edge.strategy-builder-handoff') throw new Error('Mobile CVC handoff contract failed');
     await assertNoMobileOverflow(mobile);
     await saveShot(mobile, 'e2e-champion-challenger-mobile.png');
     await mobile.locator('.tab[data-tab="estrategias"]').click();
