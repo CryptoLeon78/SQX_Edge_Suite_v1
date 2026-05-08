@@ -85,4 +85,55 @@ const tooManyRows = cvc.parseStrategyCsv(
 assert.equal(tooManyRows.ok, false);
 assert.ok(tooManyRows.errors.some(error => error.code === 'champion_row_count_invalid'));
 
+const oosColumns = cvc.resolveOosColumns([
+  'Strategy Name',
+  'CAGR/Max DD (OOS1)',
+  'Profit Factor (OOS1)',
+  'CAGR/Max DD (OOS2)',
+  'CAGR/Max DD (OOS4)',
+  'Worst Year Profit (OOS4)',
+]);
+assert.equal(oosColumns.metrics[cvc.normalizeMetricName('CAGR/Max DD')].metric, 'CAGR/Max DD');
+assert.equal(oosColumns.metrics[cvc.normalizeMetricName('CAGR/Max DD')].columns[4], 4);
+assert.equal(cvc.choosePrimaryOosMetric(oosColumns.metrics), 'CAGR/Max DD');
+assert.equal(cvc.extractOosHeader('Profit Factor (OOS12)').block, 12);
+assert.equal(cvc.extractOosHeader('Profit Factor OOS12'), null);
+
+const oosCsv = [
+  'Strategy Name;Symbol;CAGR/Max DD (OOS1);Profit Factor (OOS1);Worst Year Profit (OOS1);CAGR/Max DD (OOS2);Profit Factor (OOS2);Worst Year Profit (OOS2);CAGR/Max DD (OOS3);Profit Factor (OOS3);Worst Year Profit (OOS3)',
+  '"<b>Challenger A</b>";EURUSD;2.5;1.6;100;1.5;1.4;-20;-0.5;0.9;50',
+  'Challenger B;EURUSD;1.0;1.2;10;1.1;1.3;20;1.2;1.4;30',
+].join('\n');
+const oosParsed = cvc.parseOosCsv(oosCsv);
+assert.equal(oosParsed.ok, true);
+assert.equal(oosParsed.delimiter, ';');
+assert.equal(oosParsed.records.length, 2);
+assert.equal(oosParsed.records[0].primary_metric, 'CAGR/Max DD');
+assert.equal(oosParsed.records[0].block_count, 3);
+assert.equal(oosParsed.records[0].positive_block_count, 2);
+assert.equal(oosParsed.records[0].positive_block_ratio, 2 / 3);
+assert.equal(oosParsed.records[0].primary_metric_min, -0.5);
+assert.equal(oosParsed.records[0].primary_metric_max, 2.5);
+assert.equal(oosParsed.records[0].primary_metric_avg, (2.5 + 1.5 - 0.5) / 3);
+assert.equal(oosParsed.records[0].primary_metric_decay, -3);
+assert.equal(oosParsed.records[0].max_negative_streak, 1);
+assert.equal(oosParsed.records[0].has_negative_worst_year, true);
+assert.equal(oosParsed.records[0].stable_enough, true);
+assert.equal(oosParsed.records[0].safe_strategy_name, '&lt;b&gt;Challenger A&lt;/b&gt;');
+assert.equal(oosParsed.records[1].max_negative_streak, 0);
+assert.equal(oosParsed.records[1].has_negative_worst_year, false);
+
+const sparseOos = cvc.parseOosCsv([
+  'Strategy Name,CAGR/Max DD (OOS1),CAGR/Max DD (OOS3)',
+  'Sparse,1.0,2.0',
+].join('\n'));
+assert.equal(sparseOos.ok, true);
+assert.equal(sparseOos.records[0].block_count, 2);
+assert.equal(sparseOos.records[0].stable_enough, false);
+assert.ok(sparseOos.records[0].warnings.some(warning => warning.code === 'oos_missing_block' && warning.block === 2));
+
+const noOosMetrics = cvc.parseOosCsv('Strategy Name,Symbol\nA,EURUSD');
+assert.equal(noOosMetrics.ok, false);
+assert.ok(noOosMetrics.errors.some(error => error.code === 'oos_metric_columns_missing'));
+
 console.log('champion challenger core contracts ok');

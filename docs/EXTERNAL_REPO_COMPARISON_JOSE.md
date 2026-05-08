@@ -161,13 +161,19 @@ Phase J2 implements the first native Champion vs Challenger core:
 
 It adds pure CSV parsing, alias resolution, numeric normalization, Champion validation, formal comparison and deterministic ranking without dashboard UI, backend endpoints, copied Jose code, Top Picks surfaces or matrix/heatmap surfaces.
 
+Phase J3 adds the OOS stability layer:
+
+- `docs/J3_CHAMPION_CHALLENGER_OOS.md`
+
+It detects columns such as `CAGR/Max DD (OOS1)`, selects a primary OOS metric, computes block count, positive-block ratio, min/max/average/decay, negative streaks and negative Worst Year flags. It still avoids dashboard UI, backend endpoints, copied Jose code, Top Picks surfaces and matrix/heatmap surfaces.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:
 
 1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts, A55 added the OHLC metric builder, A56 added the end-to-end real-data runner, A57 exposed read-only dashboard evidence after GO, A58 added the internal MT5/Dukascopy download gate, A59 recorded the first local MT5 NO-GO smoke, A60 added active-terminal retry mode, A61 added repeatable IPC diagnostics and A62 achieved real A56 GO using recent MT5 bars.
 2. Optional market data acquisition: keep MT5/Dukascopy as an operator-only script, excluded from portable buyer builds unless explicitly needed.
-3. Champion vs Challenger OOS blocks: implement the J3 OOS parser and stability scoring before any UI.
+3. Champion vs Challenger UI: implement J4 as native dashboard UI after the parser/core/OOS contracts are stable.
 4. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
 5. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
 

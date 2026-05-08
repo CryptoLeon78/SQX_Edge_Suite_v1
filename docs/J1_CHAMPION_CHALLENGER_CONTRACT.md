@@ -2,7 +2,7 @@
 
 Date: 2026-05-08
 
-Status: discovery contract accepted for future implementation. J2 core implementation completed.
+Status: discovery contract accepted for future implementation. J2 core and J3 OOS stability implementations completed.
 
 Source reviewed: `https://github.com/jlivanmaseda-maker/sqx-edge-pipeline.git`, commit `d4fddcc9a0eee10b42ddb7652a635a15d50b0e76`.
 
@@ -235,7 +235,7 @@ Future implementation should use a J-prefixed phase track:
 
 1. `J1` - Champion vs Challenger contract and integration design. Done.
 2. `J2` - Pure parser, alias resolver and formal comparison core with tests. Done; see `docs/J2_CHAMPION_CHALLENGER_CORE.md`.
-3. `J3` - OOS block parser and stability scoring with tests.
+3. `J3` - OOS block parser and stability scoring with tests. Done; see `docs/J3_CHAMPION_CHALLENGER_OOS.md`.
 4. `J4` - Native dashboard UI using SQX modules and current visual system.
 5. `J5` - Regime/EGT evidence adapter using first-party historical data.
 6. `J6` - Export and future Strategy Builder handoff.

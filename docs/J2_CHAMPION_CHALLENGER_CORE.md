@@ -2,7 +2,7 @@
 
 Date: 2026-05-08
 
-Status: implemented as a pure frontend core with contracts. No dashboard UI was added.
+Status: implemented as a pure frontend core with contracts. J3 OOS stability extension completed. No dashboard UI was added.
 
 ## Objective
 
@@ -140,10 +140,12 @@ Contracts cover:
 - Champion row-count validation.
 - Formal ranking and failure reasons.
 
-## Deferred To J3/J4
+## J3 Extension
 
-- OOS block parser.
-- Stability scoring.
+J3 extends this same core with OOS block parsing and stability scoring. See `docs/J3_CHAMPION_CHALLENGER_OOS.md`.
+
+## Deferred To J4/J5
+
 - Dashboard UI.
 - E2E screenshot verification.
 - Regime/EGT adapter.

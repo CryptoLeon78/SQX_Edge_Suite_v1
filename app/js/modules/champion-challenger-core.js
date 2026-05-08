@@ -7,6 +7,8 @@
   var DEFAULT_RECOMMENDED_FIELDS = ['net_profit', 'drawdown_pct', 'r_expectancy', 'stagnation', 'entry_indicators', 'filters_result'];
   var DEFAULT_MAX_BYTES = 1024 * 1024;
   var DEFAULT_MAX_ROWS = 5000;
+  var DEFAULT_MIN_OOS_BLOCKS = 3;
+  var PRIMARY_OOS_METRICS = ['CAGR/Max DD', 'Profit Factor', 'Net Profit'];
 
   var FIELD_ALIASES = {
     strategy_name: ['Strategy Name', 'Strategy', 'Name'],
@@ -189,6 +191,198 @@
     });
 
     return { columns: columns, warnings: warnings, unknown: unknown };
+  }
+
+  function normalizeMetricName(value) {
+    return String(value == null ? '' : value)
+      .replace(/^\uFEFF/, '')
+      .trim()
+      .replace(/\s+/g, ' ')
+      .toLowerCase();
+  }
+
+  function displayMetricName(value) {
+    return String(value == null ? '' : value).replace(/^\uFEFF/, '').trim().replace(/\s+/g, ' ');
+  }
+
+  function extractOosHeader(header) {
+    var match = String(header == null ? '' : header).match(/^\s*(.*?)\s*\(\s*OOS\s*(\d+)\s*\)\s*$/i);
+    if (!match) return null;
+    var metric = displayMetricName(match[1]);
+    var block = parseInt(match[2], 10);
+    if (!metric || !block || block < 1) return null;
+    return {
+      metric: metric,
+      normalizedMetric: normalizeMetricName(metric),
+      block: block
+    };
+  }
+
+  function resolveOosColumns(headers) {
+    var metrics = {};
+    var warnings = [];
+    (headers || []).forEach(function(header, index) {
+      var parsed = extractOosHeader(header);
+      if (!parsed) return;
+      metrics[parsed.normalizedMetric] = metrics[parsed.normalizedMetric] || {
+        metric: parsed.metric,
+        normalizedMetric: parsed.normalizedMetric,
+        columns: {}
+      };
+      if (metrics[parsed.normalizedMetric].columns[parsed.block] != null) {
+        warnings.push({ code: 'duplicate_oos_block_metric', metric: parsed.metric, block: parsed.block, index: index });
+        return;
+      }
+      metrics[parsed.normalizedMetric].columns[parsed.block] = index;
+    });
+    return { metrics: metrics, warnings: warnings };
+  }
+
+  function choosePrimaryOosMetric(metricColumns, preferredMetrics) {
+    var preferred = preferredMetrics || PRIMARY_OOS_METRICS;
+    var names = Object.keys(metricColumns || {});
+    for (var i = 0; i < preferred.length; i += 1) {
+      var normalized = normalizeMetricName(preferred[i]);
+      if (metricColumns[normalized]) return metricColumns[normalized].metric;
+    }
+    return names.length ? metricColumns[names[0]].metric : null;
+  }
+
+  function sortedBlockIds(metricInfo) {
+    return Object.keys((metricInfo && metricInfo.columns) || {})
+      .map(function(block) { return parseInt(block, 10); })
+      .filter(function(block) { return isFinite(block); })
+      .sort(function(a, b) { return a - b; });
+  }
+
+  function maxNegativeStreak(values) {
+    var current = 0;
+    var max = 0;
+    values.forEach(function(value) {
+      if (typeof value === 'number' && value < 0) {
+        current += 1;
+        if (current > max) max = current;
+      } else {
+        current = 0;
+      }
+    });
+    return max;
+  }
+
+  function parseOosRecord(row, headers, oosColumns, options) {
+    var opts = options || {};
+    var preferredMetrics = opts.primaryMetrics || PRIMARY_OOS_METRICS;
+    var primaryMetric = choosePrimaryOosMetric(oosColumns.metrics, preferredMetrics);
+    var warnings = [].concat(oosColumns.warnings || []);
+    var metricsByBlock = {};
+    var metricsAvailable = Object.keys(oosColumns.metrics || {}).map(function(key) {
+      return oosColumns.metrics[key].metric;
+    });
+
+    Object.keys(oosColumns.metrics || {}).forEach(function(metricKey) {
+      var info = oosColumns.metrics[metricKey];
+      sortedBlockIds(info).forEach(function(block) {
+        var parsed = parseNumber(row[info.columns[block]]);
+        metricsByBlock[block] = metricsByBlock[block] || {};
+        metricsByBlock[block][info.metric] = parsed.ok ? parsed.value : null;
+        if (!parsed.ok) {
+          warnings.push({ code: 'oos_non_numeric_metric', metric: info.metric, block: block, value: row[info.columns[block]] });
+        }
+      });
+    });
+
+    var primaryInfo = primaryMetric ? oosColumns.metrics[normalizeMetricName(primaryMetric)] : null;
+    var blockIds = sortedBlockIds(primaryInfo);
+    var expected = [];
+    if (blockIds.length) {
+      for (var block = blockIds[0]; block <= blockIds[blockIds.length - 1]; block += 1) expected.push(block);
+      expected.forEach(function(blockId) {
+        if (blockIds.indexOf(blockId) === -1) warnings.push({ code: 'oos_missing_block', block: blockId, metric: primaryMetric });
+      });
+    }
+
+    var primaryValues = blockIds.map(function(blockId) {
+      return metricsByBlock[blockId] ? metricsByBlock[blockId][primaryMetric] : null;
+    }).filter(function(value) {
+      return typeof value === 'number' && isFinite(value);
+    });
+    var positive = primaryValues.filter(function(value) { return value > 0; });
+    var total = primaryValues.length;
+    var sum = primaryValues.reduce(function(acc, value) { return acc + value; }, 0);
+    var worstYearKey = Object.keys(oosColumns.metrics || {}).find(function(key) {
+      return normalizeMetricName(oosColumns.metrics[key].metric) === normalizeMetricName('Worst Year Profit');
+    });
+    var worstYearValues = [];
+    if (worstYearKey) {
+      sortedBlockIds(oosColumns.metrics[worstYearKey]).forEach(function(blockId) {
+        var value = metricsByBlock[blockId] ? metricsByBlock[blockId][oosColumns.metrics[worstYearKey].metric] : null;
+        if (typeof value === 'number' && isFinite(value)) worstYearValues.push(value);
+      });
+    }
+
+    return {
+      headers: headers,
+      primary_metric: primaryMetric,
+      metrics_available: metricsAvailable,
+      metrics_by_block: metricsByBlock,
+      block_count: total,
+      positive_block_count: positive.length,
+      positive_block_ratio: total ? positive.length / total : null,
+      primary_metric_min: total ? Math.min.apply(Math, primaryValues) : null,
+      primary_metric_max: total ? Math.max.apply(Math, primaryValues) : null,
+      primary_metric_avg: total ? sum / total : null,
+      primary_metric_decay: total > 1 ? primaryValues[total - 1] - primaryValues[0] : null,
+      max_negative_streak: maxNegativeStreak(primaryValues),
+      has_negative_worst_year: worstYearValues.some(function(value) { return value < 0; }),
+      stable_enough: total >= (opts.minBlocks || DEFAULT_MIN_OOS_BLOCKS),
+      warnings: warnings
+    };
+  }
+
+  function parseOosCsv(text, options) {
+    var opts = options || {};
+    var source = String(text == null ? '' : text);
+    var parsed = parseCsv(source, opts);
+    var errors = parsed.errors.map(function(error) { return { code: error }; });
+    var warnings = [];
+    if (!source.trim()) errors.push({ code: 'oos_csv_empty' });
+    if (!parsed.rows.length) errors.push({ code: 'oos_header_missing' });
+
+    var headers = parsed.rows[0] || [];
+    var aliasResolution = resolveColumnAliases(headers, {
+      requiredFields: [],
+      aliases: opts.aliases || FIELD_ALIASES
+    });
+    var oosColumns = resolveOosColumns(headers);
+    warnings = warnings.concat(aliasResolution.warnings).concat(oosColumns.warnings);
+    if (!Object.keys(oosColumns.metrics).length) {
+      errors.push({ code: 'oos_metric_columns_missing' });
+    }
+
+    var dataRows = parsed.rows.slice(1);
+    if (!dataRows.length) errors.push({ code: 'oos_rows_missing' });
+
+    var records = dataRows.map(function(row, index) {
+      var strategyName = aliasResolution.columns.strategy_name != null ? String(row[aliasResolution.columns.strategy_name] || '').trim() : '';
+      var symbol = aliasResolution.columns.symbol != null ? String(row[aliasResolution.columns.symbol] || '').trim() : '';
+      var record = parseOosRecord(row, headers, oosColumns, opts);
+      record.rowNumber = index + 2;
+      record.strategy_name = strategyName;
+      record.symbol = symbol;
+      record.safe_strategy_name = escapeHtml(strategyName);
+      record.safe_symbol = escapeHtml(symbol);
+      return record;
+    });
+
+    return {
+      ok: errors.length === 0,
+      delimiter: parsed.delimiter,
+      headers: headers,
+      records: records,
+      oos_columns: oosColumns.metrics,
+      errors: errors,
+      warnings: warnings
+    };
   }
 
   function normalizeRecord(row, headers, columns, rowNumber) {
@@ -440,15 +634,23 @@
     numericFields: NUMERIC_FIELDS,
     defaultRequiredFields: DEFAULT_REQUIRED_FIELDS,
     defaultRecommendedFields: DEFAULT_RECOMMENDED_FIELDS,
+    defaultMinOosBlocks: DEFAULT_MIN_OOS_BLOCKS,
+    primaryOosMetrics: PRIMARY_OOS_METRICS,
     compareCandidate: compareCandidate,
     detectDelimiter: detectDelimiter,
     escapeHtml: escapeHtml,
+    choosePrimaryOosMetric: choosePrimaryOosMetric,
+    extractOosHeader: extractOosHeader,
     normalizeHeader: normalizeHeader,
+    normalizeMetricName: normalizeMetricName,
     parseCsv: parseCsv,
     parseNumber: parseNumber,
+    parseOosCsv: parseOosCsv,
+    parseOosRecord: parseOosRecord,
     parseStrategyCsv: parseStrategyCsv,
     rankCandidates: rankCandidates,
-    resolveColumnAliases: resolveColumnAliases
+    resolveColumnAliases: resolveColumnAliases,
+    resolveOosColumns: resolveOosColumns
   };
 
   if (SQX.registerModule) {
