@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-08 - A61 MT5 IPC diagnostic
+
+- Adds `mt5_ipc_diagnostic.py` as an internal operator diagnostic for MT5 Python IPC readiness before full OHLC download.
+- Captures Python/MetaTrader5 versions, terminal process state and configured/active/portable initialization variants into JSON and Markdown evidence.
+- Keeps the diagnostic and generated evidence excluded from portable buyer builds, distribution audit and release checklist.
+- Records the current blocker as local MT5 IPC timeout despite the terminal being open and responsive.
+
 ## 2026-05-08 - A60 MT5 active-terminal retry mode
 
 - Adds `--use-active-terminal` and `--initialize-timeout-ms` to the internal MT5/Dukascopy downloader so the operator can connect to an already-open terminal without forcing the configured executable path.

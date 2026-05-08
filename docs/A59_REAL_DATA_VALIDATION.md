@@ -28,7 +28,7 @@ The smoke reached the MT5 initialization boundary but returned:
 MT5 initialize failed: (-10005, 'IPC timeout')
 ```
 
-This means the local terminal did not answer the Python IPC connection in time. A60 added an active-terminal retry mode and confirmed the timeout persists even when MT5 is already open and responsive.
+This means the local terminal did not answer the Python IPC connection in time at that moment. A60 added an active-terminal retry mode, and A61 later confirmed IPC can work once the terminal session is ready.
 
 Generated local evidence is intentionally ignored by git:
 

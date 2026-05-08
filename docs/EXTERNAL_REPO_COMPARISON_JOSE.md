@@ -133,11 +133,18 @@ Phase A60 adds an active-terminal retry mode:
 
 The terminal process is open, responsive and showing `EURUSD,H1`, but the Python IPC bridge still returns timeout. The remaining work is resolving local MT5 session/permission/readiness before any full OHLC download.
 
+Phase A61 adds a repeatable IPC diagnostic:
+
+- `backend/sqx-edge-tool/tools/mt5_ipc_diagnostic.py`
+- `docs/A61_MT5_IPC_DIAGNOSTIC.md`
+
+It records Python/MetaTrader5 versions, terminal process state and configured/active/portable initialization variants before any full OHLC download attempt.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:
 
-1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts, A55 added the OHLC metric builder, A56 added the end-to-end real-data runner, A57 exposed read-only dashboard evidence after GO, A58 added the internal MT5/Dukascopy download gate, A59 recorded the first local MT5 NO-GO smoke and A60 added active-terminal retry mode; remaining work is resolving local MT5 IPC and running A58/A56 with real local terminal data until GO.
+1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts, A55 added the OHLC metric builder, A56 added the end-to-end real-data runner, A57 exposed read-only dashboard evidence after GO, A58 added the internal MT5/Dukascopy download gate, A59 recorded the first local MT5 NO-GO smoke, A60 added active-terminal retry mode and A61 added repeatable IPC diagnostics; remaining work is resolving local MT5 IPC and running A58/A56 with real local terminal data until GO.
 2. Optional market data acquisition: keep MT5/Dukascopy as an operator-only script, excluded from portable buyer builds unless explicitly needed.
 3. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
 4. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
@@ -160,4 +167,4 @@ Explicitly excluded by product decision:
 - No legacy HTML tabs were restored.
 - No sensitive commercial material was imported.
 - No third-party credentials, tokens or account passwords were introduced.
-- The current advisor uses the available H1 score baseline; A49/A50/A51/A52/A53/A54/A55/A56/A57/A58/A59/A60 now provide a safe backend-to-dashboard path for real multi-timeframe metrics once supplied and validated.
+- The current advisor uses the available H1 score baseline; A49/A50/A51/A52/A53/A54/A55/A56/A57/A58/A59/A60/A61 now provide a safe backend-to-dashboard path for real multi-timeframe metrics once supplied and validated.

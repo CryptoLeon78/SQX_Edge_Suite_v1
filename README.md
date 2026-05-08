@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: A60 completada con mejora de modo terminal activo y NO-GO operativo por timeout IPC de MT5; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: A61 completada con diagnostico MT5 IPC GO; el siguiente bloqueo es que el modo historico por rango no devuelve barras y necesitamos modo de barras recientes.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
 - SHA256 del ZIP: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Siguiente paso recomendado: A61/R44 - revisar dentro de Dukascopy MT5 login, Market Watch, permisos y dialogos modales; repetir el comando A60 hasta que escriba `data/ohlc/EURUSD_H1.csv`, luego descargar universo OHLC completo y correr A56 hasta GO.
-- Ultima mejora funcional: `dukas_mt5_ohlc_download.py` soporta `--use-active-terminal` y `--initialize-timeout-ms`; la validacion A60 queda documentada en `docs/A60_MT5_ACTIVE_TERMINAL_MODE.md`.
+- Siguiente paso recomendado: A62/R44 - anadir modo de barras recientes al downloader, generar `data/ohlc/EURUSD_H1.csv`, descargar universo OHLC completo y correr A56 hasta GO.
+- Ultima mejora funcional: `mt5_ipc_diagnostic.py` genera evidencia JSON/Markdown de Python, terminal y variantes de inicializacion MT5 antes de descargar datos reales.
 
 ## SQX Edge Pro
 

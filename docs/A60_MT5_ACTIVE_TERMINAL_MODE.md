@@ -41,13 +41,13 @@ backend\sqx-edge-tool\venv\Scripts\python.exe backend\sqx-edge-tool\tools\dukas_
 
 ## Result
 
-The terminal still returned:
+The terminal initially returned:
 
 ```text
 MT5 initialize failed: (-10005, 'IPC timeout')
 ```
 
-This means the problem is no longer just the configured executable path. The open terminal is not accepting the Python MetaTrader5 IPC bridge in this environment/session.
+A61 later showed that the terminal can accept the Python MetaTrader5 IPC bridge through active-terminal/portable initialization. The next blocker is data retrieval mode: range reads returned no bars, while recent-position reads returned data.
 
 ## Next Real Checks
 
@@ -67,4 +67,3 @@ A61 should only proceed to full OHLC download when the A60 command returns GO an
 ```text
 data\ohlc\EURUSD_H1.csv
 ```
-

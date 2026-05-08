@@ -112,7 +112,9 @@ csv_for_sqx/*.csv
 analysis/csv_for_sqx/*.csv
 data/ohlc/
 analysis_output/dukas_mt5_download/
+analysis_output/mt5_ipc_diagnostic/
 analysis/analysis_output/dukas_mt5_download/
+analysis/analysis_output/mt5_ipc_diagnostic/
 *_M1.csv
 *_M1_clean.csv
 *_M1.meta.txt

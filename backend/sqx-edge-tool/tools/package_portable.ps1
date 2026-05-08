@@ -156,9 +156,11 @@ function Test-IncludedPath {
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfill_from_request\.ps1$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\relay_bundle\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\dukas_mt5_ohlc_download\.py$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\tools\\mt5_ipc_diagnostic\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\config\\dukas_mt5_download\.json$") { return $false }
   if ($Path -match "\\data\\ohlc\\") { return $false }
   if ($Path -match "\\analysis_output\\dukas_mt5_download\\") { return $false }
+  if ($Path -match "\\analysis_output\\mt5_ipc_diagnostic\\") { return $false }
   if ($Path -match "\\[^\\]*_private_key\.json$") { return $false }
   if ($Path -match "\\[^\\]*\.private_key\.json$") { return $false }
   if ($Path -match "\\license_signed_[^\\]*\.json$") { return $false }
