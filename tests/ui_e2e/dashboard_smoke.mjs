@@ -131,6 +131,16 @@ async function run() {
     const buyerPack = await desktop.evaluate(() => window.SQX.viewCreator.buildBuyerReadyTemplatePack());
     if (buyerPack.type !== 'sqx-edge.view-presets' || buyerPack.presets.length < 4) throw new Error('SQX Views buyer-ready pack contract failed');
     await desktop.evaluate(() => localStorage.removeItem('sqx_view_creator_presets_v1'));
+    await desktop.waitForSelector('#vc-profile-list .views-profile-card');
+    const profilePackCount = await desktop.locator('#vc-profile-list .views-profile-card').count();
+    if (profilePackCount < 4) throw new Error(`Expected SQX Views buyer profile packs, got ${profilePackCount}`);
+    await desktop.locator('[data-vc-profile-load="pro-setup-assist"]').click();
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'EGT First Review');
+    await desktop.locator('[data-vc-profile-save="pro-setup-assist"]').click();
+    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').some(preset => preset.id === 'profile-pro-setup-assist-risk-capital-review'));
+    const profilePack = await desktop.evaluate(() => window.SQX.viewCreator.buildBuyerProfilePack('pro-setup-assist'));
+    if (profilePack.type !== 'sqx-edge.view-presets' || profilePack.presets.length !== 3) throw new Error('SQX Views buyer profile pack contract failed');
+    await desktop.evaluate(() => localStorage.removeItem('sqx_view_creator_presets_v1'));
     await desktop.locator('#vc-year-count').fill('5');
     await desktop.locator('[data-vc-preset="risk"]').click();
     await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);

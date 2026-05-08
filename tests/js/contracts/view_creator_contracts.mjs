@@ -19,6 +19,8 @@ assert.ok(html.includes('id="vc-export-presets-btn"'), 'missing preset pack expo
 assert.ok(html.includes('id="vc-import-presets-btn"'), 'missing preset pack import button');
 assert.ok(html.includes('id="vc-template-list"'), 'missing buyer-ready template list');
 assert.ok(html.includes('id="vc-export-template-pack-btn"'), 'missing buyer-ready template pack export button');
+assert.ok(html.includes('id="vc-profile-list"'), 'missing buyer profile pack list');
+assert.ok(html.includes('id="vc-profile-count"'), 'missing buyer profile pack count');
 assert.ok(html.includes('id="strat-views-handoff"'), 'missing strategies to SQX Views handoff');
 assert.ok(html.includes('id="workflow-views-handoff"'), 'missing workflow to SQX Views handoff');
 assert.ok(html.includes('data-vc-handoff="risk"'), 'missing risk view handoff preset');
@@ -89,6 +91,15 @@ const buyerPack = viewCreator.buildBuyerReadyTemplatePack();
 assert.equal(buyerPack.type, 'sqx-edge.view-presets');
 assert.equal(buyerPack.presets.length, 4);
 assert.ok(buyerPack.presets.some(preset => preset.id === 'buyer-risk-capital-review'));
+const profilePacks = viewCreator.buyerProfilePacks();
+assert.equal(profilePacks.length, 4);
+assert.ok(profilePacks.some(pack => pack.id === 'free-evaluation-starter' && pack.tier === 'free'));
+assert.ok(profilePacks.some(pack => pack.id === 'pro-setup-assist' && pack.templates.length === 3));
+const setupPack = viewCreator.buildBuyerProfilePack('pro-setup-assist');
+assert.equal(setupPack.type, 'sqx-edge.view-presets');
+assert.equal(setupPack.presets.length, 3);
+assert.ok(setupPack.presets.some(preset => preset.id === 'profile-pro-setup-assist-risk-capital-review'));
+assert.ok(viewCreator.buildAllBuyerProfilePacks().presets.length >= 9);
 
 const presetPack = viewCreator.buildPresetPackage();
 assert.equal(presetPack.type, 'sqx-edge.view-presets');
@@ -171,5 +182,11 @@ assert.ok(Number(templateSandbox.document.getElementById('vc-column-count').text
 const savedTemplate = templateSandbox.SQX.viewCreator.saveBuyerReadyTemplate('risk-capital-review');
 assert.equal(savedTemplate.id, 'buyer-risk-capital-review');
 assert.equal(templateSandbox.SQX.viewCreator.getSavedPresets().length, 1);
+const loadedProfile = templateSandbox.SQX.viewCreator.loadBuyerProfilePack('risk-capital-buyer');
+assert.equal(loadedProfile.name, 'Risk Capital Buyer');
+assert.equal(templateSandbox.document.getElementById('vc-view-name').value, 'Risk Capital Review');
+const savedProfile = templateSandbox.SQX.viewCreator.saveBuyerProfilePack('risk-capital-buyer');
+assert.equal(savedProfile.length, 2);
+assert.ok(templateSandbox.SQX.viewCreator.getSavedPresets().some(preset => preset.id === 'profile-risk-capital-buyer-risk-capital-review'));
 
 console.log('view creator contracts ok');

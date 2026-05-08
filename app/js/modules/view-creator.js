@@ -171,6 +171,37 @@
     }
   ];
 
+  var BUYER_PROFILE_PACK_DEFINITIONS = [
+    {
+      id: 'free-evaluation-starter',
+      name: 'Free Evaluation Starter',
+      tier: 'free',
+      description: 'Pack minimo para que un usuario pruebe la carga de vistas sin activar Pro.',
+      templateIds: ['egt-first-review']
+    },
+    {
+      id: 'pro-setup-assist',
+      name: 'Pro Setup Assist',
+      tier: 'pro',
+      description: 'Primer pack recomendado para entregar a un comprador Pro tras configuracion inicial.',
+      templateIds: ['egt-first-review', 'robustness-pack-screen', 'risk-capital-review']
+    },
+    {
+      id: 'risk-capital-buyer',
+      name: 'Risk Capital Buyer',
+      tier: 'pro',
+      description: 'Pack orientado a compradores que priorizan drawdown, dispersion y riesgo operativo.',
+      templateIds: ['risk-capital-review', 'robustness-pack-screen']
+    },
+    {
+      id: 'audit-delivery-buyer',
+      name: 'Audit Delivery Buyer',
+      tier: 'pro',
+      description: 'Pack amplio para handoff de auditoria cuando una tanda ya paso filtros iniciales.',
+      templateIds: ['full-audit-handoff', 'risk-capital-review', 'robustness-pack-screen']
+    }
+  ];
+
   var metricState = {};
   METRICS.forEach(function(metric) {
     metricState[metric.className] = {
@@ -435,6 +466,61 @@
     return buildPresetPackage(accessibleBuyerReadyTemplates().map(templateToPreset));
   }
 
+  function buyerProfilePackFromDefinition(definition) {
+    var templates = (definition.templateIds || []).map(findBuyerReadyTemplate).filter(Boolean);
+    return {
+      id: definition.id,
+      name: definition.name,
+      tier: definition.tier || 'pro',
+      description: definition.description || '',
+      templateIds: templates.map(function(template) { return template.id; }),
+      templates: templates
+    };
+  }
+
+  function getBuyerProfilePacks() {
+    return BUYER_PROFILE_PACK_DEFINITIONS.map(buyerProfilePackFromDefinition);
+  }
+
+  function findBuyerProfilePack(id) {
+    return getBuyerProfilePacks().find(function(pack) { return pack.id === id; }) || null;
+  }
+
+  function canUseBuyerProfilePack(pack) {
+    return !!(pack && (pack.tier !== 'pro' || hasFullAccess()));
+  }
+
+  function profileTemplateToPreset(pack, template) {
+    if (!pack || !template) return null;
+    return normalizePreset({
+      id: 'profile-' + pack.id + '-' + template.id,
+      name: pack.name + ' - ' + template.name,
+      savedAt: new Date().toISOString(),
+      config: template.config
+    });
+  }
+
+  function buyerProfilePackPresets(id) {
+    var pack = typeof id === 'string' ? findBuyerProfilePack(id) : id;
+    if (!pack) return [];
+    return pack.templates.map(function(template) {
+      return profileTemplateToPreset(pack, template);
+    }).filter(Boolean);
+  }
+
+  function buildBuyerProfilePack(id) {
+    return buildPresetPackage(buyerProfilePackPresets(id));
+  }
+
+  function buildAllBuyerProfilePacks() {
+    var packs = getBuyerProfilePacks().filter(canUseBuyerProfilePack);
+    var presets = [];
+    packs.forEach(function(pack) {
+      presets = presets.concat(buyerProfilePackPresets(pack));
+    });
+    return buildPresetPackage(presets);
+  }
+
   function parsePresetPackage(payload) {
     var data = typeof payload === 'string' ? safeJsonParse(payload, null) : payload;
     if (!data) return [];
@@ -642,6 +728,40 @@
     return templates;
   }
 
+  function renderBuyerProfilePacks() {
+    var list = byId('vc-profile-list');
+    var count = byId('vc-profile-count');
+    var packs = getBuyerProfilePacks();
+    var full = hasFullAccess();
+    if (count) count.textContent = packs.length + (packs.length === 1 ? ' pack' : ' packs');
+    if (!list) return packs;
+    list.innerHTML = packs.map(function(pack) {
+      var disabled = pack.tier === 'pro' && !full;
+      var actionAttrs = disabled ? ' disabled aria-disabled="true"' : '';
+      var flow = pack.templates.map(function(template) {
+        return '<span>' + escapeHtml(template.name) + '</span>';
+      }).join('');
+      return '<article class="views-profile-card ' + (pack.tier === 'pro' ? 'is-pro' : 'is-free') + '">' +
+        '<div class="views-profile-top">' +
+          '<div><div class="views-profile-name">' + escapeHtml(pack.name) + '</div>' +
+          '<p class="views-profile-desc">' + escapeHtml(pack.description) + '</p></div>' +
+          '<span class="views-template-tier ' + escapeHtml(pack.tier) + '">' + escapeHtml(pack.tier) + '</span>' +
+        '</div>' +
+        '<div class="views-profile-meta">' +
+          '<span>' + pack.templates.length + ' vistas</span>' +
+          '<span>' + pack.templates.reduce(function(total, template) { return total + template.config.metrics.length; }, 0) + ' metricas base</span>' +
+        '</div>' +
+        '<div class="views-profile-flow">' + flow + '</div>' +
+        '<div class="views-profile-actions">' +
+          '<button class="filter-btn" data-vc-profile-load="' + escapeHtml(pack.id) + '" type="button"' + actionAttrs + '>Cargar</button>' +
+          '<button class="filter-btn" data-vc-profile-save="' + escapeHtml(pack.id) + '" type="button"' + actionAttrs + '>Guardar pack</button>' +
+          '<button class="filter-btn" data-vc-profile-export="' + escapeHtml(pack.id) + '" type="button"' + actionAttrs + '>Exportar</button>' +
+        '</div>' +
+      '</article>';
+    }).join('');
+    return packs;
+  }
+
   function setMetric(className, selected, annual) {
     var metric = metricByClass(className);
     metricState[className] = {
@@ -790,6 +910,53 @@
     return preset;
   }
 
+  function loadBuyerProfilePack(id) {
+    var pack = findBuyerProfilePack(id);
+    if (!pack) {
+      setStatus('Pack de perfil no encontrado.', 'warn');
+      return null;
+    }
+    if (!canUseBuyerProfilePack(pack)) {
+      setStatus('Este pack por perfil requiere SQX Edge Pro.', 'warn');
+      return null;
+    }
+    var first = pack.templates[0];
+    if (!first) {
+      setStatus('El pack no contiene vistas validas.', 'warn');
+      return null;
+    }
+    applyConfig(first.config);
+    setStatus('Pack cargado: ' + pack.name + ' (' + first.name + ').', 'ok');
+    if (global.addHomeTrace) global.addHomeTrace('SQX Views', 'Pack ' + pack.name + ' cargado', 'ok');
+    return pack;
+  }
+
+  function saveBuyerProfilePack(id) {
+    var pack = findBuyerProfilePack(id);
+    if (!pack) {
+      setStatus('Pack de perfil no encontrado.', 'warn');
+      return null;
+    }
+    if (!canUseBuyerProfilePack(pack)) {
+      setStatus('Este pack por perfil requiere SQX Edge Pro.', 'warn');
+      return null;
+    }
+    var incoming = buyerProfilePackPresets(pack);
+    if (!incoming.length) {
+      setStatus('El pack no contiene presets validos.', 'warn');
+      return null;
+    }
+    var incomingIds = incoming.reduce(function(acc, preset) {
+      acc[preset.id] = true;
+      return acc;
+    }, {});
+    setSavedPresets(incoming.concat(getSavedPresets().filter(function(preset) { return !incomingIds[preset.id]; })));
+    renderSavedPresets();
+    if (byId('vc-saved-select')) byId('vc-saved-select').value = incoming[0].id;
+    setStatus('Pack guardado: ' + pack.name + ' (' + incoming.length + ' presets).', 'ok');
+    return incoming;
+  }
+
   function downloadJson(filename, payload) {
     var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     var url = URL.createObjectURL(blob);
@@ -822,6 +989,26 @@
     }
     downloadJson('sqx-view-buyer-ready-pack-v' + PRESET_PACKAGE_VERSION + '.json', pack);
     setStatus('Ejemplos exportados: ' + pack.presets.length + ' presets.', 'ok');
+  }
+
+  function exportBuyerProfilePack(id) {
+    var packDef = findBuyerProfilePack(id);
+    if (!packDef) {
+      setStatus('Pack de perfil no encontrado.', 'warn');
+      return null;
+    }
+    if (!canUseBuyerProfilePack(packDef)) {
+      setStatus('Este pack por perfil requiere SQX Edge Pro.', 'warn');
+      return null;
+    }
+    var pack = buildBuyerProfilePack(packDef);
+    if (!pack.presets.length) {
+      setStatus('El pack no contiene presets validos.', 'warn');
+      return null;
+    }
+    downloadJson('sqx-view-profile-' + packDef.id + '-pack-v' + PRESET_PACKAGE_VERSION + '.json', pack);
+    setStatus('Pack exportado: ' + packDef.name + ' (' + pack.presets.length + ' presets).', 'ok');
+    return pack;
   }
 
   function importPresetFile(file) {
@@ -916,6 +1103,16 @@
         if (saveId) saveBuyerReadyTemplate(saveId);
       });
     }
+    if (byId('vc-profile-list')) {
+      byId('vc-profile-list').addEventListener('click', function(event) {
+        var loadId = event.target && event.target.dataset ? event.target.dataset.vcProfileLoad : '';
+        var saveId = event.target && event.target.dataset ? event.target.dataset.vcProfileSave : '';
+        var exportId = event.target && event.target.dataset ? event.target.dataset.vcProfileExport : '';
+        if (loadId) loadBuyerProfilePack(loadId);
+        if (saveId) saveBuyerProfilePack(saveId);
+        if (exportId) exportBuyerProfilePack(exportId);
+      });
+    }
     if (byId('vc-import-presets-btn') && byId('vc-import-presets-file')) {
       byId('vc-import-presets-btn').addEventListener('click', function() { byId('vc-import-presets-file').click(); });
       byId('vc-import-presets-file').addEventListener('change', function(event) {
@@ -931,6 +1128,7 @@
     renderMetrics();
     bindControls();
     renderBuyerReadyTemplates();
+    renderBuyerProfilePacks();
     renderSavedPresets();
     var note = byId('vc-license-note');
     if (note) note.textContent = hasFullAccess() ? 'Catalogo completo habilitado.' : 'Free: preset EGT Core. Pro desbloquea presets avanzados.';
@@ -946,23 +1144,30 @@
     countColumns: countColumns,
     downloadView: downloadView,
     bindHandoffLinks: bindHandoffLinks,
+    buildAllBuyerProfilePacks: buildAllBuyerProfilePacks,
     buildBuyerReadyTemplatePack: buildBuyerReadyTemplatePack,
+    buildBuyerProfilePack: buildBuyerProfilePack,
     buildPresetPackage: buildPresetPackage,
+    buyerProfilePacks: getBuyerProfilePacks,
     buyerReadyTemplates: getBuyerReadyTemplates,
+    exportBuyerProfilePack: exportBuyerProfilePack,
     importPresetPackage: importPresetPackage,
     importPresetPackageFromText: importPresetPackageFromText,
     getSavedPresets: getSavedPresets,
     groupedMetrics: groupedMetrics,
     init: init,
     loadBuyerReadyTemplate: loadBuyerReadyTemplate,
+    loadBuyerProfilePack: loadBuyerProfilePack,
     metrics: METRICS,
     packageType: PRESET_PACKAGE_TYPE,
     packageVersion: PRESET_PACKAGE_VERSION,
     openHandoff: openHandoff,
     previewLines: previewLines,
     renderBuyerReadyTemplates: renderBuyerReadyTemplates,
+    renderBuyerProfilePacks: renderBuyerProfilePacks,
     sanitizeInt: sanitizeInt,
     saveBuyerReadyTemplate: saveBuyerReadyTemplate,
+    saveBuyerProfilePack: saveBuyerProfilePack,
     saveCurrentPreset: saveCurrentPreset,
     selectedMetrics: selectedMetrics,
     serializeConfig: serializeConfig,

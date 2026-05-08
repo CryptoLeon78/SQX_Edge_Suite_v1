@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: R41 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: V7 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_075208.zip`.
 - SHA256 del ZIP: `CCB398057E5DEC6AC5AE2993E58E8DCEDBDB0686DD09539E30F9017D54F3A34D`.
-- Siguiente paso recomendado: V7 - ampliar packs SQX Views con ejemplos por perfil de comprador, o R42 - preparar registro publico de release si decidimos publicar este ZIP.
-- Ultima mejora funcional: ZIP portable regenerado y validado tras PG4, incluyendo prueba de `START_SQX_EDGE.bat`, API local, dashboard y `STOP_SQX_EDGE.bat`.
+- Siguiente paso recomendado: R42 - preparar registro publico de release si decidimos publicar este ZIP, o PG5 - enriquecer perfiles custom del Project Generator.
+- Ultima mejora funcional: SQX Views incluye packs por perfil de comprador para cargar, guardar o exportar conjuntos de vistas `.vw`.
 
 ## SQX Edge Pro
 
@@ -93,6 +93,7 @@ SQX Views:
 - La fuente prototipo Tkinter quedo migrada al flujo nativo del dashboard y archivada en backup previo de V5.
 - Free incluye el preset `EGT Core`; Pro desbloquea el catalogo completo y presets avanzados.
 - Incluye ejemplos buyer-ready para primera revision, robustez, riesgo y auditoria completa.
+- Incluye packs por perfil de comprador para evaluacion Free, Setup Assist Pro, comprador centrado en riesgo y entrega de auditoria.
 - Puedes guardar presets propios en el navegador y moverlos entre instalaciones con packs JSON exportables/importables.
 - Workflow y Estrategias incluyen accesos directos para abrir SQX Views con vistas recomendadas ya preparadas.
 - La vista descargada puede cargarse en StrategyQuant X desde Databank -> Load View.

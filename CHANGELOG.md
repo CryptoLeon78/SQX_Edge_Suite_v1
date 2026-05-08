@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - V7 SQX Views buyer profile packs
+
+- Anade packs por perfil en `SQX Views`: evaluacion Free, Setup Assist Pro, comprador centrado en riesgo y entrega de auditoria.
+- Permite cargar la primera vista del pack, guardar todas sus vistas como presets propios y exportar cada pack como JSON portable.
+- Refuerza contratos JS, tests estaticos y E2E para cubrir render, guardado y contrato de exportacion de packs por perfil.
+
 ## 2026-05-08 - R41 portable ZIP after PG4
 
 - Regenera el ZIP portable tras los perfiles starter de `Custom libre`.
