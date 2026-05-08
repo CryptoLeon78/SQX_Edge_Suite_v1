@@ -68,11 +68,18 @@ Phase A51 adds a first-party metric validation gate:
 
 The gate validates supplied `asset_metrics[_TF].json` folders before they are accepted as first-party multi-timeframe evidence. It reports GO/NO-GO, missing files, expected asset coverage, metric completeness, unknown assets, scoring compatibility and SHA256 fingerprints. It intentionally does not download market data, change dashboard scores or expose a new UI panel.
 
+Phase A52 creates the first real first-party metric source:
+
+- `backend/sqx-edge-tool/tools/first_party_metric_source.py`
+- `backend/sqx-edge-tool/test_first_party_metric_source.py`
+
+The source normalizes our existing dashboard H1 metrics from `app/js/scores-data.js` into `asset_metrics.json`, writes `metric_source_manifest.json` with SHA256 provenance and validates the output through the A51 gate. It explicitly refuses to synthesize M15/M30/H4 values until a real market-derived source is selected.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:
 
-1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review and A51 added the validation gate; remaining work is choosing or generating the first-party metric source and running the gate on real files.
+1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate and A52 established H1 as a traceable first-party source; remaining work is choosing or generating real M15/M30/H4 metric files and running the gate on them.
 2. Optional market data acquisition: evaluate MT5/Dukascopy data download as an operator-only script, excluded from portable buyer builds unless explicitly needed.
 3. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
 4. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
@@ -95,4 +102,4 @@ Explicitly excluded by product decision:
 - No legacy HTML tabs were restored.
 - No sensitive commercial material was imported.
 - No third-party credentials, tokens or account passwords were introduced.
-- The current advisor uses the available H1 score baseline; A49/A50/A51 now provide a safe backend path for real multi-timeframe metrics once supplied and validated.
+- The current advisor uses the available H1 score baseline; A49/A50/A51/A52 now provide a safe backend path for real multi-timeframe metrics once supplied and validated.

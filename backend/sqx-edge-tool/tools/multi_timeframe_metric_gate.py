@@ -65,7 +65,7 @@ def required_metrics_for_tf(tf: str) -> set[str]:
     required: set[str] = set()
     for definitions in scoring.category_metrics_for(tf).values():
         for metric_name, _higher_is_better in definitions:
-            required.add("hurst" if metric_name == "hurst_dist" else metric_name)
+            required.add(metric_name)
     return required
 
 
@@ -79,6 +79,12 @@ def safe_number(value: Any) -> float | None:
     if number != number:
         return None
     return number
+
+
+def metric_is_present(values: dict[str, Any], metric: str) -> bool:
+    if metric == "hurst_dist":
+        return safe_number(values.get("hurst_dist")) is not None or safe_number(values.get("hurst")) is not None
+    return safe_number(values.get(metric)) is not None
 
 
 def validate_payload(
@@ -98,7 +104,7 @@ def validate_payload(
     for asset in known:
         values = payload.get(asset) or {}
         for metric in sorted(required_metrics):
-            if safe_number(values.get(metric)) is None:
+            if not metric_is_present(values, metric):
                 missing_metric_cells.append({"asset": asset, "metric": metric})
             else:
                 present_metric_cells += 1

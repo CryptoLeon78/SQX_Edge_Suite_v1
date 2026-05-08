@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - A52 first-party H1 metric source
+
+- Anade `first_party_metric_source.py` para convertir `scores-data.js` en `asset_metrics.json` H1 con manifiesto de procedencia y hashes.
+- Ajusta scorer/gate para aceptar `hurst_dist` precomputado del dashboard sin inventar un `hurst` bruto.
+- Valida el bundle generado con el gate A51 y deja explicitado que M15/M30/H4 no se sintetizan.
+
 ## 2026-05-08 - A51 multi-timeframe metric gate
 
 - Anade `multi_timeframe_metric_gate.py` para validar carpetas `asset_metrics[_TF].json` antes de usarlas como evidencia propia.

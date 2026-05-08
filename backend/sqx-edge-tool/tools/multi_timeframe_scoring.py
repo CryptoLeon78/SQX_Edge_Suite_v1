@@ -98,7 +98,10 @@ def enriched_metrics(raw_metrics: dict[str, Any]) -> dict[str, dict[str, Any]]:
             continue
         item = dict(metrics)
         hurst = safe_number(item.get("hurst"))
-        item["hurst_dist"] = abs(hurst - 0.5) if hurst is not None else None
+        if hurst is not None:
+            item["hurst_dist"] = abs(hurst - 0.5)
+        elif safe_number(item.get("hurst_dist")) is None:
+            item["hurst_dist"] = None
         out[str(asset)] = item
     return out
 
