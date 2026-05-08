@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: V8 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: PG6 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_075208.zip`.
 - SHA256 del ZIP: `CCB398057E5DEC6AC5AE2993E58E8DCEDBDB0686DD09539E30F9017D54F3A34D`.
-- Siguiente paso recomendado: R42 - preparar registro publico de release si decidimos publicar este ZIP, o PG6 - notas de handoff `.cfx`/preview de importacion para Project Generator.
-- Ultima mejora funcional: SQX Views incluye packs por familia de activo y flujos de validacion para cargar, guardar o exportar vistas `.vw` operativas.
+- Siguiente paso recomendado: R42 - preparar registro publico de release si decidimos publicar este ZIP, o V9 - preview/import comparison para SQX Views.
+- Ultima mejora funcional: Project Generator muestra preview de packs JSON antes de fusionar presets custom, con nuevos/reemplazos y resumen por asset.
 
 ## SQX Edge Pro
 
@@ -103,6 +103,7 @@ Project Generator:
 
 - `Custom libre` permite crear `.cfx` fuera del plan mining con asset, timeframe, blocksetting, direccion y capa propios.
 - Incluye presets locales reutilizables, exportacion/importacion JSON, perfiles starter y familias por objetivo para usuarios que quieren empezar sin configurar todo desde cero.
+- La importacion de packs custom muestra preview de presets, assets, capas y reemplazos antes de fusionarlos con los guardados locales.
 
 ## Entrega Final
 

@@ -317,6 +317,29 @@ const customImport = PG.importCustomProjectPresetPackageFromText(JSON.stringify(
 assert.equal(customImport.imported, 1);
 assert.equal(PG.getCustomProjectPresets(sandbox.localStorage).length, 2);
 assert.equal(PG.findCustomProjectPreset('gbpusd-m15-short', sandbox.localStorage).config.asset, 'GBPUSD');
+const importPreview = PG.customProjectPresetImportPreviewFromText(JSON.stringify({
+  type: 'sqx-edge.project-generator-custom-presets',
+  version: 1,
+  presets: [
+    {
+      id: 'gbpusd-m15-short',
+      name: 'GBPUSD M15 Short',
+      config: { asset: 'gbpusd', tf: 'm15', bs: '', dir: 'short', capa: 2, template: 'Tpl.cfx' },
+    },
+    {
+      id: 'xauusd-h1-risk',
+      name: 'XAUUSD H1 Risk',
+      config: { asset: 'xauusd', tf: 'h1', bs: 'BS_Gold', dir: 'both', capa: 2, template: '' },
+    },
+  ],
+}), sandbox.localStorage);
+assert.equal(importPreview.incomingCount, 2);
+assert.equal(importPreview.duplicateCount, 1);
+assert.equal(importPreview.newCount, 1);
+assert.equal(JSON.stringify(importPreview.assets), JSON.stringify(['GBPUSD', 'XAUUSD']));
+assert.match(PG.customProjectPresetImportPreviewSummary(importPreview), /2 presets · 1 nuevos · 1 reemplazos/);
+assert.match(PG.customProjectPresetImportPreviewHtml(importPreview), /pg-import-preview-row/);
+assert.match(PG.customProjectPresetImportPreviewHtml(importPreview), /reemplaza/);
 assert.match(PG.customProjectPresetOptionsHtml(savedCustom.presets), /EURUSD H1 Core/);
 assert.equal(PG.customProjectPresetCountLabel(1), '1 guardado');
 assert.equal(PG.findCustomProjectPreset('eurusd-h1-core', sandbox.localStorage).config.asset, 'EURUSD');

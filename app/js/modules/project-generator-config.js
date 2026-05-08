@@ -333,6 +333,76 @@ function parseCustomProjectPresetPackage(payload) {
     return [];
   }
 
+function customProjectPresetImportPreview(payload, storage) {
+    var incoming = parseCustomProjectPresetPackage(payload);
+    var current = getCustomProjectPresets(storage);
+    var currentIds = current.reduce(function(acc, preset) {
+      acc[preset.id] = true;
+      return acc;
+    }, {});
+    var duplicateIds = [];
+    var assets = {};
+    var timeframes = {};
+    incoming.forEach(function(preset) {
+      if (currentIds[preset.id]) duplicateIds.push(preset.id);
+      if (preset.config && preset.config.asset) assets[preset.config.asset] = true;
+      if (preset.config && preset.config.tf) timeframes[preset.config.tf] = true;
+    });
+    var mergedCount = incoming.length + current.filter(function(preset) {
+      return incoming.every(function(item) { return item.id !== preset.id; });
+    }).length;
+    return {
+      incoming: incoming,
+      incomingCount: incoming.length,
+      duplicateCount: duplicateIds.length,
+      duplicateIds: duplicateIds,
+      newCount: Math.max(0, incoming.length - duplicateIds.length),
+      finalCount: Math.min(30, mergedCount),
+      assets: Object.keys(assets).sort(),
+      timeframes: Object.keys(timeframes).sort()
+    };
+  }
+
+function customProjectPresetImportPreviewFromText(text, storage) {
+    return customProjectPresetImportPreview(String(text || ''), storage);
+  }
+
+function customProjectPresetImportPreviewSummary(preview) {
+    var data = preview || {};
+    if (!data.incomingCount) return 'Preview: el pack no contiene presets custom validos.';
+    return 'Preview: ' + data.incomingCount + (data.incomingCount === 1 ? ' preset' : ' presets')
+      + ' · ' + data.newCount + ' nuevos'
+      + ' · ' + data.duplicateCount + ' reemplazos'
+      + ' · total final ' + data.finalCount;
+  }
+
+function customProjectPresetImportPreviewHtml(preview) {
+    var data = preview || {};
+    if (!data.incomingCount) return messageHtml('El pack no contiene presets custom validos.', 'warning');
+    var rows = data.incoming.slice(0, 8).map(function(preset) {
+      var cfg = normalizeCustomProjectConfig(preset.config);
+      var duplicate = data.duplicateIds.indexOf(preset.id) >= 0;
+      return ''
+        + '<div class="pg-import-preview-row">'
+        +   '<strong title="' + escapeHtml(preset.name) + '">' + escapeHtml(preset.name) + '</strong>'
+        +   '<span>' + escapeHtml(cfg.asset) + '</span>'
+        +   '<span>' + escapeHtml(cfg.tf) + '</span>'
+        +   '<span>' + escapeHtml(cfg.dir.toUpperCase()) + '</span>'
+        +   '<span>C' + escapeHtml(cfg.capa) + '</span>'
+        +   (duplicate ? '<span class="is-duplicate">reemplaza</span>' : '<span>nuevo</span>')
+        + '</div>';
+    }).join('');
+    if (data.incoming.length > 8) {
+      rows += '<div class="pg-import-preview-row"><strong>+' + escapeHtml(data.incoming.length - 8) + ' presets mas</strong><span>pack</span></div>';
+    }
+    return ''
+      + '<div class="pg-import-preview-head">'
+      +   '<strong>' + escapeHtml(customProjectPresetImportPreviewSummary(data)) + '</strong>'
+      +   '<span>' + escapeHtml(data.assets.join(', ') || 'sin assets') + '</span>'
+      + '</div>'
+      + '<div class="pg-import-preview-list">' + rows + '</div>';
+  }
+
 function importCustomProjectPresetPackage(payload, storage) {
     var incoming = parseCustomProjectPresetPackage(payload);
     if (!incoming.length) {
@@ -614,6 +684,10 @@ function validateSqxPathHtml(result) {
     customPresetIdFromName: customPresetIdFromName,
     customProfileFamilyCardsHtml: customProfileFamilyCardsHtml,
     customProfileFamilyCountLabel: customProfileFamilyCountLabel,
+    customProjectPresetImportPreview: customProjectPresetImportPreview,
+    customProjectPresetImportPreviewFromText: customProjectPresetImportPreviewFromText,
+    customProjectPresetImportPreviewHtml: customProjectPresetImportPreviewHtml,
+    customProjectPresetImportPreviewSummary: customProjectPresetImportPreviewSummary,
     customProjectPresetCountLabel: customProjectPresetCountLabel,
     customProjectPresetOptionsHtml: customProjectPresetOptionsHtml,
     customStarterProfileCardsHtml: customStarterProfileCardsHtml,

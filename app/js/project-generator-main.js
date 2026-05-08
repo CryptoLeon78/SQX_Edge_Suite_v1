@@ -114,6 +114,13 @@ function pgSetCustomPackStatus(text) {
   pgSetText('pg-custom-pack-status', text || '');
 }
 
+function pgSetCustomImportPreview(html, hasItems) {
+  const el = pgDom('pg-custom-import-preview');
+  if (!el) return;
+  el.innerHTML = html || '';
+  el.classList.toggle('has-items', !!hasItems);
+}
+
 function pgWriteCustomInputs(config) {
   if (SQX_PG_DOM.writeCustomProjectInputs) SQX_PG_DOM.writeCustomProjectInputs(document, config);
 }
@@ -550,16 +557,24 @@ function pgImportCustomPresets(event) {
   const file = event && event.target && event.target.files && event.target.files[0];
   if (!file) {
     pgSetCustomStatus('Selecciona un pack JSON de presets custom.', 'err');
+    pgSetCustomImportPreview('', false);
     return;
   }
   const reader = new FileReader();
   reader.onload = () => {
+    const preview = SQX_PG_MODULE.customProjectPresetImportPreviewFromText
+      ? SQX_PG_MODULE.customProjectPresetImportPreviewFromText(reader.result || '')
+      : { incomingCount: 0 };
+    const previewHtml = SQX_PG_MODULE.customProjectPresetImportPreviewHtml
+      ? SQX_PG_MODULE.customProjectPresetImportPreviewHtml(preview)
+      : '';
+    pgSetCustomImportPreview(previewHtml, !!preview.incomingCount);
     const result = SQX_PG_MODULE.importCustomProjectPresetPackageFromText(reader.result || '');
     pgRenderCustomPresets(result.presets[0] && result.presets[0].id);
     if (result.imported) {
       pgSetCustomStatus('Pack importado: ' + result.imported + ' presets.', 'ok');
-      pgSetCustomPackStatus('Presets importados y fusionados con los locales.');
-      pgLog('Pack de presets custom importado: ' + result.imported + ' presets.', 'ok');
+      pgSetCustomPackStatus((SQX_PG_MODULE.customProjectPresetImportPreviewSummary && SQX_PG_MODULE.customProjectPresetImportPreviewSummary(preview)) || 'Presets importados y fusionados con los locales.');
+      pgLog('Pack de presets custom importado: ' + result.imported + ' presets. ' + (SQX_PG_MODULE.customProjectPresetImportPreviewSummary ? SQX_PG_MODULE.customProjectPresetImportPreviewSummary(preview) : ''), 'ok');
     } else {
       pgSetCustomStatus('El pack no contiene presets custom validos.', 'err');
       pgSetCustomPackStatus('Importacion sin cambios.');
@@ -568,6 +583,7 @@ function pgImportCustomPresets(event) {
   reader.onerror = () => {
     pgSetCustomStatus('No se pudo leer el pack de presets custom.', 'err');
     pgSetCustomPackStatus('Error leyendo el archivo.');
+    pgSetCustomImportPreview('', false);
   };
   reader.readAsText(file);
   if (event && event.target) event.target.value = '';

@@ -119,6 +119,8 @@ async function run() {
     await writeFile(customPackPath, JSON.stringify(customPresetPack, null, 2), 'utf8');
     await desktop.locator('#pg-custom-import-presets-file').setInputFiles(customPackPath);
     await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_pg_custom_presets_v1') || '[]').length === 1);
+    await desktop.waitForFunction(() => document.getElementById('pg-custom-import-preview')?.classList.contains('has-items'));
+    await desktop.waitForFunction(() => document.getElementById('pg-custom-import-preview')?.textContent.includes('Preview: 1 preset'));
     await desktop.locator('#pg-custom-load-preset').click();
     await desktop.waitForFunction(() => document.getElementById('pg-custom-asset')?.value === 'EURUSD');
     await saveShot(desktop, 'e2e-projectgen-desktop.png');

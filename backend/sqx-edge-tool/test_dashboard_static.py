@@ -986,6 +986,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             "customPresetPackageVersion",
             "customProfileFamilyCardsHtml",
             "customProfileFamilyCountLabel",
+            "customProjectPresetImportPreview",
+            "customProjectPresetImportPreviewFromText",
+            "customProjectPresetImportPreviewHtml",
+            "customProjectPresetImportPreviewSummary",
             "customProjectPresetCountLabel",
             "customProjectPresetOptionsHtml",
             "customStarterProfileCardsHtml",
@@ -1063,6 +1067,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.customProfileFamilyCardsHtml", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.customStarterProfileToPreset", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.buildCustomProjectPresetPackage", project_generator_main_js)
+        self.assertIn("SQX_PG_MODULE.customProjectPresetImportPreviewFromText", project_generator_main_js)
+        self.assertIn("SQX_PG_MODULE.customProjectPresetImportPreviewHtml", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.importCustomProjectPresetPackageFromText", project_generator_main_js)
         self.assertIn('id="pg-custom-starter-list"', self.html)
         self.assertIn('id="pg-custom-export-starter-profiles"', self.html)
@@ -1071,6 +1077,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn('id="pg-custom-export-presets"', self.html)
         self.assertIn('id="pg-custom-import-presets"', self.html)
         self.assertIn('id="pg-custom-import-presets-file"', self.html)
+        self.assertIn('id="pg-custom-import-preview"', self.html)
         self.assertIn("SQX_PG_MODULE.configSaveStatus", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.sqxCandidateFields", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.validateSqxShouldApply", project_generator_main_js)

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - PG6 Project Generator import preview
+
+- Anade preview visual al importar packs JSON de presets custom en `Project Generator`.
+- Muestra presets entrantes, asset, timeframe, direccion, capa y si el preset reemplaza uno local.
+- Refuerza contratos JS, tests estaticos y E2E para cubrir el preview antes de la fusion local.
+
 ## 2026-05-08 - V8 SQX Views asset and validation workflow packs
 
 - Anade packs de `SQX Views` por familia de activo y flujo de validacion.
