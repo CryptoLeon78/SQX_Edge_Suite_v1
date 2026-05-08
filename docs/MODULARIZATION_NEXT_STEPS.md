@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: A54 - guarded multi-timeframe plan artifacts.
+- Current completed phase: A55 - OHLC metric builder.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
 - Latest ZIP SHA256: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Next recommended phase: A55 - obtain/generate real M30/M15/H4 metric files from a reviewable market-data source, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: A56 - run OHLC builder on real exported market CSVs and rerun A53/A54, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -65,7 +65,8 @@ Persistent planning note for the next SQX Edge phases.
 6. Phase A52: implement a first-party H1 metric source from existing dashboard scores, write provenance and validate it through the A51 gate without synthetic lower/higher TFs. Done.
 7. Phase A53: add a controlled intake gate for real H1/M30/M15/H4 metric folders, with first-party H1 support and strict blocking for missing synthetic lower/higher TFs. Done.
 8. Phase A54: connect a validated full multi-timeframe source to Plan Quality Advisor artifacts only after A53 returns GO, otherwise write a blocked NO-GO report. Done.
-9. Phase A55: obtain or generate real M30/M15/H4 metric files from a reviewable market-data source, then rerun A53/A54 to unlock MTF evidence.
+9. Phase A55: add an OHLC CSV metric builder that converts reviewable market CSVs into `asset_metrics[_TF].json` without synthetic timeframes. Done.
+10. Phase A56: run the OHLC builder on real exported market CSVs, then rerun A53/A54 to unlock MTF evidence if coverage is sufficient.
 
 ## QA / Security Track
 

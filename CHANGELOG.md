@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - A55 OHLC metric builder
+
+- Anade `ohlc_metric_builder.py` para generar `asset_metrics[_TF].json` desde CSV OHLC revisables aportados por el operador.
+- Cubre metricas requeridas por el scorer multi-timeframe: ADX, eficiencia, SMA persistence, RSI edge, ATR, vol-of-vol, Hurst distance, OU half-life, kurtosis, VWAP y round bounce.
+- Mantiene la regla de no sintetizar timeframes y rechaza archivos con barras insuficientes.
+
 ## 2026-05-08 - A54 guarded multi-timeframe plan artifacts
 
 - Anade `multi_timeframe_plan_artifacts.py` para conectar A53 con `Plan Quality Advisor` solo cuando el intake multi-timeframe devuelve GO.

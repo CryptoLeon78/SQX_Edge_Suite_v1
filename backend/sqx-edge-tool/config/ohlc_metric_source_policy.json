@@ -1,0 +1,27 @@
+{
+  "state": "ohlc_metric_builder_ready",
+  "phase": "A55",
+  "inputPolicy": "operator_supplies_reviewable_ohlc_csv_files",
+  "acceptedColumns": {
+    "time": ["time", "datetime", "date", "timestamp"],
+    "open": ["open", "o"],
+    "high": ["high", "h"],
+    "low": ["low", "l"],
+    "close": ["close", "c"],
+    "volume": ["volume", "tick_volume", "vol"]
+  },
+  "acceptedFilePatterns": [
+    "{ASSET}_{TF}.csv",
+    "{ASSET}-{TF}.csv"
+  ],
+  "supportedTimeframes": ["H1", "M30", "M15", "H4"],
+  "minimumBars": 120,
+  "syntheticTimeframesAllowed": false,
+  "outputFiles": {
+    "H1": "asset_metrics.json",
+    "M30": "asset_metrics_M30.json",
+    "M15": "asset_metrics_M15.json",
+    "H4": "asset_metrics_H4.json"
+  },
+  "nextPhase": "A56 - run OHLC builder on real exported market CSVs, then rerun A53/A54 for GO artifacts."
+}

@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: A54 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: A55 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
 - SHA256 del ZIP: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Siguiente paso recomendado: A55 - conseguir/generar metricas reales M30/M15/H4 desde una fuente de mercado revisable.
-- Ultima mejora funcional: artefactos A54 que conectan A53 con `Plan Quality Advisor` solo cuando la fuente multi-timeframe completa esta validada.
+- Siguiente paso recomendado: A56 - ejecutar el builder OHLC sobre CSV reales exportados y reintentar A53/A54.
+- Ultima mejora funcional: builder OHLC que genera metricas `asset_metrics[_TF].json` desde CSV de mercado revisables sin sintetizar timeframes.
 
 ## SQX Edge Pro
 
@@ -114,6 +114,7 @@ Herramientas analiticas:
 - `first_party_metric_source.py` genera el bundle H1 first-party desde `app/js/scores-data.js`, escribe manifiesto de procedencia y ejecuta el gate sin fabricar timeframes no disponibles.
 - `multi_timeframe_source_intake.py` prepara una carpeta de intake H1/M30/M15/H4, puede anadir H1 first-party y bloquea M15/M30/H4 si no existen metricas reales.
 - `multi_timeframe_plan_artifacts.py` genera reportes del Plan Quality Advisor con evidencia MTF solo si A53 devuelve GO; si no, escribe un NO_GO trazable.
+- `ohlc_metric_builder.py` convierte CSV OHLC revisables (`ASSET_TF.csv`) en metricas multi-timeframe compatibles con A53/A54.
 
 ## Entrega Final
 
