@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: A50 - multi-timeframe plan review evidence.
+- Current completed phase: A51 - multi-timeframe metric validation gate.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
 - Latest ZIP SHA256: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Next recommended phase: A51 - generate/validate first-party multi-timeframe metrics, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: A52 - decide/generate first-party multi-timeframe metric source, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -61,7 +61,8 @@ Persistent planning note for the next SQX Edge phases.
 2. Phase A48: recover valuable HTML-side capabilities as native UI: local state backup/restore, dynamic Plan v2 summary and a locked Priority multi-TF placeholder, explicitly excluding Top Picks and Matrix. Done.
 3. Phase A49: convert multi-timeframe analytical scoring into a controlled, dependency-isolated backend tool that consumes supplied metric JSON files and emits TF scores plus weighted consensus. Done.
 4. Phase A50: connect multi-timeframe consensus to plan review without changing the dashboard UI until real metrics are available. Done.
-5. Phase A51: generate or validate first-party multi-timeframe metric JSON files before exposing multi-TF evidence in dashboard UI.
+5. Phase A51: add a multi-timeframe metric gate for supplied `asset_metrics[_TF].json` folders before exposing or using them as first-party evidence. Done.
+6. Phase A52: decide and implement the first-party metric generation/acquisition source, then run the gate against real metric files.
 
 ## QA / Security Track
 

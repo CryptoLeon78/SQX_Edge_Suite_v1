@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: A50 - multi-timeframe plan review evidence.
+- Current phase completed: A51 - multi-timeframe metric validation gate.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
-- Next implementation phase: A51 - generate/validate first-party multi-timeframe metrics, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next implementation phase: A52 - decide/generate first-party multi-timeframe metric source, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 
@@ -85,7 +85,7 @@ M46 is accepted when these criteria are true:
 - Private commercial repository: `https://github.com/CryptoLeon78/sqx-edge-commercial-private` (private, baseline commit `ed79719`).
 - Public commercial pointers: `docs/PUBLIC_COMMERCIAL_POINTERS.md`; public `docs/MONETIZATION_*`, `docs/sales/*` and Pro resource packs are redacted pointers.
 - Roadmap state: `docs/MODULARIZATION_NEXT_STEPS.md` plus private commercial roadmap copies.
-- External repo comparison: `docs/EXTERNAL_REPO_COMPARISON_JOSE.md`, `backend/sqx-edge-tool/tools/plan_quality_advisor.py` and `backend/sqx-edge-tool/tools/multi_timeframe_scoring.py`.
+- External repo comparison: `docs/EXTERNAL_REPO_COMPARISON_JOSE.md`, `backend/sqx-edge-tool/tools/plan_quality_advisor.py`, `backend/sqx-edge-tool/tools/multi_timeframe_scoring.py` and `backend/sqx-edge-tool/tools/multi_timeframe_metric_gate.py`.
 
 ## Security Notes
 

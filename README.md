@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: A50 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: A51 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
 - SHA256 del ZIP: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Siguiente paso recomendado: A51 - generar/validar metricas multi-timeframe propias o PG7 - notas de handoff `.cfx`.
-- Ultima mejora funcional: `Plan Quality Advisor` puede incorporar evidencia multi-timeframe opcional sin sustituir automaticamente el baseline H1.
+- Siguiente paso recomendado: A52 - decidir fuente/generacion real de metricas multi-timeframe o PG7 - notas de handoff `.cfx`.
+- Ultima mejora funcional: gate de metricas multi-timeframe con cobertura, completitud, compatibilidad de scorer y SHA256 antes de usar datos como evidencia propia.
 
 ## SQX Edge Pro
 
@@ -110,6 +110,7 @@ Herramientas analiticas:
 
 - `plan_quality_advisor.py` revisa el plan actual contra el baseline H1 disponible, propone alternativas diversificadas y puede anadir evidencia multi-timeframe si se le entrega una carpeta de metricas.
 - `multi_timeframe_scoring.py` calcula scores por timeframe y consenso ponderado a partir de metricas JSON ya generadas. No descarga datos, no modifica HTML y esta pensado como paso controlado antes de exponer multi-TF en la UI.
+- `multi_timeframe_metric_gate.py` valida carpetas de metricas `asset_metrics[_TF].json` con cobertura, completitud, activos desconocidos, compatibilidad del scorer y hashes SHA256 antes de aceptarlas como fuente propia.
 
 ## Entrega Final
 

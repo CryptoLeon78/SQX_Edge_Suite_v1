@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - A51 multi-timeframe metric gate
+
+- Anade `multi_timeframe_metric_gate.py` para validar carpetas `asset_metrics[_TF].json` antes de usarlas como evidencia propia.
+- Comprueba archivos por TF, cobertura de activos, completitud de metricas requeridas, activos desconocidos, compatibilidad con el scorer y SHA256.
+- Mantiene la disciplina de no descargar datos ni modificar scores del dashboard desde el gate.
+
 ## 2026-05-08 - A50 multi-timeframe plan review
 
 - Conecta el consenso multi-timeframe de `multi_timeframe_scoring.py` al `Plan Quality Advisor` como evidencia opcional.
