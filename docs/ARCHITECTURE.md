@@ -28,7 +28,7 @@ flowchart TD
   DATA --> CFG["app-config.js"]
 
   MOD --> CORE["core.js"]
-  MOD --> FEAT["domain/renderers/charts/strategies/home/state backup/MTF evidence/support/fulfillment/customer cockpit/workflow/view creator"]
+  MOD --> FEAT["domain/renderers/charts/strategies/home/state backup/MTF evidence/Champion vs Challenger/support/fulfillment/customer cockpit/workflow/view creator"]
   MOD --> PG["project-generator-* modules"]
   MOD --> IDX["index.js boot"]
 
@@ -89,31 +89,33 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 9. `js/modules/license.js`
 10. `js/modules/ui.js`
 11. `js/modules/formatters.js`
-12. `js/modules/domain.js`
-13. `js/modules/datasets.js`
-14. `js/modules/renderers.js`
-15. `js/modules/charts.js`
-16. `js/modules/strategies.js`
-17. `js/modules/home.js`
-18. `js/modules/mtf-evidence.js`
-19. `js/modules/support.js`
-20. `js/modules/fulfillment.js`
-21. `js/modules/customer-cockpit.js`
-22. `js/modules/workflow.js`
-23. `js/modules/view-creator.js`
-24. `js/modules/project-generator-core.js`
-25. `js/modules/project-generator-config.js`
-26. `js/modules/project-generator-dom.js`
-27. `js/modules/project-generator-bindings.js`
-28. `js/modules/project-generator-renderers.js`
-29. `js/modules/project-generator-status.js`
-30. `js/modules/project-generator-cleaner.js`
-31. `js/modules/project-generator.js`
-32. `js/modules/index.js`
-33. `js/data.js`
-34. `js/dashboard.js`
-35. `js/main.js`
-36. `js/project-generator-main.js`
+12. `js/modules/champion-challenger-core.js`
+13. `js/modules/champion-challenger.js`
+14. `js/modules/domain.js`
+15. `js/modules/datasets.js`
+16. `js/modules/renderers.js`
+17. `js/modules/charts.js`
+18. `js/modules/strategies.js`
+19. `js/modules/home.js`
+20. `js/modules/mtf-evidence.js`
+21. `js/modules/support.js`
+22. `js/modules/fulfillment.js`
+23. `js/modules/customer-cockpit.js`
+24. `js/modules/workflow.js`
+25. `js/modules/view-creator.js`
+26. `js/modules/project-generator-core.js`
+27. `js/modules/project-generator-config.js`
+28. `js/modules/project-generator-dom.js`
+29. `js/modules/project-generator-bindings.js`
+30. `js/modules/project-generator-renderers.js`
+31. `js/modules/project-generator-status.js`
+32. `js/modules/project-generator-cleaner.js`
+33. `js/modules/project-generator.js`
+34. `js/modules/index.js`
+35. `js/data.js`
+36. `js/dashboard.js`
+37. `js/main.js`
+38. `js/project-generator-main.js`
 
 ## Why This Order Matters
 
@@ -136,6 +138,8 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/state-backup.js` | Dashboard local-state snapshot and restore UI against the local backup API, limited to non-sensitive localStorage keys. |
 | `modules/ui.js` | Shared DOM/UI helpers and tab helpers. |
 | `modules/formatters.js` | Display formatting, escaping, labels, badges. |
+| `modules/champion-challenger-core.js` | Pure CSV parsing, alias resolution, Champion vs Challenger comparison and OOS stability scoring. |
+| `modules/champion-challenger.js` | Native dashboard UI facade for `tab-cvc`, delegating parsing and scoring to the core without local persistence. |
 | `modules/domain.js` | Domain rules that are independent from DOM rendering. |
 | `modules/datasets.js` | Normalized access to asset, score and manifest datasets. |
 | `modules/renderers.js` | Reusable HTML rendering helpers for dashboard lists/tables. |
@@ -164,7 +168,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | --- | --- |
 | `data.js` | Compatibility layer for static dashboard data. |
 | `dashboard.js` | Existing dashboard render functions and tab behavior. |
-| `main.js` | First render pass for Inicio, assets, categories, filters, priority, strategies, pipeline and workflow. |
+| `main.js` | First render pass for Inicio, assets, categories, filters, priority, strategies, pipeline, Champion vs Challenger and workflow. |
 | `project-generator-main.js` | Project Generator orchestration, DOM bindings, backend calls and polling. |
 
 ## Backend Map

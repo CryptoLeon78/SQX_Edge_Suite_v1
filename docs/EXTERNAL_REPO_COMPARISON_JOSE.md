@@ -167,6 +167,14 @@ Phase J3 adds the OOS stability layer:
 
 It detects columns such as `CAGR/Max DD (OOS1)`, selects a primary OOS metric, computes block count, positive-block ratio, min/max/average/decay, negative streaks and negative Worst Year flags. It still avoids dashboard UI, backend endpoints, copied Jose code, Top Picks surfaces and matrix/heatmap surfaces.
 
+Phase J4 exposes the comparison workflow as native SQX dashboard UI:
+
+- `docs/J4_CHAMPION_CHALLENGER_UI.md`
+- `app/js/modules/champion-challenger.js`
+- `tests/js/contracts/champion_challenger_ui_contracts.mjs`
+
+It adds the `Champion vs Challenger` tab from our manifest, keeps the visual system aligned with SQX Edge, delegates all parsing/scoring to `SQX.championChallengerCore`, avoids CSV persistence, and still excludes Top Picks and matrix/heatmap surfaces.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:

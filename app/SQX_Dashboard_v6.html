@@ -124,6 +124,10 @@
             <span>SQX Views</span>
             <strong>Crear .vw anual</strong>
           </button>
+          <button class="home-action" data-home-tab="cvc">
+            <span>Champion</span>
+            <strong>Comparar finalistas</strong>
+          </button>
           <button class="home-action" data-home-tab="categorias">
             <span>Por Categoria</span>
             <strong>Mapa de edges</strong>
@@ -864,6 +868,71 @@
           <input id="vc-search" class="search-input" type="search" placeholder="Buscar metrica o class">
         </div>
         <div id="vc-metric-list" class="views-metric-list"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- TAB: CHAMPION VS CHALLENGER - comparador nativo de finalistas -->
+  <div id="tab-cvc" class="tab-content" style="display:none">
+    <div class="cvc-shell">
+      <section class="cvc-hero">
+        <div>
+          <span class="views-eyebrow">Strategy Validation Board</span>
+          <h2>Champion vs Challenger</h2>
+          <p>Compara una estrategia base contra candidatas y cruza el resultado con bloques OOS para separar mejoras reales de ruido operativo.</p>
+        </div>
+        <div class="cvc-hero-stats">
+          <div><span id="cvc-candidate-count">0</span><small>candidatas</small></div>
+          <div><span id="cvc-ready-count">0</span><small>sin fallos</small></div>
+          <div><span id="cvc-oos-ready-count">0</span><small>OOS estable</small></div>
+        </div>
+      </section>
+
+      <section class="cvc-workspace">
+        <div class="cvc-panel cvc-input-panel">
+          <div class="views-panel-head">
+            <div>
+              <span>Entrada</span>
+              <strong>CSV de Champion, Challengers y OOS</strong>
+            </div>
+            <small>Sin subida externa ni persistencia.</small>
+          </div>
+
+          <div class="cvc-fields">
+            <label class="cvc-field">
+              <span>Champion CSV</span>
+              <textarea id="cvc-champion-input" class="cvc-input" spellcheck="false" placeholder="Strategy Name;Symbol;Profit factor;Return/Drawdown;# trades"></textarea>
+            </label>
+            <label class="cvc-field">
+              <span>Challengers CSV</span>
+              <textarea id="cvc-challenger-input" class="cvc-input" spellcheck="false" placeholder="Una o mas candidatas con las mismas columnas clave"></textarea>
+            </label>
+            <label class="cvc-field">
+              <span>OOS blocks CSV</span>
+              <textarea id="cvc-oos-input" class="cvc-input compact" spellcheck="false" placeholder="Columnas tipo CAGR/Max DD (OOS1), Profit Factor (OOS1)..."></textarea>
+            </label>
+          </div>
+
+          <div class="cvc-actions">
+            <button class="export-btn" id="cvc-run-btn" type="button">Evaluar</button>
+            <button class="filter-btn" id="cvc-sample-btn" type="button">Cargar ejemplo</button>
+            <button class="filter-btn" id="cvc-clear-btn" type="button">Limpiar</button>
+          </div>
+          <div id="cvc-status" class="cvc-status">Esperando datos para comparar.</div>
+        </div>
+
+        <div class="cvc-panel cvc-results-panel">
+          <div class="views-panel-head">
+            <div>
+              <span>Resultado</span>
+              <strong>Ranking operativo</strong>
+            </div>
+            <small id="cvc-oos-summary">OOS pendiente.</small>
+          </div>
+          <div id="cvc-summary" class="cvc-summary"></div>
+          <div id="cvc-empty" class="cvc-empty">Carga CSV o usa el ejemplo para ver el ranking.</div>
+          <div id="cvc-ranking" class="cvc-ranking"></div>
+        </div>
       </section>
     </div>
   </div>
@@ -3328,6 +3397,8 @@ Ret/DD > 1.0          ← más estricto que Capa 1 (era 0.5)</pre>
 <script src="js/modules/license.js"></script>
 <script src="js/modules/ui.js"></script>
 <script src="js/modules/formatters.js"></script>
+<script src="js/modules/champion-challenger-core.js"></script>
+<script src="js/modules/champion-challenger.js"></script>
 <script src="js/modules/domain.js"></script>
 <script src="js/modules/datasets.js"></script>
 <script src="js/modules/renderers.js"></script>

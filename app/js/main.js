@@ -24,6 +24,10 @@ if (window.SQX && window.SQX.mtfEvidence) {
   window.SQX.mtfEvidence.init();
 }
 
+if (window.SQX && window.SQX.championChallenger) {
+  window.SQX.championChallenger.init();
+}
+
 if (window.SQX && window.SQX.fulfillment) {
   window.SQX.fulfillment.init();
 }

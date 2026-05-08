@@ -14,6 +14,7 @@ PROJECT_GOVERNANCE_DOC = PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md"
 J1_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J1_CHAMPION_CHALLENGER_CONTRACT.md"
 J2_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J2_CHAMPION_CHALLENGER_CORE.md"
 J3_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J3_CHAMPION_CHALLENGER_OOS.md"
+J4_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J4_CHAMPION_CHALLENGER_UI.md"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
 MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
@@ -132,6 +133,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/license.js",
                 "js/modules/ui.js",
                 "js/modules/formatters.js",
+                "js/modules/champion-challenger-core.js",
+                "js/modules/champion-challenger.js",
                 "js/modules/domain.js",
                 "js/modules/datasets.js",
                 "js/modules/renderers.js",
@@ -230,6 +233,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         contract = J1_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
         j2 = J2_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
         j3 = J3_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
+        j4 = J4_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
         comparison = (PROJECT_ROOT / "docs" / "EXTERNAL_REPO_COMPARISON_JOSE.md").read_text(encoding="utf-8-sig")
@@ -251,6 +255,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Phase J1: document the Champion vs Challenger integration contract",
             "Phase J2: implement the pure parser, alias resolver and formal comparison core with contracts",
             "Phase J3: add OOS block parsing and stability scoring with contracts",
+            "Phase J4: add native dashboard UI using the current SQX module architecture",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
@@ -259,9 +264,11 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("docs/J1_CHAMPION_CHALLENGER_CONTRACT.md", governance)
         self.assertIn("docs/J2_CHAMPION_CHALLENGER_CORE.md", governance)
         self.assertIn("docs/J3_CHAMPION_CHALLENGER_OOS.md", governance)
+        self.assertIn("docs/J4_CHAMPION_CHALLENGER_UI.md", governance)
         self.assertIn("Phase J1 starts the selective Champion vs Challenger track", comparison)
         self.assertIn("Phase J2 implements the first native Champion vs Challenger core", comparison)
         self.assertIn("Phase J3 adds the OOS stability layer", comparison)
+        self.assertIn("Phase J4 exposes the comparison workflow as native SQX dashboard UI", comparison)
 
         for pattern in (
             "J2 Champion vs Challenger Core",
@@ -283,6 +290,17 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, j3)
 
+        for pattern in (
+            "J4 Champion vs Challenger Dashboard UI",
+            "`SQX.championChallenger`",
+            "`tab-cvc`",
+            "No `Top Picks` tab, block or headline.",
+            "No `Matriz Completa` tab, heatmap tab or heatmap panel.",
+            "The UI stores no CSV payloads in localStorage.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, j4)
+
     def test_modular_scaffold_loads_before_legacy_logic(self):
         scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)
         module_scripts = [
@@ -293,6 +311,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/license.js",
             "js/modules/ui.js",
             "js/modules/formatters.js",
+            "js/modules/champion-challenger-core.js",
+            "js/modules/champion-challenger.js",
             "js/modules/domain.js",
             "js/modules/datasets.js",
             "js/modules/renderers.js",
@@ -327,6 +347,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         license_js = (APP_ROOT / "js" / "modules" / "license.js").read_text(encoding="utf-8-sig")
         ui_js = (APP_ROOT / "js" / "modules" / "ui.js").read_text(encoding="utf-8-sig")
         formatters_js = (APP_ROOT / "js" / "modules" / "formatters.js").read_text(encoding="utf-8-sig")
+        champion_core_js = (APP_ROOT / "js" / "modules" / "champion-challenger-core.js").read_text(encoding="utf-8-sig")
+        champion_ui_js = (APP_ROOT / "js" / "modules" / "champion-challenger.js").read_text(encoding="utf-8-sig")
         domain_js = (APP_ROOT / "js" / "modules" / "domain.js").read_text(encoding="utf-8-sig")
         datasets_js = (APP_ROOT / "js" / "modules" / "datasets.js").read_text(encoding="utf-8-sig")
         renderers_js = (APP_ROOT / "js" / "modules" / "renderers.js").read_text(encoding="utf-8-sig")
@@ -366,6 +388,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.license", license_js)
         self.assertIn("SQX.ui", ui_js)
         self.assertIn("SQX.formatters", formatters_js)
+        self.assertIn("SQX.championChallengerCore", champion_core_js)
+        self.assertIn("SQX.championChallenger", champion_ui_js)
+        self.assertIn("window.SQX.championChallenger.init()", main_js)
+        self.assertIn('id="tab-cvc"', self.html)
+        self.assertIn('id="cvc-run-btn"', self.html)
+        self.assertIn('id="cvc-ranking"', self.html)
+        self.assertIn('data-home-tab="cvc"', self.html)
         self.assertIn("SQX.domain", domain_js)
         self.assertIn("SQX.datasets", datasets_js)
         self.assertIn("SQX.renderers", renderers_js)

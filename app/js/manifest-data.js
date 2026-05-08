@@ -41,6 +41,10 @@ window.SQX_MANIFEST = {
         "label": "SQX Views"
       },
       {
+        "id": "cvc",
+        "label": "Champion vs Challenger"
+      },
+      {
         "id": "estrategias",
         "label": "Estrategias"
       },
@@ -850,6 +854,7 @@ window.SQX_MANIFEST = {
         "backups",
         "dist",
         "output",
+        "analysis_output",
         "node_modules",
         "venv",
         ".git",
@@ -949,6 +954,13 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/tools/fulfillment_request.py",
         "backend/sqx-edge-tool/tools/fulfill_from_request.ps1",
         "backend/sqx-edge-tool/tools/relay_bundle.py",
+        "backend/sqx-edge-tool/tools/dukas_mt5_ohlc_download.py",
+        "backend/sqx-edge-tool/tools/mt5_ipc_diagnostic.py",
+        "backend/sqx-edge-tool/config/dukas_mt5_download.json",
+        "data/ohlc",
+        "analysis_output/dukas_mt5_download",
+        "analysis_output/mt5_ipc_diagnostic",
+        "analysis_output/real_mtf_pipeline_run",
         "backend/sqx-edge-tool/data/controlled_publication_gate",
         "backend/sqx-edge-tool/tools/controlled_publication_gate.py",
         "backend/sqx-edge-tool/data/limited_publication_draft",
@@ -1136,6 +1148,15 @@ window.SQX_MANIFEST = {
         "supportEmail": "",
         "fulfillmentMode": "manual_signed_license",
         "deliveryArtifact": "SQX_Edge_Tool_Portable_*.zip",
+        "verifiedReleaseCandidate": {
+          "phase": "R45",
+          "status": "prepared_not_published",
+          "portableZip": "dist/SQX_Edge_Tool_Portable_20260508_201652.zip",
+          "sha256": "2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E",
+          "tagDraft": "v0.2.0-r45",
+          "publicationPlan": "docs/R45_CONTROLLED_PUBLICATION_PLAN.md",
+          "publishPolicy": "manual_github_release_only_after_public_release_gate_go"
+        },
         "licenseIssuerTool": "backend/sqx-edge-tool/tools/license_issue.py",
         "deliveryTool": "backend/sqx-edge-tool/tools/prepare_customer_delivery.ps1",
         "liveReadinessTool": "backend/sqx-edge-tool/tools/checkout_live_readiness.py",

@@ -186,6 +186,15 @@ async function run() {
     await desktop.locator('#vc-load-preset-btn').click();
     await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
     await saveShot(desktop, 'e2e-view-creator-desktop.png');
+    await desktop.locator('.tab[data-tab="cvc"]').click();
+    await desktop.waitForSelector('.tab[data-tab="cvc"].active');
+    await desktop.waitForSelector('#cvc-run-btn');
+    await desktop.locator('#cvc-sample-btn').click();
+    await desktop.waitForSelector('#cvc-ranking .cvc-result-row');
+    await desktop.waitForFunction(() => document.getElementById('cvc-ready-count')?.textContent.trim() === '1');
+    const cvcModel = await desktop.evaluate(() => window.SQX.championChallenger.evaluate());
+    if (!cvcModel.ok || cvcModel.rankings.length !== 3) throw new Error('Champion vs Challenger sample contract failed');
+    await saveShot(desktop, 'e2e-champion-challenger-desktop.png');
     await desktop.locator('.tab[data-tab="estrategias"]').click();
     await desktop.waitForSelector('#tab-estrategias .strat-card');
     const cards = await desktop.locator('#tab-estrategias .strat-card').count();
@@ -217,6 +226,12 @@ async function run() {
     await mobile.locator('.tab[data-tab="views"]').click();
     await mobile.waitForSelector('#vc-preview');
     await assertNoMobileOverflow(mobile);
+    await mobile.locator('.tab[data-tab="cvc"]').click();
+    await mobile.waitForSelector('#cvc-run-btn');
+    await mobile.locator('#cvc-sample-btn').click();
+    await mobile.waitForSelector('#cvc-ranking .cvc-result-row');
+    await assertNoMobileOverflow(mobile);
+    await saveShot(mobile, 'e2e-champion-challenger-mobile.png');
     await mobile.locator('.tab[data-tab="estrategias"]').click();
     await mobile.waitForSelector('#tab-estrategias .strat-card');
     const activeTabBox = await mobile.locator('.tab.active').boundingBox();
