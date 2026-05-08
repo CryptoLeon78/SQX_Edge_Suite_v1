@@ -1729,6 +1729,13 @@
   .subtab.active { color:var(--accent); border-bottom-color:var(--accent); background:rgba(59,130,246,.08); }
   .subtab-content { display:none; }
   .subtab-content.active { display:block; }
+  .workflow-plan-summary { display:flex; align-items:center; gap:16px; flex-wrap:wrap; padding:14px 16px; margin:0 0 16px; border:1px solid rgba(34,197,94,.22); border-left:3px solid var(--green); border-radius:10px; background:rgba(15,23,42,.66); }
+  .workflow-plan-summary > div:first-child { min-width:190px; }
+  .workflow-plan-eyebrow { display:block; color:var(--text2); font-size:10px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; margin-bottom:2px; }
+  .workflow-plan-summary strong { color:var(--text); font-size:15px; }
+  .workflow-plan-metrics { display:flex; gap:8px; flex-wrap:wrap; }
+  .workflow-plan-metrics span { padding:4px 10px; border-radius:5px; background:rgba(34,197,94,.10); border:1px solid rgba(34,197,94,.26); color:var(--green); font-size:11px; font-weight:800; }
+  .workflow-plan-summary p { flex:1 1 260px; color:var(--text2); font-size:12px; line-height:1.5; margin:0; }
 
   /* Ajuste container dentro del tab Workflow para que respete el ancho del wrapper principal */
   #tab-workflow .container { max-width:100%; padding:0; margin:0; }
@@ -1738,6 +1745,14 @@
   .priority-controls button { padding:6px 12px; border-radius:6px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13px; cursor:pointer; }
   .priority-controls button:hover { border-color:var(--accent); }
   .priority-controls button.danger:hover { border-color:var(--red); color:var(--red); }
+  .priority-source-strip { display:flex; align-items:center; gap:14px; flex-wrap:wrap; padding:12px 14px; margin-bottom:14px; border:1px solid rgba(59,130,246,.24); border-radius:10px; background:linear-gradient(135deg, rgba(12,18,32,.92), rgba(17,24,39,.72)); }
+  .priority-source-label { display:block; color:var(--text2); font-size:10px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; margin-bottom:2px; }
+  .priority-source-strip strong { color:var(--text); font-size:14px; }
+  .priority-tf-selector { display:inline-flex; gap:4px; padding:3px; border:1px solid var(--border); border-radius:8px; background:rgba(15,23,42,.75); }
+  .priority-tf-selector button { min-width:44px; padding:5px 9px; border:1px solid transparent; border-radius:6px; background:transparent; color:var(--text2); font-size:12px; font-weight:800; cursor:pointer; }
+  .priority-tf-selector button.active { background:rgba(59,130,246,.18); border-color:rgba(59,130,246,.45); color:var(--accent); }
+  .priority-tf-selector button:disabled { opacity:.45; cursor:not-allowed; }
+  .priority-source-note { color:var(--text2); font-size:12px; margin-left:auto; }
   .progress-wrap { margin-bottom:14px; }
   .progress-label { display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; }
   .progress-label strong { color:var(--text); }
@@ -1877,6 +1892,10 @@
   .ps-na-content { flex:1; }
   .ps-na-label { font-size:11px; text-transform:uppercase; color:var(--accent); font-weight:700; letter-spacing:.4px; margin-bottom:3px; }
   .ps-na-text { font-size:14px; color:var(--text); line-height:1.45; }
+  .ps-plan-header { margin-bottom:10px; }
+  .ps-plan-header h2 { margin-right:4px; }
+  .ps-plan-actions { display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:0 0 14px; border-bottom:1px solid var(--border); margin-bottom:14px; }
+  .ps-plan-actions .export-btn { min-height:30px; }
 
   /* Plan table */
   .ps-phase { margin-bottom:18px; }
@@ -1908,6 +1927,18 @@
   .ps-src-manual:hover { background:rgba(249,115,22,.22); }
   .ps-src-priority  { background:rgba(168,85,247,.12); color:var(--purple); border:1px solid rgba(168,85,247,.3); }
   .ps-src-strategies{ background:rgba(34,197,94,.10); color:var(--green); border:1px solid rgba(34,197,94,.3); }
+  .state-backup-badge { display:inline-flex; align-items:center; min-height:28px; padding:4px 10px; border-radius:6px; border:1px solid var(--border); color:var(--text2); background:rgba(15,23,42,.72); font-size:11px; font-weight:800; letter-spacing:.3px; text-transform:uppercase; white-space:nowrap; }
+  .state-backup-badge.is-ok { color:var(--green); border-color:rgba(34,197,94,.38); background:rgba(34,197,94,.10); }
+  .state-backup-badge.is-busy { color:var(--accent); border-color:rgba(59,130,246,.42); background:rgba(59,130,246,.12); }
+  .state-backup-badge.is-warn { color:var(--orange); border-color:rgba(249,115,22,.42); background:rgba(249,115,22,.10); }
+  .state-backup-badge.is-error { color:var(--red); border-color:rgba(239,68,68,.42); background:rgba(239,68,68,.10); }
+  .state-restore-note { color:var(--text2); font-size:13px; line-height:1.55; margin-bottom:14px; }
+  .state-restore-toolbar { display:flex; align-items:center; gap:12px; margin-bottom:12px; color:var(--text2); font-size:12px; flex-wrap:wrap; }
+  .state-restore-list { display:grid; gap:10px; max-height:420px; overflow:auto; }
+  .state-restore-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:12px; align-items:center; padding:12px 14px; border:1px solid var(--border); border-radius:9px; background:var(--surface2); }
+  .state-restore-name { color:var(--text); font-weight:800; font-size:13px; word-break:break-word; }
+  .state-restore-meta { color:var(--text2); font-size:11px; margin-top:4px; }
+  .state-restore-empty { padding:18px; border:1px dashed var(--border); border-radius:9px; color:var(--text2); text-align:center; }
   .ps-pin-badge { display:inline-block; margin-left:6px; padding:2px 7px; border-radius:4px; background:rgba(168,85,247,.15); color:var(--purple); border:1px solid rgba(168,85,247,.4); font-size:10px; font-weight:800; letter-spacing:.3px; cursor:help; }
   .ps-user-badge { display:inline-block; margin-left:8px; padding:1px 7px; border-radius:3px; background:rgba(59,130,246,.15); color:var(--accent); border:1px solid rgba(59,130,246,.4); font-size:9px; font-weight:800; letter-spacing:.4px; vertical-align:middle; }
   .ps-remove-btn { background:transparent; border:1px solid rgba(239,68,68,.3); color:var(--red); width:22px; height:22px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:700; margin-left:8px; line-height:1; padding:0; }

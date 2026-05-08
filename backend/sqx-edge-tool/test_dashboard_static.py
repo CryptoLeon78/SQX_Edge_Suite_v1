@@ -124,6 +124,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/core.js",
                 "js/modules/config.js",
                 "js/modules/storage.js",
+                "js/modules/state-backup.js",
                 "js/modules/license.js",
                 "js/modules/ui.js",
                 "js/modules/formatters.js",
@@ -219,6 +220,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/core.js",
             "js/modules/config.js",
             "js/modules/storage.js",
+            "js/modules/state-backup.js",
             "js/modules/license.js",
             "js/modules/ui.js",
             "js/modules/formatters.js",
@@ -251,6 +253,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         core_js = (APP_ROOT / "js" / "modules" / "core.js").read_text(encoding="utf-8-sig")
         config_js = (APP_ROOT / "js" / "modules" / "config.js").read_text(encoding="utf-8-sig")
         storage_js = (APP_ROOT / "js" / "modules" / "storage.js").read_text(encoding="utf-8-sig")
+        state_backup_js = (APP_ROOT / "js" / "modules" / "state-backup.js").read_text(encoding="utf-8-sig")
         license_js = (APP_ROOT / "js" / "modules" / "license.js").read_text(encoding="utf-8-sig")
         ui_js = (APP_ROOT / "js" / "modules" / "ui.js").read_text(encoding="utf-8-sig")
         formatters_js = (APP_ROOT / "js" / "modules" / "formatters.js").read_text(encoding="utf-8-sig")
@@ -275,11 +278,20 @@ class DashboardStaticTestCase(unittest.TestCase):
         project_generator_js = (APP_ROOT / "js" / "modules" / "project-generator.js").read_text(encoding="utf-8-sig")
         index_js = (APP_ROOT / "js" / "modules" / "index.js").read_text(encoding="utf-8-sig")
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
 
         self.assertIn("global.SQX = global.SQX || {}", core_js)
         self.assertIn("registerModule", core_js)
         self.assertIn("SQX.config", config_js)
         self.assertIn("SQX.storage", storage_js)
+        self.assertIn("SQX.stateBackup", state_backup_js)
+        self.assertIn("window.SQX.stateBackup.init()", main_js)
+        self.assertIn('id="state-backup-now"', self.html)
+        self.assertIn('id="state-backup-restore"', self.html)
+        self.assertIn('id="state-restore-list"', self.html)
+        self.assertIn('id="wf-plan-v2-summary"', self.html)
+        self.assertIn('id="priority-tf-selector"', self.html)
+        self.assertNotIn("Matriz Completa", self.html)
         self.assertIn("SQX.license", license_js)
         self.assertIn("SQX.ui", ui_js)
         self.assertIn("SQX.formatters", formatters_js)

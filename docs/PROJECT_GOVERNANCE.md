@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: A47 - Jose repo value extraction with Plan Quality Advisor.
+- Current phase completed: A48 - HTML value recovery without Top Picks or Matrix tabs.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
-- Next implementation phase: A48 - controlled multi-timeframe scoring tools, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next implementation phase: A49 - controlled multi-timeframe scoring backend tools, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

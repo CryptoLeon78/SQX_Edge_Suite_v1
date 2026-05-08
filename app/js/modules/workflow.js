@@ -89,9 +89,55 @@
     };
   }
 
+  function computePlanSummary(options) {
+    var opts = options || {};
+    var minings = opts.minings || global.PLAN_ALL || global.PLAN_MININGS || [];
+    var phases = opts.phases || global.PHASE_META || {};
+    var phaseIds = Object.keys(phases).filter(function(phase) {
+      return minings.some(function(mining) { return String(mining.phase) === String(phase); });
+    });
+    var assets = {};
+    var tfs = {};
+    minings.forEach(function(mining) {
+      if (mining && mining.asset) assets[mining.asset] = true;
+      if (mining && mining.tf) tfs[mining.tf] = true;
+    });
+    return {
+      phaseCount: phaseIds.length,
+      miningCount: minings.length,
+      assetCount: Object.keys(assets).length,
+      timeframeCount: Object.keys(tfs).length,
+      userMiningCount: minings.filter(function(mining) { return mining && mining._user; }).length
+    };
+  }
+
+  function renderPlanSummary(options) {
+    var opts = options || {};
+    var doc = opts.document || global.document;
+    var summary = computePlanSummary(opts);
+    var title = doc.getElementById('wf-plan-v2-title');
+    var metrics = doc.getElementById('wf-plan-v2-metrics');
+    var detail = doc.getElementById('wf-plan-v2-detail');
+    if (title) title.textContent = 'Plan v2 sincronizado con Pipeline State';
+    if (metrics) {
+      metrics.innerHTML =
+        '<span>' + summary.phaseCount + ' fases</span>' +
+        '<span>' + summary.miningCount + ' minings</span>' +
+        '<span>' + summary.assetCount + ' activos</span>' +
+        '<span>' + summary.timeframeCount + ' TF</span>';
+    }
+    if (detail) {
+      detail.textContent = summary.userMiningCount
+        ? summary.userMiningCount + ' minings locales extendidos desde Pipeline. Workflow queda alineado con el plan operativo real.'
+        : 'Workflow alineado con el plan base operativo. Las extensiones locales apareceran aqui al anadir minings desde Pipeline.';
+    }
+    return summary;
+  }
+
   function init(options) {
     var opts = options || {};
     return {
+      planSummary: renderPlanSummary(opts),
       subtabCount: bindSubtabs(opts),
       checklist: bindChecklist(opts)
     };
@@ -100,7 +146,9 @@
   SQX.workflow = SQX.workflow || {
     bindChecklist: bindChecklist,
     bindSubtabs: bindSubtabs,
+    computePlanSummary: computePlanSummary,
     init: init,
+    renderPlanSummary: renderPlanSummary,
     resolveChecklistKey: resolveChecklistKey
   };
 

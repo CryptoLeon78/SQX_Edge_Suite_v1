@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-08 - A48 HTML value recovery
+
+- Recupera valor del HTML comparado sin reintroducir los tabs eliminados `Top Picks` ni `Matriz Completa`.
+- Anade controles nativos de backup/restauracion de estado local contra los endpoints `/api/state/*`, limitados a claves no sensibles.
+- Anade resumen dinamico `Plan v2` en Workflow y una preparacion visual bloqueada para Priority multi-TF, pendiente de motor de scoring dedicado.
+- Actualiza arquitectura, contratos JS y tests estaticos para el nuevo modulo `state-backup.js`.
+
 ## 2026-05-08 - A47 Jose repo value extraction
 
 - Compara el repo `jlivanmaseda-maker/sqx-edge-pipeline` con nuestra arquitectura actual.

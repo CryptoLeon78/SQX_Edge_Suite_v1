@@ -87,5 +87,13 @@ box.dispatch('change', { target: box });
 clear.click();
 assert.equal(box.checked, false);
 assert.equal(SQX.workflow.resolveChecklistKey({ storageKey: (_name, fallback) => `x-${fallback}` }, 'fallback'), 'x-fallback');
+const planSummary = SQX.workflow.computePlanSummary({
+  minings: [{ num: 1, phase: 1, asset: 'EURUSD', tf: 'H1' }, { num: 2, phase: 2, asset: 'GBPUSD', tf: 'M15', _user: true }],
+  phases: { 1: {}, 2: {}, 3: {} },
+});
+assert.equal(planSummary.phaseCount, 2);
+assert.equal(planSummary.miningCount, 2);
+assert.equal(planSummary.assetCount, 2);
+assert.equal(planSummary.userMiningCount, 1);
 
 console.log('home workflow granular contracts ok');

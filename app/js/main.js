@@ -28,6 +28,10 @@ if (window.SQX && window.SQX.customerCockpit) {
   window.SQX.customerCockpit.init();
 }
 
+if (window.SQX && window.SQX.stateBackup) {
+  window.SQX.stateBackup.init();
+}
+
 if (window.SQX && window.SQX.workflow) {
   window.SQX.workflow.init();
 }

@@ -328,6 +328,19 @@
       Lista priorizada de pares (activo, categoría) ordenados por composite percentile data-driven.
       Empieza tus runs SQX por los top.
     </div>
+    <div class="priority-source-strip" id="priority-source-strip">
+      <div>
+        <span class="priority-source-label">Fuente de scoring</span>
+        <strong id="priority-source-current">H1 baseline</strong>
+      </div>
+      <div class="priority-tf-selector is-locked" id="priority-tf-selector" aria-label="Selector multi-timeframe preparado">
+        <button class="active" type="button" data-priority-tf="H1">H1</button>
+        <button type="button" data-priority-tf="M15" disabled>M15</button>
+        <button type="button" data-priority-tf="M30" disabled>M30</button>
+        <button type="button" data-priority-tf="H4" disabled>H4</button>
+      </div>
+      <span class="priority-source-note" id="priority-source-note">Multi-TF preparado, pendiente de motor de scoring dedicado.</span>
+    </div>
     <div class="priority-summary" id="priority-summary"></div>
 
     <div class="progress-wrap">
@@ -393,11 +406,15 @@
 
     <!-- Plan minings -->
     <div class="card">
-      <div class="card-header">
+      <div class="card-header ps-plan-header">
         <h2>Plan de minings</h2>
         <span class="badge info" id="ps-plan-counts">— fases · — minings</span>
         <span id="ps-overrides-info" style="display:none; padding:3px 10px; background:rgba(249,115,22,.12); color:var(--orange); border:1px solid rgba(249,115,22,.3); border-radius:4px; font-size:11px; font-weight:700;"></span>
-        <span style="flex:1"></span>
+      </div>
+      <div class="ps-plan-actions">
+        <span class="state-backup-badge is-unknown" id="state-backup-indicator" title="Estado del backup local del dashboard">Backup sin comprobar</span>
+        <button class="export-btn" id="state-backup-now" title="Guarda un snapshot local de tracking, plan, estrategias importadas, vistas y API base">Backup estado</button>
+        <button class="export-btn" id="state-backup-restore" title="Abre la lista de snapshots locales para restaurar estado">Restaurar</button>
         <button class="export-btn" id="ps-add-mining-btn" style="border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08);">+ Añadir mining</button>
         <button class="export-btn" id="ps-add-phase-btn" style="border-color:var(--pink); color:var(--pink); background:rgba(236,72,153,.08);">+ Nueva fase</button>
         <button class="export-btn" id="ps-consolidate-plan" title="Genera snippet PLAN_MININGS + PHASE_META para pegar al HTML">Consolidar plan</button>
@@ -1198,6 +1215,26 @@
     </div>
   </div>
 
+  <!-- MODAL: backups de estado local -->
+  <div class="strat-modal-backdrop" id="state-restore-backdrop" style="display:none;">
+    <div class="strat-modal" style="max-width:720px;">
+      <div class="strat-modal-header">
+        <h3>Restaurar estado del dashboard</h3>
+        <button class="strat-modal-close" id="state-restore-close" aria-label="Cerrar">×</button>
+      </div>
+      <div class="strat-modal-body">
+        <div class="state-restore-note">
+          Restaura tracking, plan extendido, estrategias importadas, checklist, vistas guardadas y API base. No restaura licencia, fulfillment ni datos sensibles.
+        </div>
+        <div class="state-restore-toolbar">
+          <button class="export-btn" id="state-restore-refresh">Actualizar lista</button>
+          <span id="state-restore-status">Sin consultar.</span>
+        </div>
+        <div class="state-restore-list" id="state-restore-list"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- TAB: WORKFLOW (metodología completa - integrado de SQX_Workflow_Dashboard) -->
   <div id="tab-workflow" class="tab-content" style="display:none">
     <div class="subtabs">
@@ -1211,6 +1248,18 @@
       <div class="subtab" data-subtab="wf-deploy">Despliegue MT5</div>
       <div class="subtab" data-subtab="wf-cheat">Cheatsheet</div>
       <div class="subtab" data-subtab="wf-rules">Reglas Oro</div>
+    </div>
+    <div class="workflow-plan-summary" id="wf-plan-v2-summary">
+      <div>
+        <span class="workflow-plan-eyebrow">Plan operativo actual</span>
+        <strong id="wf-plan-v2-title">Plan v2 cargando...</strong>
+      </div>
+      <div class="workflow-plan-metrics" id="wf-plan-v2-metrics">
+        <span>-- fases</span>
+        <span>-- minings</span>
+        <span>-- activos</span>
+      </div>
+      <p id="wf-plan-v2-detail">Resumen dinámico del plan configurado y de sus extensiones locales.</p>
     </div>
     <div class="subtab-host">
       <div id="wf-overview" class="subtab-content active"><div class="stats-row">
@@ -3248,6 +3297,7 @@ Ret/DD > 1.0          ← más estricto que Capa 1 (era 0.5)</pre>
 <script src="js/modules/core.js"></script>
 <script src="js/modules/config.js"></script>
 <script src="js/modules/storage.js"></script>
+<script src="js/modules/state-backup.js"></script>
 <script src="js/modules/license.js"></script>
 <script src="js/modules/ui.js"></script>
 <script src="js/modules/formatters.js"></script>

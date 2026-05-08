@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: A47 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: A48 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
 - SHA256 del ZIP: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Siguiente paso recomendado: A48 - scoring multi-timeframe controlado, PG7 - notas de handoff `.cfx`, o V10 - comparador de packs SQX Views.
-- Ultima mejora funcional: Plan Quality Advisor inspirado en el repo de Jose Livan, adaptado a nuestros manifests y scores.
+- Siguiente paso recomendado: A49 - scoring multi-timeframe controlado, PG7 - notas de handoff `.cfx`, o V10 - comparador de packs SQX Views.
+- Ultima mejora funcional: recuperacion HTML selectiva con backup/restauracion de estado, resumen dinamico Plan v2 y preparacion Priority multi-TF sin reintroducir Top Picks ni Matriz.
 
 ## SQX Edge Pro
 
