@@ -153,13 +153,21 @@ Phase J1 starts the selective Champion vs Challenger track:
 
 It defines the safe integration contract for the valuable comparison workflow found in Jose's latest commit. The contract covers accepted CSV/JSON inputs, column aliases, parser rules, scoring rules, OOS block evidence, future regime/EGT context, security boundaries and tests. No Jose runtime code, dashboard UI, Top Picks surface or matrix/heatmap surface is imported in J1.
 
+Phase J2 implements the first native Champion vs Challenger core:
+
+- `app/js/modules/champion-challenger-core.js`
+- `tests/js/contracts/champion_challenger_core_contracts.mjs`
+- `docs/J2_CHAMPION_CHALLENGER_CORE.md`
+
+It adds pure CSV parsing, alias resolution, numeric normalization, Champion validation, formal comparison and deterministic ranking without dashboard UI, backend endpoints, copied Jose code, Top Picks surfaces or matrix/heatmap surfaces.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:
 
 1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts, A55 added the OHLC metric builder, A56 added the end-to-end real-data runner, A57 exposed read-only dashboard evidence after GO, A58 added the internal MT5/Dukascopy download gate, A59 recorded the first local MT5 NO-GO smoke, A60 added active-terminal retry mode, A61 added repeatable IPC diagnostics and A62 achieved real A56 GO using recent MT5 bars.
 2. Optional market data acquisition: keep MT5/Dukascopy as an operator-only script, excluded from portable buyer builds unless explicitly needed.
-3. Champion vs Challenger core: implement the J2 pure parser, alias resolver and formal comparison engine before any UI.
+3. Champion vs Challenger OOS blocks: implement the J3 OOS parser and stability scoring before any UI.
 4. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
 5. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
 

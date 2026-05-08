@@ -12,6 +12,7 @@ ANALYSIS_ROOT = PROJECT_ROOT / "analysis"
 ARCHITECTURE_DOC = PROJECT_ROOT / "docs" / "ARCHITECTURE.md"
 PROJECT_GOVERNANCE_DOC = PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md"
 J1_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J1_CHAMPION_CHALLENGER_CONTRACT.md"
+J2_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J2_CHAMPION_CHALLENGER_CORE.md"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
 MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
@@ -217,8 +218,16 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("docs/PROJECT_GOVERNANCE.md", readme)
         self.assertIn("consulta obligatoria antes de fases/mensajes de trabajo", readme)
 
+    def test_operational_discipline_pushes_after_commit(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        expected = "Push immediately after every successful commit unless the user explicitly asks to hold the push or the remote is unavailable."
+        self.assertIn(expected, governance)
+        self.assertIn(expected, next_steps)
+
     def test_champion_challenger_contract_is_documented_before_runtime(self):
         contract = J1_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
+        j2 = J2_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
         comparison = (PROJECT_ROOT / "docs" / "EXTERNAL_REPO_COMPARISON_JOSE.md").read_text(encoding="utf-8-sig")
@@ -245,7 +254,19 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         self.assertIn("`Jxx`: Jose-derived selective integrations", governance)
         self.assertIn("docs/J1_CHAMPION_CHALLENGER_CONTRACT.md", governance)
+        self.assertIn("docs/J2_CHAMPION_CHALLENGER_CORE.md", governance)
         self.assertIn("Phase J1 starts the selective Champion vs Challenger track", comparison)
+        self.assertIn("Phase J2 implements the first native Champion vs Challenger core", comparison)
+
+        for pattern in (
+            "J2 Champion vs Challenger Core",
+            "`SQX.championChallengerCore`",
+            "No dashboard UI was added.",
+            "Duplicate aliases are warnings, not silent overwrites.",
+            "XSS-like strategy names rendered as text.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, j2)
 
     def test_modular_scaffold_loads_before_legacy_logic(self):
         scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)
