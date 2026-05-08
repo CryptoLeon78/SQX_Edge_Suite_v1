@@ -349,6 +349,15 @@
       "supportEmail": "",
       "fulfillmentMode": "manual_signed_license",
       "deliveryArtifact": "SQX_Edge_Tool_Portable_*.zip",
+      "verifiedReleaseCandidate": {
+        "phase": "R45",
+        "status": "prepared_not_published",
+        "portableZip": "dist/SQX_Edge_Tool_Portable_20260508_201652.zip",
+        "sha256": "2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E",
+        "tagDraft": "v0.2.0-r45",
+        "publicationPlan": "docs/R45_CONTROLLED_PUBLICATION_PLAN.md",
+        "publishPolicy": "manual_github_release_only_after_public_release_gate_go"
+      },
       "licenseIssuerTool": "backend/sqx-edge-tool/tools/license_issue.py",
       "deliveryTool": "backend/sqx-edge-tool/tools/prepare_customer_delivery.ps1",
       "liveReadinessTool": "backend/sqx-edge-tool/tools/checkout_live_readiness.py",

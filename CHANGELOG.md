@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-08 - R45 controlled publication plan
+
+- Adds a public-safe controlled publication plan for the verified portable ZIP without publishing a GitHub Release.
+- Records the release candidate in `product_manifest.json` as `prepared_not_published` with tag draft `v0.2.0-r45`.
+- Documents release notes, pre-publication gate command, post-publication record command, rollback steps and no-sensitive-data boundary.
+- Adds static coverage for the R45 plan and verified ZIP traceability.
+
 ## 2026-05-08 - R44/A63 portable after real MTF GO
 
 - Regenerates the portable ZIP after the real A56 multi-timeframe GO and validates it from a clean extracted folder.

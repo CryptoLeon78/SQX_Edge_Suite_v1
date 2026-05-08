@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: R44/A63 - portable release refreshed after real A56 GO with broad `analysis_output/` exclusion and verified ZIP.
+- Current completed phase: R45 - controlled publication plan prepared for the verified portable ZIP without publishing a GitHub Release.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_201652.zip`.
 - Latest ZIP SHA256: `2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E`.
-- Next recommended phase: R45 - prepare controlled publication of the verified portable ZIP if desired, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB1 - Strategy Builder discovery.
+- Next recommended phase: R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB1 - Strategy Builder discovery.
 
 ## Recommended Order
 
@@ -195,4 +195,5 @@ Persistent planning note for the next SQX Edge phases.
 3. Phase R42: regenerate and validate a fresh portable release candidate after V9. Done.
 4. Phase R43: prepare a public GitHub Release record only when we decide to publish the verified ZIP.
 5. Phase R44: regenerate and validate the portable ZIP after real A56 GO, with broad generated-evidence exclusions. Done; see `docs/R44_A63_PORTABLE_AFTER_REAL_MTF_GO.md`.
-6. Phase R45: prepare a controlled GitHub Release/publication record only if we decide to publish the verified ZIP.
+6. Phase R45: prepare a controlled GitHub Release/publication plan for the verified ZIP without publishing it. Done; see `docs/R45_CONTROLLED_PUBLICATION_PLAN.md`.
+7. Phase R46: publish the verified GitHub Release only with explicit approval, then run `release_publication_record.py`.

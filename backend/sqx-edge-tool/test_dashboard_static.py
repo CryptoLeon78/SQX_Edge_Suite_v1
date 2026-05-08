@@ -11,6 +11,7 @@ TOOL_ROOT = PROJECT_ROOT / "backend" / "sqx-edge-tool"
 ANALYSIS_ROOT = PROJECT_ROOT / "analysis"
 ARCHITECTURE_DOC = PROJECT_ROOT / "docs" / "ARCHITECTURE.md"
 PROJECT_GOVERNANCE_DOC = PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md"
+R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
 MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
 MONETIZATION_M1_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M1.md"
@@ -562,6 +563,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("public_release_gate", product_manifest["upgrade"]["checkout"]["publicReleaseGateEvidenceDir"])
         self.assertIn("release_publication_record.py", product_manifest["upgrade"]["checkout"]["releasePublicationRecordTool"])
         self.assertIn("release_publication_record", product_manifest["upgrade"]["checkout"]["releasePublicationRecordEvidenceDir"])
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["phase"], "R45")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["status"], "prepared_not_published")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["tagDraft"], "v0.2.0-r45")
+        self.assertIn("SQX_Edge_Tool_Portable_20260508_201652.zip", product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["portableZip"])
+        self.assertIn("2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E", product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["sha256"])
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["publicationPlan"], "docs/R45_CONTROLLED_PUBLICATION_PLAN.md")
         self.assertIn("post_release_monitor.py", product_manifest["upgrade"]["checkout"]["postReleaseMonitorTool"])
         self.assertIn("post_release_monitor", product_manifest["upgrade"]["checkout"]["postReleaseMonitorEvidenceDir"])
         self.assertIn("hotfix_rollback_release.py", product_manifest["upgrade"]["checkout"]["hotfixRollbackReleaseTool"])
@@ -1881,6 +1888,21 @@ class DashboardStaticTestCase(unittest.TestCase):
             "release_tag_missing",
             "sha256_not_published",
             "rollback_not_ready",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, text)
+
+    def test_r45_controlled_publication_plan_tracks_verified_zip(self):
+        text = R45_PUBLICATION_PLAN_DOC.read_text(encoding="utf-8-sig")
+        for pattern in (
+            "R45 - Controlled Publication Plan",
+            "prepared_not_published",
+            "SQX_Edge_Tool_Portable_20260508_201652.zip",
+            "2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E",
+            "v0.2.0-r45",
+            "public_release_gate.py",
+            "release_publication_record.py",
+            "No publication has been performed",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, text)

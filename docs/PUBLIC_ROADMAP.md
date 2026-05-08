@@ -34,6 +34,7 @@ Last updated: 2026-05-07.
 - Bucle de mejora post-venta preparado para ajustar onboarding, macros de soporte y copy publico tras la primera venta controlada.
 - Micro-mejoras post-venta aplicadas a onboarding, activacion, soporte y copy publico.
 - Readiness del siguiente comprador controlado preparado antes de compartir otro enlace privado.
+- Candidato ZIP portable verificado con plan de publicacion controlada preparado, sin publicar todavia el GitHub Release.
 
 ## Next
 
@@ -41,7 +42,7 @@ Last updated: 2026-05-07.
 - SQX Edge Free public beta como via de entrada controlada.
 - Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
 - Template Pack 1 y Setup Assist como complementos comerciales.
-- Publicacion controlada con evidencia de ZIP, SHA256, soporte y rollback.
+- Publicar GitHub Release solo cuando se autorice explicitamente y completar registro post-publicacion con ZIP, SHA256, soporte y rollback.
 
 ## Later
 

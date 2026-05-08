@@ -4,11 +4,11 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: R44/A63 completada con ZIP portable regenerado tras A56 GO real y blindaje de `analysis_output/`.
+- Estado interno: R45 completada con plan de publicacion controlada para el ZIP portable verificado.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_201652.zip`.
 - SHA256 del ZIP: `2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E`.
-- Siguiente paso recomendado: R45 - preparar publicacion controlada del ZIP verificado o PG7/V10/SB1 segun prioridad comercial.
+- Siguiente paso recomendado: R46 solo si autorizamos publicar el GitHub Release; si no, PG7/V10/SB1 segun prioridad comercial.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
