@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: A48 - HTML value recovery without Top Picks or Matrix tabs.
+- Current completed phase: A49 - controlled multi-timeframe scoring backend tools.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
 - Latest ZIP SHA256: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Next recommended phase: A49 - controlled multi-timeframe scoring backend tools, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: A50 - connect multi-timeframe scoring to plan review, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -59,7 +59,8 @@ Persistent planning note for the next SQX Edge phases.
 
 1. Phase A47: compare Jose Livan's `sqx-edge-pipeline` repo and integrate a first-party Plan Quality Advisor. Done.
 2. Phase A48: recover valuable HTML-side capabilities as native UI: local state backup/restore, dynamic Plan v2 summary and a locked Priority multi-TF placeholder, explicitly excluding Top Picks and Matrix. Done.
-3. Phase A49: convert multi-timeframe analytical scoring into controlled, dependency-isolated backend tools if this track continues.
+3. Phase A49: convert multi-timeframe analytical scoring into a controlled, dependency-isolated backend tool that consumes supplied metric JSON files and emits TF scores plus weighted consensus. Done.
+4. Phase A50: connect multi-timeframe consensus to plan review without changing the dashboard UI until real metrics are available.
 
 ## QA / Security Track
 

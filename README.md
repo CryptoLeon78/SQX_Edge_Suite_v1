@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: A48 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: A49 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
 - SHA256 del ZIP: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Siguiente paso recomendado: A49 - scoring multi-timeframe controlado, PG7 - notas de handoff `.cfx`, o V10 - comparador de packs SQX Views.
-- Ultima mejora funcional: recuperacion HTML selectiva con backup/restauracion de estado, resumen dinamico Plan v2 y preparacion Priority multi-TF sin reintroducir Top Picks ni Matriz.
+- Siguiente paso recomendado: A50 - conectar scoring multi-timeframe a revision de plan, PG7 - notas de handoff `.cfx`, o V10 - comparador de packs SQX Views.
+- Ultima mejora funcional: scoring multi-timeframe backend controlado que convierte metricas `asset_metrics[_TF].json` en scores por TF y consenso ponderado sin tocar la UI ni descargar datos.
 
 ## SQX Edge Pro
 
@@ -105,6 +105,11 @@ Project Generator:
 - `Custom libre` permite crear `.cfx` fuera del plan mining con asset, timeframe, blocksetting, direccion y capa propios.
 - Incluye presets locales reutilizables, exportacion/importacion JSON, perfiles starter y familias por objetivo para usuarios que quieren empezar sin configurar todo desde cero.
 - La importacion de packs custom muestra preview de presets, assets, capas y reemplazos antes de fusionarlos con los guardados locales.
+
+Herramientas analiticas:
+
+- `plan_quality_advisor.py` revisa el plan actual contra el baseline H1 disponible y propone alternativas diversificadas para revision.
+- `multi_timeframe_scoring.py` calcula scores por timeframe y consenso ponderado a partir de metricas JSON ya generadas. No descarga datos, no modifica HTML y esta pensado como paso controlado antes de exponer multi-TF en la UI.
 
 ## Entrega Final
 

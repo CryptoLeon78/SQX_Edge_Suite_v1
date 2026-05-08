@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - A49 controlled multi-timeframe scoring
+
+- Anade `multi_timeframe_scoring.py` como herramienta backend aislada para convertir `asset_metrics[_TF].json` en scores por timeframe y consenso ponderado.
+- Mantiene el flujo seguro: no descarga datos, no inyecta HTML y no cambia UI; solo consume metricas ya preparadas.
+- Cubre el contrato con fixtures H1/M15/M30 y salida Markdown/JSON para operador.
+
 ## 2026-05-08 - A48 HTML value recovery
 
 - Recupera valor del HTML comparado sin reintroducir los tabs eliminados `Top Picks` ni `Matriz Completa`.
