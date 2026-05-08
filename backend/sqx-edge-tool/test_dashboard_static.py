@@ -11,6 +11,7 @@ TOOL_ROOT = PROJECT_ROOT / "backend" / "sqx-edge-tool"
 ANALYSIS_ROOT = PROJECT_ROOT / "analysis"
 ARCHITECTURE_DOC = PROJECT_ROOT / "docs" / "ARCHITECTURE.md"
 PROJECT_GOVERNANCE_DOC = PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md"
+J1_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J1_CHAMPION_CHALLENGER_CONTRACT.md"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
 MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
@@ -215,6 +216,36 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase G2: require governance/ownership lookup before each work phase/message. Done.", next_steps)
         self.assertIn("docs/PROJECT_GOVERNANCE.md", readme)
         self.assertIn("consulta obligatoria antes de fases/mensajes de trabajo", readme)
+
+    def test_champion_challenger_contract_is_documented_before_runtime(self):
+        contract = J1_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        comparison = (PROJECT_ROOT / "docs" / "EXTERNAL_REPO_COMPARISON_JOSE.md").read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "J1 Champion vs Challenger Contract",
+            "No `Top Picks` tab, block or headline.",
+            "No `Matriz Completa` tab, heatmap tab or heatmap panel.",
+            "Pure parsing and scoring logic first, without DOM access.",
+            "Do not use imported names as DOM IDs without normalization.",
+            "CSV parser handles comma, semicolon, quotes and escaped quotes.",
+            "`J2` - Pure parser, alias resolver and formal comparison core with tests.",
+            "No copied Jose code.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, contract)
+
+        for pattern in (
+            "Phase J1: document the Champion vs Challenger integration contract",
+            "Phase J2: implement the pure parser, alias resolver and formal comparison core with contracts",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        self.assertIn("`Jxx`: Jose-derived selective integrations", governance)
+        self.assertIn("docs/J1_CHAMPION_CHALLENGER_CONTRACT.md", governance)
+        self.assertIn("Phase J1 starts the selective Champion vs Challenger track", comparison)
 
     def test_modular_scaffold_loads_before_legacy_logic(self):
         scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)

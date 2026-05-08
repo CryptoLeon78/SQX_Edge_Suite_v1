@@ -11,7 +11,7 @@ Persistent planning note for the next SQX Edge phases.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_201652.zip`.
 - Latest ZIP SHA256: `2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E`.
-- Next recommended phase: R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB1 - Strategy Builder discovery.
+- Next recommended phase: J2 - implement the pure Champion vs Challenger parser, alias resolver and formal comparison core with tests, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB1 - Strategy Builder discovery.
 
 ## Recommended Order
 
@@ -74,6 +74,15 @@ Persistent planning note for the next SQX Edge phases.
 15. Phase A61: add a repeatable MT5 IPC diagnostic that records environment, process state and init variants before any full OHLC download. Done; see `docs/A61_MT5_IPC_DIAGNOSTIC.md`.
 16. Phase A62: add controlled recent-bars download mode, align the MT5 symbol map to the product manifest universe, produce `EURUSD_H1.csv`, download the full configured OHLC universe and validate A56 GO. Done; see `docs/A62_RECENT_BARS_REAL_MTF_GO.md`.
 17. Phase A63/R44: refresh the portable/release story after real A56 GO while keeping OHLC data, `analysis_output/` evidence and internal MT5 tools out of buyer builds. Done; see `docs/R44_A63_PORTABLE_AFTER_REAL_MTF_GO.md`.
+
+## Champion vs Challenger Track
+
+1. Phase J1: document the Champion vs Challenger integration contract from Jose's latest HTML work, including input schemas, aliases, parsing, scoring, OOS evidence, security boundaries and tests. Done; see `docs/J1_CHAMPION_CHALLENGER_CONTRACT.md`.
+2. Phase J2: implement the pure parser, alias resolver and formal comparison core with contracts, without dashboard UI.
+3. Phase J3: add OOS block parsing and stability scoring with contracts.
+4. Phase J4: add native dashboard UI using the current SQX module architecture and visual system, without restoring removed Top Picks or Matrix surfaces.
+5. Phase J5: add regime/EGT evidence through first-party historical-data adapters.
+6. Phase J6: add export and future Strategy Builder handoff.
 
 ## Strategy Builder / Only One Platform Track
 

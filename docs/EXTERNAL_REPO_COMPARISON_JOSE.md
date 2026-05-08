@@ -17,6 +17,7 @@ The useful extraction is not to copy the legacy dashboard or backend wholesale. 
 3. `download_dukas_bulk.py` shows a possible data acquisition workflow, but it depends on local MetaTrader5 and should remain optional/offline.
 4. `stateBackup.js` and backend state backup endpoints are now integrated in our project with stronger tests and a native dashboard UI.
 5. Project Generator, Strategy Cleaner and SQX DB ideas are already integrated and extended in our current backend.
+6. The later `Champion vs Challenger` tab is the remaining high-value idea not present in SQX Edge. It should be integrated as a native, tested comparison workflow, not by copying the large global script.
 
 ## Integration Decision
 
@@ -146,14 +147,21 @@ Phase A62 completes the real-data bridge:
 
 The downloader now supports recent-bars acquisition from MT5, aligns the MT5 symbol map with the product manifest universe, downloads 33 assets x 4 timeframes, and A56 returns GO across A55/A53/A54.
 
+Phase J1 starts the selective Champion vs Challenger track:
+
+- `docs/J1_CHAMPION_CHALLENGER_CONTRACT.md`
+
+It defines the safe integration contract for the valuable comparison workflow found in Jose's latest commit. The contract covers accepted CSV/JSON inputs, column aliases, parser rules, scoring rules, OOS block evidence, future regime/EGT context, security boundaries and tests. No Jose runtime code, dashboard UI, Top Picks surface or matrix/heatmap surface is imported in J1.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:
 
 1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts, A55 added the OHLC metric builder, A56 added the end-to-end real-data runner, A57 exposed read-only dashboard evidence after GO, A58 added the internal MT5/Dukascopy download gate, A59 recorded the first local MT5 NO-GO smoke, A60 added active-terminal retry mode, A61 added repeatable IPC diagnostics and A62 achieved real A56 GO using recent MT5 bars.
 2. Optional market data acquisition: keep MT5/Dukascopy as an operator-only script, excluded from portable buyer builds unless explicitly needed.
-3. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
-4. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
+3. Champion vs Challenger core: implement the J2 pure parser, alias resolver and formal comparison engine before any UI.
+4. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
+5. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
 
 ## A48 HTML Recovery Decision
 
@@ -171,6 +179,7 @@ Explicitly excluded by product decision:
 ## Risk Notes
 
 - No legacy HTML tabs were restored.
+- No Champion vs Challenger runtime or UI was imported in J1.
 - No sensitive commercial material was imported.
 - No third-party credentials, tokens or account passwords were introduced.
 - The current advisor uses the available H1 score baseline; A49/A50/A51/A52/A53/A54/A55/A56/A57/A58/A59/A60/A61/A62 now provide a safe backend-to-dashboard path for real multi-timeframe metrics once supplied and validated.
