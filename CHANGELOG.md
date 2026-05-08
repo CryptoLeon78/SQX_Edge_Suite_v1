@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - V9 SQX Views import preview
+
+- Anade preview visual al importar packs JSON de presets en `SQX Views`.
+- Muestra presets entrantes, metricas, columnas estimadas, anos, orden y si reemplaza un preset local.
+- Refuerza contratos JS, tests estaticos y E2E para cubrir el preview antes de la fusion local.
+
 ## 2026-05-08 - PG6 Project Generator import preview
 
 - Anade preview visual al importar packs JSON de presets custom en `Project Generator`.

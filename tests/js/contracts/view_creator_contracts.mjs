@@ -17,6 +17,7 @@ assert.ok(html.includes('id="vc-save-preset-btn"'), 'missing saved preset button
 assert.ok(html.includes('id="vc-saved-select"'), 'missing saved preset selector');
 assert.ok(html.includes('id="vc-export-presets-btn"'), 'missing preset pack export button');
 assert.ok(html.includes('id="vc-import-presets-btn"'), 'missing preset pack import button');
+assert.ok(html.includes('id="vc-import-preview"'), 'missing preset import preview panel');
 assert.ok(html.includes('id="vc-template-list"'), 'missing buyer-ready template list');
 assert.ok(html.includes('id="vc-export-template-pack-btn"'), 'missing buyer-ready template pack export button');
 assert.ok(html.includes('id="vc-profile-list"'), 'missing buyer profile pack list');
@@ -117,28 +118,54 @@ assert.equal(presetPack.type, 'sqx-edge.view-presets');
 assert.equal(presetPack.presets.length, 1);
 assert.equal(presetPack.presets[0].id, 'risk-view');
 
-const importResult = viewCreator.importPresetPackageFromText(JSON.stringify({
+const importPayload = JSON.stringify({
   type: 'sqx-edge.view-presets',
   version: 1,
-  presets: [{
-    id: 'risk-view',
-    name: 'Risk View Imported',
-    config: {
-      viewName: 'Risk View Imported',
-      yearCount: 6,
-      sampleStart: 22,
-      includeTotal: true,
-      groupMode: 'by_year',
-      metrics: [
-        { className: 'Symbol', annual: false },
-        { className: 'NetProfit', annual: true },
-        { className: 'UnknownMetric', annual: true },
-      ],
+  presets: [
+    {
+      id: 'risk-view',
+      name: 'Risk View Imported',
+      config: {
+        viewName: 'Risk View Imported',
+        yearCount: 6,
+        sampleStart: 22,
+        includeTotal: true,
+        groupMode: 'by_year',
+        metrics: [
+          { className: 'Symbol', annual: false },
+          { className: 'NetProfit', annual: true },
+          { className: 'UnknownMetric', annual: true },
+        ],
+      },
     },
-  }],
-}));
-assert.equal(importResult.imported, 1);
-assert.equal(viewCreator.getSavedPresets().length, 1);
+    {
+      id: 'audit-preview',
+      name: 'Audit Preview',
+      config: {
+        viewName: 'Audit Preview',
+        yearCount: 4,
+        sampleStart: 24,
+        includeTotal: false,
+        groupMode: 'by_metric',
+        metrics: [
+          { className: 'Symbol', annual: false },
+          { className: 'DrawdownPct', annual: true },
+        ],
+      },
+    },
+  ],
+});
+const preview = viewCreator.presetImportPreviewFromText(importPayload);
+assert.equal(preview.incomingCount, 2);
+assert.equal(preview.duplicateCount, 1);
+assert.equal(preview.newCount, 1);
+assert.equal(preview.metricClassCount, 3);
+assert.match(viewCreator.presetImportPreviewSummary(preview), /2 presets · 1 nuevos · 1 reemplazos/);
+assert.match(viewCreator.presetImportPreviewHtml(preview), /views-import-preview-row/);
+assert.match(viewCreator.presetImportPreviewHtml(preview), /reemplaza/);
+const importResult = viewCreator.importPresetPackageFromText(importPayload);
+assert.equal(importResult.imported, 2);
+assert.equal(viewCreator.getSavedPresets().length, 2);
 assert.equal(viewCreator.getSavedPresets()[0].name, 'Risk View Imported');
 assert.equal(viewCreator.getSavedPresets()[0].config.metrics.length, 2);
 

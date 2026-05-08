@@ -143,7 +143,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/fulfillment.js` | Internal operator queue cockpit for manual fulfillment states and retries. |
 | `modules/customer-cockpit.js` | Redacted customer success cockpit for Pro renewal, support and expansion state. |
 | `modules/workflow.js` | Workflow tab initialization and subtab behavior. |
-| `modules/view-creator.js` | Native SQX `.vw` generator for annual Databank views, EGT presets, buyer-ready examples, buyer-profile packs, asset-family/validation workflow packs, saved local presets, JSON preset packs, workflow handoffs and XML downloads. This is the maintained replacement for the archived Tkinter staging prototype. |
+| `modules/view-creator.js` | Native SQX `.vw` generator for annual Databank views, EGT presets, buyer-ready examples, buyer-profile packs, asset-family/validation workflow packs, saved local presets, JSON preset packs with import preview, workflow handoffs and XML downloads. This is the maintained replacement for the archived Tkinter staging prototype. |
 | `modules/project-generator-core.js` | Project Generator shared helpers and API primitives. |
 | `modules/project-generator-config.js` | Project Generator config read/write helpers, enriched starter custom profiles, profile-family packs, local custom preset persistence, import preview and portable custom preset JSON packs. |
 | `modules/project-generator-dom.js` | Project Generator DOM helpers, config inputs, custom project inputs, settings panel and log output. |

@@ -181,6 +181,8 @@ async function run() {
     await writeFile(importPackPath, JSON.stringify(exportedPack, null, 2), 'utf8');
     await desktop.locator('#vc-import-presets-file').setInputFiles(importPackPath);
     await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').length === 1);
+    await desktop.waitForFunction(() => document.getElementById('vc-import-preview')?.classList.contains('has-items'));
+    await desktop.waitForFunction(() => document.getElementById('vc-import-preview')?.textContent.includes('Preview: 1 preset'));
     await desktop.locator('#vc-load-preset-btn').click();
     await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
     await saveShot(desktop, 'e2e-view-creator-desktop.png');

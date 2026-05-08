@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: PG6 - Project Generator import preview.
+- Current completed phase: V9 - SQX Views import preview.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_075208.zip`.
 - Latest ZIP SHA256: `CCB398057E5DEC6AC5AE2993E58E8DCEDBDB0686DD09539E30F9017D54F3A34D`.
-- Next recommended phase: R42 - public release record if the R41 ZIP is published, or V9 - SQX Views import preview/pack comparison.
+- Next recommended phase: R42 - public release record if the R41 ZIP is published, or PG7 - Project Generator buyer-specific `.cfx` handoff notes.
 
 ## Recommended Order
 
@@ -159,7 +159,8 @@ Persistent planning note for the next SQX Edge phases.
 6. Phase V6: add buyer-ready SQX View template examples for first review, robustness, risk and full audit, with load/save/export flow. Done.
 7. Phase V7: expand SQX Views packs by buyer profile, asset family or validation workflow if the View Creator track continues. Done.
 8. Phase V8: add asset-family or validation-workflow packs if SQX Views continues. Done.
-9. Phase V9: add SQX Views import preview or pack comparison if this track continues.
+9. Phase V9: add SQX Views import preview or pack comparison if this track continues. Done.
+10. Phase V10: add SQX Views pack comparison if this track continues.
 
 ## Release Track
 

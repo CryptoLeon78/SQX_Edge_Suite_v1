@@ -645,6 +645,81 @@
     return [];
   }
 
+  function presetColumnCount(preset) {
+    var cfg = normalizeConfig(preset && preset.config);
+    return countColumns(cfg.metrics || [], cfg.yearCount, cfg.includeTotal);
+  }
+
+  function presetImportPreview(payload) {
+    var incoming = parsePresetPackage(payload);
+    var current = getSavedPresets();
+    var currentIds = current.reduce(function(acc, preset) {
+      acc[preset.id] = true;
+      return acc;
+    }, {});
+    var duplicateIds = [];
+    var metricClasses = {};
+    incoming.forEach(function(preset) {
+      if (currentIds[preset.id]) duplicateIds.push(preset.id);
+      (preset.config.metrics || []).forEach(function(metric) {
+        metricClasses[metric.className] = true;
+      });
+    });
+    var mergedCount = incoming.length + current.filter(function(preset) {
+      return incoming.every(function(item) { return item.id !== preset.id; });
+    }).length;
+    return {
+      incoming: incoming,
+      incomingCount: incoming.length,
+      duplicateCount: duplicateIds.length,
+      duplicateIds: duplicateIds,
+      finalCount: Math.min(30, mergedCount),
+      metricClassCount: Object.keys(metricClasses).length,
+      newCount: Math.max(0, incoming.length - duplicateIds.length)
+    };
+  }
+
+  function presetImportPreviewFromText(text) {
+    return presetImportPreview(String(text || ''));
+  }
+
+  function presetImportPreviewSummary(preview) {
+    var data = preview || {};
+    if (!data.incomingCount) return 'Preview: el pack no contiene presets SQX Views validos.';
+    return 'Preview: ' + data.incomingCount + (data.incomingCount === 1 ? ' preset' : ' presets')
+      + ' · ' + data.newCount + ' nuevos'
+      + ' · ' + data.duplicateCount + ' reemplazos'
+      + ' · ' + data.metricClassCount + ' metricas'
+      + ' · total final ' + data.finalCount;
+  }
+
+  function presetImportPreviewHtml(preview) {
+    var data = preview || {};
+    if (!data.incomingCount) return '<div class="views-template-desc">El pack no contiene presets SQX Views validos.</div>';
+    var rows = data.incoming.slice(0, 8).map(function(preset) {
+      var cfg = normalizeConfig(preset.config);
+      var duplicate = data.duplicateIds.indexOf(preset.id) >= 0;
+      return ''
+        + '<div class="views-import-preview-row">'
+        +   '<strong title="' + escapeHtml(preset.name) + '">' + escapeHtml(preset.name) + '</strong>'
+        +   '<span>' + escapeHtml(cfg.metrics.length) + ' met</span>'
+        +   '<span>' + escapeHtml(presetColumnCount(preset)) + ' col</span>'
+        +   '<span>' + escapeHtml(cfg.yearCount) + 'y</span>'
+        +   '<span>' + escapeHtml(cfg.groupMode === 'by_metric' ? 'metrica' : 'ano') + '</span>'
+        +   (duplicate ? '<span class="is-duplicate">reemplaza</span>' : '<span>nuevo</span>')
+        + '</div>';
+    }).join('');
+    if (data.incoming.length > 8) {
+      rows += '<div class="views-import-preview-row"><strong>+' + escapeHtml(data.incoming.length - 8) + ' presets mas</strong><span>pack</span></div>';
+    }
+    return ''
+      + '<div class="views-import-preview-head">'
+      +   '<strong>' + escapeHtml(presetImportPreviewSummary(data)) + '</strong>'
+      +   '<span>' + escapeHtml(data.metricClassCount) + ' clases SQX</span>'
+      + '</div>'
+      + '<div class="views-import-preview-list">' + rows + '</div>';
+  }
+
   function importPresetPackage(payload) {
     var incoming = parsePresetPackage(payload);
     if (!incoming.length) {
@@ -722,6 +797,13 @@
     el.textContent = text || '';
     el.classList.remove('is-ok', 'is-warn', 'is-error');
     if (state) el.classList.add('is-' + state);
+  }
+
+  function setImportPreview(html, hasItems) {
+    var el = byId('vc-import-preview');
+    if (!el) return;
+    el.innerHTML = html || '';
+    el.classList.toggle('has-items', !!hasItems);
   }
 
   function presetIdFromName(name) {
@@ -1230,16 +1312,20 @@
   function importPresetFile(file) {
     if (!file) {
       setStatus('Selecciona un pack JSON de presets.', 'warn');
+      setImportPreview('', false);
       return;
     }
     var reader = new FileReader();
     reader.onload = function() {
+      var preview = presetImportPreviewFromText(reader.result || '');
+      setImportPreview(presetImportPreviewHtml(preview), !!preview.incomingCount);
       var result = importPresetPackageFromText(reader.result || '');
       renderSavedPresets();
-      setStatus(result.imported ? 'Pack importado: ' + result.imported + ' presets.' : 'El pack no contiene presets validos.', result.imported ? 'ok' : 'warn');
+      setStatus(result.imported ? presetImportPreviewSummary(preview) : 'El pack no contiene presets validos.', result.imported ? 'ok' : 'warn');
     };
     reader.onerror = function() {
       setStatus('No se pudo leer el pack de presets.', 'error');
+      setImportPreview('', false);
     };
     reader.readAsText(file);
   }
@@ -1393,6 +1479,10 @@
     packageType: PRESET_PACKAGE_TYPE,
     packageVersion: PRESET_PACKAGE_VERSION,
     openHandoff: openHandoff,
+    presetImportPreview: presetImportPreview,
+    presetImportPreviewFromText: presetImportPreviewFromText,
+    presetImportPreviewHtml: presetImportPreviewHtml,
+    presetImportPreviewSummary: presetImportPreviewSummary,
     previewLines: previewLines,
     renderBuyerReadyTemplates: renderBuyerReadyTemplates,
     renderBuyerProfilePacks: renderBuyerProfilePacks,

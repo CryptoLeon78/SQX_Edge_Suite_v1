@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: PG6 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
+- Estado interno: V9 completada; estado comercial vigente `controlled_traffic_expansion_review_ready`.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_075208.zip`.
 - SHA256 del ZIP: `CCB398057E5DEC6AC5AE2993E58E8DCEDBDB0686DD09539E30F9017D54F3A34D`.
-- Siguiente paso recomendado: R42 - preparar registro publico de release si decidimos publicar este ZIP, o V9 - preview/import comparison para SQX Views.
-- Ultima mejora funcional: Project Generator muestra preview de packs JSON antes de fusionar presets custom, con nuevos/reemplazos y resumen por asset.
+- Siguiente paso recomendado: R42 - preparar registro publico de release si decidimos publicar este ZIP, o PG7 - notas de handoff `.cfx` por comprador en Project Generator.
+- Ultima mejora funcional: SQX Views muestra preview de packs JSON antes de fusionar presets, con metricas, columnas, anos, orden y reemplazos.
 
 ## SQX Edge Pro
 
@@ -96,6 +96,7 @@ SQX Views:
 - Incluye packs por perfil de comprador para evaluacion Free, Setup Assist Pro, comprador centrado en riesgo y entrega de auditoria.
 - Incluye packs por familia de activo y flujos de validacion para revisar Forex, indices, oro, intake, robustez, riesgo y auditoria.
 - Puedes guardar presets propios en el navegador y moverlos entre instalaciones con packs JSON exportables/importables.
+- La importacion de packs SQX Views muestra preview de presets, metricas, columnas estimadas y reemplazos antes de fusionar.
 - Workflow y Estrategias incluyen accesos directos para abrir SQX Views con vistas recomendadas ya preparadas.
 - La vista descargada puede cargarse en StrategyQuant X desde Databank -> Load View.
 
