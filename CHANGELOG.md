@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-08 - R44/A63 portable after real MTF GO
+
+- Regenerates the portable ZIP after the real A56 multi-timeframe GO and validates it from a clean extracted folder.
+- Adds broad `analysis_output/` exclusion plus explicit `real_mtf_pipeline_run` guards to package, audit, release checklist, product manifest and tests.
+- Verifies the release with JS contracts, full Python suite, `git diff --check`, distribution audit and portable API health.
+- Publishes local ZIP traceability: `SQX_Edge_Tool_Portable_20260508_201652.zip`, SHA256 `2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E`.
+
 ## 2026-05-08 - A62 recent-bars OHLC download mode
 
 - Adds `--recent-bars` to the MT5/Dukascopy downloader, using `copy_rates_from_pos` for controlled recent OHLC acquisition when fixed historical ranges return no data.

@@ -30,6 +30,7 @@ $excludeNames = @(
   "venv",
   "__pycache__",
   "output",
+  "analysis_output",
   "dist",
   "backups",
   ".pytest_cache",
@@ -81,7 +82,8 @@ $excludeNames = @(
   "pro-template-pack-1",
   "pro-template-pack-2",
   "sqx-edge-relay",
-  "dukas_mt5_download"
+  "dukas_mt5_download",
+  "real_mtf_pipeline_run"
 )
 $excludePatterns = @(
   "\\backend\\sqx-edge-tool\\runtime\\downloads\\",
@@ -159,8 +161,10 @@ function Test-IncludedPath {
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\mt5_ipc_diagnostic\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\config\\dukas_mt5_download\.json$") { return $false }
   if ($Path -match "\\data\\ohlc\\") { return $false }
+  if ($Path -match "\\analysis_output\\") { return $false }
   if ($Path -match "\\analysis_output\\dukas_mt5_download\\") { return $false }
   if ($Path -match "\\analysis_output\\mt5_ipc_diagnostic\\") { return $false }
+  if ($Path -match "\\analysis_output\\real_mtf_pipeline_run\\") { return $false }
   if ($Path -match "\\[^\\]*_private_key\.json$") { return $false }
   if ($Path -match "\\[^\\]*\.private_key\.json$") { return $false }
   if ($Path -match "\\license_signed_[^\\]*\.json$") { return $false }

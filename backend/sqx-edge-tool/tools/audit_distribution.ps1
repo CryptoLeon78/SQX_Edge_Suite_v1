@@ -21,6 +21,7 @@ $denySegments = @(
   "backups",
   "dist",
   "output",
+  "analysis_output",
   "__pycache__",
   ".pytest_cache",
   ".playwright-cli",
@@ -70,7 +71,8 @@ $denySegments = @(
   "pro-template-pack-1",
   "pro-template-pack-2",
   "sqx-edge-relay",
-  "dukas_mt5_download"
+  "dukas_mt5_download",
+  "real_mtf_pipeline_run"
 )
 
 $denyFiles = @(
@@ -158,6 +160,7 @@ $requiredPackageGuards = @(
   '"backups"',
   '"dist"',
   '"output"',
+  '"analysis_output"',
   '".pytest_cache"',
   '".playwright-cli"',
   '"license_keys"',
@@ -205,6 +208,7 @@ $requiredPackageGuards = @(
   '"pro-template-pack-1"',
   '"pro-template-pack-2"',
   '"sqx-edge-relay"',
+  '"real_mtf_pipeline_run"',
   'config\.json',
   'license\.json',
   'license_signer\.py',
@@ -268,7 +272,9 @@ $requiredPackageGuards = @(
   'dukas_mt5_download\.json',
   '"dukas_mt5_download"',
   '\\data\\ohlc\\',
+  '\\analysis_output\\',
   'mt5_ipc_diagnostic',
+  'real_mtf_pipeline_run',
   '_private_key\.json',
   '\.private_key\.json',
   'license_signed_',

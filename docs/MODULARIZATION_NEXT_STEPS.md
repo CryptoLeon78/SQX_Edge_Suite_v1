@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: A62 - recent-bars MT5 OHLC download and A56 real MTF pipeline GO.
+- Current completed phase: R44/A63 - portable release refreshed after real A56 GO with broad `analysis_output/` exclusion and verified ZIP.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
-- Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
-- Latest ZIP SHA256: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Next recommended phase: R44/A63 - refresh portable/release story after real A56 GO while keeping OHLC data and internal MT5 tools out of buyer builds, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB1 - Strategy Builder discovery.
+- Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_201652.zip`.
+- Latest ZIP SHA256: `2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E`.
+- Next recommended phase: R45 - prepare controlled publication of the verified portable ZIP if desired, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB1 - Strategy Builder discovery.
 
 ## Recommended Order
 
@@ -73,7 +73,7 @@ Persistent planning note for the next SQX Edge phases.
 14. Phase A60: add active-terminal MT5 initialization mode, retry the smoke against the already-open terminal and record NO-GO if IPC still times out. Done; see `docs/A60_MT5_ACTIVE_TERMINAL_MODE.md`.
 15. Phase A61: add a repeatable MT5 IPC diagnostic that records environment, process state and init variants before any full OHLC download. Done; see `docs/A61_MT5_IPC_DIAGNOSTIC.md`.
 16. Phase A62: add controlled recent-bars download mode, align the MT5 symbol map to the product manifest universe, produce `EURUSD_H1.csv`, download the full configured OHLC universe and validate A56 GO. Done; see `docs/A62_RECENT_BARS_REAL_MTF_GO.md`.
-17. Phase A63/R44: refresh the portable/release story after real A56 GO while keeping OHLC data and internal MT5 tools out of buyer builds.
+17. Phase A63/R44: refresh the portable/release story after real A56 GO while keeping OHLC data, `analysis_output/` evidence and internal MT5 tools out of buyer builds. Done; see `docs/R44_A63_PORTABLE_AFTER_REAL_MTF_GO.md`.
 
 ## Strategy Builder / Only One Platform Track
 
@@ -194,3 +194,5 @@ Persistent planning note for the next SQX Edge phases.
 2. Phase R41: regenerate and test the portable ZIP after PG4 because frontend behavior changed. Done.
 3. Phase R42: regenerate and validate a fresh portable release candidate after V9. Done.
 4. Phase R43: prepare a public GitHub Release record only when we decide to publish the verified ZIP.
+5. Phase R44: regenerate and validate the portable ZIP after real A56 GO, with broad generated-evidence exclusions. Done; see `docs/R44_A63_PORTABLE_AFTER_REAL_MTF_GO.md`.
+6. Phase R45: prepare a controlled GitHub Release/publication record only if we decide to publish the verified ZIP.

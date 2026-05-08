@@ -266,13 +266,14 @@ The package excludes:
 - `.git`
 - `venv`
 - `output`
+- `analysis_output`
 - `dist`
 - `backups`
 - `node_modules`
 - `.pytest_cache`
 - downloaded runtime cache
 - local `backend/sqx-edge-tool/config.json`
-- internal MT5/Dukascopy downloader, config, `data/ohlc/` and A58 coverage output
+- internal MT5/Dukascopy downloader, config, `data/ohlc/`, all `analysis_output/` evidence and A56/A58/A61/A62 generated run output
 - `resources/pro-template-pack-1/` because Template Pack 1 is a separate paid add-on delivery.
 
 ## Contract Tests

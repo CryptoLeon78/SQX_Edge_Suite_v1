@@ -109,6 +109,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertNotIn('"runtime"', text)
         self.assertIn('"\\\\backend\\\\sqx-edge-tool\\\\runtime\\\\downloads\\\\",', text)
         self.assertIn('"node_modules"', text)
+        self.assertIn('"analysis_output"', text)
         self.assertIn("RELEASE_SQX_EDGE", text)
         self.assertIn("license\\.json", text)
         self.assertIn("license_signer\\.py", text)
@@ -171,8 +172,11 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("mt5_ipc_diagnostic\\.py", text)
         self.assertIn("dukas_mt5_download\\.json", text)
         self.assertIn('"dukas_mt5_download"', text)
+        self.assertIn('"real_mtf_pipeline_run"', text)
         self.assertIn("\\\\data\\\\ohlc\\\\", text)
+        self.assertIn("\\\\analysis_output\\\\", text)
         self.assertIn("mt5_ipc_diagnostic", text)
+        self.assertIn("real_mtf_pipeline_run", text)
         self.assertIn('"sqx-edge-relay"', text)
         self.assertIn("_private_key\\.json", text)
         self.assertIn("license_signed_", text)
@@ -297,6 +301,8 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("mt5_ipc_diagnostic.py", text)
         self.assertIn("dukas_mt5_download.json", text)
         self.assertIn("data\\ohlc", text)
+        self.assertIn("analysis_output", text)
+        self.assertIn("real_mtf_pipeline_run", text)
         self.assertIn("sqx-edge-relay", text)
         self.assertIn("fulfillment_requests", text)
         self.assertIn("customer_success_renewal", text)
@@ -414,6 +420,8 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "dukas_mt5_download.json",
             "dukas_mt5_download",
             "mt5_ipc_diagnostic",
+            "real_mtf_pipeline_run",
+            "analysis_output",
             "sqx-edge-relay",
             "customer_success_renewal",
             "customer_cockpit",
