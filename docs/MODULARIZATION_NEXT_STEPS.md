@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-08.
-- Current completed phase: A58 - internal MT5/Dukascopy OHLC download gate.
+- Current completed phase: A59 - local MT5/Dukascopy real-data smoke, NO-GO because MT5 returned IPC timeout.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_164956.zip`.
 - Latest ZIP SHA256: `92BEF393D5EF4D5B32FB0FBC9A11A04BE30E648B4E0D51E70AA0D5F8A3C73534`.
-- Next recommended phase: A59/R44 - execute the MT5/Dukascopy downloader locally, validate `data/ohlc` through A56 until GO and refresh the portable release if the MTF evidence panel is part of the next delivery, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB1 - Strategy Builder discovery.
+- Next recommended phase: A60/R44 - rerun A59 after manually opening/logging into Dukascopy MT5, download the configured OHLC universe, validate `data/ohlc` through A56 until GO and refresh the portable release if the MTF evidence panel is part of the next delivery, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB1 - Strategy Builder discovery.
 
 ## Recommended Order
 
@@ -69,7 +69,8 @@ Persistent planning note for the next SQX Edge phases.
 10. Phase A56: add an end-to-end real-data pipeline runner for OHLC CSV -> metrics -> intake -> guarded plan artifacts, returning GO only when every stage passes. Done.
 11. Phase A57: expose read-only MTF evidence in dashboard only after A56 returns GO with real data. Done.
 12. Phase A58: add an internal MT5/Dukascopy OHLC download gate that writes real CSVs for A55/A56 and stays excluded from buyer portable builds. Done.
-13. Phase A59: run A58 against the local terminal, validate `data/ohlc` through A56 until GO and decide whether to package the evidence panel in the next portable release.
+13. Phase A59: run the first local A58 smoke against Dukascopy MT5 and record NO-GO if terminal/API readiness blocks real data. Done; see `docs/A59_REAL_DATA_VALIDATION.md`.
+14. Phase A60: rerun A59 after the terminal is opened/logged in, download the full configured OHLC universe, validate A56 GO and decide whether to package the evidence panel in the next portable release.
 
 ## Strategy Builder / Only One Platform Track
 

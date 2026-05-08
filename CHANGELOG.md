@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-08 - A59 local MT5 real-data validation smoke
+
+- Runs the first local A58 smoke against Dukascopy MT5 for `EURUSD/H1`.
+- Confirms the terminal path and `MetaTrader5` dependency are present, but records a NO_GO because MT5 returned IPC timeout during initialization.
+- Adds `docs/A59_REAL_DATA_VALIDATION.md` with exact rerun, full download and A56 validation commands before any MTF evidence promotion.
+
 ## 2026-05-08 - A58 internal MT5/Dukascopy OHLC download gate
 
 - Adds `dukas_mt5_ohlc_download.py` as an operator-only, config-driven downloader for MT5/Dukascopy OHLC CSV files feeding A55/A56 real-data validation.

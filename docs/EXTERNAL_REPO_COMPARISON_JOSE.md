@@ -121,11 +121,17 @@ Phase A58 adds the internal data-acquisition bridge:
 
 The downloader maps the 33 target assets to MT5/Dukascopy symbols, writes reviewable `ASSET_TF.csv` files into `data/ohlc`, and emits JSON/Markdown/CSV coverage reports. It is intentionally excluded from buyer portable builds because MetaTrader5 and terminal paths are operator dependencies, not basic-user requirements.
 
+Phase A59 performs the first local smoke and records a controlled NO-GO:
+
+- `docs/A59_REAL_DATA_VALIDATION.md`
+
+The machine has the Dukascopy MT5 terminal path and `MetaTrader5` Python package, but the terminal returned IPC timeout during initialization. The next real-data step is operational: open and log into MT5 manually, rerun the smoke, then run the full A58 download and A56 validation.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:
 
-1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts, A55 added the OHLC metric builder, A56 added the end-to-end real-data runner, A57 exposed read-only dashboard evidence after GO and A58 added the internal MT5/Dukascopy download gate; remaining work is running A58/A56 with real local terminal data until GO.
+1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts, A55 added the OHLC metric builder, A56 added the end-to-end real-data runner, A57 exposed read-only dashboard evidence after GO, A58 added the internal MT5/Dukascopy download gate and A59 recorded the first local MT5 NO-GO smoke; remaining work is opening/logging into MT5 and running A58/A56 with real local terminal data until GO.
 2. Optional market data acquisition: keep MT5/Dukascopy as an operator-only script, excluded from portable buyer builds unless explicitly needed.
 3. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
 4. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
@@ -148,4 +154,4 @@ Explicitly excluded by product decision:
 - No legacy HTML tabs were restored.
 - No sensitive commercial material was imported.
 - No third-party credentials, tokens or account passwords were introduced.
-- The current advisor uses the available H1 score baseline; A49/A50/A51/A52/A53/A54/A55/A56/A57/A58 now provide a safe backend-to-dashboard path for real multi-timeframe metrics once supplied and validated.
+- The current advisor uses the available H1 score baseline; A49/A50/A51/A52/A53/A54/A55/A56/A57/A58/A59 now provide a safe backend-to-dashboard path for real multi-timeframe metrics once supplied and validated.
