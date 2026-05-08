@@ -44,6 +44,43 @@
     volatility_filter: 'BS_Volatility',
     regime_filter: 'BS_Regime'
   };
+  var VIEWS_HANDOFF_PACKS = {
+    robustness: {
+      label: 'Robustness',
+      preset: 'robustness',
+      yearCount: 9,
+      sampleStart: 21,
+      groupMode: 'by_year'
+    },
+    'risk-capital-review': {
+      label: 'Risk Review',
+      preset: 'risk',
+      yearCount: 5,
+      sampleStart: 21,
+      groupMode: 'by_metric'
+    },
+    'asset-family-review': {
+      label: 'Asset Family Review',
+      preset: 'robustness',
+      yearCount: 9,
+      sampleStart: 21,
+      groupMode: 'by_year'
+    },
+    'pro-setup-assist': {
+      label: 'Pro Setup Review',
+      preset: 'risk',
+      yearCount: 7,
+      sampleStart: 21,
+      groupMode: 'by_year'
+    },
+    'free-core-validation': {
+      label: 'Core Validation',
+      preset: 'egt-core',
+      yearCount: 9,
+      sampleStart: 21,
+      groupMode: 'by_year'
+    }
+  };
 
   var ARCHETYPES = {
     trend_following: {
@@ -545,6 +582,57 @@
     };
   }
 
+  function sqxViewsHandoffFromPackage(input, options) {
+    var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {}, options);
+    var errors = [];
+    var warnings = [];
+    if (!payload || payload.type !== PACKAGE_TYPE) errors.push('invalid_strategy_builder_package');
+    if (payload && payload.workflow_state !== 'package_exportable' && !(options && options.allowBlocked)) {
+      errors.push('package_not_exportable');
+    }
+    var assetProfile = payload && payload.asset_profile || {};
+    var validation = payload && payload.validation_requirements || {};
+    var viewSource = payload && payload.views_handoff || {};
+    var asset = normalizeAsset(assetProfile.asset);
+    var timeframe = normalizeTimeframe(assetProfile.timeframe);
+    var validationPackId = normalizeText(viewSource.validation_pack_id || validation.validation_pack_id, 'robustness');
+    var pack = VIEWS_HANDOFF_PACKS[validationPackId] || VIEWS_HANDOFF_PACKS.robustness;
+    if (!VIEWS_HANDOFF_PACKS[validationPackId]) warnings.push('unknown_validation_pack:' + validationPackId);
+    if (!asset) errors.push('missing_asset');
+    if (!timeframe) errors.push('missing_timeframe');
+    if (errors.length) {
+      return { ok: false, errors: errors, warnings: warnings, handoff: null };
+    }
+    return {
+      ok: true,
+      errors: [],
+      warnings: warnings,
+      handoff: {
+        preset: pack.preset,
+        viewName: ['SB', asset, timeframe, pack.label].join(' '),
+        yearCount: pack.yearCount,
+        sampleStart: pack.sampleStart,
+        groupMode: pack.groupMode,
+        validation_pack_id: validationPackId,
+        asset: asset,
+        timeframe: timeframe,
+        required_review: true
+      },
+      source: {
+        package_type: payload.type,
+        package_version: payload.version,
+        workflow_state: payload.workflow_state,
+        validation_pack_id: validationPackId
+      },
+      guardrails: [
+        'views_handoff_only',
+        'no_template_saved',
+        'no_download_triggered',
+        'operator_must_press_download_or_save_template'
+      ]
+    };
+  }
+
   SQX.strategyBuilderCore = SQX.strategyBuilderCore || {
     archetypes: ARCHETYPES,
     blockedStates: BLOCKED_STATES,
@@ -557,6 +645,7 @@
     reviewChecklistSummary: reviewChecklistSummary,
     sampleCvcHandoff: sampleCvcHandoff,
     sourceModes: SOURCE_MODES,
+    sqxViewsHandoffFromPackage: sqxViewsHandoffFromPackage,
     states: WORKFLOW_STATES,
     supportedAsset: supportedAsset,
     validateImportPayload: validateImportPayload

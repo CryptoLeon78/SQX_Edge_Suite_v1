@@ -1040,9 +1040,10 @@
     applyPreset(preset);
     var shell = global.document.querySelector('.views-shell');
     if (shell && shell.scrollIntoView) shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    var preview = updatePreview();
     setStatus('Handoff cargado: ' + (opts.viewName || opts.name || preset) + '.', 'ok');
     if (global.addHomeTrace) global.addHomeTrace('SQX Views', 'Handoff ' + preset + ' preparado', 'ok');
-    return updatePreview();
+    return preview;
   }
 
   function bindHandoffLinks() {

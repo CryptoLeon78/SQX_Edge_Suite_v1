@@ -17,6 +17,7 @@
     importFile: 'sb-import-file',
     sendProjectGenerator: 'sb-send-pg-btn',
     preparePreset: 'sb-prepare-preset-btn',
+    sendViews: 'sb-send-views-btn',
     clear: 'sb-clear-btn',
     exportPackage: 'sb-export-btn',
     status: 'sb-status',
@@ -313,6 +314,34 @@
     return { ok: true, errors: [], config: config, preset_name: draft.preset_name, guardrails: draft.guardrails };
   }
 
+  function sendToViews(options) {
+    var doc = options && options.document ? options.document : global.document;
+    var api = core();
+    var payload = lastPackage || build({ document: doc });
+    if (!api || !api.sqxViewsHandoffFromPackage) {
+      setStatus('SQX Views handoff contract missing.', 'error', doc);
+      return null;
+    }
+    var result = api.sqxViewsHandoffFromPackage(payload);
+    if (!result.ok) {
+      setStatus('SQX Views handoff blocked: ' + result.errors.join(', ') + '.', 'warn', doc);
+      return result;
+    }
+    if (!SQX.viewCreator || !SQX.viewCreator.openHandoff) {
+      setStatus('SQX Views is not available yet.', 'error', doc);
+      return { ok: false, errors: ['sqx_views_missing'], handoff: result.handoff };
+    }
+    SQX.viewCreator.openHandoff({
+      preset: result.handoff.preset,
+      viewName: result.handoff.viewName,
+      yearCount: result.handoff.yearCount,
+      sampleStart: result.handoff.sampleStart,
+      groupMode: result.handoff.groupMode
+    });
+    setStatus('SQX Views prepared. No template was saved.', 'ok', doc);
+    return result;
+  }
+
   function importText(raw, options) {
     var doc = options && options.document ? options.document : global.document;
     var api = core();
@@ -378,6 +407,7 @@
     bind(doc, IDS.exportPackage, function() { exportPackage({ document: doc }); });
     bind(doc, IDS.sendProjectGenerator, function() { sendToProjectGenerator({ document: doc }); });
     bind(doc, IDS.preparePreset, function() { prepareProjectGeneratorPreset({ document: doc }); });
+    bind(doc, IDS.sendViews, function() { sendToViews({ document: doc }); });
     bind(doc, IDS.importPackage, function() {
       var input = byId(IDS.importFile, doc);
       if (input && input.click) input.click();
@@ -400,6 +430,7 @@
     init: init,
     loadCvcSample: loadCvcSample,
     prepareProjectGeneratorPreset: prepareProjectGeneratorPreset,
+    sendToViews: sendToViews,
     sendToProjectGenerator: sendToProjectGenerator
   };
 

@@ -250,6 +250,22 @@ async function run() {
     await saveShot(desktop, 'e2e-strategy-builder-pg-preset-draft-desktop.png');
     await desktop.locator('.tab[data-tab="strategybuilder"]').click();
     await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
+    const viewPresetCountBeforeHandoff = await desktop.evaluate(() => window.SQX.viewCreator.getSavedPresets(localStorage).length);
+    await desktop.locator('#sb-send-views-btn').click();
+    await desktop.waitForSelector('.tab[data-tab="views"].active');
+    const viewsHandoff = await desktop.evaluate(() => ({
+      viewName: document.getElementById('vc-view-name')?.value,
+      status: document.getElementById('vc-status')?.textContent,
+      columnCount: Number(document.getElementById('vc-column-count')?.textContent.trim() || 0),
+      savedCount: window.SQX.viewCreator.getSavedPresets(localStorage).length,
+    }));
+    if (viewsHandoff.viewName !== 'SB EURUSD H1 Robustness') throw new Error(`Strategy Builder SQX Views handoff name failed: ${JSON.stringify(viewsHandoff)}`);
+    if (!viewsHandoff.status.includes('Handoff cargado')) throw new Error('Strategy Builder SQX Views handoff status missing');
+    if (viewsHandoff.columnCount <= 104) throw new Error(`Strategy Builder SQX Views handoff columns too low: ${JSON.stringify(viewsHandoff)}`);
+    if (viewsHandoff.savedCount !== viewPresetCountBeforeHandoff) throw new Error('Strategy Builder SQX Views handoff should not auto-save a template');
+    await saveShot(desktop, 'e2e-strategy-builder-views-handoff-desktop.png');
+    await desktop.locator('.tab[data-tab="strategybuilder"]').click();
+    await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
     const importResult = await desktop.evaluate(pkg => window.SQX.strategyBuilder.importText(JSON.stringify(pkg)), builderPackage);
     if (!importResult.ok || importResult.package.workflow_state !== 'blocked_operator_review') throw new Error('Strategy Builder import should require fresh operator review');
     await desktop.waitForFunction(() => document.getElementById('sb-status')?.textContent.includes('Confirm manual review'));

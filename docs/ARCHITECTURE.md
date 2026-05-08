@@ -127,7 +127,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 - `modules/core.js` creates `window.SQX`, module registration, and ready callbacks.
 - Focused modules attach stable contracts under `window.SQX`.
 - `champion-challenger-regime.js` loads after `datasets.js` because it adapts first-party historical and score evidence.
-- `strategy-builder-core.js` and `strategy-builder.js` load after Champion vs Challenger so the Builder can consume the reduced J6 handoff shape without coupling to raw CSV.
+- `strategy-builder-core.js` and `strategy-builder.js` load after Champion vs Challenger so the Builder can consume the reduced J6 handoff shape without coupling to raw CSV; SQX Views handoff is resolved at click time through the later `view-creator.js` runtime contract.
 - `modules/index.js` marks the module layer as booted and flushes ready callbacks.
 - `data.js` and `dashboard.js` preserve existing global render functions and dashboard behavior.
 - `main.js` runs shell-level initial rendering and workflow initialization.
@@ -148,8 +148,8 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/datasets.js` | Normalized access to asset, score and manifest datasets. |
 | `modules/champion-challenger-regime.js` | First-party Regime/EGT evidence adapter for Champion vs Challenger using historical and score datasets. |
 | `modules/champion-challenger.js` | Native dashboard UI facade for `tab-cvc`, delegating parsing, scoring, contextual evidence, safe JSON export and future Strategy Builder handoff to focused contracts without local persistence. |
-| `modules/strategy-builder-core.js` | Pure read-only Strategy Builder package builder for local `sqx-edge.strategy-builder-package` previews, import validation, re-review gating, review summaries and Project Generator prefill/preset draft mapping. |
-| `modules/strategy-builder.js` | Native dashboard UI facade for `tab-strategybuilder`, building local previews plus gated JSON import/export, visible review checklist and Project Generator custom/preset prefill without backend calls or generated trading logic. |
+| `modules/strategy-builder-core.js` | Pure read-only Strategy Builder package builder for local `sqx-edge.strategy-builder-package` previews, import validation, re-review gating, review summaries, Project Generator prefill/preset draft mapping and SQX Views validation-pack handoff mapping. |
+| `modules/strategy-builder.js` | Native dashboard UI facade for `tab-strategybuilder`, building local previews plus gated JSON import/export, visible review checklist, Project Generator custom/preset prefill and SQX Views handoff without backend calls or generated trading logic. |
 | `modules/renderers.js` | Reusable HTML rendering helpers for dashboard lists/tables. |
 | `modules/charts.js` | Chart and visual summary helpers. |
 | `modules/strategies.js` | Strategy UI contracts, deletion/import state, strategy metadata. |
