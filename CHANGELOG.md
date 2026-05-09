@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - M96 next controlled commercial movement from M95 decision
+
+- Adds `next_controlled_commercial_movement_from_m95_decision.py` to decide the next controlled movement from M95 evidence.
+- Blocks execution, checkout, email, buyer contact and license actions from the decision gate.
+- Extends packaging exclusions, public/private commercial traceability, roadmap/governance and tests.
+
 ## 2026-05-09 - M95 approved controlled commercial movement from M93 execution monitor
 
 - Adds `approved_controlled_commercial_movement_from_m93_execution_monitor.py` to review M94 execution evidence before any additional movement.
