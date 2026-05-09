@@ -25,7 +25,7 @@ assert.ok(fulfillmentJs.includes("suffix.indexOf('/api/') === 0"));
 assert.ok(html.includes('id="fulfillment-panel"'));
 assert.ok(html.includes('id="fulfillment-request-list"'));
 assert.ok(html.includes('js/modules/fulfillment.js'));
-assert.equal(productManifest.upgrade.checkout.status, 'controlled_commercial_candidate_ready');
+assert.equal(productManifest.upgrade.checkout.status, 'controlled_traffic_expansion_step_ready');
 assert.ok(productManifest.upgrade.checkout.liveReadinessTool.includes('checkout_live_readiness.py'));
 assert.ok(productManifest.upgrade.checkout.liveReadinessEvidenceDir.includes('checkout_live_readiness'));
 assert.ok(productManifest.upgrade.checkout.commercialReleaseCandidateTool.includes('commercial_release_candidate.py'));
@@ -211,7 +211,7 @@ assert.ok(productManifest.upgrade.checkout.controlledTrafficExpansionReviewTool.
 assert.ok(productManifest.upgrade.checkout.controlledTrafficExpansionReviewEvidenceDir.includes('controlled_traffic_expansion_review'));
 assert.equal(productManifest.upgrade.checkout.controlledTrafficExpansionReviewPolicy, 'approve_only_tiny_controlled_traffic_expansion_after_m80_monitoring_support_claims_refunds_incidents_rollback_and_pause_rule_are_clean');
 assert.equal(productManifest.upgrade.checkout.rollbackPolicy, 'disable_checkout_pause_webhook_pause_worker_manual_fulfillment');
-assert.equal(productManifest.upgrade.checkout.automation.status, 'controlled_commercial_candidate_ready');
+assert.equal(productManifest.upgrade.checkout.automation.status, 'controlled_traffic_expansion_step_ready');
 assert.equal(productManifest.upgrade.checkout.automation.relayIngestEndpoint, '/api/fulfillment/relay-ingest');
 assert.equal(productManifest.upgrade.checkout.automation.requestStatusEndpoint, '/api/fulfillment/request-status');
 assert.equal(productManifest.upgrade.checkout.automation.retryMode, 'manual_retry_with_attempt_log');

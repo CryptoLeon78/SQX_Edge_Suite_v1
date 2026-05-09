@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: R47 - Controlled commercial release candidate.
-- Current product/commercial state: `controlled_commercial_candidate_ready`.
-- Next implementation phase: SB17 - Strategy Builder buyer session evidence handoff index, M82 - execute one tiny reversible traffic expansion step only if M81 approves it, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Current phase completed: M82 - Controlled traffic expansion step.
+- Current product/commercial state: `controlled_traffic_expansion_step_ready`.
+- Next implementation phase: M83 - monitor the tiny controlled traffic expansion step before repeating, pausing or widening again, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

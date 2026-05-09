@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - M82 tiny controlled traffic expansion step
+
+- Adds a guarded internal tool and config for one tiny reversible traffic expansion step after M81 approval.
+- Keeps evidence redacted: channel, counts, owner and next review only; no buyer identity, checkout payloads or license files.
+- Extends portable packaging exclusions, release checklist, public/private commercial traceability and static tests.
+
 ## 2026-05-09 - R47 controlled commercial release candidate
 
 - Regenerates the portable ZIP after the Strategy Builder buyer-session support phases.
