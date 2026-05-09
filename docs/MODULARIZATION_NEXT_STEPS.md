@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: M92 - Approved controlled commercial movement execution monitor.
-- Current product/commercial state: `approved_controlled_commercial_movement_execution_monitor_ready`.
+- Current completed phase: M93 - Next controlled commercial movement from M92 decision.
+- Current product/commercial state: `next_controlled_commercial_movement_from_m92_decision_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: M93 - decide the next controlled commercial movement from M92 evidence, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: M94 - execute only the M93-approved controlled commercial movement, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -207,7 +207,8 @@ Persistent planning note for the next SQX Edge phases.
 90. Phase M90: decide the next controlled commercial movement from M89 evidence. Done.
 91. Phase M91: execute only the M90-approved controlled commercial movement. Done.
 92. Phase M92: monitor the M91 execution result before any additional movement. Done.
-93. Phase M93: decide the next controlled commercial movement from M92 evidence. Recommended next.
+93. Phase M93: decide the next controlled commercial movement from M92 evidence. Done.
+94. Phase M94: execute only the M93-approved controlled commercial movement. Recommended next.
 
 ## SQX View Creator Track
 
