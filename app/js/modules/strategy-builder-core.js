@@ -31,6 +31,7 @@
   var BUYER_SESSION_SUMMARY_TYPE = 'sqx-edge.strategy-builder-buyer-session-summary';
   var BUYER_SESSION_NOTES_TYPE = 'sqx-edge.strategy-builder-buyer-session-notes';
   var BUYER_SESSION_SUPPORT_CASE_TYPE = 'sqx-edge.strategy-builder-buyer-session-support-case-bundle';
+  var BUYER_SESSION_RESOLUTION_TYPE = 'sqx-edge.strategy-builder-buyer-session-support-resolution-checklist';
   var REQUIRED_BUYER_HANDOFFS = [
     'project_generator_prefill',
     'project_generator_preset_draft',
@@ -1263,6 +1264,130 @@
     };
   }
 
+  function buyerSessionSupportResolutionChecklist(input, options) {
+    var source = input || {};
+    var caseResult = source.type === BUYER_SESSION_SUPPORT_CASE_TYPE
+      ? { ok: true, errors: [], bundle: source }
+      : buyerSessionSupportCaseBundle(source, options);
+    if (!caseResult.ok) {
+      return {
+        ok: false,
+        errors: caseResult.errors || ['buyer_support_case_failed'],
+        checklist: null,
+        guardrails: ['support_resolution_checklist_only', 'no_destination_action_triggered']
+      };
+    }
+    var bundle = caseResult.bundle || {};
+    var reviewRequired = !!bundle.review_required;
+    var blockedDestination = normalizeText(bundle.workflow_state, 'blocked_operator_review') !== 'package_exportable';
+    var steps = [
+      {
+        id: 'case_identity_confirmed',
+        label: 'Confirm support case identity',
+        status: 'pending',
+        owner: 'operator',
+        action: 'Match case id, asset, timeframe and buyer session context before taking any action.'
+      },
+      {
+        id: 'manual_review_gate_resolved',
+        label: 'Resolve manual review gate',
+        status: reviewRequired ? 'blocked' : 'pending',
+        owner: 'operator',
+        action: 'Confirm the operator has reviewed the source evidence, package state and safe-claims boundary.',
+        note: reviewRequired ? 'Manual review is still required before support can close the case.' : 'Review gate is not marked as required in the bundle.'
+      },
+      {
+        id: 'blocked_step_identified',
+        label: 'Identify blocked or pending destination step',
+        status: blockedDestination ? 'pending' : 'done',
+        owner: 'operator',
+        action: 'Use support questions and section manifest to locate the pending Project Generator, SQX Views, Cleaner or StrategyQuant step.'
+      },
+      {
+        id: 'safe_attachments_checked',
+        label: 'Check safe attachment boundary',
+        status: 'pending',
+        owner: 'operator',
+        action: 'Attach only printable notes or redacted summary unless the full package is explicitly reviewed and redacted.'
+      },
+      {
+        id: 'buyer_response_prepared',
+        label: 'Prepare buyer response',
+        status: 'pending',
+        owner: 'operator',
+        action: 'Explain the next manual step without profitability, trading or automation claims.'
+      },
+      {
+        id: 'strategyquant_validation_confirmed',
+        label: 'Confirm StrategyQuant validation boundary',
+        status: 'pending',
+        owner: 'operator',
+        action: 'Do not close as validated unless StrategyQuant validation has been run manually.'
+      },
+      {
+        id: 'case_close_or_escalate',
+        label: 'Close or escalate support case',
+        status: reviewRequired ? 'blocked' : 'pending',
+        owner: 'operator',
+        action: 'Close only after manual resolution evidence exists; otherwise escalate internally with redacted artifacts.'
+      }
+    ];
+    var counts = steps.reduce(function(acc, step) {
+      acc[step.status] = (acc[step.status] || 0) + 1;
+      return acc;
+    }, {});
+    return {
+      ok: true,
+      errors: [],
+      checklist: {
+        type: BUYER_SESSION_RESOLUTION_TYPE,
+        version: 1,
+        created_at: nowIso(options),
+        case_id: normalizeText(bundle.case_id, supportCaseId(bundle.asset, bundle.timeframe)),
+        source_type: normalizeText(bundle.type, BUYER_SESSION_SUPPORT_CASE_TYPE),
+        asset: normalizeAsset(bundle.asset),
+        timeframe: normalizeTimeframe(bundle.timeframe),
+        workflow_state: normalizeText(bundle.workflow_state, 'blocked_operator_review'),
+        support_priority: normalizeText(bundle.support_priority, reviewRequired ? 'manual_review_required' : 'standard_setup'),
+        review_required: reviewRequired,
+        resolution_ready: !reviewRequired && !blockedDestination,
+        step_counts: {
+          done: counts.done || 0,
+          pending: counts.pending || 0,
+          blocked: counts.blocked || 0
+        },
+        steps: steps,
+        close_conditions: [
+          'manual_review_gate_confirmed',
+          'support_question_answered',
+          'safe_attachment_boundary_respected',
+          'buyer_response_has_no_profitability_claim',
+          'strategyquant_validation_boundary_confirmed'
+        ],
+        escalation_conditions: [
+          'manual_review_required',
+          'destination_step_still_blocked',
+          'full_package_requested_without_redaction',
+          'buyer_requests_profitability_or_trading_claim'
+        ],
+        guardrails: [
+          'support_resolution_checklist_only',
+          'no_destination_action_triggered',
+          'no_local_storage_write',
+          'no_backend_endpoint',
+          'no_remote_ticket_created',
+          'operator_executes_every_step_manually',
+          'no_profitability_claim'
+        ]
+      },
+      guardrails: [
+        'support_resolution_checklist_only',
+        'no_destination_action_triggered',
+        'no_remote_ticket_created'
+      ]
+    };
+  }
+
   function buyerWorkflowSummary(input, options) {
     var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {}, options);
     var review = reviewChecklistSummary(payload);
@@ -1322,6 +1447,7 @@
     buildContext: buildContext,
     buildPackage: buildPackage,
     buyerHandoffPackReview: buyerHandoffPackReview,
+    buyerSessionSupportResolutionChecklist: buyerSessionSupportResolutionChecklist,
     buyerSessionSupportCaseBundle: buyerSessionSupportCaseBundle,
     buyerSessionOperatorNotes: buyerSessionOperatorNotes,
     buyerSessionHandoffSummary: buyerSessionHandoffSummary,

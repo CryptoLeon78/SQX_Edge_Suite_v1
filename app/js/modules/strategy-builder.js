@@ -24,6 +24,7 @@
     buyerSummary: 'sb-buyer-summary-btn',
     buyerNotes: 'sb-buyer-notes-btn',
     buyerSupportCase: 'sb-buyer-support-case-btn',
+    buyerResolution: 'sb-buyer-resolution-btn',
     clear: 'sb-clear-btn',
     exportPackage: 'sb-export-btn',
     status: 'sb-status',
@@ -43,6 +44,7 @@
   var lastBuyerSessionChecklist = null;
   var lastBuyerSessionSummary = null;
   var lastBuyerSessionNotes = null;
+  var lastBuyerSupportCase = null;
   var currentHandoff = null;
   var currentSourceSummary = null;
   var handoffAuditTrail = [];
@@ -243,6 +245,7 @@
     lastBuyerSessionChecklist = null;
     lastBuyerSessionSummary = null;
     lastBuyerSessionNotes = null;
+    lastBuyerSupportCase = null;
     lastPackage = api.buildPackage(inputModel(doc));
     return renderPackage(lastPackage, doc);
   }
@@ -273,6 +276,7 @@
     lastBuyerSessionChecklist = null;
     lastBuyerSessionSummary = null;
     lastBuyerSessionNotes = null;
+    lastBuyerSupportCase = null;
     setValue(IDS.sourceMode, 'blank', doc);
     setValue(IDS.asset, 'EURUSD', doc);
     setValue(IDS.timeframe, 'H1', doc);
@@ -297,6 +301,10 @@
 
   function safeBuyerSupportCaseFilename() {
     return 'sqx_buyer_support_case_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
+  }
+
+  function safeBuyerResolutionFilename() {
+    return 'sqx_buyer_support_resolution_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
   }
 
   function downloadJson(payload, filename, doc) {
@@ -498,6 +506,7 @@
     lastBuyerSessionChecklist = null;
     lastBuyerSessionSummary = null;
     lastBuyerSessionNotes = null;
+    lastBuyerSupportCase = null;
     addAuditEntry('Buyer Handoff Pack', payload, result, doc);
     setStatus('Buyer handoff pack prepared in preview. No destination action was triggered.', 'ok', doc);
     return result;
@@ -521,6 +530,7 @@
     lastBuyerSessionChecklist = result.checklist;
     lastBuyerSessionSummary = null;
     lastBuyerSessionNotes = null;
+    lastBuyerSupportCase = null;
     addAuditEntry('Buyer Session Checklist', lastPackage, result, doc);
     setStatus('Buyer session checklist prepared in preview. No destination action was triggered.', 'ok', doc);
     return result;
@@ -543,6 +553,7 @@
     if (preview) preview.textContent = JSON.stringify(result.summary, null, 2);
     lastBuyerSessionSummary = result.summary;
     lastBuyerSessionNotes = null;
+    lastBuyerSupportCase = null;
     var downloaded = downloadJson(result.summary, safeBuyerSessionSummaryFilename(), doc);
     addAuditEntry('Buyer Session Summary', lastPackage, result, doc);
     setStatus(
@@ -571,6 +582,7 @@
     var preview = byId(IDS.preview, doc);
     if (preview) preview.textContent = result.notes.print_text;
     lastBuyerSessionNotes = result.notes;
+    lastBuyerSupportCase = null;
     var downloaded = downloadText(result.notes.print_text, safeBuyerSessionNotesFilename(), doc);
     addAuditEntry('Buyer Session Notes', lastPackage, result, doc);
     setStatus(
@@ -598,12 +610,40 @@
     }
     var preview = byId(IDS.preview, doc);
     if (preview) preview.textContent = JSON.stringify(result.bundle, null, 2);
+    lastBuyerSupportCase = result.bundle;
     var downloaded = downloadJson(result.bundle, safeBuyerSupportCaseFilename(), doc);
     addAuditEntry('Buyer Support Case', lastPackage, result, doc);
     setStatus(
       downloaded
         ? 'Buyer support case bundle exported locally. No remote ticket was created.'
         : 'Buyer support case bundle prepared in preview. No remote ticket was created.',
+      'ok',
+      doc
+    );
+    return result;
+  }
+
+  function prepareBuyerResolutionChecklist(options) {
+    var doc = options && options.document ? options.document : global.document;
+    var api = core();
+    var payload = lastBuyerSupportCase || lastBuyerSessionNotes || lastBuyerSessionSummary || lastBuyerSessionChecklist || lastBuyerPackReview || lastBuyerHandoffPack || lastPackage || build({ document: doc });
+    if (!api || !api.buyerSessionSupportResolutionChecklist) {
+      setStatus('Buyer support resolution contract missing.', 'error', doc);
+      return null;
+    }
+    var result = api.buyerSessionSupportResolutionChecklist(payload);
+    if (!result.ok) {
+      setStatus('Buyer support resolution blocked: ' + result.errors.join(', ') + '.', 'warn', doc);
+      return result;
+    }
+    var preview = byId(IDS.preview, doc);
+    if (preview) preview.textContent = JSON.stringify(result.checklist, null, 2);
+    var downloaded = downloadJson(result.checklist, safeBuyerResolutionFilename(), doc);
+    addAuditEntry('Buyer Resolution Checklist', lastPackage, result, doc);
+    setStatus(
+      downloaded
+        ? 'Buyer support resolution checklist exported locally. No remote ticket was changed.'
+        : 'Buyer support resolution checklist prepared in preview. No remote ticket was changed.',
       'ok',
       doc
     );
@@ -629,6 +669,7 @@
     lastBuyerSessionChecklist = null;
     lastBuyerSessionSummary = null;
     lastBuyerSessionNotes = null;
+    lastBuyerSupportCase = null;
     renderPackage(lastPackage, doc);
     if (result.buyer_pack_review) {
       var preview = byId(IDS.preview, doc);
@@ -637,6 +678,7 @@
       lastBuyerSessionChecklist = null;
       lastBuyerSessionSummary = null;
       lastBuyerSessionNotes = null;
+      lastBuyerSupportCase = null;
       addAuditEntry('Buyer Pack Import Review', lastPackage, { ok: true, guardrails: result.buyer_pack_review.guardrails || [] }, doc);
       setStatus('Buyer pack imported for local review. Confirm manual review before export or handoffs.', 'warn', doc);
       return result;
@@ -699,6 +741,7 @@
     bind(doc, IDS.buyerSummary, function() { exportBuyerSessionSummary({ document: doc }); });
     bind(doc, IDS.buyerNotes, function() { prepareBuyerSessionNotes({ document: doc }); });
     bind(doc, IDS.buyerSupportCase, function() { exportBuyerSupportCaseBundle({ document: doc }); });
+    bind(doc, IDS.buyerResolution, function() { prepareBuyerResolutionChecklist({ document: doc }); });
     bind(doc, IDS.importPackage, function() {
       var input = byId(IDS.importFile, doc);
       if (input && input.click) input.click();
@@ -715,6 +758,7 @@
   SQX.strategyBuilder = SQX.strategyBuilder || {
     build: build,
     clear: clear,
+    prepareBuyerResolutionChecklist: prepareBuyerResolutionChecklist,
     exportBuyerSupportCaseBundle: exportBuyerSupportCaseBundle,
     exportBuyerSessionSummary: exportBuyerSessionSummary,
     exportPackage: exportPackage,

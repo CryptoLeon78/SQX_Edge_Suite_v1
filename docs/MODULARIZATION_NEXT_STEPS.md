@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: SB15 - Strategy Builder buyer session support case bundle.
+- Current completed phase: SB16 - Strategy Builder buyer session support resolution checklist.
 - Current product/commercial state: `controlled_traffic_expansion_review_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_201652.zip`.
 - Latest ZIP SHA256: `2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E`.
-- Next recommended phase: SB16 - Strategy Builder buyer session support resolution checklist, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -101,7 +101,8 @@ Persistent planning note for the next SQX Edge phases.
 13. Phase SB13: add Strategy Builder buyer session handoff summary export. Done; see `docs/SB13_STRATEGY_BUILDER_BUYER_SESSION_SUMMARY_EXPORT.md`.
 14. Phase SB14: add Strategy Builder buyer session printable operator notes. Done; see `docs/SB14_STRATEGY_BUILDER_BUYER_SESSION_PRINTABLE_NOTES.md`.
 15. Phase SB15: add Strategy Builder buyer session support case bundle. Done; see `docs/SB15_STRATEGY_BUILDER_BUYER_SESSION_SUPPORT_CASE_BUNDLE.md`.
-16. Phase SB16: add Strategy Builder buyer session support resolution checklist if this track continues.
+16. Phase SB16: add Strategy Builder buyer session support resolution checklist. Done; see `docs/SB16_STRATEGY_BUILDER_BUYER_SESSION_SUPPORT_RESOLUTION_CHECKLIST.md`.
+17. Phase SB17: add Strategy Builder buyer session evidence handoff index if this track continues.
 
 ## QA / Security Track
 

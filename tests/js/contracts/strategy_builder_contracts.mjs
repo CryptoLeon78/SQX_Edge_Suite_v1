@@ -34,6 +34,7 @@ assert.equal(typeof core.buyerHandoffPackReview, 'function');
 assert.equal(typeof core.buyerSessionHandoffSummary, 'function');
 assert.equal(typeof core.buyerSessionOperatorNotes, 'function');
 assert.equal(typeof core.buyerSessionSupportCaseBundle, 'function');
+assert.equal(typeof core.buyerSessionSupportResolutionChecklist, 'function');
 assert.equal(typeof core.handoffAuditEntry, 'function');
 assert.equal(typeof core.guidedBuyerSessionChecklist, 'function');
 assert.equal(typeof core.strategyCleanerDraftFromPackage, 'function');
@@ -184,6 +185,17 @@ assert.equal(buyerSupportCase.bundle.attachment_manifest.some(item => item.id ==
 assert.equal(buyerSupportCase.bundle.support_questions.length, 4);
 assert.equal(buyerSupportCase.bundle.guardrails.includes('no_remote_ticket_created'), true);
 assert.equal(JSON.stringify(buyerSupportCase.bundle).includes('"buyer_email"'), false);
+const buyerResolution = core.buyerSessionSupportResolutionChecklist(buyerSupportCase.bundle, { createdAt: '2026-05-09T01:55:00.000Z' });
+assert.equal(buyerResolution.ok, true);
+assert.equal(buyerResolution.checklist.type, 'sqx-edge.strategy-builder-buyer-session-support-resolution-checklist');
+assert.equal(buyerResolution.checklist.created_at, '2026-05-09T01:55:00.000Z');
+assert.equal(buyerResolution.checklist.steps.length, 7);
+assert.equal(buyerResolution.checklist.step_counts.blocked, 0);
+assert.equal(buyerResolution.checklist.step_counts.done, 1);
+assert.equal(buyerResolution.checklist.close_conditions.includes('strategyquant_validation_boundary_confirmed'), true);
+assert.equal(buyerResolution.checklist.escalation_conditions.includes('manual_review_required'), true);
+assert.equal(buyerResolution.checklist.guardrails.includes('no_remote_ticket_created'), true);
+assert.equal(JSON.stringify(buyerResolution.checklist).includes('"buyer_email"'), false);
 
 const importedPackage = core.importPayload(JSON.stringify(ready), { createdAt: '2026-05-09T01:00:00.000Z' });
 assert.equal(importedPackage.ok, true);
@@ -242,6 +254,7 @@ assert.match(blockedImport.errors.join(' '), /forbidden_raw_payload_keys/);
   'sb-buyer-summary-btn',
   'sb-buyer-notes-btn',
   'sb-buyer-support-case-btn',
+  'sb-buyer-resolution-btn',
   'sb-clear-btn',
   'sb-export-btn',
   'sb-status',
@@ -385,6 +398,13 @@ assert.match(document.getElementById('sb-package-preview').textContent, /full_st
 assert.match(document.getElementById('sb-status').textContent, /Buyer support case bundle prepared|Buyer support case bundle exported/);
 assert.match(document.getElementById('sb-audit-list').innerHTML, /Buyer Support Case/);
 assert.equal(sandbox.localStorage.getItem('sqx_strategy_builder_buyer_support_case_v1'), null);
+document.getElementById('sb-buyer-resolution-btn').click();
+assert.match(document.getElementById('sb-package-preview').textContent, /sqx-edge\.strategy-builder-buyer-session-support-resolution-checklist/);
+assert.match(document.getElementById('sb-package-preview').textContent, /case_close_or_escalate/);
+assert.match(document.getElementById('sb-package-preview').textContent, /strategyquant_validation_boundary_confirmed/);
+assert.match(document.getElementById('sb-status').textContent, /Buyer support resolution checklist prepared|Buyer support resolution checklist exported/);
+assert.match(document.getElementById('sb-audit-list').innerHTML, /Buyer Resolution Checklist/);
+assert.equal(sandbox.localStorage.getItem('sqx_strategy_builder_buyer_resolution_v1'), null);
 const importedBuyerPackUiResult = ui.importText(JSON.stringify(buyerPack.pack), { document });
 assert.equal(importedBuyerPackUiResult.ok, true);
 assert.equal(document.getElementById('sb-state').textContent, 'blocked_operator_review');

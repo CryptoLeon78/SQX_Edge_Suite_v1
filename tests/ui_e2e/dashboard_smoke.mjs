@@ -395,6 +395,21 @@ async function run() {
     if (!buyerSupportCase.auditRows.some(text => text.includes('Buyer Support Case'))) throw new Error(`Strategy Builder buyer support case audit missing: ${JSON.stringify(buyerSupportCase)}`);
     if (buyerSupportCase.storageText !== null || buyerSupportCase.viewPresetCount !== viewPresetCountBeforeHandoff || buyerSupportCase.pgPresetCount !== presetCountBeforeDraft) throw new Error(`Strategy Builder buyer support case should not persist destination state: ${JSON.stringify(buyerSupportCase)}`);
     await saveShot(desktop, 'e2e-strategy-builder-buyer-support-case-desktop.png');
+    await desktop.locator('#sb-buyer-resolution-btn').click();
+    const buyerResolution = await desktop.evaluate(() => ({
+      preview: document.getElementById('sb-package-preview')?.textContent || '',
+      status: document.getElementById('sb-status')?.textContent || '',
+      auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
+      storageText: localStorage.getItem('sqx_strategy_builder_buyer_resolution_v1'),
+      viewPresetCount: window.SQX.viewCreator.getSavedPresets(localStorage).length,
+      pgPresetCount: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length,
+    }));
+    if (!buyerResolution.preview.includes('sqx-edge.strategy-builder-buyer-session-support-resolution-checklist')) throw new Error('Strategy Builder buyer resolution preview missing type');
+    if (!buyerResolution.preview.includes('case_close_or_escalate') || !buyerResolution.preview.includes('strategyquant_validation_boundary_confirmed')) throw new Error(`Strategy Builder buyer resolution missing close/escalation conditions: ${buyerResolution.preview}`);
+    if (!buyerResolution.status.includes('Buyer support resolution checklist')) throw new Error(`Strategy Builder buyer resolution status missing: ${JSON.stringify(buyerResolution)}`);
+    if (!buyerResolution.auditRows.some(text => text.includes('Buyer Resolution Checklist'))) throw new Error(`Strategy Builder buyer resolution audit missing: ${JSON.stringify(buyerResolution)}`);
+    if (buyerResolution.storageText !== null || buyerResolution.viewPresetCount !== viewPresetCountBeforeHandoff || buyerResolution.pgPresetCount !== presetCountBeforeDraft) throw new Error(`Strategy Builder buyer resolution should not persist destination state: ${JSON.stringify(buyerResolution)}`);
+    await saveShot(desktop, 'e2e-strategy-builder-buyer-resolution-desktop.png');
     const importResult = await desktop.evaluate(pkg => window.SQX.strategyBuilder.importText(JSON.stringify(pkg)), builderPackage);
     if (!importResult.ok || importResult.package.workflow_state !== 'blocked_operator_review') throw new Error('Strategy Builder import should require fresh operator review');
     await desktop.waitForFunction(() => document.getElementById('sb-status')?.textContent.includes('Confirm manual review'));
