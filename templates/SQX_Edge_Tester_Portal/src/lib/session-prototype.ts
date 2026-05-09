@@ -3,7 +3,7 @@ import { SESSION_COOKIE_CONTRACT, type TesterAuditEvent } from "./auth-data-cont
 
 export const LOGIN_ROUTE = "/login";
 export const DEFAULT_AFTER_LOGIN_ROUTE = "/portal";
-export const PROTECTED_PREFIXES = ["/portal", "/admin", "/api/tester"] as const;
+export const PROTECTED_PREFIXES = ["/portal", "/admin", "/api/tester", "/api/admin"] as const;
 export const DEMO_LOGIN_FLAG = "T4_DEMO_LOGIN_ENABLED";
 export const DEMO_TESTER_EMAIL_ENV = "T4_DEMO_TESTER_EMAIL";
 export const DEMO_ACCESS_CODE_ENV = "T4_DEMO_ACCESS_CODE";
@@ -127,4 +127,3 @@ export async function evaluatePrototypeLogin(formData: FormData): Promise<LoginA
     audit: buildAuditEvent("session_created", "allowed", null)
   };
 }
-

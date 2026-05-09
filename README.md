@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T6 completada con caducidad de 15 dias, estados de renovacion y preview manual approve/deny/block.
+- Estado interno: T7 completada con consola admin protegida para preview de create/renew/deny/block y revision de auditoria.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: T7 para anadir consola admin de testers, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T8 para hardening de rate limiting, headers, watermark, kill switch y deployment-protection checklist, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -80,6 +80,7 @@ Portal tester Pro previsto:
 - T4 anade un prototipo local de login/sesion desactivado por defecto con middleware para rutas protegidas y logout.
 - T5 anade gates `tester_pro` de servidor para features Pro: dashboard completo, Strategy Builder, Project Generator, Views, handoff exports y soporte.
 - T6 anade caducidad de 15 dias, estados `pending_renewal`/`expired`/`denied`/`blocked` y preview manual approve/deny/block sin mutar datos reales.
+- T7 anade consola admin protegida para preview de crear, renovar, denegar, bloquear y revisar auditoria sin persistir datos reales.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.

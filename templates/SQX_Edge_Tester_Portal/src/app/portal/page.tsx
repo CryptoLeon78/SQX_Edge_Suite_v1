@@ -36,6 +36,11 @@ export default function PortalPage() {
           <p>{MANUAL_RENEWAL_DECISIONS.join(" / ")}.</p>
           <a href="/renewal">Review renewal state</a>
         </div>
+        <div className="metric">
+          <strong>Admin preview</strong>
+          <p>Create, renew, deny, block and audit review stay operator-only.</p>
+          <a href="/admin/testers">Open admin console</a>
+        </div>
         <p>
           Feature access is checked by `/api/tester/features`; visible UI alone must never grant paid functionality.
         </p>

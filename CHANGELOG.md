@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T7 Admin Tester Console
+
+- Adds a protected admin tester console preview with demo lifecycle rows, audit hints and operator actions.
+- Adds `/api/admin/testers` with create, renew, deny and block previews guarded by session and disabled-by-default admin flag.
+- Keeps T7 non-external: no Vercel deploy, no tester accounts, no renewal emails, no production database and no published URLs.
+
 ## 2026-05-09 - T6 15-Day Expiry Renewal Flow
 
 - Adds tester renewal lifecycle helpers for active, pending, expired, denied and blocked states.

@@ -46,6 +46,7 @@ T3_TESTER_AUTH_DOC = PROJECT_ROOT / "docs" / "T3_TESTER_AUTH_DATA_CONTRACT.md"
 T4_LOGIN_SESSION_DOC = PROJECT_ROOT / "docs" / "T4_LOGIN_SESSION_PROTOTYPE.md"
 T5_TESTER_PRO_DOC = PROJECT_ROOT / "docs" / "T5_TESTER_PRO_ENTITLEMENT_GATES.md"
 T6_RENEWAL_DOC = PROJECT_ROOT / "docs" / "T6_15_DAY_EXPIRY_RENEWAL_FLOW.md"
+T7_ADMIN_CONSOLE_DOC = PROJECT_ROOT / "docs" / "T7_ADMIN_TESTER_CONSOLE.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -797,7 +798,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb17)
 
-        self.assertIn("Current phase completed: T6 - 15-Day Expiry Renewal Flow.", governance)
+        self.assertIn("Current phase completed: T7 - Admin Tester Console.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
         self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
@@ -809,6 +810,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("docs/T4_LOGIN_SESSION_PROTOTYPE.md", governance)
         self.assertIn("docs/T5_TESTER_PRO_ENTITLEMENT_GATES.md", governance)
         self.assertIn("docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md", governance)
+        self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
         self.assertIn("templates/SQX_Edge_Tester_Portal/", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
@@ -2910,8 +2912,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t1)
 
         expected_governance_patterns = [
-            "Current phase completed: T6 - 15-Day Expiry Renewal Flow.",
-            "T7 - admin tester console",
+            "Current phase completed: T7 - Admin Tester Console.",
+            "T8 - rate limiting, security headers, watermark",
             "Access/Security Gatekeeper",
             "`Txx`: cloud tester access",
             "Cloud Tester Access track",
@@ -3014,6 +3016,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "T4_DEMO_ACCESS_CODE=\"replace-with-local-demo-access-code\"",
             "T5_DEMO_TESTER_PRO_ENABLED=\"false\"",
             "T6_DEMO_RENEWAL_STATE=\"pending_renewal\"",
+            "T7_DEMO_ADMIN_CONSOLE_ENABLED=\"false\"",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, env_example)
@@ -3050,6 +3053,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "\"/portal\"",
             "\"/admin\"",
             "\"/api/tester\"",
+            "\"/api/admin\"",
             "SESSION_COOKIE_CONTRACT.name",
         ):
             with self.subTest(pattern=pattern):
@@ -3100,12 +3104,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, t2)
 
-        self.assertIn("Current phase completed: T6 - 15-Day Expiry Renewal Flow.", governance)
-        self.assertIn("T7 - admin tester console", governance)
-        self.assertIn("Current completed phase: T6 - 15-Day Expiry Renewal Flow.", next_steps)
+        self.assertIn("Current phase completed: T7 - Admin Tester Console.", governance)
+        self.assertIn("T8 - rate limiting, security headers, watermark", governance)
+        self.assertIn("Current completed phase: T7 - Admin Tester Console.", next_steps)
         self.assertIn("Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
-        self.assertIn("T6 completada con caducidad de 15 dias", readme)
+        self.assertIn("T7 completada con consola admin protegida", readme)
         self.assertIn("templates/SQX_Edge_Tester_Portal/", readme)
 
     def test_t3_tester_auth_data_contract_is_documented_and_safe(self):
@@ -3193,12 +3197,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_contract_text)
 
-        self.assertIn("Current phase completed: T6 - 15-Day Expiry Renewal Flow.", governance)
-        self.assertIn("T7 - admin tester console", governance)
-        self.assertIn("Current completed phase: T6 - 15-Day Expiry Renewal Flow.", next_steps)
+        self.assertIn("Current phase completed: T7 - Admin Tester Console.", governance)
+        self.assertIn("T8 - rate limiting, security headers, watermark", governance)
+        self.assertIn("Current completed phase: T7 - Admin Tester Console.", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
         self.assertIn("Phase T4: implement login/session prototype", next_steps)
-        self.assertIn("T6 completada con caducidad de 15 dias", readme)
+        self.assertIn("T7 completada con consola admin protegida", readme)
         self.assertIn("password hashing Argon2id", readme)
 
     def test_t4_login_session_prototype_is_documented_and_safe(self):
@@ -3247,7 +3251,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "DEMO_ACCESS_CODE_ENV = \"T4_DEMO_ACCESS_CODE\"",
             "isDemoLoginEnabled",
             "process.env[DEMO_LOGIN_FLAG] === \"true\"",
-            "PROTECTED_PREFIXES = [\"/portal\", \"/admin\", \"/api/tester\"]",
+            "PROTECTED_PREFIXES = [\"/portal\", \"/admin\", \"/api/tester\", \"/api/admin\"]",
             "SESSION_COOKIE_CONTRACT.name",
             "httpOnly: SESSION_COOKIE_CONTRACT.httpOnly",
             "secure: SESSION_COOKIE_CONTRACT.secure",
@@ -3300,12 +3304,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T6 - 15-Day Expiry Renewal Flow.", governance)
-        self.assertIn("T7 - admin tester console", governance)
-        self.assertIn("Current completed phase: T6 - 15-Day Expiry Renewal Flow.", next_steps)
+        self.assertIn("Current phase completed: T7 - Admin Tester Console.", governance)
+        self.assertIn("T8 - rate limiting, security headers, watermark", governance)
+        self.assertIn("Current completed phase: T7 - Admin Tester Console.", next_steps)
         self.assertIn("Phase T4: implement login/session prototype", next_steps)
         self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
-        self.assertIn("T6 completada con caducidad de 15 dias", readme)
+        self.assertIn("T7 completada con consola admin protegida", readme)
 
     def test_t5_tester_pro_entitlement_gates_are_documented_and_safe(self):
         t5 = T5_TESTER_PRO_DOC.read_text(encoding="utf-8-sig")
@@ -3389,12 +3393,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T6 - 15-Day Expiry Renewal Flow.", governance)
-        self.assertIn("T7 - admin tester console", governance)
-        self.assertIn("Current completed phase: T6 - 15-Day Expiry Renewal Flow.", next_steps)
+        self.assertIn("Current phase completed: T7 - Admin Tester Console.", governance)
+        self.assertIn("T8 - rate limiting, security headers, watermark", governance)
+        self.assertIn("Current completed phase: T7 - Admin Tester Console.", next_steps)
         self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
         self.assertIn("Phase T6: add 15-day expiry", next_steps)
-        self.assertIn("T6 completada con caducidad de 15 dias", readme)
+        self.assertIn("T7 completada con consola admin protegida", readme)
 
     def test_t6_15_day_expiry_renewal_flow_is_documented_and_safe(self):
         t6 = T6_RENEWAL_DOC.read_text(encoding="utf-8-sig")
@@ -3492,7 +3496,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("T6_DEMO_RENEWAL_STATE", template_readme)
         self.assertIn("src/lib/renewal-flow.ts", template_readme)
         self.assertIn("src/app/api/tester/renewal/route.ts", template_readme)
-        self.assertIn("T7 can add an admin tester console", template_readme)
+        self.assertIn("T8 can harden rate limiting", template_readme)
 
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
@@ -3512,14 +3516,152 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T6 - 15-Day Expiry Renewal Flow.", governance)
-        self.assertIn("T7 - admin tester console", governance)
+        self.assertIn("Current phase completed: T7 - Admin Tester Console.", governance)
+        self.assertIn("T8 - rate limiting, security headers, watermark", governance)
         self.assertIn("docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md", governance)
-        self.assertIn("Current completed phase: T6 - 15-Day Expiry Renewal Flow.", next_steps)
+        self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
+        self.assertIn("Current completed phase: T7 - Admin Tester Console.", next_steps)
         self.assertIn("Phase T6: add 15-day expiry", next_steps)
         self.assertIn("Phase T7: add admin tester console", next_steps)
-        self.assertIn("T6 completada con caducidad de 15 dias", readme)
-        self.assertIn("T7 para anadir consola admin de testers", readme)
+        self.assertIn("T7 completada con consola admin protegida", readme)
+        self.assertIn("T8 para hardening de rate limiting", readme)
+
+    def test_t7_admin_tester_console_is_documented_and_safe(self):
+        t7 = T7_ADMIN_CONSOLE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        env_example = (TESTER_PORTAL_TEMPLATE_ROOT / ".env.example").read_text(encoding="utf-8-sig")
+        admin_console_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "admin-console.ts"
+        admin_console = admin_console_path.read_text(encoding="utf-8-sig")
+        admin_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "admin" / "testers" / "route.ts").read_text(encoding="utf-8-sig")
+        admin_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "admin" / "testers" / "page.tsx").read_text(encoding="utf-8-sig")
+        session_prototype = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "session-prototype.ts").read_text(encoding="utf-8-sig")
+        portal_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "portal" / "page.tsx").read_text(encoding="utf-8-sig")
+        css = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "globals.css").read_text(encoding="utf-8-sig")
+
+        for rel_path in (
+            "src/lib/admin-console.ts",
+            "src/app/api/admin/testers/route.ts",
+            "src/app/admin/testers/page.tsx",
+        ):
+            with self.subTest(rel_path=rel_path):
+                self.assertTrue((TESTER_PORTAL_TEMPLATE_ROOT / rel_path).is_file(), rel_path)
+
+        for pattern in (
+            "T7 Admin Tester Console",
+            "protected admin tester console",
+            "`src/lib/admin-console.ts`",
+            "`src/app/api/admin/testers/route.ts`",
+            "`src/app/admin/testers/page.tsx`",
+            "`create_tester`",
+            "`renew_15_days`",
+            "`deny_tester`",
+            "`block_tester`",
+            "`mode = operator-preview`",
+            "`noMutation = true`",
+            "`persistence = not_applied_in_template`",
+            "T7_DEMO_ADMIN_CONSOLE_ENABLED=\"false\"",
+            "`missing_session` with HTTP `401`",
+            "`demo_admin_console_disabled` with HTTP `403`",
+            "`unsupported_admin_action` with HTTP `400`",
+            "No tester account is created.",
+            "No renewal email is sent.",
+            "`/api/admin` is protected",
+            "T8 should harden rate limiting",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t7)
+
+        for pattern in (
+            "DEMO_ADMIN_CONSOLE_FLAG = \"T7_DEMO_ADMIN_CONSOLE_ENABLED\"",
+            "ADMIN_TESTER_ACTIONS",
+            "\"create_tester\"",
+            "\"renew_15_days\"",
+            "\"deny_tester\"",
+            "\"block_tester\"",
+            "isDemoAdminConsoleEnabled",
+            "isAdminTesterAction",
+            "buildDemoAdminTesterRows",
+            "active.tester@example.invalid",
+            "renewal.tester@example.invalid",
+            "blocked.tester@example.invalid",
+            "buildAdminActionPreview",
+            "operator-preview",
+            "tester_invited",
+            "renewal_approved",
+            "renewal_denied",
+            "tester_blocked",
+            "not_applied_in_template",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, admin_console)
+
+        for pattern in (
+            "hasPrototypeSession",
+            "isDemoAdminConsoleEnabled",
+            "missing_session",
+            "demo_admin_console_disabled",
+            "unsupported_admin_action",
+            "GET(request: NextRequest)",
+            "POST(request: NextRequest)",
+            "buildAdminActionPreview",
+            "noMutation: true",
+            "operatorActionRequired",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, admin_route)
+
+        for pattern in (
+            "Admin tester console",
+            "ADMIN_TESTER_ACTIONS",
+            "buildDemoAdminTesterRows",
+            "action=\"/api/admin/testers\"",
+            "name=\"action\"",
+            "name=\"testerId\"",
+            "lastAuditEvent",
+            "riskNote",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, admin_page)
+
+        self.assertIn("\"/api/admin\"", session_prototype)
+        self.assertIn("/admin/testers", portal_page)
+        self.assertIn(".admin-table", css)
+        self.assertIn(".status-blocked", css)
+        self.assertIn("T7_DEMO_ADMIN_CONSOLE_ENABLED=\"false\"", env_example)
+        self.assertIn("T7_DEMO_ADMIN_CONSOLE_ENABLED", template_readme)
+        self.assertIn("src/lib/admin-console.ts", template_readme)
+        self.assertIn("src/app/api/admin/testers/route.ts", template_readme)
+        self.assertIn("src/app/admin/testers/page.tsx", template_readme)
+
+        combined_template_text = "\n".join(
+            path.read_text(encoding="utf-8-sig")
+            for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
+            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+        )
+        for pattern in (
+            "TbNX3XLrg!4Dc6J",
+            "vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "localStorage.setItem",
+            "sessionStorage.setItem",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_template_text)
+
+        self.assertIn("Current phase completed: T7 - Admin Tester Console.", governance)
+        self.assertIn("T8 - rate limiting, security headers, watermark", governance)
+        self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
+        self.assertIn("Current completed phase: T7 - Admin Tester Console.", next_steps)
+        self.assertIn("Phase T7: add admin tester console", next_steps)
+        self.assertIn("Phase T8: harden rate limiting", next_steps)
+        self.assertIn("T7 completada con consola admin protegida", readme)
+        self.assertIn("T8 para hardening de rate limiting", readme)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

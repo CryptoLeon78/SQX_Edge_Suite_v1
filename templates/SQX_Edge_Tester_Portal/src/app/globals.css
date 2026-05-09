@@ -149,6 +149,69 @@ button:hover {
   font-weight: 800;
 }
 
+.admin-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-table {
+  display: grid;
+  gap: 8px;
+  overflow-x: auto;
+}
+
+.admin-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.6fr) minmax(140px, 0.7fr) minmax(120px, 0.6fr) minmax(150px, 0.9fr) minmax(170px, 1fr);
+  gap: 12px;
+  align-items: center;
+  min-width: 860px;
+  padding: 12px;
+  border: 1px solid var(--sqx-border);
+  border-radius: 8px;
+  background: rgba(21, 34, 56, 0.72);
+}
+
+.admin-head {
+  color: var(--sqx-muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.admin-row small {
+  display: block;
+  margin-top: 4px;
+  color: var(--sqx-muted);
+}
+
+.status-pill {
+  width: fit-content;
+  padding: 6px 9px;
+  border: 1px solid var(--sqx-border);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.status-active {
+  color: var(--sqx-green);
+  background: rgba(35, 209, 139, 0.12);
+}
+
+.status-pending_renewal,
+.status-expired {
+  color: #facc15;
+  background: rgba(250, 204, 21, 0.12);
+}
+
+.status-denied,
+.status-blocked {
+  color: #fb7185;
+  background: rgba(251, 113, 133, 0.12);
+}
+
 .watermark {
   position: fixed;
   right: 18px;
