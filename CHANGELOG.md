@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T9b Vercel Preview Deploy Rollback
+
+- Authenticates Vercel, links the tester portal project and attempts the approved preview deploy.
+- Rolls back immediately because Vercel CLI created production aliases instead of a safe protected preview.
+- Verifies the deployment was removed, leaves no active URL, commits no tester emails and sets T9c as Deployment Protection verification before retry.
+
 ## 2026-05-09 - T9 Protected Vercel Preview Preflight
 
 - Attempts the approved Vercel preview staging preflight and records the safe auth blocker: local Vercel token is invalid.

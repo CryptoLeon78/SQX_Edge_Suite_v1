@@ -15,6 +15,7 @@ function assertContains(text, pattern, label) {
 
 const envExample = read(".env.example");
 const vercelJson = JSON.parse(read("vercel.json"));
+const gitignore = read(".gitignore");
 const securityHardening = read("src/lib/security-hardening.ts");
 const deploymentProtection = read("src/lib/deployment-protection.ts");
 const middleware = read("src/middleware.ts");
@@ -65,19 +66,20 @@ if (!Array.isArray(vercelJson.crons) || vercelJson.crons.length === 0) {
   throw new Error("vercel.json must keep cron definitions for expiry dry-run checks");
 }
 
-if (existsSync(join(root, ".vercel", "project.json"))) {
-  throw new Error(".vercel/project.json is local machine state and must not be committed into the public template");
+if (existsSync(join(root, ".vercel", "project.json")) && !gitignore.includes(".vercel")) {
+  throw new Error(".vercel/project.json is local machine state and .gitignore must include .vercel");
 }
 
 console.log(JSON.stringify({
   ok: true,
-  phase: "T9",
+  phase: "T9b",
   mode: "protected-preview-preflight",
   externalDeployAllowedOnlyAfter: [
     "valid Vercel authentication",
     "Deployment Protection verified in Vercel project settings",
+    "preview command verified not to alias production",
     "no tester invites or renewal emails",
     "preview URL kept out of git"
   ],
-  recommendedDeployCommand: "vercel deploy --target=preview"
+  recommendedDeployCommand: "manual dashboard/API preview after Deployment Protection verification"
 }, null, 2));

@@ -82,8 +82,8 @@ This template is safe to keep in the public/core repository because it contains 
 npm run preflight:vercel-preview
 ```
 
-This validates the public-safe template before any Vercel preview retry. The actual deploy still requires valid Vercel authentication and Deployment Protection verification.
+This validates the public-safe template before any Vercel preview retry. The next deploy must first verify Deployment Protection from Vercel settings/API and must not attach production aliases.
 
 ## Next Phase
 
-T9b can authenticate Vercel and execute the protected preview deploy after the local token is valid and Deployment Protection is verified.
+T9c should verify Vercel Deployment Protection before retrying preview deploy. T9b proved authentication/linking works, but rolled back the deployment because the CLI created production aliases.
