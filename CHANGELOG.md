@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T9g Private Git Preview Source
+
+- Creates the private tester portal repository and prepares `main` plus `tester-preview` before Vercel is connected.
+- Connects the existing Vercel tester project to the private GitHub repository without running a manual deploy or sharing any URL.
+- Updates the preview proof gate to accept Vercel Project API `link` connections and verifies `GO_GIT_PREVIEW_PATH_READY`.
+
 ## 2026-05-09 - T9f Preview Path Proof Gate
 
 - Adds `proof:vercel-preview-path` for the tester portal template to verify Deployment Protection, Git integration and non-production preview branch before any URL is shared.

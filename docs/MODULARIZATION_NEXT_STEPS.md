@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T9f - Preview Path Proof Gate.
+- Current completed phase: T9g - Private Git Preview Source Connected.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T9g - connect private Git/PR preview source before any tester URL is shared, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10 - run one internal tester pilot before inviting external testers, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Recommended Order
 
@@ -71,7 +71,7 @@ Persistent planning note for the next SQX Edge phases.
 12. Phase T9d: enable or verify Vercel Authentication/Password Protection privately, then retry preview only after `GO_PROTECTION_VERIFIED`. Done; see `docs/T9D_VERCEL_AUTH_PROTECTION_VERIFIED.md`.
 13. Phase T9e: retry preview-only deploy with target and alias inspection before sharing any URL; rollback immediately if target or aliases are production. Attempted and rolled back; see `docs/T9E_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md`.
 14. Phase T9f: prepare Git/PR-based preview or API deployment proof that cannot auto-alias production before any URL is shared. Done as a local no-deploy proof gate; see `docs/T9F_PREVIEW_PATH_PROOF.md` and `templates/SQX_Edge_Tester_Portal/scripts/vercel-preview-path-proof.mjs`.
-15. Phase T9g: connect private Git/PR preview source before any tester URL is shared.
+15. Phase T9g: connect private Git/PR preview source before any tester URL is shared. Done; see `docs/T9G_PRIVATE_GIT_PREVIEW_SOURCE.md`.
 16. Phase T10: run one internal tester pilot before inviting external testers.
 17. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
 18. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.

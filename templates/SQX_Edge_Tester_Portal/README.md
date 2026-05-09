@@ -98,6 +98,8 @@ npm run proof:vercel-preview-path
 
 This proves whether a Git/PR-based preview path is ready without running a deploy. It must return `GO_GIT_PREVIEW_PATH_READY` before any future preview URL is created or shared. A safe `NO_GO_GIT_PREVIEW_NOT_CONFIGURED` result means the private tester portal repository still needs to be connected to Vercel.
 
+The proof accepts Vercel Project API Git connections exposed either as `gitRepository` or as `link`.
+
 ## Next Phase
 
-T9g should connect a private Git/PR preview source before any tester URL is created or shared. The local CLI deploy path remains blocked because T9e produced a production target again.
+T10 should run one internal tester pilot before inviting external testers. Trigger preview from `tester-preview` only, inspect target/protection first and do not invite the external tester list until the internal pilot is accepted.

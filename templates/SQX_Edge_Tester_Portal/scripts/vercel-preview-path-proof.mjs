@@ -37,12 +37,19 @@ function summarizeProject(project) {
 
 function summarizeGit(project) {
   const gitRepository = project.gitRepository ?? null;
+  const link = project.link ?? null;
+  const linked = Boolean(gitRepository || link);
+  const productionBranch = project.productionBranch
+    ?? gitRepository?.productionBranch
+    ?? link?.productionBranch
+    ?? null;
 
   return {
-    linked: Boolean(gitRepository),
-    provider: gitRepository?.type ?? null,
-    repo: gitRepository ? "linked" : null,
-    productionBranch: project.productionBranch ?? gitRepository?.productionBranch ?? null,
+    linked,
+    provider: gitRepository?.type ?? link?.type ?? null,
+    repo: linked ? "linked" : null,
+    source: gitRepository ? "gitRepository" : link ? "link" : null,
+    productionBranch,
     intendedPreviewBranch
   };
 }
