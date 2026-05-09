@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - J7 Temporal Health and EGT v2 contract
+
+- Documents JoseLivan commit `06767d8eef597987530f152d54860ab96e590ffa` as a native SQX Edge contract.
+- Defines Temporal Health evidence for OOS peak, drawdown-at-close and recovery without a hard stagnation-days promotion filter.
+- Defines EGT v2 verdicts and future J8/J9/J10 phases without copying Jose runtime code or restoring Top Picks/Matrix surfaces.
+
 ## 2026-05-09 - M96 next controlled commercial movement from M95 decision
 
 - Adds `next_controlled_commercial_movement_from_m95_decision.py` to decide the next controlled movement from M95 evidence.

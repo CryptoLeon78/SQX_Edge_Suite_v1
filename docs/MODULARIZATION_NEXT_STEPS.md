@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: M96 - Next controlled commercial movement from M95 decision.
+- Current completed phase: J7 - Temporal Health and EGT v2 contract after JoseLivan review.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m95_decision_ready`.
 - Governance baseline: G3 - Internal Automation and Agent Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: M97 - execute exactly the M96-approved controlled commercial movement, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: J8 - implement pure Temporal Health and EGT v2 helpers with JS contracts, M97 - execute exactly the M96-approved controlled commercial movement, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -86,6 +86,8 @@ Persistent planning note for the next SQX Edge phases.
 4. Phase J4: add native dashboard UI using the current SQX module architecture and visual system, without restoring removed Top Picks or Matrix surfaces. Done; see `docs/J4_CHAMPION_CHALLENGER_UI.md`.
 5. Phase J5: add regime/EGT evidence through first-party historical-data adapters. Done; see `docs/J5_CHAMPION_CHALLENGER_REGIME_EGT.md`.
 6. Phase J6: add export and future Strategy Builder handoff. Done; see `docs/J6_CHAMPION_CHALLENGER_EXPORT_HANDOFF.md`.
+7. Phase J7: document the Temporal Health and EGT v2 contract from JoseLivan commit `06767d8`, preserving SQX architecture and excluding Top Picks/Matrix surfaces. Done; see `docs/J7_TEMPORAL_HEALTH_EGT_V2_CONTRACT.md`.
+8. Phase J8: implement pure Temporal Health and EGT v2 helpers with JS contracts before UI changes.
 
 ## Strategy Builder / Only One Platform Track
 
