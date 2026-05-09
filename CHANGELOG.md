@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - G6 Institutional dashboard quick actions
+
+- Integrates `institutional/feat/dashboard-quick-actions` as native quick actions from asset/category cards to Plan Mining and Project Generator.
+- Adds Pipeline State operational health and a graph-style funnel while preserving editable local state.
+- Keeps removed Top Picks and Matrix surfaces out of the application.
+
 ## 2026-05-09 - G5 Institutional Core sync
 
 - Reconciles `institutional/main` through a non-destructive merge path so Institutional Core can fast-forward without force push.

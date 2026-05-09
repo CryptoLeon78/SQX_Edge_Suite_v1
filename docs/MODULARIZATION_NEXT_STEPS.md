@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: G5 - Institutional Core sync preserving institutional-only assets.
+- Current completed phase: G6 - Institutional dashboard quick actions.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Governance baseline: G5 - Institutional Core Synchronized Gate.
+- Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, SB18 - Strategy Builder buyer evidence export polish, or a dedicated review of `institutional/feat/dashboard-quick-actions`.
+- Next recommended phase: M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Recommended Order
 
@@ -61,7 +61,8 @@ Persistent planning note for the next SQX Edge phases.
 3. Phase G3: define internal automation risk levels, specialist-agent escalation rules, command matrix and local tooling notes. Done.
 4. Phase G4: add Institutional Core as first-class repository discipline with separate non-destructive push rules. Done.
 5. Phase G5: reconcile `institutional/main` with current `main` while preserving institutional-only assets before routine dual pushes. Done.
-6. Next governance option: review `institutional/feat/dashboard-quick-actions` as a separate external branch before deciding whether to integrate it.
+6. Phase G6: selectively integrate `institutional/feat/dashboard-quick-actions` as native quick actions, health panel and visual funnel without Top Picks/Matrix. Done.
+7. Next governance option: keep dual-repo pushes aligned while choosing the next buyer-facing or commercial execution phase.
 
 ## Architecture / External Comparison Track
 
