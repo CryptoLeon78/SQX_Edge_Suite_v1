@@ -28,6 +28,7 @@
   var BUYER_HANDOFF_PACK_TYPE = 'sqx-edge.strategy-builder-buyer-handoff-pack';
   var BUYER_HANDOFF_PACK_REVIEW_TYPE = 'sqx-edge.strategy-builder-buyer-handoff-pack-review';
   var BUYER_SESSION_CHECKLIST_TYPE = 'sqx-edge.strategy-builder-buyer-session-checklist';
+  var BUYER_SESSION_SUMMARY_TYPE = 'sqx-edge.strategy-builder-buyer-session-summary';
   var REQUIRED_BUYER_HANDOFFS = [
     'project_generator_prefill',
     'project_generator_preset_draft',
@@ -975,6 +976,87 @@
     };
   }
 
+  function buyerSessionHandoffSummary(input, options) {
+    var source = input || {};
+    var checklistResult = source.type === BUYER_SESSION_CHECKLIST_TYPE
+      ? { ok: true, errors: [], checklist: source }
+      : guidedBuyerSessionChecklist(source, options);
+    if (!checklistResult.ok) {
+      return {
+        ok: false,
+        errors: checklistResult.errors || ['buyer_session_checklist_failed'],
+        summary: null,
+        guardrails: ['summary_export_only', 'no_destination_action_triggered']
+      };
+    }
+    var checklist = checklistResult.checklist;
+    var steps = checklist.steps || [];
+    var counts = steps.reduce(function(acc, step) {
+      var status = normalizeText(step.status, 'pending');
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+    var nextStep = steps.filter(function(step) { return step.status !== 'done'; })[0] || null;
+    return {
+      ok: true,
+      errors: [],
+      summary: {
+        type: BUYER_SESSION_SUMMARY_TYPE,
+        version: 1,
+        created_at: nowIso(options),
+        source_type: normalizeText(checklist.type, BUYER_SESSION_CHECKLIST_TYPE),
+        asset: normalizeAsset(checklist.asset),
+        timeframe: normalizeTimeframe(checklist.timeframe),
+        workflow_state: normalizeText(checklist.workflow_state, 'blocked_operator_review'),
+        review_required: !!checklist.review_required,
+        step_counts: {
+          done: counts.done || 0,
+          pending: counts.pending || 0,
+          blocked: counts.blocked || 0
+        },
+        next_manual_action: nextStep ? {
+          id: nextStep.id,
+          label: normalizeText(nextStep.label),
+          action: normalizeText(nextStep.action),
+          note: normalizeText(nextStep.note)
+        } : {
+          id: 'operator_validation',
+          label: 'Run StrategyQuant validation manually',
+          action: 'Validate manually before making any trading claim.',
+          note: 'No automatic destination action was triggered.'
+        },
+        handoff_targets: steps.filter(function(step) { return step.id !== 'manual_review_gate'; }).map(function(step) {
+          return {
+            id: step.id,
+            label: normalizeText(step.label),
+            status: normalizeText(step.status, 'pending'),
+            owner: normalizeText(step.owner, 'operator')
+          };
+        }),
+        redaction: [
+          'no_raw_csv_payloads',
+          'no_license_payloads',
+          'no_private_keys',
+          'no_buyer_identity',
+          'no_checkout_payload'
+        ],
+        guardrails: [
+          'summary_export_only',
+          'no_destination_action_triggered',
+          'no_local_storage_write',
+          'no_backend_endpoint',
+          'operator_executes_every_step_manually',
+          'no_profitability_claim'
+        ]
+      },
+      guardrails: [
+        'summary_export_only',
+        'no_destination_action_triggered',
+        'operator_executes_every_step_manually'
+      ]
+    };
+  }
+
   function buyerWorkflowSummary(input, options) {
     var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {}, options);
     var review = reviewChecklistSummary(payload);
@@ -1034,6 +1116,7 @@
     buildContext: buildContext,
     buildPackage: buildPackage,
     buyerHandoffPackReview: buyerHandoffPackReview,
+    buyerSessionHandoffSummary: buyerSessionHandoffSummary,
     buyerWorkflowSummary: buyerWorkflowSummary,
     defaultValidationPack: defaultValidationPack,
     guidedBuyerSessionChecklist: guidedBuyerSessionChecklist,

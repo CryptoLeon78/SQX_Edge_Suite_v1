@@ -29,6 +29,7 @@ SB9_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB9_STRATEGY_BUILDER_CLEANER
 SB10_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB10_STRATEGY_BUILDER_BUYER_HANDOFF_PACK.md"
 SB11_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB11_STRATEGY_BUILDER_BUYER_PACK_IMPORT_REVIEW.md"
 SB12_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB12_STRATEGY_BUILDER_BUYER_SESSION_CHECKLIST.md"
+SB13_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB13_STRATEGY_BUILDER_BUYER_SESSION_SUMMARY_EXPORT.md"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
 MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
@@ -367,6 +368,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         sb10 = SB10_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
         sb11 = SB11_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
         sb12 = SB12_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
+        sb13 = SB13_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
 
@@ -556,8 +558,22 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb12)
 
-        self.assertIn("Current phase completed: SB12 - Strategy Builder guided buyer session checklist.", governance)
-        self.assertIn("Next implementation phase: SB13 - Strategy Builder buyer session handoff summary export", governance)
+        for pattern in (
+            "SB13 Strategy Builder Buyer Session Handoff Summary Export",
+            "`buyerSessionHandoffSummary`",
+            "`exportBuyerSessionSummary`",
+            "`sqx-edge.strategy-builder-buyer-session-summary`",
+            "No backend endpoint.",
+            "No API call.",
+            "No destination action is triggered.",
+            "No hidden localStorage write.",
+            "No buyer identity.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, sb13)
+
+        self.assertIn("Current phase completed: SB13 - Strategy Builder buyer session handoff summary export.", governance)
+        self.assertIn("Next implementation phase: SB14 - Strategy Builder buyer session printable operator notes", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
         self.assertIn("docs/SB2_STRATEGY_BUILDER_WORKFLOW.md", governance)
@@ -571,6 +587,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("docs/SB10_STRATEGY_BUILDER_BUYER_HANDOFF_PACK.md", governance)
         self.assertIn("docs/SB11_STRATEGY_BUILDER_BUYER_PACK_IMPORT_REVIEW.md", governance)
         self.assertIn("docs/SB12_STRATEGY_BUILDER_BUYER_SESSION_CHECKLIST.md", governance)
+        self.assertIn("docs/SB13_STRATEGY_BUILDER_BUYER_SESSION_SUMMARY_EXPORT.md", governance)
         self.assertIn("app/js/modules/strategy-builder-core.js", governance)
         self.assertIn("app/js/modules/strategy-builder.js", governance)
         self.assertIn("Phase SB1: discover the minimum viable Strategy Builder scope", next_steps)
@@ -598,6 +615,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase SB12: add Strategy Builder guided buyer session checklist", next_steps)
         self.assertIn("Done; see `docs/SB12_STRATEGY_BUILDER_BUYER_SESSION_CHECKLIST.md`", next_steps)
         self.assertIn("Phase SB13: add Strategy Builder buyer session handoff summary export", next_steps)
+        self.assertIn("Done; see `docs/SB13_STRATEGY_BUILDER_BUYER_SESSION_SUMMARY_EXPORT.md`", next_steps)
+        self.assertIn("Phase SB14: add Strategy Builder buyer session printable operator notes", next_steps)
 
     def test_modular_scaffold_loads_before_legacy_logic(self):
         scripts = re.findall(r'<script\s+src="([^"]+)"', self.html)
@@ -710,6 +729,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("buyerWorkflowSummary", strategy_builder_core_js)
         self.assertIn("buyerHandoffPackReview", strategy_builder_core_js)
         self.assertIn("guidedBuyerSessionChecklist", strategy_builder_core_js)
+        self.assertIn("buyerSessionHandoffSummary", strategy_builder_core_js)
         self.assertIn("handoffAuditEntry", strategy_builder_core_js)
         self.assertIn("strategyCleanerDraftFromPackage", strategy_builder_core_js)
         self.assertIn("unifiedBuyerHandoffPackFromPackage", strategy_builder_core_js)
@@ -723,8 +743,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("prepareStrategyCleaner", strategy_builder_js)
         self.assertIn("prepareBuyerHandoffPack", strategy_builder_js)
         self.assertIn("prepareBuyerSessionChecklist", strategy_builder_js)
+        self.assertIn("exportBuyerSessionSummary", strategy_builder_js)
         self.assertIn("Buyer Pack Import Review", strategy_builder_js)
         self.assertIn("Buyer Session Checklist", strategy_builder_js)
+        self.assertIn("Buyer Session Summary", strategy_builder_js)
         self.assertIn("renderAuditTrail", strategy_builder_js)
         self.assertIn("openHandoff", strategy_builder_js)
         self.assertNotIn("localStorage.setItem", strategy_builder_js)
@@ -740,6 +762,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn('id="sb-prepare-cleaner-btn"', self.html)
         self.assertIn('id="sb-prepare-buyer-pack-btn"', self.html)
         self.assertIn('id="sb-buyer-session-btn"', self.html)
+        self.assertIn('id="sb-buyer-summary-btn"', self.html)
         self.assertIn('id="sb-workflow-steps"', self.html)
         self.assertIn('id="sb-audit-list"', self.html)
         self.assertIn('id="sb-import-btn"', self.html)

@@ -31,6 +31,7 @@ assert.equal(typeof core.reviewChecklistSummary, 'function');
 assert.equal(typeof core.sqxViewsHandoffFromPackage, 'function');
 assert.equal(typeof core.buyerWorkflowSummary, 'function');
 assert.equal(typeof core.buyerHandoffPackReview, 'function');
+assert.equal(typeof core.buyerSessionHandoffSummary, 'function');
 assert.equal(typeof core.handoffAuditEntry, 'function');
 assert.equal(typeof core.guidedBuyerSessionChecklist, 'function');
 assert.equal(typeof core.strategyCleanerDraftFromPackage, 'function');
@@ -148,6 +149,17 @@ assert.equal(importedBuyerSessionChecklist.ok, true);
 assert.equal(importedBuyerSessionChecklist.checklist.review_required, true);
 assert.equal(importedBuyerSessionChecklist.checklist.steps[0].status, 'pending');
 assert.equal(importedBuyerSessionChecklist.checklist.steps[1].status, 'blocked');
+const buyerSessionSummary = core.buyerSessionHandoffSummary(buyerSessionChecklist.checklist, { createdAt: '2026-05-09T01:40:00.000Z' });
+assert.equal(buyerSessionSummary.ok, true);
+assert.equal(buyerSessionSummary.summary.type, 'sqx-edge.strategy-builder-buyer-session-summary');
+assert.equal(buyerSessionSummary.summary.created_at, '2026-05-09T01:40:00.000Z');
+assert.equal(buyerSessionSummary.summary.step_counts.done, 1);
+assert.equal(buyerSessionSummary.summary.step_counts.pending, 6);
+assert.equal(buyerSessionSummary.summary.handoff_targets.length, 6);
+assert.equal(buyerSessionSummary.summary.redaction.includes('no_buyer_identity'), true);
+assert.equal(buyerSessionSummary.summary.guardrails.includes('no_destination_action_triggered'), true);
+assert.equal(JSON.stringify(buyerSessionSummary.summary).includes('"raw_csv"'), false);
+assert.equal(JSON.stringify(buyerSessionSummary.summary).includes('"buyer_email"'), false);
 
 const importedPackage = core.importPayload(JSON.stringify(ready), { createdAt: '2026-05-09T01:00:00.000Z' });
 assert.equal(importedPackage.ok, true);
@@ -203,6 +215,7 @@ assert.match(blockedImport.errors.join(' '), /forbidden_raw_payload_keys/);
   'sb-prepare-cleaner-btn',
   'sb-prepare-buyer-pack-btn',
   'sb-buyer-session-btn',
+  'sb-buyer-summary-btn',
   'sb-clear-btn',
   'sb-export-btn',
   'sb-status',
@@ -325,6 +338,13 @@ assert.match(document.getElementById('sb-package-preview').textContent, /sqx-edg
 assert.match(document.getElementById('sb-package-preview').textContent, /operator_executes_every_step_manually/);
 assert.match(document.getElementById('sb-status').textContent, /Buyer session checklist prepared/);
 assert.match(document.getElementById('sb-audit-list').innerHTML, /Buyer Session Checklist/);
+document.getElementById('sb-buyer-summary-btn').click();
+assert.match(document.getElementById('sb-package-preview').textContent, /sqx-edge\.strategy-builder-buyer-session-summary/);
+assert.match(document.getElementById('sb-package-preview').textContent, /no_buyer_identity/);
+assert.match(document.getElementById('sb-package-preview').textContent, /no_destination_action_triggered/);
+assert.match(document.getElementById('sb-status').textContent, /Buyer session summary prepared|Buyer session summary exported/);
+assert.match(document.getElementById('sb-audit-list').innerHTML, /Buyer Session Summary/);
+assert.equal(sandbox.localStorage.getItem('sqx_strategy_builder_buyer_session_summary_v1'), null);
 const importedBuyerPackUiResult = ui.importText(JSON.stringify(buyerPack.pack), { document });
 assert.equal(importedBuyerPackUiResult.ok, true);
 assert.equal(document.getElementById('sb-state').textContent, 'blocked_operator_review');

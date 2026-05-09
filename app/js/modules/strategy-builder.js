@@ -21,6 +21,7 @@
     prepareCleaner: 'sb-prepare-cleaner-btn',
     prepareBuyerPack: 'sb-prepare-buyer-pack-btn',
     buyerSession: 'sb-buyer-session-btn',
+    buyerSummary: 'sb-buyer-summary-btn',
     clear: 'sb-clear-btn',
     exportPackage: 'sb-export-btn',
     status: 'sb-status',
@@ -37,6 +38,7 @@
   var lastPackage = null;
   var lastBuyerHandoffPack = null;
   var lastBuyerPackReview = null;
+  var lastBuyerSessionChecklist = null;
   var currentHandoff = null;
   var currentSourceSummary = null;
   var handoffAuditTrail = [];
@@ -234,6 +236,7 @@
     }
     lastBuyerHandoffPack = null;
     lastBuyerPackReview = null;
+    lastBuyerSessionChecklist = null;
     lastPackage = api.buildPackage(inputModel(doc));
     return renderPackage(lastPackage, doc);
   }
@@ -261,6 +264,7 @@
     lastPackage = null;
     lastBuyerHandoffPack = null;
     lastBuyerPackReview = null;
+    lastBuyerSessionChecklist = null;
     setValue(IDS.sourceMode, 'blank', doc);
     setValue(IDS.asset, 'EURUSD', doc);
     setValue(IDS.timeframe, 'H1', doc);
@@ -273,6 +277,10 @@
 
   function safeFilename() {
     return 'sqx_strategy_builder_package_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
+  }
+
+  function safeBuyerSessionSummaryFilename() {
+    return 'sqx_buyer_session_summary_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
   }
 
   function downloadJson(payload, filename, doc) {
@@ -459,6 +467,7 @@
     if (preview) preview.textContent = JSON.stringify(result.pack, null, 2);
     lastBuyerHandoffPack = result.pack;
     lastBuyerPackReview = null;
+    lastBuyerSessionChecklist = null;
     addAuditEntry('Buyer Handoff Pack', payload, result, doc);
     setStatus('Buyer handoff pack prepared in preview. No destination action was triggered.', 'ok', doc);
     return result;
@@ -479,8 +488,36 @@
     }
     var preview = byId(IDS.preview, doc);
     if (preview) preview.textContent = JSON.stringify(result.checklist, null, 2);
+    lastBuyerSessionChecklist = result.checklist;
     addAuditEntry('Buyer Session Checklist', lastPackage, result, doc);
     setStatus('Buyer session checklist prepared in preview. No destination action was triggered.', 'ok', doc);
+    return result;
+  }
+
+  function exportBuyerSessionSummary(options) {
+    var doc = options && options.document ? options.document : global.document;
+    var api = core();
+    var payload = lastBuyerSessionChecklist || lastBuyerPackReview || lastBuyerHandoffPack || lastPackage || build({ document: doc });
+    if (!api || !api.buyerSessionHandoffSummary) {
+      setStatus('Buyer session summary contract missing.', 'error', doc);
+      return null;
+    }
+    var result = api.buyerSessionHandoffSummary(payload);
+    if (!result.ok) {
+      setStatus('Buyer session summary blocked: ' + result.errors.join(', ') + '.', 'warn', doc);
+      return result;
+    }
+    var preview = byId(IDS.preview, doc);
+    if (preview) preview.textContent = JSON.stringify(result.summary, null, 2);
+    var downloaded = downloadJson(result.summary, safeBuyerSessionSummaryFilename(), doc);
+    addAuditEntry('Buyer Session Summary', lastPackage, result, doc);
+    setStatus(
+      downloaded
+        ? 'Buyer session summary exported locally. No destination action was triggered.'
+        : 'Buyer session summary prepared in preview. No destination action was triggered.',
+      'ok',
+      doc
+    );
     return result;
   }
 
@@ -500,11 +537,13 @@
     lastPackage = result.package;
     lastBuyerHandoffPack = null;
     lastBuyerPackReview = null;
+    lastBuyerSessionChecklist = null;
     renderPackage(lastPackage, doc);
     if (result.buyer_pack_review) {
       var preview = byId(IDS.preview, doc);
       if (preview) preview.textContent = JSON.stringify(result.buyer_pack_review, null, 2);
       lastBuyerPackReview = result.buyer_pack_review;
+      lastBuyerSessionChecklist = null;
       addAuditEntry('Buyer Pack Import Review', lastPackage, { ok: true, guardrails: result.buyer_pack_review.guardrails || [] }, doc);
       setStatus('Buyer pack imported for local review. Confirm manual review before export or handoffs.', 'warn', doc);
       return result;
@@ -564,6 +603,7 @@
     bind(doc, IDS.prepareCleaner, function() { prepareStrategyCleaner({ document: doc }); });
     bind(doc, IDS.prepareBuyerPack, function() { prepareBuyerHandoffPack({ document: doc }); });
     bind(doc, IDS.buyerSession, function() { prepareBuyerSessionChecklist({ document: doc }); });
+    bind(doc, IDS.buyerSummary, function() { exportBuyerSessionSummary({ document: doc }); });
     bind(doc, IDS.importPackage, function() {
       var input = byId(IDS.importFile, doc);
       if (input && input.click) input.click();
@@ -580,6 +620,7 @@
   SQX.strategyBuilder = SQX.strategyBuilder || {
     build: build,
     clear: clear,
+    exportBuyerSessionSummary: exportBuyerSessionSummary,
     exportPackage: exportPackage,
     ids: IDS,
     importFile: importFile,
