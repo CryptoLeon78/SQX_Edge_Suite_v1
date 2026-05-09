@@ -32,6 +32,10 @@ if (window.SQX && window.SQX.strategyBuilder) {
   window.SQX.strategyBuilder.init();
 }
 
+if (window.SQX && window.SQX.analyzer) {
+  window.SQX.analyzer.init();
+}
+
 if (window.SQX && window.SQX.fulfillment) {
   window.SQX.fulfillment.init();
 }

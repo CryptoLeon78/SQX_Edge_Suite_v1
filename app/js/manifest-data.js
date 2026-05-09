@@ -53,6 +53,10 @@ window.SQX_MANIFEST = {
         "label": "Estrategias"
       },
       {
+        "id": "analyzer",
+        "label": "Analyzer C2"
+      },
+      {
         "id": "workflow",
         "label": "Workflow"
       }

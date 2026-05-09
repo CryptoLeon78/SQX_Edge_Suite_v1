@@ -1,0 +1,42 @@
+name: 🛡️ Code Leakage Monitor
+
+on:
+  schedule:
+    - cron: '0 */6 * * *' # Cada 6 horas
+  workflow_dispatch:      # Permite ejecución manual
+
+jobs:
+  check-leakage:
+    name: Anti-Leakage Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Check Legacy Repositories
+        run: |
+          # Repositorios a vigilar
+          REPOS=("https://github.com/jlivanmaseda-maker/sqx-edge-pipeline.git" "https://github.com/CryptoLeon78/SQX_Edge_Suite_v1.git")
+
+          HAS_LEAKAGE=false
+
+          for REPO in "${REPOS[@]}"; do
+            echo "Checking $REPO..."
+            LATEST_HASH=$(git ls-remote $REPO HEAD | awk '{print $1}')
+            echo "Latest Hash: $LATEST_HASH"
+
+            # Verify the external HEAD is part of this repository history.
+            if git merge-base --is-ancestor "$LATEST_HASH" HEAD; then
+              echo "✅ No leakage detected for $REPO (remote HEAD is an ancestor)."
+            else
+              echo "⚠️ WARNING: Potential leakage! New code found in $REPO that is not yet institutionalized."
+              echo "Hash $LATEST_HASH is missing from SQX_Institutional_Core history."
+              HAS_LEAKAGE=true
+            fi
+          done
+
+          if [ "$HAS_LEAKAGE" = true ]; then
+            echo "❌ CRITICAL: Code leakage detected. Please sync legacy repositories."
+            exit 1
+          fi

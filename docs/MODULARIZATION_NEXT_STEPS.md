@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: G4 - Institutional Core repository discipline.
+- Current completed phase: G5 - Institutional Core sync preserving institutional-only assets.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Governance baseline: G4 - Institutional Core Repository Gate.
+- Governance baseline: G5 - Institutional Core Synchronized Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: G5 - reconcile Institutional Core with current `main` while preserving institutional-only assets; after that, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish if this track continues.
+- Next recommended phase: M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, SB18 - Strategy Builder buyer evidence export polish, or a dedicated review of `institutional/feat/dashboard-quick-actions`.
 
 ## Recommended Order
 
@@ -60,7 +60,8 @@ Persistent planning note for the next SQX Edge phases.
 2. Phase G2: require governance/ownership lookup before each work phase/message. Done.
 3. Phase G3: define internal automation risk levels, specialist-agent escalation rules, command matrix and local tooling notes. Done.
 4. Phase G4: add Institutional Core as first-class repository discipline with separate non-destructive push rules. Done.
-5. Phase G5: reconcile `institutional/main` with current `main` while preserving institutional-only assets before routine dual pushes.
+5. Phase G5: reconcile `institutional/main` with current `main` while preserving institutional-only assets before routine dual pushes. Done.
+6. Next governance option: review `institutional/feat/dashboard-quick-actions` as a separate external branch before deciding whether to integrate it.
 
 ## Architecture / External Comparison Track
 

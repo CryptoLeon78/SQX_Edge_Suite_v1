@@ -1,0 +1,21 @@
+# ⚖️ SQX Institutional Code Ownership
+
+# Global maintenance
+*       @CryptoLeon78 @jlivanmaseda-maker
+
+# Core Engine & Architecture (Primary owner: Usuario)
+/app/js/modules/core.js        @CryptoLeon78
+/app/js/modules/storage.js     @CryptoLeon78
+/app/js/modules/state-backup.js @CryptoLeon78
+
+# Data & Methodology (Primary owner: JoseLivan)
+/app/js/manifest-data.js       @jlivanmaseda-maker
+/app/js/scores-data.js         @jlivanmaseda-maker
+/app/js/historical-data.js     @jlivanmaseda-maker
+
+# Certification & Analysis (Shared)
+/app/js/modules/analyzer.js    @CryptoLeon78 @jlivanmaseda-maker
+/app/css/analyzer.css          @CryptoLeon78 @jlivanmaseda-maker
+
+# Testing
+/tests/                        @CryptoLeon78

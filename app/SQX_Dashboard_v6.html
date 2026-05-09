@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SQX Edge</title>
 <link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/analyzer.css">
 </head>
 <body>
 
@@ -1469,6 +1470,72 @@
           <span id="state-restore-status">Sin consultar.</span>
         </div>
         <div class="state-restore-list" id="state-restore-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: ANALYZER - certificacion institucional C2 -->
+  <div id="tab-analyzer" class="tab-content" style="display:none">
+    <div class="analyzer-controls">
+      <input type="file" id="analyzer-file-input" class="search-input" accept=".csv" style="flex:1">
+      <button class="export-btn" id="analyzer-reset-btn" style="border-color:var(--red); color:var(--red); background:rgba(239,68,68,.08);">Reset</button>
+      <div style="font-size:12px; color:var(--text2);">Sube <code>DatabankExport.csv</code> de SQX para certificar metricas.</div>
+    </div>
+
+    <div id="analyzer-top-scroll" class="scroll-proxy" style="display:none">
+      <div style="height:1px;"></div>
+    </div>
+
+    <div id="analyzer-results">
+      <div class="ps-na-text" style="text-align:center; padding:40px;">Sube un DatabankExport.csv para comenzar el analisis...</div>
+    </div>
+
+    <div id="analyzer-modal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Certificacion Institucional C2</h3>
+          <button class="close-btn" type="button">&times;</button>
+        </div>
+        <div class="modal-form">
+          <div class="form-group">
+            <label>ACTIVO (ej. NDX, EURUSD)</label>
+            <input type="text" id="c2-activo" class="search-input" placeholder="NDX">
+          </div>
+          <div class="form-group">
+            <label>DIRECCION</label>
+            <select id="c2-direccion" class="filter-select">
+              <option value="LONG">LONG</option>
+              <option value="SHORT">SHORT</option>
+              <option value="BOTH">BOTH (L+S)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>TIMEFRAME (ej. H1, M15)</label>
+            <input type="text" id="c2-tf" class="search-input" placeholder="H1">
+          </div>
+          <div class="form-group">
+            <label>INDICADOR BASE (ej. EMA, ICHIMOKU)</label>
+            <input type="text" id="c2-indicador" class="search-input" placeholder="EMA">
+          </div>
+          <div class="form-group">
+            <label>BLOQUE</label>
+            <select id="c2-bloque-select" class="filter-select">
+              <option value="TENDENCIA">TENDENCIA</option>
+              <option value="MOMENTUM">MOMENTUM</option>
+              <option value="VOLATILIDAD">VOLATILIDAD</option>
+              <option value="REGIMEN">REGIMEN</option>
+              <option value="SOPORTE/RESISTENCIA">SOPORTE/RESISTENCIA</option>
+              <option value="VOLUMEN">VOLUMEN</option>
+              <option value="ESTADISTICO">ESTADISTICO</option>
+              <option value="OTROS">OTROS...</option>
+            </select>
+            <input type="text" id="c2-bloque-manual" class="search-input" style="display:none; margin-top:8px;" placeholder="Especificar bloque...">
+          </div>
+          <div class="modal-actions">
+            <button class="export-btn secondary" type="button">Cancelar</button>
+            <button class="export-btn primary" type="button">Confirmar Certificacion</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -3549,6 +3616,7 @@ Ret/DD > 1.0          ← más estricto que Capa 1 (era 0.5)</pre>
 <script src="js/modules/renderers.js"></script>
 <script src="js/modules/charts.js"></script>
 <script src="js/modules/strategies.js"></script>
+<script src="js/modules/analyzer.js"></script>
 <script src="js/modules/home.js"></script>
 <script src="js/modules/mtf-evidence.js"></script>
 <script src="js/modules/support.js"></script>

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - G5 Institutional Core sync
+
+- Reconciles `institutional/main` through a non-destructive merge path so Institutional Core can fast-forward without force push.
+- Preserves institutional-only assets: CODEOWNERS, institutional workflows, operating discipline doc and Analyzer C2 assets.
+- Wires Analyzer C2 into the SQX manifest, dashboard tab, script load order, module registry and initialization contracts.
+
 ## 2026-05-09 - G4 Institutional Core repository discipline
 
 - Registers `SQX_Institutional_Core` as a first-class operational repository through local remote `institutional`.

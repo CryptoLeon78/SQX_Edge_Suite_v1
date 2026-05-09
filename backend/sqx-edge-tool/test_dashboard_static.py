@@ -186,6 +186,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/renderers.js",
                 "js/modules/charts.js",
                 "js/modules/strategies.js",
+                "js/modules/analyzer.js",
                 "js/modules/home.js",
                 "js/modules/mtf-evidence.js",
                 "js/modules/support.js",
@@ -229,12 +230,17 @@ class DashboardStaticTestCase(unittest.TestCase):
         adr = GOVERNANCE_ADR_DOC.read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        codeowners = (PROJECT_ROOT / ".github" / "CODEOWNERS").read_text(encoding="utf-8-sig")
+        institutional_auditor = (PROJECT_ROOT / ".github" / "workflows" / "institutional-auditor.yml").read_text(encoding="utf-8-sig")
+        leakage_monitor = (PROJECT_ROOT / ".github" / "workflows" / "leakage-monitor.yml").read_text(encoding="utf-8-sig")
+        operational_discipline = (PROJECT_ROOT / "DISCIPLINA_OPERATIVA.md").read_text(encoding="utf-8-sig")
 
         for pattern in (
             "G1 - Specialist Agent Operating Model",
             "G2 - Governance Lookup Before Work",
             "G3 - Internal Automation and Agent Gate",
             "G4 - Institutional Core Repository Gate",
+            "G5 - Institutional Core Synchronized Gate",
             "Frontend/UI",
             "Backend/API",
             "QA/Release",
@@ -281,11 +287,15 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase G3: define internal automation risk levels, specialist-agent escalation rules, command matrix and local tooling notes. Done.", next_steps)
         self.assertIn("Phase G4: add Institutional Core as first-class repository discipline with separate non-destructive push rules. Done.", next_steps)
         self.assertIn("Phase G5: reconcile `institutional/main` with current `main`", next_steps)
-        self.assertIn("Governance baseline: G4 - Institutional Core Repository Gate.", next_steps)
+        self.assertIn("Governance baseline: G5 - Institutional Core Synchronized Gate.", next_steps)
         self.assertIn("Any new visible tab, panel, module or manifest-driven UI state", architecture := ARCHITECTURE_DOC.read_text(encoding="utf-8-sig"))
         self.assertIn("docs/PROJECT_GOVERNANCE.md", readme)
         self.assertIn("consulta obligatoria antes de fases/mensajes de trabajo", readme)
         self.assertIn("incluye G4 para tratar `SQX_Institutional_Core`", readme)
+        self.assertIn("/app/js/modules/analyzer.js", codeowners)
+        self.assertIn("Institutional Quality Auditor", institutional_auditor)
+        self.assertIn("git merge-base --is-ancestor", leakage_monitor)
+        self.assertIn("ramas `codex/*`", operational_discipline)
 
     def test_operational_discipline_pushes_after_commit(self):
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
@@ -772,10 +782,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb17)
 
-        self.assertIn("Current phase completed: G4 - Institutional Core repository discipline.", governance)
+        self.assertIn("Current phase completed: G5 - Institutional Core sync preserving institutional-only assets.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
-        self.assertIn("G5 - reconcile Institutional Core with current `main`", governance)
+        self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
         self.assertIn("docs/SB2_STRATEGY_BUILDER_WORKFLOW.md", governance)
@@ -852,6 +862,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/renderers.js",
             "js/modules/charts.js",
             "js/modules/strategies.js",
+            "js/modules/analyzer.js",
             "js/modules/home.js",
             "js/modules/mtf-evidence.js",
             "js/modules/support.js",
@@ -891,6 +902,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         renderers_js = (APP_ROOT / "js" / "modules" / "renderers.js").read_text(encoding="utf-8-sig")
         charts_js = (APP_ROOT / "js" / "modules" / "charts.js").read_text(encoding="utf-8-sig")
         strategies_js = (APP_ROOT / "js" / "modules" / "strategies.js").read_text(encoding="utf-8-sig")
+        analyzer_js = (APP_ROOT / "js" / "modules" / "analyzer.js").read_text(encoding="utf-8-sig")
         home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
         mtf_evidence_js = (APP_ROOT / "js" / "modules" / "mtf-evidence.js").read_text(encoding="utf-8-sig")
         support_js = (APP_ROOT / "js" / "modules" / "support.js").read_text(encoding="utf-8-sig")
@@ -925,6 +937,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.license", license_js)
         self.assertIn("SQX.ui", ui_js)
         self.assertIn("SQX.formatters", formatters_js)
+        self.assertIn("SQX.analyzer", analyzer_js)
+        self.assertIn("SQX.registerModule('analyzer'", analyzer_js)
+        self.assertIn("window.SQX.analyzer.init()", main_js)
+        self.assertIn('id="tab-analyzer"', self.html)
+        self.assertIn('id="analyzer-file-input"', self.html)
+        self.assertIn('href="css/analyzer.css"', self.html)
         self.assertIn("SQX.championChallengerCore", champion_core_js)
         self.assertIn("computeTemporalHealth", champion_core_js)
         self.assertIn("detectDirection", champion_core_js)
