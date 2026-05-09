@@ -74,7 +74,16 @@ This template is safe to keep in the public/core repository because it contains 
 - `src/lib/deployment-protection.ts`: T8 checklist for protected staging before any tester rollout.
 - `src/lib/security-headers.ts`: baseline browser protection headers.
 - `src/middleware.ts`: protected-route session gate and security headers.
+- `scripts/vercel-preview-preflight.mjs`: T9 local preflight before retrying protected preview deploy.
+
+## Local Preflight
+
+```powershell
+npm run preflight:vercel-preview
+```
+
+This validates the public-safe template before any Vercel preview retry. The actual deploy still requires valid Vercel authentication and Deployment Protection verification.
 
 ## Next Phase
 
-T9 can prepare a Vercel preview staging run behind protection, but only after explicit approval for that exact external action.
+T9b can authenticate Vercel and execute the protected preview deploy after the local token is valid and Deployment Protection is verified.

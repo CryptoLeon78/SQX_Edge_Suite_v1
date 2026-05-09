@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T8 - Tester Portal Security Hardening.
+- Current completed phase: T9 - Protected Vercel Preview Preflight Blocked By Auth.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T9 - protected Vercel preview staging only with explicit approval, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T9b - authenticate Vercel and execute protected preview deploy with Deployment Protection verified, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Recommended Order
 
@@ -65,7 +65,8 @@ Persistent planning note for the next SQX Edge phases.
 6. Phase T6: add 15-day expiry, renewal state and manual approve/deny flow. Done; see `docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md` and `templates/SQX_Edge_Tester_Portal/src/lib/renewal-flow.ts`.
 7. Phase T7: add admin tester console for create, renew, deny, block and audit review. Done; see `docs/T7_ADMIN_TESTER_CONSOLE.md` and `templates/SQX_Edge_Tester_Portal/src/lib/admin-console.ts`.
 8. Phase T8: harden rate limiting, security headers, watermark, kill switch and deployment-protection checklist. Done; see `docs/T8_TESTER_PORTAL_SECURITY_HARDENING.md`, `templates/SQX_Edge_Tester_Portal/src/lib/security-hardening.ts` and `templates/SQX_Edge_Tester_Portal/src/lib/deployment-protection.ts`.
-9. Phase T9: run Vercel preview staging behind protection with no public indexing, only with explicit approval for the exact external action.
+9. Phase T9: run Vercel preview staging behind protection with no public indexing, only with explicit approval for the exact external action. Preflight attempted; blocked safely by invalid local Vercel token; see `docs/T9_PROTECTED_VERCEL_PREVIEW_PREFLIGHT.md` and `templates/SQX_Edge_Tester_Portal/scripts/vercel-preview-preflight.mjs`.
+10. Phase T9b: authenticate Vercel, verify Deployment Protection and execute protected preview deploy.
 10. Phase T10: run one internal tester pilot before inviting external testers.
 11. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
 12. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T9 Protected Vercel Preview Preflight
+
+- Attempts the approved Vercel preview staging preflight and records the safe auth blocker: local Vercel token is invalid.
+- Adds a reproducible `preflight:vercel-preview` script for the tester portal template before retrying deploy.
+- Keeps T9 non-invasive after the blocker: no preview URL, no tester accounts, no emails, no production database and no committed secrets.
+
 ## 2026-05-09 - T8 Tester Portal Security Hardening
 
 - Adds kill switch, rate-limit contract, visible watermark helper and deployment-protection checklist to the tester portal template.
