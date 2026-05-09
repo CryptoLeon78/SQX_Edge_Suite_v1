@@ -86,6 +86,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "controlled_commercial_next_movement_execution_monitor.py",
             TOOL_ROOT / "tools" / "next_controlled_commercial_movement_decision.py",
             TOOL_ROOT / "tools" / "approved_controlled_commercial_movement_execution.py",
+            TOOL_ROOT / "tools" / "approved_controlled_commercial_movement_execution_monitor.py",
             TOOL_ROOT / "tools" / "private_commercial_split.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
@@ -184,6 +185,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("controlled_commercial_next_movement_execution_monitor\\.py", text)
         self.assertIn("next_controlled_commercial_movement_decision\\.py", text)
         self.assertIn("approved_controlled_commercial_movement_execution\\.py", text)
+        self.assertIn("approved_controlled_commercial_movement_execution_monitor\\.py", text)
         self.assertIn("private_commercial_split\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
@@ -252,6 +254,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn('"controlled_commercial_next_movement_execution_monitor"', text)
         self.assertIn('"next_controlled_commercial_movement_decision"', text)
         self.assertIn('"approved_controlled_commercial_movement_execution"', text)
+        self.assertIn('"approved_controlled_commercial_movement_execution_monitor"', text)
         self.assertIn('"private-commercial"', text)
         self.assertIn('"commercial-private"', text)
         self.assertIn('"pro-template-pack-1"', text)
@@ -333,6 +336,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("controlled_commercial_next_movement_execution_monitor.py", text)
         self.assertIn("next_controlled_commercial_movement_decision.py", text)
         self.assertIn("approved_controlled_commercial_movement_execution.py", text)
+        self.assertIn("approved_controlled_commercial_movement_execution_monitor.py", text)
         self.assertIn("private_commercial_split.py", text)
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
@@ -467,6 +471,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "controlled_commercial_next_movement_execution_monitor.py",
             "next_controlled_commercial_movement_decision.py",
             "approved_controlled_commercial_movement_execution.py",
+            "approved_controlled_commercial_movement_execution_monitor.py",
             "private_commercial_split.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
@@ -526,6 +531,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "controlled_commercial_next_movement_execution_monitor",
             "next_controlled_commercial_movement_decision",
             "approved_controlled_commercial_movement_execution",
+            "approved_controlled_commercial_movement_execution_monitor",
             "private-commercial",
             "commercial-private",
             "pro-template-pack-1",
@@ -599,6 +605,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/data/controlled_commercial_next_movement_execution_monitor/", text)
         self.assertIn("backend/sqx-edge-tool/data/next_controlled_commercial_movement_decision/", text)
         self.assertIn("backend/sqx-edge-tool/data/approved_controlled_commercial_movement_execution/", text)
+        self.assertIn("backend/sqx-edge-tool/data/approved_controlled_commercial_movement_execution_monitor/", text)
         self.assertIn("docs/private-commercial/", text)
         self.assertIn("commercial-private/", text)
         self.assertIn("private-commercial/", text)
