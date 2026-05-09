@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - M98 approved M97 execution monitor
+
+- Adds a local M98 monitor for the M97 execution result before any additional commercial movement.
+- Blocks next-decision movement when observation time, support, refunds, claims or incidents are not clean.
+- Extends commercial traceability, packaging exclusions and public redaction pointers without automating external actions.
+
 ## 2026-05-09 - M97 approved M96 commercial movement execution
 
 - Adds a local M97 gate to record only the exact manual movement approved by M96.
