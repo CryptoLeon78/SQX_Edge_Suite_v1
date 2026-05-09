@@ -36,6 +36,7 @@ Documentos comerciales:
 - `docs/MONETIZATION_ROADMAP.md`
 - `docs/PUBLIC_ROADMAP.md`
 - `docs/PROJECT_GOVERNANCE.md` consulta obligatoria antes de fases/mensajes de trabajo; incluye G3 para decidir uso de agentes, automatizaciones internas, checks y herramientas locales opcionales.
+- `DISCIPLINA_OPERATIVA.md` estándar de sincronización y calidad para el equipo institucional.
 - `resources/pro-buyer-pack/README.md`
 - `resources/pro-buyer-pack/onboarding/START_HERE.md`
 - `docs/sales/TEMPLATE_PACK_1_DELIVERY.md`
