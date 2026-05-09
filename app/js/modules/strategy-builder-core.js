@@ -32,6 +32,7 @@
   var BUYER_SESSION_NOTES_TYPE = 'sqx-edge.strategy-builder-buyer-session-notes';
   var BUYER_SESSION_SUPPORT_CASE_TYPE = 'sqx-edge.strategy-builder-buyer-session-support-case-bundle';
   var BUYER_SESSION_RESOLUTION_TYPE = 'sqx-edge.strategy-builder-buyer-session-support-resolution-checklist';
+  var EVIDENCE_HANDOFF_INDEX_TYPE = 'sqx-edge.strategy-builder-evidence-handoff-index';
   var REQUIRED_BUYER_HANDOFFS = [
     'project_generator_prefill',
     'project_generator_preset_draft',
@@ -1459,6 +1460,156 @@
     };
   }
 
+  function artifactTimestamp(value) {
+    var data = value || {};
+    return normalizeText(data.created_at || data.imported_at || data.generated_at || data.exported_at || '');
+  }
+
+  function artifactTimeframe(value) {
+    var text = normalizeText(value, '');
+    return text ? normalizeTimeframe(text) : '';
+  }
+
+  function artifactAsset(data) {
+    var value = data || {};
+    var profile = value.asset_profile || {};
+    return normalizeAsset(value.asset || profile.asset || '');
+  }
+
+  function artifactTf(data) {
+    var value = data || {};
+    var profile = value.asset_profile || {};
+    return artifactTimeframe(value.timeframe || profile.timeframe || '');
+  }
+
+  function evidenceEntry(id, label, payload, required) {
+    var data = payload || null;
+    var state = data ? normalizeText(data.workflow_state || data.rebuilt_workflow_state || data.original_workflow_state || '') : '';
+    return {
+      id: id,
+      label: label,
+      required: !!required,
+      present: !!data,
+      type: data ? normalizeText(data.type || '') : '',
+      workflow_state: state,
+      asset: data ? artifactAsset(data) : '',
+      timeframe: data ? artifactTf(data) : '',
+      created_at: data ? artifactTimestamp(data) : '',
+      redaction: 'reduced_metadata_only'
+    };
+  }
+
+  function directArtifactByType(source, type) {
+    return source && source.type === type ? source : null;
+  }
+
+  function sourcePackageFromArtifacts(artifacts, source) {
+    var direct = directArtifactByType(source, PACKAGE_TYPE);
+    var pack = artifacts.buyer_handoff_pack || artifacts.buyerHandoffPack || directArtifactByType(source, BUYER_HANDOFF_PACK_TYPE);
+    return artifacts.package
+      || artifacts.strategy_builder_package
+      || artifacts.strategyBuilderPackage
+      || direct
+      || (pack && pack.strategy_builder_package)
+      || null;
+  }
+
+  function handoffEvidenceIndex(input, options) {
+    var source = input || {};
+    var artifacts = source.artifacts || source;
+    var pack = artifacts.buyer_handoff_pack
+      || artifacts.buyerHandoffPack
+      || directArtifactByType(source, BUYER_HANDOFF_PACK_TYPE);
+    var handoffs = pack && pack.handoffs || {};
+    var payload = sourcePackageFromArtifacts(artifacts, source);
+    var review = artifacts.buyer_pack_review
+      || artifacts.buyerPackReview
+      || directArtifactByType(source, BUYER_HANDOFF_PACK_REVIEW_TYPE);
+    var checklist = artifacts.buyer_session_checklist
+      || artifacts.buyerSessionChecklist
+      || directArtifactByType(source, BUYER_SESSION_CHECKLIST_TYPE);
+    var summary = artifacts.buyer_session_summary
+      || artifacts.buyerSessionSummary
+      || directArtifactByType(source, BUYER_SESSION_SUMMARY_TYPE);
+    var notes = artifacts.buyer_session_notes
+      || artifacts.buyerSessionNotes
+      || directArtifactByType(source, BUYER_SESSION_NOTES_TYPE);
+    var supportCase = artifacts.buyer_support_case
+      || artifacts.buyerSupportCase
+      || directArtifactByType(source, BUYER_SESSION_SUPPORT_CASE_TYPE);
+    var resolution = artifacts.buyer_resolution_checklist
+      || artifacts.buyerResolutionChecklist
+      || directArtifactByType(source, BUYER_SESSION_RESOLUTION_TYPE);
+    var entries = [
+      evidenceEntry('strategy_builder_package', 'Strategy Builder package', payload, true),
+      evidenceEntry('project_generator_prefill', 'Project Generator prefill', handoffs.project_generator_prefill, true),
+      evidenceEntry('project_generator_preset_draft', 'Project Generator preset draft', handoffs.project_generator_preset_draft, true),
+      evidenceEntry('sqx_views', 'SQX Views validation handoff', handoffs.sqx_views, true),
+      evidenceEntry('strategy_cleaner', 'Strategy Cleaner draft', handoffs.strategy_cleaner, true),
+      evidenceEntry('buyer_handoff_pack', 'Buyer handoff pack', pack, true),
+      evidenceEntry('buyer_pack_import_review', 'Buyer pack import review', review, false),
+      evidenceEntry('buyer_session_checklist', 'Buyer session checklist', checklist, true),
+      evidenceEntry('buyer_session_summary', 'Buyer session summary', summary, false),
+      evidenceEntry('buyer_session_notes', 'Buyer session printable notes', notes, false),
+      evidenceEntry('buyer_support_case', 'Buyer support case bundle', supportCase, false),
+      evidenceEntry('buyer_resolution_checklist', 'Buyer support resolution checklist', resolution, false)
+    ];
+    var missingRequired = entries.filter(function(entry) {
+      return entry.required && !entry.present;
+    }).map(function(entry) { return entry.id; });
+    var presentCount = entries.filter(function(entry) { return entry.present; }).length;
+    var asset = artifactAsset(payload || pack || checklist || summary || notes || supportCase || resolution);
+    var timeframe = artifactTf(payload || pack || checklist || summary || notes || supportCase || resolution);
+    return {
+      ok: missingRequired.length === 0,
+      errors: missingRequired.map(function(id) { return 'missing_required_evidence:' + id; }),
+      index: {
+        type: EVIDENCE_HANDOFF_INDEX_TYPE,
+        version: 1,
+        created_at: nowIso(options),
+        asset: asset,
+        timeframe: timeframe,
+        source_type: normalizeText(source.type || artifacts.source_type || 'strategy_builder_session'),
+        workflow_state: normalizeText(
+          (payload && payload.workflow_state)
+            || (review && review.rebuilt_workflow_state)
+            || (checklist && checklist.workflow_state)
+            || 'unknown'
+        ),
+        summary: {
+          total_entries: entries.length,
+          present_entries: presentCount,
+          required_entries: entries.filter(function(entry) { return entry.required; }).length,
+          missing_required_entries: missingRequired.length,
+          ready_for_buyer_handoff: missingRequired.length === 0
+        },
+        missing_required_handoffs: missingRequired,
+        entries: entries,
+        privacy_boundary: [
+          'reduced_metadata_only',
+          'no_buyer_identity',
+          'no_raw_csv_payloads',
+          'no_local_storage_write',
+          'no_backend_endpoint',
+          'no_remote_ticket_created',
+          'no_profitability_claim'
+        ],
+        guardrails: [
+          'evidence_index_only',
+          'no_destination_action_triggered',
+          'no_local_storage_write',
+          'no_backend_endpoint',
+          'operator_executes_every_step_manually'
+        ]
+      },
+      guardrails: [
+        'evidence_index_only',
+        'no_destination_action_triggered',
+        'no_remote_call'
+      ]
+    };
+  }
+
   function buyerWorkflowSummary(input, options) {
     var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {}, options);
     var review = reviewChecklistSummary(payload);
@@ -1525,6 +1676,7 @@
     buyerWorkflowSummary: buyerWorkflowSummary,
     defaultValidationPack: defaultValidationPack,
     guidedBuyerSessionChecklist: guidedBuyerSessionChecklist,
+    handoffEvidenceIndex: handoffEvidenceIndex,
     handoffAuditEntry: handoffAuditEntry,
     importPayload: importPayload,
     projectGeneratorPrefillFromPackage: projectGeneratorPrefillFromPackage,

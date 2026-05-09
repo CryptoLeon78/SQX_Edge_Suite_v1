@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: J11 - Directional Coherence and Score Pro evidence.
+- Current completed phase: SB17 - Strategy Builder buyer session evidence handoff index.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m95_decision_ready`.
 - Governance baseline: G3 - Internal Automation and Agent Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: SB17 - Strategy Builder buyer session evidence handoff index, M97 - execute exactly the M96-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: M97 - execute exactly the M96-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish if this track continues.
 
 ## Recommended Order
 
@@ -110,7 +110,8 @@ Persistent planning note for the next SQX Edge phases.
 14. Phase SB14: add Strategy Builder buyer session printable operator notes. Done; see `docs/SB14_STRATEGY_BUILDER_BUYER_SESSION_PRINTABLE_NOTES.md`.
 15. Phase SB15: add Strategy Builder buyer session support case bundle. Done; see `docs/SB15_STRATEGY_BUILDER_BUYER_SESSION_SUPPORT_CASE_BUNDLE.md`.
 16. Phase SB16: add Strategy Builder buyer session support resolution checklist. Done; see `docs/SB16_STRATEGY_BUILDER_BUYER_SESSION_SUPPORT_RESOLUTION_CHECKLIST.md`.
-17. Phase SB17: add Strategy Builder buyer session evidence handoff index if this track continues.
+17. Phase SB17: add Strategy Builder buyer session evidence handoff index. Done; see `docs/SB17_STRATEGY_BUILDER_EVIDENCE_HANDOFF_INDEX.md`.
+18. Phase SB18: add Strategy Builder buyer evidence export polish if this track continues.
 
 ## QA / Security Track
 

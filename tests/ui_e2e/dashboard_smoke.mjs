@@ -419,6 +419,21 @@ async function run() {
     if (!buyerResolution.auditRows.some(text => text.includes('Buyer Resolution Checklist'))) throw new Error(`Strategy Builder buyer resolution audit missing: ${JSON.stringify(buyerResolution)}`);
     if (buyerResolution.storageText !== null || buyerResolution.viewPresetCount !== viewPresetCountBeforeHandoff || buyerResolution.pgPresetCount !== presetCountBeforeDraft) throw new Error(`Strategy Builder buyer resolution should not persist destination state: ${JSON.stringify(buyerResolution)}`);
     await saveShot(desktop, 'e2e-strategy-builder-buyer-resolution-desktop.png');
+    await desktop.locator('#sb-evidence-index-btn').click();
+    const evidenceIndex = await desktop.evaluate(() => ({
+      preview: document.getElementById('sb-package-preview')?.textContent || '',
+      status: document.getElementById('sb-status')?.textContent || '',
+      auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
+      storageText: localStorage.getItem('sqx_strategy_builder_evidence_index_v1'),
+      viewPresetCount: window.SQX.viewCreator.getSavedPresets(localStorage).length,
+      pgPresetCount: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length,
+    }));
+    if (!evidenceIndex.preview.includes('sqx-edge.strategy-builder-evidence-handoff-index')) throw new Error('Strategy Builder evidence index preview missing type');
+    if (!evidenceIndex.preview.includes('buyer_resolution_checklist') || !evidenceIndex.preview.includes('ready_for_buyer_handoff')) throw new Error(`Strategy Builder evidence index missing handoff readiness: ${evidenceIndex.preview}`);
+    if (!evidenceIndex.status.includes('Evidence handoff index prepared')) throw new Error(`Strategy Builder evidence index status missing: ${JSON.stringify(evidenceIndex)}`);
+    if (!evidenceIndex.auditRows.some(text => text.includes('Evidence Index'))) throw new Error(`Strategy Builder evidence index audit missing: ${JSON.stringify(evidenceIndex)}`);
+    if (evidenceIndex.storageText !== null || evidenceIndex.viewPresetCount !== viewPresetCountBeforeHandoff || evidenceIndex.pgPresetCount !== presetCountBeforeDraft) throw new Error(`Strategy Builder evidence index should not persist destination state: ${JSON.stringify(evidenceIndex)}`);
+    await saveShot(desktop, 'e2e-strategy-builder-evidence-index-desktop.png');
     const importResult = await desktop.evaluate(pkg => window.SQX.strategyBuilder.importText(JSON.stringify(pkg)), builderPackage);
     if (!importResult.ok || importResult.package.workflow_state !== 'blocked_operator_review') throw new Error('Strategy Builder import should require fresh operator review');
     await desktop.waitForFunction(() => document.getElementById('sb-status')?.textContent.includes('Confirm manual review'));

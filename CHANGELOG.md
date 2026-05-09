@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - SB17 Strategy Builder evidence handoff index
+
+- Adds a reduced local evidence index for Strategy Builder buyer sessions.
+- Tracks required buyer handoff pieces, missing evidence, privacy boundary and manual guardrails.
+- Preserves no backend endpoint, no localStorage write, no remote ticket, no raw CSV and no buyer identity.
+
 ## 2026-05-09 - J11 Directional Coherence and Score Pro
 
 - Adds native direction detection, directional coherence and compact Score Pro evidence to Champion vs Challenger.

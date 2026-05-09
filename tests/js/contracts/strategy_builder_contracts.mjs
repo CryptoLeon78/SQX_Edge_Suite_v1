@@ -35,6 +35,7 @@ assert.equal(typeof core.buyerSessionHandoffSummary, 'function');
 assert.equal(typeof core.buyerSessionOperatorNotes, 'function');
 assert.equal(typeof core.buyerSessionSupportCaseBundle, 'function');
 assert.equal(typeof core.buyerSessionSupportResolutionChecklist, 'function');
+assert.equal(typeof core.handoffEvidenceIndex, 'function');
 assert.equal(typeof core.handoffAuditEntry, 'function');
 assert.equal(typeof core.guidedBuyerSessionChecklist, 'function');
 assert.equal(typeof core.strategyCleanerDraftFromPackage, 'function');
@@ -209,6 +210,32 @@ assert.equal(buyerResolution.checklist.close_conditions.includes('strategyquant_
 assert.equal(buyerResolution.checklist.escalation_conditions.includes('manual_review_required'), true);
 assert.equal(buyerResolution.checklist.guardrails.includes('no_remote_ticket_created'), true);
 assert.equal(JSON.stringify(buyerResolution.checklist).includes('"buyer_email"'), false);
+const evidenceIndex = core.handoffEvidenceIndex({
+  package: ready,
+  buyer_handoff_pack: buyerPack.pack,
+  buyer_pack_review: buyerPackReview.review,
+  buyer_session_checklist: buyerSessionChecklist.checklist,
+  buyer_session_summary: buyerSessionSummary.summary,
+  buyer_session_notes: buyerSessionNotes.notes,
+  buyer_support_case: buyerSupportCase.bundle,
+  buyer_resolution_checklist: buyerResolution.checklist,
+}, { createdAt: '2026-05-09T02:00:00.000Z' });
+assert.equal(evidenceIndex.ok, true);
+assert.equal(evidenceIndex.index.type, 'sqx-edge.strategy-builder-evidence-handoff-index');
+assert.equal(evidenceIndex.index.created_at, '2026-05-09T02:00:00.000Z');
+assert.equal(evidenceIndex.index.asset, 'EURUSD');
+assert.equal(evidenceIndex.index.timeframe, 'H1');
+assert.equal(evidenceIndex.index.summary.ready_for_buyer_handoff, true);
+assert.equal(evidenceIndex.index.summary.missing_required_entries, 0);
+assert.equal(evidenceIndex.index.entries.some(entry => entry.id === 'buyer_resolution_checklist' && entry.present), true);
+assert.equal(evidenceIndex.index.privacy_boundary.includes('no_buyer_identity'), true);
+assert.equal(evidenceIndex.index.guardrails.includes('no_destination_action_triggered'), true);
+assert.equal(JSON.stringify(evidenceIndex.index).includes('"raw_csv"'), false);
+assert.equal(JSON.stringify(evidenceIndex.index).includes('"buyer_email"'), false);
+const partialEvidenceIndex = core.handoffEvidenceIndex({ package: ready }, { createdAt: '2026-05-09T02:05:00.000Z' });
+assert.equal(partialEvidenceIndex.ok, false);
+assert.equal(partialEvidenceIndex.index.missing_required_handoffs.includes('buyer_handoff_pack'), true);
+assert.equal(partialEvidenceIndex.errors.some(error => error.includes('missing_required_evidence')), true);
 
 const importedPackage = core.importPayload(JSON.stringify(ready), { createdAt: '2026-05-09T01:00:00.000Z' });
 assert.equal(importedPackage.ok, true);
@@ -268,6 +295,7 @@ assert.match(blockedImport.errors.join(' '), /forbidden_raw_payload_keys/);
   'sb-buyer-notes-btn',
   'sb-buyer-support-case-btn',
   'sb-buyer-resolution-btn',
+  'sb-evidence-index-btn',
   'sb-clear-btn',
   'sb-export-btn',
   'sb-status',
@@ -418,6 +446,13 @@ assert.match(document.getElementById('sb-package-preview').textContent, /strateg
 assert.match(document.getElementById('sb-status').textContent, /Buyer support resolution checklist prepared|Buyer support resolution checklist exported/);
 assert.match(document.getElementById('sb-audit-list').innerHTML, /Buyer Resolution Checklist/);
 assert.equal(sandbox.localStorage.getItem('sqx_strategy_builder_buyer_resolution_v1'), null);
+document.getElementById('sb-evidence-index-btn').click();
+assert.match(document.getElementById('sb-package-preview').textContent, /sqx-edge\.strategy-builder-evidence-handoff-index/);
+assert.match(document.getElementById('sb-package-preview').textContent, /buyer_resolution_checklist/);
+assert.match(document.getElementById('sb-package-preview').textContent, /ready_for_buyer_handoff/);
+assert.match(document.getElementById('sb-status').textContent, /Evidence handoff index prepared/);
+assert.match(document.getElementById('sb-audit-list').innerHTML, /Evidence Index/);
+assert.equal(sandbox.localStorage.getItem('sqx_strategy_builder_evidence_index_v1'), null);
 const importedBuyerPackUiResult = ui.importText(JSON.stringify(buyerPack.pack), { document });
 assert.equal(importedBuyerPackUiResult.ok, true);
 assert.equal(document.getElementById('sb-state').textContent, 'blocked_operator_review');
