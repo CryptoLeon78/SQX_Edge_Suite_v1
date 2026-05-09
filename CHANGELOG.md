@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T6 15-Day Expiry Renewal Flow
+
+- Adds tester renewal lifecycle helpers for active, pending, expired, denied and blocked states.
+- Adds protected `/api/tester/renewal` manual-preview decisions for approve, deny and block without mutating production data.
+- Keeps T6 non-external: no Vercel deploy, no tester accounts, no renewal emails, no production database and no published URLs.
+
 ## 2026-05-09 - T5 Tester Pro Entitlement Gates
 
 - Adds server-side `tester_pro` entitlement gate helpers and a protected `/api/tester/features` route to the tester portal template.

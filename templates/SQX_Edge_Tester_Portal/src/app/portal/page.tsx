@@ -1,5 +1,6 @@
 import { TESTER_RENEWAL_CYCLE_DAYS } from "@/lib/access-contract";
 import { TESTER_PRO_FEATURES } from "@/lib/entitlement-gates";
+import { MANUAL_RENEWAL_DECISIONS } from "@/lib/renewal-flow";
 
 export default function PortalPage() {
   return (
@@ -29,6 +30,11 @@ export default function PortalPage() {
           {TESTER_PRO_FEATURES.map((feature) => (
             <span key={feature}>{feature}</span>
           ))}
+        </div>
+        <div className="metric">
+          <strong>Manual renewal actions</strong>
+          <p>{MANUAL_RENEWAL_DECISIONS.join(" / ")}.</p>
+          <a href="/renewal">Review renewal state</a>
         </div>
         <p>
           Feature access is checked by `/api/tester/features`; visible UI alone must never grant paid functionality.

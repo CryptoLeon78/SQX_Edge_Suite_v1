@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T5 - Tester Pro Entitlement Gates.
+- Current completed phase: T6 - 15-Day Expiry Renewal Flow.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T6 - 15-day expiry and manual renewal flow, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T7 - admin tester console, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Recommended Order
 
@@ -62,7 +62,7 @@ Persistent planning note for the next SQX Edge phases.
 3. Phase T3: define tester auth data contract: statuses, password hash policy, sessions, renewal tokens, audit events and secret boundaries. Done; see `docs/T3_TESTER_AUTH_DATA_CONTRACT.md` and `templates/SQX_Edge_Tester_Portal/src/lib/auth-data-contract.ts`.
 4. Phase T4: implement login/session prototype with blocked unauthenticated routes. Done; see `docs/T4_LOGIN_SESSION_PROTOTYPE.md` and `templates/SQX_Edge_Tester_Portal/src/lib/session-prototype.ts`.
 5. Phase T5: add `tester_pro` entitlements and feature gates for paid options. Done; see `docs/T5_TESTER_PRO_ENTITLEMENT_GATES.md` and `templates/SQX_Edge_Tester_Portal/src/lib/entitlement-gates.ts`.
-6. Phase T6: add 15-day expiry, renewal state and manual approve/deny flow.
+6. Phase T6: add 15-day expiry, renewal state and manual approve/deny flow. Done; see `docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md` and `templates/SQX_Edge_Tester_Portal/src/lib/renewal-flow.ts`.
 7. Phase T7: add admin tester console for create, renew, deny, block and audit review.
 8. Phase T8: harden rate limiting, security headers, watermark, kill switch and deployment-protection checklist.
 9. Phase T9: run Vercel preview staging behind protection with no public indexing.

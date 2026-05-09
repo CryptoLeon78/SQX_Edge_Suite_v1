@@ -45,6 +45,7 @@ T2_TESTER_PORTAL_DOC = PROJECT_ROOT / "docs" / "T2_TESTER_PORTAL_BOOTSTRAP.md"
 T3_TESTER_AUTH_DOC = PROJECT_ROOT / "docs" / "T3_TESTER_AUTH_DATA_CONTRACT.md"
 T4_LOGIN_SESSION_DOC = PROJECT_ROOT / "docs" / "T4_LOGIN_SESSION_PROTOTYPE.md"
 T5_TESTER_PRO_DOC = PROJECT_ROOT / "docs" / "T5_TESTER_PRO_ENTITLEMENT_GATES.md"
+T6_RENEWAL_DOC = PROJECT_ROOT / "docs" / "T6_15_DAY_EXPIRY_RENEWAL_FLOW.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -796,7 +797,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb17)
 
-        self.assertIn("Current phase completed: T5 - Tester Pro Entitlement Gates.", governance)
+        self.assertIn("Current phase completed: T6 - 15-Day Expiry Renewal Flow.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
         self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
@@ -807,6 +808,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("docs/T3_TESTER_AUTH_DATA_CONTRACT.md", governance)
         self.assertIn("docs/T4_LOGIN_SESSION_PROTOTYPE.md", governance)
         self.assertIn("docs/T5_TESTER_PRO_ENTITLEMENT_GATES.md", governance)
+        self.assertIn("docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md", governance)
         self.assertIn("templates/SQX_Edge_Tester_Portal/", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
@@ -2908,8 +2910,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t1)
 
         expected_governance_patterns = [
-            "Current phase completed: T5 - Tester Pro Entitlement Gates.",
-            "T6 - 15-day expiry and manual renewal flow",
+            "Current phase completed: T6 - 15-Day Expiry Renewal Flow.",
+            "T7 - admin tester console",
             "Access/Security Gatekeeper",
             "`Txx`: cloud tester access",
             "Cloud Tester Access track",
@@ -2979,11 +2981,13 @@ class DashboardStaticTestCase(unittest.TestCase):
             "src/app/api/auth/login/route.ts",
             "src/app/api/auth/logout/route.ts",
             "src/app/api/tester/features/route.ts",
+            "src/app/api/tester/renewal/route.ts",
             "src/app/api/cron/expire-testers/route.ts",
             "src/lib/access-contract.ts",
             "src/lib/auth-data-contract.ts",
             "src/lib/session-prototype.ts",
             "src/lib/entitlement-gates.ts",
+            "src/lib/renewal-flow.ts",
             "src/lib/security-headers.ts",
             "src/middleware.ts",
         ]
@@ -3009,6 +3013,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "T4_DEMO_TESTER_EMAIL=\"tester@example.invalid\"",
             "T4_DEMO_ACCESS_CODE=\"replace-with-local-demo-access-code\"",
             "T5_DEMO_TESTER_PRO_ENABLED=\"false\"",
+            "T6_DEMO_RENEWAL_STATE=\"pending_renewal\"",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, env_example)
@@ -3095,12 +3100,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, t2)
 
-        self.assertIn("Current phase completed: T5 - Tester Pro Entitlement Gates.", governance)
-        self.assertIn("T6 - 15-day expiry and manual renewal flow", governance)
-        self.assertIn("Current completed phase: T5 - Tester Pro Entitlement Gates.", next_steps)
+        self.assertIn("Current phase completed: T6 - 15-Day Expiry Renewal Flow.", governance)
+        self.assertIn("T7 - admin tester console", governance)
+        self.assertIn("Current completed phase: T6 - 15-Day Expiry Renewal Flow.", next_steps)
         self.assertIn("Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
-        self.assertIn("T5 completada con gates `tester_pro`", readme)
+        self.assertIn("T6 completada con caducidad de 15 dias", readme)
         self.assertIn("templates/SQX_Edge_Tester_Portal/", readme)
 
     def test_t3_tester_auth_data_contract_is_documented_and_safe(self):
@@ -3188,12 +3193,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_contract_text)
 
-        self.assertIn("Current phase completed: T5 - Tester Pro Entitlement Gates.", governance)
-        self.assertIn("T6 - 15-day expiry and manual renewal flow", governance)
-        self.assertIn("Current completed phase: T5 - Tester Pro Entitlement Gates.", next_steps)
+        self.assertIn("Current phase completed: T6 - 15-Day Expiry Renewal Flow.", governance)
+        self.assertIn("T7 - admin tester console", governance)
+        self.assertIn("Current completed phase: T6 - 15-Day Expiry Renewal Flow.", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
         self.assertIn("Phase T4: implement login/session prototype", next_steps)
-        self.assertIn("T5 completada con gates `tester_pro`", readme)
+        self.assertIn("T6 completada con caducidad de 15 dias", readme)
         self.assertIn("password hashing Argon2id", readme)
 
     def test_t4_login_session_prototype_is_documented_and_safe(self):
@@ -3295,12 +3300,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T5 - Tester Pro Entitlement Gates.", governance)
-        self.assertIn("T6 - 15-day expiry and manual renewal flow", governance)
-        self.assertIn("Current completed phase: T5 - Tester Pro Entitlement Gates.", next_steps)
+        self.assertIn("Current phase completed: T6 - 15-Day Expiry Renewal Flow.", governance)
+        self.assertIn("T7 - admin tester console", governance)
+        self.assertIn("Current completed phase: T6 - 15-Day Expiry Renewal Flow.", next_steps)
         self.assertIn("Phase T4: implement login/session prototype", next_steps)
         self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
-        self.assertIn("T5 completada con gates `tester_pro`", readme)
+        self.assertIn("T6 completada con caducidad de 15 dias", readme)
 
     def test_t5_tester_pro_entitlement_gates_are_documented_and_safe(self):
         t5 = T5_TESTER_PRO_DOC.read_text(encoding="utf-8-sig")
@@ -3384,12 +3389,137 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T5 - Tester Pro Entitlement Gates.", governance)
-        self.assertIn("T6 - 15-day expiry and manual renewal flow", governance)
-        self.assertIn("Current completed phase: T5 - Tester Pro Entitlement Gates.", next_steps)
+        self.assertIn("Current phase completed: T6 - 15-Day Expiry Renewal Flow.", governance)
+        self.assertIn("T7 - admin tester console", governance)
+        self.assertIn("Current completed phase: T6 - 15-Day Expiry Renewal Flow.", next_steps)
         self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
         self.assertIn("Phase T6: add 15-day expiry", next_steps)
-        self.assertIn("T5 completada con gates `tester_pro`", readme)
+        self.assertIn("T6 completada con caducidad de 15 dias", readme)
+
+    def test_t6_15_day_expiry_renewal_flow_is_documented_and_safe(self):
+        t6 = T6_RENEWAL_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        env_example = (TESTER_PORTAL_TEMPLATE_ROOT / ".env.example").read_text(encoding="utf-8-sig")
+        renewal_flow_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "renewal-flow.ts"
+        renewal_flow = renewal_flow_path.read_text(encoding="utf-8-sig")
+        renewal_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "tester" / "renewal" / "route.ts").read_text(encoding="utf-8-sig")
+        renewal_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "renewal" / "page.tsx").read_text(encoding="utf-8-sig")
+        portal_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "portal" / "page.tsx").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(renewal_flow_path.is_file())
+        self.assertTrue((TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "tester" / "renewal" / "route.ts").is_file())
+
+        for pattern in (
+            "T6 15-Day Expiry Renewal Flow",
+            "15 days",
+            "manual approve/deny flow",
+            "`src/lib/renewal-flow.ts`",
+            "`src/app/api/tester/renewal/route.ts`",
+            "`pending_renewal`",
+            "`expired`",
+            "`denied`",
+            "`blocked`",
+            "`approve_15_days`",
+            "`deny`",
+            "`block`",
+            "`mode = manual-preview`",
+            "`noMutation = true`",
+            "`persistence = not_applied_in_template`",
+            "No automatic renewal.",
+            "No renewal email is sent.",
+            "T7 should add an admin tester console",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t6)
+
+        for pattern in (
+            "DEMO_RENEWAL_STATE_ENV = \"T6_DEMO_RENEWAL_STATE\"",
+            "RENEWAL_STATES",
+            "\"pending_renewal\"",
+            "\"expired\"",
+            "\"denied\"",
+            "\"blocked\"",
+            "MANUAL_RENEWAL_DECISIONS",
+            "\"approve_15_days\"",
+            "addRenewalDays",
+            "TESTER_RENEWAL_CYCLE_DAYS",
+            "readDemoRenewalState",
+            "buildDemoRenewalEntitlement",
+            "classifyRenewalState",
+            "evaluateRenewalGate",
+            "buildRenewalDecisionPreview",
+            "renewal_pending_operator_approval",
+            "tester_expired",
+            "renewal_denied",
+            "tester_blocked",
+            "manual-preview",
+            "not_applied_in_template",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, renewal_flow)
+
+        for pattern in (
+            "hasPrototypeSession",
+            "missing_session",
+            "unsupported_decision",
+            "GET(request: NextRequest)",
+            "POST(request: NextRequest)",
+            "buildRenewalDecisionPreview",
+            "manual-review-only",
+            "manual-preview",
+            "noMutation: true",
+            "operatorActionRequired",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, renewal_route)
+
+        for pattern in (
+            "TESTER_RENEWAL_CYCLE_DAYS",
+            "MANUAL_RENEWAL_DECISIONS",
+            "action=\"/api/tester/renewal\"",
+            "method=\"post\"",
+            "name=\"decision\"",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, renewal_page)
+
+        self.assertIn("/renewal", portal_page)
+        self.assertIn("MANUAL_RENEWAL_DECISIONS", portal_page)
+        self.assertIn("T6_DEMO_RENEWAL_STATE=\"pending_renewal\"", env_example)
+        self.assertIn("T6_DEMO_RENEWAL_STATE", template_readme)
+        self.assertIn("src/lib/renewal-flow.ts", template_readme)
+        self.assertIn("src/app/api/tester/renewal/route.ts", template_readme)
+        self.assertIn("T7 can add an admin tester console", template_readme)
+
+        combined_template_text = "\n".join(
+            path.read_text(encoding="utf-8-sig")
+            for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
+            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+        )
+        for pattern in (
+            "TbNX3XLrg!4Dc6J",
+            "vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "localStorage.setItem",
+            "sessionStorage.setItem",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_template_text)
+
+        self.assertIn("Current phase completed: T6 - 15-Day Expiry Renewal Flow.", governance)
+        self.assertIn("T7 - admin tester console", governance)
+        self.assertIn("docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md", governance)
+        self.assertIn("Current completed phase: T6 - 15-Day Expiry Renewal Flow.", next_steps)
+        self.assertIn("Phase T6: add 15-day expiry", next_steps)
+        self.assertIn("Phase T7: add admin tester console", next_steps)
+        self.assertIn("T6 completada con caducidad de 15 dias", readme)
+        self.assertIn("T7 para anadir consola admin de testers", readme)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

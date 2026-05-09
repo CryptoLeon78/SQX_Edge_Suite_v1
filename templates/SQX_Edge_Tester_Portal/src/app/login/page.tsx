@@ -1,7 +1,8 @@
 import { DEFAULT_AFTER_LOGIN_ROUTE } from "@/lib/session-prototype";
 
-export default function LoginPage({ searchParams }: { searchParams?: { next?: string } }) {
-  const next = searchParams?.next && searchParams.next.startsWith("/") ? searchParams.next : DEFAULT_AFTER_LOGIN_ROUTE;
+export default async function LoginPage({ searchParams }: { searchParams?: Promise<{ next?: string }> }) {
+  const params = await searchParams;
+  const next = params?.next && params.next.startsWith("/") ? params.next : DEFAULT_AFTER_LOGIN_ROUTE;
 
   return (
     <main className="shell">
@@ -28,4 +29,3 @@ export default function LoginPage({ searchParams }: { searchParams?: { next?: st
     </main>
   );
 }
-
