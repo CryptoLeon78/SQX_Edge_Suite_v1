@@ -177,7 +177,9 @@
       "backend/sqx-edge-tool/data/controlled_traffic_expansion_step",
       "backend/sqx-edge-tool/tools/controlled_traffic_expansion_step.py",
       "backend/sqx-edge-tool/data/controlled_traffic_expansion_monitor",
-      "backend/sqx-edge-tool/tools/controlled_traffic_expansion_monitor.py"
+      "backend/sqx-edge-tool/tools/controlled_traffic_expansion_monitor.py",
+      "backend/sqx-edge-tool/data/controlled_traffic_expansion_decision",
+      "backend/sqx-edge-tool/tools/controlled_traffic_expansion_decision.py"
     ],
     "releaseAudit": "backend/sqx-edge-tool/tools/audit_distribution.ps1"
   },
@@ -344,7 +346,7 @@
     "checkoutLabel": "Comprar Pro",
     "checkoutUrl": "",
     "checkout": {
-      "status": "controlled_traffic_expansion_monitor_ready",
+      "status": "controlled_traffic_expansion_decision_ready",
       "primaryProvider": "Lemon Squeezy",
       "fallbackProvider": "Gumroad",
       "mode": "hosted_checkout",
@@ -526,7 +528,7 @@
       "privateAssetReviewPolicy": "approve_asset_for_controlled_publication_only_after_private_review_safe_claims_support_release_notes_and_rollback",
       "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
       "automation": {
-        "status": "controlled_traffic_expansion_monitor_ready",
+        "status": "controlled_traffic_expansion_decision_ready",
         "webhookProvider": "Lemon Squeezy",
         "webhookSignatureHeader": "X-Signature",
         "webhookSigningAlgorithm": "hmac_sha256_hex",
@@ -724,7 +726,11 @@
       "controlledTrafficExpansionMonitorConfig": "backend/sqx-edge-tool/config/controlled_traffic_expansion_monitor.json",
       "controlledTrafficExpansionMonitorTool": "backend/sqx-edge-tool/tools/controlled_traffic_expansion_monitor.py",
       "controlledTrafficExpansionMonitorEvidenceDir": "backend/sqx-edge-tool/data/controlled_traffic_expansion_monitor",
-      "controlledTrafficExpansionMonitorPolicy": "monitor_m82_tiny_step_before_repeating_pausing_or_widening_again"
+      "controlledTrafficExpansionMonitorPolicy": "monitor_m82_tiny_step_before_repeating_pausing_or_widening_again",
+      "controlledTrafficExpansionDecisionConfig": "backend/sqx-edge-tool/config/controlled_traffic_expansion_decision.json",
+      "controlledTrafficExpansionDecisionTool": "backend/sqx-edge-tool/tools/controlled_traffic_expansion_decision.py",
+      "controlledTrafficExpansionDecisionEvidenceDir": "backend/sqx-edge-tool/data/controlled_traffic_expansion_decision",
+      "controlledTrafficExpansionDecisionPolicy": "convert_m83_monitor_evidence_into_one_small_operator_decision_without_automatic_traffic_checkout_or_license_actions"
     }
   },
   "marketing": {

@@ -79,6 +79,7 @@ $excludeNames = @(
   "controlled_traffic_expansion_review",
   "controlled_traffic_expansion_step",
   "controlled_traffic_expansion_monitor",
+  "controlled_traffic_expansion_decision",
   "private-commercial",
   "commercial-private",
   "pro-template-pack-1",
@@ -157,6 +158,7 @@ function Test-IncludedPath {
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\controlled_traffic_expansion_review\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\controlled_traffic_expansion_step\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\controlled_traffic_expansion_monitor\.py$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\tools\\controlled_traffic_expansion_decision\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\private_commercial_split\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfillment_request\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfill_from_request\.ps1$") { return $false }

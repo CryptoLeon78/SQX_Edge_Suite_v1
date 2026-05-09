@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: M83 - Controlled traffic expansion monitor.
-- Current product/commercial state: `controlled_traffic_expansion_monitor_ready`.
+- Current completed phase: M84 - Controlled traffic expansion decision.
+- Current product/commercial state: `controlled_traffic_expansion_decision_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: M84 - decide repeat, hold, pause or prepare the next private review from M83 evidence, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: M85 - execute only the approved M84 operator decision, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -198,7 +198,8 @@ Persistent planning note for the next SQX Edge phases.
 81. Phase M81: review controlled traffic expansion only if M80 selects it. Done.
 82. Phase M82: execute one tiny reversible traffic expansion step only if M81 approves it. Done.
 83. Phase M83: monitor the tiny controlled traffic expansion step before repeating, pausing or widening again. Done.
-84. Phase M84: decide repeat, hold, pause or prepare the next private review from M83 evidence. Recommended next.
+84. Phase M84: decide repeat, hold, pause or prepare the next private review from M83 evidence. Done.
+85. Phase M85: execute only the approved M84 operator decision. Recommended next.
 
 ## SQX View Creator Track
 

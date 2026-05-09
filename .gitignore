@@ -87,6 +87,7 @@ backend/sqx-edge-tool/data/manual_publication_monitor/
 backend/sqx-edge-tool/data/controlled_traffic_expansion_review/
 backend/sqx-edge-tool/data/controlled_traffic_expansion_step/
 backend/sqx-edge-tool/data/controlled_traffic_expansion_monitor/
+backend/sqx-edge-tool/data/controlled_traffic_expansion_decision/
 backend/sqx-edge-tool/license_keys/
 backend/sqx-edge-tool/licenses_private/
 backend/sqx-edge-tool/private_keys/

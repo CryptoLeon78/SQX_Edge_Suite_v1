@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "state": "controlled_traffic_expansion_decision_ready",
+  "decisionId": "controlled_traffic_expansion_decision",
+  "offerId": "sqx_edge_pro_controlled_traffic_expansion_decision",
+  "name": "Controlled Traffic Expansion Decision",
+  "dependsOn": {
+    "controlledTrafficExpansionMonitorConfig": "backend/sqx-edge-tool/config/controlled_traffic_expansion_monitor.json",
+    "controlledTrafficExpansionMonitorState": "controlled_traffic_expansion_monitor_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/CONTROLLED_TRAFFIC_EXPANSION_DECISION.md",
+    "docs/sales/CONTROLLED_TRAFFIC_EXPANSION_MONITOR.md",
+    "docs/sales/CONTROLLED_TRAFFIC_EXPANSION_STEP.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "allowedSourceMonitorDecisions": [
+    "repeat_tiny_step",
+    "prepare_next_private_review",
+    "hold_for_fix",
+    "pause_sales"
+  ],
+  "allowedFinalActions": [
+    "repeat_same_tiny_step",
+    "prepare_private_review_packet",
+    "hold_for_fix",
+    "pause_sales",
+    "continue_observation"
+  ],
+  "minimumObservationHours": 24,
+  "maximumOpenSupportItems": 0,
+  "maximumRefundRequests": 0,
+  "maximumClaimsIssues": 0,
+  "maximumIncidents": 0,
+  "privacyPolicy": "store_only_redacted_decision_source_counts_owner_rationale_and_next_check_without_buyer_identity_checkout_payloads_or_license_files",
+  "decisionPolicy": "convert_m83_monitor_evidence_into_one_small_operator_decision_without_automatic_traffic_checkout_or_license_actions",
+  "decisionRules": [
+    "repeat_same_tiny_step is allowed only when M83 selected repeat_tiny_step, evidence is GO and all risk counts are zero.",
+    "prepare_private_review_packet is allowed only when M83 selected prepare_next_private_review, evidence is GO and all risk counts are zero.",
+    "hold_for_fix is allowed when M83 selected hold_for_fix or the monitor is blocked without sales pause risk.",
+    "pause_sales is required when refunds, claims issues, incidents or paused monitor evidence are present.",
+    "continue_observation is allowed only when no risk is present and the operator chooses not to move traffic yet."
+  ]
+}

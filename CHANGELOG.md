@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - M84 controlled traffic expansion decision
+
+- Adds a guarded internal decision gate that converts M83 monitor evidence into one manual next action.
+- Supports repeat, private review packet, hold, pause or continued observation without automating traffic, checkout or licenses.
+- Extends packaging exclusions, public/private commercial traceability, roadmap/governance and tests.
+
 ## 2026-05-09 - M83 controlled traffic expansion monitor
 
 - Adds a guarded internal monitor for the M82 tiny traffic step before repeating, pausing or widening again.
