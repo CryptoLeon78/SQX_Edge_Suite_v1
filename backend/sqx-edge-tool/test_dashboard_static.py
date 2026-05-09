@@ -40,6 +40,7 @@ SB15_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB15_STRATEGY_BUILDER_BUYER
 SB16_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB16_STRATEGY_BUILDER_BUYER_SESSION_SUPPORT_RESOLUTION_CHECKLIST.md"
 SB17_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB17_STRATEGY_BUILDER_EVIDENCE_HANDOFF_INDEX.md"
 PG7_PROJECT_GENERATOR_DOC = PROJECT_ROOT / "docs" / "PG7_PROJECT_GENERATOR_BUYER_CFX_HANDOFF.md"
+T1_CLOUD_TESTER_DOC = PROJECT_ROOT / "docs" / "T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
@@ -243,6 +244,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "G4 - Institutional Core Repository Gate",
             "G5 - Institutional Core Synchronized Gate",
             "G6 - Institutional Dashboard Quick Actions Gate",
+            "Access/Security Gatekeeper",
             "Frontend/UI",
             "Backend/API",
             "QA/Release",
@@ -263,6 +265,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Every new internal automation must declare its risk level",
             "External action",
             "`SBxx`: Strategy Builder and \"only one platform\" workflow phases.",
+            "`Txx`: cloud tester access",
             "Never commit `backend/sqx-edge-tool/config/license.json`",
             "https://github.com/CryptoLeon78/SQX_Institutional_Core.git",
             "local remote name `institutional`",
@@ -291,6 +294,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase G5: reconcile `institutional/main` with current `main`", next_steps)
         self.assertIn("Phase G6: selectively integrate `institutional/feat/dashboard-quick-actions`", next_steps)
         self.assertIn("Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.", next_steps)
+        self.assertIn("Phase T1: define the Vercel-hosted tester architecture contract", next_steps)
+        self.assertIn("Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`", next_steps)
         self.assertIn("Any new visible tab, panel, module or manifest-driven UI state", architecture := ARCHITECTURE_DOC.read_text(encoding="utf-8-sig"))
         self.assertIn("docs/PROJECT_GOVERNANCE.md", readme)
         self.assertIn("consulta obligatoria antes de fases/mensajes de trabajo", readme)
@@ -785,11 +790,13 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb17)
 
-        self.assertIn("Current phase completed: PG7 - Project Generator buyer `.cfx` handoff notes.", governance)
+        self.assertIn("Current phase completed: T1 - Cloud Tester Architecture Contract.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
         self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
         self.assertIn("Asset detail/category rows expose quick actions", governance)
+        self.assertIn("docs/PG7_PROJECT_GENERATOR_BUYER_CFX_HANDOFF.md", governance)
+        self.assertIn("docs/T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
         self.assertIn("docs/SB2_STRATEGY_BUILDER_WORKFLOW.md", governance)
@@ -2852,6 +2859,88 @@ class DashboardStaticTestCase(unittest.TestCase):
         ]:
             with self.subTest(pattern=pattern):
                 self.assertTrue(pattern in pg7_doc or pattern in next_steps or pattern in governance, pattern)
+
+    def test_t1_cloud_tester_architecture_contract_is_documented(self):
+        t1 = T1_CLOUD_TESTER_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        operational_discipline = (PROJECT_ROOT / "DISCIPLINA_OPERATIVA.md").read_text(encoding="utf-8-sig")
+
+        expected_t1_patterns = [
+            "T1 Cloud Tester Architecture Contract",
+            "controlled Vercel-hosted tester portal",
+            "up to 10 invited testers",
+            "15-day renewal cycles",
+            "`SQX_Edge_Tester_Portal`",
+            "`SQX_Edge_Access_Service`",
+            "Deployment Protection",
+            "Password Protection can protect preview/production URLs, but they are not sufficient",
+            "Environment Variables hold secrets",
+            "Cron Jobs may run a daily expiry/renewal scanner",
+            "Edge Config can hold non-secret global switches",
+            "status = active",
+            "plan = tester_pro",
+            "expires_at > now",
+            "Renewal links are single-use",
+            "visible watermark",
+            "global kill switch",
+            "Threat Model",
+            "Shared tester password",
+            "Vercel preview URL leaked",
+            "Access/Security Gatekeeper",
+            "No Vercel deployment.",
+            "No tester account creation.",
+        ]
+        for pattern in expected_t1_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t1)
+
+        expected_governance_patterns = [
+            "Current phase completed: T1 - Cloud Tester Architecture Contract.",
+            "T2 - private Tester Portal repo bootstrap",
+            "Access/Security Gatekeeper",
+            "`Txx`: cloud tester access",
+            "Cloud Tester Access track",
+            "Do not deploy tester access",
+            "publish Vercel URLs",
+        ]
+        for pattern in expected_governance_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in [
+            "Phase T1: define the Vercel-hosted tester architecture contract",
+            "Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`",
+            "Phase T12: monitor abuse",
+            "tester portal actions as external/security-sensitive",
+        ]:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in [
+            "Portal tester Pro previsto",
+            "`SQX_Edge_Tester_Portal`",
+            "ciclo de renovacion de 15 dias",
+            "Access/Security Gatekeeper",
+        ]:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in [
+            "Access/Security Gatekeeper (Agente)",
+            "Ecosistema Cloud y Tester Portal (Vercel)",
+            "SQX_Edge_Tester_Portal",
+            "Caducidad de testers",
+            "ciclos de 15 días",
+            "Deployment Protection",
+            "Acciones externas bloqueadas por defecto",
+            "no se despliega en Vercel",
+            "no se crean cuentas tester",
+            "no se publican URLs",
+        ]:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, operational_discipline)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: PG7 - Project Generator buyer `.cfx` handoff notes.
+- Current completed phase: T1 - Cloud Tester Architecture Contract.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T2 - private Tester Portal repo bootstrap, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Recommended Order
 
@@ -53,6 +53,22 @@ Persistent planning note for the next SQX Edge phases.
 - Follow `docs/PROJECT_GOVERNANCE.md` for phase workflow and M46 entry criteria.
 - Apply G3 before adding internal automation: classify risk level, ownership, output path, privacy boundary and required checks.
 - Keep external commercial actions manual unless the user approves the exact traffic, checkout, email, license, public release or buyer-contact action.
+- Treat tester portal actions as external/security-sensitive: no Vercel deploy, tester account, password rotation, renewal email or public/protected URL publication without explicit approval for that exact action.
+
+## Cloud Tester Access Track
+
+1. Phase T1: define the Vercel-hosted tester architecture contract, repo boundaries, Access/Security Gatekeeper, 15-day renewal model and threat model. Done; see `docs/T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md`.
+2. Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal` with Next.js/Vercel structure, README, `.gitignore`, env placeholders and no real tester data.
+3. Phase T3: define tester auth data contract: statuses, password hash policy, sessions, renewal tokens, audit events and secret boundaries.
+4. Phase T4: implement login/session prototype with blocked unauthenticated routes.
+5. Phase T5: add `tester_pro` entitlements and feature gates for paid options.
+6. Phase T6: add 15-day expiry, renewal state and manual approve/deny flow.
+7. Phase T7: add admin tester console for create, renew, deny, block and audit review.
+8. Phase T8: harden rate limiting, security headers, watermark, kill switch and deployment-protection checklist.
+9. Phase T9: run Vercel preview staging behind protection with no public indexing.
+10. Phase T10: run one internal tester pilot before inviting external testers.
+11. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+12. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T1 Cloud Tester Architecture Contract
+
+- Defines the future private `SQX_Edge_Tester_Portal` Vercel architecture for 10 controlled Pro testers.
+- Adds Access/Security Gatekeeper ownership for tester auth, 15-day renewal, audit, watermark and anti-distribution controls.
+- Keeps T1 as contract-only: no deploy, no tester accounts, no emails and no runtime changes.
+
 ## 2026-05-09 - PG7 Project Generator buyer .cfx handoff
 
 - Adds a Project Generator handoff card that prepares buyer-specific Markdown notes for `.cfx` deliveries.

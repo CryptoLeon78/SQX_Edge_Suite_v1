@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: PG7 - Project Generator buyer `.cfx` handoff notes.
+- Current phase completed: T1 - Cloud Tester Architecture Contract.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next implementation phase: T2 - private Tester Portal repo bootstrap, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.
 - Earlier governance baseline: G4 - Institutional Core Repository Gate.
@@ -24,6 +24,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 | Monetization/Product | Pro offer, pricing, support, renewal, buyer journey, safe claims. | `docs/MONETIZATION_ROADMAP.md`, `docs/MONETIZATION_M*.md`, `docs/sales`, product manifest, README. | Commercial docs tests, safe-claims review, roadmap/status alignment. |
 | Security/Distribution | Secrets, license material, relay exposure, packaging exclusions. | `.gitignore`, product manifest security, packaging/audit scripts, relay settings, license manager. | Packaging tests, audit rules, sensitive-file staged review. |
 | Architecture/Docs | Load order, module contracts, ADRs, ownership matrix, roadmap hygiene. | `docs/ARCHITECTURE.md`, `docs/PROJECT_GOVERNANCE.md`, `docs/decisions`, roadmap docs, module contracts. | Static docs tests, load-order contracts, roadmap consistency checks. |
+| Access/Security Gatekeeper | Tester auth, sessions, renewals, cloud access, anti-distribution controls and Vercel security. | Future `SQX_Edge_Tester_Portal`, `docs/T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md`, tester access contracts, Vercel env/protection docs, audit and watermark policies. | Unauthenticated blocked, expired/denied/blocked tester blocked, active `tester_pro` allowed, rate limit and audit contracts, no secrets in git, security headers and deployment protection reviewed. |
 
 ## Phase Namespaces
 
@@ -41,6 +42,7 @@ Use prefixed phase IDs for new work.
 - `PGxx`: Project Generator user workflows and reusable generation helpers.
 - `Jxx`: Jose-derived selective integrations, especially Champion vs Challenger, adapted to SQX architecture and security rules.
 - `SBxx`: Strategy Builder and "only one platform" workflow phases.
+- `Txx`: cloud tester access, Vercel portal, tester auth, 15-day renewal, audit and anti-distribution phases.
 
 Legacy references such as "Phase 46" in the modularization track remain historical. New work should use the prefix in titles and commits when practical.
 
@@ -103,6 +105,7 @@ G6 - Institutional Dashboard Quick Actions Gate:
 | Monetization/Product | Safe-claims review, roadmap/status alignment, private/public commercial boundary check. | Commercial movement, buyer-facing assets, pricing/support positioning or sales gates move. |
 | Security/Distribution | Sensitive-file staged review, manifest exclusions, package/audit deny-lists. | Licenses, keys, buyer logs, relay, checkout evidence, commercial-private docs or generated packages are touched. |
 | Architecture/Docs | Architecture/load-order docs, governance docs, contract map consistency. | Module boundaries, roadmap structure, phase taxonomy or governance rules move. |
+| Access/Security Gatekeeper | Cloud auth threat model, tester lifecycle tests, secret review, deployment-protection review, audit/watermark contracts. | Any Vercel tester portal, auth/session, renewal, tester data, cloud URL, password rotation or anti-distribution behavior moves. |
 
 ## Local Tooling Notes
 
@@ -159,6 +162,7 @@ M46 is accepted when these criteria are true:
 - External repo comparison: `docs/EXTERNAL_REPO_COMPARISON_JOSE.md`, `docs/J1_CHAMPION_CHALLENGER_CONTRACT.md`, `docs/J2_CHAMPION_CHALLENGER_CORE.md`, `docs/J3_CHAMPION_CHALLENGER_OOS.md`, `docs/J4_CHAMPION_CHALLENGER_UI.md`, `docs/J5_CHAMPION_CHALLENGER_REGIME_EGT.md`, `docs/J6_CHAMPION_CHALLENGER_EXPORT_HANDOFF.md`, `docs/J7_TEMPORAL_HEALTH_EGT_V2_CONTRACT.md`, `docs/J8_TEMPORAL_HEALTH_EGT_V2_HELPERS.md`, `docs/J9_TEMPORAL_HEALTH_EGT_V2_UI.md`, `docs/J10_TEMPORAL_HEALTH_EGT_V2_HANDOFF.md`, `docs/J11_DIRECTIONAL_COHERENCE_SCORE.md`, `app/js/modules/champion-challenger-core.js`, `app/js/modules/champion-challenger.js`, `app/js/modules/champion-challenger-regime.js`, `tests/js/contracts/champion_challenger_core_contracts.mjs`, `tests/js/contracts/champion_challenger_ui_contracts.mjs`, `tests/js/contracts/champion_challenger_regime_contracts.mjs`, `backend/sqx-edge-tool/tools/plan_quality_advisor.py`, `backend/sqx-edge-tool/tools/multi_timeframe_scoring.py`, `backend/sqx-edge-tool/tools/multi_timeframe_metric_gate.py`, `backend/sqx-edge-tool/tools/first_party_metric_source.py`, `backend/sqx-edge-tool/tools/multi_timeframe_source_intake.py`, `backend/sqx-edge-tool/tools/multi_timeframe_plan_artifacts.py`, `backend/sqx-edge-tool/tools/ohlc_metric_builder.py`, `backend/sqx-edge-tool/tools/real_mtf_pipeline_run.py`, `backend/sqx-edge-tool/tools/dukas_mt5_ohlc_download.py`, `backend/sqx-edge-tool/tools/mt5_ipc_diagnostic.py`, `backend/sqx-edge-tool/core/mtf_evidence.py` and `app/js/modules/mtf-evidence.js`.
 - Strategy Builder / Only One Platform track: `docs/SB1_STRATEGY_BUILDER_DISCOVERY.md`, `docs/SB2_STRATEGY_BUILDER_WORKFLOW.md`, `docs/SB3_STRATEGY_BUILDER_PROTOTYPE.md`, `docs/SB4_STRATEGY_BUILDER_IMPORT_EXPORT.md`, `docs/SB5_STRATEGY_BUILDER_PROJECT_GENERATOR_PREFILL.md`, `docs/SB6_STRATEGY_BUILDER_PRESET_HANDOFF.md`, `docs/SB7_STRATEGY_BUILDER_VIEWS_HANDOFF.md`, `docs/SB8_STRATEGY_BUILDER_AUDIT_WORKFLOW.md`, `docs/SB9_STRATEGY_BUILDER_CLEANER_HANDOFF.md`, `docs/SB10_STRATEGY_BUILDER_BUYER_HANDOFF_PACK.md`, `docs/SB11_STRATEGY_BUILDER_BUYER_PACK_IMPORT_REVIEW.md`, `docs/SB12_STRATEGY_BUILDER_BUYER_SESSION_CHECKLIST.md`, `docs/SB13_STRATEGY_BUILDER_BUYER_SESSION_SUMMARY_EXPORT.md`, `docs/SB14_STRATEGY_BUILDER_BUYER_SESSION_PRINTABLE_NOTES.md`, `docs/SB15_STRATEGY_BUILDER_BUYER_SESSION_SUPPORT_CASE_BUNDLE.md`, `docs/SB16_STRATEGY_BUILDER_BUYER_SESSION_SUPPORT_RESOLUTION_CHECKLIST.md`, `docs/SB17_STRATEGY_BUILDER_EVIDENCE_HANDOFF_INDEX.md`, `app/js/modules/strategy-builder-core.js`, `app/js/modules/strategy-builder.js`, starting from the J6 handoff, Project Generator profiles, SQX Views packs, MTF evidence, Strategy Cleaner boundaries, unified buyer handoff packs, guided buyer session checklists, redacted buyer session summaries, printable operator notes, local support-case bundles, support resolution checklists and reduced evidence handoff indexes.
 - Project Generator buyer handoff track: `docs/PG7_PROJECT_GENERATOR_BUYER_CFX_HANDOFF.md`, `app/js/modules/project-generator-config.js`, `app/js/modules/project-generator-bindings.js`, `app/js/project-generator-main.js` and the `Entrega comprador .cfx` panel in `app/SQX_Dashboard_v6.html`.
+- Cloud Tester Access track: `docs/T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md`; future private `SQX_Edge_Tester_Portal` repo; Access/Security Gatekeeper ownership; Vercel Deployment Protection, tester auth, 15-day renewal, audit, watermark and kill-switch contracts.
 - Real-data validation and release evidence: `docs/A59_REAL_DATA_VALIDATION.md`, `docs/A60_MT5_ACTIVE_TERMINAL_MODE.md`, `docs/A61_MT5_IPC_DIAGNOSTIC.md`, `docs/A62_RECENT_BARS_REAL_MTF_GO.md`, `docs/R44_A63_PORTABLE_AFTER_REAL_MTF_GO.md`, `docs/R45_CONTROLLED_PUBLICATION_PLAN.md` and `docs/R47_CONTROLLED_COMMERCIAL_RELEASE.md`.
 - M97 commercial execution gate: `docs/MONETIZATION_M97.md`, `docs/sales/APPROVED_CONTROLLED_COMMERCIAL_MOVEMENT_FROM_M96_DECISION_EXECUTION.md`, `backend/sqx-edge-tool/config/approved_controlled_commercial_movement_from_m96_decision_execution.json`, `backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m96_decision_execution.py` and `backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m96_decision_execution/`.
 - M98 commercial execution monitor: `docs/MONETIZATION_M98.md`, `docs/sales/APPROVED_CONTROLLED_COMMERCIAL_MOVEMENT_FROM_M96_DECISION_EXECUTION_MONITOR.md`, `backend/sqx-edge-tool/config/approved_controlled_commercial_movement_from_m96_decision_execution_monitor.json`, `backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m96_decision_execution_monitor.py` and `backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m96_decision_execution_monitor/`.
@@ -172,3 +176,4 @@ M46 is accepted when these criteria are true:
 - Any new `tools/*`, `data/*`, `docs/sales/*` or Pro resource must declare one of: public, public redaction pointer, private-only, or excluded from portable packaging.
 - Move buyer logs, commercial gates, pricing experiments, support scripts and checkout evidence to a private repository before wider public distribution.
 - Keep `docs/private-commercial/`, `commercial-private/` and `private-commercial/` local-only staging folders ignored by git.
+- Do not deploy tester access, create tester accounts, publish Vercel URLs, rotate tester passwords or send renewal emails without explicit user approval for that exact external action.
