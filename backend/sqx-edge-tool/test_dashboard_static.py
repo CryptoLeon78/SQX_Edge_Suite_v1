@@ -241,6 +241,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "G3 - Internal Automation and Agent Gate",
             "G4 - Institutional Core Repository Gate",
             "G5 - Institutional Core Synchronized Gate",
+            "G6 - Institutional Dashboard Quick Actions Gate",
             "Frontend/UI",
             "Backend/API",
             "QA/Release",
@@ -287,7 +288,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase G3: define internal automation risk levels, specialist-agent escalation rules, command matrix and local tooling notes. Done.", next_steps)
         self.assertIn("Phase G4: add Institutional Core as first-class repository discipline with separate non-destructive push rules. Done.", next_steps)
         self.assertIn("Phase G5: reconcile `institutional/main` with current `main`", next_steps)
-        self.assertIn("Governance baseline: G5 - Institutional Core Synchronized Gate.", next_steps)
+        self.assertIn("Phase G6: selectively integrate `institutional/feat/dashboard-quick-actions`", next_steps)
+        self.assertIn("Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.", next_steps)
         self.assertIn("Any new visible tab, panel, module or manifest-driven UI state", architecture := ARCHITECTURE_DOC.read_text(encoding="utf-8-sig"))
         self.assertIn("docs/PROJECT_GOVERNANCE.md", readme)
         self.assertIn("consulta obligatoria antes de fases/mensajes de trabajo", readme)
@@ -782,10 +784,11 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb17)
 
-        self.assertIn("Current phase completed: G5 - Institutional Core sync preserving institutional-only assets.", governance)
+        self.assertIn("Current phase completed: G6 - Institutional dashboard quick actions.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
         self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
+        self.assertIn("Asset detail/category rows expose quick actions", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
         self.assertIn("docs/SB2_STRATEGY_BUILDER_WORKFLOW.md", governance)
@@ -2744,6 +2747,39 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("overflow-x:auto", css)
         self.assertIn("#tab-pipeline .ps-funnel-step", css)
         self.assertIn("flex-wrap:wrap", css)
+
+    def test_g6_institutional_dashboard_quick_actions_are_wired(self):
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+
+        self.assertIn('id="ps-health-panel"', self.html)
+
+        expected_js_patterns = [
+            "window.quickAddToPlan",
+            "window.quickToProjectGen",
+            "catBase = String(cat || '').replace(/_S$/, '')",
+            "window.promoteOrphanToPlan(key)",
+            "writeCustomProjectInputs(document, config)",
+            "renderPsHealth()",
+            "ps-funnel-graph",
+            "pf-count-big",
+        ]
+        for pattern in expected_js_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, dashboard_js)
+
+        expected_css_patterns = [
+            ".quick-actions",
+            ".action-btn.btn-plan",
+            ".action-btn.btn-pg",
+            ".ps-health-panel",
+            ".ps-h-item",
+            ".ps-funnel-step-graph",
+            ".pf-count-big",
+        ]
+        for pattern in expected_css_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, css)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

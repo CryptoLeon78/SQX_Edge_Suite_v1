@@ -285,6 +285,10 @@ function renderDetail() {
         <div class="info-row"><span class="info-label">Timeframes</span><span class="info-value">${entry.tf}</span></div>
         <div class="info-row"><span class="info-label">Por que</span><span class="info-value" style="font-weight:400;font-size:12px">${entry.why}</span></div>
         ${compositeBar(sc)}
+        <div class="quick-actions">
+          <button class="action-btn btn-plan" onclick="event.stopPropagation();quickAddToPlan('${a.id}','${entry.isShort ? catKey + '_S' : catKey}','${entry.tf}','${entry.dir}')">+ Plan</button>
+          <button class="action-btn btn-pg" onclick="event.stopPropagation();quickToProjectGen('${a.id}','${entry.isShort ? catKey + '_S' : catKey}','${entry.tf}','${entry.dir}')">Gen Project</button>
+        </div>
       </div>`;
     }
   }
@@ -335,6 +339,7 @@ function renderCategoriesView() {
         ${thH('Timeframes','tf','cat',catKey)}
         ${thH('Rating','rating','cat',catKey)}
         <th>Por que</th>
+        <th>Acciones</th>
       </tr></thead><tbody>`;
       for (const row of rows) {
         const r=rLabel(row.rating);
@@ -346,6 +351,12 @@ function renderCategoriesView() {
           <td>${row.tf}</td>
           <td><span class="rating ${r.cls}">${r.text}</span></td>
           <td style="font-size:12px;color:var(--text2);max-width:280px">${row.why}</td>
+          <td>
+            <div class="quick-actions" style="margin-top:0">
+              <button class="action-btn btn-plan" onclick="event.stopPropagation();quickAddToPlan('${row.asset.id}','${row.isShort ? catKey + '_S' : catKey}','${row.tf}','${row.dir}')" title="Añadir al Plan Mining">+ Plan</button>
+              <button class="action-btn btn-pg" onclick="event.stopPropagation();quickToProjectGen('${row.asset.id}','${row.isShort ? catKey + '_S' : catKey}','${row.tf}','${row.dir}')" title="Ir al Project Generator">Gen</button>
+            </div>
+          </td>
         </tr>`;
       }
       html+='</tbody></table>';
@@ -1168,6 +1179,44 @@ window.navToAsset = function(id) {
   selectAsset(id);
 };
 
+// Quick actions from asset/category cards into Pipeline State and Project Generator.
+window.quickAddToPlan = function(asset, cat, tf, dir) {
+  const catBase = String(cat || '').replace(/_S$/, '');
+  const key = asset + '|' + catBase + '|' + tf + '|' + dir;
+  if (typeof window.promoteOrphanToPlan === 'function') {
+    window.promoteOrphanToPlan(key);
+    return;
+  }
+  alert('No se ha podido abrir el Plan Mining desde esta tarjeta.');
+};
+
+window.quickToProjectGen = function(asset, cat, tf, dir) {
+  const catBase = String(cat || '').replace(/_S$/, '');
+  const bs = PRIORITY_CAT_TO_BS[cat] || PRIORITY_CAT_TO_BS[catBase] || CAT_TO_BS[cat] || CAT_TO_BS[catBase] || 'BS_Custom';
+  const tfList = String(tf || '').split(',').map(t => t.trim()).filter(Boolean);
+  const firstTf = tfList[0] || 'H1';
+  const cleanCat = catBase.replace(/[^a-z0-9]+/gi, '');
+  const config = {
+    name: 'Project_' + asset + '_' + firstTf + '_' + cleanCat,
+    asset: asset,
+    tf: firstTf,
+    bs: bs,
+    dir: dir === 'L' ? 'long' : (dir === 'S' ? 'short' : 'both'),
+    capa: 1,
+    template: cleanCat.toUpperCase()
+  };
+
+  if (window.SQX && window.SQX.projectGenerator && window.SQX.projectGenerator.dom) {
+    window.SQX.projectGenerator.dom.writeCustomProjectInputs(document, config);
+  }
+
+  activateTabById('projectgen');
+  setTimeout(() => {
+    const target = document.querySelector('.pg-custom-card');
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+};
+
 // ── SQX PRIORITY: tracking persistente en localStorage ──
 const PRIORITY_STATE_KEY = SQX_STORAGE_KEYS.priorityProgress || 'sqx_priority_progress_v1';
 let PRIORITY_PROGRESS = {};
@@ -1418,13 +1467,53 @@ function getTemplatesByMining(num) {
   return [...new Set(getStrategiesByMining(num).map(s => s.template))].filter(t=>t && t!=='UNKNOWN');
 }
 
+function renderPsHealth() {
+  const panel = document.getElementById('ps-health-panel');
+  if (!panel) return;
+  const allMinings = getPlanMinings();
+  const allStrats = getAllStrategies();
+  const total = allMinings.length;
+  if (!total) {
+    panel.innerHTML = '';
+    return;
+  }
+
+  const completed = allMinings.filter(m => getMiningStatus(m.num) === 'completed').length;
+  const inProgress = allMinings.filter(m => getMiningStatus(m.num) === 'current').length;
+  const tier1 = allStrats.filter(s => s.tier === '1').length;
+  const efficiency = completed > 0 ? (tier1 / completed).toFixed(1) : '0.0';
+  let bottleneck = 'Ninguno';
+  let bnClass = 'is-ok';
+  if (inProgress > 8) {
+    bottleneck = 'Exceso de Mining';
+    bnClass = 'is-warn';
+  } else if (completed > 0 && tier1 === 0) {
+    bottleneck = 'Falta de Alpha';
+    bnClass = 'is-error';
+  }
+
+  panel.innerHTML =
+    '<div class="ps-h-item '+bnClass+'">' +
+      '<span class="ps-h-label">Status Operativo</span>' +
+      '<strong class="ps-h-val">'+bottleneck+'</strong>' +
+    '</div>' +
+    '<div class="ps-h-item">' +
+      '<span class="ps-h-label">Alpha Efficiency</span>' +
+      '<strong class="ps-h-val">'+efficiency+' <small>T1/M</small></strong>' +
+    '</div>' +
+    '<div class="ps-h-item">' +
+      '<span class="ps-h-label">Mining Load</span>' +
+      '<strong class="ps-h-val">'+Math.round(inProgress / total * 100)+'%</strong>' +
+    '</div>';
+}
+
 function renderPsKpis() {
   const allMinings = getPlanMinings();
   const total = allMinings.length;
   const completed = allMinings.filter(m => getMiningStatus(m.num) === 'completed').length;
   const current   = allMinings.filter(m => getMiningStatus(m.num) === 'current').length;
   const pending   = total - completed - current;
-  const pctDone   = Math.round((completed/total)*100);
+  const pctDone   = total ? Math.round((completed/total)*100) : 0;
 
   const all = getAllStrategies();
   const survivors = all.filter(s => s.tier==='1' || s.tier==='1.5' || s.tier==='2').length;
@@ -1586,20 +1675,41 @@ function populateFunnelSelectors() {
 function renderPsFunnel() {
   const key = getCurrentFunnelKey();
   const data = getFunnelData(key);
-  const initial = data[FUNNEL_STAGES_DEFAULT[0].id] || 0;
-  const html = FUNNEL_STAGES_DEFAULT.map(stage => {
+  const stages = FUNNEL_STAGES_DEFAULT;
+  const initial = data[stages[0].id] || 0;
+
+  let html = '<div class="ps-funnel-graph">';
+  for (let i = 0; i < stages.length; i++) {
+    const stage = stages[i];
     const v = data[stage.id];
-    const valStr = v == null ? '—' : v;
-    const pct = (initial > 0 && typeof v === 'number') ? Math.max(2, Math.round(v/initial*100)) : 0;
-    const surv = (initial > 0 && typeof v === 'number') ? (v/initial*100).toFixed(2) + '%' : '';
-    const cls = stage.terminal ? 'ps-funnel-step terminal ps-funnel-final' : 'ps-funnel-step';
-    return '<div class="'+cls+'">' +
-      '<div class="pf-name">'+stage.name+'</div>' +
-      '<div class="pf-bar-wrap"><div class="pf-bar" style="width:'+pct+'%"></div></div>' +
-      '<div class="pf-count" data-stage="'+stage.id+'" onclick="editFunnelCell(this, \''+key+'\', \''+stage.id+'\')">'+valStr+'</div>' +
-      '<div class="pf-survival">'+surv+'</div>' +
+    const safeValue = typeof v === 'number' ? v : 0;
+    const valStr = v == null ? '0' : v;
+    const prevValue = i === 0 ? initial : (data[stages[i - 1].id] || 0);
+    const wTop = initial > 0 ? Math.max(15, (prevValue / initial) * 100) : 100;
+    const wBot = initial > 0 ? Math.max(15, (safeValue / initial) * 100) : 100;
+    const survNum = initial > 0 ? safeValue / initial * 100 : 0;
+    const surv = survNum.toFixed(1) + '%';
+    const cls = stage.terminal ? 'ps-funnel-step-graph terminal' : 'ps-funnel-step-graph';
+    const tL = (100 - wTop) / 2;
+    const tR = 100 - tL;
+    const bL = (100 - wBot) / 2;
+    const bR = 100 - bL;
+    const clipPath = 'polygon('+tL+'% 0%, '+tR+'% 0%, '+bR+'% 100%, '+bL+'% 100%)';
+    const hue = Math.round(200 + (survNum * 0.5));
+    const bg = 'linear-gradient(135deg, hsla('+hue+', 80%, 50%, 0.8), hsla('+(hue + 40)+', 80%, 40%, 0.8))';
+
+    html += '<div class="'+cls+'">' +
+      '<div class="pf-shape" style="clip-path:'+clipPath+';background:'+bg+'"></div>' +
+      '<div class="pf-label-layer">' +
+        '<div class="pf-name">'+stage.name+'</div>' +
+        '<div class="pf-metrics-wrap">' +
+          '<span class="pf-count-big" data-stage="'+stage.id+'" onclick="editFunnelCell(this, \''+key+'\', \''+stage.id+'\')">'+valStr+'</span>' +
+          '<span class="pf-survival-tag">'+surv+'</span>' +
+        '</div>' +
+      '</div>' +
     '</div>';
-  }).join('');
+  }
+  html += '</div>';
   document.getElementById('ps-funnel').innerHTML = html;
 }
 
@@ -1727,11 +1837,12 @@ window.promoteOrphanToPlan = function(key) {
 
 function renderPipelineState() {
   renderPsKpis();
-  renderPsNextAction();
-  renderOrphans();
+  renderPsHealth();
   renderPsPlan();
   populateFunnelSelectors();
+  renderPsNextAction();
   renderPsFunnel();
+  renderOrphans();
   // override info bar
   const ovCount = Object.keys(PIPELINE_STATE.overrides || {}).length;
   const info = document.getElementById('ps-overrides-info');

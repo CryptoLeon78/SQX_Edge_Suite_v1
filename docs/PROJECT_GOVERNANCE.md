@@ -4,11 +4,12 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: G5 - Institutional Core sync preserving institutional-only assets.
+- Current phase completed: G6 - Institutional dashboard quick actions.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, SB18 - Strategy Builder buyer evidence export polish, or a dedicated review of `institutional/feat/dashboard-quick-actions`.
-- Governance baseline: G5 - Institutional Core Synchronized Gate.
-- Previous governance baseline: G4 - Institutional Core Repository Gate.
+- Next implementation phase: M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
+- Previous governance baseline: G5 - Institutional Core Synchronized Gate.
+- Earlier governance baseline: G4 - Institutional Core Repository Gate.
 - Earlier governance baseline: G3 - Internal Automation and Agent Gate.
 - Earlier governance baseline: G2 - Governance Lookup Before Work.
 - Historical governance baseline: G1 - Specialist Agent Operating Model.
@@ -75,7 +76,13 @@ G5 - Institutional Core Synchronized Gate:
 - Institutional-only assets are preserved in the public working tree: `.github/CODEOWNERS`, institutional workflows, `DISCIPLINA_OPERATIVA.md`, `app/css/analyzer.css` and `app/js/modules/analyzer.js`.
 - The institutional analyzer is exposed as a normal SQX tab (`Analyzer C2`) through the manifest, dashboard load order, module registry and `main.js` initialization.
 - Continue fetching both remotes before every push; once both `origin/main` and `institutional/main` point at the same verified merge commit, routine dual pushes are allowed again.
-- Treat `institutional/feat/dashboard-quick-actions` as an unmerged external branch until a dedicated review phase approves or rejects it.
+
+G6 - Institutional Dashboard Quick Actions Gate:
+
+- `institutional/feat/dashboard-quick-actions` is selectively integrated as native SQX UI without restoring removed Top Picks or Matrix surfaces.
+- Asset detail/category rows expose quick actions to promote a candidate into Plan Mining or prefill Project Generator custom inputs.
+- Pipeline State includes a compact operational health panel and graph-style funnel visualization while preserving editable counts and local-only state.
+- Required checks: JS syntax/contracts, static dashboard tests, backend pytest, `git diff --check` and E2E screenshots for Pipeline State and Project Generator prefill flow.
 
 ## Internal Automation Risk Levels
 
@@ -136,6 +143,7 @@ M46 is accepted when these criteria are true:
 ## Living Contracts Index
 
 - Frontend load order: `docs/ARCHITECTURE.md` and `backend/sqx-edge-tool/test_dashboard_static.py`.
+- Dashboard quick actions: `app/js/dashboard.js`, `app/css/dashboard.css`, `app/SQX_Dashboard_v6.html` and `backend/sqx-edge-tool/test_dashboard_static.py`.
 - Manifest mirror: `backend/sqx-edge-tool/tools/build_frontend_manifest.py` and `app/js/manifest-data.js`.
 - Product/commercial state: `backend/sqx-edge-tool/config/product_manifest.json`.
 - Portable distribution: `package_portable.ps1`, `audit_distribution.ps1`, `release_checklist.ps1`.
