@@ -380,6 +380,21 @@ async function run() {
     if (!buyerSessionNotes.auditRows.some(text => text.includes('Buyer Session Notes'))) throw new Error(`Strategy Builder buyer session notes audit missing: ${JSON.stringify(buyerSessionNotes)}`);
     if (buyerSessionNotes.storageText !== null || buyerSessionNotes.viewPresetCount !== viewPresetCountBeforeHandoff || buyerSessionNotes.pgPresetCount !== presetCountBeforeDraft) throw new Error(`Strategy Builder buyer session notes should not persist destination state: ${JSON.stringify(buyerSessionNotes)}`);
     await saveShot(desktop, 'e2e-strategy-builder-buyer-notes-desktop.png');
+    await desktop.locator('#sb-buyer-support-case-btn').click();
+    const buyerSupportCase = await desktop.evaluate(() => ({
+      preview: document.getElementById('sb-package-preview')?.textContent || '',
+      status: document.getElementById('sb-status')?.textContent || '',
+      auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
+      storageText: localStorage.getItem('sqx_strategy_builder_buyer_support_case_v1'),
+      viewPresetCount: window.SQX.viewCreator.getSavedPresets(localStorage).length,
+      pgPresetCount: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length,
+    }));
+    if (!buyerSupportCase.preview.includes('sqx-edge.strategy-builder-buyer-session-support-case-bundle')) throw new Error('Strategy Builder buyer support case preview missing type');
+    if (!buyerSupportCase.preview.includes('no_remote_ticket_created') || !buyerSupportCase.preview.includes('full_strategy_builder_package')) throw new Error(`Strategy Builder buyer support case missing safety manifest: ${buyerSupportCase.preview}`);
+    if (!buyerSupportCase.status.includes('Buyer support case bundle')) throw new Error(`Strategy Builder buyer support case status missing: ${JSON.stringify(buyerSupportCase)}`);
+    if (!buyerSupportCase.auditRows.some(text => text.includes('Buyer Support Case'))) throw new Error(`Strategy Builder buyer support case audit missing: ${JSON.stringify(buyerSupportCase)}`);
+    if (buyerSupportCase.storageText !== null || buyerSupportCase.viewPresetCount !== viewPresetCountBeforeHandoff || buyerSupportCase.pgPresetCount !== presetCountBeforeDraft) throw new Error(`Strategy Builder buyer support case should not persist destination state: ${JSON.stringify(buyerSupportCase)}`);
+    await saveShot(desktop, 'e2e-strategy-builder-buyer-support-case-desktop.png');
     const importResult = await desktop.evaluate(pkg => window.SQX.strategyBuilder.importText(JSON.stringify(pkg)), builderPackage);
     if (!importResult.ok || importResult.package.workflow_state !== 'blocked_operator_review') throw new Error('Strategy Builder import should require fresh operator review');
     await desktop.waitForFunction(() => document.getElementById('sb-status')?.textContent.includes('Confirm manual review'));

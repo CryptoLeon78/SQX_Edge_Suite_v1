@@ -23,6 +23,7 @@
     buyerSession: 'sb-buyer-session-btn',
     buyerSummary: 'sb-buyer-summary-btn',
     buyerNotes: 'sb-buyer-notes-btn',
+    buyerSupportCase: 'sb-buyer-support-case-btn',
     clear: 'sb-clear-btn',
     exportPackage: 'sb-export-btn',
     status: 'sb-status',
@@ -41,6 +42,7 @@
   var lastBuyerPackReview = null;
   var lastBuyerSessionChecklist = null;
   var lastBuyerSessionSummary = null;
+  var lastBuyerSessionNotes = null;
   var currentHandoff = null;
   var currentSourceSummary = null;
   var handoffAuditTrail = [];
@@ -240,6 +242,7 @@
     lastBuyerPackReview = null;
     lastBuyerSessionChecklist = null;
     lastBuyerSessionSummary = null;
+    lastBuyerSessionNotes = null;
     lastPackage = api.buildPackage(inputModel(doc));
     return renderPackage(lastPackage, doc);
   }
@@ -269,6 +272,7 @@
     lastBuyerPackReview = null;
     lastBuyerSessionChecklist = null;
     lastBuyerSessionSummary = null;
+    lastBuyerSessionNotes = null;
     setValue(IDS.sourceMode, 'blank', doc);
     setValue(IDS.asset, 'EURUSD', doc);
     setValue(IDS.timeframe, 'H1', doc);
@@ -289,6 +293,10 @@
 
   function safeBuyerSessionNotesFilename() {
     return 'sqx_buyer_session_notes_' + new Date().toISOString().replace(/[:.]/g, '-') + '.txt';
+  }
+
+  function safeBuyerSupportCaseFilename() {
+    return 'sqx_buyer_support_case_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
   }
 
   function downloadJson(payload, filename, doc) {
@@ -489,6 +497,7 @@
     lastBuyerPackReview = null;
     lastBuyerSessionChecklist = null;
     lastBuyerSessionSummary = null;
+    lastBuyerSessionNotes = null;
     addAuditEntry('Buyer Handoff Pack', payload, result, doc);
     setStatus('Buyer handoff pack prepared in preview. No destination action was triggered.', 'ok', doc);
     return result;
@@ -511,6 +520,7 @@
     if (preview) preview.textContent = JSON.stringify(result.checklist, null, 2);
     lastBuyerSessionChecklist = result.checklist;
     lastBuyerSessionSummary = null;
+    lastBuyerSessionNotes = null;
     addAuditEntry('Buyer Session Checklist', lastPackage, result, doc);
     setStatus('Buyer session checklist prepared in preview. No destination action was triggered.', 'ok', doc);
     return result;
@@ -532,6 +542,7 @@
     var preview = byId(IDS.preview, doc);
     if (preview) preview.textContent = JSON.stringify(result.summary, null, 2);
     lastBuyerSessionSummary = result.summary;
+    lastBuyerSessionNotes = null;
     var downloaded = downloadJson(result.summary, safeBuyerSessionSummaryFilename(), doc);
     addAuditEntry('Buyer Session Summary', lastPackage, result, doc);
     setStatus(
@@ -559,12 +570,40 @@
     }
     var preview = byId(IDS.preview, doc);
     if (preview) preview.textContent = result.notes.print_text;
+    lastBuyerSessionNotes = result.notes;
     var downloaded = downloadText(result.notes.print_text, safeBuyerSessionNotesFilename(), doc);
     addAuditEntry('Buyer Session Notes', lastPackage, result, doc);
     setStatus(
       downloaded
         ? 'Buyer session printable notes exported locally. No destination action was triggered.'
         : 'Buyer session printable notes prepared in preview. No destination action was triggered.',
+      'ok',
+      doc
+    );
+    return result;
+  }
+
+  function exportBuyerSupportCaseBundle(options) {
+    var doc = options && options.document ? options.document : global.document;
+    var api = core();
+    var payload = lastBuyerSessionNotes || lastBuyerSessionSummary || lastBuyerSessionChecklist || lastBuyerPackReview || lastBuyerHandoffPack || lastPackage || build({ document: doc });
+    if (!api || !api.buyerSessionSupportCaseBundle) {
+      setStatus('Buyer support case contract missing.', 'error', doc);
+      return null;
+    }
+    var result = api.buyerSessionSupportCaseBundle(payload);
+    if (!result.ok) {
+      setStatus('Buyer support case blocked: ' + result.errors.join(', ') + '.', 'warn', doc);
+      return result;
+    }
+    var preview = byId(IDS.preview, doc);
+    if (preview) preview.textContent = JSON.stringify(result.bundle, null, 2);
+    var downloaded = downloadJson(result.bundle, safeBuyerSupportCaseFilename(), doc);
+    addAuditEntry('Buyer Support Case', lastPackage, result, doc);
+    setStatus(
+      downloaded
+        ? 'Buyer support case bundle exported locally. No remote ticket was created.'
+        : 'Buyer support case bundle prepared in preview. No remote ticket was created.',
       'ok',
       doc
     );
@@ -589,6 +628,7 @@
     lastBuyerPackReview = null;
     lastBuyerSessionChecklist = null;
     lastBuyerSessionSummary = null;
+    lastBuyerSessionNotes = null;
     renderPackage(lastPackage, doc);
     if (result.buyer_pack_review) {
       var preview = byId(IDS.preview, doc);
@@ -596,6 +636,7 @@
       lastBuyerPackReview = result.buyer_pack_review;
       lastBuyerSessionChecklist = null;
       lastBuyerSessionSummary = null;
+      lastBuyerSessionNotes = null;
       addAuditEntry('Buyer Pack Import Review', lastPackage, { ok: true, guardrails: result.buyer_pack_review.guardrails || [] }, doc);
       setStatus('Buyer pack imported for local review. Confirm manual review before export or handoffs.', 'warn', doc);
       return result;
@@ -657,6 +698,7 @@
     bind(doc, IDS.buyerSession, function() { prepareBuyerSessionChecklist({ document: doc }); });
     bind(doc, IDS.buyerSummary, function() { exportBuyerSessionSummary({ document: doc }); });
     bind(doc, IDS.buyerNotes, function() { prepareBuyerSessionNotes({ document: doc }); });
+    bind(doc, IDS.buyerSupportCase, function() { exportBuyerSupportCaseBundle({ document: doc }); });
     bind(doc, IDS.importPackage, function() {
       var input = byId(IDS.importFile, doc);
       if (input && input.click) input.click();
@@ -673,6 +715,7 @@
   SQX.strategyBuilder = SQX.strategyBuilder || {
     build: build,
     clear: clear,
+    exportBuyerSupportCaseBundle: exportBuyerSupportCaseBundle,
     exportBuyerSessionSummary: exportBuyerSessionSummary,
     exportPackage: exportPackage,
     ids: IDS,

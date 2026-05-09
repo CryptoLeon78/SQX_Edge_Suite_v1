@@ -30,6 +30,7 @@
   var BUYER_SESSION_CHECKLIST_TYPE = 'sqx-edge.strategy-builder-buyer-session-checklist';
   var BUYER_SESSION_SUMMARY_TYPE = 'sqx-edge.strategy-builder-buyer-session-summary';
   var BUYER_SESSION_NOTES_TYPE = 'sqx-edge.strategy-builder-buyer-session-notes';
+  var BUYER_SESSION_SUPPORT_CASE_TYPE = 'sqx-edge.strategy-builder-buyer-session-support-case-bundle';
   var REQUIRED_BUYER_HANDOFFS = [
     'project_generator_prefill',
     'project_generator_preset_draft',
@@ -1162,6 +1163,106 @@
     };
   }
 
+  function supportCaseId(asset, timeframe, createdAt) {
+    var stamp = normalizeText(createdAt, nowIso()).replace(/[^0-9A-Za-z]/g, '').slice(0, 14);
+    return ['SB', normalizeAsset(asset), normalizeTimeframe(timeframe), stamp].join('-');
+  }
+
+  function buyerSessionSupportCaseBundle(input, options) {
+    var source = input || {};
+    var notesResult = source.type === BUYER_SESSION_NOTES_TYPE
+      ? { ok: true, errors: [], notes: source }
+      : buyerSessionOperatorNotes(source, options);
+    if (!notesResult.ok) {
+      return {
+        ok: false,
+        errors: notesResult.errors || ['buyer_session_notes_failed'],
+        bundle: null,
+        guardrails: ['support_case_bundle_only', 'no_destination_action_triggered']
+      };
+    }
+    var notes = notesResult.notes || {};
+    var createdAt = nowIso(options);
+    var asset = normalizeAsset(notes.asset);
+    var timeframe = normalizeTimeframe(notes.timeframe);
+    var sections = (notes.sections || []).map(function(section) {
+      return {
+        id: normalizeText(section.id),
+        title: normalizeText(section.title),
+        line_count: (section.lines || []).length
+      };
+    });
+    return {
+      ok: true,
+      errors: [],
+      bundle: {
+        type: BUYER_SESSION_SUPPORT_CASE_TYPE,
+        version: 1,
+        created_at: createdAt,
+        case_id: supportCaseId(asset, timeframe, createdAt),
+        source_type: normalizeText(notes.type, BUYER_SESSION_NOTES_TYPE),
+        asset: asset,
+        timeframe: timeframe,
+        workflow_state: normalizeText(notes.workflow_state, 'blocked_operator_review'),
+        review_required: !!notes.review_required,
+        support_priority: notes.review_required ? 'manual_review_required' : 'standard_setup',
+        operator_notes: {
+          format: 'plain_text',
+          print_ready: !!notes.print_ready,
+          text: normalizeText(notes.print_text)
+        },
+        section_manifest: sections,
+        support_questions: [
+          'Has the operator confirmed the manual review gate?',
+          'Which destination step is blocked or pending?',
+          'Were Project Generator, SQX Views and Strategy Cleaner actions executed manually?',
+          'Has StrategyQuant validation been run before any trading or performance claim?'
+        ],
+        attachment_manifest: [
+          {
+            id: 'printable_operator_notes',
+            format: 'txt',
+            included: true,
+            sensitive_payload: false
+          },
+          {
+            id: 'buyer_session_summary',
+            format: 'json',
+            included: false,
+            sensitive_payload: false,
+            note: 'Regenerate locally from Strategy Builder if the support case needs structured fields.'
+          },
+          {
+            id: 'full_strategy_builder_package',
+            format: 'json',
+            included: false,
+            sensitive_payload: true,
+            note: 'Do not attach full package unless the operator explicitly redacts it first.'
+          }
+        ],
+        redaction: (notes.redaction || []).concat([
+          'no_full_strategy_builder_package',
+          'no_support_customer_identity',
+          'no_private_commercial_payload'
+        ]),
+        guardrails: [
+          'support_case_bundle_only',
+          'no_destination_action_triggered',
+          'no_local_storage_write',
+          'no_backend_endpoint',
+          'no_remote_ticket_created',
+          'operator_executes_every_step_manually',
+          'no_profitability_claim'
+        ]
+      },
+      guardrails: [
+        'support_case_bundle_only',
+        'no_destination_action_triggered',
+        'no_remote_ticket_created'
+      ]
+    };
+  }
+
   function buyerWorkflowSummary(input, options) {
     var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {}, options);
     var review = reviewChecklistSummary(payload);
@@ -1221,6 +1322,7 @@
     buildContext: buildContext,
     buildPackage: buildPackage,
     buyerHandoffPackReview: buyerHandoffPackReview,
+    buyerSessionSupportCaseBundle: buyerSessionSupportCaseBundle,
     buyerSessionOperatorNotes: buyerSessionOperatorNotes,
     buyerSessionHandoffSummary: buyerSessionHandoffSummary,
     buyerWorkflowSummary: buyerWorkflowSummary,
