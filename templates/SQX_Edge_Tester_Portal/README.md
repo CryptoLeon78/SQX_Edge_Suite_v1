@@ -93,4 +93,4 @@ This blocks deploy retry unless the linked Vercel project protection can be veri
 
 ## Next Phase
 
-T9e should retry preview-only deploy only after `audit:vercel-protection` returns `GO_PROTECTION_VERIFIED`, then inspect target and aliases before any URL is shared.
+T9f should prepare Git/PR-based preview or API deployment proof because T9e rolled back the local CLI deploy path after it produced a production target again.

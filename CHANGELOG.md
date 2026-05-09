@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T9e Protected Preview Deploy Rollback
+
+- Retries deploy after protection gates are green, but rolls back immediately because Vercel reports production target and production alias again.
+- Verifies the removed deployment is no longer inspectable, project latest production URL is none and the public alias returns 404.
+- Sets T9f as the safer path: Git/PR-based preview or API deployment proof before any URL is shared.
+
 ## 2026-05-09 - T9d Vercel Authentication Protection Verified
 
 - Enables Vercel Authentication Standard Protection for `sqx-edge-tester-portal` through the Vercel Project API.
