@@ -85,6 +85,7 @@ $excludeNames = @(
   "controlled_commercial_next_movement",
   "controlled_commercial_next_movement_execution",
   "controlled_commercial_next_movement_execution_monitor",
+  "next_controlled_commercial_movement_decision",
   "private-commercial",
   "commercial-private",
   "pro-template-pack-1",
@@ -169,6 +170,7 @@ function Test-IncludedPath {
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\controlled_commercial_next_movement\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\controlled_commercial_next_movement_execution\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\controlled_commercial_next_movement_execution_monitor\.py$") { return $false }
+  if ($Path -match "\\backend\\sqx-edge-tool\\tools\\next_controlled_commercial_movement_decision\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\private_commercial_split\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfillment_request\.py$") { return $false }
   if ($Path -match "\\backend\\sqx-edge-tool\\tools\\fulfill_from_request\.ps1$") { return $false }

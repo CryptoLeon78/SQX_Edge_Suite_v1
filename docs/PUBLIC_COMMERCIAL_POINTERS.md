@@ -41,4 +41,6 @@ M88 continues this rule: controlled commercial next movement execution details l
 
 M89 continues this rule: controlled commercial next movement execution monitor details live privately, while public files keep traceability only.
 
+M90 continues this rule: next controlled commercial movement decision details live privately, while public files keep traceability only.
+
 Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

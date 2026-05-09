@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - M90 next controlled commercial movement decision
+
+- Adds `next_controlled_commercial_movement_decision.py` to decide the next controlled commercial movement from M89 evidence.
+- Blocks execution, checkout, email and license actions from the decision gate.
+- Extends packaging exclusions, public/private commercial traceability, roadmap/governance and tests.
+
 ## 2026-05-09 - M89 controlled commercial next movement execution monitor
 
 - Adds `controlled_commercial_next_movement_execution_monitor.py` to review M88 execution evidence before any broader commercial movement.
