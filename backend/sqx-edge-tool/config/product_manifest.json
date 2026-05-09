@@ -191,7 +191,9 @@
       "backend/sqx-edge-tool/data/controlled_commercial_next_movement_execution_monitor",
       "backend/sqx-edge-tool/tools/controlled_commercial_next_movement_execution_monitor.py",
       "backend/sqx-edge-tool/data/next_controlled_commercial_movement_decision",
-      "backend/sqx-edge-tool/tools/next_controlled_commercial_movement_decision.py"
+      "backend/sqx-edge-tool/tools/next_controlled_commercial_movement_decision.py",
+      "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_execution",
+      "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_execution.py"
     ],
     "releaseAudit": "backend/sqx-edge-tool/tools/audit_distribution.ps1"
   },
@@ -358,7 +360,7 @@
     "checkoutLabel": "Comprar Pro",
     "checkoutUrl": "",
     "checkout": {
-      "status": "next_controlled_commercial_movement_decision_ready",
+      "status": "approved_controlled_commercial_movement_execution_ready",
       "primaryProvider": "Lemon Squeezy",
       "fallbackProvider": "Gumroad",
       "mode": "hosted_checkout",
@@ -540,7 +542,7 @@
       "privateAssetReviewPolicy": "approve_asset_for_controlled_publication_only_after_private_review_safe_claims_support_release_notes_and_rollback",
       "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
       "automation": {
-        "status": "next_controlled_commercial_movement_decision_ready",
+        "status": "approved_controlled_commercial_movement_execution_ready",
         "webhookProvider": "Lemon Squeezy",
         "webhookSignatureHeader": "X-Signature",
         "webhookSigningAlgorithm": "hmac_sha256_hex",
@@ -766,7 +768,11 @@
       "nextControlledCommercialMovementDecisionConfig": "backend/sqx-edge-tool/config/next_controlled_commercial_movement_decision.json",
       "nextControlledCommercialMovementDecisionTool": "backend/sqx-edge-tool/tools/next_controlled_commercial_movement_decision.py",
       "nextControlledCommercialMovementDecisionEvidenceDir": "backend/sqx-edge-tool/data/next_controlled_commercial_movement_decision",
-      "nextControlledCommercialMovementDecisionPolicy": "decide_next_controlled_commercial_movement_from_m89_evidence_without_automatic_traffic_checkout_email_or_license_actions"
+      "nextControlledCommercialMovementDecisionPolicy": "decide_next_controlled_commercial_movement_from_m89_evidence_without_automatic_traffic_checkout_email_or_license_actions",
+      "approvedControlledCommercialMovementExecutionConfig": "backend/sqx-edge-tool/config/approved_controlled_commercial_movement_execution.json",
+      "approvedControlledCommercialMovementExecutionTool": "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_execution.py",
+      "approvedControlledCommercialMovementExecutionEvidenceDir": "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_execution",
+      "approvedControlledCommercialMovementExecutionPolicy": "record_only_the_manual_m90_approved_movement_without_automatic_traffic_checkout_email_or_license_execution"
     }
   },
   "marketing": {
