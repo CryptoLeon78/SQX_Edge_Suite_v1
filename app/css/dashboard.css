@@ -3006,6 +3006,67 @@
   #pg-custom-status.is-error { color:var(--red); }
   #pg-custom-status.is-info { color:var(--accent); }
 
+  .pg-buyer-handoff-card {
+    border-color:rgba(34,211,238,.24);
+    background:
+      linear-gradient(135deg, rgba(34,211,238,.09), rgba(59,130,246,.05)),
+      var(--surface);
+  }
+  .pg-buyer-handoff-grid {
+    display:grid;
+    grid-template-columns:minmax(180px, 1fr) minmax(180px, .8fr) auto;
+    gap:10px;
+    align-items:end;
+  }
+  .pg-buyer-handoff-grid label {
+    display:grid;
+    gap:6px;
+    color:var(--text2);
+    font-size:12px;
+    font-weight:700;
+  }
+  .pg-buyer-handoff-grid input,
+  .pg-buyer-handoff-grid select {
+    width:100%;
+    min-height:36px;
+    padding:8px 10px;
+    border:1px solid var(--border2);
+    border-radius:7px;
+    background:#101827;
+    color:#dbe7f6;
+    font-size:12px;
+    font-family:inherit;
+  }
+  .pg-buyer-actions {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+  .pg-buyer-summary {
+    margin:12px 0 10px;
+    padding:9px 11px;
+    border:1px solid rgba(96,165,250,.18);
+    border-radius:8px;
+    background:rgba(15,23,42,.58);
+    color:#cfe4ff;
+    font-size:12px;
+    line-height:1.45;
+  }
+  .pg-buyer-handoff-notes {
+    width:100%;
+    min-height:230px;
+    resize:vertical;
+    padding:12px 13px;
+    border:1px solid rgba(148,163,184,.20);
+    border-radius:8px;
+    background:#080d17;
+    color:#dbe7f6;
+    font-family:Consolas, Monaco, monospace;
+    font-size:12px;
+    line-height:1.55;
+  }
+
   .pg-settings-card .card-header { user-select:none; }
 
   /* ──────────────────────────────────────────────────────────────
@@ -3532,6 +3593,9 @@
     .pg-custom-preset-tools .export-btn { width:100%; flex-basis:100%; }
     .pg-onboarding-actions { flex-direction:column; }
     .pg-onboarding-actions .export-btn { width:100%; justify-content:center; }
+    .pg-buyer-handoff-grid { grid-template-columns:1fr; }
+    .pg-buyer-actions { justify-content:stretch; }
+    .pg-buyer-actions .export-btn { flex:1 1 140px; justify-content:center; }
   }
   .pg-settings-card .collapse-arrow { font-size:11px; transition:transform .2s; }
   .pg-settings-card .collapse-arrow.closed { transform:rotate(-90deg); }

@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: G6 - Institutional dashboard quick actions.
+- Current completed phase: PG7 - Project Generator buyer `.cfx` handoff notes.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Recommended Order
 
@@ -35,7 +35,7 @@ Persistent planning note for the next SQX Edge phases.
 4. Phase PG4: add starter custom preset examples by asset/timeframe profile with load/save/export flow. Done.
 5. Phase PG5: add richer custom profile families or buyer-specific `.cfx` starter guidance if Project Generator continues. Done.
 6. Phase PG6: add buyer-specific `.cfx` handoff notes or Project Generator pack import preview if this track continues. Done.
-7. Phase PG7: add buyer-specific `.cfx` handoff notes if this track continues.
+7. Phase PG7: add buyer-specific `.cfx` handoff notes with copy/download Markdown flow. Done; see `docs/PG7_PROJECT_GENERATOR_BUYER_CFX_HANDOFF.md`.
 
 ## Working Discipline
 

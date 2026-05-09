@@ -626,6 +626,115 @@ function messageHtml(message, tone) {
     return '<div style="color:' + color + ';font-size:12px;">' + escapeHtml(message) + '</div>';
   }
 
+  var BUYER_CFX_CONTEXT_LABELS = {
+    review: 'Revision inicial',
+    setup: 'Setup Assist',
+    'template-pack': 'Template Pack',
+    support: 'Soporte'
+  };
+
+function safeDateStamp(value) {
+    var raw = value || new Date().toISOString();
+    return String(raw).slice(0, 10);
+  }
+
+function sanitizeFilenamePart(value) {
+    return String(value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 48) || 'buyer';
+  }
+
+function normalizeBuyerCfxHandoffInput(input) {
+    var data = input || {};
+    var config = normalizeCustomProjectConfig(data.config || data.customConfig || {});
+    var files = (data.outputFiles || []).map(function(file) {
+      if (typeof file === 'string') return { name: file };
+      return file || {};
+    }).filter(function(file) {
+      return !!String(file.name || '').trim();
+    }).slice(0, 8);
+    var context = BUYER_CFX_CONTEXT_LABELS[data.context] ? data.context : 'review';
+    return {
+      buyerName: String(data.buyerName || '').trim() || 'Comprador Pro',
+      context: context,
+      contextLabel: BUYER_CFX_CONTEXT_LABELS[context],
+      generatedAt: safeDateStamp(data.generatedAt),
+      outputDir: String(data.outputDir || '').trim() || 'output',
+      config: config,
+      outputFiles: files
+    };
+  }
+
+function buyerCfxHandoffFilename(input) {
+    var data = normalizeBuyerCfxHandoffInput(input);
+    var cfg = data.config;
+    return [
+      'sqx-cfx-handoff',
+      sanitizeFilenamePart(data.buyerName),
+      sanitizeFilenamePart(cfg.asset || 'custom'),
+      sanitizeFilenamePart(cfg.tf || 'tf'),
+      data.generatedAt
+    ].join('-') + '.md';
+  }
+
+function buyerCfxHandoffSummary(input) {
+    var data = normalizeBuyerCfxHandoffInput(input);
+    var cfg = data.config;
+    var project = (cfg.asset || 'Asset pendiente') + ' ' + (cfg.tf || 'TF pendiente') + ' · ' + (cfg.bs || 'BS_Custom');
+    var count = data.outputFiles.length;
+    return data.contextLabel + ': ' + project + ' · ' + count + ' archivo' + (count === 1 ? '' : 's') + ' .cfx referenciado' + (count === 1 ? '' : 's') + '.';
+  }
+
+function outputFileLines(files) {
+    if (!files || !files.length) return ['- Pendiente: genera el .cfx o refresca output antes de entregar.'];
+    return files.map(function(file) {
+      var size = file.size_kb ? ' · ' + file.size_kb + ' KB' : '';
+      return '- ' + String(file.name || 'archivo.cfx') + size;
+    });
+  }
+
+function buyerCfxHandoffMarkdown(input) {
+    var data = normalizeBuyerCfxHandoffInput(input);
+    var cfg = data.config;
+    var lines = [
+      '# SQX Edge - Entrega .cfx comprador',
+      '',
+      '## Contexto',
+      '- Comprador/caso: ' + data.buyerName,
+      '- Tipo de entrega: ' + data.contextLabel,
+      '- Fecha: ' + data.generatedAt,
+      '- Carpeta output: ' + data.outputDir,
+      '',
+      '## Custom Project',
+      '- Nombre: ' + (cfg.name || 'Pendiente de definir'),
+      '- Asset: ' + (cfg.asset || 'Pendiente'),
+      '- Timeframe: ' + (cfg.tf || 'Pendiente'),
+      '- Blocksetting: ' + (cfg.bs || 'BS_Custom'),
+      '- Direccion: ' + (cfg.dir || 'both'),
+      '- Capa: ' + (cfg.capa || 1),
+      '- Template: ' + (cfg.template || 'Template configurado por capa'),
+      '',
+      '## Archivos .cfx',
+    ];
+    lines = lines.concat(outputFileLines(data.outputFiles));
+    return lines.concat([
+      '',
+      '## Checklist de entrega',
+      '- Confirmar que StrategyQuant X abre el .cfx sin errores.',
+      '- Verificar asset, timeframe, direccion, capa y blocksetting antes de lanzar mining.',
+      '- Ejecutar validacion fuera de muestra y robustez antes de cualquier decision operativa.',
+      '- Registrar cambios manuales si el comprador ajusta paths, aliases o templates.',
+      '',
+      '## Limites responsables',
+      '- Esta entrega es una ayuda de productividad y trazabilidad.',
+      '- No promete rentabilidad ni resultados financieros.',
+      '- El operador debe revisar configuracion, costes, spread, swaps y riesgo antes de usarla.'
+    ]).join('\n');
+  }
+
 function sqxNotFoundHtml() {
     return '<div class="alert warning"><div class="alert-icon">!</div><div class="alert-content"><strong>No se encontro ninguna instalacion de SQX.</strong>Edita los campos manualmente con la ruta donde este StrategyQuantX.exe.</div></div>';
   }
@@ -704,9 +813,13 @@ function validateSqxPathHtml(result) {
     buildCustomProfileFamilyPack: buildCustomProfileFamilyPack,
     buildCustomStarterProfilePack: buildCustomStarterProfilePack,
     buildCustomProjectPresetPackage: buildCustomProjectPresetPackage,
+    buyerCfxHandoffFilename: buyerCfxHandoffFilename,
+    buyerCfxHandoffMarkdown: buyerCfxHandoffMarkdown,
+    buyerCfxHandoffSummary: buyerCfxHandoffSummary,
     importCustomProjectPresetPackage: importCustomProjectPresetPackage,
     importCustomProjectPresetPackageFromText: importCustomProjectPresetPackageFromText,
     messageHtml: messageHtml,
+    normalizeBuyerCfxHandoffInput: normalizeBuyerCfxHandoffInput,
     normalizeCustomPreset: normalizeCustomPreset,
     normalizeCustomProjectConfig: normalizeCustomProjectConfig,
     setCustomProjectPresets: setCustomProjectPresets,

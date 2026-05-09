@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - PG7 Project Generator buyer .cfx handoff
+
+- Adds a Project Generator handoff card that prepares buyer-specific Markdown notes for `.cfx` deliveries.
+- Wires copy/download actions and keeps the flow local, manual and free of backend or remote calls.
+- Documents responsible limits: productivity/trazability only, no profitability promise.
+
 ## 2026-05-09 - G6 Institutional dashboard quick actions
 
 - Integrates `institutional/feat/dashboard-quick-actions` as native quick actions from asset/category cards to Plan Mining and Project Generator.
