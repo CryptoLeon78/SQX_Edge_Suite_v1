@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: J10 completada con export/handoff redacted de Temporal Health + EGT v2 hacia Strategy Builder.
+- Estado interno: J11 completada con direccion, coherencia direccional y Score Pro en Champion vs Challenger y Strategy Builder.
 - Estado comercial: M96 completada con decision del siguiente movimiento comercial controlado desde evidencia M95.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: SB17 para indice de evidencia en sesiones comprador o J11 para mostrar la evidencia importada dentro de Strategy Builder; M97 queda como siguiente movimiento comercial controlado; R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: SB17 para indice de evidencia en sesiones comprador, M97 como siguiente movimiento comercial controlado, PG7 para notas `.cfx` comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro

@@ -174,7 +174,19 @@
     var summary = api && api.reviewChecklistSummary ? api.reviewChecklistSummary(payload) : {
       items: payload.operator_checklist || []
     };
-    return (summary.items || []).map(function(item) {
+    var source = payload.source_summary || {};
+    var evidence = payload.asset_profile && payload.asset_profile.cvc_evidence_summary || {};
+    var evidenceHtml = source.type === 'sqx-edge.strategy-builder-handoff'
+      ? [
+        '<div class="sb-review-item is-ok">',
+        '<span>CVC</span>',
+        '<p>' + escapeHtml(source.candidate || 'CVC handoff') + ' | Score Pro '
+          + escapeHtml(evidence.consolidated_score ? evidence.consolidated_score.score : '-') + ' | Coherencia '
+          + escapeHtml(evidence.directional_coherence ? evidence.directional_coherence.verdict : 'UNKNOWN') + '</p>',
+        '</div>'
+      ].join('')
+      : '';
+    return evidenceHtml + (summary.items || []).map(function(item) {
       return ''
         + '<div class="sb-review-item ' + (item.confirmed ? 'is-ok' : 'is-warn') + '">'
         +   '<span>' + (item.confirmed ? 'OK' : '!') + '</span>'

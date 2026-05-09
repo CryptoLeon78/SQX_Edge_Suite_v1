@@ -128,6 +128,49 @@ assert.equal(longShortEgt.direction, 'long_short');
 assert.equal(longShortEgt.verdict, 'RISK');
 assert.ok(longShortEgt.failed_regimes.includes('BEAR'));
 
+const coherentLong = regime.assessDirectionalCoherence({
+  primary_metric: 'CAGR/Max DD',
+  metrics_by_block: {
+    1: { 'Net Profit': 100 },
+    2: { 'Net Profit': 120 },
+    3: { 'Net Profit': 20 },
+    4: { 'Net Profit': 10 },
+    5: { 'Net Profit': 30 },
+    6: { 'Net Profit': 25 },
+  },
+}, regimeBlocks, { direction: 'long_only' });
+assert.equal(coherentLong.verdict, 'OK');
+assert.equal(coherentLong.bull_check, 'OK');
+assert.equal(coherentLong.direction, 'long_only');
+
+const suspiciousLong = regime.assessDirectionalCoherence({
+  primary_metric: 'CAGR/Max DD',
+  metrics_by_block: {
+    1: { 'Net Profit': 40 },
+    2: { 'Net Profit': 30 },
+    3: { 'Net Profit': 180 },
+    4: { 'Net Profit': 170 },
+    5: { 'Net Profit': 30 },
+    6: { 'Net Profit': 20 },
+  },
+}, regimeBlocks, { direction: 'long_only' });
+assert.equal(suspiciousLong.verdict, 'SUSPICIOUS');
+assert.ok(suspiciousLong.flags.includes('BEAR_SUSPICIOUS'));
+
+const brokenLongShort = regime.assessDirectionalCoherence({
+  primary_metric: 'CAGR/Max DD',
+  metrics_by_block: {
+    1: { 'Net Profit': 60 },
+    2: { 'Net Profit': 50 },
+    3: { 'Net Profit': -20 },
+    4: { 'Net Profit': -15 },
+    5: { 'Net Profit': 10 },
+    6: { 'Net Profit': 5 },
+  },
+}, regimeBlocks, { direction: 'long_short' });
+assert.equal(brokenLongShort.verdict, 'BROKEN');
+assert.ok(brokenLongShort.flags.includes('BROKEN_BEAR'));
+
 const minTradesEgt = regime.assessEgtV2(strongOos, regimeBlocks, { minTradesPerBlock: 100 });
 assert.equal(minTradesEgt.verdict, 'UNKNOWN');
 assert.ok(minTradesEgt.warnings.some(warning => warning.code === 'egt_v2_blocks_skipped_min_trades'));

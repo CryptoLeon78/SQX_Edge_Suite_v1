@@ -221,13 +221,24 @@ Phase J10 carries the J9 evidence into safe payloads:
 
 It excludes raw CSV, `metrics_by_block`, historical price series, regime block payloads, automatic StrategyQuant generation, buyer/license/customer data, and Top Picks/matrix/heatmap surfaces.
 
+Phase J11 adapts JoseLivan commit `ff73a66` as native direction/coherence/score evidence:
+
+- `docs/J11_DIRECTIONAL_COHERENCE_SCORE.md`
+- `SQX.championChallengerCore.detectDirection`
+- `SQX.championChallengerRegime.assessDirectionalCoherence`
+- Compact `Dir`, `Coherencia` and `Score Pro` chips in the existing CVC rows.
+- Redacted `direction`, `directional_coherence` and `consolidated_score` fields in CVC review exports and Strategy Builder handoffs.
+- Strategy Builder review UI displays the imported CVC evidence summary.
+
+J11 intentionally does not restore Jose's visible `Top 5`/`Top Picks` block. The value is internal evidence and traceable handoff context only.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:
 
 1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts, A55 added the OHLC metric builder, A56 added the end-to-end real-data runner, A57 exposed read-only dashboard evidence after GO, A58 added the internal MT5/Dukascopy download gate, A59 recorded the first local MT5 NO-GO smoke, A60 added active-terminal retry mode, A61 added repeatable IPC diagnostics and A62 achieved real A56 GO using recent MT5 bars.
 2. Optional market data acquisition: keep MT5/Dukascopy as an operator-only script, excluded from portable buyer builds unless explicitly needed.
-3. Champion vs Challenger next evidence pass: optional J11 display of imported reduced CVC evidence inside Strategy Builder UI.
+3. Champion vs Challenger next evidence pass: J11 is done with native direction detection, directional coherence, Score Pro and Strategy Builder evidence display.
 4. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
 5. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
 

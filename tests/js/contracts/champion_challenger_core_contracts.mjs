@@ -18,6 +18,8 @@ const aliasResolution = cvc.resolveColumnAliases([
   'PF',
   'Ret/DD',
   '# trades',
+  'Trades Long',
+  'Trades Short',
   'Unknown Col',
 ]);
 assert.equal(aliasResolution.columns.strategy_name, 0);
@@ -25,6 +27,8 @@ assert.equal(aliasResolution.columns.symbol, 1);
 assert.equal(aliasResolution.columns.profit_factor, 2);
 assert.equal(aliasResolution.columns.return_drawdown, 3);
 assert.equal(aliasResolution.columns.trades, 4);
+assert.equal(aliasResolution.columns.trades_long, 5);
+assert.equal(aliasResolution.columns.trades_short, 6);
 assert.equal(aliasResolution.unknown.length, 1);
 
 assert.equal(cvc.parseNumber('1,42').value, 1.42);
@@ -65,6 +69,19 @@ assert.equal(ranked[0].formal_pass_count, 3);
 assert.equal(ranked[0].advisory_pass_count, 1);
 assert.equal(ranked[0].safe_strategy_name, '&lt;script&gt;alert(1)&lt;/script&gt;');
 assert.deepEqual(Array.from(ranked[1].failure_reasons), ['profit_factor', 'return_drawdown', 'trades', 'forward_oos_flag']);
+
+const longShortDirection = cvc.detectDirection({ trades_long: 90, trades_short: 80, strategy_name: 'Balanced L+S' });
+assert.equal(longShortDirection.direction, 'long_short');
+assert.equal(longShortDirection.source, 'trades_split');
+assert.equal(longShortDirection.confidence, 'high');
+
+const shortDirection = cvc.detectDirection({ strategy_name: 'Mean reversion short engine', symbol: 'EURUSD' });
+assert.equal(shortDirection.direction, 'short_only');
+assert.equal(shortDirection.source, 'name_pattern');
+
+const defaultDirection = cvc.detectDirection({ strategy_name: 'Neutral Candidate', symbol: 'EURUSD' });
+assert.equal(defaultDirection.direction, 'long_only');
+assert.equal(defaultDirection.warning, 'direction_defaulted');
 
 const incompleteChampion = cvc.parseStrategyCsv('Strategy Name,Symbol,PF\nOnly,EURUSD,1.2', { role: 'champion' });
 assert.equal(incompleteChampion.ok, false);

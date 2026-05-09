@@ -23,7 +23,8 @@
     oosReadyCount: 'cvc-oos-ready-count',
     regimeReadyCount: 'cvc-regime-ready-count',
     healthFilter: 'cvc-filter-health-ok',
-    egtV2Filter: 'cvc-filter-egt-v2-ok'
+    egtV2Filter: 'cvc-filter-egt-v2-ok',
+    coherenceFilter: 'cvc-filter-coherence-ok'
   };
 
   var lastModel = null;
@@ -104,16 +105,16 @@
         'Champion Base;EURUSD;1.50;4.00;200;5.0;PASSED'
       ].join('\n'),
       challenger: [
-        'Strategy Name;Symbol;Profit factor;Return/Drawdown;# trades;Drawdown %;Filters Result;Entry indicators',
-        'Challenger A;EURUSD;1.62;3.95;180;5.2;PASSED;EMA RSI',
-        'Challenger B;EURUSD;1.55;4.25;130;4.8;PASSED;MACD',
-        'Challenger C;EURUSD;1.70;3.60;260;7.1;FAILED;Bollinger'
+        'Strategy Name;Symbol;Profit factor;Return/Drawdown;# trades;Trades Long;Trades Short;Drawdown %;Filters Result;Entry indicators',
+        'Challenger A Long;EURUSD;1.62;3.95;180;180;0;5.2;PASSED;EMA RSI',
+        'Challenger B Long;EURUSD;1.55;4.25;130;130;0;4.8;PASSED;MACD',
+        'Challenger C Long;EURUSD;1.70;3.60;260;260;0;7.1;FAILED;Bollinger'
       ].join('\n'),
       oos: [
         'Strategy Name;Symbol;CAGR/Max DD (OOS1);Net Profit (OOS1);Trades (OOS1);Worst Year Profit (OOS1);CAGR/Max DD (OOS2);Net Profit (OOS2);Trades (OOS2);Worst Year Profit (OOS2);CAGR/Max DD (OOS3);Net Profit (OOS3);Trades (OOS3);Worst Year Profit (OOS3);CAGR/Max DD (OOS4);Net Profit (OOS4);Trades (OOS4);Worst Year Profit (OOS4);CAGR/Max DD (OOS5);Net Profit (OOS5);Trades (OOS5);Worst Year Profit (OOS5);CAGR/Max DD (OOS6);Net Profit (OOS6);Trades (OOS6);Worst Year Profit (OOS6)',
-        'Challenger A;EURUSD;3.0;100;80;120;2.8;90;82;110;3.1;95;84;115;2.9;100;86;105;3.2;110;88;120;3.0;115;90;125',
-        'Challenger B;EURUSD;1.4;80;60;60;-0.4;-30;42;-30;1.0;20;52;20;0.8;15;48;15;1.1;30;55;30;0.7;10;44;10',
-        'Challenger C;EURUSD;1.8;90;90;90;1.7;80;88;85;0.3;-60;40;-15;0.4;20;42;20;0.2;10;38;10;0.3;5;36;5'
+        'Challenger A Long;EURUSD;3.0;100;80;120;2.8;90;82;110;3.1;95;84;115;2.9;100;86;105;3.2;110;88;120;3.0;115;90;125',
+        'Challenger B Long;EURUSD;1.4;80;60;60;-0.4;-30;42;-30;1.0;20;52;20;0.8;15;48;15;1.1;30;55;30;0.7;10;44;10',
+        'Challenger C Long;EURUSD;1.8;90;90;90;1.7;80;88;85;0.3;-60;40;-15;0.4;20;42;20;0.2;10;38;10;0.3;5;36;5'
       ].join('\n')
     };
   }
@@ -183,9 +184,15 @@
       item.oos_stable = isStableOos(oosRecord);
       item.regime_evidence = regime && regime.assessCandidate ? regime.assessCandidate(item) : null;
       item.temporal_health = core.computeTemporalHealth && oosRecord ? core.computeTemporalHealth(oosRecord) : null;
+      item.direction_evidence = core.detectDirection ? core.detectDirection(item.normalized_metrics || item) : null;
+      item.directional_coherence = buildDirectionalCoherence(item, oosRecord, regime);
       item.egt_v2 = buildEgtV2Evidence(item, oosRecord, regime);
+      item.consolidated_score = computeConsolidatedScore(item);
       return item;
     }).sort(function(a, b) {
+      var scoreA = a.consolidated_score && a.consolidated_score.passed_hard ? a.consolidated_score.score : -1;
+      var scoreB = b.consolidated_score && b.consolidated_score.passed_hard ? b.consolidated_score.score : -1;
+      if (scoreA !== scoreB) return scoreB - scoreA;
       if (a.formal_fail_count !== b.formal_fail_count) return a.formal_fail_count - b.formal_fail_count;
       if (a.oos_stable !== b.oos_stable) return a.oos_stable ? -1 : 1;
       var ratioA = a.oos && a.oos.positive_block_ratio != null ? a.oos.positive_block_ratio : -1;
@@ -201,9 +208,66 @@
     if (regime.buildRegimeBlocksForSymbol) {
       blocks = regime.buildRegimeBlocksForSymbol(item.symbol || (item.normalized_metrics || {}).symbol, oosRecord.block_count);
     }
+    var direction = item.direction_evidence && item.direction_evidence.direction === 'long_short' ? 'long_short' : 'long_only';
     return regime.assessEgtV2(oosRecord, blocks && blocks.blocks ? blocks.blocks : [], {
-      thresholds: { direction: 'long_only' }
+      thresholds: { direction: direction }
     });
+  }
+
+  function buildDirectionalCoherence(item, oosRecord, regime) {
+    if (!regime || !regime.assessDirectionalCoherence || !oosRecord) return null;
+    var blocks = null;
+    if (regime.buildRegimeBlocksForSymbol) {
+      blocks = regime.buildRegimeBlocksForSymbol(item.symbol || (item.normalized_metrics || {}).symbol, oosRecord.block_count);
+    }
+    return regime.assessDirectionalCoherence(
+      oosRecord,
+      blocks && blocks.blocks ? blocks.blocks : [],
+      item.direction_evidence || null
+    );
+  }
+
+  function clampScore(value) {
+    return Math.max(0, Math.min(100, Math.round(value)));
+  }
+
+  function computeConsolidatedScore(item) {
+    var metrics = item.normalized_metrics || {};
+    var hardFails = [];
+    var bonus = 0;
+    var breakdown = {
+      profit_factor: Math.min(25, Math.max(0, ((metrics.profit_factor || 0) - 1) * 25)),
+      return_drawdown: Math.min(25, Math.max(0, (metrics.return_drawdown || 0) * 4)),
+      trades: Math.min(15, Math.max(0, (metrics.trades || 0) / 20)),
+      oos: item.oos && item.oos.positive_block_ratio != null ? item.oos.positive_block_ratio * 15 : 0,
+      formal: item.formal_fail_count === 0 ? 10 : 0,
+      drawdown: metrics.drawdown_pct != null ? Math.max(0, 10 - Number(metrics.drawdown_pct)) : 5
+    };
+
+    if (item.formal_fail_count > 0) hardFails.push('formal_checks');
+    if (item.egt_v2 && item.egt_v2.verdict === 'RISK') hardFails.push('egt_v2_risk');
+    if (item.temporal_health && item.temporal_health.status === 'declining') hardFails.push('temporal_health_declining');
+    if (item.directional_coherence && item.directional_coherence.verdict === 'BROKEN') hardFails.push('directional_coherence_broken');
+
+    if (item.oos_stable) bonus += 5;
+    if (item.temporal_health && item.temporal_health.status === 'fresh') bonus += 5;
+    else if (item.temporal_health && item.temporal_health.status === 'recovered') bonus += 3;
+    if (item.egt_v2 && item.egt_v2.verdict === 'STRONG') bonus += 5;
+    else if (item.egt_v2 && item.egt_v2.verdict === 'DEFENSIVE') bonus -= 3;
+    if (item.directional_coherence && item.directional_coherence.verdict === 'OK') bonus += 5;
+    else if (item.directional_coherence && item.directional_coherence.verdict === 'SUSPICIOUS') bonus -= 8;
+    else if (item.directional_coherence && item.directional_coherence.verdict === 'WEAK') bonus -= 3;
+    if (item.oos && item.oos.has_negative_worst_year) bonus -= 5;
+
+    var base = Object.keys(breakdown).reduce(function(total, key) { return total + breakdown[key]; }, 0);
+    return {
+      score: clampScore(base + bonus),
+      base_score: clampScore(base),
+      bonus: Math.round(bonus),
+      passed_hard: hardFails.length === 0,
+      hard_fails: hardFails,
+      breakdown: breakdown
+    };
   }
 
   function renderMetric(label, value) {
@@ -227,18 +291,35 @@
     var core = getCore();
     var health = item.temporal_health;
     var egt = item.egt_v2;
+    var direction = item.direction_evidence;
+    var coherence = item.directional_coherence;
+    var score = item.consolidated_score;
     var healthLabel = health ? health.status : 'unknown';
     var egtLabel = egt ? egt.verdict : 'UNKNOWN';
+    var directionLabel = direction ? direction.direction : 'unknown';
+    var coherenceLabel = coherence ? coherence.verdict : 'UNKNOWN';
     var healthTitle = health
       ? 'Peak OOS' + (health.peak_block || '-') + ' | DD cierre ' + pct(health.dd_at_close) + ' | Recovery ' + pct(health.recovery_index)
       : 'Temporal Health pendiente';
     var egtTitle = egt
       ? 'Dominante ' + (egt.dominant_regime || '-') + ' | Fallan ' + ((egt.failed_regimes || []).join(', ') || '-') + ' | Insuf ' + ((egt.insufficient_regimes || []).join(', ') || '-')
       : 'EGT v2 pendiente';
+    var directionTitle = direction
+      ? 'Direccion ' + direction.direction + ' | Fuente ' + direction.source + ' | Conf ' + direction.confidence
+      : 'Direccion pendiente';
+    var coherenceTitle = coherence
+      ? 'Bull ' + (coherence.bull_check || '-') + ' | Bear ' + (coherence.bear_check || '-') + ' | Flags ' + ((coherence.flags || []).join(', ') || '-')
+      : 'Coherencia pendiente';
+    var scoreTitle = score
+      ? 'Score Pro ' + score.score + '/100 | Hard ' + (score.passed_hard ? 'OK' : (score.hard_fails || []).join(', '))
+      : 'Score Pro pendiente';
     return [
       '<div class="cvc-evidence-chips">',
       '<span class="cvc-evidence-chip ' + chipClass('health', healthLabel) + '" title="' + core.escapeHtml(healthTitle) + '">Health ' + core.escapeHtml(healthLabel) + '</span>',
       '<span class="cvc-evidence-chip ' + chipClass('egt-v2', egtLabel) + '" title="' + core.escapeHtml(egtTitle) + '">EGT v2 ' + core.escapeHtml(egtLabel) + '</span>',
+      '<span class="cvc-evidence-chip ' + chipClass('direction', directionLabel) + '" title="' + core.escapeHtml(directionTitle) + '">Dir ' + core.escapeHtml(directionLabel) + '</span>',
+      '<span class="cvc-evidence-chip ' + chipClass('coherence', coherenceLabel) + '" title="' + core.escapeHtml(coherenceTitle) + '">Coherencia ' + core.escapeHtml(coherenceLabel) + '</span>',
+      '<span class="cvc-evidence-chip ' + chipClass('score-pro', score && score.passed_hard ? 'ok' : 'review') + '" title="' + core.escapeHtml(scoreTitle) + '">Score Pro ' + core.escapeHtml(score ? score.score : '-') + '</span>',
       '</div>'
     ].join('');
   }
@@ -289,12 +370,22 @@
     return verdict === 'STRONG' || verdict === 'COMPLIANT' || verdict === 'DEFENSIVE';
   }
 
+  function coherenceOk(item) {
+    return !!(item.directional_coherence && item.directional_coherence.verdict === 'OK');
+  }
+
+  function scoreProOk(item) {
+    return !!(item.consolidated_score && item.consolidated_score.passed_hard && item.consolidated_score.score >= 60);
+  }
+
   function filterModelRankings(model, doc) {
     var healthOnly = byId(IDS.healthFilter, doc) && byId(IDS.healthFilter, doc).checked;
     var egtOnly = byId(IDS.egtV2Filter, doc) && byId(IDS.egtV2Filter, doc).checked;
+    var coherenceOnly = byId(IDS.coherenceFilter, doc) && byId(IDS.coherenceFilter, doc).checked;
     return (model.rankings || []).filter(function(item) {
       if (healthOnly && !healthOk(item)) return false;
       if (egtOnly && !egtV2Ok(item)) return false;
+      if (coherenceOnly && !coherenceOk(item)) return false;
       return true;
     });
   }
@@ -387,6 +478,44 @@
     };
   }
 
+  function compactDirection(evidence) {
+    if (!evidence) return null;
+    return {
+      direction: evidence.direction || 'unknown',
+      source: evidence.source || 'unknown',
+      confidence: evidence.confidence || 'unknown',
+      imbalance: roundMetric(evidence.imbalance, 4)
+    };
+  }
+
+  function compactDirectionalCoherence(evidence) {
+    if (!evidence) return null;
+    var stats = evidence.stats_by_regime || {};
+    return {
+      verdict: evidence.verdict || 'UNKNOWN',
+      direction: evidence.direction || 'long_only',
+      metric: evidence.metric || null,
+      avg_net_profit: roundMetric(evidence.avg_net_profit, 4),
+      bull_check: evidence.bull_check || null,
+      bear_check: evidence.bear_check || null,
+      flags: (evidence.flags || []).slice(0, 6),
+      bull_pos_ratio: stats.BULL ? roundMetric(stats.BULL.pos_ratio, 4) : null,
+      bear_pos_ratio: stats.BEAR ? roundMetric(stats.BEAR.pos_ratio, 4) : null,
+      warnings: (evidence.warnings || []).slice(0, 4).map(function(item) { return item.code || String(item); })
+    };
+  }
+
+  function compactConsolidatedScore(score) {
+    if (!score) return null;
+    return {
+      score: Number(score.score),
+      base_score: Number(score.base_score),
+      bonus: Number(score.bonus),
+      passed_hard: !!score.passed_hard,
+      hard_fails: (score.hard_fails || []).slice(0, 6)
+    };
+  }
+
   function compactCandidate(item, index) {
     var metrics = item.normalized_metrics || {};
     return {
@@ -408,7 +537,10 @@
       oos_stable: !!item.oos_stable,
       regime: compactRegime(item.regime_evidence),
       temporal_health: compactTemporalHealth(item.temporal_health),
-      egt_v2: compactEgtV2(item.egt_v2)
+      egt_v2: compactEgtV2(item.egt_v2),
+      direction: compactDirection(item.direction_evidence),
+      directional_coherence: compactDirectionalCoherence(item.directional_coherence),
+      consolidated_score: compactConsolidatedScore(item.consolidated_score)
     };
   }
 
@@ -423,6 +555,8 @@
     }).length;
     var healthReady = rankings.filter(healthOk).length;
     var egtV2Ready = rankings.filter(egtV2Ok).length;
+    var coherenceReady = rankings.filter(coherenceOk).length;
+    var scoreReady = rankings.filter(scoreProOk).length;
 
     return {
       type: 'sqx-edge.champion-challenger-review',
@@ -442,6 +576,8 @@
         regime_compliant_count: regimeReady,
         temporal_health_ok_count: healthReady,
         egt_v2_ok_count: egtV2Ready,
+        directional_coherence_ok_count: coherenceReady,
+        score_pro_ok_count: scoreReady,
         warning_count: source && source.warnings ? source.warnings.length : 0
       },
       warnings: source && source.warnings ? source.warnings.slice(0, 12) : [],
@@ -464,23 +600,30 @@
         candidate.egt_v2.verdict === 'COMPLIANT' ||
         candidate.egt_v2.verdict === 'DEFENSIVE'
       ));
+      var coherenceOk = !!(candidate.directional_coherence && candidate.directional_coherence.verdict === 'OK');
+      var scoreProOk = !!(candidate.consolidated_score && candidate.consolidated_score.passed_hard && candidate.consolidated_score.score >= 60);
       var formalOk = candidate.formal_fail_count === 0;
       var oosStable = !!candidate.oos_stable;
       return {
         rank: candidate.rank,
         strategy_name: candidate.strategy_name,
         symbol: candidate.symbol,
-        decision: formalOk && oosStable && temporalHealthOk && egtV2Ok ? 'builder_candidate' : 'review_required',
+        decision: formalOk && oosStable && temporalHealthOk && egtV2Ok && coherenceOk && scoreProOk ? 'builder_candidate' : 'review_required',
         metrics: candidate.metrics,
         oos: candidate.oos,
         regime: candidate.regime,
         temporal_health: candidate.temporal_health,
         egt_v2: candidate.egt_v2,
+        direction: candidate.direction,
+        directional_coherence: candidate.directional_coherence,
+        consolidated_score: candidate.consolidated_score,
         evidence_review: {
           formal_ok: formalOk,
           oos_stable: oosStable,
           temporal_health_ok: temporalHealthOk,
           egt_v2_ok: egtV2Ok,
+          directional_coherence_ok: coherenceOk,
+          score_pro_ok: scoreProOk,
           operator_review_required: true
         }
       };
@@ -498,7 +641,9 @@
         oos_stable_count: review.summary.oos_stable_count,
         regime_compliant_count: review.summary.regime_compliant_count,
         temporal_health_ok_count: review.summary.temporal_health_ok_count || 0,
-        egt_v2_ok_count: review.summary.egt_v2_ok_count || 0
+        egt_v2_ok_count: review.summary.egt_v2_ok_count || 0,
+        directional_coherence_ok_count: review.summary.directional_coherence_ok_count || 0,
+        score_pro_ok_count: review.summary.score_pro_ok_count || 0
       },
       recommended_candidate: candidates[0] || null,
       candidates: candidates,
@@ -584,6 +729,8 @@
     }).length;
     var healthReady = model.rankings.filter(healthOk).length;
     var egtV2Ready = model.rankings.filter(egtV2Ok).length;
+    var coherenceReady = model.rankings.filter(coherenceOk).length;
+    var scoreReady = model.rankings.filter(scoreProOk).length;
     var warnings = model.warnings.length;
 
     setText(IDS.candidateCount, total, doc);
@@ -597,9 +744,11 @@
       renderMetric('EGT compliant', regimeReady),
       renderMetric('Health OK', healthReady),
       renderMetric('EGT v2 OK', egtV2Ready),
+      renderMetric('Coherencia OK', coherenceReady),
+      renderMetric('Score Pro OK', scoreReady),
       renderMetric('Avisos de datos', warnings)
     ].join(''), doc);
-    setText(IDS.oosSummary, stable + ' OOS estable | ' + healthReady + ' Health OK | ' + egtV2Ready + ' EGT v2 OK.', doc);
+    setText(IDS.oosSummary, stable + ' OOS estable | ' + healthReady + ' Health OK | ' + egtV2Ready + ' EGT v2 OK | ' + coherenceReady + ' Coherencia OK.', doc);
   }
 
   function renderEmpty(doc) {
@@ -684,7 +833,7 @@
       byId(IDS.exportReview, doc).addEventListener('click', function() { exportReview({ document: doc }); });
       byId(IDS.handoff, doc).addEventListener('click', function() { prepareHandoff({ document: doc }); });
     }
-    [IDS.healthFilter, IDS.egtV2Filter].forEach(function(id) {
+    [IDS.healthFilter, IDS.egtV2Filter, IDS.coherenceFilter].forEach(function(id) {
       var node = byId(id, doc);
       if (node && node.addEventListener) {
         node.addEventListener('change', function() {

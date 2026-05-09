@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - J11 Directional Coherence and Score Pro
+
+- Adds native direction detection, directional coherence and compact Score Pro evidence to Champion vs Challenger.
+- Carries reduced direction/coherence/score evidence into Strategy Builder handoffs and review UI.
+- Preserves no Top Picks, no matrix/heatmap, no raw CSV persistence and no remote calls.
+
 ## 2026-05-09 - J10 Temporal Health and EGT v2 handoff
 
 - Extends Champion vs Challenger review exports with reduced `temporal_health` and `egt_v2` evidence fields.

@@ -262,20 +262,29 @@
   .health-fresh,
   .health-recovered,
   .egt-v2-strong,
-  .egt-v2-compliant {
+  .egt-v2-compliant,
+  .direction-long-only,
+  .direction-long-short,
+  .coherence-ok,
+  .score-pro-ok {
     color:#86efac;
     border-color:rgba(34,197,94,.32);
     background:rgba(34,197,94,.09);
   }
   .health-old-peak,
   .egt-v2-defensive,
-  .egt-v2-insufficient {
+  .egt-v2-insufficient,
+  .coherence-weak,
+  .coherence-suspicious,
+  .coherence-insufficient-data,
+  .score-pro-review {
     color:#fde68a;
     border-color:rgba(234,179,8,.30);
     background:rgba(234,179,8,.08);
   }
   .health-declining,
-  .egt-v2-risk {
+  .egt-v2-risk,
+  .coherence-broken {
     color:#fecaca;
     border-color:rgba(239,68,68,.30);
     background:rgba(239,68,68,.08);

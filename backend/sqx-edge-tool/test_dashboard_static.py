@@ -21,6 +21,7 @@ J7_TEMPORAL_HEALTH_EGT_V2_DOC = PROJECT_ROOT / "docs" / "J7_TEMPORAL_HEALTH_EGT_
 J8_TEMPORAL_HEALTH_EGT_V2_DOC = PROJECT_ROOT / "docs" / "J8_TEMPORAL_HEALTH_EGT_V2_HELPERS.md"
 J9_TEMPORAL_HEALTH_EGT_V2_DOC = PROJECT_ROOT / "docs" / "J9_TEMPORAL_HEALTH_EGT_V2_UI.md"
 J10_TEMPORAL_HEALTH_EGT_V2_DOC = PROJECT_ROOT / "docs" / "J10_TEMPORAL_HEALTH_EGT_V2_HANDOFF.md"
+J11_DIRECTIONAL_COHERENCE_SCORE_DOC = PROJECT_ROOT / "docs" / "J11_DIRECTIONAL_COHERENCE_SCORE.md"
 SB1_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB1_STRATEGY_BUILDER_DISCOVERY.md"
 SB2_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB2_STRATEGY_BUILDER_WORKFLOW.md"
 SB3_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB3_STRATEGY_BUILDER_PROTOTYPE.md"
@@ -294,6 +295,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         j8 = J8_TEMPORAL_HEALTH_EGT_V2_DOC.read_text(encoding="utf-8-sig")
         j9 = J9_TEMPORAL_HEALTH_EGT_V2_DOC.read_text(encoding="utf-8-sig")
         j10 = J10_TEMPORAL_HEALTH_EGT_V2_DOC.read_text(encoding="utf-8-sig")
+        j11 = J11_DIRECTIONAL_COHERENCE_SCORE_DOC.read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
         comparison = (PROJECT_ROOT / "docs" / "EXTERNAL_REPO_COMPARISON_JOSE.md").read_text(encoding="utf-8-sig")
@@ -322,7 +324,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Phase J8: implement pure Temporal Health and EGT v2 helpers",
             "Phase J9: add compact dashboard chips and optional filters",
             "Phase J10: extend redacted review export and Strategy Builder handoff",
-            "Phase J11: display imported reduced CVC evidence inside Strategy Builder UI",
+            "Phase J11: add native direction detection, directional coherence, Score Pro",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
@@ -338,6 +340,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("docs/J8_TEMPORAL_HEALTH_EGT_V2_HELPERS.md", governance)
         self.assertIn("docs/J9_TEMPORAL_HEALTH_EGT_V2_UI.md", governance)
         self.assertIn("docs/J10_TEMPORAL_HEALTH_EGT_V2_HANDOFF.md", governance)
+        self.assertIn("docs/J11_DIRECTIONAL_COHERENCE_SCORE.md", governance)
         self.assertIn("Phase J1 starts the selective Champion vs Challenger track", comparison)
         self.assertIn("Phase J2 implements the first native Champion vs Challenger core", comparison)
         self.assertIn("Phase J3 adds the OOS stability layer", comparison)
@@ -348,6 +351,17 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase J8 implements that contract as native pure helpers", comparison)
         self.assertIn("Phase J9 exposes the J8 evidence in the existing dashboard", comparison)
         self.assertIn("Phase J10 carries the J9 evidence into safe payloads", comparison)
+        self.assertIn("Phase J11 adapts JoseLivan commit `ff73a66`", comparison)
+
+        for pattern in (
+            "J11 Directional Coherence and Score Pro",
+            "`SQX.championChallengerCore.detectDirection(record)`",
+            "`SQX.championChallengerRegime.assessDirectionalCoherence",
+            "No `Top Picks` tab, block, headline",
+            "No `Matriz Completa`, matrix tab, heatmap tab",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, j11)
 
         for pattern in (
             "J2 Champion vs Challenger Core",
@@ -730,8 +744,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb16)
 
-        self.assertIn("Current phase completed: J10 - Temporal Health and EGT v2 redacted export/handoff evidence.", governance)
-        self.assertIn("J11 - display imported reduced CVC evidence inside Strategy Builder UI", governance)
+        self.assertIn("Current phase completed: J11 - Directional Coherence and Score Pro evidence.", governance)
+        self.assertIn("SB17 - Strategy Builder buyer session evidence handoff index", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m95_decision_ready`.", governance)
         self.assertIn("SB17 - Strategy Builder buyer session evidence handoff index", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
@@ -883,20 +897,27 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.formatters", formatters_js)
         self.assertIn("SQX.championChallengerCore", champion_core_js)
         self.assertIn("computeTemporalHealth", champion_core_js)
+        self.assertIn("detectDirection", champion_core_js)
         self.assertIn("temporal_health_metric_fallback", champion_core_js)
         self.assertIn("SQX.championChallenger", champion_ui_js)
         self.assertIn("buildReviewExport", champion_ui_js)
         self.assertIn("buildStrategyBuilderHandoff", champion_ui_js)
         self.assertIn("compactTemporalHealth", champion_ui_js)
         self.assertIn("compactEgtV2", champion_ui_js)
+        self.assertIn("compactDirectionalCoherence", champion_ui_js)
+        self.assertIn("compactConsolidatedScore", champion_ui_js)
         self.assertIn("temporal_health_ok_count", champion_ui_js)
         self.assertIn("egt_v2_ok_count", champion_ui_js)
+        self.assertIn("directional_coherence_ok_count", champion_ui_js)
+        self.assertIn("score_pro_ok_count", champion_ui_js)
         self.assertNotIn("localStorage.setItem", champion_ui_js)
         self.assertIn("SQX.strategyBuilderCore", strategy_builder_core_js)
         self.assertIn("buildPackage", strategy_builder_core_js)
         self.assertIn("sqx-edge.strategy-builder-package", strategy_builder_core_js)
         self.assertIn("sampleCvcHandoff", strategy_builder_core_js)
         self.assertIn("cvc_evidence_summary", strategy_builder_core_js)
+        self.assertIn("directional_coherence", strategy_builder_core_js)
+        self.assertIn("consolidated_score", strategy_builder_core_js)
         self.assertIn("evidence_review", strategy_builder_core_js)
         self.assertIn("validateImportPayload", strategy_builder_core_js)
         self.assertIn("importPayload", strategy_builder_core_js)
@@ -967,12 +988,14 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn('id="cvc-handoff-preview"', self.html)
         self.assertIn('id="cvc-filter-health-ok"', self.html)
         self.assertIn('id="cvc-filter-egt-v2-ok"', self.html)
+        self.assertIn('id="cvc-filter-coherence-ok"', self.html)
         self.assertIn('id="cvc-ranking"', self.html)
         self.assertIn('data-home-tab="cvc"', self.html)
         self.assertIn("SQX.domain", domain_js)
         self.assertIn("SQX.datasets", datasets_js)
         self.assertIn("SQX.championChallengerRegime", champion_regime_js)
         self.assertIn("assessEgtV2", champion_regime_js)
+        self.assertIn("assessDirectionalCoherence", champion_regime_js)
         self.assertIn("buildRegimeBlocksForSymbol", champion_regime_js)
         self.assertIn("EGT_V2_THRESHOLDS", champion_regime_js)
         self.assertIn("SQX_HISTORICAL_DATA", champion_regime_js)

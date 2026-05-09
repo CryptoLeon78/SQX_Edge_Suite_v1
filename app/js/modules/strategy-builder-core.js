@@ -250,6 +250,9 @@
         regime: candidate.regime || null,
         temporal_health: candidate.temporal_health || null,
         egt_v2: candidate.egt_v2 || null,
+        direction: candidate.direction || null,
+        directional_coherence: candidate.directional_coherence || null,
+        consolidated_score: candidate.consolidated_score || null,
         evidence_review: candidate.evidence_review || null,
         source_review: handoff.source_review || null
       };
@@ -264,6 +267,9 @@
         regime: input.source_summary.regime || null,
         temporal_health: input.source_summary.temporal_health || null,
         egt_v2: input.source_summary.egt_v2 || null,
+        direction: input.source_summary.direction || null,
+        directional_coherence: input.source_summary.directional_coherence || null,
+        consolidated_score: input.source_summary.consolidated_score || null,
         evidence_review: input.source_summary.evidence_review || null,
         source_review: input.source_summary.source_review || null,
         note: normalizeText(input.source_summary.note)
@@ -317,6 +323,9 @@
       cvc_evidence_summary: {
         temporal_health: summary.temporal_health || null,
         egt_v2: summary.egt_v2 || null,
+        direction: summary.direction || null,
+        directional_coherence: summary.directional_coherence || null,
+        consolidated_score: summary.consolidated_score || null,
         evidence_review: summary.evidence_review || null
       },
       mtf_summary: data.mtf_summary || data.mtfSummary || { status: 'not_attached' },
@@ -431,11 +440,35 @@
           insufficient_regimes: [],
           regime_block_counts: { BULL: 3, BEAR: 0, RANGE: 0 }
         },
+        direction: {
+          direction: 'long_only',
+          source: 'trades_split',
+          confidence: 'high',
+          imbalance: 1
+        },
+        directional_coherence: {
+          verdict: 'OK',
+          direction: 'long_only',
+          metric: 'Net Profit',
+          avg_net_profit: 100,
+          bull_check: 'OK',
+          bear_check: null,
+          flags: []
+        },
+        consolidated_score: {
+          score: 88,
+          base_score: 76,
+          bonus: 12,
+          passed_hard: true,
+          hard_fails: []
+        },
         evidence_review: {
           formal_ok: true,
           oos_stable: true,
           temporal_health_ok: true,
           egt_v2_ok: true,
+          directional_coherence_ok: true,
+          score_pro_ok: true,
           operator_review_required: true
         }
       },

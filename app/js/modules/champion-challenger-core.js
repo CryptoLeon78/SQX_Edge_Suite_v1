@@ -25,6 +25,10 @@
     return_drawdown: ['Return/Drawdown', 'Return / Drawdown', 'Ret/DD', 'CAGR/Max DD'],
     drawdown_pct: ['Drawdown %', 'Max Drawdown %', 'DD %'],
     trades: ['# trades', 'Trades', 'Number of trades'],
+    trades_long: ['Trades Long', 'Long Trades', '# Long Trades', '# trades long'],
+    trades_short: ['Trades Short', 'Short Trades', '# Short Trades', '# trades short'],
+    net_profit_long: ['Net Profit Long', 'Long Net Profit', 'NP Long', 'Net profit long'],
+    net_profit_short: ['Net Profit Short', 'Short Net Profit', 'NP Short', 'Net profit short'],
     r_expectancy: ['R Expectancy', 'Expectancy', 'R-Expectancy'],
     stagnation: ['Stagnation', 'Stagnation %', 'Max Stagnation'],
     entry_indicators: ['Entry indicators', 'Entry Indicators', 'Indicators'],
@@ -37,6 +41,10 @@
     return_drawdown: true,
     drawdown_pct: true,
     trades: true,
+    trades_long: true,
+    trades_short: true,
+    net_profit_long: true,
+    net_profit_short: true,
     r_expectancy: true,
     stagnation: true
   };
@@ -641,6 +649,71 @@
     return { errors: errors, warnings: warnings };
   }
 
+  function numberOrNull(value) {
+    return typeof value === 'number' && isFinite(value) ? value : null;
+  }
+
+  function directionResult(direction, source, confidence, metrics, extra) {
+    var longTrades = numberOrNull(metrics.trades_long);
+    var shortTrades = numberOrNull(metrics.trades_short);
+    var longNp = numberOrNull(metrics.net_profit_long);
+    var shortNp = numberOrNull(metrics.net_profit_short);
+    var totalTrades = (longTrades || 0) + (shortTrades || 0);
+    var imbalance = totalTrades > 0 ? Math.abs((longTrades || 0) - (shortTrades || 0)) / totalTrades : null;
+    return Object.assign({
+      direction: direction,
+      source: source,
+      confidence: confidence,
+      trades_long: longTrades,
+      trades_short: shortTrades,
+      net_profit_long: longNp,
+      net_profit_short: shortNp,
+      imbalance: imbalance
+    }, extra || {});
+  }
+
+  function detectDirection(record, options) {
+    var opts = options || {};
+    var metrics = record && record.metrics ? record.metrics : record || {};
+    var name = String(metrics.strategy_name || metrics.name || opts.strategyName || '').toLowerCase();
+    var symbol = String(metrics.symbol || opts.symbol || '').toLowerCase();
+    var longTrades = numberOrNull(metrics.trades_long);
+    var shortTrades = numberOrNull(metrics.trades_short);
+    var longNp = numberOrNull(metrics.net_profit_long);
+    var shortNp = numberOrNull(metrics.net_profit_short);
+
+    if ((longTrades || 0) > 0 || (shortTrades || 0) > 0) {
+      if ((longTrades || 0) > 0 && (shortTrades || 0) > 0) {
+        return directionResult('long_short', 'trades_split', 'high', metrics);
+      }
+      return directionResult((shortTrades || 0) > 0 ? 'short_only' : 'long_only', 'trades_split', 'high', metrics);
+    }
+
+    if ((longNp || 0) !== 0 || (shortNp || 0) !== 0) {
+      if ((longNp || 0) !== 0 && (shortNp || 0) !== 0) {
+        return directionResult('long_short', 'net_profit_split', 'medium', metrics);
+      }
+      return directionResult((shortNp || 0) !== 0 ? 'short_only' : 'long_only', 'net_profit_split', 'medium', metrics);
+    }
+
+    if (/\b(long\s*[+&/]?\s*short|l\s*[+&/]\s*s|both|bi[-_\s]?directional)\b/i.test(name)) {
+      return directionResult('long_short', 'name_pattern', 'medium', metrics);
+    }
+    if (/\b(short|sell|bear)\b/i.test(name)) {
+      return directionResult('short_only', 'name_pattern', 'medium', metrics);
+    }
+    if (/\b(long|buy|bull)\b/i.test(name)) {
+      return directionResult('long_only', 'name_pattern', 'medium', metrics);
+    }
+    if (/\b(short|bear)\b/i.test(symbol)) {
+      return directionResult('short_only', 'symbol_pattern', 'low', metrics);
+    }
+
+    return directionResult(opts.defaultDirection || 'long_only', 'default', 'low', metrics, {
+      warning: 'direction_defaulted'
+    });
+  }
+
   function parseStrategyCsv(text, options) {
     var opts = options || {};
     var errors = [];
@@ -827,6 +900,7 @@
     temporalHealthMetrics: TEMPORAL_HEALTH_METRICS,
     compareCandidate: compareCandidate,
     computeTemporalHealth: computeTemporalHealth,
+    detectDirection: detectDirection,
     detectDelimiter: detectDelimiter,
     escapeHtml: escapeHtml,
     choosePrimaryOosMetric: choosePrimaryOosMetric,

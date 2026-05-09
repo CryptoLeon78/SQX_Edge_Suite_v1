@@ -239,6 +239,23 @@
     });
   }
 
+  function oosValuesForMetric(oosRecord, metricNames) {
+    var names = Array.isArray(metricNames) ? metricNames : [metricNames];
+    var blocks = Object.keys(oosRecord && oosRecord.metrics_by_block || {})
+      .map(function(block) { return parseInt(block, 10); })
+      .filter(function(block) { return isFinite(block); })
+      .sort(function(a, b) { return a - b; });
+    for (var i = 0; i < names.length; i += 1) {
+      var values = blocks.map(function(block) {
+        return { block: block, value: metricValueForBlock(oosRecord, block, names[i]) };
+      }).filter(function(item) {
+        return finiteNumber(item.value);
+      });
+      if (values.length) return { metric: names[i], values: values };
+    }
+    return { metric: null, values: [] };
+  }
+
   function tradesForBlock(oosRecord, block) {
     var names = ['# trades', '# of trades', '# of Trades', 'Trades', 'Number of trades'];
     for (var i = 0; i < names.length; i += 1) {
@@ -386,6 +403,141 @@
     };
   }
 
+  function emptyDirectionalCoherence(verdict, warnings, direction) {
+    return {
+      verdict: verdict || 'UNKNOWN',
+      direction: direction || 'long_only',
+      metric: null,
+      avg_net_profit: null,
+      flags: [],
+      bull_check: null,
+      bear_check: null,
+      stats_by_regime: {
+        BULL: { count: 0, avg: null, pos_ratio: null },
+        BEAR: { count: 0, avg: null, pos_ratio: null },
+        RANGE: { count: 0, avg: null, pos_ratio: null }
+      },
+      ratios_by_regime: { BULL: null, BEAR: null, RANGE: null },
+      sufficient_by_regime: { BULL: false, BEAR: false, RANGE: false },
+      warnings: warnings || []
+    };
+  }
+
+  function assessDirectionalCoherence(oosRecord, regimeBlocks, directionEvidence, options) {
+    var opts = options || {};
+    var direction = directionEvidence && directionEvidence.direction || opts.direction || 'long_only';
+    var minBlocks = Math.max(1, Number(opts.minBlocksPerRegime || opts.min_blocks_per_regime || 2));
+    if (!oosRecord || !oosRecord.metrics_by_block) {
+      return emptyDirectionalCoherence('UNKNOWN', [{ code: 'directional_coherence_oos_missing' }], direction);
+    }
+    if (!Array.isArray(regimeBlocks) || !regimeBlocks.length) {
+      return emptyDirectionalCoherence('UNKNOWN', [{ code: 'directional_coherence_regime_blocks_missing' }], direction);
+    }
+
+    var metricSeries = oosValuesForMetric(oosRecord, ['Net Profit', 'Net profit', 'NetProfit']);
+    if (!metricSeries.values.length) {
+      return emptyDirectionalCoherence('UNKNOWN', [{ code: 'directional_coherence_net_profit_missing' }], direction);
+    }
+    var byBlock = {};
+    metricSeries.values.forEach(function(item) { byBlock[item.block] = item.value; });
+
+    var groups = { BULL: [], BEAR: [], RANGE: [] };
+    regimeBlocks.forEach(function(blockInfo, index) {
+      var block = blockInfo.block || blockInfo.idx || blockInfo.oos_block || index + 1;
+      var group = normalizeRegimeGroup(blockInfo.group || blockInfo.regime || blockInfo.label);
+      var value = byBlock[block];
+      if (group && finiteNumber(value)) groups[group].push(value);
+    });
+
+    var stats = {};
+    ['BULL', 'BEAR', 'RANGE'].forEach(function(group) {
+      var values = groups[group];
+      stats[group] = {
+        count: values.length,
+        avg: average(values),
+        pos_ratio: values.length ? values.filter(function(value) { return value > 0; }).length / values.length : null
+      };
+    });
+
+    var allValues = metricSeries.values.map(function(item) { return item.value; }).filter(finiteNumber);
+    var avgNetProfit = average(allValues);
+    if (avgNetProfit == null || Math.abs(avgNetProfit) < 0.01) {
+      return emptyDirectionalCoherence('UNKNOWN', [{ code: 'directional_coherence_avg_net_profit_unusable' }], direction);
+    }
+
+    var ratios = {};
+    var sufficient = {};
+    ['BULL', 'BEAR', 'RANGE'].forEach(function(group) {
+      ratios[group] = stats[group].avg != null ? stats[group].avg / avgNetProfit : null;
+      sufficient[group] = stats[group].count >= minBlocks;
+    });
+
+    var flags = [];
+    var bullCheck = null;
+    var bearCheck = null;
+    if (direction === 'long_short') {
+      if (sufficient.BULL) {
+        bullCheck = stats.BULL.avg > 0 ? 'OK' : 'BROKEN';
+        if (bullCheck === 'BROKEN') flags.push('BROKEN_BULL');
+      }
+      if (sufficient.BEAR) {
+        bearCheck = stats.BEAR.avg > 0 ? 'OK' : 'BROKEN';
+        if (bearCheck === 'BROKEN') flags.push('BROKEN_BEAR');
+      }
+    } else if (direction === 'short_only') {
+      if (sufficient.BEAR) {
+        bearCheck = stats.BEAR.pos_ratio >= 0.8 ? 'OK' : stats.BEAR.pos_ratio >= 0.5 ? 'WEAK' : 'BROKEN';
+        if (bearCheck === 'BROKEN') flags.push('BROKEN_BEAR');
+        else if (bearCheck === 'WEAK') flags.push('WEAK_BEAR');
+      }
+      if (sufficient.BULL) {
+        var bullRatio = ratios.BULL;
+        if (bullRatio > 1.5) { bullCheck = 'SUSPICIOUS'; flags.push('BULL_SUSPICIOUS'); }
+        else if (bullRatio < -1.5) { bullCheck = 'BROKEN'; flags.push('BROKEN_BULL'); }
+        else if (bullRatio < -1.0) { bullCheck = 'WEAK'; flags.push('WEAK_BULL'); }
+        else bullCheck = 'OK';
+      }
+    } else {
+      if (sufficient.BULL) {
+        bullCheck = stats.BULL.pos_ratio >= 0.8 ? 'OK' : stats.BULL.pos_ratio >= 0.5 ? 'WEAK' : 'BROKEN';
+        if (bullCheck === 'BROKEN') flags.push('BROKEN_BULL');
+        else if (bullCheck === 'WEAK') flags.push('WEAK_BULL');
+      }
+      if (sufficient.BEAR) {
+        var bearRatio = ratios.BEAR;
+        if (bearRatio > 1.5) { bearCheck = 'SUSPICIOUS'; flags.push('BEAR_SUSPICIOUS'); }
+        else if (bearRatio < -1.5) { bearCheck = 'BROKEN'; flags.push('BROKEN_BEAR'); }
+        else if (bearRatio < -1.0) { bearCheck = 'WEAK'; flags.push('WEAK_BEAR'); }
+        else bearCheck = 'OK';
+      }
+    }
+
+    var verdict = 'INSUFFICIENT_DATA';
+    var hasBroken = flags.some(function(flag) { return flag.indexOf('BROKEN') === 0; });
+    var hasSuspicious = flags.some(function(flag) { return flag.indexOf('SUSPICIOUS') !== -1; });
+    var hasWeak = flags.some(function(flag) { return flag.indexOf('WEAK') === 0; });
+    if (hasBroken) verdict = 'BROKEN';
+    else if (hasSuspicious) verdict = 'SUSPICIOUS';
+    else if (hasWeak) verdict = 'WEAK';
+    else if (direction === 'long_short' && bullCheck === 'OK' && bearCheck === 'OK') verdict = 'OK';
+    else if (direction === 'short_only' && bearCheck === 'OK' && (bullCheck === 'OK' || !sufficient.BULL)) verdict = 'OK';
+    else if (direction !== 'long_short' && direction !== 'short_only' && bullCheck === 'OK' && (bearCheck === 'OK' || !sufficient.BEAR)) verdict = 'OK';
+
+    return {
+      verdict: verdict,
+      direction: direction,
+      metric: metricSeries.metric,
+      avg_net_profit: avgNetProfit,
+      flags: flags,
+      bull_check: bullCheck,
+      bear_check: bearCheck,
+      stats_by_regime: stats,
+      ratios_by_regime: ratios,
+      sufficient_by_regime: sufficient,
+      warnings: []
+    };
+  }
+
   function classify(evidence, thresholds) {
     if (evidence.coverage_months < thresholds.minCoverageMonths) return 'UNKNOWN';
     if (evidence.regime_score == null) return 'UNKNOWN';
@@ -467,6 +619,7 @@
     egtV2Thresholds: EGT_V2_THRESHOLDS,
     assessEgtV2: assessEgtV2,
     assessCandidate: assessCandidate,
+    assessDirectionalCoherence: assessDirectionalCoherence,
     assessSymbol: assessSymbol,
     buildRegimeBlocksForSymbol: buildRegimeBlocksForSymbol,
     evidenceSummary: evidenceSummary,

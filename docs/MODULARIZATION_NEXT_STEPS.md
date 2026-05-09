@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: J10 - Temporal Health and EGT v2 redacted export/handoff evidence.
+- Current completed phase: J11 - Directional Coherence and Score Pro evidence.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m95_decision_ready`.
 - Governance baseline: G3 - Internal Automation and Agent Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: SB17 - Strategy Builder buyer session evidence handoff index, J11 - display imported reduced CVC evidence inside Strategy Builder UI, M97 - execute exactly the M96-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: SB17 - Strategy Builder buyer session evidence handoff index, M97 - execute exactly the M96-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -90,7 +90,7 @@ Persistent planning note for the next SQX Edge phases.
 8. Phase J8: implement pure Temporal Health and EGT v2 helpers with JS contracts before UI changes. Done; see `docs/J8_TEMPORAL_HEALTH_EGT_V2_HELPERS.md`.
 9. Phase J9: add compact dashboard chips and optional filters for Temporal Health and EGT v2. Done; see `docs/J9_TEMPORAL_HEALTH_EGT_V2_UI.md`.
 10. Phase J10: extend redacted review export and Strategy Builder handoff with reduced Temporal Health and EGT v2 evidence. Done; see `docs/J10_TEMPORAL_HEALTH_EGT_V2_HANDOFF.md`.
-11. Phase J11: display imported reduced CVC evidence inside Strategy Builder UI without changing generation or review gates.
+11. Phase J11: add native direction detection, directional coherence, Score Pro and imported CVC evidence display inside Strategy Builder UI without changing generation gates. Done; see `docs/J11_DIRECTIONAL_COHERENCE_SCORE.md`.
 
 ## Strategy Builder / Only One Platform Track
 
