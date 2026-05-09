@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "state": "controlled_commercial_next_movement_execution_ready",
+  "executionId": "controlled_commercial_next_movement_execution",
+  "offerId": "sqx_edge_pro_controlled_commercial_next_movement_execution",
+  "name": "Controlled Commercial Next Movement Execution",
+  "dependsOn": {
+    "controlledCommercialNextMovementConfig": "backend/sqx-edge-tool/config/controlled_commercial_next_movement.json",
+    "controlledCommercialNextMovementState": "controlled_commercial_next_movement_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/CONTROLLED_COMMERCIAL_NEXT_MOVEMENT_EXECUTION.md",
+    "docs/sales/CONTROLLED_COMMERCIAL_NEXT_MOVEMENT.md",
+    "docs/sales/CONTROLLED_TRAFFIC_EXPANSION_EXECUTION_MONITOR.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "allowedSourceNextMovements": [
+    "continue_observation",
+    "prepare_next_micro_step",
+    "prepare_private_review_packet",
+    "hold_for_fix",
+    "pause_sales"
+  ],
+  "allowedExecutionResults": [
+    "observation_continued",
+    "next_micro_step_prepared",
+    "private_review_packet_prepared",
+    "fix_hold_recorded",
+    "sales_pause_recorded"
+  ],
+  "requiredResultByMovement": {
+    "continue_observation": "observation_continued",
+    "prepare_next_micro_step": "next_micro_step_prepared",
+    "prepare_private_review_packet": "private_review_packet_prepared",
+    "hold_for_fix": "fix_hold_recorded",
+    "pause_sales": "sales_pause_recorded"
+  },
+  "maximumNewPrivateLinks": 1,
+  "maximumNewInvites": 3,
+  "privacyPolicy": "store_only_redacted_next_movement_execution_result_owner_summary_and_next_monitor_without_buyer_identity_checkout_payloads_or_license_files",
+  "executionPolicy": "record_only_the_manual_m87_approved_movement_without_automatic_traffic_checkout_email_or_license_execution",
+  "executionRules": [
+    "Execution result must match the M87 approved next movement.",
+    "next_micro_step_prepared allows at most one private link and three invites.",
+    "observation_continued, private_review_packet_prepared, fix_hold_recorded and sales_pause_recorded must not create new traffic.",
+    "Any deviation from M87 requires a new decision gate before execution."
+  ]
+}

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - M88 controlled commercial next movement execution
+
+- Adds a guarded internal execution record for the exact manual commercial movement approved by M87.
+- Blocks deviations from M87 and keeps micro-step preparation capped at one private link and three invites.
+- Extends packaging exclusions, public/private commercial traceability, roadmap/governance and tests.
+
 ## 2026-05-09 - M87 controlled commercial next movement
 
 - Adds a guarded internal decision gate for the next controlled commercial movement from M86 evidence.

@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: M87 - Controlled commercial next movement decision.
-- Current product/commercial state: `controlled_commercial_next_movement_ready`.
+- Current completed phase: M88 - Controlled commercial next movement execution.
+- Current product/commercial state: `controlled_commercial_next_movement_execution_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: M88 - execute only the approved controlled commercial next movement, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Next recommended phase: M89 - monitor the M88 execution result before any broader commercial movement, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -202,7 +202,8 @@ Persistent planning note for the next SQX Edge phases.
 85. Phase M85: execute only the approved M84 operator decision. Done.
 86. Phase M86: monitor the M85 execution result before any further movement. Done.
 87. Phase M87: decide next controlled commercial movement from M86 evidence. Done.
-88. Phase M88: execute only the approved controlled commercial next movement. Recommended next.
+88. Phase M88: execute only the approved controlled commercial next movement. Done.
+89. Phase M89: monitor the M88 execution result before any broader commercial movement. Recommended next.
 
 ## SQX View Creator Track
 
