@@ -41,6 +41,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `T4_DEMO_LOGIN_ENABLED`: local prototype flag; keep `false` unless testing the demo flow privately.
 - `T4_DEMO_TESTER_EMAIL`: placeholder demo email for local testing only.
 - `T4_DEMO_ACCESS_CODE`: placeholder demo access code for local testing only; not a production password.
+- `T5_DEMO_TESTER_PRO_ENABLED`: local entitlement flag; keep `false` unless validating gates privately.
 
 ## Current Skeleton
 
@@ -52,13 +53,15 @@ This template is safe to keep in the public/core repository because it contains 
 - `src/app/api/health/route.ts`: non-sensitive health check.
 - `src/app/api/auth/login/route.ts`: local demo login route that sets the session cookie only when explicitly enabled.
 - `src/app/api/auth/logout/route.ts`: local demo logout route that clears the session cookie.
+- `src/app/api/tester/features/route.ts`: server-side `tester_pro` feature gate prototype.
 - `src/app/api/cron/expire-testers/route.ts`: dry-run cron gate guarded by `CRON_SECRET`.
 - `src/lib/access-contract.ts`: T1/T2 tester status and entitlement helpers.
 - `src/lib/auth-data-contract.ts`: T3 password, session, renewal token and audit record contracts.
 - `src/lib/session-prototype.ts`: T4 disabled-by-default session prototype helpers.
+- `src/lib/entitlement-gates.ts`: T5 paid feature gate contract and demo-only entitlement evaluator.
 - `src/lib/security-headers.ts`: baseline browser protection headers.
 - `src/middleware.ts`: protected-route session gate and security headers.
 
 ## Next Phase
 
-T5 can add `tester_pro` entitlement gates for paid options after the session prototype is reviewed.
+T6 can add 15-day expiry and manual renewal states after the entitlement gates are reviewed.

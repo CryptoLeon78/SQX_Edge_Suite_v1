@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T5 Tester Pro Entitlement Gates
+
+- Adds server-side `tester_pro` entitlement gate helpers and a protected `/api/tester/features` route to the tester portal template.
+- Adds read-only Pro feature placeholders for the protected portal while keeping UI visibility separate from access control.
+- Keeps T5 non-external: no Vercel deploy, no tester accounts, no real entitlement source, no production database and no published URLs.
+
 ## 2026-05-09 - T4 Login Session Prototype
 
 - Adds a disabled-by-default local demo login/session prototype to the tester portal template.

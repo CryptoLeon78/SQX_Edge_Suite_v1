@@ -1,4 +1,5 @@
 import { TESTER_RENEWAL_CYCLE_DAYS } from "@/lib/access-contract";
+import { TESTER_PRO_FEATURES } from "@/lib/entitlement-gates";
 
 export default function PortalPage() {
   return (
@@ -24,6 +25,14 @@ export default function PortalPage() {
             <p>Every tester view must show a visible identity marker.</p>
           </div>
         </div>
+        <div className="feature-list" aria-label="Tester Pro feature gates">
+          {TESTER_PRO_FEATURES.map((feature) => (
+            <span key={feature}>{feature}</span>
+          ))}
+        </div>
+        <p>
+          Feature access is checked by `/api/tester/features`; visible UI alone must never grant paid functionality.
+        </p>
         <form action="/api/auth/logout" method="post">
           <button type="submit">Sign out</button>
         </form>

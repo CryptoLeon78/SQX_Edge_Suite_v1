@@ -133,6 +133,22 @@ button:hover {
   background: #2563eb;
 }
 
+.feature-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.feature-list span {
+  padding: 8px 10px;
+  border: 1px solid var(--sqx-border);
+  border-radius: 8px;
+  background: rgba(101, 165, 255, 0.12);
+  color: var(--sqx-text);
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .watermark {
   position: fixed;
   right: 18px;
