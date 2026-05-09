@@ -9,6 +9,7 @@
     "start": "next start",
     "preflight:vercel-preview": "node scripts/vercel-preview-preflight.mjs",
     "audit:vercel-protection": "node scripts/vercel-protection-audit.mjs",
+    "proof:vercel-preview-path": "node scripts/vercel-preview-path-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

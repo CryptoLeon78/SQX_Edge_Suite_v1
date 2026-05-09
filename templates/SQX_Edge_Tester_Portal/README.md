@@ -76,6 +76,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `src/middleware.ts`: protected-route session gate and security headers.
 - `scripts/vercel-preview-preflight.mjs`: T9 local preflight before retrying protected preview deploy.
 - `scripts/vercel-protection-audit.mjs`: T9c go/no-go audit for Vercel Deployment Protection before deploy retry.
+- `scripts/vercel-preview-path-proof.mjs`: T9f proof gate for Git/PR preview readiness without deploying.
 
 ## Local Preflight
 
@@ -91,6 +92,12 @@ npm run audit:vercel-protection
 
 This blocks deploy retry unless the linked Vercel project protection can be verified through API or an operator records the dashboard check privately. After T9d, the expected result is `GO_PROTECTION_VERIFIED` with Vercel Authentication Standard Protection.
 
+```powershell
+npm run proof:vercel-preview-path
+```
+
+This proves whether a Git/PR-based preview path is ready without running a deploy. It must return `GO_GIT_PREVIEW_PATH_READY` before any future preview URL is created or shared. A safe `NO_GO_GIT_PREVIEW_NOT_CONFIGURED` result means the private tester portal repository still needs to be connected to Vercel.
+
 ## Next Phase
 
-T9f should prepare Git/PR-based preview or API deployment proof because T9e rolled back the local CLI deploy path after it produced a production target again.
+T9g should connect a private Git/PR preview source before any tester URL is created or shared. The local CLI deploy path remains blocked because T9e produced a production target again.

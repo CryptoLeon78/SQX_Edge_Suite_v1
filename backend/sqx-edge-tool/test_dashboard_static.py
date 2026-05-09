@@ -54,6 +54,7 @@ T9B_VERCEL_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T9B_VERCEL_PREVIEW_DEPLOY_ROL
 T9C_VERCEL_PROTECTION_GATE_DOC = PROJECT_ROOT / "docs" / "T9C_VERCEL_DEPLOYMENT_PROTECTION_GATE.md"
 T9D_VERCEL_AUTH_PROTECTION_DOC = PROJECT_ROOT / "docs" / "T9D_VERCEL_AUTH_PROTECTION_VERIFIED.md"
 T9E_PROTECTED_PREVIEW_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T9E_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md"
+T9F_PREVIEW_PATH_PROOF_DOC = PROJECT_ROOT / "docs" / "T9F_PREVIEW_PATH_PROOF.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -805,7 +806,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb17)
 
-        self.assertIn("Current phase completed: T9e - Protected Preview Deploy Rolled Back.", governance)
+        self.assertIn("Current phase completed: T9f - Preview Path Proof Gate.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
         self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
@@ -2921,8 +2922,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t1)
 
         expected_governance_patterns = [
-            "Current phase completed: T9e - Protected Preview Deploy Rolled Back.",
-            "T9f - prepare Git/PR-based preview or API deployment proof before any URL is shared",
+            "Current phase completed: T9f - Preview Path Proof Gate.",
+            "T9g - connect private Git/PR preview source before any tester URL is shared",
             "Access/Security Gatekeeper",
             "`Txx`: cloud tester access",
             "Cloud Tester Access track",
@@ -3125,9 +3126,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, t2)
 
-        self.assertIn("Current phase completed: T9e - Protected Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9f - prepare Git/PR-based preview or API deployment proof before any URL is shared", governance)
-        self.assertIn("Current completed phase: T9e - Protected Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current phase completed: T9f - Preview Path Proof Gate.", governance)
+        self.assertIn("T9g - connect private Git/PR preview source before any tester URL is shared", governance)
+        self.assertIn("Current completed phase: T9f - Preview Path Proof Gate.", next_steps)
         self.assertIn("Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
@@ -3218,9 +3219,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_contract_text)
 
-        self.assertIn("Current phase completed: T9e - Protected Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9f - prepare Git/PR-based preview or API deployment proof before any URL is shared", governance)
-        self.assertIn("Current completed phase: T9e - Protected Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current phase completed: T9f - Preview Path Proof Gate.", governance)
+        self.assertIn("T9g - connect private Git/PR preview source before any tester URL is shared", governance)
+        self.assertIn("Current completed phase: T9f - Preview Path Proof Gate.", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
         self.assertIn("Phase T4: implement login/session prototype", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
@@ -3325,9 +3326,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T9e - Protected Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9f - prepare Git/PR-based preview or API deployment proof before any URL is shared", governance)
-        self.assertIn("Current completed phase: T9e - Protected Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current phase completed: T9f - Preview Path Proof Gate.", governance)
+        self.assertIn("T9g - connect private Git/PR preview source before any tester URL is shared", governance)
+        self.assertIn("Current completed phase: T9f - Preview Path Proof Gate.", next_steps)
         self.assertIn("Phase T4: implement login/session prototype", next_steps)
         self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
@@ -3414,9 +3415,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T9e - Protected Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9f - prepare Git/PR-based preview or API deployment proof before any URL is shared", governance)
-        self.assertIn("Current completed phase: T9e - Protected Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current phase completed: T9f - Preview Path Proof Gate.", governance)
+        self.assertIn("T9g - connect private Git/PR preview source before any tester URL is shared", governance)
+        self.assertIn("Current completed phase: T9f - Preview Path Proof Gate.", next_steps)
         self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
         self.assertIn("Phase T6: add 15-day expiry", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
@@ -3517,7 +3518,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("T6_DEMO_RENEWAL_STATE", template_readme)
         self.assertIn("src/lib/renewal-flow.ts", template_readme)
         self.assertIn("src/app/api/tester/renewal/route.ts", template_readme)
-        self.assertIn("T9f should prepare Git/PR-based preview or API deployment proof", template_readme)
+        self.assertIn("T9g should connect a private Git/PR preview source", template_readme)
 
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
@@ -3537,15 +3538,15 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T9e - Protected Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9f - prepare Git/PR-based preview or API deployment proof before any URL is shared", governance)
+        self.assertIn("Current phase completed: T9f - Preview Path Proof Gate.", governance)
+        self.assertIn("T9g - connect private Git/PR preview source before any tester URL is shared", governance)
         self.assertIn("docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md", governance)
         self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
-        self.assertIn("Current completed phase: T9e - Protected Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current completed phase: T9f - Preview Path Proof Gate.", next_steps)
         self.assertIn("Phase T6: add 15-day expiry", next_steps)
         self.assertIn("Phase T7: add admin tester console", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
-        self.assertIn("T9f para preparar un preview por Git/PR o API", readme)
+        self.assertIn("T9g para conectar una fuente preview privada por Git/PR", readme)
 
     def test_t7_admin_tester_console_is_documented_and_safe(self):
         t7 = T7_ADMIN_CONSOLE_DOC.read_text(encoding="utf-8-sig")
@@ -3675,14 +3676,14 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T9e - Protected Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9f - prepare Git/PR-based preview or API deployment proof before any URL is shared", governance)
+        self.assertIn("Current phase completed: T9f - Preview Path Proof Gate.", governance)
+        self.assertIn("T9g - connect private Git/PR preview source before any tester URL is shared", governance)
         self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
-        self.assertIn("Current completed phase: T9e - Protected Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current completed phase: T9f - Preview Path Proof Gate.", next_steps)
         self.assertIn("Phase T7: add admin tester console", next_steps)
         self.assertIn("Phase T8: harden rate limiting", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
-        self.assertIn("T9f para preparar un preview por Git/PR o API", readme)
+        self.assertIn("T9g para conectar una fuente preview privada por Git/PR", readme)
 
     def test_t8_tester_portal_security_hardening_is_documented_and_safe(self):
         t8 = T8_SECURITY_HARDENING_DOC.read_text(encoding="utf-8-sig")
@@ -3830,7 +3831,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         self.assertIn("src/lib/security-hardening.ts", template_readme)
         self.assertIn("src/lib/deployment-protection.ts", template_readme)
-        self.assertIn("T9f should prepare Git/PR-based preview or API deployment proof", template_readme)
+        self.assertIn("T9g should connect a private Git/PR preview source", template_readme)
 
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
@@ -3850,14 +3851,14 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T9e - Protected Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9f - prepare Git/PR-based preview or API deployment proof before any URL is shared", governance)
+        self.assertIn("Current phase completed: T9f - Preview Path Proof Gate.", governance)
+        self.assertIn("T9g - connect private Git/PR preview source before any tester URL is shared", governance)
         self.assertIn("docs/T8_TESTER_PORTAL_SECURITY_HARDENING.md", governance)
-        self.assertIn("Current completed phase: T9e - Protected Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current completed phase: T9f - Preview Path Proof Gate.", next_steps)
         self.assertIn("Phase T8: harden rate limiting", next_steps)
         self.assertIn("Phase T9: run Vercel preview staging", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
-        self.assertIn("T9f para preparar un preview por Git/PR o API", readme)
+        self.assertIn("T9g para conectar una fuente preview privada por Git/PR", readme)
 
     def test_t9_protected_vercel_preview_preflight_is_documented_and_safe(self):
         t9 = T9_VERCEL_PREFLIGHT_DOC.read_text(encoding="utf-8-sig")
@@ -3910,7 +3911,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         self.assertIn("scripts/vercel-preview-preflight.mjs", template_readme)
         self.assertIn("npm run preflight:vercel-preview", template_readme)
-        self.assertIn("T9f should prepare Git/PR-based preview or API deployment proof", template_readme)
+        self.assertIn("T9g should connect a private Git/PR preview source", template_readme)
 
         combined_t9_text = t9 + "\n" + preflight + "\n" + template_readme
         for pattern in (
@@ -3928,16 +3929,16 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t9_text)
 
-        self.assertIn("Current phase completed: T9e - Protected Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9f - prepare Git/PR-based preview or API deployment proof before any URL is shared", governance)
+        self.assertIn("Current phase completed: T9f - Preview Path Proof Gate.", governance)
+        self.assertIn("T9g - connect private Git/PR preview source before any tester URL is shared", governance)
         self.assertIn("docs/T9_PROTECTED_VERCEL_PREVIEW_PREFLIGHT.md", governance)
         self.assertIn("docs/T9B_VERCEL_PREVIEW_DEPLOY_ROLLBACK.md", governance)
-        self.assertIn("Current completed phase: T9e - Protected Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current completed phase: T9f - Preview Path Proof Gate.", next_steps)
         self.assertIn("Phase T9: run Vercel preview staging", next_steps)
         self.assertIn("Phase T9b: authenticate Vercel", next_steps)
         self.assertIn("Phase T9c: verify Vercel Deployment Protection", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
-        self.assertIn("T9f para preparar un preview por Git/PR o API", readme)
+        self.assertIn("T9g para conectar una fuente preview privada por Git/PR", readme)
 
     def test_t9b_vercel_preview_deploy_rollback_is_documented_and_safe(self):
         t9b = T9B_VERCEL_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
@@ -3967,15 +3968,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t9b)
 
         for pattern in (
-            "Current phase completed: T9e - Protected Preview Deploy Rolled Back.",
-            "T9f - prepare Git/PR-based preview or API deployment proof before any URL is shared",
+            "Current phase completed: T9f - Preview Path Proof Gate.",
+            "T9g - connect private Git/PR preview source before any tester URL is shared",
             "docs/T9B_VERCEL_PREVIEW_DEPLOY_ROLLBACK.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T9e - Protected Preview Deploy Rolled Back.",
+            "Current completed phase: T9f - Preview Path Proof Gate.",
             "Phase T9b: authenticate Vercel, verify Deployment Protection and execute protected preview deploy. Attempted; rolled back because CLI created production aliases",
             "Phase T9c: verify Vercel Deployment Protection before retrying preview deploy.",
         ):
@@ -3985,7 +3986,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "T9c anade `audit:vercel-protection`",
             "T9b autentico Vercel, intento deploy y lo elimino al detectar alias de produccion",
-            "T9f para preparar un preview por Git/PR o API",
+            "T9g para conectar una fuente preview privada por Git/PR",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -4069,22 +4070,22 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "scripts/vercel-protection-audit.mjs",
             "npm run audit:vercel-protection",
-            "T9f should prepare Git/PR-based preview or API deployment proof",
+            "T9g should connect a private Git/PR preview source",
             "GO_PROTECTION_VERIFIED",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, template_readme)
 
         for pattern in (
-            "Current phase completed: T9e - Protected Preview Deploy Rolled Back.",
-            "T9f - prepare Git/PR-based preview or API deployment proof before any URL is shared",
+            "Current phase completed: T9f - Preview Path Proof Gate.",
+            "T9g - connect private Git/PR preview source before any tester URL is shared",
             "docs/T9C_VERCEL_DEPLOYMENT_PROTECTION_GATE.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T9e - Protected Preview Deploy Rolled Back.",
+            "Current completed phase: T9f - Preview Path Proof Gate.",
             "Phase T9c: verify Vercel Deployment Protection before retrying preview deploy. Done as safe NO-GO gate",
             "Phase T9d: enable or verify Vercel Authentication/Password Protection privately",
         ):
@@ -4093,7 +4094,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "T9e reintento preview con proteccion activa",
-            "T9f para preparar un preview por Git/PR o API",
+            "T9g para conectar una fuente preview privada por Git/PR",
             "T9c anade `audit:vercel-protection`",
         ):
             with self.subTest(pattern=pattern):
@@ -4145,15 +4146,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t9d)
 
         for pattern in (
-            "Current phase completed: T9e - Protected Preview Deploy Rolled Back.",
-            "T9f - prepare Git/PR-based preview or API deployment proof before any URL is shared",
+            "Current phase completed: T9f - Preview Path Proof Gate.",
+            "T9g - connect private Git/PR preview source before any tester URL is shared",
             "docs/T9D_VERCEL_AUTH_PROTECTION_VERIFIED.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T9e - Protected Preview Deploy Rolled Back.",
+            "Current completed phase: T9f - Preview Path Proof Gate.",
             "Phase T9d: enable or verify Vercel Authentication/Password Protection privately, then retry preview only after `GO_PROTECTION_VERIFIED`. Done",
             "Phase T9e: retry preview-only deploy with target and alias inspection",
         ):
@@ -4162,7 +4163,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "T9e reintento preview con proteccion activa",
-            "T9f para preparar un preview por Git/PR o API",
+            "T9g para conectar una fuente preview privada por Git/PR",
             "T9d activa/verifica Vercel Authentication Standard Protection",
         ):
             with self.subTest(pattern=pattern):
@@ -4170,7 +4171,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "After T9d, the expected result is `GO_PROTECTION_VERIFIED`",
-            "T9f should prepare Git/PR-based preview or API deployment proof",
+            "T9g should connect a private Git/PR preview source",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, template_readme)
@@ -4222,15 +4223,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t9e)
 
         for pattern in (
-            "Current phase completed: T9e - Protected Preview Deploy Rolled Back.",
-            "T9f - prepare Git/PR-based preview or API deployment proof before any URL is shared",
+            "Current phase completed: T9f - Preview Path Proof Gate.",
+            "T9g - connect private Git/PR preview source before any tester URL is shared",
             "docs/T9E_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T9e - Protected Preview Deploy Rolled Back.",
+            "Current completed phase: T9f - Preview Path Proof Gate.",
             "Phase T9e: retry preview-only deploy with target and alias inspection before sharing any URL; rollback immediately if target or aliases are production. Attempted and rolled back",
             "Phase T9f: prepare Git/PR-based preview or API deployment proof",
         ):
@@ -4239,7 +4240,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "T9e reintento preview con proteccion activa",
-            "T9f para preparar un preview por Git/PR o API",
+            "T9g para conectar una fuente preview privada por Git/PR",
             "T9e reintenta deploy sin `--prod`",
         ):
             with self.subTest(pattern=pattern):
@@ -4247,7 +4248,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         self.assertIn("T9e Protected Preview Deploy Rollback", changelog)
         self.assertIn("T9f as the safer path", changelog)
-        self.assertIn("T9f should prepare Git/PR-based preview or API deployment proof", template_readme)
+        self.assertIn("T9g should connect a private Git/PR preview source", template_readme)
 
         combined_t9e_text = "\n".join([t9e, governance, next_steps, readme, changelog, template_readme])
         for pattern in (
@@ -4263,6 +4264,128 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t9e_text)
+
+    def test_t9f_preview_path_proof_is_documented_and_safe(self):
+        t9f = T9F_PREVIEW_PATH_PROOF_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_script = (TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-preview-path-proof.mjs").read_text(encoding="utf-8-sig")
+
+        self.assertEqual(
+            package["scripts"]["proof:vercel-preview-path"],
+            "node scripts/vercel-preview-path-proof.mjs",
+        )
+
+        for pattern in (
+            "T9f Preview Path Proof Gate",
+            "does not deploy",
+            "does not create repositories",
+            "does not invite testers",
+            "does not send emails",
+            "does not publish or commit any Vercel URL",
+            "NO_GO_GIT_PREVIEW_NOT_CONFIGURED",
+            "GO_GIT_PREVIEW_PATH_READY",
+            "T9g should connect or prepare a private Git preview source",
+            "Contributor access is not required for local work right now",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t9f)
+
+        for pattern in (
+            "T9F_PREVIEW_BRANCH",
+            "tester-preview",
+            "reservedBranches",
+            "NO_GO_PROJECT_NOT_LINKED",
+            "NO_GO_TOKEN_NOT_AVAILABLE",
+            "NO_GO_PREVIEW_BRANCH_RESERVED",
+            "NO_GO_API_PROJECT_AUDIT_FAILED",
+            "NO_GO_PROTECTION_NOT_VERIFIED",
+            "NO_GO_GIT_PREVIEW_NOT_CONFIGURED",
+            "NO_GO_PREVIEW_BRANCH_MATCHES_PRODUCTION",
+            "GO_GIT_PREVIEW_PATH_READY",
+            "externalDeployAttempted: false",
+            "git.linked",
+            "previewBranchIsProduction",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof_script)
+
+        for forbidden in (
+            "vercel deploy",
+            "--prod",
+            "process.env.VERCEL_TOKEN)",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, proof_script)
+
+        for pattern in (
+            "Current phase completed: T9f - Preview Path Proof Gate.",
+            "T9g - connect private Git/PR preview source before any tester URL is shared",
+            "docs/T9F_PREVIEW_PATH_PROOF.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T9f - Preview Path Proof Gate.",
+            "Phase T9f: prepare Git/PR-based preview or API deployment proof that cannot auto-alias production before any URL is shared. Done",
+            "Phase T9g: connect private Git/PR preview source before any tester URL is shared",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T9f anade una compuerta de prueba",
+            "T9g para conectar una fuente preview privada por Git/PR",
+            "T9f anade `proof:vercel-preview-path`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T9f Preview Path Proof Gate",
+            "proof:vercel-preview-path",
+            "T9g as the next safe step",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-preview-path-proof.mjs",
+            "npm run proof:vercel-preview-path",
+            "GO_GIT_PREVIEW_PATH_READY",
+            "NO_GO_GIT_PREVIEW_NOT_CONFIGURED",
+            "T9g should connect a private Git/PR preview source",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t9f_text = "\n".join([
+            t9f,
+            governance,
+            next_steps,
+            readme,
+            changelog,
+            template_readme,
+            proof_script,
+        ])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t9f_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

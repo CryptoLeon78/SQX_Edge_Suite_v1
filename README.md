@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T9e reintento preview con proteccion activa, detecto target/alias de produccion y lo elimino como rollback seguro.
+- Estado interno: T9f anade una compuerta de prueba para ruta Git/PR preview segura sin desplegar ni publicar URL.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: T9f para preparar un preview por Git/PR o API que pruebe `target=preview` antes de compartir URL, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T9g para conectar una fuente preview privada por Git/PR antes de compartir URL, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -86,7 +86,8 @@ Portal tester Pro previsto:
 - T9b autentico Vercel, intento deploy y lo elimino al detectar alias de produccion; no hay deployment activo ni URL publica operativa.
 - T9c anade `audit:vercel-protection` y deja el estado `NO_GO_PROTECTION_NOT_VERIFIED` hasta verificar Deployment Protection por API/dashboard.
 - T9d activa/verifica Vercel Authentication Standard Protection y deja `GO_PROTECTION_VERIFIED` sin desplegar ni publicar URL.
-- T9e reintenta deploy sin `--prod`, Vercel vuelve a reportar produccion y se elimina inmediatamente; no queda deployment activo ni URL publica operativa.
+- T9e reintento preview con proteccion activa; T9e reintenta deploy sin `--prod`, Vercel vuelve a reportar produccion y se elimina inmediatamente; no queda deployment activo ni URL publica operativa.
+- T9f anade `proof:vercel-preview-path` para bloquear cualquier avance hasta que exista una ruta Git/PR preview privada, protegida y separada de produccion.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.

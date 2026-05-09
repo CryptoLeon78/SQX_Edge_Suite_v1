@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T9f Preview Path Proof Gate
+
+- Adds `proof:vercel-preview-path` for the tester portal template to verify Deployment Protection, Git integration and non-production preview branch before any URL is shared.
+- Documents T9f as a safe proof gate, not a rollout: no deploy, no tester invites, no emails, no production database and no committed URLs.
+- Sets T9g as the next safe step: connect a private Git/PR preview source before creating or sharing tester access.
+
 ## 2026-05-09 - T9e Protected Preview Deploy Rollback
 
 - Retries deploy after protection gates are green, but rolls back immediately because Vercel reports production target and production alias again.
