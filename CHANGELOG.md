@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T3 Tester Auth Data Contract
+
+- Defines tester auth records, password hash policy, session cookie contract, renewal token model, audit events and secret boundaries before login implementation.
+- Adds a pure `auth-data-contract.ts` template module with Argon2id, `__Host-` cookie, one-use token and audit event contracts.
+- Keeps T3 non-external: no Vercel deploy, no tester accounts, no passwords, no emails, no production database and no published URLs.
+
 ## 2026-05-09 - T2 Tester Portal Bootstrap
 
 - Adds a public-safe `templates/SQX_Edge_Tester_Portal/` Next.js/Vercel starter for the future private tester portal.

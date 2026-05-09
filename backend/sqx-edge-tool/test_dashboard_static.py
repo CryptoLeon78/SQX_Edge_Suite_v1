@@ -42,6 +42,7 @@ SB17_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB17_STRATEGY_BUILDER_EVIDE
 PG7_PROJECT_GENERATOR_DOC = PROJECT_ROOT / "docs" / "PG7_PROJECT_GENERATOR_BUYER_CFX_HANDOFF.md"
 T1_CLOUD_TESTER_DOC = PROJECT_ROOT / "docs" / "T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md"
 T2_TESTER_PORTAL_DOC = PROJECT_ROOT / "docs" / "T2_TESTER_PORTAL_BOOTSTRAP.md"
+T3_TESTER_AUTH_DOC = PROJECT_ROOT / "docs" / "T3_TESTER_AUTH_DATA_CONTRACT.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -793,7 +794,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb17)
 
-        self.assertIn("Current phase completed: T2 - Tester Portal Bootstrap.", governance)
+        self.assertIn("Current phase completed: T3 - Tester Auth Data Contract.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
         self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
@@ -801,6 +802,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("docs/PG7_PROJECT_GENERATOR_BUYER_CFX_HANDOFF.md", governance)
         self.assertIn("docs/T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md", governance)
         self.assertIn("docs/T2_TESTER_PORTAL_BOOTSTRAP.md", governance)
+        self.assertIn("docs/T3_TESTER_AUTH_DATA_CONTRACT.md", governance)
         self.assertIn("templates/SQX_Edge_Tester_Portal/", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
@@ -2902,8 +2904,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t1)
 
         expected_governance_patterns = [
-            "Current phase completed: T2 - Tester Portal Bootstrap.",
-            "T3 - tester auth data contract",
+            "Current phase completed: T3 - Tester Auth Data Contract.",
+            "T4 - login and session prototype",
             "Access/Security Gatekeeper",
             "`Txx`: cloud tester access",
             "Cloud Tester Access track",
@@ -2971,6 +2973,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "src/app/api/health/route.ts",
             "src/app/api/cron/expire-testers/route.ts",
             "src/lib/access-contract.ts",
+            "src/lib/auth-data-contract.ts",
             "src/lib/security-headers.ts",
             "src/middleware.ts",
         ]
@@ -2991,6 +2994,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "CRON_SECRET=\"replace-with-random-cron-secret\"",
             "EDGE_CONFIG=\"replace-with-vercel-edge-config-connection-string\"",
             "WATERMARK_SALT=\"replace-with-random-watermark-salt\"",
+            "PASSWORD_PEPPER=\"replace-with-random-password-pepper-if-enabled\"",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, env_example)
@@ -3069,13 +3073,106 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, t2)
 
-        self.assertIn("Current phase completed: T2 - Tester Portal Bootstrap.", governance)
-        self.assertIn("T3 - tester auth data contract", governance)
-        self.assertIn("Current completed phase: T2 - Tester Portal Bootstrap.", next_steps)
+        self.assertIn("Current phase completed: T3 - Tester Auth Data Contract.", governance)
+        self.assertIn("T4 - login and session prototype", governance)
+        self.assertIn("Current completed phase: T3 - Tester Auth Data Contract.", next_steps)
         self.assertIn("Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
-        self.assertIn("T2 completada con bootstrap public-safe", readme)
+        self.assertIn("T3 completada con contrato de datos/auth", readme)
         self.assertIn("templates/SQX_Edge_Tester_Portal/", readme)
+
+    def test_t3_tester_auth_data_contract_is_documented_and_safe(self):
+        t3 = T3_TESTER_AUTH_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        auth_contract_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "auth-data-contract.ts"
+        auth_contract = auth_contract_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(auth_contract_path.is_file())
+
+        for pattern in (
+            "T3 Tester Auth Data Contract",
+            "T3 is contract-only",
+            "Required Records",
+            "`testers`",
+            "`tester_sessions`",
+            "`tester_renewal_tokens`",
+            "`tester_audit_events`",
+            "Preferred algorithm: `argon2id`",
+            "memory `19456 KiB`",
+            "iterations `2`",
+            "Cookie name: `__Host-sqx_tester_session`",
+            "HttpOnly = true",
+            "Secure = true",
+            "SameSite = Strict",
+            "do not store session IDs, JWTs, refresh tokens or credentials in `localStorage`",
+            "Store only token hashes",
+            "Default max age: 24 hours",
+            "OWASP Password Storage Cheat Sheet",
+            "OWASP Session Management Cheat Sheet",
+            "OWASP Forgot Password Cheat Sheet",
+            "OWASP Logging Cheat Sheet",
+            "T4 can implement a login/session prototype",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t3)
+
+        for pattern in (
+            "PASSWORD_HASH_POLICY",
+            "algorithm: \"argon2id\"",
+            "minimumMemoryKiB: 19456",
+            "minimumIterations: 2",
+            "parallelism: 1",
+            "pepperEnvName: \"PASSWORD_PEPPER\"",
+            "plaintextPasswordStorageAllowed: false",
+            "fastHashAlgorithmsAllowed: false",
+            "SESSION_COOKIE_CONTRACT",
+            "name: \"__Host-sqx_tester_session\"",
+            "httpOnly: true",
+            "secure: true",
+            "sameSite: \"strict\"",
+            "localStorageAllowed: false",
+            "RENEWAL_TOKEN_CONTRACT",
+            "oneUseOnly: true",
+            "storeOnlyHash: true",
+            "maxAgeHours: 24",
+            "AUDIT_EVENT_TYPES",
+            "\"login_failed\"",
+            "\"renewal_approved\"",
+            "\"tester_blocked\"",
+            "TESTER_AUTH_REQUIRED_TABLES",
+            "\"tester_audit_events\"",
+            "TesterAuthRecord",
+            "TesterSessionRecord",
+            "RenewalTokenRecord",
+            "TesterAuditEvent",
+            "isActiveTesterRecord",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, auth_contract)
+
+        combined_contract_text = t3 + "\n" + auth_contract
+        forbidden_patterns = [
+            "TbNX3XLrg!4Dc6J",
+            "vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "plainTextPassword",
+        ]
+        for pattern in forbidden_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_contract_text)
+
+        self.assertIn("Current phase completed: T3 - Tester Auth Data Contract.", governance)
+        self.assertIn("T4 - login and session prototype", governance)
+        self.assertIn("Current completed phase: T3 - Tester Auth Data Contract.", next_steps)
+        self.assertIn("Phase T3: define tester auth data contract", next_steps)
+        self.assertIn("Phase T4: implement login/session prototype", next_steps)
+        self.assertIn("T3 completada con contrato de datos/auth", readme)
+        self.assertIn("password hashing Argon2id", readme)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

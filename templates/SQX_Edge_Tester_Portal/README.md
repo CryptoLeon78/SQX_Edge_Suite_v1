@@ -37,6 +37,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `CRON_SECRET`: protects scheduled expiry/renewal routes.
 - `EDGE_CONFIG`: optional Vercel Edge Config connection string for kill switch and non-secret flags.
 - `WATERMARK_SALT`: supports stable per-tester watermark IDs without exposing raw internals.
+- `PASSWORD_PEPPER`: optional defense-in-depth secret if the final hash implementation enables peppering.
 
 ## Current Skeleton
 
@@ -47,10 +48,10 @@ This template is safe to keep in the public/core repository because it contains 
 - `src/app/api/health/route.ts`: non-sensitive health check.
 - `src/app/api/cron/expire-testers/route.ts`: dry-run cron gate guarded by `CRON_SECRET`.
 - `src/lib/access-contract.ts`: T1/T2 tester status and entitlement helpers.
+- `src/lib/auth-data-contract.ts`: T3 password, session, renewal token and audit record contracts.
 - `src/lib/security-headers.ts`: baseline browser protection headers.
 - `src/middleware.ts`: protected-route session gate and security headers.
 
 ## Next Phase
 
-T3 defines the real auth data contract: tester schema, password hash policy, session cookie shape, renewal tokens, audit events and secret boundaries.
-
+T4 can implement a login/session prototype using the T3 data contract, still without inviting testers or deploying Vercel.
