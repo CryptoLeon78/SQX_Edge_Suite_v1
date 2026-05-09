@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T9c Vercel Deployment Protection Gate
+
+- Adds `audit:vercel-protection` to block deploy retry unless Vercel Authentication or Password Protection is verified.
+- Records the live project state as no active deployment, no latest deployment and no domains after the T9b rollback.
+- Keeps T9c as `NO_GO_PROTECTION_NOT_VERIFIED` until dashboard/API protection can be proven without committing tester emails or URLs.
+
 ## 2026-05-09 - T9b Vercel Preview Deploy Rollback
 
 - Authenticates Vercel, links the tester portal project and attempts the approved preview deploy.

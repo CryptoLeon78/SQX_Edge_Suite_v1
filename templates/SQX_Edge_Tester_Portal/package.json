@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start",
     "preflight:vercel-preview": "node scripts/vercel-preview-preflight.mjs",
+    "audit:vercel-protection": "node scripts/vercel-protection-audit.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

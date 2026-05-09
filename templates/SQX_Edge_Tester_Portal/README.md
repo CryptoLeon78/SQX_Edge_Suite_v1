@@ -75,6 +75,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `src/lib/security-headers.ts`: baseline browser protection headers.
 - `src/middleware.ts`: protected-route session gate and security headers.
 - `scripts/vercel-preview-preflight.mjs`: T9 local preflight before retrying protected preview deploy.
+- `scripts/vercel-protection-audit.mjs`: T9c go/no-go audit for Vercel Deployment Protection before deploy retry.
 
 ## Local Preflight
 
@@ -84,6 +85,12 @@ npm run preflight:vercel-preview
 
 This validates the public-safe template before any Vercel preview retry. The next deploy must first verify Deployment Protection from Vercel settings/API and must not attach production aliases.
 
+```powershell
+npm run audit:vercel-protection
+```
+
+This blocks deploy retry unless the linked Vercel project protection can be verified through API or an operator records the dashboard check privately.
+
 ## Next Phase
 
-T9c should verify Vercel Deployment Protection before retrying preview deploy. T9b proved authentication/linking works, but rolled back the deployment because the CLI created production aliases.
+T9d should enable or verify Vercel Authentication/Password Protection privately and retry only after `audit:vercel-protection` returns `GO_PROTECTION_VERIFIED`.

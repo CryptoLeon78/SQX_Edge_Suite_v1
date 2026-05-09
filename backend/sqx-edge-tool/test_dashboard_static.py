@@ -51,6 +51,7 @@ T7_ADMIN_CONSOLE_DOC = PROJECT_ROOT / "docs" / "T7_ADMIN_TESTER_CONSOLE.md"
 T8_SECURITY_HARDENING_DOC = PROJECT_ROOT / "docs" / "T8_TESTER_PORTAL_SECURITY_HARDENING.md"
 T9_VERCEL_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T9_PROTECTED_VERCEL_PREVIEW_PREFLIGHT.md"
 T9B_VERCEL_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T9B_VERCEL_PREVIEW_DEPLOY_ROLLBACK.md"
+T9C_VERCEL_PROTECTION_GATE_DOC = PROJECT_ROOT / "docs" / "T9C_VERCEL_DEPLOYMENT_PROTECTION_GATE.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -802,7 +803,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb17)
 
-        self.assertIn("Current phase completed: T9b - Vercel Preview Deploy Rolled Back.", governance)
+        self.assertIn("Current phase completed: T9c - Vercel Deployment Protection Gate NO-GO.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
         self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
@@ -2918,8 +2919,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t1)
 
         expected_governance_patterns = [
-            "Current phase completed: T9b - Vercel Preview Deploy Rolled Back.",
-            "T9c - verify Vercel Deployment Protection before retrying preview deploy",
+            "Current phase completed: T9c - Vercel Deployment Protection Gate NO-GO.",
+            "T9d - enable or verify Vercel Authentication/Password Protection before retrying preview deploy",
             "Access/Security Gatekeeper",
             "`Txx`: cloud tester access",
             "Cloud Tester Access track",
@@ -2979,6 +2980,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "tsconfig.json",
             "vercel.json",
             "scripts/vercel-preview-preflight.mjs",
+            "scripts/vercel-protection-audit.mjs",
             "src/app/globals.css",
             "src/app/layout.tsx",
             "src/app/page.tsx",
@@ -3014,6 +3016,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(package["dependencies"]["next"], "latest")
         self.assertEqual(package["dependencies"]["react"], "latest")
         self.assertIn("typecheck", package["scripts"])
+        self.assertEqual(package["scripts"]["audit:vercel-protection"], "node scripts/vercel-protection-audit.mjs")
 
         env_example = (TESTER_PORTAL_TEMPLATE_ROOT / ".env.example").read_text(encoding="utf-8-sig")
         for pattern in (
@@ -3120,12 +3123,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, t2)
 
-        self.assertIn("Current phase completed: T9b - Vercel Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9c - verify Vercel Deployment Protection before retrying preview deploy", governance)
-        self.assertIn("Current completed phase: T9b - Vercel Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current phase completed: T9c - Vercel Deployment Protection Gate NO-GO.", governance)
+        self.assertIn("T9d - enable or verify Vercel Authentication/Password Protection before retrying preview deploy", governance)
+        self.assertIn("Current completed phase: T9c - Vercel Deployment Protection Gate NO-GO.", next_steps)
         self.assertIn("Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
-        self.assertIn("T9b intento deploy en Vercel", readme)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
         self.assertIn("templates/SQX_Edge_Tester_Portal/", readme)
 
     def test_t3_tester_auth_data_contract_is_documented_and_safe(self):
@@ -3213,12 +3216,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_contract_text)
 
-        self.assertIn("Current phase completed: T9b - Vercel Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9c - verify Vercel Deployment Protection before retrying preview deploy", governance)
-        self.assertIn("Current completed phase: T9b - Vercel Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current phase completed: T9c - Vercel Deployment Protection Gate NO-GO.", governance)
+        self.assertIn("T9d - enable or verify Vercel Authentication/Password Protection before retrying preview deploy", governance)
+        self.assertIn("Current completed phase: T9c - Vercel Deployment Protection Gate NO-GO.", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
         self.assertIn("Phase T4: implement login/session prototype", next_steps)
-        self.assertIn("T9b intento deploy en Vercel", readme)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
         self.assertIn("password hashing Argon2id", readme)
 
     def test_t4_login_session_prototype_is_documented_and_safe(self):
@@ -3320,12 +3323,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T9b - Vercel Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9c - verify Vercel Deployment Protection before retrying preview deploy", governance)
-        self.assertIn("Current completed phase: T9b - Vercel Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current phase completed: T9c - Vercel Deployment Protection Gate NO-GO.", governance)
+        self.assertIn("T9d - enable or verify Vercel Authentication/Password Protection before retrying preview deploy", governance)
+        self.assertIn("Current completed phase: T9c - Vercel Deployment Protection Gate NO-GO.", next_steps)
         self.assertIn("Phase T4: implement login/session prototype", next_steps)
         self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
-        self.assertIn("T9b intento deploy en Vercel", readme)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
 
     def test_t5_tester_pro_entitlement_gates_are_documented_and_safe(self):
         t5 = T5_TESTER_PRO_DOC.read_text(encoding="utf-8-sig")
@@ -3409,12 +3412,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T9b - Vercel Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9c - verify Vercel Deployment Protection before retrying preview deploy", governance)
-        self.assertIn("Current completed phase: T9b - Vercel Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current phase completed: T9c - Vercel Deployment Protection Gate NO-GO.", governance)
+        self.assertIn("T9d - enable or verify Vercel Authentication/Password Protection before retrying preview deploy", governance)
+        self.assertIn("Current completed phase: T9c - Vercel Deployment Protection Gate NO-GO.", next_steps)
         self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
         self.assertIn("Phase T6: add 15-day expiry", next_steps)
-        self.assertIn("T9b intento deploy en Vercel", readme)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
 
     def test_t6_15_day_expiry_renewal_flow_is_documented_and_safe(self):
         t6 = T6_RENEWAL_DOC.read_text(encoding="utf-8-sig")
@@ -3512,7 +3515,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("T6_DEMO_RENEWAL_STATE", template_readme)
         self.assertIn("src/lib/renewal-flow.ts", template_readme)
         self.assertIn("src/app/api/tester/renewal/route.ts", template_readme)
-        self.assertIn("T9c should verify Vercel Deployment Protection", template_readme)
+        self.assertIn("T9d should enable or verify Vercel Authentication/Password Protection", template_readme)
 
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
@@ -3532,15 +3535,15 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T9b - Vercel Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9c - verify Vercel Deployment Protection before retrying preview deploy", governance)
+        self.assertIn("Current phase completed: T9c - Vercel Deployment Protection Gate NO-GO.", governance)
+        self.assertIn("T9d - enable or verify Vercel Authentication/Password Protection before retrying preview deploy", governance)
         self.assertIn("docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md", governance)
         self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
-        self.assertIn("Current completed phase: T9b - Vercel Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current completed phase: T9c - Vercel Deployment Protection Gate NO-GO.", next_steps)
         self.assertIn("Phase T6: add 15-day expiry", next_steps)
         self.assertIn("Phase T7: add admin tester console", next_steps)
-        self.assertIn("T9b intento deploy en Vercel", readme)
-        self.assertIn("T9c para verificar Deployment Protection", readme)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
+        self.assertIn("T9d para activar/verificar Vercel Authentication", readme)
 
     def test_t7_admin_tester_console_is_documented_and_safe(self):
         t7 = T7_ADMIN_CONSOLE_DOC.read_text(encoding="utf-8-sig")
@@ -3670,14 +3673,14 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T9b - Vercel Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9c - verify Vercel Deployment Protection before retrying preview deploy", governance)
+        self.assertIn("Current phase completed: T9c - Vercel Deployment Protection Gate NO-GO.", governance)
+        self.assertIn("T9d - enable or verify Vercel Authentication/Password Protection before retrying preview deploy", governance)
         self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
-        self.assertIn("Current completed phase: T9b - Vercel Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current completed phase: T9c - Vercel Deployment Protection Gate NO-GO.", next_steps)
         self.assertIn("Phase T7: add admin tester console", next_steps)
         self.assertIn("Phase T8: harden rate limiting", next_steps)
-        self.assertIn("T9b intento deploy en Vercel", readme)
-        self.assertIn("T9c para verificar Deployment Protection", readme)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
+        self.assertIn("T9d para activar/verificar Vercel Authentication", readme)
 
     def test_t8_tester_portal_security_hardening_is_documented_and_safe(self):
         t8 = T8_SECURITY_HARDENING_DOC.read_text(encoding="utf-8-sig")
@@ -3825,7 +3828,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         self.assertIn("src/lib/security-hardening.ts", template_readme)
         self.assertIn("src/lib/deployment-protection.ts", template_readme)
-        self.assertIn("T9c should verify Vercel Deployment Protection", template_readme)
+        self.assertIn("T9d should enable or verify Vercel Authentication/Password Protection", template_readme)
 
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
@@ -3845,14 +3848,14 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T9b - Vercel Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9c - verify Vercel Deployment Protection before retrying preview deploy", governance)
+        self.assertIn("Current phase completed: T9c - Vercel Deployment Protection Gate NO-GO.", governance)
+        self.assertIn("T9d - enable or verify Vercel Authentication/Password Protection before retrying preview deploy", governance)
         self.assertIn("docs/T8_TESTER_PORTAL_SECURITY_HARDENING.md", governance)
-        self.assertIn("Current completed phase: T9b - Vercel Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current completed phase: T9c - Vercel Deployment Protection Gate NO-GO.", next_steps)
         self.assertIn("Phase T8: harden rate limiting", next_steps)
         self.assertIn("Phase T9: run Vercel preview staging", next_steps)
-        self.assertIn("T9b intento deploy en Vercel", readme)
-        self.assertIn("T9c para verificar Deployment Protection", readme)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
+        self.assertIn("T9d para activar/verificar Vercel Authentication", readme)
 
     def test_t9_protected_vercel_preview_preflight_is_documented_and_safe(self):
         t9 = T9_VERCEL_PREFLIGHT_DOC.read_text(encoding="utf-8-sig")
@@ -3905,7 +3908,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         self.assertIn("scripts/vercel-preview-preflight.mjs", template_readme)
         self.assertIn("npm run preflight:vercel-preview", template_readme)
-        self.assertIn("T9c should verify Vercel Deployment Protection", template_readme)
+        self.assertIn("T9d should enable or verify Vercel Authentication/Password Protection", template_readme)
 
         combined_t9_text = t9 + "\n" + preflight + "\n" + template_readme
         for pattern in (
@@ -3923,16 +3926,16 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t9_text)
 
-        self.assertIn("Current phase completed: T9b - Vercel Preview Deploy Rolled Back.", governance)
-        self.assertIn("T9c - verify Vercel Deployment Protection before retrying preview deploy", governance)
+        self.assertIn("Current phase completed: T9c - Vercel Deployment Protection Gate NO-GO.", governance)
+        self.assertIn("T9d - enable or verify Vercel Authentication/Password Protection before retrying preview deploy", governance)
         self.assertIn("docs/T9_PROTECTED_VERCEL_PREVIEW_PREFLIGHT.md", governance)
         self.assertIn("docs/T9B_VERCEL_PREVIEW_DEPLOY_ROLLBACK.md", governance)
-        self.assertIn("Current completed phase: T9b - Vercel Preview Deploy Rolled Back.", next_steps)
+        self.assertIn("Current completed phase: T9c - Vercel Deployment Protection Gate NO-GO.", next_steps)
         self.assertIn("Phase T9: run Vercel preview staging", next_steps)
         self.assertIn("Phase T9b: authenticate Vercel", next_steps)
         self.assertIn("Phase T9c: verify Vercel Deployment Protection", next_steps)
-        self.assertIn("T9b intento deploy en Vercel", readme)
-        self.assertIn("T9c para verificar Deployment Protection", readme)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
+        self.assertIn("T9d para activar/verificar Vercel Authentication", readme)
 
     def test_t9b_vercel_preview_deploy_rollback_is_documented_and_safe(self):
         t9b = T9B_VERCEL_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
@@ -3962,15 +3965,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t9b)
 
         for pattern in (
-            "Current phase completed: T9b - Vercel Preview Deploy Rolled Back.",
-            "T9c - verify Vercel Deployment Protection before retrying preview deploy",
+            "Current phase completed: T9c - Vercel Deployment Protection Gate NO-GO.",
+            "T9d - enable or verify Vercel Authentication/Password Protection before retrying preview deploy",
             "docs/T9B_VERCEL_PREVIEW_DEPLOY_ROLLBACK.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T9b - Vercel Preview Deploy Rolled Back.",
+            "Current completed phase: T9c - Vercel Deployment Protection Gate NO-GO.",
             "Phase T9b: authenticate Vercel, verify Deployment Protection and execute protected preview deploy. Attempted; rolled back because CLI created production aliases",
             "Phase T9c: verify Vercel Deployment Protection before retrying preview deploy.",
         ):
@@ -3978,9 +3981,9 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T9b intento deploy en Vercel",
+            "T9c anade `audit:vercel-protection`",
             "T9b autentico Vercel, intento deploy y lo elimino al detectar alias de produccion",
-            "T9c para verificar Deployment Protection",
+            "T9d para activar/verificar Vercel Authentication",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -4014,6 +4017,103 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t9b_text)
+
+    def test_t9c_vercel_deployment_protection_gate_is_documented_and_safe(self):
+        t9c = T9C_VERCEL_PROTECTION_GATE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        audit_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-protection-audit.mjs"
+        audit = audit_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(audit_path.is_file())
+        self.assertEqual(package["scripts"]["audit:vercel-protection"], "node scripts/vercel-protection-audit.mjs")
+
+        for pattern in (
+            "T9c Vercel Deployment Protection Gate",
+            "does not deploy, publish a URL, invite testers, send emails",
+            "Project name: `sqx-edge-tester-portal`",
+            "Live deployment: false",
+            "Latest deployment: none",
+            "Domains: none",
+            "Deployment Protection verdict: `NO_GO_PROTECTION_NOT_VERIFIED`",
+            "External deploy allowed: false",
+            "Standard Protection protects generated deployment URLs and previews",
+            "All Deployments protects every URL",
+            "Vercel Authentication can be managed on the project with `ssoProtection.deploymentType`",
+            "Password Protection can be managed on the project with `passwordProtection.deploymentType`",
+            "`audit:vercel-protection` exists and returns a safe NO-GO without `VERCEL_TOKEN`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t9c)
+
+        for pattern in (
+            "NO_GO_PROJECT_NOT_LINKED",
+            "NO_GO_PROTECTION_NOT_VERIFIED",
+            "GO_PROTECTION_VERIFIED",
+            "VERCEL_TOKEN",
+            "ssoProtection",
+            "passwordProtection",
+            "prod_deployment_urls_and_all_previews",
+            "externalDeployAllowed: protectionVerified",
+            "process.exit(protectionVerified ? 0 : 4)",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, audit)
+
+        for pattern in (
+            "scripts/vercel-protection-audit.mjs",
+            "npm run audit:vercel-protection",
+            "T9d should enable or verify Vercel Authentication/Password Protection",
+            "GO_PROTECTION_VERIFIED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        for pattern in (
+            "Current phase completed: T9c - Vercel Deployment Protection Gate NO-GO.",
+            "T9d - enable or verify Vercel Authentication/Password Protection before retrying preview deploy",
+            "docs/T9C_VERCEL_DEPLOYMENT_PROTECTION_GATE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T9c - Vercel Deployment Protection Gate NO-GO.",
+            "Phase T9c: verify Vercel Deployment Protection before retrying preview deploy. Done as safe NO-GO gate",
+            "Phase T9d: enable or verify Vercel Authentication/Password Protection privately",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T9c deja un gate de Deployment Protection",
+            "T9d para activar/verificar Vercel Authentication",
+            "T9c anade `audit:vercel-protection`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        self.assertIn("T9c Vercel Deployment Protection Gate", changelog)
+        self.assertIn("NO_GO_PROTECTION_NOT_VERIFIED", changelog)
+
+        combined_t9c_text = "\n".join([t9c, governance, next_steps, readme, changelog, template_readme, audit])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t9c_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
