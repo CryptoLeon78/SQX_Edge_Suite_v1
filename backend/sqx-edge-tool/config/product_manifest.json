@@ -199,7 +199,9 @@
       "backend/sqx-edge-tool/data/next_controlled_commercial_movement_from_m92_decision",
       "backend/sqx-edge-tool/tools/next_controlled_commercial_movement_from_m92_decision.py",
       "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m93_execution",
-      "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m93_execution.py"
+      "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m93_execution.py",
+      "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m93_execution_monitor",
+      "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m93_execution_monitor.py"
     ],
     "releaseAudit": "backend/sqx-edge-tool/tools/audit_distribution.ps1"
   },
@@ -366,7 +368,7 @@
     "checkoutLabel": "Comprar Pro",
     "checkoutUrl": "",
     "checkout": {
-      "status": "approved_controlled_commercial_movement_from_m93_execution_ready",
+      "status": "approved_controlled_commercial_movement_from_m93_execution_monitor_ready",
       "primaryProvider": "Lemon Squeezy",
       "fallbackProvider": "Gumroad",
       "mode": "hosted_checkout",
@@ -548,7 +550,7 @@
       "privateAssetReviewPolicy": "approve_asset_for_controlled_publication_only_after_private_review_safe_claims_support_release_notes_and_rollback",
       "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
       "automation": {
-        "status": "approved_controlled_commercial_movement_from_m93_execution_ready",
+        "status": "approved_controlled_commercial_movement_from_m93_execution_monitor_ready",
         "webhookProvider": "Lemon Squeezy",
         "webhookSignatureHeader": "X-Signature",
         "webhookSigningAlgorithm": "hmac_sha256_hex",
@@ -790,7 +792,11 @@
       "approvedControlledCommercialMovementFromM93ExecutionConfig": "backend/sqx-edge-tool/config/approved_controlled_commercial_movement_from_m93_execution.json",
       "approvedControlledCommercialMovementFromM93ExecutionTool": "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m93_execution.py",
       "approvedControlledCommercialMovementFromM93ExecutionEvidenceDir": "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m93_execution",
-      "approvedControlledCommercialMovementFromM93ExecutionPolicy": "record_only_the_manual_m93_approved_movement_without_automatic_traffic_checkout_email_or_license_execution"
+      "approvedControlledCommercialMovementFromM93ExecutionPolicy": "record_only_the_manual_m93_approved_movement_without_automatic_traffic_checkout_email_or_license_execution",
+      "approvedControlledCommercialMovementFromM93ExecutionMonitorConfig": "backend/sqx-edge-tool/config/approved_controlled_commercial_movement_from_m93_execution_monitor.json",
+      "approvedControlledCommercialMovementFromM93ExecutionMonitorTool": "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m93_execution_monitor.py",
+      "approvedControlledCommercialMovementFromM93ExecutionMonitorEvidenceDir": "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m93_execution_monitor",
+      "approvedControlledCommercialMovementFromM93ExecutionMonitorPolicy": "monitor_m94_execution_result_before_any_additional_commercial_movement"
     }
   },
   "marketing": {

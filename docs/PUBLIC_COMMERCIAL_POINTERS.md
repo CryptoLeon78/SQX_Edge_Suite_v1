@@ -51,4 +51,6 @@ M93 continues this rule: next controlled commercial movement from M92 decision d
 
 M94 continues this rule: approved controlled commercial movement from M93 execution details live privately, while public files keep traceability only.
 
+M95 continues this rule: approved controlled commercial movement from M93 execution monitor details live privately, while public files keep traceability only.
+
 Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

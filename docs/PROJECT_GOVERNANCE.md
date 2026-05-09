@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M94 - Approved controlled commercial movement from M93 execution.
-- Current product/commercial state: `approved_controlled_commercial_movement_from_m93_execution_ready`.
-- Next implementation phase: M95 - monitor the M94 execution result before any additional movement, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Current phase completed: M95 - Approved controlled commercial movement from M93 execution monitor.
+- Current product/commercial state: `approved_controlled_commercial_movement_from_m93_execution_monitor_ready`.
+- Next implementation phase: M96 - decide the next controlled commercial movement from M95 monitor evidence, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 - Governance baseline: G3 - Internal Automation and Agent Gate.
 - Previous governance baseline: G2 - Governance Lookup Before Work.
 - Historical governance baseline: G1 - Specialist Agent Operating Model.

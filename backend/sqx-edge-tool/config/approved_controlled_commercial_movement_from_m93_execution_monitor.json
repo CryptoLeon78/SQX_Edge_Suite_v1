@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "state": "approved_controlled_commercial_movement_from_m93_execution_monitor_ready",
+  "monitorId": "approved_controlled_commercial_movement_from_m93_execution_monitor",
+  "offerId": "sqx_edge_pro_approved_controlled_commercial_movement_from_m93_execution_monitor",
+  "name": "Approved Controlled Commercial Movement From M93 Execution Monitor",
+  "dependsOn": {
+    "approvedControlledCommercialMovementFromM93ExecutionConfig": "backend/sqx-edge-tool/config/approved_controlled_commercial_movement_from_m93_execution.json",
+    "approvedControlledCommercialMovementFromM93ExecutionState": "approved_controlled_commercial_movement_from_m93_execution_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/APPROVED_CONTROLLED_COMMERCIAL_MOVEMENT_FROM_M93_EXECUTION_MONITOR.md",
+    "docs/sales/APPROVED_CONTROLLED_COMMERCIAL_MOVEMENT_FROM_M93_EXECUTION.md",
+    "docs/sales/NEXT_CONTROLLED_COMMERCIAL_MOVEMENT_FROM_M92_DECISION.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "allowedSourceExecutionResults": [
+    "observation_continued",
+    "next_micro_step_prepared",
+    "private_review_packet_prepared",
+    "fix_hold_recorded",
+    "sales_pause_recorded"
+  ],
+  "allowedMonitorStatuses": [
+    "completed",
+    "partial",
+    "blocked",
+    "paused"
+  ],
+  "allowedDecisions": [
+    "continue_observation",
+    "prepare_next_decision",
+    "prepare_private_review_packet",
+    "hold_for_fix",
+    "pause_sales"
+  ],
+  "minimumObservationHours": 24,
+  "minimumPositiveSignalsForNextDecision": 1,
+  "maximumOpenSupportItems": 0,
+  "maximumRefundRequests": 0,
+  "maximumClaimsIssues": 0,
+  "maximumIncidents": 0,
+  "privacyPolicy": "store_only_redacted_m95_execution_monitor_counts_decision_owner_and_next_action_without_buyer_identity_checkout_payloads_or_license_files",
+  "monitorPolicy": "monitor_m94_execution_result_before_any_additional_commercial_movement",
+  "decisionRules": [
+    "prepare_next_decision requires completed or partial M94 execution evidence, at least one positive signal and no support, refund, claims or incident risk.",
+    "prepare_private_review_packet is valid only when the monitor is completed or partial and no risk is present.",
+    "continue_observation is valid when no risk is present and the operator chooses not to move again.",
+    "hold_for_fix is valid when support/onboarding/copy needs work but sales do not need to pause.",
+    "pause_sales is required when refunds, claims, incidents or paused execution evidence are present."
+  ]
+}

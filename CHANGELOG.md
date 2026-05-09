@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - M95 approved controlled commercial movement from M93 execution monitor
+
+- Adds `approved_controlled_commercial_movement_from_m93_execution_monitor.py` to review M94 execution evidence before any additional movement.
+- Tracks redacted observation hours, responses, positive signals, support, refund, claims and incident counts.
+- Extends packaging exclusions, public/private commercial traceability, roadmap/governance and tests.
+
 ## 2026-05-09 - M94 approved controlled commercial movement from M93 execution
 
 - Adds `approved_controlled_commercial_movement_from_m93_execution.py` to record only the exact M93-approved commercial movement.
