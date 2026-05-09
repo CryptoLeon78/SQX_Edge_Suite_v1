@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "state": "controlled_traffic_expansion_execution_ready",
+  "executionId": "controlled_traffic_expansion_execution",
+  "offerId": "sqx_edge_pro_controlled_traffic_expansion_execution",
+  "name": "Controlled Traffic Expansion Execution",
+  "dependsOn": {
+    "controlledTrafficExpansionDecisionConfig": "backend/sqx-edge-tool/config/controlled_traffic_expansion_decision.json",
+    "controlledTrafficExpansionDecisionState": "controlled_traffic_expansion_decision_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/CONTROLLED_TRAFFIC_EXPANSION_EXECUTION.md",
+    "docs/sales/CONTROLLED_TRAFFIC_EXPANSION_DECISION.md",
+    "docs/sales/CONTROLLED_TRAFFIC_EXPANSION_MONITOR.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "allowedSourceFinalActions": [
+    "repeat_same_tiny_step",
+    "prepare_private_review_packet",
+    "hold_for_fix",
+    "pause_sales",
+    "continue_observation"
+  ],
+  "allowedExecutionResults": [
+    "repeat_step_recorded",
+    "private_review_packet_prepared",
+    "fix_hold_recorded",
+    "sales_pause_recorded",
+    "observation_continued"
+  ],
+  "requiredResultByAction": {
+    "repeat_same_tiny_step": "repeat_step_recorded",
+    "prepare_private_review_packet": "private_review_packet_prepared",
+    "hold_for_fix": "fix_hold_recorded",
+    "pause_sales": "sales_pause_recorded",
+    "continue_observation": "observation_continued"
+  },
+  "maximumNewPrivateLinks": 1,
+  "maximumNewInvites": 3,
+  "privacyPolicy": "store_only_redacted_execution_result_owner_summary_and_next_monitor_without_buyer_identity_checkout_payloads_or_license_files",
+  "executionPolicy": "record_only_the_manual_m84_approved_action_without_automatic_traffic_checkout_email_or_license_execution",
+  "executionRules": [
+    "Execution result must match the M84 approved final action.",
+    "repeat_step_recorded allows at most one new private link and three invites.",
+    "private_review_packet_prepared, fix_hold_recorded, sales_pause_recorded and observation_continued must not create new traffic.",
+    "Any deviation from M84 requires a new decision gate before execution."
+  ]
+}

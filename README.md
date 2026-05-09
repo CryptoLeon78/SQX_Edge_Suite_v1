@@ -4,11 +4,11 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: M84 completada con decision operativa sobre el monitor de trafico controlado preparada, reversible y no automatizada.
+- Estado interno: M85 completada con ejecucion manual de la decision M84 registrada, reversible y no automatizada.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: M85 para ejecutar solo la decision operativa aprobada en M84; R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: M86 para monitorizar la ejecucion M85 antes de cualquier nuevo movimiento; R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro

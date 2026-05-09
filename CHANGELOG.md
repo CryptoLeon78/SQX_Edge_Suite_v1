@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - M85 controlled traffic expansion execution
+
+- Adds a guarded internal execution record for the exact manual action approved by M84.
+- Blocks deviations from the M84 decision and keeps repeat traffic capped at one private link and three invites.
+- Extends packaging exclusions, public/private commercial traceability, roadmap/governance and tests.
+
 ## 2026-05-09 - M84 controlled traffic expansion decision
 
 - Adds a guarded internal decision gate that converts M83 monitor evidence into one manual next action.

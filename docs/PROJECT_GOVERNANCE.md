@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M84 - Controlled traffic expansion decision.
-- Current product/commercial state: `controlled_traffic_expansion_decision_ready`.
-- Next implementation phase: M85 - execute only the approved M84 operator decision, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Current phase completed: M85 - Controlled traffic expansion execution.
+- Current product/commercial state: `controlled_traffic_expansion_execution_ready`.
+- Next implementation phase: M86 - monitor the M85 execution result before any further movement, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 
