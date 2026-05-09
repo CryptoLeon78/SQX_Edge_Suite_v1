@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-09 - R47 controlled commercial release candidate
+
+- Regenerates the portable ZIP after the Strategy Builder buyer-session support phases.
+- Verifies the refreshed package with frontend contracts, full Python suite, `git diff --check`, distribution audit and clean extracted portable API health.
+- Records the current candidate as controlled commercial delivery only: demos, assisted early access and manual first-buyer handoff, not mass public launch.
+- Publishes local ZIP traceability: `SQX_Edge_Tool_Portable_20260509_102131.zip`, SHA256 `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
+
 ## 2026-05-08 - R45 controlled publication plan
 
 - Adds a public-safe controlled publication plan for the verified portable ZIP without publishing a GitHub Release.

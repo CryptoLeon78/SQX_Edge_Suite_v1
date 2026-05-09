@@ -4,11 +4,11 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: R45 completada con plan de publicacion controlada para el ZIP portable verificado.
+- Estado interno: R47 completada con release candidate comercial controlado, probado y no publicado.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
-- Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260508_201652.zip`.
-- SHA256 del ZIP: `2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E`.
-- Siguiente paso recomendado: R46 solo si autorizamos publicar el GitHub Release; si no, PG7/V10/SB1 segun prioridad comercial.
+- Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
+- SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
+- Siguiente paso recomendado: venta controlada asistida con este ZIP; despues SB17/M82 segun evidencia real, o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -122,7 +122,7 @@ Herramientas analiticas:
 Paquete recomendado para usuario final:
 
 ```text
-dist/SQX_Edge_Tool_Portable_*.zip
+dist/SQX_Edge_Tool_Portable_20260509_102131.zip
 ```
 
 Uso para usuario basico:
@@ -142,6 +142,18 @@ Problemas frecuentes:
 - Si la API no conecta, revisa que el puerto `5050` no este ocupado por otra aplicacion.
 - No muevas archivos internos del ZIP descomprimido; abre siempre desde `START_SQX_EDGE.bat`.
 - Si StrategyQuant X esta en una ruta distinta, configuralo desde el tab `Project Generator`.
+
+## Entrega Comercial Controlada
+
+Estado real: preparado para demos Pro asistidas, early access, compradores fundadores y primeras ventas manuales con soporte. No esta planteado aun como lanzamiento masivo autoservicio.
+
+Antes de entregar a un comprador:
+
+1. Usar el ZIP verificado `SQX_Edge_Tool_Portable_20260509_102131.zip`.
+2. Confirmar SHA256 `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
+3. Entregar la licencia Pro firmada por separado, nunca dentro del ZIP.
+4. Mantener claims seguros: productividad, orden, trazabilidad y reduccion de errores operativos; nunca prometer rentabilidad.
+5. Registrar incidencias de instalacion, activacion, soporte y decision de repetir/pausar antes de ampliar trafico.
 
 ## Inicio Rapido
 

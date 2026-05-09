@@ -34,6 +34,7 @@ SB14_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB14_STRATEGY_BUILDER_BUYER
 SB15_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB15_STRATEGY_BUILDER_BUYER_SESSION_SUPPORT_CASE_BUNDLE.md"
 SB16_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB16_STRATEGY_BUILDER_BUYER_SESSION_SUPPORT_RESOLUTION_CHECKLIST.md"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
+R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
 MONETIZATION_ROADMAP_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_ROADMAP.md"
 MONETIZATION_M1_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M1.md"
@@ -620,7 +621,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb16)
 
-        self.assertIn("Current phase completed: SB16 - Strategy Builder buyer session support resolution checklist.", governance)
+        self.assertIn("Current phase completed: R47 - Controlled commercial release candidate.", governance)
         self.assertIn("Next implementation phase: SB17 - Strategy Builder buyer session evidence handoff index", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
@@ -1095,8 +1096,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_traffic_expansion_review_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_traffic_expansion_review_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_commercial_candidate_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_commercial_candidate_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
@@ -1115,12 +1116,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("public_release_gate", product_manifest["upgrade"]["checkout"]["publicReleaseGateEvidenceDir"])
         self.assertIn("release_publication_record.py", product_manifest["upgrade"]["checkout"]["releasePublicationRecordTool"])
         self.assertIn("release_publication_record", product_manifest["upgrade"]["checkout"]["releasePublicationRecordEvidenceDir"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["phase"], "R45")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["status"], "prepared_not_published")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["tagDraft"], "v0.2.0-r45")
-        self.assertIn("SQX_Edge_Tool_Portable_20260508_201652.zip", product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["portableZip"])
-        self.assertIn("2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E", product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["sha256"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["publicationPlan"], "docs/R45_CONTROLLED_PUBLICATION_PLAN.md")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["phase"], "R47")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["status"], "controlled_commercial_candidate_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["tagDraft"], "v0.2.0-r47")
+        self.assertIn("SQX_Edge_Tool_Portable_20260509_102131.zip", product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["portableZip"])
+        self.assertIn("18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D", product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["sha256"])
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["verifiedReleaseCandidate"]["publicationPlan"], "docs/R47_CONTROLLED_COMMERCIAL_RELEASE.md")
         self.assertIn("post_release_monitor.py", product_manifest["upgrade"]["checkout"]["postReleaseMonitorTool"])
         self.assertIn("post_release_monitor", product_manifest["upgrade"]["checkout"]["postReleaseMonitorEvidenceDir"])
         self.assertIn("hotfix_rollback_release.py", product_manifest["upgrade"]["checkout"]["hotfixRollbackReleaseTool"])
@@ -1196,8 +1197,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("customer_cockpit_overview", server_py)
         self.assertIn("redacted_operator_summary", customer_cockpit_py)
         self.assertIn("license payloads", customer_cockpit_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_traffic_expansion_review_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_traffic_expansion_review_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_commercial_candidate_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_commercial_candidate_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitEndpoint"], "/api/customer-cockpit")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitConfig"], "backend/sqx-edge-tool/config/customer_cockpit.json")
         self.assertEqual(
@@ -1954,7 +1955,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_traffic_expansion_review_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_commercial_candidate_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
@@ -2100,7 +2101,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/private_commercial_split.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-2", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_traffic_expansion_review_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_commercial_candidate_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -2454,6 +2455,19 @@ class DashboardStaticTestCase(unittest.TestCase):
             "v0.2.0-r45",
             "public_release_gate.py",
             "release_publication_record.py",
+            "No publication has been performed",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, text)
+
+    def test_r47_controlled_commercial_release_tracks_verified_zip(self):
+        text = R47_CONTROLLED_COMMERCIAL_RELEASE_DOC.read_text(encoding="utf-8-sig")
+        for pattern in (
+            "R47 - Controlled Commercial Release Candidate",
+            "controlled_commercial_candidate_ready",
+            "SQX_Edge_Tool_Portable_20260509_102131.zip",
+            "18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D",
+            "201 passed, 1 skipped",
             "No publication has been performed",
         ):
             with self.subTest(pattern=pattern):

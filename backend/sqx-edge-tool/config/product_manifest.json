@@ -340,7 +340,7 @@
     "checkoutLabel": "Comprar Pro",
     "checkoutUrl": "",
     "checkout": {
-      "status": "controlled_traffic_expansion_review_ready",
+      "status": "controlled_commercial_candidate_ready",
       "primaryProvider": "Lemon Squeezy",
       "fallbackProvider": "Gumroad",
       "mode": "hosted_checkout",
@@ -350,12 +350,12 @@
       "fulfillmentMode": "manual_signed_license",
       "deliveryArtifact": "SQX_Edge_Tool_Portable_*.zip",
       "verifiedReleaseCandidate": {
-        "phase": "R45",
-        "status": "prepared_not_published",
-        "portableZip": "dist/SQX_Edge_Tool_Portable_20260508_201652.zip",
-        "sha256": "2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E",
-        "tagDraft": "v0.2.0-r45",
-        "publicationPlan": "docs/R45_CONTROLLED_PUBLICATION_PLAN.md",
+        "phase": "R47",
+        "status": "controlled_commercial_candidate_ready",
+        "portableZip": "dist/SQX_Edge_Tool_Portable_20260509_102131.zip",
+        "sha256": "18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D",
+        "tagDraft": "v0.2.0-r47",
+        "publicationPlan": "docs/R47_CONTROLLED_COMMERCIAL_RELEASE.md",
         "publishPolicy": "manual_github_release_only_after_public_release_gate_go"
       },
       "licenseIssuerTool": "backend/sqx-edge-tool/tools/license_issue.py",
@@ -522,7 +522,7 @@
       "privateAssetReviewPolicy": "approve_asset_for_controlled_publication_only_after_private_review_safe_claims_support_release_notes_and_rollback",
       "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
       "automation": {
-        "status": "controlled_traffic_expansion_review_ready",
+        "status": "controlled_commercial_candidate_ready",
         "webhookProvider": "Lemon Squeezy",
         "webhookSignatureHeader": "X-Signature",
         "webhookSigningAlgorithm": "hmac_sha256_hex",

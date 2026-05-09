@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: SB16 - Strategy Builder buyer session support resolution checklist.
-- Current product/commercial state: `controlled_traffic_expansion_review_ready`.
+- Current completed phase: R47 - Controlled commercial release candidate.
+- Current product/commercial state: `controlled_commercial_candidate_ready`.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
-- Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260508_201652.zip`.
-- Latest ZIP SHA256: `2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E`.
-- Next recommended phase: SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
+- Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
+- Next recommended phase: SB17 - Strategy Builder buyer session evidence handoff index, M82 - execute one tiny reversible traffic expansion step only if M81 approves it, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 
 ## Recommended Order
 
@@ -220,3 +220,4 @@ Persistent planning note for the next SQX Edge phases.
 5. Phase R44: regenerate and validate the portable ZIP after real A56 GO, with broad generated-evidence exclusions. Done; see `docs/R44_A63_PORTABLE_AFTER_REAL_MTF_GO.md`.
 6. Phase R45: prepare a controlled GitHub Release/publication plan for the verified ZIP without publishing it. Done; see `docs/R45_CONTROLLED_PUBLICATION_PLAN.md`.
 7. Phase R46: publish the verified GitHub Release only with explicit approval, then run `release_publication_record.py`.
+8. Phase R47: regenerate and validate a controlled commercial release candidate after Strategy Builder buyer-session support phases. Done; see `docs/R47_CONTROLLED_COMMERCIAL_RELEASE.md`.
