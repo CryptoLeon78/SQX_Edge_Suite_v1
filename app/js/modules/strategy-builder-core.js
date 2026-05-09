@@ -29,6 +29,7 @@
   var BUYER_HANDOFF_PACK_REVIEW_TYPE = 'sqx-edge.strategy-builder-buyer-handoff-pack-review';
   var BUYER_SESSION_CHECKLIST_TYPE = 'sqx-edge.strategy-builder-buyer-session-checklist';
   var BUYER_SESSION_SUMMARY_TYPE = 'sqx-edge.strategy-builder-buyer-session-summary';
+  var BUYER_SESSION_NOTES_TYPE = 'sqx-edge.strategy-builder-buyer-session-notes';
   var REQUIRED_BUYER_HANDOFFS = [
     'project_generator_prefill',
     'project_generator_preset_draft',
@@ -1057,6 +1058,110 @@
     };
   }
 
+  function buyerSessionOperatorNotes(input, options) {
+    var source = input || {};
+    var summaryResult = source.type === BUYER_SESSION_SUMMARY_TYPE
+      ? { ok: true, errors: [], summary: source }
+      : buyerSessionHandoffSummary(source, options);
+    if (!summaryResult.ok) {
+      return {
+        ok: false,
+        errors: summaryResult.errors || ['buyer_session_summary_failed'],
+        notes: null,
+        guardrails: ['printable_notes_preview_only', 'no_destination_action_triggered']
+      };
+    }
+    var summary = summaryResult.summary || {};
+    var asset = normalizeAsset(summary.asset);
+    var timeframe = normalizeTimeframe(summary.timeframe);
+    var next = summary.next_manual_action || {};
+    var handoffLines = (summary.handoff_targets || []).map(function(target) {
+      return '[' + normalizeText(target.status, 'pending').toUpperCase() + '] '
+        + normalizeText(target.label, target.id || 'manual handoff')
+        + ' - owner: ' + normalizeText(target.owner, 'operator');
+    });
+    if (!handoffLines.length) handoffLines.push('[PENDING] Manual handoff review - owner: operator');
+    var redactionLines = (summary.redaction || []).map(function(item) { return '- ' + normalizeText(item); });
+    var guardrailLines = (summary.guardrails || []).map(function(item) { return '- ' + normalizeText(item); });
+    var sections = [
+      {
+        id: 'session_scope',
+        title: 'Session scope',
+        lines: [
+          'Asset/timeframe: ' + asset + ' ' + timeframe,
+          'Workflow state: ' + normalizeText(summary.workflow_state, 'blocked_operator_review'),
+          'Review required: ' + (summary.review_required ? 'yes' : 'no'),
+          'Step counts: done ' + ((summary.step_counts && summary.step_counts.done) || 0)
+            + ', pending ' + ((summary.step_counts && summary.step_counts.pending) || 0)
+            + ', blocked ' + ((summary.step_counts && summary.step_counts.blocked) || 0)
+        ]
+      },
+      {
+        id: 'next_manual_action',
+        title: 'Next manual action',
+        lines: [
+          normalizeText(next.label, 'Run StrategyQuant validation manually'),
+          normalizeText(next.action, 'Validate manually before making any trading claim.'),
+          normalizeText(next.note, 'No automatic destination action was triggered.'),
+          'No automatic destination action was triggered.'
+        ]
+      },
+      {
+        id: 'handoff_targets',
+        title: 'Handoff targets',
+        lines: handoffLines
+      },
+      {
+        id: 'redaction_boundary',
+        title: 'Redaction boundary',
+        lines: redactionLines.length ? redactionLines : ['- no_sensitive_payloads']
+      },
+      {
+        id: 'operator_guardrails',
+        title: 'Operator guardrails',
+        lines: guardrailLines.length ? guardrailLines : ['- operator_executes_every_step_manually']
+      }
+    ];
+    var printLines = ['SQX Edge buyer session notes - ' + asset + ' ' + timeframe, ''];
+    sections.forEach(function(section) {
+      printLines.push(section.title);
+      section.lines.forEach(function(line) { printLines.push(line); });
+      printLines.push('');
+    });
+    return {
+      ok: true,
+      errors: [],
+      notes: {
+        type: BUYER_SESSION_NOTES_TYPE,
+        version: 1,
+        created_at: nowIso(options),
+        source_type: normalizeText(summary.type, BUYER_SESSION_SUMMARY_TYPE),
+        asset: asset,
+        timeframe: timeframe,
+        workflow_state: normalizeText(summary.workflow_state, 'blocked_operator_review'),
+        review_required: !!summary.review_required,
+        print_ready: true,
+        format: 'plain_text',
+        sections: sections,
+        print_text: printLines.join('\n').trim(),
+        redaction: (summary.redaction || []).slice(0),
+        guardrails: [
+          'printable_notes_only',
+          'no_destination_action_triggered',
+          'no_local_storage_write',
+          'no_backend_endpoint',
+          'operator_executes_every_step_manually',
+          'no_profitability_claim'
+        ]
+      },
+      guardrails: [
+        'printable_notes_preview_only',
+        'no_destination_action_triggered',
+        'operator_executes_every_step_manually'
+      ]
+    };
+  }
+
   function buyerWorkflowSummary(input, options) {
     var payload = input && input.type === PACKAGE_TYPE ? input : buildPackage(input || {}, options);
     var review = reviewChecklistSummary(payload);
@@ -1116,6 +1221,7 @@
     buildContext: buildContext,
     buildPackage: buildPackage,
     buyerHandoffPackReview: buyerHandoffPackReview,
+    buyerSessionOperatorNotes: buyerSessionOperatorNotes,
     buyerSessionHandoffSummary: buyerSessionHandoffSummary,
     buyerWorkflowSummary: buyerWorkflowSummary,
     defaultValidationPack: defaultValidationPack,

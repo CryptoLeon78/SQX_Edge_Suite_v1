@@ -32,6 +32,7 @@ assert.equal(typeof core.sqxViewsHandoffFromPackage, 'function');
 assert.equal(typeof core.buyerWorkflowSummary, 'function');
 assert.equal(typeof core.buyerHandoffPackReview, 'function');
 assert.equal(typeof core.buyerSessionHandoffSummary, 'function');
+assert.equal(typeof core.buyerSessionOperatorNotes, 'function');
 assert.equal(typeof core.handoffAuditEntry, 'function');
 assert.equal(typeof core.guidedBuyerSessionChecklist, 'function');
 assert.equal(typeof core.strategyCleanerDraftFromPackage, 'function');
@@ -160,6 +161,18 @@ assert.equal(buyerSessionSummary.summary.redaction.includes('no_buyer_identity')
 assert.equal(buyerSessionSummary.summary.guardrails.includes('no_destination_action_triggered'), true);
 assert.equal(JSON.stringify(buyerSessionSummary.summary).includes('"raw_csv"'), false);
 assert.equal(JSON.stringify(buyerSessionSummary.summary).includes('"buyer_email"'), false);
+const buyerSessionNotes = core.buyerSessionOperatorNotes(buyerSessionSummary.summary, { createdAt: '2026-05-09T01:45:00.000Z' });
+assert.equal(buyerSessionNotes.ok, true);
+assert.equal(buyerSessionNotes.notes.type, 'sqx-edge.strategy-builder-buyer-session-notes');
+assert.equal(buyerSessionNotes.notes.created_at, '2026-05-09T01:45:00.000Z');
+assert.equal(buyerSessionNotes.notes.print_ready, true);
+assert.equal(buyerSessionNotes.notes.format, 'plain_text');
+assert.equal(buyerSessionNotes.notes.sections.length, 5);
+assert.match(buyerSessionNotes.notes.print_text, /SQX Edge buyer session notes - EURUSD H1/);
+assert.match(buyerSessionNotes.notes.print_text, /Handoff targets/);
+assert.match(buyerSessionNotes.notes.print_text, /No automatic destination action was triggered/);
+assert.equal(buyerSessionNotes.notes.guardrails.includes('no_local_storage_write'), true);
+assert.equal(JSON.stringify(buyerSessionNotes.notes).includes('"buyer_email"'), false);
 
 const importedPackage = core.importPayload(JSON.stringify(ready), { createdAt: '2026-05-09T01:00:00.000Z' });
 assert.equal(importedPackage.ok, true);
@@ -216,6 +229,7 @@ assert.match(blockedImport.errors.join(' '), /forbidden_raw_payload_keys/);
   'sb-prepare-buyer-pack-btn',
   'sb-buyer-session-btn',
   'sb-buyer-summary-btn',
+  'sb-buyer-notes-btn',
   'sb-clear-btn',
   'sb-export-btn',
   'sb-status',
@@ -345,6 +359,13 @@ assert.match(document.getElementById('sb-package-preview').textContent, /no_dest
 assert.match(document.getElementById('sb-status').textContent, /Buyer session summary prepared|Buyer session summary exported/);
 assert.match(document.getElementById('sb-audit-list').innerHTML, /Buyer Session Summary/);
 assert.equal(sandbox.localStorage.getItem('sqx_strategy_builder_buyer_session_summary_v1'), null);
+document.getElementById('sb-buyer-notes-btn').click();
+assert.match(document.getElementById('sb-package-preview').textContent, /SQX Edge buyer session notes - EURUSD H1/);
+assert.match(document.getElementById('sb-package-preview').textContent, /Handoff targets/);
+assert.match(document.getElementById('sb-package-preview').textContent, /Operator guardrails/);
+assert.match(document.getElementById('sb-status').textContent, /Buyer session printable notes prepared|Buyer session printable notes exported/);
+assert.match(document.getElementById('sb-audit-list').innerHTML, /Buyer Session Notes/);
+assert.equal(sandbox.localStorage.getItem('sqx_strategy_builder_buyer_session_notes_v1'), null);
 const importedBuyerPackUiResult = ui.importText(JSON.stringify(buyerPack.pack), { document });
 assert.equal(importedBuyerPackUiResult.ok, true);
 assert.equal(document.getElementById('sb-state').textContent, 'blocked_operator_review');

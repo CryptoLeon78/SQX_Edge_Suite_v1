@@ -365,6 +365,21 @@ async function run() {
     if (!buyerSessionSummary.auditRows.some(text => text.includes('Buyer Session Summary'))) throw new Error(`Strategy Builder buyer session summary audit missing: ${JSON.stringify(buyerSessionSummary)}`);
     if (buyerSessionSummary.storageText !== null || buyerSessionSummary.viewPresetCount !== viewPresetCountBeforeHandoff || buyerSessionSummary.pgPresetCount !== presetCountBeforeDraft) throw new Error(`Strategy Builder buyer session summary should not persist destination state: ${JSON.stringify(buyerSessionSummary)}`);
     await saveShot(desktop, 'e2e-strategy-builder-buyer-summary-desktop.png');
+    await desktop.locator('#sb-buyer-notes-btn').click();
+    const buyerSessionNotes = await desktop.evaluate(() => ({
+      preview: document.getElementById('sb-package-preview')?.textContent || '',
+      status: document.getElementById('sb-status')?.textContent || '',
+      auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
+      storageText: localStorage.getItem('sqx_strategy_builder_buyer_session_notes_v1'),
+      viewPresetCount: window.SQX.viewCreator.getSavedPresets(localStorage).length,
+      pgPresetCount: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length,
+    }));
+    if (!buyerSessionNotes.preview.includes('SQX Edge buyer session notes - EURUSD H1')) throw new Error('Strategy Builder buyer session notes preview missing title');
+    if (!buyerSessionNotes.preview.includes('Handoff targets') || !buyerSessionNotes.preview.includes('Operator guardrails')) throw new Error(`Strategy Builder buyer session notes missing printable sections: ${buyerSessionNotes.preview}`);
+    if (!buyerSessionNotes.status.includes('Buyer session printable notes')) throw new Error(`Strategy Builder buyer session notes status missing: ${JSON.stringify(buyerSessionNotes)}`);
+    if (!buyerSessionNotes.auditRows.some(text => text.includes('Buyer Session Notes'))) throw new Error(`Strategy Builder buyer session notes audit missing: ${JSON.stringify(buyerSessionNotes)}`);
+    if (buyerSessionNotes.storageText !== null || buyerSessionNotes.viewPresetCount !== viewPresetCountBeforeHandoff || buyerSessionNotes.pgPresetCount !== presetCountBeforeDraft) throw new Error(`Strategy Builder buyer session notes should not persist destination state: ${JSON.stringify(buyerSessionNotes)}`);
+    await saveShot(desktop, 'e2e-strategy-builder-buyer-notes-desktop.png');
     const importResult = await desktop.evaluate(pkg => window.SQX.strategyBuilder.importText(JSON.stringify(pkg)), builderPackage);
     if (!importResult.ok || importResult.package.workflow_state !== 'blocked_operator_review') throw new Error('Strategy Builder import should require fresh operator review');
     await desktop.waitForFunction(() => document.getElementById('sb-status')?.textContent.includes('Confirm manual review'));

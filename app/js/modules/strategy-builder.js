@@ -22,6 +22,7 @@
     prepareBuyerPack: 'sb-prepare-buyer-pack-btn',
     buyerSession: 'sb-buyer-session-btn',
     buyerSummary: 'sb-buyer-summary-btn',
+    buyerNotes: 'sb-buyer-notes-btn',
     clear: 'sb-clear-btn',
     exportPackage: 'sb-export-btn',
     status: 'sb-status',
@@ -39,6 +40,7 @@
   var lastBuyerHandoffPack = null;
   var lastBuyerPackReview = null;
   var lastBuyerSessionChecklist = null;
+  var lastBuyerSessionSummary = null;
   var currentHandoff = null;
   var currentSourceSummary = null;
   var handoffAuditTrail = [];
@@ -237,6 +239,7 @@
     lastBuyerHandoffPack = null;
     lastBuyerPackReview = null;
     lastBuyerSessionChecklist = null;
+    lastBuyerSessionSummary = null;
     lastPackage = api.buildPackage(inputModel(doc));
     return renderPackage(lastPackage, doc);
   }
@@ -265,6 +268,7 @@
     lastBuyerHandoffPack = null;
     lastBuyerPackReview = null;
     lastBuyerSessionChecklist = null;
+    lastBuyerSessionSummary = null;
     setValue(IDS.sourceMode, 'blank', doc);
     setValue(IDS.asset, 'EURUSD', doc);
     setValue(IDS.timeframe, 'H1', doc);
@@ -283,9 +287,25 @@
     return 'sqx_buyer_session_summary_' + new Date().toISOString().replace(/[:.]/g, '-') + '.json';
   }
 
+  function safeBuyerSessionNotesFilename() {
+    return 'sqx_buyer_session_notes_' + new Date().toISOString().replace(/[:.]/g, '-') + '.txt';
+  }
+
   function downloadJson(payload, filename, doc) {
     if (!global.Blob || !global.URL || !global.URL.createObjectURL || !doc || !doc.createElement) return false;
     var blob = new global.Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    var url = global.URL.createObjectURL(blob);
+    var link = doc.createElement('a');
+    link.href = url;
+    link.download = filename;
+    if (link.click) link.click();
+    global.setTimeout(function() { global.URL.revokeObjectURL(url); }, 0);
+    return true;
+  }
+
+  function downloadText(payload, filename, doc) {
+    if (!global.Blob || !global.URL || !global.URL.createObjectURL || !doc || !doc.createElement) return false;
+    var blob = new global.Blob([String(payload == null ? '' : payload)], { type: 'text/plain' });
     var url = global.URL.createObjectURL(blob);
     var link = doc.createElement('a');
     link.href = url;
@@ -468,6 +488,7 @@
     lastBuyerHandoffPack = result.pack;
     lastBuyerPackReview = null;
     lastBuyerSessionChecklist = null;
+    lastBuyerSessionSummary = null;
     addAuditEntry('Buyer Handoff Pack', payload, result, doc);
     setStatus('Buyer handoff pack prepared in preview. No destination action was triggered.', 'ok', doc);
     return result;
@@ -489,6 +510,7 @@
     var preview = byId(IDS.preview, doc);
     if (preview) preview.textContent = JSON.stringify(result.checklist, null, 2);
     lastBuyerSessionChecklist = result.checklist;
+    lastBuyerSessionSummary = null;
     addAuditEntry('Buyer Session Checklist', lastPackage, result, doc);
     setStatus('Buyer session checklist prepared in preview. No destination action was triggered.', 'ok', doc);
     return result;
@@ -509,12 +531,40 @@
     }
     var preview = byId(IDS.preview, doc);
     if (preview) preview.textContent = JSON.stringify(result.summary, null, 2);
+    lastBuyerSessionSummary = result.summary;
     var downloaded = downloadJson(result.summary, safeBuyerSessionSummaryFilename(), doc);
     addAuditEntry('Buyer Session Summary', lastPackage, result, doc);
     setStatus(
       downloaded
         ? 'Buyer session summary exported locally. No destination action was triggered.'
         : 'Buyer session summary prepared in preview. No destination action was triggered.',
+      'ok',
+      doc
+    );
+    return result;
+  }
+
+  function prepareBuyerSessionNotes(options) {
+    var doc = options && options.document ? options.document : global.document;
+    var api = core();
+    var payload = lastBuyerSessionSummary || lastBuyerSessionChecklist || lastBuyerPackReview || lastBuyerHandoffPack || lastPackage || build({ document: doc });
+    if (!api || !api.buyerSessionOperatorNotes) {
+      setStatus('Buyer session notes contract missing.', 'error', doc);
+      return null;
+    }
+    var result = api.buyerSessionOperatorNotes(payload);
+    if (!result.ok) {
+      setStatus('Buyer session notes blocked: ' + result.errors.join(', ') + '.', 'warn', doc);
+      return result;
+    }
+    var preview = byId(IDS.preview, doc);
+    if (preview) preview.textContent = result.notes.print_text;
+    var downloaded = downloadText(result.notes.print_text, safeBuyerSessionNotesFilename(), doc);
+    addAuditEntry('Buyer Session Notes', lastPackage, result, doc);
+    setStatus(
+      downloaded
+        ? 'Buyer session printable notes exported locally. No destination action was triggered.'
+        : 'Buyer session printable notes prepared in preview. No destination action was triggered.',
       'ok',
       doc
     );
@@ -538,12 +588,14 @@
     lastBuyerHandoffPack = null;
     lastBuyerPackReview = null;
     lastBuyerSessionChecklist = null;
+    lastBuyerSessionSummary = null;
     renderPackage(lastPackage, doc);
     if (result.buyer_pack_review) {
       var preview = byId(IDS.preview, doc);
       if (preview) preview.textContent = JSON.stringify(result.buyer_pack_review, null, 2);
       lastBuyerPackReview = result.buyer_pack_review;
       lastBuyerSessionChecklist = null;
+      lastBuyerSessionSummary = null;
       addAuditEntry('Buyer Pack Import Review', lastPackage, { ok: true, guardrails: result.buyer_pack_review.guardrails || [] }, doc);
       setStatus('Buyer pack imported for local review. Confirm manual review before export or handoffs.', 'warn', doc);
       return result;
@@ -604,6 +656,7 @@
     bind(doc, IDS.prepareBuyerPack, function() { prepareBuyerHandoffPack({ document: doc }); });
     bind(doc, IDS.buyerSession, function() { prepareBuyerSessionChecklist({ document: doc }); });
     bind(doc, IDS.buyerSummary, function() { exportBuyerSessionSummary({ document: doc }); });
+    bind(doc, IDS.buyerNotes, function() { prepareBuyerSessionNotes({ document: doc }); });
     bind(doc, IDS.importPackage, function() {
       var input = byId(IDS.importFile, doc);
       if (input && input.click) input.click();
@@ -629,6 +682,7 @@
     loadCvcSample: loadCvcSample,
     prepareBuyerHandoffPack: prepareBuyerHandoffPack,
     prepareBuyerSessionChecklist: prepareBuyerSessionChecklist,
+    prepareBuyerSessionNotes: prepareBuyerSessionNotes,
     prepareProjectGeneratorPreset: prepareProjectGeneratorPreset,
     prepareStrategyCleaner: prepareStrategyCleaner,
     renderAuditTrail: renderAuditTrail,
