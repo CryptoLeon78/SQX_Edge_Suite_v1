@@ -99,26 +99,27 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 19. `js/modules/renderers.js`
 20. `js/modules/charts.js`
 21. `js/modules/strategies.js`
-22. `js/modules/home.js`
-23. `js/modules/mtf-evidence.js`
-24. `js/modules/support.js`
-25. `js/modules/fulfillment.js`
-26. `js/modules/customer-cockpit.js`
-27. `js/modules/workflow.js`
-28. `js/modules/view-creator.js`
-29. `js/modules/project-generator-core.js`
-30. `js/modules/project-generator-config.js`
-31. `js/modules/project-generator-dom.js`
-32. `js/modules/project-generator-bindings.js`
-33. `js/modules/project-generator-renderers.js`
-34. `js/modules/project-generator-status.js`
-35. `js/modules/project-generator-cleaner.js`
-36. `js/modules/project-generator.js`
-37. `js/modules/index.js`
-38. `js/data.js`
-39. `js/dashboard.js`
-40. `js/main.js`
-41. `js/project-generator-main.js`
+22. `js/modules/analyzer.js`
+23. `js/modules/home.js`
+24. `js/modules/mtf-evidence.js`
+25. `js/modules/support.js`
+26. `js/modules/fulfillment.js`
+27. `js/modules/customer-cockpit.js`
+28. `js/modules/workflow.js`
+29. `js/modules/view-creator.js`
+30. `js/modules/project-generator-core.js`
+31. `js/modules/project-generator-config.js`
+32. `js/modules/project-generator-dom.js`
+33. `js/modules/project-generator-bindings.js`
+34. `js/modules/project-generator-renderers.js`
+35. `js/modules/project-generator-status.js`
+36. `js/modules/project-generator-cleaner.js`
+37. `js/modules/project-generator.js`
+38. `js/modules/index.js`
+39. `js/data.js`
+40. `js/dashboard.js`
+41. `js/main.js`
+42. `js/project-generator-main.js`
 
 ## Why This Order Matters
 

@@ -4,11 +4,12 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: G4 - Institutional Core repository discipline.
+- Current phase completed: G5 - Institutional Core sync preserving institutional-only assets.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: G5 - reconcile Institutional Core with current `main` while preserving institutional-only assets, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish if this track continues.
-- Governance baseline: G4 - Institutional Core Repository Gate.
-- Previous governance baseline: G3 - Internal Automation and Agent Gate.
+- Next implementation phase: M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, SB18 - Strategy Builder buyer evidence export polish, or a dedicated review of `institutional/feat/dashboard-quick-actions`.
+- Governance baseline: G5 - Institutional Core Synchronized Gate.
+- Previous governance baseline: G4 - Institutional Core Repository Gate.
+- Earlier governance baseline: G3 - Internal Automation and Agent Gate.
 - Earlier governance baseline: G2 - Governance Lookup Before Work.
 - Historical governance baseline: G1 - Specialist Agent Operating Model.
 
@@ -67,6 +68,14 @@ G4 - Institutional Core Repository Gate:
 - Never force-push `institutional/main` and never overwrite institutional-only files, workflows, analyzer assets or operating docs through a blind mirror push.
 - If `institutional/main` has diverged from local `main`, stop normal dual-push discipline and run an explicit G5 institutional sync phase that preserves institutional-only assets before enabling routine pushes there.
 - A successful push to `origin` does not imply a successful push to `institutional`; report both outcomes separately.
+
+G5 - Institutional Core Synchronized Gate:
+
+- `institutional/main` is reconciled through a merge commit, not a force push, so both repository histories remain traceable.
+- Institutional-only assets are preserved in the public working tree: `.github/CODEOWNERS`, institutional workflows, `DISCIPLINA_OPERATIVA.md`, `app/css/analyzer.css` and `app/js/modules/analyzer.js`.
+- The institutional analyzer is exposed as a normal SQX tab (`Analyzer C2`) through the manifest, dashboard load order, module registry and `main.js` initialization.
+- Continue fetching both remotes before every push; once both `origin/main` and `institutional/main` point at the same verified merge commit, routine dual pushes are allowed again.
+- Treat `institutional/feat/dashboard-quick-actions` as an unmerged external branch until a dedicated review phase approves or rejects it.
 
 ## Internal Automation Risk Levels
 
@@ -134,7 +143,7 @@ M46 is accepted when these criteria are true:
 - Internal automation gate: this document, especially G3 risk levels, agent matrix and local tooling notes.
 - CI baseline: `.github/workflows/tests.yml` and `requirements-dev.txt`.
 - Public application repository: `https://github.com/CryptoLeon78/SQX_Edge_Suite_v1.git` (local remote `origin`).
-- Institutional Core repository: `https://github.com/CryptoLeon78/SQX_Institutional_Core.git` (local remote `institutional`, fetched head `ca80a90`; treat as first-class/original, protect divergent institutional-only files until G5 sync).
+- Institutional Core repository: `https://github.com/CryptoLeon78/SQX_Institutional_Core.git` (local remote `institutional`; synced by G5 merge, preserving institutional-only files and analyzer assets).
 - Private commercial boundary: `docs/PRIVATE_COMMERCIAL_DOCS.md`, `docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md`, `docs/private_commercial_manifest.json` and `private_commercial_split.py`.
 - Private commercial repository: `https://github.com/CryptoLeon78/sqx-edge-commercial-private` (private, baseline commit `ed79719`).
 - Public commercial pointers: `docs/PUBLIC_COMMERCIAL_POINTERS.md`; public `docs/MONETIZATION_*`, `docs/sales/*` and Pro resource packs are redacted pointers.

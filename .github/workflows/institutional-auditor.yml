@@ -1,0 +1,29 @@
+name: 🛡️ Institutional Quality Auditor
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  audit:
+    name: Repository Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 🔍 Syntax Validation (JS/JSON)
+        run: |
+          find . -name "*.json" -type f -exec jq . {} +
+          find . -name "*.js" -type f -not -path "./node_modules/*" -exec node --check {} +
+
+      - name: 📁 Structure Audit
+        run: |
+          test -d app/js/modules || (echo "❌ CRITICAL: modules directory missing" && exit 1)
+          test -f app/SQX_Dashboard_v6.html || (echo "❌ CRITICAL: Main dashboard missing" && exit 1)
+
+      - name: 🏷️ Naming Convention Audit (C2)
+        run: |
+          # Verify that core modules follow the snake_case or kebab-case standard
+          find app/js/modules -name "*.js" | grep -vE '^[a-z0-9._/-]+$' && (echo "❌ ERROR: Non-standard filenames in modules" && exit 1) || echo "✅ Naming OK"
