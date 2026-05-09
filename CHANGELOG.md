@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - M83 controlled traffic expansion monitor
+
+- Adds a guarded internal monitor for the M82 tiny traffic step before repeating, pausing or widening again.
+- Tracks redacted aggregate responses, positive signals, support, refund, claims and incident counts.
+- Extends packaging exclusions, public/private commercial traceability, roadmap/governance and static tests.
+
 ## 2026-05-09 - M82 tiny controlled traffic expansion step
 
 - Adds a guarded internal tool and config for one tiny reversible traffic expansion step after M81 approval.

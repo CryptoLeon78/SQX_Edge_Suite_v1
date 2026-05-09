@@ -77,6 +77,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "manual_publication_monitor.py",
             TOOL_ROOT / "tools" / "controlled_traffic_expansion_review.py",
             TOOL_ROOT / "tools" / "controlled_traffic_expansion_step.py",
+            TOOL_ROOT / "tools" / "controlled_traffic_expansion_monitor.py",
             TOOL_ROOT / "tools" / "private_commercial_split.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
@@ -166,6 +167,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("manual_publication_monitor\\.py", text)
         self.assertIn("controlled_traffic_expansion_review\\.py", text)
         self.assertIn("controlled_traffic_expansion_step\\.py", text)
+        self.assertIn("controlled_traffic_expansion_monitor\\.py", text)
         self.assertIn("private_commercial_split\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
@@ -225,6 +227,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn('"manual_publication_monitor"', text)
         self.assertIn('"controlled_traffic_expansion_review"', text)
         self.assertIn('"controlled_traffic_expansion_step"', text)
+        self.assertIn('"controlled_traffic_expansion_monitor"', text)
         self.assertIn('"private-commercial"', text)
         self.assertIn('"commercial-private"', text)
         self.assertIn('"pro-template-pack-1"', text)
@@ -297,6 +300,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("manual_publication_monitor.py", text)
         self.assertIn("controlled_traffic_expansion_review.py", text)
         self.assertIn("controlled_traffic_expansion_step.py", text)
+        self.assertIn("controlled_traffic_expansion_monitor.py", text)
         self.assertIn("private_commercial_split.py", text)
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
@@ -347,6 +351,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("manual_publication_monitor", text)
         self.assertIn("controlled_traffic_expansion_review", text)
         self.assertIn("controlled_traffic_expansion_step", text)
+        self.assertIn("controlled_traffic_expansion_monitor", text)
         self.assertIn("private-commercial", text)
         self.assertIn("commercial-private", text)
         self.assertIn("pro-template-pack-1", text)
@@ -417,6 +422,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "manual_publication_monitor.py",
             "controlled_traffic_expansion_review.py",
             "controlled_traffic_expansion_step.py",
+            "controlled_traffic_expansion_monitor.py",
             "private_commercial_split.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
@@ -467,6 +473,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "manual_publication_monitor",
             "controlled_traffic_expansion_review",
             "controlled_traffic_expansion_step",
+            "controlled_traffic_expansion_monitor",
             "private-commercial",
             "commercial-private",
             "pro-template-pack-1",
@@ -531,6 +538,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/data/manual_publication_monitor/", text)
         self.assertIn("backend/sqx-edge-tool/data/controlled_traffic_expansion_review/", text)
         self.assertIn("backend/sqx-edge-tool/data/controlled_traffic_expansion_step/", text)
+        self.assertIn("backend/sqx-edge-tool/data/controlled_traffic_expansion_monitor/", text)
         self.assertIn("docs/private-commercial/", text)
         self.assertIn("commercial-private/", text)
         self.assertIn("private-commercial/", text)

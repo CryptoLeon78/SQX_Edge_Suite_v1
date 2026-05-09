@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "state": "controlled_traffic_expansion_monitor_ready",
+  "monitorId": "controlled_traffic_expansion_monitor",
+  "offerId": "sqx_edge_pro_controlled_traffic_expansion_monitor",
+  "name": "Controlled Traffic Expansion Monitor",
+  "dependsOn": {
+    "controlledTrafficExpansionStepConfig": "backend/sqx-edge-tool/config/controlled_traffic_expansion_step.json",
+    "controlledTrafficExpansionStepState": "controlled_traffic_expansion_step_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/CONTROLLED_TRAFFIC_EXPANSION_MONITOR.md",
+    "docs/sales/CONTROLLED_TRAFFIC_EXPANSION_STEP.md",
+    "docs/sales/CONTROLLED_TRAFFIC_EXPANSION_REVIEW.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "allowedSourceActions": [
+    "share_one_private_link",
+    "invite_tiny_watchlist",
+    "continue_observation",
+    "create_fix_list",
+    "pause_checkout_and_review"
+  ],
+  "allowedMonitorStatuses": [
+    "completed",
+    "partial",
+    "blocked",
+    "paused"
+  ],
+  "allowedDecisions": [
+    "repeat_tiny_step",
+    "prepare_next_private_review",
+    "hold_for_fix",
+    "pause_sales"
+  ],
+  "minimumObservationHours": 24,
+  "minimumPositiveSignalsForRepeat": 1,
+  "minimumPositiveSignalsForReview": 2,
+  "maximumOpenSupportItems": 0,
+  "maximumRefundRequests": 0,
+  "maximumClaimsIssues": 0,
+  "maximumIncidents": 0,
+  "privacyPolicy": "store_only_redacted_monitor_counts_decision_owner_and_next_action_without_buyer_identity_checkout_payloads_or_license_files",
+  "monitorPolicy": "monitor_m82_tiny_step_before_repeating_pausing_or_widening_again",
+  "decisionRules": [
+    "repeat_tiny_step requires completed or partial M82 evidence, at least one positive signal and no support, refund, claims or incident risk.",
+    "prepare_next_private_review requires completed M82 evidence, at least two positive signals and no risk.",
+    "hold_for_fix is valid when support/onboarding/copy needs work but sales do not need to pause.",
+    "pause_sales is required when refunds, claims, incidents or paused step evidence are present."
+  ]
+}
