@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M88 - Controlled commercial next movement execution.
-- Current product/commercial state: `controlled_commercial_next_movement_execution_ready`.
-- Next implementation phase: M89 - monitor the M88 execution result before any broader commercial movement, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
+- Current phase completed: M89 - Controlled commercial next movement execution monitor.
+- Current product/commercial state: `controlled_commercial_next_movement_execution_monitor_ready`.
+- Next implementation phase: M90 - decide the next controlled commercial movement from M89 evidence, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
 - Governance baseline: G2 - Governance Lookup Before Work.
 - Previous governance baseline: G1 - Specialist Agent Operating Model.
 

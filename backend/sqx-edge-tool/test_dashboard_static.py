@@ -124,6 +124,7 @@ MONETIZATION_M85_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M85.md"
 MONETIZATION_M86_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M86.md"
 MONETIZATION_M87_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M87.md"
 MONETIZATION_M88_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M88.md"
+MONETIZATION_M89_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M89.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -628,7 +629,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb16)
 
-        self.assertIn("Current phase completed: M88 - Controlled commercial next movement execution.", governance)
+        self.assertIn("Current phase completed: M89 - Controlled commercial next movement execution monitor.", governance)
         self.assertIn("SB17 - Strategy Builder buyer session evidence handoff index", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
@@ -1103,8 +1104,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_commercial_next_movement_execution_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_commercial_next_movement_execution_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_commercial_next_movement_execution_monitor_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_commercial_next_movement_execution_monitor_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
@@ -1204,8 +1205,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("customer_cockpit_overview", server_py)
         self.assertIn("redacted_operator_summary", customer_cockpit_py)
         self.assertIn("license payloads", customer_cockpit_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_commercial_next_movement_execution_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_commercial_next_movement_execution_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_commercial_next_movement_execution_monitor_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_commercial_next_movement_execution_monitor_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitEndpoint"], "/api/customer-cockpit")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitConfig"], "backend/sqx-edge-tool/config/customer_cockpit.json")
         self.assertEqual(
@@ -1594,6 +1595,22 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(
             product_manifest["upgrade"]["checkout"]["controlledCommercialNextMovementExecutionPolicy"],
             "record_only_the_manual_m87_approved_movement_without_automatic_traffic_checkout_email_or_license_execution",
+        )
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["controlledCommercialNextMovementExecutionMonitorConfig"],
+            "backend/sqx-edge-tool/config/controlled_commercial_next_movement_execution_monitor.json",
+        )
+        self.assertIn(
+            "controlled_commercial_next_movement_execution_monitor.py",
+            product_manifest["upgrade"]["checkout"]["controlledCommercialNextMovementExecutionMonitorTool"],
+        )
+        self.assertIn(
+            "controlled_commercial_next_movement_execution_monitor",
+            product_manifest["upgrade"]["checkout"]["controlledCommercialNextMovementExecutionMonitorEvidenceDir"],
+        )
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["controlledCommercialNextMovementExecutionMonitorPolicy"],
+            "monitor_m88_execution_result_before_any_broader_commercial_movement",
         )
 
     def test_dashboard_navigation_delegates_to_ui_module(self):
@@ -2050,7 +2067,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_commercial_next_movement_execution_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "controlled_commercial_next_movement_execution_monitor_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
@@ -2207,10 +2224,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/controlled_commercial_next_movement.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/controlled_commercial_next_movement_execution", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/controlled_commercial_next_movement_execution.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/controlled_commercial_next_movement_execution_monitor", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/controlled_commercial_next_movement_execution_monitor.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/private_commercial_split.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-2", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_commercial_next_movement_execution_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "controlled_commercial_next_movement_execution_monitor_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -2399,11 +2418,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             "M86_controlled_traffic_expansion_execution_monitor",
             "M87_controlled_commercial_next_movement",
             "M88_controlled_commercial_next_movement_execution",
+            "M89_controlled_commercial_next_movement_execution_monitor",
         }
 
         self.assertEqual(manifest["migrationStage"], "public_redacted_private_repo_published")
-        self.assertEqual(manifest["phase"], "M88_controlled_commercial_next_movement_execution")
-        self.assertEqual(manifest["latestPrivateCommercialPhase"], "M88")
+        self.assertEqual(manifest["phase"], "M89_controlled_commercial_next_movement_execution_monitor")
+        self.assertEqual(manifest["latestPrivateCommercialPhase"], "M89")
         self.assertEqual(manifest["privateRepositoryUrl"], private_repo)
         self.assertEqual(manifest["privateBaselineCommit"], private_commit)
         self.assertIn("public_repository_keeps_only_traceability_pointers", manifest["publicRedactionPolicy"])
@@ -4136,6 +4156,51 @@ class DashboardStaticTestCase(unittest.TestCase):
             "next_micro_step_prepared_private_link_limit_exceeded",
             "--use-latest-decision",
             "--confirm-exact-movement",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, tool_text)
+
+    def test_controlled_commercial_next_movement_execution_monitor_gate_is_present(self):
+        tool_path = TOOL_ROOT / "tools" / "controlled_commercial_next_movement_execution_monitor.py"
+        config_path = TOOL_ROOT / "config" / "controlled_commercial_next_movement_execution_monitor.json"
+        public_doc = PROJECT_ROOT / "docs" / "sales" / "CONTROLLED_COMMERCIAL_NEXT_MOVEMENT_EXECUTION_MONITOR.md"
+        py_compile.compile(str(tool_path), doraise=True)
+        config = json.loads(config_path.read_text(encoding="utf-8-sig"))
+        tool_text = tool_path.read_text(encoding="utf-8")
+
+        self.assertEqual(config["state"], "controlled_commercial_next_movement_execution_monitor_ready")
+        self.assertEqual(config["offerId"], "sqx_edge_pro_controlled_commercial_next_movement_execution_monitor")
+        self.assertEqual(
+            config["dependsOn"]["controlledCommercialNextMovementExecutionState"],
+            "controlled_commercial_next_movement_execution_ready",
+        )
+        self.assertEqual(
+            config["privacyPolicy"],
+            "store_only_redacted_m88_execution_monitor_counts_decision_owner_and_next_action_without_buyer_identity_checkout_payloads_or_license_files",
+        )
+        self.assertIn("next_micro_step_prepared", config["allowedSourceExecutionResults"])
+        self.assertIn("prepare_next_controlled_movement", config["allowedDecisions"])
+        self.assertEqual(config["minimumObservationHours"], 24)
+        self.assertEqual(config["minimumPositiveSignalsForNextMovement"], 1)
+        self.assertEqual(config["maximumOpenSupportItems"], 0)
+        self.assertEqual(config["maximumRefundRequests"], 0)
+        self.assertEqual(config["maximumClaimsIssues"], 0)
+        self.assertEqual(config["maximumIncidents"], 0)
+        for required in config["requiredFiles"]:
+            with self.subTest(required=required):
+                self.assertTrue((PROJECT_ROOT / required).is_file(), required)
+        self.assert_public_redaction_pointer(public_doc)
+        self.assert_public_redaction_pointer(MONETIZATION_M89_DOC)
+
+        for pattern in (
+            "controlled_commercial_next_movement_execution_monitor_ready",
+            "controlled_commercial_next_movement_execution_state_invalid",
+            "controlled_commercial_next_movement_execution_evidence_missing",
+            "controlled_commercial_next_movement_execution_monitor_source_not_m88_result",
+            "prepare_next_controlled_movement_requires_positive_signal",
+            "prepare_next_controlled_movement_blocked_by_risk",
+            "--use-latest-execution",
+            "--confirm-no-automation",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, tool_text)
