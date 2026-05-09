@@ -102,6 +102,7 @@ backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m93_exec
 backend/sqx-edge-tool/data/next_controlled_commercial_movement_from_m95_decision/
 backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m96_decision_execution/
 backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m96_decision_execution_monitor/
+backend/sqx-edge-tool/data/next_controlled_commercial_movement_from_m98_decision/
 backend/sqx-edge-tool/license_keys/
 backend/sqx-edge-tool/licenses_private/
 backend/sqx-edge-tool/private_keys/

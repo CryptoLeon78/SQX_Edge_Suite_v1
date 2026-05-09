@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: M98 - approved controlled commercial movement from M96 decision execution monitor.
-- Current product/commercial state: `approved_controlled_commercial_movement_from_m96_decision_execution_monitor_ready`.
+- Current completed phase: M99 - next controlled commercial movement from M98 decision.
+- Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G3 - Internal Automation and Agent Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: M99 - decide the next controlled commercial movement from M98 monitor evidence, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish if this track continues.
+- Next recommended phase: M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish if this track continues.
 
 ## Recommended Order
 
@@ -222,7 +222,8 @@ Persistent planning note for the next SQX Edge phases.
 96. Phase M96: decide the next controlled commercial movement from M95 monitor evidence. Done.
 97. Phase M97: execute exactly the M96-approved controlled commercial movement. Done; see `docs/MONETIZATION_M97.md`.
 98. Phase M98: monitor the M97 execution result before any additional commercial movement. Done; see `docs/MONETIZATION_M98.md`.
-99. Phase M99: decide the next controlled commercial movement from M98 monitor evidence.
+99. Phase M99: decide the next controlled commercial movement from M98 monitor evidence. Done; see `docs/MONETIZATION_M99.md`.
+100. Phase M100: execute exactly the M99-approved controlled commercial movement.
 
 ## SQX View Creator Track
 

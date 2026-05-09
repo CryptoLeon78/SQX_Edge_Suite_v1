@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - M99 next commercial movement from M98 decision
+
+- Adds a local M99 decision gate for the next controlled commercial movement from M98 monitor evidence.
+- Blocks micro-step movement when observation, positive signal or risk constraints are not clean.
+- Extends commercial traceability, packaging exclusions and public redaction pointers without automating traffic, checkout, email or licenses.
+
 ## 2026-05-09 - M98 approved M97 execution monitor
 
 - Adds a local M98 monitor for the M97 execution result before any additional commercial movement.

@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "state": "next_controlled_commercial_movement_from_m98_decision_ready",
+  "decisionId": "next_controlled_commercial_movement_from_m98_decision",
+  "offerId": "sqx_edge_pro_next_controlled_commercial_movement_from_m98_decision",
+  "name": "Next Controlled Commercial Movement From M98 Decision",
+  "dependsOn": {
+    "approvedControlledCommercialMovementFromM96DecisionExecutionMonitorConfig": "backend/sqx-edge-tool/config/approved_controlled_commercial_movement_from_m96_decision_execution_monitor.json",
+    "approvedControlledCommercialMovementFromM96DecisionExecutionMonitorState": "approved_controlled_commercial_movement_from_m96_decision_execution_monitor_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/NEXT_CONTROLLED_COMMERCIAL_MOVEMENT_FROM_M98_DECISION.md",
+    "docs/sales/APPROVED_CONTROLLED_COMMERCIAL_MOVEMENT_FROM_M96_DECISION_EXECUTION_MONITOR.md",
+    "docs/sales/APPROVED_CONTROLLED_COMMERCIAL_MOVEMENT_FROM_M96_DECISION_EXECUTION.md",
+    "docs/MONETIZATION_M99.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "allowedSourceMonitorDecisions": [
+    "continue_observation",
+    "prepare_next_decision",
+    "prepare_private_review_packet",
+    "hold_for_fix",
+    "pause_sales"
+  ],
+  "allowedNextMovements": [
+    "continue_observation",
+    "prepare_next_micro_step",
+    "prepare_private_review_packet",
+    "hold_for_fix",
+    "pause_sales"
+  ],
+  "minimumObservationHours": 24,
+  "minimumPositiveSignalsForMovement": 1,
+  "maximumOpenSupportItems": 0,
+  "maximumRefundRequests": 0,
+  "maximumClaimsIssues": 0,
+  "maximumIncidents": 0,
+  "privacyPolicy": "store_only_redacted_m99_next_movement_decision_counts_owner_rationale_and_next_gate_without_buyer_identity_checkout_payloads_or_license_files",
+  "decisionPolicy": "decide_next_controlled_commercial_movement_from_m98_evidence_without_automatic_traffic_checkout_email_or_license_actions",
+  "decisionRules": [
+    "prepare_next_micro_step requires M98 prepare_next_decision, at least one positive signal and no support, refund, claims or incident risk.",
+    "prepare_private_review_packet requires M98 prepare_private_review_packet or prepare_next_decision and no risk.",
+    "continue_observation is valid when no risk is present and the operator chooses not to move.",
+    "hold_for_fix is valid when support/onboarding/copy needs work but sales do not need to pause.",
+    "pause_sales is required when refunds, claims, incidents or paused monitor evidence are present."
+  ]
+}

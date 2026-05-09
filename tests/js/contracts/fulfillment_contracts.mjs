@@ -25,7 +25,7 @@ assert.ok(fulfillmentJs.includes("suffix.indexOf('/api/') === 0"));
 assert.ok(html.includes('id="fulfillment-panel"'));
 assert.ok(html.includes('id="fulfillment-request-list"'));
 assert.ok(html.includes('js/modules/fulfillment.js'));
-assert.equal(productManifest.upgrade.checkout.status, 'approved_controlled_commercial_movement_from_m96_decision_execution_monitor_ready');
+assert.equal(productManifest.upgrade.checkout.status, 'next_controlled_commercial_movement_from_m98_decision_ready');
 assert.ok(productManifest.upgrade.checkout.liveReadinessTool.includes('checkout_live_readiness.py'));
 assert.ok(productManifest.upgrade.checkout.liveReadinessEvidenceDir.includes('checkout_live_readiness'));
 assert.ok(productManifest.upgrade.checkout.commercialReleaseCandidateTool.includes('commercial_release_candidate.py'));
@@ -271,7 +271,7 @@ assert.ok(productManifest.upgrade.checkout.nextControlledCommercialMovementFromM
 assert.ok(productManifest.upgrade.checkout.nextControlledCommercialMovementFromM95DecisionEvidenceDir.includes('next_controlled_commercial_movement_from_m95_decision'));
 assert.equal(productManifest.upgrade.checkout.nextControlledCommercialMovementFromM95DecisionPolicy, 'decide_next_controlled_commercial_movement_from_m95_evidence_without_automatic_traffic_checkout_email_or_license_actions');
 assert.equal(productManifest.upgrade.checkout.rollbackPolicy, 'disable_checkout_pause_webhook_pause_worker_manual_fulfillment');
-assert.equal(productManifest.upgrade.checkout.automation.status, 'approved_controlled_commercial_movement_from_m96_decision_execution_monitor_ready');
+assert.equal(productManifest.upgrade.checkout.automation.status, 'next_controlled_commercial_movement_from_m98_decision_ready');
 assert.equal(productManifest.upgrade.checkout.automation.relayIngestEndpoint, '/api/fulfillment/relay-ingest');
 assert.equal(productManifest.upgrade.checkout.automation.requestStatusEndpoint, '/api/fulfillment/request-status');
 assert.equal(productManifest.upgrade.checkout.automation.retryMode, 'manual_retry_with_attempt_log');

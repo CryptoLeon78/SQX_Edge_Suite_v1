@@ -5,11 +5,11 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 ## Estado Actual
 
 - Estado interno: SB17 completada con indice local de evidencia para sesiones comprador en Strategy Builder.
-- Estado comercial: M98 completada con monitor local del resultado M97 antes de cualquier movimiento comercial adicional.
+- Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: M99 para decidir el siguiente movimiento comercial controlado desde evidencia M98, PG7 para notas `.cfx` comprador, V10 para comparativa de packs SQX Views o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, PG7 para notas `.cfx` comprador, V10 para comparativa de packs SQX Views o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro

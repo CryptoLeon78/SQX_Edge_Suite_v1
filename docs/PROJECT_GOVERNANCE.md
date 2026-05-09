@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: M98 - approved controlled commercial movement from M96 decision execution monitor.
-- Current product/commercial state: `approved_controlled_commercial_movement_from_m96_decision_execution_monitor_ready`.
-- Next implementation phase: M99 - decide the next controlled commercial movement from M98 monitor evidence, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish if this track continues.
+- Current phase completed: M99 - next controlled commercial movement from M98 decision.
+- Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
+- Next implementation phase: M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish if this track continues.
 - Governance baseline: G3 - Internal Automation and Agent Gate.
 - Previous governance baseline: G2 - Governance Lookup Before Work.
 - Historical governance baseline: G1 - Specialist Agent Operating Model.
@@ -131,6 +131,7 @@ M46 is accepted when these criteria are true:
 - Real-data validation and release evidence: `docs/A59_REAL_DATA_VALIDATION.md`, `docs/A60_MT5_ACTIVE_TERMINAL_MODE.md`, `docs/A61_MT5_IPC_DIAGNOSTIC.md`, `docs/A62_RECENT_BARS_REAL_MTF_GO.md`, `docs/R44_A63_PORTABLE_AFTER_REAL_MTF_GO.md`, `docs/R45_CONTROLLED_PUBLICATION_PLAN.md` and `docs/R47_CONTROLLED_COMMERCIAL_RELEASE.md`.
 - M97 commercial execution gate: `docs/MONETIZATION_M97.md`, `docs/sales/APPROVED_CONTROLLED_COMMERCIAL_MOVEMENT_FROM_M96_DECISION_EXECUTION.md`, `backend/sqx-edge-tool/config/approved_controlled_commercial_movement_from_m96_decision_execution.json`, `backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m96_decision_execution.py` and `backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m96_decision_execution/`.
 - M98 commercial execution monitor: `docs/MONETIZATION_M98.md`, `docs/sales/APPROVED_CONTROLLED_COMMERCIAL_MOVEMENT_FROM_M96_DECISION_EXECUTION_MONITOR.md`, `backend/sqx-edge-tool/config/approved_controlled_commercial_movement_from_m96_decision_execution_monitor.json`, `backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m96_decision_execution_monitor.py` and `backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m96_decision_execution_monitor/`.
+- M99 commercial next movement decision: `docs/MONETIZATION_M99.md`, `docs/sales/NEXT_CONTROLLED_COMMERCIAL_MOVEMENT_FROM_M98_DECISION.md`, `backend/sqx-edge-tool/config/next_controlled_commercial_movement_from_m98_decision.json`, `backend/sqx-edge-tool/tools/next_controlled_commercial_movement_from_m98_decision.py` and `backend/sqx-edge-tool/data/next_controlled_commercial_movement_from_m98_decision/`.
 
 ## Security Notes
 
