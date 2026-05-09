@@ -234,6 +234,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "G1 - Specialist Agent Operating Model",
             "G2 - Governance Lookup Before Work",
             "G3 - Internal Automation and Agent Gate",
+            "G4 - Institutional Core Repository Gate",
             "Frontend/UI",
             "Backend/API",
             "QA/Release",
@@ -255,6 +256,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "External action",
             "`SBxx`: Strategy Builder and \"only one platform\" workflow phases.",
             "Never commit `backend/sqx-edge-tool/config/license.json`",
+            "https://github.com/CryptoLeon78/SQX_Institutional_Core.git",
+            "local remote name `institutional`",
+            "Never force-push `institutional/main`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
@@ -275,11 +279,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase G1: define specialist agent ownership, phase namespaces, workflow and M46 entry criteria. Done.", next_steps)
         self.assertIn("Phase G2: require governance/ownership lookup before each work phase/message. Done.", next_steps)
         self.assertIn("Phase G3: define internal automation risk levels, specialist-agent escalation rules, command matrix and local tooling notes. Done.", next_steps)
-        self.assertIn("Governance baseline: G3 - Internal Automation and Agent Gate.", next_steps)
+        self.assertIn("Phase G4: add Institutional Core as first-class repository discipline with separate non-destructive push rules. Done.", next_steps)
+        self.assertIn("Phase G5: reconcile `institutional/main` with current `main`", next_steps)
+        self.assertIn("Governance baseline: G4 - Institutional Core Repository Gate.", next_steps)
         self.assertIn("Any new visible tab, panel, module or manifest-driven UI state", architecture := ARCHITECTURE_DOC.read_text(encoding="utf-8-sig"))
         self.assertIn("docs/PROJECT_GOVERNANCE.md", readme)
         self.assertIn("consulta obligatoria antes de fases/mensajes de trabajo", readme)
-        self.assertIn("incluye G3 para decidir uso de agentes", readme)
+        self.assertIn("incluye G4 para tratar `SQX_Institutional_Core`", readme)
 
     def test_operational_discipline_pushes_after_commit(self):
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
@@ -287,6 +293,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         expected = "Push immediately after every successful commit unless the user explicitly asks to hold the push or the remote is unavailable."
         self.assertIn(expected, governance)
         self.assertIn(expected, next_steps)
+        self.assertIn("push separately to `institutional` only when the remote is aligned", governance)
+        self.assertIn("Never force-push `institutional/main`", next_steps)
 
     def test_champion_challenger_contract_is_documented_before_runtime(self):
         contract = J1_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
@@ -764,9 +772,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb17)
 
-        self.assertIn("Current phase completed: M99 - next controlled commercial movement from M98 decision.", governance)
+        self.assertIn("Current phase completed: G4 - Institutional Core repository discipline.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
+        self.assertIn("G5 - reconcile Institutional Core with current `main`", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
         self.assertIn("docs/SB2_STRATEGY_BUILDER_WORKFLOW.md", governance)

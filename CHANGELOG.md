@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - G4 Institutional Core repository discipline
+
+- Registers `SQX_Institutional_Core` as a first-class operational repository through local remote `institutional`.
+- Adds non-destructive dual-push discipline: fetch/check divergence, report each remote separately and never force-push Institutional Core.
+- Sets G5 as the next recommended sync phase because `institutional/main` already contains institutional-only files that must be preserved.
+
 ## 2026-05-09 - M99 next commercial movement from M98 decision
 
 - Adds a local M99 decision gate for the next controlled commercial movement from M98 monitor evidence.

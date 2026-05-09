@@ -9,7 +9,7 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, PG7 para notas `.cfx` comprador, V10 para comparativa de packs SQX Views o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: G5 para reconciliar `SQX_Institutional_Core` con `main` preservando sus activos institucionales; despues M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, PG7 para notas `.cfx` comprador, V10 para comparativa de packs SQX Views o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -35,7 +35,7 @@ Documentos comerciales:
 - `docs/private_commercial_manifest.json`
 - `docs/MONETIZATION_ROADMAP.md`
 - `docs/PUBLIC_ROADMAP.md`
-- `docs/PROJECT_GOVERNANCE.md` consulta obligatoria antes de fases/mensajes de trabajo; incluye G3 para decidir uso de agentes, automatizaciones internas, checks y herramientas locales opcionales.
+- `docs/PROJECT_GOVERNANCE.md` consulta obligatoria antes de fases/mensajes de trabajo; incluye G4 para tratar `SQX_Institutional_Core` como repo original/first-class mediante el remoto `institutional`, sin `force push` ni espejo destructivo.
 - `resources/pro-buyer-pack/README.md`
 - `resources/pro-buyer-pack/onboarding/START_HERE.md`
 - `docs/sales/TEMPLATE_PACK_1_DELIVERY.md`
