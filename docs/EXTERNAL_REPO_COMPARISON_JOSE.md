@@ -197,13 +197,21 @@ Phase J7 documents the latest JoseLivan improvement as a native contract:
 
 It reviews commit `06767d8eef597987530f152d54860ab96e590ffa`, covering Temporal Health and EGT v2. The accepted value is a contextual OOS health model plus richer `STRONG`, `COMPLIANT`, `DEFENSIVE`, `INSUFFICIENT`, `RISK` and `UNKNOWN` evidence. J7 intentionally does not copy Jose runtime code or add UI. It sets up J8 for pure helpers and JS contracts before any dashboard rendering.
 
+Phase J8 implements that contract as native pure helpers:
+
+- `docs/J8_TEMPORAL_HEALTH_EGT_V2_HELPERS.md`
+- `SQX.championChallengerCore.computeTemporalHealth`
+- `SQX.championChallengerRegime.assessEgtV2`
+
+The implementation remains browser-local and contract-tested. It does not render chips, alter exports, persist CSV payloads, call remote services or restore Top Picks/matrix surfaces.
+
 ## Deferred Improvements
 
 These should be separate phases, not bundled into A47:
 
 1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts, A55 added the OHLC metric builder, A56 added the end-to-end real-data runner, A57 exposed read-only dashboard evidence after GO, A58 added the internal MT5/Dukascopy download gate, A59 recorded the first local MT5 NO-GO smoke, A60 added active-terminal retry mode, A61 added repeatable IPC diagnostics and A62 achieved real A56 GO using recent MT5 bars.
 2. Optional market data acquisition: keep MT5/Dukascopy as an operator-only script, excluded from portable buyer builds unless explicitly needed.
-3. Champion vs Challenger next evidence pass: implement J8 pure Temporal Health and EGT v2 helpers from the J7 contract before UI changes.
+3. Champion vs Challenger next evidence pass: implement J9 compact UI chips and filters using J8 helpers.
 4. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
 5. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
 

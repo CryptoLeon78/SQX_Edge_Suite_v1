@@ -123,6 +123,42 @@ assert.equal(oosParsed.records[0].safe_strategy_name, '&lt;b&gt;Challenger A&lt;
 assert.equal(oosParsed.records[1].max_negative_streak, 0);
 assert.equal(oosParsed.records[1].has_negative_worst_year, false);
 
+const temporalCsv = [
+  'Strategy Name;Symbol;Net Profit (OOS1);Net Profit (OOS2);Net Profit (OOS3);Net Profit (OOS4);Net Profit (OOS5);Net Profit (OOS6);Net Profit (OOS7);Net Profit (OOS8)',
+  'Fresh;EURUSD;10;10;10;10;10;50;50;50',
+  'Recovered;EURUSD;100;-20;40;60;50;-70;20;10',
+  'Declining;EURUSD;100;80;70;-120;-90;10;5;5',
+].join('\n');
+const temporalParsed = cvc.parseOosCsv(temporalCsv);
+const freshHealth = cvc.computeTemporalHealth(temporalParsed.records[0]);
+assert.equal(freshHealth.status, 'fresh');
+assert.equal(freshHealth.peak_block, 8);
+assert.equal(freshHealth.pass_all, true);
+assert.equal(freshHealth.source_metric, 'Net Profit');
+assert.equal(freshHealth.quality, 'full');
+
+const recoveredHealth = cvc.computeTemporalHealth(temporalParsed.records[1], { maxDdAtClose: 0.4, minRecoveryIndex: -10 });
+assert.equal(recoveredHealth.status, 'recovered');
+assert.equal(recoveredHealth.peak_block, 5);
+assert.equal(recoveredHealth.pass_all, true);
+assert.ok(recoveredHealth.recovery_index < 0.70);
+
+const decliningHealth = cvc.computeTemporalHealth(temporalParsed.records[2]);
+assert.equal(decliningHealth.status, 'declining');
+assert.equal(decliningHealth.pass_all, false);
+assert.equal(decliningHealth.pass_drawdown, false);
+assert.ok(decliningHealth.dd_at_close >= 0.15);
+
+const fallbackHealth = cvc.computeTemporalHealth(oosParsed.records[1], { minBlocks: 3 });
+assert.equal(fallbackHealth.source_metric, 'CAGR/Max DD');
+assert.equal(fallbackHealth.quality, 'fallback');
+assert.ok(fallbackHealth.warnings.some(warning => warning.code === 'temporal_health_metric_fallback'));
+
+const shortHealth = cvc.computeTemporalHealth(oosParsed.records[0]);
+assert.equal(shortHealth.status, 'unknown');
+assert.equal(shortHealth.quality, 'insufficient');
+assert.ok(shortHealth.warnings.some(warning => warning.code === 'temporal_health_blocks_insufficient'));
+
 const sparseOos = cvc.parseOosCsv([
   'Strategy Name,CAGR/Max DD (OOS1),CAGR/Max DD (OOS3)',
   'Sparse,1.0,2.0',

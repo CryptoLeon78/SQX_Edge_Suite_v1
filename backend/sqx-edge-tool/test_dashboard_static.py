@@ -18,6 +18,7 @@ J4_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J4_CHAMPION_CHALLENGER_UI.
 J5_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J5_CHAMPION_CHALLENGER_REGIME_EGT.md"
 J6_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J6_CHAMPION_CHALLENGER_EXPORT_HANDOFF.md"
 J7_TEMPORAL_HEALTH_EGT_V2_DOC = PROJECT_ROOT / "docs" / "J7_TEMPORAL_HEALTH_EGT_V2_CONTRACT.md"
+J8_TEMPORAL_HEALTH_EGT_V2_DOC = PROJECT_ROOT / "docs" / "J8_TEMPORAL_HEALTH_EGT_V2_HELPERS.md"
 SB1_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB1_STRATEGY_BUILDER_DISCOVERY.md"
 SB2_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB2_STRATEGY_BUILDER_WORKFLOW.md"
 SB3_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB3_STRATEGY_BUILDER_PROTOTYPE.md"
@@ -288,6 +289,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         j5 = J5_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
         j6 = J6_CHAMPION_CHALLENGER_DOC.read_text(encoding="utf-8-sig")
         j7 = J7_TEMPORAL_HEALTH_EGT_V2_DOC.read_text(encoding="utf-8-sig")
+        j8 = J8_TEMPORAL_HEALTH_EGT_V2_DOC.read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
         comparison = (PROJECT_ROOT / "docs" / "EXTERNAL_REPO_COMPARISON_JOSE.md").read_text(encoding="utf-8-sig")
@@ -314,6 +316,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Phase J6: add export and future Strategy Builder handoff",
             "Phase J7: document the Temporal Health and EGT v2 contract",
             "Phase J8: implement pure Temporal Health and EGT v2 helpers",
+            "Phase J9: add compact dashboard chips and optional filters",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
@@ -326,6 +329,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("docs/J5_CHAMPION_CHALLENGER_REGIME_EGT.md", governance)
         self.assertIn("docs/J6_CHAMPION_CHALLENGER_EXPORT_HANDOFF.md", governance)
         self.assertIn("docs/J7_TEMPORAL_HEALTH_EGT_V2_CONTRACT.md", governance)
+        self.assertIn("docs/J8_TEMPORAL_HEALTH_EGT_V2_HELPERS.md", governance)
         self.assertIn("Phase J1 starts the selective Champion vs Challenger track", comparison)
         self.assertIn("Phase J2 implements the first native Champion vs Challenger core", comparison)
         self.assertIn("Phase J3 adds the OOS stability layer", comparison)
@@ -333,6 +337,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase J5 adds first-party Regime/EGT evidence", comparison)
         self.assertIn("Phase J6 closes the first Champion vs Challenger integration track", comparison)
         self.assertIn("Phase J7 documents the latest JoseLivan improvement", comparison)
+        self.assertIn("Phase J8 implements that contract as native pure helpers", comparison)
 
         for pattern in (
             "J2 Champion vs Challenger Core",
@@ -407,6 +412,19 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, j7)
+
+        for pattern in (
+            "J8 Temporal Health and EGT v2 Helpers",
+            "`SQX.championChallengerCore.computeTemporalHealth(oosRecord, options)`",
+            "`SQX.championChallengerRegime.assessEgtV2(oosRecord, regimeBlocks, options)`",
+            "`temporal_health_metric_fallback`",
+            "`STRONG`, `COMPLIANT`, `DEFENSIVE`, `INSUFFICIENT`, `RISK` or `UNKNOWN`",
+            "No dashboard rendering, backend endpoint, persistence or buyer-facing claim is added in J8.",
+            "No `Top Picks` tab, Top Picks block, matrix tab, full matrix, heatmap tab or heatmap panel.",
+            "`J9` - add compact dashboard chips and optional filters using these helpers.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, j8)
 
     def test_strategy_builder_discovery_is_documented_before_runtime(self):
         sb1 = SB1_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
@@ -670,7 +688,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb16)
 
-        self.assertIn("Current phase completed: J7 - Temporal Health and EGT v2 contract after JoseLivan review.", governance)
+        self.assertIn("Current phase completed: J8 - Temporal Health and EGT v2 pure helpers.", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m95_decision_ready`.", governance)
         self.assertIn("SB17 - Strategy Builder buyer session evidence handoff index", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
@@ -821,6 +839,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.ui", ui_js)
         self.assertIn("SQX.formatters", formatters_js)
         self.assertIn("SQX.championChallengerCore", champion_core_js)
+        self.assertIn("computeTemporalHealth", champion_core_js)
+        self.assertIn("temporal_health_metric_fallback", champion_core_js)
         self.assertIn("SQX.championChallenger", champion_ui_js)
         self.assertIn("buildReviewExport", champion_ui_js)
         self.assertIn("buildStrategyBuilderHandoff", champion_ui_js)
@@ -901,6 +921,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.domain", domain_js)
         self.assertIn("SQX.datasets", datasets_js)
         self.assertIn("SQX.championChallengerRegime", champion_regime_js)
+        self.assertIn("assessEgtV2", champion_regime_js)
+        self.assertIn("EGT_V2_THRESHOLDS", champion_regime_js)
         self.assertIn("SQX_HISTORICAL_DATA", champion_regime_js)
         self.assertIn("SQX_SCORES_DATA", champion_regime_js)
         self.assertIn('id="cvc-regime-ready-count"', self.html)

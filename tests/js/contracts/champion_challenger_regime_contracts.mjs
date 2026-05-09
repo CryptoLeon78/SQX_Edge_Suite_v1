@@ -53,4 +53,83 @@ const candidateEvidence = regime.assessCandidate({
 });
 assert.equal(candidateEvidence.label, 'COMPLIANT');
 
+const regimeBlocks = [
+  { idx: 1, group: 'BULL' },
+  { idx: 2, group: 'BULL' },
+  { idx: 3, group: 'BEAR' },
+  { idx: 4, group: 'BEAR' },
+  { idx: 5, group: 'RANGE' },
+  { idx: 6, group: 'RANGE' },
+];
+
+const strongOos = {
+  primary_metric: 'CAGR/Max DD',
+  metrics_by_block: {
+    1: { 'CAGR/Max DD': 3.0, Trades: 80 },
+    2: { 'CAGR/Max DD': 2.8, Trades: 80 },
+    3: { 'CAGR/Max DD': 1.2, Trades: 80 },
+    4: { 'CAGR/Max DD': 1.1, Trades: 80 },
+    5: { 'CAGR/Max DD': 1.2, Trades: 80 },
+    6: { 'CAGR/Max DD': 1.1, Trades: 80 },
+  },
+};
+const strongEgt = regime.assessEgtV2(strongOos, regimeBlocks);
+assert.equal(strongEgt.verdict, 'STRONG');
+assert.equal(strongEgt.label, 'COMPLIANT');
+assert.equal(strongEgt.dominant_regime, 'BULL');
+assert.equal(strongEgt.failed_regimes.length, 0);
+assert.equal(strongEgt.insufficient_regimes.length, 0);
+assert.equal(strongEgt.stats_by_regime.BULL.count, 2);
+assert.ok(strongEgt.strong_by_regime.BULL);
+
+const defensiveOos = {
+  primary_metric: 'CAGR/Max DD',
+  metrics_by_block: {
+    1: { 'CAGR/Max DD': 1.8 },
+    2: { 'CAGR/Max DD': 1.7 },
+    3: { 'CAGR/Max DD': 0.3 },
+    4: { 'CAGR/Max DD': 0.2 },
+    5: { 'CAGR/Max DD': 0.4 },
+    6: { 'CAGR/Max DD': 0.3 },
+  },
+};
+const defensiveEgt = regime.assessEgtV2(defensiveOos, regimeBlocks);
+assert.equal(defensiveEgt.verdict, 'DEFENSIVE');
+assert.equal(defensiveEgt.label, 'FLAT');
+assert.equal(defensiveEgt.failed_regimes.length, 0);
+
+const riskOos = {
+  primary_metric: 'CAGR/Max DD',
+  metrics_by_block: {
+    1: { 'CAGR/Max DD': 2.0 },
+    2: { 'CAGR/Max DD': 1.8 },
+    3: { 'CAGR/Max DD': -0.2 },
+    4: { 'CAGR/Max DD': -0.1 },
+    5: { 'CAGR/Max DD': 0.3 },
+    6: { 'CAGR/Max DD': 0.2 },
+  },
+};
+const riskEgt = regime.assessEgtV2(riskOos, regimeBlocks);
+assert.equal(riskEgt.verdict, 'RISK');
+assert.equal(riskEgt.label, 'RISK');
+assert.deepEqual(Array.from(riskEgt.failed_regimes), ['BEAR']);
+
+const insufficientEgt = regime.assessEgtV2(strongOos, regimeBlocks, {
+  thresholds: { minBlocksPerRegime: 3 },
+});
+assert.equal(insufficientEgt.verdict, 'INSUFFICIENT');
+assert.equal(insufficientEgt.evaluated_regimes.length, 0);
+assert.deepEqual(Array.from(insufficientEgt.insufficient_regimes), ['BULL', 'BEAR', 'RANGE']);
+
+const longShortEgt = regime.assessEgtV2(defensiveOos, regimeBlocks, {
+  thresholds: { direction: 'long_short' },
+});
+assert.equal(longShortEgt.direction, 'long_short');
+assert.equal(longShortEgt.verdict, 'RISK');
+assert.ok(longShortEgt.failed_regimes.includes('BEAR'));
+
+const minTradesEgt = regime.assessEgtV2(strongOos, regimeBlocks, { minTradesPerBlock: 100 });
+assert.equal(minTradesEgt.verdict, 'UNKNOWN');
+assert.ok(minTradesEgt.warnings.some(warning => warning.code === 'egt_v2_blocks_skipped_min_trades'));
+
 console.log('champion challenger regime contracts ok');

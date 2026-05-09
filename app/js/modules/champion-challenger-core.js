@@ -9,6 +9,13 @@
   var DEFAULT_MAX_ROWS = 5000;
   var DEFAULT_MIN_OOS_BLOCKS = 3;
   var PRIMARY_OOS_METRICS = ['CAGR/Max DD', 'Profit Factor', 'Net Profit'];
+  var TEMPORAL_HEALTH_METRICS = ['Net Profit', 'Net profit', 'NetProfit'];
+  var TEMPORAL_HEALTH_DEFAULTS = {
+    minBlocks: 4,
+    recentPeakWindow: 3,
+    maxDdAtClose: 0.15,
+    minRecoveryIndex: 0.70
+  };
 
   var FIELD_ALIASES = {
     strategy_name: ['Strategy Name', 'Strategy', 'Name'],
@@ -267,6 +274,186 @@
       }
     });
     return max;
+  }
+
+  function finiteNumber(value) {
+    return typeof value === 'number' && isFinite(value);
+  }
+
+  function optionNumber(value, fallback, min) {
+    var parsed = Number(value);
+    if (!isFinite(parsed)) return fallback;
+    return min == null ? parsed : Math.max(min, parsed);
+  }
+
+  function mergeTemporalHealthOptions(options) {
+    var opts = options || {};
+    return {
+      minBlocks: opts.minBlocks == null ? TEMPORAL_HEALTH_DEFAULTS.minBlocks : optionNumber(opts.minBlocks, TEMPORAL_HEALTH_DEFAULTS.minBlocks, 1),
+      recentPeakWindow: opts.recentPeakWindow == null ? TEMPORAL_HEALTH_DEFAULTS.recentPeakWindow : optionNumber(opts.recentPeakWindow, TEMPORAL_HEALTH_DEFAULTS.recentPeakWindow, 1),
+      maxDdAtClose: opts.maxDdAtClose == null ? TEMPORAL_HEALTH_DEFAULTS.maxDdAtClose : optionNumber(opts.maxDdAtClose, TEMPORAL_HEALTH_DEFAULTS.maxDdAtClose),
+      minRecoveryIndex: opts.minRecoveryIndex == null ? TEMPORAL_HEALTH_DEFAULTS.minRecoveryIndex : optionNumber(opts.minRecoveryIndex, TEMPORAL_HEALTH_DEFAULTS.minRecoveryIndex),
+      recoveryOptional: !!opts.recoveryOptional
+    };
+  }
+
+  function metricValueByNormalizedName(blockValues, metricName) {
+    var normalized = normalizeMetricName(metricName);
+    var keys = Object.keys(blockValues || {});
+    for (var i = 0; i < keys.length; i += 1) {
+      if (normalizeMetricName(keys[i]) === normalized) return blockValues[keys[i]];
+    }
+    return null;
+  }
+
+  function temporalMetricCandidates(oosRecord, options) {
+    var opts = options || {};
+    var preferred = (opts.preferredMetrics || TEMPORAL_HEALTH_METRICS).slice();
+    if (oosRecord && oosRecord.primary_metric) preferred.push(oosRecord.primary_metric);
+    return preferred.filter(function(metric, index, items) {
+      return metric && items.map(normalizeMetricName).indexOf(normalizeMetricName(metric)) === index;
+    });
+  }
+
+  function extractMetricSeries(oosRecord, metricName) {
+    var metricsByBlock = oosRecord && oosRecord.metrics_by_block || {};
+    var blocks = Object.keys(metricsByBlock)
+      .map(function(block) { return parseInt(block, 10); })
+      .filter(function(block) { return isFinite(block); })
+      .sort(function(a, b) { return a - b; });
+    var values = [];
+    blocks.forEach(function(block) {
+      var value = metricValueByNormalizedName(metricsByBlock[block], metricName);
+      if (finiteNumber(value)) values.push({ block: block, value: value });
+    });
+    return values;
+  }
+
+  function emptyTemporalHealth(status, warnings, oosRecord, options) {
+    var cfg = mergeTemporalHealthOptions(options);
+    return {
+      status: status || 'unknown',
+      peak_block: null,
+      block_count: oosRecord && oosRecord.block_count || 0,
+      dd_at_close: null,
+      recovery_index: null,
+      pass_peak: false,
+      pass_drawdown: false,
+      pass_recovery: false,
+      pass_all: false,
+      source_metric: null,
+      quality: 'insufficient',
+      warnings: warnings || [],
+      thresholds: cfg
+    };
+  }
+
+  function computeTemporalHealth(oosRecord, options) {
+    var cfg = mergeTemporalHealthOptions(options);
+    var warnings = [];
+    if (!oosRecord || !oosRecord.metrics_by_block) {
+      return emptyTemporalHealth('unknown', [{ code: 'temporal_health_oos_missing' }], oosRecord, cfg);
+    }
+
+    var candidates = temporalMetricCandidates(oosRecord, options);
+    var selected = null;
+    var series = [];
+    for (var i = 0; i < candidates.length; i += 1) {
+      var values = extractMetricSeries(oosRecord, candidates[i]);
+      if (values.length) {
+        selected = candidates[i];
+        series = values;
+        break;
+      }
+    }
+
+    if (!selected || !series.length) {
+      return emptyTemporalHealth('unknown', [{ code: 'temporal_health_metric_missing' }], oosRecord, cfg);
+    }
+
+    var selectedNormalized = normalizeMetricName(selected);
+    var preferredNormalized = TEMPORAL_HEALTH_METRICS.map(normalizeMetricName);
+    var quality = preferredNormalized.indexOf(selectedNormalized) === -1 ? 'fallback' : 'full';
+    if (quality === 'fallback') warnings.push({ code: 'temporal_health_metric_fallback', source_metric: selected });
+    if (series.length < cfg.minBlocks) {
+      warnings.push({ code: 'temporal_health_blocks_insufficient', min_blocks: cfg.minBlocks, actual_blocks: series.length });
+      return {
+        status: 'unknown',
+        peak_block: null,
+        block_count: series.length,
+        dd_at_close: null,
+        recovery_index: null,
+        pass_peak: false,
+        pass_drawdown: false,
+        pass_recovery: false,
+        pass_all: false,
+        source_metric: selected,
+        quality: 'insufficient',
+        warnings: warnings,
+        thresholds: cfg
+      };
+    }
+
+    var equity = [];
+    var cumulative = 0;
+    series.forEach(function(item) {
+      cumulative += item.value;
+      equity.push({ block: item.block, value: cumulative });
+    });
+
+    var peak = equity[0];
+    equity.forEach(function(item) {
+      if (item.value > peak.value) peak = item;
+    });
+    var close = equity[equity.length - 1];
+    var ddAtClose = null;
+    var passDrawdown = false;
+    if (peak.value > 0) {
+      ddAtClose = Math.max(0, (peak.value - close.value) / peak.value);
+      passDrawdown = ddAtClose < cfg.maxDdAtClose;
+    } else {
+      quality = 'fallback';
+      warnings.push({ code: 'temporal_health_peak_non_positive', peak_value: peak.value });
+    }
+
+    var recentValues = series.slice(Math.max(0, series.length - cfg.recentPeakWindow)).map(function(item) { return item.value; });
+    var sum = series.reduce(function(acc, item) { return acc + item.value; }, 0);
+    var recentSum = recentValues.reduce(function(acc, value) { return acc + value; }, 0);
+    var avgHistorical = sum / series.length;
+    var avgRecent = recentSum / recentValues.length;
+    var recoveryIndex = null;
+    var passRecovery = false;
+    if (avgHistorical !== 0 && isFinite(avgHistorical) && isFinite(avgRecent)) {
+      recoveryIndex = avgRecent / avgHistorical;
+      passRecovery = recoveryIndex >= cfg.minRecoveryIndex;
+    } else {
+      warnings.push({ code: 'temporal_health_recovery_unavailable', avg_historical: avgHistorical });
+      passRecovery = cfg.recoveryOptional;
+    }
+
+    var peakPosition = equity.findIndex(function(item) { return item.block === peak.block; });
+    var passPeak = peakPosition >= Math.floor(series.length / 2);
+    var recentPeak = peakPosition >= Math.max(0, series.length - cfg.recentPeakWindow);
+    var status = 'old_peak';
+    if (!passDrawdown || !passRecovery) status = 'declining';
+    else if (recentPeak) status = 'fresh';
+    else if (passPeak) status = 'recovered';
+
+    return {
+      status: status,
+      peak_block: peak.block,
+      block_count: series.length,
+      dd_at_close: ddAtClose,
+      recovery_index: recoveryIndex,
+      pass_peak: passPeak,
+      pass_drawdown: passDrawdown,
+      pass_recovery: passRecovery,
+      pass_all: passPeak && passDrawdown && passRecovery,
+      source_metric: selected,
+      quality: quality,
+      warnings: warnings,
+      thresholds: cfg
+    };
   }
 
   function parseOosRecord(row, headers, oosColumns, options) {
@@ -636,7 +823,10 @@
     defaultRecommendedFields: DEFAULT_RECOMMENDED_FIELDS,
     defaultMinOosBlocks: DEFAULT_MIN_OOS_BLOCKS,
     primaryOosMetrics: PRIMARY_OOS_METRICS,
+    temporalHealthDefaults: TEMPORAL_HEALTH_DEFAULTS,
+    temporalHealthMetrics: TEMPORAL_HEALTH_METRICS,
     compareCandidate: compareCandidate,
+    computeTemporalHealth: computeTemporalHealth,
     detectDelimiter: detectDelimiter,
     escapeHtml: escapeHtml,
     choosePrimaryOosMetric: choosePrimaryOosMetric,

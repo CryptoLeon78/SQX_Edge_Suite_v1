@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - J8 Temporal Health and EGT v2 helpers
+
+- Adds pure `computeTemporalHealth` evidence in Champion vs Challenger core for OOS peak, drawdown-at-close and recovery state.
+- Adds pure `assessEgtV2` evidence in the regime adapter with `STRONG`, `COMPLIANT`, `DEFENSIVE`, `INSUFFICIENT`, `RISK` and `UNKNOWN` verdicts.
+- Extends JS contracts without adding UI rendering, backend endpoints, persistence, remote calls or Top Picks/Matrix surfaces.
+
 ## 2026-05-09 - J7 Temporal Health and EGT v2 contract
 
 - Documents JoseLivan commit `06767d8eef597987530f152d54860ab96e590ffa` as a native SQX Edge contract.
