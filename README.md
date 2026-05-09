@@ -34,7 +34,7 @@ Documentos comerciales:
 - `docs/private_commercial_manifest.json`
 - `docs/MONETIZATION_ROADMAP.md`
 - `docs/PUBLIC_ROADMAP.md`
-- `docs/PROJECT_GOVERNANCE.md` consulta obligatoria antes de fases/mensajes de trabajo.
+- `docs/PROJECT_GOVERNANCE.md` consulta obligatoria antes de fases/mensajes de trabajo; incluye G3 para decidir uso de agentes, automatizaciones internas, checks y herramientas locales opcionales.
 - `resources/pro-buyer-pack/README.md`
 - `resources/pro-buyer-pack/onboarding/START_HERE.md`
 - `docs/sales/TEMPLATE_PACK_1_DELIVERY.md`

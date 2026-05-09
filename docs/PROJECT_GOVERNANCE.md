@@ -7,8 +7,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current phase completed: M94 - Approved controlled commercial movement from M93 execution.
 - Current product/commercial state: `approved_controlled_commercial_movement_from_m93_execution_ready`.
 - Next implementation phase: M95 - monitor the M94 execution result before any additional movement, SB17 - Strategy Builder buyer session evidence handoff index, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, or V10 - SQX Views pack comparison.
-- Governance baseline: G2 - Governance Lookup Before Work.
-- Previous governance baseline: G1 - Specialist Agent Operating Model.
+- Governance baseline: G3 - Internal Automation and Agent Gate.
+- Previous governance baseline: G2 - Governance Lookup Before Work.
+- Historical governance baseline: G1 - Specialist Agent Operating Model.
 
 ## Specialist Agents
 
@@ -49,6 +50,42 @@ G2 - Governance Lookup Before Work:
 - If specialized agents are available and the user asks for agent consultation, use them for bounded review or execution tasks that match the ownership matrix.
 - If no specialized agent is needed, explicitly use Project Governance as the source of ownership and verification discipline.
 
+G3 - Internal Automation and Agent Gate:
+
+- Use specialist agents for bounded review, risk checks or parallel implementation slices only when their output materially reduces uncertainty or protects an ownership boundary.
+- Automate internal work only when it reduces repeated manual checks, protects contracts, creates reproducible evidence or prevents drift between docs, tests, manifests and release scripts.
+- Keep real-world commercial actions manual unless the user explicitly approves the exact action: traffic, emails, checkout publication, buyer contact, license issue, refunds, support promises and public release publication.
+- Every new internal automation must declare its risk level, output location, privacy boundary and required verification before commit.
+- If an automation touches buyer-facing content, commercial gates, private evidence, relay, licenses, packaging or distribution, include Security/Distribution and QA/Release ownership in the phase.
+
+## Internal Automation Risk Levels
+
+| Level | Allowed By Default | Examples | Extra Gate |
+| --- | --- | --- | --- |
+| 0 - Read/report | Yes. | Static audits, roadmap consistency checks, local tool discovery, test summaries. | Normal phase verification. |
+| 1 - Local evidence | Yes, if excluded or intentionally tracked. | Redacted JSON reports, local monitor evidence, checksums, internal run logs. | Declare output path and package exclusion. |
+| 2 - Buyer-facing preparation | Only with explicit phase scope. | Draft release notes, buyer handoff packs, Pro docs, public copy. | Monetization/Product plus Security/Distribution review. |
+| 3 - External action | No automatic execution. | Publishing release, sending email, enabling checkout, issuing license, inviting buyers. | Explicit user approval for the exact action. |
+
+## Agent And Command Matrix
+
+| Ownership | Default Checks | Escalate To Agents When |
+| --- | --- | --- |
+| Frontend/UI | `node .\tests\js\module_contracts.mjs`, static dashboard tests, E2E screenshots when visual behavior changes. | Tab wiring, responsive layout, dashboard contracts or user-visible state changes are non-trivial. |
+| Backend/API | `backend\sqx-edge-tool\venv\Scripts\python.exe -m pytest backend\sqx-edge-tool backend\sqx-edge-relay`, API/static tests. | New endpoints, persistence contracts, manifests or local automation tools move. |
+| QA/Release | `release_checklist.ps1` for ZIP/release phases, `audit_distribution.ps1`, SHA256 and extracted ZIP smoke. | Packaging, portable runtime, release notes, dist evidence or CI/release publication changes. |
+| Monetization/Product | Safe-claims review, roadmap/status alignment, private/public commercial boundary check. | Commercial movement, buyer-facing assets, pricing/support positioning or sales gates move. |
+| Security/Distribution | Sensitive-file staged review, manifest exclusions, package/audit deny-lists. | Licenses, keys, buyer logs, relay, checkout evidence, commercial-private docs or generated packages are touched. |
+| Architecture/Docs | Architecture/load-order docs, governance docs, contract map consistency. | Module boundaries, roadmap structure, phase taxonomy or governance rules move. |
+
+## Local Tooling Notes
+
+- Required and present for normal work: Git, Python virtualenv, pytest, Node/npm, PowerShell and `rg`.
+- Optional but useful for upcoming release/CI automation: GitHub CLI `gh`, especially for inspecting Actions, creating releases and managing PR/release metadata.
+- Playwright remains on-demand for frontend visual/E2E work; install temporarily only when UI behavior needs browser validation.
+- MetaTrader5 tooling is only needed for real-data A58/A62 style phases, not for governance, packaging or commercial monitor phases.
+- Tunnels such as ngrok/cloudflared should remain out of the default path until relay staging work explicitly needs them.
+
 ## Phase Workflow
 
 Every implementation phase must follow this loop:
@@ -57,13 +94,14 @@ Every implementation phase must follow this loop:
 2. Confirm working tree state.
 3. Create a backup before changing files.
 4. Define active agent ownership and expected touched areas.
-5. Implement narrowly against the phase objective.
-6. Update docs, manifests and tests in the same phase when contracts move.
-7. Run required checks for touched areas.
-8. Run E2E screenshots when frontend behavior or `manifest-data.js` changes.
-9. Clean temporary Playwright/npm artifacts.
-10. Commit once per phase after verification.
-11. Push immediately after every successful commit unless the user explicitly asks to hold the push or the remote is unavailable.
+5. Apply the G3 automation risk level if the phase adds tools, evidence, gates or external actions.
+6. Implement narrowly against the phase objective.
+7. Update docs, manifests and tests in the same phase when contracts move.
+8. Run required checks for touched areas.
+9. Run E2E screenshots when frontend behavior or `manifest-data.js` changes.
+10. Clean temporary Playwright/npm artifacts.
+11. Commit once per phase after verification.
+12. Push immediately after every successful commit unless the user explicitly asks to hold the push or the remote is unavailable.
 
 ## M46 Entry Criteria
 
@@ -82,6 +120,7 @@ M46 is accepted when these criteria are true:
 - Product/commercial state: `backend/sqx-edge-tool/config/product_manifest.json`.
 - Portable distribution: `package_portable.ps1`, `audit_distribution.ps1`, `release_checklist.ps1`.
 - Commercial gates: `backend/sqx-edge-tool/tools/*` and `docs/sales/*`.
+- Internal automation gate: this document, especially G3 risk levels, agent matrix and local tooling notes.
 - CI baseline: `.github/workflows/tests.yml` and `requirements-dev.txt`.
 - Private commercial boundary: `docs/PRIVATE_COMMERCIAL_DOCS.md`, `docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md`, `docs/private_commercial_manifest.json` and `private_commercial_split.py`.
 - Private commercial repository: `https://github.com/CryptoLeon78/sqx-edge-commercial-private` (private, baseline commit `ed79719`).
@@ -96,5 +135,6 @@ M46 is accepted when these criteria are true:
 - Never commit `backend/sqx-edge-tool/config/license.json`.
 - Never package private keys, signed customer licenses, fulfillment events, relay data, `.env` files, backups or internal release tools.
 - Any new internal M46+ or A58+ operator tool must be added to product manifest exclusions, packaging exclusions, audit deny-lists, release checklist assertions and tests.
+- Any new `tools/*`, `data/*`, `docs/sales/*` or Pro resource must declare one of: public, public redaction pointer, private-only, or excluded from portable packaging.
 - Move buyer logs, commercial gates, pricing experiments, support scripts and checkout evidence to a private repository before wider public distribution.
 - Keep `docs/private-commercial/`, `commercial-private/` and `private-commercial/` local-only staging folders ignored by git.

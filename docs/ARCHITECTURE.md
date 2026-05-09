@@ -305,4 +305,5 @@ When changing load order or module boundaries, update both the implementation an
 - Keep `project-generator-main.js` last unless Project Generator orchestration is converted into a boot callback.
 - Do not make a module depend on a script loaded later.
 - Prefer adding narrow contracts before moving behavior across files.
+- Any new visible tab, panel, module or manifest-driven UI state must update the architecture map, load-order or module-responsibility table, JS contracts and E2E smoke expectations in the same phase.
 - Keep packaging validation aligned with the actual portable user flow.

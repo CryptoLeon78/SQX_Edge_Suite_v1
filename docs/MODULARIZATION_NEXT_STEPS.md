@@ -7,7 +7,7 @@ Persistent planning note for the next SQX Edge phases.
 - Last updated: 2026-05-09.
 - Current completed phase: M94 - Approved controlled commercial movement from M93 execution.
 - Current product/commercial state: `approved_controlled_commercial_movement_from_m93_execution_ready`.
-- Governance baseline: G2 - Governance Lookup Before Work.
+- Governance baseline: G3 - Internal Automation and Agent Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
@@ -49,11 +49,14 @@ Persistent planning note for the next SQX Edge phases.
 - Use prefixed phase IDs for new work: `Mxx`, `Axx`, `Rxx`, `Sxx`, `Qxx`, `Gxx`, `SBxx`.
 - Use `Vxx` for SQX view/template generation and StrategyQuant operator tools.
 - Follow `docs/PROJECT_GOVERNANCE.md` for phase workflow and M46 entry criteria.
+- Apply G3 before adding internal automation: classify risk level, ownership, output path, privacy boundary and required checks.
+- Keep external commercial actions manual unless the user approves the exact traffic, checkout, email, license, public release or buyer-contact action.
 
 ## Governance Track
 
 1. Phase G1: define specialist agent ownership, phase namespaces, workflow and M46 entry criteria. Done.
 2. Phase G2: require governance/ownership lookup before each work phase/message. Done.
+3. Phase G3: define internal automation risk levels, specialist-agent escalation rules, command matrix and local tooling notes. Done.
 
 ## Architecture / External Comparison Track
 

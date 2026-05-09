@@ -34,10 +34,14 @@ The first governance baseline is G1: Specialist Agent Operating Model.
 
 G2 extends the baseline with a mandatory governance lookup: before every work phase/message, consult `docs/PROJECT_GOVERNANCE.md` or the Specialist Agents ownership matrix, then derive active ownership, touched areas and required checks from that source.
 
+G3 extends the baseline with an internal automation and agent gate. Internal automation is allowed when it reduces repeated checks, protects contracts, writes reproducible local evidence or prevents docs/tests/manifest drift. External commercial actions remain manual unless the user explicitly approves the exact action.
+
 ## Consequences
 
 - Future phases should declare active owner areas before implementation.
 - Each work phase/message starts from Project Governance or the Specialist Agents ownership matrix.
+- Internal automations must declare risk level, output path, privacy boundary and required checks before commit.
+- Specialist agents should be used for bounded review or execution slices, not as vague background work.
 - M46 should start from a defined customer cockpit data model and privacy boundary.
 - Roadmap references should avoid ambiguous unprefixed phase numbers where possible.
 - Documentation and tests become part of the phase deliverable, not cleanup after the fact.

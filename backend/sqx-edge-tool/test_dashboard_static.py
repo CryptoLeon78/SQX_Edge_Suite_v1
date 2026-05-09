@@ -222,6 +222,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "G1 - Specialist Agent Operating Model",
             "G2 - Governance Lookup Before Work",
+            "G3 - Internal Automation and Agent Gate",
             "Frontend/UI",
             "Backend/API",
             "QA/Release",
@@ -235,6 +236,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Customer cockpit source of truth",
             "no license payloads",
             "Use prefixed phase IDs",
+            "Internal Automation Risk Levels",
+            "Agent And Command Matrix",
+            "Local Tooling Notes",
+            "Optional but useful for upcoming release/CI automation: GitHub CLI `gh`",
+            "Every new internal automation must declare its risk level",
+            "External action",
             "`SBxx`: Strategy Builder and \"only one platform\" workflow phases.",
             "Never commit `backend/sqx-edge-tool/config/license.json`",
         ):
@@ -248,6 +255,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Mxx",
             "G1: Specialist Agent Operating Model",
             "G2 extends the baseline",
+            "G3 extends the baseline",
             "consult `docs/PROJECT_GOVERNANCE.md`",
         ):
             with self.subTest(pattern=pattern):
@@ -255,8 +263,12 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         self.assertIn("Phase G1: define specialist agent ownership, phase namespaces, workflow and M46 entry criteria. Done.", next_steps)
         self.assertIn("Phase G2: require governance/ownership lookup before each work phase/message. Done.", next_steps)
+        self.assertIn("Phase G3: define internal automation risk levels, specialist-agent escalation rules, command matrix and local tooling notes. Done.", next_steps)
+        self.assertIn("Governance baseline: G3 - Internal Automation and Agent Gate.", next_steps)
+        self.assertIn("Any new visible tab, panel, module or manifest-driven UI state", architecture := ARCHITECTURE_DOC.read_text(encoding="utf-8-sig"))
         self.assertIn("docs/PROJECT_GOVERNANCE.md", readme)
         self.assertIn("consulta obligatoria antes de fases/mensajes de trabajo", readme)
+        self.assertIn("incluye G3 para decidir uso de agentes", readme)
 
     def test_operational_discipline_pushes_after_commit(self):
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
