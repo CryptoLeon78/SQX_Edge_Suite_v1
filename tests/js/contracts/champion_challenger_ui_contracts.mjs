@@ -35,6 +35,8 @@ sandbox.SQX_SCORES_DATA = {
   'cvc-ready-count',
   'cvc-oos-ready-count',
   'cvc-regime-ready-count',
+  'cvc-filter-health-ok',
+  'cvc-filter-egt-v2-ok',
 ].forEach(id => document.add(new Element(id)));
 
 const cvc = SQX.championChallenger;
@@ -51,6 +53,23 @@ assert.match(document.getElementById('cvc-ranking').innerHTML, /Challenger A/);
 assert.match(document.getElementById('cvc-ranking').innerHTML, /OOS 100% positivo/);
 assert.match(document.getElementById('cvc-ranking').innerHTML, /EGT/);
 assert.match(document.getElementById('cvc-ranking').innerHTML, /COMPLIANT/);
+assert.match(document.getElementById('cvc-ranking').innerHTML, /Health fresh/);
+assert.match(document.getElementById('cvc-ranking').innerHTML, /EGT v2 STRONG/);
+assert.match(document.getElementById('cvc-summary').innerHTML, /Health OK/);
+assert.match(document.getElementById('cvc-summary').innerHTML, /EGT v2 OK/);
+
+document.getElementById('cvc-filter-health-ok').checked = true;
+document.getElementById('cvc-filter-health-ok').dispatch('change');
+assert.match(document.getElementById('cvc-status').textContent, /Filtro activo: 2\/3 visibles/);
+assert.match(document.getElementById('cvc-ranking').innerHTML, /Challenger A/);
+assert.doesNotMatch(document.getElementById('cvc-ranking').innerHTML, /Challenger C/);
+
+document.getElementById('cvc-filter-egt-v2-ok').checked = true;
+document.getElementById('cvc-filter-egt-v2-ok').dispatch('change');
+assert.match(document.getElementById('cvc-status').textContent, /Filtro activo: 1\/3 visibles/);
+document.getElementById('cvc-filter-health-ok').checked = false;
+document.getElementById('cvc-filter-egt-v2-ok').checked = false;
+document.getElementById('cvc-filter-health-ok').dispatch('change');
 
 const reviewExport = cvc.buildReviewExport(cvc.evaluate({ document }), { generatedAt: '2026-05-08T00:00:00.000Z' });
 assert.equal(reviewExport.type, 'sqx-edge.champion-challenger-review');

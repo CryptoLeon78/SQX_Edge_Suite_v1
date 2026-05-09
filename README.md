@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: J8 completada con helpers puros de Temporal Health + EGT v2 tras revisar el ultimo commit de JoseLivan.
+- Estado interno: J9 completada con chips/filtros compactos de Temporal Health + EGT v2 en Champion vs Challenger.
 - Estado comercial: M96 completada con decision del siguiente movimiento comercial controlado desde evidencia M95.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: J9 para pintar chips/filtros compactos de Temporal Health + EGT v2; M97 queda como siguiente movimiento comercial controlado; R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: J10 para extender export/handoff con evidencia reducida de Temporal Health + EGT v2; M97 queda como siguiente movimiento comercial controlado; R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro

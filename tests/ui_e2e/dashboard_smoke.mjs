@@ -191,8 +191,17 @@ async function run() {
     await desktop.waitForSelector('#cvc-run-btn');
     await desktop.locator('#cvc-sample-btn').click();
     await desktop.waitForSelector('#cvc-ranking .cvc-result-row');
+    await desktop.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('Health fresh'));
+    await desktop.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('EGT v2 STRONG'));
     await desktop.waitForFunction(() => document.getElementById('cvc-ready-count')?.textContent.trim() === '1');
     await desktop.waitForFunction(() => Number(document.getElementById('cvc-regime-ready-count')?.textContent.trim() || 0) > 0);
+    await desktop.locator('#cvc-filter-health-ok').check();
+    await desktop.waitForFunction(() => document.getElementById('cvc-status')?.textContent.includes('Filtro activo: 2/3 visibles'));
+    await desktop.locator('#cvc-filter-egt-v2-ok').check();
+    await desktop.waitForFunction(() => document.getElementById('cvc-status')?.textContent.includes('Filtro activo: 1/3 visibles'));
+    await desktop.locator('#cvc-filter-health-ok').uncheck();
+    await desktop.locator('#cvc-filter-egt-v2-ok').uncheck();
+    await desktop.waitForFunction(() => document.querySelectorAll('#cvc-ranking .cvc-result-row').length === 3);
     const cvcModel = await desktop.evaluate(() => window.SQX.championChallenger.evaluate());
     if (!cvcModel.ok || cvcModel.rankings.length !== 3) throw new Error('Champion vs Challenger sample contract failed');
     if (!cvcModel.rankings.every(row => row.regime_evidence && row.regime_evidence.symbol === 'EURUSD')) throw new Error('Champion vs Challenger regime evidence missing');
@@ -449,6 +458,8 @@ async function run() {
     await mobile.waitForSelector('#cvc-run-btn');
     await mobile.locator('#cvc-sample-btn').click();
     await mobile.waitForSelector('#cvc-ranking .cvc-result-row');
+    await mobile.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('Health fresh'));
+    await mobile.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('EGT v2 STRONG'));
     await mobile.waitForFunction(() => Number(document.getElementById('cvc-regime-ready-count')?.textContent.trim() || 0) > 0);
     const mobileHandoff = await mobile.evaluate(() => window.SQX.championChallenger.buildStrategyBuilderHandoff(window.SQX.championChallenger.buildReviewExport(window.SQX.championChallenger.evaluate())));
     if (mobileHandoff.type !== 'sqx-edge.strategy-builder-handoff') throw new Error('Mobile CVC handoff contract failed');

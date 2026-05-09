@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - J9 Temporal Health and EGT v2 UI
+
+- Shows compact Temporal Health and EGT v2 chips inside Champion vs Challenger rankings.
+- Adds visual-only `Health OK` and `EGT v2 OK` filters without changing export or Strategy Builder handoff payloads.
+- Uses first-party historical series to derive local regime blocks for EGT v2 when candidate/OOS evidence is available.
+
 ## 2026-05-09 - J8 Temporal Health and EGT v2 helpers
 
 - Adds pure `computeTemporalHealth` evidence in Champion vs Challenger core for OOS peak, drawdown-at-close and recovery state.

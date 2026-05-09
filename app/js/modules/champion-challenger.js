@@ -21,7 +21,9 @@
     candidateCount: 'cvc-candidate-count',
     readyCount: 'cvc-ready-count',
     oosReadyCount: 'cvc-oos-ready-count',
-    regimeReadyCount: 'cvc-regime-ready-count'
+    regimeReadyCount: 'cvc-regime-ready-count',
+    healthFilter: 'cvc-filter-health-ok',
+    egtV2Filter: 'cvc-filter-egt-v2-ok'
   };
 
   var lastModel = null;
@@ -108,10 +110,10 @@
         'Challenger C;EURUSD;1.70;3.60;260;7.1;FAILED;Bollinger'
       ].join('\n'),
       oos: [
-        'Strategy Name;Symbol;CAGR/Max DD (OOS1);Profit Factor (OOS1);Worst Year Profit (OOS1);CAGR/Max DD (OOS2);Profit Factor (OOS2);Worst Year Profit (OOS2);CAGR/Max DD (OOS3);Profit Factor (OOS3);Worst Year Profit (OOS3)',
-        'Challenger A;EURUSD;2.4;1.7;120;1.8;1.5;80;1.1;1.4;40',
-        'Challenger B;EURUSD;1.2;1.3;60;-0.4;1.1;-30;0.8;1.2;20',
-        'Challenger C;EURUSD;2.0;1.6;90;1.5;1.5;70'
+        'Strategy Name;Symbol;CAGR/Max DD (OOS1);Net Profit (OOS1);Trades (OOS1);Worst Year Profit (OOS1);CAGR/Max DD (OOS2);Net Profit (OOS2);Trades (OOS2);Worst Year Profit (OOS2);CAGR/Max DD (OOS3);Net Profit (OOS3);Trades (OOS3);Worst Year Profit (OOS3);CAGR/Max DD (OOS4);Net Profit (OOS4);Trades (OOS4);Worst Year Profit (OOS4);CAGR/Max DD (OOS5);Net Profit (OOS5);Trades (OOS5);Worst Year Profit (OOS5);CAGR/Max DD (OOS6);Net Profit (OOS6);Trades (OOS6);Worst Year Profit (OOS6)',
+        'Challenger A;EURUSD;3.0;100;80;120;2.8;90;82;110;3.1;95;84;115;2.9;100;86;105;3.2;110;88;120;3.0;115;90;125',
+        'Challenger B;EURUSD;1.4;80;60;60;-0.4;-30;42;-30;1.0;20;52;20;0.8;15;48;15;1.1;30;55;30;0.7;10;44;10',
+        'Challenger C;EURUSD;1.8;90;90;90;1.7;80;88;85;0.3;-60;40;-15;0.4;20;42;20;0.2;10;38;10;0.3;5;36;5'
       ].join('\n')
     };
   }
@@ -180,6 +182,8 @@
       item.oos = oosRecord;
       item.oos_stable = isStableOos(oosRecord);
       item.regime_evidence = regime && regime.assessCandidate ? regime.assessCandidate(item) : null;
+      item.temporal_health = core.computeTemporalHealth && oosRecord ? core.computeTemporalHealth(oosRecord) : null;
+      item.egt_v2 = buildEgtV2Evidence(item, oosRecord, regime);
       return item;
     }).sort(function(a, b) {
       if (a.formal_fail_count !== b.formal_fail_count) return a.formal_fail_count - b.formal_fail_count;
@@ -188,6 +192,17 @@
       var ratioB = b.oos && b.oos.positive_block_ratio != null ? b.oos.positive_block_ratio : -1;
       if (ratioA !== ratioB) return ratioB - ratioA;
       return (b.normalized_metrics.profit_factor || 0) - (a.normalized_metrics.profit_factor || 0);
+    });
+  }
+
+  function buildEgtV2Evidence(item, oosRecord, regime) {
+    if (!regime || !regime.assessEgtV2 || !oosRecord) return null;
+    var blocks = null;
+    if (regime.buildRegimeBlocksForSymbol) {
+      blocks = regime.buildRegimeBlocksForSymbol(item.symbol || (item.normalized_metrics || {}).symbol, oosRecord.block_count);
+    }
+    return regime.assessEgtV2(oosRecord, blocks && blocks.blocks ? blocks.blocks : [], {
+      thresholds: { direction: 'long_only' }
     });
   }
 
@@ -202,6 +217,30 @@
       var cls = check.passed ? 'is-pass' : 'is-fail';
       return '<span class="cvc-check ' + cls + '">' + core.escapeHtml(check.label) + '</span>';
     }).join('');
+  }
+
+  function chipClass(prefix, value) {
+    return prefix + '-' + String(value || 'unknown').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  }
+
+  function renderEvidenceChips(item) {
+    var core = getCore();
+    var health = item.temporal_health;
+    var egt = item.egt_v2;
+    var healthLabel = health ? health.status : 'unknown';
+    var egtLabel = egt ? egt.verdict : 'UNKNOWN';
+    var healthTitle = health
+      ? 'Peak OOS' + (health.peak_block || '-') + ' | DD cierre ' + pct(health.dd_at_close) + ' | Recovery ' + pct(health.recovery_index)
+      : 'Temporal Health pendiente';
+    var egtTitle = egt
+      ? 'Dominante ' + (egt.dominant_regime || '-') + ' | Fallan ' + ((egt.failed_regimes || []).join(', ') || '-') + ' | Insuf ' + ((egt.insufficient_regimes || []).join(', ') || '-')
+      : 'EGT v2 pendiente';
+    return [
+      '<div class="cvc-evidence-chips">',
+      '<span class="cvc-evidence-chip ' + chipClass('health', healthLabel) + '" title="' + core.escapeHtml(healthTitle) + '">Health ' + core.escapeHtml(healthLabel) + '</span>',
+      '<span class="cvc-evidence-chip ' + chipClass('egt-v2', egtLabel) + '" title="' + core.escapeHtml(egtTitle) + '">EGT v2 ' + core.escapeHtml(egtLabel) + '</span>',
+      '</div>'
+    ].join('');
   }
 
   function renderRow(item, index) {
@@ -228,6 +267,7 @@
       '<span>' + core.escapeHtml(item.symbol || metrics.symbol || '') + '</span>',
       '</div>',
       '<div class="cvc-result-checks">' + renderChecks(item.checks) + '</div>',
+      renderEvidenceChips(item),
       '</div>',
       '<div class="cvc-result-metrics">',
       renderMetric('PF', fmt(metrics.profit_factor, 2)),
@@ -238,6 +278,25 @@
       '</div>',
       '</article>'
     ].join('');
+  }
+
+  function healthOk(item) {
+    return !!(item.temporal_health && item.temporal_health.pass_all);
+  }
+
+  function egtV2Ok(item) {
+    var verdict = item.egt_v2 && item.egt_v2.verdict;
+    return verdict === 'STRONG' || verdict === 'COMPLIANT' || verdict === 'DEFENSIVE';
+  }
+
+  function filterModelRankings(model, doc) {
+    var healthOnly = byId(IDS.healthFilter, doc) && byId(IDS.healthFilter, doc).checked;
+    var egtOnly = byId(IDS.egtV2Filter, doc) && byId(IDS.egtV2Filter, doc).checked;
+    return (model.rankings || []).filter(function(item) {
+      if (healthOnly && !healthOk(item)) return false;
+      if (egtOnly && !egtV2Ok(item)) return false;
+      return true;
+    });
   }
 
   function roundMetric(value, digits) {
@@ -457,6 +516,8 @@
     var regimeReady = model.rankings.filter(function(item) {
       return item.regime_evidence && item.regime_evidence.label === 'COMPLIANT';
     }).length;
+    var healthReady = model.rankings.filter(healthOk).length;
+    var egtV2Ready = model.rankings.filter(egtV2Ok).length;
     var warnings = model.warnings.length;
 
     setText(IDS.candidateCount, total, doc);
@@ -468,9 +529,11 @@
       renderMetric('Sin fallos formales', ready),
       renderMetric('OOS estable', stable),
       renderMetric('EGT compliant', regimeReady),
+      renderMetric('Health OK', healthReady),
+      renderMetric('EGT v2 OK', egtV2Ready),
       renderMetric('Avisos de datos', warnings)
     ].join(''), doc);
-    setText(IDS.oosSummary, stable + ' OOS estable | ' + regimeReady + ' EGT compliant.', doc);
+    setText(IDS.oosSummary, stable + ' OOS estable | ' + healthReady + ' Health OK | ' + egtV2Ready + ' EGT v2 OK.', doc);
   }
 
   function renderEmpty(doc) {
@@ -495,13 +558,18 @@
 
     renderSummary(model, doc);
     setDisplay(IDS.empty, model.rankings.length ? 'none' : '', doc);
-    setHtml(IDS.ranking, model.rankings.map(renderRow).join(''), doc);
+    var visibleRankings = filterModelRankings(model, doc);
+    setHtml(IDS.ranking, visibleRankings.map(renderRow).join(''), doc);
+    if (model.rankings.length && !visibleRankings.length) {
+      setHtml(IDS.ranking, '<div class="cvc-empty">Sin candidatas visibles con los filtros actuales.</div>', doc);
+    }
 
     var tone = model.warnings.length ? 'warn' : 'ok';
     var message = model.rankings.length
       ? 'Comparacion lista. Ranking generado con reglas formales y OOS.'
       : 'Comparacion lista, sin candidatas.';
     if (model.warnings.length) message += ' Avisos: ' + model.warnings.slice(0, 3).join(', ');
+    if (visibleRankings.length !== model.rankings.length) message += ' Filtro activo: ' + visibleRankings.length + '/' + model.rankings.length + ' visibles.';
     setStatus(message, tone, doc);
     lastModel = model;
     return model;
@@ -550,6 +618,14 @@
       byId(IDS.exportReview, doc).addEventListener('click', function() { exportReview({ document: doc }); });
       byId(IDS.handoff, doc).addEventListener('click', function() { prepareHandoff({ document: doc }); });
     }
+    [IDS.healthFilter, IDS.egtV2Filter].forEach(function(id) {
+      var node = byId(id, doc);
+      if (node && node.addEventListener) {
+        node.addEventListener('change', function() {
+          if (lastModel) renderResults(lastModel, doc);
+        });
+      }
+    });
     renderEmpty(doc);
     return true;
   }

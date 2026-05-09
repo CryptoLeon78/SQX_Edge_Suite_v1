@@ -133,6 +133,46 @@
     };
   }
 
+  function pctChange(startValue, endValue) {
+    if (!startValue || !endValue || !isFinite(Number(startValue)) || !isFinite(Number(endValue))) return null;
+    return (Number(endValue) / Number(startValue)) - 1;
+  }
+
+  function groupFromReturn(value) {
+    if (value == null || !isFinite(Number(value))) return null;
+    if (value >= 0.05) return 'BULL';
+    if (value <= -0.05) return 'BEAR';
+    return 'RANGE';
+  }
+
+  function buildRegimeBlocksForSymbol(symbolInput, blockCount) {
+    var count = Math.max(0, parseInt(blockCount, 10) || 0);
+    var resolved = resolveSymbol(symbolInput);
+    var series = historicalData()[resolved.symbol];
+    var values = safeValues(series);
+    if (!resolved.symbol || count < 1 || values.length < count + 1) {
+      return { ok: false, symbol: resolved.symbol, blocks: [], warnings: [{ code: 'regime_blocks_unavailable' }] };
+    }
+
+    var span = (values.length - 1) / count;
+    var blocks = [];
+    for (var i = 0; i < count; i += 1) {
+      var startIndex = Math.round(i * span);
+      var endIndex = Math.round((i + 1) * span);
+      if (endIndex <= startIndex) endIndex = startIndex + 1;
+      if (endIndex >= values.length) endIndex = values.length - 1;
+      var change = pctChange(values[startIndex], values[endIndex]);
+      blocks.push({
+        idx: i + 1,
+        block: i + 1,
+        symbol: resolved.symbol,
+        pct_change: change,
+        group: groupFromReturn(change)
+      });
+    }
+    return { ok: true, symbol: resolved.symbol, blocks: blocks, warnings: [] };
+  }
+
   function cloneRegimeThresholds(overrides) {
     var source = overrides || {};
     var result = {
@@ -428,6 +468,7 @@
     assessEgtV2: assessEgtV2,
     assessCandidate: assessCandidate,
     assessSymbol: assessSymbol,
+    buildRegimeBlocksForSymbol: buildRegimeBlocksForSymbol,
     evidenceSummary: evidenceSummary,
     formatPercent: formatPercent,
     formatSignedPercent: formatSignedPercent,
