@@ -81,6 +81,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             TOOL_ROOT / "tools" / "controlled_traffic_expansion_decision.py",
             TOOL_ROOT / "tools" / "controlled_traffic_expansion_execution.py",
             TOOL_ROOT / "tools" / "controlled_traffic_expansion_execution_monitor.py",
+            TOOL_ROOT / "tools" / "controlled_commercial_next_movement.py",
             TOOL_ROOT / "tools" / "private_commercial_split.py",
             TOOL_ROOT / "tools" / "fulfillment_request.py",
             TOOL_ROOT / "tools" / "fulfill_from_request.ps1",
@@ -174,6 +175,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("controlled_traffic_expansion_decision\\.py", text)
         self.assertIn("controlled_traffic_expansion_execution\\.py", text)
         self.assertIn("controlled_traffic_expansion_execution_monitor\\.py", text)
+        self.assertIn("controlled_commercial_next_movement\\.py", text)
         self.assertIn("private_commercial_split\\.py", text)
         self.assertIn("fulfillment_request\\.py", text)
         self.assertIn("fulfill_from_request\\.ps1", text)
@@ -237,6 +239,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn('"controlled_traffic_expansion_decision"', text)
         self.assertIn('"controlled_traffic_expansion_execution"', text)
         self.assertIn('"controlled_traffic_expansion_execution_monitor"', text)
+        self.assertIn('"controlled_commercial_next_movement"', text)
         self.assertIn('"private-commercial"', text)
         self.assertIn('"commercial-private"', text)
         self.assertIn('"pro-template-pack-1"', text)
@@ -313,6 +316,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("controlled_traffic_expansion_decision.py", text)
         self.assertIn("controlled_traffic_expansion_execution.py", text)
         self.assertIn("controlled_traffic_expansion_execution_monitor.py", text)
+        self.assertIn("controlled_commercial_next_movement.py", text)
         self.assertIn("private_commercial_split.py", text)
         self.assertIn("fulfillment_request.py", text)
         self.assertIn("fulfill_from_request.ps1", text)
@@ -367,6 +371,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("controlled_traffic_expansion_decision", text)
         self.assertIn("controlled_traffic_expansion_execution", text)
         self.assertIn("controlled_traffic_expansion_execution_monitor", text)
+        self.assertIn("controlled_commercial_next_movement", text)
         self.assertIn("private-commercial", text)
         self.assertIn("commercial-private", text)
         self.assertIn("pro-template-pack-1", text)
@@ -441,6 +446,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "controlled_traffic_expansion_decision.py",
             "controlled_traffic_expansion_execution.py",
             "controlled_traffic_expansion_execution_monitor.py",
+            "controlled_commercial_next_movement.py",
             "private_commercial_split.py",
             "fulfillment_request.py",
             "fulfill_from_request.ps1",
@@ -495,6 +501,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             "controlled_traffic_expansion_decision",
             "controlled_traffic_expansion_execution",
             "controlled_traffic_expansion_execution_monitor",
+            "controlled_commercial_next_movement",
             "private-commercial",
             "commercial-private",
             "pro-template-pack-1",
@@ -563,6 +570,7 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/data/controlled_traffic_expansion_decision/", text)
         self.assertIn("backend/sqx-edge-tool/data/controlled_traffic_expansion_execution/", text)
         self.assertIn("backend/sqx-edge-tool/data/controlled_traffic_expansion_execution_monitor/", text)
+        self.assertIn("backend/sqx-edge-tool/data/controlled_commercial_next_movement/", text)
         self.assertIn("docs/private-commercial/", text)
         self.assertIn("commercial-private/", text)
         self.assertIn("private-commercial/", text)

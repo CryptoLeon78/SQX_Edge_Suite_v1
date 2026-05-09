@@ -1,6 +1,6 @@
 {
-  "version": 19,
-  "phase": "M86_controlled_traffic_expansion_execution_monitor",
+  "version": 20,
+  "phase": "M87_controlled_commercial_next_movement",
   "migrationStage": "public_redacted_private_repo_published",
   "policy": "move_sensitive_commercial_operations_to_private_repository_before_wider_distribution",
   "recommendedTarget": "private_github_repository",
@@ -8,7 +8,7 @@
   "privateRepositoryUrl": "https://github.com/CryptoLeon78/sqx-edge-commercial-private",
   "privateBaselineCommit": "ed79719",
   "publicRedactionDate": "2026-05-07",
-  "latestPrivateCommercialPhase": "M86",
+  "latestPrivateCommercialPhase": "M87",
   "exportTool": "backend/sqx-edge-tool/tools/private_commercial_split.py",
   "defaultExportRoot": "commercial-private/sqx-edge-commercial-private",
   "splitPlan": "docs/PRIVATE_COMMERCIAL_SPLIT_PLAN.md",

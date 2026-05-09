@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - M87 controlled commercial next movement
+
+- Adds a guarded internal decision gate for the next controlled commercial movement from M86 evidence.
+- Supports observation, next micro-step preparation, private review packet, hold or sales pause without automation.
+- Extends packaging exclusions, public/private commercial traceability, roadmap/governance and tests.
+
 ## 2026-05-09 - M86 controlled traffic expansion execution monitor
 
 - Adds a guarded internal monitor for the M85 execution result before any further movement.
