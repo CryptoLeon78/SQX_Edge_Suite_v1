@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "state": "approved_controlled_commercial_movement_from_m93_execution_ready",
+  "executionId": "approved_controlled_commercial_movement_from_m93_execution",
+  "offerId": "sqx_edge_pro_approved_controlled_commercial_movement_from_m93_execution",
+  "name": "Approved Controlled Commercial Movement From M93 Execution",
+  "dependsOn": {
+    "nextControlledCommercialMovementFromM92DecisionConfig": "backend/sqx-edge-tool/config/next_controlled_commercial_movement_from_m92_decision.json",
+    "nextControlledCommercialMovementFromM92DecisionState": "next_controlled_commercial_movement_from_m92_decision_ready"
+  },
+  "requiredFiles": [
+    "docs/sales/APPROVED_CONTROLLED_COMMERCIAL_MOVEMENT_FROM_M93_EXECUTION.md",
+    "docs/sales/NEXT_CONTROLLED_COMMERCIAL_MOVEMENT_FROM_M92_DECISION.md",
+    "docs/sales/APPROVED_CONTROLLED_COMMERCIAL_MOVEMENT_EXECUTION_MONITOR.md",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "allowedSourceNextMovements": [
+    "continue_observation",
+    "prepare_next_micro_step",
+    "prepare_private_review_packet",
+    "hold_for_fix",
+    "pause_sales"
+  ],
+  "allowedExecutionResults": [
+    "observation_continued",
+    "next_micro_step_prepared",
+    "private_review_packet_prepared",
+    "fix_hold_recorded",
+    "sales_pause_recorded"
+  ],
+  "requiredResultByMovement": {
+    "continue_observation": "observation_continued",
+    "prepare_next_micro_step": "next_micro_step_prepared",
+    "prepare_private_review_packet": "private_review_packet_prepared",
+    "hold_for_fix": "fix_hold_recorded",
+    "pause_sales": "sales_pause_recorded"
+  },
+  "maximumNewPrivateLinks": 1,
+  "maximumNewInvites": 3,
+  "privacyPolicy": "store_only_redacted_m94_execution_result_owner_summary_and_next_monitor_without_buyer_identity_checkout_payloads_or_license_files",
+  "executionPolicy": "record_only_the_manual_m93_approved_movement_without_automatic_traffic_checkout_email_or_license_execution",
+  "executionRules": [
+    "Execution result must match the M93 approved next movement.",
+    "next_micro_step_prepared allows at most one private link and three invites.",
+    "observation_continued, private_review_packet_prepared, fix_hold_recorded and sales_pause_recorded must not create new traffic.",
+    "Any deviation from M93 requires a new decision gate before execution."
+  ]
+}

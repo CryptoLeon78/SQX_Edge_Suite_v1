@@ -38,8 +38,8 @@ assert.ok(cockpitJs.includes("SQX.registerModule('customer-cockpit'"));
 assert.ok(cockpitJs.includes("endpoint('/customer-cockpit')"));
 assert.ok(html.includes('js/modules/customer-cockpit.js'));
 assert.ok(mainJs.includes('window.SQX.customerCockpit.init()'));
-assert.equal(productManifest.upgrade.checkout.status, 'next_controlled_commercial_movement_from_m92_decision_ready');
-assert.equal(productManifest.upgrade.checkout.automation.status, 'next_controlled_commercial_movement_from_m92_decision_ready');
+assert.equal(productManifest.upgrade.checkout.status, 'approved_controlled_commercial_movement_from_m93_execution_ready');
+assert.equal(productManifest.upgrade.checkout.automation.status, 'approved_controlled_commercial_movement_from_m93_execution_ready');
 assert.equal(productManifest.upgrade.checkout.customerCockpitEndpoint, '/api/customer-cockpit');
 assert.equal(productManifest.upgrade.checkout.customerCockpitConfig, 'backend/sqx-edge-tool/config/customer_cockpit.json');
 assert.equal(

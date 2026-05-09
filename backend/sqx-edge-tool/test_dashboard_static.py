@@ -129,6 +129,7 @@ MONETIZATION_M90_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M90.md"
 MONETIZATION_M91_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M91.md"
 MONETIZATION_M92_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M92.md"
 MONETIZATION_M93_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M93.md"
+MONETIZATION_M94_DOC = PROJECT_ROOT / "docs" / "MONETIZATION_M94.md"
 
 
 class DashboardStaticTestCase(unittest.TestCase):
@@ -633,7 +634,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb16)
 
-        self.assertIn("Current phase completed: M93 - Next controlled commercial movement from M92 decision.", governance)
+        self.assertIn("Current phase completed: M94 - Approved controlled commercial movement from M93 execution.", governance)
         self.assertIn("SB17 - Strategy Builder buyer session evidence handoff index", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
@@ -1108,8 +1109,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("/api/fulfillment/request-status", server_py)
         self.assertIn("/api/fulfillment/relay-ingest", server_py)
         self.assertIn("fulfillment_queue_overview", server_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "next_controlled_commercial_movement_from_m92_decision_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "next_controlled_commercial_movement_from_m92_decision_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "approved_controlled_commercial_movement_from_m93_execution_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "approved_controlled_commercial_movement_from_m93_execution_ready")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("commercial_release_candidate.py", product_manifest["upgrade"]["checkout"]["commercialReleaseCandidateTool"])
         self.assertIn("pilot_purchase_kit.py", product_manifest["upgrade"]["checkout"]["pilotPurchaseKitTool"])
@@ -1209,8 +1210,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("customer_cockpit_overview", server_py)
         self.assertIn("redacted_operator_summary", customer_cockpit_py)
         self.assertIn("license payloads", customer_cockpit_py)
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "next_controlled_commercial_movement_from_m92_decision_ready")
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "next_controlled_commercial_movement_from_m92_decision_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "approved_controlled_commercial_movement_from_m93_execution_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "approved_controlled_commercial_movement_from_m93_execution_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitEndpoint"], "/api/customer-cockpit")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["customerCockpitConfig"], "backend/sqx-edge-tool/config/customer_cockpit.json")
         self.assertEqual(
@@ -1680,6 +1681,22 @@ class DashboardStaticTestCase(unittest.TestCase):
             product_manifest["upgrade"]["checkout"]["nextControlledCommercialMovementFromM92DecisionPolicy"],
             "decide_next_controlled_commercial_movement_from_m92_evidence_without_automatic_traffic_checkout_email_or_license_actions",
         )
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["approvedControlledCommercialMovementFromM93ExecutionConfig"],
+            "backend/sqx-edge-tool/config/approved_controlled_commercial_movement_from_m93_execution.json",
+        )
+        self.assertIn(
+            "approved_controlled_commercial_movement_from_m93_execution.py",
+            product_manifest["upgrade"]["checkout"]["approvedControlledCommercialMovementFromM93ExecutionTool"],
+        )
+        self.assertIn(
+            "approved_controlled_commercial_movement_from_m93_execution",
+            product_manifest["upgrade"]["checkout"]["approvedControlledCommercialMovementFromM93ExecutionEvidenceDir"],
+        )
+        self.assertEqual(
+            product_manifest["upgrade"]["checkout"]["approvedControlledCommercialMovementFromM93ExecutionPolicy"],
+            "record_only_the_manual_m93_approved_movement_without_automatic_traffic_checkout_email_or_license_execution",
+        )
 
     def test_dashboard_navigation_delegates_to_ui_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
@@ -2135,7 +2152,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fulfillmentMode"], "manual_signed_license")
         self.assertIn("license_issue.py", product_manifest["upgrade"]["checkout"]["licenseIssuerTool"])
         self.assertIn("prepare_customer_delivery.ps1", product_manifest["upgrade"]["checkout"]["deliveryTool"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "next_controlled_commercial_movement_from_m92_decision_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["status"], "approved_controlled_commercial_movement_from_m93_execution_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["rollbackPolicy"], "disable_checkout_pause_webhook_pause_worker_manual_fulfillment")
         self.assertIn("checkout_live_readiness.py", product_manifest["upgrade"]["checkout"]["liveReadinessTool"])
         self.assertIn("checkout_live_readiness", product_manifest["upgrade"]["checkout"]["liveReadinessEvidenceDir"])
@@ -2302,10 +2319,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_execution_monitor.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/data/next_controlled_commercial_movement_from_m92_decision", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/next_controlled_commercial_movement_from_m92_decision.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m93_execution", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
+        self.assertIn("backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m93_execution.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("backend/sqx-edge-tool/tools/private_commercial_split.py", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-1", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
         self.assertIn("resources/pro-template-pack-2", product_manifest["security"]["sensitiveFilesExcludedFromPortable"])
-        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "next_controlled_commercial_movement_from_m92_decision_ready")
+        self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["status"], "approved_controlled_commercial_movement_from_m93_execution_ready")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSignatureHeader"], "X-Signature")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSigningAlgorithm"], "hmac_sha256_hex")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["automation"]["webhookSecretEnv"], "SQX_LEMON_WEBHOOK_SECRET")
@@ -2499,11 +2518,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             "M91_approved_controlled_commercial_movement_execution",
             "M92_approved_controlled_commercial_movement_execution_monitor",
             "M93_next_controlled_commercial_movement_from_m92_decision",
+            "M94_approved_controlled_commercial_movement_from_m93_execution",
         }
 
         self.assertEqual(manifest["migrationStage"], "public_redacted_private_repo_published")
-        self.assertEqual(manifest["phase"], "M93_next_controlled_commercial_movement_from_m92_decision")
-        self.assertEqual(manifest["latestPrivateCommercialPhase"], "M93")
+        self.assertEqual(manifest["phase"], "M94_approved_controlled_commercial_movement_from_m93_execution")
+        self.assertEqual(manifest["latestPrivateCommercialPhase"], "M94")
         self.assertEqual(manifest["privateRepositoryUrl"], private_repo)
         self.assertEqual(manifest["privateBaselineCommit"], private_commit)
         self.assertIn("public_repository_keeps_only_traceability_pointers", manifest["publicRedactionPolicy"])
@@ -4458,6 +4478,48 @@ class DashboardStaticTestCase(unittest.TestCase):
             "prepare_next_micro_step_blocked_by_risk",
             "--use-latest-monitor",
             "--confirm-no-automation",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, tool_text)
+
+    def test_approved_controlled_commercial_movement_from_m93_execution_gate_is_present(self):
+        tool_path = TOOL_ROOT / "tools" / "approved_controlled_commercial_movement_from_m93_execution.py"
+        config_path = TOOL_ROOT / "config" / "approved_controlled_commercial_movement_from_m93_execution.json"
+        public_doc = PROJECT_ROOT / "docs" / "sales" / "APPROVED_CONTROLLED_COMMERCIAL_MOVEMENT_FROM_M93_EXECUTION.md"
+        py_compile.compile(str(tool_path), doraise=True)
+        config = json.loads(config_path.read_text(encoding="utf-8-sig"))
+        tool_text = tool_path.read_text(encoding="utf-8")
+
+        self.assertEqual(config["state"], "approved_controlled_commercial_movement_from_m93_execution_ready")
+        self.assertEqual(config["offerId"], "sqx_edge_pro_approved_controlled_commercial_movement_from_m93_execution")
+        self.assertEqual(
+            config["dependsOn"]["nextControlledCommercialMovementFromM92DecisionState"],
+            "next_controlled_commercial_movement_from_m92_decision_ready",
+        )
+        self.assertEqual(
+            config["privacyPolicy"],
+            "store_only_redacted_m94_execution_result_owner_summary_and_next_monitor_without_buyer_identity_checkout_payloads_or_license_files",
+        )
+        self.assertIn("prepare_next_micro_step", config["allowedSourceNextMovements"])
+        self.assertIn("next_micro_step_prepared", config["allowedExecutionResults"])
+        self.assertEqual(config["requiredResultByMovement"]["prepare_next_micro_step"], "next_micro_step_prepared")
+        self.assertEqual(config["maximumNewPrivateLinks"], 1)
+        self.assertEqual(config["maximumNewInvites"], 3)
+        for required in config["requiredFiles"]:
+            with self.subTest(required=required):
+                self.assertTrue((PROJECT_ROOT / required).is_file(), required)
+        self.assert_public_redaction_pointer(public_doc)
+        self.assert_public_redaction_pointer(MONETIZATION_M94_DOC)
+
+        for pattern in (
+            "approved_controlled_commercial_movement_from_m93_execution_ready",
+            "next_controlled_commercial_movement_from_m92_decision_state_invalid",
+            "next_controlled_commercial_movement_from_m92_decision_evidence_missing",
+            "approved_controlled_commercial_movement_from_m93_execution_source_not_m93_movement",
+            "approved_controlled_commercial_movement_from_m93_execution_result_not_allowed_for_m93_movement",
+            "next_micro_step_prepared_private_link_limit_exceeded",
+            "--use-latest-decision",
+            "--confirm-exact-movement",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, tool_text)

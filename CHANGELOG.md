@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - M94 approved controlled commercial movement from M93 execution
+
+- Adds `approved_controlled_commercial_movement_from_m93_execution.py` to record only the exact M93-approved commercial movement.
+- Caps micro-step execution to one private link and three invites, and blocks non-approved deviations.
+- Extends packaging exclusions, public/private commercial traceability, roadmap/governance and tests.
+
 ## 2026-05-09 - M93 next controlled commercial movement from M92 decision
 
 - Adds `next_controlled_commercial_movement_from_m92_decision.py` to decide the next controlled commercial movement from M92 evidence.
