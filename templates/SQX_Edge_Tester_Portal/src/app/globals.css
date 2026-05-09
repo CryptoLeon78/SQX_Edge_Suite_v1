@@ -87,6 +87,52 @@ p {
   margin-bottom: 8px;
 }
 
+.auth-panel {
+  max-width: 680px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 16px;
+  max-width: 460px;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  color: var(--sqx-muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--sqx-border);
+  border-radius: 8px;
+  background: #07111f;
+  color: var(--sqx-text);
+  font: inherit;
+}
+
+button {
+  min-height: 44px;
+  width: fit-content;
+  padding: 0 18px;
+  border: 1px solid rgba(101, 165, 255, 0.5);
+  border-radius: 8px;
+  background: #1d4ed8;
+  color: #ffffff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #2563eb;
+}
+
 .watermark {
   position: fixed;
   right: 18px;
@@ -105,4 +151,3 @@ p {
     padding: 22px;
   }
 }
-

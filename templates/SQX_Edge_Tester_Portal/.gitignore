@@ -4,6 +4,7 @@ node_modules/
 # Next.js output
 .next/
 out/
+*.tsbuildinfo
 
 # Vercel local metadata
 .vercel/
@@ -17,4 +18,3 @@ out/
 *.log
 Thumbs.db
 .DS_Store
-

@@ -43,6 +43,7 @@ PG7_PROJECT_GENERATOR_DOC = PROJECT_ROOT / "docs" / "PG7_PROJECT_GENERATOR_BUYER
 T1_CLOUD_TESTER_DOC = PROJECT_ROOT / "docs" / "T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md"
 T2_TESTER_PORTAL_DOC = PROJECT_ROOT / "docs" / "T2_TESTER_PORTAL_BOOTSTRAP.md"
 T3_TESTER_AUTH_DOC = PROJECT_ROOT / "docs" / "T3_TESTER_AUTH_DATA_CONTRACT.md"
+T4_LOGIN_SESSION_DOC = PROJECT_ROOT / "docs" / "T4_LOGIN_SESSION_PROTOTYPE.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -794,7 +795,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb17)
 
-        self.assertIn("Current phase completed: T3 - Tester Auth Data Contract.", governance)
+        self.assertIn("Current phase completed: T4 - Login Session Prototype.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
         self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
@@ -803,6 +804,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("docs/T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md", governance)
         self.assertIn("docs/T2_TESTER_PORTAL_BOOTSTRAP.md", governance)
         self.assertIn("docs/T3_TESTER_AUTH_DATA_CONTRACT.md", governance)
+        self.assertIn("docs/T4_LOGIN_SESSION_PROTOTYPE.md", governance)
         self.assertIn("templates/SQX_Edge_Tester_Portal/", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
@@ -2904,8 +2906,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t1)
 
         expected_governance_patterns = [
-            "Current phase completed: T3 - Tester Auth Data Contract.",
-            "T4 - login and session prototype",
+            "Current phase completed: T4 - Login Session Prototype.",
+            "T5 - tester_pro entitlement gates",
             "Access/Security Gatekeeper",
             "`Txx`: cloud tester access",
             "Cloud Tester Access track",
@@ -2967,13 +2969,17 @@ class DashboardStaticTestCase(unittest.TestCase):
             "src/app/globals.css",
             "src/app/layout.tsx",
             "src/app/page.tsx",
+            "src/app/login/page.tsx",
             "src/app/portal/page.tsx",
             "src/app/expired/page.tsx",
             "src/app/renewal/page.tsx",
             "src/app/api/health/route.ts",
+            "src/app/api/auth/login/route.ts",
+            "src/app/api/auth/logout/route.ts",
             "src/app/api/cron/expire-testers/route.ts",
             "src/lib/access-contract.ts",
             "src/lib/auth-data-contract.ts",
+            "src/lib/session-prototype.ts",
             "src/lib/security-headers.ts",
             "src/middleware.ts",
         ]
@@ -2995,6 +3001,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "EDGE_CONFIG=\"replace-with-vercel-edge-config-connection-string\"",
             "WATERMARK_SALT=\"replace-with-random-watermark-salt\"",
             "PASSWORD_PEPPER=\"replace-with-random-password-pepper-if-enabled\"",
+            "T4_DEMO_LOGIN_ENABLED=\"false\"",
+            "T4_DEMO_TESTER_EMAIL=\"tester@example.invalid\"",
+            "T4_DEMO_ACCESS_CODE=\"replace-with-local-demo-access-code\"",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, env_example)
@@ -3017,16 +3026,24 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, access_contract)
 
         middleware = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").read_text(encoding="utf-8-sig")
+        session_prototype = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "session-prototype.ts").read_text(encoding="utf-8-sig")
+        for pattern in (
+            "SECURITY_HEADERS",
+            "isProtectedPath",
+            "hasPrototypeSession",
+            "buildLoginUrl",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, middleware)
         for pattern in (
             "PROTECTED_PREFIXES",
             "\"/portal\"",
             "\"/admin\"",
             "\"/api/tester\"",
-            "sqx_tester_session",
-            "SECURITY_HEADERS",
+            "SESSION_COOKIE_CONTRACT.name",
         ):
             with self.subTest(pattern=pattern):
-                self.assertIn(pattern, middleware)
+                self.assertIn(pattern, session_prototype)
 
         cron_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "cron" / "expire-testers" / "route.ts").read_text(encoding="utf-8-sig")
         self.assertIn("process.env.CRON_SECRET", cron_route)
@@ -3047,7 +3064,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
             for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
-            if path.is_file()
+            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
         )
         forbidden_patterns = [
             "TbNX3XLrg!4Dc6J",
@@ -3073,12 +3090,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, t2)
 
-        self.assertIn("Current phase completed: T3 - Tester Auth Data Contract.", governance)
-        self.assertIn("T4 - login and session prototype", governance)
-        self.assertIn("Current completed phase: T3 - Tester Auth Data Contract.", next_steps)
+        self.assertIn("Current phase completed: T4 - Login Session Prototype.", governance)
+        self.assertIn("T5 - tester_pro entitlement gates", governance)
+        self.assertIn("Current completed phase: T4 - Login Session Prototype.", next_steps)
         self.assertIn("Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
-        self.assertIn("T3 completada con contrato de datos/auth", readme)
+        self.assertIn("T4 completada con prototipo local de login/sesion", readme)
         self.assertIn("templates/SQX_Edge_Tester_Portal/", readme)
 
     def test_t3_tester_auth_data_contract_is_documented_and_safe(self):
@@ -3166,13 +3183,119 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_contract_text)
 
-        self.assertIn("Current phase completed: T3 - Tester Auth Data Contract.", governance)
-        self.assertIn("T4 - login and session prototype", governance)
-        self.assertIn("Current completed phase: T3 - Tester Auth Data Contract.", next_steps)
+        self.assertIn("Current phase completed: T4 - Login Session Prototype.", governance)
+        self.assertIn("T5 - tester_pro entitlement gates", governance)
+        self.assertIn("Current completed phase: T4 - Login Session Prototype.", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
         self.assertIn("Phase T4: implement login/session prototype", next_steps)
-        self.assertIn("T3 completada con contrato de datos/auth", readme)
+        self.assertIn("T4 completada con prototipo local de login/sesion", readme)
         self.assertIn("password hashing Argon2id", readme)
+
+    def test_t4_login_session_prototype_is_documented_and_safe(self):
+        t4 = T4_LOGIN_SESSION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        login_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "login" / "page.tsx").read_text(encoding="utf-8-sig")
+        login_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "auth" / "login" / "route.ts").read_text(encoding="utf-8-sig")
+        logout_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "auth" / "logout" / "route.ts").read_text(encoding="utf-8-sig")
+        middleware = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").read_text(encoding="utf-8-sig")
+        session_prototype_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "session-prototype.ts"
+        session_prototype = session_prototype_path.read_text(encoding="utf-8-sig")
+
+        for rel_path in (
+            "src/app/login/page.tsx",
+            "src/app/api/auth/login/route.ts",
+            "src/app/api/auth/logout/route.ts",
+            "src/lib/session-prototype.ts",
+        ):
+            with self.subTest(rel_path=rel_path):
+                self.assertTrue((TESTER_PORTAL_TEMPLATE_ROOT / rel_path).is_file(), rel_path)
+
+        for pattern in (
+            "T4 Login Session Prototype",
+            "disabled-by-default demo flow",
+            "does not deploy Vercel",
+            "does not deploy Vercel, create tester accounts",
+            "`src/app/api/auth/login/route.ts`",
+            "`src/app/api/auth/logout/route.ts`",
+            "`src/lib/session-prototype.ts`",
+            "T4_DEMO_LOGIN_ENABLED=\"false\"",
+            "cookie name: `__Host-sqx_tester_session`",
+            "HttpOnly = true",
+            "Secure = true",
+            "SameSite = Strict",
+            "Blocked requests redirect to `/login?next=<path>`",
+            "T5 should add `tester_pro` entitlement gates",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t4)
+
+        for pattern in (
+            "DEMO_LOGIN_FLAG = \"T4_DEMO_LOGIN_ENABLED\"",
+            "DEMO_TESTER_EMAIL_ENV = \"T4_DEMO_TESTER_EMAIL\"",
+            "DEMO_ACCESS_CODE_ENV = \"T4_DEMO_ACCESS_CODE\"",
+            "isDemoLoginEnabled",
+            "process.env[DEMO_LOGIN_FLAG] === \"true\"",
+            "PROTECTED_PREFIXES = [\"/portal\", \"/admin\", \"/api/tester\"]",
+            "SESSION_COOKIE_CONTRACT.name",
+            "httpOnly: SESSION_COOKIE_CONTRACT.httpOnly",
+            "secure: SESSION_COOKIE_CONTRACT.secure",
+            "sameSite: SESSION_COOKIE_CONTRACT.sameSite",
+            "path: SESSION_COOKIE_CONTRACT.path",
+            "maxAge: SESSION_COOKIE_CONTRACT.maxAgeMinutes * 60",
+            "crypto.randomUUID()",
+            "demo_login_disabled",
+            "invalid_demo_credential",
+            "sanitizeRedirectTarget",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, session_prototype)
+
+        for pattern in (
+            "action=\"/api/auth/login\"",
+            "method=\"post\"",
+            "name=\"email\"",
+            "name=\"accessCode\"",
+            "autoComplete=\"one-time-code\"",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, login_page)
+
+        self.assertIn("evaluatePrototypeLogin", login_route)
+        self.assertIn("applySessionCookie", login_route)
+        self.assertIn("NextResponse.redirect", login_route)
+        self.assertIn("clearSessionCookie", logout_route)
+        self.assertIn("buildLoginUrl", middleware)
+        self.assertIn("hasPrototypeSession", middleware)
+        self.assertIn("isProtectedPath", middleware)
+        self.assertNotIn("new URL(\"/expired\"", middleware)
+
+        combined_template_text = "\n".join(
+            path.read_text(encoding="utf-8-sig")
+            for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
+            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+        )
+        forbidden_patterns = [
+            "TbNX3XLrg!4Dc6J",
+            "vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "localStorage.setItem",
+            "sessionStorage.setItem",
+        ]
+        for pattern in forbidden_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_template_text)
+
+        self.assertIn("Current phase completed: T4 - Login Session Prototype.", governance)
+        self.assertIn("T5 - tester_pro entitlement gates", governance)
+        self.assertIn("Current completed phase: T4 - Login Session Prototype.", next_steps)
+        self.assertIn("Phase T4: implement login/session prototype", next_steps)
+        self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
+        self.assertIn("T4 completada con prototipo local de login/sesion", readme)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

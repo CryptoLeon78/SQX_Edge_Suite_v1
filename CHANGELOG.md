@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T4 Login Session Prototype
+
+- Adds a disabled-by-default local demo login/session prototype to the tester portal template.
+- Adds login/logout route handlers, protected-route middleware redirect, session cookie helper and login form/logout button placeholders.
+- Keeps T4 non-external: no Vercel deploy, no tester accounts, no real credentials, no production database, no emails and no published URLs.
+
 ## 2026-05-09 - T3 Tester Auth Data Contract
 
 - Defines tester auth records, password hash policy, session cookie contract, renewal token model, audit events and secret boundaries before login implementation.

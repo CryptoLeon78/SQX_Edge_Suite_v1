@@ -24,9 +24,11 @@ export default function PortalPage() {
             <p>Every tester view must show a visible identity marker.</p>
           </div>
         </div>
+        <form action="/api/auth/logout" method="post">
+          <button type="submit">Sign out</button>
+        </form>
       </section>
       <p className="watermark">SQX TESTER WATERMARK PLACEHOLDER</p>
     </main>
   );
 }
-
