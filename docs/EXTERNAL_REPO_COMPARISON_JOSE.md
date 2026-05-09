@@ -212,7 +212,14 @@ Phase J9 exposes the J8 evidence in the existing dashboard:
 - Compact EGT v2 verdict chips.
 - Visual-only `Health OK` and `EGT v2 OK` filters.
 
-It keeps export and Strategy Builder payloads unchanged until J10, and still excludes Top Picks and matrix/heatmap surfaces.
+Phase J10 carries the J9 evidence into safe payloads:
+
+- `docs/J10_TEMPORAL_HEALTH_EGT_V2_HANDOFF.md`
+- Redacted `temporal_health` fields in Champion vs Challenger review exports.
+- Redacted `egt_v2` fields in Strategy Builder handoffs.
+- Strategy Builder `source_summary` and `asset_profile.cvc_evidence_summary` context.
+
+It excludes raw CSV, `metrics_by_block`, historical price series, regime block payloads, automatic StrategyQuant generation, buyer/license/customer data, and Top Picks/matrix/heatmap surfaces.
 
 ## Deferred Improvements
 
@@ -220,7 +227,7 @@ These should be separate phases, not bundled into A47:
 
 1. Multi-timeframe metric generation: A49 added the dependency-isolated scoring tool, A50 connected it to plan review, A51 added the validation gate, A52 established H1 as a traceable first-party source, A53 added the full-source intake, A54 added guarded plan artifacts, A55 added the OHLC metric builder, A56 added the end-to-end real-data runner, A57 exposed read-only dashboard evidence after GO, A58 added the internal MT5/Dukascopy download gate, A59 recorded the first local MT5 NO-GO smoke, A60 added active-terminal retry mode, A61 added repeatable IPC diagnostics and A62 achieved real A56 GO using recent MT5 bars.
 2. Optional market data acquisition: keep MT5/Dukascopy as an operator-only script, excluded from portable buyer builds unless explicitly needed.
-3. Champion vs Challenger next evidence pass: implement J10 redacted export and Strategy Builder handoff fields using J9 evidence.
+3. Champion vs Challenger next evidence pass: optional J11 display of imported reduced CVC evidence inside Strategy Builder UI.
 4. UI integration: add a read-only "Plan Advisor" panel in Pipeline State after the backend tool stabilizes.
 5. Release packaging: decide whether analytical advisor tools are public buyer tools or internal operator tools before adding packaging assertions.
 

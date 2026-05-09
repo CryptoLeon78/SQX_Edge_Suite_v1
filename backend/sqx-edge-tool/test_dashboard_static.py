@@ -20,6 +20,7 @@ J6_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J6_CHAMPION_CHALLENGER_EXP
 J7_TEMPORAL_HEALTH_EGT_V2_DOC = PROJECT_ROOT / "docs" / "J7_TEMPORAL_HEALTH_EGT_V2_CONTRACT.md"
 J8_TEMPORAL_HEALTH_EGT_V2_DOC = PROJECT_ROOT / "docs" / "J8_TEMPORAL_HEALTH_EGT_V2_HELPERS.md"
 J9_TEMPORAL_HEALTH_EGT_V2_DOC = PROJECT_ROOT / "docs" / "J9_TEMPORAL_HEALTH_EGT_V2_UI.md"
+J10_TEMPORAL_HEALTH_EGT_V2_DOC = PROJECT_ROOT / "docs" / "J10_TEMPORAL_HEALTH_EGT_V2_HANDOFF.md"
 SB1_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB1_STRATEGY_BUILDER_DISCOVERY.md"
 SB2_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB2_STRATEGY_BUILDER_WORKFLOW.md"
 SB3_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB3_STRATEGY_BUILDER_PROTOTYPE.md"
@@ -292,6 +293,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         j7 = J7_TEMPORAL_HEALTH_EGT_V2_DOC.read_text(encoding="utf-8-sig")
         j8 = J8_TEMPORAL_HEALTH_EGT_V2_DOC.read_text(encoding="utf-8-sig")
         j9 = J9_TEMPORAL_HEALTH_EGT_V2_DOC.read_text(encoding="utf-8-sig")
+        j10 = J10_TEMPORAL_HEALTH_EGT_V2_DOC.read_text(encoding="utf-8-sig")
         next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
         comparison = (PROJECT_ROOT / "docs" / "EXTERNAL_REPO_COMPARISON_JOSE.md").read_text(encoding="utf-8-sig")
@@ -319,6 +321,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Phase J7: document the Temporal Health and EGT v2 contract",
             "Phase J8: implement pure Temporal Health and EGT v2 helpers",
             "Phase J9: add compact dashboard chips and optional filters",
+            "Phase J10: extend redacted review export and Strategy Builder handoff",
+            "Phase J11: display imported reduced CVC evidence inside Strategy Builder UI",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
@@ -333,6 +337,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("docs/J7_TEMPORAL_HEALTH_EGT_V2_CONTRACT.md", governance)
         self.assertIn("docs/J8_TEMPORAL_HEALTH_EGT_V2_HELPERS.md", governance)
         self.assertIn("docs/J9_TEMPORAL_HEALTH_EGT_V2_UI.md", governance)
+        self.assertIn("docs/J10_TEMPORAL_HEALTH_EGT_V2_HANDOFF.md", governance)
         self.assertIn("Phase J1 starts the selective Champion vs Challenger track", comparison)
         self.assertIn("Phase J2 implements the first native Champion vs Challenger core", comparison)
         self.assertIn("Phase J3 adds the OOS stability layer", comparison)
@@ -342,6 +347,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase J7 documents the latest JoseLivan improvement", comparison)
         self.assertIn("Phase J8 implements that contract as native pure helpers", comparison)
         self.assertIn("Phase J9 exposes the J8 evidence in the existing dashboard", comparison)
+        self.assertIn("Phase J10 carries the J9 evidence into safe payloads", comparison)
 
         for pattern in (
             "J2 Champion vs Challenger Core",
@@ -446,6 +452,21 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, j9)
+
+        for pattern in (
+            "J10 Temporal Health and EGT v2 Export Handoff",
+            "`buildReviewExport(model)` includes reduced `temporal_health` and `egt_v2` fields",
+            "`temporal_health_ok_count` and `egt_v2_ok_count`",
+            "`source_summary` and `asset_profile.cvc_evidence_summary`",
+            "No `metrics_by_block` export.",
+            "No historical price series export.",
+            "No regime block payload export.",
+            "No automatic StrategyQuant generation.",
+            "No automatic promotion decision.",
+            "`J11` can make Strategy Builder's UI display the imported reduced evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, j10)
 
     def test_strategy_builder_discovery_is_documented_before_runtime(self):
         sb1 = SB1_STRATEGY_BUILDER_DOC.read_text(encoding="utf-8-sig")
@@ -709,7 +730,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb16)
 
-        self.assertIn("Current phase completed: J9 - Temporal Health and EGT v2 compact dashboard evidence.", governance)
+        self.assertIn("Current phase completed: J10 - Temporal Health and EGT v2 redacted export/handoff evidence.", governance)
+        self.assertIn("J11 - display imported reduced CVC evidence inside Strategy Builder UI", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m95_decision_ready`.", governance)
         self.assertIn("SB17 - Strategy Builder buyer session evidence handoff index", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
@@ -865,11 +887,17 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.championChallenger", champion_ui_js)
         self.assertIn("buildReviewExport", champion_ui_js)
         self.assertIn("buildStrategyBuilderHandoff", champion_ui_js)
+        self.assertIn("compactTemporalHealth", champion_ui_js)
+        self.assertIn("compactEgtV2", champion_ui_js)
+        self.assertIn("temporal_health_ok_count", champion_ui_js)
+        self.assertIn("egt_v2_ok_count", champion_ui_js)
         self.assertNotIn("localStorage.setItem", champion_ui_js)
         self.assertIn("SQX.strategyBuilderCore", strategy_builder_core_js)
         self.assertIn("buildPackage", strategy_builder_core_js)
         self.assertIn("sqx-edge.strategy-builder-package", strategy_builder_core_js)
         self.assertIn("sampleCvcHandoff", strategy_builder_core_js)
+        self.assertIn("cvc_evidence_summary", strategy_builder_core_js)
+        self.assertIn("evidence_review", strategy_builder_core_js)
         self.assertIn("validateImportPayload", strategy_builder_core_js)
         self.assertIn("importPayload", strategy_builder_core_js)
         self.assertIn("projectGeneratorPrefillFromPackage", strategy_builder_core_js)

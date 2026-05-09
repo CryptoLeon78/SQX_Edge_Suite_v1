@@ -247,7 +247,11 @@
         rank: candidate.rank || null,
         decision: candidate.decision || 'review_required',
         oos: candidate.oos || null,
-        regime: candidate.regime || null
+        regime: candidate.regime || null,
+        temporal_health: candidate.temporal_health || null,
+        egt_v2: candidate.egt_v2 || null,
+        evidence_review: candidate.evidence_review || null,
+        source_review: handoff.source_review || null
       };
     }
     if (input.source_summary && typeof input.source_summary === 'object') {
@@ -258,6 +262,10 @@
         decision: normalizeText(input.source_summary.decision, 'review_required'),
         oos: input.source_summary.oos || null,
         regime: input.source_summary.regime || null,
+        temporal_health: input.source_summary.temporal_health || null,
+        egt_v2: input.source_summary.egt_v2 || null,
+        evidence_review: input.source_summary.evidence_review || null,
+        source_review: input.source_summary.source_review || null,
         note: normalizeText(input.source_summary.note)
       };
     }
@@ -306,6 +314,11 @@
       source_summary: summary,
       regime_label: regime.label || data.regime_label || data.regimeLabel || 'unknown',
       oos_summary: summary.oos || data.oos_summary || data.oosSummary || { status: 'unknown' },
+      cvc_evidence_summary: {
+        temporal_health: summary.temporal_health || null,
+        egt_v2: summary.egt_v2 || null,
+        evidence_review: summary.evidence_review || null
+      },
       mtf_summary: data.mtf_summary || data.mtfSummary || { status: 'not_attached' },
       project_profile_id: normalizeText(data.project_profile_id || data.projectProfileId, 'starter-forex-h1-balanced'),
       validation_pack_id: normalizeText(data.validation_pack_id || data.validationPackId, defaultValidationPack(archetype)),
@@ -343,6 +356,7 @@
         direction_bias: context.direction_bias,
         regime_label: context.regime_label,
         oos_summary: context.oos_summary,
+        cvc_evidence_summary: context.cvc_evidence_summary,
         mtf_summary: context.mtf_summary
       },
       idea_archetype: {
@@ -399,7 +413,31 @@
         decision: 'builder_candidate',
         metrics: { profit_factor: 1.62, return_drawdown: 3.95, trades: 180 },
         oos: { block_count: 3, positive_block_ratio: 1, stable_enough: true },
-        regime: { symbol: 'EURUSD', label: 'COMPLIANT', reason: 'sample evidence' }
+        regime: { symbol: 'EURUSD', label: 'COMPLIANT', reason: 'sample evidence' },
+        temporal_health: {
+          status: 'fresh',
+          pass_all: true,
+          peak_block: 3,
+          block_count: 3,
+          dd_at_close: 0,
+          recovery_index: 1
+        },
+        egt_v2: {
+          verdict: 'STRONG',
+          label: 'COMPLIANT',
+          direction: 'long_only',
+          dominant_regime: 'BULL',
+          failed_regimes: [],
+          insufficient_regimes: [],
+          regime_block_counts: { BULL: 3, BEAR: 0, RANGE: 0 }
+        },
+        evidence_review: {
+          formal_ok: true,
+          oos_stable: true,
+          temporal_health_ok: true,
+          egt_v2_ok: true,
+          operator_review_required: true
+        }
       },
       candidates: [],
       builder_status: 'planned_contract',

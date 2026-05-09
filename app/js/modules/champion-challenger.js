@@ -346,6 +346,47 @@
     };
   }
 
+  function compactTemporalHealth(health) {
+    if (!health) return null;
+    return {
+      status: health.status || 'unknown',
+      pass_all: !!health.pass_all,
+      pass_peak: !!health.pass_peak,
+      pass_drawdown: !!health.pass_drawdown,
+      pass_recovery: !!health.pass_recovery,
+      metric_used: health.metric_used || null,
+      metric_quality: health.metric_quality || null,
+      peak_block: health.peak_block == null ? null : Number(health.peak_block),
+      block_count: health.block_count == null ? 0 : Number(health.block_count),
+      dd_at_close: roundMetric(health.dd_at_close, 4),
+      recovery_index: roundMetric(health.recovery_index, 4),
+      warnings: (health.warnings || []).slice(0, 4).map(function(item) { return item.code || String(item); })
+    };
+  }
+
+  function compactEgtV2(evidence) {
+    if (!evidence) return null;
+    var stats = evidence.stats_by_regime || {};
+    var counts = {};
+    ['BULL', 'BEAR', 'RANGE'].forEach(function(regime) {
+      counts[regime] = stats[regime] && stats[regime].count ? Number(stats[regime].count) : 0;
+    });
+    return {
+      verdict: evidence.verdict || 'UNKNOWN',
+      label: evidence.label || 'UNKNOWN',
+      direction: evidence.direction || 'long_only',
+      dominant_regime: evidence.dominant_regime || null,
+      dominant_avg: roundMetric(evidence.dominant_avg, 4),
+      worst_regime_avg: roundMetric(evidence.worst_regime_avg, 4),
+      variance_across_regimes: roundMetric(evidence.variance_across_regimes, 4),
+      evaluated_regimes: (evidence.evaluated_regimes || []).slice(0, 3),
+      failed_regimes: (evidence.failed_regimes || []).slice(0, 3),
+      insufficient_regimes: (evidence.insufficient_regimes || []).slice(0, 3),
+      regime_block_counts: counts,
+      warnings: (evidence.warnings || []).slice(0, 4).map(function(item) { return item.code || String(item); })
+    };
+  }
+
   function compactCandidate(item, index) {
     var metrics = item.normalized_metrics || {};
     return {
@@ -365,7 +406,9 @@
       },
       oos: compactOos(item.oos),
       oos_stable: !!item.oos_stable,
-      regime: compactRegime(item.regime_evidence)
+      regime: compactRegime(item.regime_evidence),
+      temporal_health: compactTemporalHealth(item.temporal_health),
+      egt_v2: compactEgtV2(item.egt_v2)
     };
   }
 
@@ -378,6 +421,8 @@
     var regimeReady = rankings.filter(function(item) {
       return item.regime_evidence && item.regime_evidence.label === 'COMPLIANT';
     }).length;
+    var healthReady = rankings.filter(healthOk).length;
+    var egtV2Ready = rankings.filter(egtV2Ok).length;
 
     return {
       type: 'sqx-edge.champion-challenger-review',
@@ -395,6 +440,8 @@
         formal_ready_count: ready,
         oos_stable_count: stable,
         regime_compliant_count: regimeReady,
+        temporal_health_ok_count: healthReady,
+        egt_v2_ok_count: egtV2Ready,
         warning_count: source && source.warnings ? source.warnings.length : 0
       },
       warnings: source && source.warnings ? source.warnings.slice(0, 12) : [],
@@ -411,14 +458,31 @@
       : buildReviewExport(reviewOrModel, options);
     var generatedAt = options && options.generatedAt ? options.generatedAt : new Date().toISOString();
     var candidates = (review.candidates || []).map(function(candidate) {
+      var temporalHealthOk = !!(candidate.temporal_health && candidate.temporal_health.pass_all);
+      var egtV2Ok = !!(candidate.egt_v2 && (
+        candidate.egt_v2.verdict === 'STRONG' ||
+        candidate.egt_v2.verdict === 'COMPLIANT' ||
+        candidate.egt_v2.verdict === 'DEFENSIVE'
+      ));
+      var formalOk = candidate.formal_fail_count === 0;
+      var oosStable = !!candidate.oos_stable;
       return {
         rank: candidate.rank,
         strategy_name: candidate.strategy_name,
         symbol: candidate.symbol,
-        decision: candidate.formal_fail_count === 0 && candidate.oos_stable ? 'builder_candidate' : 'review_required',
+        decision: formalOk && oosStable && temporalHealthOk && egtV2Ok ? 'builder_candidate' : 'review_required',
         metrics: candidate.metrics,
         oos: candidate.oos,
-        regime: candidate.regime
+        regime: candidate.regime,
+        temporal_health: candidate.temporal_health,
+        egt_v2: candidate.egt_v2,
+        evidence_review: {
+          formal_ok: formalOk,
+          oos_stable: oosStable,
+          temporal_health_ok: temporalHealthOk,
+          egt_v2_ok: egtV2Ok,
+          operator_review_required: true
+        }
       };
     });
 
@@ -432,7 +496,9 @@
         candidate_count: review.summary.candidate_count,
         formal_ready_count: review.summary.formal_ready_count,
         oos_stable_count: review.summary.oos_stable_count,
-        regime_compliant_count: review.summary.regime_compliant_count
+        regime_compliant_count: review.summary.regime_compliant_count,
+        temporal_health_ok_count: review.summary.temporal_health_ok_count || 0,
+        egt_v2_ok_count: review.summary.egt_v2_ok_count || 0
       },
       recommended_candidate: candidates[0] || null,
       candidates: candidates,

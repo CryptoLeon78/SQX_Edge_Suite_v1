@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - J10 Temporal Health and EGT v2 handoff
+
+- Extends Champion vs Challenger review exports with reduced `temporal_health` and `egt_v2` evidence fields.
+- Carries the same redacted evidence into Strategy Builder handoffs and package `source_summary` context.
+- Preserves no raw CSV, no OOS block internals, no remote calls and manual operator review boundaries.
+
 ## 2026-05-09 - J9 Temporal Health and EGT v2 UI
 
 - Shows compact Temporal Health and EGT v2 chips inside Champion vs Challenger rankings.

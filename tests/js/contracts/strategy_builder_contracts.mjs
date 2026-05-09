@@ -77,8 +77,14 @@ const ready = core.buildPackage({
 assert.equal(ready.workflow_state, 'package_exportable');
 assert.equal(ready.asset_profile.asset, 'EURUSD');
 assert.equal(ready.source_summary.candidate, 'Challenger A');
+assert.equal(ready.source_summary.temporal_health.status, 'fresh');
+assert.equal(ready.source_summary.egt_v2.verdict, 'STRONG');
+assert.equal(ready.source_summary.evidence_review.operator_review_required, true);
+assert.equal(ready.asset_profile.cvc_evidence_summary.temporal_health.status, 'fresh');
+assert.equal(ready.asset_profile.cvc_evidence_summary.egt_v2.verdict, 'STRONG');
 assert.equal(ready.views_handoff.validation_pack_id, 'robustness');
 assert.equal(JSON.stringify(ready).includes('raw_csv'), false);
+assert.equal(JSON.stringify(ready).includes('metrics_by_block'), false);
 const pgPrefill = core.projectGeneratorPrefillFromPackage(ready);
 assert.equal(pgPrefill.ok, true);
 assert.equal(pgPrefill.config.asset, 'EURUSD');

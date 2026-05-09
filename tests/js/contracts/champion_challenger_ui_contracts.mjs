@@ -75,15 +75,29 @@ const reviewExport = cvc.buildReviewExport(cvc.evaluate({ document }), { generat
 assert.equal(reviewExport.type, 'sqx-edge.champion-challenger-review');
 assert.equal(reviewExport.summary.candidate_count, 3);
 assert.equal(reviewExport.summary.oos_stable_count, 1);
+assert.equal(reviewExport.summary.temporal_health_ok_count, 2);
+assert.equal(reviewExport.summary.egt_v2_ok_count, 1);
 assert.equal(reviewExport.redaction.raw_csv, 'excluded');
 assert.equal(reviewExport.redaction.remote_calls, 'none');
 assert.equal(reviewExport.candidates[0].strategy_name, 'Challenger A');
+assert.equal(reviewExport.candidates[0].temporal_health.status, 'fresh');
+assert.equal(reviewExport.candidates[0].temporal_health.pass_all, true);
+assert.equal(reviewExport.candidates[0].egt_v2.verdict, 'STRONG');
+assert.equal(Array.isArray(reviewExport.candidates[0].egt_v2.failed_regimes), true);
 assert.equal(Object.prototype.hasOwnProperty.call(reviewExport.candidates[0], 'raw'), false);
+assert.equal(JSON.stringify(reviewExport).includes('metrics_by_block'), false);
 
 const handoff = cvc.buildStrategyBuilderHandoff(reviewExport, { generatedAt: '2026-05-08T00:01:00.000Z' });
 assert.equal(handoff.type, 'sqx-edge.strategy-builder-handoff');
 assert.equal(handoff.source_review.candidate_count, 3);
+assert.equal(handoff.source_review.temporal_health_ok_count, 2);
+assert.equal(handoff.source_review.egt_v2_ok_count, 1);
 assert.equal(handoff.recommended_candidate.strategy_name, 'Challenger A');
+assert.equal(handoff.recommended_candidate.decision, 'builder_candidate');
+assert.equal(handoff.recommended_candidate.temporal_health.status, 'fresh');
+assert.equal(handoff.recommended_candidate.egt_v2.verdict, 'STRONG');
+assert.equal(handoff.recommended_candidate.evidence_review.operator_review_required, true);
+assert.equal(handoff.recommended_candidate.evidence_review.egt_v2_ok, true);
 assert.match(handoff.guardrails.join(' '), /No raw CSV payloads/);
 
 document.getElementById('cvc-handoff-btn').click();
