@@ -18,22 +18,35 @@ A partir de la implementación del Núcleo Institucional, se establece la siguie
     ```
 3.  **Conflictos**: Esta práctica minimiza los conflictos de fusión y permite que el **Auditor Institucional** valide el progreso en tiempo real.
 
-## 2. Flujo de Código y Auditoría
+## 2. Blindaje de Fugas (Anti-Leakage)
+
+Para evitar que el código "se escape" o quede atrapado en los repositorios antiguos (`sqx-edge-pipeline` y `SQX_Edge_Suite_v1`), el Auditor Institucional realiza una vigilancia periódica.
+
+### Reglas de Sincronización:
+*   **Vigilancia Activa**: El Auditor fallará si detecta nuevos commits en los repositorios antiguos que no hayan sido "marcados" como integrados en este núcleo institucional.
+*   **Protocolo de Integración**: Si realizas un cambio en los repositorios antiguos (por necesidad técnica o transición), debes registrarlo en este repositorio mediante un commit de sincronización:
+    ```bash
+    git commit -m "sync: integrating changes from legacy repo [hash_del_commit_antiguo]" --allow-empty
+    ```
+*   **Prohibición de Deriva**: Se desaconseja fuertemente desarrollar funciones nuevas en los repositorios antiguos. Todo nuevo "Edge" debe nacer en `SQX_Institutional_Core`.
+
+## 3. Flujo de Código y Auditoría
 
 *   **Prohibido el Push Directo a `main`**: Todos los desarrollos de módulos o cambios en la arquitectura deben realizarse en ramas de características (`feat/nombre`) y enviarse mediante **Pull Request**.
 *   **Validación Automática**: El `Institutional Quality Auditor` (GitHub Actions) revisará cada envío. Si el Auditor falla, el cambio no se fusiona.
 *   **Revisión por Pares**: Las PRs deben ser revisadas por el dueño del área según el archivo `CODEOWNERS`.
 
-## 3. Nomenclatura y Certificación C2
+## 4. Nomenclatura y Certificación C2
 
 *   **Analyzer Obligatorio**: No se aceptan estrategias en el repositorio que no hayan pasado por el módulo de certificación `Analyzer` con el preset correspondiente (Forex, Indices, Crypto).
 *   **Nomenclatura Estricta**: Los archivos `.cfx` exportados deben seguir el patrón:
     `template_ACTIVO_DIRECCION_TIMEFRAME_INDICADOR_BLOQUE_ID.cfx`
 
-## 4. Responsabilidades (CODEOWNERS)
+## 5. Responsabilidades (CODEOWNERS)
 
 *   **CryptoLeon78**: Arquitectura Core, Seguridad, Auditoría y Motores de Generación.
 *   **jlivanmaseda-maker**: Metodología de Scoring, Datasets, Estrategias y Análisis de Evidencia.
 
 ---
 **El incumplimiento de esta disciplina degrada la calidad institucional del proyecto y será reportado automáticamente por los logs del Auditor.**
+
