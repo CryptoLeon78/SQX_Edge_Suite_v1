@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - M97 approved M96 commercial movement execution
+
+- Adds a local M97 gate to record only the exact manual movement approved by M96.
+- Blocks movement/result mismatches, traffic overflows and missing operator confirmations.
+- Extends commercial traceability, packaging exclusions and public redaction pointers without automating checkout, emails or licenses.
+
 ## 2026-05-09 - SB17 Strategy Builder evidence handoff index
 
 - Adds a reduced local evidence index for Strategy Builder buyer sessions.
