@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T1 - Cloud Tester Architecture Contract.
+- Current completed phase: T2 - Tester Portal Bootstrap.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T2 - private Tester Portal repo bootstrap, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T3 - tester auth data contract, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Recommended Order
 
@@ -48,7 +48,7 @@ Persistent planning note for the next SQX Edge phases.
 - Treat `https://github.com/CryptoLeon78/SQX_Institutional_Core.git` as first-class/original via local remote `institutional`; push it separately only when histories are aligned or after an explicit institutional sync phase.
 - Never force-push `institutional/main` and never delete institutional-only files, workflows, analyzer assets or operating docs through a blind mirror push.
 - Declare active specialist ownership before broad phases.
-- Use prefixed phase IDs for new work: `Mxx`, `Axx`, `Rxx`, `Sxx`, `Qxx`, `Gxx`, `SBxx`.
+- Use prefixed phase IDs for new work: `Mxx`, `Axx`, `Rxx`, `Sxx`, `Qxx`, `Gxx`, `SBxx`, `Txx`.
 - Use `Vxx` for SQX view/template generation and StrategyQuant operator tools.
 - Follow `docs/PROJECT_GOVERNANCE.md` for phase workflow and M46 entry criteria.
 - Apply G3 before adding internal automation: classify risk level, ownership, output path, privacy boundary and required checks.
@@ -58,7 +58,7 @@ Persistent planning note for the next SQX Edge phases.
 ## Cloud Tester Access Track
 
 1. Phase T1: define the Vercel-hosted tester architecture contract, repo boundaries, Access/Security Gatekeeper, 15-day renewal model and threat model. Done; see `docs/T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md`.
-2. Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal` with Next.js/Vercel structure, README, `.gitignore`, env placeholders and no real tester data.
+2. Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal` with Next.js/Vercel structure, README, `.gitignore`, env placeholders and no real tester data. Done as public-safe template; see `docs/T2_TESTER_PORTAL_BOOTSTRAP.md` and `templates/SQX_Edge_Tester_Portal/`.
 3. Phase T3: define tester auth data contract: statuses, password hash policy, sessions, renewal tokens, audit events and secret boundaries.
 4. Phase T4: implement login/session prototype with blocked unauthenticated routes.
 5. Phase T5: add `tester_pro` entitlements and feature gates for paid options.

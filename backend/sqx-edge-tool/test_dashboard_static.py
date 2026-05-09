@@ -41,6 +41,8 @@ SB16_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB16_STRATEGY_BUILDER_BUYER
 SB17_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB17_STRATEGY_BUILDER_EVIDENCE_HANDOFF_INDEX.md"
 PG7_PROJECT_GENERATOR_DOC = PROJECT_ROOT / "docs" / "PG7_PROJECT_GENERATOR_BUYER_CFX_HANDOFF.md"
 T1_CLOUD_TESTER_DOC = PROJECT_ROOT / "docs" / "T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md"
+T2_TESTER_PORTAL_DOC = PROJECT_ROOT / "docs" / "T2_TESTER_PORTAL_BOOTSTRAP.md"
+TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
@@ -296,6 +298,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.", next_steps)
         self.assertIn("Phase T1: define the Vercel-hosted tester architecture contract", next_steps)
         self.assertIn("Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`", next_steps)
+        self.assertIn("Phase T3: define tester auth data contract", next_steps)
         self.assertIn("Any new visible tab, panel, module or manifest-driven UI state", architecture := ARCHITECTURE_DOC.read_text(encoding="utf-8-sig"))
         self.assertIn("docs/PROJECT_GOVERNANCE.md", readme)
         self.assertIn("consulta obligatoria antes de fases/mensajes de trabajo", readme)
@@ -790,13 +793,15 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb17)
 
-        self.assertIn("Current phase completed: T1 - Cloud Tester Architecture Contract.", governance)
+        self.assertIn("Current phase completed: T2 - Tester Portal Bootstrap.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
         self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
         self.assertIn("Asset detail/category rows expose quick actions", governance)
         self.assertIn("docs/PG7_PROJECT_GENERATOR_BUYER_CFX_HANDOFF.md", governance)
         self.assertIn("docs/T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md", governance)
+        self.assertIn("docs/T2_TESTER_PORTAL_BOOTSTRAP.md", governance)
+        self.assertIn("templates/SQX_Edge_Tester_Portal/", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
         self.assertIn("docs/SB2_STRATEGY_BUILDER_WORKFLOW.md", governance)
@@ -2897,8 +2902,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t1)
 
         expected_governance_patterns = [
-            "Current phase completed: T1 - Cloud Tester Architecture Contract.",
-            "T2 - private Tester Portal repo bootstrap",
+            "Current phase completed: T2 - Tester Portal Bootstrap.",
+            "T3 - tester auth data contract",
             "Access/Security Gatekeeper",
             "`Txx`: cloud tester access",
             "Cloud Tester Access track",
@@ -2941,6 +2946,136 @@ class DashboardStaticTestCase(unittest.TestCase):
         ]:
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, operational_discipline)
+
+    def test_t2_tester_portal_bootstrap_is_documented_and_safe(self):
+        t2 = T2_TESTER_PORTAL_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+
+        expected_files = [
+            "README.md",
+            ".gitignore",
+            ".env.example",
+            "package.json",
+            "next-env.d.ts",
+            "next.config.mjs",
+            "tsconfig.json",
+            "vercel.json",
+            "src/app/globals.css",
+            "src/app/layout.tsx",
+            "src/app/page.tsx",
+            "src/app/portal/page.tsx",
+            "src/app/expired/page.tsx",
+            "src/app/renewal/page.tsx",
+            "src/app/api/health/route.ts",
+            "src/app/api/cron/expire-testers/route.ts",
+            "src/lib/access-contract.ts",
+            "src/lib/security-headers.ts",
+            "src/middleware.ts",
+        ]
+        for rel_path in expected_files:
+            with self.subTest(rel_path=rel_path):
+                self.assertTrue((TESTER_PORTAL_TEMPLATE_ROOT / rel_path).is_file(), rel_path)
+
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        self.assertTrue(package["private"])
+        self.assertEqual(package["dependencies"]["next"], "latest")
+        self.assertEqual(package["dependencies"]["react"], "latest")
+        self.assertIn("typecheck", package["scripts"])
+
+        env_example = (TESTER_PORTAL_TEMPLATE_ROOT / ".env.example").read_text(encoding="utf-8-sig")
+        for pattern in (
+            "AUTH_SECRET=\"replace-with-random-32-byte-secret\"",
+            "TESTER_DB_URL=\"replace-with-private-database-url\"",
+            "CRON_SECRET=\"replace-with-random-cron-secret\"",
+            "EDGE_CONFIG=\"replace-with-vercel-edge-config-connection-string\"",
+            "WATERMARK_SALT=\"replace-with-random-watermark-salt\"",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, env_example)
+
+        gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        self.assertIn(".env.*", gitignore)
+        self.assertIn("!.env.example", gitignore)
+        self.assertIn(".vercel/", gitignore)
+
+        access_contract = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "access-contract.ts").read_text(encoding="utf-8-sig")
+        for pattern in (
+            "TESTER_RENEWAL_CYCLE_DAYS = 15",
+            "\"pending_renewal\"",
+            "\"blocked\"",
+            "TesterPlan = \"tester_pro\"",
+            "canAccessTesterPro",
+            "buildTesterWatermark",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, access_contract)
+
+        middleware = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").read_text(encoding="utf-8-sig")
+        for pattern in (
+            "PROTECTED_PREFIXES",
+            "\"/portal\"",
+            "\"/admin\"",
+            "\"/api/tester\"",
+            "sqx_tester_session",
+            "SECURITY_HEADERS",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, middleware)
+
+        cron_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "cron" / "expire-testers" / "route.ts").read_text(encoding="utf-8-sig")
+        self.assertIn("process.env.CRON_SECRET", cron_route)
+        self.assertIn("dry-run", cron_route)
+        self.assertIn("T6 owns real renewal state changes", cron_route)
+
+        security_headers = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "security-headers.ts").read_text(encoding="utf-8-sig")
+        for pattern in (
+            "X-Frame-Options",
+            "X-Content-Type-Options",
+            "Referrer-Policy",
+            "X-Robots-Tag",
+            "Content-Security-Policy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, security_headers)
+
+        combined_template_text = "\n".join(
+            path.read_text(encoding="utf-8-sig")
+            for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
+            if path.is_file()
+        )
+        forbidden_patterns = [
+            "TbNX3XLrg!4Dc6J",
+            "vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ]
+        for pattern in forbidden_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_template_text)
+
+        for pattern in (
+            "T2 Tester Portal Bootstrap",
+            "public-safe bootstrap template",
+            "templates/SQX_Edge_Tester_Portal/",
+            "No Vercel deployment",
+            "No tester accounts",
+            "No production database",
+            "T3 should define the auth data contract",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t2)
+
+        self.assertIn("Current phase completed: T2 - Tester Portal Bootstrap.", governance)
+        self.assertIn("T3 - tester auth data contract", governance)
+        self.assertIn("Current completed phase: T2 - Tester Portal Bootstrap.", next_steps)
+        self.assertIn("Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`", next_steps)
+        self.assertIn("Phase T3: define tester auth data contract", next_steps)
+        self.assertIn("T2 completada con bootstrap public-safe", readme)
+        self.assertIn("templates/SQX_Edge_Tester_Portal/", readme)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

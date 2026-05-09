@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T2 Tester Portal Bootstrap
+
+- Adds a public-safe `templates/SQX_Edge_Tester_Portal/` Next.js/Vercel starter for the future private tester portal.
+- Adds T2 documentation, roadmap/governance updates and static contracts for no-secret placeholders, protected route skeletons, dry-run cron and security headers.
+- Keeps T2 non-external: no private repo creation, no Vercel deploy, no tester accounts, no emails and no published URLs.
+
 ## 2026-05-09 - T1 Cloud Tester Architecture Contract
 
 - Defines the future private `SQX_Edge_Tester_Portal` Vercel architecture for 10 controlled Pro testers.
