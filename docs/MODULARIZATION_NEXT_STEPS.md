@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T9c - Vercel Deployment Protection Gate NO-GO.
+- Current completed phase: T9d - Vercel Authentication Standard Protection Verified.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T9d - enable or verify Vercel Authentication/Password Protection before retrying preview deploy, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T9e - retry preview-only deploy with target and alias inspection before sharing any URL, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Recommended Order
 
@@ -68,10 +68,11 @@ Persistent planning note for the next SQX Edge phases.
 9. Phase T9: run Vercel preview staging behind protection with no public indexing, only with explicit approval for the exact external action. Preflight attempted; blocked safely by invalid local Vercel token; see `docs/T9_PROTECTED_VERCEL_PREVIEW_PREFLIGHT.md` and `templates/SQX_Edge_Tester_Portal/scripts/vercel-preview-preflight.mjs`.
 10. Phase T9b: authenticate Vercel, verify Deployment Protection and execute protected preview deploy. Attempted; rolled back because CLI created production aliases; see `docs/T9B_VERCEL_PREVIEW_DEPLOY_ROLLBACK.md`.
 11. Phase T9c: verify Vercel Deployment Protection before retrying preview deploy. Done as safe NO-GO gate; see `docs/T9C_VERCEL_DEPLOYMENT_PROTECTION_GATE.md` and `templates/SQX_Edge_Tester_Portal/scripts/vercel-protection-audit.mjs`.
-12. Phase T9d: enable or verify Vercel Authentication/Password Protection privately, then retry preview only after `GO_PROTECTION_VERIFIED`.
-13. Phase T10: run one internal tester pilot before inviting external testers.
-14. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
-15. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
+12. Phase T9d: enable or verify Vercel Authentication/Password Protection privately, then retry preview only after `GO_PROTECTION_VERIFIED`. Done; see `docs/T9D_VERCEL_AUTH_PROTECTION_VERIFIED.md`.
+13. Phase T9e: retry preview-only deploy with target and alias inspection before sharing any URL; rollback immediately if target or aliases are production.
+14. Phase T10: run one internal tester pilot before inviting external testers.
+15. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+16. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
 

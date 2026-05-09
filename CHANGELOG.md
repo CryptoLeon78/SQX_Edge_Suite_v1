@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T9d Vercel Authentication Protection Verified
+
+- Enables Vercel Authentication Standard Protection for `sqx-edge-tester-portal` through the Vercel Project API.
+- Verifies `audit:vercel-protection` returns `GO_PROTECTION_VERIFIED` with no active deployment, no domains and no latest production URL.
+- Keeps T9d non-rollout: no deploy, no tester invites, no renewal emails, no production database and no committed URLs or raw tester emails.
+
 ## 2026-05-09 - T9c Vercel Deployment Protection Gate
 
 - Adds `audit:vercel-protection` to block deploy retry unless Vercel Authentication or Password Protection is verified.

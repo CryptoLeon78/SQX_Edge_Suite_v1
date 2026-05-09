@@ -89,8 +89,8 @@ This validates the public-safe template before any Vercel preview retry. The nex
 npm run audit:vercel-protection
 ```
 
-This blocks deploy retry unless the linked Vercel project protection can be verified through API or an operator records the dashboard check privately.
+This blocks deploy retry unless the linked Vercel project protection can be verified through API or an operator records the dashboard check privately. After T9d, the expected result is `GO_PROTECTION_VERIFIED` with Vercel Authentication Standard Protection.
 
 ## Next Phase
 
-T9d should enable or verify Vercel Authentication/Password Protection privately and retry only after `audit:vercel-protection` returns `GO_PROTECTION_VERIFIED`.
+T9e should retry preview-only deploy only after `audit:vercel-protection` returns `GO_PROTECTION_VERIFIED`, then inspect target and aliases before any URL is shared.
