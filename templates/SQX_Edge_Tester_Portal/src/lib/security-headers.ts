@@ -9,8 +9,10 @@ function buildContentSecurityPolicy(): string {
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data:",
     connectSrc,
+    "form-action 'self'",
     "frame-ancestors 'none'",
-    "base-uri 'self'"
+    "base-uri 'self'",
+    "object-src 'none'"
   ].join("; ");
 }
 
@@ -20,5 +22,8 @@ export const SECURITY_HEADERS: Record<string, string> = {
   "Referrer-Policy": "strict-origin-when-cross-origin",
   "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
   "X-Robots-Tag": "noindex, nofollow",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains; preload",
+  "Cross-Origin-Opener-Policy": "same-origin",
+  "Cross-Origin-Resource-Policy": "same-origin",
   "Content-Security-Policy": buildContentSecurityPolicy()
 };

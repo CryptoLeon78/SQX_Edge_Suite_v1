@@ -44,6 +44,10 @@ This template is safe to keep in the public/core repository because it contains 
 - `T5_DEMO_TESTER_PRO_ENABLED`: local entitlement flag; keep `false` unless validating gates privately.
 - `T6_DEMO_RENEWAL_STATE`: local renewal state flag; keep `pending_renewal` unless validating lifecycle branches privately.
 - `T7_DEMO_ADMIN_CONSOLE_ENABLED`: local admin preview flag; keep `false` unless validating operator screens privately.
+- `T8_GLOBAL_KILL_SWITCH_ENABLED`: local kill-switch flag; keep `false` unless validating emergency shutoff privately.
+- `T8_RATE_LIMIT_ENABLED`: local rate-limit flag; keep `false` unless validating request throttling privately.
+- `T8_RATE_LIMIT_MAX_REQUESTS`: local rate-limit maximum request count.
+- `T8_RATE_LIMIT_WINDOW_SECONDS`: local rate-limit window.
 
 ## Current Skeleton
 
@@ -66,9 +70,11 @@ This template is safe to keep in the public/core repository because it contains 
 - `src/lib/entitlement-gates.ts`: T5 paid feature gate contract and demo-only entitlement evaluator.
 - `src/lib/renewal-flow.ts`: T6 15-day expiry, renewal state and manual decision preview helpers.
 - `src/lib/admin-console.ts`: T7 admin action preview helpers and demo tester rows.
+- `src/lib/security-hardening.ts`: T8 kill switch, rate-limit and watermark helpers.
+- `src/lib/deployment-protection.ts`: T8 checklist for protected staging before any tester rollout.
 - `src/lib/security-headers.ts`: baseline browser protection headers.
 - `src/middleware.ts`: protected-route session gate and security headers.
 
 ## Next Phase
 
-T8 can harden rate limiting, security headers, watermark, kill switch and deployment-protection checklist before any staging preview.
+T9 can prepare a Vercel preview staging run behind protection, but only after explicit approval for that exact external action.

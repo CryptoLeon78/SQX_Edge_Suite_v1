@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - T8 Tester Portal Security Hardening
+
+- Adds kill switch, rate-limit contract, visible watermark helper and deployment-protection checklist to the tester portal template.
+- Strengthens middleware/security headers and exposes non-sensitive T8 hardening state through `/api/health`.
+- Keeps T8 non-external: no Vercel deploy, no tester accounts, no renewal emails, no production database and no published URLs.
+
 ## 2026-05-09 - T7 Admin Tester Console
 
 - Adds a protected admin tester console preview with demo lifecycle rows, audit hints and operator actions.

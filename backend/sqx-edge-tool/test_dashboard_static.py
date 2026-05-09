@@ -47,6 +47,7 @@ T4_LOGIN_SESSION_DOC = PROJECT_ROOT / "docs" / "T4_LOGIN_SESSION_PROTOTYPE.md"
 T5_TESTER_PRO_DOC = PROJECT_ROOT / "docs" / "T5_TESTER_PRO_ENTITLEMENT_GATES.md"
 T6_RENEWAL_DOC = PROJECT_ROOT / "docs" / "T6_15_DAY_EXPIRY_RENEWAL_FLOW.md"
 T7_ADMIN_CONSOLE_DOC = PROJECT_ROOT / "docs" / "T7_ADMIN_TESTER_CONSOLE.md"
+T8_SECURITY_HARDENING_DOC = PROJECT_ROOT / "docs" / "T8_TESTER_PORTAL_SECURITY_HARDENING.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -798,7 +799,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb17)
 
-        self.assertIn("Current phase completed: T7 - Admin Tester Console.", governance)
+        self.assertIn("Current phase completed: T8 - Tester Portal Security Hardening.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
         self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
@@ -811,6 +812,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("docs/T5_TESTER_PRO_ENTITLEMENT_GATES.md", governance)
         self.assertIn("docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md", governance)
         self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
+        self.assertIn("docs/T8_TESTER_PORTAL_SECURITY_HARDENING.md", governance)
         self.assertIn("templates/SQX_Edge_Tester_Portal/", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
@@ -2912,8 +2914,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t1)
 
         expected_governance_patterns = [
-            "Current phase completed: T7 - Admin Tester Console.",
-            "T8 - rate limiting, security headers, watermark",
+            "Current phase completed: T8 - Tester Portal Security Hardening.",
+            "T9 - protected Vercel preview staging",
             "Access/Security Gatekeeper",
             "`Txx`: cloud tester access",
             "Cloud Tester Access track",
@@ -2977,6 +2979,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "src/app/page.tsx",
             "src/app/login/page.tsx",
             "src/app/portal/page.tsx",
+            "src/app/admin/testers/page.tsx",
             "src/app/expired/page.tsx",
             "src/app/renewal/page.tsx",
             "src/app/api/health/route.ts",
@@ -2984,12 +2987,16 @@ class DashboardStaticTestCase(unittest.TestCase):
             "src/app/api/auth/logout/route.ts",
             "src/app/api/tester/features/route.ts",
             "src/app/api/tester/renewal/route.ts",
+            "src/app/api/admin/testers/route.ts",
             "src/app/api/cron/expire-testers/route.ts",
             "src/lib/access-contract.ts",
             "src/lib/auth-data-contract.ts",
             "src/lib/session-prototype.ts",
             "src/lib/entitlement-gates.ts",
             "src/lib/renewal-flow.ts",
+            "src/lib/admin-console.ts",
+            "src/lib/security-hardening.ts",
+            "src/lib/deployment-protection.ts",
             "src/lib/security-headers.ts",
             "src/middleware.ts",
         ]
@@ -3017,6 +3024,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             "T5_DEMO_TESTER_PRO_ENABLED=\"false\"",
             "T6_DEMO_RENEWAL_STATE=\"pending_renewal\"",
             "T7_DEMO_ADMIN_CONSOLE_ENABLED=\"false\"",
+            "T8_GLOBAL_KILL_SWITCH_ENABLED=\"false\"",
+            "T8_RATE_LIMIT_ENABLED=\"false\"",
+            "T8_RATE_LIMIT_MAX_REQUESTS=\"30\"",
+            "T8_RATE_LIMIT_WINDOW_SECONDS=\"60\"",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, env_example)
@@ -3104,12 +3115,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, t2)
 
-        self.assertIn("Current phase completed: T7 - Admin Tester Console.", governance)
-        self.assertIn("T8 - rate limiting, security headers, watermark", governance)
-        self.assertIn("Current completed phase: T7 - Admin Tester Console.", next_steps)
+        self.assertIn("Current phase completed: T8 - Tester Portal Security Hardening.", governance)
+        self.assertIn("T9 - protected Vercel preview staging", governance)
+        self.assertIn("Current completed phase: T8 - Tester Portal Security Hardening.", next_steps)
         self.assertIn("Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
-        self.assertIn("T7 completada con consola admin protegida", readme)
+        self.assertIn("T8 completada con rate-limit contract", readme)
         self.assertIn("templates/SQX_Edge_Tester_Portal/", readme)
 
     def test_t3_tester_auth_data_contract_is_documented_and_safe(self):
@@ -3197,12 +3208,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_contract_text)
 
-        self.assertIn("Current phase completed: T7 - Admin Tester Console.", governance)
-        self.assertIn("T8 - rate limiting, security headers, watermark", governance)
-        self.assertIn("Current completed phase: T7 - Admin Tester Console.", next_steps)
+        self.assertIn("Current phase completed: T8 - Tester Portal Security Hardening.", governance)
+        self.assertIn("T9 - protected Vercel preview staging", governance)
+        self.assertIn("Current completed phase: T8 - Tester Portal Security Hardening.", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
         self.assertIn("Phase T4: implement login/session prototype", next_steps)
-        self.assertIn("T7 completada con consola admin protegida", readme)
+        self.assertIn("T8 completada con rate-limit contract", readme)
         self.assertIn("password hashing Argon2id", readme)
 
     def test_t4_login_session_prototype_is_documented_and_safe(self):
@@ -3304,12 +3315,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T7 - Admin Tester Console.", governance)
-        self.assertIn("T8 - rate limiting, security headers, watermark", governance)
-        self.assertIn("Current completed phase: T7 - Admin Tester Console.", next_steps)
+        self.assertIn("Current phase completed: T8 - Tester Portal Security Hardening.", governance)
+        self.assertIn("T9 - protected Vercel preview staging", governance)
+        self.assertIn("Current completed phase: T8 - Tester Portal Security Hardening.", next_steps)
         self.assertIn("Phase T4: implement login/session prototype", next_steps)
         self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
-        self.assertIn("T7 completada con consola admin protegida", readme)
+        self.assertIn("T8 completada con rate-limit contract", readme)
 
     def test_t5_tester_pro_entitlement_gates_are_documented_and_safe(self):
         t5 = T5_TESTER_PRO_DOC.read_text(encoding="utf-8-sig")
@@ -3393,12 +3404,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T7 - Admin Tester Console.", governance)
-        self.assertIn("T8 - rate limiting, security headers, watermark", governance)
-        self.assertIn("Current completed phase: T7 - Admin Tester Console.", next_steps)
+        self.assertIn("Current phase completed: T8 - Tester Portal Security Hardening.", governance)
+        self.assertIn("T9 - protected Vercel preview staging", governance)
+        self.assertIn("Current completed phase: T8 - Tester Portal Security Hardening.", next_steps)
         self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
         self.assertIn("Phase T6: add 15-day expiry", next_steps)
-        self.assertIn("T7 completada con consola admin protegida", readme)
+        self.assertIn("T8 completada con rate-limit contract", readme)
 
     def test_t6_15_day_expiry_renewal_flow_is_documented_and_safe(self):
         t6 = T6_RENEWAL_DOC.read_text(encoding="utf-8-sig")
@@ -3496,7 +3507,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("T6_DEMO_RENEWAL_STATE", template_readme)
         self.assertIn("src/lib/renewal-flow.ts", template_readme)
         self.assertIn("src/app/api/tester/renewal/route.ts", template_readme)
-        self.assertIn("T8 can harden rate limiting", template_readme)
+        self.assertIn("T9 can prepare a Vercel preview staging run", template_readme)
 
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
@@ -3516,15 +3527,15 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T7 - Admin Tester Console.", governance)
-        self.assertIn("T8 - rate limiting, security headers, watermark", governance)
+        self.assertIn("Current phase completed: T8 - Tester Portal Security Hardening.", governance)
+        self.assertIn("T9 - protected Vercel preview staging", governance)
         self.assertIn("docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md", governance)
         self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
-        self.assertIn("Current completed phase: T7 - Admin Tester Console.", next_steps)
+        self.assertIn("Current completed phase: T8 - Tester Portal Security Hardening.", next_steps)
         self.assertIn("Phase T6: add 15-day expiry", next_steps)
         self.assertIn("Phase T7: add admin tester console", next_steps)
-        self.assertIn("T7 completada con consola admin protegida", readme)
-        self.assertIn("T8 para hardening de rate limiting", readme)
+        self.assertIn("T8 completada con rate-limit contract", readme)
+        self.assertIn("T9 para staging preview protegido", readme)
 
     def test_t7_admin_tester_console_is_documented_and_safe(self):
         t7 = T7_ADMIN_CONSOLE_DOC.read_text(encoding="utf-8-sig")
@@ -3654,14 +3665,189 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T7 - Admin Tester Console.", governance)
-        self.assertIn("T8 - rate limiting, security headers, watermark", governance)
+        self.assertIn("Current phase completed: T8 - Tester Portal Security Hardening.", governance)
+        self.assertIn("T9 - protected Vercel preview staging", governance)
         self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
-        self.assertIn("Current completed phase: T7 - Admin Tester Console.", next_steps)
+        self.assertIn("Current completed phase: T8 - Tester Portal Security Hardening.", next_steps)
         self.assertIn("Phase T7: add admin tester console", next_steps)
         self.assertIn("Phase T8: harden rate limiting", next_steps)
-        self.assertIn("T7 completada con consola admin protegida", readme)
-        self.assertIn("T8 para hardening de rate limiting", readme)
+        self.assertIn("T8 completada con rate-limit contract", readme)
+        self.assertIn("T9 para staging preview protegido", readme)
+
+    def test_t8_tester_portal_security_hardening_is_documented_and_safe(self):
+        t8 = T8_SECURITY_HARDENING_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        env_example = (TESTER_PORTAL_TEMPLATE_ROOT / ".env.example").read_text(encoding="utf-8-sig")
+        security_hardening_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "security-hardening.ts"
+        deployment_protection_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "deployment-protection.ts"
+        security_hardening = security_hardening_path.read_text(encoding="utf-8-sig")
+        deployment_protection = deployment_protection_path.read_text(encoding="utf-8-sig")
+        middleware = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").read_text(encoding="utf-8-sig")
+        security_headers = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "security-headers.ts").read_text(encoding="utf-8-sig")
+        health_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "health" / "route.ts").read_text(encoding="utf-8-sig")
+        portal_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "portal" / "page.tsx").read_text(encoding="utf-8-sig")
+
+        for rel_path in (
+            "src/lib/security-hardening.ts",
+            "src/lib/deployment-protection.ts",
+        ):
+            with self.subTest(rel_path=rel_path):
+                self.assertTrue((TESTER_PORTAL_TEMPLATE_ROOT / rel_path).is_file(), rel_path)
+
+        for pattern in (
+            "T8 Tester Portal Security Hardening",
+            "rate-limit contracts",
+            "stronger security headers",
+            "visible tester watermark",
+            "global kill switch",
+            "`src/lib/security-hardening.ts`",
+            "`src/lib/deployment-protection.ts`",
+            "`T8_GLOBAL_KILL_SWITCH_ENABLED=\"false\"`",
+            "`T8_RATE_LIMIT_ENABLED=\"false\"`",
+            "`T8_RATE_LIMIT_MAX_REQUESTS=\"30\"`",
+            "`T8_RATE_LIMIT_WINDOW_SECONDS=\"60\"`",
+            "`X-RateLimit-Limit`",
+            "`X-RateLimit-Remaining`",
+            "`X-RateLimit-Reset`",
+            "`Strict-Transport-Security = max-age=31536000; includeSubDomains; preload`",
+            "`Cross-Origin-Opener-Policy = same-origin`",
+            "`Cross-Origin-Resource-Policy = same-origin`",
+            "`DEPLOYMENT_PROTECTION_CHECKLIST`",
+            "No Vercel deployment.",
+            "T9 can prepare a Vercel preview staging run",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t8)
+
+        for pattern in (
+            "HARDENING_ENV",
+            "globalKillSwitch: \"T8_GLOBAL_KILL_SWITCH_ENABLED\"",
+            "rateLimitEnabled: \"T8_RATE_LIMIT_ENABLED\"",
+            "rateLimitMaxRequests: \"T8_RATE_LIMIT_MAX_REQUESTS\"",
+            "rateLimitWindowSeconds: \"T8_RATE_LIMIT_WINDOW_SECONDS\"",
+            "RATE_LIMIT_BUCKETS",
+            "isGlobalKillSwitchEnabled",
+            "isRateLimitEnabled",
+            "readRateLimitMaxRequests",
+            "readRateLimitWindowSeconds",
+            "isKillSwitchExemptPath",
+            "buildRateLimitKey",
+            "evaluateRateLimit",
+            "rate_limit_exceeded",
+            "buildVisibleWatermark",
+            "buildDemoVisibleWatermark",
+            "demo-tester-local-only",
+            "tester@example.invalid",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, security_hardening)
+
+        for pattern in (
+            "DEPLOYMENT_PROTECTION_CHECKLIST",
+            "Vercel Deployment Protection enabled",
+            "tester auth enabled before sharing any URL",
+            "T8_GLOBAL_KILL_SWITCH_ENABLED tested before pilot",
+            "T8_RATE_LIMIT_ENABLED tested before pilot",
+            "no public indexing",
+            "no tester invites or renewal emails",
+            "no production database secrets committed",
+            "watermark visible",
+            "externalActionAllowed: false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, deployment_protection)
+
+        for pattern in (
+            "isGlobalKillSwitchEnabled",
+            "isKillSwitchExemptPath",
+            "global_kill_switch_enabled",
+            "evaluateRateLimit",
+            "buildRateLimitKey",
+            "rate_limit_exceeded",
+            "Retry-After",
+            "X-RateLimit-Limit",
+            "X-RateLimit-Remaining",
+            "X-RateLimit-Reset",
+            "applySecurityHeaders",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, middleware)
+
+        for pattern in (
+            "Strict-Transport-Security",
+            "Cross-Origin-Opener-Policy",
+            "Cross-Origin-Resource-Policy",
+            "form-action 'self'",
+            "object-src 'none'",
+            "frame-ancestors 'none'",
+            "X-Robots-Tag",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, security_headers)
+
+        for pattern in (
+            "phase: \"T8\"",
+            "containsTesterData: false",
+            "hardening",
+            "globalKillSwitchEnabled",
+            "rateLimitEnabled",
+            "deploymentProtection",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, health_route)
+
+        for pattern in (
+            "buildDemoVisibleWatermark",
+            "buildDeploymentProtectionSummary",
+            "watermark",
+            "Hardening",
+            "deployment-protection checks required before preview",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, portal_page)
+
+        for pattern in (
+            "T8_GLOBAL_KILL_SWITCH_ENABLED=\"false\"",
+            "T8_RATE_LIMIT_ENABLED=\"false\"",
+            "T8_RATE_LIMIT_MAX_REQUESTS=\"30\"",
+            "T8_RATE_LIMIT_WINDOW_SECONDS=\"60\"",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, env_example)
+
+        self.assertIn("src/lib/security-hardening.ts", template_readme)
+        self.assertIn("src/lib/deployment-protection.ts", template_readme)
+        self.assertIn("T9 can prepare a Vercel preview staging run", template_readme)
+
+        combined_template_text = "\n".join(
+            path.read_text(encoding="utf-8-sig")
+            for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
+            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+        )
+        for pattern in (
+            "TbNX3XLrg!4Dc6J",
+            "vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "localStorage.setItem",
+            "sessionStorage.setItem",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_template_text)
+
+        self.assertIn("Current phase completed: T8 - Tester Portal Security Hardening.", governance)
+        self.assertIn("T9 - protected Vercel preview staging", governance)
+        self.assertIn("docs/T8_TESTER_PORTAL_SECURITY_HARDENING.md", governance)
+        self.assertIn("Current completed phase: T8 - Tester Portal Security Hardening.", next_steps)
+        self.assertIn("Phase T8: harden rate limiting", next_steps)
+        self.assertIn("Phase T9: run Vercel preview staging", next_steps)
+        self.assertIn("T8 completada con rate-limit contract", readme)
+        self.assertIn("T9 para staging preview protegido", readme)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

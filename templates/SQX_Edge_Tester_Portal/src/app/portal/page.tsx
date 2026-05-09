@@ -1,8 +1,13 @@
 import { TESTER_RENEWAL_CYCLE_DAYS } from "@/lib/access-contract";
+import { buildDeploymentProtectionSummary } from "@/lib/deployment-protection";
 import { TESTER_PRO_FEATURES } from "@/lib/entitlement-gates";
 import { MANUAL_RENEWAL_DECISIONS } from "@/lib/renewal-flow";
+import { buildDemoVisibleWatermark } from "@/lib/security-hardening";
 
 export default function PortalPage() {
+  const deploymentProtection = buildDeploymentProtectionSummary();
+  const watermark = buildDemoVisibleWatermark();
+
   return (
     <main className="shell">
       <section className="panel hero">
@@ -41,6 +46,10 @@ export default function PortalPage() {
           <p>Create, renew, deny, block and audit review stay operator-only.</p>
           <a href="/admin/testers">Open admin console</a>
         </div>
+        <div className="metric">
+          <strong>Hardening</strong>
+          <p>{deploymentProtection.requiredBeforePreview.length} deployment-protection checks required before preview.</p>
+        </div>
         <p>
           Feature access is checked by `/api/tester/features`; visible UI alone must never grant paid functionality.
         </p>
@@ -48,7 +57,7 @@ export default function PortalPage() {
           <button type="submit">Sign out</button>
         </form>
       </section>
-      <p className="watermark">SQX TESTER WATERMARK PLACEHOLDER</p>
+      <p className="watermark">{watermark}</p>
     </main>
   );
 }
