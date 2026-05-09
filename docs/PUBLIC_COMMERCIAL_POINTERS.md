@@ -35,5 +35,6 @@ M82 continues this rule: tiny controlled traffic expansion step details live pri
 M83 continues this rule: tiny controlled traffic expansion monitoring details live privately, while public files keep traceability only.
 M84 continues this rule: controlled traffic expansion decision details live privately, while public files keep traceability only.
 M85 continues this rule: controlled traffic expansion execution details live privately, while public files keep traceability only.
+M86 continues this rule: controlled traffic expansion execution monitoring details live privately, while public files keep traceability only.
 
 Treat public Git history as already exposed. Rotate any credential, checkout secret, token or private key that ever appeared outside the private boundary.

@@ -181,7 +181,9 @@
       "backend/sqx-edge-tool/data/controlled_traffic_expansion_decision",
       "backend/sqx-edge-tool/tools/controlled_traffic_expansion_decision.py",
       "backend/sqx-edge-tool/data/controlled_traffic_expansion_execution",
-      "backend/sqx-edge-tool/tools/controlled_traffic_expansion_execution.py"
+      "backend/sqx-edge-tool/tools/controlled_traffic_expansion_execution.py",
+      "backend/sqx-edge-tool/data/controlled_traffic_expansion_execution_monitor",
+      "backend/sqx-edge-tool/tools/controlled_traffic_expansion_execution_monitor.py"
     ],
     "releaseAudit": "backend/sqx-edge-tool/tools/audit_distribution.ps1"
   },
@@ -348,7 +350,7 @@
     "checkoutLabel": "Comprar Pro",
     "checkoutUrl": "",
     "checkout": {
-      "status": "controlled_traffic_expansion_execution_ready",
+      "status": "controlled_traffic_expansion_execution_monitor_ready",
       "primaryProvider": "Lemon Squeezy",
       "fallbackProvider": "Gumroad",
       "mode": "hosted_checkout",
@@ -530,7 +532,7 @@
       "privateAssetReviewPolicy": "approve_asset_for_controlled_publication_only_after_private_review_safe_claims_support_release_notes_and_rollback",
       "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
       "automation": {
-        "status": "controlled_traffic_expansion_execution_ready",
+        "status": "controlled_traffic_expansion_execution_monitor_ready",
         "webhookProvider": "Lemon Squeezy",
         "webhookSignatureHeader": "X-Signature",
         "webhookSigningAlgorithm": "hmac_sha256_hex",
@@ -736,7 +738,11 @@
       "controlledTrafficExpansionExecutionConfig": "backend/sqx-edge-tool/config/controlled_traffic_expansion_execution.json",
       "controlledTrafficExpansionExecutionTool": "backend/sqx-edge-tool/tools/controlled_traffic_expansion_execution.py",
       "controlledTrafficExpansionExecutionEvidenceDir": "backend/sqx-edge-tool/data/controlled_traffic_expansion_execution",
-      "controlledTrafficExpansionExecutionPolicy": "record_only_the_manual_m84_approved_action_without_automatic_traffic_checkout_email_or_license_execution"
+      "controlledTrafficExpansionExecutionPolicy": "record_only_the_manual_m84_approved_action_without_automatic_traffic_checkout_email_or_license_execution",
+      "controlledTrafficExpansionExecutionMonitorConfig": "backend/sqx-edge-tool/config/controlled_traffic_expansion_execution_monitor.json",
+      "controlledTrafficExpansionExecutionMonitorTool": "backend/sqx-edge-tool/tools/controlled_traffic_expansion_execution_monitor.py",
+      "controlledTrafficExpansionExecutionMonitorEvidenceDir": "backend/sqx-edge-tool/data/controlled_traffic_expansion_execution_monitor",
+      "controlledTrafficExpansionExecutionMonitorPolicy": "monitor_m85_execution_result_before_any_further_traffic_or_commercial_movement"
     }
   },
   "marketing": {

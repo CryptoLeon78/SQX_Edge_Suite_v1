@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-09 - M86 controlled traffic expansion execution monitor
+
+- Adds a guarded internal monitor for the M85 execution result before any further movement.
+- Tracks redacted responses, positive signals, support, refunds, claims and incident counts.
+- Extends packaging exclusions, public/private commercial traceability, roadmap/governance and tests.
+
 ## 2026-05-09 - M85 controlled traffic expansion execution
 
 - Adds a guarded internal execution record for the exact manual action approved by M84.
