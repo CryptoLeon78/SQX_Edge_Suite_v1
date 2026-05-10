@@ -95,6 +95,7 @@ T10AJ_CLOUDFLARE_PROJECT_SHELL_DOC = PROJECT_ROOT / "docs" / "T10AJ_CLOUDFLARE_P
 T10AJB_CLOUDFLARE_AUTH_HANDOFF_DOC = PROJECT_ROOT / "docs" / "T10AJB_CLOUDFLARE_AUTH_HANDOFF.md"
 T10AJC_CLOUDFLARE_SHELL_EVIDENCE_INGEST_DOC = PROJECT_ROOT / "docs" / "T10AJC_CLOUDFLARE_SHELL_EVIDENCE_INGEST.md"
 T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE_DOC = PROJECT_ROOT / "docs" / "T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE.md"
+T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE_DOC = PROJECT_ROOT / "docs" / "T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -8460,6 +8461,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             "node scripts/cloudflare-shell-evidence-capture-proof.mjs",
         )
         self.assertEqual(
+            package["scripts"]["proof:cloudflare-readonly-shell-capture"],
+            "node scripts/cloudflare-readonly-shell-capture-proof.mjs",
+        )
+        self.assertEqual(
             package["scripts"]["proof:cloudflare-shell-evidence-ingest"],
             "node scripts/cloudflare-shell-evidence-ingest-proof.mjs",
         )
@@ -9275,17 +9280,19 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10ajd - Cloudflare Shell Evidence Capture Checklist.",
-            "Next implementation phase: T10aje - execute manual Cloudflare login/dashboard evidence capture outside git",
+            "Current phase completed: T10ajd - Cloudflare Shell Evidence Capture Checklist. Historical anchor only; superseded by T10aje.",
+            "Next implementation phase: T10aje - execute manual Cloudflare login/dashboard evidence capture outside git, then rerun T10ajc ingest. Historical anchor only; superseded by T10ajf.",
+            "T10aje - Cloudflare Read-Only Shell Capture",
             "docs/T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10ajd - Cloudflare Shell Evidence Capture Checklist.",
+            "Current completed phase: T10ajd - Cloudflare Shell Evidence Capture Checklist. Historical anchor only; superseded by T10aje.",
             "Phase T10ajd: capture real Cloudflare shell evidence manually/authenticated before T10ak. Done",
-            "Phase T10aje: execute manual Cloudflare login/dashboard evidence capture outside git, then rerun T10ajc ingest.",
+            "Phase T10aje: execute manual Cloudflare login/dashboard evidence capture outside git, then rerun T10ajc ingest. Done",
+            "Phase T10ajf: choose exact no-deploy Cloudflare shell creation path",
             "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
         ):
             with self.subTest(pattern=pattern):
@@ -9293,7 +9300,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "T10ajd anade `proof:cloudflare-shell-evidence-capture`",
-            "T10aje para ejecutar la captura manual/autenticada de evidencia Cloudflare fuera de git",
+            "T10aje anade `proof:cloudflare-readonly-shell-capture`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -9330,6 +9337,145 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10ajd_text)
+
+    def test_t10aje_cloudflare_readonly_shell_capture_is_documented_and_safe(self):
+        t10aje = T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-readonly-shell-capture-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-readonly-shell-capture"],
+            "node scripts/cloudflare-readonly-shell-capture-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+
+        for pattern in (
+            "T10aje Cloudflare Read-Only Shell Capture",
+            "wrangler_login=success",
+            "wrangler_whoami=authenticated",
+            "raw `whoami` output included private account details and was not committed",
+            "deployments list --name sqx-edge-tester-portal-preview --json",
+            "versions list --name sqx-edge-tester-portal-preview --json",
+            "secret list --name sqx-edge-tester-portal-preview --format json",
+            "result=worker_not_found",
+            "cloudflare_error_code=10007",
+            "NO_GO_CLOUDFLARE_WORKER_NOT_FOUND_T10AK_BLOCKED",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10ajf_choose_shell_creation_path_or_controlled_deploy_approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10aje)
+
+        for pattern in (
+            "finding an exact no-deploy Cloudflare shell creation path",
+            "requesting explicit approval for one controlled deployment later",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10aje)
+
+        for pattern in (
+            'phase: "T10aje"',
+            'result: "NO_GO_CLOUDFLARE_WORKER_NOT_FOUND_T10AK_BLOCKED"',
+            'provider: "Cloudflare"',
+            'requestedProjectShellName: "sqx-edge-tester-portal-preview"',
+            "wranglerLoginSucceeded: true",
+            "wranglerWhoamiAuthenticated: true",
+            "rawWhoamiOutputCommitted: false",
+            'deploymentsListResult: "worker_not_found"',
+            'versionsListResult: "worker_not_found"',
+            'secretListResult: "worker_not_found"',
+            "cloudflareErrorCode: 10007",
+            "providerShellExists: false",
+            "t10akUnlocked: false",
+            "packageScriptReady:",
+            "docHasNoSecretPattern:",
+            "docReady:",
+            "governanceUpdated:",
+            "nextStepsUpdated:",
+            "cloudflareProjectCreated: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            'nextGate: "T10ajf_choose_shell_creation_path_or_controlled_deploy_approval"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10aje - Cloudflare Read-Only Shell Capture.",
+            "Next implementation phase: T10ajf - choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later",
+            "docs/T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10aje - Cloudflare Read-Only Shell Capture.",
+            "Phase T10aje: execute manual Cloudflare login/dashboard evidence capture outside git, then rerun T10ajc ingest. Done",
+            "Phase T10ajf: choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later.",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10aje anade `proof:cloudflare-readonly-shell-capture`",
+            "T10ajf para decidir ruta exacta de creacion shell Cloudflare sin deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10aje Cloudflare Read-Only Shell Capture",
+            "proof:cloudflare-readonly-shell-capture",
+            "NO_GO_CLOUDFLARE_WORKER_NOT_FOUND_T10AK_BLOCKED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-readonly-shell-capture-proof.mjs",
+            "npm run proof:cloudflare-readonly-shell-capture",
+            "NO_GO_CLOUDFLARE_WORKER_NOT_FOUND_T10AK_BLOCKED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10aje_text = "\n".join([t10aje, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10aje_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

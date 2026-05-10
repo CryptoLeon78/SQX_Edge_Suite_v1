@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10aje Cloudflare Read-Only Shell Capture
+
+- Authenticates Wrangler locally and performs read-only checks for `sqx-edge-tester-portal-preview`.
+- Adds `proof:cloudflare-readonly-shell-capture` with result `NO_GO_CLOUDFLARE_WORKER_NOT_FOUND_T10AK_BLOCKED`.
+- Keeps T10ak blocked because Cloudflare reports the proposed Worker does not exist on the authenticated account.
+
 ## 2026-05-10 - T10ajd Cloudflare Shell Evidence Capture Checklist
 
 - Adds the manual/authenticated Cloudflare shell evidence capture checklist before T10ak.

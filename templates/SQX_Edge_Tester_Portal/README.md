@@ -114,6 +114,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/cloudflare-auth-handoff-proof.mjs`: T10ajb no-deploy Cloudflare auth/manual evidence handoff proof before T10ajc shell evidence ingestion.
 - `scripts/cloudflare-shell-evidence-ingest-proof.mjs`: T10ajc no-deploy evidence ingest gate that keeps T10ak blocked until the ignored local shell evidence proves a real shell and zero tester surface.
 - `scripts/cloudflare-shell-evidence-capture-proof.mjs`: T10ajd no-deploy capture checklist proof for manual/authenticated shell evidence before rerunning T10ajc.
+- `scripts/cloudflare-readonly-shell-capture-proof.mjs`: T10aje read-only capture proof recording that the proposed Worker does not exist after Wrangler authentication.
 - `cloudflare-shell-evidence.example.json`: public-safe template for manual shell evidence; copy to ignored `cloudflare-shell-evidence.local.json` only.
 
 ## Local Preflight
@@ -357,6 +358,12 @@ npm run proof:cloudflare-shell-evidence-capture
 ```
 
 This proves the T10ajd manual capture checklist. It must return `NO_GO_CLOUDFLARE_CAPTURE_PENDING_MANUAL_AUTH_OR_DASHBOARD_EVIDENCE` until Ivan completes the manual Cloudflare login/dashboard evidence capture outside git and reruns T10ajc.
+
+```powershell
+npm run proof:cloudflare-readonly-shell-capture
+```
+
+This proves the T10aje read-only capture result. It must return `NO_GO_CLOUDFLARE_WORKER_NOT_FOUND_T10AK_BLOCKED` until a real Cloudflare shell exists; it does not deploy or create Access.
 
 ```powershell
 npm run cf:build
