@@ -69,6 +69,7 @@ T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10J_CL
 T10K_CLI_DEFAULT_PREVIEW_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10K_CLI_DEFAULT_PREVIEW_ROLLBACK.md"
 T10L_VERCEL_ROUTE_INVESTIGATION_DOC = PROJECT_ROOT / "docs" / "T10L_VERCEL_ROUTE_INVESTIGATION.md"
 T10M_VERCEL_CONFIG_HARDENING_DOC = PROJECT_ROOT / "docs" / "T10M_VERCEL_CONFIG_HARDENING.md"
+T10N_VERCEL_ROUTE_DECISION_DOC = PROJECT_ROOT / "docs" / "T10N_VERCEL_ROUTE_DECISION.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -5836,6 +5837,113 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10m_text)
+
+    def test_t10n_vercel_route_decision_is_documented_and_safe(self):
+        t10n = T10N_VERCEL_ROUTE_DECISION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-route-decision-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:vercel-route-decision"],
+            "node scripts/vercel-route-decision-proof.mjs",
+        )
+
+        for pattern in (
+            "T10n Vercel Route Decision",
+            "no-deploy decision gate",
+            "NO_GO_CURRENT_VERCEL_ROUTE_REPLACEMENT_REQUIRED",
+            "Did not run `vercel deploy`.",
+            "Did not call the Vercel deployments creation API.",
+            "Did not patch project settings.",
+            "Vercel still reports `productionDeploymentsFastLane`.",
+            "No documented no-deploy API field proves the future deployment target.",
+            "T10o must prepare one of these options",
+            "Do not run another deployment until T10o produces a no-deploy GO",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10n)
+
+        for pattern in (
+            "T10N_PREVIEW_PROJECT_NAME",
+            "NO_GO_CURRENT_VERCEL_ROUTE_REPLACEMENT_REQUIRED",
+            "currentRouteApprovedForDeployment: false",
+            "replacementRequired: true",
+            "noDeployGoForCurrentRoute: false",
+            "productionDeploymentsFastLane remains reported by the Project API",
+            "future deployment target cannot be proven without creating a deployment",
+            "externalDeployAttempted: false",
+            "externalConfigMutationAttempted: false",
+            "T10o must prepare a replacement route or manual provider-level proof before any deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+
+        for pattern in (
+            "Current phase completed: T10n - Vercel Route Decision.",
+            "T10o - replacement route or provider-level no-deploy proof before any deployment",
+            "docs/T10N_VERCEL_ROUTE_DECISION.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10n - Vercel Route Decision.",
+            "Phase T10n: no-deploy preview target proof or Vercel route replacement before any further deployment. Done as route decision NO-GO",
+            "Phase T10o: replacement route or provider-level no-deploy proof before any deployment.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10n rechaza la ruta Vercel actual",
+            "T10o para ruta alternativa o proof manual/provider-level",
+            "T10n anade `proof:vercel-route-decision`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10n Vercel Route Decision",
+            "proof:vercel-route-decision",
+            "current Vercel route remains rejected for rollout",
+            "T10o as replacement route or provider-level proof",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-route-decision-proof.mjs",
+            "npm run proof:vercel-route-decision",
+            "NO_GO_CURRENT_VERCEL_ROUTE_REPLACEMENT_REQUIRED",
+            "T10o must prepare a replacement route or manual provider-level proof",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10n_text = "\n".join([t10n, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10n_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

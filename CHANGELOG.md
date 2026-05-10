@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10n Vercel Route Decision
+
+- Adds `proof:vercel-route-decision` as a no-deploy decision gate after T10m hardening.
+- Records that the current Vercel route remains rejected for rollout because the future deployment target cannot be proven without creating a deployment.
+- Sets T10o as replacement route or provider-level proof before any deployment attempt.
+
 ## 2026-05-10 - T10m Vercel Config Hardening
 
 - Adds `proof:vercel-config-hardening` with dry-run by default and explicit `T10M_APPLY=1` apply mode.

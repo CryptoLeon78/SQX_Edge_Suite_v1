@@ -5,18 +5,20 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T10m - Vercel Config Hardening.
+- Current completed phase: T10n - Vercel Route Decision.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10n - no-deploy preview target proof or Vercel route replacement before any further deployment, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10o - replacement route or provider-level no-deploy proof before any deployment, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
 - Current completed phase: T10l - Vercel Route Investigation. Historical anchor only; superseded by T10m.
 - Next recommended phase: T10m - manual/API Vercel correction or alternative no-deploy route proof before any further deployment. Historical anchor only; superseded by T10n.
+- Current completed phase: T10m - Vercel Config Hardening. Historical anchor only; superseded by T10n.
+- Next recommended phase: T10n - no-deploy preview target proof or Vercel route replacement before any further deployment. Historical anchor only; superseded by T10o.
 
 ## Recommended Order
 
@@ -90,9 +92,10 @@ Persistent planning note for the next SQX Edge phases.
 26. Phase T10k: execute exactly one CLI default preview deployment without `--skip-domain`, with immediate target inspection and rollback on mismatch. Attempted and rolled back because Vercel still returned `target = production`; see `docs/T10K_CLI_DEFAULT_PREVIEW_ROLLBACK.md`.
 27. Phase T10l: investigate or replace the Vercel route without another deployment attempt. Done as no-deploy investigation with NO-GO route status; see `docs/T10L_VERCEL_ROUTE_INVESTIGATION.md`.
 28. Phase T10m: manual/API Vercel correction or alternative no-deploy route proof before any further deployment. Done as Vercel Project API hardening without deployment; see `docs/T10M_VERCEL_CONFIG_HARDENING.md`.
-29. Phase T10n: no-deploy preview target proof or Vercel route replacement before any further deployment. Do not deploy again until a no-deploy proof produces GO.
-30. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
-31. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
+29. Phase T10n: no-deploy preview target proof or Vercel route replacement before any further deployment. Done as route decision NO-GO for the current Vercel route; see `docs/T10N_VERCEL_ROUTE_DECISION.md`.
+30. Phase T10o: replacement route or provider-level no-deploy proof before any deployment. Do not deploy again until a no-deploy proof produces GO.
+31. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+32. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
 
