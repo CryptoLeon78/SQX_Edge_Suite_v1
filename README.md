@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T10ai deja listo el preflight de proyecto Cloudflare sin deploy, sin URL tester, sin Access creado y sin datos de testers en git.
+- Estado interno: T10aj registra el gate de shell Cloudflare; no se crea/verifica el shell porque Wrangler no esta autenticado y no hay ruta CLI de provider shell sin deploy.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: T10aj para crear/verificar shell Cloudflare solo con aprobacion exacta o mantener la ruta local, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T10ajb para autenticar/verificar manualmente el shell Cloudflare sin deploy, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -136,6 +136,7 @@ Portal tester Pro previsto:
 - T10ag anade `proof:opennext-local-smoke`; confirma que el build OpenNext genera worker/assets y que preview WSL/Linux devuelve `/api/health` 200, mientras preview nativo Windows queda como `NO_GO_NATIVE_WINDOWS_PREVIEW_ROUTE_500`.
 - T10ah anade `proof:next-proxy-migration`; documenta que `proxy.ts` queda bloqueado para esta ruta porque OpenNext/Cloudflare no soporta Node Middleware, conserva `middleware.ts` y mantiene la fase sin deploy ni recursos Cloudflare.
 - T10ai anade `proof:cloudflare-provider-project-preflight`; prepara contrato Cloudflare Workers/OpenNext + Access OTP sin deploy, sin proyecto, sin politica Access, sin Git link y sin URL tester.
+- T10aj anade `proof:cloudflare-project-shell`; registra el NO-GO seguro por falta de autenticacion Wrangler/ruta shell sin deploy y memoriza T10ajb-T10an/T11/T12.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.

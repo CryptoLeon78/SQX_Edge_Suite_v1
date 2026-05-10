@@ -91,6 +91,7 @@ T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE_DOC = PROJECT_ROOT / "docs" / "T10AF_O
 T10AG_OPENNEXT_LOCAL_SMOKE_DOC = PROJECT_ROOT / "docs" / "T10AG_OPENNEXT_LOCAL_SMOKE.md"
 T10AH_NEXT_PROXY_MIGRATION_DOC = PROJECT_ROOT / "docs" / "T10AH_NEXT_PROXY_MIGRATION.md"
 T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT.md"
+T10AJ_CLOUDFLARE_PROJECT_SHELL_DOC = PROJECT_ROOT / "docs" / "T10AJ_CLOUDFLARE_PROJECT_SHELL.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -8439,6 +8440,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             package["scripts"]["proof:cloudflare-provider-project-preflight"],
             "node scripts/cloudflare-provider-project-preflight-proof.mjs",
         )
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-project-shell"],
+            "node scripts/cloudflare-project-shell-proof.mjs",
+        )
 
         for pattern in (
             "export function middleware",
@@ -8650,24 +8655,26 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10ai - Cloudflare Provider Project Preflight.",
-            "T10aj - create or verify a Cloudflare project shell only with exact approval",
+            "Current phase completed: T10ai - Cloudflare Provider Project Preflight. Historical anchor only; superseded by T10aj.",
+            "Next implementation phase: T10aj - create or verify a Cloudflare project shell only with exact approval, otherwise keep the route local. Historical anchor only; superseded by T10ak.",
+            "T10aj - Cloudflare Project Shell Gate",
             "docs/T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10ai - Cloudflare Provider Project Preflight.",
+            "Current completed phase: T10ai - Cloudflare Provider Project Preflight. Historical anchor only; superseded by T10aj.",
             "Phase T10ai: prepare the Cloudflare provider-project preflight without deployment or tester URL. Done",
             "Phase T10aj: create or verify a Cloudflare project shell only with exact approval",
+            "Phase T10ajb: resolve Cloudflare authentication or manually verify/create the provider shell without deployment.",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
             "T10ai anade `proof:cloudflare-provider-project-preflight`",
-            "T10aj para crear/verificar shell Cloudflare",
+            "T10aj anade `proof:cloudflare-project-shell`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -8704,6 +8711,157 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10ai_text)
+
+    def test_t10aj_cloudflare_project_shell_gate_is_documented_and_safe(self):
+        t10aj = T10AJ_CLOUDFLARE_PROJECT_SHELL_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-project-shell-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJ_CLOUDFLARE_PROJECT_SHELL_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-project-shell"],
+            "node scripts/cloudflare-project-shell-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+
+        for pattern in (
+            "T10aj Cloudflare Project Shell Gate",
+            "Exact Approval Captured",
+            "sqx-edge-tester-portal-preview",
+            "Cloudflare Workers Wrangler commands",
+            "result=not_authenticated",
+            "deploy_command=publishes_worker",
+            "setup_command=configures_project_files",
+            "NO_GO_CLOUDFLARE_PROJECT_SHELL_NOT_VERIFIED_NO_AUTH_NO_DEPLOY_PATH",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare Access application was created.",
+            "No Cloudflare Access policy was created.",
+            "No tester URL was published.",
+            "No tester accounts were created.",
+            "T10ajb_cloudflare_auth_or_manual_shell_verification_no_deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10aj)
+
+        for pattern in (
+            "T10ajb: resolve Cloudflare authentication or manually verify/create the provider shell without deployment.",
+            "T10ak: create Cloudflare Access application and policy only with exact approval after shell verification.",
+            "T10al: execute one controlled Workers deployment only after shell + Access policy are verified.",
+            "T10am: run protected-route E2E smoke before sharing any URL.",
+            "T10an: prepare private tester onboarding packet without committing tester emails or URL.",
+            "T11: roll out to up to 10 testers with monitored access and manual renewal.",
+            "T12: monitor abuse, failed logins, access patterns and continue/stop decision.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10aj)
+
+        for pattern in (
+            'phase: "T10aj"',
+            'result: "NO_GO_CLOUDFLARE_PROJECT_SHELL_NOT_VERIFIED_NO_AUTH_NO_DEPLOY_PATH"',
+            'provider: "Cloudflare"',
+            'requestedProjectShellName: "sqx-edge-tester-portal-preview"',
+            "userExactApprovalCaptured: true",
+            'approvedAction: "create_or_verify_cloudflare_project_shell_only"',
+            'localWranglerWhoamiResult: "not_authenticated"',
+            "cloudflareApiTokenPresentLocally: false",
+            "cloudflareAccountIdPresentLocally: false",
+            "noDeployShellCreationPathVerified: false",
+            "wranglerSetupIsLocalConfigurationOnly: true",
+            "wranglerDeployWouldCreateDeployment: true",
+            "dryRunDoesNotCreateProviderShell: true",
+            "wranglerConfigNameMatchesRequestedShell:",
+            "packageScriptReady:",
+            "t10xxPlanMemorized:",
+            "governanceUpdated:",
+            "cloudflareProjectCreated: false",
+            "cloudflareProjectVerified: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "githubRepositoryConnectedToCloudflare: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            'nextGate: "T10ajb_cloudflare_auth_or_manual_shell_verification_no_deploy"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10aj - Cloudflare Project Shell Gate.",
+            "Next implementation phase: T10ak - create Cloudflare Access application and policy only with exact approval after the provider shell is verified",
+            "docs/T10AJ_CLOUDFLARE_PROJECT_SHELL.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10aj - Cloudflare Project Shell Gate.",
+            "Phase T10aj: create or verify a Cloudflare project shell only with exact approval",
+            "Phase T10ajb: resolve Cloudflare authentication or manually verify/create the provider shell without deployment.",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+            "Phase T10al: execute one controlled Cloudflare Workers deployment only after shell + Access policy are verified",
+            "Phase T10am: run protected-route E2E smoke",
+            "Phase T10an: prepare private tester onboarding packet",
+            "Phase T11: roll out to up to 10 testers",
+            "Phase T12: monitor abuse, failed logins, access patterns",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10aj anade `proof:cloudflare-project-shell`",
+            "T10ajb para autenticar/verificar manualmente el shell Cloudflare sin deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10aj Cloudflare Project Shell Gate",
+            "proof:cloudflare-project-shell",
+            "NO_GO_CLOUDFLARE_PROJECT_SHELL_NOT_VERIFIED_NO_AUTH_NO_DEPLOY_PATH",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-project-shell-proof.mjs",
+            "npm run proof:cloudflare-project-shell",
+            "NO_GO_CLOUDFLARE_PROJECT_SHELL_NOT_VERIFIED_NO_AUTH_NO_DEPLOY_PATH",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10aj_text = "\n".join([t10aj, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10aj_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

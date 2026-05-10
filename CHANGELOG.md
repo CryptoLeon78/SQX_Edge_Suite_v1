@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10aj Cloudflare Project Shell Gate
+
+- Records Ivan's exact approval to create or verify `sqx-edge-tester-portal-preview` while preserving the no-deploy/no-Access/no-tester boundary.
+- Adds `proof:cloudflare-project-shell` with result `NO_GO_CLOUDFLARE_PROJECT_SHELL_NOT_VERIFIED_NO_AUTH_NO_DEPLOY_PATH`.
+- Memorizes the remaining T10xx/Txx route: auth/manual shell verification, Access policy, controlled deploy, protected smoke, onboarding packet, tester rollout and monitoring.
+
 ## 2026-05-10 - T10ai Cloudflare Provider Project Preflight
 
 - Adds a no-deploy Cloudflare provider-project preflight for the tester portal.

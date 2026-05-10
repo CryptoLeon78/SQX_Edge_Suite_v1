@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T10ai - Cloudflare Provider Project Preflight.
+- Current completed phase: T10aj - Cloudflare Project Shell Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10aj - create or verify a Cloudflare project shell only with exact approval, otherwise keep the route local, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10ak - create Cloudflare Access application and policy only with exact approval after the provider shell is verified, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -61,6 +61,8 @@ Persistent planning note for the next SQX Edge phases.
 - Next recommended phase: T10ah - evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Historical anchor only; superseded by T10ai.
 - Current completed phase: T10ah - Next Proxy Migration Gate. Historical anchor only; superseded by T10ai.
 - Next recommended phase: T10ai - prepare the Cloudflare provider-project preflight without deployment or tester URL. Historical anchor only; superseded by T10aj.
+- Current completed phase: T10ai - Cloudflare Provider Project Preflight. Historical anchor only; superseded by T10aj.
+- Next recommended phase: T10aj - create or verify a Cloudflare project shell only with exact approval, otherwise keep the route local. Historical anchor only; superseded by T10ak.
 
 ## Recommended Order
 
@@ -156,9 +158,14 @@ Persistent planning note for the next SQX Edge phases.
 48. Phase T10ag: run the local OpenNext build/preview smoke without provider action. Done as WSL/Linux local smoke GO and native Windows preview NO-GO; see `docs/T10AG_OPENNEXT_LOCAL_SMOKE.md`.
 49. Phase T10ah: evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Done; see `docs/T10AH_NEXT_PROXY_MIGRATION.md`.
 50. Phase T10ai: prepare the Cloudflare provider-project preflight without deployment or tester URL. Done; see `docs/T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT.md`.
-51. Phase T10aj: create or verify a Cloudflare project shell only with exact approval, otherwise keep the route local.
-52. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
-53. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
+51. Phase T10aj: create or verify a Cloudflare project shell only with exact approval, otherwise keep the route local. Done as a guarded NO-GO because Wrangler is not authenticated locally and the no-deploy CLI path configures files rather than creating a provider shell; see `docs/T10AJ_CLOUDFLARE_PROJECT_SHELL.md`.
+52. Phase T10ajb: resolve Cloudflare authentication or manually verify/create the provider shell without deployment.
+53. Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified. Blocked until T10aj is resolved as a real provider shell.
+54. Phase T10al: execute one controlled Cloudflare Workers deployment only after shell + Access policy are verified, then inspect target, Access coverage and no custom/public domain before any tester URL.
+55. Phase T10am: run protected-route E2E smoke: anonymous blocked by Cloudflare Access, app session required, expired/denied/blocked tester states, logout, watermark, health and noindex.
+56. Phase T10an: prepare private tester onboarding packet without committing tester emails or URL.
+57. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+58. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
 

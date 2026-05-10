@@ -110,6 +110,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/opennext-local-smoke-proof.mjs`: T10ag local smoke proof that records native Windows preview NO-GO and WSL/Linux preview GO.
 - `scripts/next-proxy-migration-proof.mjs`: T10ah proof that blocks migration to `proxy.ts` while OpenNext Cloudflare does not support Node Middleware.
 - `scripts/cloudflare-provider-project-preflight-proof.mjs`: T10ai no-deploy Cloudflare provider-project preflight proof before any project, Access policy, Git link or tester URL.
+- `scripts/cloudflare-project-shell-proof.mjs`: T10aj no-deploy Cloudflare project-shell gate proof that records the exact approval and blocks advancement until auth or manual shell verification exists.
 
 ## Local Preflight
 
@@ -328,6 +329,12 @@ npm run proof:cloudflare-provider-project-preflight
 ```
 
 This proves the T10ai Cloudflare provider-project preflight. It must return `GO_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_READY_NO_DEPLOY`, keep deploy scripts absent and keep Cloudflare project creation, Access policy, Git link, tester URL and tester data as exact-approval-only actions.
+
+```powershell
+npm run proof:cloudflare-project-shell
+```
+
+This proves the T10aj Cloudflare project-shell gate without deploying or creating tester access. The expected safe status is `NO_GO_CLOUDFLARE_PROJECT_SHELL_NOT_VERIFIED_NO_AUTH_NO_DEPLOY_PATH` until Wrangler authentication or manual provider-shell evidence exists.
 
 ```powershell
 npm run cf:build
