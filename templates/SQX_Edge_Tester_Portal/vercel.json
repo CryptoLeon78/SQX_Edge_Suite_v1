@@ -1,5 +1,8 @@
 {
   "framework": "nextjs",
+  "github": {
+    "autoAlias": false
+  },
   "crons": [
     {
       "path": "/api/cron/expire-testers",
@@ -7,4 +10,3 @@
     }
   ]
 }
-

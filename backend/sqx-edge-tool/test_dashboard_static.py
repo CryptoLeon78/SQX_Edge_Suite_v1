@@ -68,6 +68,7 @@ T10I_CLI_DEFAULT_PREVIEW_ROUTE_DOC = PROJECT_ROOT / "docs" / "T10I_CLI_DEFAULT_P
 T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK.md"
 T10K_CLI_DEFAULT_PREVIEW_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10K_CLI_DEFAULT_PREVIEW_ROLLBACK.md"
 T10L_VERCEL_ROUTE_INVESTIGATION_DOC = PROJECT_ROOT / "docs" / "T10L_VERCEL_ROUTE_INVESTIGATION.md"
+T10M_VERCEL_CONFIG_HARDENING_DOC = PROJECT_ROOT / "docs" / "T10M_VERCEL_CONFIG_HARDENING.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -5727,6 +5728,114 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10l_text)
+
+    def test_t10m_vercel_config_hardening_is_documented_and_safe(self):
+        t10m = T10M_VERCEL_CONFIG_HARDENING_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        vercel_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "vercel.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-config-hardening-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:vercel-config-hardening"],
+            "node scripts/vercel-config-hardening-proof.mjs",
+        )
+        self.assertFalse(vercel_config["github"]["autoAlias"])
+
+        for pattern in (
+            "T10m Vercel Config Hardening",
+            "configuration hardening, not as a tester rollout",
+            "autoAssignCustomDomains = false",
+            "previewDeploymentsDisabled = false",
+            "Did not run `vercel deploy`.",
+            "Did not call the Vercel deployments creation API.",
+            "GO_CONFIG_HARDENED_NO_DEPLOY_TARGET_STILL_UNPROVEN",
+            "T10n must perform one of these before any deployment",
+            "Do not run another deployment until T10n produces a no-deploy GO",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10m)
+
+        for pattern in (
+            "T10M_APPLY",
+            "DRY_RUN_VERCEL_CONFIG_HARDENING_READY",
+            "GO_CONFIG_HARDENED_NO_DEPLOY_TARGET_STILL_UNPROVEN",
+            "autoAssignCustomDomains: false",
+            "previewDeploymentsDisabled: false",
+            "externalDeployAttempted: false",
+            "externalConfigMutationAttempted",
+            "PATCH",
+            "T10n must prove or replace the preview route",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("vercel deploy", proof)
+
+        for pattern in (
+            "Current phase completed: T10m - Vercel Config Hardening.",
+            "T10n - no-deploy preview target proof or Vercel route replacement",
+            "docs/T10M_VERCEL_CONFIG_HARDENING.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10m - Vercel Config Hardening.",
+            "Phase T10m: manual/API Vercel correction or alternative no-deploy route proof before any further deployment. Done as Vercel Project API hardening without deployment",
+            "Phase T10n: no-deploy preview target proof or Vercel route replacement before any further deployment.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10m endurecio la configuracion Vercel por API sin deploy",
+            "T10n para proof no-deploy de target/ruta",
+            "T10m anade `proof:vercel-config-hardening`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10m Vercel Config Hardening",
+            "proof:vercel-config-hardening",
+            "autoAssignCustomDomains = false",
+            "T10n as the next no-deploy route proof/replacement phase",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-config-hardening-proof.mjs",
+            "npm run proof:vercel-config-hardening",
+            "T10M_APPLY=1",
+            "GO_CONFIG_HARDENED_NO_DEPLOY_TARGET_STILL_UNPROVEN",
+            "T10n must prove or replace the Vercel preview route",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10m_text = "\n".join([t10m, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10m_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

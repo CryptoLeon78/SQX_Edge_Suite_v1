@@ -87,6 +87,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/vercel-cli-default-preview-command-rollback-proof.mjs`: T10j no-deploy proof that the invalid `--skip-domain` preview command created no public surface.
 - `scripts/vercel-cli-default-preview-rollback-proof.mjs`: T10k no-deploy proof that the corrected CLI default preview rollback left no public surface.
 - `scripts/vercel-route-investigation-proof.mjs`: T10l no-deploy investigation of Vercel route settings after repeated production-target rollbacks.
+- `scripts/vercel-config-hardening-proof.mjs`: T10m dry-run/apply proof for Vercel Project API hardening without deployment.
 
 ## Local Preflight
 
@@ -170,9 +171,17 @@ npm run proof:vercel-route-investigation
 
 This proves the T10l route investigation without creating a deployment. It records the no-deploy Vercel Project/Environment API findings and returns `NO_GO_VERCEL_ROUTE_REQUIRES_MANUAL_TARGET_FIX_OR_REPLACEMENT` until a manual correction or alternative route is proven.
 
+T10m must perform manual dashboard/API correction or define an alternative no-deploy route proof; T10m is now completed as Project API hardening, and T10n still must prove or replace the route before deployment.
+
+```powershell
+npm run proof:vercel-config-hardening
+```
+
+This dry-runs T10m Vercel config hardening without creating a deployment. Apply mode requires `T10M_APPLY=1` and patches only `autoAssignCustomDomains=false` and `previewDeploymentsDisabled=false`. The expected applied status is `GO_CONFIG_HARDENED_NO_DEPLOY_TARGET_STILL_UNPROVEN`.
+
 ## Next Phase
 
-T10m must perform manual dashboard/API correction or define an alternative no-deploy route proof before any further deployment. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10l proves the current route remains NO-GO. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
+T10n must prove or replace the Vercel preview route without creating a public tester surface. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings but the deployment target remains unproven. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
 
 T10i must correct or replace the Vercel preview deployment route before another deployment attempt.
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10m Vercel Config Hardening
+
+- Adds `proof:vercel-config-hardening` with dry-run by default and explicit `T10M_APPLY=1` apply mode.
+- Applies only documented Project API settings: `autoAssignCustomDomains = false` and `previewDeploymentsDisabled = false`, without creating a deployment.
+- Adds `github.autoAlias = false` to the tester portal Vercel config and sets T10n as the next no-deploy route proof/replacement phase.
+
 ## 2026-05-10 - T10l Vercel Route Investigation
 
 - Adds `proof:vercel-route-investigation` as a no-deploy Vercel Project/Environment API investigation.

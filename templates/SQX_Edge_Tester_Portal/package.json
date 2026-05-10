@@ -20,6 +20,7 @@
     "proof:vercel-cli-default-preview-command-rollback": "node scripts/vercel-cli-default-preview-command-rollback-proof.mjs",
     "proof:vercel-cli-default-preview-rollback": "node scripts/vercel-cli-default-preview-rollback-proof.mjs",
     "proof:vercel-route-investigation": "node scripts/vercel-route-investigation-proof.mjs",
+    "proof:vercel-config-hardening": "node scripts/vercel-config-hardening-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
