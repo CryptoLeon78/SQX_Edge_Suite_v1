@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10o Replacement Route Contract
+
+- Adds `proof:replacement-route-contract` as a no-token, no-API and no-deploy contract for the replacement route.
+- Keeps the current Vercel route rejected for rollout and selects `fresh_staging_route_with_no_deploy_preflight` as the next path.
+- Sets T10p as the explicitly approved fresh staging route preflight before any external project creation, deployment or tester URL.
+
 ## 2026-05-10 - T10n Vercel Route Decision
 
 - Adds `proof:vercel-route-decision` as a no-deploy decision gate after T10m hardening.

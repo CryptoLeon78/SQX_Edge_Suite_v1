@@ -89,6 +89,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/vercel-route-investigation-proof.mjs`: T10l no-deploy investigation of Vercel route settings after repeated production-target rollbacks.
 - `scripts/vercel-config-hardening-proof.mjs`: T10m dry-run/apply proof for Vercel Project API hardening without deployment.
 - `scripts/vercel-route-decision-proof.mjs`: T10n no-deploy decision gate that rejects the current Vercel route until a replacement or provider-level proof exists.
+- `scripts/replacement-route-contract-proof.mjs`: T10o no-deploy replacement-route contract that selects a fresh staging route preflight before any deployment.
 
 ## Local Preflight
 
@@ -176,6 +177,8 @@ T10m must perform manual dashboard/API correction or define an alternative no-de
 
 T10n must prove or replace the Vercel preview route before any deployment; T10n is now completed as a no-deploy route decision, and T10o must prepare the replacement or provider-level proof.
 
+T10o must prepare a replacement route or manual provider-level proof before any deployment; T10o is now completed as a replacement-route contract, and T10p must create or verify the fresh staging route only with explicit approval.
+
 ```powershell
 npm run proof:vercel-config-hardening
 ```
@@ -188,9 +191,15 @@ npm run proof:vercel-route-decision
 
 This proves the T10n route decision without creating a deployment. It must return `NO_GO_CURRENT_VERCEL_ROUTE_REPLACEMENT_REQUIRED` for the current route until a replacement or manual provider-level proof exists.
 
+```powershell
+npm run proof:replacement-route-contract
+```
+
+This proves the T10o replacement-route contract without tokens, API calls, project creation or deployment. It must return `GO_REPLACEMENT_ROUTE_CONTRACT_READY_NO_DEPLOY` and leave the current Vercel route rejected for rollout.
+
 ## Next Phase
 
-T10o must prepare a replacement route or manual provider-level proof before any deployment. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings and T10n rejects the current route for rollout because the deployment target remains unproven. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
+T10p must create or verify a fresh staging route only after explicit approval and before any deployment. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, and T10o selects `fresh_staging_route_with_no_deploy_preflight`. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
 
 T10i must correct or replace the Vercel preview deployment route before another deployment attempt.
 
