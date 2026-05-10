@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10d Explicit API Preview Rollback
+
+- Executes one explicit Vercel API preview attempt and inspects the deployment target before any URL is shared.
+- Rolls back immediately because Vercel returns `target = production` despite the preview request.
+- Leaves the tester project with no latest deployment, no domains and no shared URL; sets T10e as the required project/path correction.
+
 ## 2026-05-10 - T10c Explicit API Preview Path
 
 - Adds `proof:vercel-explicit-preview` as a no-deploy proof for a Vercel API request with `target: "preview"`.

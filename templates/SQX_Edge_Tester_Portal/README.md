@@ -106,8 +106,8 @@ The proof accepts Vercel Project API Git connections exposed either as `gitRepos
 npm run proof:vercel-explicit-preview
 ```
 
-This proves the explicit API preview path without creating a deployment. It checks that Vercel still tracks `main` as production, `tester-preview` is non-production and the draft request uses `target: "preview"`.
+This proves the explicit API preview path without creating a deployment. It checks that Vercel still tracks `main` as production, `tester-preview` is non-production and the draft request uses `target: "preview"`. The expected no-deploy status is `GO_EXPLICIT_API_PREVIEW_PATH_READY`.
 
 ## Next Phase
 
-T10d may execute an explicit API preview deployment only after `GO_EXPLICIT_API_PREVIEW_PATH_READY`, then inspect `target=preview` before any tester URL is shared. T10 proved that a Git deployment from `tester-preview` can still report `target=production`; do not push another trigger commit until the explicit preview path is used. T10b adds a `prebuild` guard so `production/tester-preview` fails before publication while the mapping remains unresolved.
+T10e must fix or recreate the Vercel preview deployment path before any tester URL is shared. T10 proved that a Git deployment from `tester-preview` can still report `target=production`; T10d proved that even an explicit API request with `target: "preview"` can return `target=production` on the current project, so do not push another trigger commit and do not create another deployment on this project until the target mismatch is resolved. T10b adds a `prebuild` guard so `production/tester-preview` fails before publication while the mapping remains unresolved.

@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T10c - Explicit API Preview Path.
+- Current completed phase: T10d - Explicit API Preview Rollback.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10d - execute one explicit API preview deployment with target inspection before any tester URL is shared, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10e - fix or recreate the Vercel preview deployment path before any tester URL is shared, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Recommended Order
 
@@ -75,9 +75,10 @@ Persistent planning note for the next SQX Edge phases.
 16. Phase T10: run one internal tester pilot before inviting external testers. Attempted and rolled back because Vercel reported `target=production` from `tester-preview`; see `docs/T10_INTERNAL_PREVIEW_ROLLBACK.md`.
 17. Phase T10b: fix Vercel preview target mapping before any tester URL is shared. Contained with a build-time guard; see `docs/T10B_VERCEL_TARGET_GUARD.md`.
 18. Phase T10c: correct Vercel Git/preview mapping or define an explicit API preview path before any tester URL is shared. Done as no-deploy explicit API preview proof; see `docs/T10C_EXPLICIT_API_PREVIEW_PATH.md`.
-19. Phase T10d: execute one explicit API preview deployment with target inspection before any tester URL is shared.
-20. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
-21. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
+19. Phase T10d: execute one explicit API preview deployment with target inspection before any tester URL is shared. Attempted and rolled back because Vercel returned `target = production`; see `docs/T10D_EXPLICIT_API_PREVIEW_ROLLBACK.md`.
+20. Phase T10e: fix or recreate the Vercel preview deployment path before any tester URL is shared.
+21. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+22. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
 
