@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ajk Cloudflare Route Access Precreate
+
+- Adds the guarded Cloudflare route/access precreate phase after T10ajj.
+- Adds `proof:cloudflare-route-access-precreate` with result `NO_GO_CLOUDFLARE_ROUTE_HOSTNAME_REQUIRED_T10AK_BLOCKED`.
+- Records redacted Wrangler authentication plus Worker-not-found checks, keeps `workers_dev=false` and `preview_urls=false`, and blocks Access creation until a private hostname/zone or protected workers.dev onboarding evidence exists.
+
 ## 2026-05-10 - T10ajj Cloudflare Route Onboarding Decision
 
 - Adds the no-deploy Cloudflare route/onboarding decision after the first Worker rollback.

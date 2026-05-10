@@ -101,6 +101,7 @@ T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_DOC = PROJECT_ROOT / "docs" / "T10A
 T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS_DOC = PROJECT_ROOT / "docs" / "T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS.md"
 T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK.md"
 T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_DOC = PROJECT_ROOT / "docs" / "T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION.md"
+T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE_DOC = PROJECT_ROOT / "docs" / "T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
@@ -10159,8 +10160,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10ajj - Cloudflare Route Onboarding Decision.",
-            "Next implementation phase: T10ajk - configure a protected Cloudflare custom route/domain or complete dashboard workers.dev onboarding",
+            "Current phase completed: T10ajj - Cloudflare Route Onboarding Decision. Historical anchor only; superseded by T10ajk.",
+            "Next implementation phase: T10ajk - configure a protected Cloudflare custom route/domain or complete dashboard workers.dev onboarding with immediate Access precreate before any new deploy attempt. Historical anchor only; superseded by T10ajl.",
             "T10ajj Cloudflare route onboarding decision",
             "docs/T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION.md",
         ):
@@ -10168,9 +10169,9 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10ajj - Cloudflare Route Onboarding Decision.",
+            "Current completed phase: T10ajj - Cloudflare Route Onboarding Decision. Historical anchor only; superseded by T10ajk.",
             "Phase T10ajj: decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt. Done as no-deploy route decision",
-            "Phase T10ajk: configure a protected Cloudflare custom route/domain or complete dashboard `workers.dev` onboarding",
+            "Phase T10ajk: configure a protected Cloudflare custom route/domain or complete dashboard `workers.dev` onboarding with immediate Access precreate before any new deploy attempt. Done as guarded NO-GO",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
@@ -10179,7 +10180,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "T10ajj anade `proof:cloudflare-route-onboarding-decision`",
             "`workers_dev=false`",
             "`preview_urls=false`",
-            "T10ajk para configurar una ruta/dominio Cloudflare protegido",
+            "T10ajk anade `proof:cloudflare-route-access-precreate`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -10219,6 +10220,168 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10ajj_text)
+
+    def test_t10ajk_cloudflare_route_access_precreate_is_documented_and_safe(self):
+        t10ajk = T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_evidence_path = TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare-route-access-precreate.example.json"
+        example_evidence = json.loads(example_evidence_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-route-access-precreate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE_DOC.is_file())
+        self.assertTrue(example_evidence_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-route-access-precreate"],
+            "node scripts/cloudflare-route-access-precreate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertNotIn("routes", wrangler_config)
+        self.assertIn("cloudflare-route-access-precreate.local.json", template_gitignore)
+        self.assertEqual(example_evidence["phase"], "T10ajk")
+        self.assertFalse(example_evidence["hostnameSelected"])
+        self.assertFalse(example_evidence["zoneSelected"])
+        self.assertFalse(example_evidence["accessApplicationPrecreated"])
+        self.assertFalse(example_evidence["testerEmailsIncluded"])
+
+        for pattern in (
+            "T10ajk Cloudflare Route Access Precreate",
+            "NO_GO_CLOUDFLARE_ROUTE_HOSTNAME_REQUIRED_T10AK_BLOCKED",
+            "wrangler_auth_state=authenticated_redacted",
+            "worker_deployments_state=worker_not_found",
+            "preferred=protected_custom_domain",
+            "fallback=workers_dev_only_after_dashboard_onboarding_and_access_ready",
+            "No Cloudflare custom route/domain was created.",
+            "No public `routes` entry was committed.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10ajl_cloudflare_hostname_zone_selection_or_workers_dev_onboarding",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajk)
+
+        for pattern in (
+            'phase: "T10ajk"',
+            'result: "NO_GO_CLOUDFLARE_ROUTE_HOSTNAME_REQUIRED_T10AK_BLOCKED"',
+            'provider: "Cloudflare"',
+            "wranglerAuthenticatedRedacted: true",
+            'workerDeploymentsState: "worker_not_found"',
+            'workerVersionsState: "worker_not_found"',
+            'workerSecretsState: "worker_not_found"',
+            "officialRoutesDocsChecked: true",
+            "officialCustomDomainsDocsChecked: true",
+            "officialWorkersDevDocsChecked: true",
+            "officialAccessSelfHostedDocsChecked: true",
+            "officialAccessApplicationTypesDocsChecked: true",
+            "protectedCustomDomainPreferred: true",
+            "workersDevFallbackAllowedOnlyAfterDashboardOnboardingAndAccessReady: true",
+            "hostnameSelectedPrivately: false",
+            "zoneSelectedPrivately: false",
+            "accessHostnameCoverageProven: false",
+            "wranglerWorkersDevDisabled",
+            "wranglerPreviewUrlsDisabled",
+            "publicRoutesCommitted",
+            "packageScriptReady",
+            "mutatingScriptPublished",
+            "localEvidenceIgnored",
+            "exampleEvidencePublicSafe",
+            "docHasNoSecretPattern",
+            "docReady",
+            "governanceUpdated",
+            "nextStepsUpdated",
+            "cloudflareWorkerCreated: false",
+            "cloudflareRouteCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "cloudflareZoneIdCommitted: false",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "t10akUnlocked: false",
+            'nextGate: "T10ajl_cloudflare_hostname_zone_selection_or_workers_dev_onboarding"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajk - Cloudflare Route Access Precreate.",
+            "Next implementation phase: T10ajl - select private Cloudflare hostname/zone or complete workers.dev onboarding evidence before T10ak Access creation",
+            "T10ajk Cloudflare route access precreate",
+            "docs/T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajk - Cloudflare Route Access Precreate.",
+            "Phase T10ajk: configure a protected Cloudflare custom route/domain or complete dashboard `workers.dev` onboarding with immediate Access precreate before any new deploy attempt. Done as guarded NO-GO",
+            "Phase T10ajl: select private Cloudflare hostname/zone or complete dashboard `workers.dev` onboarding evidence before T10ak Access creation.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajk anade `proof:cloudflare-route-access-precreate`",
+            "T10ajl para seleccionar hostname/zona Cloudflare privada",
+            "`workers_dev=false`",
+            "`preview_urls=false`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajk Cloudflare Route Access Precreate",
+            "proof:cloudflare-route-access-precreate",
+            "NO_GO_CLOUDFLARE_ROUTE_HOSTNAME_REQUIRED_T10AK_BLOCKED",
+            "workers_dev=false",
+            "preview_urls=false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-route-access-precreate-proof.mjs",
+            "cloudflare-route-access-precreate.example.json",
+            "npm run proof:cloudflare-route-access-precreate",
+            "NO_GO_CLOUDFLARE_ROUTE_HOSTNAME_REQUIRED_T10AK_BLOCKED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ajk_text = "\n".join(
+            [t10ajk, governance, next_steps, readme, changelog, template_readme, proof, json.dumps(example_evidence)]
+        )
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajk_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

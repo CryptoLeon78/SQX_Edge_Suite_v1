@@ -1,0 +1,19 @@
+{
+  "phase": "T10ajk",
+  "provider": "Cloudflare",
+  "workerName": "sqx-edge-tester-portal-preview",
+  "preferredPath": "protected_custom_domain",
+  "fallbackPath": "workers_dev_only_after_dashboard_onboarding_and_access_ready",
+  "hostnameSelected": false,
+  "zoneSelected": false,
+  "routeConfigured": false,
+  "workersDevOnboardingComplete": false,
+  "accessApplicationPrecreated": false,
+  "accessPolicyPrecreated": false,
+  "workerExists": false,
+  "deploymentCreated": false,
+  "testerUrlPublished": false,
+  "testerAccountsCreated": false,
+  "testerEmailsIncluded": false,
+  "notes": "Copy to cloudflare-route-access-precreate.local.json only for private non-sensitive evidence. Do not include hostnames, account IDs, tokens, tester emails or URLs in the public repo."
+}

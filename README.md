@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T10ajj decidio la ruta Cloudflare tras el rollback T10aji: se prefiere custom route/domain protegido, `workers_dev=false` y `preview_urls=false`; no hay Worker, deployment, URL ni tester publicado.
+- Estado interno: T10ajk verifico Wrangler autenticado y Worker inexistente, pero bloquea Access precreate hasta elegir hostname/zona privada; `workers_dev=false` y `preview_urls=false` siguen evitando publicacion accidental.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: T10ajk para configurar una ruta/dominio Cloudflare protegido o completar onboarding dashboard `workers.dev` con Access preparado antes de cualquier nuevo deploy, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T10ajl para seleccionar hostname/zona Cloudflare privada o completar onboarding `workers.dev` protegido antes de crear Access en T10ak, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -146,6 +146,7 @@ Portal tester Pro previsto:
 - T10ajh anade `proof:cloudflare-first-deploy-readiness`; instala dependencias locales, versiona `package-lock.json`, confirma `npm run cf:build` y mantiene el deploy bloqueado hasta aprobacion exacta.
 - T10aji anade `proof:cloudflare-first-deploy-rollback`; intenta el primer deploy, detecta requisito de subdominio/ruta Cloudflare, elimina el Worker y deja T10ajj como decision de ruta antes de reintento.
 - T10ajj anade `proof:cloudflare-route-onboarding-decision`; decide custom route/domain protegido como opcion preferente, desactiva `workers_dev` y `preview_urls`, mantiene el Worker inexistente y deja T10ajk como ruta/onboarding + Access antes de cualquier redeploy.
+- T10ajk anade `proof:cloudflare-route-access-precreate`; verifica Wrangler autenticado con Worker inexistente, crea ejemplo local seguro para evidencia de ruta/Access y mantiene T10ak bloqueado hasta que T10ajl seleccione hostname/zona privada o onboarding `workers.dev`.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.

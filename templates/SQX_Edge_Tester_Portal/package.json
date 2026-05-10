@@ -53,6 +53,7 @@
     "proof:cloudflare-first-deploy-readiness": "node scripts/cloudflare-first-deploy-readiness-proof.mjs",
     "proof:cloudflare-first-deploy-rollback": "node scripts/cloudflare-first-deploy-rollback-proof.mjs",
     "proof:cloudflare-route-onboarding-decision": "node scripts/cloudflare-route-onboarding-decision-proof.mjs",
+    "proof:cloudflare-route-access-precreate": "node scripts/cloudflare-route-access-precreate-proof.mjs",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
