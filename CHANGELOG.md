@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10z Provider Dashboard Correction Package
+
+- Adds a no-deploy provider/dashboard correction package after T10y paused the Vercel CLI deployment route.
+- Defines the manual operator checklist and public-safe evidence format required before another deployment attempt.
+- Adds `proof:provider-dashboard-correction-package` with result `GO_PROVIDER_DASHBOARD_CORRECTION_PACKAGE_READY_NO_DEPLOY`.
+
 ## 2026-05-10 - T10y No-Deploy Provider Dashboard Decision
 
 - Pauses the Vercel CLI deployment route after default and explicit preview-target attempts both returned production target.

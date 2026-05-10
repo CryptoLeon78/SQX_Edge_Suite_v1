@@ -33,6 +33,7 @@
     "proof:provider-target-mapping-investigation": "node scripts/provider-target-mapping-investigation-proof.mjs",
     "proof:explicit-preview-target-rollback": "node scripts/explicit-preview-target-rollback-proof.mjs",
     "proof:no-deploy-provider-dashboard-decision": "node scripts/no-deploy-provider-dashboard-decision-proof.mjs",
+    "proof:provider-dashboard-correction-package": "node scripts/provider-dashboard-correction-package-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
