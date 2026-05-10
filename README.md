@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T10z deja preparado el paquete/checklist provider-dashboard sin deploy antes de cualquier nuevo intento Vercel.
+- Estado interno: T10aa registra evidencia provider-dashboard read-only y confirma que falta comprobacion manual para probar preview target.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: T10aa para registrar evidencia provider-dashboard sin deploy, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T10ab para ingerir evidencia manual de dashboard o decidir reemplazar Vercel como ruta tester, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -126,6 +126,8 @@ Portal tester Pro previsto:
 - T10y anade `proof:no-deploy-provider-dashboard-decision`; T10y para dejar de reintentar Vercel CLI pausa la ruta y selecciona correccion provider-dashboard sin deploy antes de cualquier nuevo intento.
 - T10z para preparar el paquete/checklist provider-dashboard sin deploy quedo como siguiente paso de T10y.
 - T10z anade `proof:provider-dashboard-correction-package`; deja checklist y formato de evidencia para correccion provider-dashboard sin deploy antes de cualquier nuevo intento.
+- T10aa para registrar evidencia provider-dashboard sin deploy quedo como siguiente paso de T10z.
+- T10aa anade `proof:provider-dashboard-evidence-record`; confirma por CLI cero deployments/dominios/proteccion activa, pero deja `NO_GO_PROVIDER_CANNOT_PROVE_PREVIEW_TARGET` hasta revision manual de dashboard.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.

@@ -82,6 +82,7 @@ T10W_PROVIDER_TARGET_MAPPING_INVESTIGATION_DOC = PROJECT_ROOT / "docs" / "T10W_P
 T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK.md"
 T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION_DOC = PROJECT_ROOT / "docs" / "T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION.md"
 T10Z_PROVIDER_DASHBOARD_CORRECTION_PACKAGE_DOC = PROJECT_ROOT / "docs" / "T10Z_PROVIDER_DASHBOARD_CORRECTION_PACKAGE.md"
+T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD_DOC = PROJECT_ROOT / "docs" / "T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -7424,6 +7425,137 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10z_text)
+
+    def test_t10aa_provider_dashboard_evidence_record_is_documented_and_safe(self):
+        t10aa = T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "provider-dashboard-evidence-record-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:provider-dashboard-evidence-record"],
+            "node scripts/provider-dashboard-evidence-record-proof.mjs",
+        )
+
+        for pattern in (
+            "T10aa Provider Dashboard Evidence Record",
+            "NO_GO_PROVIDER_CANNOT_PROVE_PREVIEW_TARGET",
+            "Queried Vercel project list for the selected team.",
+            "Queried current staging project details with `vercel project inspect`.",
+            "Queried current staging project deployment checks.",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not mutate Vercel project settings.",
+            "Latest production URL: none in project list.",
+            "Deployment count: `0`.",
+            "Domains count: `0`.",
+            "Deployment checks: none configured.",
+            "The current CLI evidence is not enough to prove",
+            "What Ivan Can Check Manually In Vercel",
+            "Safe Reply Format",
+            "T10ab may start only after manual dashboard evidence is available",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10aa)
+
+        for pattern in (
+            'phase: "T10aa"',
+            'result: "NO_GO_PROVIDER_CANNOT_PROVE_PREVIEW_TARGET"',
+            'selectedNextGate: "manual_provider_dashboard_evidence_intake_or_vercel_route_replacement"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'privatePortalBranch: "tester-preview"',
+            'frameworkPreset: "Other"',
+            'rootDirectory: "."',
+            'nodeVersion: "24.x"',
+            "latestProductionUrlVisibleInProjectList: false",
+            "deploymentCount: 0",
+            "domains: []",
+            "domainsCount: 0",
+            "ssoProtectionEnabled: true",
+            'ssoDeploymentType: "all_except_custom_domains"',
+            "gitForkProtectionEnabled: true",
+            "deploymentChecksConfigured: false",
+            "currentVercelCliDeploymentRoutePaused: true",
+            "cliCanProveProductionBranchMapping: false",
+            "manualDashboardEvidenceRequired: true",
+            "deploymentAttemptedInT10aa: false",
+            "deploymentCreationEndpointCalled: false",
+            "externalConfigMutationAttempted: false",
+            "externalProjectLinked: false",
+            "triggerCommitPushedToPrivatePortal: false",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "T10ab_manual_dashboard_evidence_intake_or_replace_vercel_tester_route",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10aa - Provider Dashboard Evidence Record.",
+            "T10ab - ingest manual dashboard evidence or replace the Vercel tester route before any deployment attempt",
+            "docs/T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10aa - Provider Dashboard Evidence Record.",
+            "Phase T10aa: record no-deploy provider/dashboard correction evidence before any deployment attempt. Done",
+            "Phase T10ab: ingest manual dashboard evidence or replace the Vercel tester route before any deployment attempt.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10aa anade `proof:provider-dashboard-evidence-record`",
+            "T10ab para ingerir evidencia manual de dashboard",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10aa Provider Dashboard Evidence Record",
+            "proof:provider-dashboard-evidence-record",
+            "NO_GO_PROVIDER_CANNOT_PROVE_PREVIEW_TARGET",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/provider-dashboard-evidence-record-proof.mjs",
+            "npm run proof:provider-dashboard-evidence-record",
+            "NO_GO_PROVIDER_CANNOT_PROVE_PREVIEW_TARGET",
+            "T10ab must ingest manual dashboard evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10aa_text = "\n".join([t10aa, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10aa_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

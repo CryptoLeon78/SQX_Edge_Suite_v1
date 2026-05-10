@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T10z - Provider Dashboard Correction Package.
+- Current completed phase: T10aa - Provider Dashboard Evidence Record.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10aa - record no-deploy provider/dashboard correction evidence before any deployment attempt, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10ab - ingest manual dashboard evidence or replace the Vercel tester route before any deployment attempt, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -43,6 +43,8 @@ Persistent planning note for the next SQX Edge phases.
 - Next recommended phase: T10y - stop retrying Vercel CLI deployment and choose a no-deploy route replacement or provider/dashboard correction decision. Historical anchor only; superseded by T10z.
 - Current completed phase: T10y - No-Deploy Provider Dashboard Decision. Historical anchor only; superseded by T10z.
 - Next recommended phase: T10z - prepare the no-deploy provider/dashboard correction package before any deployment attempt. Historical anchor only; superseded by T10aa.
+- Current completed phase: T10z - Provider Dashboard Correction Package. Historical anchor only; superseded by T10aa.
+- Next recommended phase: T10aa - record no-deploy provider/dashboard correction evidence before any deployment attempt. Historical anchor only; superseded by T10ab.
 
 ## Recommended Order
 
@@ -129,8 +131,9 @@ Persistent planning note for the next SQX Edge phases.
 39. Phase T10x: execute one explicit preview-target deployment attempt with immediate target/alias inspection and rollback on mismatch. Done as clean rollback; see `docs/T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK.md`.
 40. Phase T10y: stop retrying Vercel CLI deployment and choose a no-deploy route replacement or provider/dashboard correction decision. Done as provider-dashboard correction decision; see `docs/T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION.md`.
 41. Phase T10z: prepare the no-deploy provider/dashboard correction package before any deployment attempt. Done as correction package; see `docs/T10Z_PROVIDER_DASHBOARD_CORRECTION_PACKAGE.md`.
-42. Phase T10aa: record no-deploy provider/dashboard correction evidence before any deployment attempt.
-43. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+42. Phase T10aa: record no-deploy provider/dashboard correction evidence before any deployment attempt. Done as read-only evidence record with manual dashboard gap; see `docs/T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD.md`.
+43. Phase T10ab: ingest manual dashboard evidence or replace the Vercel tester route before any deployment attempt.
+44. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
 42. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track

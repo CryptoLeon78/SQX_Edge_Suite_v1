@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10aa Provider Dashboard Evidence Record
+
+- Records read-only provider/dashboard evidence for `sqx-edge-tester-staging` without deployment or provider mutation.
+- Confirms CLI evidence still cannot prove that `tester-preview` cannot map to production target.
+- Adds `proof:provider-dashboard-evidence-record` with result `NO_GO_PROVIDER_CANNOT_PROVE_PREVIEW_TARGET`.
+
 ## 2026-05-10 - T10z Provider Dashboard Correction Package
 
 - Adds a no-deploy provider/dashboard correction package after T10y paused the Vercel CLI deployment route.
