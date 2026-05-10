@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: T10am - Controlled Real App Deploy Result.
+- Current phase completed: T10an - Protected Tester Publication Target Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: T10an - choose and verify the protected tester publication target before any URL or tester account, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next implementation phase: T10ao - controlled workers.dev publication and Access smoke only with exact approval, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.
 - Earlier governance baseline: G4 - Institutional Core Repository Gate.
@@ -101,6 +101,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current phase completed: T10al - Controlled Real App Deploy Gate. Historical anchor only; superseded by T10am.
 - Next implementation phase: T10am - execute one controlled real app deploy only with exact approval, immediate Access smoke and rollback on mismatch. Historical anchor only; superseded by T10an.
 - Current phase completed: T10am - Controlled Real App Deploy Result. Historical anchor only; superseded by T10an.
+- Next implementation phase: T10an - choose and verify the protected tester publication target before any URL or tester account. Historical anchor only; superseded by T10ao.
+- Current phase completed: T10an - Protected Tester Publication Target Gate. Historical anchor only; superseded by T10ao.
 
 ## Specialist Agents
 
@@ -281,6 +283,7 @@ M46 is accepted when these criteria are true:
 - T10ak Access policy boundary: `docs/T10AK_ACCESS_POLICY_BOUNDARY.md`, `templates/SQX_Edge_Tester_Portal/cloudflare-access-policy-boundary.example.json`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-access-policy-boundary-proof.mjs`, ignored `cloudflare-access-policy-boundary.local.json` evidence and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10al Controlled real app deploy gate: `docs/T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-controlled-real-app-deploy-gate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10am Controlled real app deploy result: `docs/T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT.md`, ignored `templates/SQX_Edge_Tester_Portal/cloudflare-real-app-deploy.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-real-app-deploy-result-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
+- T10an Protected tester publication target gate: `docs/T10AN_PROTECTED_TESTER_PUBLICATION_TARGET_GATE.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-protected-tester-publication-target-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ac replacement tester route options: `docs/T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md`, `templates/SQX_Edge_Tester_Portal/scripts/replacement-tester-route-options-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ad Cloudflare Access preflight: `docs/T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-access-preflight-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ae Cloudflare runtime compatibility: `docs/T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-runtime-compatibility-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.

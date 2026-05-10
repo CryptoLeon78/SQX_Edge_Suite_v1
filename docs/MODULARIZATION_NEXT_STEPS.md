@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-11.
-- Current completed phase: T10am - Controlled Real App Deploy Result.
+- Current completed phase: T10an - Protected Tester Publication Target Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10an - choose and verify the protected tester publication target before any URL or tester account, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10ao - controlled workers.dev publication and Access smoke only with exact approval, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -100,6 +100,8 @@ Persistent planning note for the next SQX Edge phases.
 - Current completed phase: T10al - Controlled Real App Deploy Gate. Historical anchor only; superseded by T10am.
 - Next recommended phase: T10am - execute one controlled real app deploy only with exact approval, immediate Access smoke and rollback on mismatch. Historical anchor only; superseded by T10an.
 - Current completed phase: T10am - Controlled Real App Deploy Result. Historical anchor only; superseded by T10an.
+- Next recommended phase: T10an - choose and verify the protected tester publication target before any URL or tester account. Historical anchor only; superseded by T10ao.
+- Current completed phase: T10an - Protected Tester Publication Target Gate. Historical anchor only; superseded by T10ao.
 
 ## Recommended Order
 
@@ -402,7 +404,8 @@ Persistent planning note for the next SQX Edge phases.
 6. Phase T10ak: record/verify the Cloudflare Access application and policy boundary only after the shell target exists and Access coverage is verified. Done as private boundary evidence with no real app deploy.
 7. Phase T10al: prepare the exact controlled real app deploy gate after Access app/policy boundary verification. Done as exact-approval gate, no deploy.
 8. Phase T10am: execute the approved real app deploy, record that the real version was uploaded without a public target, verify Access proofs remain green and keep tester URL sharing blocked. Done.
-9. Phase T10an: choose and verify the protected tester publication target before any URL or tester account. Next.
+9. Phase T10an: choose and verify the protected tester publication target before any URL or tester account. Done as `workers.dev` plus Cloudflare Access exact-approval gate.
+10. Phase T10ao: controlled workers.dev publication and Access smoke only with exact approval. Next.
 
 ## SQX View Creator Track
 

@@ -117,7 +117,7 @@ const proof = Object.freeze({
     doc.includes("T10an_protected_tester_publication_target_gate"),
   governanceUpdated: governance.includes("T10am - Controlled Real App Deploy Result"),
   nextStepsUpdated: nextSteps.includes("Phase T10am: execute the approved real app deploy"),
-  readmeUpdated: readme.includes("T10am ha subido/desplegado una version real"),
+  readmeUpdated: readme.includes("T10am anade `proof:cloudflare-real-app-deploy-result`"),
   changelogUpdated: changelog.includes("T10am Controlled Real App Deploy Result"),
   templateReadmeUpdated: templateReadme.includes("proof:cloudflare-real-app-deploy-result"),
   noSensitiveCloudflareEnvCommitted:

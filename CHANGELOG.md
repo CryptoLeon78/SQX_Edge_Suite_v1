@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-11 - T10an Protected Tester Publication Target Gate
+
+- Selects protected `workers.dev` plus Cloudflare Access as the first tester publication target.
+- Adds `proof:cloudflare-protected-tester-publication-target` with `GO_PROTECTED_TESTER_PUBLICATION_TARGET_SELECTED_EXACT_APPROVAL_REQUIRED`.
+- Keeps `workers_dev=false`, tester URL sharing and tester account creation blocked until the next exact-approval gate.
+
 ## 2026-05-11 - T10am Controlled Real App Deploy Result
 
 - Executes the exact approved Cloudflare Wrangler deployment attempt for the real OpenNext tester portal.
