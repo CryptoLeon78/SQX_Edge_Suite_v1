@@ -113,6 +113,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/cloudflare-project-shell-proof.mjs`: T10aj no-deploy Cloudflare project-shell gate proof that records the exact approval and blocks advancement until auth or manual shell verification exists.
 - `scripts/cloudflare-auth-handoff-proof.mjs`: T10ajb no-deploy Cloudflare auth/manual evidence handoff proof before T10ajc shell evidence ingestion.
 - `scripts/cloudflare-shell-evidence-ingest-proof.mjs`: T10ajc no-deploy evidence ingest gate that keeps T10ak blocked until the ignored local shell evidence proves a real shell and zero tester surface.
+- `scripts/cloudflare-shell-evidence-capture-proof.mjs`: T10ajd no-deploy capture checklist proof for manual/authenticated shell evidence before rerunning T10ajc.
 - `cloudflare-shell-evidence.example.json`: public-safe template for manual shell evidence; copy to ignored `cloudflare-shell-evidence.local.json` only.
 
 ## Local Preflight
@@ -350,6 +351,12 @@ npm run proof:cloudflare-shell-evidence-ingest
 ```
 
 This proves the T10ajc evidence ingest boundary. Without ignored local evidence, the expected status is `NO_GO_CLOUDFLARE_SHELL_EVIDENCE_MISSING_T10AK_BLOCKED`; T10ak remains blocked until the local evidence proves the Cloudflare shell exists and no deployment, Access policy, URL or tester data exists.
+
+```powershell
+npm run proof:cloudflare-shell-evidence-capture
+```
+
+This proves the T10ajd manual capture checklist. It must return `NO_GO_CLOUDFLARE_CAPTURE_PENDING_MANUAL_AUTH_OR_DASHBOARD_EVIDENCE` until Ivan completes the manual Cloudflare login/dashboard evidence capture outside git and reruns T10ajc.
 
 ```powershell
 npm run cf:build

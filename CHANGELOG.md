@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ajd Cloudflare Shell Evidence Capture Checklist
+
+- Adds the manual/authenticated Cloudflare shell evidence capture checklist before T10ak.
+- Adds `proof:cloudflare-shell-evidence-capture` with result `NO_GO_CLOUDFLARE_CAPTURE_PENDING_MANUAL_AUTH_OR_DASHBOARD_EVIDENCE`.
+- Keeps Access policy, deployment, tester URL and tester accounts blocked until ignored local evidence passes T10ajc.
+
 ## 2026-05-10 - T10ajc Cloudflare Shell Evidence Ingest
 
 - Adds a no-deploy shell evidence ingestion gate for `cloudflare-shell-evidence.local.json`.
