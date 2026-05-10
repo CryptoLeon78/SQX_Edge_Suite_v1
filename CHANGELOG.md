@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ajc Cloudflare Shell Evidence Ingest
+
+- Adds a no-deploy shell evidence ingestion gate for `cloudflare-shell-evidence.local.json`.
+- Adds `proof:cloudflare-shell-evidence-ingest` with result `NO_GO_CLOUDFLARE_SHELL_EVIDENCE_MISSING_T10AK_BLOCKED` until real shell evidence exists.
+- Keeps T10ak blocked and moves the next action to real manual/authenticated evidence capture.
+
 ## 2026-05-10 - T10ajb Cloudflare Auth Handoff
 
 - Adds a safe Cloudflare authentication/manual evidence handoff before any Access policy or deployment.

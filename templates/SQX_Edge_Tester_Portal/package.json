@@ -45,6 +45,7 @@
     "proof:cloudflare-provider-project-preflight": "node scripts/cloudflare-provider-project-preflight-proof.mjs",
     "proof:cloudflare-project-shell": "node scripts/cloudflare-project-shell-proof.mjs",
     "proof:cloudflare-auth-handoff": "node scripts/cloudflare-auth-handoff-proof.mjs",
+    "proof:cloudflare-shell-evidence-ingest": "node scripts/cloudflare-shell-evidence-ingest-proof.mjs",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",

@@ -112,6 +112,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/cloudflare-provider-project-preflight-proof.mjs`: T10ai no-deploy Cloudflare provider-project preflight proof before any project, Access policy, Git link or tester URL.
 - `scripts/cloudflare-project-shell-proof.mjs`: T10aj no-deploy Cloudflare project-shell gate proof that records the exact approval and blocks advancement until auth or manual shell verification exists.
 - `scripts/cloudflare-auth-handoff-proof.mjs`: T10ajb no-deploy Cloudflare auth/manual evidence handoff proof before T10ajc shell evidence ingestion.
+- `scripts/cloudflare-shell-evidence-ingest-proof.mjs`: T10ajc no-deploy evidence ingest gate that keeps T10ak blocked until the ignored local shell evidence proves a real shell and zero tester surface.
 - `cloudflare-shell-evidence.example.json`: public-safe template for manual shell evidence; copy to ignored `cloudflare-shell-evidence.local.json` only.
 
 ## Local Preflight
@@ -343,6 +344,12 @@ npm run proof:cloudflare-auth-handoff
 ```
 
 This proves the T10ajb handoff boundary. It must return `NO_GO_CLOUDFLARE_AUTH_HANDOFF_PENDING_MANUAL_LOGIN_OR_EVIDENCE`, keep `cloudflare-shell-evidence.local.json` ignored and leave T10ajc as the only evidence-ingestion gate before Access policy work.
+
+```powershell
+npm run proof:cloudflare-shell-evidence-ingest
+```
+
+This proves the T10ajc evidence ingest boundary. Without ignored local evidence, the expected status is `NO_GO_CLOUDFLARE_SHELL_EVIDENCE_MISSING_T10AK_BLOCKED`; T10ak remains blocked until the local evidence proves the Cloudflare shell exists and no deployment, Access policy, URL or tester data exists.
 
 ```powershell
 npm run cf:build
