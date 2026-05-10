@@ -44,6 +44,7 @@
     "proof:next-proxy-migration": "node scripts/next-proxy-migration-proof.mjs",
     "proof:cloudflare-provider-project-preflight": "node scripts/cloudflare-provider-project-preflight-proof.mjs",
     "proof:cloudflare-project-shell": "node scripts/cloudflare-project-shell-proof.mjs",
+    "proof:cloudflare-auth-handoff": "node scripts/cloudflare-auth-handoff-proof.mjs",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",

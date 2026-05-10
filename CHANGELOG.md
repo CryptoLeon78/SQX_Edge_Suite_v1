@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ajb Cloudflare Auth Handoff
+
+- Adds a safe Cloudflare authentication/manual evidence handoff before any Access policy or deployment.
+- Adds `proof:cloudflare-auth-handoff` with result `NO_GO_CLOUDFLARE_AUTH_HANDOFF_PENDING_MANUAL_LOGIN_OR_EVIDENCE`.
+- Adds a public-safe `cloudflare-shell-evidence.example.json` and ignores the local evidence file used by T10ajc.
+
 ## 2026-05-10 - T10aj Cloudflare Project Shell Gate
 
 - Records Ivan's exact approval to create or verify `sqx-edge-tester-portal-preview` while preserving the no-deploy/no-Access/no-tester boundary.

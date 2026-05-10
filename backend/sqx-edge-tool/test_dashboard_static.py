@@ -92,6 +92,7 @@ T10AG_OPENNEXT_LOCAL_SMOKE_DOC = PROJECT_ROOT / "docs" / "T10AG_OPENNEXT_LOCAL_S
 T10AH_NEXT_PROXY_MIGRATION_DOC = PROJECT_ROOT / "docs" / "T10AH_NEXT_PROXY_MIGRATION.md"
 T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT.md"
 T10AJ_CLOUDFLARE_PROJECT_SHELL_DOC = PROJECT_ROOT / "docs" / "T10AJ_CLOUDFLARE_PROJECT_SHELL.md"
+T10AJB_CLOUDFLARE_AUTH_HANDOFF_DOC = PROJECT_ROOT / "docs" / "T10AJB_CLOUDFLARE_AUTH_HANDOFF.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -8444,6 +8445,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             package["scripts"]["proof:cloudflare-project-shell"],
             "node scripts/cloudflare-project-shell-proof.mjs",
         )
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-auth-handoff"],
+            "node scripts/cloudflare-auth-handoff-proof.mjs",
+        )
 
         for pattern in (
             "export function middleware",
@@ -8657,7 +8662,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "Current phase completed: T10ai - Cloudflare Provider Project Preflight. Historical anchor only; superseded by T10aj.",
             "Next implementation phase: T10aj - create or verify a Cloudflare project shell only with exact approval, otherwise keep the route local. Historical anchor only; superseded by T10ak.",
-            "T10aj - Cloudflare Project Shell Gate",
+            "T10aj - Cloudflare Project Shell Gate. Historical anchor only; superseded by T10ajb.",
             "docs/T10AI_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT.md",
         ):
             with self.subTest(pattern=pattern):
@@ -8667,7 +8672,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Current completed phase: T10ai - Cloudflare Provider Project Preflight. Historical anchor only; superseded by T10aj.",
             "Phase T10ai: prepare the Cloudflare provider-project preflight without deployment or tester URL. Done",
             "Phase T10aj: create or verify a Cloudflare project shell only with exact approval",
-            "Phase T10ajb: resolve Cloudflare authentication or manually verify/create the provider shell without deployment.",
+            "Phase T10ajb: resolve Cloudflare authentication or manually verify/create the provider shell without deployment. Done",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
@@ -8675,6 +8680,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "T10ai anade `proof:cloudflare-provider-project-preflight`",
             "T10aj anade `proof:cloudflare-project-shell`",
+            "T10ajb anade `proof:cloudflare-auth-handoff`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -8728,6 +8734,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(
             package["scripts"]["proof:cloudflare-project-shell"],
             "node scripts/cloudflare-project-shell-proof.mjs",
+        )
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-auth-handoff"],
+            "node scripts/cloudflare-auth-handoff-proof.mjs",
         )
         self.assertNotIn("deploy", package["scripts"])
 
@@ -8802,17 +8812,18 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10aj - Cloudflare Project Shell Gate.",
-            "Next implementation phase: T10ak - create Cloudflare Access application and policy only with exact approval after the provider shell is verified",
+            "Current phase completed: T10aj - Cloudflare Project Shell Gate. Historical anchor only; superseded by T10ajb.",
+            "Next implementation phase: T10ajb - resolve Cloudflare authentication or manually verify/create the provider shell without deployment. Historical anchor only; superseded by T10ajc.",
             "docs/T10AJ_CLOUDFLARE_PROJECT_SHELL.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10aj - Cloudflare Project Shell Gate.",
+            "Current completed phase: T10aj - Cloudflare Project Shell Gate. Historical anchor only; superseded by T10ajb.",
             "Phase T10aj: create or verify a Cloudflare project shell only with exact approval",
-            "Phase T10ajb: resolve Cloudflare authentication or manually verify/create the provider shell without deployment.",
+            "Phase T10ajb: resolve Cloudflare authentication or manually verify/create the provider shell without deployment. Done",
+            "Phase T10ajc: ingest authenticated or manual Cloudflare shell evidence without deployment",
             "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
             "Phase T10al: execute one controlled Cloudflare Workers deployment only after shell + Access policy are verified",
             "Phase T10am: run protected-route E2E smoke",
@@ -8825,7 +8836,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "T10aj anade `proof:cloudflare-project-shell`",
-            "T10ajb para autenticar/verificar manualmente el shell Cloudflare sin deploy",
+            "T10ajb anade `proof:cloudflare-auth-handoff`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -8862,6 +8873,154 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10aj_text)
+
+    def test_t10ajb_cloudflare_auth_handoff_is_documented_and_safe(self):
+        t10ajb = T10AJB_CLOUDFLARE_AUTH_HANDOFF_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        evidence_example_path = TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare-shell-evidence.example.json"
+        evidence_example = json.loads(evidence_example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-auth-handoff-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJB_CLOUDFLARE_AUTH_HANDOFF_DOC.is_file())
+        self.assertTrue(evidence_example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-auth-handoff"],
+            "node scripts/cloudflare-auth-handoff-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertIn("cloudflare-shell-evidence.local.json", gitignore)
+        self.assertEqual(evidence_example["projectShellName"], "sqx-edge-tester-portal-preview")
+        self.assertFalse(evidence_example["shellVerified"])
+        self.assertFalse(evidence_example["deploymentCreated"])
+        self.assertFalse(evidence_example["accessApplicationCreated"])
+        self.assertFalse(evidence_example["accessPolicyCreated"])
+        self.assertFalse(evidence_example["testerUrlPublished"])
+        self.assertFalse(evidence_example["testerAccountsCreated"])
+        self.assertFalse(evidence_example["testerEmailsIncluded"])
+
+        for pattern in (
+            "T10ajb Cloudflare Auth Handoff",
+            "result=not_authenticated",
+            "Cloudflare API token management",
+            "Cloudflare Access application configuration",
+            "Option A: browser login",
+            "Option B: temporary local API token",
+            "Option C: manual dashboard evidence without CLI auth",
+            "cloudflare-shell-evidence.example.json",
+            "cloudflare-shell-evidence.local.json",
+            "NO_GO_CLOUDFLARE_AUTH_HANDOFF_PENDING_MANUAL_LOGIN_OR_EVIDENCE",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10ajc_ingest_cloudflare_shell_evidence_no_deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajb)
+
+        for pattern in (
+            'phase: "T10ajb"',
+            'result: "NO_GO_CLOUDFLARE_AUTH_HANDOFF_PENDING_MANUAL_LOGIN_OR_EVIDENCE"',
+            'provider: "Cloudflare"',
+            'requestedProjectShellName: "sqx-edge-tester-portal-preview"',
+            'localWranglerWhoamiResult: "not_authenticated"',
+            "authHandoffPrepared: true",
+            "browserLoginCommandDocumented: true",
+            "localApiTokenCommandDocumented: true",
+            "manualDashboardEvidencePathDocumented: true",
+            "evidenceExamplePresent:",
+            "evidenceExampleSafe:",
+            "localEvidenceIgnored:",
+            "packageScriptReady:",
+            "docHasNoSecretRequest:",
+            "governanceUpdated:",
+            "nextStepsUpdated:",
+            "cloudflareProjectCreated: false",
+            "cloudflareProjectVerified: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            'nextGate: "T10ajc_ingest_cloudflare_shell_evidence_no_deploy"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajb - Cloudflare Auth Handoff.",
+            "Next implementation phase: T10ajc - ingest authenticated or manual Cloudflare shell evidence without deployment before T10ak",
+            "docs/T10AJB_CLOUDFLARE_AUTH_HANDOFF.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajb - Cloudflare Auth Handoff.",
+            "Phase T10ajb: resolve Cloudflare authentication or manually verify/create the provider shell without deployment. Done",
+            "Phase T10ajc: ingest authenticated or manual Cloudflare shell evidence without deployment and decide whether T10ak can be unlocked.",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajb anade `proof:cloudflare-auth-handoff`",
+            "T10ajc para ingerir evidencia Cloudflare autenticada/manual sin deploy antes de T10ak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajb Cloudflare Auth Handoff",
+            "proof:cloudflare-auth-handoff",
+            "NO_GO_CLOUDFLARE_AUTH_HANDOFF_PENDING_MANUAL_LOGIN_OR_EVIDENCE",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-auth-handoff-proof.mjs",
+            "cloudflare-shell-evidence.example.json",
+            "cloudflare-shell-evidence.local.json",
+            "npm run proof:cloudflare-auth-handoff",
+            "NO_GO_CLOUDFLARE_AUTH_HANDOFF_PENDING_MANUAL_LOGIN_OR_EVIDENCE",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ajb_text = "\n".join(
+            [t10ajb, governance, next_steps, readme, changelog, template_readme, proof, json.dumps(evidence_example)]
+        )
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajb_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
