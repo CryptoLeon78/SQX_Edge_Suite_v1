@@ -32,6 +32,7 @@
     "proof:controlled-staging-deploy-rollback": "node scripts/controlled-staging-deploy-rollback-proof.mjs",
     "proof:provider-target-mapping-investigation": "node scripts/provider-target-mapping-investigation-proof.mjs",
     "proof:explicit-preview-target-rollback": "node scripts/explicit-preview-target-rollback-proof.mjs",
+    "proof:no-deploy-provider-dashboard-decision": "node scripts/no-deploy-provider-dashboard-decision-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

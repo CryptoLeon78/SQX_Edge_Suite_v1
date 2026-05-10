@@ -80,6 +80,7 @@ T10U_STAGING_DEPLOYMENT_READINESS_GATE_DOC = PROJECT_ROOT / "docs" / "T10U_STAGI
 T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK.md"
 T10W_PROVIDER_TARGET_MAPPING_INVESTIGATION_DOC = PROJECT_ROOT / "docs" / "T10W_PROVIDER_TARGET_MAPPING_INVESTIGATION.md"
 T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK.md"
+T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION_DOC = PROJECT_ROOT / "docs" / "T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -7169,6 +7170,125 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10x_text)
+
+    def test_t10y_no_deploy_provider_dashboard_decision_is_documented_and_safe(self):
+        t10y = T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "no-deploy-provider-dashboard-decision-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:no-deploy-provider-dashboard-decision"],
+            "node scripts/no-deploy-provider-dashboard-decision-proof.mjs",
+        )
+
+        for pattern in (
+            "T10y No-Deploy Provider Dashboard Decision",
+            "GO_PROVIDER_DASHBOARD_CORRECTION_DECISION_READY_NO_DEPLOY",
+            "provider_dashboard_correction_before_any_deployment",
+            "vercel_cli_default_deployment",
+            "vercel_cli_explicit_preview_target_deployment",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not mutate Vercel project settings.",
+            "The current Vercel CLI deployment route is paused",
+            "The T10b guard contained the risk, but a guard is not a rollout strategy.",
+            "T10z must stay no-deploy",
+            "No tester URL may be shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10y)
+
+        for pattern in (
+            'phase: "T10y"',
+            'result: "GO_PROVIDER_DASHBOARD_CORRECTION_DECISION_READY_NO_DEPLOY"',
+            'selectedRoute: "provider_dashboard_correction_before_any_deployment"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'privatePortalBranch: "tester-preview"',
+            'productionBranchRequired: "main"',
+            "defaultCliRouteRejected: true",
+            "explicitPreviewTargetRouteRejected: true",
+            "currentVercelCliDeploymentRoutePaused: true",
+            "providerDashboardCorrectionRequired: true",
+            "deploymentAttemptedInT10y: false",
+            "deploymentCreationEndpointCalled: false",
+            "externalConfigMutationAttempted: false",
+            "externalProjectCreated: false",
+            "externalProjectLinked: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "T10z_no_deploy_provider_dashboard_correction_package_before_any_deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10y - No-Deploy Provider Dashboard Decision.",
+            "T10z - prepare the no-deploy provider/dashboard correction package before any deployment attempt",
+            "docs/T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10y - No-Deploy Provider Dashboard Decision.",
+            "Phase T10y: stop retrying Vercel CLI deployment and choose a no-deploy route replacement or provider/dashboard correction decision. Done",
+            "Phase T10z: prepare the no-deploy provider/dashboard correction package before any deployment attempt.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10y anade `proof:no-deploy-provider-dashboard-decision`",
+            "T10z para preparar el paquete/checklist provider-dashboard sin deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10y No-Deploy Provider Dashboard Decision",
+            "proof:no-deploy-provider-dashboard-decision",
+            "GO_PROVIDER_DASHBOARD_CORRECTION_DECISION_READY_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/no-deploy-provider-dashboard-decision-proof.mjs",
+            "npm run proof:no-deploy-provider-dashboard-decision",
+            "GO_PROVIDER_DASHBOARD_CORRECTION_DECISION_READY_NO_DEPLOY",
+            "T10z must prepare the no-deploy provider/dashboard correction package",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10y_text = "\n".join([t10y, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10y_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

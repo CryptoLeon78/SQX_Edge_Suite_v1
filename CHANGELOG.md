@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10y No-Deploy Provider Dashboard Decision
+
+- Pauses the Vercel CLI deployment route after default and explicit preview-target attempts both returned production target.
+- Selects `provider_dashboard_correction_before_any_deployment` as the next safe route before any new deployment attempt.
+- Adds `proof:no-deploy-provider-dashboard-decision` with result `GO_PROVIDER_DASHBOARD_CORRECTION_DECISION_READY_NO_DEPLOY`.
+
 ## 2026-05-10 - T10x Explicit Preview Target Rollback
 
 - Executes one explicit `--target=preview` deployment attempt against `sqx-edge-tester-staging`.

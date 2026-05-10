@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T10x prueba `--target=preview`, Vercel vuelve a devolver production, el guard bloquea y se elimina el deployment fallido.
+- Estado interno: T10y pausa la ruta Vercel CLI y exige correccion provider-dashboard sin deploy antes de cualquier nuevo intento.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: T10y para dejar de reintentar Vercel CLI y decidir ruta alternativa/correccion provider-dashboard sin deploy, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T10z para preparar el paquete/checklist provider-dashboard sin deploy que pruebe que `tester-preview` no puede mapear a production antes de reintentar, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -122,6 +122,8 @@ Portal tester Pro previsto:
 - T10v anade `proof:controlled-staging-deploy-rollback`; ejecuta un unico intento staging, Vercel devuelve `target=production`, el guard bloquea y se elimina el deployment fallido sin publicar URL.
 - T10w anade `proof:provider-target-mapping-investigation`; rechaza la ruta CLI default y prepara `vercel deploy --target=preview --force --yes --format json` como unico siguiente intento controlado.
 - T10x anade `proof:explicit-preview-target-rollback`; prueba la ruta explicita `--target=preview`, Vercel vuelve a devolver `target=production`, el guard bloquea y se elimina el deployment fallido.
+- T10x prueba `--target=preview` como intento unico y queda cerrado como rollback limpio.
+- T10y anade `proof:no-deploy-provider-dashboard-decision`; T10y para dejar de reintentar Vercel CLI pausa la ruta y selecciona correccion provider-dashboard sin deploy antes de cualquier nuevo intento.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.

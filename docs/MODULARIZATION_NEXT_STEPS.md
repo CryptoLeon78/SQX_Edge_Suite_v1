@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T10x - Explicit Preview Target Rollback.
+- Current completed phase: T10y - No-Deploy Provider Dashboard Decision.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10y - stop retrying Vercel CLI deployment and choose a no-deploy route replacement or provider/dashboard correction decision, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10z - prepare the no-deploy provider/dashboard correction package before any deployment attempt, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -39,6 +39,8 @@ Persistent planning note for the next SQX Edge phases.
 - Next recommended phase: T10w - investigate/correct provider-level target mapping without another deployment attempt or replace the staging route. Historical anchor only; superseded by T10x.
 - Current completed phase: T10w - Provider Target Mapping Investigation. Historical anchor only; superseded by T10x.
 - Next recommended phase: T10x - execute one explicit preview-target deployment attempt with immediate target/alias inspection and rollback on mismatch. Historical anchor only; superseded by T10y.
+- Current completed phase: T10x - Explicit Preview Target Rollback. Historical anchor only; superseded by T10y.
+- Next recommended phase: T10y - stop retrying Vercel CLI deployment and choose a no-deploy route replacement or provider/dashboard correction decision. Historical anchor only; superseded by T10z.
 
 ## Recommended Order
 
@@ -123,8 +125,9 @@ Persistent planning note for the next SQX Edge phases.
 37. Phase T10v: execute one controlled staging deployment attempt with immediate target/alias inspection and rollback on mismatch. Done as clean rollback; see `docs/T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK.md`.
 38. Phase T10w: investigate/correct provider-level target mapping without another deployment attempt or replace the staging route. Done as no-deploy route investigation; see `docs/T10W_PROVIDER_TARGET_MAPPING_INVESTIGATION.md`.
 39. Phase T10x: execute one explicit preview-target deployment attempt with immediate target/alias inspection and rollback on mismatch. Done as clean rollback; see `docs/T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK.md`.
-40. Phase T10y: stop retrying Vercel CLI deployment and choose a no-deploy route replacement or provider/dashboard correction decision.
-41. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+40. Phase T10y: stop retrying Vercel CLI deployment and choose a no-deploy route replacement or provider/dashboard correction decision. Done as provider-dashboard correction decision; see `docs/T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION.md`.
+41. Phase T10z: prepare the no-deploy provider/dashboard correction package before any deployment attempt.
+42. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
 42. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
