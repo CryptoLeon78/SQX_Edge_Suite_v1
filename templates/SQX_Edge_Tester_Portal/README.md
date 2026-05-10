@@ -128,6 +128,8 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/cloudflare-workers-dev-shell-gate-proof.mjs`: T10ajm workers.dev shell gate proof for the no-domain/no-existing-Worker path.
 - `scripts/cloudflare-workers-dev-shell-deploy-proof.mjs`: T10ajn proof for the shell-created / Access-pending state after the controlled workers.dev shell deploy.
 - `scripts/cloudflare-workers-dev-access-proof.mjs`: T10ajo proof for the Access-protected shell state before any real app deploy.
+- `scripts/cloudflare-access-policy-boundary-proof.mjs`: T10ak proof for the Access app/policy boundary before any real app deploy.
+- `cloudflare-access-policy-boundary.example.json`: public-safe T10ak evidence template; copy to ignored `cloudflare-access-policy-boundary.local.json` only.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
 - `cloudflare-shell-evidence.example.json`: public-safe template for manual shell evidence; copy to ignored `cloudflare-shell-evidence.local.json` only.
@@ -446,6 +448,12 @@ npm run proof:cloudflare-workers-dev-access
 ```
 
 This proves the T10ajo Access-protected shell state. It must return `GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_VERIFIED_NO_APP` before T10ak records or verifies the Access app/policy boundary. It still does not deploy the real app or publish a tester URL.
+
+```powershell
+npm run proof:cloudflare-access-policy-boundary
+```
+
+This proves the T10ak Access app/policy boundary from ignored local evidence. It must return `GO_ACCESS_APPLICATION_POLICY_BOUNDARY_VERIFIED_NO_APP_DEPLOY` before a later controlled deploy gate can be prepared. It still does not deploy the real app or publish a tester URL.
 
 ```powershell
 npm run cf:build

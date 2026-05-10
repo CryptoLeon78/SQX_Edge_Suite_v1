@@ -1,0 +1,28 @@
+{
+  "phase": "T10ak",
+  "provider": "Cloudflare",
+  "workerName": "sqx-edge-tester-portal-preview",
+  "selectedPath": "workers_dev_access_application_policy_boundary",
+  "accessApplicationPresent": false,
+  "accessApplicationMatchesWorkersDevShell": false,
+  "accessPolicyPresent": false,
+  "accessPolicyUsesEmailIdentity": false,
+  "accessPolicyAllowsOnlyApprovedPilotUsers": false,
+  "anonymousAccessRedirectVerified": false,
+  "directShellBodyBlockedForAnonymous": false,
+  "workersDevShellTargetExists": false,
+  "workersDevAccessProtectionVerified": false,
+  "realAppDeployed": false,
+  "testerUrlPublished": false,
+  "testerEmailsIncluded": false,
+  "t10alUnlocked": false,
+  "notes": "Copy to cloudflare-access-policy-boundary.local.json for private evidence only. Store booleans and labels, not hostnames, URLs, Access app IDs, policy IDs, account IDs, tester emails, tokens or keys.",
+  "operatorChecklist": {
+    "accessAppNameCheckedPrivately": false,
+    "accessPolicyNameCheckedPrivately": false,
+    "policyAllowlistCheckedPrivately": false,
+    "anonymousProbeRedirectsToAccess": false,
+    "noPublicTesterUrlShared": true,
+    "noRealAppDeployPerformed": true
+  }
+}

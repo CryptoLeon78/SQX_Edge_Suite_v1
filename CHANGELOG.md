@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ak Access Policy Boundary
+
+- Adds `proof:cloudflare-access-policy-boundary` with `GO_ACCESS_APPLICATION_POLICY_BOUNDARY_VERIFIED_NO_APP_DEPLOY`.
+- Adds public-safe Access policy boundary evidence template while keeping real boundary data in ignored local evidence only.
+- Keeps real app deployment, tester URL sharing and tester account creation blocked until a later controlled deploy gate.
+
 ## 2026-05-10 - T10ajo Workers.dev Access Verified
 
 - Verifies that anonymous traffic to the private workers.dev shell is intercepted by Cloudflare Access before the shell body is returned.

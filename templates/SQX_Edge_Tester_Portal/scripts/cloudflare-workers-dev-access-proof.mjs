@@ -87,7 +87,7 @@ const proof = Object.freeze({
     doc.includes("T10ak_cloudflare_access_application_policy_creation_or_verification"),
   governanceUpdated: governance.includes("T10ajo - Workers.dev Access Verified"),
   nextStepsUpdated: nextSteps.includes("Phase T10ajo: enable or verify Cloudflare Access on the existing workers.dev shell"),
-  readmeUpdated: readme.includes("T10ajo verifica Cloudflare Access encima del shell"),
+  readmeUpdated: readme.includes("T10ajo anade `proof:cloudflare-workers-dev-access`"),
   changelogUpdated: changelog.includes("T10ajo Workers.dev Access Verified"),
   templateReadmeUpdated: templateReadme.includes("proof:cloudflare-workers-dev-access"),
   noSensitiveCloudflareEnvCommitted:

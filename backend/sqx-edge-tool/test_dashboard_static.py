@@ -107,6 +107,7 @@ T10AJL_OPERATOR_UNLOCK_KIT_DOC = PROJECT_ROOT / "docs" / "T10AJL_OPERATOR_UNLOCK
 T10AJM_WORKERS_DEV_SHELL_GATE_DOC = PROJECT_ROOT / "docs" / "T10AJM_WORKERS_DEV_SHELL_GATE.md"
 T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY_DOC = PROJECT_ROOT / "docs" / "T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY.md"
 T10AJO_WORKERS_DEV_ACCESS_VERIFIED_DOC = PROJECT_ROOT / "docs" / "T10AJO_WORKERS_DEV_ACCESS_VERIFIED.md"
+T10AK_ACCESS_POLICY_BOUNDARY_DOC = PROJECT_ROOT / "docs" / "T10AK_ACCESS_POLICY_BOUNDARY.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
@@ -10495,14 +10496,14 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Next recommended phase: T10ajl2 - prepare the local operator unlock kit for private Cloudflare hostname/zone evidence before T10ak. Historical anchor only; superseded by T10ajm.",
             "Next recommended phase: T10ajo - enable or verify Cloudflare Access on the existing workers.dev shell",
             "Phase T10ajl: select private Cloudflare hostname/zone or complete dashboard `workers.dev` onboarding evidence before T10ak Access creation. Done as public-safe evidence gate",
-            "Phase T10ak: record or verify the Cloudflare Access application and policy boundary only after the shell target exists and Access coverage is verified. Unlocked by T10ajo evidence",
+            "Phase T10ak: record/verify the Cloudflare Access application and policy boundary",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: T10ajo verifica Cloudflare Access encima del shell",
-            "Siguiente paso recomendado: T10ak para registrar/verificar la frontera de Cloudflare Access app/policy",
+            "Estado interno: T10ak registra/verifica la frontera de Cloudflare Access app/policy",
+            "Siguiente paso recomendado: T10al para preparar el gate exacto de deploy real controlado",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -10628,7 +10629,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10ajo verifica Cloudflare Access encima del shell",
+            "T10ak registra/verifica la frontera de Cloudflare Access app/policy",
             "T10ajl2 anade `prepare:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -10763,7 +10764,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10ajo verifica Cloudflare Access encima del shell",
+            "T10ak registra/verifica la frontera de Cloudflare Access app/policy",
             "T10ajm anade `proof:cloudflare-workers-dev-shell-gate`",
         ):
             with self.subTest(pattern=pattern):
@@ -10891,7 +10892,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10ajo verifica Cloudflare Access encima del shell",
+            "T10ak registra/verifica la frontera de Cloudflare Access app/policy",
             "T10ajn anade `proof:cloudflare-workers-dev-shell-deploy`",
         ):
             with self.subTest(pattern=pattern):
@@ -11007,13 +11008,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "Current completed phase: T10ajo - Workers.dev Access Verified.",
             "Phase T10ajo: enable or verify Cloudflare Access on the existing workers.dev shell",
-            "Phase T10ak: record or verify the Cloudflare Access application and policy boundary",
+            "Phase T10ak: record/verify the Cloudflare Access application and policy boundary",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10ajo verifica Cloudflare Access encima del shell",
+            "T10ajo anade `proof:cloudflare-workers-dev-access`",
             "T10ajo anade `proof:cloudflare-workers-dev-access`",
         ):
             with self.subTest(pattern=pattern):
@@ -11063,6 +11064,154 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_access_text)
+
+    def test_t10ak_access_policy_boundary_is_documented_and_safe(self):
+        boundary_doc = T10AK_ACCESS_POLICY_BOUNDARY_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        example_evidence_path = TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare-access-policy-boundary.example.json"
+        example_evidence = json.loads(example_evidence_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-access-policy-boundary-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AK_ACCESS_POLICY_BOUNDARY_DOC.is_file())
+        self.assertTrue(example_evidence_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("cloudflare-access-policy-boundary.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-access-policy-boundary"],
+            "node scripts/cloudflare-access-policy-boundary-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertEqual(example_evidence["phase"], "T10ak")
+        self.assertFalse(example_evidence["accessApplicationPresent"])
+        self.assertFalse(example_evidence["accessPolicyPresent"])
+        self.assertFalse(example_evidence["testerUrlPublished"])
+        self.assertFalse(example_evidence["testerEmailsIncluded"])
+        self.assertFalse(example_evidence["realAppDeployed"])
+
+        for pattern in (
+            "T10ak Access Policy Boundary",
+            "GO_ACCESS_APPLICATION_POLICY_BOUNDARY_VERIFIED_NO_APP_DEPLOY",
+            "NO_GO_ACCESS_POLICY_BOUNDARY_EVIDENCE_REQUIRED",
+            "T10al_controlled_real_app_deploy_gate",
+            "cloudflare-access-policy-boundary.local.json",
+            "302 Cloudflare Access redirect",
+            "directShellBody=false",
+            "No real app deployment.",
+            "No tester URL sharing.",
+            "No tester account creation.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, boundary_doc)
+
+        for pattern in (
+            'phase: "T10ak"',
+            "GO_ACCESS_APPLICATION_POLICY_BOUNDARY_VERIFIED_NO_APP_DEPLOY",
+            "NO_GO_ACCESS_POLICY_BOUNDARY_EVIDENCE_REQUIRED",
+            "accessApplicationPresent",
+            "accessApplicationMatchesWorkersDevShell",
+            "accessPolicyPresent",
+            "accessPolicyUsesEmailIdentity",
+            "accessPolicyAllowsOnlyApprovedPilotUsers",
+            "anonymousAccessRedirectVerified",
+            "directShellBodyBlockedForAnonymous",
+            "workersDevShellTargetExists",
+            "workersDevAccessProtectionVerified",
+            "localEvidenceHasNoSensitiveFields",
+            "localEvidenceIgnored",
+            "exampleEvidencePublicSafe",
+            "realAppDeployed: false",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "t10alUnlocked: localBoundaryReady",
+            "T10al_controlled_real_app_deploy_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ak - Access Policy Boundary.",
+            "Next implementation phase: T10al - prepare the exact controlled real app deploy gate",
+            "T10ak Access policy boundary",
+            "docs/T10AK_ACCESS_POLICY_BOUNDARY.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ak - Access Policy Boundary.",
+            "Phase T10ak: record/verify the Cloudflare Access application and policy boundary",
+            "Phase T10al: prepare the exact controlled real app deploy gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ak registra/verifica la frontera de Cloudflare Access app/policy",
+            "T10ak anade `proof:cloudflare-access-policy-boundary`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ak Access Policy Boundary",
+            "proof:cloudflare-access-policy-boundary",
+            "GO_ACCESS_APPLICATION_POLICY_BOUNDARY_VERIFIED_NO_APP_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-access-policy-boundary-proof.mjs",
+            "cloudflare-access-policy-boundary.example.json",
+            "cloudflare-access-policy-boundary.local.json",
+            "npm run proof:cloudflare-access-policy-boundary",
+            "GO_ACCESS_APPLICATION_POLICY_BOUNDARY_VERIFIED_NO_APP_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_boundary_text = "\n".join(
+            [
+                boundary_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example_evidence),
+            ]
+        )
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_boundary_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
