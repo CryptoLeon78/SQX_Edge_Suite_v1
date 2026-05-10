@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ajj Cloudflare Route Onboarding Decision
+
+- Adds the no-deploy Cloudflare route/onboarding decision after the first Worker rollback.
+- Adds `proof:cloudflare-route-onboarding-decision` with result `GO_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_READY_NO_DEPLOY`.
+- Sets `workers_dev=false` and `preview_urls=false` in `wrangler.jsonc` so another deploy cannot accidentally publish a public workers.dev or preview surface before T10ajk chooses and protects the route.
+
 ## 2026-05-10 - T10aji Cloudflare First Deploy Rollback
 
 - Executes the first controlled Cloudflare Worker deploy attempt and rolls it back immediately.

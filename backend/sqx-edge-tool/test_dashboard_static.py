@@ -100,6 +100,7 @@ T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION_DOC = PROJECT_ROOT / "docs" / "T10AJF_
 T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_DOC = PROJECT_ROOT / "docs" / "T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE.md"
 T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS_DOC = PROJECT_ROOT / "docs" / "T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS.md"
 T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK.md"
+T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_DOC = PROJECT_ROOT / "docs" / "T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
@@ -9727,7 +9728,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "T10ajg anade `proof:cloudflare-first-deploy-approval-gate`",
-            "T10ajj para decidir/register la ruta Cloudflare o subdominio `workers.dev`",
+            "T10ajj anade `proof:cloudflare-route-onboarding-decision`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -9889,7 +9890,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "T10ajh anade `proof:cloudflare-first-deploy-readiness`",
-            "T10ajj para decidir/register la ruta Cloudflare o subdominio `workers.dev`",
+            "T10ajj anade `proof:cloudflare-route-onboarding-decision`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -10018,25 +10019,25 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10aji - Cloudflare First Deploy Rollback.",
-            "Next implementation phase: T10ajj - decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt",
+            "Current phase completed: T10aji - Cloudflare First Deploy Rollback. Historical anchor only; superseded by T10ajj.",
+            "Next implementation phase: T10ajj - decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt. Historical anchor only; superseded by T10ajk.",
             "docs/T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10aji - Cloudflare First Deploy Rollback.",
+            "Current completed phase: T10aji - Cloudflare First Deploy Rollback. Historical anchor only; superseded by T10ajj.",
             "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after approval",
-            "Phase T10ajj: decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt.",
-            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+            "Phase T10ajj: decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt. Done as no-deploy route decision",
+            "Phase T10ajk: configure a protected Cloudflare custom route/domain or complete dashboard `workers.dev` onboarding",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
             "T10aji anade `proof:cloudflare-first-deploy-rollback`",
-            "T10ajj para decidir/register la ruta Cloudflare o subdominio `workers.dev`",
+            "T10ajj anade `proof:cloudflare-route-onboarding-decision`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -10074,6 +10075,150 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10aji_text)
+
+    def test_t10ajj_cloudflare_route_onboarding_decision_is_documented_and_safe(self):
+        t10ajj = T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-route-onboarding-decision-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-route-onboarding-decision"],
+            "node scripts/cloudflare-route-onboarding-decision-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["preview_urls"], False)
+
+        for pattern in (
+            "T10ajj Cloudflare Route Onboarding Decision",
+            "GO_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_READY_NO_DEPLOY",
+            "custom_route_or_dashboard_workers_dev_onboarding_before_redeploy",
+            '"workers_dev": false',
+            '"preview_urls": false',
+            "deployments=worker_not_found",
+            "versions=worker_not_found",
+            "secrets=worker_not_found",
+            "No Cloudflare Worker was created.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10ajk_cloudflare_route_onboarding_or_access_precreate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajj)
+
+        for pattern in (
+            'phase: "T10ajj"',
+            'result: "GO_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_READY_NO_DEPLOY"',
+            'provider: "Cloudflare"',
+            'liveWorkerState: "worker_not_found"',
+            "officialWorkersDevDocsChecked: true",
+            "officialPreviewUrlsDocsChecked: true",
+            "officialScriptSubdomainApiDocsChecked: true",
+            "workersDevDashboardConfigRequiredForAccountSubdomain: true",
+            "scriptSubdomainApiRequiresExistingScript: true",
+            "workersDevPublicWhenEnabled: true",
+            "cloudflareAccessRequiredBeforeTesterSharing: true",
+            'selectedRoutePath: "custom_route_or_dashboard_workers_dev_onboarding_before_redeploy"',
+            "customRoutePreferredForTesterRollout: true",
+            "workersDevPilotAllowedOnlyWithImmediateAccess: true",
+            "wranglerWorkersDevDisabled",
+            "wranglerPreviewUrlsDisabled",
+            "deployBlockedUntilRouteOnboarding: true",
+            "providerMutationExecuted: false",
+            "testerUrlShared: false",
+            "packageScriptReady",
+            "mutatingScriptPublished",
+            "docHasNoSecretPattern",
+            "docReady",
+            "governanceUpdated",
+            "nextStepsUpdated",
+            "cloudflareWorkerCreated: false",
+            "cloudflareVersionUploaded: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "t10akUnlocked: false",
+            'nextGate: "T10ajk_cloudflare_route_onboarding_or_access_precreate"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajj - Cloudflare Route Onboarding Decision.",
+            "Next implementation phase: T10ajk - configure a protected Cloudflare custom route/domain or complete dashboard workers.dev onboarding",
+            "T10ajj Cloudflare route onboarding decision",
+            "docs/T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajj - Cloudflare Route Onboarding Decision.",
+            "Phase T10ajj: decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt. Done as no-deploy route decision",
+            "Phase T10ajk: configure a protected Cloudflare custom route/domain or complete dashboard `workers.dev` onboarding",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajj anade `proof:cloudflare-route-onboarding-decision`",
+            "`workers_dev=false`",
+            "`preview_urls=false`",
+            "T10ajk para configurar una ruta/dominio Cloudflare protegido",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajj Cloudflare Route Onboarding Decision",
+            "proof:cloudflare-route-onboarding-decision",
+            "GO_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_READY_NO_DEPLOY",
+            "workers_dev=false",
+            "preview_urls=false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-route-onboarding-decision-proof.mjs",
+            "npm run proof:cloudflare-route-onboarding-decision",
+            "GO_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_READY_NO_DEPLOY",
+            "T10ajk responsible for choosing a protected custom route/domain",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ajj_text = "\n".join([t10ajj, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajj_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
