@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-10.
-- Current completed phase: T10ajn - Controlled Workers.dev Shell Deploy.
+- Current completed phase: T10ajo - Workers.dev Access Verified.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10ajo - enable or verify Cloudflare Access on the existing workers.dev shell via dashboard or Access API token before any real app deploy, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10ak - record or verify the Cloudflare Access application/policy boundary for the protected workers.dev shell before any real app deploy, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -92,6 +92,8 @@ Persistent planning note for the next SQX Edge phases.
 - Current completed phase: T10ajm - Workers.dev Shell Gate. Historical anchor only; superseded by T10ajn.
 - Next recommended phase: T10ajn - deploy the harmless workers.dev shell only with exact approval, then enable/verify Cloudflare Access before any tester URL. Historical anchor only; superseded by T10ajo.
 - Current completed phase: T10ajn - Controlled Workers.dev Shell Deploy. Historical anchor only; superseded by T10ajo.
+- Next recommended phase: T10ajo - enable or verify Cloudflare Access on the existing workers.dev shell via dashboard or Access API token before any real app deploy. Historical anchor only; superseded by T10ak.
+- Current completed phase: T10ajo - Workers.dev Access Verified. Historical anchor only; superseded by T10ak.
 
 ## Recommended Order
 
@@ -390,8 +392,8 @@ Persistent planning note for the next SQX Edge phases.
 2. Phase T10ajl2: add `prepare:cloudflare-hostname-zone-selection` to create the ignored local evidence file. Done.
 3. Phase T10ajm: prepare a controlled workers.dev shell gate because there is no custom domain and no Worker target to protect yet. Done.
 4. Phase T10ajn: deploy only the harmless workers.dev shell with exact approval, then enable/verify Cloudflare Access before any tester URL. Done as shell-created, Access-permission blocked.
-5. Phase T10ajo: enable or verify Cloudflare Access on the existing workers.dev shell via dashboard or Access API token. Next.
-6. Phase T10ak: create Cloudflare Access application and policy only after the shell target exists and Access coverage is verified. Blocked until T10ajo evidence proves the shell is protected.
+5. Phase T10ajo: enable or verify Cloudflare Access on the existing workers.dev shell via dashboard or Access API token. Done as Access-protected shell verification.
+6. Phase T10ak: record or verify the Cloudflare Access application and policy boundary only after the shell target exists and Access coverage is verified. Unlocked by T10ajo evidence, still before any real app deploy.
 
 ## SQX View Creator Track
 

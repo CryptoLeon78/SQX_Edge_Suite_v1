@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ajo Workers.dev Access Verified
+
+- Verifies that anonymous traffic to the private workers.dev shell is intercepted by Cloudflare Access before the shell body is returned.
+- Adds `proof:cloudflare-workers-dev-access` with `GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_VERIFIED_NO_APP` to require ignored local Access evidence before T10ak can proceed.
+- Keeps real app deployment, tester URL sharing and tester account creation blocked while unlocking only the Access app/policy verification gate.
+
 ## 2026-05-10 - T10ajn Controlled Workers.dev Shell Deploy
 
 - Deploys only the harmless workers.dev shell target, not the real OpenNext tester portal.

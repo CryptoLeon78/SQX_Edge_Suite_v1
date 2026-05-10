@@ -58,6 +58,7 @@
     "prepare:cloudflare-hostname-zone-selection": "node scripts/cloudflare-hostname-zone-selection-prepare.mjs",
     "proof:cloudflare-workers-dev-shell-gate": "node scripts/cloudflare-workers-dev-shell-gate-proof.mjs",
     "proof:cloudflare-workers-dev-shell-deploy": "node scripts/cloudflare-workers-dev-shell-deploy-proof.mjs",
+    "proof:cloudflare-workers-dev-access": "node scripts/cloudflare-workers-dev-access-proof.mjs",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",

@@ -106,6 +106,7 @@ T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION_DOC = PROJECT_ROOT / "docs" / "T10AJL_
 T10AJL_OPERATOR_UNLOCK_KIT_DOC = PROJECT_ROOT / "docs" / "T10AJL_OPERATOR_UNLOCK_KIT.md"
 T10AJM_WORKERS_DEV_SHELL_GATE_DOC = PROJECT_ROOT / "docs" / "T10AJM_WORKERS_DEV_SHELL_GATE.md"
 T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY_DOC = PROJECT_ROOT / "docs" / "T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY.md"
+T10AJO_WORKERS_DEV_ACCESS_VERIFIED_DOC = PROJECT_ROOT / "docs" / "T10AJO_WORKERS_DEV_ACCESS_VERIFIED.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
@@ -10494,14 +10495,14 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Next recommended phase: T10ajl2 - prepare the local operator unlock kit for private Cloudflare hostname/zone evidence before T10ak. Historical anchor only; superseded by T10ajm.",
             "Next recommended phase: T10ajo - enable or verify Cloudflare Access on the existing workers.dev shell",
             "Phase T10ajl: select private Cloudflare hostname/zone or complete dashboard `workers.dev` onboarding evidence before T10ak Access creation. Done as public-safe evidence gate",
-            "Phase T10ak: create Cloudflare Access application and policy only after the shell target exists and Access coverage is verified. Blocked until T10ajo evidence proves",
+            "Phase T10ak: record or verify the Cloudflare Access application and policy boundary only after the shell target exists and Access coverage is verified. Unlocked by T10ajo evidence",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: T10ajn creo el shell Worker inocuo",
-            "Siguiente paso recomendado: T10ajo para activar/verificar Cloudflare Access encima del shell",
+            "Estado interno: T10ajo verifica Cloudflare Access encima del shell",
+            "Siguiente paso recomendado: T10ak para registrar/verificar la frontera de Cloudflare Access app/policy",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -10627,7 +10628,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10ajn creo el shell Worker inocuo",
+            "T10ajo verifica Cloudflare Access encima del shell",
             "T10ajl2 anade `prepare:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -10762,7 +10763,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10ajn creo el shell Worker inocuo",
+            "T10ajo verifica Cloudflare Access encima del shell",
             "T10ajm anade `proof:cloudflare-workers-dev-shell-gate`",
         ):
             with self.subTest(pattern=pattern):
@@ -10890,7 +10891,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10ajn creo el shell Worker inocuo",
+            "T10ajo verifica Cloudflare Access encima del shell",
             "T10ajn anade `proof:cloudflare-workers-dev-shell-deploy`",
         ):
             with self.subTest(pattern=pattern):
@@ -10940,6 +10941,128 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_deploy_text)
+
+    def test_t10ajo_workers_dev_access_verified_is_documented_and_safe(self):
+        access_doc = T10AJO_WORKERS_DEV_ACCESS_VERIFIED_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-workers-dev-access-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJO_WORKERS_DEV_ACCESS_VERIFIED_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-workers-dev-access"],
+            "node scripts/cloudflare-workers-dev-access-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+
+        for pattern in (
+            "T10ajo Workers.dev Access Verified",
+            "302 Cloudflare Access redirect",
+            "directShellBody=false",
+            "GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_VERIFIED_NO_APP",
+            "T10ak_cloudflare_access_application_policy_creation_or_verification",
+            "No Cloudflare hostname, account ID, zone ID, Access app ID, Access policy ID, token, tester email or tester URL is committed.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, access_doc)
+
+        for pattern in (
+            'phase: "T10ajo"',
+            "GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_VERIFIED_NO_APP",
+            "NO_GO_WORKERS_DEV_ACCESS_EVIDENCE_REQUIRED",
+            "workersDevShellTargetExists",
+            "workersDevAccessProtectionVerified",
+            "accessHostnameCanBeMatched",
+            "accessPrecreateAllowed",
+            "t10akUnlocked",
+            "realAppDeployed: false",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "T10ak_cloudflare_access_application_policy_creation_or_verification",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajo - Workers.dev Access Verified.",
+            "Next implementation phase: T10ak - record or verify the Cloudflare Access application/policy boundary",
+            "T10ajo Workers.dev Access verified",
+            "docs/T10AJO_WORKERS_DEV_ACCESS_VERIFIED.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajo - Workers.dev Access Verified.",
+            "Phase T10ajo: enable or verify Cloudflare Access on the existing workers.dev shell",
+            "Phase T10ak: record or verify the Cloudflare Access application and policy boundary",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajo verifica Cloudflare Access encima del shell",
+            "T10ajo anade `proof:cloudflare-workers-dev-access`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajo Workers.dev Access Verified",
+            "proof:cloudflare-workers-dev-access",
+            "GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_VERIFIED_NO_APP",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-workers-dev-access-proof.mjs",
+            "npm run proof:cloudflare-workers-dev-access",
+            "GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_VERIFIED_NO_APP",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_access_text = "\n".join(
+            [
+                access_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+            ]
+        )
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_access_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

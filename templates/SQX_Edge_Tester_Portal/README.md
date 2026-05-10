@@ -127,6 +127,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `cloudflare-hostname-zone-selection.example.json`: public-safe T10ajl evidence template; copy to ignored `cloudflare-hostname-zone-selection.local.json` only.
 - `scripts/cloudflare-workers-dev-shell-gate-proof.mjs`: T10ajm workers.dev shell gate proof for the no-domain/no-existing-Worker path.
 - `scripts/cloudflare-workers-dev-shell-deploy-proof.mjs`: T10ajn proof for the shell-created / Access-pending state after the controlled workers.dev shell deploy.
+- `scripts/cloudflare-workers-dev-access-proof.mjs`: T10ajo proof for the Access-protected shell state before any real app deploy.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
 - `cloudflare-shell-evidence.example.json`: public-safe template for manual shell evidence; copy to ignored `cloudflare-shell-evidence.local.json` only.
@@ -439,6 +440,12 @@ npm run proof:cloudflare-workers-dev-shell-deploy
 ```
 
 This proves the T10ajn shell-created state. Before Access is enabled, it returns `NO_GO_ACCESS_MANUAL_ENABLE_REQUIRED_SHELL_TARGET_EXISTS`; after ignored local evidence confirms Access protection, it returns `GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_READY_FOR_T10AK`.
+
+```powershell
+npm run proof:cloudflare-workers-dev-access
+```
+
+This proves the T10ajo Access-protected shell state. It must return `GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_VERIFIED_NO_APP` before T10ak records or verifies the Access app/policy boundary. It still does not deploy the real app or publish a tester URL.
 
 ```powershell
 npm run cf:build

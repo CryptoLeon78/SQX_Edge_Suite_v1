@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T10ajn creo el shell Worker inocuo en `workers.dev`; la app real sigue sin desplegarse y Access queda pendiente de activacion/verificacion manual o API token con permisos Access.
+- Estado interno: T10ajo verifica Cloudflare Access encima del shell Worker inocuo en `workers.dev`; la app real sigue sin desplegarse y no hay URL tester publicada.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: T10ajo para activar/verificar Cloudflare Access encima del shell `workers.dev` antes de compartir ninguna URL o desplegar la app real, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T10ak para registrar/verificar la frontera de Cloudflare Access app/policy antes de cualquier deploy real, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -151,6 +151,7 @@ Portal tester Pro previsto:
 - T10ajl2 anade `prepare:cloudflare-hostname-zone-selection`; crea/revisa el archivo local ignorado y bloquea campos sensibles como hostname, zone ID, emails, URL, tokens o claves antes de permitir T10ak.
 - T10ajm anade `proof:cloudflare-workers-dev-shell-gate`; al no haber dominio ni Worker existente, prepara un shell Worker 404/no-app con config dedicada `workers_dev=true`, mantiene la app real con `workers_dev=false`, y deja T10ajn como unico paso externo para crear el target antes de Access.
 - T10ajn anade `proof:cloudflare-workers-dev-shell-deploy`; crea el shell target con Wrangler, verifica respuesta 404/no-app, bloquea T10ak porque Access API requiere permisos `Access: Apps and Policies Write` o habilitacion manual en dashboard.
+- T10ajo anade `proof:cloudflare-workers-dev-access`; verifica que Cloudflare Access intercepta el shell `workers.dev` antes del cuerpo 404/no-app y desbloquea T10ak como fase de registro/verificacion de app/policy, sin deploy real ni URL tester.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.
