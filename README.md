@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T10h intento una preview protegida desde el proyecto separado, Vercel devolvio `target=production`, el guard T10b bloqueo el build y el deployment fue eliminado.
+- Estado interno: T10i corrigio la siguiente ruta preview hacia `vercel deploy` por defecto, sin `--prod` ni `--target`, y dejo el intento real para T10j con inspeccion inmediata.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: T10i para corregir o reemplazar la ruta preview de Vercel antes de otro intento de deployment, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T10j para ejecutar una unica preview CLI default con inspeccion inmediata y rollback si no devuelve `target=preview`, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -96,7 +96,8 @@ Portal tester Pro previsto:
 - T10e anade `proof:vercel-omitted-target-preview`; T10e intento preview API con `target` omitido, detecta que Vercel vuelve a devolver `target=production`, elimina el deployment y deja T10f como recreacion/separacion obligatoria.
 - T10f anade `proof:vercel-preview-project-separation`; T10f separo un proyecto preview Vercel nuevo sin deployment, sin dominios y sin Git link, y deja T10g como link/proof obligatorio antes de publicar cualquier URL.
 - T10g anade `proof:vercel-linked-preview-project`. T10g linko el repo privado del portal tester al proyecto preview separado, confirma `main` como production branch, `tester-preview` como no-produccion, Deployment Protection activo y sin deployment ni dominios.
-- T10h anade `proof:vercel-protected-preview-rollback`, intenta una unica preview protegida, detecta `target=production`, confirma que el guard T10b bloqueo el build con codigo 43, elimina el deployment y deja T10i como correccion obligatoria.
+- T10h anade `proof:vercel-protected-preview-rollback`. T10h intento una preview protegida desde el proyecto separado, detecta `target=production`, confirma que el guard T10b bloqueo el build con codigo 43, elimina el deployment y deja T10i como correccion obligatoria.
+- T10i anade `proof:vercel-cli-default-preview-route`; T10i para corregir o reemplazar la ruta preview de Vercel antes de otro intento de deployment adopta `vercel deploy` sin `--prod` ni `--target`, conserva el proyecto sin deployment/dominios y deja T10j como intento unico con rollback inmediato.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10i CLI Default Preview Route Proof
+
+- Adds `proof:vercel-cli-default-preview-route` as a no-deploy proof for the official CLI default preview route.
+- Replaces the failed `--target=preview` route with `vercel deploy --force --yes --format json --skip-domain`, explicitly forbidding `--prod` and `--target`.
+- Sets T10j as the single deployment inspection phase: create one preview attempt, inspect `target=preview`, and roll back immediately on mismatch without sharing a URL.
+
 ## 2026-05-10 - T10h Protected Preview Deploy Rollback
 
 - Executes one protected preview deployment attempt from the separated project and inspects the target immediately.

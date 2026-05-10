@@ -83,6 +83,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/vercel-preview-project-separation-proof.mjs`: T10f no-deploy proof that the tester preview project is separated and has no public deployment surface.
 - `scripts/vercel-linked-preview-project-proof.mjs`: T10g no-deploy proof that the separated preview project is linked to the private tester portal repo with protection and no public surface.
 - `scripts/vercel-protected-preview-rollback-proof.mjs`: T10h no-deploy proof that the protected preview deployment rollback left no public surface.
+- `scripts/vercel-cli-default-preview-route-proof.mjs`: T10i no-deploy proof that the next attempt uses the CLI default preview route without `--prod` or `--target`.
 
 ## Local Preflight
 
@@ -136,8 +137,16 @@ npm run proof:vercel-protected-preview-rollback
 
 This proves the T10h rollback cleanup without creating a deployment. It requires the separated preview project to have no live deployment, no latest deployment and no domains after the guarded `target=production` attempt was removed. The expected no-deploy status is `GO_PROTECTED_PREVIEW_ROLLBACK_CLEAN`.
 
+```powershell
+npm run proof:vercel-cli-default-preview-route
+```
+
+This proves the T10i route correction without creating a deployment. It keeps `sqx-edge-tester-preview` linked, protected and surface-free, and approves only `vercel deploy --force --yes --format json --skip-domain` for the next inspection attempt. The expected no-deploy status is `GO_CLI_DEFAULT_PREVIEW_ROUTE_READY`.
+
 ## Next Phase
 
-T10i must correct or replace the Vercel preview deployment route before another deployment attempt. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
+T10j may execute exactly one CLI default preview deployment from the private tester portal working tree. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10i replaces the failed `--target=preview` route with the official default CLI preview route. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
+
+T10i must correct or replace the Vercel preview deployment route before another deployment attempt.
 
 T10 proved that a Git deployment from `tester-preview` can still report `target=production`, and an explicit API request with `target: "preview"` can return `target=production`. Do not create another deployment on the current project ID. The next route must prove that `production/tester-preview` fails before publication.
