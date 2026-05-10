@@ -77,6 +77,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/vercel-preview-preflight.mjs`: T9 local preflight before retrying protected preview deploy.
 - `scripts/vercel-protection-audit.mjs`: T9c go/no-go audit for Vercel Deployment Protection before deploy retry.
 - `scripts/vercel-preview-path-proof.mjs`: T9f proof gate for Git/PR preview readiness without deploying.
+- `scripts/vercel-target-guard.mjs`: T10b build-time guard that blocks production-target builds from non-production branches.
 
 ## Local Preflight
 
@@ -102,4 +103,4 @@ The proof accepts Vercel Project API Git connections exposed either as `gitRepos
 
 ## Next Phase
 
-T10b should fix Vercel preview target mapping before any tester URL is shared. T10 proved that a Git deployment from `tester-preview` can still report `target=production`, so do not push another trigger commit until the mapping is corrected or automatic Git deployments are constrained.
+T10c should correct Vercel Git/preview mapping or define an explicit API preview path before any tester URL is shared. T10 proved that a Git deployment from `tester-preview` can still report `target=production`; do not push another trigger commit until T10c defines the safe path. T10b adds a `prebuild` guard so `production/tester-preview` fails before publication while the mapping remains unresolved.

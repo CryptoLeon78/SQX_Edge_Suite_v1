@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10b Vercel Target Guard
+
+- Adds a `prebuild` target guard that refuses production-target builds from non-production branches.
+- Verifies the guard blocks Vercel's unsafe `production` target from `tester-preview` with `NO_GO_PRODUCTION_TARGET_FROM_NON_PRODUCTION_BRANCH`.
+- Removes the failed deployment and keeps the tester project with no latest deployment, no domains and no shared URL.
+
 ## 2026-05-10 - T10 Internal Preview Target Rollback
 
 - Triggers the first Git-based internal pilot from private `tester-preview`, then blocks it because Vercel reports `target = production`.

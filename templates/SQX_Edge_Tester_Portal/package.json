@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/vercel-target-guard.mjs",
     "build": "next build",
     "start": "next start",
     "preflight:vercel-preview": "node scripts/vercel-preview-preflight.mjs",
