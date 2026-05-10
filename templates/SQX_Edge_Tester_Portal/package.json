@@ -27,6 +27,7 @@
     "proof:fresh-staging-route-access-check": "node scripts/fresh-staging-route-access-check-proof.mjs",
     "proof:fresh-staging-project-created": "node scripts/fresh-staging-project-created-proof.mjs",
     "proof:staging-protection-verified": "node scripts/staging-protection-verified-proof.mjs",
+    "proof:staging-local-link": "node scripts/staging-local-link-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

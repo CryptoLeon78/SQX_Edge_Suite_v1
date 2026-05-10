@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T10s verifica proteccion/settings de `sqx-edge-tester-staging` sin deploy, sin Git link y sin URL publicada.
+- Estado interno: T10t enlaza/configura localmente el portal tester privado contra `sqx-edge-tester-staging` sin deploy y sin URL publicada.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: T10t para enlazar/configurar staging sin deploy y sin publicar URL, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T10u para preparar un gate no-deploy de readiness antes de cualquier deployment staging, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -117,6 +117,7 @@ Portal tester Pro previsto:
 - T10q registra aprobacion explicita y T10r para autenticar Vercel CLI queda completado antes de crear/verificar la ruta staging.
 - T10r anade `proof:fresh-staging-project-created`; crea/verifica `sqx-edge-tester-staging` sin deploy, sin dominios, sin Git link y sin URL publicada, dejando T10s como gate de proteccion/settings.
 - T10s anade `proof:staging-protection-verified`; confirma SSO Deployment Protection `all_except_custom_domains`, Git fork protection, cero deployments y cero dominios antes de cualquier Git link o deploy.
+- T10t anade `proof:staging-local-link`; enlaza localmente el repo privado del portal tester a `sqx-edge-tester-staging` mediante metadata ignorada, manteniendo cero deployments, cero dominios y ninguna URL publicada.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.

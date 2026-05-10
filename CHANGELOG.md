@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10t Staging Local Link Configured
+
+- Links the private tester portal working tree to `sqx-edge-tester-staging` through ignored Vercel local metadata only.
+- Confirms the staging project still has zero deployments, zero domains and no published tester URL after the local link.
+- Adds `proof:staging-local-link` with result `GO_STAGING_LOCAL_LINK_CONFIGURED_NO_DEPLOY`.
+
 ## 2026-05-10 - T10s Staging Protection Verified
 
 - Verifies `sqx-edge-tester-staging` has SSO Deployment Protection enabled before any Git link or deployment.
