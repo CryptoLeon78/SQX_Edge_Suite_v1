@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10r Fresh Staging Project Created
+
+- Creates and verifies `sqx-edge-tester-staging` as a fresh Vercel project shell without deployment.
+- Confirms the new project has no deployments, no domains, no latest deployment and is separate from the rejected route.
+- Adds `proof:fresh-staging-project-created` with result `GO_FRESH_STAGING_PROJECT_CREATED_NO_DEPLOY`.
+
 ## 2026-05-10 - T10q Fresh Staging Route Access Check
 
 - Records explicit approval for creating or verifying a fresh protected staging route without deployment.

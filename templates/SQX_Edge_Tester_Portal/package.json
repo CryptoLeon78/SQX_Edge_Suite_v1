@@ -25,6 +25,7 @@
     "proof:replacement-route-contract": "node scripts/replacement-route-contract-proof.mjs",
     "proof:fresh-staging-route-preflight": "node scripts/fresh-staging-route-preflight-proof.mjs",
     "proof:fresh-staging-route-access-check": "node scripts/fresh-staging-route-access-check-proof.mjs",
+    "proof:fresh-staging-project-created": "node scripts/fresh-staging-project-created-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

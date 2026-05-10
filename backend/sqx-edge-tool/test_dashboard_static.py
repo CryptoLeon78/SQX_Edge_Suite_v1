@@ -73,6 +73,7 @@ T10N_VERCEL_ROUTE_DECISION_DOC = PROJECT_ROOT / "docs" / "T10N_VERCEL_ROUTE_DECI
 T10O_REPLACEMENT_ROUTE_CONTRACT_DOC = PROJECT_ROOT / "docs" / "T10O_REPLACEMENT_ROUTE_CONTRACT.md"
 T10P_FRESH_STAGING_ROUTE_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10P_FRESH_STAGING_ROUTE_PREFLIGHT.md"
 T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK_DOC = PROJECT_ROOT / "docs" / "T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK.md"
+T10R_FRESH_STAGING_PROJECT_CREATED_DOC = PROJECT_ROOT / "docs" / "T10R_FRESH_STAGING_PROJECT_CREATED.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -6289,6 +6290,127 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10q_text)
+
+    def test_t10r_fresh_staging_project_created_is_documented_and_safe(self):
+        t10r = T10R_FRESH_STAGING_PROJECT_CREATED_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "fresh-staging-project-created-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:fresh-staging-project-created"],
+            "node scripts/fresh-staging-project-created-proof.mjs",
+        )
+
+        for pattern in (
+            "T10r Fresh Staging Project Created",
+            "does not deploy, does not link Git",
+            "GO_FRESH_STAGING_PROJECT_CREATED_NO_DEPLOY",
+            "sqx-edge-tester-staging",
+            "sqx-edge-tester-preview",
+            "Verified no deployments exist for the new project.",
+            "Verified the project has no domains.",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not link GitHub to the new project.",
+            "latestDeployment = null",
+            "domains = []",
+            "Deployment count: `0`.",
+            "T10s must verify or enable the protection/settings layer",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10r)
+
+        for pattern in (
+            'phase: "T10r"',
+            'result: "GO_FRESH_STAGING_PROJECT_CREATED_NO_DEPLOY"',
+            'freshProjectName: "sqx-edge-tester-staging"',
+            'freshProjectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'teamId: "team_43avYcdXjtKKE2GtwkOwbNKa"',
+            'rejectedRouteProjectName: "sqx-edge-tester-preview"',
+            "cliWritePathAvailable: true",
+            "projectCreated: true",
+            "projectSeparateFromRejectedRoute: true",
+            "live: false",
+            "latestDeployment: null",
+            "domains: []",
+            "deploymentCount: 0",
+            "privatePortalRelinked: false",
+            "gitLinkedToFreshProject: false",
+            "externalDeployAttempted: false",
+            "deploymentCreationEndpointCalled: false",
+            "testerUrlPublished: false",
+            "T10s_verify_or_enable_protection_settings_before_any_link_or_deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10r - Fresh Staging Project Created.",
+            "T10s - verify or enable protection/settings for `sqx-edge-tester-staging`",
+            "docs/T10R_FRESH_STAGING_PROJECT_CREATED.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10r - Fresh Staging Project Created.",
+            "Phase T10r: authenticate Vercel CLI or provide local `VERCEL_TOKEN`, then create or verify `sqx-edge-tester-staging` without deployment. Done",
+            "Phase T10s: verify or enable protection/settings for `sqx-edge-tester-staging` before any Git link or deployment.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10r crea/verifica `sqx-edge-tester-staging` sin deploy",
+            "T10s para verificar o activar proteccion/settings",
+            "T10r anade `proof:fresh-staging-project-created`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10r Fresh Staging Project Created",
+            "proof:fresh-staging-project-created",
+            "GO_FRESH_STAGING_PROJECT_CREATED_NO_DEPLOY",
+            "no deployments, no domains, no latest deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/fresh-staging-project-created-proof.mjs",
+            "npm run proof:fresh-staging-project-created",
+            "GO_FRESH_STAGING_PROJECT_CREATED_NO_DEPLOY",
+            "T10s must verify or enable protection/settings",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10r_text = "\n".join([t10r, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10r_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

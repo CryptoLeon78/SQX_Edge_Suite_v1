@@ -92,6 +92,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/replacement-route-contract-proof.mjs`: T10o no-deploy replacement-route contract that selects a fresh staging route preflight before any deployment.
 - `scripts/fresh-staging-route-preflight-proof.mjs`: T10p no-deploy/no-external-action gate for the fresh staging route requirements before asking for exact provider approval.
 - `scripts/fresh-staging-route-access-check-proof.mjs`: T10q no-deploy access check that records explicit approval and blocks route creation until CLI/token write auth exists.
+- `scripts/fresh-staging-project-created-proof.mjs`: T10r no-deploy proof that `sqx-edge-tester-staging` exists with no deployments, no domains, no Git link and no URL publication.
 
 ## Local Preflight
 
@@ -185,6 +186,10 @@ T10p must prepare the fresh staging route preflight before any external action; 
 
 T10q has recorded explicit approval for creating or verifying a fresh protected staging route without deployment, but write actions are blocked until Vercel CLI is authenticated non-interactively or a local `VERCEL_TOKEN` is provided.
 
+T10r must authenticate Vercel CLI or provide a local `VERCEL_TOKEN` before creating or verifying the fresh staging project; T10r is now completed with the authenticated CLI path.
+
+T10r has created and verified `sqx-edge-tester-staging` as a clean project shell without deployment, domains, Git link or tester URL. T10s must verify or enable protection/settings before any Git link or deployment.
+
 ```powershell
 npm run proof:vercel-config-hardening
 ```
@@ -215,9 +220,15 @@ npm run proof:fresh-staging-route-access-check
 
 This proves the T10q fresh staging route access check without deployment. It must return `NO_GO_FRESH_STAGING_ROUTE_CREATION_BLOCKED_BY_CLI_AUTH` until a write-capable Vercel path exists.
 
+```powershell
+npm run proof:fresh-staging-project-created
+```
+
+This proves the T10r fresh staging project creation without deployment. It must return `GO_FRESH_STAGING_PROJECT_CREATED_NO_DEPLOY` and keep the rejected route out of rollout.
+
 ## Next Phase
 
-T10r must authenticate Vercel CLI or provide a local `VERCEL_TOKEN`, then create or verify `sqx-edge-tester-staging` without deployment. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, T10o selects `fresh_staging_route_with_no_deploy_preflight`, T10p proves the local preflight gate and T10q confirms that write auth is the blocker. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
+T10s must verify or enable protection/settings for `sqx-edge-tester-staging` before any Git link or deployment. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, T10o selects `fresh_staging_route_with_no_deploy_preflight`, T10p proves the local preflight gate, T10q confirms write auth and T10r creates the clean project shell. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
 
 T10i must correct or replace the Vercel preview deployment route before another deployment attempt.
 
