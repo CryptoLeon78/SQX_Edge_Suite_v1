@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: T10ajm - Workers.dev Shell Gate.
+- Current phase completed: T10ajn - Controlled Workers.dev Shell Deploy.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: T10ajn - deploy the harmless workers.dev shell only with exact approval, then enable/verify Cloudflare Access before any tester URL, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next implementation phase: T10ajo - enable or verify Cloudflare Access on the existing workers.dev shell via dashboard or Access API token before any real app deploy, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.
 - Earlier governance baseline: G4 - Institutional Core Repository Gate.
@@ -91,6 +91,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current phase completed: T10ajl2 - Cloudflare Operator Unlock Kit. Historical anchor only; superseded by T10ajm.
 - Next implementation phase: T10ajm - prepare the workers.dev shell gate because no custom domain and no Worker target exist yet. Historical anchor only; superseded by T10ajn.
 - Current phase completed: T10ajm - Workers.dev Shell Gate. Historical anchor only; superseded by T10ajn.
+- Next implementation phase: T10ajn - deploy the harmless workers.dev shell only with exact approval, then enable/verify Cloudflare Access before any tester URL. Historical anchor only; superseded by T10ajo.
+- Current phase completed: T10ajn - Controlled Workers.dev Shell Deploy. Historical anchor only; superseded by T10ajo.
 
 ## Specialist Agents
 
@@ -266,6 +268,7 @@ M46 is accepted when these criteria are true:
 - T10ajk Cloudflare route access precreate: `docs/T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE.md`, `templates/SQX_Edge_Tester_Portal/cloudflare-route-access-precreate.example.json`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-route-access-precreate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ajl Cloudflare hostname zone selection: `docs/T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION.md`, `docs/T10AJL_OPERATOR_UNLOCK_KIT.md`, `templates/SQX_Edge_Tester_Portal/cloudflare-hostname-zone-selection.example.json`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-hostname-zone-selection-proof.mjs`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-hostname-zone-selection-prepare.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ajm Workers.dev shell gate: `docs/T10AJM_WORKERS_DEV_SHELL_GATE.md`, `templates/SQX_Edge_Tester_Portal/cloudflare/shell-worker.js`, `templates/SQX_Edge_Tester_Portal/wrangler.shell.example.jsonc`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-workers-dev-shell-gate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
+- T10ajn Controlled Workers.dev shell deploy: `docs/T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-workers-dev-shell-deploy-proof.mjs`, ignored `cloudflare-hostname-zone-selection.local.json` evidence and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ac replacement tester route options: `docs/T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md`, `templates/SQX_Edge_Tester_Portal/scripts/replacement-tester-route-options-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ad Cloudflare Access preflight: `docs/T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-access-preflight-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ae Cloudflare runtime compatibility: `docs/T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-runtime-compatibility-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.

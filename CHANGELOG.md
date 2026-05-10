@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ajn Controlled Workers.dev Shell Deploy
+
+- Deploys only the harmless workers.dev shell target, not the real OpenNext tester portal.
+- Adds `proof:cloudflare-workers-dev-shell-deploy` to record shell-created / Access-pending state without committing hostname, account ID, token, tester URL or tester emails.
+- Keeps T10ak blocked because Access protection still needs dashboard enablement or an API token with `Access: Apps and Policies Write`.
+
 ## 2026-05-10 - T10ajm Workers.dev Shell Gate
 
 - Adds `proof:cloudflare-workers-dev-shell-gate` for the no-domain/no-existing-Worker Cloudflare path.

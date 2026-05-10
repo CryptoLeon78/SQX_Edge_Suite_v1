@@ -105,6 +105,7 @@ T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE_DOC = PROJECT_ROOT / "docs" / "T10AJK_C
 T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION_DOC = PROJECT_ROOT / "docs" / "T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION.md"
 T10AJL_OPERATOR_UNLOCK_KIT_DOC = PROJECT_ROOT / "docs" / "T10AJL_OPERATOR_UNLOCK_KIT.md"
 T10AJM_WORKERS_DEV_SHELL_GATE_DOC = PROJECT_ROOT / "docs" / "T10AJM_WORKERS_DEV_SHELL_GATE.md"
+T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY_DOC = PROJECT_ROOT / "docs" / "T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
@@ -10491,16 +10492,16 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "Current completed phase: T10ajl - Cloudflare Hostname Zone Selection. Historical anchor only; superseded by T10ajl2.",
             "Next recommended phase: T10ajl2 - prepare the local operator unlock kit for private Cloudflare hostname/zone evidence before T10ak. Historical anchor only; superseded by T10ajm.",
-            "Next recommended phase: T10ajn - deploy the harmless workers.dev shell only with exact approval",
+            "Next recommended phase: T10ajo - enable or verify Cloudflare Access on the existing workers.dev shell",
             "Phase T10ajl: select private Cloudflare hostname/zone or complete dashboard `workers.dev` onboarding evidence before T10ak Access creation. Done as public-safe evidence gate",
-            "Phase T10ak: create Cloudflare Access application and policy only after the shell target exists and Access coverage is verified. Blocked until T10ajn evidence proves",
+            "Phase T10ak: create Cloudflare Access application and policy only after the shell target exists and Access coverage is verified. Blocked until T10ajo evidence proves",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: T10ajm deja preparado el gate realista",
-            "Siguiente paso recomendado: T10ajn con aprobacion exacta",
+            "Estado interno: T10ajn creo el shell Worker inocuo",
+            "Siguiente paso recomendado: T10ajo para activar/verificar Cloudflare Access encima del shell",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -10626,7 +10627,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10ajm deja preparado el gate realista",
+            "T10ajn creo el shell Worker inocuo",
             "T10ajl2 anade `prepare:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -10761,7 +10762,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10ajm deja preparado el gate realista",
+            "T10ajn creo el shell Worker inocuo",
             "T10ajm anade `proof:cloudflare-workers-dev-shell-gate`",
         ):
             with self.subTest(pattern=pattern):
@@ -10815,6 +10816,130 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_shell_text)
+
+    def test_t10ajn_controlled_workers_dev_shell_deploy_is_documented_and_safe(self):
+        deploy_doc = T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-workers-dev-shell-deploy-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-workers-dev-shell-deploy"],
+            "node scripts/cloudflare-workers-dev-shell-deploy-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+
+        for pattern in (
+            "T10ajn Controlled Workers.dev Shell Deploy",
+            "WORKERS_DEV_SHELL_TARGET_CREATED",
+            "404 SQX Edge tester shell locked",
+            "NO_GO_ACCESS_MANUAL_ENABLE_REQUIRED_SHELL_TARGET_EXISTS",
+            "T10ajo_workers_dev_access_manual_enable_evidence",
+            "Access: Apps and Policies Write",
+            "No Cloudflare hostname, account ID, zone ID, token, tester email or tester URL is committed.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, deploy_doc)
+
+        for pattern in (
+            'phase: "T10ajn"',
+            "NO_GO_ACCESS_MANUAL_ENABLE_REQUIRED_SHELL_TARGET_EXISTS",
+            "GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_READY_FOR_T10AK",
+            "workersDevShellTargetExists",
+            "workersDevAccessProtectionVerified",
+            "accessHostnameCanBeMatched",
+            "accessPrecreateAllowed",
+            "realAppDeployed: false",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "t10akUnlocked: accessReady",
+            'nextGate: accessReady',
+            "T10ajo_workers_dev_access_manual_enable_evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajn - Controlled Workers.dev Shell Deploy.",
+            "Next implementation phase: T10ajo - enable or verify Cloudflare Access on the existing workers.dev shell",
+            "T10ajn Controlled Workers.dev shell deploy",
+            "docs/T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajn - Controlled Workers.dev Shell Deploy.",
+            "Phase T10ajn: deploy only the harmless workers.dev shell",
+            "Phase T10ajo: enable or verify Cloudflare Access on the existing workers.dev shell",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajn creo el shell Worker inocuo",
+            "T10ajn anade `proof:cloudflare-workers-dev-shell-deploy`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajn Controlled Workers.dev Shell Deploy",
+            "proof:cloudflare-workers-dev-shell-deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-workers-dev-shell-deploy-proof.mjs",
+            "npm run proof:cloudflare-workers-dev-shell-deploy",
+            "NO_GO_ACCESS_MANUAL_ENABLE_REQUIRED_SHELL_TARGET_EXISTS",
+            "GO_ACCESS_PROTECTED_WORKERS_DEV_SHELL_READY_FOR_T10AK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_deploy_text = "\n".join(
+            [
+                deploy_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+            ]
+        )
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_deploy_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
