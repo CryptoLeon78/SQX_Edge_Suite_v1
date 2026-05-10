@@ -1,0 +1,17 @@
+{
+  "phase": "T10ajl",
+  "provider": "Cloudflare",
+  "workerName": "sqx-edge-tester-portal-preview",
+  "selectedPath": "protected_custom_domain_or_workers_dev_pilot",
+  "hostnameSelectedPrivately": false,
+  "zoneSelectedPrivately": false,
+  "hostnameBelongsToCloudflareZone": false,
+  "workersDevOnboardingComplete": false,
+  "accessHostnameCanBeMatched": false,
+  "routeCanBeCreatedAfterDeploy": false,
+  "accessPrecreateAllowed": false,
+  "t10akUnlocked": false,
+  "testerUrlPublished": false,
+  "testerEmailsIncluded": false,
+  "notes": "Copy to cloudflare-hostname-zone-selection.local.json for private evidence only. Store booleans and labels, not the hostname, account ID, zone ID, tester URL, tester emails or tokens."
+}

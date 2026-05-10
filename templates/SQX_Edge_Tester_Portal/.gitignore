@@ -17,6 +17,7 @@ cloudflare-env.d.ts
 !.dev.vars.example
 cloudflare-shell-evidence.local.json
 cloudflare-route-access-precreate.local.json
+cloudflare-hostname-zone-selection.local.json
 
 # Local environment
 .env

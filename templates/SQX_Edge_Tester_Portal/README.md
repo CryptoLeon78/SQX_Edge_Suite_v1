@@ -122,6 +122,8 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/cloudflare-route-onboarding-decision-proof.mjs`: T10ajj no-deploy route decision proof that disables `workers_dev` and `preview_urls` until T10ajk chooses a protected Cloudflare route/onboarding path.
 - `scripts/cloudflare-route-access-precreate-proof.mjs`: T10ajk route/access precreate proof that keeps Access blocked until a private hostname/zone or protected workers.dev onboarding evidence exists.
 - `cloudflare-route-access-precreate.example.json`: public-safe evidence template for T10ajl; copy to ignored `cloudflare-route-access-precreate.local.json` only.
+- `scripts/cloudflare-hostname-zone-selection-proof.mjs`: T10ajl hostname/zone evidence proof that unlocks T10ak only from ignored private evidence.
+- `cloudflare-hostname-zone-selection.example.json`: public-safe T10ajl evidence template; copy to ignored `cloudflare-hostname-zone-selection.local.json` only.
 - `cloudflare-shell-evidence.example.json`: public-safe template for manual shell evidence; copy to ignored `cloudflare-shell-evidence.local.json` only.
 
 ## Local Preflight
@@ -410,6 +412,12 @@ npm run proof:cloudflare-route-access-precreate
 This proves the T10ajk route/access precreate gate. The expected guarded result is `NO_GO_CLOUDFLARE_ROUTE_HOSTNAME_REQUIRED_T10AK_BLOCKED` until T10ajl records private hostname/zone evidence or protected dashboard `workers.dev` onboarding evidence. It must not create a Worker, route, Access application, policy, tester account or URL.
 
 ```powershell
+npm run proof:cloudflare-hostname-zone-selection
+```
+
+This proves the T10ajl private hostname/zone evidence gate. Without ignored private evidence, the expected result is `NO_GO_PRIVATE_HOSTNAME_ZONE_EVIDENCE_REQUIRED_T10AK_BLOCKED`; with private evidence proving a Cloudflare-managed hostname/zone or protected `workers.dev` onboarding, it can return `GO_CLOUDFLARE_HOSTNAME_ZONE_READY_T10AK_ALLOWED`.
+
+```powershell
 npm run cf:build
 npm run cf:preview
 npm run cf:typegen
@@ -455,7 +463,7 @@ This proves the T10r fresh staging project creation without deployment. It must 
 
 ## Next Phase
 
-T10ah blocks the Next.js `middleware` to `proxy` migration for the current Cloudflare route because `proxy.ts` uses Node Middleware and OpenNext Cloudflare does not support it yet. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, T10o selects `fresh_staging_route_with_no_deploy_preflight`, T10p proves the local preflight gate, T10q confirms write auth, T10r creates the clean project shell, T10s verifies protection/settings, T10t configures the local private portal link, T10u prepares the no-deploy readiness gate, T10v confirms the default CLI route still returns production target, T10w prepares the explicit preview-target route, T10x confirms that route also returns production target, T10y pauses Vercel CLI deployment, T10z prepares the correction checklist, T10aa records the manual dashboard evidence gap, T10ab ingests manual dashboard evidence with `NO_GO_REPLACE_VERCEL_TESTER_ROUTE`, T10ac selects Cloudflare Pages preview plus Cloudflare Access email OTP as the next candidate, T10ad defines the Cloudflare Access preflight without provider action, T10ae selects Cloudflare Workers/OpenNext as runtime, T10af prepares the local adapter package, T10ag confirms WSL/Linux local preview health 200 while native Windows preview remains NO-GO, T10aji rolls back the first Worker deploy attempt, T10ajj disables accidental workers.dev/preview publication, and T10ajk keeps Access precreate blocked until a private hostname/zone exists. T10ajl must select that hostname/zone or complete protected dashboard `workers.dev` onboarding before T10ak can create Access. Do not share any tester URL until a deployment returns the expected protected route and Access/app auth are verified.
+T10ah blocks the Next.js `middleware` to `proxy` migration for the current Cloudflare route because `proxy.ts` uses Node Middleware and OpenNext Cloudflare does not support it yet. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, T10o selects `fresh_staging_route_with_no_deploy_preflight`, T10p proves the local preflight gate, T10q confirms write auth, T10r creates the clean project shell, T10s verifies protection/settings, T10t configures the local private portal link, T10u prepares the no-deploy readiness gate, T10v confirms the default CLI route still returns production target, T10w prepares the explicit preview-target route, T10x confirms that route also returns production target, T10y pauses Vercel CLI deployment, T10z prepares the correction checklist, T10aa records the manual dashboard evidence gap, T10ab ingests manual dashboard evidence with `NO_GO_REPLACE_VERCEL_TESTER_ROUTE`, T10ac selects Cloudflare Pages preview plus Cloudflare Access email OTP as the next candidate, T10ad defines the Cloudflare Access preflight without provider action, T10ae selects Cloudflare Workers/OpenNext as runtime, T10af prepares the local adapter package, T10ag confirms WSL/Linux local preview health 200 while native Windows preview remains NO-GO, T10aji rolls back the first Worker deploy attempt, T10ajj disables accidental workers.dev/preview publication, T10ajk keeps Access precreate blocked until a private hostname/zone exists, and T10ajl prepares the ignored evidence gate. Do not share any tester URL until a deployment returns the expected protected route and Access/app auth are verified.
 
 T10i must correct or replace the Vercel preview deployment route before another deployment attempt.
 

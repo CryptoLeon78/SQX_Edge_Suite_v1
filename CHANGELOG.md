@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ajl Cloudflare Hostname Zone Selection
+
+- Adds the public-safe hostname/zone evidence gate before Cloudflare Access creation.
+- Adds `proof:cloudflare-hostname-zone-selection`, which returns `NO_GO_PRIVATE_HOSTNAME_ZONE_EVIDENCE_REQUIRED_T10AK_BLOCKED` until ignored local evidence proves a private hostname/zone or protected workers.dev onboarding.
+- Keeps Worker, route, Access, tester URL and tester identities uncreated while documenting the exact evidence needed to unlock T10ak.
+
 ## 2026-05-10 - T10ajk Cloudflare Route Access Precreate
 
 - Adds the guarded Cloudflare route/access precreate phase after T10ajj.

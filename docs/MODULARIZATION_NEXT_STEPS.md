@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-10.
-- Current completed phase: T10ajk - Cloudflare Route Access Precreate.
+- Current completed phase: T10ajl - Cloudflare Hostname Zone Selection.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10ajl - select private Cloudflare hostname/zone or complete workers.dev onboarding evidence before T10ak Access creation, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10ak - create Cloudflare Access application/policy only after ignored private hostname evidence returns GO, otherwise repeat T10ajl evidence capture, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -83,6 +83,8 @@ Persistent planning note for the next SQX Edge phases.
 - Next recommended phase: T10ajj - decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt. Historical anchor only; superseded by T10ajk.
 - Current completed phase: T10ajj - Cloudflare Route Onboarding Decision. Historical anchor only; superseded by T10ajk.
 - Next recommended phase: T10ajk - configure a protected Cloudflare custom route/domain or complete dashboard workers.dev onboarding with immediate Access precreate before any new deploy attempt. Historical anchor only; superseded by T10ajl.
+- Current completed phase: T10ajk - Cloudflare Route Access Precreate. Historical anchor only; superseded by T10ajl.
+- Next recommended phase: T10ajl - select private Cloudflare hostname/zone or complete workers.dev onboarding evidence before T10ak Access creation. Historical anchor only; superseded by T10ak.
 
 ## Recommended Order
 
@@ -189,8 +191,8 @@ Persistent planning note for the next SQX Edge phases.
 59. Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after approval, then immediately inspect or clean up before any tester URL is shared. Done as rollback: Cloudflare requires workers.dev subdomain or route, versions/deployments briefly appeared, and the Worker was deleted; see `docs/T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK.md`.
 60. Phase T10ajj: decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt. Done as no-deploy route decision: prefer protected custom route/domain, disable `workers_dev` and `preview_urls`, and require T10ajk before any redeploy; see `docs/T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION.md`.
 61. Phase T10ajk: configure a protected Cloudflare custom route/domain or complete dashboard `workers.dev` onboarding with immediate Access precreate before any new deploy attempt. Done as guarded NO-GO: Wrangler auth and Worker-not-found were verified, but no hostname/zone is selected, so Access precreate stays blocked; see `docs/T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE.md`.
-62. Phase T10ajl: select private Cloudflare hostname/zone or complete dashboard `workers.dev` onboarding evidence before T10ak Access creation.
-63. Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified. Blocked until a real provider shell and route hostname exist.
+62. Phase T10ajl: select private Cloudflare hostname/zone or complete dashboard `workers.dev` onboarding evidence before T10ak Access creation. Done as public-safe evidence gate; T10ak remains blocked until ignored local evidence returns GO; see `docs/T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION.md`.
+63. Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified. Blocked until ignored T10ajl evidence proves a private hostname/zone or protected workers.dev onboarding.
 64. Phase T10al: execute one controlled Cloudflare Workers deployment only after shell + Access policy are verified, then inspect target, Access coverage and no custom/public domain before any tester URL.
 65. Phase T10am: run protected-route E2E smoke: anonymous blocked by Cloudflare Access, app session required, expired/denied/blocked tester states, logout, watermark, health and noindex.
 66. Phase T10an: prepare private tester onboarding packet without committing tester emails or URL.

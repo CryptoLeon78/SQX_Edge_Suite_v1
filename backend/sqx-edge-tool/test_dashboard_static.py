@@ -102,6 +102,7 @@ T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS_DOC = PROJECT_ROOT / "docs" / "T10AJH_C
 T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK.md"
 T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION_DOC = PROJECT_ROOT / "docs" / "T10AJJ_CLOUDFLARE_ROUTE_ONBOARDING_DECISION.md"
 T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE_DOC = PROJECT_ROOT / "docs" / "T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE.md"
+T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION_DOC = PROJECT_ROOT / "docs" / "T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
@@ -10318,8 +10319,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10ajk - Cloudflare Route Access Precreate.",
-            "Next implementation phase: T10ajl - select private Cloudflare hostname/zone or complete workers.dev onboarding evidence before T10ak Access creation",
+            "Current phase completed: T10ajk - Cloudflare Route Access Precreate. Historical anchor only; superseded by T10ajl.",
+            "Next implementation phase: T10ajl - select private Cloudflare hostname/zone or complete workers.dev onboarding evidence before T10ak Access creation. Historical anchor only; superseded by T10ak.",
             "T10ajk Cloudflare route access precreate",
             "docs/T10AJK_CLOUDFLARE_ROUTE_ACCESS_PRECREATE.md",
         ):
@@ -10327,16 +10328,16 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10ajk - Cloudflare Route Access Precreate.",
+            "Current completed phase: T10ajk - Cloudflare Route Access Precreate. Historical anchor only; superseded by T10ajl.",
             "Phase T10ajk: configure a protected Cloudflare custom route/domain or complete dashboard `workers.dev` onboarding with immediate Access precreate before any new deploy attempt. Done as guarded NO-GO",
-            "Phase T10ajl: select private Cloudflare hostname/zone or complete dashboard `workers.dev` onboarding evidence before T10ak Access creation.",
+            "Phase T10ajl: select private Cloudflare hostname/zone or complete dashboard `workers.dev` onboarding evidence before T10ak Access creation. Done as public-safe evidence gate",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
             "T10ajk anade `proof:cloudflare-route-access-precreate`",
-            "T10ajl para seleccionar hostname/zona Cloudflare privada",
+            "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
             "`workers_dev=false`",
             "`preview_urls=false`",
         ):
@@ -10382,6 +10383,158 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10ajk_text)
+
+    def test_t10ajl_cloudflare_hostname_zone_selection_is_documented_and_safe(self):
+        t10ajl = T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_evidence_path = TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare-hostname-zone-selection.example.json"
+        example_evidence = json.loads(example_evidence_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-hostname-zone-selection-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION_DOC.is_file())
+        self.assertTrue(example_evidence_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-hostname-zone-selection"],
+            "node scripts/cloudflare-hostname-zone-selection-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertNotIn("routes", wrangler_config)
+        self.assertIn("cloudflare-hostname-zone-selection.local.json", template_gitignore)
+        self.assertEqual(example_evidence["phase"], "T10ajl")
+        self.assertFalse(example_evidence["hostnameSelectedPrivately"])
+        self.assertFalse(example_evidence["zoneSelectedPrivately"])
+        self.assertFalse(example_evidence["hostnameBelongsToCloudflareZone"])
+        self.assertFalse(example_evidence["workersDevOnboardingComplete"])
+        self.assertFalse(example_evidence["accessHostnameCanBeMatched"])
+        self.assertFalse(example_evidence["routeCanBeCreatedAfterDeploy"])
+        self.assertFalse(example_evidence["accessPrecreateAllowed"])
+        self.assertFalse(example_evidence["t10akUnlocked"])
+        self.assertFalse(example_evidence["testerUrlPublished"])
+        self.assertFalse(example_evidence["testerEmailsIncluded"])
+
+        for pattern in (
+            "T10ajl Cloudflare Hostname Zone Selection",
+            "NO_GO_PRIVATE_HOSTNAME_ZONE_EVIDENCE_REQUIRED_T10AK_BLOCKED",
+            "GO_CLOUDFLARE_HOSTNAME_ZONE_READY_T10AK_ALLOWED",
+            "T10ak_cloudflare_access_application_policy_creation",
+            "cloudflare-hostname-zone-selection.local.json",
+            "No hostname was committed.",
+            "No tester URL was published.",
+            "No tester emails were committed.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajl)
+
+        for pattern in (
+            'phase: "T10ajl"',
+            "NO_GO_PRIVATE_HOSTNAME_ZONE_EVIDENCE_REQUIRED_T10AK_BLOCKED",
+            "GO_CLOUDFLARE_HOSTNAME_ZONE_READY_T10AK_ALLOWED",
+            "localEvidencePresent",
+            "hostnameSelectedPrivately",
+            "zoneSelectedPrivately",
+            "hostnameBelongsToCloudflareZone",
+            "workersDevOnboardingComplete",
+            "accessHostnameCanBeMatched",
+            "routeCanBeCreatedAfterDeploy",
+            "accessPrecreateAllowed",
+            "wranglerWorkersDevDisabled",
+            "wranglerPreviewUrlsDisabled",
+            "publicRoutesCommitted",
+            "packageScriptReady",
+            "localEvidenceIgnored",
+            "exampleEvidencePublicSafe",
+            "docReady",
+            "governanceUpdated",
+            "nextStepsUpdated",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "hostnameCommitted: false",
+            "testerUrlShared: false",
+            "t10akUnlocked: localEvidenceReady",
+            'nextGate: "T10ak_cloudflare_access_application_policy_creation"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajl - Cloudflare Hostname Zone Selection.",
+            "Next implementation phase: T10ak - create Cloudflare Access application/policy only after ignored private hostname evidence returns GO",
+            "T10ajl Cloudflare hostname zone selection",
+            "docs/T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajl - Cloudflare Hostname Zone Selection.",
+            "Next recommended phase: T10ak - create Cloudflare Access application/policy only after ignored private hostname evidence returns GO",
+            "Phase T10ajl: select private Cloudflare hostname/zone or complete dashboard `workers.dev` onboarding evidence before T10ak Access creation. Done as public-safe evidence gate",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified. Blocked until ignored T10ajl evidence proves",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "Estado interno: T10ajl deja preparado el gate privado",
+            "Siguiente paso recomendado: rellenar evidencia privada T10ajl",
+            "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajl Cloudflare Hostname Zone Selection",
+            "proof:cloudflare-hostname-zone-selection",
+            "NO_GO_PRIVATE_HOSTNAME_ZONE_EVIDENCE_REQUIRED_T10AK_BLOCKED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-hostname-zone-selection-proof.mjs",
+            "cloudflare-hostname-zone-selection.example.json",
+            "npm run proof:cloudflare-hostname-zone-selection",
+            "NO_GO_PRIVATE_HOSTNAME_ZONE_EVIDENCE_REQUIRED_T10AK_BLOCKED",
+            "GO_CLOUDFLARE_HOSTNAME_ZONE_READY_T10AK_ALLOWED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ajl_text = "\n".join(
+            [t10ajl, governance, next_steps, readme, changelog, template_readme, proof, json.dumps(example_evidence)]
+        )
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajl_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
