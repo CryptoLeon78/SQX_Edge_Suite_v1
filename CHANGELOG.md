@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10v Controlled Staging Deploy Rollback
+
+- Executes one controlled staging deployment attempt against `sqx-edge-tester-staging`.
+- Confirms Vercel still returns `target=production` from `tester-preview`; the T10b guard blocks the build with exit code 43.
+- Removes the failed deployment and adds `proof:controlled-staging-deploy-rollback` with result `NO_GO_STAGING_DEPLOYMENT_TARGET_PRODUCTION_ROLLBACK_CLEAN`.
+
 ## 2026-05-10 - T10u Staging Deployment Readiness Gate
 
 - Adds a no-deploy readiness gate before any deployment against `sqx-edge-tester-staging`.

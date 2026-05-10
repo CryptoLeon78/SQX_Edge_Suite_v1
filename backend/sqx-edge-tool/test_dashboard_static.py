@@ -77,6 +77,7 @@ T10R_FRESH_STAGING_PROJECT_CREATED_DOC = PROJECT_ROOT / "docs" / "T10R_FRESH_STA
 T10S_STAGING_PROTECTION_VERIFIED_DOC = PROJECT_ROOT / "docs" / "T10S_STAGING_PROTECTION_VERIFIED.md"
 T10T_STAGING_LOCAL_LINK_CONFIGURED_DOC = PROJECT_ROOT / "docs" / "T10T_STAGING_LOCAL_LINK_CONFIGURED.md"
 T10U_STAGING_DEPLOYMENT_READINESS_GATE_DOC = PROJECT_ROOT / "docs" / "T10U_STAGING_DEPLOYMENT_READINESS_GATE.md"
+T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -6722,8 +6723,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("fetch(", proof)
 
         for pattern in (
-            "Current phase completed: T10u - Staging Deployment Readiness Gate.",
-            "T10v - execute one controlled staging deployment attempt with immediate target/alias inspection and rollback on mismatch",
+            "T10u staging deployment readiness gate:",
+            "T10v - execute one controlled staging deployment attempt with immediate target/alias inspection and rollback on mismatch. Historical anchor only; superseded by T10w.",
             "docs/T10U_STAGING_DEPLOYMENT_READINESS_GATE.md",
         ):
             with self.subTest(pattern=pattern):
@@ -6738,9 +6739,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10u prepara un gate no-deploy de readiness",
-            "T10v para ejecutar un unico intento controlado",
             "T10u anade `proof:staging-deployment-readiness`",
+            "T10v anade `proof:controlled-staging-deploy-rollback`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -6757,7 +6757,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "scripts/staging-deployment-readiness-proof.mjs",
             "npm run proof:staging-deployment-readiness",
             "GO_STAGING_DEPLOYMENT_READINESS_GATE_NO_DEPLOY",
-            "T10v may execute exactly one controlled staging deployment attempt",
+            "T10v executed one controlled staging deployment attempt",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, template_readme)
@@ -6776,6 +6776,133 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10u_text)
+
+    def test_t10v_controlled_staging_deploy_rollback_is_documented_and_safe(self):
+        t10v = T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "controlled-staging-deploy-rollback-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:controlled-staging-deploy-rollback"],
+            "node scripts/controlled-staging-deploy-rollback-proof.mjs",
+        )
+
+        for pattern in (
+            "T10v Controlled Staging Deploy Rollback",
+            "NO_GO_STAGING_DEPLOYMENT_TARGET_PRODUCTION_ROLLBACK_CLEAN",
+            "sqx-edge-tester-staging",
+            "tester-preview",
+            "Vercel returned `target = production`.",
+            "The T10b build guard blocked the build with exit code `43`.",
+            "Removed the failed deployment immediately.",
+            "Verified no deployments remain for `sqx-edge-tester-staging`.",
+            "Verified no domains exist in the team.",
+            "Did not share or commit any deployment URL.",
+            "Returned target: `production`.",
+            "Deployment count after rollback: `0`.",
+            "Domains count after rollback: `0`.",
+            "T10w must investigate or correct the provider-level target mapping",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10v)
+
+        for pattern in (
+            'phase: "T10v"',
+            'result: "NO_GO_STAGING_DEPLOYMENT_TARGET_PRODUCTION_ROLLBACK_CLEAN"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'privatePortalBranch: "tester-preview"',
+            "deploymentAttemptedOnce: true",
+            'attemptedCommand: "vercel deploy --force --yes --format json"',
+            'returnedTarget: "production"',
+            'expectedTarget: "preview"',
+            "guardBlockedBuild: true",
+            'guardPhase: "T10b"',
+            'guardStatus: "NO_GO_PRODUCTION_TARGET_FROM_NON_PRODUCTION_BRANCH"',
+            "guardExitCode: 43",
+            "failedDeploymentRemoved: true",
+            "deploymentCountAfterRollback: 0",
+            "domains: []",
+            "domainsCountAfterRollback: 0",
+            "ssoProtectionEnabled: true",
+            'ssoDeploymentType: "all_except_custom_domains"',
+            "gitForkProtectionEnabled: true",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "currentVercelDeploymentRouteRejected: true",
+            "T10w_no_deploy_provider_target_mapping_correction_or_route_replacement",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10v - Controlled Staging Deploy Rollback.",
+            "T10w - investigate/correct provider-level target mapping without another deployment attempt or replace the staging route",
+            "docs/T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10v - Controlled Staging Deploy Rollback.",
+            "Phase T10v: execute one controlled staging deployment attempt with immediate target/alias inspection and rollback on mismatch. Done",
+            "Phase T10w: investigate/correct provider-level target mapping without another deployment attempt or replace the staging route.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10v ejecuta un intento controlado",
+            "T10w para corregir/investigar el mapping provider-level",
+            "T10v anade `proof:controlled-staging-deploy-rollback`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10v Controlled Staging Deploy Rollback",
+            "proof:controlled-staging-deploy-rollback",
+            "NO_GO_STAGING_DEPLOYMENT_TARGET_PRODUCTION_ROLLBACK_CLEAN",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/controlled-staging-deploy-rollback-proof.mjs",
+            "npm run proof:controlled-staging-deploy-rollback",
+            "NO_GO_STAGING_DEPLOYMENT_TARGET_PRODUCTION_ROLLBACK_CLEAN",
+            "T10w must investigate or correct the provider-level target mapping",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10v_text = "\n".join([t10v, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10v_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

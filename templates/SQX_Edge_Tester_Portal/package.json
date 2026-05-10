@@ -29,6 +29,7 @@
     "proof:staging-protection-verified": "node scripts/staging-protection-verified-proof.mjs",
     "proof:staging-local-link": "node scripts/staging-local-link-proof.mjs",
     "proof:staging-deployment-readiness": "node scripts/staging-deployment-readiness-proof.mjs",
+    "proof:controlled-staging-deploy-rollback": "node scripts/controlled-staging-deploy-rollback-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
