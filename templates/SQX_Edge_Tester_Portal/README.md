@@ -79,6 +79,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/vercel-preview-path-proof.mjs`: T9f proof gate for Git/PR preview readiness without deploying.
 - `scripts/vercel-target-guard.mjs`: T10b build-time guard that blocks production-target builds from non-production branches.
 - `scripts/vercel-explicit-preview-proof.mjs`: T10c no-deploy proof for an explicit API preview request with `target: "preview"`.
+- `scripts/vercel-omitted-target-preview-proof.mjs`: T10e no-deploy proof for the Vercel API preview path where `target` is omitted.
 
 ## Local Preflight
 
@@ -108,6 +109,12 @@ npm run proof:vercel-explicit-preview
 
 This proves the explicit API preview path without creating a deployment. It checks that Vercel still tracks `main` as production, `tester-preview` is non-production and the draft request uses `target: "preview"`. The expected no-deploy status is `GO_EXPLICIT_API_PREVIEW_PATH_READY`.
 
+```powershell
+npm run proof:vercel-omitted-target-preview
+```
+
+This proves the corrected API preview path without creating a deployment. Vercel documents omitted `target` as preview behavior, so this proof builds a draft request with no `target` field and requires `tester-preview` to remain non-production. The expected no-deploy status is `GO_OMITTED_TARGET_PREVIEW_PATH_READY`.
+
 ## Next Phase
 
-T10e must fix or recreate the Vercel preview deployment path before any tester URL is shared. T10 proved that a Git deployment from `tester-preview` can still report `target=production`; T10d proved that even an explicit API request with `target: "preview"` can return `target=production` on the current project, so do not push another trigger commit and do not create another deployment on this project until the target mismatch is resolved. T10b adds a `prebuild` guard so `production/tester-preview` fails before publication while the mapping remains unresolved.
+T10f must recreate or separate the Vercel preview project before any tester URL is shared. T10 proved that a Git deployment from `tester-preview` can still report `target=production`; T10d proved that even an explicit API request with `target: "preview"` can return `target=production`; T10e proved the omitted-target API path also returns `target=production` on the current project. Do not create another deployment on the current project ID. T10b adds a `prebuild` guard so `production/tester-preview` fails before publication while the mapping remains unresolved.

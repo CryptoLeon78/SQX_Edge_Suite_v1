@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10e Omitted Target Preview Rollback
+
+- Adds `proof:vercel-omitted-target-preview` because Vercel documents omitted `target` as preview behavior.
+- Executes one omitted-target API preview attempt and rolls back immediately because Vercel still returns `target = production`.
+- Leaves the tester project with no latest deployment, no domains and no shared URL; sets T10f as required project recreation/separation.
+
 ## 2026-05-10 - T10d Explicit API Preview Rollback
 
 - Executes one explicit Vercel API preview attempt and inspects the deployment target before any URL is shared.
