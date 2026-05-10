@@ -38,6 +38,7 @@
     "proof:manual-dashboard-evidence-ingest": "node scripts/manual-dashboard-evidence-ingest-proof.mjs",
     "proof:replacement-tester-route-options": "node scripts/replacement-tester-route-options-proof.mjs",
     "proof:cloudflare-access-preflight": "node scripts/cloudflare-access-preflight-proof.mjs",
+    "proof:cloudflare-runtime-compatibility": "node scripts/cloudflare-runtime-compatibility-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

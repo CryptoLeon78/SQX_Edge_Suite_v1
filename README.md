@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T10ad deja listo el preflight Cloudflare Access sin crear proyecto, deploy, politica externa ni URL.
+- Estado interno: T10ae selecciona runtime Cloudflare Workers/OpenNext y rechaza static export para el portal tester actual.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: T10ae para resolver la compatibilidad runtime Cloudflare localmente antes de cualquier proyecto/deploy externo, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T10af para preparar el paquete local OpenNext/Cloudflare Workers sin deploy ni accion externa, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -130,7 +130,8 @@ Portal tester Pro previsto:
 - T10aa anade `proof:provider-dashboard-evidence-record`; confirma por CLI cero deployments/dominios/proteccion activa, pero deja `NO_GO_PROVIDER_CANNOT_PROVE_PREVIEW_TARGET` hasta revision manual de dashboard. T10ab para ingerir evidencia manual de dashboard queda cerrado en la siguiente fase.
 - T10ab anade `proof:manual-dashboard-evidence-ingest`; ingiere evidencia manual de dashboard, confirma Git no conectado, production branch no visible, correccion no visible y `next_deployment_allowed=unknown`, por lo que decide `NO_GO_REPLACE_VERCEL_TESTER_ROUTE`. T10ac para comparar y seleccionar una ruta tester protegida queda completado sin deploy.
 - T10ac anade `proof:replacement-tester-route-options`; compara rutas no-Vercel y selecciona Cloudflare Pages preview + Cloudflare Access email OTP como candidata, sin crear proyecto, deploy, URL ni politicas externas. T10ad para preparar el preflight Cloudflare Access queda completado sin accion externa.
-- T10ad anade `proof:cloudflare-access-preflight`; define ramas, Access OTP, no custom domains, no URL y una barrera T10ae de compatibilidad runtime Next.js antes de crear nada en Cloudflare.
+- T10ad anade `proof:cloudflare-access-preflight`; define ramas, Access OTP, no custom domains, no URL y una barrera T10ae de compatibilidad runtime Next.js antes de crear nada en Cloudflare. T10ae para resolver la compatibilidad runtime Cloudflare localmente queda completado sin proveedor.
+- T10ae anade `proof:cloudflare-runtime-compatibility`; inventaria middleware y 7 API route handlers, rechaza static export y selecciona Cloudflare Workers/OpenNext como runtime candidato sin instalar dependencias ni tocar proveedor.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.

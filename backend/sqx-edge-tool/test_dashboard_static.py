@@ -86,6 +86,7 @@ T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD_DOC = PROJECT_ROOT / "docs" / "T10AA_PR
 T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST_DOC = PROJECT_ROOT / "docs" / "T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST.md"
 T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS_DOC = PROJECT_ROOT / "docs" / "T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md"
 T10AD_CLOUDFLARE_ACCESS_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md"
+T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY_DOC = PROJECT_ROOT / "docs" / "T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -7959,6 +7960,141 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10ad_text)
+
+    def test_t10ae_cloudflare_runtime_compatibility_is_documented_and_safe(self):
+        t10ae = T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-runtime-compatibility-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-runtime-compatibility"],
+            "node scripts/cloudflare-runtime-compatibility-proof.mjs",
+        )
+
+        for pattern in (
+            "T10ae Cloudflare Runtime Compatibility",
+            "Cloudflare Workers Next.js guide",
+            "Cloudflare Pages Next.js guide",
+            "Cloudflare static Next.js guide",
+            "Cloudflare Pages Functions",
+            "Cloudflare Pages Functions middleware",
+            "GO_CLOUDFLARE_WORKERS_OPENNEXT_RUNTIME_SELECTED_NO_PROVIDER_ACTION",
+            "cloudflare_workers_opennext_nextjs_runtime",
+            "cloudflare_pages_static_export",
+            "src/middleware.ts",
+            "src/app/api/auth/login/route.ts",
+            "src/app/api/auth/logout/route.ts",
+            "src/app/api/tester/features/route.ts",
+            "src/app/api/tester/renewal/route.ts",
+            "src/app/api/admin/testers/route.ts",
+            "src/app/api/cron/expire-testers/route.ts",
+            "T10af_opennext_cloudflare_adapter_local_package_no_deploy",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No tester URL was shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ae)
+
+        for pattern in (
+            'phase: "T10ae"',
+            'result: "GO_CLOUDFLARE_WORKERS_OPENNEXT_RUNTIME_SELECTED_NO_PROVIDER_ACTION"',
+            'selectedRuntime: "cloudflare_workers_opennext_nextjs_runtime"',
+            'rejectedRuntime: "cloudflare_pages_static_export"',
+            'selectedNextGate: "T10af_opennext_cloudflare_adapter_local_package_no_deploy"',
+            "middlewarePresent:",
+            'middlewarePath: "src/middleware.ts"',
+            "routeHandlers",
+            "routeHandlerCount",
+            "staticExportCompatible: false",
+            "staticExportRejectedReasons",
+            "workersRuntimeReasons",
+            "cloudflareAccessOuterGateStillRequired: true",
+            "appAuthInnerGateStillRequired: true",
+            "externalActionAttemptedInT10ae: false",
+            "cloudflareDependencyInstalledInT10ae: false",
+            "cloudflareProjectCreated: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "githubRepositoryConnectedToCloudflare: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10ae - Cloudflare Runtime Compatibility.",
+            "T10af - prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action",
+            "docs/T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ae - Cloudflare Runtime Compatibility.",
+            "Phase T10ae: decide and test Cloudflare runtime compatibility locally before any provider project, deployment or tester URL. Done",
+            "Phase T10af: prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ae anade `proof:cloudflare-runtime-compatibility`",
+            "T10af para preparar el paquete local OpenNext/Cloudflare Workers",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ae Cloudflare Runtime Compatibility",
+            "proof:cloudflare-runtime-compatibility",
+            "GO_CLOUDFLARE_WORKERS_OPENNEXT_RUNTIME_SELECTED_NO_PROVIDER_ACTION",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-runtime-compatibility-proof.mjs",
+            "npm run proof:cloudflare-runtime-compatibility",
+            "GO_CLOUDFLARE_WORKERS_OPENNEXT_RUNTIME_SELECTED_NO_PROVIDER_ACTION",
+            "T10af must prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ae_text = "\n".join([t10ae, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ae_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

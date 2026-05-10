@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ae Cloudflare Runtime Compatibility
+
+- Rejects Cloudflare Pages static export for the current tester portal because middleware and API route handlers are part of the access model.
+- Selects the Cloudflare Workers/OpenNext Next.js runtime path for the next local adapter package phase.
+- Adds `proof:cloudflare-runtime-compatibility` with result `GO_CLOUDFLARE_WORKERS_OPENNEXT_RUNTIME_SELECTED_NO_PROVIDER_ACTION`.
+
 ## 2026-05-10 - T10ad Cloudflare Access Preflight
 
 - Defines the no-deploy Cloudflare Pages plus Access OTP preflight before any provider project, deployment or tester URL.
