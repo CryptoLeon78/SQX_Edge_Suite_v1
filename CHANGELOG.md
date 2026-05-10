@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ajg Cloudflare First Deploy Approval Gate
+
+- Adds the exact approval gate for the first Cloudflare Worker deploy/shell creation.
+- Adds `proof:cloudflare-first-deploy-approval-gate` with result `GO_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_READY_NO_PROVIDER_ACTION`.
+- Documents pre-checks, deploy command, post-deploy inspection and cleanup criteria while keeping provider mutation blocked until exact approval.
+
 ## 2026-05-10 - T10ajf Cloudflare Shell Creation Decision
 
 - Confirms there is no accepted invisible Cloudflare Worker shell creation path.

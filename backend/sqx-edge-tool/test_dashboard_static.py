@@ -97,6 +97,7 @@ T10AJC_CLOUDFLARE_SHELL_EVIDENCE_INGEST_DOC = PROJECT_ROOT / "docs" / "T10AJC_CL
 T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE_DOC = PROJECT_ROOT / "docs" / "T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE.md"
 T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE_DOC = PROJECT_ROOT / "docs" / "T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE.md"
 T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION_DOC = PROJECT_ROOT / "docs" / "T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION.md"
+T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_DOC = PROJECT_ROOT / "docs" / "T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -9502,7 +9503,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "NO_GO_NO_INVISIBLE_CLOUDFLARE_SHELL_PATH_ACCEPTED",
             "using `wrangler versions upload` for the first upload will fail",
             "T10ajg_first_worker_deploy_approval_gate",
-            "npm exec --yes wrangler@latest deploy --name sqx-edge-tester-portal-preview",
+            "npm exec --yes -- wrangler deploy --name sqx-edge-tester-portal-preview",
             "No Cloudflare project was created.",
             "No Cloudflare deployment was created.",
             "No Cloudflare version was uploaded.",
@@ -9571,7 +9572,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "T10ajf anade `proof:cloudflare-shell-creation-decision`",
-            "T10ajg para preparar la aprobacion exacta del primer `wrangler deploy`",
+            "T10ajg anade `proof:cloudflare-first-deploy-approval-gate`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -9609,6 +9610,160 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10ajf_text)
+
+    def test_t10ajg_cloudflare_first_deploy_approval_gate_is_documented_and_safe(self):
+        t10ajg = T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_DOC.read_text(encoding="utf-8-sig")
+        t10ajf = T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-first-deploy-approval-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-first-deploy-approval-gate"],
+            "node scripts/cloudflare-first-deploy-approval-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertEqual(wrangler_config["name"], "sqx-edge-tester-portal-preview")
+
+        exact_deploy_command = "npm exec --yes -- wrangler deploy --name sqx-edge-tester-portal-preview"
+        cleanup_command = "npm exec --yes -- wrangler delete sqx-edge-tester-portal-preview --force"
+        approval_phrase = (
+            "Autorizo T10ajh: ejecutar exactamente `npm exec --yes -- wrangler deploy --name "
+            "sqx-edge-tester-portal-preview` desde `templates/SQX_Edge_Tester_Portal` despues de `npm run cf:build`, "
+            "sin compartir URL tester y con inspeccion/cleanup inmediato si aparece una superficie publica no aceptada."
+        )
+
+        for pattern in (
+            "T10ajg Cloudflare First Deploy Approval Gate",
+            "GO_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_READY_NO_PROVIDER_ACTION",
+            "No provider mutation was performed in this phase.",
+            exact_deploy_command,
+            cleanup_command,
+            approval_phrase,
+            "npm exec --yes -- wrangler deployments list --name sqx-edge-tester-portal-preview --json",
+            "npm exec --yes -- wrangler versions list --name sqx-edge-tester-portal-preview --json",
+            "npm exec --yes -- wrangler secret list --name sqx-edge-tester-portal-preview --format json",
+            "No Cloudflare Worker was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10ak remains blocked.",
+            "https://developers.cloudflare.com/workers/configuration/versions-and-deployments/",
+            "https://developers.cloudflare.com/workers/configuration/previews/",
+            "https://developers.cloudflare.com/workers/wrangler/commands/",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajg)
+
+        for pattern in (
+            'phase: "T10ajg"',
+            'result: "GO_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_READY_NO_PROVIDER_ACTION"',
+            'provider: "Cloudflare"',
+            'requestedWorkerName: workerName',
+            "exactDeployCommand",
+            "approvalPhrase",
+            "cleanupCommandIfUnsafe",
+            "readOnlyPreChecks:",
+            "postDeployInspectionCommands:",
+            "firstUploadRequiresWranglerDeploy: true",
+            "previewUrlsMayBePublic: true",
+            "cloudflareAccessRequiredBeforeTesterSharing: true",
+            "externalActionPrepared: true",
+            "externalActionExecuted: false",
+            "providerMutatedInT10ajg: false",
+            "packageScriptReady",
+            "deployOrCleanupScriptPublished",
+            "wranglerConfigNameMatches",
+            "wranglerConfigMainMatches",
+            "docHasNoSecretPattern",
+            "docReady",
+            "governanceUpdated",
+            "nextStepsUpdated",
+            "cloudflareWorkerCreated: false",
+            "cloudflareVersionUploaded: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "t10akUnlocked: false",
+            'nextGate: "T10ajh_execute_first_worker_deploy_only_after_exact_approval"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajg - Cloudflare First Deploy Approval Gate.",
+            "Next implementation phase: T10ajh - execute the first Cloudflare Worker deploy/shell creation only after exact approval",
+            "docs/T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajg - Cloudflare First Deploy Approval Gate.",
+            "Phase T10ajg: prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing. Done",
+            "Phase T10ajh: execute the first Cloudflare Worker deploy/shell creation only after exact approval",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajg anade `proof:cloudflare-first-deploy-approval-gate`",
+            "T10ajh para ejecutar el primer `wrangler deploy` Cloudflare solo con aprobacion exacta",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajg Cloudflare First Deploy Approval Gate",
+            "proof:cloudflare-first-deploy-approval-gate",
+            "GO_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_READY_NO_PROVIDER_ACTION",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-first-deploy-approval-gate-proof.mjs",
+            "npm run proof:cloudflare-first-deploy-approval-gate",
+            "GO_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_READY_NO_PROVIDER_ACTION",
+            "T10ajh as the only phase allowed to run the exact",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        self.assertIn(exact_deploy_command, t10ajf)
+
+        combined_t10ajg_text = "\n".join([t10ajg, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajg_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

@@ -50,7 +50,7 @@ Candidate route to evaluate in T10ajg:
 
 ```text
 npm run cf:build
-npm exec --yes wrangler@latest deploy --name sqx-edge-tester-portal-preview
+npm exec --yes -- wrangler deploy --name sqx-edge-tester-portal-preview
 ```
 
 This is not approved yet. It may create a Worker, deployment, version and serving surface. Any resulting URL must remain private and unshared, and T10ajg must define immediate read-only inspection plus cleanup/rollback expectations before any later execution phase runs it.

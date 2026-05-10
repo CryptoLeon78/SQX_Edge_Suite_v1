@@ -49,6 +49,7 @@
     "proof:cloudflare-shell-evidence-capture": "node scripts/cloudflare-shell-evidence-capture-proof.mjs",
     "proof:cloudflare-readonly-shell-capture": "node scripts/cloudflare-readonly-shell-capture-proof.mjs",
     "proof:cloudflare-shell-creation-decision": "node scripts/cloudflare-shell-creation-decision-proof.mjs",
+    "proof:cloudflare-first-deploy-approval-gate": "node scripts/cloudflare-first-deploy-approval-gate-proof.mjs",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",

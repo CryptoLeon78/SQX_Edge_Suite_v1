@@ -116,6 +116,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/cloudflare-shell-evidence-capture-proof.mjs`: T10ajd no-deploy capture checklist proof for manual/authenticated shell evidence before rerunning T10ajc.
 - `scripts/cloudflare-readonly-shell-capture-proof.mjs`: T10aje read-only capture proof recording that the proposed Worker does not exist after Wrangler authentication.
 - `scripts/cloudflare-shell-creation-decision-proof.mjs`: T10ajf decision proof recording that no invisible shell path is accepted and the first Worker creation requires an exact approval gate for `wrangler deploy`.
+- `scripts/cloudflare-first-deploy-approval-gate-proof.mjs`: T10ajg approval-gate proof recording the exact first deploy command, manual approval phrase, pre-checks, post-checks and cleanup criteria without running them.
 - `cloudflare-shell-evidence.example.json`: public-safe template for manual shell evidence; copy to ignored `cloudflare-shell-evidence.local.json` only.
 
 ## Local Preflight
@@ -371,6 +372,12 @@ npm run proof:cloudflare-shell-creation-decision
 ```
 
 This proves the T10ajf shell creation decision. It must return `NO_GO_NO_INVISIBLE_CLOUDFLARE_SHELL_PATH_ACCEPTED`, record that the first Worker cannot be created with `wrangler versions upload`, and leave T10ajg limited to preparing the exact `wrangler deploy` approval gate. It does not deploy, upload, create Access or publish a tester URL.
+
+```powershell
+npm run proof:cloudflare-first-deploy-approval-gate
+```
+
+This proves the T10ajg first deploy approval gate. It must return `GO_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_READY_NO_PROVIDER_ACTION`, keep package deploy scripts absent and leave T10ajh as the only phase allowed to run the exact `npm exec --yes -- wrangler deploy --name sqx-edge-tester-portal-preview` command after explicit approval.
 
 ```powershell
 npm run cf:build

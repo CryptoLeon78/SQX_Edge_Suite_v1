@@ -57,7 +57,7 @@ const proof = Object.freeze({
   docReady:
     doc.includes("NO_GO_NO_INVISIBLE_CLOUDFLARE_SHELL_PATH_ACCEPTED") &&
     doc.includes("using `wrangler versions upload` for the first upload will fail") &&
-    doc.includes("npm exec --yes wrangler@latest deploy --name sqx-edge-tester-portal-preview"),
+    doc.includes("npm exec --yes -- wrangler deploy --name sqx-edge-tester-portal-preview"),
   governanceUpdated: governance.includes("T10ajf - Cloudflare Shell Creation Decision"),
   nextStepsUpdated: nextSteps.includes("Phase T10ajg: prepare exact approval gate for the first Cloudflare Worker deploy/shell creation"),
   cloudflareProjectCreated: false,
