@@ -1,5 +1,179 @@
 # Changelog
 
+## 2026-05-10 - T10m Vercel Config Hardening
+
+- Adds `proof:vercel-config-hardening` with dry-run by default and explicit `T10M_APPLY=1` apply mode.
+- Applies only documented Project API settings: `autoAssignCustomDomains = false` and `previewDeploymentsDisabled = false`, without creating a deployment.
+- Adds `github.autoAlias = false` to the tester portal Vercel config and sets T10n as the next no-deploy route proof/replacement phase.
+
+## 2026-05-10 - T10l Vercel Route Investigation
+
+- Adds `proof:vercel-route-investigation` as a no-deploy Vercel Project/Environment API investigation.
+- Records route-risk signals: missing top-level production branch, empty targets, automatic domain assignment and production fast lane enabled.
+- Sets T10m as manual/API correction or alternative no-deploy route proof before any further deployment attempt.
+
+## 2026-05-10 - T10k CLI Default Preview Rollback
+
+- Executes one corrected CLI default preview deployment attempt without `--prod`, `--target` or `--skip-domain`.
+- Rolls back immediately because Vercel still returns `target = production`; the T10b guard blocks the build with exit code 43 before publication.
+- Adds `proof:vercel-cli-default-preview-rollback` and sets T10l as a no-deploy Vercel route investigation/replacement phase.
+
+## 2026-05-10 - T10j CLI Default Preview Command Rollback
+
+- Executes the single T10i-approved CLI command shape and confirms Vercel rejects `--skip-domain` before creating a preview deployment.
+- Adds `proof:vercel-cli-default-preview-command-rollback` to verify the separated project remains deployment-free, domain-free and protected.
+- Sets T10k as the corrected inspection phase using `vercel deploy --force --yes --format json` without `--prod`, `--target` or `--skip-domain`.
+
+## 2026-05-10 - T10i CLI Default Preview Route Proof
+
+- Adds `proof:vercel-cli-default-preview-route` as a no-deploy proof for the official CLI default preview route.
+- Replaces the failed `--target=preview` route with `vercel deploy --force --yes --format json --skip-domain`, explicitly forbidding `--prod` and `--target`.
+- Sets T10j as the single deployment inspection phase: create one preview attempt, inspect `target=preview`, and roll back immediately on mismatch without sharing a URL.
+
+## 2026-05-10 - T10h Protected Preview Deploy Rollback
+
+- Executes one protected preview deployment attempt from the separated project and inspects the target immediately.
+- Rolls back immediately because Vercel returns `target = production`; the T10b guard blocks the build with exit code 43 before publication.
+- Adds `proof:vercel-protected-preview-rollback` and sets T10i as the required preview-route correction phase before another deployment attempt.
+
+## 2026-05-10 - T10g Linked Preview Project Proof
+
+- Links the private tester portal repository to the separated Vercel preview project without deploying or sharing a URL.
+- Adds `proof:vercel-linked-preview-project` to verify Git link, production branch, Deployment Protection, no domains and no latest deployment.
+- Sets T10h as the single protected preview deployment inspection phase before any tester URL can be shared.
+
+## 2026-05-10 - T10f Separated Preview Project
+
+- Creates a separated Vercel project for tester preview without deploying, linking Git, adding domains or sharing any URL.
+- Adds `proof:vercel-preview-project-separation` to verify the separated project is undeployed, domain-free and different from the legacy unsafe project.
+- Sets T10g as the required private Git linking and deployment-protection proof phase before any tester URL can exist.
+
+## 2026-05-10 - T10e Omitted Target Preview Rollback
+
+- Adds `proof:vercel-omitted-target-preview` because Vercel documents omitted `target` as preview behavior.
+- Executes one omitted-target API preview attempt and rolls back immediately because Vercel still returns `target = production`.
+- Leaves the tester project with no latest deployment, no domains and no shared URL; sets T10f as required project recreation/separation.
+
+## 2026-05-10 - T10d Explicit API Preview Rollback
+
+- Executes one explicit Vercel API preview attempt and inspects the deployment target before any URL is shared.
+- Rolls back immediately because Vercel returns `target = production` despite the preview request.
+- Leaves the tester project with no latest deployment, no domains and no shared URL; sets T10e as the required project/path correction.
+
+## 2026-05-10 - T10c Explicit API Preview Path
+
+- Adds `proof:vercel-explicit-preview` as a no-deploy proof for a Vercel API request with `target: "preview"`.
+- Confirms the project reports `productionBranch = main` while `tester-preview` remains the intended non-production branch.
+- Keeps the private tester repo unpushed in T10c to avoid another Git-triggered production-target build and leaves no shared URL.
+
+## 2026-05-10 - T10b Vercel Target Guard
+
+- Adds a `prebuild` target guard that refuses production-target builds from non-production branches.
+- Verifies the guard blocks Vercel's unsafe `production` target from `tester-preview` with `NO_GO_PRODUCTION_TARGET_FROM_NON_PRODUCTION_BRANCH`.
+- Removes the failed deployment and keeps the tester project with no latest deployment, no domains and no shared URL.
+
+## 2026-05-10 - T10 Internal Preview Target Rollback
+
+- Triggers the first Git-based internal pilot from private `tester-preview`, then blocks it because Vercel reports `target = production`.
+- Removes the deployment immediately and verifies no latest deployment, no domains and no shared/committed URL remain.
+- Sets T10b as the next required step: fix Vercel preview target mapping before any tester URL is shared.
+
+## 2026-05-09 - T9g Private Git Preview Source
+
+- Creates the private tester portal repository and prepares `main` plus `tester-preview` before Vercel is connected.
+- Connects the existing Vercel tester project to the private GitHub repository without running a manual deploy or sharing any URL.
+- Updates the preview proof gate to accept Vercel Project API `link` connections and verifies `GO_GIT_PREVIEW_PATH_READY`.
+
+## 2026-05-09 - T9f Preview Path Proof Gate
+
+- Adds `proof:vercel-preview-path` for the tester portal template to verify Deployment Protection, Git integration and non-production preview branch before any URL is shared.
+- Documents T9f as a safe proof gate, not a rollout: no deploy, no tester invites, no emails, no production database and no committed URLs.
+- Sets T9g as the next safe step: connect a private Git/PR preview source before creating or sharing tester access.
+
+## 2026-05-09 - T9e Protected Preview Deploy Rollback
+
+- Retries deploy after protection gates are green, but rolls back immediately because Vercel reports production target and production alias again.
+- Verifies the removed deployment is no longer inspectable, project latest production URL is none and the public alias returns 404.
+- Sets T9f as the safer path: Git/PR-based preview or API deployment proof before any URL is shared.
+
+## 2026-05-09 - T9d Vercel Authentication Protection Verified
+
+- Enables Vercel Authentication Standard Protection for `sqx-edge-tester-portal` through the Vercel Project API.
+- Verifies `audit:vercel-protection` returns `GO_PROTECTION_VERIFIED` with no active deployment, no domains and no latest production URL.
+- Keeps T9d non-rollout: no deploy, no tester invites, no renewal emails, no production database and no committed URLs or raw tester emails.
+
+## 2026-05-09 - T9c Vercel Deployment Protection Gate
+
+- Adds `audit:vercel-protection` to block deploy retry unless Vercel Authentication or Password Protection is verified.
+- Records the live project state as no active deployment, no latest deployment and no domains after the T9b rollback.
+- Keeps T9c as `NO_GO_PROTECTION_NOT_VERIFIED` until dashboard/API protection can be proven without committing tester emails or URLs.
+
+## 2026-05-09 - T9b Vercel Preview Deploy Rollback
+
+- Authenticates Vercel, links the tester portal project and attempts the approved preview deploy.
+- Rolls back immediately because Vercel CLI created production aliases instead of a safe protected preview.
+- Verifies the deployment was removed, leaves no active URL, commits no tester emails and sets T9c as Deployment Protection verification before retry.
+
+## 2026-05-09 - T9 Protected Vercel Preview Preflight
+
+- Attempts the approved Vercel preview staging preflight and records the safe auth blocker: local Vercel token is invalid.
+- Adds a reproducible `preflight:vercel-preview` script for the tester portal template before retrying deploy.
+- Keeps T9 non-invasive after the blocker: no preview URL, no tester accounts, no emails, no production database and no committed secrets.
+
+## 2026-05-09 - T8 Tester Portal Security Hardening
+
+- Adds kill switch, rate-limit contract, visible watermark helper and deployment-protection checklist to the tester portal template.
+- Strengthens middleware/security headers and exposes non-sensitive T8 hardening state through `/api/health`.
+- Keeps T8 non-external: no Vercel deploy, no tester accounts, no renewal emails, no production database and no published URLs.
+
+## 2026-05-09 - T7 Admin Tester Console
+
+- Adds a protected admin tester console preview with demo lifecycle rows, audit hints and operator actions.
+- Adds `/api/admin/testers` with create, renew, deny and block previews guarded by session and disabled-by-default admin flag.
+- Keeps T7 non-external: no Vercel deploy, no tester accounts, no renewal emails, no production database and no published URLs.
+
+## 2026-05-09 - T6 15-Day Expiry Renewal Flow
+
+- Adds tester renewal lifecycle helpers for active, pending, expired, denied and blocked states.
+- Adds protected `/api/tester/renewal` manual-preview decisions for approve, deny and block without mutating production data.
+- Keeps T6 non-external: no Vercel deploy, no tester accounts, no renewal emails, no production database and no published URLs.
+
+## 2026-05-09 - T5 Tester Pro Entitlement Gates
+
+- Adds server-side `tester_pro` entitlement gate helpers and a protected `/api/tester/features` route to the tester portal template.
+- Adds read-only Pro feature placeholders for the protected portal while keeping UI visibility separate from access control.
+- Keeps T5 non-external: no Vercel deploy, no tester accounts, no real entitlement source, no production database and no published URLs.
+
+## 2026-05-09 - T4 Login Session Prototype
+
+- Adds a disabled-by-default local demo login/session prototype to the tester portal template.
+- Adds login/logout route handlers, protected-route middleware redirect, session cookie helper and login form/logout button placeholders.
+- Keeps T4 non-external: no Vercel deploy, no tester accounts, no real credentials, no production database, no emails and no published URLs.
+
+## 2026-05-09 - T3 Tester Auth Data Contract
+
+- Defines tester auth records, password hash policy, session cookie contract, renewal token model, audit events and secret boundaries before login implementation.
+- Adds a pure `auth-data-contract.ts` template module with Argon2id, `__Host-` cookie, one-use token and audit event contracts.
+- Keeps T3 non-external: no Vercel deploy, no tester accounts, no passwords, no emails, no production database and no published URLs.
+
+## 2026-05-09 - T2 Tester Portal Bootstrap
+
+- Adds a public-safe `templates/SQX_Edge_Tester_Portal/` Next.js/Vercel starter for the future private tester portal.
+- Adds T2 documentation, roadmap/governance updates and static contracts for no-secret placeholders, protected route skeletons, dry-run cron and security headers.
+- Keeps T2 non-external: no private repo creation, no Vercel deploy, no tester accounts, no emails and no published URLs.
+
+## 2026-05-09 - T1 Cloud Tester Architecture Contract
+
+- Defines the future private `SQX_Edge_Tester_Portal` Vercel architecture for 10 controlled Pro testers.
+- Adds Access/Security Gatekeeper ownership for tester auth, 15-day renewal, audit, watermark and anti-distribution controls.
+- Keeps T1 as contract-only: no deploy, no tester accounts, no emails and no runtime changes.
+
+## 2026-05-09 - PG7 Project Generator buyer .cfx handoff
+
+- Adds a Project Generator handoff card that prepares buyer-specific Markdown notes for `.cfx` deliveries.
+- Wires copy/download actions and keeps the flow local, manual and free of backend or remote calls.
+- Documents responsible limits: productivity/trazability only, no profitability promise.
+
 ## 2026-05-09 - G6 Institutional dashboard quick actions
 
 - Integrates `institutional/feat/dashboard-quick-actions` as native quick actions from asset/category cards to Plan Mining and Project Generator.

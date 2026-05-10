@@ -47,6 +47,19 @@ Para evitar que el código "se escape" o quede atrapado en los repositorios anti
 
 *   **CryptoLeon78**: Arquitectura Core, Seguridad, Auditoría y Motores de Generación.
 *   **jlivanmaseda-maker**: Metodología de Scoring, Datasets, Estrategias y Análisis de Evidencia.
+*   **Access/Security Gatekeeper (Agente)**: Auth, testers, sesiones, Vercel, caducidades, renovaciones, auditoría anti-distribución y respuesta ante fuga.
+
+## 6. Ecosistema Cloud y Tester Portal (Vercel)
+
+La exposición del producto a testers externos se preparará como capa separada, sin mezclar credenciales, enlaces privados ni lógica de acceso sensible dentro de la app portable pública.
+
+*   **SQX_Edge_Tester_Portal**: futuro punto de entrada privado para testers finales, preferentemente Next.js/Vercel, documentado desde T1.
+*   **Identidad por usuario**: acceso individual por email y contraseña hasheada; queda prohibido depender de una contraseña compartida como control principal.
+*   **Caducidad de testers**: ciclos de 15 días con revisión manual de continuidad, denegación o bloqueo.
+*   **Anti-distribución**: watermark visible por tester, auditoría de accesos, rate limiting, bloqueo por abuso y kill switch operativo.
+*   **Secretos**: las claves, tokens, licencias, credenciales y URLs sensibles deben vivir en variables de entorno o repos privados, nunca en commits públicos.
+*   **Vercel Protection**: Deployment Protection, Password Protection, Edge Config, Cron Jobs y Middleware son controles complementarios; no sustituyen la autenticación por tester.
+*   **Acciones externas bloqueadas por defecto**: no se despliega en Vercel, no se crean cuentas tester, no se publican URLs, no se rotan contraseñas ni se envían correos sin aprobación explícita del usuario.
 
 ---
 **El incumplimiento de esta disciplina degrada la calidad institucional del proyecto y será reportado automáticamente por los logs del Auditor.**

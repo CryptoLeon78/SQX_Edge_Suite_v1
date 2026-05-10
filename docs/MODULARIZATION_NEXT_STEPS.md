@@ -5,13 +5,18 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: G6 - Institutional dashboard quick actions.
+- Current completed phase: T10m - Vercel Config Hardening.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, PG7 - Project Generator buyer-specific `.cfx` handoff notes, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10n - no-deploy preview target proof or Vercel route replacement before any further deployment, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+
+## Historical State Anchors
+
+- Current completed phase: T10l - Vercel Route Investigation. Historical anchor only; superseded by T10m.
+- Next recommended phase: T10m - manual/API Vercel correction or alternative no-deploy route proof before any further deployment. Historical anchor only; superseded by T10n.
 
 ## Recommended Order
 
@@ -35,7 +40,7 @@ Persistent planning note for the next SQX Edge phases.
 4. Phase PG4: add starter custom preset examples by asset/timeframe profile with load/save/export flow. Done.
 5. Phase PG5: add richer custom profile families or buyer-specific `.cfx` starter guidance if Project Generator continues. Done.
 6. Phase PG6: add buyer-specific `.cfx` handoff notes or Project Generator pack import preview if this track continues. Done.
-7. Phase PG7: add buyer-specific `.cfx` handoff notes if this track continues.
+7. Phase PG7: add buyer-specific `.cfx` handoff notes with copy/download Markdown flow. Done; see `docs/PG7_PROJECT_GENERATOR_BUYER_CFX_HANDOFF.md`.
 
 ## Working Discipline
 
@@ -48,11 +53,46 @@ Persistent planning note for the next SQX Edge phases.
 - Treat `https://github.com/CryptoLeon78/SQX_Institutional_Core.git` as first-class/original via local remote `institutional`; push it separately only when histories are aligned or after an explicit institutional sync phase.
 - Never force-push `institutional/main` and never delete institutional-only files, workflows, analyzer assets or operating docs through a blind mirror push.
 - Declare active specialist ownership before broad phases.
-- Use prefixed phase IDs for new work: `Mxx`, `Axx`, `Rxx`, `Sxx`, `Qxx`, `Gxx`, `SBxx`.
+- Use prefixed phase IDs for new work: `Mxx`, `Axx`, `Rxx`, `Sxx`, `Qxx`, `Gxx`, `SBxx`, `Txx`.
 - Use `Vxx` for SQX view/template generation and StrategyQuant operator tools.
 - Follow `docs/PROJECT_GOVERNANCE.md` for phase workflow and M46 entry criteria.
 - Apply G3 before adding internal automation: classify risk level, ownership, output path, privacy boundary and required checks.
 - Keep external commercial actions manual unless the user approves the exact traffic, checkout, email, license, public release or buyer-contact action.
+- Treat tester portal actions as external/security-sensitive: no Vercel deploy, tester account, password rotation, renewal email or public/protected URL publication without explicit approval for that exact action.
+
+## Cloud Tester Access Track
+
+1. Phase T1: define the Vercel-hosted tester architecture contract, repo boundaries, Access/Security Gatekeeper, 15-day renewal model and threat model. Done; see `docs/T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md`.
+2. Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal` with Next.js/Vercel structure, README, `.gitignore`, env placeholders and no real tester data. Done as public-safe template; see `docs/T2_TESTER_PORTAL_BOOTSTRAP.md` and `templates/SQX_Edge_Tester_Portal/`.
+3. Phase T3: define tester auth data contract: statuses, password hash policy, sessions, renewal tokens, audit events and secret boundaries. Done; see `docs/T3_TESTER_AUTH_DATA_CONTRACT.md` and `templates/SQX_Edge_Tester_Portal/src/lib/auth-data-contract.ts`.
+4. Phase T4: implement login/session prototype with blocked unauthenticated routes. Done; see `docs/T4_LOGIN_SESSION_PROTOTYPE.md` and `templates/SQX_Edge_Tester_Portal/src/lib/session-prototype.ts`.
+5. Phase T5: add `tester_pro` entitlements and feature gates for paid options. Done; see `docs/T5_TESTER_PRO_ENTITLEMENT_GATES.md` and `templates/SQX_Edge_Tester_Portal/src/lib/entitlement-gates.ts`.
+6. Phase T6: add 15-day expiry, renewal state and manual approve/deny flow. Done; see `docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md` and `templates/SQX_Edge_Tester_Portal/src/lib/renewal-flow.ts`.
+7. Phase T7: add admin tester console for create, renew, deny, block and audit review. Done; see `docs/T7_ADMIN_TESTER_CONSOLE.md` and `templates/SQX_Edge_Tester_Portal/src/lib/admin-console.ts`.
+8. Phase T8: harden rate limiting, security headers, watermark, kill switch and deployment-protection checklist. Done; see `docs/T8_TESTER_PORTAL_SECURITY_HARDENING.md`, `templates/SQX_Edge_Tester_Portal/src/lib/security-hardening.ts` and `templates/SQX_Edge_Tester_Portal/src/lib/deployment-protection.ts`.
+9. Phase T9: run Vercel preview staging behind protection with no public indexing, only with explicit approval for the exact external action. Preflight attempted; blocked safely by invalid local Vercel token; see `docs/T9_PROTECTED_VERCEL_PREVIEW_PREFLIGHT.md` and `templates/SQX_Edge_Tester_Portal/scripts/vercel-preview-preflight.mjs`.
+10. Phase T9b: authenticate Vercel, verify Deployment Protection and execute protected preview deploy. Attempted; rolled back because CLI created production aliases; see `docs/T9B_VERCEL_PREVIEW_DEPLOY_ROLLBACK.md`.
+11. Phase T9c: verify Vercel Deployment Protection before retrying preview deploy. Done as safe NO-GO gate; see `docs/T9C_VERCEL_DEPLOYMENT_PROTECTION_GATE.md` and `templates/SQX_Edge_Tester_Portal/scripts/vercel-protection-audit.mjs`.
+12. Phase T9d: enable or verify Vercel Authentication/Password Protection privately, then retry preview only after `GO_PROTECTION_VERIFIED`. Done; see `docs/T9D_VERCEL_AUTH_PROTECTION_VERIFIED.md`.
+13. Phase T9e: retry preview-only deploy with target and alias inspection before sharing any URL; rollback immediately if target or aliases are production. Attempted and rolled back; see `docs/T9E_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md`.
+14. Phase T9f: prepare Git/PR-based preview or API deployment proof that cannot auto-alias production before any URL is shared. Done as a local no-deploy proof gate; see `docs/T9F_PREVIEW_PATH_PROOF.md` and `templates/SQX_Edge_Tester_Portal/scripts/vercel-preview-path-proof.mjs`.
+15. Phase T9g: connect private Git/PR preview source before any tester URL is shared. Done; see `docs/T9G_PRIVATE_GIT_PREVIEW_SOURCE.md`.
+16. Phase T10: run one internal tester pilot before inviting external testers. Attempted and rolled back because Vercel reported `target=production` from `tester-preview`; see `docs/T10_INTERNAL_PREVIEW_ROLLBACK.md`.
+17. Phase T10b: fix Vercel preview target mapping before any tester URL is shared. Contained with a build-time guard; see `docs/T10B_VERCEL_TARGET_GUARD.md`.
+18. Phase T10c: correct Vercel Git/preview mapping or define an explicit API preview path before any tester URL is shared. Done as no-deploy explicit API preview proof; see `docs/T10C_EXPLICIT_API_PREVIEW_PATH.md`.
+19. Phase T10d: execute one explicit API preview deployment with target inspection before any tester URL is shared. Attempted and rolled back because Vercel returned `target = production`; see `docs/T10D_EXPLICIT_API_PREVIEW_ROLLBACK.md`.
+20. Phase T10e: attempted an omitted-target API preview deployment and rolled it back because Vercel still returned `target = production`; see `docs/T10E_OMITTED_TARGET_PREVIEW_ROLLBACK.md`.
+21. Phase T10f: recreate or separate the Vercel preview project before any tester URL is shared. Done as separated, undeployed preview project; see `docs/T10F_SEPARATED_PREVIEW_PROJECT.md`.
+22. Phase T10g: link the private tester portal repository to the separated preview project and prove Git/protection settings without deploying. Done as linked no-deploy proof; see `docs/T10G_LINKED_PREVIEW_PROJECT_PROOF.md`.
+23. Phase T10h: execute exactly one protected preview deployment from the separated project with immediate target inspection before any tester URL is shared. Attempted and rolled back because Vercel returned `target = production`; see `docs/T10H_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md`.
+24. Phase T10i: correct or replace the Vercel preview deployment route before another deployment attempt. Done as CLI default preview route proof; see `docs/T10I_CLI_DEFAULT_PREVIEW_ROUTE.md`.
+25. Phase T10j: execute exactly one CLI default preview deployment with immediate target inspection and rollback on mismatch. Attempted command was rejected before deployment because `--skip-domain` is production-only; see `docs/T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK.md`.
+26. Phase T10k: execute exactly one CLI default preview deployment without `--skip-domain`, with immediate target inspection and rollback on mismatch. Attempted and rolled back because Vercel still returned `target = production`; see `docs/T10K_CLI_DEFAULT_PREVIEW_ROLLBACK.md`.
+27. Phase T10l: investigate or replace the Vercel route without another deployment attempt. Done as no-deploy investigation with NO-GO route status; see `docs/T10L_VERCEL_ROUTE_INVESTIGATION.md`.
+28. Phase T10m: manual/API Vercel correction or alternative no-deploy route proof before any further deployment. Done as Vercel Project API hardening without deployment; see `docs/T10M_VERCEL_CONFIG_HARDENING.md`.
+29. Phase T10n: no-deploy preview target proof or Vercel route replacement before any further deployment. Do not deploy again until a no-deploy proof produces GO.
+30. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+31. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
 

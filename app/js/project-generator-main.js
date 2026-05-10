@@ -167,6 +167,65 @@ function pgDownloadJson(filename, payload) {
   URL.revokeObjectURL(url);
 }
 
+function pgDownloadText(filename, text, type) {
+  const blob = new Blob([text || ''], { type: type || 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function pgBuyerCfxHandoffInput() {
+  return {
+    buyerName: pgTrimmedInputValue('pg-buyer-name'),
+    context: pgInputValue('pg-buyer-context'),
+    config: pgReadCustomInputs(),
+    outputDir: PG_STATE.outputDir,
+    outputFiles: PG_STATE.outputFiles,
+  };
+}
+
+function pgRenderBuyerCfxHandoff() {
+  if (!SQX_PG_MODULE.buyerCfxHandoffMarkdown) return null;
+  const input = pgBuyerCfxHandoffInput();
+  const summary = SQX_PG_MODULE.buyerCfxHandoffSummary(input);
+  const notes = SQX_PG_MODULE.buyerCfxHandoffMarkdown(input);
+  pgSetText('pg-buyer-handoff-summary', summary);
+  const notesEl = pgDom('pg-buyer-handoff-notes');
+  if (notesEl) notesEl.value = notes;
+  return { input, notes, summary };
+}
+
+async function pgCopyBuyerCfxHandoff() {
+  const handoff = pgRenderBuyerCfxHandoff();
+  if (!handoff) return;
+  const notesEl = pgDom('pg-buyer-handoff-notes');
+  const text = (notesEl && notesEl.value) || handoff.notes;
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+    } else if (notesEl) {
+      notesEl.focus();
+      notesEl.select();
+      document.execCommand('copy');
+    }
+    pgLog('Notas handoff .cfx copiadas.', 'ok');
+  } catch (e) {
+    pgLog('No se pudieron copiar las notas: ' + e.message, 'err');
+  }
+}
+
+function pgDownloadBuyerCfxHandoff() {
+  const handoff = pgRenderBuyerCfxHandoff();
+  if (!handoff || !SQX_PG_MODULE.buyerCfxHandoffFilename) return;
+  pgDownloadText(SQX_PG_MODULE.buyerCfxHandoffFilename(handoff.input), handoff.notes, 'text/markdown');
+  pgLog('Notas handoff .cfx descargadas.', 'ok');
+}
+
 function pgUpdateMiningSummary(count) {
   pgSetText('pg-minings-count', SQX_PG_MODULE.miningsCountLabel(count));
   pgSetText('pg-bulk-count', SQX_PG_MODULE.bulkGenerateLabel(count));
@@ -182,6 +241,7 @@ function pgRenderMiningsList(infos) {
 function pgRenderOutputState(output) {
   pgSetText('pg-output-count', output.countLabel);
   pgSetHtml('pg-output-list', output.html);
+  pgRenderBuyerCfxHandoff();
 }
 
 function pgGetOnboardingState() {
@@ -417,6 +477,7 @@ function pgLoadCustomPreset() {
   pgSetCustomStatus('Preset cargado: ' + preset.name, 'ok');
   pgLog('Preset custom cargado: ' + preset.name, 'info');
   pgTrace('Preset custom cargado', preset.name, 'info');
+  pgRenderBuyerCfxHandoff();
 }
 
 function pgDeleteCustomPreset() {
@@ -457,6 +518,7 @@ function pgLoadCustomStarterProfile(id) {
   pgSetCustomPackStatus('Ajusta cualquier campo y genera el custom libre.');
   pgLog('Perfil starter cargado: ' + profile.name, 'info');
   pgTrace('Perfil starter cargado', profile.name, 'info');
+  pgRenderBuyerCfxHandoff();
 }
 
 function pgSaveCustomStarterProfile(id) {
@@ -494,6 +556,7 @@ function pgLoadCustomProfileFamily(id) {
   pgSetCustomPackStatus('Guarda el pack completo o ajusta el primer perfil antes de generar.');
   pgLog('Familia custom cargada: ' + family.name, 'info');
   pgTrace('Familia custom cargada', family.name, 'info');
+  pgRenderBuyerCfxHandoff();
 }
 
 function pgSaveCustomProfileFamily(id) {
@@ -745,6 +808,7 @@ async function pgRunOnboardingTertiaryAction() {
   pgRenderCustomStarterProfiles();
   pgRenderCustomProfileFamilies();
   pgRenderCustomPresets();
+  pgRenderBuyerCfxHandoff();
 
   // ── Strategy Cleaner ──
   const CLN_STATE = {
@@ -855,7 +919,9 @@ async function pgRunOnboardingTertiaryAction() {
   SQX_PG_BINDINGS.bindProjectGeneratorEvents(document, {
     autodetectSqx: pgAutodetectSqx,
     checkHealth: pgCheckHealth,
+    copyBuyerCfxHandoff: pgCopyBuyerCfxHandoff,
     deleteCustomPreset: pgDeleteCustomPreset,
+    downloadBuyerCfxHandoff: pgDownloadBuyerCfxHandoff,
     exportCustomStarterProfiles: pgExportCustomStarterProfiles,
     exportCustomProfileFamilies: pgExportCustomProfileFamilies,
     exportCustomPresets: pgExportCustomPresets,
@@ -872,6 +938,7 @@ async function pgRunOnboardingTertiaryAction() {
     runOnboardingAction: pgRunOnboardingAction,
     runOnboardingSecondaryAction: pgRunOnboardingSecondaryAction,
     runOnboardingTertiaryAction: pgRunOnboardingTertiaryAction,
+    renderBuyerCfxHandoff: pgRenderBuyerCfxHandoff,
     saveCustomPreset: pgSaveCustomPreset,
     saveConfig: pgSaveConfig,
     setSettingsOpen: pgSetSettingsOpen,

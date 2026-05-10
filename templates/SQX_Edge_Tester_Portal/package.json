@@ -1,0 +1,39 @@
+{
+  "name": "sqx-edge-tester-portal",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "prebuild": "node scripts/vercel-target-guard.mjs",
+    "build": "next build",
+    "start": "next start",
+    "preflight:vercel-preview": "node scripts/vercel-preview-preflight.mjs",
+    "audit:vercel-protection": "node scripts/vercel-protection-audit.mjs",
+    "proof:vercel-preview-path": "node scripts/vercel-preview-path-proof.mjs",
+    "proof:vercel-explicit-preview": "node scripts/vercel-explicit-preview-proof.mjs",
+    "proof:vercel-omitted-target-preview": "node scripts/vercel-omitted-target-preview-proof.mjs",
+    "proof:vercel-preview-project-separation": "node scripts/vercel-preview-project-separation-proof.mjs",
+    "proof:vercel-linked-preview-project": "node scripts/vercel-linked-preview-project-proof.mjs",
+    "proof:vercel-protected-preview-rollback": "node scripts/vercel-protected-preview-rollback-proof.mjs",
+    "proof:vercel-cli-default-preview-route": "node scripts/vercel-cli-default-preview-route-proof.mjs",
+    "proof:vercel-cli-default-preview-command-rollback": "node scripts/vercel-cli-default-preview-command-rollback-proof.mjs",
+    "proof:vercel-cli-default-preview-rollback": "node scripts/vercel-cli-default-preview-rollback-proof.mjs",
+    "proof:vercel-route-investigation": "node scripts/vercel-route-investigation-proof.mjs",
+    "proof:vercel-config-hardening": "node scripts/vercel-config-hardening-proof.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "eslint": "latest",
+    "eslint-config-next": "latest",
+    "typescript": "latest"
+  }
+}

@@ -656,6 +656,33 @@
       </div>
     </div>
 
+    <div class="card pg-buyer-handoff-card" id="pg-buyer-handoff-card">
+      <div class="card-header">
+        <h2>Entrega comprador .cfx</h2>
+        <span class="badge info">Notas handoff</span>
+      </div>
+      <div class="pg-buyer-handoff-grid">
+        <label>Comprador / caso
+          <input type="text" id="pg-buyer-name" placeholder="Cliente Pro / Setup Assist">
+        </label>
+        <label>Contexto de entrega
+          <select id="pg-buyer-context">
+            <option value="review">Revision inicial</option>
+            <option value="setup">Setup Assist</option>
+            <option value="template-pack">Template Pack</option>
+            <option value="support">Soporte</option>
+          </select>
+        </label>
+        <div class="pg-buyer-actions">
+          <button class="export-btn pg-ghost-btn" id="pg-buyer-handoff-refresh">Actualizar notas</button>
+          <button class="export-btn pg-ghost-btn" id="pg-buyer-handoff-copy">Copiar</button>
+          <button class="export-btn" id="pg-buyer-handoff-download">Descargar .md</button>
+        </div>
+      </div>
+      <div class="pg-buyer-summary" id="pg-buyer-handoff-summary">Completa el custom libre o carga un perfil para preparar la entrega.</div>
+      <textarea id="pg-buyer-handoff-notes" class="pg-buyer-handoff-notes" readonly spellcheck="false"></textarea>
+    </div>
+
     <!-- Acciones masivas -->
     <div class="card">
       <div class="card-header">

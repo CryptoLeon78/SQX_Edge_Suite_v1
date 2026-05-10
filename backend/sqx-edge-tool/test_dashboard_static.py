@@ -6,6 +6,7 @@ from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SENSITIVE_LITERAL_FORBIDDEN = "".join(["TbNX3", "XLrg!", "4Dc6J"])
 APP_ROOT = PROJECT_ROOT / "app"
 TOOL_ROOT = PROJECT_ROOT / "backend" / "sqx-edge-tool"
 ANALYSIS_ROOT = PROJECT_ROOT / "analysis"
@@ -39,6 +40,36 @@ SB14_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB14_STRATEGY_BUILDER_BUYER
 SB15_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB15_STRATEGY_BUILDER_BUYER_SESSION_SUPPORT_CASE_BUNDLE.md"
 SB16_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB16_STRATEGY_BUILDER_BUYER_SESSION_SUPPORT_RESOLUTION_CHECKLIST.md"
 SB17_STRATEGY_BUILDER_DOC = PROJECT_ROOT / "docs" / "SB17_STRATEGY_BUILDER_EVIDENCE_HANDOFF_INDEX.md"
+PG7_PROJECT_GENERATOR_DOC = PROJECT_ROOT / "docs" / "PG7_PROJECT_GENERATOR_BUYER_CFX_HANDOFF.md"
+T1_CLOUD_TESTER_DOC = PROJECT_ROOT / "docs" / "T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md"
+T2_TESTER_PORTAL_DOC = PROJECT_ROOT / "docs" / "T2_TESTER_PORTAL_BOOTSTRAP.md"
+T3_TESTER_AUTH_DOC = PROJECT_ROOT / "docs" / "T3_TESTER_AUTH_DATA_CONTRACT.md"
+T4_LOGIN_SESSION_DOC = PROJECT_ROOT / "docs" / "T4_LOGIN_SESSION_PROTOTYPE.md"
+T5_TESTER_PRO_DOC = PROJECT_ROOT / "docs" / "T5_TESTER_PRO_ENTITLEMENT_GATES.md"
+T6_RENEWAL_DOC = PROJECT_ROOT / "docs" / "T6_15_DAY_EXPIRY_RENEWAL_FLOW.md"
+T7_ADMIN_CONSOLE_DOC = PROJECT_ROOT / "docs" / "T7_ADMIN_TESTER_CONSOLE.md"
+T8_SECURITY_HARDENING_DOC = PROJECT_ROOT / "docs" / "T8_TESTER_PORTAL_SECURITY_HARDENING.md"
+T9_VERCEL_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T9_PROTECTED_VERCEL_PREVIEW_PREFLIGHT.md"
+T9B_VERCEL_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T9B_VERCEL_PREVIEW_DEPLOY_ROLLBACK.md"
+T9C_VERCEL_PROTECTION_GATE_DOC = PROJECT_ROOT / "docs" / "T9C_VERCEL_DEPLOYMENT_PROTECTION_GATE.md"
+T9D_VERCEL_AUTH_PROTECTION_DOC = PROJECT_ROOT / "docs" / "T9D_VERCEL_AUTH_PROTECTION_VERIFIED.md"
+T9E_PROTECTED_PREVIEW_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T9E_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md"
+T9F_PREVIEW_PATH_PROOF_DOC = PROJECT_ROOT / "docs" / "T9F_PREVIEW_PATH_PROOF.md"
+T9G_PRIVATE_GIT_PREVIEW_SOURCE_DOC = PROJECT_ROOT / "docs" / "T9G_PRIVATE_GIT_PREVIEW_SOURCE.md"
+T10_INTERNAL_PREVIEW_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10_INTERNAL_PREVIEW_ROLLBACK.md"
+T10B_VERCEL_TARGET_GUARD_DOC = PROJECT_ROOT / "docs" / "T10B_VERCEL_TARGET_GUARD.md"
+T10C_EXPLICIT_API_PREVIEW_PATH_DOC = PROJECT_ROOT / "docs" / "T10C_EXPLICIT_API_PREVIEW_PATH.md"
+T10D_EXPLICIT_API_PREVIEW_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10D_EXPLICIT_API_PREVIEW_ROLLBACK.md"
+T10E_OMITTED_TARGET_PREVIEW_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10E_OMITTED_TARGET_PREVIEW_ROLLBACK.md"
+T10F_SEPARATED_PREVIEW_PROJECT_DOC = PROJECT_ROOT / "docs" / "T10F_SEPARATED_PREVIEW_PROJECT.md"
+T10G_LINKED_PREVIEW_PROJECT_DOC = PROJECT_ROOT / "docs" / "T10G_LINKED_PREVIEW_PROJECT_PROOF.md"
+T10H_PROTECTED_PREVIEW_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10H_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md"
+T10I_CLI_DEFAULT_PREVIEW_ROUTE_DOC = PROJECT_ROOT / "docs" / "T10I_CLI_DEFAULT_PREVIEW_ROUTE.md"
+T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK.md"
+T10K_CLI_DEFAULT_PREVIEW_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10K_CLI_DEFAULT_PREVIEW_ROLLBACK.md"
+T10L_VERCEL_ROUTE_INVESTIGATION_DOC = PROJECT_ROOT / "docs" / "T10L_VERCEL_ROUTE_INVESTIGATION.md"
+T10M_VERCEL_CONFIG_HARDENING_DOC = PROJECT_ROOT / "docs" / "T10M_VERCEL_CONFIG_HARDENING.md"
+TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
@@ -242,6 +273,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "G4 - Institutional Core Repository Gate",
             "G5 - Institutional Core Synchronized Gate",
             "G6 - Institutional Dashboard Quick Actions Gate",
+            "Access/Security Gatekeeper",
             "Frontend/UI",
             "Backend/API",
             "QA/Release",
@@ -262,6 +294,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Every new internal automation must declare its risk level",
             "External action",
             "`SBxx`: Strategy Builder and \"only one platform\" workflow phases.",
+            "`Txx`: cloud tester access",
             "Never commit `backend/sqx-edge-tool/config/license.json`",
             "https://github.com/CryptoLeon78/SQX_Institutional_Core.git",
             "local remote name `institutional`",
@@ -290,6 +323,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Phase G5: reconcile `institutional/main` with current `main`", next_steps)
         self.assertIn("Phase G6: selectively integrate `institutional/feat/dashboard-quick-actions`", next_steps)
         self.assertIn("Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.", next_steps)
+        self.assertIn("Phase T1: define the Vercel-hosted tester architecture contract", next_steps)
+        self.assertIn("Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`", next_steps)
+        self.assertIn("Phase T3: define tester auth data contract", next_steps)
         self.assertIn("Any new visible tab, panel, module or manifest-driven UI state", architecture := ARCHITECTURE_DOC.read_text(encoding="utf-8-sig"))
         self.assertIn("docs/PROJECT_GOVERNANCE.md", readme)
         self.assertIn("consulta obligatoria antes de fases/mensajes de trabajo", readme)
@@ -784,11 +820,22 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb17)
 
-        self.assertIn("Current phase completed: G6 - Institutional dashboard quick actions.", governance)
+        self.assertIn("Current phase completed: T10l - Vercel Route Investigation.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
         self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
         self.assertIn("Asset detail/category rows expose quick actions", governance)
+        self.assertIn("docs/PG7_PROJECT_GENERATOR_BUYER_CFX_HANDOFF.md", governance)
+        self.assertIn("docs/T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md", governance)
+        self.assertIn("docs/T2_TESTER_PORTAL_BOOTSTRAP.md", governance)
+        self.assertIn("docs/T3_TESTER_AUTH_DATA_CONTRACT.md", governance)
+        self.assertIn("docs/T4_LOGIN_SESSION_PROTOTYPE.md", governance)
+        self.assertIn("docs/T5_TESTER_PRO_ENTITLEMENT_GATES.md", governance)
+        self.assertIn("docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md", governance)
+        self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
+        self.assertIn("docs/T8_TESTER_PORTAL_SECURITY_HARDENING.md", governance)
+        self.assertIn("docs/T9_PROTECTED_VERCEL_PREVIEW_PREFLIGHT.md", governance)
+        self.assertIn("templates/SQX_Edge_Tester_Portal/", governance)
         self.assertIn("`SBxx`: Strategy Builder and \"only one platform\" workflow phases.", governance)
         self.assertIn("docs/SB1_STRATEGY_BUILDER_DISCOVERY.md", governance)
         self.assertIn("docs/SB2_STRATEGY_BUILDER_WORKFLOW.md", governance)
@@ -2780,6 +2827,3015 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in expected_css_patterns:
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
+
+    def test_pg7_project_generator_buyer_cfx_handoff_is_wired(self):
+        pg_config = (APP_ROOT / "js" / "modules" / "project-generator-config.js").read_text(encoding="utf-8-sig")
+        pg_bindings = (APP_ROOT / "js" / "modules" / "project-generator-bindings.js").read_text(encoding="utf-8-sig")
+        pg_main = (APP_ROOT / "js" / "project-generator-main.js").read_text(encoding="utf-8-sig")
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+        pg7_doc = PG7_PROJECT_GENERATOR_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+
+        for element_id in [
+            "pg-buyer-handoff-card",
+            "pg-buyer-name",
+            "pg-buyer-context",
+            "pg-buyer-handoff-refresh",
+            "pg-buyer-handoff-copy",
+            "pg-buyer-handoff-download",
+            "pg-buyer-handoff-summary",
+            "pg-buyer-handoff-notes",
+        ]:
+            with self.subTest(element_id=element_id):
+                self.assertIn(f'id="{element_id}"', self.html)
+
+        for pattern in [
+            "normalizeBuyerCfxHandoffInput",
+            "buyerCfxHandoffSummary",
+            "buyerCfxHandoffMarkdown",
+            "buyerCfxHandoffFilename",
+            "No promete rentabilidad",
+        ]:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, pg_config)
+
+        for pattern in [
+            "renderBuyerCfxHandoff",
+            "copyBuyerCfxHandoff",
+            "downloadBuyerCfxHandoff",
+            "pg-buyer-handoff-refresh",
+        ]:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, pg_bindings)
+
+        for pattern in [
+            "pgRenderBuyerCfxHandoff",
+            "pgCopyBuyerCfxHandoff",
+            "pgDownloadBuyerCfxHandoff",
+            "buyerCfxHandoffMarkdown",
+            "buyerCfxHandoffFilename",
+        ]:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, pg_main)
+
+        for pattern in [
+            ".pg-buyer-handoff-card",
+            ".pg-buyer-handoff-grid",
+            ".pg-buyer-handoff-notes",
+            ".pg-buyer-actions",
+        ]:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, css)
+
+        for pattern in [
+            "PG7 Project Generator Buyer .cfx Handoff",
+            "No backend endpoint is added.",
+            "No remote API call is made.",
+            "No profitability or financial-result claim is made.",
+            "Phase PG7: add buyer-specific `.cfx` handoff notes",
+            "Project Generator buyer handoff track",
+        ]:
+            with self.subTest(pattern=pattern):
+                self.assertTrue(pattern in pg7_doc or pattern in next_steps or pattern in governance, pattern)
+
+    def test_t1_cloud_tester_architecture_contract_is_documented(self):
+        t1 = T1_CLOUD_TESTER_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        operational_discipline = (PROJECT_ROOT / "DISCIPLINA_OPERATIVA.md").read_text(encoding="utf-8-sig")
+
+        expected_t1_patterns = [
+            "T1 Cloud Tester Architecture Contract",
+            "controlled Vercel-hosted tester portal",
+            "up to 10 invited testers",
+            "15-day renewal cycles",
+            "`SQX_Edge_Tester_Portal`",
+            "`SQX_Edge_Access_Service`",
+            "Deployment Protection",
+            "Password Protection can protect preview/production URLs, but they are not sufficient",
+            "Environment Variables hold secrets",
+            "Cron Jobs may run a daily expiry/renewal scanner",
+            "Edge Config can hold non-secret global switches",
+            "status = active",
+            "plan = tester_pro",
+            "expires_at > now",
+            "Renewal links are single-use",
+            "visible watermark",
+            "global kill switch",
+            "Threat Model",
+            "Shared tester password",
+            "Vercel preview URL leaked",
+            "Access/Security Gatekeeper",
+            "No Vercel deployment.",
+            "No tester account creation.",
+        ]
+        for pattern in expected_t1_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t1)
+
+        expected_governance_patterns = [
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "Access/Security Gatekeeper",
+            "`Txx`: cloud tester access",
+            "Cloud Tester Access track",
+            "Do not deploy tester access",
+            "publish Vercel URLs",
+        ]
+        for pattern in expected_governance_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in [
+            "Phase T1: define the Vercel-hosted tester architecture contract",
+            "Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`",
+            "Phase T12: monitor abuse",
+            "tester portal actions as external/security-sensitive",
+        ]:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in [
+            "Portal tester Pro previsto",
+            "`SQX_Edge_Tester_Portal`",
+            "ciclo de renovacion de 15 dias",
+            "Access/Security Gatekeeper",
+        ]:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in [
+            "Access/Security Gatekeeper (Agente)",
+            "Ecosistema Cloud y Tester Portal (Vercel)",
+            "SQX_Edge_Tester_Portal",
+            "Caducidad de testers",
+            "ciclos de 15 días",
+            "Deployment Protection",
+            "Acciones externas bloqueadas por defecto",
+            "no se despliega en Vercel",
+            "no se crean cuentas tester",
+            "no se publican URLs",
+        ]:
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, operational_discipline)
+
+    def test_t2_tester_portal_bootstrap_is_documented_and_safe(self):
+        t2 = T2_TESTER_PORTAL_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+
+        expected_files = [
+            "README.md",
+            ".gitignore",
+            ".env.example",
+            "package.json",
+            "next-env.d.ts",
+            "next.config.mjs",
+            "tsconfig.json",
+            "vercel.json",
+            "scripts/vercel-preview-preflight.mjs",
+            "scripts/vercel-protection-audit.mjs",
+            "src/app/globals.css",
+            "src/app/layout.tsx",
+            "src/app/page.tsx",
+            "src/app/login/page.tsx",
+            "src/app/portal/page.tsx",
+            "src/app/admin/testers/page.tsx",
+            "src/app/expired/page.tsx",
+            "src/app/renewal/page.tsx",
+            "src/app/api/health/route.ts",
+            "src/app/api/auth/login/route.ts",
+            "src/app/api/auth/logout/route.ts",
+            "src/app/api/tester/features/route.ts",
+            "src/app/api/tester/renewal/route.ts",
+            "src/app/api/admin/testers/route.ts",
+            "src/app/api/cron/expire-testers/route.ts",
+            "src/lib/access-contract.ts",
+            "src/lib/auth-data-contract.ts",
+            "src/lib/session-prototype.ts",
+            "src/lib/entitlement-gates.ts",
+            "src/lib/renewal-flow.ts",
+            "src/lib/admin-console.ts",
+            "src/lib/security-hardening.ts",
+            "src/lib/deployment-protection.ts",
+            "src/lib/security-headers.ts",
+            "src/middleware.ts",
+        ]
+        for rel_path in expected_files:
+            with self.subTest(rel_path=rel_path):
+                self.assertTrue((TESTER_PORTAL_TEMPLATE_ROOT / rel_path).is_file(), rel_path)
+
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        self.assertTrue(package["private"])
+        self.assertEqual(package["dependencies"]["next"], "latest")
+        self.assertEqual(package["dependencies"]["react"], "latest")
+        self.assertIn("typecheck", package["scripts"])
+        self.assertEqual(package["scripts"]["audit:vercel-protection"], "node scripts/vercel-protection-audit.mjs")
+
+        env_example = (TESTER_PORTAL_TEMPLATE_ROOT / ".env.example").read_text(encoding="utf-8-sig")
+        for pattern in (
+            "AUTH_SECRET=\"replace-with-random-32-byte-secret\"",
+            "TESTER_DB_URL=\"replace-with-private-database-url\"",
+            "CRON_SECRET=\"replace-with-random-cron-secret\"",
+            "EDGE_CONFIG=\"replace-with-vercel-edge-config-connection-string\"",
+            "WATERMARK_SALT=\"replace-with-random-watermark-salt\"",
+            "PASSWORD_PEPPER=\"replace-with-random-password-pepper-if-enabled\"",
+            "T4_DEMO_LOGIN_ENABLED=\"false\"",
+            "T4_DEMO_TESTER_EMAIL=\"tester@example.invalid\"",
+            "T4_DEMO_ACCESS_CODE=\"replace-with-local-demo-access-code\"",
+            "T5_DEMO_TESTER_PRO_ENABLED=\"false\"",
+            "T6_DEMO_RENEWAL_STATE=\"pending_renewal\"",
+            "T7_DEMO_ADMIN_CONSOLE_ENABLED=\"false\"",
+            "T8_GLOBAL_KILL_SWITCH_ENABLED=\"false\"",
+            "T8_RATE_LIMIT_ENABLED=\"false\"",
+            "T8_RATE_LIMIT_MAX_REQUESTS=\"30\"",
+            "T8_RATE_LIMIT_WINDOW_SECONDS=\"60\"",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, env_example)
+
+        gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        self.assertIn(".env.*", gitignore)
+        self.assertIn("!.env.example", gitignore)
+        self.assertIn(".vercel/", gitignore)
+
+        access_contract = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "access-contract.ts").read_text(encoding="utf-8-sig")
+        for pattern in (
+            "TESTER_RENEWAL_CYCLE_DAYS = 15",
+            "\"pending_renewal\"",
+            "\"blocked\"",
+            "TesterPlan = \"tester_pro\"",
+            "canAccessTesterPro",
+            "buildTesterWatermark",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, access_contract)
+
+        middleware = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").read_text(encoding="utf-8-sig")
+        session_prototype = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "session-prototype.ts").read_text(encoding="utf-8-sig")
+        for pattern in (
+            "SECURITY_HEADERS",
+            "isProtectedPath",
+            "hasPrototypeSession",
+            "buildLoginUrl",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, middleware)
+        for pattern in (
+            "PROTECTED_PREFIXES",
+            "\"/portal\"",
+            "\"/admin\"",
+            "\"/api/tester\"",
+            "\"/api/admin\"",
+            "SESSION_COOKIE_CONTRACT.name",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, session_prototype)
+
+        cron_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "cron" / "expire-testers" / "route.ts").read_text(encoding="utf-8-sig")
+        self.assertIn("process.env.CRON_SECRET", cron_route)
+        self.assertIn("dry-run", cron_route)
+        self.assertIn("T6 owns real renewal state changes", cron_route)
+
+        security_headers = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "security-headers.ts").read_text(encoding="utf-8-sig")
+        for pattern in (
+            "X-Frame-Options",
+            "X-Content-Type-Options",
+            "Referrer-Policy",
+            "X-Robots-Tag",
+            "Content-Security-Policy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, security_headers)
+
+        combined_template_text = "\n".join(
+            path.read_text(encoding="utf-8-sig")
+            for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
+            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+        )
+        forbidden_patterns = [
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ]
+        for pattern in forbidden_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_template_text)
+
+        for pattern in (
+            "T2 Tester Portal Bootstrap",
+            "public-safe bootstrap template",
+            "templates/SQX_Edge_Tester_Portal/",
+            "No Vercel deployment",
+            "No tester accounts",
+            "No production database",
+            "T3 should define the auth data contract",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t2)
+
+        self.assertIn("Current phase completed: T10l - Vercel Route Investigation.", governance)
+        self.assertIn("T10m - manual/API Vercel correction or alternative no-deploy route proof", governance)
+        self.assertIn("Current completed phase: T10l - Vercel Route Investigation.", next_steps)
+        self.assertIn("Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`", next_steps)
+        self.assertIn("Phase T3: define tester auth data contract", next_steps)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
+        self.assertIn("templates/SQX_Edge_Tester_Portal/", readme)
+
+    def test_t3_tester_auth_data_contract_is_documented_and_safe(self):
+        t3 = T3_TESTER_AUTH_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        auth_contract_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "auth-data-contract.ts"
+        auth_contract = auth_contract_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(auth_contract_path.is_file())
+
+        for pattern in (
+            "T3 Tester Auth Data Contract",
+            "T3 is contract-only",
+            "Required Records",
+            "`testers`",
+            "`tester_sessions`",
+            "`tester_renewal_tokens`",
+            "`tester_audit_events`",
+            "Preferred algorithm: `argon2id`",
+            "memory `19456 KiB`",
+            "iterations `2`",
+            "Cookie name: `__Host-sqx_tester_session`",
+            "HttpOnly = true",
+            "Secure = true",
+            "SameSite = Strict",
+            "do not store session IDs, JWTs, refresh tokens or credentials in `localStorage`",
+            "Store only token hashes",
+            "Default max age: 24 hours",
+            "OWASP Password Storage Cheat Sheet",
+            "OWASP Session Management Cheat Sheet",
+            "OWASP Forgot Password Cheat Sheet",
+            "OWASP Logging Cheat Sheet",
+            "T4 can implement a login/session prototype",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t3)
+
+        for pattern in (
+            "PASSWORD_HASH_POLICY",
+            "algorithm: \"argon2id\"",
+            "minimumMemoryKiB: 19456",
+            "minimumIterations: 2",
+            "parallelism: 1",
+            "pepperEnvName: \"PASSWORD_PEPPER\"",
+            "plaintextPasswordStorageAllowed: false",
+            "fastHashAlgorithmsAllowed: false",
+            "SESSION_COOKIE_CONTRACT",
+            "name: \"__Host-sqx_tester_session\"",
+            "httpOnly: true",
+            "secure: true",
+            "sameSite: \"strict\"",
+            "localStorageAllowed: false",
+            "RENEWAL_TOKEN_CONTRACT",
+            "oneUseOnly: true",
+            "storeOnlyHash: true",
+            "maxAgeHours: 24",
+            "AUDIT_EVENT_TYPES",
+            "\"login_failed\"",
+            "\"renewal_approved\"",
+            "\"tester_blocked\"",
+            "TESTER_AUTH_REQUIRED_TABLES",
+            "\"tester_audit_events\"",
+            "TesterAuthRecord",
+            "TesterSessionRecord",
+            "RenewalTokenRecord",
+            "TesterAuditEvent",
+            "isActiveTesterRecord",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, auth_contract)
+
+        combined_contract_text = t3 + "\n" + auth_contract
+        forbidden_patterns = [
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "plainTextPassword",
+        ]
+        for pattern in forbidden_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_contract_text)
+
+        self.assertIn("Current phase completed: T10l - Vercel Route Investigation.", governance)
+        self.assertIn("T10m - manual/API Vercel correction or alternative no-deploy route proof", governance)
+        self.assertIn("Current completed phase: T10l - Vercel Route Investigation.", next_steps)
+        self.assertIn("Phase T3: define tester auth data contract", next_steps)
+        self.assertIn("Phase T4: implement login/session prototype", next_steps)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
+        self.assertIn("password hashing Argon2id", readme)
+
+    def test_t4_login_session_prototype_is_documented_and_safe(self):
+        t4 = T4_LOGIN_SESSION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        login_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "login" / "page.tsx").read_text(encoding="utf-8-sig")
+        login_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "auth" / "login" / "route.ts").read_text(encoding="utf-8-sig")
+        logout_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "auth" / "logout" / "route.ts").read_text(encoding="utf-8-sig")
+        middleware = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").read_text(encoding="utf-8-sig")
+        session_prototype_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "session-prototype.ts"
+        session_prototype = session_prototype_path.read_text(encoding="utf-8-sig")
+
+        for rel_path in (
+            "src/app/login/page.tsx",
+            "src/app/api/auth/login/route.ts",
+            "src/app/api/auth/logout/route.ts",
+            "src/lib/session-prototype.ts",
+        ):
+            with self.subTest(rel_path=rel_path):
+                self.assertTrue((TESTER_PORTAL_TEMPLATE_ROOT / rel_path).is_file(), rel_path)
+
+        for pattern in (
+            "T4 Login Session Prototype",
+            "disabled-by-default demo flow",
+            "does not deploy Vercel",
+            "does not deploy Vercel, create tester accounts",
+            "`src/app/api/auth/login/route.ts`",
+            "`src/app/api/auth/logout/route.ts`",
+            "`src/lib/session-prototype.ts`",
+            "T4_DEMO_LOGIN_ENABLED=\"false\"",
+            "cookie name: `__Host-sqx_tester_session`",
+            "HttpOnly = true",
+            "Secure = true",
+            "SameSite = Strict",
+            "Blocked requests redirect to `/login?next=<path>`",
+            "T5 should add `tester_pro` entitlement gates",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t4)
+
+        for pattern in (
+            "DEMO_LOGIN_FLAG = \"T4_DEMO_LOGIN_ENABLED\"",
+            "DEMO_TESTER_EMAIL_ENV = \"T4_DEMO_TESTER_EMAIL\"",
+            "DEMO_ACCESS_CODE_ENV = \"T4_DEMO_ACCESS_CODE\"",
+            "isDemoLoginEnabled",
+            "process.env[DEMO_LOGIN_FLAG] === \"true\"",
+            "PROTECTED_PREFIXES = [\"/portal\", \"/admin\", \"/api/tester\", \"/api/admin\"]",
+            "SESSION_COOKIE_CONTRACT.name",
+            "httpOnly: SESSION_COOKIE_CONTRACT.httpOnly",
+            "secure: SESSION_COOKIE_CONTRACT.secure",
+            "sameSite: SESSION_COOKIE_CONTRACT.sameSite",
+            "path: SESSION_COOKIE_CONTRACT.path",
+            "maxAge: SESSION_COOKIE_CONTRACT.maxAgeMinutes * 60",
+            "crypto.randomUUID()",
+            "demo_login_disabled",
+            "invalid_demo_credential",
+            "sanitizeRedirectTarget",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, session_prototype)
+
+        for pattern in (
+            "action=\"/api/auth/login\"",
+            "method=\"post\"",
+            "name=\"email\"",
+            "name=\"accessCode\"",
+            "autoComplete=\"one-time-code\"",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, login_page)
+
+        self.assertIn("evaluatePrototypeLogin", login_route)
+        self.assertIn("applySessionCookie", login_route)
+        self.assertIn("NextResponse.redirect", login_route)
+        self.assertIn("clearSessionCookie", logout_route)
+        self.assertIn("buildLoginUrl", middleware)
+        self.assertIn("hasPrototypeSession", middleware)
+        self.assertIn("isProtectedPath", middleware)
+        self.assertNotIn("new URL(\"/expired\"", middleware)
+
+        combined_template_text = "\n".join(
+            path.read_text(encoding="utf-8-sig")
+            for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
+            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+        )
+        forbidden_patterns = [
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "localStorage.setItem",
+            "sessionStorage.setItem",
+        ]
+        for pattern in forbidden_patterns:
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_template_text)
+
+        self.assertIn("Current phase completed: T10l - Vercel Route Investigation.", governance)
+        self.assertIn("T10m - manual/API Vercel correction or alternative no-deploy route proof", governance)
+        self.assertIn("Current completed phase: T10l - Vercel Route Investigation.", next_steps)
+        self.assertIn("Phase T4: implement login/session prototype", next_steps)
+        self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
+
+    def test_t5_tester_pro_entitlement_gates_are_documented_and_safe(self):
+        t5 = T5_TESTER_PRO_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        entitlement_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "entitlement-gates.ts"
+        entitlement_gates = entitlement_path.read_text(encoding="utf-8-sig")
+        features_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "tester" / "features" / "route.ts").read_text(encoding="utf-8-sig")
+        portal_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "portal" / "page.tsx").read_text(encoding="utf-8-sig")
+        env_example = (TESTER_PORTAL_TEMPLATE_ROOT / ".env.example").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(entitlement_path.is_file())
+        self.assertTrue((TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "tester" / "features" / "route.ts").is_file())
+
+        for pattern in (
+            "T5 Tester Pro Entitlement Gates",
+            "server-side entitlement checks",
+            "`src/lib/entitlement-gates.ts`",
+            "`src/app/api/tester/features/route.ts`",
+            "`sqx_dashboard_full`",
+            "`strategy_builder`",
+            "`project_generator`",
+            "`views_creator`",
+            "`buyer_handoff_exports`",
+            "`support_case_bundle`",
+            "T5_DEMO_TESTER_PRO_ENABLED=\"false\"",
+            "`missing_session` with HTTP `401`",
+            "`demo_entitlement_disabled` with HTTP `403`",
+            "UI visibility is informational only.",
+            "T6 should add 15-day expiry",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t5)
+
+        for pattern in (
+            "TESTER_PRO_FEATURES",
+            "\"sqx_dashboard_full\"",
+            "\"strategy_builder\"",
+            "\"project_generator\"",
+            "\"views_creator\"",
+            "\"buyer_handoff_exports\"",
+            "\"support_case_bundle\"",
+            "DEMO_ENTITLEMENT_FLAG = \"T5_DEMO_TESTER_PRO_ENABLED\"",
+            "isDemoTesterProEnabled",
+            "hasPrototypeSession",
+            "canAccessTesterPro",
+            "missing_session",
+            "demo_entitlement_disabled",
+            "tester_pro_inactive",
+            "status: \"active\"",
+            "plan: \"tester_pro\"",
+            "expiresAt",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, entitlement_gates)
+
+        self.assertIn("evaluateTesterProGate", features_route)
+        self.assertIn("NextResponse.json", features_route)
+        self.assertIn("reasonCode: gate.reasonCode", features_route)
+        self.assertIn("features: gate.features", features_route)
+        self.assertIn("TESTER_PRO_FEATURES", portal_page)
+        self.assertIn("/api/tester/features", portal_page)
+        self.assertIn("T5_DEMO_TESTER_PRO_ENABLED=\"false\"", env_example)
+
+        combined_template_text = "\n".join(
+            path.read_text(encoding="utf-8-sig")
+            for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
+            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+        )
+        for pattern in (
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "localStorage.setItem",
+            "sessionStorage.setItem",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_template_text)
+
+        self.assertIn("Current phase completed: T10l - Vercel Route Investigation.", governance)
+        self.assertIn("T10m - manual/API Vercel correction or alternative no-deploy route proof", governance)
+        self.assertIn("Current completed phase: T10l - Vercel Route Investigation.", next_steps)
+        self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
+        self.assertIn("Phase T6: add 15-day expiry", next_steps)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
+
+    def test_t6_15_day_expiry_renewal_flow_is_documented_and_safe(self):
+        t6 = T6_RENEWAL_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        env_example = (TESTER_PORTAL_TEMPLATE_ROOT / ".env.example").read_text(encoding="utf-8-sig")
+        renewal_flow_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "renewal-flow.ts"
+        renewal_flow = renewal_flow_path.read_text(encoding="utf-8-sig")
+        renewal_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "tester" / "renewal" / "route.ts").read_text(encoding="utf-8-sig")
+        renewal_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "renewal" / "page.tsx").read_text(encoding="utf-8-sig")
+        portal_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "portal" / "page.tsx").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(renewal_flow_path.is_file())
+        self.assertTrue((TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "tester" / "renewal" / "route.ts").is_file())
+
+        for pattern in (
+            "T6 15-Day Expiry Renewal Flow",
+            "15 days",
+            "manual approve/deny flow",
+            "`src/lib/renewal-flow.ts`",
+            "`src/app/api/tester/renewal/route.ts`",
+            "`pending_renewal`",
+            "`expired`",
+            "`denied`",
+            "`blocked`",
+            "`approve_15_days`",
+            "`deny`",
+            "`block`",
+            "`mode = manual-preview`",
+            "`noMutation = true`",
+            "`persistence = not_applied_in_template`",
+            "No automatic renewal.",
+            "No renewal email is sent.",
+            "T7 should add an admin tester console",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t6)
+
+        for pattern in (
+            "DEMO_RENEWAL_STATE_ENV = \"T6_DEMO_RENEWAL_STATE\"",
+            "RENEWAL_STATES",
+            "\"pending_renewal\"",
+            "\"expired\"",
+            "\"denied\"",
+            "\"blocked\"",
+            "MANUAL_RENEWAL_DECISIONS",
+            "\"approve_15_days\"",
+            "addRenewalDays",
+            "TESTER_RENEWAL_CYCLE_DAYS",
+            "readDemoRenewalState",
+            "buildDemoRenewalEntitlement",
+            "classifyRenewalState",
+            "evaluateRenewalGate",
+            "buildRenewalDecisionPreview",
+            "renewal_pending_operator_approval",
+            "tester_expired",
+            "renewal_denied",
+            "tester_blocked",
+            "manual-preview",
+            "not_applied_in_template",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, renewal_flow)
+
+        for pattern in (
+            "hasPrototypeSession",
+            "missing_session",
+            "unsupported_decision",
+            "GET(request: NextRequest)",
+            "POST(request: NextRequest)",
+            "buildRenewalDecisionPreview",
+            "manual-review-only",
+            "manual-preview",
+            "noMutation: true",
+            "operatorActionRequired",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, renewal_route)
+
+        for pattern in (
+            "TESTER_RENEWAL_CYCLE_DAYS",
+            "MANUAL_RENEWAL_DECISIONS",
+            "action=\"/api/tester/renewal\"",
+            "method=\"post\"",
+            "name=\"decision\"",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, renewal_page)
+
+        self.assertIn("/renewal", portal_page)
+        self.assertIn("MANUAL_RENEWAL_DECISIONS", portal_page)
+        self.assertIn("T6_DEMO_RENEWAL_STATE=\"pending_renewal\"", env_example)
+        self.assertIn("T6_DEMO_RENEWAL_STATE", template_readme)
+        self.assertIn("src/lib/renewal-flow.ts", template_readme)
+        self.assertIn("src/app/api/tester/renewal/route.ts", template_readme)
+        self.assertIn("T10i must correct or replace the Vercel preview deployment route before another deployment attempt.", template_readme)
+
+        combined_template_text = "\n".join(
+            path.read_text(encoding="utf-8-sig")
+            for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
+            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+        )
+        for pattern in (
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "localStorage.setItem",
+            "sessionStorage.setItem",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_template_text)
+
+        self.assertIn("Current phase completed: T10l - Vercel Route Investigation.", governance)
+        self.assertIn("T10m - manual/API Vercel correction or alternative no-deploy route proof", governance)
+        self.assertIn("docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md", governance)
+        self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
+        self.assertIn("Current completed phase: T10l - Vercel Route Investigation.", next_steps)
+        self.assertIn("Phase T6: add 15-day expiry", next_steps)
+        self.assertIn("Phase T7: add admin tester console", next_steps)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
+        self.assertIn("T10j para ejecutar una unica preview CLI default", readme)
+
+    def test_t7_admin_tester_console_is_documented_and_safe(self):
+        t7 = T7_ADMIN_CONSOLE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        env_example = (TESTER_PORTAL_TEMPLATE_ROOT / ".env.example").read_text(encoding="utf-8-sig")
+        admin_console_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "admin-console.ts"
+        admin_console = admin_console_path.read_text(encoding="utf-8-sig")
+        admin_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "admin" / "testers" / "route.ts").read_text(encoding="utf-8-sig")
+        admin_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "admin" / "testers" / "page.tsx").read_text(encoding="utf-8-sig")
+        session_prototype = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "session-prototype.ts").read_text(encoding="utf-8-sig")
+        portal_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "portal" / "page.tsx").read_text(encoding="utf-8-sig")
+        css = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "globals.css").read_text(encoding="utf-8-sig")
+
+        for rel_path in (
+            "src/lib/admin-console.ts",
+            "src/app/api/admin/testers/route.ts",
+            "src/app/admin/testers/page.tsx",
+        ):
+            with self.subTest(rel_path=rel_path):
+                self.assertTrue((TESTER_PORTAL_TEMPLATE_ROOT / rel_path).is_file(), rel_path)
+
+        for pattern in (
+            "T7 Admin Tester Console",
+            "protected admin tester console",
+            "`src/lib/admin-console.ts`",
+            "`src/app/api/admin/testers/route.ts`",
+            "`src/app/admin/testers/page.tsx`",
+            "`create_tester`",
+            "`renew_15_days`",
+            "`deny_tester`",
+            "`block_tester`",
+            "`mode = operator-preview`",
+            "`noMutation = true`",
+            "`persistence = not_applied_in_template`",
+            "T7_DEMO_ADMIN_CONSOLE_ENABLED=\"false\"",
+            "`missing_session` with HTTP `401`",
+            "`demo_admin_console_disabled` with HTTP `403`",
+            "`unsupported_admin_action` with HTTP `400`",
+            "No tester account is created.",
+            "No renewal email is sent.",
+            "`/api/admin` is protected",
+            "T8 should harden rate limiting",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t7)
+
+        for pattern in (
+            "DEMO_ADMIN_CONSOLE_FLAG = \"T7_DEMO_ADMIN_CONSOLE_ENABLED\"",
+            "ADMIN_TESTER_ACTIONS",
+            "\"create_tester\"",
+            "\"renew_15_days\"",
+            "\"deny_tester\"",
+            "\"block_tester\"",
+            "isDemoAdminConsoleEnabled",
+            "isAdminTesterAction",
+            "buildDemoAdminTesterRows",
+            "active.tester@example.invalid",
+            "renewal.tester@example.invalid",
+            "blocked.tester@example.invalid",
+            "buildAdminActionPreview",
+            "operator-preview",
+            "tester_invited",
+            "renewal_approved",
+            "renewal_denied",
+            "tester_blocked",
+            "not_applied_in_template",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, admin_console)
+
+        for pattern in (
+            "hasPrototypeSession",
+            "isDemoAdminConsoleEnabled",
+            "missing_session",
+            "demo_admin_console_disabled",
+            "unsupported_admin_action",
+            "GET(request: NextRequest)",
+            "POST(request: NextRequest)",
+            "buildAdminActionPreview",
+            "noMutation: true",
+            "operatorActionRequired",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, admin_route)
+
+        for pattern in (
+            "Admin tester console",
+            "ADMIN_TESTER_ACTIONS",
+            "buildDemoAdminTesterRows",
+            "action=\"/api/admin/testers\"",
+            "name=\"action\"",
+            "name=\"testerId\"",
+            "lastAuditEvent",
+            "riskNote",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, admin_page)
+
+        self.assertIn("\"/api/admin\"", session_prototype)
+        self.assertIn("/admin/testers", portal_page)
+        self.assertIn(".admin-table", css)
+        self.assertIn(".status-blocked", css)
+        self.assertIn("T7_DEMO_ADMIN_CONSOLE_ENABLED=\"false\"", env_example)
+        self.assertIn("T7_DEMO_ADMIN_CONSOLE_ENABLED", template_readme)
+        self.assertIn("src/lib/admin-console.ts", template_readme)
+        self.assertIn("src/app/api/admin/testers/route.ts", template_readme)
+        self.assertIn("src/app/admin/testers/page.tsx", template_readme)
+
+        combined_template_text = "\n".join(
+            path.read_text(encoding="utf-8-sig")
+            for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
+            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+        )
+        for pattern in (
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "localStorage.setItem",
+            "sessionStorage.setItem",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_template_text)
+
+        self.assertIn("Current phase completed: T10l - Vercel Route Investigation.", governance)
+        self.assertIn("T10m - manual/API Vercel correction or alternative no-deploy route proof", governance)
+        self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
+        self.assertIn("Current completed phase: T10l - Vercel Route Investigation.", next_steps)
+        self.assertIn("Phase T7: add admin tester console", next_steps)
+        self.assertIn("Phase T8: harden rate limiting", next_steps)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
+        self.assertIn("T10j para ejecutar una unica preview CLI default", readme)
+
+    def test_t8_tester_portal_security_hardening_is_documented_and_safe(self):
+        t8 = T8_SECURITY_HARDENING_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        env_example = (TESTER_PORTAL_TEMPLATE_ROOT / ".env.example").read_text(encoding="utf-8-sig")
+        security_hardening_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "security-hardening.ts"
+        deployment_protection_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "deployment-protection.ts"
+        security_hardening = security_hardening_path.read_text(encoding="utf-8-sig")
+        deployment_protection = deployment_protection_path.read_text(encoding="utf-8-sig")
+        middleware = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").read_text(encoding="utf-8-sig")
+        security_headers = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "security-headers.ts").read_text(encoding="utf-8-sig")
+        health_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "health" / "route.ts").read_text(encoding="utf-8-sig")
+        portal_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "portal" / "page.tsx").read_text(encoding="utf-8-sig")
+
+        for rel_path in (
+            "src/lib/security-hardening.ts",
+            "src/lib/deployment-protection.ts",
+        ):
+            with self.subTest(rel_path=rel_path):
+                self.assertTrue((TESTER_PORTAL_TEMPLATE_ROOT / rel_path).is_file(), rel_path)
+
+        for pattern in (
+            "T8 Tester Portal Security Hardening",
+            "rate-limit contracts",
+            "stronger security headers",
+            "visible tester watermark",
+            "global kill switch",
+            "`src/lib/security-hardening.ts`",
+            "`src/lib/deployment-protection.ts`",
+            "`T8_GLOBAL_KILL_SWITCH_ENABLED=\"false\"`",
+            "`T8_RATE_LIMIT_ENABLED=\"false\"`",
+            "`T8_RATE_LIMIT_MAX_REQUESTS=\"30\"`",
+            "`T8_RATE_LIMIT_WINDOW_SECONDS=\"60\"`",
+            "`X-RateLimit-Limit`",
+            "`X-RateLimit-Remaining`",
+            "`X-RateLimit-Reset`",
+            "`Strict-Transport-Security = max-age=31536000; includeSubDomains; preload`",
+            "`Cross-Origin-Opener-Policy = same-origin`",
+            "`Cross-Origin-Resource-Policy = same-origin`",
+            "`DEPLOYMENT_PROTECTION_CHECKLIST`",
+            "No Vercel deployment.",
+            "T9 can prepare a Vercel preview staging run",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t8)
+
+        for pattern in (
+            "HARDENING_ENV",
+            "globalKillSwitch: \"T8_GLOBAL_KILL_SWITCH_ENABLED\"",
+            "rateLimitEnabled: \"T8_RATE_LIMIT_ENABLED\"",
+            "rateLimitMaxRequests: \"T8_RATE_LIMIT_MAX_REQUESTS\"",
+            "rateLimitWindowSeconds: \"T8_RATE_LIMIT_WINDOW_SECONDS\"",
+            "RATE_LIMIT_BUCKETS",
+            "isGlobalKillSwitchEnabled",
+            "isRateLimitEnabled",
+            "readRateLimitMaxRequests",
+            "readRateLimitWindowSeconds",
+            "isKillSwitchExemptPath",
+            "buildRateLimitKey",
+            "evaluateRateLimit",
+            "rate_limit_exceeded",
+            "buildVisibleWatermark",
+            "buildDemoVisibleWatermark",
+            "demo-tester-local-only",
+            "tester@example.invalid",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, security_hardening)
+
+        for pattern in (
+            "DEPLOYMENT_PROTECTION_CHECKLIST",
+            "Vercel Deployment Protection enabled",
+            "tester auth enabled before sharing any URL",
+            "T8_GLOBAL_KILL_SWITCH_ENABLED tested before pilot",
+            "T8_RATE_LIMIT_ENABLED tested before pilot",
+            "no public indexing",
+            "no tester invites or renewal emails",
+            "no production database secrets committed",
+            "watermark visible",
+            "externalActionAllowed: false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, deployment_protection)
+
+        for pattern in (
+            "isGlobalKillSwitchEnabled",
+            "isKillSwitchExemptPath",
+            "global_kill_switch_enabled",
+            "evaluateRateLimit",
+            "buildRateLimitKey",
+            "rate_limit_exceeded",
+            "Retry-After",
+            "X-RateLimit-Limit",
+            "X-RateLimit-Remaining",
+            "X-RateLimit-Reset",
+            "applySecurityHeaders",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, middleware)
+
+        for pattern in (
+            "Strict-Transport-Security",
+            "Cross-Origin-Opener-Policy",
+            "Cross-Origin-Resource-Policy",
+            "form-action 'self'",
+            "object-src 'none'",
+            "frame-ancestors 'none'",
+            "X-Robots-Tag",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, security_headers)
+
+        for pattern in (
+            "phase: \"T8\"",
+            "containsTesterData: false",
+            "hardening",
+            "globalKillSwitchEnabled",
+            "rateLimitEnabled",
+            "deploymentProtection",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, health_route)
+
+        for pattern in (
+            "buildDemoVisibleWatermark",
+            "buildDeploymentProtectionSummary",
+            "watermark",
+            "Hardening",
+            "deployment-protection checks required before preview",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, portal_page)
+
+        for pattern in (
+            "T8_GLOBAL_KILL_SWITCH_ENABLED=\"false\"",
+            "T8_RATE_LIMIT_ENABLED=\"false\"",
+            "T8_RATE_LIMIT_MAX_REQUESTS=\"30\"",
+            "T8_RATE_LIMIT_WINDOW_SECONDS=\"60\"",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, env_example)
+
+        self.assertIn("src/lib/security-hardening.ts", template_readme)
+        self.assertIn("src/lib/deployment-protection.ts", template_readme)
+        self.assertIn("T10i must correct or replace the Vercel preview deployment route before another deployment attempt.", template_readme)
+
+        combined_template_text = "\n".join(
+            path.read_text(encoding="utf-8-sig")
+            for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
+            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+        )
+        for pattern in (
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "localStorage.setItem",
+            "sessionStorage.setItem",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_template_text)
+
+        self.assertIn("Current phase completed: T10l - Vercel Route Investigation.", governance)
+        self.assertIn("T10m - manual/API Vercel correction or alternative no-deploy route proof", governance)
+        self.assertIn("docs/T8_TESTER_PORTAL_SECURITY_HARDENING.md", governance)
+        self.assertIn("Current completed phase: T10l - Vercel Route Investigation.", next_steps)
+        self.assertIn("Phase T8: harden rate limiting", next_steps)
+        self.assertIn("Phase T9: run Vercel preview staging", next_steps)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
+        self.assertIn("T10j para ejecutar una unica preview CLI default", readme)
+
+    def test_t9_protected_vercel_preview_preflight_is_documented_and_safe(self):
+        t9 = T9_VERCEL_PREFLIGHT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        preflight_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-preview-preflight.mjs"
+        preflight = preflight_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(preflight_path.is_file())
+        self.assertEqual(package["scripts"]["preflight:vercel-preview"], "node scripts/vercel-preview-preflight.mjs")
+
+        for pattern in (
+            "T9 Protected Vercel Preview Preflight",
+            "NO_GO_AUTH_BLOCKED",
+            "The specified token is not valid",
+            "Preview URL: not created",
+            "Tester invites: not sent",
+            "Renewal emails: not sent",
+            "Real tester emails: not used",
+            "templates/SQX_Edge_Tester_Portal/scripts/vercel-preview-preflight.mjs",
+            "npm run preflight:vercel-preview",
+            "npx vercel deploy --target=preview",
+            "T9b should authenticate Vercel",
+            "No preview URL is committed.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t9)
+
+        for pattern in (
+            "protected-preview-preflight",
+            "T4_DEMO_LOGIN_ENABLED=\"false\"",
+            "T5_DEMO_TESTER_PRO_ENABLED=\"false\"",
+            "T7_DEMO_ADMIN_CONSOLE_ENABLED=\"false\"",
+            "T8_GLOBAL_KILL_SWITCH_ENABLED=\"false\"",
+            "T8_RATE_LIMIT_ENABLED=\"false\"",
+            "DEPLOYMENT_PROTECTION_CHECKLIST",
+            "Vercel Deployment Protection enabled",
+            "global_kill_switch_enabled",
+            "rate_limit_exceeded",
+            "X-RateLimit-Limit",
+            "vercel.json must keep framework=nextjs",
+            ".vercel/project.json is local machine state",
+            "recommendedDeployCommand",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, preflight)
+
+        self.assertIn("scripts/vercel-preview-preflight.mjs", template_readme)
+        self.assertIn("npm run preflight:vercel-preview", template_readme)
+        self.assertIn("T10i must correct or replace the Vercel preview deployment route before another deployment attempt.", template_readme)
+
+        combined_t9_text = t9 + "\n" + preflight + "\n" + template_readme
+        for pattern in (
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "https://",
+            ".vercel.app",
+            "@gmail.com",
+            "@hotmail.com",
+            "@outlook.com",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t9_text)
+
+        self.assertIn("Current phase completed: T10l - Vercel Route Investigation.", governance)
+        self.assertIn("T10m - manual/API Vercel correction or alternative no-deploy route proof", governance)
+        self.assertIn("docs/T9_PROTECTED_VERCEL_PREVIEW_PREFLIGHT.md", governance)
+        self.assertIn("docs/T9B_VERCEL_PREVIEW_DEPLOY_ROLLBACK.md", governance)
+        self.assertIn("Current completed phase: T10l - Vercel Route Investigation.", next_steps)
+        self.assertIn("Phase T9: run Vercel preview staging", next_steps)
+        self.assertIn("Phase T9b: authenticate Vercel", next_steps)
+        self.assertIn("Phase T9c: verify Vercel Deployment Protection", next_steps)
+        self.assertIn("T9c anade `audit:vercel-protection`", readme)
+        self.assertIn("T10j para ejecutar una unica preview CLI default", readme)
+
+    def test_t9b_vercel_preview_deploy_rollback_is_documented_and_safe(self):
+        t9b = T9B_VERCEL_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        preflight = (TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-preview-preflight.mjs").read_text(encoding="utf-8-sig")
+        gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "T9b Vercel Preview Deploy Rollback",
+            "target = production",
+            "production aliases",
+            "deployment was no longer inspectable",
+            "public alias returned `404`",
+            "Project exists: `sqx-edge-tester-portal`",
+            "Active deployment: none",
+            "Latest production URL: none",
+            "Real tester emails: not committed.",
+            "Public preview/prod URL in git: none.",
+            "Do not commit raw emails.",
+            "T9c should verify Deployment Protection",
+            "No tester invite or email send",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t9b)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T9B_VERCEL_PREVIEW_DEPLOY_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T9b: authenticate Vercel, verify Deployment Protection and execute protected preview deploy. Attempted; rolled back because CLI created production aliases",
+            "Phase T9c: verify Vercel Deployment Protection before retrying preview deploy.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T9c anade `audit:vercel-protection`",
+            "T9b autentico Vercel, intento deploy y lo elimino al detectar alias de produccion",
+            "T10j para ejecutar una unica preview CLI default",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        self.assertIn("T9b Vercel Preview Deploy Rollback", changelog)
+        self.assertIn("commits no tester emails", changelog)
+        self.assertIn(".vercel/", gitignore)
+        self.assertIn(".vercel", gitignore)
+
+        for pattern in (
+            ".vercel/project.json is local machine state",
+            "gitignore.includes(\".vercel\")",
+            "phase: \"T9b\"",
+            "preview command verified not to alias production",
+            "manual dashboard/API preview after Deployment Protection verification",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, preflight)
+
+        combined_t9b_text = "\n".join([t9b, governance, next_steps, readme, changelog, preflight])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t9b_text)
+
+    def test_t9c_vercel_deployment_protection_gate_is_documented_and_safe(self):
+        t9c = T9C_VERCEL_PROTECTION_GATE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        audit_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-protection-audit.mjs"
+        audit = audit_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(audit_path.is_file())
+        self.assertEqual(package["scripts"]["audit:vercel-protection"], "node scripts/vercel-protection-audit.mjs")
+
+        for pattern in (
+            "T9c Vercel Deployment Protection Gate",
+            "does not deploy, publish a URL, invite testers, send emails",
+            "Project name: `sqx-edge-tester-portal`",
+            "Live deployment: false",
+            "Latest deployment: none",
+            "Domains: none",
+            "Deployment Protection verdict: `NO_GO_PROTECTION_NOT_VERIFIED`",
+            "External deploy allowed: false",
+            "Standard Protection protects generated deployment URLs and previews",
+            "All Deployments protects every URL",
+            "Vercel Authentication can be managed on the project with `ssoProtection.deploymentType`",
+            "Password Protection can be managed on the project with `passwordProtection.deploymentType`",
+            "`audit:vercel-protection` exists and returns a safe NO-GO without `VERCEL_TOKEN`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t9c)
+
+        for pattern in (
+            "NO_GO_PROJECT_NOT_LINKED",
+            "NO_GO_PROTECTION_NOT_VERIFIED",
+            "GO_PROTECTION_VERIFIED",
+            "VERCEL_TOKEN",
+            "ssoProtection",
+            "passwordProtection",
+            "prod_deployment_urls_and_all_previews",
+            "externalDeployAllowed: protectionVerified",
+            "process.exit(protectionVerified ? 0 : 4)",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, audit)
+
+        for pattern in (
+            "scripts/vercel-protection-audit.mjs",
+            "npm run audit:vercel-protection",
+            "T10i must correct or replace the Vercel preview deployment route before another deployment attempt.",
+            "GO_PROTECTION_VERIFIED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T9C_VERCEL_DEPLOYMENT_PROTECTION_GATE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T9c: verify Vercel Deployment Protection before retrying preview deploy. Done as safe NO-GO gate",
+            "Phase T9d: enable or verify Vercel Authentication/Password Protection privately",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T9e reintento preview con proteccion activa",
+            "T10j para ejecutar una unica preview CLI default",
+            "T9c anade `audit:vercel-protection`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        self.assertIn("T9c Vercel Deployment Protection Gate", changelog)
+        self.assertIn("NO_GO_PROTECTION_NOT_VERIFIED", changelog)
+
+        combined_t9c_text = "\n".join([t9c, governance, next_steps, readme, changelog, template_readme, audit])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t9c_text)
+
+    def test_t9d_vercel_auth_protection_is_documented_and_safe(self):
+        t9d = T9D_VERCEL_AUTH_PROTECTION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "T9d Vercel Authentication Protection Verified",
+            "does not deploy, publish a URL, invite testers",
+            "ssoProtection.deploymentType = prod_deployment_urls_and_all_previews",
+            "Vercel Authentication with Standard Protection",
+            "No token value was printed, committed or stored in the repository.",
+            "status = GO_PROTECTION_VERIFIED",
+            "ssoProtectionEnabled = true",
+            "ssoDeploymentType = prod_deployment_urls_and_all_previews",
+            "latestDeployment = none",
+            "domains = 0",
+            "externalDeployAllowed = true",
+            "No deploy was executed in T9d.",
+            "T9e should perform a preview-only deploy retry with strict inspection",
+            "rollback immediately if Vercel reports production target or production aliases",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t9d)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T9D_VERCEL_AUTH_PROTECTION_VERIFIED.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T9d: enable or verify Vercel Authentication/Password Protection privately, then retry preview only after `GO_PROTECTION_VERIFIED`. Done",
+            "Phase T9e: retry preview-only deploy with target and alias inspection",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T9e reintento preview con proteccion activa",
+            "T10j para ejecutar una unica preview CLI default",
+            "T9d activa/verifica Vercel Authentication Standard Protection",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "After T9d, the expected result is `GO_PROTECTION_VERIFIED`",
+            "T10i must correct or replace the Vercel preview deployment route before another deployment attempt.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        self.assertIn("T9d Vercel Authentication Protection Verified", changelog)
+        self.assertIn("GO_PROTECTION_VERIFIED", changelog)
+
+        combined_t9d_text = "\n".join([t9d, governance, next_steps, readme, changelog, template_readme])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t9d_text)
+
+    def test_t9e_protected_preview_deploy_rollback_is_documented_and_safe(self):
+        t9e = T9E_PROTECTED_PREVIEW_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "T9e Protected Preview Deploy Rollback",
+            "T9e retries a protected preview deploy",
+            "npm run preflight:vercel-preview` returned OK",
+            "npm run audit:vercel-protection` returned `GO_PROTECTION_VERIFIED`",
+            "The command was run without `--prod`",
+            "target = production",
+            "production alias created = true",
+            "Deployment is no longer inspectable.",
+            "Project list shows latest production URL: none.",
+            "Public alias check returned `404`.",
+            "successful safety rollback",
+            "local CLI deploys are not safe enough for tester rollout",
+            "The next attempt must not use the same local CLI deploy path",
+            "T9f should prepare a preview-only deployment path",
+            "Git/PR-based preview or API deployment proof",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t9e)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T9E_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T9e: retry preview-only deploy with target and alias inspection before sharing any URL; rollback immediately if target or aliases are production. Attempted and rolled back",
+            "Phase T9f: prepare Git/PR-based preview or API deployment proof",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T9e reintento preview con proteccion activa",
+            "T10j para ejecutar una unica preview CLI default",
+            "T9e reintenta deploy sin `--prod`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        self.assertIn("T9e Protected Preview Deploy Rollback", changelog)
+        self.assertIn("T9f as the safer path", changelog)
+        self.assertIn("T10i must correct or replace the Vercel preview deployment route before another deployment attempt.", template_readme)
+
+        combined_t9e_text = "\n".join([t9e, governance, next_steps, readme, changelog, template_readme])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t9e_text)
+
+    def test_t9f_preview_path_proof_is_documented_and_safe(self):
+        t9f = T9F_PREVIEW_PATH_PROOF_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_script = (TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-preview-path-proof.mjs").read_text(encoding="utf-8-sig")
+
+        self.assertEqual(
+            package["scripts"]["proof:vercel-preview-path"],
+            "node scripts/vercel-preview-path-proof.mjs",
+        )
+
+        for pattern in (
+            "T9f Preview Path Proof Gate",
+            "does not deploy",
+            "does not create repositories",
+            "does not invite testers",
+            "does not send emails",
+            "does not publish or commit any Vercel URL",
+            "NO_GO_GIT_PREVIEW_NOT_CONFIGURED",
+            "GO_GIT_PREVIEW_PATH_READY",
+            "T9g should connect or prepare a private Git preview source",
+            "Contributor access is not required for local work right now",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t9f)
+
+        for pattern in (
+            "T9F_PREVIEW_BRANCH",
+            "tester-preview",
+            "reservedBranches",
+            "NO_GO_PROJECT_NOT_LINKED",
+            "NO_GO_TOKEN_NOT_AVAILABLE",
+            "NO_GO_PREVIEW_BRANCH_RESERVED",
+            "NO_GO_API_PROJECT_AUDIT_FAILED",
+            "NO_GO_PROTECTION_NOT_VERIFIED",
+            "NO_GO_GIT_PREVIEW_NOT_CONFIGURED",
+            "NO_GO_PREVIEW_BRANCH_MATCHES_PRODUCTION",
+            "GO_GIT_PREVIEW_PATH_READY",
+            "externalDeployAttempted: false",
+            "git.linked",
+            "project.link",
+            "source: gitRepository ?",
+            "previewBranchIsProduction",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof_script)
+
+        for forbidden in (
+            "vercel deploy",
+            "--prod",
+            "process.env.VERCEL_TOKEN)",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, proof_script)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T9F_PREVIEW_PATH_PROOF.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T9f: prepare Git/PR-based preview or API deployment proof that cannot auto-alias production before any URL is shared. Done",
+            "Phase T9g: connect private Git/PR preview source before any tester URL is shared",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10j para ejecutar una unica preview CLI default",
+            "T9f anade `proof:vercel-preview-path`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T9f Preview Path Proof Gate",
+            "proof:vercel-preview-path",
+            "T9g as the next safe step",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-preview-path-proof.mjs",
+            "npm run proof:vercel-preview-path",
+            "GO_GIT_PREVIEW_PATH_READY",
+            "NO_GO_GIT_PREVIEW_NOT_CONFIGURED",
+            "T10i must correct or replace the Vercel preview deployment route before another deployment attempt.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t9f_text = "\n".join([
+            t9f,
+            governance,
+            next_steps,
+            readme,
+            changelog,
+            template_readme,
+            proof_script,
+        ])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t9f_text)
+
+    def test_t9g_private_git_preview_source_is_documented_and_safe(self):
+        t9g = T9G_PRIVATE_GIT_PREVIEW_SOURCE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        proof_script = (TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-preview-path-proof.mjs").read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "T9g Private Git Preview Source",
+            "private GitHub repository `CryptoLeon78/SQX_Edge_Tester_Portal`",
+            "Pushed `main` and `tester-preview` before connecting Vercel",
+            "No manual Vercel deploy command was run.",
+            "GitHub repository privacy: private.",
+            "Preview branch prepared: `tester-preview`.",
+            "Vercel Git source: linked through the Vercel Project API `link` object.",
+            "Preview proof gate: `GO_GIT_PREVIEW_PATH_READY`.",
+            "Latest deployment after the connection: none.",
+            "No post-connect push was made to trigger an automatic Vercel deployment.",
+            "T10 should run one internal tester pilot before inviting external testers.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t9g)
+
+        for pattern in (
+            "const link = project.link ?? null",
+            "source: gitRepository ? \"gitRepository\" : link ? \"link\" : null",
+            "productionBranch",
+            "previewBranchIsProduction",
+            "GO_GIT_PREVIEW_PATH_READY",
+            "externalDeployAttempted: false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof_script)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T9G_PRIVATE_GIT_PREVIEW_SOURCE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T9g: connect private Git/PR preview source before any tester URL is shared. Done",
+            "Phase T10: run one internal tester pilot before inviting external testers.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10j para ejecutar una unica preview CLI default",
+            "T9g crea el repo privado `SQX_Edge_Tester_Portal`",
+            "GO_GIT_PREVIEW_PATH_READY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T9g Private Git Preview Source",
+            "Vercel Project API `link` connections",
+            "GO_GIT_PREVIEW_PATH_READY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "The proof accepts Vercel Project API Git connections exposed either as `gitRepository` or as `link`.",
+            "T10i must correct or replace the Vercel preview deployment route before another deployment attempt.",
+            "T10 proved that a Git deployment from `tester-preview` can still report `target=production`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t9g_text = "\n".join([
+            t9g,
+            governance,
+            next_steps,
+            readme,
+            changelog,
+            template_readme,
+            proof_script,
+        ])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t9g_text)
+
+    def test_t10_internal_preview_rollback_is_documented_and_safe(self):
+        t10 = T10_INTERNAL_PREVIEW_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "T10 Internal Preview Target Rollback",
+            "safety rollback, not as a successful internal pilot",
+            "private-only marker commit",
+            "Pushed `tester-preview` to trigger the first Git-based Vercel deployment",
+            "Removed the deployment immediately after Vercel reported a production target",
+            "target = production",
+            "githubCommitRef = tester-preview",
+            "githubRepoVisibility = private",
+            "The deployment is no longer inspectable.",
+            "The Vercel project reports no latest deployment.",
+            "The Vercel project reports no domains.",
+            "The public project alias returns `404`.",
+            "T10b must fix the Vercel preview target mapping before any tester URL is shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T10_INTERNAL_PREVIEW_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T10: run one internal tester pilot before inviting external testers. Attempted and rolled back",
+            "Phase T10b: fix Vercel preview target mapping before any tester URL is shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10 intento preview interno desde `tester-preview`",
+            "T10j para ejecutar una unica preview CLI default",
+            "T10 dispara el primer piloto interno desde `tester-preview`",
+            "elimina el deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10 Internal Preview Target Rollback",
+            "Vercel reports `target = production`",
+            "no latest deployment, no domains",
+            "T10b as the next required step",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "T10i must correct or replace the Vercel preview deployment route before another deployment attempt.",
+            "T10 proved that a Git deployment from `tester-preview` can still report `target=production`",
+            "Do not create another deployment on the current project ID.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10_text = "\n".join([t10, governance, next_steps, readme, changelog, template_readme])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10_text)
+
+    def test_t10b_vercel_target_guard_is_documented_and_safe(self):
+        t10b = T10B_VERCEL_TARGET_GUARD_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        guard = (TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-target-guard.mjs").read_text(encoding="utf-8-sig")
+
+        self.assertEqual(package["scripts"]["prebuild"], "node scripts/vercel-target-guard.mjs")
+
+        for pattern in (
+            "T10b Vercel Target Guard",
+            "containment fix, not as a successful tester preview",
+            "Added `scripts/vercel-target-guard.mjs`",
+            "Added `prebuild` so Vercel runs the guard before `next build`",
+            "NO_GO_PRODUCTION_TARGET_FROM_NON_PRODUCTION_BRANCH",
+            "The guard exited with code `43`.",
+            "The deployment ended in `ERROR`, not `READY`.",
+            "The failed deployment was removed.",
+            "The project now reports no latest deployment.",
+            "The project now reports no domains.",
+            "T10c should resolve the underlying Vercel mapping",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10b)
+
+        for pattern in (
+            "VERCEL_ENV",
+            "VERCEL_GIT_COMMIT_REF",
+            "SQX_ALLOWED_PRODUCTION_BRANCHES",
+            "NO_GO_PRODUCTION_TARGET_FROM_NON_PRODUCTION_BRANCH",
+            "process.exit(43)",
+            "GO_TARGET_GUARD_PASSED",
+            "allowedProductionBranches",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, guard)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T10B_VERCEL_TARGET_GUARD.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T10b: fix Vercel preview target mapping before any tester URL is shared. Contained with a build-time guard",
+            "Phase T10c: correct Vercel Git/preview mapping or define an explicit API preview path before any tester URL is shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10c define una ruta API preview explicita sin desplegar",
+            "T10j para ejecutar una unica preview CLI default",
+            "T10b anade `vercel-target-guard.mjs` al `prebuild`",
+            "codigo 43",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10b Vercel Target Guard",
+            "NO_GO_PRODUCTION_TARGET_FROM_NON_PRODUCTION_BRANCH",
+            "no latest deployment, no domains and no shared URL",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-target-guard.mjs",
+            "T10b build-time guard",
+            "T10i must correct or replace the Vercel preview deployment route",
+            "`production/tester-preview` fails before publication",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10b_text = "\n".join([t10b, governance, next_steps, readme, changelog, template_readme, guard])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10b_text)
+
+    def test_t10c_explicit_api_preview_path_is_documented_and_safe(self):
+        t10c = T10C_EXPLICIT_API_PREVIEW_PATH_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof = (TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-explicit-preview-proof.mjs").read_text(encoding="utf-8-sig")
+
+        self.assertEqual(
+            package["scripts"]["proof:vercel-explicit-preview"],
+            "node scripts/vercel-explicit-preview-proof.mjs",
+        )
+
+        for pattern in (
+            "T10c Explicit API Preview Path",
+            "no-deploy proof",
+            "productionBranch = main",
+            "target = production",
+            "Added `scripts/vercel-explicit-preview-proof.mjs`",
+            "target: \"preview\"",
+            "does not call the deployment endpoint",
+            "GO_EXPLICIT_API_PREVIEW_PATH_READY",
+            "No deployment was created in T10c",
+            "private tester portal repo was not pushed in T10c",
+            "T10d may execute one explicit API preview deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10c)
+
+        for pattern in (
+            "T10C_PREVIEW_BRANCH",
+            "T10C_EXPECTED_PRODUCTION_BRANCH",
+            "GO_EXPLICIT_API_PREVIEW_PATH_READY",
+            "target: \"preview\"",
+            "externalDeployAttempted: false",
+            "NO_GO_PRODUCTION_BRANCH_UNEXPECTED",
+            "NO_GO_PREVIEW_BRANCH_MATCHES_PRODUCTION",
+            "fetchProject",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T10C_EXPLICIT_API_PREVIEW_PATH.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T10c: correct Vercel Git/preview mapping or define an explicit API preview path before any tester URL is shared. Done as no-deploy explicit API preview proof",
+            "Phase T10d: execute one explicit API preview deployment with target inspection before any tester URL is shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10c define una ruta API preview explicita sin desplegar",
+            "T10j para ejecutar una unica preview CLI default",
+            "T10c anade `proof:vercel-explicit-preview`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10c Explicit API Preview Path",
+            "proof:vercel-explicit-preview",
+            "target: \"preview\"",
+            "private tester repo unpushed in T10c",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-explicit-preview-proof.mjs",
+            "npm run proof:vercel-explicit-preview",
+            "GO_EXPLICIT_API_PREVIEW_PATH_READY",
+            "T10i must correct or replace the Vercel preview deployment route",
+            "without creating a deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10c_text = "\n".join([t10c, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "/v13/deployments",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10c_text)
+
+    def test_t10d_explicit_api_preview_rollback_is_documented_and_safe(self):
+        t10d = T10D_EXPLICIT_API_PREVIEW_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "T10d Explicit API Preview Rollback",
+            "rollback, not as a successful tester preview",
+            "Sent an explicit request with `target: \"preview\"`",
+            "Removed the deployment immediately after Vercel reported `target = production`",
+            "NO_GO_TARGET_NOT_PREVIEW_ROLLED_BACK",
+            "The deployment was created only for inspection.",
+            "The API returned `target = production`.",
+            "The deployment was removed immediately.",
+            "No tester URL was shared.",
+            "The Vercel project now reports no latest deployment.",
+            "The Vercel project now reports no domains.",
+            "T10e must fix or recreate the Vercel preview deployment path",
+            "Do not push another trigger commit and do not create another deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10d)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T10D_EXPLICIT_API_PREVIEW_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T10d: execute one explicit API preview deployment with target inspection before any tester URL is shared. Attempted and rolled back",
+            "Phase T10e: attempted an omitted-target API preview deployment and rolled it back",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10j para ejecutar una unica preview CLI default",
+            "T10d ejecuta una unica preview API explicita",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10d Explicit API Preview Rollback",
+            "target = production",
+            "no latest deployment, no domains and no shared URL",
+            "T10e as the required project/path correction",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "T10i must correct or replace the Vercel preview deployment route before another deployment attempt.",
+            "explicit API request with `target: \"preview\"` can return `target=production`",
+            "Do not create another deployment on the current project ID.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10d_text = "\n".join([t10d, governance, next_steps, readme, changelog, template_readme])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10d_text)
+
+    def test_t10e_omitted_target_preview_rollback_is_documented_and_safe(self):
+        t10e = T10E_OMITTED_TARGET_PREVIEW_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-omitted-target-preview-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:vercel-omitted-target-preview"],
+            "node scripts/vercel-omitted-target-preview-proof.mjs",
+        )
+
+        for pattern in (
+            "T10e Omitted Target Preview Rollback",
+            "omit `target` so the deployment should default to preview",
+            "rollback, not as a successful tester preview",
+            "Added `scripts/vercel-omitted-target-preview-proof.mjs`",
+            "GO_OMITTED_TARGET_PREVIEW_PATH_READY",
+            "NO_GO_TARGET_NOT_PREVIEW_ROLLED_BACK",
+            "The API request omitted `target`.",
+            "The API still returned `target = production`.",
+            "The deployment was removed immediately.",
+            "The Vercel project now reports no latest deployment.",
+            "The Vercel project now reports no domains.",
+            "Do not create another deployment on the current project ID.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10e)
+
+        for pattern in (
+            "T10E_PREVIEW_BRANCH",
+            "GO_OMITTED_TARGET_PREVIEW_PATH_READY",
+            "omittedTargetForPreview: true",
+            "externalDeployAttempted: false",
+            "NO_GO_PRODUCTION_BRANCH_UNEXPECTED",
+            "NO_GO_PREVIEW_BRANCH_MATCHES_PRODUCTION",
+            "fetchProject",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("target: \"preview\"", proof)
+        self.assertNotIn("/v13/deployments", proof)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T10E_OMITTED_TARGET_PREVIEW_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T10e: attempted an omitted-target API preview deployment and rolled it back",
+            "Phase T10f: recreate or separate the Vercel preview project before any tester URL is shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10e intento preview API con `target` omitido",
+            "T10j para ejecutar una unica preview CLI default",
+            "T10e anade `proof:vercel-omitted-target-preview`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10e Omitted Target Preview Rollback",
+            "proof:vercel-omitted-target-preview",
+            "target = production",
+            "no latest deployment, no domains and no shared URL",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-omitted-target-preview-proof.mjs",
+            "npm run proof:vercel-omitted-target-preview",
+            "GO_OMITTED_TARGET_PREVIEW_PATH_READY",
+            "T10i must correct or replace the Vercel preview deployment route before another deployment attempt.",
+            "Do not create another deployment on the current project ID.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10e_text = "\n".join([t10e, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10e_text)
+
+    def test_t10f_separated_preview_project_is_documented_and_safe(self):
+        t10f = T10F_SEPARATED_PREVIEW_PROJECT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-preview-project-separation-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:vercel-preview-project-separation"],
+            "node scripts/vercel-preview-project-separation-proof.mjs",
+        )
+
+        for pattern in (
+            "T10f Separated Preview Project",
+            "safe separation step, not as a deployment or tester rollout",
+            "Created a new Vercel project named `sqx-edge-tester-preview`",
+            "Did not deploy the tester portal.",
+            "Did not link or publish a tester URL.",
+            "GO_PREVIEW_PROJECT_SEPARATED",
+            "Project separation: preview project and legacy project are different projects.",
+            "Live deployment: false.",
+            "Latest deployment: none.",
+            "Domains: none.",
+            "Git connection: not linked yet.",
+            "T10g must link the private tester portal repository",
+            "Do not deploy from the separated project until T10g proves",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10f)
+
+        for pattern in (
+            "T10F_PREVIEW_PROJECT_NAME",
+            "T10F_LEGACY_PROJECT_NAME",
+            "T10F_VERCEL_TEAM_ID",
+            "GO_PREVIEW_PROJECT_SEPARATED",
+            "NO_GO_PREVIEW_PROJECT_MISSING",
+            "NO_GO_PROJECT_NOT_SEPARATED",
+            "NO_GO_PROJECT_HAS_PUBLIC_SURFACE",
+            "externalDeployAttempted: false",
+            "gitLinked",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("vercel deploy", proof)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T10F_SEPARATED_PREVIEW_PROJECT.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T10f: recreate or separate the Vercel preview project before any tester URL is shared. Done as separated, undeployed preview project",
+            "Phase T10g: link the private tester portal repository to the separated preview project and prove Git/protection settings without deploying.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10f separo un proyecto preview Vercel nuevo",
+            "T10j para ejecutar una unica preview CLI default",
+            "T10f anade `proof:vercel-preview-project-separation`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10f Separated Preview Project",
+            "proof:vercel-preview-project-separation",
+            "without deploying, linking Git, adding domains or sharing any URL",
+            "T10g as the required private Git linking",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-preview-project-separation-proof.mjs",
+            "npm run proof:vercel-preview-project-separation",
+            "GO_PREVIEW_PROJECT_SEPARATED",
+            "T10i must correct or replace the Vercel preview deployment route before another deployment attempt.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10f_text = "\n".join([t10f, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10f_text)
+
+    def test_t10g_linked_preview_project_is_documented_and_safe(self):
+        t10g = T10G_LINKED_PREVIEW_PROJECT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-linked-preview-project-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:vercel-linked-preview-project"],
+            "node scripts/vercel-linked-preview-project-proof.mjs",
+        )
+
+        for pattern in (
+            "T10g Linked Preview Project Proof",
+            "no-deploy Git-link proof, not as a tester rollout",
+            "Connected the GitHub repository `CryptoLeon78/SQX_Edge_Tester_Portal`",
+            "Did not run `vercel deploy`.",
+            "Did not push a post-connect trigger commit",
+            "GO_LINKED_PREVIEW_PROJECT_READY",
+            "Project name: `sqx-edge-tester-preview`.",
+            "Git provider: GitHub.",
+            "Production branch: `main`.",
+            "Intended preview branch: `tester-preview`.",
+            "Deployment Protection: Vercel SSO protection is enabled.",
+            "Latest deployment: none.",
+            "Domains: none.",
+            "T10h must execute exactly one protected preview deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10g)
+
+        for pattern in (
+            "T10G_PREVIEW_PROJECT_NAME",
+            "T10G_GIT_ORG",
+            "T10G_GIT_REPO",
+            "T10G_EXPECTED_PRODUCTION_BRANCH",
+            "T10G_PREVIEW_BRANCH",
+            "GO_LINKED_PREVIEW_PROJECT_READY",
+            "NO_GO_GIT_LINK_NOT_PRIVATE_TESTER_PORTAL",
+            "NO_GO_PRODUCTION_BRANCH_UNEXPECTED",
+            "NO_GO_PREVIEW_BRANCH_MATCHES_PRODUCTION",
+            "NO_GO_DEPLOYMENT_PROTECTION_NOT_VERIFIED",
+            "deploymentProtectionVerified",
+            "externalDeployAttempted: false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("vercel deploy", proof)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T10G_LINKED_PREVIEW_PROJECT_PROOF.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T10g: link the private tester portal repository to the separated preview project and prove Git/protection settings without deploying. Done as linked no-deploy proof",
+            "Phase T10h: execute exactly one protected preview deployment from the separated project with immediate target inspection before any tester URL is shared. Attempted and rolled back",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10g linko el repo privado del portal tester al proyecto preview separado",
+            "T10j para ejecutar una unica preview CLI default",
+            "T10g anade `proof:vercel-linked-preview-project`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10g Linked Preview Project Proof",
+            "proof:vercel-linked-preview-project",
+            "without deploying or sharing a URL",
+            "T10h as the single protected preview deployment inspection phase",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-linked-preview-project-proof.mjs",
+            "npm run proof:vercel-linked-preview-project",
+            "GO_LINKED_PREVIEW_PROJECT_READY",
+            "T10i must correct or replace the Vercel preview deployment route",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10g_text = "\n".join([t10g, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10g_text)
+
+    def test_t10h_protected_preview_deploy_rollback_is_documented_and_safe(self):
+        t10h = T10H_PROTECTED_PREVIEW_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-protected-preview-rollback-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:vercel-protected-preview-rollback"],
+            "node scripts/vercel-protected-preview-rollback-proof.mjs",
+        )
+
+        for pattern in (
+            "T10h Protected Preview Deploy Rollback",
+            "rollback, not as a successful tester preview",
+            "Requested `target=preview`",
+            "Used the separated project `sqx-edge-tester-preview`",
+            "NO_GO_TARGET_NOT_PREVIEW_GUARD_ROLLBACK",
+            "The requested target was preview.",
+            "Vercel returned `target = production`.",
+            "The T10b guard blocked the build with exit code 43.",
+            "The deployment was removed immediately.",
+            "The separated Vercel project now reports no latest deployment.",
+            "The separated Vercel project now reports no domains.",
+            "T10i must correct or replace the Vercel preview deployment route",
+            "Do not share any tester URL until a deployment returns `target = preview`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10h)
+
+        for pattern in (
+            "T10H_PREVIEW_PROJECT_NAME",
+            "GO_PROTECTED_PREVIEW_ROLLBACK_CLEAN",
+            "NO_GO_ROLLBACK_NOT_CLEAN",
+            "requestedTarget: \"preview\"",
+            "observedTarget: \"production\"",
+            "NO_GO_PRODUCTION_TARGET_FROM_NON_PRODUCTION_BRANCH",
+            "rollbackStatus: \"removed\"",
+            "externalDeployAttempted: false",
+            "T10i must correct or replace the Vercel preview deployment route",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("vercel deploy", proof)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T10H_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T10h: execute exactly one protected preview deployment from the separated project with immediate target inspection before any tester URL is shared. Attempted and rolled back",
+            "Phase T10i: correct or replace the Vercel preview deployment route before another deployment attempt.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10h intento una preview protegida desde el proyecto separado",
+            "T10j para ejecutar una unica preview CLI default",
+            "T10h anade `proof:vercel-protected-preview-rollback`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10h Protected Preview Deploy Rollback",
+            "proof:vercel-protected-preview-rollback",
+            "target = production",
+            "exit code 43",
+            "T10i as the required preview-route correction phase",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-protected-preview-rollback-proof.mjs",
+            "npm run proof:vercel-protected-preview-rollback",
+            "GO_PROTECTED_PREVIEW_ROLLBACK_CLEAN",
+            "T10i must correct or replace the Vercel preview deployment route before another deployment attempt.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10h_text = "\n".join([t10h, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10h_text)
+
+    def test_t10i_cli_default_preview_route_is_documented_and_safe(self):
+        t10i = T10I_CLI_DEFAULT_PREVIEW_ROUTE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-cli-default-preview-route-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:vercel-cli-default-preview-route"],
+            "node scripts/vercel-cli-default-preview-route-proof.mjs",
+        )
+
+        for pattern in (
+            "T10i CLI Default Preview Route Proof",
+            "no-deploy route proof, not as a tester rollout",
+            "vercel deploy --force --yes --format json --skip-domain",
+            "No `--prod`.",
+            "No `--target`.",
+            "GO_CLI_DEFAULT_PREVIEW_ROUTE_READY",
+            "separated project has no latest deployment",
+            "separated project has no domains",
+            "approved command shape omits `--prod` and `--target`",
+            "T10j may execute exactly one CLI default preview deployment",
+            "Do not push a trigger commit to the private tester portal repo",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10i)
+
+        for pattern in (
+            "T10I_PREVIEW_PROJECT_NAME",
+            "T10I_EXPECTED_PRODUCTION_BRANCH",
+            "T10I_PREVIEW_BRANCH",
+            "GO_CLI_DEFAULT_PREVIEW_ROUTE_READY",
+            "NO_GO_PROJECT_HAS_PUBLIC_SURFACE",
+            "NO_GO_PREVIEW_BRANCH_MATCHES_PRODUCTION",
+            "NO_GO_DEPLOYMENT_PROTECTION_NOT_VERIFIED",
+            "vercel deploy --force --yes --format json --skip-domain",
+            "requiredAbsentFlags: [\"--prod\", \"--target\"]",
+            "externalDeployAttempted: false",
+            "T10j may execute exactly one CLI default preview deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T10I_CLI_DEFAULT_PREVIEW_ROUTE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T10i: correct or replace the Vercel preview deployment route before another deployment attempt. Done as CLI default preview route proof",
+            "Phase T10j: execute exactly one CLI default preview deployment with immediate target inspection and rollback on mismatch.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10i corrigio la siguiente ruta preview hacia `vercel deploy` por defecto",
+            "T10j para ejecutar una unica preview CLI default",
+            "T10i anade `proof:vercel-cli-default-preview-route`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10i CLI Default Preview Route Proof",
+            "proof:vercel-cli-default-preview-route",
+            "forbidding `--prod` and `--target`",
+            "T10j as the single deployment inspection phase",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-cli-default-preview-route-proof.mjs",
+            "npm run proof:vercel-cli-default-preview-route",
+            "GO_CLI_DEFAULT_PREVIEW_ROUTE_READY",
+            "T10j may execute exactly one CLI default preview deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10i_text = "\n".join([t10i, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10i_text)
+
+    def test_t10j_cli_default_preview_command_rollback_is_documented_and_safe(self):
+        t10j = T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-cli-default-preview-command-rollback-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:vercel-cli-default-preview-command-rollback"],
+            "node scripts/vercel-cli-default-preview-command-rollback-proof.mjs",
+        )
+
+        for pattern in (
+            "T10j CLI Default Preview Command Rollback",
+            "command rollback, not as a tester rollout",
+            "NO_GO_CLI_DEFAULT_PREVIEW_COMMAND_INVALID",
+            "Vercel rejected the command before creating a deployment.",
+            "Deployment id: missing.",
+            "Rollback was not needed because no deployment existed.",
+            "The --skip-domain option can only be used with production deployments.",
+            "vercel deploy --force --yes --format json",
+            "No `--skip-domain`.",
+            "T10k may execute exactly one CLI default preview deployment",
+            "Do not push a trigger commit to the private tester portal repo",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10j)
+
+        for pattern in (
+            "T10J_PREVIEW_PROJECT_NAME",
+            "GO_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK_CLEAN",
+            "NO_GO_PROJECT_HAS_PUBLIC_SURFACE",
+            "NO_GO_DEPLOYMENT_PROTECTION_NOT_VERIFIED",
+            "--skip-domain option can only be used with production deployments",
+            "deploymentId: \"missing\"",
+            "rollbackStatus: \"not_needed\"",
+            "vercel deploy --force --yes --format json",
+            "requiredAbsentFlags: [\"--prod\", \"--target\", \"--skip-domain\"]",
+            "T10k may execute exactly one CLI default preview deployment without --skip-domain",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T10j: execute exactly one CLI default preview deployment with immediate target inspection and rollback on mismatch. Attempted command was rejected before deployment",
+            "Phase T10k: execute exactly one CLI default preview deployment without `--skip-domain`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10j ejecuto el comando CLI default aprobado",
+            "T10m para correccion manual/API o ruta alternativa",
+            "T10j anade `proof:vercel-cli-default-preview-command-rollback`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10j CLI Default Preview Command Rollback",
+            "proof:vercel-cli-default-preview-command-rollback",
+            "rejects `--skip-domain` before creating a preview deployment",
+            "T10k as the corrected inspection phase",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-cli-default-preview-command-rollback-proof.mjs",
+            "npm run proof:vercel-cli-default-preview-command-rollback",
+            "GO_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK_CLEAN",
+            "T10k may execute exactly one CLI default preview deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10j_text = "\n".join([t10j, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10j_text)
+
+    def test_t10k_cli_default_preview_rollback_is_documented_and_safe(self):
+        t10k = T10K_CLI_DEFAULT_PREVIEW_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-cli-default-preview-rollback-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:vercel-cli-default-preview-rollback"],
+            "node scripts/vercel-cli-default-preview-rollback-proof.mjs",
+        )
+
+        for pattern in (
+            "T10k CLI Default Preview Rollback",
+            "rollback, not as a successful tester preview",
+            "Used no `--prod`.",
+            "Used no `--target`.",
+            "Used no `--skip-domain`.",
+            "NO_GO_CLI_DEFAULT_PREVIEW_TARGET_PRODUCTION_ROLLBACK",
+            "Vercel returned `target = production`.",
+            "The T10b guard blocked the build with exit code 43.",
+            "Alias surface was observed before removal.",
+            "The deployment was removed immediately.",
+            "The separated Vercel project now reports no latest deployment.",
+            "T10l must investigate or replace the Vercel route without another deployment attempt.",
+            "Do not run another deployment until T10l produces a no-deploy GO.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10k)
+
+        for pattern in (
+            "T10K_PREVIEW_PROJECT_NAME",
+            "GO_CLI_DEFAULT_PREVIEW_ROLLBACK_CLEAN",
+            "NO_GO_ROLLBACK_NOT_CLEAN",
+            "observedTarget: \"production\"",
+            "readyState: \"ERROR\"",
+            "NO_GO_PRODUCTION_TARGET_FROM_NON_PRODUCTION_BRANCH",
+            "aliasSurfaceObservedBeforeRemoval: true",
+            "rollbackStatus: \"removed\"",
+            "T10l must investigate or replace the Vercel route without another deployment attempt",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T10K_CLI_DEFAULT_PREVIEW_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T10k: execute exactly one CLI default preview deployment without `--skip-domain`, with immediate target inspection and rollback on mismatch. Attempted and rolled back",
+            "Phase T10l: investigate or replace the Vercel route without another deployment attempt.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10k ejecuto una preview CLI default corregida",
+            "T10m para correccion manual/API o ruta alternativa",
+            "T10k anade `proof:vercel-cli-default-preview-rollback`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10k CLI Default Preview Rollback",
+            "proof:vercel-cli-default-preview-rollback",
+            "Vercel still returns `target = production`",
+            "T10l as a no-deploy Vercel route investigation/replacement phase",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-cli-default-preview-rollback-proof.mjs",
+            "npm run proof:vercel-cli-default-preview-rollback",
+            "GO_CLI_DEFAULT_PREVIEW_ROLLBACK_CLEAN",
+            "T10l must investigate or replace the Vercel route without another deployment attempt",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10k_text = "\n".join([t10k, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10k_text)
+
+    def test_t10l_vercel_route_investigation_is_documented_and_safe(self):
+        t10l = T10L_VERCEL_ROUTE_INVESTIGATION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-route-investigation-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:vercel-route-investigation"],
+            "node scripts/vercel-route-investigation-proof.mjs",
+        )
+
+        for pattern in (
+            "T10l Vercel Route Investigation",
+            "no-deploy investigation, not as a tester rollout",
+            "NO_GO_VERCEL_ROUTE_REQUIRES_MANUAL_TARGET_FIX_OR_REPLACEMENT",
+            "Did not run `vercel deploy`.",
+            "project.productionBranch` is missing while `link.productionBranch` is `main`",
+            "`project.targets` is empty.",
+            "`autoAssignCustomDomains` is enabled.",
+            "`productionDeploymentsFastLane` is enabled.",
+            "T10m must perform manual dashboard/API correction",
+            "Do not run another deployment until T10m produces a no-deploy GO.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10l)
+
+        for pattern in (
+            "T10L_PREVIEW_PROJECT_NAME",
+            "NO_GO_VERCEL_ROUTE_REQUIRES_MANUAL_TARGET_FIX_OR_REPLACEMENT",
+            "project.productionBranch is missing while link.productionBranch is main",
+            "project.targets is empty",
+            "autoAssignCustomDomains is enabled",
+            "productionDeploymentsFastLane is enabled",
+            "officialCliPreviewRouteExpected",
+            "externalDeployAttempted: false",
+            "T10m must perform manual dashboard/API correction or define an alternative no-deploy route proof",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("vercel deploy --force", proof)
+
+        for pattern in (
+            "Current phase completed: T10l - Vercel Route Investigation.",
+            "T10m - manual/API Vercel correction or alternative no-deploy route proof",
+            "docs/T10L_VERCEL_ROUTE_INVESTIGATION.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10l - Vercel Route Investigation.",
+            "Phase T10l: investigate or replace the Vercel route without another deployment attempt. Done as no-deploy investigation",
+            "Phase T10m: manual/API Vercel correction or alternative no-deploy route proof before any further deployment.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10l investigo Vercel sin deploy",
+            "T10m para correccion manual/API o ruta alternativa",
+            "T10l anade `proof:vercel-route-investigation`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10l Vercel Route Investigation",
+            "proof:vercel-route-investigation",
+            "missing top-level production branch",
+            "T10m as manual/API correction or alternative no-deploy route proof",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-route-investigation-proof.mjs",
+            "npm run proof:vercel-route-investigation",
+            "NO_GO_VERCEL_ROUTE_REQUIRES_MANUAL_TARGET_FIX_OR_REPLACEMENT",
+            "T10m must perform manual dashboard/API correction",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10l_text = "\n".join([t10l, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10l_text)
+
+    def test_t10m_vercel_config_hardening_is_documented_and_safe(self):
+        t10m = T10M_VERCEL_CONFIG_HARDENING_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        vercel_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "vercel.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-config-hardening-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:vercel-config-hardening"],
+            "node scripts/vercel-config-hardening-proof.mjs",
+        )
+        self.assertFalse(vercel_config["github"]["autoAlias"])
+
+        for pattern in (
+            "T10m Vercel Config Hardening",
+            "configuration hardening, not as a tester rollout",
+            "autoAssignCustomDomains = false",
+            "previewDeploymentsDisabled = false",
+            "Did not run `vercel deploy`.",
+            "Did not call the Vercel deployments creation API.",
+            "GO_CONFIG_HARDENED_NO_DEPLOY_TARGET_STILL_UNPROVEN",
+            "T10n must perform one of these before any deployment",
+            "Do not run another deployment until T10n produces a no-deploy GO",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10m)
+
+        for pattern in (
+            "T10M_APPLY",
+            "DRY_RUN_VERCEL_CONFIG_HARDENING_READY",
+            "GO_CONFIG_HARDENED_NO_DEPLOY_TARGET_STILL_UNPROVEN",
+            "autoAssignCustomDomains: false",
+            "previewDeploymentsDisabled: false",
+            "externalDeployAttempted: false",
+            "externalConfigMutationAttempted",
+            "PATCH",
+            "T10n must prove or replace the preview route",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("vercel deploy", proof)
+
+        for pattern in (
+            "Current phase completed: T10m - Vercel Config Hardening.",
+            "T10n - no-deploy preview target proof or Vercel route replacement",
+            "docs/T10M_VERCEL_CONFIG_HARDENING.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10m - Vercel Config Hardening.",
+            "Phase T10m: manual/API Vercel correction or alternative no-deploy route proof before any further deployment. Done as Vercel Project API hardening without deployment",
+            "Phase T10n: no-deploy preview target proof or Vercel route replacement before any further deployment.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10m endurecio la configuracion Vercel por API sin deploy",
+            "T10n para proof no-deploy de target/ruta",
+            "T10m anade `proof:vercel-config-hardening`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10m Vercel Config Hardening",
+            "proof:vercel-config-hardening",
+            "autoAssignCustomDomains = false",
+            "T10n as the next no-deploy route proof/replacement phase",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-config-hardening-proof.mjs",
+            "npm run proof:vercel-config-hardening",
+            "T10M_APPLY=1",
+            "GO_CONFIG_HARDENED_NO_DEPLOY_TARGET_STILL_UNPROVEN",
+            "T10n must prove or replace the Vercel preview route",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10m_text = "\n".join([t10m, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10m_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

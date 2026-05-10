@@ -45,6 +45,19 @@
     bind(doc, 'pg-custom-export-presets', 'click', h.exportCustomPresets);
     bind(doc, 'pg-custom-import-presets', 'click', h.openImportCustomPresets);
     bind(doc, 'pg-custom-import-presets-file', 'change', h.importCustomPresets);
+    bind(doc, 'pg-buyer-name', 'input', h.renderBuyerCfxHandoff);
+    bind(doc, 'pg-buyer-context', 'change', h.renderBuyerCfxHandoff);
+    bind(doc, 'pg-buyer-handoff-refresh', 'click', h.renderBuyerCfxHandoff);
+    bind(doc, 'pg-buyer-handoff-copy', 'click', h.copyBuyerCfxHandoff);
+    bind(doc, 'pg-buyer-handoff-download', 'click', h.downloadBuyerCfxHandoff);
+    [
+      'pg-custom-name',
+      'pg-custom-asset',
+      'pg-custom-tf',
+      'pg-custom-bs',
+      'pg-custom-template'
+    ].forEach(function(id) { bind(doc, id, 'input', h.renderBuyerCfxHandoff); });
+    ['pg-custom-dir', 'pg-custom-capa'].forEach(function(id) { bind(doc, id, 'change', h.renderBuyerCfxHandoff); });
     bind(doc, 'pg-gen-all-c1', 'click', function() { h.generateAll(1); });
     bind(doc, 'pg-gen-all-c2', 'click', function() { h.generateAll(2); });
     bind(doc, 'pg-output-refresh', 'click', h.loadOutput);
