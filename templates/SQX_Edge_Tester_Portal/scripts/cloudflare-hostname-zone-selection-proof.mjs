@@ -31,12 +31,71 @@ const doc = readRepo("docs/T10AJL_CLOUDFLARE_HOSTNAME_ZONE_SELECTION.md");
 const governance = readRepo("docs/PROJECT_GOVERNANCE.md");
 const nextSteps = readRepo("docs/MODULARIZATION_NEXT_STEPS.md");
 const scripts = packageJson.scripts ?? {};
+const forbiddenLocalKeys = new Set([
+  "accountId",
+  "apiToken",
+  "cloudflareAccountId",
+  "cloudflareApiToken",
+  "cloudflareZoneId",
+  "email",
+  "emails",
+  "hostname",
+  "selectedHostname",
+  "testerEmail",
+  "testerEmails",
+  "testerUrl",
+  "token",
+  "url",
+  "zoneId",
+]);
+const forbiddenValuePatterns = [
+  /@/,
+  /https?:\/\//i,
+  /\.vercel\.app/i,
+  /cloudflareaccess\.com/i,
+  /CLOUDFLARE_[A-Z_]+/i,
+  /-----BEGIN [A-Z ]+PRIVATE KEY-----/,
+  /\b[A-Fa-f0-9]{32,}\b/,
+];
+
+function scanEvidence(value, path = []) {
+  const findings = [];
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      findings.push(...scanEvidence(item, [...path, String(index)]));
+    });
+    return findings;
+  }
+
+  if (value && typeof value === "object") {
+    Object.entries(value).forEach(([key, nested]) => {
+      const keyPath = [...path, key];
+      if (forbiddenLocalKeys.has(key)) {
+        findings.push(`forbidden_key:${keyPath.join(".")}`);
+      }
+      findings.push(...scanEvidence(nested, keyPath));
+    });
+    return findings;
+  }
+
+  if (typeof value === "string") {
+    forbiddenValuePatterns.forEach((pattern) => {
+      if (pattern.test(value)) {
+        findings.push(`forbidden_value:${path.join(".")}`);
+      }
+    });
+  }
+
+  return findings;
+}
 
 const forbiddenTokenPattern = ["CLOUDFLARE_API_TOKEN", "="].join("");
 const forbiddenAccountPattern = ["CLOUDFLARE_ACCOUNT_ID", "="].join("");
 const forbiddenZonePattern = ["CLOUDFLARE_ZONE_ID", "="].join("");
+const localFindings = localEvidence ? scanEvidence(localEvidence) : [];
 const localEvidenceReady = Boolean(
   localEvidence &&
+  localFindings.length === 0 &&
   localEvidence.accessPrecreateAllowed === true &&
   localEvidence.t10akUnlocked === true &&
   localEvidence.testerUrlPublished === false &&
@@ -69,6 +128,8 @@ const proof = Object.freeze({
   officialAccessSelfHostedDocsChecked: true,
   officialAccessApplicationTypesDocsChecked: true,
   localEvidencePresent: localEvidence !== null,
+  localEvidenceHasNoSensitiveFields: localFindings.length === 0,
+  localFindings,
   hostnameSelectedPrivately: localEvidence?.hostnameSelectedPrivately === true,
   zoneSelectedPrivately: localEvidence?.zoneSelectedPrivately === true,
   hostnameBelongsToCloudflareZone: localEvidence?.hostnameBelongsToCloudflareZone === true,
@@ -133,6 +194,7 @@ if (
   proof.publicRoutesCommitted ||
   !proof.packageScriptReady ||
   !proof.localEvidenceIgnored ||
+  !proof.localEvidenceHasNoSensitiveFields ||
   !proof.exampleEvidencePublicSafe ||
   !proof.docHasNoSecretPattern ||
   !proof.docReady ||

@@ -123,6 +123,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/cloudflare-route-access-precreate-proof.mjs`: T10ajk route/access precreate proof that keeps Access blocked until a private hostname/zone or protected workers.dev onboarding evidence exists.
 - `cloudflare-route-access-precreate.example.json`: public-safe evidence template for T10ajl; copy to ignored `cloudflare-route-access-precreate.local.json` only.
 - `scripts/cloudflare-hostname-zone-selection-proof.mjs`: T10ajl hostname/zone evidence proof that unlocks T10ak only from ignored private evidence.
+- `scripts/cloudflare-hostname-zone-selection-prepare.mjs`: T10ajl2 operator helper that creates/reviews the ignored hostname/zone evidence file and blocks sensitive local fields.
 - `cloudflare-hostname-zone-selection.example.json`: public-safe T10ajl evidence template; copy to ignored `cloudflare-hostname-zone-selection.local.json` only.
 - `cloudflare-shell-evidence.example.json`: public-safe template for manual shell evidence; copy to ignored `cloudflare-shell-evidence.local.json` only.
 
@@ -410,6 +411,12 @@ npm run proof:cloudflare-route-access-precreate
 ```
 
 This proves the T10ajk route/access precreate gate. The expected guarded result is `NO_GO_CLOUDFLARE_ROUTE_HOSTNAME_REQUIRED_T10AK_BLOCKED` until T10ajl records private hostname/zone evidence or protected dashboard `workers.dev` onboarding evidence. It must not create a Worker, route, Access application, policy, tester account or URL.
+
+```powershell
+npm run prepare:cloudflare-hostname-zone-selection -- --write
+```
+
+This creates or reviews the ignored `cloudflare-hostname-zone-selection.local.json` file. It must not contain a real hostname, zone ID, account ID, tester URL, tester emails, tokens or keys; set only booleans after private Cloudflare dashboard checks.
 
 ```powershell
 npm run proof:cloudflare-hostname-zone-selection

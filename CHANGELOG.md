@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ajl2 Cloudflare Operator Unlock Kit
+
+- Adds `prepare:cloudflare-hostname-zone-selection` to create/review the ignored local evidence file without committing Cloudflare hostname, zone ID, tester URL, tester emails or tokens.
+- Hardens `proof:cloudflare-hostname-zone-selection` so local evidence with sensitive keys or values blocks T10ak.
+- Adds `docs/T10AJL_OPERATOR_UNLOCK_KIT.md` as the practical operator checklist before Access creation.
+
 ## 2026-05-10 - T10ajl Cloudflare Hostname Zone Selection
 
 - Adds the public-safe hostname/zone evidence gate before Cloudflare Access creation.

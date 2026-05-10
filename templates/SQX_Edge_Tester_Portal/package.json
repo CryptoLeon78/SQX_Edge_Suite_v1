@@ -55,6 +55,7 @@
     "proof:cloudflare-route-onboarding-decision": "node scripts/cloudflare-route-onboarding-decision-proof.mjs",
     "proof:cloudflare-route-access-precreate": "node scripts/cloudflare-route-access-precreate-proof.mjs",
     "proof:cloudflare-hostname-zone-selection": "node scripts/cloudflare-hostname-zone-selection-proof.mjs",
+    "prepare:cloudflare-hostname-zone-selection": "node scripts/cloudflare-hostname-zone-selection-prepare.mjs",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
