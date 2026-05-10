@@ -40,6 +40,7 @@
     "proof:cloudflare-access-preflight": "node scripts/cloudflare-access-preflight-proof.mjs",
     "proof:cloudflare-runtime-compatibility": "node scripts/cloudflare-runtime-compatibility-proof.mjs",
     "proof:opennext-cloudflare-adapter": "node scripts/opennext-cloudflare-adapter-proof.mjs",
+    "proof:opennext-local-smoke": "node scripts/opennext-local-smoke-proof.mjs",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",

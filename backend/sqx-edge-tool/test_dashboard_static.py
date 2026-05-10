@@ -88,6 +88,7 @@ T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS_DOC = PROJECT_ROOT / "docs" / "T10AC_REPL
 T10AD_CLOUDFLARE_ACCESS_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md"
 T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY_DOC = PROJECT_ROOT / "docs" / "T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md"
 T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE_DOC = PROJECT_ROOT / "docs" / "T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE.md"
+T10AG_OPENNEXT_LOCAL_SMOKE_DOC = PROJECT_ROOT / "docs" / "T10AG_OPENNEXT_LOCAL_SMOKE.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -8207,24 +8208,24 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("fetch(", proof)
 
         for pattern in (
-            "Current phase completed: T10af - OpenNext Cloudflare Adapter Package.",
-            "T10ag - run the local OpenNext build/preview smoke without provider action",
+            "Current phase completed: T10af - OpenNext Cloudflare Adapter Package. Historical anchor only; superseded by T10ag.",
+            "T10ag - run the local OpenNext build/preview smoke without provider action. Historical anchor only; superseded by T10ah.",
             "docs/T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10af - OpenNext Cloudflare Adapter Package.",
+            "Current completed phase: T10af - OpenNext Cloudflare Adapter Package. Historical anchor only; superseded by T10ag.",
             "Phase T10af: prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action. Done",
-            "Phase T10ag: run the local OpenNext build/preview smoke without provider action.",
+            "Phase T10ag: run the local OpenNext build/preview smoke without provider action. Done",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
             "T10af anade `proof:opennext-cloudflare-adapter`",
-            "T10ag para ejecutar smoke local OpenNext build/preview",
+            "T10ag anade `proof:opennext-local-smoke`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -8241,7 +8242,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "scripts/opennext-cloudflare-adapter-proof.mjs",
             "npm run proof:opennext-cloudflare-adapter",
             "GO_OPENNEXT_CLOUDFLARE_ADAPTER_LOCAL_PACKAGE_READY_NO_DEPLOY",
-            "T10ag must run the local OpenNext build/preview smoke without provider action",
+            "T10ag local smoke proof",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, template_readme)
@@ -8275,6 +8276,139 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10af_text)
+
+    def test_t10ag_opennext_local_smoke_is_documented_and_safe(self):
+        t10ag = T10AG_OPENNEXT_LOCAL_SMOKE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "opennext-local-smoke-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:opennext-local-smoke"],
+            "node scripts/opennext-local-smoke-proof.mjs",
+        )
+
+        for pattern in (
+            "T10ag OpenNext Local Smoke",
+            "GO_OPENNEXT_LOCAL_LINUX_PREVIEW_SMOKE_NO_PROVIDER_ACTION",
+            "NO_GO_NATIVE_WINDOWS_PREVIEW_ROUTE_500",
+            "status=200",
+            "ok=1",
+            "worker=present",
+            "assets=present",
+            '"ok":true',
+            '"service":"sqx-edge-tester-portal"',
+            "Next.js: `16.2.6`",
+            "`@opennextjs/cloudflare`: `1.19.8`",
+            "Wrangler: `4.90.0`",
+            "middleware` file convention is deprecated",
+            "T10ah_next_middleware_to_proxy_migration_no_provider_action",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No tester URL was shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ag)
+
+        for pattern in (
+            'phase: "T10ag"',
+            'result: "GO_OPENNEXT_LOCAL_LINUX_PREVIEW_SMOKE_NO_PROVIDER_ACTION"',
+            'selectedRuntime: "cloudflare_workers_opennext_nextjs_runtime"',
+            'smokeMode: "wsl_linux_temp_copy_local_filesystem"',
+            'result: "NO_GO_NATIVE_WINDOWS_PREVIEW_ROUTE_500"',
+            "healthStatus: 500",
+            'result: "GO_WSL_LINUX_PREVIEW_HEALTH_200"',
+            'buildCommand: "npm run cf:build"',
+            'previewCommand: "npx opennextjs-cloudflare preview"',
+            "healthStatus: 200",
+            "healthBodyContainsOkTrue: true",
+            "workerPresent: true",
+            "assetsPresent: true",
+            "localDevVarsCommitted: false",
+            'next: "16.2.6"',
+            'opennextCloudflare: "1.19.8"',
+            'wrangler: "4.90.0"',
+            "cloudflareProjectCreated: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "githubRepositoryConnectedToCloudflare: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            'nextGate: "T10ah_next_middleware_to_proxy_migration_no_provider_action"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10ag - OpenNext Local Smoke.",
+            "T10ah - migrate the Next.js middleware convention to proxy without provider action",
+            "docs/T10AG_OPENNEXT_LOCAL_SMOKE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ag - OpenNext Local Smoke.",
+            "Phase T10ag: run the local OpenNext build/preview smoke without provider action. Done",
+            "Phase T10ah: migrate the Next.js middleware convention to proxy without provider action.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ag anade `proof:opennext-local-smoke`",
+            "T10ah para migrar la convencion Next.js `middleware` a `proxy`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ag OpenNext Local Smoke",
+            "proof:opennext-local-smoke",
+            "GO_OPENNEXT_LOCAL_LINUX_PREVIEW_SMOKE_NO_PROVIDER_ACTION",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/opennext-local-smoke-proof.mjs",
+            "npm run proof:opennext-local-smoke",
+            "GO_OPENNEXT_LOCAL_LINUX_PREVIEW_SMOKE_NO_PROVIDER_ACTION",
+            "T10ah must migrate the Next.js `middleware` convention to `proxy` without provider action",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ag_text = "\n".join([t10ag, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ag_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

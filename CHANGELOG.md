@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ag OpenNext Local Smoke
+
+- Runs the OpenNext/Cloudflare local smoke without provider action.
+- Confirms native Windows preview starts but returns route 500, while WSL/Linux filesystem smoke returns `/api/health` 200.
+- Adds `proof:opennext-local-smoke` with result `GO_OPENNEXT_LOCAL_LINUX_PREVIEW_SMOKE_NO_PROVIDER_ACTION`.
+
 ## 2026-05-10 - T10af OpenNext Cloudflare Adapter Package
 
 - Adds the local OpenNext/Cloudflare Workers package shape for the tester portal without provider action.
