@@ -78,6 +78,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/vercel-protection-audit.mjs`: T9c go/no-go audit for Vercel Deployment Protection before deploy retry.
 - `scripts/vercel-preview-path-proof.mjs`: T9f proof gate for Git/PR preview readiness without deploying.
 - `scripts/vercel-target-guard.mjs`: T10b build-time guard that blocks production-target builds from non-production branches.
+- `scripts/vercel-explicit-preview-proof.mjs`: T10c no-deploy proof for an explicit API preview request with `target: "preview"`.
 
 ## Local Preflight
 
@@ -101,6 +102,12 @@ This proves whether a Git/PR-based preview path is ready without running a deplo
 
 The proof accepts Vercel Project API Git connections exposed either as `gitRepository` or as `link`.
 
+```powershell
+npm run proof:vercel-explicit-preview
+```
+
+This proves the explicit API preview path without creating a deployment. It checks that Vercel still tracks `main` as production, `tester-preview` is non-production and the draft request uses `target: "preview"`.
+
 ## Next Phase
 
-T10c should correct Vercel Git/preview mapping or define an explicit API preview path before any tester URL is shared. T10 proved that a Git deployment from `tester-preview` can still report `target=production`; do not push another trigger commit until T10c defines the safe path. T10b adds a `prebuild` guard so `production/tester-preview` fails before publication while the mapping remains unresolved.
+T10d may execute an explicit API preview deployment only after `GO_EXPLICIT_API_PREVIEW_PATH_READY`, then inspect `target=preview` before any tester URL is shared. T10 proved that a Git deployment from `tester-preview` can still report `target=production`; do not push another trigger commit until the explicit preview path is used. T10b adds a `prebuild` guard so `production/tester-preview` fails before publication while the mapping remains unresolved.

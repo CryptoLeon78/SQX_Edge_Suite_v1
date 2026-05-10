@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10c Explicit API Preview Path
+
+- Adds `proof:vercel-explicit-preview` as a no-deploy proof for a Vercel API request with `target: "preview"`.
+- Confirms the project reports `productionBranch = main` while `tester-preview` remains the intended non-production branch.
+- Keeps the private tester repo unpushed in T10c to avoid another Git-triggered production-target build and leaves no shared URL.
+
 ## 2026-05-10 - T10b Vercel Target Guard
 
 - Adds a `prebuild` target guard that refuses production-target builds from non-production branches.
