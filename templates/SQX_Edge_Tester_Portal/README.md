@@ -102,4 +102,4 @@ The proof accepts Vercel Project API Git connections exposed either as `gitRepos
 
 ## Next Phase
 
-T10 should run one internal tester pilot before inviting external testers. Trigger preview from `tester-preview` only, inspect target/protection first and do not invite the external tester list until the internal pilot is accepted.
+T10b should fix Vercel preview target mapping before any tester URL is shared. T10 proved that a Git deployment from `tester-preview` can still report `target=production`, so do not push another trigger commit until the mapping is corrected or automatic Git deployments are constrained.

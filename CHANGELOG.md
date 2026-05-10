@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10 Internal Preview Target Rollback
+
+- Triggers the first Git-based internal pilot from private `tester-preview`, then blocks it because Vercel reports `target = production`.
+- Removes the deployment immediately and verifies no latest deployment, no domains and no shared/committed URL remain.
+- Sets T10b as the next required step: fix Vercel preview target mapping before any tester URL is shared.
+
 ## 2026-05-09 - T9g Private Git Preview Source
 
 - Creates the private tester portal repository and prepares `main` plus `tester-preview` before Vercel is connected.
