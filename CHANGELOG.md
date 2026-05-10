@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-10 - T10w Provider Target Mapping Investigation
+
+- Investigates `sqx-edge-tester-staging` target mapping without another deployment attempt.
+- Rejects the default CLI route after T10v returned production target from `tester-preview`.
+- Prepares `vercel deploy --target=preview --force --yes --format json` as the only next controlled Vercel route.
+- Adds `proof:provider-target-mapping-investigation` with result `NO_GO_DEFAULT_CLI_STAGING_ROUTE_REJECTED_EXPLICIT_PREVIEW_TARGET_PREPARED`.
+
 ## 2026-05-10 - T10v Controlled Staging Deploy Rollback
 
 - Executes one controlled staging deployment attempt against `sqx-edge-tester-staging`.

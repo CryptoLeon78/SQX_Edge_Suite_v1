@@ -30,6 +30,7 @@
     "proof:staging-local-link": "node scripts/staging-local-link-proof.mjs",
     "proof:staging-deployment-readiness": "node scripts/staging-deployment-readiness-proof.mjs",
     "proof:controlled-staging-deploy-rollback": "node scripts/controlled-staging-deploy-rollback-proof.mjs",
+    "proof:provider-target-mapping-investigation": "node scripts/provider-target-mapping-investigation-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
