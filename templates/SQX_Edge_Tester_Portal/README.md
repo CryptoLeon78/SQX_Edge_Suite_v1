@@ -106,6 +106,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/replacement-tester-route-options-proof.mjs`: T10ac no-deploy route comparison that selects Cloudflare Pages preview plus Cloudflare Access email OTP as the next candidate.
 - `scripts/cloudflare-access-preflight-proof.mjs`: T10ad no-deploy Cloudflare Access preflight before any provider project, deployment or tester URL.
 - `scripts/cloudflare-runtime-compatibility-proof.mjs`: T10ae local runtime compatibility proof that rejects static export and selects Cloudflare Workers/OpenNext.
+- `scripts/opennext-cloudflare-adapter-proof.mjs`: T10af local OpenNext/Cloudflare adapter package proof that verifies safe scripts, `wrangler.jsonc`, `open-next.config.ts`, `.dev.vars.example` and no deploy surface.
 
 ## Local Preflight
 
@@ -308,6 +309,20 @@ npm run proof:cloudflare-runtime-compatibility
 This proves the T10ae runtime decision. It must return `GO_CLOUDFLARE_WORKERS_OPENNEXT_RUNTIME_SELECTED_NO_PROVIDER_ACTION`, reject static export while middleware/API route handlers exist, and keep T10af limited to local adapter packaging.
 
 ```powershell
+npm run proof:opennext-cloudflare-adapter
+```
+
+This proves the T10af local adapter package. It must return `GO_OPENNEXT_CLOUDFLARE_ADAPTER_LOCAL_PACKAGE_READY_NO_DEPLOY`, keep Cloudflare deploy scripts absent and leave T10ag limited to local OpenNext build/preview smoke without provider action.
+
+```powershell
+npm run cf:build
+npm run cf:preview
+npm run cf:typegen
+```
+
+These commands are local-only package commands. Do not add or run a Cloudflare deploy command until a later phase is explicitly approved.
+
+```powershell
 npm run proof:vercel-config-hardening
 ```
 
@@ -345,7 +360,7 @@ This proves the T10r fresh staging project creation without deployment. It must 
 
 ## Next Phase
 
-T10af must prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, T10o selects `fresh_staging_route_with_no_deploy_preflight`, T10p proves the local preflight gate, T10q confirms write auth, T10r creates the clean project shell, T10s verifies protection/settings, T10t configures the local private portal link, T10u prepares the no-deploy readiness gate, T10v confirms the default CLI route still returns production target, T10w prepares the explicit preview-target route, T10x confirms that route also returns production target, T10y pauses Vercel CLI deployment, T10z prepares the correction checklist, T10aa records the manual dashboard evidence gap, T10ab ingests manual dashboard evidence with `NO_GO_REPLACE_VERCEL_TESTER_ROUTE`, T10ac selects Cloudflare Pages preview plus Cloudflare Access email OTP as the next candidate, T10ad defines the Cloudflare Access preflight without provider action and T10ae selects Cloudflare Workers/OpenNext as runtime. Do not share any tester URL until a deployment returns the expected non-production status and no production alias exists.
+T10ag must run the local OpenNext build/preview smoke without provider action. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, T10o selects `fresh_staging_route_with_no_deploy_preflight`, T10p proves the local preflight gate, T10q confirms write auth, T10r creates the clean project shell, T10s verifies protection/settings, T10t configures the local private portal link, T10u prepares the no-deploy readiness gate, T10v confirms the default CLI route still returns production target, T10w prepares the explicit preview-target route, T10x confirms that route also returns production target, T10y pauses Vercel CLI deployment, T10z prepares the correction checklist, T10aa records the manual dashboard evidence gap, T10ab ingests manual dashboard evidence with `NO_GO_REPLACE_VERCEL_TESTER_ROUTE`, T10ac selects Cloudflare Pages preview plus Cloudflare Access email OTP as the next candidate, T10ad defines the Cloudflare Access preflight without provider action, T10ae selects Cloudflare Workers/OpenNext as runtime and T10af prepares the local adapter package. Do not share any tester URL until a deployment returns the expected non-production status and no production alias exists.
 
 T10i must correct or replace the Vercel preview deployment route before another deployment attempt.
 

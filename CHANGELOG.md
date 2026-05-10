@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-10 - T10af OpenNext Cloudflare Adapter Package
+
+- Adds the local OpenNext/Cloudflare Workers package shape for the tester portal without provider action.
+- Adds `wrangler.jsonc`, `open-next.config.ts`, `.dev.vars.example` and `proof:opennext-cloudflare-adapter`.
+- Local proof result: `GO_OPENNEXT_CLOUDFLARE_ADAPTER_LOCAL_PACKAGE_READY_NO_DEPLOY`.
+- Keeps Cloudflare deploy absent; next gate is local build/preview smoke only.
+
 ## 2026-05-10 - T10ae Cloudflare Runtime Compatibility
 
 - Rejects Cloudflare Pages static export for the current tester portal because middleware and API route handlers are part of the access model.

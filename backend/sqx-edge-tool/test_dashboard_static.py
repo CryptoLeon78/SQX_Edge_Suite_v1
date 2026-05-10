@@ -87,6 +87,7 @@ T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST_DOC = PROJECT_ROOT / "docs" / "T10AB_MANU
 T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS_DOC = PROJECT_ROOT / "docs" / "T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md"
 T10AD_CLOUDFLARE_ACCESS_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md"
 T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY_DOC = PROJECT_ROOT / "docs" / "T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md"
+T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE_DOC = PROJECT_ROOT / "docs" / "T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -8057,7 +8058,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "T10ae anade `proof:cloudflare-runtime-compatibility`",
-            "T10af para preparar el paquete local OpenNext/Cloudflare Workers",
+            "T10af anade `proof:opennext-cloudflare-adapter`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -8074,7 +8075,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "scripts/cloudflare-runtime-compatibility-proof.mjs",
             "npm run proof:cloudflare-runtime-compatibility",
             "GO_CLOUDFLARE_WORKERS_OPENNEXT_RUNTIME_SELECTED_NO_PROVIDER_ACTION",
-            "T10af must prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action",
+            "T10af local OpenNext/Cloudflare adapter package proof",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, template_readme)
@@ -8095,6 +8096,185 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10ae_text)
+
+    def test_t10af_opennext_cloudflare_adapter_package_is_documented_and_safe(self):
+        t10af = T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        open_next_config = (TESTER_PORTAL_TEMPLATE_ROOT / "open-next.config.ts").read_text(encoding="utf-8-sig")
+        gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        dev_vars_example = (TESTER_PORTAL_TEMPLATE_ROOT / ".dev.vars.example").read_text(encoding="utf-8-sig").strip()
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "opennext-cloudflare-adapter-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:opennext-cloudflare-adapter"],
+            "node scripts/opennext-cloudflare-adapter-proof.mjs",
+        )
+        self.assertEqual(package["scripts"]["cf:build"], "opennextjs-cloudflare build")
+        self.assertEqual(
+            package["scripts"]["cf:preview"],
+            "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+        )
+        self.assertEqual(
+            package["scripts"]["cf:typegen"],
+            "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+        )
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertEqual(package["devDependencies"]["@opennextjs/cloudflare"], "latest")
+        self.assertEqual(package["devDependencies"]["wrangler"], "latest")
+
+        self.assertEqual(wrangler["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler["assets"]["directory"], ".open-next/assets")
+        self.assertEqual(wrangler["assets"]["binding"], "ASSETS")
+        self.assertIn("nodejs_compat", wrangler["compatibility_flags"])
+        self.assertIn("global_fetch_strictly_public", wrangler["compatibility_flags"])
+        self.assertEqual(wrangler["services"][0]["binding"], "WORKER_SELF_REFERENCE")
+        self.assertEqual(wrangler["services"][0]["service"], wrangler["name"])
+        for key in ("account_id", "zone_id", "routes", "route", "custom_domain"):
+            with self.subTest(key=key):
+                self.assertNotIn(key, wrangler)
+
+        self.assertIn('from "@opennextjs/cloudflare"', open_next_config)
+        self.assertIn("defineCloudflareConfig()", open_next_config)
+        self.assertEqual(dev_vars_example, "NEXTJS_ENV=development")
+        for pattern in (".open-next/", ".wrangler/", "cloudflare-env.d.ts", ".dev.vars*", "!.dev.vars.example"):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, gitignore)
+
+        for pattern in (
+            "T10af OpenNext Cloudflare Adapter Package",
+            "Cloudflare Workers Next.js guide",
+            "Cloudflare Workers automatic configuration guide",
+            "Cloudflare Wrangler install guide",
+            "OpenNext Cloudflare adapter guide",
+            "OpenNext Cloudflare get started guide",
+            "wrangler.jsonc",
+            "open-next.config.ts",
+            ".dev.vars.example",
+            "proof:opennext-cloudflare-adapter",
+            "@opennextjs/cloudflare",
+            "wrangler",
+            "GO_OPENNEXT_CLOUDFLARE_ADAPTER_LOCAL_PACKAGE_READY_NO_DEPLOY",
+            "T10ag_local_opennext_build_preview_smoke_no_provider_action",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No tester URL was shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10af)
+
+        for pattern in (
+            'phase: "T10af"',
+            'result: "GO_OPENNEXT_CLOUDFLARE_ADAPTER_LOCAL_PACKAGE_READY_NO_DEPLOY"',
+            'selectedRuntime: "cloudflare_workers_opennext_nextjs_runtime"',
+            'adapterPackage: "@opennextjs/cloudflare"',
+            'localCliPackage: "wrangler"',
+            "packageDevDependenciesReady:",
+            "safeScriptsReady:",
+            "deployScriptPublished:",
+            "forbiddenCloudflareScriptFragmentsPresent:",
+            "wranglerConfigReady:",
+            "wranglerConfigContainsProviderSecretsOrRoutes:",
+            "openNextConfigReady:",
+            "localEnvExampleReady:",
+            "ignoredGeneratedArtifacts:",
+            "edgeRuntimeExportsPresent:",
+            'nextGate: "T10ag_local_opennext_build_preview_smoke_no_provider_action"',
+            "cloudflareProjectCreated: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "githubRepositoryConnectedToCloudflare: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10af - OpenNext Cloudflare Adapter Package.",
+            "T10ag - run the local OpenNext build/preview smoke without provider action",
+            "docs/T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10af - OpenNext Cloudflare Adapter Package.",
+            "Phase T10af: prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action. Done",
+            "Phase T10ag: run the local OpenNext build/preview smoke without provider action.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10af anade `proof:opennext-cloudflare-adapter`",
+            "T10ag para ejecutar smoke local OpenNext build/preview",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10af OpenNext Cloudflare Adapter Package",
+            "proof:opennext-cloudflare-adapter",
+            "GO_OPENNEXT_CLOUDFLARE_ADAPTER_LOCAL_PACKAGE_READY_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/opennext-cloudflare-adapter-proof.mjs",
+            "npm run proof:opennext-cloudflare-adapter",
+            "GO_OPENNEXT_CLOUDFLARE_ADAPTER_LOCAL_PACKAGE_READY_NO_DEPLOY",
+            "T10ag must run the local OpenNext build/preview smoke without provider action",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10af_text = "\n".join(
+            [
+                t10af,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(wrangler),
+                open_next_config,
+                dev_vars_example,
+            ]
+        )
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10af_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
