@@ -13,6 +13,7 @@
     "proof:vercel-preview-path": "node scripts/vercel-preview-path-proof.mjs",
     "proof:vercel-explicit-preview": "node scripts/vercel-explicit-preview-proof.mjs",
     "proof:vercel-omitted-target-preview": "node scripts/vercel-omitted-target-preview-proof.mjs",
+    "proof:vercel-preview-project-separation": "node scripts/vercel-preview-project-separation-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

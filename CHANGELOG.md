@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10f Separated Preview Project
+
+- Creates a separated Vercel project for tester preview without deploying, linking Git, adding domains or sharing any URL.
+- Adds `proof:vercel-preview-project-separation` to verify the separated project is undeployed, domain-free and different from the legacy unsafe project.
+- Sets T10g as the required private Git linking and deployment-protection proof phase before any tester URL can exist.
+
 ## 2026-05-10 - T10e Omitted Target Preview Rollback
 
 - Adds `proof:vercel-omitted-target-preview` because Vercel documents omitted `target` as preview behavior.

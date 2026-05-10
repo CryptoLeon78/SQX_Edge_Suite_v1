@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T10e - Omitted Target Preview Rollback.
+- Current completed phase: T10f - Separated Preview Project.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10f - recreate or separate the Vercel preview project before any tester URL is shared, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10g - link the private tester portal repo to the separated preview project with no-deploy proof before any tester URL is shared, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Recommended Order
 
@@ -77,9 +77,10 @@ Persistent planning note for the next SQX Edge phases.
 18. Phase T10c: correct Vercel Git/preview mapping or define an explicit API preview path before any tester URL is shared. Done as no-deploy explicit API preview proof; see `docs/T10C_EXPLICIT_API_PREVIEW_PATH.md`.
 19. Phase T10d: execute one explicit API preview deployment with target inspection before any tester URL is shared. Attempted and rolled back because Vercel returned `target = production`; see `docs/T10D_EXPLICIT_API_PREVIEW_ROLLBACK.md`.
 20. Phase T10e: attempted an omitted-target API preview deployment and rolled it back because Vercel still returned `target = production`; see `docs/T10E_OMITTED_TARGET_PREVIEW_ROLLBACK.md`.
-21. Phase T10f: recreate or separate the Vercel preview project before any tester URL is shared.
-22. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
-23. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
+21. Phase T10f: recreate or separate the Vercel preview project before any tester URL is shared. Done as separated, undeployed preview project; see `docs/T10F_SEPARATED_PREVIEW_PROJECT.md`.
+22. Phase T10g: link the private tester portal repository to the separated preview project and prove Git/protection settings without deploying.
+23. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+24. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
 
