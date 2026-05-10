@@ -98,6 +98,7 @@ T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE_DOC = PROJECT_ROOT / "docs" / "T10AJD_C
 T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE_DOC = PROJECT_ROOT / "docs" / "T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE.md"
 T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION_DOC = PROJECT_ROOT / "docs" / "T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION.md"
 T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_DOC = PROJECT_ROOT / "docs" / "T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE.md"
+T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS_DOC = PROJECT_ROOT / "docs" / "T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -9564,7 +9565,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Current completed phase: T10ajf - Cloudflare Shell Creation Decision.",
             "Phase T10ajf: choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later. Done",
             "Phase T10ajg: prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing.",
-            "Phase T10ajh: execute the first Cloudflare Worker deploy/shell creation only after exact approval",
+            "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after exact approval",
             "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
         ):
             with self.subTest(pattern=pattern):
@@ -9707,7 +9708,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Current phase completed: T10ajg - Cloudflare First Deploy Approval Gate.",
-            "Next implementation phase: T10ajh - execute the first Cloudflare Worker deploy/shell creation only after exact approval",
+            "Next implementation phase: T10aji - execute the first Cloudflare Worker deploy/shell creation only after exact approval",
             "docs/T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE.md",
         ):
             with self.subTest(pattern=pattern):
@@ -9716,7 +9717,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "Current completed phase: T10ajg - Cloudflare First Deploy Approval Gate.",
             "Phase T10ajg: prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing. Done",
-            "Phase T10ajh: execute the first Cloudflare Worker deploy/shell creation only after exact approval",
+            "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after exact approval",
             "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
         ):
             with self.subTest(pattern=pattern):
@@ -9724,7 +9725,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "T10ajg anade `proof:cloudflare-first-deploy-approval-gate`",
-            "T10ajh para ejecutar el primer `wrangler deploy` Cloudflare solo con aprobacion exacta",
+            "T10aji para ejecutar el primer `wrangler deploy` Cloudflare solo con aprobacion exacta",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -9764,6 +9765,168 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10ajg_text)
+
+    def test_t10ajh_cloudflare_first_deploy_readiness_is_documented_and_safe(self):
+        t10ajh = T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS_DOC.read_text(encoding="utf-8-sig")
+        t10ajg = T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        package_lock = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package-lock.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-first-deploy-readiness-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertTrue((TESTER_PORTAL_TEMPLATE_ROOT / "package-lock.json").is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-first-deploy-readiness"],
+            "node scripts/cloudflare-first-deploy-readiness-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertEqual(package_lock["lockfileVersion"], 3)
+        self.assertIn("node_modules/next", package_lock["packages"])
+        self.assertIn("node_modules/@opennextjs/cloudflare", package_lock["packages"])
+        self.assertIn("node_modules/wrangler", package_lock["packages"])
+
+        exact_deploy_command = "npm exec --yes -- wrangler deploy --name sqx-edge-tester-portal-preview"
+        approval_phrase = (
+            "Autorizo T10ajh: ejecutar exactamente `npm exec --yes -- wrangler deploy --name "
+            "sqx-edge-tester-portal-preview` desde `templates/SQX_Edge_Tester_Portal` despues de `npm run cf:build`, "
+            "sin compartir URL tester y con inspeccion/cleanup inmediato si aparece una superficie publica no aceptada."
+        )
+
+        for pattern in (
+            "T10ajh Cloudflare First Deploy Readiness",
+            "NO_DEPLOY_EXECUTED_EXACT_APPROVAL_REQUIRED",
+            "GO_CLOUDFLARE_FIRST_DEPLOY_READY_EXACT_APPROVAL_REQUIRED_NO_PROVIDER_MUTATION",
+            "result=authenticated_redacted",
+            "raw_account_details_committed=false",
+            "worker_not_found",
+            "npm install",
+            "npm run cf:build",
+            "GO_OPENNEXT_CLOUDFLARE_BUILD_SUCCEEDED",
+            "npm audit --audit-level=high",
+            "GO_NO_HIGH_OR_CRITICAL_VULNERABILITIES",
+            "package-lock.json",
+            exact_deploy_command,
+            approval_phrase,
+            "No Cloudflare Worker was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10aji_execute_first_worker_deploy_only_after_exact_approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajh)
+
+        for pattern in (
+            'phase: "T10ajh-readiness"',
+            'result: "GO_CLOUDFLARE_FIRST_DEPLOY_READY_EXACT_APPROVAL_REQUIRED_NO_PROVIDER_MUTATION"',
+            'provider: "Cloudflare"',
+            "approvalPhrasePresentInGate",
+            "exactApprovalReceivedInThisPhase: false",
+            "deployCommandExecuted: false",
+            "providerMutatedInT10ajhReadiness: false",
+            "wranglerWhoamiAuthenticatedRedacted: true",
+            "rawWhoamiOutputCommitted: false",
+            'deploymentsListResult: "worker_not_found"',
+            'versionsListResult: "worker_not_found"',
+            'secretListResult: "worker_not_found"',
+            "localInstallCompleted: true",
+            "localBuildSucceeded: true",
+            "auditHighOrCriticalPassed: true",
+            "auditModerateFindingsRecorded: true",
+            "packageLockPresent",
+            "pinnedNextVersion",
+            "pinnedOpenNextCloudflareVersion",
+            "pinnedWranglerVersion",
+            "packageScriptReady",
+            "mutatingScriptPublished",
+            "cfBuildScriptReady",
+            "docHasNoSecretPattern",
+            "docReady",
+            "governanceUpdated",
+            "nextStepsUpdated",
+            "cloudflareWorkerCreated: false",
+            "cloudflareVersionUploaded: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "t10akUnlocked: false",
+            'nextGate: "T10aji_execute_first_worker_deploy_only_after_exact_approval"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajh - Cloudflare First Deploy Readiness (No Deploy).",
+            "Next implementation phase: T10aji - execute the first Cloudflare Worker deploy/shell creation only after exact approval",
+            "docs/T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajh - Cloudflare First Deploy Readiness (No Deploy).",
+            "Phase T10ajh: verify first Cloudflare Worker deploy readiness without deploy while waiting for exact approval. Done",
+            "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after exact approval",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajh anade `proof:cloudflare-first-deploy-readiness`",
+            "T10aji para ejecutar el primer `wrangler deploy` Cloudflare solo con aprobacion exacta",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajh Cloudflare First Deploy Readiness",
+            "proof:cloudflare-first-deploy-readiness",
+            "GO_CLOUDFLARE_FIRST_DEPLOY_READY_EXACT_APPROVAL_REQUIRED_NO_PROVIDER_MUTATION",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-first-deploy-readiness-proof.mjs",
+            "npm run proof:cloudflare-first-deploy-readiness",
+            "GO_CLOUDFLARE_FIRST_DEPLOY_READY_EXACT_APPROVAL_REQUIRED_NO_PROVIDER_MUTATION",
+            "T10aji as the only phase allowed to run the exact deploy command",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        self.assertIn(approval_phrase, t10ajg)
+
+        combined_t10ajh_text = "\n".join([t10ajh, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajh_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

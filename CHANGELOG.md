@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ajh Cloudflare First Deploy Readiness
+
+- Adds a no-deploy readiness phase before the first Cloudflare Worker deploy.
+- Adds `proof:cloudflare-first-deploy-readiness` with result `GO_CLOUDFLARE_FIRST_DEPLOY_READY_EXACT_APPROVAL_REQUIRED_NO_PROVIDER_MUTATION`.
+- Commits `package-lock.json` for reproducible tester-portal installs, confirms `npm run cf:build`, records read-only Worker-not-found evidence and keeps the first deploy blocked until exact approval.
+
 ## 2026-05-10 - T10ajg Cloudflare First Deploy Approval Gate
 
 - Adds the exact approval gate for the first Cloudflare Worker deploy/shell creation.

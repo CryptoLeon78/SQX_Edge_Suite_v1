@@ -117,6 +117,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/cloudflare-readonly-shell-capture-proof.mjs`: T10aje read-only capture proof recording that the proposed Worker does not exist after Wrangler authentication.
 - `scripts/cloudflare-shell-creation-decision-proof.mjs`: T10ajf decision proof recording that no invisible shell path is accepted and the first Worker creation requires an exact approval gate for `wrangler deploy`.
 - `scripts/cloudflare-first-deploy-approval-gate-proof.mjs`: T10ajg approval-gate proof recording the exact first deploy command, manual approval phrase, pre-checks, post-checks and cleanup criteria without running them.
+- `scripts/cloudflare-first-deploy-readiness-proof.mjs`: T10ajh readiness proof recording the authenticated read-only prechecks, reproducible lockfile, successful local Cloudflare build and exact-approval block before any deploy.
 - `cloudflare-shell-evidence.example.json`: public-safe template for manual shell evidence; copy to ignored `cloudflare-shell-evidence.local.json` only.
 
 ## Local Preflight
@@ -378,6 +379,13 @@ npm run proof:cloudflare-first-deploy-approval-gate
 ```
 
 This proves the T10ajg first deploy approval gate. It must return `GO_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_READY_NO_PROVIDER_ACTION`, keep package deploy scripts absent and leave T10ajh as the only phase allowed to run the exact `npm exec --yes -- wrangler deploy --name sqx-edge-tester-portal-preview` command after explicit approval.
+
+```powershell
+npm ci
+npm run proof:cloudflare-first-deploy-readiness
+```
+
+This proves the T10ajh first deploy readiness gate without creating a Worker. It must return `GO_CLOUDFLARE_FIRST_DEPLOY_READY_EXACT_APPROVAL_REQUIRED_NO_PROVIDER_MUTATION`, keep package deploy/upload/delete scripts absent, confirm the lockfile-driven Cloudflare toolchain and leave T10aji as the only phase allowed to run the exact deploy command after Ivan provides the exact approval phrase.
 
 ```powershell
 npm run cf:build
