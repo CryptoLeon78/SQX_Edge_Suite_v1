@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10u Staging Deployment Readiness Gate
+
+- Adds a no-deploy readiness gate before any deployment against `sqx-edge-tester-staging`.
+- Confirms branch, local link, protection, zero deployments and zero domains before a controlled deployment attempt.
+- Adds `proof:staging-deployment-readiness` with result `GO_STAGING_DEPLOYMENT_READINESS_GATE_NO_DEPLOY`.
+
 ## 2026-05-10 - T10t Staging Local Link Configured
 
 - Links the private tester portal working tree to `sqx-edge-tester-staging` through ignored Vercel local metadata only.

@@ -95,6 +95,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/fresh-staging-project-created-proof.mjs`: T10r no-deploy proof that `sqx-edge-tester-staging` exists with no deployments, no domains, no Git link and no URL publication.
 - `scripts/staging-protection-verified-proof.mjs`: T10s no-deploy proof that `sqx-edge-tester-staging` has SSO Deployment Protection and Git fork protection before any link, deployment or tester URL.
 - `scripts/staging-local-link-proof.mjs`: T10t no-deploy proof that the private tester portal local CLI link targets `sqx-edge-tester-staging` while `.vercel/` remains ignored and no tester surface exists.
+- `scripts/staging-deployment-readiness-proof.mjs`: T10u no-deploy readiness gate before one controlled staging deployment attempt with target and alias inspection.
 
 ## Local Preflight
 
@@ -208,6 +209,14 @@ npm run proof:staging-local-link
 
 This proves the T10t local link gate without creating a deployment. It must return `GO_STAGING_LOCAL_LINK_CONFIGURED_NO_DEPLOY`.
 
+T10u has prepared a no-deploy readiness gate for the next single staging deployment attempt. The project still has zero deployments, zero domains and no published tester URL.
+
+```powershell
+npm run proof:staging-deployment-readiness
+```
+
+This proves the T10u readiness gate without creating a deployment. It must return `GO_STAGING_DEPLOYMENT_READINESS_GATE_NO_DEPLOY`.
+
 ```powershell
 npm run proof:vercel-config-hardening
 ```
@@ -246,7 +255,7 @@ This proves the T10r fresh staging project creation without deployment. It must 
 
 ## Next Phase
 
-T10u must prepare a no-deploy staging deployment readiness gate before any deployment against `sqx-edge-tester-staging`. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, T10o selects `fresh_staging_route_with_no_deploy_preflight`, T10p proves the local preflight gate, T10q confirms write auth, T10r creates the clean project shell, T10s verifies protection/settings and T10t configures the local private portal link. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
+T10v may execute exactly one controlled staging deployment attempt against `sqx-edge-tester-staging`, then inspect target, aliases and domains immediately and rollback/delete on mismatch before any URL is shared. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, T10o selects `fresh_staging_route_with_no_deploy_preflight`, T10p proves the local preflight gate, T10q confirms write auth, T10r creates the clean project shell, T10s verifies protection/settings, T10t configures the local private portal link and T10u prepares the no-deploy readiness gate. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
 
 T10i must correct or replace the Vercel preview deployment route before another deployment attempt.
 

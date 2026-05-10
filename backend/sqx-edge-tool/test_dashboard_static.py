@@ -76,6 +76,7 @@ T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK_DOC = PROJECT_ROOT / "docs" / "T10Q_FRESH_
 T10R_FRESH_STAGING_PROJECT_CREATED_DOC = PROJECT_ROOT / "docs" / "T10R_FRESH_STAGING_PROJECT_CREATED.md"
 T10S_STAGING_PROTECTION_VERIFIED_DOC = PROJECT_ROOT / "docs" / "T10S_STAGING_PROTECTION_VERIFIED.md"
 T10T_STAGING_LOCAL_LINK_CONFIGURED_DOC = PROJECT_ROOT / "docs" / "T10T_STAGING_LOCAL_LINK_CONFIGURED.md"
+T10U_STAGING_DEPLOYMENT_READINESS_GATE_DOC = PROJECT_ROOT / "docs" / "T10U_STAGING_DEPLOYMENT_READINESS_GATE.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -6594,8 +6595,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("fetch(", proof)
 
         for pattern in (
-            "Current phase completed: T10t - Staging Local Link Configured.",
-            "T10u - prepare a no-deploy staging deployment readiness gate before any deployment",
+            "T10t staging local link configured:",
+            "T10u - prepare a no-deploy staging deployment readiness gate before any deployment. Historical anchor only; superseded by T10v.",
             "docs/T10T_STAGING_LOCAL_LINK_CONFIGURED.md",
         ):
             with self.subTest(pattern=pattern):
@@ -6610,9 +6611,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10t enlaza/configura localmente",
-            "T10u para preparar un gate no-deploy de readiness",
             "T10t anade `proof:staging-local-link`",
+            "T10u anade `proof:staging-deployment-readiness`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -6629,7 +6629,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "scripts/staging-local-link-proof.mjs",
             "npm run proof:staging-local-link",
             "GO_STAGING_LOCAL_LINK_CONFIGURED_NO_DEPLOY",
-            "T10u must prepare a no-deploy staging deployment readiness gate",
+            "T10u has prepared a no-deploy readiness gate",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, template_readme)
@@ -6648,6 +6648,134 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10t_text)
+
+    def test_t10u_staging_deployment_readiness_gate_is_documented_and_safe(self):
+        t10u = T10U_STAGING_DEPLOYMENT_READINESS_GATE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "staging-deployment-readiness-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:staging-deployment-readiness"],
+            "node scripts/staging-deployment-readiness-proof.mjs",
+        )
+
+        for pattern in (
+            "T10u Staging Deployment Readiness Gate",
+            "GO_STAGING_DEPLOYMENT_READINESS_GATE_NO_DEPLOY",
+            "sqx-edge-tester-staging",
+            "tester-preview",
+            "Verified ignored local Vercel metadata points to `sqx-edge-tester-staging`.",
+            "Verified SSO Deployment Protection remains enabled.",
+            "Deployment count: `0`.",
+            "Domains count: `0`.",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "T10v may execute exactly one staging deployment attempt",
+            "rollback/delete immediately if target is not preview",
+            "do not share or commit any deployment URL",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10u)
+
+        for pattern in (
+            'phase: "T10u"',
+            'result: "GO_STAGING_DEPLOYMENT_READINESS_GATE_NO_DEPLOY"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'privatePortalBranch: "tester-preview"',
+            'localPrivatePortalLinkedProjectName: "sqx-edge-tester-staging"',
+            "localVercelMetadataIgnored: true",
+            "localProjectJsonCommitted: false",
+            "ssoProtectionEnabled: true",
+            'ssoDeploymentType: "all_except_custom_domains"',
+            "gitForkProtectionEnabled: true",
+            "deploymentCount: 0",
+            "domains: []",
+            "domainsCount: 0",
+            "readinessGatePrepared: true",
+            "deploymentCommandPrepared: true",
+            'approvedNextCommand: "vercel deploy --force --yes --format json"',
+            "targetInspectionRequired: true",
+            "aliasInspectionRequired: true",
+            "rollbackOnTargetMismatchRequired: true",
+            "rollbackOnAliasOrDomainRequired: true",
+            "externalDeployAttemptedInT10u: false",
+            "deploymentCreationEndpointCalled: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "T10v_one_controlled_staging_deploy_with_target_alias_inspection_and_rollback",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10u - Staging Deployment Readiness Gate.",
+            "T10v - execute one controlled staging deployment attempt with immediate target/alias inspection and rollback on mismatch",
+            "docs/T10U_STAGING_DEPLOYMENT_READINESS_GATE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10u - Staging Deployment Readiness Gate.",
+            "Phase T10u: prepare a no-deploy staging deployment readiness gate before any deployment. Done",
+            "Phase T10v: execute one controlled staging deployment attempt with immediate target/alias inspection and rollback on mismatch.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10u prepara un gate no-deploy de readiness",
+            "T10v para ejecutar un unico intento controlado",
+            "T10u anade `proof:staging-deployment-readiness`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10u Staging Deployment Readiness Gate",
+            "proof:staging-deployment-readiness",
+            "GO_STAGING_DEPLOYMENT_READINESS_GATE_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/staging-deployment-readiness-proof.mjs",
+            "npm run proof:staging-deployment-readiness",
+            "GO_STAGING_DEPLOYMENT_READINESS_GATE_NO_DEPLOY",
+            "T10v may execute exactly one controlled staging deployment attempt",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10u_text = "\n".join([t10u, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10u_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
