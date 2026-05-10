@@ -80,7 +80,8 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/vercel-target-guard.mjs`: T10b build-time guard that blocks production-target builds from non-production branches.
 - `scripts/vercel-explicit-preview-proof.mjs`: T10c no-deploy proof for an explicit API preview request with `target: "preview"`.
 - `scripts/vercel-omitted-target-preview-proof.mjs`: T10e no-deploy proof for the Vercel API preview path where `target` is omitted.
-- `scripts/vercel-preview-project-separation-proof.mjs`: T10f no-deploy proof that the tester preview project is separated, undeployed and unlinked before setup continues.
+- `scripts/vercel-preview-project-separation-proof.mjs`: T10f no-deploy proof that the tester preview project is separated and has no public deployment surface.
+- `scripts/vercel-linked-preview-project-proof.mjs`: T10g no-deploy proof that the separated preview project is linked to the private tester portal repo with protection and no public surface.
 
 ## Local Preflight
 
@@ -122,6 +123,12 @@ npm run proof:vercel-preview-project-separation
 
 This proves the T10f project separation without creating a deployment. It requires the separated preview project to exist, to be different from the legacy project, and to have no live deployment, no latest deployment, no domains and no Git link yet. The expected no-deploy status is `GO_PREVIEW_PROJECT_SEPARATED`.
 
+```powershell
+npm run proof:vercel-linked-preview-project
+```
+
+This proves the T10g linked preview project without creating a deployment. It requires `sqx-edge-tester-preview` to be linked to the private tester portal repository, `main` to be the production branch, `tester-preview` to remain non-production, Deployment Protection to be enabled, and no live deployment, no latest deployment and no domains. The expected no-deploy status is `GO_LINKED_PREVIEW_PROJECT_READY`.
+
 ## Next Phase
 
-T10g must link the private tester portal repository to `sqx-edge-tester-preview` before any tester URL is shared. T10g must also verify production branch and Deployment Protection settings, and keep that result as no-deploy proof before any URL is created or shared. T10 proved that a Git deployment from `tester-preview` can still report `target=production`; T10d proved that even an explicit API request with `target: "preview"` can return `target=production`; T10e proved the omitted-target API path also returns `target=production` on the legacy project. Do not create another deployment on the current project ID. T10b keeps `production/tester-preview` fails before publication while the legacy mapping remains unresolved. T10f separated a clean preview project with no deployment, no domains and no Git link yet.
+T10h must execute exactly one protected preview deployment from `sqx-edge-tester-preview` before any tester URL is shared. T10h must inspect the deployment target immediately, and remove it immediately if the target is not preview or if any production alias appears. T10 proved that a Git deployment from `tester-preview` can still report `target=production`; T10d proved that even an explicit API request with `target: "preview"` can return `target=production`; T10e proved the omitted-target API path also returns `target=production` on the legacy project. Do not create another deployment on the current project ID. Do not create another deployment on the legacy project ID. T10b keeps `production/tester-preview` fails before publication while the legacy mapping remains unresolved. T10f separated a clean preview project, and T10g linked it to the private tester portal repository without deployment.

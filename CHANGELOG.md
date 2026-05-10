@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10g Linked Preview Project Proof
+
+- Links the private tester portal repository to the separated Vercel preview project without deploying or sharing a URL.
+- Adds `proof:vercel-linked-preview-project` to verify Git link, production branch, Deployment Protection, no domains and no latest deployment.
+- Sets T10h as the single protected preview deployment inspection phase before any tester URL can be shared.
+
 ## 2026-05-10 - T10f Separated Preview Project
 
 - Creates a separated Vercel project for tester preview without deploying, linking Git, adding domains or sharing any URL.

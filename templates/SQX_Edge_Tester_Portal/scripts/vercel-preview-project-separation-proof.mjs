@@ -119,12 +119,6 @@ assertUndeployed(previewProject, "preview");
 assertUndeployed(legacyProject, "legacy");
 
 const preview = summarizeProject(previewProject);
-if (preview.gitLinked) {
-  fail("NO_GO_PREVIEW_PROJECT_ALREADY_LINKED", {
-    preview,
-    requiredNextAction: "Inspect linked Git settings manually before any deployment; T10g owns linking proof"
-  }, 8);
-}
 
 console.log(JSON.stringify({
   ok: true,

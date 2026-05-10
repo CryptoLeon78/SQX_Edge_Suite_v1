@@ -14,6 +14,7 @@
     "proof:vercel-explicit-preview": "node scripts/vercel-explicit-preview-proof.mjs",
     "proof:vercel-omitted-target-preview": "node scripts/vercel-omitted-target-preview-proof.mjs",
     "proof:vercel-preview-project-separation": "node scripts/vercel-preview-project-separation-proof.mjs",
+    "proof:vercel-linked-preview-project": "node scripts/vercel-linked-preview-project-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
