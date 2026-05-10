@@ -79,6 +79,7 @@ T10T_STAGING_LOCAL_LINK_CONFIGURED_DOC = PROJECT_ROOT / "docs" / "T10T_STAGING_L
 T10U_STAGING_DEPLOYMENT_READINESS_GATE_DOC = PROJECT_ROOT / "docs" / "T10U_STAGING_DEPLOYMENT_READINESS_GATE.md"
 T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK.md"
 T10W_PROVIDER_TARGET_MAPPING_INVESTIGATION_DOC = PROJECT_ROOT / "docs" / "T10W_PROVIDER_TARGET_MAPPING_INVESTIGATION.md"
+T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -6982,8 +6983,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("fetch(", proof)
 
         for pattern in (
-            "Current phase completed: T10w - Provider Target Mapping Investigation.",
-            "T10x - execute one explicit preview-target deployment attempt with immediate target/alias inspection and rollback on mismatch",
+            "T10w provider target mapping investigation:",
+            "T10x - execute one explicit preview-target deployment attempt with immediate target/alias inspection and rollback on mismatch. Historical anchor only; superseded by T10y.",
             "docs/T10W_PROVIDER_TARGET_MAPPING_INVESTIGATION.md",
         ):
             with self.subTest(pattern=pattern):
@@ -6998,9 +6999,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10w rechaza la ruta CLI default",
-            "T10x para ejecutar un unico intento controlado",
             "T10w anade `proof:provider-target-mapping-investigation`",
+            "T10x anade `proof:explicit-preview-target-rollback`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -7017,7 +7017,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "scripts/provider-target-mapping-investigation-proof.mjs",
             "npm run proof:provider-target-mapping-investigation",
             "NO_GO_DEFAULT_CLI_STAGING_ROUTE_REJECTED_EXPLICIT_PREVIEW_TARGET_PREPARED",
-            "T10x may execute exactly one explicit preview-target deployment attempt",
+            "T10x executed one explicit preview-target deployment attempt",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, template_readme)
@@ -7036,6 +7036,139 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10w_text)
+
+    def test_t10x_explicit_preview_target_rollback_is_documented_and_safe(self):
+        t10x = T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "explicit-preview-target-rollback-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:explicit-preview-target-rollback"],
+            "node scripts/explicit-preview-target-rollback-proof.mjs",
+        )
+
+        for pattern in (
+            "T10x Explicit Preview Target Rollback",
+            "NO_GO_EXPLICIT_PREVIEW_TARGET_RETURNED_PRODUCTION_ROLLBACK_CLEAN",
+            "sqx-edge-tester-staging",
+            "tester-preview",
+            "The attempted command was `vercel deploy --target=preview --force --yes --format json`.",
+            "Vercel returned `target = production` despite the explicit preview target.",
+            "The T10b build guard blocked the build with exit code `43`.",
+            "Removed the failed deployment immediately.",
+            "Verified no deployments remain for `sqx-edge-tester-staging`.",
+            "Verified no domains exist in the team.",
+            "Did not share or commit any deployment URL.",
+            "Attempted target: `preview`.",
+            "Returned target: `production`.",
+            "Deployment count after rollback: `0`.",
+            "Domains count after rollback: `0`.",
+            "The Vercel CLI route is rejected for tester rollout.",
+            "T10y must stop retrying Vercel CLI deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10x)
+
+        for pattern in (
+            'phase: "T10x"',
+            'result: "NO_GO_EXPLICIT_PREVIEW_TARGET_RETURNED_PRODUCTION_ROLLBACK_CLEAN"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'privatePortalBranch: "tester-preview"',
+            "deploymentAttemptedOnce: true",
+            'attemptedCommand: "vercel deploy --target=preview --force --yes --format json"',
+            'attemptedTarget: "preview"',
+            'returnedTarget: "production"',
+            'expectedTarget: "preview"',
+            "guardBlockedBuild: true",
+            'guardPhase: "T10b"',
+            'guardStatus: "NO_GO_PRODUCTION_TARGET_FROM_NON_PRODUCTION_BRANCH"',
+            "guardExitCode: 43",
+            "failedDeploymentRemoved: true",
+            "deploymentCountAfterRollback: 0",
+            "domains: []",
+            "domainsCountAfterRollback: 0",
+            "ssoProtectionEnabled: true",
+            'ssoDeploymentType: "all_except_custom_domains"',
+            "gitForkProtectionEnabled: true",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "defaultCliRouteRejected: true",
+            "explicitPreviewTargetRouteRejected: true",
+            "currentVercelCliDeploymentRouteRejected: true",
+            "T10y_no_deploy_route_replacement_or_provider_dashboard_correction_decision",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10x - Explicit Preview Target Rollback.",
+            "T10y - stop retrying Vercel CLI deployment and choose a no-deploy route replacement or provider/dashboard correction decision",
+            "docs/T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10x - Explicit Preview Target Rollback.",
+            "Phase T10x: execute one explicit preview-target deployment attempt with immediate target/alias inspection and rollback on mismatch. Done",
+            "Phase T10y: stop retrying Vercel CLI deployment and choose a no-deploy route replacement or provider/dashboard correction decision.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10x prueba `--target=preview`",
+            "T10y para dejar de reintentar Vercel CLI",
+            "T10x anade `proof:explicit-preview-target-rollback`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10x Explicit Preview Target Rollback",
+            "proof:explicit-preview-target-rollback",
+            "NO_GO_EXPLICIT_PREVIEW_TARGET_RETURNED_PRODUCTION_ROLLBACK_CLEAN",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/explicit-preview-target-rollback-proof.mjs",
+            "npm run proof:explicit-preview-target-rollback",
+            "NO_GO_EXPLICIT_PREVIEW_TARGET_RETURNED_PRODUCTION_ROLLBACK_CLEAN",
+            "T10y must stop retrying Vercel CLI deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10x_text = "\n".join([t10x, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10x_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

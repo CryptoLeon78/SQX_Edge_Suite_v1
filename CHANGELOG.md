@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10x Explicit Preview Target Rollback
+
+- Executes one explicit `--target=preview` deployment attempt against `sqx-edge-tester-staging`.
+- Confirms Vercel still returns `target=production`; the T10b guard blocks the build with exit code 43.
+- Removes the failed deployment and adds `proof:explicit-preview-target-rollback` with result `NO_GO_EXPLICIT_PREVIEW_TARGET_RETURNED_PRODUCTION_ROLLBACK_CLEAN`.
+
 ## 2026-05-10 - T10w Provider Target Mapping Investigation
 
 - Investigates `sqx-edge-tester-staging` target mapping without another deployment attempt.
