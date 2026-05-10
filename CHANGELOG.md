@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-11 - T10am Controlled Real App Deploy Result
+
+- Executes the exact approved Cloudflare Wrangler deployment attempt for the real OpenNext tester portal.
+- Adds `proof:cloudflare-real-app-deploy-result` with `GO_REAL_APP_VERSION_UPLOADED_NO_PUBLIC_TARGET_NO_TESTER_URL`.
+- Records that no public target, tester URL, tester accounts or sensitive Cloudflare identifiers were committed.
+
 ## 2026-05-10 - T10al Controlled Real App Deploy Gate
 
 - Adds `proof:cloudflare-controlled-real-app-deploy-gate` with `GO_CONTROLLED_REAL_APP_DEPLOY_GATE_READY_EXACT_APPROVAL_REQUIRED`.

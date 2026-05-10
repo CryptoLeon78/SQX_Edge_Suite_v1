@@ -130,6 +130,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/cloudflare-workers-dev-access-proof.mjs`: T10ajo proof for the Access-protected shell state before any real app deploy.
 - `scripts/cloudflare-access-policy-boundary-proof.mjs`: T10ak proof for the Access app/policy boundary before any real app deploy.
 - `scripts/cloudflare-controlled-real-app-deploy-gate-proof.mjs`: T10al proof for the exact future real-app deploy gate; it does not deploy the app.
+- `scripts/cloudflare-real-app-deploy-result-proof.mjs`: T10am proof for the approved real-app version upload with no public target and no tester URL.
 - `cloudflare-access-policy-boundary.example.json`: public-safe T10ak evidence template; copy to ignored `cloudflare-access-policy-boundary.local.json` only.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
@@ -461,6 +462,12 @@ npm run proof:cloudflare-controlled-real-app-deploy-gate
 ```
 
 This proves the T10al exact-approval gate for a future real app deploy. It must return `GO_CONTROLLED_REAL_APP_DEPLOY_GATE_READY_EXACT_APPROVAL_REQUIRED` and still does not deploy the real app or publish a tester URL.
+
+```powershell
+npm run proof:cloudflare-real-app-deploy-result
+```
+
+This proves the T10am approved deploy result from ignored local booleans. It must return `GO_REAL_APP_VERSION_UPLOADED_NO_PUBLIC_TARGET_NO_TESTER_URL` before T10an can choose a protected publication target. It must not include hostnames, URLs, account IDs, Access IDs, deployment IDs, version IDs, tester emails, tokens or keys.
 
 ```powershell
 npm run cf:build

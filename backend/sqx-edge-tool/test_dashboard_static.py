@@ -109,6 +109,7 @@ T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY_DOC = PROJECT_ROOT / "docs" / "T10AJN
 T10AJO_WORKERS_DEV_ACCESS_VERIFIED_DOC = PROJECT_ROOT / "docs" / "T10AJO_WORKERS_DEV_ACCESS_VERIFIED.md"
 T10AK_ACCESS_POLICY_BOUNDARY_DOC = PROJECT_ROOT / "docs" / "T10AK_ACCESS_POLICY_BOUNDARY.md"
 T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE_DOC = PROJECT_ROOT / "docs" / "T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE.md"
+T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT_DOC = PROJECT_ROOT / "docs" / "T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
@@ -10503,8 +10504,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: T10al prepara el gate exacto de deploy real controlado",
-            "Siguiente paso recomendado: T10am para ejecutar un unico deploy real controlado",
+            "Estado interno: T10am ha subido/desplegado una version real",
+            "Siguiente paso recomendado: T10an para elegir/verificar el target protegido",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -11302,14 +11303,14 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "Current completed phase: T10al - Controlled Real App Deploy Gate.",
             "Phase T10al: prepare the exact controlled real app deploy gate after Access app/policy boundary verification. Done",
-            "Phase T10am: execute one controlled real app deploy only with exact approval",
+            "Next recommended phase: T10am - execute one controlled real app deploy only with exact approval",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
             "T10al prepara el gate exacto de deploy real controlado",
-            "T10al anade `proof:cloudflare-controlled-real-app-deploy-gate`",
+            "`proof:cloudflare-controlled-real-app-deploy-gate`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -11358,6 +11359,143 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_gate_text)
+
+    def test_t10am_controlled_real_app_deploy_result_is_documented_and_safe(self):
+        result_doc = T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-real-app-deploy-result-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("cloudflare-real-app-deploy.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-real-app-deploy-result"],
+            "node scripts/cloudflare-real-app-deploy-result-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertNotIn("routes", wrangler_config)
+
+        for pattern in (
+            "T10am Controlled Real App Deploy Result",
+            "npm exec -- wrangler deploy --config wrangler.jsonc",
+            "GO_REAL_APP_VERSION_UPLOADED_NO_PUBLIC_TARGET_NO_TESTER_URL",
+            "No tester URL was published.",
+            "Rollback was not required",
+            "cloudflare-real-app-deploy.local.json",
+            "T10an_protected_tester_publication_target_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, result_doc)
+
+        for pattern in (
+            'phase: "T10am"',
+            "GO_REAL_APP_VERSION_UPLOADED_NO_PUBLIC_TARGET_NO_TESTER_URL",
+            "NO_GO_REAL_APP_DEPLOY_RESULT_EVIDENCE_REQUIRED",
+            "localEvidenceIgnored",
+            "localEvidenceHasNoSensitiveFields",
+            "deployCommandExecuted",
+            "wranglerDeploySucceeded",
+            "versionUploaded",
+            "deploymentRecordPresent",
+            "deployTargetsCreated",
+            "workersDevPublicTargetEnabled",
+            "customDomainAdded",
+            "publicRouteAdded",
+            "anonymousAccessStillBlocked",
+            "directAppBodyVisibleToAnonymous",
+            "rollbackRequired",
+            "testerUrlShared",
+            "testerAccountsCreated",
+            "testerEmailsIncluded",
+            "T10an_protected_tester_publication_target_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10am - Controlled Real App Deploy Result.",
+            "Next implementation phase: T10an - choose and verify the protected tester publication target",
+            "T10am Controlled real app deploy result",
+            "docs/T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10am - Controlled Real App Deploy Result.",
+            "Phase T10am: execute the approved real app deploy",
+            "Phase T10an: choose and verify the protected tester publication target",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10am ha subido/desplegado una version real",
+            "T10am anade `proof:cloudflare-real-app-deploy-result`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10am Controlled Real App Deploy Result",
+            "proof:cloudflare-real-app-deploy-result",
+            "GO_REAL_APP_VERSION_UPLOADED_NO_PUBLIC_TARGET_NO_TESTER_URL",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-real-app-deploy-result-proof.mjs",
+            "npm run proof:cloudflare-real-app-deploy-result",
+            "GO_REAL_APP_VERSION_UPLOADED_NO_PUBLIC_TARGET_NO_TESTER_URL",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_result_text = "\n".join(
+            [
+                result_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+            ]
+        )
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_result_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
