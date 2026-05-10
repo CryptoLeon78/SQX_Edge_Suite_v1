@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ad Cloudflare Access Preflight
+
+- Defines the no-deploy Cloudflare Pages plus Access OTP preflight before any provider project, deployment or tester URL.
+- Adds a mandatory T10ae runtime compatibility gate because the tester portal uses Next.js route handlers and middleware.
+- Adds `proof:cloudflare-access-preflight` with result `GO_CLOUDFLARE_ACCESS_PREFLIGHT_READY_NO_DEPLOY`.
+
 ## 2026-05-10 - T10ac Replacement Tester Route Options
 
 - Compares Cloudflare, Netlify, Render, local/private-network and the rejected Vercel route without deployment.
