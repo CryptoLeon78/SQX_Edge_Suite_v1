@@ -115,6 +115,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/cloudflare-shell-evidence-ingest-proof.mjs`: T10ajc no-deploy evidence ingest gate that keeps T10ak blocked until the ignored local shell evidence proves a real shell and zero tester surface.
 - `scripts/cloudflare-shell-evidence-capture-proof.mjs`: T10ajd no-deploy capture checklist proof for manual/authenticated shell evidence before rerunning T10ajc.
 - `scripts/cloudflare-readonly-shell-capture-proof.mjs`: T10aje read-only capture proof recording that the proposed Worker does not exist after Wrangler authentication.
+- `scripts/cloudflare-shell-creation-decision-proof.mjs`: T10ajf decision proof recording that no invisible shell path is accepted and the first Worker creation requires an exact approval gate for `wrangler deploy`.
 - `cloudflare-shell-evidence.example.json`: public-safe template for manual shell evidence; copy to ignored `cloudflare-shell-evidence.local.json` only.
 
 ## Local Preflight
@@ -364,6 +365,12 @@ npm run proof:cloudflare-readonly-shell-capture
 ```
 
 This proves the T10aje read-only capture result. It must return `NO_GO_CLOUDFLARE_WORKER_NOT_FOUND_T10AK_BLOCKED` until a real Cloudflare shell exists; it does not deploy or create Access.
+
+```powershell
+npm run proof:cloudflare-shell-creation-decision
+```
+
+This proves the T10ajf shell creation decision. It must return `NO_GO_NO_INVISIBLE_CLOUDFLARE_SHELL_PATH_ACCEPTED`, record that the first Worker cannot be created with `wrangler versions upload`, and leave T10ajg limited to preparing the exact `wrangler deploy` approval gate. It does not deploy, upload, create Access or publish a tester URL.
 
 ```powershell
 npm run cf:build

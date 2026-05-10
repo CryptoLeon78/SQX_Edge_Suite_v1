@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T10aje - Cloudflare Read-Only Shell Capture.
+- Current completed phase: T10ajf - Cloudflare Shell Creation Decision.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10ajf - choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10ajg - prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -71,6 +71,8 @@ Persistent planning note for the next SQX Edge phases.
 - Next recommended phase: T10ajd - capture real Cloudflare shell evidence manually/authenticated before T10ak. Historical anchor only; superseded by T10aje.
 - Current completed phase: T10ajd - Cloudflare Shell Evidence Capture Checklist. Historical anchor only; superseded by T10aje.
 - Next recommended phase: T10aje - execute manual Cloudflare login/dashboard evidence capture outside git, then rerun T10ajc ingest. Historical anchor only; superseded by T10ajf.
+- Current completed phase: T10aje - Cloudflare Read-Only Shell Capture. Historical anchor only; superseded by T10ajf.
+- Next recommended phase: T10ajf - choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later. Historical anchor only; superseded by T10ajg.
 
 ## Recommended Order
 
@@ -171,13 +173,15 @@ Persistent planning note for the next SQX Edge phases.
 53. Phase T10ajc: ingest authenticated or manual Cloudflare shell evidence without deployment and decide whether T10ak can be unlocked. Done as guarded NO-GO because no ignored local evidence exists and Wrangler remains unauthenticated; see `docs/T10AJC_CLOUDFLARE_SHELL_EVIDENCE_INGEST.md`.
 54. Phase T10ajd: capture real Cloudflare shell evidence manually/authenticated before T10ak. Done as capture checklist/proof because Wrangler remains unauthenticated in Codex; see `docs/T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE.md`.
 55. Phase T10aje: execute manual Cloudflare login/dashboard evidence capture outside git, then rerun T10ajc ingest. Done as read-only Wrangler capture; authenticated read confirms `sqx-edge-tester-portal-preview` does not exist, so T10ak stays blocked; see `docs/T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE.md`.
-56. Phase T10ajf: choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later.
-57. Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified. Blocked until a real provider shell exists.
-58. Phase T10al: execute one controlled Cloudflare Workers deployment only after shell + Access policy are verified, then inspect target, Access coverage and no custom/public domain before any tester URL.
-59. Phase T10am: run protected-route E2E smoke: anonymous blocked by Cloudflare Access, app session required, expired/denied/blocked tester states, logout, watermark, health and noindex.
-60. Phase T10an: prepare private tester onboarding packet without committing tester emails or URL.
-61. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
-62. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
+56. Phase T10ajf: choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later. Done as decision gate: no pure invisible shell path is accepted; first Worker creation must use an explicit `wrangler deploy`/C3 class external action because `wrangler versions upload` fails on first upload; see `docs/T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION.md`.
+57. Phase T10ajg: prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing.
+58. Phase T10ajh: execute the first Cloudflare Worker deploy/shell creation only after exact approval, then immediately inspect or clean up before any tester URL is shared.
+59. Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified. Blocked until a real provider shell exists.
+60. Phase T10al: execute one controlled Cloudflare Workers deployment only after shell + Access policy are verified, then inspect target, Access coverage and no custom/public domain before any tester URL.
+61. Phase T10am: run protected-route E2E smoke: anonymous blocked by Cloudflare Access, app session required, expired/denied/blocked tester states, logout, watermark, health and noindex.
+62. Phase T10an: prepare private tester onboarding packet without committing tester emails or URL.
+63. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+64. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
 

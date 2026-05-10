@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-10 - T10ajf Cloudflare Shell Creation Decision
+
+- Confirms there is no accepted invisible Cloudflare Worker shell creation path.
+- Adds `proof:cloudflare-shell-creation-decision` with result `NO_GO_NO_INVISIBLE_CLOUDFLARE_SHELL_PATH_ACCEPTED`.
+- Records the official Cloudflare first-upload constraint: the first Worker creation must use C3 or `wrangler deploy`; `wrangler versions upload` would fail for the first upload.
+- Leaves the next phase as an exact approval gate for a first Worker deploy/shell creation, with no tester URL sharing.
+
 ## 2026-05-10 - T10aje Cloudflare Read-Only Shell Capture
 
 - Authenticates Wrangler locally and performs read-only checks for `sqx-edge-tester-portal-preview`.

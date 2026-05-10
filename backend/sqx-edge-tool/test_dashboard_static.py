@@ -96,6 +96,7 @@ T10AJB_CLOUDFLARE_AUTH_HANDOFF_DOC = PROJECT_ROOT / "docs" / "T10AJB_CLOUDFLARE_
 T10AJC_CLOUDFLARE_SHELL_EVIDENCE_INGEST_DOC = PROJECT_ROOT / "docs" / "T10AJC_CLOUDFLARE_SHELL_EVIDENCE_INGEST.md"
 T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE_DOC = PROJECT_ROOT / "docs" / "T10AJD_CLOUDFLARE_SHELL_EVIDENCE_CAPTURE.md"
 T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE_DOC = PROJECT_ROOT / "docs" / "T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE.md"
+T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION_DOC = PROJECT_ROOT / "docs" / "T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -9439,7 +9440,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "T10aje anade `proof:cloudflare-readonly-shell-capture`",
-            "T10ajf para decidir ruta exacta de creacion shell Cloudflare sin deploy",
+            "T10ajf anade `proof:cloudflare-shell-creation-decision`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -9476,6 +9477,138 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10aje_text)
+
+    def test_t10ajf_cloudflare_shell_creation_decision_is_documented_and_safe(self):
+        t10ajf = T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-shell-creation-decision-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-shell-creation-decision"],
+            "node scripts/cloudflare-shell-creation-decision-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+
+        for pattern in (
+            "T10ajf Cloudflare Shell Creation Decision",
+            "NO_GO_NO_INVISIBLE_CLOUDFLARE_SHELL_PATH_ACCEPTED",
+            "using `wrangler versions upload` for the first upload will fail",
+            "T10ajg_first_worker_deploy_approval_gate",
+            "npm exec --yes wrangler@latest deploy --name sqx-edge-tester-portal-preview",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare version was uploaded.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "https://developers.cloudflare.com/workers/configuration/versions-and-deployments/",
+            "https://developers.cloudflare.com/workers/configuration/previews/",
+            "https://developers.cloudflare.com/workers/wrangler/commands/workers/",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ajf)
+
+        for pattern in (
+            'phase: "T10ajf"',
+            'result: "NO_GO_NO_INVISIBLE_CLOUDFLARE_SHELL_PATH_ACCEPTED"',
+            'provider: "Cloudflare"',
+            'requestedProjectShellName: "sqx-edge-tester-portal-preview"',
+            "providerShellExistsFromT10aje: false",
+            "noDeployShellPathAccepted: false",
+            "firstUploadRequiresWranglerDeploy: true",
+            "versionsUploadCannotCreateFirstWorker: true",
+            "versionsUploadCanReturnPreviewUrl: true",
+            "deployCreatesTrafficDeployment: true",
+            "t10akUnlocked: false",
+            "nextActionRequiresExactApproval: true",
+            'candidateNextGate: "T10ajg_first_worker_deploy_approval_gate"',
+            "packageScriptReady:",
+            "deployOrUploadScriptPublished:",
+            "docHasNoSecretPattern:",
+            "docReady:",
+            "governanceUpdated:",
+            "nextStepsUpdated:",
+            "cloudflareProjectCreated: false",
+            "cloudflareVersionUploaded: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            'nextGate: "T10ajg_first_worker_deploy_approval_gate"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ajf - Cloudflare Shell Creation Decision.",
+            "Next implementation phase: T10ajg - prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing",
+            "docs/T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ajf - Cloudflare Shell Creation Decision.",
+            "Phase T10ajf: choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later. Done",
+            "Phase T10ajg: prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing.",
+            "Phase T10ajh: execute the first Cloudflare Worker deploy/shell creation only after exact approval",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ajf anade `proof:cloudflare-shell-creation-decision`",
+            "T10ajg para preparar la aprobacion exacta del primer `wrangler deploy`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ajf Cloudflare Shell Creation Decision",
+            "proof:cloudflare-shell-creation-decision",
+            "NO_GO_NO_INVISIBLE_CLOUDFLARE_SHELL_PATH_ACCEPTED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-shell-creation-decision-proof.mjs",
+            "npm run proof:cloudflare-shell-creation-decision",
+            "NO_GO_NO_INVISIBLE_CLOUDFLARE_SHELL_PATH_ACCEPTED",
+            "first Worker creation requires an exact approval gate for `wrangler deploy`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ajf_text = "\n".join([t10ajf, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ajf_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
