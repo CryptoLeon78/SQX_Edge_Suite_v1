@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: T10ak - Access Policy Boundary.
+- Current phase completed: T10al - Controlled Real App Deploy Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: T10al - prepare the exact controlled real app deploy gate after Access app/policy boundary verification, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next implementation phase: T10am - execute one controlled real app deploy only with exact approval, immediate Access smoke and rollback on mismatch, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.
 - Earlier governance baseline: G4 - Institutional Core Repository Gate.
@@ -97,6 +97,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current phase completed: T10ajo - Workers.dev Access Verified. Historical anchor only; superseded by T10ak.
 - Next implementation phase: T10ak - record or verify the Cloudflare Access application/policy boundary for the protected workers.dev shell before any real app deploy. Historical anchor only; superseded by T10al.
 - Current phase completed: T10ak - Access Policy Boundary. Historical anchor only; superseded by T10al.
+- Next implementation phase: T10al - prepare the exact controlled real app deploy gate after Access app/policy boundary verification. Historical anchor only; superseded by T10am.
+- Current phase completed: T10al - Controlled Real App Deploy Gate. Historical anchor only; superseded by T10am.
 
 ## Specialist Agents
 
@@ -275,6 +277,7 @@ M46 is accepted when these criteria are true:
 - T10ajn Controlled Workers.dev shell deploy: `docs/T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-workers-dev-shell-deploy-proof.mjs`, ignored `cloudflare-hostname-zone-selection.local.json` evidence and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ajo Workers.dev Access verified: `docs/T10AJO_WORKERS_DEV_ACCESS_VERIFIED.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-workers-dev-access-proof.mjs`, ignored `cloudflare-hostname-zone-selection.local.json` evidence and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ak Access policy boundary: `docs/T10AK_ACCESS_POLICY_BOUNDARY.md`, `templates/SQX_Edge_Tester_Portal/cloudflare-access-policy-boundary.example.json`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-access-policy-boundary-proof.mjs`, ignored `cloudflare-access-policy-boundary.local.json` evidence and `templates/SQX_Edge_Tester_Portal/package.json`.
+- T10al Controlled real app deploy gate: `docs/T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-controlled-real-app-deploy-gate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ac replacement tester route options: `docs/T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md`, `templates/SQX_Edge_Tester_Portal/scripts/replacement-tester-route-options-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ad Cloudflare Access preflight: `docs/T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-access-preflight-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ae Cloudflare runtime compatibility: `docs/T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-runtime-compatibility-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.

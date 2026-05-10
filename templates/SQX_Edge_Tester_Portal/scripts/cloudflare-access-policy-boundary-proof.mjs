@@ -170,7 +170,7 @@ const proof = Object.freeze({
     doc.includes("T10al_controlled_real_app_deploy_gate"),
   governanceUpdated: governance.includes("T10ak - Access Policy Boundary"),
   nextStepsUpdated: nextSteps.includes("Phase T10ak: record/verify the Cloudflare Access application and policy boundary"),
-  readmeUpdated: readme.includes("T10ak registra/verifica la frontera de Cloudflare Access app/policy"),
+  readmeUpdated: readme.includes("T10ak anade `proof:cloudflare-access-policy-boundary`"),
   changelogUpdated: changelog.includes("T10ak Access Policy Boundary"),
   templateReadmeUpdated: templateReadme.includes("proof:cloudflare-access-policy-boundary"),
   noSensitiveCloudflareEnvCommitted:

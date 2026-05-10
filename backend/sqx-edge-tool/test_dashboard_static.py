@@ -108,6 +108,7 @@ T10AJM_WORKERS_DEV_SHELL_GATE_DOC = PROJECT_ROOT / "docs" / "T10AJM_WORKERS_DEV_
 T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY_DOC = PROJECT_ROOT / "docs" / "T10AJN_CONTROLLED_WORKERS_DEV_SHELL_DEPLOY.md"
 T10AJO_WORKERS_DEV_ACCESS_VERIFIED_DOC = PROJECT_ROOT / "docs" / "T10AJO_WORKERS_DEV_ACCESS_VERIFIED.md"
 T10AK_ACCESS_POLICY_BOUNDARY_DOC = PROJECT_ROOT / "docs" / "T10AK_ACCESS_POLICY_BOUNDARY.md"
+T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE_DOC = PROJECT_ROOT / "docs" / "T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
@@ -10502,8 +10503,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: T10ak registra/verifica la frontera de Cloudflare Access app/policy",
-            "Siguiente paso recomendado: T10al para preparar el gate exacto de deploy real controlado",
+            "Estado interno: T10al prepara el gate exacto de deploy real controlado",
+            "Siguiente paso recomendado: T10am para ejecutar un unico deploy real controlado",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -10629,7 +10630,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10ak registra/verifica la frontera de Cloudflare Access app/policy",
+            "T10al prepara el gate exacto de deploy real controlado",
             "T10ajl2 anade `prepare:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -10764,7 +10765,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10ak registra/verifica la frontera de Cloudflare Access app/policy",
+            "T10al prepara el gate exacto de deploy real controlado",
             "T10ajm anade `proof:cloudflare-workers-dev-shell-gate`",
         ):
             with self.subTest(pattern=pattern):
@@ -10892,7 +10893,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10ak registra/verifica la frontera de Cloudflare Access app/policy",
+            "T10al prepara el gate exacto de deploy real controlado",
             "T10ajn anade `proof:cloudflare-workers-dev-shell-deploy`",
         ):
             with self.subTest(pattern=pattern):
@@ -11142,8 +11143,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10ak - Access Policy Boundary.",
-            "Next implementation phase: T10al - prepare the exact controlled real app deploy gate",
+            "Current phase completed: T10ak - Access Policy Boundary. Historical anchor only; superseded by T10al.",
+            "Next implementation phase: T10al - prepare the exact controlled real app deploy gate after Access app/policy boundary verification. Historical anchor only; superseded by T10am.",
             "T10ak Access policy boundary",
             "docs/T10AK_ACCESS_POLICY_BOUNDARY.md",
         ):
@@ -11153,13 +11154,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "Current completed phase: T10ak - Access Policy Boundary.",
             "Phase T10ak: record/verify the Cloudflare Access application and policy boundary",
-            "Phase T10al: prepare the exact controlled real app deploy gate",
+            "Phase T10al: prepare the exact controlled real app deploy gate after Access app/policy boundary verification. Done",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10ak registra/verifica la frontera de Cloudflare Access app/policy",
+            "T10ak anade `proof:cloudflare-access-policy-boundary`",
             "T10ak anade `proof:cloudflare-access-policy-boundary`",
         ):
             with self.subTest(pattern=pattern):
@@ -11212,6 +11213,151 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_boundary_text)
+
+    def test_t10al_controlled_real_app_deploy_gate_is_documented_and_safe(self):
+        gate_doc = T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-controlled-real-app-deploy-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-controlled-real-app-deploy-gate"],
+            "node scripts/cloudflare-controlled-real-app-deploy-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertEqual(package["scripts"]["cf:build"], "opennextjs-cloudflare build")
+        self.assertEqual(package["scripts"]["typecheck"], "tsc --noEmit")
+        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertNotIn("routes", wrangler_config)
+
+        for pattern in (
+            "T10al Controlled Real App Deploy Gate",
+            "AUTORIZO T10al-deploy-real-app",
+            "npm exec -- wrangler deploy --config wrangler.jsonc",
+            "npm run proof:cloudflare-access-policy-boundary",
+            "npm run proof:cloudflare-workers-dev-access",
+            "npm run proof:cloudflare-hostname-zone-selection",
+            "npm run cf:build",
+            "npm run typecheck",
+            "Probe anonymous access with redirects disabled",
+            "Rollback Rule",
+            "GO_CONTROLLED_REAL_APP_DEPLOY_GATE_READY_EXACT_APPROVAL_REQUIRED",
+            "No real app deployment in T10al.",
+            "T10am_controlled_real_app_deploy_and_access_smoke",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, gate_doc)
+
+        for pattern in (
+            'phase: "T10al"',
+            "GO_CONTROLLED_REAL_APP_DEPLOY_GATE_READY_EXACT_APPROVAL_REQUIRED",
+            "exactApprovalPhraseDocumented",
+            "futureDeployCommandDocumented",
+            "accessBoundaryPrecheckRequired",
+            "accessProbePrecheckRequired",
+            "hostnameGatePrecheckRequired",
+            "localBuildPrecheckRequired",
+            "typecheckPrecheckRequired",
+            "postDeployAnonymousAccessRequired",
+            "rollbackRuleDocumented",
+            "wranglerWorkersDevDisabled",
+            "wranglerPreviewUrlsDisabled",
+            "wranglerMainIsOpenNextWorker",
+            "directDeployScriptAbsent",
+            "buildScriptPresent",
+            "realAppDeployed: false",
+            "deployCommandExecuted: false",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "T10am_controlled_real_app_deploy_and_access_smoke",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10al - Controlled Real App Deploy Gate.",
+            "Next implementation phase: T10am - execute one controlled real app deploy only with exact approval",
+            "T10al Controlled real app deploy gate",
+            "docs/T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10al - Controlled Real App Deploy Gate.",
+            "Phase T10al: prepare the exact controlled real app deploy gate after Access app/policy boundary verification. Done",
+            "Phase T10am: execute one controlled real app deploy only with exact approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10al prepara el gate exacto de deploy real controlado",
+            "T10al anade `proof:cloudflare-controlled-real-app-deploy-gate`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10al Controlled Real App Deploy Gate",
+            "proof:cloudflare-controlled-real-app-deploy-gate",
+            "GO_CONTROLLED_REAL_APP_DEPLOY_GATE_READY_EXACT_APPROVAL_REQUIRED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-controlled-real-app-deploy-gate-proof.mjs",
+            "npm run proof:cloudflare-controlled-real-app-deploy-gate",
+            "GO_CONTROLLED_REAL_APP_DEPLOY_GATE_READY_EXACT_APPROVAL_REQUIRED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_gate_text = "\n".join(
+            [
+                gate_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+            ]
+        )
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_gate_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10al Controlled Real App Deploy Gate
+
+- Adds `proof:cloudflare-controlled-real-app-deploy-gate` with `GO_CONTROLLED_REAL_APP_DEPLOY_GATE_READY_EXACT_APPROVAL_REQUIRED`.
+- Documents the exact future approval phrase, deploy command, prechecks, post-deploy Access smoke and rollback rules.
+- Keeps the real app undeployed and tester URL sharing blocked until a later exact-approval phase.
+
 ## 2026-05-10 - T10ak Access Policy Boundary
 
 - Adds `proof:cloudflare-access-policy-boundary` with `GO_ACCESS_APPLICATION_POLICY_BOUNDARY_VERIFIED_NO_APP_DEPLOY`.
