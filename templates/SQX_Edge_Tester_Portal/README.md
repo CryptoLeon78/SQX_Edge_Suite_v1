@@ -103,6 +103,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/provider-dashboard-correction-package-proof.mjs`: T10z no-deploy correction package with operator checklist and evidence format before any new attempt.
 - `scripts/provider-dashboard-evidence-record-proof.mjs`: T10aa no-deploy evidence record that confirms CLI evidence cannot prove preview target safety without manual dashboard review.
 - `scripts/manual-dashboard-evidence-ingest-proof.mjs`: T10ab no-deploy manual dashboard evidence ingest that rejects the current Vercel tester route and selects route replacement.
+- `scripts/replacement-tester-route-options-proof.mjs`: T10ac no-deploy route comparison that selects Cloudflare Pages preview plus Cloudflare Access email OTP as the next candidate.
 
 ## Local Preflight
 
@@ -280,6 +281,14 @@ npm run proof:manual-dashboard-evidence-ingest
 
 This proves the T10ab manual dashboard evidence ingest. It must return `NO_GO_REPLACE_VERCEL_TESTER_ROUTE` until T10ac selects a protected non-Vercel tester route, a local/private-network pilot, or a newly proven Vercel route with provider evidence before deployment.
 
+T10ac must compare and select a replacement tester route without deployment. T10ac must compare replacement tester routes without creating provider projects or deployments.
+
+```powershell
+npm run proof:replacement-tester-route-options
+```
+
+This proves the T10ac route decision. It must return `GO_CLOUDFLARE_ACCESS_OTP_ROUTE_SELECTED_NO_DEPLOY` and keep the next phase limited to a no-deploy Cloudflare Access preflight package.
+
 ```powershell
 npm run proof:vercel-config-hardening
 ```
@@ -318,7 +327,7 @@ This proves the T10r fresh staging project creation without deployment. It must 
 
 ## Next Phase
 
-T10ac must compare and select a replacement tester route without deployment. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, T10o selects `fresh_staging_route_with_no_deploy_preflight`, T10p proves the local preflight gate, T10q confirms write auth, T10r creates the clean project shell, T10s verifies protection/settings, T10t configures the local private portal link, T10u prepares the no-deploy readiness gate, T10v confirms the default CLI route still returns production target, T10w prepares the explicit preview-target route, T10x confirms that route also returns production target, T10y pauses Vercel CLI deployment, T10z prepares the correction checklist, T10aa records the manual dashboard evidence gap and T10ab ingests manual dashboard evidence with `NO_GO_REPLACE_VERCEL_TESTER_ROUTE`. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
+T10ad must prepare a Cloudflare Access preflight package without creating a provider project or deployment. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, T10o selects `fresh_staging_route_with_no_deploy_preflight`, T10p proves the local preflight gate, T10q confirms write auth, T10r creates the clean project shell, T10s verifies protection/settings, T10t configures the local private portal link, T10u prepares the no-deploy readiness gate, T10v confirms the default CLI route still returns production target, T10w prepares the explicit preview-target route, T10x confirms that route also returns production target, T10y pauses Vercel CLI deployment, T10z prepares the correction checklist, T10aa records the manual dashboard evidence gap, T10ab ingests manual dashboard evidence with `NO_GO_REPLACE_VERCEL_TESTER_ROUTE` and T10ac selects Cloudflare Pages preview plus Cloudflare Access email OTP as the next candidate. Do not share any tester URL until a deployment returns the expected non-production status and no production alias exists.
 
 T10i must correct or replace the Vercel preview deployment route before another deployment attempt.
 

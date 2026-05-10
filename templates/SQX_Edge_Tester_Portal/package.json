@@ -36,6 +36,7 @@
     "proof:provider-dashboard-correction-package": "node scripts/provider-dashboard-correction-package-proof.mjs",
     "proof:provider-dashboard-evidence-record": "node scripts/provider-dashboard-evidence-record-proof.mjs",
     "proof:manual-dashboard-evidence-ingest": "node scripts/manual-dashboard-evidence-ingest-proof.mjs",
+    "proof:replacement-tester-route-options": "node scripts/replacement-tester-route-options-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

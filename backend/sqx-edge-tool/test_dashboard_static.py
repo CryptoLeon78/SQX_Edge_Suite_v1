@@ -84,6 +84,7 @@ T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION_DOC = PROJECT_ROOT / "docs" / "T10Y_N
 T10Z_PROVIDER_DASHBOARD_CORRECTION_PACKAGE_DOC = PROJECT_ROOT / "docs" / "T10Z_PROVIDER_DASHBOARD_CORRECTION_PACKAGE.md"
 T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD_DOC = PROJECT_ROOT / "docs" / "T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD.md"
 T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST_DOC = PROJECT_ROOT / "docs" / "T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST.md"
+T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS_DOC = PROJECT_ROOT / "docs" / "T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -7693,6 +7694,134 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10ab_text)
+
+    def test_t10ac_replacement_tester_route_options_are_documented_and_safe(self):
+        t10ac = T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "replacement-tester-route-options-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:replacement-tester-route-options"],
+            "node scripts/replacement-tester-route-options-proof.mjs",
+        )
+
+        for pattern in (
+            "T10ac Replacement Tester Route Options",
+            "Cloudflare Pages preview deployments",
+            "Cloudflare Access one-time PIN login",
+            "Netlify Password Protection overview",
+            "Render Static Sites",
+            "Cloudflare Pages + Cloudflare Access OTP",
+            "Netlify deploy previews + Password Protection",
+            "Render static site / PR previews",
+            "Local/private-network pilot",
+            "Current Vercel staging route",
+            "GO_CLOUDFLARE_ACCESS_OTP_ROUTE_SELECTED_NO_DEPLOY",
+            "cloudflare_pages_preview_with_cloudflare_access_email_otp",
+            "T10ad_cloudflare_access_preflight_no_deploy",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No tester URL was shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ac)
+
+        for pattern in (
+            'phase: "T10ac"',
+            'result: "GO_CLOUDFLARE_ACCESS_OTP_ROUTE_SELECTED_NO_DEPLOY"',
+            'selectedRoute: "cloudflare_pages_preview_with_cloudflare_access_email_otp"',
+            'selectedNextGate: "T10ad_cloudflare_access_preflight_no_deploy"',
+            'rejectedRoute: "current_vercel_staging_route"',
+            "vercelRouteApproved: false",
+            "Cloudflare Pages preview deployments",
+            "Cloudflare Access one-time PIN login",
+            "Netlify Password Protection overview",
+            "Render Static Sites",
+            "t10adRequiredBeforeExternalAction: true",
+            "deploymentAttemptedInT10ac: false",
+            "deploymentCreationEndpointCalled: false",
+            "externalConfigMutationAttempted: false",
+            "externalProjectCreated: false",
+            "externalProjectLinked: false",
+            "providerAccountMutated: false",
+            "cloudflareProjectCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "netlifyProjectCreated: false",
+            "renderProjectCreated: false",
+            "triggerCommitPushedToPrivatePortal: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10ac - Replacement Tester Route Options.",
+            "T10ad - prepare a no-deploy Cloudflare Access preflight package before any provider project, deployment or tester URL",
+            "docs/T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ac - Replacement Tester Route Options.",
+            "Phase T10ac: compare and select a protected non-Vercel tester route or local/private-network pilot without deployment. Done",
+            "Phase T10ad: prepare a no-deploy Cloudflare Access preflight package before any provider project, deployment or tester URL.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ac anade `proof:replacement-tester-route-options`",
+            "T10ad para preparar el preflight Cloudflare Access",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ac Replacement Tester Route Options",
+            "proof:replacement-tester-route-options",
+            "GO_CLOUDFLARE_ACCESS_OTP_ROUTE_SELECTED_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/replacement-tester-route-options-proof.mjs",
+            "npm run proof:replacement-tester-route-options",
+            "GO_CLOUDFLARE_ACCESS_OTP_ROUTE_SELECTED_NO_DEPLOY",
+            "T10ad must prepare a Cloudflare Access preflight package without creating a provider project or deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ac_text = "\n".join([t10ac, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ac_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

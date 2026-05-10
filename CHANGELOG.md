@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ac Replacement Tester Route Options
+
+- Compares Cloudflare, Netlify, Render, local/private-network and the rejected Vercel route without deployment.
+- Selects Cloudflare Pages preview plus Cloudflare Access email OTP as the next protected tester-route candidate.
+- Adds `proof:replacement-tester-route-options` with result `GO_CLOUDFLARE_ACCESS_OTP_ROUTE_SELECTED_NO_DEPLOY`.
+
 ## 2026-05-10 - T10ab Manual Dashboard Evidence Ingest
 
 - Ingests Ivan's manual Vercel dashboard evidence for `sqx-edge-tester-staging` without deployment or provider mutation.
