@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10q Fresh Staging Route Access Check
+
+- Records explicit approval for creating or verifying a fresh protected staging route without deployment.
+- Verifies read-only Vercel visibility through the connected app and blocks write actions because local CLI/token authentication is unavailable.
+- Adds `proof:fresh-staging-route-access-check` with result `NO_GO_FRESH_STAGING_ROUTE_CREATION_BLOCKED_BY_CLI_AUTH`.
+
 ## 2026-05-10 - T10p Fresh Staging Route Preflight
 
 - Adds `proof:fresh-staging-route-preflight` as a no-token, no-API, no-project and no-deploy gate for the fresh staging route.

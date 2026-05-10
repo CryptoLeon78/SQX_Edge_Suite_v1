@@ -72,6 +72,7 @@ T10M_VERCEL_CONFIG_HARDENING_DOC = PROJECT_ROOT / "docs" / "T10M_VERCEL_CONFIG_H
 T10N_VERCEL_ROUTE_DECISION_DOC = PROJECT_ROOT / "docs" / "T10N_VERCEL_ROUTE_DECISION.md"
 T10O_REPLACEMENT_ROUTE_CONTRACT_DOC = PROJECT_ROOT / "docs" / "T10O_REPLACEMENT_ROUTE_CONTRACT.md"
 T10P_FRESH_STAGING_ROUTE_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10P_FRESH_STAGING_ROUTE_PREFLIGHT.md"
+T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK_DOC = PROJECT_ROOT / "docs" / "T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -6173,6 +6174,121 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10p_text)
+
+    def test_t10q_fresh_staging_route_access_check_is_documented_and_safe(self):
+        t10q = T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "fresh-staging-route-access-check-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:fresh-staging-route-access-check"],
+            "node scripts/fresh-staging-route-access-check-proof.mjs",
+        )
+
+        for pattern in (
+            "T10q Fresh Staging Route Access Check",
+            "receives explicit approval",
+            "NO_GO_FRESH_STAGING_ROUTE_CREATION_BLOCKED_BY_CLI_AUTH",
+            "sqx-edge-tester-staging",
+            "sqx-edge-tester-preview",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not create a Vercel project or any alternative provider project.",
+            "Did not link GitHub to a new provider project.",
+            "Approval for the intended action is now recorded.",
+            "there is no `VERCEL_TOKEN`",
+            "T10r must provide one exact write-capable path",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10q)
+
+        for pattern in (
+            'phase: "T10q"',
+            'result: "NO_GO_FRESH_STAGING_ROUTE_CREATION_BLOCKED_BY_CLI_AUTH"',
+            'requestedAction: "create_or_verify_fresh_protected_staging_route_without_deployment"',
+            'preferredProjectName: "sqx-edge-tester-staging"',
+            'currentRejectedProjectName: "sqx-edge-tester-preview"',
+            "readOnlyVercelVisibility: true",
+            "writeCapableCliSessionAvailable: false",
+            "vercelTokenAvailableInEnvironment: false",
+            "externalDeployAttempted: false",
+            "deploymentCreationEndpointCalled: false",
+            "externalProjectCreated: false",
+            "externalProjectLinked: false",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "Vercel CLI project listing timed out waiting for interactive authentication",
+            "provide a scoped VERCEL_TOKEN through local environment only",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10q - Fresh Staging Route Access Check.",
+            "T10r - authenticate Vercel CLI or provide local `VERCEL_TOKEN`",
+            "docs/T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10q - Fresh Staging Route Access Check.",
+            "Phase T10q: request exact approval to create or verify a fresh protected staging route without deployment. Done as access check",
+            "Phase T10r: authenticate Vercel CLI or provide local `VERCEL_TOKEN`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10q registra aprobacion explicita",
+            "T10r para autenticar Vercel CLI",
+            "T10q anade `proof:fresh-staging-route-access-check`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10q Fresh Staging Route Access Check",
+            "proof:fresh-staging-route-access-check",
+            "NO_GO_FRESH_STAGING_ROUTE_CREATION_BLOCKED_BY_CLI_AUTH",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/fresh-staging-route-access-check-proof.mjs",
+            "npm run proof:fresh-staging-route-access-check",
+            "NO_GO_FRESH_STAGING_ROUTE_CREATION_BLOCKED_BY_CLI_AUTH",
+            "T10r must authenticate Vercel CLI or provide a local `VERCEL_TOKEN`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10q_text = "\n".join([t10q, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10q_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
