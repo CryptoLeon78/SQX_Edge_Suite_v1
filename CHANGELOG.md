@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10l Vercel Route Investigation
+
+- Adds `proof:vercel-route-investigation` as a no-deploy Vercel Project/Environment API investigation.
+- Records route-risk signals: missing top-level production branch, empty targets, automatic domain assignment and production fast lane enabled.
+- Sets T10m as manual/API correction or alternative no-deploy route proof before any further deployment attempt.
+
 ## 2026-05-10 - T10k CLI Default Preview Rollback
 
 - Executes one corrected CLI default preview deployment attempt without `--prod`, `--target` or `--skip-domain`.
