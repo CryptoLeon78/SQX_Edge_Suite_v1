@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T10ag - OpenNext Local Smoke.
+- Current completed phase: T10ah - Next Proxy Migration Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10ah - migrate the Next.js middleware convention to proxy without provider action, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10ai - prepare the Cloudflare provider-project preflight without deployment or tester URL, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -57,6 +57,8 @@ Persistent planning note for the next SQX Edge phases.
 - Next recommended phase: T10af - prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action. Historical anchor only; superseded by T10ag.
 - Current completed phase: T10af - OpenNext Cloudflare Adapter Package. Historical anchor only; superseded by T10ag.
 - Next recommended phase: T10ag - run the local OpenNext build/preview smoke without provider action. Historical anchor only; superseded by T10ah.
+- Current completed phase: T10ag - OpenNext Local Smoke. Historical anchor only; superseded by T10ah.
+- Next recommended phase: T10ah - evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Historical anchor only; superseded by T10ai.
 
 ## Recommended Order
 
@@ -150,9 +152,10 @@ Persistent planning note for the next SQX Edge phases.
 46. Phase T10ae: decide and test Cloudflare runtime compatibility locally before any provider project, deployment or tester URL. Done as Workers/OpenNext runtime selection; see `docs/T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md`.
 47. Phase T10af: prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action. Done; see `docs/T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE.md`.
 48. Phase T10ag: run the local OpenNext build/preview smoke without provider action. Done as WSL/Linux local smoke GO and native Windows preview NO-GO; see `docs/T10AG_OPENNEXT_LOCAL_SMOKE.md`.
-49. Phase T10ah: migrate the Next.js middleware convention to proxy without provider action.
-50. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
-51. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
+49. Phase T10ah: evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Done; see `docs/T10AH_NEXT_PROXY_MIGRATION.md`.
+50. Phase T10ai: prepare the Cloudflare provider-project preflight without deployment or tester URL.
+51. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+52. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
 

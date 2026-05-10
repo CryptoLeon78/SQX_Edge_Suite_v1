@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: T10ag - OpenNext Local Smoke.
+- Current phase completed: T10ah - Next Proxy Migration Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: T10ah - migrate the Next.js middleware convention to proxy without provider action, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next implementation phase: T10ai - prepare the Cloudflare provider-project preflight without deployment or tester URL, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.
 - Earlier governance baseline: G4 - Institutional Core Repository Gate.
@@ -58,6 +58,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Next implementation phase: T10af - prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action. Historical anchor only; superseded by T10ag.
 - Current phase completed: T10af - OpenNext Cloudflare Adapter Package. Historical anchor only; superseded by T10ag.
 - Next implementation phase: T10ag - run the local OpenNext build/preview smoke without provider action. Historical anchor only; superseded by T10ah.
+- Current phase completed: T10ag - OpenNext Local Smoke. Historical anchor only; superseded by T10ah.
+- Next implementation phase: T10ah - evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Historical anchor only; superseded by T10ai.
 
 ## Specialist Agents
 
@@ -218,6 +220,7 @@ M46 is accepted when these criteria are true:
 - T10z provider dashboard correction package: `docs/T10Z_PROVIDER_DASHBOARD_CORRECTION_PACKAGE.md`, `templates/SQX_Edge_Tester_Portal/scripts/provider-dashboard-correction-package-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10aa provider dashboard evidence record: `docs/T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD.md`, `templates/SQX_Edge_Tester_Portal/scripts/provider-dashboard-evidence-record-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ab manual dashboard evidence ingest: `docs/T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST.md`, `templates/SQX_Edge_Tester_Portal/scripts/manual-dashboard-evidence-ingest-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
+- T10ah Next proxy migration gate: `docs/T10AH_NEXT_PROXY_MIGRATION.md`, `templates/SQX_Edge_Tester_Portal/src/middleware.ts`, `templates/SQX_Edge_Tester_Portal/scripts/next-proxy-migration-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ac replacement tester route options: `docs/T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md`, `templates/SQX_Edge_Tester_Portal/scripts/replacement-tester-route-options-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ad Cloudflare Access preflight: `docs/T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-access-preflight-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ae Cloudflare runtime compatibility: `docs/T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-runtime-compatibility-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.

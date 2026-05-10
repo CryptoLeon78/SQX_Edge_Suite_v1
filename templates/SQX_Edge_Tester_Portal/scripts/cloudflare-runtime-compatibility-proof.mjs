@@ -7,6 +7,7 @@ const projectRoot = join(scriptDir, "..");
 const sourceRoot = join(projectRoot, "src");
 const apiRoot = join(sourceRoot, "app", "api");
 const middlewarePath = join(sourceRoot, "middleware.ts");
+const proxyPath = join(sourceRoot, "proxy.ts");
 
 function collectRouteHandlers(directory) {
   if (!existsSync(directory)) {
@@ -35,6 +36,8 @@ const proof = Object.freeze({
   selectedNextGate: "T10af_opennext_cloudflare_adapter_local_package_no_deploy",
   middlewarePresent: existsSync(middlewarePath),
   middlewarePath: "src/middleware.ts",
+  proxyPresent: existsSync(proxyPath),
+  proxyPath: "src/proxy.ts",
   routeHandlers,
   routeHandlerCount: routeHandlers.length,
   staticExportCompatible: false,
@@ -46,7 +49,7 @@ const proof = Object.freeze({
   workersRuntimeReasons: [
     "Cloudflare Workers Next.js guide supports App Router",
     "Cloudflare Workers Next.js guide supports Route Handlers",
-    "Cloudflare Workers Next.js guide supports Middleware",
+    "Cloudflare Workers Next.js guide supports Edge-style middleware request gates through the Next.js runtime",
     "OpenNext Cloudflare adapter is the documented full-stack route",
   ],
   cloudflareAccessOuterGateStillRequired: true,

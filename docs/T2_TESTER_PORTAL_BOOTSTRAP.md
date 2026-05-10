@@ -45,7 +45,7 @@ This path is tracked as a safe starter kit. The actual private repository should
 | `src/app/api/cron/expire-testers/route.ts` | Dry-run cron endpoint protected by `CRON_SECRET`. |
 | `src/lib/access-contract.ts` | T1/T2 statuses, `tester_pro` entitlement helper and watermark helper. |
 | `src/lib/security-headers.ts` | Baseline browser protection headers. |
-| `src/middleware.ts` | Protected route gate and security-header application. |
+| `src/middleware.ts` | Protected route gate and security-header application retained for current OpenNext/Cloudflare compatibility. |
 
 ## Security Boundary
 

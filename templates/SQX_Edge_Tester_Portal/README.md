@@ -73,7 +73,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `src/lib/security-hardening.ts`: T8 kill switch, rate-limit and watermark helpers.
 - `src/lib/deployment-protection.ts`: T8 checklist for protected staging before any tester rollout.
 - `src/lib/security-headers.ts`: baseline browser protection headers.
-- `src/middleware.ts`: protected-route session gate and security headers.
+- `src/middleware.ts`: protected-route session gate and security headers retained for current OpenNext/Cloudflare compatibility.
 - `scripts/vercel-preview-preflight.mjs`: T9 local preflight before retrying protected preview deploy.
 - `scripts/vercel-protection-audit.mjs`: T9c go/no-go audit for Vercel Deployment Protection before deploy retry.
 - `scripts/vercel-preview-path-proof.mjs`: T9f proof gate for Git/PR preview readiness without deploying.
@@ -108,6 +108,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/cloudflare-runtime-compatibility-proof.mjs`: T10ae local runtime compatibility proof that rejects static export and selects Cloudflare Workers/OpenNext.
 - `scripts/opennext-cloudflare-adapter-proof.mjs`: T10af local OpenNext/Cloudflare adapter package proof that verifies safe scripts, `wrangler.jsonc`, `open-next.config.ts`, `.dev.vars.example` and no deploy surface.
 - `scripts/opennext-local-smoke-proof.mjs`: T10ag local smoke proof that records native Windows preview NO-GO and WSL/Linux preview GO.
+- `scripts/next-proxy-migration-proof.mjs`: T10ah proof that blocks migration to `proxy.ts` while OpenNext Cloudflare does not support Node Middleware.
 
 ## Local Preflight
 
@@ -319,7 +320,7 @@ This proves the T10af local adapter package. It must return `GO_OPENNEXT_CLOUDFL
 npm run proof:opennext-local-smoke
 ```
 
-This proves the T10ag local smoke decision. It must return `GO_OPENNEXT_LOCAL_LINUX_PREVIEW_SMOKE_NO_PROVIDER_ACTION`, keep native Windows preview marked as `NO_GO_NATIVE_WINDOWS_PREVIEW_ROUTE_500`, and leave T10ah limited to the Next.js `middleware` to `proxy` cleanup.
+This proves the T10ag local smoke decision. It must return `GO_OPENNEXT_LOCAL_LINUX_PREVIEW_SMOKE_NO_PROVIDER_ACTION`, keep native Windows preview marked as `NO_GO_NATIVE_WINDOWS_PREVIEW_ROUTE_500`, and leave T10ah limited to the Next.js `middleware` to `proxy` compatibility gate.
 
 ```powershell
 npm run cf:build
@@ -367,7 +368,7 @@ This proves the T10r fresh staging project creation without deployment. It must 
 
 ## Next Phase
 
-T10ah must migrate the Next.js `middleware` convention to `proxy` without provider action. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, T10o selects `fresh_staging_route_with_no_deploy_preflight`, T10p proves the local preflight gate, T10q confirms write auth, T10r creates the clean project shell, T10s verifies protection/settings, T10t configures the local private portal link, T10u prepares the no-deploy readiness gate, T10v confirms the default CLI route still returns production target, T10w prepares the explicit preview-target route, T10x confirms that route also returns production target, T10y pauses Vercel CLI deployment, T10z prepares the correction checklist, T10aa records the manual dashboard evidence gap, T10ab ingests manual dashboard evidence with `NO_GO_REPLACE_VERCEL_TESTER_ROUTE`, T10ac selects Cloudflare Pages preview plus Cloudflare Access email OTP as the next candidate, T10ad defines the Cloudflare Access preflight without provider action, T10ae selects Cloudflare Workers/OpenNext as runtime, T10af prepares the local adapter package and T10ag confirms WSL/Linux local preview health 200 while native Windows preview remains NO-GO. Do not share any tester URL until a deployment returns the expected non-production status and no production alias exists.
+T10ah blocks the Next.js `middleware` to `proxy` migration for the current Cloudflare route because `proxy.ts` uses Node Middleware and OpenNext Cloudflare does not support it yet. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, T10o selects `fresh_staging_route_with_no_deploy_preflight`, T10p proves the local preflight gate, T10q confirms write auth, T10r creates the clean project shell, T10s verifies protection/settings, T10t configures the local private portal link, T10u prepares the no-deploy readiness gate, T10v confirms the default CLI route still returns production target, T10w prepares the explicit preview-target route, T10x confirms that route also returns production target, T10y pauses Vercel CLI deployment, T10z prepares the correction checklist, T10aa records the manual dashboard evidence gap, T10ab ingests manual dashboard evidence with `NO_GO_REPLACE_VERCEL_TESTER_ROUTE`, T10ac selects Cloudflare Pages preview plus Cloudflare Access email OTP as the next candidate, T10ad defines the Cloudflare Access preflight without provider action, T10ae selects Cloudflare Workers/OpenNext as runtime, T10af prepares the local adapter package and T10ag confirms WSL/Linux local preview health 200 while native Windows preview remains NO-GO. Do not share any tester URL until a deployment returns the expected non-production status and no production alias exists.
 
 T10i must correct or replace the Vercel preview deployment route before another deployment attempt.
 

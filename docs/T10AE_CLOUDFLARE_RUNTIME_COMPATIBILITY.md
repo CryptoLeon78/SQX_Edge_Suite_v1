@@ -20,7 +20,7 @@ The current tester portal template is not a plain static site.
 
 Runtime-dependent files:
 
-- `src/middleware.ts`
+- `src/middleware.ts` (retained in T10ah because Next.js `proxy.ts` uses Node runtime and OpenNext Cloudflare does not yet support Node Middleware)
 - `src/app/api/health/route.ts`
 - `src/app/api/auth/login/route.ts`
 - `src/app/api/auth/logout/route.ts`

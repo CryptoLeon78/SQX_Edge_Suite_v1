@@ -89,6 +89,7 @@ T10AD_CLOUDFLARE_ACCESS_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10AD_CLOUDFLAR
 T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY_DOC = PROJECT_ROOT / "docs" / "T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md"
 T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE_DOC = PROJECT_ROOT / "docs" / "T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE.md"
 T10AG_OPENNEXT_LOCAL_SMOKE_DOC = PROJECT_ROOT / "docs" / "T10AG_OPENNEXT_LOCAL_SMOKE.md"
+T10AH_NEXT_PROXY_MIGRATION_DOC = PROJECT_ROOT / "docs" / "T10AH_NEXT_PROXY_MIGRATION.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -8013,6 +8014,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             'selectedNextGate: "T10af_opennext_cloudflare_adapter_local_package_no_deploy"',
             "middlewarePresent:",
             'middlewarePath: "src/middleware.ts"',
+            "proxyPresent:",
+            'proxyPath: "src/proxy.ts"',
             "routeHandlers",
             "routeHandlerCount",
             "staticExportCompatible: false",
@@ -8354,24 +8357,24 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("fetch(", proof)
 
         for pattern in (
-            "Current phase completed: T10ag - OpenNext Local Smoke.",
-            "T10ah - migrate the Next.js middleware convention to proxy without provider action",
+            "Current phase completed: T10ag - OpenNext Local Smoke. Historical anchor only; superseded by T10ah.",
+            "Next implementation phase: T10ah - evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Historical anchor only; superseded by T10ai.",
             "docs/T10AG_OPENNEXT_LOCAL_SMOKE.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10ag - OpenNext Local Smoke.",
+            "Current completed phase: T10ag - OpenNext Local Smoke. Historical anchor only; superseded by T10ah.",
             "Phase T10ag: run the local OpenNext build/preview smoke without provider action. Done",
-            "Phase T10ah: migrate the Next.js middleware convention to proxy without provider action.",
+            "Phase T10ah: evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Done",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
             "T10ag anade `proof:opennext-local-smoke`",
-            "T10ah para migrar la convencion Next.js `middleware` a `proxy`",
+            "T10ah anade `proof:next-proxy-migration`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -8388,7 +8391,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "scripts/opennext-local-smoke-proof.mjs",
             "npm run proof:opennext-local-smoke",
             "GO_OPENNEXT_LOCAL_LINUX_PREVIEW_SMOKE_NO_PROVIDER_ACTION",
-            "T10ah must migrate the Next.js `middleware` convention to `proxy` without provider action",
+            "scripts/next-proxy-migration-proof.mjs",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, template_readme)
@@ -8409,6 +8412,148 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10ag_text)
+
+    def test_t10ah_next_proxy_migration_is_documented_and_safe(self):
+        t10ah = T10AH_NEXT_PROXY_MIGRATION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "next-proxy-migration-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+        middleware_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts"
+        middleware = middleware_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AH_NEXT_PROXY_MIGRATION_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertTrue(middleware_path.is_file())
+        self.assertFalse((TESTER_PORTAL_TEMPLATE_ROOT / "src" / "proxy.ts").exists())
+        self.assertEqual(
+            package["scripts"]["proof:next-proxy-migration"],
+            "node scripts/next-proxy-migration-proof.mjs",
+        )
+
+        for pattern in (
+            "export function middleware",
+            "export const config",
+            "SECURITY_HEADERS",
+            "isProtectedPath",
+            "hasPrototypeSession",
+            "buildLoginUrl",
+            "global_kill_switch_enabled",
+            "rate_limit_exceeded",
+            "X-RateLimit-Limit",
+            "matcher",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, middleware)
+        self.assertNotIn("export function proxy", middleware)
+
+        for pattern in (
+            "T10ah Next Proxy Migration Gate",
+            "NO_GO_NEXT_PROXY_MIGRATION_BLOCKED_BY_OPENNEXT_NODE_MIDDLEWARE_UNSUPPORTED",
+            "src/middleware.ts",
+            "src/proxy.ts` is absent",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No tester URL was shared.",
+            "T10ai_cloudflare_provider_project_preflight_no_deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ah)
+
+        for pattern in (
+            'phase: "T10ah"',
+            'result: "NO_GO_NEXT_PROXY_MIGRATION_BLOCKED_BY_OPENNEXT_NODE_MIDDLEWARE_UNSUPPORTED"',
+            'attemptedConvention: "next_proxy_file_convention"',
+            'retainedConvention: "next_middleware_file_convention_for_cloudflare_compatibility"',
+            "proxyPresent:",
+            "middlewarePresent:",
+            'proxyPath: "src/proxy.ts"',
+            'middlewarePath: "src/middleware.ts"',
+            "middlewareExportReady:",
+            "nextJsProxyRuntime:",
+            "openNextNodeMiddlewareSupported: false",
+            "cloudflareBuildCompatibilityPreserved: true",
+            "configExportReady:",
+            "securityGatePatternsPresent:",
+            "packageScriptReady:",
+            "cloudflareProjectCreated: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "githubRepositoryConnectedToCloudflare: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            'nextGate: "T10ai_cloudflare_provider_project_preflight_no_deploy"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10ah - Next Proxy Migration Gate.",
+            "T10ai - prepare the Cloudflare provider-project preflight without deployment or tester URL",
+            "docs/T10AH_NEXT_PROXY_MIGRATION.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ah - Next Proxy Migration Gate.",
+            "Phase T10ah: evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Done",
+            "Phase T10ai: prepare the Cloudflare provider-project preflight without deployment or tester URL.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ah anade `proof:next-proxy-migration`",
+            "T10ai para preparar el preflight de proyecto Cloudflare",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ah Next Proxy Migration Gate",
+            "proof:next-proxy-migration",
+            "NO_GO_NEXT_PROXY_MIGRATION_BLOCKED_BY_OPENNEXT_NODE_MIDDLEWARE_UNSUPPORTED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "src/middleware.ts",
+            "scripts/next-proxy-migration-proof.mjs",
+            "T10ah proof",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ah_text = "\n".join([t10ah, governance, next_steps, readme, changelog, template_readme, proof, middleware])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ah_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-10 - T10ah Next Proxy Migration Gate
+
+- Evaluates the tester portal request gate migration from deprecated `middleware.ts` to `proxy.ts`.
+- Blocks the migration because Next.js 16 `proxy.ts` uses Node runtime and OpenNext Cloudflare does not support Node Middleware yet.
+- Adds `proof:next-proxy-migration` with result `NO_GO_NEXT_PROXY_MIGRATION_BLOCKED_BY_OPENNEXT_NODE_MIDDLEWARE_UNSUPPORTED`.
+- Keeps the Cloudflare route local-only: no provider project, deployment, Access policy, tester URL or tester data.
+
 ## 2026-05-10 - T10ag OpenNext Local Smoke
 
 - Runs the OpenNext/Cloudflare local smoke without provider action.
