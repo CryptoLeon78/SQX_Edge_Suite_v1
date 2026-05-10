@@ -111,6 +111,7 @@ T10AK_ACCESS_POLICY_BOUNDARY_DOC = PROJECT_ROOT / "docs" / "T10AK_ACCESS_POLICY_
 T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE_DOC = PROJECT_ROOT / "docs" / "T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE.md"
 T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT_DOC = PROJECT_ROOT / "docs" / "T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT.md"
 T10AN_PROTECTED_TESTER_PUBLICATION_TARGET_DOC = PROJECT_ROOT / "docs" / "T10AN_PROTECTED_TESTER_PUBLICATION_TARGET_GATE.md"
+T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
@@ -10505,8 +10506,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: T10an selecciona `workers.dev` protegido por Cloudflare Access",
-            "Siguiente paso recomendado: T10ao para publicar de forma controlada",
+            "Estado interno: T10ao prepara el preflight de publicacion controlada",
+            "Siguiente paso recomendado: T10ap para publicar de forma controlada",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -11528,7 +11529,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "T10an Protected Tester Publication Target Gate",
             "workers_dev_access_protected_publication_target",
             "GO_PROTECTED_TESTER_PUBLICATION_TARGET_SELECTED_EXACT_APPROVAL_REQUIRED",
-            "AUTORIZO T10an-publish-protected-workers-dev",
+            "AUTORIZO T10ao-publish-protected-workers-dev",
             "npm exec -- wrangler deploy --config wrangler.jsonc",
             "npm run proof:cloudflare-access-policy-boundary",
             "npm run proof:cloudflare-workers-dev-access",
@@ -11537,7 +11538,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "preview_urls=false",
             "No tester URL has been shared.",
             "No tester account has been created.",
-            "T10ao_controlled_workers_dev_publication_and_access_smoke",
+            "T10ao_controlled_workers_dev_publication_preflight",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, target_doc)
@@ -11561,7 +11562,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "testerAccountsCreated: false",
             "testerEmailsCommitted: false",
             "externalPublicationPerformed: false",
-            "T10ao_controlled_workers_dev_publication_and_access_smoke",
+            "T10ao_controlled_workers_dev_publication_preflight",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, proof)
@@ -11570,8 +11571,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10an - Protected Tester Publication Target Gate.",
-            "Next implementation phase: T10ao - controlled workers.dev publication and Access smoke only with exact approval",
+            "Current phase completed: T10ao - Controlled Workers.dev Publication Preflight.",
+            "T10an - Protected Tester Publication Target Gate. Historical anchor only; superseded by T10ao.",
             "T10an Protected tester publication target gate",
             "docs/T10AN_PROTECTED_TESTER_PUBLICATION_TARGET_GATE.md",
         ):
@@ -11579,9 +11580,9 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10an - Protected Tester Publication Target Gate.",
+            "Current completed phase: T10ao - Controlled Workers.dev Publication Preflight.",
             "Phase T10an: choose and verify the protected tester publication target",
-            "Phase T10ao: controlled workers.dev publication and Access smoke only with exact approval",
+            "Phase T10ao: prepare controlled `workers.dev` publication preflight",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
@@ -11638,6 +11639,148 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_target_text)
+
+    def test_t10ao_controlled_workers_dev_publication_preflight_is_documented_and_safe(self):
+        preflight_doc = T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-controlled-workers-dev-publication-preflight-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-controlled-workers-dev-publication-preflight"],
+            "node scripts/cloudflare-controlled-workers-dev-publication-preflight-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertNotIn("routes", wrangler_config)
+
+        for pattern in (
+            "T10ao Controlled Workers.dev Publication Preflight",
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_READY_EXACT_APPROVAL_REQUIRED",
+            "AUTORIZO T10ao-publish-protected-workers-dev",
+            "npm exec -- wrangler deploy --config wrangler.jsonc",
+            "npm run proof:cloudflare-access-policy-boundary",
+            "npm run proof:cloudflare-workers-dev-access",
+            "npm run proof:cloudflare-real-app-deploy-result",
+            "npm run proof:cloudflare-protected-tester-publication-target",
+            "npm run proof:cloudflare-controlled-workers-dev-publication-preflight",
+            "workers_dev=false",
+            "preview_urls=false",
+            "T10ap_controlled_workers_dev_publication_and_access_smoke",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, preflight_doc)
+
+        for pattern in (
+            'phase: "T10ao"',
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_READY_EXACT_APPROVAL_REQUIRED",
+            "workers_dev_access_protected_publication_target",
+            "exactApprovalPhraseDocumented",
+            "publicationCommandDocumented",
+            "accessBoundaryPrecheckRequired",
+            "accessProbePrecheckRequired",
+            "realAppDeployResultPrecheckRequired",
+            "protectedTargetPrecheckRequired",
+            "selfPrecheckRequired",
+            "t10anTargetSelected",
+            "wranglerWorkersDevStillDisabled",
+            "wranglerPreviewUrlsDisabled",
+            "wranglerHasNoRoutesCommitted",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "externalPublicationPerformed: false",
+            "workersDevEnabled: false",
+            "T10ap_controlled_workers_dev_publication_and_access_smoke",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ao - Controlled Workers.dev Publication Preflight.",
+            "Next implementation phase: T10ap - controlled workers.dev publication and Access smoke only with exact approval",
+            "T10ao Controlled workers.dev publication preflight",
+            "docs/T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ao - Controlled Workers.dev Publication Preflight.",
+            "Phase T10ao: prepare controlled `workers.dev` publication preflight",
+            "Phase T10ap: controlled workers.dev publication and Access smoke only with exact approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ao prepara el preflight de publicacion controlada",
+            "proof:cloudflare-controlled-workers-dev-publication-preflight",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ao Controlled Workers.dev Publication Preflight",
+            "proof:cloudflare-controlled-workers-dev-publication-preflight",
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_READY_EXACT_APPROVAL_REQUIRED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-controlled-workers-dev-publication-preflight-proof.mjs",
+            "npm run proof:cloudflare-controlled-workers-dev-publication-preflight",
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_READY_EXACT_APPROVAL_REQUIRED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_preflight_text = "\n".join(
+            [
+                preflight_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_preflight_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-11 - T10ao Controlled Workers.dev Publication Preflight
+
+- Adds `proof:cloudflare-controlled-workers-dev-publication-preflight` with `GO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_READY_EXACT_APPROVAL_REQUIRED`.
+- Documents the exact T10ao publication approval phrase, prechecks, one-command deploy boundary, Access smoke and rollback rules.
+- Keeps `workers_dev=false`, tester URL sharing and tester account creation blocked until T10ap receives exact approval.
+
 ## 2026-05-11 - T10an Protected Tester Publication Target Gate
 
 - Selects protected `workers.dev` plus Cloudflare Access as the first tester publication target.

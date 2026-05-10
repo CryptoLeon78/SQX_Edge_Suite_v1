@@ -63,6 +63,7 @@
     "proof:cloudflare-controlled-real-app-deploy-gate": "node scripts/cloudflare-controlled-real-app-deploy-gate-proof.mjs",
     "proof:cloudflare-real-app-deploy-result": "node scripts/cloudflare-real-app-deploy-result-proof.mjs",
     "proof:cloudflare-protected-tester-publication-target": "node scripts/cloudflare-protected-tester-publication-target-proof.mjs",
+    "proof:cloudflare-controlled-workers-dev-publication-preflight": "node scripts/cloudflare-controlled-workers-dev-publication-preflight-proof.mjs",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",

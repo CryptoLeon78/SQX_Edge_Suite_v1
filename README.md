@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T10an selecciona `workers.dev` protegido por Cloudflare Access como target tester pendiente de aprobacion exacta; no hay URL tester publicada.
+- Estado interno: T10ao prepara el preflight de publicacion controlada `workers.dev` protegido por Cloudflare Access; sigue sin haber URL tester publicada.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: T10ao para publicar de forma controlada el target `workers.dev` solo con aprobacion exacta, smoke inmediato de Access y rollback si falla, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T10ap para publicar de forma controlada el target `workers.dev` solo con aprobacion exacta, smoke inmediato de Access y rollback si falla, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -156,6 +156,7 @@ Portal tester Pro previsto:
 - T10al prepara el gate exacto de deploy real controlado y anade `proof:cloudflare-controlled-real-app-deploy-gate`; deja frase de aprobacion exacta, comando futuro, prechecks, smoke post-deploy y rollback, sin ejecutar deploy real ni publicar URL tester.
 - T10am anade `proof:cloudflare-real-app-deploy-result`; ejecuta el deploy autorizado, registra que la version real queda subida sin target publico, mantiene Access en verde y bloquea URL/testers hasta T10an.
 - T10an selecciona `workers.dev` protegido por Cloudflare Access como target tester y anade `proof:cloudflare-protected-tester-publication-target`; mantiene `workers_dev=false` hasta aprobacion exacta T10ao.
+- T10ao prepara el preflight de publicacion controlada y anade `proof:cloudflare-controlled-workers-dev-publication-preflight`; mantiene `workers_dev=false`, URL/testers bloqueados y mueve el deploy real a T10ap con aprobacion exacta.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.

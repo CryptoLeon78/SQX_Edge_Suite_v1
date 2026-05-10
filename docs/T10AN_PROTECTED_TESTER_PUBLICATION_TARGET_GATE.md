@@ -55,7 +55,7 @@ Required state:
 Do not publish the tester target unless the operator writes this exact approval in chat:
 
 ```text
-AUTORIZO T10an-publish-protected-workers-dev: activar workers_dev=true solo para sqx-edge-tester-portal-preview, ejecutar un unico wrangler deploy --config wrangler.jsonc, verificar Cloudflare Access antes de compartir URL, y hacer rollback/desactivar si falla.
+AUTORIZO T10ao-publish-protected-workers-dev: activar workers_dev=true solo para sqx-edge-tester-portal-preview, ejecutar un unico npm exec -- wrangler deploy --config wrangler.jsonc, verificar Cloudflare Access antes de compartir URL, y hacer rollback/desactivar si falla.
 ```
 
 ## Future Publication Action
@@ -90,5 +90,5 @@ GO_PROTECTED_TESTER_PUBLICATION_TARGET_SELECTED_EXACT_APPROVAL_REQUIRED
 ## Next Gate
 
 ```text
-T10ao_controlled_workers_dev_publication_and_access_smoke
+T10ao_controlled_workers_dev_publication_preflight
 ```
