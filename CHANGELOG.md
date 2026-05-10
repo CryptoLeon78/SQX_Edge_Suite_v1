@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10h Protected Preview Deploy Rollback
+
+- Executes one protected preview deployment attempt from the separated project and inspects the target immediately.
+- Rolls back immediately because Vercel returns `target = production`; the T10b guard blocks the build with exit code 43 before publication.
+- Adds `proof:vercel-protected-preview-rollback` and sets T10i as the required preview-route correction phase before another deployment attempt.
+
 ## 2026-05-10 - T10g Linked Preview Project Proof
 
 - Links the private tester portal repository to the separated Vercel preview project without deploying or sharing a URL.
