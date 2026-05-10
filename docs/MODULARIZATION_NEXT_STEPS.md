@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T10j - CLI Default Preview Command Rollback.
+- Current completed phase: T10k - CLI Default Preview Rollback.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10k - execute exactly one CLI default preview deployment without `--skip-domain`, with immediate target inspection and rollback on mismatch, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10l - investigate or replace the Vercel route without another deployment attempt, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Recommended Order
 
@@ -82,9 +82,10 @@ Persistent planning note for the next SQX Edge phases.
 23. Phase T10h: execute exactly one protected preview deployment from the separated project with immediate target inspection before any tester URL is shared. Attempted and rolled back because Vercel returned `target = production`; see `docs/T10H_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md`.
 24. Phase T10i: correct or replace the Vercel preview deployment route before another deployment attempt. Done as CLI default preview route proof; see `docs/T10I_CLI_DEFAULT_PREVIEW_ROUTE.md`.
 25. Phase T10j: execute exactly one CLI default preview deployment with immediate target inspection and rollback on mismatch. Attempted command was rejected before deployment because `--skip-domain` is production-only; see `docs/T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK.md`.
-26. Phase T10k: execute exactly one CLI default preview deployment without `--skip-domain`, with immediate target inspection and rollback on mismatch. Do not share or commit any Vercel URL.
-27. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
-28. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
+26. Phase T10k: execute exactly one CLI default preview deployment without `--skip-domain`, with immediate target inspection and rollback on mismatch. Attempted and rolled back because Vercel still returned `target = production`; see `docs/T10K_CLI_DEFAULT_PREVIEW_ROLLBACK.md`.
+27. Phase T10l: investigate or replace the Vercel route without another deployment attempt. Do not deploy again until a no-deploy proof produces GO.
+28. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+29. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
 

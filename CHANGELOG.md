@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10k CLI Default Preview Rollback
+
+- Executes one corrected CLI default preview deployment attempt without `--prod`, `--target` or `--skip-domain`.
+- Rolls back immediately because Vercel still returns `target = production`; the T10b guard blocks the build with exit code 43 before publication.
+- Adds `proof:vercel-cli-default-preview-rollback` and sets T10l as a no-deploy Vercel route investigation/replacement phase.
+
 ## 2026-05-10 - T10j CLI Default Preview Command Rollback
 
 - Executes the single T10i-approved CLI command shape and confirms Vercel rejects `--skip-domain` before creating a preview deployment.
