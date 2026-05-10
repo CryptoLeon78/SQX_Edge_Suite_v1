@@ -65,6 +65,7 @@ T10F_SEPARATED_PREVIEW_PROJECT_DOC = PROJECT_ROOT / "docs" / "T10F_SEPARATED_PRE
 T10G_LINKED_PREVIEW_PROJECT_DOC = PROJECT_ROOT / "docs" / "T10G_LINKED_PREVIEW_PROJECT_PROOF.md"
 T10H_PROTECTED_PREVIEW_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10H_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md"
 T10I_CLI_DEFAULT_PREVIEW_ROUTE_DOC = PROJECT_ROOT / "docs" / "T10I_CLI_DEFAULT_PREVIEW_ROUTE.md"
+T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -816,7 +817,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, sb17)
 
-        self.assertIn("Current phase completed: T10i - CLI Default Preview Route Proof.", governance)
+        self.assertIn("Current phase completed: T10j - CLI Default Preview Command Rollback.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
         self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
@@ -2932,8 +2933,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t1)
 
         expected_governance_patterns = [
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "Access/Security Gatekeeper",
             "`Txx`: cloud tester access",
             "Cloud Tester Access track",
@@ -3136,9 +3137,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, t2)
 
-        self.assertIn("Current phase completed: T10i - CLI Default Preview Route Proof.", governance)
-        self.assertIn("T10j - execute exactly one CLI default preview deployment", governance)
-        self.assertIn("Current completed phase: T10i - CLI Default Preview Route Proof.", next_steps)
+        self.assertIn("Current phase completed: T10j - CLI Default Preview Command Rollback.", governance)
+        self.assertIn("T10k - execute exactly one CLI default preview deployment without `--skip-domain`", governance)
+        self.assertIn("Current completed phase: T10j - CLI Default Preview Command Rollback.", next_steps)
         self.assertIn("Phase T2: create/private-bootstrap `SQX_Edge_Tester_Portal`", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
@@ -3229,9 +3230,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_contract_text)
 
-        self.assertIn("Current phase completed: T10i - CLI Default Preview Route Proof.", governance)
-        self.assertIn("T10j - execute exactly one CLI default preview deployment", governance)
-        self.assertIn("Current completed phase: T10i - CLI Default Preview Route Proof.", next_steps)
+        self.assertIn("Current phase completed: T10j - CLI Default Preview Command Rollback.", governance)
+        self.assertIn("T10k - execute exactly one CLI default preview deployment without `--skip-domain`", governance)
+        self.assertIn("Current completed phase: T10j - CLI Default Preview Command Rollback.", next_steps)
         self.assertIn("Phase T3: define tester auth data contract", next_steps)
         self.assertIn("Phase T4: implement login/session prototype", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
@@ -3336,9 +3337,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T10i - CLI Default Preview Route Proof.", governance)
-        self.assertIn("T10j - execute exactly one CLI default preview deployment", governance)
-        self.assertIn("Current completed phase: T10i - CLI Default Preview Route Proof.", next_steps)
+        self.assertIn("Current phase completed: T10j - CLI Default Preview Command Rollback.", governance)
+        self.assertIn("T10k - execute exactly one CLI default preview deployment without `--skip-domain`", governance)
+        self.assertIn("Current completed phase: T10j - CLI Default Preview Command Rollback.", next_steps)
         self.assertIn("Phase T4: implement login/session prototype", next_steps)
         self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
@@ -3425,9 +3426,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T10i - CLI Default Preview Route Proof.", governance)
-        self.assertIn("T10j - execute exactly one CLI default preview deployment", governance)
-        self.assertIn("Current completed phase: T10i - CLI Default Preview Route Proof.", next_steps)
+        self.assertIn("Current phase completed: T10j - CLI Default Preview Command Rollback.", governance)
+        self.assertIn("T10k - execute exactly one CLI default preview deployment without `--skip-domain`", governance)
+        self.assertIn("Current completed phase: T10j - CLI Default Preview Command Rollback.", next_steps)
         self.assertIn("Phase T5: add `tester_pro` entitlements", next_steps)
         self.assertIn("Phase T6: add 15-day expiry", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
@@ -3548,11 +3549,11 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T10i - CLI Default Preview Route Proof.", governance)
-        self.assertIn("T10j - execute exactly one CLI default preview deployment", governance)
+        self.assertIn("Current phase completed: T10j - CLI Default Preview Command Rollback.", governance)
+        self.assertIn("T10k - execute exactly one CLI default preview deployment without `--skip-domain`", governance)
         self.assertIn("docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md", governance)
         self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
-        self.assertIn("Current completed phase: T10i - CLI Default Preview Route Proof.", next_steps)
+        self.assertIn("Current completed phase: T10j - CLI Default Preview Command Rollback.", next_steps)
         self.assertIn("Phase T6: add 15-day expiry", next_steps)
         self.assertIn("Phase T7: add admin tester console", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
@@ -3686,10 +3687,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T10i - CLI Default Preview Route Proof.", governance)
-        self.assertIn("T10j - execute exactly one CLI default preview deployment", governance)
+        self.assertIn("Current phase completed: T10j - CLI Default Preview Command Rollback.", governance)
+        self.assertIn("T10k - execute exactly one CLI default preview deployment without `--skip-domain`", governance)
         self.assertIn("docs/T7_ADMIN_TESTER_CONSOLE.md", governance)
-        self.assertIn("Current completed phase: T10i - CLI Default Preview Route Proof.", next_steps)
+        self.assertIn("Current completed phase: T10j - CLI Default Preview Command Rollback.", next_steps)
         self.assertIn("Phase T7: add admin tester console", next_steps)
         self.assertIn("Phase T8: harden rate limiting", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
@@ -3861,10 +3862,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_template_text)
 
-        self.assertIn("Current phase completed: T10i - CLI Default Preview Route Proof.", governance)
-        self.assertIn("T10j - execute exactly one CLI default preview deployment", governance)
+        self.assertIn("Current phase completed: T10j - CLI Default Preview Command Rollback.", governance)
+        self.assertIn("T10k - execute exactly one CLI default preview deployment without `--skip-domain`", governance)
         self.assertIn("docs/T8_TESTER_PORTAL_SECURITY_HARDENING.md", governance)
-        self.assertIn("Current completed phase: T10i - CLI Default Preview Route Proof.", next_steps)
+        self.assertIn("Current completed phase: T10j - CLI Default Preview Command Rollback.", next_steps)
         self.assertIn("Phase T8: harden rate limiting", next_steps)
         self.assertIn("Phase T9: run Vercel preview staging", next_steps)
         self.assertIn("T9c anade `audit:vercel-protection`", readme)
@@ -3939,11 +3940,11 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t9_text)
 
-        self.assertIn("Current phase completed: T10i - CLI Default Preview Route Proof.", governance)
-        self.assertIn("T10j - execute exactly one CLI default preview deployment", governance)
+        self.assertIn("Current phase completed: T10j - CLI Default Preview Command Rollback.", governance)
+        self.assertIn("T10k - execute exactly one CLI default preview deployment without `--skip-domain`", governance)
         self.assertIn("docs/T9_PROTECTED_VERCEL_PREVIEW_PREFLIGHT.md", governance)
         self.assertIn("docs/T9B_VERCEL_PREVIEW_DEPLOY_ROLLBACK.md", governance)
-        self.assertIn("Current completed phase: T10i - CLI Default Preview Route Proof.", next_steps)
+        self.assertIn("Current completed phase: T10j - CLI Default Preview Command Rollback.", next_steps)
         self.assertIn("Phase T9: run Vercel preview staging", next_steps)
         self.assertIn("Phase T9b: authenticate Vercel", next_steps)
         self.assertIn("Phase T9c: verify Vercel Deployment Protection", next_steps)
@@ -3978,15 +3979,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t9b)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T9B_VERCEL_PREVIEW_DEPLOY_ROLLBACK.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T9b: authenticate Vercel, verify Deployment Protection and execute protected preview deploy. Attempted; rolled back because CLI created production aliases",
             "Phase T9c: verify Vercel Deployment Protection before retrying preview deploy.",
         ):
@@ -4087,15 +4088,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, template_readme)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T9C_VERCEL_DEPLOYMENT_PROTECTION_GATE.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T9c: verify Vercel Deployment Protection before retrying preview deploy. Done as safe NO-GO gate",
             "Phase T9d: enable or verify Vercel Authentication/Password Protection privately",
         ):
@@ -4156,15 +4157,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t9d)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T9D_VERCEL_AUTH_PROTECTION_VERIFIED.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T9d: enable or verify Vercel Authentication/Password Protection privately, then retry preview only after `GO_PROTECTION_VERIFIED`. Done",
             "Phase T9e: retry preview-only deploy with target and alias inspection",
         ):
@@ -4233,15 +4234,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t9e)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T9E_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T9e: retry preview-only deploy with target and alias inspection before sharing any URL; rollback immediately if target or aliases are production. Attempted and rolled back",
             "Phase T9f: prepare Git/PR-based preview or API deployment proof",
         ):
@@ -4335,15 +4336,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertNotIn(forbidden, proof_script)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T9F_PREVIEW_PATH_PROOF.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T9f: prepare Git/PR-based preview or API deployment proof that cannot auto-alias production before any URL is shared. Done",
             "Phase T9g: connect private Git/PR preview source before any tester URL is shared",
         ):
@@ -4435,15 +4436,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, proof_script)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T9G_PRIVATE_GIT_PREVIEW_SOURCE.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T9g: connect private Git/PR preview source before any tester URL is shared. Done",
             "Phase T10: run one internal tester pilot before inviting external testers.",
         ):
@@ -4524,15 +4525,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t10)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T10_INTERNAL_PREVIEW_ROLLBACK.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T10: run one internal tester pilot before inviting external testers. Attempted and rolled back",
             "Phase T10b: fix Vercel preview target mapping before any tester URL is shared.",
         ):
@@ -4621,15 +4622,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, guard)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T10B_VERCEL_TARGET_GUARD.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T10b: fix Vercel preview target mapping before any tester URL is shared. Contained with a build-time guard",
             "Phase T10c: correct Vercel Git/preview mapping or define an explicit API preview path before any tester URL is shared.",
         ):
@@ -4722,15 +4723,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, proof)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T10C_EXPLICIT_API_PREVIEW_PATH.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T10c: correct Vercel Git/preview mapping or define an explicit API preview path before any tester URL is shared. Done as no-deploy explicit API preview proof",
             "Phase T10d: execute one explicit API preview deployment with target inspection before any tester URL is shared.",
         ):
@@ -4807,15 +4808,15 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, t10d)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T10D_EXPLICIT_API_PREVIEW_ROLLBACK.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T10d: execute one explicit API preview deployment with target inspection before any tester URL is shared. Attempted and rolled back",
             "Phase T10e: attempted an omitted-target API preview deployment and rolled it back",
         ):
@@ -4910,15 +4911,15 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("/v13/deployments", proof)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T10E_OMITTED_TARGET_PREVIEW_ROLLBACK.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T10e: attempted an omitted-target API preview deployment and rolled it back",
             "Phase T10f: recreate or separate the Vercel preview project before any tester URL is shared.",
         ):
@@ -5019,15 +5020,15 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("vercel deploy", proof)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T10F_SEPARATED_PREVIEW_PROJECT.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T10f: recreate or separate the Vercel preview project before any tester URL is shared. Done as separated, undeployed preview project",
             "Phase T10g: link the private tester portal repository to the separated preview project and prove Git/protection settings without deploying.",
         ):
@@ -5131,15 +5132,15 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("vercel deploy", proof)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T10G_LINKED_PREVIEW_PROJECT_PROOF.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T10g: link the private tester portal repository to the separated preview project and prove Git/protection settings without deploying. Done as linked no-deploy proof",
             "Phase T10h: execute exactly one protected preview deployment from the separated project with immediate target inspection before any tester URL is shared. Attempted and rolled back",
         ):
@@ -5239,15 +5240,15 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("vercel deploy", proof)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T10H_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T10h: execute exactly one protected preview deployment from the separated project with immediate target inspection before any tester URL is shared. Attempted and rolled back",
             "Phase T10i: correct or replace the Vercel preview deployment route before another deployment attempt.",
         ):
@@ -5348,15 +5349,15 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("createDeployment", proof)
 
         for pattern in (
-            "Current phase completed: T10i - CLI Default Preview Route Proof.",
-            "T10j - execute exactly one CLI default preview deployment",
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
             "docs/T10I_CLI_DEFAULT_PREVIEW_ROUTE.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10i - CLI Default Preview Route Proof.",
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
             "Phase T10i: correct or replace the Vercel preview deployment route before another deployment attempt. Done as CLI default preview route proof",
             "Phase T10j: execute exactly one CLI default preview deployment with immediate target inspection and rollback on mismatch.",
         ):
@@ -5403,6 +5404,113 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10i_text)
+
+    def test_t10j_cli_default_preview_command_rollback_is_documented_and_safe(self):
+        t10j = T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-cli-default-preview-command-rollback-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:vercel-cli-default-preview-command-rollback"],
+            "node scripts/vercel-cli-default-preview-command-rollback-proof.mjs",
+        )
+
+        for pattern in (
+            "T10j CLI Default Preview Command Rollback",
+            "command rollback, not as a tester rollout",
+            "NO_GO_CLI_DEFAULT_PREVIEW_COMMAND_INVALID",
+            "Vercel rejected the command before creating a deployment.",
+            "Deployment id: missing.",
+            "Rollback was not needed because no deployment existed.",
+            "The --skip-domain option can only be used with production deployments.",
+            "vercel deploy --force --yes --format json",
+            "No `--skip-domain`.",
+            "T10k may execute exactly one CLI default preview deployment",
+            "Do not push a trigger commit to the private tester portal repo",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10j)
+
+        for pattern in (
+            "T10J_PREVIEW_PROJECT_NAME",
+            "GO_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK_CLEAN",
+            "NO_GO_PROJECT_HAS_PUBLIC_SURFACE",
+            "NO_GO_DEPLOYMENT_PROTECTION_NOT_VERIFIED",
+            "--skip-domain option can only be used with production deployments",
+            "deploymentId: \"missing\"",
+            "rollbackStatus: \"not_needed\"",
+            "vercel deploy --force --yes --format json",
+            "requiredAbsentFlags: [\"--prod\", \"--target\", \"--skip-domain\"]",
+            "T10k may execute exactly one CLI default preview deployment without --skip-domain",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+
+        for pattern in (
+            "Current phase completed: T10j - CLI Default Preview Command Rollback.",
+            "T10k - execute exactly one CLI default preview deployment without `--skip-domain`",
+            "docs/T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10j - CLI Default Preview Command Rollback.",
+            "Phase T10j: execute exactly one CLI default preview deployment with immediate target inspection and rollback on mismatch. Attempted command was rejected before deployment",
+            "Phase T10k: execute exactly one CLI default preview deployment without `--skip-domain`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10j ejecuto el comando CLI default aprobado",
+            "T10k para ejecutar una unica preview CLI default sin `--skip-domain`",
+            "T10j anade `proof:vercel-cli-default-preview-command-rollback`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10j CLI Default Preview Command Rollback",
+            "proof:vercel-cli-default-preview-command-rollback",
+            "rejects `--skip-domain` before creating a preview deployment",
+            "T10k as the corrected inspection phase",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-cli-default-preview-command-rollback-proof.mjs",
+            "npm run proof:vercel-cli-default-preview-command-rollback",
+            "GO_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK_CLEAN",
+            "T10k may execute exactly one CLI default preview deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10j_text = "\n".join([t10j, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10j_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10j CLI Default Preview Command Rollback
+
+- Executes the single T10i-approved CLI command shape and confirms Vercel rejects `--skip-domain` before creating a preview deployment.
+- Adds `proof:vercel-cli-default-preview-command-rollback` to verify the separated project remains deployment-free, domain-free and protected.
+- Sets T10k as the corrected inspection phase using `vercel deploy --force --yes --format json` without `--prod`, `--target` or `--skip-domain`.
+
 ## 2026-05-10 - T10i CLI Default Preview Route Proof
 
 - Adds `proof:vercel-cli-default-preview-route` as a no-deploy proof for the official CLI default preview route.

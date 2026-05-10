@@ -17,6 +17,7 @@
     "proof:vercel-linked-preview-project": "node scripts/vercel-linked-preview-project-proof.mjs",
     "proof:vercel-protected-preview-rollback": "node scripts/vercel-protected-preview-rollback-proof.mjs",
     "proof:vercel-cli-default-preview-route": "node scripts/vercel-cli-default-preview-route-proof.mjs",
+    "proof:vercel-cli-default-preview-command-rollback": "node scripts/vercel-cli-default-preview-command-rollback-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

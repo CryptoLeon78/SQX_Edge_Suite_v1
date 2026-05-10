@@ -84,6 +84,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/vercel-linked-preview-project-proof.mjs`: T10g no-deploy proof that the separated preview project is linked to the private tester portal repo with protection and no public surface.
 - `scripts/vercel-protected-preview-rollback-proof.mjs`: T10h no-deploy proof that the protected preview deployment rollback left no public surface.
 - `scripts/vercel-cli-default-preview-route-proof.mjs`: T10i no-deploy proof that the next attempt uses the CLI default preview route without `--prod` or `--target`.
+- `scripts/vercel-cli-default-preview-command-rollback-proof.mjs`: T10j no-deploy proof that the invalid `--skip-domain` preview command created no public surface.
 
 ## Local Preflight
 
@@ -143,9 +144,17 @@ npm run proof:vercel-cli-default-preview-route
 
 This proves the T10i route correction without creating a deployment. It keeps `sqx-edge-tester-preview` linked, protected and surface-free, and approves only `vercel deploy --force --yes --format json --skip-domain` for the next inspection attempt. The expected no-deploy status is `GO_CLI_DEFAULT_PREVIEW_ROUTE_READY`.
 
+T10j may execute exactly one CLI default preview deployment with immediate target inspection and rollback on mismatch.
+
+```powershell
+npm run proof:vercel-cli-default-preview-command-rollback
+```
+
+This proves the T10j command rollback cleanup without creating a deployment. It records that `--skip-domain` is invalid for preview deployments, keeps the project surface-free and approves only `vercel deploy --force --yes --format json` for the next inspection attempt. The expected no-deploy status is `GO_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK_CLEAN`.
+
 ## Next Phase
 
-T10j may execute exactly one CLI default preview deployment from the private tester portal working tree. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10i replaces the failed `--target=preview` route with the official default CLI preview route. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
+T10k may execute exactly one CLI default preview deployment from the private tester portal working tree without `--skip-domain`. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10j proved `--skip-domain` is rejected before any preview deployment is created. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
 
 T10i must correct or replace the Vercel preview deployment route before another deployment attempt.
 
