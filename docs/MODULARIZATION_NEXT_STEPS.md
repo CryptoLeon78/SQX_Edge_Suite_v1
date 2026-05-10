@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T10o - Replacement Route Contract.
+- Current completed phase: T10p - Fresh Staging Route Preflight.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10p - create or verify a fresh staging route only after explicit approval and before any deployment, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10q - request exact approval to create or verify a fresh protected staging route without deployment, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -21,6 +21,8 @@ Persistent planning note for the next SQX Edge phases.
 - Next recommended phase: T10n - no-deploy preview target proof or Vercel route replacement before any further deployment. Historical anchor only; superseded by T10o.
 - Current completed phase: T10n - Vercel Route Decision. Historical anchor only; superseded by T10o.
 - Next recommended phase: T10o - replacement route or provider-level no-deploy proof before any deployment. Historical anchor only; superseded by T10p.
+- Current completed phase: T10o - Replacement Route Contract. Historical anchor only; superseded by T10p.
+- Next recommended phase: T10p - create or verify a fresh staging route only after explicit approval and before any deployment. Historical anchor only; superseded by T10q.
 
 ## Recommended Order
 
@@ -96,9 +98,10 @@ Persistent planning note for the next SQX Edge phases.
 28. Phase T10m: manual/API Vercel correction or alternative no-deploy route proof before any further deployment. Done as Vercel Project API hardening without deployment; see `docs/T10M_VERCEL_CONFIG_HARDENING.md`.
 29. Phase T10n: no-deploy preview target proof or Vercel route replacement before any further deployment. Done as route decision NO-GO for the current Vercel route; see `docs/T10N_VERCEL_ROUTE_DECISION.md`.
 30. Phase T10o: replacement route or provider-level no-deploy proof before any deployment. Done as no-deploy replacement-route contract; see `docs/T10O_REPLACEMENT_ROUTE_CONTRACT.md`.
-31. Phase T10p: create or verify a fresh staging route only after explicit approval, with no-deploy preflight before any deployment.
-32. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
-33. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
+31. Phase T10p: create or verify a fresh staging route only after explicit approval, with no-deploy preflight before any deployment. Done as local no-external-action preflight; see `docs/T10P_FRESH_STAGING_ROUTE_PREFLIGHT.md`.
+32. Phase T10q: request exact approval to create or verify a fresh protected staging route without deployment.
+33. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+34. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
 

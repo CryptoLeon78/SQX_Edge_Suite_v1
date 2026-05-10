@@ -23,6 +23,7 @@
     "proof:vercel-config-hardening": "node scripts/vercel-config-hardening-proof.mjs",
     "proof:vercel-route-decision": "node scripts/vercel-route-decision-proof.mjs",
     "proof:replacement-route-contract": "node scripts/replacement-route-contract-proof.mjs",
+    "proof:fresh-staging-route-preflight": "node scripts/fresh-staging-route-preflight-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

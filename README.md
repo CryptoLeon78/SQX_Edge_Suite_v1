@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T10o deja lista una ruta alternativa contractual sin deploy y mantiene rechazada la ruta Vercel actual.
+- Estado interno: T10p deja listo el preflight local de ruta staging fresca sin accion externa y mantiene rechazada la ruta Vercel actual.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: T10p para crear/verificar una ruta staging nueva solo con aprobacion explicita y proof no-deploy previo, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T10q para pedir aprobacion exacta de crear/verificar una ruta staging fresca sin deploy, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -110,6 +110,8 @@ Portal tester Pro previsto:
 - T10n anade `proof:vercel-route-decision`; confirma sin deploy que la ruta Vercel actual no debe usarse para rollout y deja T10o como reemplazo/proof provider-level antes de cualquier deployment.
 - T10n rechaza la ruta Vercel actual y deja T10o para ruta alternativa o proof manual/provider-level antes de cualquier deployment.
 - T10o anade `proof:replacement-route-contract`; selecciona `fresh_staging_route_with_no_deploy_preflight`, mantiene rechazada la ruta Vercel actual y deja T10p solo con aprobacion explicita antes de crear/verificar cualquier ruta externa.
+- T10o deja lista una ruta alternativa contractual sin deploy y T10p para crear/verificar una ruta staging nueva queda condicionado a aprobacion explicita.
+- T10p anade `proof:fresh-staging-route-preflight`; deja preparado el gate local sin API/deploy/proyecto/URL y reserva T10q para una aprobacion exacta de accion externa sin deployment.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.

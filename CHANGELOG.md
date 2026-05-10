@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-10 - T10p Fresh Staging Route Preflight
+
+- Adds `proof:fresh-staging-route-preflight` as a no-token, no-API, no-project and no-deploy gate for the fresh staging route.
+- Documents the exact requirements a future staging route must satisfy before any deployment exists.
+- Proof result: `GO_FRESH_STAGING_ROUTE_PREFLIGHT_READY_NO_EXTERNAL_ACTION`.
+- Sets T10q as the first exact external-action approval gate for creating or verifying a fresh protected staging route without deployment.
+
 ## 2026-05-10 - T10o Replacement Route Contract
 
 - Adds `proof:replacement-route-contract` as a no-token, no-API and no-deploy contract for the replacement route.

@@ -71,6 +71,7 @@ T10L_VERCEL_ROUTE_INVESTIGATION_DOC = PROJECT_ROOT / "docs" / "T10L_VERCEL_ROUTE
 T10M_VERCEL_CONFIG_HARDENING_DOC = PROJECT_ROOT / "docs" / "T10M_VERCEL_CONFIG_HARDENING.md"
 T10N_VERCEL_ROUTE_DECISION_DOC = PROJECT_ROOT / "docs" / "T10N_VERCEL_ROUTE_DECISION.md"
 T10O_REPLACEMENT_ROUTE_CONTRACT_DOC = PROJECT_ROOT / "docs" / "T10O_REPLACEMENT_ROUTE_CONTRACT.md"
+T10P_FRESH_STAGING_ROUTE_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10P_FRESH_STAGING_ROUTE_PREFLIGHT.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -6058,6 +6059,120 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10o_text)
+
+    def test_t10p_fresh_staging_route_preflight_is_documented_and_safe(self):
+        t10p = T10P_FRESH_STAGING_ROUTE_PREFLIGHT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "fresh-staging-route-preflight-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:fresh-staging-route-preflight"],
+            "node scripts/fresh-staging-route-preflight-proof.mjs",
+        )
+
+        for pattern in (
+            "T10p Fresh Staging Route Preflight",
+            "does not create or verify an external project",
+            "GO_FRESH_STAGING_ROUTE_PREFLIGHT_READY_NO_EXTERNAL_ACTION",
+            "fresh_staging_route_with_no_deploy_preflight",
+            "current_vercel_route_rejected",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not call any provider API.",
+            "Did not create a Vercel project or any alternative provider project.",
+            "Did not link GitHub to a new provider project.",
+            "A broad \"continue\" is not enough",
+            "No tester email in git.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10p)
+
+        for pattern in (
+            'phase: "T10p"',
+            'result: "GO_FRESH_STAGING_ROUTE_PREFLIGHT_READY_NO_EXTERNAL_ACTION"',
+            'selectedRoute: "fresh_staging_route_with_no_deploy_preflight"',
+            'currentRouteStatus: "current_vercel_route_rejected"',
+            "externalApiCalled: false",
+            "externalDeployAttempted: false",
+            "externalProjectCreated: false",
+            "externalProjectLinked: false",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "provider-level or dashboard/API proof before first deployment",
+            "create a fresh protected Vercel staging project without deployment",
+            "verify an already-created fresh staging project without deployment",
+            "select a non-Vercel protected staging provider route without deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10p - Fresh Staging Route Preflight.",
+            "T10q - request exact approval to create or verify a fresh protected staging route without deployment",
+            "docs/T10P_FRESH_STAGING_ROUTE_PREFLIGHT.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10p - Fresh Staging Route Preflight.",
+            "Phase T10p: create or verify a fresh staging route only after explicit approval, with no-deploy preflight before any deployment. Done as local no-external-action preflight",
+            "Phase T10q: request exact approval to create or verify a fresh protected staging route without deployment.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10p deja listo el preflight local de ruta staging fresca",
+            "T10q para pedir aprobacion exacta",
+            "T10p anade `proof:fresh-staging-route-preflight`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10p Fresh Staging Route Preflight",
+            "proof:fresh-staging-route-preflight",
+            "GO_FRESH_STAGING_ROUTE_PREFLIGHT_READY_NO_EXTERNAL_ACTION",
+            "T10q as the first exact external-action approval gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/fresh-staging-route-preflight-proof.mjs",
+            "npm run proof:fresh-staging-route-preflight",
+            "GO_FRESH_STAGING_ROUTE_PREFLIGHT_READY_NO_EXTERNAL_ACTION",
+            "T10q must request exact approval before creating or verifying any provider route",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10p_text = "\n".join([t10p, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10p_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
