@@ -99,7 +99,9 @@ T10AJE_CLOUDFLARE_READONLY_SHELL_CAPTURE_DOC = PROJECT_ROOT / "docs" / "T10AJE_C
 T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION_DOC = PROJECT_ROOT / "docs" / "T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION.md"
 T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE_DOC = PROJECT_ROOT / "docs" / "T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE.md"
 T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS_DOC = PROJECT_ROOT / "docs" / "T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS.md"
+T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
+TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
 GOVERNANCE_ADR_DOC = PROJECT_ROOT / "docs" / "decisions" / "ADR-0001-specialist-agent-governance.md"
@@ -3144,7 +3146,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
             for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
-            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+            if path.is_file() and TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS.isdisjoint(path.parts)
         )
         forbidden_patterns = [
             SENSITIVE_LITERAL_FORBIDDEN,
@@ -3354,7 +3356,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
             for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
-            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+            if path.is_file() and TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS.isdisjoint(path.parts)
         )
         forbidden_patterns = [
             SENSITIVE_LITERAL_FORBIDDEN,
@@ -3444,7 +3446,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
             for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
-            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+            if path.is_file() and TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS.isdisjoint(path.parts)
         )
         for pattern in (
             SENSITIVE_LITERAL_FORBIDDEN,
@@ -3567,7 +3569,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
             for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
-            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+            if path.is_file() and TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS.isdisjoint(path.parts)
         )
         for pattern in (
             SENSITIVE_LITERAL_FORBIDDEN,
@@ -3705,7 +3707,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
             for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
-            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+            if path.is_file() and TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS.isdisjoint(path.parts)
         )
         for pattern in (
             SENSITIVE_LITERAL_FORBIDDEN,
@@ -3880,7 +3882,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
             for path in TESTER_PORTAL_TEMPLATE_ROOT.rglob("*")
-            if path.is_file() and "node_modules" not in path.parts and ".next" not in path.parts
+            if path.is_file() and TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS.isdisjoint(path.parts)
         )
         for pattern in (
             SENSITIVE_LITERAL_FORBIDDEN,
@@ -9565,7 +9567,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Current completed phase: T10ajf - Cloudflare Shell Creation Decision.",
             "Phase T10ajf: choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later. Done",
             "Phase T10ajg: prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing.",
-            "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after exact approval",
+            "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after approval",
             "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
         ):
             with self.subTest(pattern=pattern):
@@ -9708,7 +9710,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Current phase completed: T10ajg - Cloudflare First Deploy Approval Gate.",
-            "Next implementation phase: T10aji - execute the first Cloudflare Worker deploy/shell creation only after exact approval",
+            "Next implementation phase: T10aji - execute the first Cloudflare Worker deploy/shell creation only after approval and rollback if unsafe.",
             "docs/T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE.md",
         ):
             with self.subTest(pattern=pattern):
@@ -9717,7 +9719,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "Current completed phase: T10ajg - Cloudflare First Deploy Approval Gate.",
             "Phase T10ajg: prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing. Done",
-            "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after exact approval",
+            "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after approval",
             "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
         ):
             with self.subTest(pattern=pattern):
@@ -9725,7 +9727,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "T10ajg anade `proof:cloudflare-first-deploy-approval-gate`",
-            "T10aji para ejecutar el primer `wrangler deploy` Cloudflare solo con aprobacion exacta",
+            "T10ajj para decidir/register la ruta Cloudflare o subdominio `workers.dev`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -9869,17 +9871,17 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10ajh - Cloudflare First Deploy Readiness (No Deploy).",
-            "Next implementation phase: T10aji - execute the first Cloudflare Worker deploy/shell creation only after exact approval",
+            "Current phase completed: T10ajh - Cloudflare First Deploy Readiness. Historical anchor only; superseded by T10aji.",
+            "Next implementation phase: T10aji - execute the first Cloudflare Worker deploy/shell creation only after approval and rollback if unsafe.",
             "docs/T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS.md",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10ajh - Cloudflare First Deploy Readiness (No Deploy).",
+            "Current completed phase: T10ajh - Cloudflare First Deploy Readiness. Historical anchor only; superseded by T10aji.",
             "Phase T10ajh: verify first Cloudflare Worker deploy readiness without deploy while waiting for exact approval. Done",
-            "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after exact approval",
+            "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after approval",
             "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
         ):
             with self.subTest(pattern=pattern):
@@ -9887,7 +9889,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "T10ajh anade `proof:cloudflare-first-deploy-readiness`",
-            "T10aji para ejecutar el primer `wrangler deploy` Cloudflare solo con aprobacion exacta",
+            "T10ajj para decidir/register la ruta Cloudflare o subdominio `workers.dev`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -9927,6 +9929,151 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10ajh_text)
+
+    def test_t10aji_cloudflare_first_deploy_rollback_is_documented_and_safe(self):
+        t10aji = T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-first-deploy-rollback-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-first-deploy-rollback"],
+            "node scripts/cloudflare-first-deploy-rollback-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+
+        deploy_command = "npm exec --yes -- wrangler deploy --name sqx-edge-tester-portal-preview"
+        cleanup_command = "npm exec --yes -- wrangler delete sqx-edge-tester-portal-preview --force"
+
+        for pattern in (
+            "T10aji Cloudflare First Deploy Rollback",
+            "NO_GO_FIRST_WORKER_DEPLOY_ROLLED_BACK_WORKERS_DEV_SUBDOMAIN_REQUIRED",
+            "workers.dev` subdomain registered",
+            "Worker was deleted immediately",
+            deploy_command,
+            cleanup_command,
+            "precheck_worker_state=worker_not_found",
+            "deploy_command_exit_code=1",
+            "preview_capability_seen_after_attempt=true",
+            "post_cleanup_worker_state=worker_not_found",
+            "No Cloudflare Worker remains after cleanup.",
+            "No Cloudflare deployment remains after cleanup.",
+            "No Cloudflare Access application was created.",
+            "No tester URL was published.",
+            "T10ajj_cloudflare_route_onboarding_decision",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10aji)
+
+        for pattern in (
+            'phase: "T10aji"',
+            'result: "NO_GO_FIRST_WORKER_DEPLOY_ROLLED_BACK_WORKERS_DEV_SUBDOMAIN_REQUIRED"',
+            'provider: "Cloudflare"',
+            "broadTxxxAuthorizationRecorded: true",
+            'precheckWorkerState: "worker_not_found"',
+            "localBuildSucceeded: true",
+            "deployCommandStarted: true",
+            "deployCommandExitCode: 1",
+            "assetsUploadedBeforeFailure: true",
+            "workersDevSubdomainRequired: true",
+            "routeOrCustomDomainConfigured: false",
+            "workerDeploymentsSeenAfterAttempt: true",
+            "workerVersionsSeenAfterAttempt: true",
+            "previewCapabilitySeenAfterAttempt: true",
+            "testerUrlShared: false",
+            "cleanupCommandExecuted: true",
+            'postCleanupWorkerState: "worker_not_found"',
+            "postCleanupDeploymentsNotFound: true",
+            "postCleanupVersionsNotFound: true",
+            "postCleanupSecretsNotFound: true",
+            "rawWranglerOutputCommitted: false",
+            "packageScriptReady",
+            "mutatingScriptPublished",
+            "docHasNoSecretPattern",
+            "docReady",
+            "governanceUpdated",
+            "nextStepsUpdated",
+            "cloudflareWorkerRemains: false",
+            "cloudflareDeploymentRemains: false",
+            "cloudflareVersionRemains: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "t10akUnlocked: false",
+            'nextGate: "T10ajj_cloudflare_route_onboarding_decision"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10aji - Cloudflare First Deploy Rollback.",
+            "Next implementation phase: T10ajj - decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt",
+            "docs/T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10aji - Cloudflare First Deploy Rollback.",
+            "Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after approval",
+            "Phase T10ajj: decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt.",
+            "Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10aji anade `proof:cloudflare-first-deploy-rollback`",
+            "T10ajj para decidir/register la ruta Cloudflare o subdominio `workers.dev`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10aji Cloudflare First Deploy Rollback",
+            "proof:cloudflare-first-deploy-rollback",
+            "NO_GO_FIRST_WORKER_DEPLOY_ROLLED_BACK_WORKERS_DEV_SUBDOMAIN_REQUIRED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-first-deploy-rollback-proof.mjs",
+            "npm run proof:cloudflare-first-deploy-rollback",
+            "NO_GO_FIRST_WORKER_DEPLOY_ROLLED_BACK_WORKERS_DEV_SUBDOMAIN_REQUIRED",
+            "T10ajj responsible for choosing the Cloudflare route/onboarding path",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10aji_text = "\n".join([t10aji, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10aji_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

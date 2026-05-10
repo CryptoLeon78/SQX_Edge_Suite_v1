@@ -118,6 +118,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/cloudflare-shell-creation-decision-proof.mjs`: T10ajf decision proof recording that no invisible shell path is accepted and the first Worker creation requires an exact approval gate for `wrangler deploy`.
 - `scripts/cloudflare-first-deploy-approval-gate-proof.mjs`: T10ajg approval-gate proof recording the exact first deploy command, manual approval phrase, pre-checks, post-checks and cleanup criteria without running them.
 - `scripts/cloudflare-first-deploy-readiness-proof.mjs`: T10ajh readiness proof recording the authenticated read-only prechecks, reproducible lockfile, successful local Cloudflare build and exact-approval block before any deploy.
+- `scripts/cloudflare-first-deploy-rollback-proof.mjs`: T10aji rollback proof recording the first deploy attempt, workers.dev/route requirement and immediate Worker cleanup.
 - `cloudflare-shell-evidence.example.json`: public-safe template for manual shell evidence; copy to ignored `cloudflare-shell-evidence.local.json` only.
 
 ## Local Preflight
@@ -386,6 +387,12 @@ npm run proof:cloudflare-first-deploy-readiness
 ```
 
 This proves the T10ajh first deploy readiness gate without creating a Worker. It must return `GO_CLOUDFLARE_FIRST_DEPLOY_READY_EXACT_APPROVAL_REQUIRED_NO_PROVIDER_MUTATION`, keep package deploy/upload/delete scripts absent, confirm the lockfile-driven Cloudflare toolchain and leave T10aji as the only phase allowed to run the exact deploy command after Ivan provides the exact approval phrase.
+
+```powershell
+npm run proof:cloudflare-first-deploy-rollback
+```
+
+This proves the T10aji first deploy rollback. It must return `NO_GO_FIRST_WORKER_DEPLOY_ROLLED_BACK_WORKERS_DEV_SUBDOMAIN_REQUIRED`, confirm the Worker was deleted after the route/subdomain failure and leave T10ajj responsible for choosing the Cloudflare route/onboarding path before any new deploy attempt.
 
 ```powershell
 npm run cf:build

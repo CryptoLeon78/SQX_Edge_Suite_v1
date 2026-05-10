@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T10ajh - Cloudflare First Deploy Readiness (No Deploy).
+- Current completed phase: T10aji - Cloudflare First Deploy Rollback.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10aji - execute the first Cloudflare Worker deploy/shell creation only after exact approval, then inspect/clean up before any tester URL sharing, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10ajj - decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -77,6 +77,8 @@ Persistent planning note for the next SQX Edge phases.
 - Next recommended phase: T10ajg - prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing. Historical anchor only; superseded by T10ajh.
 - Current completed phase: T10ajg - Cloudflare First Deploy Approval Gate. Historical anchor only; superseded by T10ajh.
 - Next recommended phase: T10ajh - verify first Cloudflare Worker deploy readiness without deploy while waiting for exact approval. Historical anchor only; superseded by T10aji.
+- Current completed phase: T10ajh - Cloudflare First Deploy Readiness. Historical anchor only; superseded by T10aji.
+- Next recommended phase: T10aji - execute the first Cloudflare Worker deploy/shell creation only after approval and rollback if unsafe. Historical anchor only; superseded by T10ajj.
 
 ## Recommended Order
 
@@ -180,13 +182,14 @@ Persistent planning note for the next SQX Edge phases.
 56. Phase T10ajf: choose exact no-deploy Cloudflare shell creation path or authorize one controlled deploy later. Done as decision gate: no pure invisible shell path is accepted; first Worker creation must use an explicit `wrangler deploy`/C3 class external action because `wrangler versions upload` fails on first upload; see `docs/T10AJF_CLOUDFLARE_SHELL_CREATION_DECISION.md`.
 57. Phase T10ajg: prepare exact approval gate for the first Cloudflare Worker deploy/shell creation without tester URL sharing. Done as approval gate only: exact command, manual approval phrase, pre-checks, post-checks and cleanup criteria are documented; see `docs/T10AJG_CLOUDFLARE_FIRST_DEPLOY_APPROVAL_GATE.md`.
 58. Phase T10ajh: verify first Cloudflare Worker deploy readiness without deploy while waiting for exact approval. Done; see `docs/T10AJH_CLOUDFLARE_FIRST_DEPLOY_READINESS.md`.
-59. Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after exact approval, then immediately inspect or clean up before any tester URL is shared.
-60. Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified. Blocked until a real provider shell exists.
-61. Phase T10al: execute one controlled Cloudflare Workers deployment only after shell + Access policy are verified, then inspect target, Access coverage and no custom/public domain before any tester URL.
-62. Phase T10am: run protected-route E2E smoke: anonymous blocked by Cloudflare Access, app session required, expired/denied/blocked tester states, logout, watermark, health and noindex.
-63. Phase T10an: prepare private tester onboarding packet without committing tester emails or URL.
-64. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
-65. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
+59. Phase T10aji: execute the first Cloudflare Worker deploy/shell creation only after approval, then immediately inspect or clean up before any tester URL is shared. Done as rollback: Cloudflare requires workers.dev subdomain or route, versions/deployments briefly appeared, and the Worker was deleted; see `docs/T10AJI_CLOUDFLARE_FIRST_DEPLOY_ROLLBACK.md`.
+60. Phase T10ajj: decide/register the Cloudflare route or workers.dev onboarding path before any new deploy attempt.
+61. Phase T10ak: create Cloudflare Access application and policy only with exact approval after the provider shell is verified. Blocked until a real provider shell exists.
+62. Phase T10al: execute one controlled Cloudflare Workers deployment only after shell + Access policy are verified, then inspect target, Access coverage and no custom/public domain before any tester URL.
+63. Phase T10am: run protected-route E2E smoke: anonymous blocked by Cloudflare Access, app session required, expired/denied/blocked tester states, logout, watermark, health and noindex.
+64. Phase T10an: prepare private tester onboarding packet without committing tester emails or URL.
+65. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+66. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10aji Cloudflare First Deploy Rollback
+
+- Executes the first controlled Cloudflare Worker deploy attempt and rolls it back immediately.
+- Adds `proof:cloudflare-first-deploy-rollback` with result `NO_GO_FIRST_WORKER_DEPLOY_ROLLED_BACK_WORKERS_DEV_SUBDOMAIN_REQUIRED`.
+- Records that Cloudflare requires a workers.dev subdomain or route before publication; no Worker remains, no Access policy was created and no tester URL was shared.
+
 ## 2026-05-10 - T10ajh Cloudflare First Deploy Readiness
 
 - Adds a no-deploy readiness phase before the first Cloudflare Worker deploy.
