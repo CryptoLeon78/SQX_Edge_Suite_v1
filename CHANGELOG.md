@@ -1,5 +1,135 @@
 # Changelog
 
+## 2026-05-10 - T10ah Next Proxy Migration Gate
+
+- Evaluates the tester portal request gate migration from deprecated `middleware.ts` to `proxy.ts`.
+- Blocks the migration because Next.js 16 `proxy.ts` uses Node runtime and OpenNext Cloudflare does not support Node Middleware yet.
+- Adds `proof:next-proxy-migration` with result `NO_GO_NEXT_PROXY_MIGRATION_BLOCKED_BY_OPENNEXT_NODE_MIDDLEWARE_UNSUPPORTED`.
+- Keeps the Cloudflare route local-only: no provider project, deployment, Access policy, tester URL or tester data.
+
+## 2026-05-10 - T10ag OpenNext Local Smoke
+
+- Runs the OpenNext/Cloudflare local smoke without provider action.
+- Confirms native Windows preview starts but returns route 500, while WSL/Linux filesystem smoke returns `/api/health` 200.
+- Adds `proof:opennext-local-smoke` with result `GO_OPENNEXT_LOCAL_LINUX_PREVIEW_SMOKE_NO_PROVIDER_ACTION`.
+
+## 2026-05-10 - T10af OpenNext Cloudflare Adapter Package
+
+- Adds the local OpenNext/Cloudflare Workers package shape for the tester portal without provider action.
+- Adds `wrangler.jsonc`, `open-next.config.ts`, `.dev.vars.example` and `proof:opennext-cloudflare-adapter`.
+- Local proof result: `GO_OPENNEXT_CLOUDFLARE_ADAPTER_LOCAL_PACKAGE_READY_NO_DEPLOY`.
+- Keeps Cloudflare deploy absent; next gate is local build/preview smoke only.
+
+## 2026-05-10 - T10ae Cloudflare Runtime Compatibility
+
+- Rejects Cloudflare Pages static export for the current tester portal because middleware and API route handlers are part of the access model.
+- Selects the Cloudflare Workers/OpenNext Next.js runtime path for the next local adapter package phase.
+- Adds `proof:cloudflare-runtime-compatibility` with result `GO_CLOUDFLARE_WORKERS_OPENNEXT_RUNTIME_SELECTED_NO_PROVIDER_ACTION`.
+
+## 2026-05-10 - T10ad Cloudflare Access Preflight
+
+- Defines the no-deploy Cloudflare Pages plus Access OTP preflight before any provider project, deployment or tester URL.
+- Adds a mandatory T10ae runtime compatibility gate because the tester portal uses Next.js route handlers and middleware.
+- Adds `proof:cloudflare-access-preflight` with result `GO_CLOUDFLARE_ACCESS_PREFLIGHT_READY_NO_DEPLOY`.
+
+## 2026-05-10 - T10ac Replacement Tester Route Options
+
+- Compares Cloudflare, Netlify, Render, local/private-network and the rejected Vercel route without deployment.
+- Selects Cloudflare Pages preview plus Cloudflare Access email OTP as the next protected tester-route candidate.
+- Adds `proof:replacement-tester-route-options` with result `GO_CLOUDFLARE_ACCESS_OTP_ROUTE_SELECTED_NO_DEPLOY`.
+
+## 2026-05-10 - T10ab Manual Dashboard Evidence Ingest
+
+- Ingests Ivan's manual Vercel dashboard evidence for `sqx-edge-tester-staging` without deployment or provider mutation.
+- Rejects the current Vercel tester route because Git, production branch, auto-alias behavior, correction status and next deployment safety are not visible/proven.
+- Adds `proof:manual-dashboard-evidence-ingest` with result `NO_GO_REPLACE_VERCEL_TESTER_ROUTE`.
+
+## 2026-05-10 - T10aa Provider Dashboard Evidence Record
+
+- Records read-only provider/dashboard evidence for `sqx-edge-tester-staging` without deployment or provider mutation.
+- Confirms CLI evidence still cannot prove that `tester-preview` cannot map to production target.
+- Adds `proof:provider-dashboard-evidence-record` with result `NO_GO_PROVIDER_CANNOT_PROVE_PREVIEW_TARGET`.
+
+## 2026-05-10 - T10z Provider Dashboard Correction Package
+
+- Adds a no-deploy provider/dashboard correction package after T10y paused the Vercel CLI deployment route.
+- Defines the manual operator checklist and public-safe evidence format required before another deployment attempt.
+- Adds `proof:provider-dashboard-correction-package` with result `GO_PROVIDER_DASHBOARD_CORRECTION_PACKAGE_READY_NO_DEPLOY`.
+
+## 2026-05-10 - T10y No-Deploy Provider Dashboard Decision
+
+- Pauses the Vercel CLI deployment route after default and explicit preview-target attempts both returned production target.
+- Selects `provider_dashboard_correction_before_any_deployment` as the next safe route before any new deployment attempt.
+- Adds `proof:no-deploy-provider-dashboard-decision` with result `GO_PROVIDER_DASHBOARD_CORRECTION_DECISION_READY_NO_DEPLOY`.
+
+## 2026-05-10 - T10x Explicit Preview Target Rollback
+
+- Executes one explicit `--target=preview` deployment attempt against `sqx-edge-tester-staging`.
+- Confirms Vercel still returns `target=production`; the T10b guard blocks the build with exit code 43.
+- Removes the failed deployment and adds `proof:explicit-preview-target-rollback` with result `NO_GO_EXPLICIT_PREVIEW_TARGET_RETURNED_PRODUCTION_ROLLBACK_CLEAN`.
+
+## 2026-05-10 - T10w Provider Target Mapping Investigation
+
+- Investigates `sqx-edge-tester-staging` target mapping without another deployment attempt.
+- Rejects the default CLI route after T10v returned production target from `tester-preview`.
+- Prepares `vercel deploy --target=preview --force --yes --format json` as the only next controlled Vercel route.
+- Adds `proof:provider-target-mapping-investigation` with result `NO_GO_DEFAULT_CLI_STAGING_ROUTE_REJECTED_EXPLICIT_PREVIEW_TARGET_PREPARED`.
+
+## 2026-05-10 - T10v Controlled Staging Deploy Rollback
+
+- Executes one controlled staging deployment attempt against `sqx-edge-tester-staging`.
+- Confirms Vercel still returns `target=production` from `tester-preview`; the T10b guard blocks the build with exit code 43.
+- Removes the failed deployment and adds `proof:controlled-staging-deploy-rollback` with result `NO_GO_STAGING_DEPLOYMENT_TARGET_PRODUCTION_ROLLBACK_CLEAN`.
+
+## 2026-05-10 - T10u Staging Deployment Readiness Gate
+
+- Adds a no-deploy readiness gate before any deployment against `sqx-edge-tester-staging`.
+- Confirms branch, local link, protection, zero deployments and zero domains before a controlled deployment attempt.
+- Adds `proof:staging-deployment-readiness` with result `GO_STAGING_DEPLOYMENT_READINESS_GATE_NO_DEPLOY`.
+
+## 2026-05-10 - T10t Staging Local Link Configured
+
+- Links the private tester portal working tree to `sqx-edge-tester-staging` through ignored Vercel local metadata only.
+- Confirms the staging project still has zero deployments, zero domains and no published tester URL after the local link.
+- Adds `proof:staging-local-link` with result `GO_STAGING_LOCAL_LINK_CONFIGURED_NO_DEPLOY`.
+
+## 2026-05-10 - T10s Staging Protection Verified
+
+- Verifies `sqx-edge-tester-staging` has SSO Deployment Protection enabled before any Git link or deployment.
+- Confirms Git fork protection is enabled, deployments are zero, domains are empty and no URL is published.
+- Adds `proof:staging-protection-verified` with result `GO_STAGING_PROTECTION_VERIFIED_NO_DEPLOY`.
+
+## 2026-05-10 - T10r Fresh Staging Project Created
+
+- Creates and verifies `sqx-edge-tester-staging` as a fresh Vercel project shell without deployment.
+- Confirms the new project has no deployments, no domains, no latest deployment and is separate from the rejected route.
+- Adds `proof:fresh-staging-project-created` with result `GO_FRESH_STAGING_PROJECT_CREATED_NO_DEPLOY`.
+
+## 2026-05-10 - T10q Fresh Staging Route Access Check
+
+- Records explicit approval for creating or verifying a fresh protected staging route without deployment.
+- Verifies read-only Vercel visibility through the connected app and blocks write actions because local CLI/token authentication is unavailable.
+- Adds `proof:fresh-staging-route-access-check` with result `NO_GO_FRESH_STAGING_ROUTE_CREATION_BLOCKED_BY_CLI_AUTH`.
+
+## 2026-05-10 - T10p Fresh Staging Route Preflight
+
+- Adds `proof:fresh-staging-route-preflight` as a no-token, no-API, no-project and no-deploy gate for the fresh staging route.
+- Documents the exact requirements a future staging route must satisfy before any deployment exists.
+- Proof result: `GO_FRESH_STAGING_ROUTE_PREFLIGHT_READY_NO_EXTERNAL_ACTION`.
+- Sets T10q as the first exact external-action approval gate for creating or verifying a fresh protected staging route without deployment.
+
+## 2026-05-10 - T10o Replacement Route Contract
+
+- Adds `proof:replacement-route-contract` as a no-token, no-API and no-deploy contract for the replacement route.
+- Keeps the current Vercel route rejected for rollout and selects `fresh_staging_route_with_no_deploy_preflight` as the next path.
+- Sets T10p as the explicitly approved fresh staging route preflight before any external project creation, deployment or tester URL.
+
+## 2026-05-10 - T10n Vercel Route Decision
+
+- Adds `proof:vercel-route-decision` as a no-deploy decision gate after T10m hardening.
+- Records that the current Vercel route remains rejected for rollout because the future deployment target cannot be proven without creating a deployment.
+- Sets T10o as replacement route or provider-level proof before any deployment attempt.
+
 ## 2026-05-10 - T10m Vercel Config Hardening
 
 - Adds `proof:vercel-config-hardening` with dry-run by default and explicit `T10M_APPLY=1` apply mode.

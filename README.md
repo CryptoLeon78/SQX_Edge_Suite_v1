@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T10m endurecio la configuracion Vercel por API sin deploy; queda prohibido desplegar hasta T10n con proof no-deploy de ruta.
+- Estado interno: T10ah evalua la migracion Next.js a `proxy.ts`, la bloquea por incompatibilidad actual con OpenNext/Cloudflare Node Middleware, conserva `middleware.ts` y no ejecuta acciones de proveedor.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: T10n para proof no-deploy de target/ruta o reemplazo Vercel antes de cualquier nuevo deployment, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T10ai para preparar el preflight de proyecto Cloudflare sin deploy ni URL tester, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -105,7 +105,36 @@ Portal tester Pro previsto:
 - T10k ejecuto una preview CLI default corregida y la cerro como rollback seguro.
 - T10l anade `proof:vercel-route-investigation`; investiga Vercel sin deploy, detecta `project.productionBranch` ausente, `project.targets` vacio y senales de ruta produccion, y deja T10m como correccion/reemplazo sin deploy previo.
 - T10l investigo Vercel sin deploy y dejo T10m para correccion manual/API o ruta alternativa antes de cualquier deployment.
+- T10m endurecio la configuracion Vercel por API sin deploy y dejo T10n para proof no-deploy de target/ruta antes de cualquier deployment.
 - T10m anade `proof:vercel-config-hardening`; aplica por API `autoAssignCustomDomains=false` y `previewDeploymentsDisabled=false` sin deploy, mantiene el proyecto sin dominios/deployments y deja T10n como proof/reemplazo de ruta antes de cualquier deployment.
+- T10n anade `proof:vercel-route-decision`; confirma sin deploy que la ruta Vercel actual no debe usarse para rollout y deja T10o como reemplazo/proof provider-level antes de cualquier deployment.
+- T10n rechaza la ruta Vercel actual y deja T10o para ruta alternativa o proof manual/provider-level antes de cualquier deployment.
+- T10o anade `proof:replacement-route-contract`; selecciona `fresh_staging_route_with_no_deploy_preflight`, mantiene rechazada la ruta Vercel actual y deja T10p solo con aprobacion explicita antes de crear/verificar cualquier ruta externa.
+- T10o deja lista una ruta alternativa contractual sin deploy y T10p para crear/verificar una ruta staging nueva queda condicionado a aprobacion explicita.
+- T10p anade `proof:fresh-staging-route-preflight`; deja preparado el gate local sin API/deploy/proyecto/URL y reserva T10q para una aprobacion exacta de accion externa sin deployment.
+- T10p deja listo el preflight local de ruta staging fresca y T10q para pedir aprobacion exacta queda como siguiente gate externo sin deployment.
+- T10q anade `proof:fresh-staging-route-access-check`; registra aprobacion explicita, verifica lectura Vercel por app conectada y bloquea creacion/verificacion porque la CLI espera login interactivo y no hay `VERCEL_TOKEN`.
+- T10q registra aprobacion explicita y T10r para autenticar Vercel CLI queda completado antes de crear/verificar la ruta staging.
+- T10r anade `proof:fresh-staging-project-created`; crea/verifica `sqx-edge-tester-staging` sin deploy, sin dominios, sin Git link y sin URL publicada, dejando T10s como gate de proteccion/settings.
+- T10s anade `proof:staging-protection-verified`; confirma SSO Deployment Protection `all_except_custom_domains`, Git fork protection, cero deployments y cero dominios antes de cualquier Git link o deploy.
+- T10t anade `proof:staging-local-link`; enlaza localmente el repo privado del portal tester a `sqx-edge-tester-staging` mediante metadata ignorada, manteniendo cero deployments, cero dominios y ninguna URL publicada.
+- T10u anade `proof:staging-deployment-readiness`; prepara el gate no-deploy para un unico deployment staging controlado con inspeccion de target/aliases y rollback obligatorio antes de compartir cualquier URL.
+- T10v anade `proof:controlled-staging-deploy-rollback`; ejecuta un unico intento staging, Vercel devuelve `target=production`, el guard bloquea y se elimina el deployment fallido sin publicar URL.
+- T10w anade `proof:provider-target-mapping-investigation`; rechaza la ruta CLI default y prepara `vercel deploy --target=preview --force --yes --format json` como unico siguiente intento controlado.
+- T10x anade `proof:explicit-preview-target-rollback`; prueba la ruta explicita `--target=preview`, Vercel vuelve a devolver `target=production`, el guard bloquea y se elimina el deployment fallido.
+- T10x prueba `--target=preview` como intento unico y queda cerrado como rollback limpio.
+- T10y anade `proof:no-deploy-provider-dashboard-decision`; T10y para dejar de reintentar Vercel CLI pausa la ruta y selecciona correccion provider-dashboard sin deploy antes de cualquier nuevo intento.
+- T10z para preparar el paquete/checklist provider-dashboard sin deploy quedo como siguiente paso de T10y.
+- T10z anade `proof:provider-dashboard-correction-package`; deja checklist y formato de evidencia para correccion provider-dashboard sin deploy antes de cualquier nuevo intento.
+- T10aa para registrar evidencia provider-dashboard sin deploy quedo como siguiente paso de T10z.
+- T10aa anade `proof:provider-dashboard-evidence-record`; confirma por CLI cero deployments/dominios/proteccion activa, pero deja `NO_GO_PROVIDER_CANNOT_PROVE_PREVIEW_TARGET` hasta revision manual de dashboard. T10ab para ingerir evidencia manual de dashboard queda cerrado en la siguiente fase.
+- T10ab anade `proof:manual-dashboard-evidence-ingest`; ingiere evidencia manual de dashboard, confirma Git no conectado, production branch no visible, correccion no visible y `next_deployment_allowed=unknown`, por lo que decide `NO_GO_REPLACE_VERCEL_TESTER_ROUTE`. T10ac para comparar y seleccionar una ruta tester protegida queda completado sin deploy.
+- T10ac anade `proof:replacement-tester-route-options`; compara rutas no-Vercel y selecciona Cloudflare Pages preview + Cloudflare Access email OTP como candidata, sin crear proyecto, deploy, URL ni politicas externas. T10ad para preparar el preflight Cloudflare Access queda completado sin accion externa.
+- T10ad anade `proof:cloudflare-access-preflight`; define ramas, Access OTP, no custom domains, no URL y una barrera T10ae de compatibilidad runtime Next.js antes de crear nada en Cloudflare. T10ae para resolver la compatibilidad runtime Cloudflare localmente queda completado sin proveedor.
+- T10ae anade `proof:cloudflare-runtime-compatibility`; inventaria middleware y 7 API route handlers, rechaza static export y selecciona Cloudflare Workers/OpenNext como runtime candidato sin instalar dependencias ni tocar proveedor.
+- T10af anade `proof:opennext-cloudflare-adapter`; prepara `wrangler.jsonc`, `open-next.config.ts`, `.dev.vars.example`, `@opennextjs/cloudflare`, `wrangler` y scripts locales `cf:build`, `cf:preview`, `cf:typegen` sin exponer `cf:deploy` ni crear recursos Cloudflare.
+- T10ag anade `proof:opennext-local-smoke`; confirma que el build OpenNext genera worker/assets y que preview WSL/Linux devuelve `/api/health` 200, mientras preview nativo Windows queda como `NO_GO_NATIVE_WINDOWS_PREVIEW_ROUTE_500`.
+- T10ah anade `proof:next-proxy-migration`; documenta que `proxy.ts` queda bloqueado para esta ruta porque OpenNext/Cloudflare no soporta Node Middleware, conserva `middleware.ts` y mantiene la fase sin deploy ni recursos Cloudflare.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.

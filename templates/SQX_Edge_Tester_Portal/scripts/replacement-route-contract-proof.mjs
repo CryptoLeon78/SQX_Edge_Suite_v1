@@ -1,0 +1,50 @@
+const contract = Object.freeze({
+  phase: "T10o",
+  result: "GO_REPLACEMENT_ROUTE_CONTRACT_READY_NO_DEPLOY",
+  selectedRoute: "fresh_staging_route_with_no_deploy_preflight",
+  rejectedRoute: "current_vercel_route",
+  currentRouteApprovedForDeployment: false,
+  replacementRequired: true,
+  externalDeployAttempted: false,
+  externalConfigMutationAttempted: false,
+  externalProjectCreationAttempted: false,
+  testerUrlPublished: false,
+  testerAccountsCreated: false,
+  testerEmailsCommitted: false,
+  entryRequirements: [
+    "explicit approval before creating or linking any external project",
+    "no deployment until replacement preflight returns GO",
+    "Deployment Protection enabled before any URL exists",
+    "no custom domains",
+    "no automatic production aliasing",
+    "no tester emails, accounts, passwords, tokens or secrets",
+    "production branch must be main",
+    "preview branch must not be production",
+    "first deployment still requires immediate target inspection and rollback on mismatch",
+  ],
+  t10pAllowedActions: [
+    "document provider choice",
+    "prepare local no-deploy preflight",
+    "verify project settings without deployment after explicit approval",
+  ],
+  t10pForbiddenActions: [
+    "vercel deploy",
+    "create deployment",
+    "publish URL",
+    "invite tester",
+    "create tester account",
+    "commit tester email",
+    "connect production database",
+    "issue license",
+  ],
+  securityBoundary: [
+    "no deployment created",
+    "no external project created",
+    "no URL shared",
+    "no tester data committed",
+    "no secrets committed",
+  ],
+});
+
+console.log(JSON.stringify(contract, null, 2));
+console.log(contract.result);

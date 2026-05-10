@@ -69,6 +69,27 @@ T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10J_CL
 T10K_CLI_DEFAULT_PREVIEW_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10K_CLI_DEFAULT_PREVIEW_ROLLBACK.md"
 T10L_VERCEL_ROUTE_INVESTIGATION_DOC = PROJECT_ROOT / "docs" / "T10L_VERCEL_ROUTE_INVESTIGATION.md"
 T10M_VERCEL_CONFIG_HARDENING_DOC = PROJECT_ROOT / "docs" / "T10M_VERCEL_CONFIG_HARDENING.md"
+T10N_VERCEL_ROUTE_DECISION_DOC = PROJECT_ROOT / "docs" / "T10N_VERCEL_ROUTE_DECISION.md"
+T10O_REPLACEMENT_ROUTE_CONTRACT_DOC = PROJECT_ROOT / "docs" / "T10O_REPLACEMENT_ROUTE_CONTRACT.md"
+T10P_FRESH_STAGING_ROUTE_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10P_FRESH_STAGING_ROUTE_PREFLIGHT.md"
+T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK_DOC = PROJECT_ROOT / "docs" / "T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK.md"
+T10R_FRESH_STAGING_PROJECT_CREATED_DOC = PROJECT_ROOT / "docs" / "T10R_FRESH_STAGING_PROJECT_CREATED.md"
+T10S_STAGING_PROTECTION_VERIFIED_DOC = PROJECT_ROOT / "docs" / "T10S_STAGING_PROTECTION_VERIFIED.md"
+T10T_STAGING_LOCAL_LINK_CONFIGURED_DOC = PROJECT_ROOT / "docs" / "T10T_STAGING_LOCAL_LINK_CONFIGURED.md"
+T10U_STAGING_DEPLOYMENT_READINESS_GATE_DOC = PROJECT_ROOT / "docs" / "T10U_STAGING_DEPLOYMENT_READINESS_GATE.md"
+T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK.md"
+T10W_PROVIDER_TARGET_MAPPING_INVESTIGATION_DOC = PROJECT_ROOT / "docs" / "T10W_PROVIDER_TARGET_MAPPING_INVESTIGATION.md"
+T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK.md"
+T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION_DOC = PROJECT_ROOT / "docs" / "T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION.md"
+T10Z_PROVIDER_DASHBOARD_CORRECTION_PACKAGE_DOC = PROJECT_ROOT / "docs" / "T10Z_PROVIDER_DASHBOARD_CORRECTION_PACKAGE.md"
+T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD_DOC = PROJECT_ROOT / "docs" / "T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD.md"
+T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST_DOC = PROJECT_ROOT / "docs" / "T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST.md"
+T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS_DOC = PROJECT_ROOT / "docs" / "T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md"
+T10AD_CLOUDFLARE_ACCESS_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md"
+T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY_DOC = PROJECT_ROOT / "docs" / "T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md"
+T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE_DOC = PROJECT_ROOT / "docs" / "T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE.md"
+T10AG_OPENNEXT_LOCAL_SMOKE_DOC = PROJECT_ROOT / "docs" / "T10AG_OPENNEXT_LOCAL_SMOKE.md"
+T10AH_NEXT_PROXY_MIGRATION_DOC = PROJECT_ROOT / "docs" / "T10AH_NEXT_PROXY_MIGRATION.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -5836,6 +5857,2703 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10m_text)
+
+    def test_t10n_vercel_route_decision_is_documented_and_safe(self):
+        t10n = T10N_VERCEL_ROUTE_DECISION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "vercel-route-decision-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:vercel-route-decision"],
+            "node scripts/vercel-route-decision-proof.mjs",
+        )
+
+        for pattern in (
+            "T10n Vercel Route Decision",
+            "no-deploy decision gate",
+            "NO_GO_CURRENT_VERCEL_ROUTE_REPLACEMENT_REQUIRED",
+            "Did not run `vercel deploy`.",
+            "Did not call the Vercel deployments creation API.",
+            "Did not patch project settings.",
+            "Vercel still reports `productionDeploymentsFastLane`.",
+            "No documented no-deploy API field proves the future deployment target.",
+            "T10o must prepare one of these options",
+            "Do not run another deployment until T10o produces a no-deploy GO",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10n)
+
+        for pattern in (
+            "T10N_PREVIEW_PROJECT_NAME",
+            "NO_GO_CURRENT_VERCEL_ROUTE_REPLACEMENT_REQUIRED",
+            "currentRouteApprovedForDeployment: false",
+            "replacementRequired: true",
+            "noDeployGoForCurrentRoute: false",
+            "productionDeploymentsFastLane remains reported by the Project API",
+            "future deployment target cannot be proven without creating a deployment",
+            "externalDeployAttempted: false",
+            "externalConfigMutationAttempted: false",
+            "T10o must prepare a replacement route or manual provider-level proof before any deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+
+        for pattern in (
+            "Current phase completed: T10n - Vercel Route Decision.",
+            "T10o - replacement route or provider-level no-deploy proof before any deployment",
+            "docs/T10N_VERCEL_ROUTE_DECISION.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10n - Vercel Route Decision.",
+            "Phase T10n: no-deploy preview target proof or Vercel route replacement before any further deployment. Done as route decision NO-GO",
+            "Phase T10o: replacement route or provider-level no-deploy proof before any deployment.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10n rechaza la ruta Vercel actual",
+            "T10o para ruta alternativa o proof manual/provider-level",
+            "T10n anade `proof:vercel-route-decision`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10n Vercel Route Decision",
+            "proof:vercel-route-decision",
+            "current Vercel route remains rejected for rollout",
+            "T10o as replacement route or provider-level proof",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/vercel-route-decision-proof.mjs",
+            "npm run proof:vercel-route-decision",
+            "NO_GO_CURRENT_VERCEL_ROUTE_REPLACEMENT_REQUIRED",
+            "T10o must prepare a replacement route or manual provider-level proof",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10n_text = "\n".join([t10n, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10n_text)
+
+    def test_t10o_replacement_route_contract_is_documented_and_safe(self):
+        t10o = T10O_REPLACEMENT_ROUTE_CONTRACT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "replacement-route-contract-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:replacement-route-contract"],
+            "node scripts/replacement-route-contract-proof.mjs",
+        )
+
+        for pattern in (
+            "T10o Replacement Route Contract",
+            "no-deploy replacement-route contract",
+            "GO_REPLACEMENT_ROUTE_CONTRACT_READY_NO_DEPLOY",
+            "fresh_staging_route_with_no_deploy_preflight",
+            "current_vercel_route",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not mutate Vercel project settings.",
+            "Did not create a new external project.",
+            "T10p may start only after explicit approval",
+            "Deployment Protection must be enabled before any URL exists.",
+            "No tester emails, tester accounts, passwords, tokens or secrets.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10o)
+
+        for pattern in (
+            'phase: "T10o"',
+            'result: "GO_REPLACEMENT_ROUTE_CONTRACT_READY_NO_DEPLOY"',
+            'selectedRoute: "fresh_staging_route_with_no_deploy_preflight"',
+            'rejectedRoute: "current_vercel_route"',
+            "currentRouteApprovedForDeployment: false",
+            "replacementRequired: true",
+            "externalDeployAttempted: false",
+            "externalConfigMutationAttempted: false",
+            "externalProjectCreationAttempted: false",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "no deployment until replacement preflight returns GO",
+            "verify project settings without deployment after explicit approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10o - Replacement Route Contract.",
+            "T10p - create or verify a fresh staging route only after explicit approval",
+            "docs/T10O_REPLACEMENT_ROUTE_CONTRACT.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10o - Replacement Route Contract.",
+            "Phase T10o: replacement route or provider-level no-deploy proof before any deployment. Done as no-deploy replacement-route contract",
+            "Phase T10p: create or verify a fresh staging route only after explicit approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10o deja lista una ruta alternativa contractual sin deploy",
+            "T10p para crear/verificar una ruta staging nueva",
+            "T10o anade `proof:replacement-route-contract`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10o Replacement Route Contract",
+            "proof:replacement-route-contract",
+            "fresh_staging_route_with_no_deploy_preflight",
+            "T10p as the explicitly approved fresh staging route preflight",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/replacement-route-contract-proof.mjs",
+            "npm run proof:replacement-route-contract",
+            "GO_REPLACEMENT_ROUTE_CONTRACT_READY_NO_DEPLOY",
+            "T10p must create or verify the fresh staging route only with explicit approval",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10o_text = "\n".join([t10o, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10o_text)
+
+    def test_t10p_fresh_staging_route_preflight_is_documented_and_safe(self):
+        t10p = T10P_FRESH_STAGING_ROUTE_PREFLIGHT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "fresh-staging-route-preflight-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:fresh-staging-route-preflight"],
+            "node scripts/fresh-staging-route-preflight-proof.mjs",
+        )
+
+        for pattern in (
+            "T10p Fresh Staging Route Preflight",
+            "does not create or verify an external project",
+            "GO_FRESH_STAGING_ROUTE_PREFLIGHT_READY_NO_EXTERNAL_ACTION",
+            "fresh_staging_route_with_no_deploy_preflight",
+            "current_vercel_route_rejected",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not call any provider API.",
+            "Did not create a Vercel project or any alternative provider project.",
+            "Did not link GitHub to a new provider project.",
+            "A broad \"continue\" is not enough",
+            "No tester email in git.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10p)
+
+        for pattern in (
+            'phase: "T10p"',
+            'result: "GO_FRESH_STAGING_ROUTE_PREFLIGHT_READY_NO_EXTERNAL_ACTION"',
+            'selectedRoute: "fresh_staging_route_with_no_deploy_preflight"',
+            'currentRouteStatus: "current_vercel_route_rejected"',
+            "externalApiCalled: false",
+            "externalDeployAttempted: false",
+            "externalProjectCreated: false",
+            "externalProjectLinked: false",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "provider-level or dashboard/API proof before first deployment",
+            "create a fresh protected Vercel staging project without deployment",
+            "verify an already-created fresh staging project without deployment",
+            "select a non-Vercel protected staging provider route without deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10p - Fresh Staging Route Preflight.",
+            "T10q - request exact approval to create or verify a fresh protected staging route without deployment",
+            "docs/T10P_FRESH_STAGING_ROUTE_PREFLIGHT.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10p - Fresh Staging Route Preflight.",
+            "Phase T10p: create or verify a fresh staging route only after explicit approval, with no-deploy preflight before any deployment. Done as local no-external-action preflight",
+            "Phase T10q: request exact approval to create or verify a fresh protected staging route without deployment.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10p deja listo el preflight local de ruta staging fresca",
+            "T10q para pedir aprobacion exacta",
+            "T10p anade `proof:fresh-staging-route-preflight`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10p Fresh Staging Route Preflight",
+            "proof:fresh-staging-route-preflight",
+            "GO_FRESH_STAGING_ROUTE_PREFLIGHT_READY_NO_EXTERNAL_ACTION",
+            "T10q as the first exact external-action approval gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/fresh-staging-route-preflight-proof.mjs",
+            "npm run proof:fresh-staging-route-preflight",
+            "GO_FRESH_STAGING_ROUTE_PREFLIGHT_READY_NO_EXTERNAL_ACTION",
+            "T10q must request exact approval before creating or verifying any provider route",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10p_text = "\n".join([t10p, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10p_text)
+
+    def test_t10q_fresh_staging_route_access_check_is_documented_and_safe(self):
+        t10q = T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "fresh-staging-route-access-check-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:fresh-staging-route-access-check"],
+            "node scripts/fresh-staging-route-access-check-proof.mjs",
+        )
+
+        for pattern in (
+            "T10q Fresh Staging Route Access Check",
+            "receives explicit approval",
+            "NO_GO_FRESH_STAGING_ROUTE_CREATION_BLOCKED_BY_CLI_AUTH",
+            "sqx-edge-tester-staging",
+            "sqx-edge-tester-preview",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not create a Vercel project or any alternative provider project.",
+            "Did not link GitHub to a new provider project.",
+            "Approval for the intended action is now recorded.",
+            "there is no `VERCEL_TOKEN`",
+            "T10r must provide one exact write-capable path",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10q)
+
+        for pattern in (
+            'phase: "T10q"',
+            'result: "NO_GO_FRESH_STAGING_ROUTE_CREATION_BLOCKED_BY_CLI_AUTH"',
+            'requestedAction: "create_or_verify_fresh_protected_staging_route_without_deployment"',
+            'preferredProjectName: "sqx-edge-tester-staging"',
+            'currentRejectedProjectName: "sqx-edge-tester-preview"',
+            "readOnlyVercelVisibility: true",
+            "writeCapableCliSessionAvailable: false",
+            "vercelTokenAvailableInEnvironment: false",
+            "externalDeployAttempted: false",
+            "deploymentCreationEndpointCalled: false",
+            "externalProjectCreated: false",
+            "externalProjectLinked: false",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "Vercel CLI project listing timed out waiting for interactive authentication",
+            "provide a scoped VERCEL_TOKEN through local environment only",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10q - Fresh Staging Route Access Check.",
+            "T10r - authenticate Vercel CLI or provide local `VERCEL_TOKEN`",
+            "docs/T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10q - Fresh Staging Route Access Check.",
+            "Phase T10q: request exact approval to create or verify a fresh protected staging route without deployment. Done as access check",
+            "Phase T10r: authenticate Vercel CLI or provide local `VERCEL_TOKEN`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10q registra aprobacion explicita",
+            "T10r para autenticar Vercel CLI",
+            "T10q anade `proof:fresh-staging-route-access-check`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10q Fresh Staging Route Access Check",
+            "proof:fresh-staging-route-access-check",
+            "NO_GO_FRESH_STAGING_ROUTE_CREATION_BLOCKED_BY_CLI_AUTH",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/fresh-staging-route-access-check-proof.mjs",
+            "npm run proof:fresh-staging-route-access-check",
+            "NO_GO_FRESH_STAGING_ROUTE_CREATION_BLOCKED_BY_CLI_AUTH",
+            "T10r must authenticate Vercel CLI or provide a local `VERCEL_TOKEN`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10q_text = "\n".join([t10q, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10q_text)
+
+    def test_t10r_fresh_staging_project_created_is_documented_and_safe(self):
+        t10r = T10R_FRESH_STAGING_PROJECT_CREATED_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "fresh-staging-project-created-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:fresh-staging-project-created"],
+            "node scripts/fresh-staging-project-created-proof.mjs",
+        )
+
+        for pattern in (
+            "T10r Fresh Staging Project Created",
+            "does not deploy, does not link Git",
+            "GO_FRESH_STAGING_PROJECT_CREATED_NO_DEPLOY",
+            "sqx-edge-tester-staging",
+            "sqx-edge-tester-preview",
+            "Verified no deployments exist for the new project.",
+            "Verified the project has no domains.",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not link GitHub to the new project.",
+            "latestDeployment = null",
+            "domains = []",
+            "Deployment count: `0`.",
+            "T10s must verify or enable the protection/settings layer",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10r)
+
+        for pattern in (
+            'phase: "T10r"',
+            'result: "GO_FRESH_STAGING_PROJECT_CREATED_NO_DEPLOY"',
+            'freshProjectName: "sqx-edge-tester-staging"',
+            'freshProjectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'teamId: "team_43avYcdXjtKKE2GtwkOwbNKa"',
+            'rejectedRouteProjectName: "sqx-edge-tester-preview"',
+            "cliWritePathAvailable: true",
+            "projectCreated: true",
+            "projectSeparateFromRejectedRoute: true",
+            "live: false",
+            "latestDeployment: null",
+            "domains: []",
+            "deploymentCount: 0",
+            "privatePortalRelinked: false",
+            "gitLinkedToFreshProject: false",
+            "externalDeployAttempted: false",
+            "deploymentCreationEndpointCalled: false",
+            "testerUrlPublished: false",
+            "T10s_verify_or_enable_protection_settings_before_any_link_or_deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10r - Fresh Staging Project Created.",
+            "T10s - verify or enable protection/settings for `sqx-edge-tester-staging`",
+            "docs/T10R_FRESH_STAGING_PROJECT_CREATED.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10r - Fresh Staging Project Created.",
+            "Phase T10r: authenticate Vercel CLI or provide local `VERCEL_TOKEN`, then create or verify `sqx-edge-tester-staging` without deployment. Done",
+            "Phase T10s: verify or enable protection/settings for `sqx-edge-tester-staging` before any Git link or deployment.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10r anade `proof:fresh-staging-project-created`",
+            "T10s anade `proof:staging-protection-verified`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10r Fresh Staging Project Created",
+            "proof:fresh-staging-project-created",
+            "GO_FRESH_STAGING_PROJECT_CREATED_NO_DEPLOY",
+            "no deployments, no domains, no latest deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/fresh-staging-project-created-proof.mjs",
+            "npm run proof:fresh-staging-project-created",
+            "GO_FRESH_STAGING_PROJECT_CREATED_NO_DEPLOY",
+            "T10s must verify or enable protection/settings",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10r_text = "\n".join([t10r, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10r_text)
+
+    def test_t10s_staging_protection_verified_is_documented_and_safe(self):
+        t10s = T10S_STAGING_PROTECTION_VERIFIED_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "staging-protection-verified-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:staging-protection-verified"],
+            "node scripts/staging-protection-verified-proof.mjs",
+        )
+
+        for pattern in (
+            "T10s Staging Protection Verified",
+            "GO_STAGING_PROTECTION_VERIFIED_NO_DEPLOY",
+            "sqx-edge-tester-staging",
+            "all_except_custom_domains",
+            "Git fork protection: enabled.",
+            "Deployment count: `0`.",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not link GitHub to the staging project.",
+            "T10t may link the private tester portal working tree",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10s)
+
+        for pattern in (
+            'phase: "T10s"',
+            'result: "GO_STAGING_PROTECTION_VERIFIED_NO_DEPLOY"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            "ssoProtectionEnabled: true",
+            'ssoDeploymentType: "all_except_custom_domains"',
+            "gitForkProtectionEnabled: true",
+            "live: false",
+            "latestDeployment: null",
+            "domains: []",
+            "deploymentCount: 0",
+            "projectSettingsChangedInT10s: false",
+            "privatePortalRelinked: false",
+            "gitLinkedToFreshProject: false",
+            "externalDeployAttempted: false",
+            "deploymentCreationEndpointCalled: false",
+            "testerUrlPublished: false",
+            "T10t_no_deploy_staging_link_or_setup_before_any_deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10s - Staging Protection Verified.",
+            "T10t - link or configure staging without deployment and without publishing a URL",
+            "docs/T10S_STAGING_PROTECTION_VERIFIED.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10s - Staging Protection Verified.",
+            "Phase T10s: verify or enable protection/settings for `sqx-edge-tester-staging` before any Git link or deployment. Done",
+            "Phase T10t: link or configure staging without deployment and without publishing a URL.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10s anade `proof:staging-protection-verified`",
+            "T10t anade `proof:staging-local-link`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10s Staging Protection Verified",
+            "proof:staging-protection-verified",
+            "GO_STAGING_PROTECTION_VERIFIED_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/staging-protection-verified-proof.mjs",
+            "npm run proof:staging-protection-verified",
+            "GO_STAGING_PROTECTION_VERIFIED_NO_DEPLOY",
+            "T10t has linked the private tester portal working tree",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10s_text = "\n".join([t10s, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10s_text)
+
+    def test_t10t_staging_local_link_configured_is_documented_and_safe(self):
+        t10t = T10T_STAGING_LOCAL_LINK_CONFIGURED_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "staging-local-link-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:staging-local-link"],
+            "node scripts/staging-local-link-proof.mjs",
+        )
+
+        for pattern in (
+            "T10t Staging Local Link Configured",
+            "GO_STAGING_LOCAL_LINK_CONFIGURED_NO_DEPLOY",
+            "sqx-edge-tester-staging",
+            "sqx-edge-tester-preview",
+            "Updated the private working tree's ignored `.vercel/project.json`",
+            "Verified `.vercel/` is ignored by git",
+            "Deployment count: `0`.",
+            "Domains count: `0`.",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not commit `.vercel/project.json`.",
+            "T10u must prepare a no-deploy staging deployment readiness gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10t)
+
+        for pattern in (
+            'phase: "T10t"',
+            'result: "GO_STAGING_LOCAL_LINK_CONFIGURED_NO_DEPLOY"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'previousLocalProjectName: "sqx-edge-tester-preview"',
+            'localPrivatePortalLinkedProjectName: "sqx-edge-tester-staging"',
+            "privatePortalLocalLinkUpdated: true",
+            "localVercelMetadataIgnored: true",
+            "localProjectJsonCommitted: false",
+            "gitProviderLinkedInT10t: false",
+            "ssoProtectionEnabled: true",
+            'ssoDeploymentType: "all_except_custom_domains"',
+            "gitForkProtectionEnabled: true",
+            "deploymentCount: 0",
+            "domains: []",
+            "domainsCount: 0",
+            "externalDeployAttempted: false",
+            "deploymentCreationEndpointCalled: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "T10u_no_deploy_staging_deployment_readiness_before_any_deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "T10t staging local link configured:",
+            "T10u - prepare a no-deploy staging deployment readiness gate before any deployment. Historical anchor only; superseded by T10v.",
+            "docs/T10T_STAGING_LOCAL_LINK_CONFIGURED.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10t - Staging Local Link Configured.",
+            "Phase T10t: link or configure staging without deployment and without publishing a URL. Done",
+            "Phase T10u: prepare a no-deploy staging deployment readiness gate before any deployment.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10t anade `proof:staging-local-link`",
+            "T10u anade `proof:staging-deployment-readiness`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10t Staging Local Link Configured",
+            "proof:staging-local-link",
+            "GO_STAGING_LOCAL_LINK_CONFIGURED_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/staging-local-link-proof.mjs",
+            "npm run proof:staging-local-link",
+            "GO_STAGING_LOCAL_LINK_CONFIGURED_NO_DEPLOY",
+            "T10u has prepared a no-deploy readiness gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10t_text = "\n".join([t10t, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10t_text)
+
+    def test_t10u_staging_deployment_readiness_gate_is_documented_and_safe(self):
+        t10u = T10U_STAGING_DEPLOYMENT_READINESS_GATE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "staging-deployment-readiness-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:staging-deployment-readiness"],
+            "node scripts/staging-deployment-readiness-proof.mjs",
+        )
+
+        for pattern in (
+            "T10u Staging Deployment Readiness Gate",
+            "GO_STAGING_DEPLOYMENT_READINESS_GATE_NO_DEPLOY",
+            "sqx-edge-tester-staging",
+            "tester-preview",
+            "Verified ignored local Vercel metadata points to `sqx-edge-tester-staging`.",
+            "Verified SSO Deployment Protection remains enabled.",
+            "Deployment count: `0`.",
+            "Domains count: `0`.",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "T10v may execute exactly one staging deployment attempt",
+            "rollback/delete immediately if target is not preview",
+            "do not share or commit any deployment URL",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10u)
+
+        for pattern in (
+            'phase: "T10u"',
+            'result: "GO_STAGING_DEPLOYMENT_READINESS_GATE_NO_DEPLOY"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'privatePortalBranch: "tester-preview"',
+            'localPrivatePortalLinkedProjectName: "sqx-edge-tester-staging"',
+            "localVercelMetadataIgnored: true",
+            "localProjectJsonCommitted: false",
+            "ssoProtectionEnabled: true",
+            'ssoDeploymentType: "all_except_custom_domains"',
+            "gitForkProtectionEnabled: true",
+            "deploymentCount: 0",
+            "domains: []",
+            "domainsCount: 0",
+            "readinessGatePrepared: true",
+            "deploymentCommandPrepared: true",
+            'approvedNextCommand: "vercel deploy --force --yes --format json"',
+            "targetInspectionRequired: true",
+            "aliasInspectionRequired: true",
+            "rollbackOnTargetMismatchRequired: true",
+            "rollbackOnAliasOrDomainRequired: true",
+            "externalDeployAttemptedInT10u: false",
+            "deploymentCreationEndpointCalled: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "T10v_one_controlled_staging_deploy_with_target_alias_inspection_and_rollback",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "T10u staging deployment readiness gate:",
+            "T10v - execute one controlled staging deployment attempt with immediate target/alias inspection and rollback on mismatch. Historical anchor only; superseded by T10w.",
+            "docs/T10U_STAGING_DEPLOYMENT_READINESS_GATE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10u - Staging Deployment Readiness Gate.",
+            "Phase T10u: prepare a no-deploy staging deployment readiness gate before any deployment. Done",
+            "Phase T10v: execute one controlled staging deployment attempt with immediate target/alias inspection and rollback on mismatch.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10u anade `proof:staging-deployment-readiness`",
+            "T10v anade `proof:controlled-staging-deploy-rollback`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10u Staging Deployment Readiness Gate",
+            "proof:staging-deployment-readiness",
+            "GO_STAGING_DEPLOYMENT_READINESS_GATE_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/staging-deployment-readiness-proof.mjs",
+            "npm run proof:staging-deployment-readiness",
+            "GO_STAGING_DEPLOYMENT_READINESS_GATE_NO_DEPLOY",
+            "T10v executed one controlled staging deployment attempt",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10u_text = "\n".join([t10u, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10u_text)
+
+    def test_t10v_controlled_staging_deploy_rollback_is_documented_and_safe(self):
+        t10v = T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "controlled-staging-deploy-rollback-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:controlled-staging-deploy-rollback"],
+            "node scripts/controlled-staging-deploy-rollback-proof.mjs",
+        )
+
+        for pattern in (
+            "T10v Controlled Staging Deploy Rollback",
+            "NO_GO_STAGING_DEPLOYMENT_TARGET_PRODUCTION_ROLLBACK_CLEAN",
+            "sqx-edge-tester-staging",
+            "tester-preview",
+            "Vercel returned `target = production`.",
+            "The T10b build guard blocked the build with exit code `43`.",
+            "Removed the failed deployment immediately.",
+            "Verified no deployments remain for `sqx-edge-tester-staging`.",
+            "Verified no domains exist in the team.",
+            "Did not share or commit any deployment URL.",
+            "Returned target: `production`.",
+            "Deployment count after rollback: `0`.",
+            "Domains count after rollback: `0`.",
+            "T10w must investigate or correct the provider-level target mapping",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10v)
+
+        for pattern in (
+            'phase: "T10v"',
+            'result: "NO_GO_STAGING_DEPLOYMENT_TARGET_PRODUCTION_ROLLBACK_CLEAN"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'privatePortalBranch: "tester-preview"',
+            "deploymentAttemptedOnce: true",
+            'attemptedCommand: "vercel deploy --force --yes --format json"',
+            'returnedTarget: "production"',
+            'expectedTarget: "preview"',
+            "guardBlockedBuild: true",
+            'guardPhase: "T10b"',
+            'guardStatus: "NO_GO_PRODUCTION_TARGET_FROM_NON_PRODUCTION_BRANCH"',
+            "guardExitCode: 43",
+            "failedDeploymentRemoved: true",
+            "deploymentCountAfterRollback: 0",
+            "domains: []",
+            "domainsCountAfterRollback: 0",
+            "ssoProtectionEnabled: true",
+            'ssoDeploymentType: "all_except_custom_domains"',
+            "gitForkProtectionEnabled: true",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "currentVercelDeploymentRouteRejected: true",
+            "T10w_no_deploy_provider_target_mapping_correction_or_route_replacement",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "T10v controlled staging deploy rollback:",
+            "T10w - investigate/correct provider-level target mapping without another deployment attempt or replace the staging route. Historical anchor only; superseded by T10x.",
+            "docs/T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10v - Controlled Staging Deploy Rollback.",
+            "Phase T10v: execute one controlled staging deployment attempt with immediate target/alias inspection and rollback on mismatch. Done",
+            "Phase T10w: investigate/correct provider-level target mapping without another deployment attempt or replace the staging route.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10v anade `proof:controlled-staging-deploy-rollback`",
+            "T10w anade `proof:provider-target-mapping-investigation`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10v Controlled Staging Deploy Rollback",
+            "proof:controlled-staging-deploy-rollback",
+            "NO_GO_STAGING_DEPLOYMENT_TARGET_PRODUCTION_ROLLBACK_CLEAN",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/controlled-staging-deploy-rollback-proof.mjs",
+            "npm run proof:controlled-staging-deploy-rollback",
+            "NO_GO_STAGING_DEPLOYMENT_TARGET_PRODUCTION_ROLLBACK_CLEAN",
+            "T10w investigated provider-level target mapping",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10v_text = "\n".join([t10v, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10v_text)
+
+    def test_t10w_provider_target_mapping_investigation_is_documented_and_safe(self):
+        t10w = T10W_PROVIDER_TARGET_MAPPING_INVESTIGATION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "provider-target-mapping-investigation-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:provider-target-mapping-investigation"],
+            "node scripts/provider-target-mapping-investigation-proof.mjs",
+        )
+
+        for pattern in (
+            "T10w Provider Target Mapping Investigation",
+            "NO_GO_DEFAULT_CLI_STAGING_ROUTE_REJECTED_EXPLICIT_PREVIEW_TARGET_PREPARED",
+            "sqx-edge-tester-staging",
+            "Ran `vercel pull --environment=preview --yes`",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not read, commit or expose `.vercel/.env.preview.local`.",
+            "Framework preset: `Other`.",
+            "Project API framework: `null`.",
+            "Project API live: `false`.",
+            "Deployment count: `0`.",
+            "Domains count: `0`.",
+            "The default CLI route remains rejected",
+            "vercel deploy --target=preview --force --yes --format json",
+            "T10x may execute exactly one explicit preview-target deployment attempt",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10w)
+
+        for pattern in (
+            'phase: "T10w"',
+            'result: "NO_GO_DEFAULT_CLI_STAGING_ROUTE_REJECTED_EXPLICIT_PREVIEW_TARGET_PREPARED"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'privatePortalBranch: "tester-preview"',
+            "defaultCliRouteRejected: true",
+            'rejectionReason: "T10v_default_cli_route_returned_production_target_from_tester_preview"',
+            'frameworkPreset: "Other"',
+            "projectApiFramework: null",
+            "projectApiLive: false",
+            "projectApiLatestDeployment: null",
+            "projectApiDomains: []",
+            "deploymentCount: 0",
+            "domains: []",
+            "domainsCount: 0",
+            "ssoProtectionEnabled: true",
+            'ssoDeploymentType: "all_except_custom_domains"',
+            "gitForkProtectionEnabled: true",
+            "previewEnvironmentPulledLocally: true",
+            "localVercelMetadataIgnored: true",
+            "localPreviewEnvCommitted: false",
+            "localPreviewEnvInspected: false",
+            "explicitPreviewTargetSupportedByCli: true",
+            'nextCommandPrepared: "vercel deploy --target=preview --force --yes --format json"',
+            "deploymentAttemptedInT10w: false",
+            "deploymentCreationEndpointCalled: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "T10x_one_explicit_preview_target_deploy_with_target_alias_inspection_and_rollback",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "T10w provider target mapping investigation:",
+            "T10x - execute one explicit preview-target deployment attempt with immediate target/alias inspection and rollback on mismatch. Historical anchor only; superseded by T10y.",
+            "docs/T10W_PROVIDER_TARGET_MAPPING_INVESTIGATION.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10w - Provider Target Mapping Investigation.",
+            "Phase T10w: investigate/correct provider-level target mapping without another deployment attempt or replace the staging route. Done",
+            "Phase T10x: execute one explicit preview-target deployment attempt with immediate target/alias inspection and rollback on mismatch.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10w anade `proof:provider-target-mapping-investigation`",
+            "T10x anade `proof:explicit-preview-target-rollback`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10w Provider Target Mapping Investigation",
+            "proof:provider-target-mapping-investigation",
+            "NO_GO_DEFAULT_CLI_STAGING_ROUTE_REJECTED_EXPLICIT_PREVIEW_TARGET_PREPARED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/provider-target-mapping-investigation-proof.mjs",
+            "npm run proof:provider-target-mapping-investigation",
+            "NO_GO_DEFAULT_CLI_STAGING_ROUTE_REJECTED_EXPLICIT_PREVIEW_TARGET_PREPARED",
+            "T10x executed one explicit preview-target deployment attempt",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10w_text = "\n".join([t10w, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10w_text)
+
+    def test_t10x_explicit_preview_target_rollback_is_documented_and_safe(self):
+        t10x = T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "explicit-preview-target-rollback-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:explicit-preview-target-rollback"],
+            "node scripts/explicit-preview-target-rollback-proof.mjs",
+        )
+
+        for pattern in (
+            "T10x Explicit Preview Target Rollback",
+            "NO_GO_EXPLICIT_PREVIEW_TARGET_RETURNED_PRODUCTION_ROLLBACK_CLEAN",
+            "sqx-edge-tester-staging",
+            "tester-preview",
+            "The attempted command was `vercel deploy --target=preview --force --yes --format json`.",
+            "Vercel returned `target = production` despite the explicit preview target.",
+            "The T10b build guard blocked the build with exit code `43`.",
+            "Removed the failed deployment immediately.",
+            "Verified no deployments remain for `sqx-edge-tester-staging`.",
+            "Verified no domains exist in the team.",
+            "Did not share or commit any deployment URL.",
+            "Attempted target: `preview`.",
+            "Returned target: `production`.",
+            "Deployment count after rollback: `0`.",
+            "Domains count after rollback: `0`.",
+            "The Vercel CLI route is rejected for tester rollout.",
+            "T10y must stop retrying Vercel CLI deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10x)
+
+        for pattern in (
+            'phase: "T10x"',
+            'result: "NO_GO_EXPLICIT_PREVIEW_TARGET_RETURNED_PRODUCTION_ROLLBACK_CLEAN"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'privatePortalBranch: "tester-preview"',
+            "deploymentAttemptedOnce: true",
+            'attemptedCommand: "vercel deploy --target=preview --force --yes --format json"',
+            'attemptedTarget: "preview"',
+            'returnedTarget: "production"',
+            'expectedTarget: "preview"',
+            "guardBlockedBuild: true",
+            'guardPhase: "T10b"',
+            'guardStatus: "NO_GO_PRODUCTION_TARGET_FROM_NON_PRODUCTION_BRANCH"',
+            "guardExitCode: 43",
+            "failedDeploymentRemoved: true",
+            "deploymentCountAfterRollback: 0",
+            "domains: []",
+            "domainsCountAfterRollback: 0",
+            "ssoProtectionEnabled: true",
+            'ssoDeploymentType: "all_except_custom_domains"',
+            "gitForkProtectionEnabled: true",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "defaultCliRouteRejected: true",
+            "explicitPreviewTargetRouteRejected: true",
+            "currentVercelCliDeploymentRouteRejected: true",
+            "T10y_no_deploy_route_replacement_or_provider_dashboard_correction_decision",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10x - Explicit Preview Target Rollback.",
+            "T10y - stop retrying Vercel CLI deployment and choose a no-deploy route replacement or provider/dashboard correction decision",
+            "docs/T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10x - Explicit Preview Target Rollback.",
+            "Phase T10x: execute one explicit preview-target deployment attempt with immediate target/alias inspection and rollback on mismatch. Done",
+            "Phase T10y: stop retrying Vercel CLI deployment and choose a no-deploy route replacement or provider/dashboard correction decision.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10x prueba `--target=preview`",
+            "T10y para dejar de reintentar Vercel CLI",
+            "T10x anade `proof:explicit-preview-target-rollback`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10x Explicit Preview Target Rollback",
+            "proof:explicit-preview-target-rollback",
+            "NO_GO_EXPLICIT_PREVIEW_TARGET_RETURNED_PRODUCTION_ROLLBACK_CLEAN",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/explicit-preview-target-rollback-proof.mjs",
+            "npm run proof:explicit-preview-target-rollback",
+            "NO_GO_EXPLICIT_PREVIEW_TARGET_RETURNED_PRODUCTION_ROLLBACK_CLEAN",
+            "T10y must stop retrying Vercel CLI deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10x_text = "\n".join([t10x, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10x_text)
+
+    def test_t10y_no_deploy_provider_dashboard_decision_is_documented_and_safe(self):
+        t10y = T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "no-deploy-provider-dashboard-decision-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:no-deploy-provider-dashboard-decision"],
+            "node scripts/no-deploy-provider-dashboard-decision-proof.mjs",
+        )
+
+        for pattern in (
+            "T10y No-Deploy Provider Dashboard Decision",
+            "GO_PROVIDER_DASHBOARD_CORRECTION_DECISION_READY_NO_DEPLOY",
+            "provider_dashboard_correction_before_any_deployment",
+            "vercel_cli_default_deployment",
+            "vercel_cli_explicit_preview_target_deployment",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not mutate Vercel project settings.",
+            "The current Vercel CLI deployment route is paused",
+            "The T10b guard contained the risk, but a guard is not a rollout strategy.",
+            "T10z must stay no-deploy",
+            "No tester URL may be shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10y)
+
+        for pattern in (
+            'phase: "T10y"',
+            'result: "GO_PROVIDER_DASHBOARD_CORRECTION_DECISION_READY_NO_DEPLOY"',
+            'selectedRoute: "provider_dashboard_correction_before_any_deployment"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'privatePortalBranch: "tester-preview"',
+            'productionBranchRequired: "main"',
+            "defaultCliRouteRejected: true",
+            "explicitPreviewTargetRouteRejected: true",
+            "currentVercelCliDeploymentRoutePaused: true",
+            "providerDashboardCorrectionRequired: true",
+            "deploymentAttemptedInT10y: false",
+            "deploymentCreationEndpointCalled: false",
+            "externalConfigMutationAttempted: false",
+            "externalProjectCreated: false",
+            "externalProjectLinked: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "T10z_no_deploy_provider_dashboard_correction_package_before_any_deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10y - No-Deploy Provider Dashboard Decision.",
+            "T10z - prepare the no-deploy provider/dashboard correction package before any deployment attempt",
+            "docs/T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10y - No-Deploy Provider Dashboard Decision.",
+            "Phase T10y: stop retrying Vercel CLI deployment and choose a no-deploy route replacement or provider/dashboard correction decision. Done",
+            "Phase T10z: prepare the no-deploy provider/dashboard correction package before any deployment attempt.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10y anade `proof:no-deploy-provider-dashboard-decision`",
+            "T10z para preparar el paquete/checklist provider-dashboard sin deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10y No-Deploy Provider Dashboard Decision",
+            "proof:no-deploy-provider-dashboard-decision",
+            "GO_PROVIDER_DASHBOARD_CORRECTION_DECISION_READY_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/no-deploy-provider-dashboard-decision-proof.mjs",
+            "npm run proof:no-deploy-provider-dashboard-decision",
+            "GO_PROVIDER_DASHBOARD_CORRECTION_DECISION_READY_NO_DEPLOY",
+            "T10z must prepare the no-deploy provider/dashboard correction package",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10y_text = "\n".join([t10y, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10y_text)
+
+    def test_t10z_provider_dashboard_correction_package_is_documented_and_safe(self):
+        t10z = T10Z_PROVIDER_DASHBOARD_CORRECTION_PACKAGE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "provider-dashboard-correction-package-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:provider-dashboard-correction-package"],
+            "node scripts/provider-dashboard-correction-package-proof.mjs",
+        )
+
+        for pattern in (
+            "T10z Provider Dashboard Correction Package",
+            "GO_PROVIDER_DASHBOARD_CORRECTION_PACKAGE_READY_NO_DEPLOY",
+            "operator_provider_dashboard_correction_record_without_deployment",
+            "Queried current staging project deployment list.",
+            "Queried current team domains list.",
+            "Queried current staging project protection settings.",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not mutate Vercel project settings.",
+            "Deployment count: `0`.",
+            "Domains count: `0`.",
+            "SSO Deployment Protection: `all_except_custom_domains`.",
+            "Vercel CLI deployment route: paused.",
+            "Default CLI route: rejected.",
+            "Explicit preview-target CLI route: rejected.",
+            "Operator Checklist",
+            "Required Evidence Format",
+            "T10aa may start only as a no-deploy evidence-recording phase",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10z)
+
+        for pattern in (
+            'phase: "T10z"',
+            'result: "GO_PROVIDER_DASHBOARD_CORRECTION_PACKAGE_READY_NO_DEPLOY"',
+            'selectedNextGate: "operator_provider_dashboard_correction_record_without_deployment"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'privatePortalBranch: "tester-preview"',
+            'productionBranchRequired: "main"',
+            "defaultCliRouteRejected: true",
+            "explicitPreviewTargetRouteRejected: true",
+            "currentVercelCliDeploymentRoutePaused: true",
+            "providerDashboardCorrectionPackageReady: true",
+            "operatorChecklistCreated: true",
+            "requiredEvidenceFormatCreated: true",
+            "deploymentAttemptedInT10z: false",
+            "deploymentCreationEndpointCalled: false",
+            "externalConfigMutationAttempted: false",
+            "externalProjectCreated: false",
+            "externalProjectLinked: false",
+            "triggerCommitPushedToPrivatePortal: false",
+            "deploymentCount: 0",
+            "domains: []",
+            "domainsCount: 0",
+            "ssoProtectionEnabled: true",
+            'ssoDeploymentType: "all_except_custom_domains"',
+            "gitForkProtectionEnabled: true",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "T10aa_no_deploy_provider_dashboard_correction_evidence_record",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10z - Provider Dashboard Correction Package.",
+            "T10aa - record no-deploy provider/dashboard correction evidence before any deployment attempt",
+            "docs/T10Z_PROVIDER_DASHBOARD_CORRECTION_PACKAGE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10z - Provider Dashboard Correction Package.",
+            "Phase T10z: prepare the no-deploy provider/dashboard correction package before any deployment attempt. Done",
+            "Phase T10aa: record no-deploy provider/dashboard correction evidence before any deployment attempt.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10z anade `proof:provider-dashboard-correction-package`",
+            "T10aa para registrar evidencia provider-dashboard sin deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10z Provider Dashboard Correction Package",
+            "proof:provider-dashboard-correction-package",
+            "GO_PROVIDER_DASHBOARD_CORRECTION_PACKAGE_READY_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/provider-dashboard-correction-package-proof.mjs",
+            "npm run proof:provider-dashboard-correction-package",
+            "GO_PROVIDER_DASHBOARD_CORRECTION_PACKAGE_READY_NO_DEPLOY",
+            "T10aa must record no-deploy provider/dashboard correction evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10z_text = "\n".join([t10z, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10z_text)
+
+    def test_t10aa_provider_dashboard_evidence_record_is_documented_and_safe(self):
+        t10aa = T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "provider-dashboard-evidence-record-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:provider-dashboard-evidence-record"],
+            "node scripts/provider-dashboard-evidence-record-proof.mjs",
+        )
+
+        for pattern in (
+            "T10aa Provider Dashboard Evidence Record",
+            "NO_GO_PROVIDER_CANNOT_PROVE_PREVIEW_TARGET",
+            "Queried Vercel project list for the selected team.",
+            "Queried current staging project details with `vercel project inspect`.",
+            "Queried current staging project deployment checks.",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not mutate Vercel project settings.",
+            "Latest production URL: none in project list.",
+            "Deployment count: `0`.",
+            "Domains count: `0`.",
+            "Deployment checks: none configured.",
+            "The current CLI evidence is not enough to prove",
+            "What Ivan Can Check Manually In Vercel",
+            "Safe Reply Format",
+            "T10ab may start only after manual dashboard evidence is available",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10aa)
+
+        for pattern in (
+            'phase: "T10aa"',
+            'result: "NO_GO_PROVIDER_CANNOT_PROVE_PREVIEW_TARGET"',
+            'selectedNextGate: "manual_provider_dashboard_evidence_intake_or_vercel_route_replacement"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'privatePortalBranch: "tester-preview"',
+            'frameworkPreset: "Other"',
+            'rootDirectory: "."',
+            'nodeVersion: "24.x"',
+            "latestProductionUrlVisibleInProjectList: false",
+            "deploymentCount: 0",
+            "domains: []",
+            "domainsCount: 0",
+            "ssoProtectionEnabled: true",
+            'ssoDeploymentType: "all_except_custom_domains"',
+            "gitForkProtectionEnabled: true",
+            "deploymentChecksConfigured: false",
+            "currentVercelCliDeploymentRoutePaused: true",
+            "cliCanProveProductionBranchMapping: false",
+            "manualDashboardEvidenceRequired: true",
+            "deploymentAttemptedInT10aa: false",
+            "deploymentCreationEndpointCalled: false",
+            "externalConfigMutationAttempted: false",
+            "externalProjectLinked: false",
+            "triggerCommitPushedToPrivatePortal: false",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "T10ab_manual_dashboard_evidence_intake_or_replace_vercel_tester_route",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10aa - Provider Dashboard Evidence Record.",
+            "T10ab - ingest manual dashboard evidence or replace the Vercel tester route before any deployment attempt",
+            "docs/T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10aa - Provider Dashboard Evidence Record.",
+            "Phase T10aa: record no-deploy provider/dashboard correction evidence before any deployment attempt. Done",
+            "Phase T10ab: ingest manual dashboard evidence or replace the Vercel tester route before any deployment attempt.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10aa anade `proof:provider-dashboard-evidence-record`",
+            "T10ab para ingerir evidencia manual de dashboard",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10aa Provider Dashboard Evidence Record",
+            "proof:provider-dashboard-evidence-record",
+            "NO_GO_PROVIDER_CANNOT_PROVE_PREVIEW_TARGET",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/provider-dashboard-evidence-record-proof.mjs",
+            "npm run proof:provider-dashboard-evidence-record",
+            "NO_GO_PROVIDER_CANNOT_PROVE_PREVIEW_TARGET",
+            "T10ab must ingest manual dashboard evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10aa_text = "\n".join([t10aa, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10aa_text)
+
+    def test_t10ab_manual_dashboard_evidence_ingest_is_documented_and_safe(self):
+        t10ab = T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "manual-dashboard-evidence-ingest-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:manual-dashboard-evidence-ingest"],
+            "node scripts/manual-dashboard-evidence-ingest-proof.mjs",
+        )
+
+        for pattern in (
+            "T10ab Manual Dashboard Evidence Ingest",
+            "NO_GO_REPLACE_VERCEL_TESTER_ROUTE",
+            "Ingested manual dashboard evidence supplied by the operator in plain text.",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not mutate Vercel project settings.",
+            "git_connected=no",
+            "repo=<none>",
+            "production_branch=not_visible",
+            "tester_preview_production_like=not_visible",
+            "domains_count=0",
+            "auto_alias_enabled=not_visible",
+            "deployment_protection=all_except_custom_domains",
+            "provider_explanation=<none>",
+            "correction_status=not_visible",
+            "next_deployment_allowed=unknown",
+            "The current Vercel tester route is not approved",
+            "T10ac_non_vercel_protected_tester_route_options_no_deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ab)
+
+        for pattern in (
+            'phase: "T10ab"',
+            'result: "NO_GO_REPLACE_VERCEL_TESTER_ROUTE"',
+            'selectedNextGate: "T10ac_non_vercel_protected_tester_route_options_no_deploy"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'teamId: "team_43avYcdXjtKKE2GtwkOwbNKa"',
+            'privatePortalBranch: "tester-preview"',
+            "manualEvidenceIngested: true",
+            "gitConnected: false",
+            "repositoryConnected: false",
+            "productionBranchVisible: false",
+            "testerPreviewProductionLikeVisible: false",
+            "domainsCount: 0",
+            "autoAliasVisible: false",
+            'deploymentProtection: "all_except_custom_domains"',
+            'framework: "other"',
+            "providerExplanationAvailable: false",
+            'correctionStatus: "not_visible"',
+            'nextDeploymentAllowed: "unknown"',
+            "currentVercelTesterRouteApproved: false",
+            "replacementRequired: true",
+            "deploymentAttemptedInT10ab: false",
+            "deploymentCreationEndpointCalled: false",
+            "externalConfigMutationAttempted: false",
+            "externalProjectCreated: false",
+            "externalProjectLinked: false",
+            "triggerCommitPushedToPrivatePortal: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "T10ac_non_vercel_protected_tester_route_options_no_deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10ab - Manual Dashboard Evidence Ingest.",
+            "T10ac - compare and select a protected non-Vercel tester route or local/private-network pilot without deployment",
+            "docs/T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ab - Manual Dashboard Evidence Ingest.",
+            "Phase T10ab: ingest manual dashboard evidence or replace the Vercel tester route before any deployment attempt. Done",
+            "Phase T10ac: compare and select a protected non-Vercel tester route or local/private-network pilot without deployment.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ab anade `proof:manual-dashboard-evidence-ingest`",
+            "T10ac para comparar y seleccionar una ruta tester protegida",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ab Manual Dashboard Evidence Ingest",
+            "proof:manual-dashboard-evidence-ingest",
+            "NO_GO_REPLACE_VERCEL_TESTER_ROUTE",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/manual-dashboard-evidence-ingest-proof.mjs",
+            "npm run proof:manual-dashboard-evidence-ingest",
+            "NO_GO_REPLACE_VERCEL_TESTER_ROUTE",
+            "T10ac must compare and select a replacement tester route without deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ab_text = "\n".join([t10ab, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ab_text)
+
+    def test_t10ac_replacement_tester_route_options_are_documented_and_safe(self):
+        t10ac = T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "replacement-tester-route-options-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:replacement-tester-route-options"],
+            "node scripts/replacement-tester-route-options-proof.mjs",
+        )
+
+        for pattern in (
+            "T10ac Replacement Tester Route Options",
+            "Cloudflare Pages preview deployments",
+            "Cloudflare Access one-time PIN login",
+            "Netlify Password Protection overview",
+            "Render Static Sites",
+            "Cloudflare Pages + Cloudflare Access OTP",
+            "Netlify deploy previews + Password Protection",
+            "Render static site / PR previews",
+            "Local/private-network pilot",
+            "Current Vercel staging route",
+            "GO_CLOUDFLARE_ACCESS_OTP_ROUTE_SELECTED_NO_DEPLOY",
+            "cloudflare_pages_preview_with_cloudflare_access_email_otp",
+            "T10ad_cloudflare_access_preflight_no_deploy",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No tester URL was shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ac)
+
+        for pattern in (
+            'phase: "T10ac"',
+            'result: "GO_CLOUDFLARE_ACCESS_OTP_ROUTE_SELECTED_NO_DEPLOY"',
+            'selectedRoute: "cloudflare_pages_preview_with_cloudflare_access_email_otp"',
+            'selectedNextGate: "T10ad_cloudflare_access_preflight_no_deploy"',
+            'rejectedRoute: "current_vercel_staging_route"',
+            "vercelRouteApproved: false",
+            "Cloudflare Pages preview deployments",
+            "Cloudflare Access one-time PIN login",
+            "Netlify Password Protection overview",
+            "Render Static Sites",
+            "t10adRequiredBeforeExternalAction: true",
+            "deploymentAttemptedInT10ac: false",
+            "deploymentCreationEndpointCalled: false",
+            "externalConfigMutationAttempted: false",
+            "externalProjectCreated: false",
+            "externalProjectLinked: false",
+            "providerAccountMutated: false",
+            "cloudflareProjectCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "netlifyProjectCreated: false",
+            "renderProjectCreated: false",
+            "triggerCommitPushedToPrivatePortal: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10ac - Replacement Tester Route Options.",
+            "T10ad - prepare a no-deploy Cloudflare Access preflight package before any provider project, deployment or tester URL",
+            "docs/T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ac - Replacement Tester Route Options.",
+            "Phase T10ac: compare and select a protected non-Vercel tester route or local/private-network pilot without deployment. Done",
+            "Phase T10ad: prepare a no-deploy Cloudflare Access preflight package before any provider project, deployment or tester URL.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ac anade `proof:replacement-tester-route-options`",
+            "T10ad para preparar el preflight Cloudflare Access",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ac Replacement Tester Route Options",
+            "proof:replacement-tester-route-options",
+            "GO_CLOUDFLARE_ACCESS_OTP_ROUTE_SELECTED_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/replacement-tester-route-options-proof.mjs",
+            "npm run proof:replacement-tester-route-options",
+            "GO_CLOUDFLARE_ACCESS_OTP_ROUTE_SELECTED_NO_DEPLOY",
+            "T10ad must prepare a Cloudflare Access preflight package without creating a provider project or deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ac_text = "\n".join([t10ac, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ac_text)
+
+    def test_t10ad_cloudflare_access_preflight_is_documented_and_safe(self):
+        t10ad = T10AD_CLOUDFLARE_ACCESS_PREFLIGHT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-access-preflight-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-access-preflight"],
+            "node scripts/cloudflare-access-preflight-proof.mjs",
+        )
+
+        for pattern in (
+            "T10ad Cloudflare Access Preflight",
+            "Cloudflare Pages Git integration",
+            "Cloudflare Pages branch deployment controls",
+            "Cloudflare Pages preview deployments",
+            "Cloudflare Access one-time PIN login",
+            "Cloudflare Access policies",
+            "Cloudflare Next.js guide",
+            "GO_CLOUDFLARE_ACCESS_PREFLIGHT_READY_NO_DEPLOY",
+            "project_name_proposal=sqx-edge-tester-portal-preview",
+            "production_branch=main",
+            "tester_branch=tester-preview",
+            "previewBranchControlMode",
+            "Runtime Compatibility Gate",
+            "T10ae_cloudflare_runtime_compatibility_no_provider_action",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No Cloudflare Access application or policy was created.",
+            "No tester URL was shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ad)
+
+        for pattern in (
+            'phase: "T10ad"',
+            'result: "GO_CLOUDFLARE_ACCESS_PREFLIGHT_READY_NO_DEPLOY"',
+            'selectedRoute: "cloudflare_pages_preview_with_cloudflare_access_email_otp"',
+            'selectedNextGate: "T10ae_cloudflare_runtime_compatibility_no_provider_action"',
+            'provider: "Cloudflare"',
+            'projectNameProposal: "sqx-edge-tester-portal-preview"',
+            'productionBranch: "main"',
+            'testerBranch: "tester-preview"',
+            "customDomainsAllowedBeforeAccessProof: false",
+            "previewBranchControlRequired: true",
+            'previewBranchControlMode: "custom_branches_only"',
+            "allowedPreviewBranches:",
+            "productionDeploymentsDisabledUntilDedicatedRollout: true",
+            "accessPolicyRequiredBeforeUrl: true",
+            'accessLoginMethod: "one-time-pin-or-equivalent-idp"',
+            "testerEmailsStoredInProviderOnly: true",
+            "appAuthStillMandatory: true",
+            "runtimeCompatibilityGateRequired: true",
+            "externalActionAttemptedInT10ad: false",
+            "cloudflareProjectCreated: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "githubRepositoryConnectedToCloudflare: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10ad - Cloudflare Access Preflight.",
+            "T10ae - decide and test Cloudflare runtime compatibility locally before any provider project, deployment or tester URL",
+            "docs/T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ad - Cloudflare Access Preflight.",
+            "Phase T10ad: prepare a no-deploy Cloudflare Access preflight package before any provider project, deployment or tester URL. Done",
+            "Phase T10ae: decide and test Cloudflare runtime compatibility locally before any provider project, deployment or tester URL.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ad anade `proof:cloudflare-access-preflight`",
+            "T10ae para resolver la compatibilidad runtime Cloudflare localmente",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ad Cloudflare Access Preflight",
+            "proof:cloudflare-access-preflight",
+            "GO_CLOUDFLARE_ACCESS_PREFLIGHT_READY_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-access-preflight-proof.mjs",
+            "npm run proof:cloudflare-access-preflight",
+            "GO_CLOUDFLARE_ACCESS_PREFLIGHT_READY_NO_DEPLOY",
+            "T10ae must decide and test Cloudflare runtime compatibility locally before any provider action",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ad_text = "\n".join([t10ad, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ad_text)
+
+    def test_t10ae_cloudflare_runtime_compatibility_is_documented_and_safe(self):
+        t10ae = T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-runtime-compatibility-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-runtime-compatibility"],
+            "node scripts/cloudflare-runtime-compatibility-proof.mjs",
+        )
+
+        for pattern in (
+            "T10ae Cloudflare Runtime Compatibility",
+            "Cloudflare Workers Next.js guide",
+            "Cloudflare Pages Next.js guide",
+            "Cloudflare static Next.js guide",
+            "Cloudflare Pages Functions",
+            "Cloudflare Pages Functions middleware",
+            "GO_CLOUDFLARE_WORKERS_OPENNEXT_RUNTIME_SELECTED_NO_PROVIDER_ACTION",
+            "cloudflare_workers_opennext_nextjs_runtime",
+            "cloudflare_pages_static_export",
+            "src/middleware.ts",
+            "src/app/api/auth/login/route.ts",
+            "src/app/api/auth/logout/route.ts",
+            "src/app/api/tester/features/route.ts",
+            "src/app/api/tester/renewal/route.ts",
+            "src/app/api/admin/testers/route.ts",
+            "src/app/api/cron/expire-testers/route.ts",
+            "T10af_opennext_cloudflare_adapter_local_package_no_deploy",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No tester URL was shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ae)
+
+        for pattern in (
+            'phase: "T10ae"',
+            'result: "GO_CLOUDFLARE_WORKERS_OPENNEXT_RUNTIME_SELECTED_NO_PROVIDER_ACTION"',
+            'selectedRuntime: "cloudflare_workers_opennext_nextjs_runtime"',
+            'rejectedRuntime: "cloudflare_pages_static_export"',
+            'selectedNextGate: "T10af_opennext_cloudflare_adapter_local_package_no_deploy"',
+            "middlewarePresent:",
+            'middlewarePath: "src/middleware.ts"',
+            "proxyPresent:",
+            'proxyPath: "src/proxy.ts"',
+            "routeHandlers",
+            "routeHandlerCount",
+            "staticExportCompatible: false",
+            "staticExportRejectedReasons",
+            "workersRuntimeReasons",
+            "cloudflareAccessOuterGateStillRequired: true",
+            "appAuthInnerGateStillRequired: true",
+            "externalActionAttemptedInT10ae: false",
+            "cloudflareDependencyInstalledInT10ae: false",
+            "cloudflareProjectCreated: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "githubRepositoryConnectedToCloudflare: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10ae - Cloudflare Runtime Compatibility.",
+            "T10af - prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action",
+            "docs/T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ae - Cloudflare Runtime Compatibility.",
+            "Phase T10ae: decide and test Cloudflare runtime compatibility locally before any provider project, deployment or tester URL. Done",
+            "Phase T10af: prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ae anade `proof:cloudflare-runtime-compatibility`",
+            "T10af anade `proof:opennext-cloudflare-adapter`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ae Cloudflare Runtime Compatibility",
+            "proof:cloudflare-runtime-compatibility",
+            "GO_CLOUDFLARE_WORKERS_OPENNEXT_RUNTIME_SELECTED_NO_PROVIDER_ACTION",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-runtime-compatibility-proof.mjs",
+            "npm run proof:cloudflare-runtime-compatibility",
+            "GO_CLOUDFLARE_WORKERS_OPENNEXT_RUNTIME_SELECTED_NO_PROVIDER_ACTION",
+            "T10af local OpenNext/Cloudflare adapter package proof",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ae_text = "\n".join([t10ae, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ae_text)
+
+    def test_t10af_opennext_cloudflare_adapter_package_is_documented_and_safe(self):
+        t10af = T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        open_next_config = (TESTER_PORTAL_TEMPLATE_ROOT / "open-next.config.ts").read_text(encoding="utf-8-sig")
+        gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        dev_vars_example = (TESTER_PORTAL_TEMPLATE_ROOT / ".dev.vars.example").read_text(encoding="utf-8-sig").strip()
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "opennext-cloudflare-adapter-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:opennext-cloudflare-adapter"],
+            "node scripts/opennext-cloudflare-adapter-proof.mjs",
+        )
+        self.assertEqual(package["scripts"]["cf:build"], "opennextjs-cloudflare build")
+        self.assertEqual(
+            package["scripts"]["cf:preview"],
+            "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+        )
+        self.assertEqual(
+            package["scripts"]["cf:typegen"],
+            "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+        )
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertEqual(package["devDependencies"]["@opennextjs/cloudflare"], "latest")
+        self.assertEqual(package["devDependencies"]["wrangler"], "latest")
+
+        self.assertEqual(wrangler["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler["assets"]["directory"], ".open-next/assets")
+        self.assertEqual(wrangler["assets"]["binding"], "ASSETS")
+        self.assertIn("nodejs_compat", wrangler["compatibility_flags"])
+        self.assertIn("global_fetch_strictly_public", wrangler["compatibility_flags"])
+        self.assertEqual(wrangler["services"][0]["binding"], "WORKER_SELF_REFERENCE")
+        self.assertEqual(wrangler["services"][0]["service"], wrangler["name"])
+        for key in ("account_id", "zone_id", "routes", "route", "custom_domain"):
+            with self.subTest(key=key):
+                self.assertNotIn(key, wrangler)
+
+        self.assertIn('from "@opennextjs/cloudflare"', open_next_config)
+        self.assertIn("defineCloudflareConfig()", open_next_config)
+        self.assertEqual(dev_vars_example, "NEXTJS_ENV=development")
+        for pattern in (".open-next/", ".wrangler/", "cloudflare-env.d.ts", ".dev.vars*", "!.dev.vars.example"):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, gitignore)
+
+        for pattern in (
+            "T10af OpenNext Cloudflare Adapter Package",
+            "Cloudflare Workers Next.js guide",
+            "Cloudflare Workers automatic configuration guide",
+            "Cloudflare Wrangler install guide",
+            "OpenNext Cloudflare adapter guide",
+            "OpenNext Cloudflare get started guide",
+            "wrangler.jsonc",
+            "open-next.config.ts",
+            ".dev.vars.example",
+            "proof:opennext-cloudflare-adapter",
+            "@opennextjs/cloudflare",
+            "wrangler",
+            "GO_OPENNEXT_CLOUDFLARE_ADAPTER_LOCAL_PACKAGE_READY_NO_DEPLOY",
+            "T10ag_local_opennext_build_preview_smoke_no_provider_action",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No tester URL was shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10af)
+
+        for pattern in (
+            'phase: "T10af"',
+            'result: "GO_OPENNEXT_CLOUDFLARE_ADAPTER_LOCAL_PACKAGE_READY_NO_DEPLOY"',
+            'selectedRuntime: "cloudflare_workers_opennext_nextjs_runtime"',
+            'adapterPackage: "@opennextjs/cloudflare"',
+            'localCliPackage: "wrangler"',
+            "packageDevDependenciesReady:",
+            "safeScriptsReady:",
+            "deployScriptPublished:",
+            "forbiddenCloudflareScriptFragmentsPresent:",
+            "wranglerConfigReady:",
+            "wranglerConfigContainsProviderSecretsOrRoutes:",
+            "openNextConfigReady:",
+            "localEnvExampleReady:",
+            "ignoredGeneratedArtifacts:",
+            "edgeRuntimeExportsPresent:",
+            'nextGate: "T10ag_local_opennext_build_preview_smoke_no_provider_action"',
+            "cloudflareProjectCreated: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "githubRepositoryConnectedToCloudflare: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10af - OpenNext Cloudflare Adapter Package. Historical anchor only; superseded by T10ag.",
+            "T10ag - run the local OpenNext build/preview smoke without provider action. Historical anchor only; superseded by T10ah.",
+            "docs/T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10af - OpenNext Cloudflare Adapter Package. Historical anchor only; superseded by T10ag.",
+            "Phase T10af: prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action. Done",
+            "Phase T10ag: run the local OpenNext build/preview smoke without provider action. Done",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10af anade `proof:opennext-cloudflare-adapter`",
+            "T10ag anade `proof:opennext-local-smoke`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10af OpenNext Cloudflare Adapter Package",
+            "proof:opennext-cloudflare-adapter",
+            "GO_OPENNEXT_CLOUDFLARE_ADAPTER_LOCAL_PACKAGE_READY_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/opennext-cloudflare-adapter-proof.mjs",
+            "npm run proof:opennext-cloudflare-adapter",
+            "GO_OPENNEXT_CLOUDFLARE_ADAPTER_LOCAL_PACKAGE_READY_NO_DEPLOY",
+            "T10ag local smoke proof",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10af_text = "\n".join(
+            [
+                t10af,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(wrangler),
+                open_next_config,
+                dev_vars_example,
+            ]
+        )
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10af_text)
+
+    def test_t10ag_opennext_local_smoke_is_documented_and_safe(self):
+        t10ag = T10AG_OPENNEXT_LOCAL_SMOKE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "opennext-local-smoke-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:opennext-local-smoke"],
+            "node scripts/opennext-local-smoke-proof.mjs",
+        )
+
+        for pattern in (
+            "T10ag OpenNext Local Smoke",
+            "GO_OPENNEXT_LOCAL_LINUX_PREVIEW_SMOKE_NO_PROVIDER_ACTION",
+            "NO_GO_NATIVE_WINDOWS_PREVIEW_ROUTE_500",
+            "status=200",
+            "ok=1",
+            "worker=present",
+            "assets=present",
+            '"ok":true',
+            '"service":"sqx-edge-tester-portal"',
+            "Next.js: `16.2.6`",
+            "`@opennextjs/cloudflare`: `1.19.8`",
+            "Wrangler: `4.90.0`",
+            "middleware` file convention is deprecated",
+            "T10ah_next_middleware_to_proxy_migration_no_provider_action",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No tester URL was shared.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ag)
+
+        for pattern in (
+            'phase: "T10ag"',
+            'result: "GO_OPENNEXT_LOCAL_LINUX_PREVIEW_SMOKE_NO_PROVIDER_ACTION"',
+            'selectedRuntime: "cloudflare_workers_opennext_nextjs_runtime"',
+            'smokeMode: "wsl_linux_temp_copy_local_filesystem"',
+            'result: "NO_GO_NATIVE_WINDOWS_PREVIEW_ROUTE_500"',
+            "healthStatus: 500",
+            'result: "GO_WSL_LINUX_PREVIEW_HEALTH_200"',
+            'buildCommand: "npm run cf:build"',
+            'previewCommand: "npx opennextjs-cloudflare preview"',
+            "healthStatus: 200",
+            "healthBodyContainsOkTrue: true",
+            "workerPresent: true",
+            "assetsPresent: true",
+            "localDevVarsCommitted: false",
+            'next: "16.2.6"',
+            'opennextCloudflare: "1.19.8"',
+            'wrangler: "4.90.0"',
+            "cloudflareProjectCreated: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "githubRepositoryConnectedToCloudflare: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            'nextGate: "T10ah_next_middleware_to_proxy_migration_no_provider_action"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10ag - OpenNext Local Smoke. Historical anchor only; superseded by T10ah.",
+            "Next implementation phase: T10ah - evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Historical anchor only; superseded by T10ai.",
+            "docs/T10AG_OPENNEXT_LOCAL_SMOKE.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ag - OpenNext Local Smoke. Historical anchor only; superseded by T10ah.",
+            "Phase T10ag: run the local OpenNext build/preview smoke without provider action. Done",
+            "Phase T10ah: evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Done",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ag anade `proof:opennext-local-smoke`",
+            "T10ah anade `proof:next-proxy-migration`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ag OpenNext Local Smoke",
+            "proof:opennext-local-smoke",
+            "GO_OPENNEXT_LOCAL_LINUX_PREVIEW_SMOKE_NO_PROVIDER_ACTION",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/opennext-local-smoke-proof.mjs",
+            "npm run proof:opennext-local-smoke",
+            "GO_OPENNEXT_LOCAL_LINUX_PREVIEW_SMOKE_NO_PROVIDER_ACTION",
+            "scripts/next-proxy-migration-proof.mjs",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ag_text = "\n".join([t10ag, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ag_text)
+
+    def test_t10ah_next_proxy_migration_is_documented_and_safe(self):
+        t10ah = T10AH_NEXT_PROXY_MIGRATION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "next-proxy-migration-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+        middleware_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts"
+        middleware = middleware_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AH_NEXT_PROXY_MIGRATION_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertTrue(middleware_path.is_file())
+        self.assertFalse((TESTER_PORTAL_TEMPLATE_ROOT / "src" / "proxy.ts").exists())
+        self.assertEqual(
+            package["scripts"]["proof:next-proxy-migration"],
+            "node scripts/next-proxy-migration-proof.mjs",
+        )
+
+        for pattern in (
+            "export function middleware",
+            "export const config",
+            "SECURITY_HEADERS",
+            "isProtectedPath",
+            "hasPrototypeSession",
+            "buildLoginUrl",
+            "global_kill_switch_enabled",
+            "rate_limit_exceeded",
+            "X-RateLimit-Limit",
+            "matcher",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, middleware)
+        self.assertNotIn("export function proxy", middleware)
+
+        for pattern in (
+            "T10ah Next Proxy Migration Gate",
+            "NO_GO_NEXT_PROXY_MIGRATION_BLOCKED_BY_OPENNEXT_NODE_MIDDLEWARE_UNSUPPORTED",
+            "src/middleware.ts",
+            "src/proxy.ts` is absent",
+            "No Cloudflare project was created.",
+            "No Cloudflare deployment was created.",
+            "No tester URL was shared.",
+            "T10ai_cloudflare_provider_project_preflight_no_deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ah)
+
+        for pattern in (
+            'phase: "T10ah"',
+            'result: "NO_GO_NEXT_PROXY_MIGRATION_BLOCKED_BY_OPENNEXT_NODE_MIDDLEWARE_UNSUPPORTED"',
+            'attemptedConvention: "next_proxy_file_convention"',
+            'retainedConvention: "next_middleware_file_convention_for_cloudflare_compatibility"',
+            "proxyPresent:",
+            "middlewarePresent:",
+            'proxyPath: "src/proxy.ts"',
+            'middlewarePath: "src/middleware.ts"',
+            "middlewareExportReady:",
+            "nextJsProxyRuntime:",
+            "openNextNodeMiddlewareSupported: false",
+            "cloudflareBuildCompatibilityPreserved: true",
+            "configExportReady:",
+            "securityGatePatternsPresent:",
+            "packageScriptReady:",
+            "cloudflareProjectCreated: false",
+            "cloudflareDeploymentCreated: false",
+            "cloudflareAccessApplicationCreated: false",
+            "cloudflareAccessPolicyCreated: false",
+            "githubRepositoryConnectedToCloudflare: false",
+            "cloudflareTokenCommitted: false",
+            "cloudflareAccountIdCommitted: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            'nextGate: "T10ai_cloudflare_provider_project_preflight_no_deploy"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10ah - Next Proxy Migration Gate.",
+            "T10ai - prepare the Cloudflare provider-project preflight without deployment or tester URL",
+            "docs/T10AH_NEXT_PROXY_MIGRATION.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ah - Next Proxy Migration Gate.",
+            "Phase T10ah: evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Done",
+            "Phase T10ai: prepare the Cloudflare provider-project preflight without deployment or tester URL.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ah anade `proof:next-proxy-migration`",
+            "T10ai para preparar el preflight de proyecto Cloudflare",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ah Next Proxy Migration Gate",
+            "proof:next-proxy-migration",
+            "NO_GO_NEXT_PROXY_MIGRATION_BLOCKED_BY_OPENNEXT_NODE_MIDDLEWARE_UNSUPPORTED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "src/middleware.ts",
+            "scripts/next-proxy-migration-proof.mjs",
+            "T10ah proof",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ah_text = "\n".join([t10ah, governance, next_steps, readme, changelog, template_readme, proof, middleware])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ah_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

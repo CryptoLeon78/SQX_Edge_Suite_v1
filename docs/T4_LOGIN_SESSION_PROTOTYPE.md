@@ -90,4 +90,3 @@ T4 is accepted when:
 ## Next Phase
 
 T5 should add `tester_pro` entitlement gates for paid options and keep them server-side, not just hidden in the UI.
-

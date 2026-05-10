@@ -1,0 +1,37 @@
+const proof = Object.freeze({
+  phase: "T10s",
+  result: "GO_STAGING_PROTECTION_VERIFIED_NO_DEPLOY",
+  projectName: "sqx-edge-tester-staging",
+  projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ",
+  teamId: "team_43avYcdXjtKKE2GtwkOwbNKa",
+  ssoProtectionEnabled: true,
+  ssoDeploymentType: "all_except_custom_domains",
+  gitForkProtectionEnabled: true,
+  live: false,
+  latestDeployment: null,
+  domains: [],
+  teamCustomDomains: 0,
+  deploymentCount: 0,
+  projectSettingsChangedInT10s: false,
+  privatePortalRelinked: false,
+  gitLinkedToFreshProject: false,
+  externalDeployAttempted: false,
+  deploymentCreationEndpointCalled: false,
+  testerUrlPublished: false,
+  testerAccountsCreated: false,
+  testerEmailsCommitted: false,
+  nextRequiredGate: "T10t_no_deploy_staging_link_or_setup_before_any_deployment",
+  forbiddenUntilT10tGo: [
+    "vercel deploy",
+    "create deployment",
+    "publish URL",
+    "invite tester",
+    "create tester account",
+    "commit tester email",
+    "connect production database",
+    "issue license",
+  ],
+});
+
+console.log(JSON.stringify(proof, null, 2));
+console.log(proof.result);

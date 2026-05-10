@@ -21,6 +21,30 @@
     "proof:vercel-cli-default-preview-rollback": "node scripts/vercel-cli-default-preview-rollback-proof.mjs",
     "proof:vercel-route-investigation": "node scripts/vercel-route-investigation-proof.mjs",
     "proof:vercel-config-hardening": "node scripts/vercel-config-hardening-proof.mjs",
+    "proof:vercel-route-decision": "node scripts/vercel-route-decision-proof.mjs",
+    "proof:replacement-route-contract": "node scripts/replacement-route-contract-proof.mjs",
+    "proof:fresh-staging-route-preflight": "node scripts/fresh-staging-route-preflight-proof.mjs",
+    "proof:fresh-staging-route-access-check": "node scripts/fresh-staging-route-access-check-proof.mjs",
+    "proof:fresh-staging-project-created": "node scripts/fresh-staging-project-created-proof.mjs",
+    "proof:staging-protection-verified": "node scripts/staging-protection-verified-proof.mjs",
+    "proof:staging-local-link": "node scripts/staging-local-link-proof.mjs",
+    "proof:staging-deployment-readiness": "node scripts/staging-deployment-readiness-proof.mjs",
+    "proof:controlled-staging-deploy-rollback": "node scripts/controlled-staging-deploy-rollback-proof.mjs",
+    "proof:provider-target-mapping-investigation": "node scripts/provider-target-mapping-investigation-proof.mjs",
+    "proof:explicit-preview-target-rollback": "node scripts/explicit-preview-target-rollback-proof.mjs",
+    "proof:no-deploy-provider-dashboard-decision": "node scripts/no-deploy-provider-dashboard-decision-proof.mjs",
+    "proof:provider-dashboard-correction-package": "node scripts/provider-dashboard-correction-package-proof.mjs",
+    "proof:provider-dashboard-evidence-record": "node scripts/provider-dashboard-evidence-record-proof.mjs",
+    "proof:manual-dashboard-evidence-ingest": "node scripts/manual-dashboard-evidence-ingest-proof.mjs",
+    "proof:replacement-tester-route-options": "node scripts/replacement-tester-route-options-proof.mjs",
+    "proof:cloudflare-access-preflight": "node scripts/cloudflare-access-preflight-proof.mjs",
+    "proof:cloudflare-runtime-compatibility": "node scripts/cloudflare-runtime-compatibility-proof.mjs",
+    "proof:opennext-cloudflare-adapter": "node scripts/opennext-cloudflare-adapter-proof.mjs",
+    "proof:opennext-local-smoke": "node scripts/opennext-local-smoke-proof.mjs",
+    "proof:next-proxy-migration": "node scripts/next-proxy-migration-proof.mjs",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
+    "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -32,8 +56,10 @@
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
+    "@opennextjs/cloudflare": "latest",
     "eslint": "latest",
     "eslint-config-next": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "wrangler": "latest"
   }
 }

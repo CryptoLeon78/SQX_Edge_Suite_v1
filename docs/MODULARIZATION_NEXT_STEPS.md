@@ -5,18 +5,60 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-09.
-- Current completed phase: T10m - Vercel Config Hardening.
+- Current completed phase: T10ah - Next Proxy Migration Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10n - no-deploy preview target proof or Vercel route replacement before any further deployment, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10ai - prepare the Cloudflare provider-project preflight without deployment or tester URL, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
 - Current completed phase: T10l - Vercel Route Investigation. Historical anchor only; superseded by T10m.
 - Next recommended phase: T10m - manual/API Vercel correction or alternative no-deploy route proof before any further deployment. Historical anchor only; superseded by T10n.
+- Current completed phase: T10m - Vercel Config Hardening. Historical anchor only; superseded by T10n.
+- Next recommended phase: T10n - no-deploy preview target proof or Vercel route replacement before any further deployment. Historical anchor only; superseded by T10o.
+- Current completed phase: T10n - Vercel Route Decision. Historical anchor only; superseded by T10o.
+- Next recommended phase: T10o - replacement route or provider-level no-deploy proof before any deployment. Historical anchor only; superseded by T10p.
+- Current completed phase: T10o - Replacement Route Contract. Historical anchor only; superseded by T10p.
+- Next recommended phase: T10p - create or verify a fresh staging route only after explicit approval and before any deployment. Historical anchor only; superseded by T10q.
+- Current completed phase: T10p - Fresh Staging Route Preflight. Historical anchor only; superseded by T10q.
+- Next recommended phase: T10q - request exact approval to create or verify a fresh protected staging route without deployment. Historical anchor only; superseded by T10r.
+- Current completed phase: T10q - Fresh Staging Route Access Check. Historical anchor only; superseded by T10r.
+- Next recommended phase: T10r - authenticate Vercel CLI or provide local `VERCEL_TOKEN`, then create or verify `sqx-edge-tester-staging` without deployment. Historical anchor only; superseded by T10s.
+- Current completed phase: T10r - Fresh Staging Project Created. Historical anchor only; superseded by T10s.
+- Next recommended phase: T10s - verify or enable protection/settings for `sqx-edge-tester-staging` before any Git link or deployment. Historical anchor only; superseded by T10t.
+- Current completed phase: T10s - Staging Protection Verified. Historical anchor only; superseded by T10t.
+- Next recommended phase: T10t - link or configure staging without deployment and without publishing a URL. Historical anchor only; superseded by T10u.
+- Current completed phase: T10t - Staging Local Link Configured. Historical anchor only; superseded by T10u.
+- Next recommended phase: T10u - prepare a no-deploy staging deployment readiness gate before any deployment. Historical anchor only; superseded by T10v.
+- Current completed phase: T10u - Staging Deployment Readiness Gate. Historical anchor only; superseded by T10v.
+- Next recommended phase: T10v - execute one controlled staging deployment attempt with immediate target/alias inspection and rollback on mismatch. Historical anchor only; superseded by T10w.
+- Current completed phase: T10v - Controlled Staging Deploy Rollback. Historical anchor only; superseded by T10w.
+- Next recommended phase: T10w - investigate/correct provider-level target mapping without another deployment attempt or replace the staging route. Historical anchor only; superseded by T10x.
+- Current completed phase: T10w - Provider Target Mapping Investigation. Historical anchor only; superseded by T10x.
+- Next recommended phase: T10x - execute one explicit preview-target deployment attempt with immediate target/alias inspection and rollback on mismatch. Historical anchor only; superseded by T10y.
+- Current completed phase: T10x - Explicit Preview Target Rollback. Historical anchor only; superseded by T10y.
+- Next recommended phase: T10y - stop retrying Vercel CLI deployment and choose a no-deploy route replacement or provider/dashboard correction decision. Historical anchor only; superseded by T10z.
+- Current completed phase: T10y - No-Deploy Provider Dashboard Decision. Historical anchor only; superseded by T10z.
+- Next recommended phase: T10z - prepare the no-deploy provider/dashboard correction package before any deployment attempt. Historical anchor only; superseded by T10aa.
+- Current completed phase: T10z - Provider Dashboard Correction Package. Historical anchor only; superseded by T10aa.
+- Next recommended phase: T10aa - record no-deploy provider/dashboard correction evidence before any deployment attempt. Historical anchor only; superseded by T10ab.
+- Current completed phase: T10aa - Provider Dashboard Evidence Record. Historical anchor only; superseded by T10ab.
+- Next recommended phase: T10ab - ingest manual dashboard evidence or replace the Vercel tester route before any deployment attempt. Historical anchor only; superseded by T10ac.
+- Current completed phase: T10ab - Manual Dashboard Evidence Ingest. Historical anchor only; superseded by T10ac.
+- Next recommended phase: T10ac - compare and select a protected non-Vercel tester route or local/private-network pilot without deployment. Historical anchor only; superseded by T10ad.
+- Current completed phase: T10ac - Replacement Tester Route Options. Historical anchor only; superseded by T10ad.
+- Next recommended phase: T10ad - prepare a no-deploy Cloudflare Access preflight package before any provider project, deployment or tester URL. Historical anchor only; superseded by T10ae.
+- Current completed phase: T10ad - Cloudflare Access Preflight. Historical anchor only; superseded by T10ae.
+- Next recommended phase: T10ae - decide and test Cloudflare runtime compatibility locally before any provider project, deployment or tester URL. Historical anchor only; superseded by T10af.
+- Current completed phase: T10ae - Cloudflare Runtime Compatibility. Historical anchor only; superseded by T10af.
+- Next recommended phase: T10af - prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action. Historical anchor only; superseded by T10ag.
+- Current completed phase: T10af - OpenNext Cloudflare Adapter Package. Historical anchor only; superseded by T10ag.
+- Next recommended phase: T10ag - run the local OpenNext build/preview smoke without provider action. Historical anchor only; superseded by T10ah.
+- Current completed phase: T10ag - OpenNext Local Smoke. Historical anchor only; superseded by T10ah.
+- Next recommended phase: T10ah - evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Historical anchor only; superseded by T10ai.
 
 ## Recommended Order
 
@@ -90,9 +132,30 @@ Persistent planning note for the next SQX Edge phases.
 26. Phase T10k: execute exactly one CLI default preview deployment without `--skip-domain`, with immediate target inspection and rollback on mismatch. Attempted and rolled back because Vercel still returned `target = production`; see `docs/T10K_CLI_DEFAULT_PREVIEW_ROLLBACK.md`.
 27. Phase T10l: investigate or replace the Vercel route without another deployment attempt. Done as no-deploy investigation with NO-GO route status; see `docs/T10L_VERCEL_ROUTE_INVESTIGATION.md`.
 28. Phase T10m: manual/API Vercel correction or alternative no-deploy route proof before any further deployment. Done as Vercel Project API hardening without deployment; see `docs/T10M_VERCEL_CONFIG_HARDENING.md`.
-29. Phase T10n: no-deploy preview target proof or Vercel route replacement before any further deployment. Do not deploy again until a no-deploy proof produces GO.
-30. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
-31. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
+29. Phase T10n: no-deploy preview target proof or Vercel route replacement before any further deployment. Done as route decision NO-GO for the current Vercel route; see `docs/T10N_VERCEL_ROUTE_DECISION.md`.
+30. Phase T10o: replacement route or provider-level no-deploy proof before any deployment. Done as no-deploy replacement-route contract; see `docs/T10O_REPLACEMENT_ROUTE_CONTRACT.md`.
+31. Phase T10p: create or verify a fresh staging route only after explicit approval, with no-deploy preflight before any deployment. Done as local no-external-action preflight; see `docs/T10P_FRESH_STAGING_ROUTE_PREFLIGHT.md`.
+32. Phase T10q: request exact approval to create or verify a fresh protected staging route without deployment. Done as access check; write path blocked by CLI/token authentication; see `docs/T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK.md`.
+33. Phase T10r: authenticate Vercel CLI or provide local `VERCEL_TOKEN`, then create or verify `sqx-edge-tester-staging` without deployment. Done; see `docs/T10R_FRESH_STAGING_PROJECT_CREATED.md`.
+34. Phase T10s: verify or enable protection/settings for `sqx-edge-tester-staging` before any Git link or deployment. Done; see `docs/T10S_STAGING_PROTECTION_VERIFIED.md`.
+35. Phase T10t: link or configure staging without deployment and without publishing a URL. Done; see `docs/T10T_STAGING_LOCAL_LINK_CONFIGURED.md`.
+36. Phase T10u: prepare a no-deploy staging deployment readiness gate before any deployment. Done; see `docs/T10U_STAGING_DEPLOYMENT_READINESS_GATE.md`.
+37. Phase T10v: execute one controlled staging deployment attempt with immediate target/alias inspection and rollback on mismatch. Done as clean rollback; see `docs/T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK.md`.
+38. Phase T10w: investigate/correct provider-level target mapping without another deployment attempt or replace the staging route. Done as no-deploy route investigation; see `docs/T10W_PROVIDER_TARGET_MAPPING_INVESTIGATION.md`.
+39. Phase T10x: execute one explicit preview-target deployment attempt with immediate target/alias inspection and rollback on mismatch. Done as clean rollback; see `docs/T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK.md`.
+40. Phase T10y: stop retrying Vercel CLI deployment and choose a no-deploy route replacement or provider/dashboard correction decision. Done as provider-dashboard correction decision; see `docs/T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION.md`.
+41. Phase T10z: prepare the no-deploy provider/dashboard correction package before any deployment attempt. Done as correction package; see `docs/T10Z_PROVIDER_DASHBOARD_CORRECTION_PACKAGE.md`.
+42. Phase T10aa: record no-deploy provider/dashboard correction evidence before any deployment attempt. Done as read-only evidence record with manual dashboard gap; see `docs/T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD.md`.
+43. Phase T10ab: ingest manual dashboard evidence or replace the Vercel tester route before any deployment attempt. Done as `NO_GO_REPLACE_VERCEL_TESTER_ROUTE`; see `docs/T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST.md`.
+44. Phase T10ac: compare and select a protected non-Vercel tester route or local/private-network pilot without deployment. Done as Cloudflare Pages preview + Cloudflare Access email OTP candidate; see `docs/T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md`.
+45. Phase T10ad: prepare a no-deploy Cloudflare Access preflight package before any provider project, deployment or tester URL. Done; see `docs/T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md`.
+46. Phase T10ae: decide and test Cloudflare runtime compatibility locally before any provider project, deployment or tester URL. Done as Workers/OpenNext runtime selection; see `docs/T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md`.
+47. Phase T10af: prepare the local OpenNext/Cloudflare Workers adapter package without deployment or provider action. Done; see `docs/T10AF_OPENNEXT_CLOUDFLARE_ADAPTER_PACKAGE.md`.
+48. Phase T10ag: run the local OpenNext build/preview smoke without provider action. Done as WSL/Linux local smoke GO and native Windows preview NO-GO; see `docs/T10AG_OPENNEXT_LOCAL_SMOKE.md`.
+49. Phase T10ah: evaluate and block the Next.js middleware-to-proxy migration for the current Cloudflare route. Done; see `docs/T10AH_NEXT_PROXY_MIGRATION.md`.
+50. Phase T10ai: prepare the Cloudflare provider-project preflight without deployment or tester URL.
+51. Phase T11: roll out to up to 10 testers with monitored access and manual renewal.
+52. Phase T12: monitor abuse, failed logins, access patterns and continue/stop decision.
 
 ## Governance Track
 
