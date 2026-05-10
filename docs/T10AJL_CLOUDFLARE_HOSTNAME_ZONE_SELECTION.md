@@ -60,6 +60,8 @@ For the preferred custom domain path:
 For the fallback `workers.dev` pilot path:
 
 - `workersDevOnboardingComplete=true`
+- `workersDevShellTargetExists=true`
+- `workersDevAccessProtectionVerified=true`
 - `accessHostnameCanBeMatched=true`
 - `accessPrecreateAllowed=true`
 - `testerUrlPublished=false`
@@ -104,7 +106,7 @@ Both paths must keep:
 T10ak_cloudflare_access_application_policy_creation
 ```
 
-T10ak can only start after ignored local evidence proves a private hostname/zone or protected `workers.dev` onboarding path. If the proof still returns NO-GO, the next action is manual hostname/zone selection, not Access creation.
+T10ak can only start after ignored local evidence proves a private hostname/zone or a protected `workers.dev` shell target. If the proof still returns NO-GO, the next action is route/shell evidence, not Access creation for the real app.
 
 ## Verification
 

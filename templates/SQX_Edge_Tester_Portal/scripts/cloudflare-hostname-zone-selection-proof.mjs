@@ -110,6 +110,8 @@ const localEvidenceReady = Boolean(
     ) ||
     (
       localEvidence.workersDevOnboardingComplete === true &&
+      localEvidence.workersDevShellTargetExists === true &&
+      localEvidence.workersDevAccessProtectionVerified === true &&
       localEvidence.accessHostnameCanBeMatched === true
     )
   )
@@ -134,6 +136,8 @@ const proof = Object.freeze({
   zoneSelectedPrivately: localEvidence?.zoneSelectedPrivately === true,
   hostnameBelongsToCloudflareZone: localEvidence?.hostnameBelongsToCloudflareZone === true,
   workersDevOnboardingComplete: localEvidence?.workersDevOnboardingComplete === true,
+  workersDevShellTargetExists: localEvidence?.workersDevShellTargetExists === true,
+  workersDevAccessProtectionVerified: localEvidence?.workersDevAccessProtectionVerified === true,
   accessHostnameCanBeMatched: localEvidence?.accessHostnameCanBeMatched === true,
   routeCanBeCreatedAfterDeploy: localEvidence?.routeCanBeCreatedAfterDeploy === true,
   accessPrecreateAllowed: localEvidence?.accessPrecreateAllowed === true,

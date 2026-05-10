@@ -125,6 +125,9 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/cloudflare-hostname-zone-selection-proof.mjs`: T10ajl hostname/zone evidence proof that unlocks T10ak only from ignored private evidence.
 - `scripts/cloudflare-hostname-zone-selection-prepare.mjs`: T10ajl2 operator helper that creates/reviews the ignored hostname/zone evidence file and blocks sensitive local fields.
 - `cloudflare-hostname-zone-selection.example.json`: public-safe T10ajl evidence template; copy to ignored `cloudflare-hostname-zone-selection.local.json` only.
+- `scripts/cloudflare-workers-dev-shell-gate-proof.mjs`: T10ajm workers.dev shell gate proof for the no-domain/no-existing-Worker path.
+- `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
+- `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
 - `cloudflare-shell-evidence.example.json`: public-safe template for manual shell evidence; copy to ignored `cloudflare-shell-evidence.local.json` only.
 
 ## Local Preflight
@@ -423,6 +426,12 @@ npm run proof:cloudflare-hostname-zone-selection
 ```
 
 This proves the T10ajl private hostname/zone evidence gate. Without ignored private evidence, the expected result is `NO_GO_PRIVATE_HOSTNAME_ZONE_EVIDENCE_REQUIRED_T10AK_BLOCKED`; with private evidence proving a Cloudflare-managed hostname/zone or protected `workers.dev` onboarding, it can return `GO_CLOUDFLARE_HOSTNAME_ZONE_READY_T10AK_ALLOWED`.
+
+```powershell
+npm run proof:cloudflare-workers-dev-shell-gate
+```
+
+This proves the T10ajm workers.dev shell gate for accounts with a workers.dev subdomain but no existing Worker to protect. It must return `GO_WORKERS_DEV_SHELL_GATE_READY_EXACT_DEPLOY_APPROVAL_REQUIRED` and keeps the next external action limited to the shell deploy, not the real app.
 
 ```powershell
 npm run cf:build

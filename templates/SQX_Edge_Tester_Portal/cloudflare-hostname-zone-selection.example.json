@@ -7,6 +7,8 @@
   "zoneSelectedPrivately": false,
   "hostnameBelongsToCloudflareZone": false,
   "workersDevOnboardingComplete": false,
+  "workersDevShellTargetExists": false,
+  "workersDevAccessProtectionVerified": false,
   "accessHostnameCanBeMatched": false,
   "routeCanBeCreatedAfterDeploy": false,
   "accessPrecreateAllowed": false,

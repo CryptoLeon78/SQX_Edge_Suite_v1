@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T10ajl2 deja preparado el kit local de desbloqueo Cloudflare; T10ak sigue bloqueado hasta que la evidencia local ignorada devuelva GO, sin publicar Worker, Access, URL ni testers.
+- Estado interno: T10ajm deja preparado el gate realista para `workers.dev`: shell Worker inocuo primero, Access encima despues, app real solo cuando el bloqueo este verificado.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: ejecutar `prepare:cloudflare-hostname-zone-selection -- --write`, rellenar evidencia privada T10ajl y ejecutar T10ak solo cuando `proof:cloudflare-hostname-zone-selection` devuelva GO, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T10ajn con aprobacion exacta para desplegar solo el shell `workers.dev`, activar/verificar Cloudflare Access antes de compartir ninguna URL, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -149,6 +149,7 @@ Portal tester Pro previsto:
 - T10ajk anade `proof:cloudflare-route-access-precreate`; verifica Wrangler autenticado con Worker inexistente, crea ejemplo local seguro para evidencia de ruta/Access y mantiene T10ak bloqueado hasta que T10ajl seleccione hostname/zona privada o onboarding `workers.dev`.
 - T10ajl anade `proof:cloudflare-hostname-zone-selection`; prepara evidencia local ignorada para hostname/zona o `workers.dev` protegido, mantiene `workers_dev=false` y `preview_urls=false`, y mantiene T10ak bloqueado hasta que esa evidencia privada devuelva GO.
 - T10ajl2 anade `prepare:cloudflare-hostname-zone-selection`; crea/revisa el archivo local ignorado y bloquea campos sensibles como hostname, zone ID, emails, URL, tokens o claves antes de permitir T10ak.
+- T10ajm anade `proof:cloudflare-workers-dev-shell-gate`; al no haber dominio ni Worker existente, prepara un shell Worker 404/no-app con config dedicada `workers_dev=true`, mantiene la app real con `workers_dev=false`, y deja T10ajn como unico paso externo para crear el target antes de Access.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.

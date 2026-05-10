@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-10.
-- Current completed phase: T10ajl2 - Cloudflare Operator Unlock Kit.
+- Current completed phase: T10ajm - Workers.dev Shell Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10ak - create Cloudflare Access application/policy only after ignored private hostname evidence returns GO, otherwise run `prepare:cloudflare-hostname-zone-selection -- --write` and repeat T10ajl evidence capture, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10ajn - deploy the harmless workers.dev shell only with exact approval, then enable/verify Cloudflare Access before any tester URL, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -86,7 +86,10 @@ Persistent planning note for the next SQX Edge phases.
 - Current completed phase: T10ajk - Cloudflare Route Access Precreate. Historical anchor only; superseded by T10ajl.
 - Next recommended phase: T10ajl - select private Cloudflare hostname/zone or complete workers.dev onboarding evidence before T10ak Access creation. Historical anchor only; superseded by T10ak.
 - Current completed phase: T10ajl - Cloudflare Hostname Zone Selection. Historical anchor only; superseded by T10ajl2.
-- Next recommended phase: T10ajl2 - prepare the local operator unlock kit for private Cloudflare hostname/zone evidence before T10ak. Historical anchor only; superseded by T10ak.
+- Next recommended phase: T10ajl2 - prepare the local operator unlock kit for private Cloudflare hostname/zone evidence before T10ak. Historical anchor only; superseded by T10ajm.
+- Current completed phase: T10ajl2 - Cloudflare Operator Unlock Kit. Historical anchor only; superseded by T10ajm.
+- Next recommended phase: T10ajm - prepare the workers.dev shell gate because no custom domain and no Worker target exist yet. Historical anchor only; superseded by T10ajn.
+- Current completed phase: T10ajm - Workers.dev Shell Gate. Historical anchor only; superseded by T10ajn.
 
 ## Recommended Order
 
@@ -378,6 +381,14 @@ Persistent planning note for the next SQX Edge phases.
 98. Phase M98: monitor the M97 execution result before any additional commercial movement. Done; see `docs/MONETIZATION_M98.md`.
 99. Phase M99: decide the next controlled commercial movement from M98 monitor evidence. Done; see `docs/MONETIZATION_M99.md`.
 100. Phase M100: execute exactly the M99-approved controlled commercial movement.
+
+## Active Cloudflare Tester Route
+
+1. Phase T10ajl: select private Cloudflare hostname/zone or complete dashboard `workers.dev` onboarding evidence before T10ak Access creation. Done as public-safe evidence gate.
+2. Phase T10ajl2: add `prepare:cloudflare-hostname-zone-selection` to create the ignored local evidence file. Done.
+3. Phase T10ajm: prepare a controlled workers.dev shell gate because there is no custom domain and no Worker target to protect yet. Done.
+4. Phase T10ajn: deploy only the harmless workers.dev shell with exact approval, then enable/verify Cloudflare Access before any tester URL. Next.
+5. Phase T10ak: create Cloudflare Access application and policy only after the shell target exists and Access coverage is verified. Blocked until T10ajn evidence proves the shell is protected.
 
 ## SQX View Creator Track
 

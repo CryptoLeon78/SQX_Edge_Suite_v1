@@ -37,9 +37,10 @@ Preferred custom-domain path:
 Fallback `workers.dev` pilot path:
 
 1. Complete `workers.dev` onboarding outside git.
-2. Confirm Access can protect the selected Worker/application target before tester sharing.
-3. Set `workersDevOnboardingComplete=true`, `accessHostnameCanBeMatched=true` and `accessPrecreateAllowed=true`.
-4. Keep `testerUrlPublished=false` and `testerEmailsIncluded=false`.
+2. If no Worker exists yet, do not mark Access booleans as ready; use T10ajm to prepare the harmless shell target first.
+3. Confirm Access can protect the selected Worker/application target before tester sharing.
+4. Set `workersDevOnboardingComplete=true`, `workersDevShellTargetExists=true`, `workersDevAccessProtectionVerified=true`, `accessHostnameCanBeMatched=true` and `accessPrecreateAllowed=true` only after the shell target exists and can be protected.
+5. Keep `testerUrlPublished=false` and `testerEmailsIncluded=false`.
 
 ## Guardrails
 

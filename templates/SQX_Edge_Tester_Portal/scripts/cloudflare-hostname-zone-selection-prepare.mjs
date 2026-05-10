@@ -114,6 +114,8 @@ const localEvidenceReady = Boolean(
     ) ||
     (
       localEvidence.workersDevOnboardingComplete === true &&
+      localEvidence.workersDevShellTargetExists === true &&
+      localEvidence.workersDevAccessProtectionVerified === true &&
       localEvidence.accessHostnameCanBeMatched === true
     )
   )
@@ -134,6 +136,7 @@ const report = Object.freeze({
   checklist: [
     "Confirm an active Cloudflare-managed zone or completed workers.dev onboarding outside git.",
     "Choose the protected hostname outside git; do not paste it into this repository.",
+    "For workers.dev, deploy/protect only the harmless shell target before marking Access verified.",
     "Confirm Cloudflare Access can match that hostname before tester sharing.",
     "Set only boolean fields to true after each private check is complete.",
     "Keep testerUrlPublished=false and testerEmailsIncluded=false until T11.",

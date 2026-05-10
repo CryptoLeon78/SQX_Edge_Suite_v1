@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ajm Workers.dev Shell Gate
+
+- Adds `proof:cloudflare-workers-dev-shell-gate` for the no-domain/no-existing-Worker Cloudflare path.
+- Adds a harmless locked shell Worker plus dedicated `wrangler.shell.example.jsonc` so the next approved step can create a target before Access is enabled.
+- Keeps the real OpenNext app undeployed, keeps main `wrangler.jsonc` on `workers_dev=false`, and keeps T10ak blocked until shell target and Access protection are verified.
+
 ## 2026-05-10 - T10ajl2 Cloudflare Operator Unlock Kit
 
 - Adds `prepare:cloudflare-hostname-zone-selection` to create/review the ignored local evidence file without committing Cloudflare hostname, zone ID, tester URL, tester emails or tokens.
