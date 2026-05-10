@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ai Cloudflare Provider Project Preflight
+
+- Adds a no-deploy Cloudflare provider-project preflight for the tester portal.
+- Adds `proof:cloudflare-provider-project-preflight` with result `GO_CLOUDFLARE_PROVIDER_PROJECT_PREFLIGHT_READY_NO_DEPLOY`.
+- Keeps deploy scripts absent and keeps Cloudflare project, Access, Git link, tester URL and tester data as exact-approval-only actions.
+
 ## 2026-05-10 - T10ah Next Proxy Migration Gate
 
 - Evaluates the tester portal request gate migration from deprecated `middleware.ts` to `proxy.ts`.
