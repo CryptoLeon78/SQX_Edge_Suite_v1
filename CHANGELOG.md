@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10ab Manual Dashboard Evidence Ingest
+
+- Ingests Ivan's manual Vercel dashboard evidence for `sqx-edge-tester-staging` without deployment or provider mutation.
+- Rejects the current Vercel tester route because Git, production branch, auto-alias behavior, correction status and next deployment safety are not visible/proven.
+- Adds `proof:manual-dashboard-evidence-ingest` with result `NO_GO_REPLACE_VERCEL_TESTER_ROUTE`.
+
 ## 2026-05-10 - T10aa Provider Dashboard Evidence Record
 
 - Records read-only provider/dashboard evidence for `sqx-edge-tester-staging` without deployment or provider mutation.

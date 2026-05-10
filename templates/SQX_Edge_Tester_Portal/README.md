@@ -102,6 +102,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/no-deploy-provider-dashboard-decision-proof.mjs`: T10y no-deploy decision that pauses Vercel CLI deployment and selects provider-dashboard correction before any new attempt.
 - `scripts/provider-dashboard-correction-package-proof.mjs`: T10z no-deploy correction package with operator checklist and evidence format before any new attempt.
 - `scripts/provider-dashboard-evidence-record-proof.mjs`: T10aa no-deploy evidence record that confirms CLI evidence cannot prove preview target safety without manual dashboard review.
+- `scripts/manual-dashboard-evidence-ingest-proof.mjs`: T10ab no-deploy manual dashboard evidence ingest that rejects the current Vercel tester route and selects route replacement.
 
 ## Local Preflight
 
@@ -271,6 +272,14 @@ npm run proof:provider-dashboard-evidence-record
 
 This proves the T10aa read-only evidence record. It must return `NO_GO_PROVIDER_CANNOT_PROVE_PREVIEW_TARGET` until manual dashboard evidence is available or Vercel is replaced as the tester route.
 
+T10ab must ingest manual dashboard evidence and select the next no-deploy replacement gate before any deployment attempt.
+
+```powershell
+npm run proof:manual-dashboard-evidence-ingest
+```
+
+This proves the T10ab manual dashboard evidence ingest. It must return `NO_GO_REPLACE_VERCEL_TESTER_ROUTE` until T10ac selects a protected non-Vercel tester route, a local/private-network pilot, or a newly proven Vercel route with provider evidence before deployment.
+
 ```powershell
 npm run proof:vercel-config-hardening
 ```
@@ -309,7 +318,7 @@ This proves the T10r fresh staging project creation without deployment. It must 
 
 ## Next Phase
 
-T10ab must ingest manual dashboard evidence or replace the Vercel tester route before any deployment attempt. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, T10o selects `fresh_staging_route_with_no_deploy_preflight`, T10p proves the local preflight gate, T10q confirms write auth, T10r creates the clean project shell, T10s verifies protection/settings, T10t configures the local private portal link, T10u prepares the no-deploy readiness gate, T10v confirms the default CLI route still returns production target, T10w prepares the explicit preview-target route, T10x confirms that route also returns production target, T10y pauses Vercel CLI deployment, T10z prepares the correction checklist and T10aa records the manual dashboard evidence gap. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
+T10ac must compare and select a replacement tester route without deployment. T10h requested preview from `sqx-edge-tester-preview`, but Vercel returned `target=production`; the T10b guard blocked publication and the deployment was removed immediately. T10m hardened documented project settings, T10n rejects the current route for rollout because the deployment target remains unproven, T10o selects `fresh_staging_route_with_no_deploy_preflight`, T10p proves the local preflight gate, T10q confirms write auth, T10r creates the clean project shell, T10s verifies protection/settings, T10t configures the local private portal link, T10u prepares the no-deploy readiness gate, T10v confirms the default CLI route still returns production target, T10w prepares the explicit preview-target route, T10x confirms that route also returns production target, T10y pauses Vercel CLI deployment, T10z prepares the correction checklist, T10aa records the manual dashboard evidence gap and T10ab ingests manual dashboard evidence with `NO_GO_REPLACE_VERCEL_TESTER_ROUTE`. Do not share any tester URL until a deployment returns `target=preview` and no production alias exists.
 
 T10i must correct or replace the Vercel preview deployment route before another deployment attempt.
 

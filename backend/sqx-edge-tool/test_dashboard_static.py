@@ -83,6 +83,7 @@ T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK_DOC = PROJECT_ROOT / "docs" / "T10X_EXPLIC
 T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION_DOC = PROJECT_ROOT / "docs" / "T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION.md"
 T10Z_PROVIDER_DASHBOARD_CORRECTION_PACKAGE_DOC = PROJECT_ROOT / "docs" / "T10Z_PROVIDER_DASHBOARD_CORRECTION_PACKAGE.md"
 T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD_DOC = PROJECT_ROOT / "docs" / "T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD.md"
+T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST_DOC = PROJECT_ROOT / "docs" / "T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -7556,6 +7557,142 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10aa_text)
+
+    def test_t10ab_manual_dashboard_evidence_ingest_is_documented_and_safe(self):
+        t10ab = T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "manual-dashboard-evidence-ingest-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:manual-dashboard-evidence-ingest"],
+            "node scripts/manual-dashboard-evidence-ingest-proof.mjs",
+        )
+
+        for pattern in (
+            "T10ab Manual Dashboard Evidence Ingest",
+            "NO_GO_REPLACE_VERCEL_TESTER_ROUTE",
+            "Ingested manual dashboard evidence supplied by the operator in plain text.",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not mutate Vercel project settings.",
+            "git_connected=no",
+            "repo=<none>",
+            "production_branch=not_visible",
+            "tester_preview_production_like=not_visible",
+            "domains_count=0",
+            "auto_alias_enabled=not_visible",
+            "deployment_protection=all_except_custom_domains",
+            "provider_explanation=<none>",
+            "correction_status=not_visible",
+            "next_deployment_allowed=unknown",
+            "The current Vercel tester route is not approved",
+            "T10ac_non_vercel_protected_tester_route_options_no_deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10ab)
+
+        for pattern in (
+            'phase: "T10ab"',
+            'result: "NO_GO_REPLACE_VERCEL_TESTER_ROUTE"',
+            'selectedNextGate: "T10ac_non_vercel_protected_tester_route_options_no_deploy"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            'teamId: "team_43avYcdXjtKKE2GtwkOwbNKa"',
+            'privatePortalBranch: "tester-preview"',
+            "manualEvidenceIngested: true",
+            "gitConnected: false",
+            "repositoryConnected: false",
+            "productionBranchVisible: false",
+            "testerPreviewProductionLikeVisible: false",
+            "domainsCount: 0",
+            "autoAliasVisible: false",
+            'deploymentProtection: "all_except_custom_domains"',
+            'framework: "other"',
+            "providerExplanationAvailable: false",
+            'correctionStatus: "not_visible"',
+            'nextDeploymentAllowed: "unknown"',
+            "currentVercelTesterRouteApproved: false",
+            "replacementRequired: true",
+            "deploymentAttemptedInT10ab: false",
+            "deploymentCreationEndpointCalled: false",
+            "externalConfigMutationAttempted: false",
+            "externalProjectCreated: false",
+            "externalProjectLinked: false",
+            "triggerCommitPushedToPrivatePortal: false",
+            "testerUrlPublished: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "productionDatabaseConnected: false",
+            "T10ac_non_vercel_protected_tester_route_options_no_deploy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10ab - Manual Dashboard Evidence Ingest.",
+            "T10ac - compare and select a protected non-Vercel tester route or local/private-network pilot without deployment",
+            "docs/T10AB_MANUAL_DASHBOARD_EVIDENCE_INGEST.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ab - Manual Dashboard Evidence Ingest.",
+            "Phase T10ab: ingest manual dashboard evidence or replace the Vercel tester route before any deployment attempt. Done",
+            "Phase T10ac: compare and select a protected non-Vercel tester route or local/private-network pilot without deployment.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ab anade `proof:manual-dashboard-evidence-ingest`",
+            "T10ac para comparar y seleccionar una ruta tester protegida",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ab Manual Dashboard Evidence Ingest",
+            "proof:manual-dashboard-evidence-ingest",
+            "NO_GO_REPLACE_VERCEL_TESTER_ROUTE",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/manual-dashboard-evidence-ingest-proof.mjs",
+            "npm run proof:manual-dashboard-evidence-ingest",
+            "NO_GO_REPLACE_VERCEL_TESTER_ROUTE",
+            "T10ac must compare and select a replacement tester route without deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10ab_text = "\n".join([t10ab, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10ab_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
