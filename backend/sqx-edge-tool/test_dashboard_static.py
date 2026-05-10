@@ -74,6 +74,7 @@ T10O_REPLACEMENT_ROUTE_CONTRACT_DOC = PROJECT_ROOT / "docs" / "T10O_REPLACEMENT_
 T10P_FRESH_STAGING_ROUTE_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10P_FRESH_STAGING_ROUTE_PREFLIGHT.md"
 T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK_DOC = PROJECT_ROOT / "docs" / "T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK.md"
 T10R_FRESH_STAGING_PROJECT_CREATED_DOC = PROJECT_ROOT / "docs" / "T10R_FRESH_STAGING_PROJECT_CREATED.md"
+T10S_STAGING_PROTECTION_VERIFIED_DOC = PROJECT_ROOT / "docs" / "T10S_STAGING_PROTECTION_VERIFIED.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
 R47_CONTROLLED_COMMERCIAL_RELEASE_DOC = PROJECT_ROOT / "docs" / "R47_CONTROLLED_COMMERCIAL_RELEASE.md"
@@ -6372,9 +6373,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "T10r crea/verifica `sqx-edge-tester-staging` sin deploy",
-            "T10s para verificar o activar proteccion/settings",
             "T10r anade `proof:fresh-staging-project-created`",
+            "T10s anade `proof:staging-protection-verified`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -6411,6 +6411,121 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_t10r_text)
+
+    def test_t10s_staging_protection_verified_is_documented_and_safe(self):
+        t10s = T10S_STAGING_PROTECTION_VERIFIED_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "staging-protection-verified-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(proof_path.is_file())
+        self.assertEqual(
+            package["scripts"]["proof:staging-protection-verified"],
+            "node scripts/staging-protection-verified-proof.mjs",
+        )
+
+        for pattern in (
+            "T10s Staging Protection Verified",
+            "GO_STAGING_PROTECTION_VERIFIED_NO_DEPLOY",
+            "sqx-edge-tester-staging",
+            "all_except_custom_domains",
+            "Git fork protection: enabled.",
+            "Deployment count: `0`.",
+            "Did not run `vercel deploy`.",
+            "Did not call any deployment creation endpoint.",
+            "Did not link GitHub to the staging project.",
+            "T10t may link the private tester portal working tree",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, t10s)
+
+        for pattern in (
+            'phase: "T10s"',
+            'result: "GO_STAGING_PROTECTION_VERIFIED_NO_DEPLOY"',
+            'projectName: "sqx-edge-tester-staging"',
+            'projectId: "prj_A3VERjLXuzqb4f1adGmYjvg8aVVZ"',
+            "ssoProtectionEnabled: true",
+            'ssoDeploymentType: "all_except_custom_domains"',
+            "gitForkProtectionEnabled: true",
+            "live: false",
+            "latestDeployment: null",
+            "domains: []",
+            "deploymentCount: 0",
+            "projectSettingsChangedInT10s: false",
+            "privatePortalRelinked: false",
+            "gitLinkedToFreshProject: false",
+            "externalDeployAttempted: false",
+            "deploymentCreationEndpointCalled: false",
+            "testerUrlPublished: false",
+            "T10t_no_deploy_staging_link_or_setup_before_any_deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("/v13/deployments", proof)
+        self.assertNotIn("createDeployment", proof)
+        self.assertNotIn("PATCH", proof)
+        self.assertNotIn("fetch(", proof)
+
+        for pattern in (
+            "Current phase completed: T10s - Staging Protection Verified.",
+            "T10t - link or configure staging without deployment and without publishing a URL",
+            "docs/T10S_STAGING_PROTECTION_VERIFIED.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10s - Staging Protection Verified.",
+            "Phase T10s: verify or enable protection/settings for `sqx-edge-tester-staging` before any Git link or deployment. Done",
+            "Phase T10t: link or configure staging without deployment and without publishing a URL.",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10s verifica proteccion/settings",
+            "T10t para enlazar/configurar staging sin deploy",
+            "T10s anade `proof:staging-protection-verified`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10s Staging Protection Verified",
+            "proof:staging-protection-verified",
+            "GO_STAGING_PROTECTION_VERIFIED_NO_DEPLOY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/staging-protection-verified-proof.mjs",
+            "npm run proof:staging-protection-verified",
+            "GO_STAGING_PROTECTION_VERIFIED_NO_DEPLOY",
+            "T10t must link or configure staging",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_t10s_text = "\n".join([t10s, governance, next_steps, readme, changelog, template_readme, proof])
+        for pattern in (
+            "@gmail.com",
+            "@hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "https://sqx-edge",
+            ".vercel.app",
+            "sk_live_",
+            "pk_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_t10s_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

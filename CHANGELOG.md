@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-10 - T10s Staging Protection Verified
+
+- Verifies `sqx-edge-tester-staging` has SSO Deployment Protection enabled before any Git link or deployment.
+- Confirms Git fork protection is enabled, deployments are zero, domains are empty and no URL is published.
+- Adds `proof:staging-protection-verified` with result `GO_STAGING_PROTECTION_VERIFIED_NO_DEPLOY`.
+
 ## 2026-05-10 - T10r Fresh Staging Project Created
 
 - Creates and verifies `sqx-edge-tester-staging` as a fresh Vercel project shell without deployment.

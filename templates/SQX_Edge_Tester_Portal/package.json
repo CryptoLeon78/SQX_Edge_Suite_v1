@@ -26,6 +26,7 @@
     "proof:fresh-staging-route-preflight": "node scripts/fresh-staging-route-preflight-proof.mjs",
     "proof:fresh-staging-route-access-check": "node scripts/fresh-staging-route-access-check-proof.mjs",
     "proof:fresh-staging-project-created": "node scripts/fresh-staging-project-created-proof.mjs",
+    "proof:staging-protection-verified": "node scripts/staging-protection-verified-proof.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
