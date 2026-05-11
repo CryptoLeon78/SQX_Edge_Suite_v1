@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-11.
-- Current completed phase: T10aq - Tester Access Handoff No URL Leak.
+- Current completed phase: T10ar - Private Tester Account Activation Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10ar - private tester account activation gate without Git URL/email leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10as - private tester activation evidence ingest without Git URL/email leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -108,6 +108,8 @@ Persistent planning note for the next SQX Edge phases.
 - Current completed phase: T10ap - Controlled Workers.dev Publication Result. Historical anchor only; superseded by T10aq.
 - Next recommended phase: T10aq - tester access handoff without public URL leak. Historical anchor only; superseded by T10ar.
 - Current completed phase: T10aq - Tester Access Handoff No URL Leak. Historical anchor only; superseded by T10ar.
+- Next recommended phase: T10ar - private tester account activation gate without Git URL/email leak. Historical anchor only; superseded by T10as.
+- Current completed phase: T10ar - Private Tester Account Activation Gate. Historical anchor only; superseded by T10as.
 
 ## Recommended Order
 
@@ -414,7 +416,8 @@ Persistent planning note for the next SQX Edge phases.
 10. Phase T10ao: prepare controlled `workers.dev` publication preflight with exact approval phrase, Access smoke and rollback rules. Done.
 11. Phase T10ap: execute controlled `workers.dev` publication and Access smoke only with exact approval. Done as Access-protected publication with no URL sharing.
 12. Phase T10aq: prepare tester access handoff without public URL leak. Done as operator-only handoff gate.
-13. Phase T10ar: private tester account activation gate without Git URL/email leak. Next.
+13. Phase T10ar: private tester account activation gate without Git URL/email leak. Done as public-safe activation gate.
+14. Phase T10as: private tester activation evidence ingest without Git URL/email leak. Next.
 
 ## SQX View Creator Track
 

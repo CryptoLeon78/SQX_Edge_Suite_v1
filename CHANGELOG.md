@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-11 - T10ar Private Tester Account Activation Gate
+
+- Adds `proof:tester-account-activation-gate` with `GO_PRIVATE_TESTER_ACCOUNT_ACTIVATION_GATE_READY_NO_GIT_LEAK`.
+- Adds a public-safe activation checklist plus ignored local evidence path for private tester account handling.
+- Keeps tester accounts, invites, URL, emails, credentials and provider IDs outside Git until private evidence is ingested.
+
 ## 2026-05-11 - T10aq Tester Access Handoff No URL Leak
 
 - Adds `proof:tester-access-handoff` with `GO_TESTER_ACCESS_HANDOFF_READY_NO_PUBLIC_URL_LEAK`.

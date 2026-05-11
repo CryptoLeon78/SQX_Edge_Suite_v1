@@ -22,6 +22,7 @@ cloudflare-access-policy-boundary.local.json
 cloudflare-real-app-deploy.local.json
 cloudflare-workers-dev-publication.local.json
 tester-access-handoff.local.json
+tester-account-activation.local.json
 
 # Local environment
 .env
