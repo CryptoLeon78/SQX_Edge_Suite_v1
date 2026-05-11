@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-12 - TL1b Workers.dev Protected Target Fix
+
+- Enables the committed Cloudflare `workers_dev` target for the protected tester portal after the hotfix deployment exposed a version with no public target.
+- Keeps `preview_urls=false`, no custom routes committed and no tester URL, emails, credentials, provider IDs or private evidence in Git.
+- Updates the TL1 proof to treat `workers_dev=true` as the protected final tester target instead of the earlier safe default.
+
 ## 2026-05-12 - TL1a Tester Portal Runtime Env Hotfix
 
 - Adds a safe runtime env reader for the Cloudflare/OpenNext tester portal.
