@@ -123,6 +123,7 @@ T10AW_PRIVATE_TESTER_FEEDBACK_INTAKE_DOC = PROJECT_ROOT / "docs" / "T10AW_PRIVAT
 T10AX_PRIVATE_TESTER_FEEDBACK_TRIAGE_DOC = PROJECT_ROOT / "docs" / "T10AX_PRIVATE_TESTER_FEEDBACK_TRIAGE_GATE.md"
 T10AY_PRIVATE_TESTER_ACTION_PLAN_DOC = PROJECT_ROOT / "docs" / "T10AY_PRIVATE_TESTER_ACTION_PLAN_GATE.md"
 T10AZ_PRIVATE_TESTER_ACTION_EXECUTION_DOC = PROJECT_ROOT / "docs" / "T10AZ_PRIVATE_TESTER_ACTION_EXECUTION_GATE.md"
+T10BA_PRIVATE_TESTER_RESULT_VALIDATION_DOC = PROJECT_ROOT / "docs" / "T10BA_PRIVATE_TESTER_RESULT_VALIDATION_GATE.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
@@ -10517,8 +10518,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: T10az prepara ejecucion privada de acciones tester",
-            "Siguiente paso recomendado: T10ba para validar resultados privados",
+            "Estado interno: T10ba prepara validacion privada de resultados tester",
+            "Siguiente paso recomendado: T10bb para decidir iteracion privada",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -11725,7 +11726,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10az - Private Tester Action Execution Gate.",
+            "Current phase completed: T10ba - Private Tester Result Validation Gate.",
             "T10aq - Tester Access Handoff No URL Leak. Historical anchor only; superseded by T10ar.",
             "T10ap - Controlled Workers.dev Publication Result. Historical anchor only; superseded by T10aq.",
             "T10ao - Controlled Workers.dev Publication Preflight. Historical anchor only; superseded by T10ap.",
@@ -11736,7 +11737,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10az - Private Tester Action Execution Gate.",
+            "Current completed phase: T10ba - Private Tester Result Validation Gate.",
             "Phase T10ao: prepare controlled `workers.dev` publication preflight",
             "Phase T10ap: execute controlled `workers.dev` publication",
             "Phase T10aq: prepare tester access handoff without public URL leak",
@@ -11868,8 +11869,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10az - Private Tester Action Execution Gate.",
-            "Next implementation phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current phase completed: T10ba - Private Tester Result Validation Gate.",
+            "Next implementation phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "T10aq - Tester Access Handoff No URL Leak. Historical anchor only; superseded by T10ar.",
             "T10ap - Controlled Workers.dev Publication Result. Historical anchor only; superseded by T10aq.",
             "T10ap Controlled workers.dev publication result",
@@ -11880,7 +11881,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10az - Private Tester Action Execution Gate.",
+            "Current completed phase: T10ba - Private Tester Result Validation Gate.",
             "Phase T10ap: execute controlled `workers.dev` publication",
             "Phase T10aq: prepare tester access handoff without public URL leak",
             "Phase T10ar: private tester account activation gate without Git URL/email leak",
@@ -12013,8 +12014,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10az - Private Tester Action Execution Gate.",
-            "Next implementation phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current phase completed: T10ba - Private Tester Result Validation Gate.",
+            "Next implementation phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "T10aq - Tester Access Handoff No URL Leak. Historical anchor only; superseded by T10ar.",
             "T10aq Tester access handoff no URL leak",
             "docs/T10AQ_TESTER_ACCESS_HANDOFF_NO_URL_LEAK.md",
@@ -12024,7 +12025,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10az - Private Tester Action Execution Gate.",
+            "Current completed phase: T10ba - Private Tester Result Validation Gate.",
             "Phase T10aq: prepare tester access handoff without public URL leak",
             "Phase T10ar: private tester account activation gate without Git URL/email leak",
         ):
@@ -12161,8 +12162,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10az - Private Tester Action Execution Gate.",
-            "Next implementation phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current phase completed: T10ba - Private Tester Result Validation Gate.",
+            "Next implementation phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "T10ar Private tester account activation gate",
             "docs/T10AR_PRIVATE_TESTER_ACCOUNT_ACTIVATION_GATE.md",
             "tester-account-activation.local.json",
@@ -12171,7 +12172,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10az - Private Tester Action Execution Gate.",
+            "Current completed phase: T10ba - Private Tester Result Validation Gate.",
             "Phase T10ar: private tester account activation gate without Git URL/email leak",
             "Phase T10as: private tester activation evidence ingest without Git URL/email leak",
         ):
@@ -12311,8 +12312,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10az - Private Tester Action Execution Gate.",
-            "Next implementation phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current phase completed: T10ba - Private Tester Result Validation Gate.",
+            "Next implementation phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "T10as Private tester activation evidence ingest",
             "docs/T10AS_PRIVATE_TESTER_ACTIVATION_EVIDENCE_INGEST.md",
             "tester-account-activation.local.json",
@@ -12321,7 +12322,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10az - Private Tester Action Execution Gate.",
+            "Current completed phase: T10ba - Private Tester Result Validation Gate.",
             "Next recommended phase: T10at - private tester URL share approval gate without Git URL/email leak",
             "Phase T10as: private tester activation evidence ingest without Git URL/email leak",
             "Phase T10at: private tester URL share approval gate without Git URL/email leak",
@@ -12468,8 +12469,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10az - Private Tester Action Execution Gate.",
-            "Next implementation phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current phase completed: T10ba - Private Tester Result Validation Gate.",
+            "Next implementation phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "T10at Private tester URL share approval gate",
             "docs/T10AT_PRIVATE_TESTER_URL_SHARE_APPROVAL_GATE.md",
             "tester-url-share-approval.local.json",
@@ -12478,8 +12479,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10az - Private Tester Action Execution Gate.",
-            "Next recommended phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current completed phase: T10ba - Private Tester Result Validation Gate.",
+            "Next recommended phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "Phase T10at: private tester URL share approval gate without Git URL/email leak",
             "Phase T10au: private first tester smoke gate without Git URL/email leak",
         ):
@@ -12626,8 +12627,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10az - Private Tester Action Execution Gate.",
-            "Next implementation phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current phase completed: T10ba - Private Tester Result Validation Gate.",
+            "Next implementation phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "T10au Private first tester smoke gate",
             "docs/T10AU_PRIVATE_FIRST_TESTER_SMOKE_GATE.md",
             "tester-first-smoke.local.json",
@@ -12636,8 +12637,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10az - Private Tester Action Execution Gate.",
-            "Next recommended phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current completed phase: T10ba - Private Tester Result Validation Gate.",
+            "Next recommended phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "Phase T10au: private first tester smoke gate without Git URL/email leak",
             "Phase T10av: private tester cohort expansion gate without Git URL/email leak",
         ):
@@ -12785,8 +12786,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10az - Private Tester Action Execution Gate.",
-            "Next implementation phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current phase completed: T10ba - Private Tester Result Validation Gate.",
+            "Next implementation phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "T10av Private tester cohort expansion gate",
             "docs/T10AV_PRIVATE_TESTER_COHORT_EXPANSION_GATE.md",
             "tester-cohort-expansion.local.json",
@@ -12795,8 +12796,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10az - Private Tester Action Execution Gate.",
-            "Next recommended phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current completed phase: T10ba - Private Tester Result Validation Gate.",
+            "Next recommended phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "Phase T10av: private tester cohort expansion gate without Git URL/email leak",
             "Phase T10aw: private tester feedback intake gate without Git URL/email leak",
         ):
@@ -12945,8 +12946,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10az - Private Tester Action Execution Gate.",
-            "Next implementation phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current phase completed: T10ba - Private Tester Result Validation Gate.",
+            "Next implementation phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "T10aw Private tester feedback intake gate",
             "docs/T10AW_PRIVATE_TESTER_FEEDBACK_INTAKE_GATE.md",
             "tester-feedback-intake.local.json",
@@ -12955,8 +12956,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10az - Private Tester Action Execution Gate.",
-            "Next recommended phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current completed phase: T10ba - Private Tester Result Validation Gate.",
+            "Next recommended phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "Phase T10aw: private tester feedback intake gate without Git URL/email leak",
             "Phase T10ax: private tester feedback triage gate without Git URL/email leak",
         ):
@@ -13106,8 +13107,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10az - Private Tester Action Execution Gate.",
-            "Next implementation phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current phase completed: T10ba - Private Tester Result Validation Gate.",
+            "Next implementation phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "T10ax Private tester feedback triage gate",
             "docs/T10AX_PRIVATE_TESTER_FEEDBACK_TRIAGE_GATE.md",
             "tester-feedback-triage.local.json",
@@ -13116,8 +13117,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10az - Private Tester Action Execution Gate.",
-            "Next recommended phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current completed phase: T10ba - Private Tester Result Validation Gate.",
+            "Next recommended phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "Phase T10ax: private tester feedback triage gate without Git URL/email leak",
             "Phase T10ay: private tester action plan gate without Git URL/email leak",
         ):
@@ -13266,8 +13267,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10az - Private Tester Action Execution Gate.",
-            "Next implementation phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current phase completed: T10ba - Private Tester Result Validation Gate.",
+            "Next implementation phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "T10ay Private tester action plan gate",
             "docs/T10AY_PRIVATE_TESTER_ACTION_PLAN_GATE.md",
             "tester-action-plan.local.json",
@@ -13276,8 +13277,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10az - Private Tester Action Execution Gate.",
-            "Next recommended phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current completed phase: T10ba - Private Tester Result Validation Gate.",
+            "Next recommended phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "Phase T10ay: private tester action plan gate without Git URL/email leak",
             "Phase T10az: private tester action execution gate without Git URL/email leak",
         ):
@@ -13428,8 +13429,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10az - Private Tester Action Execution Gate.",
-            "Next implementation phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current phase completed: T10ba - Private Tester Result Validation Gate.",
+            "Next implementation phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "T10az Private tester action execution gate",
             "docs/T10AZ_PRIVATE_TESTER_ACTION_EXECUTION_GATE.md",
             "tester-action-execution.local.json",
@@ -13438,8 +13439,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10az - Private Tester Action Execution Gate.",
-            "Next recommended phase: T10ba - private tester result validation gate without Git URL/email leak",
+            "Current completed phase: T10ba - Private Tester Result Validation Gate.",
+            "Next recommended phase: T10bb - private tester iteration decision gate without Git URL/email leak",
             "Phase T10az: private tester action execution gate without Git URL/email leak",
             "Phase T10ba: private tester result validation gate without Git URL/email leak",
         ):
@@ -13503,6 +13504,169 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_execution_text)
+
+    def test_t10ba_private_tester_result_validation_gate_is_documented_and_safe(self):
+        result_doc = T10BA_PRIVATE_TESTER_RESULT_VALIDATION_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-result-validation.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-result-validation-gate-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10BA_PRIVATE_TESTER_RESULT_VALIDATION_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-result-validation.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-result-validation-gate"],
+            "node scripts/tester-result-validation-gate-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10ba")
+        for key, value in example.items():
+            with self.subTest(key=key):
+                if key == "phase":
+                    self.assertEqual(value, "T10ba")
+                elif key.endswith("Count"):
+                    self.assertEqual(value, 0)
+                else:
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10ba Private Tester Result Validation Gate",
+            "NO_GO_PRIVATE_TESTER_RESULT_VALIDATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_RESULT_VALIDATION_READY_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-result-validation.local.json",
+            "T10bb_private_tester_iteration_decision_gate",
+            "This phase does not create tester accounts",
+            "does not execute provider mutations",
+            "does not run a Cloudflare deployment",
+            "Result validation scope is approved privately",
+            "Executed actions are classified privately",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, result_doc)
+
+        for pattern in (
+            'phase: "T10ba"',
+            "NO_GO_PRIVATE_TESTER_RESULT_VALIDATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_RESULT_VALIDATION_READY_NO_GIT_LEAK",
+            "localResultPresent",
+            "localResultErrors",
+            "localResultSafe",
+            "exampleResultSafe",
+            "noDeployPerformed",
+            "testerUrlPublished: false",
+            "testerEmailsCommitted: false",
+            "credentialsCommitted: false",
+            "screenshotsCommitted: false",
+            "rawFeedbackCommitted: false",
+            "feedbackIdentitiesCommitted: false",
+            "privateBugDetailsCommitted: false",
+            "privateActionDetailsCommitted: false",
+            "privateExecutionNotesCommitted: false",
+            "privateResultNotesCommitted: false",
+            "providerMutationsPerformed: false",
+            "wranglerWorkersDevSafeDefault",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10bb_private_tester_iteration_decision_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ba - Private Tester Result Validation Gate.",
+            "Next implementation phase: T10bb - private tester iteration decision gate without Git URL/email leak",
+            "T10ba Private tester result validation gate",
+            "docs/T10BA_PRIVATE_TESTER_RESULT_VALIDATION_GATE.md",
+            "tester-result-validation.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ba - Private Tester Result Validation Gate.",
+            "Next recommended phase: T10bb - private tester iteration decision gate without Git URL/email leak",
+            "Phase T10ba: private tester result validation gate without Git URL/email leak",
+            "Phase T10bb: private tester iteration decision gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ba prepara validacion privada de resultados tester",
+            "proof:tester-result-validation-gate",
+            "NO_GO_PRIVATE_TESTER_RESULT_VALIDATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_RESULT_VALIDATION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ba Private Tester Result Validation Gate",
+            "proof:tester-result-validation-gate",
+            "NO_GO_PRIVATE_TESTER_RESULT_VALIDATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_RESULT_VALIDATION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-result-validation-gate-proof.mjs",
+            "tester-result-validation.example.json",
+            "npm run proof:tester-result-validation-gate",
+            "NO_GO_PRIVATE_TESTER_RESULT_VALIDATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_RESULT_VALIDATION_READY_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_result_text = "\n".join(
+            [
+                result_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_result_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

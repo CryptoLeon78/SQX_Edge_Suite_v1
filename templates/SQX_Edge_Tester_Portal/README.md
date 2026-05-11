@@ -154,6 +154,8 @@ This template is safe to keep in the public/core repository because it contains 
 - `tester-action-plan.example.json`: public-safe T10ay action-plan shape; copy to ignored `tester-action-plan.local.json` only.
 - `scripts/tester-action-execution-gate-proof.mjs`: T10az proof for private tester action execution readiness without committing raw feedback, private action details, private execution notes, tester identities, URLs, credentials or screenshots.
 - `tester-action-execution.example.json`: public-safe T10az execution shape; copy to ignored `tester-action-execution.local.json` only.
+- `scripts/tester-result-validation-gate-proof.mjs`: T10ba proof for private tester result-validation readiness without committing raw feedback, private action details, private execution notes, private result notes, tester identities, URLs, credentials or screenshots.
+- `tester-result-validation.example.json`: public-safe T10ba result-validation shape; copy to ignored `tester-result-validation.local.json` only.
 - `cloudflare-access-policy-boundary.example.json`: public-safe T10ak evidence template; copy to ignored `cloudflare-access-policy-boundary.local.json` only.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
@@ -569,6 +571,12 @@ npm run proof:tester-action-execution-gate
 ```
 
 This proves the T10az private tester action execution gate. Without ignored local execution evidence it returns `NO_GO_PRIVATE_TESTER_ACTION_EXECUTION_EVIDENCE_MISSING`; with safe private execution evidence it returns `GO_PRIVATE_TESTER_ACTION_EXECUTION_READY_NO_GIT_LEAK` without committing raw feedback, private action details, private execution notes, tester identities, URLs, credentials or screenshots.
+
+```powershell
+npm run proof:tester-result-validation-gate
+```
+
+This proves the T10ba private tester result-validation gate. Without ignored local result evidence it returns `NO_GO_PRIVATE_TESTER_RESULT_VALIDATION_EVIDENCE_MISSING`; with safe private result evidence it returns `GO_PRIVATE_TESTER_RESULT_VALIDATION_READY_NO_GIT_LEAK` without committing raw feedback, private action details, private execution notes, private result notes, tester identities, URLs, credentials or screenshots.
 
 ```powershell
 npm run cf:build

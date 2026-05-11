@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-11 - T10ba Private Tester Result Validation Gate
+
+- Adds `proof:tester-result-validation-gate` with guarded `NO_GO_PRIVATE_TESTER_RESULT_VALIDATION_EVIDENCE_MISSING` until ignored local result-validation evidence exists.
+- Adds `GO_PRIVATE_TESTER_RESULT_VALIDATION_READY_NO_GIT_LEAK` for private classification of accepted, repeat, blocked and deferred tester results.
+- Documents the private result-validation boundary after T10az action execution, keeping URLs, emails, credentials, raw feedback, private action details, private execution notes, private result notes, screenshots and provider IDs out of Git.
+- Updates governance, roadmap, README and static contracts for the next `T10bb` iteration-decision gate.
+
 ## 2026-05-11 - T10az Private Tester Action Execution Gate
 
 - Adds `proof:tester-action-execution-gate` with guarded `NO_GO_PRIVATE_TESTER_ACTION_EXECUTION_EVIDENCE_MISSING` until ignored local execution evidence exists.
