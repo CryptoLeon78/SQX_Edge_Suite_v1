@@ -146,6 +146,8 @@ This template is safe to keep in the public/core repository because it contains 
 - `tester-first-smoke.example.json`: public-safe T10au smoke shape; copy to ignored `tester-first-smoke.local.json` only.
 - `scripts/tester-cohort-expansion-gate-proof.mjs`: T10av proof for private micro-cohort expansion readiness without committing URL, identities, credentials, screenshots or feedback identities.
 - `tester-cohort-expansion.example.json`: public-safe T10av expansion shape; copy to ignored `tester-cohort-expansion.local.json` only.
+- `scripts/tester-feedback-intake-gate-proof.mjs`: T10aw proof for private feedback intake readiness without committing raw feedback, tester identities, URLs, credentials or screenshots.
+- `tester-feedback-intake.example.json`: public-safe T10aw feedback intake shape; copy to ignored `tester-feedback-intake.local.json` only.
 - `cloudflare-access-policy-boundary.example.json`: public-safe T10ak evidence template; copy to ignored `cloudflare-access-policy-boundary.local.json` only.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
@@ -537,6 +539,12 @@ npm run proof:tester-cohort-expansion-gate
 ```
 
 This proves the T10av private tester cohort expansion gate. Without ignored local expansion evidence it returns `NO_GO_PRIVATE_TESTER_COHORT_EXPANSION_EVIDENCE_MISSING`; with safe private readiness evidence it returns `GO_PRIVATE_TESTER_COHORT_EXPANSION_READY_NO_GIT_LEAK` without committing tester URLs, identities, credentials, screenshots or feedback identities.
+
+```powershell
+npm run proof:tester-feedback-intake-gate
+```
+
+This proves the T10aw private tester feedback intake gate. Without ignored local feedback evidence it returns `NO_GO_PRIVATE_TESTER_FEEDBACK_INTAKE_EVIDENCE_MISSING`; with safe private intake evidence it returns `GO_PRIVATE_TESTER_FEEDBACK_INTAKE_READY_NO_GIT_LEAK` without committing raw feedback, tester identities, URLs, credentials or screenshots.
 
 ```powershell
 npm run cf:build

@@ -26,6 +26,7 @@ tester-account-activation.local.json
 tester-url-share-approval.local.json
 tester-first-smoke.local.json
 tester-cohort-expansion.local.json
+tester-feedback-intake.local.json
 
 # Local environment
 .env
