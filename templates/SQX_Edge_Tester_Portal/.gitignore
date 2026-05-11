@@ -29,6 +29,7 @@ tester-cohort-expansion.local.json
 tester-feedback-intake.local.json
 tester-feedback-triage.local.json
 tester-action-plan.local.json
+tester-action-execution.local.json
 
 # Local environment
 .env

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-11 - T10az Private Tester Action Execution Gate
+
+- Adds `proof:tester-action-execution-gate` with guarded `NO_GO_PRIVATE_TESTER_ACTION_EXECUTION_EVIDENCE_MISSING` until ignored local execution evidence exists.
+- Adds `GO_PRIVATE_TESTER_ACTION_EXECUTION_READY_NO_GIT_LEAK` for private action execution evidence with owners, acceptance evidence and rollback-risk review.
+- Documents the private execution boundary after T10ay action plan, keeping URLs, emails, credentials, raw feedback, private action details, private execution notes, screenshots and provider IDs out of Git.
+- Updates governance, roadmap, README and static contracts for the next `T10ba` result-validation gate.
+
 ## 2026-05-11 - T10ay Private Tester Action Plan Gate
 
 - Adds `proof:tester-action-plan-gate` with guarded `NO_GO_PRIVATE_TESTER_ACTION_PLAN_EVIDENCE_MISSING` until ignored local action-plan evidence exists.
