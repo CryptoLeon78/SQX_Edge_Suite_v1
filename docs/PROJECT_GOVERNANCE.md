@@ -4,9 +4,10 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: T10bc - Private Tester Next Iteration Gate.
+- Current phase completed: TL1 - Tester Launch Candidate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: T10bd - private tester next iteration execution gate without Git URL/email leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`; if GO, send protected access manually to selected testers outside Git.
+- Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.
 - Earlier governance baseline: G4 - Institutional Core Repository Gate.
@@ -133,6 +134,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current phase completed: T10bb - Private Tester Iteration Decision Gate. Historical anchor only; superseded by T10bc.
 - Next implementation phase: T10bc - private tester next iteration gate without Git URL/email leak. Historical anchor only; superseded by T10bd.
 - Current phase completed: T10bc - Private Tester Next Iteration Gate. Historical anchor only; superseded by T10bd.
+- Current phase completed: TL1 - Tester Launch Candidate. Macro launch-candidate anchor; freezes further T10 micro-gates until a real blocker requires one.
 
 ## Specialist Agents
 
@@ -163,6 +165,7 @@ Use prefixed phase IDs for new work.
 - `Jxx`: Jose-derived selective integrations, especially Champion vs Challenger, adapted to SQX architecture and security rules.
 - `SBxx`: Strategy Builder and "only one platform" workflow phases.
 - `Txx`: cloud tester access, Vercel portal, tester auth, 15-day renewal, audit and anti-distribution phases.
+- `TLxx`: tester launch macro decisions. Prefer this over more T10 micro-gates when the work is operational launch readiness.
 
 Legacy references such as "Phase 46" in the modularization track remain historical. New work should use the prefix in titles and commits when practical.
 
@@ -329,6 +332,7 @@ M46 is accepted when these criteria are true:
 - T10ba Private tester result validation gate: `docs/T10BA_PRIVATE_TESTER_RESULT_VALIDATION_GATE.md`, `templates/SQX_Edge_Tester_Portal/tester-result-validation.example.json`, ignored `tester-result-validation.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-result-validation-gate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10bb Private tester iteration decision gate: `docs/T10BB_PRIVATE_TESTER_ITERATION_DECISION_GATE.md`, `templates/SQX_Edge_Tester_Portal/tester-iteration-decision.example.json`, ignored `tester-iteration-decision.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-iteration-decision-gate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10bc Private tester next iteration gate: `docs/T10BC_PRIVATE_TESTER_NEXT_ITERATION_GATE.md`, `templates/SQX_Edge_Tester_Portal/tester-next-iteration.example.json`, ignored `tester-next-iteration.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-next-iteration-gate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
+- TL1 Tester launch candidate: `docs/TL1_TESTER_LAUNCH_CANDIDATE.md`, `templates/SQX_Edge_Tester_Portal/tester-launch-candidate.example.json`, ignored `tester-launch-candidate.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-launch-candidate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ac replacement tester route options: `docs/T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md`, `templates/SQX_Edge_Tester_Portal/scripts/replacement-tester-route-options-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ad Cloudflare Access preflight: `docs/T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-access-preflight-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ae Cloudflare runtime compatibility: `docs/T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-runtime-compatibility-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.

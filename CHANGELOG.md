@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-11 - TL1 Tester Launch Candidate
+
+- Freezes the tiny T10 tester gates as historical safety work and adds one macro tester launch candidate decision.
+- Adds `proof:tester-launch-candidate`, returning `NO_GO_TESTER_LAUNCH_PRIVATE_EVIDENCE_MISSING` until ignored private launch evidence exists.
+- Adds `GO_TESTER_LAUNCH_CANDIDATE_READY_NO_GIT_LEAK` as the single launch-readiness result for protected Access, tester auth smoke, blocked states, support, rollback and operator approval.
+- Keeps tester URL, tester emails, credentials, provider IDs, screenshots, raw feedback and private notes outside Git.
+
 ## 2026-05-11 - T10bc Private Tester Next Iteration Gate
 
 - Adds `proof:tester-next-iteration-gate` with guarded `NO_GO_PRIVATE_TESTER_NEXT_ITERATION_EVIDENCE_MISSING` until ignored local next-iteration evidence exists.
