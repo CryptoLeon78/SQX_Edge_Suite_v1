@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-11 - T10at Private Tester URL Share Approval Gate
+
+- Adds `proof:tester-url-share-approval-gate` with guarded `NO_GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_MISSING` until ignored local approval evidence exists.
+- Adds `GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_READY_NO_GIT_LEAK` for the private one-to-one URL sharing approval boundary.
+- Keeps tester URL publication, automatic emails, credentials and provider IDs outside Git.
+
 ## 2026-05-11 - T10as Private Tester Activation Evidence Ingest
 
 - Adds `proof:tester-activation-evidence-ingest` with guarded `NO_GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_MISSING` until ignored local evidence exists.

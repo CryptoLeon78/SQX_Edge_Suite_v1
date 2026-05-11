@@ -140,6 +140,8 @@ This template is safe to keep in the public/core repository because it contains 
 - `tester-account-activation.example.json`: public-safe T10ar evidence template; copy to ignored `tester-account-activation.local.json` only.
 - `scripts/tester-activation-evidence-ingest-proof.mjs`: T10as proof that ingests ignored private activation evidence and fails closed on sensitive local fields.
 - `tester-activation-evidence-ingest.example.json`: public-safe T10as evidence shape; keep real activation evidence in ignored `tester-account-activation.local.json` only.
+- `scripts/tester-url-share-approval-gate-proof.mjs`: T10at proof for private one-to-one tester URL sharing approval without committing the URL.
+- `tester-url-share-approval.example.json`: public-safe T10at approval shape; copy to ignored `tester-url-share-approval.local.json` only.
 - `cloudflare-access-policy-boundary.example.json`: public-safe T10ak evidence template; copy to ignored `cloudflare-access-policy-boundary.local.json` only.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
@@ -513,6 +515,12 @@ npm run proof:tester-activation-evidence-ingest
 ```
 
 This proves the T10as private activation evidence ingest. Without ignored local evidence it returns `NO_GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_MISSING`; with safe private evidence it returns `GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_SAFE_NO_GIT_LEAK` without publishing the protected URL.
+
+```powershell
+npm run proof:tester-url-share-approval-gate
+```
+
+This proves the T10at private URL sharing approval gate. Without ignored local approval evidence it returns `NO_GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_MISSING`; with safe private approval it returns `GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_READY_NO_GIT_LEAK` without publishing or committing the protected URL.
 
 ```powershell
 npm run cf:build

@@ -1,0 +1,20 @@
+{
+  "phase": "T10at",
+  "t10asActivationEvidenceGo": false,
+  "accessStillInterceptsAnonymous": false,
+  "appSessionStillRequiredAfterAccess": false,
+  "privateTesterAccountsActivated": false,
+  "passwordDeliveryChannelPrivate": false,
+  "supportChannelReadyPrivately": false,
+  "revocationPathReadyPrivately": false,
+  "renewalCadenceScheduled": false,
+  "privateOneToOneShareChannelReady": false,
+  "testerUrlSharedPrivately": false,
+  "publicRepoContainsTesterEmails": false,
+  "publicRepoContainsTesterUrl": false,
+  "publicRepoContainsCredentials": false,
+  "publicRepoContainsProviderIds": false,
+  "approvedTesterCount": 0,
+  "pendingTesterCount": 0,
+  "urlRecipientsCount": 0
+}

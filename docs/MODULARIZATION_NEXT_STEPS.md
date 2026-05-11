@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-11.
-- Current completed phase: T10as - Private Tester Activation Evidence Ingest.
+- Current completed phase: T10at - Private Tester URL Share Approval Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10at - private tester URL share approval gate without Git URL/email leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10au - private first tester smoke gate without Git URL/email leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -112,6 +112,8 @@ Persistent planning note for the next SQX Edge phases.
 - Current completed phase: T10ar - Private Tester Account Activation Gate. Historical anchor only; superseded by T10as.
 - Next recommended phase: T10as - private tester activation evidence ingest without Git URL/email leak. Historical anchor only; superseded by T10at.
 - Current completed phase: T10as - Private Tester Activation Evidence Ingest. Historical anchor only; superseded by T10at.
+- Next recommended phase: T10at - private tester URL share approval gate without Git URL/email leak. Historical anchor only; superseded by T10au.
+- Current completed phase: T10at - Private Tester URL Share Approval Gate. Historical anchor only; superseded by T10au.
 
 ## Recommended Order
 
@@ -420,7 +422,8 @@ Persistent planning note for the next SQX Edge phases.
 12. Phase T10aq: prepare tester access handoff without public URL leak. Done as operator-only handoff gate.
 13. Phase T10ar: private tester account activation gate without Git URL/email leak. Done as public-safe activation gate.
 14. Phase T10as: private tester activation evidence ingest without Git URL/email leak. Done as guarded local evidence ingest.
-15. Phase T10at: private tester URL share approval gate without Git URL/email leak. Next.
+15. Phase T10at: private tester URL share approval gate without Git URL/email leak. Done as guarded private approval gate.
+16. Phase T10au: private first tester smoke gate without Git URL/email leak. Next.
 
 ## SQX View Creator Track
 
