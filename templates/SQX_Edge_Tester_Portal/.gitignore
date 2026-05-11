@@ -24,6 +24,7 @@ cloudflare-workers-dev-publication.local.json
 tester-access-handoff.local.json
 tester-account-activation.local.json
 tester-url-share-approval.local.json
+tester-first-smoke.local.json
 
 # Local environment
 .env

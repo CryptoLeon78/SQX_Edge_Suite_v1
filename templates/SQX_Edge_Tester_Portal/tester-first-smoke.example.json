@@ -1,0 +1,22 @@
+{
+  "phase": "T10au",
+  "t10atUrlShareApprovalGo": false,
+  "privateUrlSharedWithSingleTester": false,
+  "accessBlocksAnonymous": false,
+  "accessAllowsApprovedTester": false,
+  "appLoginRequiredAfterAccess": false,
+  "appPortalLoadsForTester": false,
+  "testerProEntitlementsVisible": false,
+  "adminRoutesBlockedForTester": false,
+  "logoutClearsSession": false,
+  "supportChannelReadyPrivately": false,
+  "revocationPathReadyPrivately": false,
+  "testerSmokeCompletedPrivately": false,
+  "publicRepoContainsTesterEmails": false,
+  "publicRepoContainsTesterUrl": false,
+  "publicRepoContainsCredentials": false,
+  "publicRepoContainsProviderIds": false,
+  "publicRepoContainsScreenshots": false,
+  "smokedTesterCount": 0,
+  "failedCheckCount": 0
+}

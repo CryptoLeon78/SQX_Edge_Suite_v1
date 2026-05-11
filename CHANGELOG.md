@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-11 - T10au Private First Tester Smoke Gate
+
+- Adds `proof:tester-first-smoke-gate` with guarded `NO_GO_PRIVATE_FIRST_TESTER_SMOKE_EVIDENCE_MISSING` until ignored local smoke evidence exists.
+- Adds `GO_PRIVATE_FIRST_TESTER_SMOKE_PASSED_NO_GIT_LEAK` for a one-tester private smoke result with Access, app login, Pro entitlement, admin-block and logout checks.
+- Keeps tester URL, emails, credentials, provider IDs and screenshots outside Git.
+
 ## 2026-05-11 - T10at Private Tester URL Share Approval Gate
 
 - Adds `proof:tester-url-share-approval-gate` with guarded `NO_GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_MISSING` until ignored local approval evidence exists.
