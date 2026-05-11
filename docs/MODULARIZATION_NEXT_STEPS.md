@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-11.
-- Current completed phase: T10bb - Private Tester Iteration Decision Gate.
+- Current completed phase: T10bc - Private Tester Next Iteration Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10bc - private tester next iteration gate without Git URL/email leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10bd - private tester next iteration execution gate without Git URL/email leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -130,6 +130,8 @@ Persistent planning note for the next SQX Edge phases.
 - Current completed phase: T10ba - Private Tester Result Validation Gate. Historical anchor only; superseded by T10bb.
 - Next recommended phase: T10bb - private tester iteration decision gate without Git URL/email leak. Historical anchor only; superseded by T10bc.
 - Current completed phase: T10bb - Private Tester Iteration Decision Gate. Historical anchor only; superseded by T10bc.
+- Next recommended phase: T10bc - private tester next iteration gate without Git URL/email leak. Historical anchor only; superseded by T10bd.
+- Current completed phase: T10bc - Private Tester Next Iteration Gate. Historical anchor only; superseded by T10bd.
 
 ## Recommended Order
 
@@ -447,7 +449,8 @@ Persistent planning note for the next SQX Edge phases.
 21. Phase T10az: private tester action execution gate without Git URL/email leak. Done as guarded private tester action-execution evidence gate.
 22. Phase T10ba: private tester result validation gate without Git URL/email leak. Done as guarded private tester result-validation evidence gate.
 23. Phase T10bb: private tester iteration decision gate without Git URL/email leak. Done as guarded private tester iteration-decision evidence gate.
-24. Phase T10bc: private tester next iteration gate without Git URL/email leak. Next.
+24. Phase T10bc: private tester next iteration gate without Git URL/email leak. Done as guarded private tester next-iteration evidence gate.
+25. Phase T10bd: private tester next iteration execution gate without Git URL/email leak. Next.
 
 ## SQX View Creator Track
 
