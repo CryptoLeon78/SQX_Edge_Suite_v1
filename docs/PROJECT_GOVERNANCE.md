@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: T10ap - Controlled Workers.dev Publication Result.
+- Current phase completed: T10aq - Tester Access Handoff No URL Leak.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: T10aq - tester access handoff without public URL leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next implementation phase: T10ar - private tester account activation gate without Git URL/email leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.
 - Earlier governance baseline: G4 - Institutional Core Repository Gate.
@@ -107,6 +107,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current phase completed: T10ao - Controlled Workers.dev Publication Preflight. Historical anchor only; superseded by T10ap.
 - Next implementation phase: T10ap - controlled workers.dev publication and Access smoke only with exact approval. Historical anchor only; superseded by T10aq.
 - Current phase completed: T10ap - Controlled Workers.dev Publication Result. Historical anchor only; superseded by T10aq.
+- Next implementation phase: T10aq - tester access handoff without public URL leak. Historical anchor only; superseded by T10ar.
+- Current phase completed: T10aq - Tester Access Handoff No URL Leak. Historical anchor only; superseded by T10ar.
 
 ## Specialist Agents
 
@@ -290,6 +292,7 @@ M46 is accepted when these criteria are true:
 - T10an Protected tester publication target gate: `docs/T10AN_PROTECTED_TESTER_PUBLICATION_TARGET_GATE.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-protected-tester-publication-target-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ao Controlled workers.dev publication preflight: `docs/T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-controlled-workers-dev-publication-preflight-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ap Controlled workers.dev publication result: `docs/T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT.md`, ignored `templates/SQX_Edge_Tester_Portal/cloudflare-workers-dev-publication.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-workers-dev-publication-result-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
+- T10aq Tester access handoff no URL leak: `docs/T10AQ_TESTER_ACCESS_HANDOFF_NO_URL_LEAK.md`, `templates/SQX_Edge_Tester_Portal/tester-access-handoff.example.json`, ignored `tester-access-handoff.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-access-handoff-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ac replacement tester route options: `docs/T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md`, `templates/SQX_Edge_Tester_Portal/scripts/replacement-tester-route-options-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ad Cloudflare Access preflight: `docs/T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-access-preflight-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ae Cloudflare runtime compatibility: `docs/T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-runtime-compatibility-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.

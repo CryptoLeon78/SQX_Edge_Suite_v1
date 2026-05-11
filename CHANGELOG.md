@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-11 - T10aq Tester Access Handoff No URL Leak
+
+- Adds `proof:tester-access-handoff` with `GO_TESTER_ACCESS_HANDOFF_READY_NO_PUBLIC_URL_LEAK`.
+- Adds a public-safe tester handoff checklist plus ignored local evidence path for operator-only URL handling.
+- Keeps tester URL sharing, account creation and tester emails outside Git until a private activation gate.
+
 ## 2026-05-11 - T10ap Controlled Workers.dev Publication Result
 
 - Executes the exact approved Cloudflare `workers.dev` publication deploy once.

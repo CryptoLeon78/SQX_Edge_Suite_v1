@@ -113,6 +113,7 @@ T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT_DOC = PROJECT_ROOT / "docs" / "T10AM_CON
 T10AN_PROTECTED_TESTER_PUBLICATION_TARGET_DOC = PROJECT_ROOT / "docs" / "T10AN_PROTECTED_TESTER_PUBLICATION_TARGET_GATE.md"
 T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT.md"
 T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT_DOC = PROJECT_ROOT / "docs" / "T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT.md"
+T10AQ_TESTER_ACCESS_HANDOFF_DOC = PROJECT_ROOT / "docs" / "T10AQ_TESTER_ACCESS_HANDOFF_NO_URL_LEAK.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
@@ -10507,8 +10508,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: T10ap publica el target `workers.dev`",
-            "Siguiente paso recomendado: T10aq para preparar handoff controlado",
+            "Estado interno: T10aq prepara handoff controlado de acceso tester",
+            "Siguiente paso recomendado: T10ar para activar cuentas tester privadas",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -11715,7 +11716,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10ap - Controlled Workers.dev Publication Result.",
+            "Current phase completed: T10aq - Tester Access Handoff No URL Leak.",
+            "T10ap - Controlled Workers.dev Publication Result. Historical anchor only; superseded by T10aq.",
             "T10ao - Controlled Workers.dev Publication Preflight. Historical anchor only; superseded by T10ap.",
             "T10ao Controlled workers.dev publication preflight",
             "docs/T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT.md",
@@ -11724,9 +11726,10 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10ap - Controlled Workers.dev Publication Result.",
+            "Current completed phase: T10aq - Tester Access Handoff No URL Leak.",
             "Phase T10ao: prepare controlled `workers.dev` publication preflight",
             "Phase T10ap: execute controlled `workers.dev` publication",
+            "Phase T10aq: prepare tester access handoff without public URL leak",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
@@ -11855,8 +11858,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10ap - Controlled Workers.dev Publication Result.",
-            "Next implementation phase: T10aq - tester access handoff without public URL leak",
+            "Current phase completed: T10aq - Tester Access Handoff No URL Leak.",
+            "Next implementation phase: T10ar - private tester account activation gate without Git URL/email leak",
+            "T10ap - Controlled Workers.dev Publication Result. Historical anchor only; superseded by T10aq.",
             "T10ap Controlled workers.dev publication result",
             "docs/T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT.md",
             "cloudflare-workers-dev-publication.local.json",
@@ -11865,14 +11869,16 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10ap - Controlled Workers.dev Publication Result.",
+            "Current completed phase: T10aq - Tester Access Handoff No URL Leak.",
             "Phase T10ap: execute controlled `workers.dev` publication",
-            "Phase T10aq: tester access handoff without public URL leak",
+            "Phase T10aq: prepare tester access handoff without public URL leak",
+            "Phase T10ar: private tester account activation gate without Git URL/email leak",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
+            "T10aq prepara handoff controlado de acceso tester",
             "T10ap publica el target `workers.dev`",
             "proof:cloudflare-workers-dev-publication-result",
         ):
@@ -11923,6 +11929,149 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_result_text)
+
+    def test_t10aq_tester_access_handoff_is_documented_and_safe(self):
+        handoff_doc = T10AQ_TESTER_ACCESS_HANDOFF_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-access-handoff.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-access-handoff-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AQ_TESTER_ACCESS_HANDOFF_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-access-handoff.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-access-handoff"],
+            "node scripts/tester-access-handoff-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10aq")
+        for key, value in example.items():
+            if key != "phase":
+                with self.subTest(key=key):
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10aq Tester Access Handoff No URL Leak",
+            "GO_TESTER_ACCESS_HANDOFF_READY_NO_PUBLIC_URL_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-access-handoff.local.json",
+            "T10ar_private_tester_account_activation_gate",
+            "This phase does not create tester accounts",
+            "does not email testers",
+            "does not publish the URL",
+            "does not run a Cloudflare deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, handoff_doc)
+
+        for pattern in (
+            'phase: "T10aq"',
+            "GO_TESTER_ACCESS_HANDOFF_READY_NO_PUBLIC_URL_LEAK",
+            "publicationResultGo",
+            "handoffDocReady",
+            "localHandoffEvidenceIgnored",
+            "exampleEvidenceSafe",
+            "noDeployPerformed",
+            "testerUrlShared: false",
+            "testerAccountsCreated: false",
+            "testerEmailsCommitted: false",
+            "wranglerWorkersDevSafeDefault",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10ar_private_tester_account_activation_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10aq - Tester Access Handoff No URL Leak.",
+            "Next implementation phase: T10ar - private tester account activation gate without Git URL/email leak",
+            "T10aq Tester access handoff no URL leak",
+            "docs/T10AQ_TESTER_ACCESS_HANDOFF_NO_URL_LEAK.md",
+            "tester-access-handoff.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10aq - Tester Access Handoff No URL Leak.",
+            "Phase T10aq: prepare tester access handoff without public URL leak",
+            "Phase T10ar: private tester account activation gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10aq prepara handoff controlado de acceso tester",
+            "proof:tester-access-handoff",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10aq Tester Access Handoff No URL Leak",
+            "proof:tester-access-handoff",
+            "GO_TESTER_ACCESS_HANDOFF_READY_NO_PUBLIC_URL_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-access-handoff-proof.mjs",
+            "tester-access-handoff.example.json",
+            "npm run proof:tester-access-handoff",
+            "GO_TESTER_ACCESS_HANDOFF_READY_NO_PUBLIC_URL_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_handoff_text = "\n".join(
+            [
+                handoff_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_handoff_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

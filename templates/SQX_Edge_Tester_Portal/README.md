@@ -134,6 +134,8 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/cloudflare-protected-tester-publication-target-proof.mjs`: T10an proof selecting protected `workers.dev` plus Cloudflare Access as the tester publication target without publishing it.
 - `scripts/cloudflare-controlled-workers-dev-publication-preflight-proof.mjs`: T10ao proof for the controlled `workers.dev` publication preflight without enabling `workers_dev`.
 - `scripts/cloudflare-workers-dev-publication-result-proof.mjs`: T10ap proof for the approved `workers.dev` publication result using ignored redacted local evidence.
+- `scripts/tester-access-handoff-proof.mjs`: T10aq proof for operator-only tester handoff without public URL or tester email leakage.
+- `tester-access-handoff.example.json`: public-safe T10aq evidence template; copy to ignored `tester-access-handoff.local.json` only.
 - `cloudflare-access-policy-boundary.example.json`: public-safe T10ak evidence template; copy to ignored `cloudflare-access-policy-boundary.local.json` only.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
@@ -489,6 +491,12 @@ npm run proof:cloudflare-workers-dev-publication-result
 ```
 
 This proves the T10ap controlled `workers.dev` publication result from ignored local evidence. It must return `GO_CONTROLLED_WORKERS_DEV_PUBLICATION_ACCESS_PROTECTED_NO_URL_SHARED` and must not include hostnames, URLs, account IDs, Access IDs, deployment IDs, version IDs, tester emails, tokens or keys.
+
+```powershell
+npm run proof:tester-access-handoff
+```
+
+This proves the T10aq operator handoff gate. It must return `GO_TESTER_ACCESS_HANDOFF_READY_NO_PUBLIC_URL_LEAK` and still does not create testers, email testers or publish the protected URL.
 
 ```powershell
 npm run cf:build
