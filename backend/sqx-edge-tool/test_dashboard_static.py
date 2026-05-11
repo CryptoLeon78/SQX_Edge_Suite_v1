@@ -115,6 +115,7 @@ T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_DOC = PROJECT_ROOT / "docs" /
 T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT_DOC = PROJECT_ROOT / "docs" / "T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT.md"
 T10AQ_TESTER_ACCESS_HANDOFF_DOC = PROJECT_ROOT / "docs" / "T10AQ_TESTER_ACCESS_HANDOFF_NO_URL_LEAK.md"
 T10AR_PRIVATE_TESTER_ACCOUNT_ACTIVATION_DOC = PROJECT_ROOT / "docs" / "T10AR_PRIVATE_TESTER_ACCOUNT_ACTIVATION_GATE.md"
+T10AS_PRIVATE_TESTER_ACTIVATION_EVIDENCE_DOC = PROJECT_ROOT / "docs" / "T10AS_PRIVATE_TESTER_ACTIVATION_EVIDENCE_INGEST.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
@@ -10509,8 +10510,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: T10ar prepara el gate privado de activacion de cuentas tester",
-            "Siguiente paso recomendado: T10as para ingerir evidencia privada de activacion tester",
+            "Estado interno: T10as ingiere evidencia privada de activacion tester",
+            "Siguiente paso recomendado: T10at para aprobar el envio privado de URL tester",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -11717,7 +11718,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10ar - Private Tester Account Activation Gate.",
+            "Current phase completed: T10as - Private Tester Activation Evidence Ingest.",
             "T10aq - Tester Access Handoff No URL Leak. Historical anchor only; superseded by T10ar.",
             "T10ap - Controlled Workers.dev Publication Result. Historical anchor only; superseded by T10aq.",
             "T10ao - Controlled Workers.dev Publication Preflight. Historical anchor only; superseded by T10ap.",
@@ -11728,7 +11729,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10ar - Private Tester Account Activation Gate.",
+            "Current completed phase: T10as - Private Tester Activation Evidence Ingest.",
             "Phase T10ao: prepare controlled `workers.dev` publication preflight",
             "Phase T10ap: execute controlled `workers.dev` publication",
             "Phase T10aq: prepare tester access handoff without public URL leak",
@@ -11860,8 +11861,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10ar - Private Tester Account Activation Gate.",
-            "Next implementation phase: T10as - private tester activation evidence ingest without Git URL/email leak",
+            "Current phase completed: T10as - Private Tester Activation Evidence Ingest.",
+            "Next implementation phase: T10at - private tester URL share approval gate without Git URL/email leak",
             "T10aq - Tester Access Handoff No URL Leak. Historical anchor only; superseded by T10ar.",
             "T10ap - Controlled Workers.dev Publication Result. Historical anchor only; superseded by T10aq.",
             "T10ap Controlled workers.dev publication result",
@@ -11872,7 +11873,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10ar - Private Tester Account Activation Gate.",
+            "Current completed phase: T10as - Private Tester Activation Evidence Ingest.",
             "Phase T10ap: execute controlled `workers.dev` publication",
             "Phase T10aq: prepare tester access handoff without public URL leak",
             "Phase T10ar: private tester account activation gate without Git URL/email leak",
@@ -12005,8 +12006,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10ar - Private Tester Account Activation Gate.",
-            "Next implementation phase: T10as - private tester activation evidence ingest without Git URL/email leak",
+            "Current phase completed: T10as - Private Tester Activation Evidence Ingest.",
+            "Next implementation phase: T10at - private tester URL share approval gate without Git URL/email leak",
             "T10aq - Tester Access Handoff No URL Leak. Historical anchor only; superseded by T10ar.",
             "T10aq Tester access handoff no URL leak",
             "docs/T10AQ_TESTER_ACCESS_HANDOFF_NO_URL_LEAK.md",
@@ -12016,7 +12017,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10ar - Private Tester Account Activation Gate.",
+            "Current completed phase: T10as - Private Tester Activation Evidence Ingest.",
             "Phase T10aq: prepare tester access handoff without public URL leak",
             "Phase T10ar: private tester account activation gate without Git URL/email leak",
         ):
@@ -12153,8 +12154,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10ar - Private Tester Account Activation Gate.",
-            "Next implementation phase: T10as - private tester activation evidence ingest without Git URL/email leak",
+            "Current phase completed: T10as - Private Tester Activation Evidence Ingest.",
+            "Next implementation phase: T10at - private tester URL share approval gate without Git URL/email leak",
             "T10ar Private tester account activation gate",
             "docs/T10AR_PRIVATE_TESTER_ACCOUNT_ACTIVATION_GATE.md",
             "tester-account-activation.local.json",
@@ -12163,7 +12164,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10ar - Private Tester Account Activation Gate.",
+            "Current completed phase: T10as - Private Tester Activation Evidence Ingest.",
             "Phase T10ar: private tester account activation gate without Git URL/email leak",
             "Phase T10as: private tester activation evidence ingest without Git URL/email leak",
         ):
@@ -12223,6 +12224,161 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_activation_text)
+
+    def test_t10as_private_tester_activation_evidence_ingest_is_documented_and_safe(self):
+        evidence_doc = T10AS_PRIVATE_TESTER_ACTIVATION_EVIDENCE_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        example_path = TESTER_PORTAL_TEMPLATE_ROOT / "tester-activation-evidence-ingest.example.json"
+        example = json.loads(example_path.read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "tester-activation-evidence-ingest-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AS_PRIVATE_TESTER_ACTIVATION_EVIDENCE_DOC.is_file())
+        self.assertTrue(example_path.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("tester-account-activation.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:tester-activation-evidence-ingest"],
+            "node scripts/tester-activation-evidence-ingest-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertNotIn("routes", wrangler_config)
+        self.assertEqual(example["phase"], "T10as")
+        for key, value in example.items():
+            with self.subTest(key=key):
+                if key == "phase":
+                    self.assertEqual(value, "T10as")
+                elif key.endswith("Count"):
+                    self.assertEqual(value, 0)
+                else:
+                    self.assertIs(value, False)
+
+        for pattern in (
+            "T10as Private Tester Activation Evidence Ingest",
+            "NO_GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_SAFE_NO_GIT_LEAK",
+            "templates/SQX_Edge_Tester_Portal/tester-account-activation.local.json",
+            "T10at_private_tester_url_share_approval_gate",
+            "This phase does not create tester accounts",
+            "does not send invitations",
+            "does not publish the tester URL",
+            "does not rotate passwords",
+            "does not run a Cloudflare deployment",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, evidence_doc)
+
+        for pattern in (
+            'phase: "T10as"',
+            "NO_GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_SAFE_NO_GIT_LEAK",
+            "localEvidencePresent",
+            "localEvidenceErrors",
+            "localEvidenceSafe",
+            "exampleEvidenceSafe",
+            "noDeployPerformed",
+            "testerUrlShared: false",
+            "credentialsCommitted: false",
+            "testerEmailsCommitted: false",
+            "wranglerWorkersDevSafeDefault",
+            "directDeployScriptAbsent",
+            "packageScriptReady",
+            "T10at_private_tester_url_share_approval_gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10as - Private Tester Activation Evidence Ingest.",
+            "Next implementation phase: T10at - private tester URL share approval gate without Git URL/email leak",
+            "T10as Private tester activation evidence ingest",
+            "docs/T10AS_PRIVATE_TESTER_ACTIVATION_EVIDENCE_INGEST.md",
+            "tester-account-activation.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10as - Private Tester Activation Evidence Ingest.",
+            "Next recommended phase: T10at - private tester URL share approval gate without Git URL/email leak",
+            "Phase T10as: private tester activation evidence ingest without Git URL/email leak",
+            "Phase T10at: private tester URL share approval gate without Git URL/email leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10as ingiere evidencia privada de activacion tester",
+            "proof:tester-activation-evidence-ingest",
+            "NO_GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_SAFE_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10as Private Tester Activation Evidence Ingest",
+            "proof:tester-activation-evidence-ingest",
+            "NO_GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_SAFE_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/tester-activation-evidence-ingest-proof.mjs",
+            "tester-activation-evidence-ingest.example.json",
+            "npm run proof:tester-activation-evidence-ingest",
+            "NO_GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_MISSING",
+            "GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_SAFE_NO_GIT_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_evidence_text = "\n".join(
+            [
+                evidence_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+                json.dumps(example, indent=2),
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_evidence_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

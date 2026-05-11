@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-11 - T10as Private Tester Activation Evidence Ingest
+
+- Adds `proof:tester-activation-evidence-ingest` with guarded `NO_GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_MISSING` until ignored local evidence exists.
+- Adds `GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_SAFE_NO_GIT_LEAK` for safe private activation evidence without Git URL, email, credential or provider-ID leakage.
+- Keeps tester URL sharing blocked for the next private approval gate.
+
 ## 2026-05-11 - T10ar Private Tester Account Activation Gate
 
 - Adds `proof:tester-account-activation-gate` with `GO_PRIVATE_TESTER_ACCOUNT_ACTIVATION_GATE_READY_NO_GIT_LEAK`.

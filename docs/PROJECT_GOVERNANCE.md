@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: T10ar - Private Tester Account Activation Gate.
+- Current phase completed: T10as - Private Tester Activation Evidence Ingest.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: T10as - private tester activation evidence ingest without Git URL/email leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next implementation phase: T10at - private tester URL share approval gate without Git URL/email leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.
 - Earlier governance baseline: G4 - Institutional Core Repository Gate.
@@ -111,6 +111,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current phase completed: T10aq - Tester Access Handoff No URL Leak. Historical anchor only; superseded by T10ar.
 - Next implementation phase: T10ar - private tester account activation gate without Git URL/email leak. Historical anchor only; superseded by T10as.
 - Current phase completed: T10ar - Private Tester Account Activation Gate. Historical anchor only; superseded by T10as.
+- Next implementation phase: T10as - private tester activation evidence ingest without Git URL/email leak. Historical anchor only; superseded by T10at.
+- Current phase completed: T10as - Private Tester Activation Evidence Ingest. Historical anchor only; superseded by T10at.
 
 ## Specialist Agents
 
@@ -296,6 +298,7 @@ M46 is accepted when these criteria are true:
 - T10ap Controlled workers.dev publication result: `docs/T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT.md`, ignored `templates/SQX_Edge_Tester_Portal/cloudflare-workers-dev-publication.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-workers-dev-publication-result-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10aq Tester access handoff no URL leak: `docs/T10AQ_TESTER_ACCESS_HANDOFF_NO_URL_LEAK.md`, `templates/SQX_Edge_Tester_Portal/tester-access-handoff.example.json`, ignored `tester-access-handoff.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-access-handoff-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ar Private tester account activation gate: `docs/T10AR_PRIVATE_TESTER_ACCOUNT_ACTIVATION_GATE.md`, `templates/SQX_Edge_Tester_Portal/tester-account-activation.example.json`, ignored `tester-account-activation.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-account-activation-gate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
+- T10as Private tester activation evidence ingest: `docs/T10AS_PRIVATE_TESTER_ACTIVATION_EVIDENCE_INGEST.md`, `templates/SQX_Edge_Tester_Portal/tester-activation-evidence-ingest.example.json`, ignored `tester-account-activation.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-activation-evidence-ingest-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ac replacement tester route options: `docs/T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md`, `templates/SQX_Edge_Tester_Portal/scripts/replacement-tester-route-options-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ad Cloudflare Access preflight: `docs/T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-access-preflight-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ae Cloudflare runtime compatibility: `docs/T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-runtime-compatibility-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
