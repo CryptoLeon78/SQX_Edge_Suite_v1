@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-11 - T10ay Private Tester Action Plan Gate
+
+- Adds `proof:tester-action-plan-gate` with guarded `NO_GO_PRIVATE_TESTER_ACTION_PLAN_EVIDENCE_MISSING` until ignored local action-plan evidence exists.
+- Adds `GO_PRIVATE_TESTER_ACTION_PLAN_READY_NO_GIT_LEAK` for a private prioritized tester action plan with owners, acceptance criteria and release-risk review.
+- Documents the private action-plan boundary after T10ax triage, keeping URLs, emails, credentials, raw feedback, private action details, screenshots and provider IDs out of Git.
+- Updates governance, roadmap, README and static contracts for the next `T10az` execution gate.
+
 ## 2026-05-11 - T10ax Private Tester Feedback Triage Gate
 
 - Adds `proof:tester-feedback-triage-gate` with guarded `NO_GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_EVIDENCE_MISSING` until ignored local triage evidence exists.

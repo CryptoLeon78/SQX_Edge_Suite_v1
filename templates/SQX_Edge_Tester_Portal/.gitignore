@@ -28,6 +28,7 @@ tester-first-smoke.local.json
 tester-cohort-expansion.local.json
 tester-feedback-intake.local.json
 tester-feedback-triage.local.json
+tester-action-plan.local.json
 
 # Local environment
 .env
