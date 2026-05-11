@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { SESSION_COOKIE_CONTRACT, type TesterAuditEvent } from "./auth-data-contract";
+import { isRuntimeEnvEnabled, readRuntimeEnv } from "./runtime-env";
 
 export const LOGIN_ROUTE = "/login";
 export const DEFAULT_AFTER_LOGIN_ROUTE = "/portal";
@@ -13,7 +14,7 @@ export type LoginAttemptResult =
   | { ok: false; status: number; reasonCode: string; audit: TesterAuditEvent };
 
 export function isDemoLoginEnabled(): boolean {
-  return process.env[DEMO_LOGIN_FLAG] === "true";
+  return isRuntimeEnvEnabled(DEMO_LOGIN_FLAG);
 }
 
 export function isProtectedPath(pathname: string): boolean {
@@ -72,8 +73,8 @@ export function sanitizeRedirectTarget(value: FormDataEntryValue | null): string
 }
 
 export function verifyDemoCredential(email: string, accessCode: string): boolean {
-  const expectedEmail = normalizeEmail(process.env[DEMO_TESTER_EMAIL_ENV] ?? "");
-  const expectedAccessCode = process.env[DEMO_ACCESS_CODE_ENV] ?? "";
+  const expectedEmail = normalizeEmail(readRuntimeEnv(DEMO_TESTER_EMAIL_ENV));
+  const expectedAccessCode = readRuntimeEnv(DEMO_ACCESS_CODE_ENV);
   return isDemoLoginEnabled() && Boolean(expectedEmail) && Boolean(expectedAccessCode) && normalizeEmail(email) === expectedEmail && accessCode === expectedAccessCode;
 }
 

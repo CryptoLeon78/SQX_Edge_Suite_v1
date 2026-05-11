@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-12 - TL1a Tester Portal Runtime Env Hotfix
+
+- Adds a safe runtime env reader for the Cloudflare/OpenNext tester portal.
+- Removes direct runtime `process.env` reads from middleware-adjacent auth, entitlement, renewal, admin, cron and security helpers.
+- Keeps TL1 proof green and avoids leaking tester URLs, emails, credentials, provider IDs or private evidence.
+
 ## 2026-05-11 - TL1 Tester Launch Candidate
 
 - Freezes the tiny T10 tester gates as historical safety work and adds one macro tester launch candidate decision.

@@ -1,5 +1,6 @@
 import { TESTER_RENEWAL_CYCLE_DAYS, type TesterEntitlement, type TesterStatus } from "./access-contract";
 import { addRenewalDays, type ManualRenewalDecision } from "./renewal-flow";
+import { isRuntimeEnvEnabled } from "./runtime-env";
 
 export const DEMO_ADMIN_CONSOLE_FLAG = "T7_DEMO_ADMIN_CONSOLE_ENABLED";
 
@@ -23,7 +24,7 @@ export type AdminActionPreview = {
 };
 
 export function isDemoAdminConsoleEnabled(): boolean {
-  return process.env[DEMO_ADMIN_CONSOLE_FLAG] === "true";
+  return isRuntimeEnvEnabled(DEMO_ADMIN_CONSOLE_FLAG);
 }
 
 export function isAdminTesterAction(value: string): value is AdminTesterAction {

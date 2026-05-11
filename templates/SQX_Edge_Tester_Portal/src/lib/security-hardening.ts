@@ -1,4 +1,5 @@
 import { buildTesterWatermark, type TesterEntitlement } from "./access-contract";
+import { isRuntimeEnvEnabled, readRuntimeEnv } from "./runtime-env";
 
 export const HARDENING_ENV = {
   globalKillSwitch: "T8_GLOBAL_KILL_SWITCH_ENABLED",
@@ -19,20 +20,20 @@ type RateLimitBucket = {
 const RATE_LIMIT_BUCKETS = new Map<string, RateLimitBucket>();
 
 export function isGlobalKillSwitchEnabled(): boolean {
-  return process.env[HARDENING_ENV.globalKillSwitch] === "true";
+  return isRuntimeEnvEnabled(HARDENING_ENV.globalKillSwitch);
 }
 
 export function isRateLimitEnabled(): boolean {
-  return process.env[HARDENING_ENV.rateLimitEnabled] === "true";
+  return isRuntimeEnvEnabled(HARDENING_ENV.rateLimitEnabled);
 }
 
 export function readRateLimitMaxRequests(): number {
-  const value = Number.parseInt(process.env[HARDENING_ENV.rateLimitMaxRequests] ?? "30", 10);
+  const value = Number.parseInt(readRuntimeEnv(HARDENING_ENV.rateLimitMaxRequests, "30"), 10);
   return Number.isFinite(value) && value > 0 ? value : 30;
 }
 
 export function readRateLimitWindowSeconds(): number {
-  const value = Number.parseInt(process.env[HARDENING_ENV.rateLimitWindowSeconds] ?? "60", 10);
+  const value = Number.parseInt(readRuntimeEnv(HARDENING_ENV.rateLimitWindowSeconds, "60"), 10);
   return Number.isFinite(value) && value > 0 ? value : 60;
 }
 
@@ -102,4 +103,3 @@ export function buildDemoVisibleWatermark(): string {
     email: "tester@example.invalid"
   });
 }
-

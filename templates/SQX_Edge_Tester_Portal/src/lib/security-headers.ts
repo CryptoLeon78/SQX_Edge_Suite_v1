@@ -1,5 +1,7 @@
+import { readRuntimeEnv } from "./runtime-env";
+
 function buildContentSecurityPolicy(): string {
-  const isDevelopment = process.env.NODE_ENV === "development";
+  const isDevelopment = readRuntimeEnv("NODE_ENV") === "development";
   const scriptSrc = isDevelopment ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'" : "script-src 'self' 'unsafe-inline'";
   const connectSrc = isDevelopment ? "connect-src 'self' ws: http:" : "connect-src 'self'";
 
