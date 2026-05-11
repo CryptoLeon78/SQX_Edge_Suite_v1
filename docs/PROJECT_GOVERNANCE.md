@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: T10au - Private First Tester Smoke Gate.
+- Current phase completed: T10av - Private Tester Cohort Expansion Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: T10av - private tester cohort expansion gate without Git URL/email leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next implementation phase: T10aw - private tester feedback intake gate without Git URL/email leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.
 - Earlier governance baseline: G4 - Institutional Core Repository Gate.
@@ -117,6 +117,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current phase completed: T10at - Private Tester URL Share Approval Gate. Historical anchor only; superseded by T10au.
 - Next implementation phase: T10au - private first tester smoke gate without Git URL/email leak. Historical anchor only; superseded by T10av.
 - Current phase completed: T10au - Private First Tester Smoke Gate. Historical anchor only; superseded by T10av.
+- Next implementation phase: T10av - private tester cohort expansion gate without Git URL/email leak. Historical anchor only; superseded by T10aw.
+- Current phase completed: T10av - Private Tester Cohort Expansion Gate. Historical anchor only; superseded by T10aw.
 
 ## Specialist Agents
 
@@ -305,6 +307,7 @@ M46 is accepted when these criteria are true:
 - T10as Private tester activation evidence ingest: `docs/T10AS_PRIVATE_TESTER_ACTIVATION_EVIDENCE_INGEST.md`, `templates/SQX_Edge_Tester_Portal/tester-activation-evidence-ingest.example.json`, ignored `tester-account-activation.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-activation-evidence-ingest-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10at Private tester URL share approval gate: `docs/T10AT_PRIVATE_TESTER_URL_SHARE_APPROVAL_GATE.md`, `templates/SQX_Edge_Tester_Portal/tester-url-share-approval.example.json`, ignored `tester-url-share-approval.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-url-share-approval-gate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10au Private first tester smoke gate: `docs/T10AU_PRIVATE_FIRST_TESTER_SMOKE_GATE.md`, `templates/SQX_Edge_Tester_Portal/tester-first-smoke.example.json`, ignored `tester-first-smoke.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-first-smoke-gate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
+- T10av Private tester cohort expansion gate: `docs/T10AV_PRIVATE_TESTER_COHORT_EXPANSION_GATE.md`, `templates/SQX_Edge_Tester_Portal/tester-cohort-expansion.example.json`, ignored `tester-cohort-expansion.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-cohort-expansion-gate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ac replacement tester route options: `docs/T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md`, `templates/SQX_Edge_Tester_Portal/scripts/replacement-tester-route-options-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ad Cloudflare Access preflight: `docs/T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-access-preflight-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ae Cloudflare runtime compatibility: `docs/T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-runtime-compatibility-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.

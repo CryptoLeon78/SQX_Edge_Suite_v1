@@ -144,6 +144,8 @@ This template is safe to keep in the public/core repository because it contains 
 - `tester-url-share-approval.example.json`: public-safe T10at approval shape; copy to ignored `tester-url-share-approval.local.json` only.
 - `scripts/tester-first-smoke-gate-proof.mjs`: T10au proof for private one-tester smoke evidence without committing URL, email, credentials or screenshots.
 - `tester-first-smoke.example.json`: public-safe T10au smoke shape; copy to ignored `tester-first-smoke.local.json` only.
+- `scripts/tester-cohort-expansion-gate-proof.mjs`: T10av proof for private micro-cohort expansion readiness without committing URL, identities, credentials, screenshots or feedback identities.
+- `tester-cohort-expansion.example.json`: public-safe T10av expansion shape; copy to ignored `tester-cohort-expansion.local.json` only.
 - `cloudflare-access-policy-boundary.example.json`: public-safe T10ak evidence template; copy to ignored `cloudflare-access-policy-boundary.local.json` only.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
@@ -529,6 +531,12 @@ npm run proof:tester-first-smoke-gate
 ```
 
 This proves the T10au private first-tester smoke gate. Without ignored local smoke evidence it returns `NO_GO_PRIVATE_FIRST_TESTER_SMOKE_EVIDENCE_MISSING`; with safe private smoke evidence it returns `GO_PRIVATE_FIRST_TESTER_SMOKE_PASSED_NO_GIT_LEAK` without committing the protected URL, tester identity or screenshots.
+
+```powershell
+npm run proof:tester-cohort-expansion-gate
+```
+
+This proves the T10av private tester cohort expansion gate. Without ignored local expansion evidence it returns `NO_GO_PRIVATE_TESTER_COHORT_EXPANSION_EVIDENCE_MISSING`; with safe private readiness evidence it returns `GO_PRIVATE_TESTER_COHORT_EXPANSION_READY_NO_GIT_LEAK` without committing tester URLs, identities, credentials, screenshots or feedback identities.
 
 ```powershell
 npm run cf:build

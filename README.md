@@ -4,12 +4,12 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: T10au prepara el gate de primer smoke privado tester sin URL, emails, credenciales, capturas ni IDs en Git.
+- Estado interno: T10av prepara el gate de expansion privada a micro-cohorte tester sin URL, emails, credenciales, feedback sensible, capturas ni IDs en Git.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Siguiente paso recomendado: T10av para decidir expansion controlada a micro-cohorte tester sin publicar URL ni datos privados, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
+- Siguiente paso recomendado: T10aw para preparar intake privado de feedback tester con resumen publico redactado, M100 para ejecutar exactamente el movimiento comercial controlado aprobado por M99, V10 para comparativa de packs SQX Views, SB18 para pulir export de evidencia comprador o R46 solo con autorizacion explicita para publicar GitHub Release.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## SQX Edge Pro
@@ -163,6 +163,7 @@ Portal tester Pro previsto:
 - T10as ingiere evidencia privada de activacion tester con `proof:tester-activation-evidence-ingest`; el resultado esperado sin archivo local es `NO_GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_MISSING` y el GO seguro es `GO_PRIVATE_TESTER_ACTIVATION_EVIDENCE_SAFE_NO_GIT_LEAK`.
 - T10at prepara el gate privado para compartir URL tester con `proof:tester-url-share-approval-gate`; el resultado esperado sin aprobacion local es `NO_GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_MISSING` y el GO seguro es `GO_PRIVATE_TESTER_URL_SHARE_APPROVAL_READY_NO_GIT_LEAK`.
 - T10au prepara el gate de primer smoke privado tester con `proof:tester-first-smoke-gate`; el resultado esperado sin evidencia local es `NO_GO_PRIVATE_FIRST_TESTER_SMOKE_EVIDENCE_MISSING` y el GO seguro es `GO_PRIVATE_FIRST_TESTER_SMOKE_PASSED_NO_GIT_LEAK`.
+- T10av prepara el gate de expansion privada a micro-cohorte tester con `proof:tester-cohort-expansion-gate`; el resultado esperado sin evidencia local es `NO_GO_PRIVATE_TESTER_COHORT_EXPANSION_EVIDENCE_MISSING` y el GO seguro es `GO_PRIVATE_TESTER_COHORT_EXPANSION_READY_NO_GIT_LEAK`.
 - El acceso sera por usuario tester, email y password, con ciclo de renovacion de 15 dias y aprobacion/denegacion manual.
 - Vercel Deployment Protection sera capa adicional, no sustituto de auth propia por tester.
 - El nuevo ownership `Access/Security Gatekeeper` cubre auth, sesiones, expiracion, auditoria, watermarks, secretos Vercel y proteccion anti-distribucion.

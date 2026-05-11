@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-11 - T10av Private Tester Cohort Expansion Gate
+
+- Adds `proof:tester-cohort-expansion-gate` with guarded `NO_GO_PRIVATE_TESTER_COHORT_EXPANSION_EVIDENCE_MISSING` until ignored local expansion evidence exists.
+- Adds `GO_PRIVATE_TESTER_COHORT_EXPANSION_READY_NO_GIT_LEAK` for a controlled 2-10 tester micro-cohort expansion boundary.
+- Keeps tester URLs, emails, credentials, provider IDs, screenshots and feedback identities outside Git.
+
 ## 2026-05-11 - T10au Private First Tester Smoke Gate
 
 - Adds `proof:tester-first-smoke-gate` with guarded `NO_GO_PRIVATE_FIRST_TESTER_SMOKE_EVIDENCE_MISSING` until ignored local smoke evidence exists.
