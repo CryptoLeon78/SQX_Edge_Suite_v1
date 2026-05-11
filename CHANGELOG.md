@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-11 - T10ax Private Tester Feedback Triage Gate
+
+- Adds `proof:tester-feedback-triage-gate` with guarded `NO_GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_EVIDENCE_MISSING` until ignored local triage evidence exists.
+- Adds `GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_READY_NO_GIT_LEAK` for private grouping, priority assignment and action-candidate preparation.
+- Keeps tester URLs, emails, credentials, provider IDs, screenshots, raw feedback, private bug details and feedback identities outside Git.
+
 ## 2026-05-11 - T10aw Private Tester Feedback Intake Gate
 
 - Adds `proof:tester-feedback-intake-gate` with guarded `NO_GO_PRIVATE_TESTER_FEEDBACK_INTAKE_EVIDENCE_MISSING` until ignored local feedback evidence exists.

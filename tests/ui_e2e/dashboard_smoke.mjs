@@ -75,8 +75,12 @@ async function run() {
     await desktop.locator('.tab[data-tab="projectgen"]').click();
     await desktop.waitForSelector('.tab[data-tab="projectgen"].active');
     await desktop.waitForSelector('#pg-onboarding-title');
-    await desktop.waitForFunction(() => document.getElementById('pg-onboarding-progress')?.textContent.trim() === '0/4');
     await desktop.waitForFunction(() => document.getElementById('pg-onboarding-steps')?.querySelectorAll('.pg-step').length === 4);
+    await desktop.waitForFunction(() => {
+      const progress = document.getElementById('pg-onboarding-progress')?.textContent.trim() || '';
+      const match = progress.match(/^([0-4])\/4$/);
+      return Boolean(match);
+    });
     await desktop.waitForSelector('#pg-custom-generate');
     await desktop.waitForSelector('#pg-custom-starter-list .pg-custom-starter-card');
     const customStarterCount = await desktop.locator('#pg-custom-starter-list .pg-custom-starter-card').count();

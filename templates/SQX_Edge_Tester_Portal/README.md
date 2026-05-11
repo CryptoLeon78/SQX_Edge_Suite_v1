@@ -148,6 +148,8 @@ This template is safe to keep in the public/core repository because it contains 
 - `tester-cohort-expansion.example.json`: public-safe T10av expansion shape; copy to ignored `tester-cohort-expansion.local.json` only.
 - `scripts/tester-feedback-intake-gate-proof.mjs`: T10aw proof for private feedback intake readiness without committing raw feedback, tester identities, URLs, credentials or screenshots.
 - `tester-feedback-intake.example.json`: public-safe T10aw feedback intake shape; copy to ignored `tester-feedback-intake.local.json` only.
+- `scripts/tester-feedback-triage-gate-proof.mjs`: T10ax proof for private feedback triage readiness without committing raw feedback, private bug details, tester identities, URLs, credentials or screenshots.
+- `tester-feedback-triage.example.json`: public-safe T10ax triage shape; copy to ignored `tester-feedback-triage.local.json` only.
 - `cloudflare-access-policy-boundary.example.json`: public-safe T10ak evidence template; copy to ignored `cloudflare-access-policy-boundary.local.json` only.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
@@ -545,6 +547,12 @@ npm run proof:tester-feedback-intake-gate
 ```
 
 This proves the T10aw private tester feedback intake gate. Without ignored local feedback evidence it returns `NO_GO_PRIVATE_TESTER_FEEDBACK_INTAKE_EVIDENCE_MISSING`; with safe private intake evidence it returns `GO_PRIVATE_TESTER_FEEDBACK_INTAKE_READY_NO_GIT_LEAK` without committing raw feedback, tester identities, URLs, credentials or screenshots.
+
+```powershell
+npm run proof:tester-feedback-triage-gate
+```
+
+This proves the T10ax private tester feedback triage gate. Without ignored local triage evidence it returns `NO_GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_EVIDENCE_MISSING`; with safe private triage evidence it returns `GO_PRIVATE_TESTER_FEEDBACK_TRIAGE_READY_NO_GIT_LEAK` without committing raw feedback, private bug details, tester identities, URLs, credentials or screenshots.
 
 ```powershell
 npm run cf:build

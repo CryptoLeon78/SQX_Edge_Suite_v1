@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: T10aw - Private Tester Feedback Intake Gate.
+- Current phase completed: T10ax - Private Tester Feedback Triage Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: T10ax - private tester feedback triage gate without Git URL/email leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next implementation phase: T10ay - private tester action plan gate without Git URL/email leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.
 - Earlier governance baseline: G4 - Institutional Core Repository Gate.
@@ -121,6 +121,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current phase completed: T10av - Private Tester Cohort Expansion Gate. Historical anchor only; superseded by T10aw.
 - Next implementation phase: T10aw - private tester feedback intake gate without Git URL/email leak. Historical anchor only; superseded by T10ax.
 - Current phase completed: T10aw - Private Tester Feedback Intake Gate. Historical anchor only; superseded by T10ax.
+- Next implementation phase: T10ax - private tester feedback triage gate without Git URL/email leak. Historical anchor only; superseded by T10ay.
+- Current phase completed: T10ax - Private Tester Feedback Triage Gate. Historical anchor only; superseded by T10ay.
 
 ## Specialist Agents
 
@@ -311,6 +313,7 @@ M46 is accepted when these criteria are true:
 - T10au Private first tester smoke gate: `docs/T10AU_PRIVATE_FIRST_TESTER_SMOKE_GATE.md`, `templates/SQX_Edge_Tester_Portal/tester-first-smoke.example.json`, ignored `tester-first-smoke.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-first-smoke-gate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10av Private tester cohort expansion gate: `docs/T10AV_PRIVATE_TESTER_COHORT_EXPANSION_GATE.md`, `templates/SQX_Edge_Tester_Portal/tester-cohort-expansion.example.json`, ignored `tester-cohort-expansion.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-cohort-expansion-gate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10aw Private tester feedback intake gate: `docs/T10AW_PRIVATE_TESTER_FEEDBACK_INTAKE_GATE.md`, `templates/SQX_Edge_Tester_Portal/tester-feedback-intake.example.json`, ignored `tester-feedback-intake.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-feedback-intake-gate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
+- T10ax Private tester feedback triage gate: `docs/T10AX_PRIVATE_TESTER_FEEDBACK_TRIAGE_GATE.md`, `templates/SQX_Edge_Tester_Portal/tester-feedback-triage.example.json`, ignored `tester-feedback-triage.local.json`, `templates/SQX_Edge_Tester_Portal/scripts/tester-feedback-triage-gate-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ac replacement tester route options: `docs/T10AC_REPLACEMENT_TESTER_ROUTE_OPTIONS.md`, `templates/SQX_Edge_Tester_Portal/scripts/replacement-tester-route-options-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ad Cloudflare Access preflight: `docs/T10AD_CLOUDFLARE_ACCESS_PREFLIGHT.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-access-preflight-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
 - T10ae Cloudflare runtime compatibility: `docs/T10AE_CLOUDFLARE_RUNTIME_COMPATIBILITY.md`, `templates/SQX_Edge_Tester_Portal/scripts/cloudflare-runtime-compatibility-proof.mjs` and `templates/SQX_Edge_Tester_Portal/package.json`.
