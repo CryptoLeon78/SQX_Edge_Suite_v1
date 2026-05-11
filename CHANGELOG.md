@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-11 - T10ap Controlled Workers.dev Publication Result
+
+- Executes the exact approved Cloudflare `workers.dev` publication deploy once.
+- Adds `proof:cloudflare-workers-dev-publication-result` with `GO_CONTROLLED_WORKERS_DEV_PUBLICATION_ACCESS_PROTECTED_NO_URL_SHARED`.
+- Verifies anonymous Access interception for root, health and portal routes while keeping tester URL sharing and tester account creation blocked.
+
 ## 2026-05-11 - T10ao Controlled Workers.dev Publication Preflight
 
 - Adds `proof:cloudflare-controlled-workers-dev-publication-preflight` with `GO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_READY_EXACT_APPROVAL_REQUIRED`.

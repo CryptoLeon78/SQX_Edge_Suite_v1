@@ -112,6 +112,7 @@ T10AL_CONTROLLED_REAL_APP_DEPLOY_GATE_DOC = PROJECT_ROOT / "docs" / "T10AL_CONTR
 T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT_DOC = PROJECT_ROOT / "docs" / "T10AM_CONTROLLED_REAL_APP_DEPLOY_RESULT.md"
 T10AN_PROTECTED_TESTER_PUBLICATION_TARGET_DOC = PROJECT_ROOT / "docs" / "T10AN_PROTECTED_TESTER_PUBLICATION_TARGET_GATE.md"
 T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT_DOC = PROJECT_ROOT / "docs" / "T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT.md"
+T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT_DOC = PROJECT_ROOT / "docs" / "T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT.md"
 TESTER_PORTAL_TEMPLATE_ROOT = PROJECT_ROOT / "templates" / "SQX_Edge_Tester_Portal"
 TESTER_PORTAL_IGNORED_TEXT_SCAN_PARTS = {"node_modules", ".next", ".open-next", ".wrangler"}
 R45_PUBLICATION_PLAN_DOC = PROJECT_ROOT / "docs" / "R45_CONTROLLED_PUBLICATION_PLAN.md"
@@ -10506,8 +10507,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: T10ao prepara el preflight de publicacion controlada",
-            "Siguiente paso recomendado: T10ap para publicar de forma controlada",
+            "Estado interno: T10ap publica el target `workers.dev`",
+            "Siguiente paso recomendado: T10aq para preparar handoff controlado",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -11714,8 +11715,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("spawn", proof)
 
         for pattern in (
-            "Current phase completed: T10ao - Controlled Workers.dev Publication Preflight.",
-            "Next implementation phase: T10ap - controlled workers.dev publication and Access smoke only with exact approval",
+            "Current phase completed: T10ap - Controlled Workers.dev Publication Result.",
+            "T10ao - Controlled Workers.dev Publication Preflight. Historical anchor only; superseded by T10ap.",
             "T10ao Controlled workers.dev publication preflight",
             "docs/T10AO_CONTROLLED_WORKERS_DEV_PUBLICATION_PREFLIGHT.md",
         ):
@@ -11723,9 +11724,9 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "Current completed phase: T10ao - Controlled Workers.dev Publication Preflight.",
+            "Current completed phase: T10ap - Controlled Workers.dev Publication Result.",
             "Phase T10ao: prepare controlled `workers.dev` publication preflight",
-            "Phase T10ap: controlled workers.dev publication and Access smoke only with exact approval",
+            "Phase T10ap: execute controlled `workers.dev` publication",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, next_steps)
@@ -11781,6 +11782,147 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertNotIn(pattern, combined_preflight_text)
+
+    def test_t10ap_controlled_workers_dev_publication_result_is_documented_and_safe(self):
+        result_doc = T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT_DOC.read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        changelog = (PROJECT_ROOT / "CHANGELOG.md").read_text(encoding="utf-8-sig")
+        template_readme = (TESTER_PORTAL_TEMPLATE_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        template_gitignore = (TESTER_PORTAL_TEMPLATE_ROOT / ".gitignore").read_text(encoding="utf-8-sig")
+        package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
+        wrangler_config = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "wrangler.jsonc").read_text(encoding="utf-8-sig"))
+        proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "cloudflare-workers-dev-publication-result-proof.mjs"
+        proof = proof_path.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT_DOC.is_file())
+        self.assertTrue(proof_path.is_file())
+        self.assertIn("cloudflare-workers-dev-publication.local.json", template_gitignore)
+        self.assertEqual(
+            package["scripts"]["proof:cloudflare-workers-dev-publication-result"],
+            "node scripts/cloudflare-workers-dev-publication-result-proof.mjs",
+        )
+        self.assertNotIn("deploy", package["scripts"])
+        self.assertNotIn("cf:deploy", package["scripts"])
+        self.assertNotIn("delete", package["scripts"])
+        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["preview_urls"], False)
+        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertNotIn("routes", wrangler_config)
+
+        for pattern in (
+            "T10ap Controlled Workers.dev Publication Result",
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_ACCESS_PROTECTED_NO_URL_SHARED",
+            "npm exec -- wrangler deploy --config wrangler.jsonc",
+            "cloudflare-workers-dev-publication.local.json",
+            "Anonymous `/`, `/api/health` and `/portal` requests were intercepted by Cloudflare Access",
+            "No anonymous app body was visible.",
+            "No tester URL was shared.",
+            "No tester account was created.",
+            "Rollback was not required.",
+            "T10aq_tester_access_handoff_without_public_url_leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, result_doc)
+
+        for pattern in (
+            'phase: "T10ap"',
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_ACCESS_PROTECTED_NO_URL_SHARED",
+            "localEvidencePresent",
+            "localEvidenceIgnored",
+            "localEvidenceHasNoSensitiveFields",
+            "deployCommandCountIsOne",
+            "wranglerDeploySucceeded",
+            "workersDevRemoteTargetEnabled",
+            "anonymousRootAccessIntercepted",
+            "anonymousHealthAccessIntercepted",
+            "anonymousPortalAccessIntercepted",
+            "directAppBodyVisibleToAnonymous",
+            "repoWorkersDevRestoredFalseAfterDeployWithoutSecondDeploy",
+            "wranglerWorkersDevSafeDefault",
+            "testerUrlShared",
+            "testerAccountsCreated",
+            "testerEmailsCommitted",
+            "rollbackRequired",
+            "rollbackPerformed",
+            "T10aq_tester_access_handoff_without_public_url_leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, proof)
+        self.assertNotIn("fetch(", proof)
+        self.assertNotIn("execSync", proof)
+        self.assertNotIn("spawn", proof)
+
+        for pattern in (
+            "Current phase completed: T10ap - Controlled Workers.dev Publication Result.",
+            "Next implementation phase: T10aq - tester access handoff without public URL leak",
+            "T10ap Controlled workers.dev publication result",
+            "docs/T10AP_CONTROLLED_WORKERS_DEV_PUBLICATION_RESULT.md",
+            "cloudflare-workers-dev-publication.local.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Current completed phase: T10ap - Controlled Workers.dev Publication Result.",
+            "Phase T10ap: execute controlled `workers.dev` publication",
+            "Phase T10aq: tester access handoff without public URL leak",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, next_steps)
+
+        for pattern in (
+            "T10ap publica el target `workers.dev`",
+            "proof:cloudflare-workers-dev-publication-result",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "T10ap Controlled Workers.dev Publication Result",
+            "proof:cloudflare-workers-dev-publication-result",
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_ACCESS_PROTECTED_NO_URL_SHARED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, changelog)
+
+        for pattern in (
+            "scripts/cloudflare-workers-dev-publication-result-proof.mjs",
+            "npm run proof:cloudflare-workers-dev-publication-result",
+            "GO_CONTROLLED_WORKERS_DEV_PUBLICATION_ACCESS_PROTECTED_NO_URL_SHARED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_readme)
+
+        combined_result_text = "\n".join(
+            [
+                result_doc,
+                governance,
+                next_steps,
+                readme,
+                changelog,
+                template_readme,
+                proof,
+            ]
+        )
+        for pattern in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            SENSITIVE_LITERAL_FORBIDDEN,
+            "09d8c7bf",
+            "https://sqx" + "-edge",
+            ".vercel" + ".app",
+            "sk" + "_live_",
+            "pk" + "_live_",
+            "-----BEGIN PRIVATE KEY-----",
+            "BEGIN RSA PRIVATE KEY",
+            "CLOUDFLARE" + "_API_TOKEN=",
+            "CLOUDFLARE" + "_ACCOUNT_ID=",
+            "CLOUDFLARE" + "_ZONE_ID=",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, combined_result_text)
 
     def test_phase46_operational_visual_polish_is_present(self):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")

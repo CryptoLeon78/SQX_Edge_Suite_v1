@@ -20,6 +20,7 @@ cloudflare-route-access-precreate.local.json
 cloudflare-hostname-zone-selection.local.json
 cloudflare-access-policy-boundary.local.json
 cloudflare-real-app-deploy.local.json
+cloudflare-workers-dev-publication.local.json
 
 # Local environment
 .env

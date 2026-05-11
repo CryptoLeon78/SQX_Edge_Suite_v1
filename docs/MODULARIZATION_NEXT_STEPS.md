@@ -5,13 +5,13 @@ Persistent planning note for the next SQX Edge phases.
 ## Current Status
 
 - Last updated: 2026-05-11.
-- Current completed phase: T10ao - Controlled Workers.dev Publication Preflight.
+- Current completed phase: T10ap - Controlled Workers.dev Publication Result.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Last synced base commit before S2/M-pre: `cc8dbf0`.
 - Latest verified portable ZIP: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
 - Latest ZIP SHA256: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
-- Next recommended phase: T10ap - controlled workers.dev publication and Access smoke only with exact approval, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
+- Next recommended phase: T10aq - tester access handoff without public URL leak, M100 - execute exactly the M99-approved controlled commercial movement, R46 - publish the verified GitHub Release only with explicit approval, V10 - SQX Views pack comparison, or SB18 - Strategy Builder buyer evidence export polish.
 
 ## Historical State Anchors
 
@@ -104,6 +104,8 @@ Persistent planning note for the next SQX Edge phases.
 - Current completed phase: T10an - Protected Tester Publication Target Gate. Historical anchor only; superseded by T10ao.
 - Next recommended phase: T10ao - controlled workers.dev publication and Access smoke only with exact approval. Historical anchor only; superseded by T10ap.
 - Current completed phase: T10ao - Controlled Workers.dev Publication Preflight. Historical anchor only; superseded by T10ap.
+- Next recommended phase: T10ap - controlled workers.dev publication and Access smoke only with exact approval. Historical anchor only; superseded by T10aq.
+- Current completed phase: T10ap - Controlled Workers.dev Publication Result. Historical anchor only; superseded by T10aq.
 
 ## Recommended Order
 
@@ -408,7 +410,8 @@ Persistent planning note for the next SQX Edge phases.
 8. Phase T10am: execute the approved real app deploy, record that the real version was uploaded without a public target, verify Access proofs remain green and keep tester URL sharing blocked. Done.
 9. Phase T10an: choose and verify the protected tester publication target before any URL or tester account. Done as `workers.dev` plus Cloudflare Access exact-approval gate.
 10. Phase T10ao: prepare controlled `workers.dev` publication preflight with exact approval phrase, Access smoke and rollback rules. Done.
-11. Phase T10ap: controlled workers.dev publication and Access smoke only with exact approval. Next.
+11. Phase T10ap: execute controlled `workers.dev` publication and Access smoke only with exact approval. Done as Access-protected publication with no URL sharing.
+12. Phase T10aq: tester access handoff without public URL leak. Next.
 
 ## SQX View Creator Track
 
