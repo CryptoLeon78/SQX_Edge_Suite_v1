@@ -76,6 +76,7 @@
     "proof:tester-action-plan-gate": "node scripts/tester-action-plan-gate-proof.mjs",
     "proof:tester-action-execution-gate": "node scripts/tester-action-execution-gate-proof.mjs",
     "proof:tester-result-validation-gate": "node scripts/tester-result-validation-gate-proof.mjs",
+    "proof:tester-iteration-decision-gate": "node scripts/tester-iteration-decision-gate-proof.mjs",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",

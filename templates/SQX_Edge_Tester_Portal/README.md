@@ -156,6 +156,8 @@ This template is safe to keep in the public/core repository because it contains 
 - `tester-action-execution.example.json`: public-safe T10az execution shape; copy to ignored `tester-action-execution.local.json` only.
 - `scripts/tester-result-validation-gate-proof.mjs`: T10ba proof for private tester result-validation readiness without committing raw feedback, private action details, private execution notes, private result notes, tester identities, URLs, credentials or screenshots.
 - `tester-result-validation.example.json`: public-safe T10ba result-validation shape; copy to ignored `tester-result-validation.local.json` only.
+- `scripts/tester-iteration-decision-gate-proof.mjs`: T10bb proof for private tester iteration-decision readiness without committing raw feedback, private action details, private execution notes, private result notes, private decision notes, tester identities, URLs, credentials or screenshots.
+- `tester-iteration-decision.example.json`: public-safe T10bb iteration-decision shape; copy to ignored `tester-iteration-decision.local.json` only.
 - `cloudflare-access-policy-boundary.example.json`: public-safe T10ak evidence template; copy to ignored `cloudflare-access-policy-boundary.local.json` only.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
@@ -577,6 +579,12 @@ npm run proof:tester-result-validation-gate
 ```
 
 This proves the T10ba private tester result-validation gate. Without ignored local result evidence it returns `NO_GO_PRIVATE_TESTER_RESULT_VALIDATION_EVIDENCE_MISSING`; with safe private result evidence it returns `GO_PRIVATE_TESTER_RESULT_VALIDATION_READY_NO_GIT_LEAK` without committing raw feedback, private action details, private execution notes, private result notes, tester identities, URLs, credentials or screenshots.
+
+```powershell
+npm run proof:tester-iteration-decision-gate
+```
+
+This proves the T10bb private tester iteration-decision gate. Without ignored local decision evidence it returns `NO_GO_PRIVATE_TESTER_ITERATION_DECISION_EVIDENCE_MISSING`; with safe private decision evidence it returns `GO_PRIVATE_TESTER_ITERATION_DECISION_READY_NO_GIT_LEAK` without committing raw feedback, private action details, private execution notes, private result notes, private decision notes, tester identities, URLs, credentials or screenshots.
 
 ```powershell
 npm run cf:build

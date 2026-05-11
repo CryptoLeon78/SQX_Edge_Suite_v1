@@ -31,6 +31,7 @@ tester-feedback-triage.local.json
 tester-action-plan.local.json
 tester-action-execution.local.json
 tester-result-validation.local.json
+tester-iteration-decision.local.json
 
 # Local environment
 .env

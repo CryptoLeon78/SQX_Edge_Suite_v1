@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-11 - T10bb Private Tester Iteration Decision Gate
+
+- Adds `proof:tester-iteration-decision-gate` with guarded `NO_GO_PRIVATE_TESTER_ITERATION_DECISION_EVIDENCE_MISSING` until ignored local iteration-decision evidence exists.
+- Adds `GO_PRIVATE_TESTER_ITERATION_DECISION_READY_NO_GIT_LEAK` for a private next-move decision: repeat validation, execute fixes, expand micro-cohort, pause tester access, prepare next tester cycle or escalate commercial readiness.
+- Documents the private iteration-decision boundary after T10ba result validation, keeping URLs, emails, credentials, raw feedback, private action details, private execution notes, private result notes, private decision notes, screenshots and provider IDs out of Git.
+- Updates governance, roadmap, README and static contracts for the next `T10bc` next-iteration gate.
+
 ## 2026-05-11 - T10ba Private Tester Result Validation Gate
 
 - Adds `proof:tester-result-validation-gate` with guarded `NO_GO_PRIVATE_TESTER_RESULT_VALIDATION_EVIDENCE_MISSING` until ignored local result-validation evidence exists.
