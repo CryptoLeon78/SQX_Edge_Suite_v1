@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-12 - TL1d Worker Entry Rescue Shell
+
+- Adds a Cloudflare Worker entry wrapper that serves the tester login, portal, logout, health and feature-check flow before the unstable Next/OpenNext runtime path.
+- Keeps Cloudflare Access as the external gate and preserves the OpenNext worker fallback for non-rescue routes.
+- Keeps tester URL, tester emails, provider IDs, secrets and private evidence outside Git.
+
 ## 2026-05-12 - TL1c Cloudflare Middleware Stability Hotfix
 
 - Removes the global Next middleware from the Cloudflare/OpenNext tester portal path after authenticated Access traffic returned a runtime 500.

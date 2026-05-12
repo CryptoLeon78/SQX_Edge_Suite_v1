@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "sqx-edge-tester-portal-preview",
-  "main": ".open-next/worker.js",
+  "main": "cloudflare/worker-entry.js",
   "workers_dev": true,
   "preview_urls": false,
   "compatibility_date": "2026-05-10",

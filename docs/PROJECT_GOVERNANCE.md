@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: TL1c - Cloudflare Middleware Stability Hotfix.
+- Current phase completed: TL1d - Worker Entry Rescue Shell.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: deploy the TL1c middleware stability hotfix only with exact operator approval, then repeat protected Access smoke privately; if GO, continue selected tester access outside Git.
+- Next implementation phase: deploy the TL1d Worker entry rescue shell only with exact operator approval, then repeat protected Access and SQX login smoke privately; if GO, continue selected tester access outside Git.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.
