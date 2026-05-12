@@ -13,9 +13,11 @@
     if (!panelId) return false;
 
     all(opts.tabSelector || '.subtab', doc).forEach(function(node) { node.classList.remove('active'); });
-    all(opts.panelTriggerSelector || '[data-wf-panel-target]', doc).forEach(function(node) {
+    all(opts.stepTriggerSelector || '[data-wf-detail-target]', doc).forEach(function(node) {
       node.classList.remove('is-active');
       if (node.setAttribute) node.setAttribute('aria-expanded', 'false');
+      var detail = doc.getElementById(node.dataset.wfDetailTarget);
+      if (detail) detail.hidden = true;
     });
 
     if (trigger && trigger.dataset && trigger.dataset.subtab) {
@@ -30,12 +32,28 @@
     var target = doc.getElementById(panelId);
     if (target) target.classList.add('active');
 
-    if (trigger && trigger.dataset && trigger.dataset.wfPanelTarget) {
+    return Boolean(target);
+  }
+
+  function toggleWorkflowStepDetail(trigger, options) {
+    var opts = options || {};
+    var doc = opts.document || global.document;
+    if (!trigger || !trigger.dataset || !trigger.dataset.wfDetailTarget) return false;
+    var target = doc.getElementById(trigger.dataset.wfDetailTarget);
+    if (!target) return false;
+    var isOpen = !target.hidden;
+    all(opts.stepTriggerSelector || '[data-wf-detail-target]', doc).forEach(function(node) {
+      var detail = doc.getElementById(node.dataset.wfDetailTarget);
+      if (detail) detail.hidden = true;
+      node.classList.remove('is-active');
+      if (node.setAttribute) node.setAttribute('aria-expanded', 'false');
+    });
+    if (!isOpen) {
+      target.hidden = false;
       trigger.classList.add('is-active');
       if (trigger.setAttribute) trigger.setAttribute('aria-expanded', 'true');
     }
-
-    return Boolean(target);
+    return true;
   }
 
   function bindSubtabs(options) {
@@ -50,13 +68,13 @@
     return tabs.length;
   }
 
-  function bindPanelTriggers(options) {
+  function bindStepDetails(options) {
     var opts = options || {};
     var doc = opts.document || global.document;
-    var triggers = all(opts.panelTriggerSelector || '[data-wf-panel-target]', doc);
+    var triggers = all(opts.stepTriggerSelector || '[data-wf-detail-target]', doc);
     triggers.forEach(function(trigger) {
       function activate() {
-        activateWorkflowPanel(trigger.dataset.wfPanelTarget, trigger, opts);
+        toggleWorkflowStepDetail(trigger, opts);
       }
       trigger.addEventListener('click', activate);
       trigger.addEventListener('keydown', function(event) {
@@ -234,7 +252,7 @@
     return {
       planSummary: renderPlanSummary(opts),
       subtabCount: bindSubtabs(opts),
-      panelTriggerCount: bindPanelTriggers(opts),
+      stepDetailCount: bindStepDetails(opts),
       checklist: checklist,
       commandCenter: bindCommandCenter(opts)
     };
@@ -244,13 +262,14 @@
     activateWorkflowPanel: activateWorkflowPanel,
     bindChecklist: bindChecklist,
     bindCommandCenter: bindCommandCenter,
-    bindPanelTriggers: bindPanelTriggers,
+    bindStepDetails: bindStepDetails,
     bindSubtabs: bindSubtabs,
     computePlanSummary: computePlanSummary,
     init: init,
     renderCommandCenter: renderCommandCenter,
     renderPlanSummary: renderPlanSummary,
-    resolveChecklistKey: resolveChecklistKey
+    resolveChecklistKey: resolveChecklistKey,
+    toggleWorkflowStepDetail: toggleWorkflowStepDetail
   };
 
   if (SQX.registerModule) {

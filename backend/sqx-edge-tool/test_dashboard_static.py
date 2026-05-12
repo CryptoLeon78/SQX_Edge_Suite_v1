@@ -2103,11 +2103,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             "activateWorkflowPanel",
             "bindChecklist",
             "bindCommandCenter",
-            "bindPanelTriggers",
+            "bindStepDetails",
             "bindSubtabs",
             "init",
             "renderCommandCenter",
             "resolveChecklistKey",
+            "toggleWorkflowStepDetail",
         ]
         for export in expected_exports:
             with self.subTest(export=export):
@@ -2131,8 +2132,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn('id="wf-setup" class="subtab-content"', self.html)
         self.assertIn('id="wf-setup-global-details"', self.html)
         self.assertIn('id="wf-pipeline-flow-details"', self.html)
-        self.assertIn('data-wf-panel-target="wf-capa1"', self.html)
-        self.assertIn('aria-controls="wf-capa1"', self.html)
+        self.assertIn('data-wf-detail-target="wf-capa1-tree-detail"', self.html)
+        self.assertIn('id="wf-capa1-tree-detail"', self.html)
+        self.assertIn('workflow-tree-children', self.html)
         self.assertIn('class="views-handoff-copy"', self.html)
         self.assertNotIn('<div class="stat-num">14</div><div class="stat-label">Minings Plan</div>', self.html)
         self.assertIn(".workflow-command-center", (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig"))

@@ -42,6 +42,7 @@ class Element {
     this.type = '';
     this.scrollTop = 0;
     this.attributes = {};
+    this.hidden = false;
   }
   append(...nodes) {
     nodes.forEach(node => {
@@ -132,8 +133,8 @@ class FakeDocument {
     if (selector === 'button[data-checklist-clear]') {
       return Array.from(this.elements.values()).filter(el => el.tagName === 'button' && el.dataset.checklistClear);
     }
-    if (selector === '[data-wf-panel-target]') {
-      return Array.from(this.elements.values()).filter(el => el.dataset.wfPanelTarget);
+    if (selector === '[data-wf-detail-target]') {
+      return Array.from(this.elements.values()).filter(el => el.dataset.wfDetailTarget);
     }
     const checkPrefix = selector.match(/^input\[type="checkbox"\]\[data-check\^="([^"]+)"\]$/);
     if (checkPrefix) {

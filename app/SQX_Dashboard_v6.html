@@ -1769,13 +1769,54 @@
     </summary>
     <div class="workflow-accordion-body">
       <div class="pipeline">
-      <div class="pipeline-step l1 workflow-panel-trigger" role="button" tabindex="0" data-wf-panel-target="wf-capa1" aria-controls="wf-capa1" aria-expanded="false">
+      <div class="pipeline-step l1 workflow-step-trigger" role="button" tabindex="0" data-wf-detail-target="wf-capa1-tree-detail" aria-controls="wf-capa1-tree-detail" aria-expanded="false">
         <div class="step-num">1</div>
         <div class="step-content">
           <div class="step-title">Mining Capa 1 IS 2017-2023</div>
           <div class="step-desc">Generar estrategias con 1-2 indicadores, ExitAfterBars=20 fijo, sin SL/TP/Trailing. Buscar edge puro.</div>
         </div>
-        <span class="step-action">Abrir Capa 1</span>
+        <span class="step-action">Desplegar</span>
+      </div>
+      <div class="workflow-step-detail" id="wf-capa1-tree-detail" hidden>
+        <div class="workflow-tree">
+          <div class="workflow-tree-branch">
+            <div class="pipeline-step l1 compact">
+              <div class="step-num">1.0</div>
+              <div class="step-content">
+                <div class="step-title">Setup base Builder</div>
+                <div class="step-desc">Long-only para oro/indices, L+S para Forex. ExitAfterBars=20 fijo, SL/TP/Trailing apagados, R Expectancy como fitness.</div>
+              </div>
+            </div>
+            <div class="workflow-tree-children">
+              <div class="pipeline-step val compact"><div class="step-num">1.1</div><div class="step-content"><div class="step-title">RETEST 0 - Periodo completo</div><div class="step-desc">2017-2026, retest pasivo, PF > 1.0, trades > 100, Ret/DD > 1.0.</div></div></div>
+              <div class="pipeline-step val compact"><div class="step-num">1.2</div><div class="step-content"><div class="step-title">RETEST 1 - OOS hacia atras</div><div class="step-desc">2010-2017 sin reoptimizar. Confirma que el edge sobrevivio fuera del IS.</div></div></div>
+              <div class="pipeline-step l2 compact"><div class="step-num">1.3</div><div class="step-content"><div class="step-title">Robustez progresiva</div><div class="step-desc">HBP, MC, MC2, Sequential, Monkey, Synthetic, SPP y WFM solo cuando el embudo conserva sentido.</div></div></div>
+              <div class="pipeline-step dep compact"><div class="step-num">1.4</div><div class="step-content"><div class="step-title">Forward 2024-2026</div><div class="step-desc">Datos intocados al final. Si falla aqui, no debe pasar a Capa 2.</div></div></div>
+            </div>
+          </div>
+
+          <div class="workflow-tree-branch">
+            <div class="pipeline-step l1 compact">
+              <div class="step-num">A</div>
+              <div class="step-content">
+                <div class="step-title">Orden operativo Capa 1</div>
+                <div class="step-desc">Mining IS -> Retest completo -> OOS -> HBP -> MC -> MC2 -> Sequential -> Monkey -> Synthetic -> SPP -> WFM -> Forward.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="workflow-tree-branch">
+            <div class="pipeline-step val compact">
+              <div class="step-num">B</div>
+              <div class="step-content">
+                <div class="step-title">Checklist minimo antes de lanzar</div>
+                <div class="step-desc">Marca solo lo realmente ejecutado. El estado se conserva en localStorage y se comparte con el detalle tecnico de Capa 1.</div>
+                <label class="workflow-tree-check"><input type="checkbox" data-check="capa1-pre-mm"> Money Management configurado ($200, max lots)</label>
+              </div>
+              <button class="filter-btn" type="button" data-checklist-clear="capa1">Resetear Capa 1</button>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="pipeline-arrow">↓</div>
 
