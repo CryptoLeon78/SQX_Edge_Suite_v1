@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const workerPath = resolve(root, "cloudflare", "worker-entry.js");
+const wranglerPath = resolve(root, "wrangler.jsonc");
 const manifestPath = resolve(root, ".local", "real-tool-delivery.local.json");
 const CLOUDFLARE_ASSET_FILE_LIMIT_BYTES = 25 * 1024 * 1024;
 
@@ -28,6 +29,12 @@ async function loadWorkerWithStubbedOpenNext() {
 
 const manifest = existsSync(manifestPath) ? readJson(manifestPath) : null;
 assert(manifest, "real tool delivery manifest is missing; run npm run operator:prepare-real-tool-delivery first");
+
+const wranglerConfig = readJson(wranglerPath);
+assert(
+  wranglerConfig.assets?.run_worker_first === true,
+  "wrangler assets must run the Worker first so the internal ZIP asset cannot bypass the protected download handler",
+);
 
 const assetPath = resolve(root, manifest.assetRelativePath);
 assert(existsSync(assetPath), "portable ZIP asset is missing from the ignored OpenNext assets directory", {
@@ -93,6 +100,7 @@ const result = {
   missingStatus: missing.status,
   manifestBytes: manifest.sourceZipBytes,
   cloudflareAssetLimitBytes: CLOUDFLARE_ASSET_FILE_LIMIT_BYTES,
+  runWorkerFirst: wranglerConfig.assets.run_worker_first,
 };
 
 assert([302, 303].includes(result.unauthToolStatus), "unauthenticated /tool did not redirect", result);

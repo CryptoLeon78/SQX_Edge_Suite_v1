@@ -251,7 +251,7 @@ npm run operator:prepare-real-tool-delivery
 npm run proof:real-tool-delivery
 ```
 
-This copies the latest `dist\SQX_Edge_Tool_Portable_*.zip` into ignored `.open-next/assets/downloads/SQX_Edge_Tool_Portable_Tester.zip` and writes ignored `.local/real-tool-delivery.local.json` with size/hash evidence. The proof also guards the Cloudflare Workers Assets 25 MiB individual file limit. A Cloudflare deploy is still exact-approval-only.
+This copies the latest `dist\SQX_Edge_Tool_Portable_*.zip` into ignored `.open-next/assets/downloads/SQX_Edge_Tool_Portable_Tester.zip` and writes ignored `.local/real-tool-delivery.local.json` with size/hash evidence. The proof also guards the Cloudflare Workers Assets 25 MiB individual file limit and requires `assets.run_worker_first=true` so the internal ZIP asset cannot bypass the protected Worker download handler. A Cloudflare deploy is still exact-approval-only.
 
 ```powershell
 npm run audit:vercel-protection
