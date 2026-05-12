@@ -57,7 +57,9 @@ assert(
 
 const worker = await loadWorkerWithStubbedOpenNext();
 const cookie = "__Host-sqx_tester_session=proof-session";
+const accessEmail = "tester@example.test";
 const env = {
+  T4_DEMO_LOGIN_ENABLED: "true",
   T5_DEMO_TESTER_PRO_ENABLED: "true",
   ASSETS: {
     async fetch(request) {
@@ -74,6 +76,37 @@ const env = {
 };
 
 const unauthTool = await worker.default.fetch(new Request("https://example.test/tool"), env, {});
+const accessLoginPage = await worker.default.fetch(
+  new Request("https://example.test/login?next=/tool", {
+    headers: { "Cf-Access-Authenticated-User-Email": accessEmail },
+  }),
+  env,
+  {},
+);
+const accessLogin = await worker.default.fetch(
+  new Request("https://example.test/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Cf-Access-Authenticated-User-Email": accessEmail,
+      "content-type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({ email: accessEmail, next: "/tool" }),
+  }),
+  env,
+  {},
+);
+const accessMismatch = await worker.default.fetch(
+  new Request("https://example.test/api/auth/login", {
+    method: "POST",
+    headers: {
+      "Cf-Access-Authenticated-User-Email": accessEmail,
+      "content-type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({ email: "other@example.test", next: "/tool" }),
+  }),
+  env,
+  {},
+);
 const tool = await worker.default.fetch(new Request("https://example.test/tool", { headers: { cookie } }), env, {});
 const download = await worker.default.fetch(
   new Request("https://example.test/download/sqx-edge-tool.zip", { headers: { cookie } }),
@@ -86,11 +119,20 @@ const missing = await worker.default.fetch(
   {},
 );
 
+const accessLoginPageBody = await accessLoginPage.text();
 const toolBody = await tool.text();
 const downloadBody = await download.text();
 const result = {
   unauthToolStatus: unauthTool.status,
   unauthToolLocation: unauthTool.headers.get("location"),
+  accessLoginPageStatus: accessLoginPage.status,
+  accessLoginPageHasEmail: accessLoginPageBody.includes(accessEmail),
+  accessLoginPageHidesCode: !accessLoginPageBody.includes("Access code"),
+  accessLoginStatus: accessLogin.status,
+  accessLoginLocation: accessLogin.headers.get("location"),
+  accessLoginSetCookie: accessLogin.headers.get("set-cookie")?.includes("__Host-sqx_tester_session") || false,
+  accessMismatchStatus: accessMismatch.status,
+  accessMismatchLocation: accessMismatch.headers.get("location"),
   toolStatus: tool.status,
   toolHasDownload: toolBody.includes("Download portable ZIP"),
   downloadStatus: download.status,
@@ -105,6 +147,12 @@ const result = {
 
 assert([302, 303].includes(result.unauthToolStatus), "unauthenticated /tool did not redirect", result);
 assert(result.unauthToolLocation === "/login?next=%2Ftool", "unauthenticated /tool redirect target is wrong", result);
+assert(result.accessLoginPageStatus === 200, "Cloudflare Access-backed login page is not available", result);
+assert(result.accessLoginPageHasEmail && result.accessLoginPageHidesCode, "Cloudflare Access-backed login page still asks for a separate code", result);
+assert([302, 303].includes(result.accessLoginStatus), "Cloudflare Access-backed login did not redirect", result);
+assert(result.accessLoginLocation === "/tool", "Cloudflare Access-backed login redirect target is wrong", result);
+assert(result.accessLoginSetCookie, "Cloudflare Access-backed login did not create an SQX session", result);
+assert(result.accessMismatchLocation === "/login?status=access_email_mismatch", "Cloudflare Access-backed login did not reject email mismatch", result);
 assert(result.toolStatus === 200 && result.toolHasDownload, "authenticated /tool page is not ready", result);
 assert(result.downloadStatus === 200, "authenticated protected download route is not serving the asset", result);
 assert(result.downloadType === "application/zip", "protected download content type is wrong", result);

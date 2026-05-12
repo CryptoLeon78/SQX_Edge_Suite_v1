@@ -127,6 +127,14 @@ function hasSession(request) {
   return Boolean(readCookie(request, SESSION_COOKIE));
 }
 
+function normalizeEmail(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function cloudflareAccessEmail(request) {
+  return normalizeEmail(request.headers.get("Cf-Access-Authenticated-User-Email"));
+}
+
 function readEnv(env, name, fallback = "") {
   return typeof env?.[name] === "string" ? env[name] : fallback;
 }
@@ -144,6 +152,7 @@ function statusMessage(status) {
   const messages = {
     demo_login_disabled: "Demo login is not enabled for this Worker yet.",
     invalid_demo_credential: "The email or access code does not match the active tester gate.",
+    access_email_mismatch: "Use the same email that passed Cloudflare Access.",
     feedback_ready: "Feedback packet prepared. Send the private notes through the agreed operator channel."
   };
   return messages[status] || status;
@@ -223,12 +232,20 @@ function requireSessionPage(request, renderer, next = "/portal") {
   return hasSession(request) ? htmlResponse(renderer()) : redirect(`/login?next=${encodeURIComponent(next)}`);
 }
 
-function loginPage(url) {
+function loginPage(url, request) {
   const next = url.searchParams.get("next")?.startsWith("/") ? url.searchParams.get("next") : "/portal";
   const status = url.searchParams.get("status");
+  const accessEmail = cloudflareAccessEmail(request);
   const message = status
     ? `<div class="metric"><strong>Access status</strong><p>${escapeHtml(statusMessage(status))}</p></div>`
     : "";
+  const formFields = accessEmail
+    ? `<input type="hidden" name="email" value="${escapeHtml(accessEmail)}" />
+          <div class="metric"><strong>Cloudflare Access verified</strong><p>${escapeHtml(accessEmail)}</p></div>
+          <button type="submit">Continue to portal</button>`
+    : `<label>Email<input name="email" type="email" autocomplete="email" required /></label>
+          <label>Access code<input name="accessCode" type="password" autocomplete="one-time-code" required /></label>
+          <button type="submit">Continue</button>`;
   return buildShell(
     "SQX Edge Tester Portal",
     `<main class="shell">
@@ -239,9 +256,7 @@ function loginPage(url) {
         ${message}
         <form class="auth-form" action="/api/auth/login" method="post">
           <input type="hidden" name="next" value="${escapeHtml(next)}" />
-          <label>Email<input name="email" type="email" autocomplete="email" required /></label>
-          <label>Access code<input name="accessCode" type="password" autocomplete="one-time-code" required /></label>
-          <button type="submit">Continue</button>
+          ${formFields}
         </form>
       </section>
     </main>`
@@ -494,18 +509,23 @@ async function downloadTool(request, env) {
 
 async function login(request, env) {
   const form = await request.formData();
-  const email = String(form.get("email") || "").trim().toLowerCase();
+  const email = normalizeEmail(form.get("email"));
   const accessCode = String(form.get("accessCode") || "");
   const next = String(form.get("next") || "/portal");
-  const expectedEmail = readEnv(env, "T4_DEMO_TESTER_EMAIL").trim().toLowerCase();
+  const expectedEmail = normalizeEmail(readEnv(env, "T4_DEMO_TESTER_EMAIL"));
   const expectedCode = readEnv(env, "T4_DEMO_ACCESS_CODE");
   const enabled = readEnv(env, "T4_DEMO_LOGIN_ENABLED") === "true";
+  const accessEmail = cloudflareAccessEmail(request);
 
   if (!enabled) {
     return redirect("/login?status=demo_login_disabled");
   }
 
-  if (!expectedEmail || !expectedCode || email !== expectedEmail || accessCode !== expectedCode) {
+  if (accessEmail && email !== accessEmail) {
+    return redirect("/login?status=access_email_mismatch");
+  }
+
+  if (!accessEmail && (!expectedEmail || !expectedCode || email !== expectedEmail || accessCode !== expectedCode)) {
     return redirect("/login?status=invalid_demo_credential");
   }
 
@@ -530,7 +550,7 @@ export default {
     const url = new URL(request.url);
 
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "/login")) {
-      return htmlResponse(loginPage(url));
+      return htmlResponse(loginPage(url, request));
     }
 
     if (request.method === "POST" && url.pathname === "/api/auth/login") {
