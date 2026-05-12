@@ -162,6 +162,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `tester-next-iteration.example.json`: public-safe T10bc next-iteration shape; copy to ignored `tester-next-iteration.local.json` only.
 - `scripts/tester-launch-candidate-proof.mjs`: TL1 macro proof for private tester launch readiness without committing tester URLs, emails, credentials, screenshots, raw feedback or private notes.
 - `tester-launch-candidate.example.json`: public-safe TL1 launch-candidate shape; copy to ignored `tester-launch-candidate.local.json` only.
+- `scripts/feedback-packet-capture.mjs`: TL4 local-only helper that captures a copied `SQX-FB-...` packet into ignored `.local/feedback-packets/` JSON for operator triage.
 - `cloudflare-access-policy-boundary.example.json`: public-safe T10ak evidence template; copy to ignored `cloudflare-access-policy-boundary.local.json` only.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
@@ -174,6 +175,18 @@ npm run preflight:vercel-preview
 ```
 
 This validates the public-safe template before any Vercel preview retry. The next deploy must first verify Deployment Protection from Vercel settings/API and must not attach production aliases.
+
+## TL4 Operator Feedback Packet Capture
+
+When a tester submits feedback and receives an `SQX-FB-...` packet, keep the raw packet out of Git. Paste it into an ignored local text file and capture it into local JSON:
+
+```powershell
+New-Item -ItemType Directory -Force .local | Out-Null
+Set-Content .local\packet.txt "Reference: SQX-FB-1234ABCD`nCategory: workflow`nSeverity: friction`nSummary: Example private tester signal"
+npm run operator:capture-feedback-packet -- --file .local\packet.txt
+```
+
+The output is written to ignored `.local/feedback-packets/`. If `publicSafe` is `false`, review the packet privately before producing any public-safe summary.
 
 ```powershell
 npm run audit:vercel-protection
