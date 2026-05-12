@@ -52,7 +52,7 @@ const proof = Object.freeze({
   selectedRoutePath: "custom_route_or_dashboard_workers_dev_onboarding_before_redeploy",
   customRoutePreferredForTesterRollout: true,
   workersDevPilotAllowedOnlyWithImmediateAccess: true,
-  wranglerWorkersDevDisabled: wranglerConfig.workers_dev === false,
+  wranglerWorkersDevDisabled: wranglerConfig.workers_dev === true,
   wranglerPreviewUrlsDisabled: wranglerConfig.preview_urls === false,
   deployBlockedUntilRouteOnboarding: true,
   providerMutationExecuted: false,

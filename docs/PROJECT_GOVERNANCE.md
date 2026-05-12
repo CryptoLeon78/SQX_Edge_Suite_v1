@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: TL12 - Per-Tester Signed License Delivery Flow.
+- Current phase completed: TL13 - Cloudflare Test Baseline Refresh.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: regenerate the protected tester ZIP with the TL12 public key and file-import UX, run distribution audit plus protected smoke, then replace the Cloudflare asset only after explicit operator approval.
+- Next implementation phase: clean old and unnecessary files only after confirming the refreshed Cloudflare tests remain green.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.
@@ -17,6 +17,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Historical State Anchors
 
+- Current phase completed: TL1 - Tester Launch Candidate. Historical anchor only; superseded by TL12.
+- Next implementation phase: operator fills private TL1 evidence and runs `proof:tester-launch-candidate`. Historical anchor only; superseded by TL12.
 - Current phase completed: T10l - Vercel Route Investigation. Historical anchor only; superseded by T10m.
 - Next implementation phase: T10m - manual/API Vercel correction or alternative no-deploy route proof before any further deployment. Historical anchor only; superseded by T10n.
 - Current phase completed: T10m - Vercel Config Hardening. Historical anchor only; superseded by T10n.

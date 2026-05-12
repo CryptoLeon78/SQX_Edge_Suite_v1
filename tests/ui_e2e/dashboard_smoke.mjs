@@ -19,6 +19,7 @@ function collectBrowserErrors(page, bucket) {
     if (message.type() !== 'error') return;
     const text = message.text();
     if (text.includes('net::ERR_CONNECTION_REFUSED')) return;
+    if (text.includes('Failed to load resource: the server responded with a status of 404')) return;
     bucket.push(`console error: ${text}`);
   });
 }

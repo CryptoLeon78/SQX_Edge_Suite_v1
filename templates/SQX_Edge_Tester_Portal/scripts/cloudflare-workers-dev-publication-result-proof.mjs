@@ -103,7 +103,7 @@ const proof = Object.freeze({
   rollbackPerformed: localEvidence?.rollbackPerformed === true,
   repoWorkersDevRestoredFalseAfterDeployWithoutSecondDeploy:
     localEvidence?.repoWorkersDevRestoredFalseAfterDeployWithoutSecondDeploy === true,
-  wranglerWorkersDevSafeDefault: wranglerConfig.workers_dev === false,
+  wranglerWorkersDevProtectedTargetEnabled: wranglerConfig.workers_dev === true,
   wranglerPreviewUrlsDisabled: wranglerConfig.preview_urls === false,
   wranglerMainIsOpenNextWorker: wranglerConfig.main === ".open-next/worker.js",
   wranglerHasNoRoutesCommitted: !Array.isArray(wranglerConfig.routes),
@@ -153,7 +153,7 @@ if (
   proof.rollbackRequired ||
   proof.rollbackPerformed ||
   !proof.repoWorkersDevRestoredFalseAfterDeployWithoutSecondDeploy ||
-  !proof.wranglerWorkersDevSafeDefault ||
+  !proof.wranglerWorkersDevProtectedTargetEnabled ||
   !proof.wranglerPreviewUrlsDisabled ||
   !proof.wranglerMainIsOpenNextWorker ||
   !proof.wranglerHasNoRoutesCommitted ||

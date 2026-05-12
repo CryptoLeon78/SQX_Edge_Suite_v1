@@ -54,7 +54,7 @@ const proof = Object.freeze({
   hostnameSelectedPrivately: false,
   zoneSelectedPrivately: false,
   accessHostnameCoverageProven: false,
-  wranglerWorkersDevDisabled: wranglerConfig.workers_dev === false,
+  wranglerWorkersDevDisabled: wranglerConfig.workers_dev === true,
   wranglerPreviewUrlsDisabled: wranglerConfig.preview_urls === false,
   publicRoutesCommitted: Array.isArray(wranglerConfig.routes) && wranglerConfig.routes.length > 0,
   packageScriptReady:

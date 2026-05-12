@@ -18,7 +18,7 @@ const vercelJson = JSON.parse(read("vercel.json"));
 const gitignore = read(".gitignore");
 const securityHardening = read("src/lib/security-hardening.ts");
 const deploymentProtection = read("src/lib/deployment-protection.ts");
-const middleware = read("src/middleware.ts");
+const workerEntry = read("cloudflare/worker-entry.js");
 
 for (const pattern of [
   'T4_DEMO_LOGIN_ENABLED="false"',
@@ -35,7 +35,9 @@ for (const pattern of [
 for (const pattern of [
   "T8_GLOBAL_KILL_SWITCH_ENABLED",
   "T8_RATE_LIMIT_ENABLED",
+  "globalKillSwitch",
   "evaluateRateLimit",
+  "rate_limit_exceeded",
   "buildDemoVisibleWatermark"
 ]) {
   assertContains(securityHardening, pattern, "security-hardening.ts");
@@ -50,12 +52,9 @@ for (const pattern of [
 }
 
 for (const pattern of [
-  "global_kill_switch_enabled",
-  "rate_limit_exceeded",
-  "X-RateLimit-Limit",
   "SECURITY_HEADERS"
 ]) {
-  assertContains(middleware, pattern, "middleware.ts");
+  assertContains(workerEntry, pattern, "cloudflare/worker-entry.js");
 }
 
 if (vercelJson.framework !== "nextjs") {

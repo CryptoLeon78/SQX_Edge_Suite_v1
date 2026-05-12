@@ -202,7 +202,7 @@ const proof = Object.freeze({
   testerUrlSharedPrivately: false,
   credentialsCommitted: false,
   testerEmailsCommitted: false,
-  wranglerWorkersDevSafeDefault: wranglerConfig.workers_dev === false,
+  wranglerWorkersDevProtectedTargetEnabled: wranglerConfig.workers_dev === true,
   wranglerPreviewUrlsDisabled: wranglerConfig.preview_urls === false,
   wranglerHasNoRoutesCommitted: !Array.isArray(wranglerConfig.routes),
   directDeployScriptAbsent: scripts.deploy === undefined && scripts["cf:deploy"] === undefined,
@@ -235,7 +235,7 @@ if (
   proof.testerUrlSharedPrivately ||
   proof.credentialsCommitted ||
   proof.testerEmailsCommitted ||
-  !proof.wranglerWorkersDevSafeDefault ||
+  !proof.wranglerWorkersDevProtectedTargetEnabled ||
   !proof.wranglerPreviewUrlsDisabled ||
   !proof.wranglerHasNoRoutesCommitted ||
   !proof.directDeployScriptAbsent ||

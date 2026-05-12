@@ -3081,7 +3081,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "src/lib/security-hardening.ts",
             "src/lib/deployment-protection.ts",
             "src/lib/security-headers.ts",
-            "src/middleware.ts",
+            "cloudflare/worker-entry.js",
         ]
         for rel_path in expected_files:
             with self.subTest(rel_path=rel_path):
@@ -3133,16 +3133,16 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, access_contract)
 
-        middleware = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").read_text(encoding="utf-8-sig")
+        worker_entry = (TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare" / "worker-entry.js").read_text(encoding="utf-8-sig")
         session_prototype = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "session-prototype.ts").read_text(encoding="utf-8-sig")
         for pattern in (
             "SECURITY_HEADERS",
-            "isProtectedPath",
-            "hasPrototypeSession",
-            "buildLoginUrl",
+            "requireSessionPage",
+            "hasSession",
+            "redirect(`/login?next=${encodeURIComponent(next)}`)",
         ):
             with self.subTest(pattern=pattern):
-                self.assertIn(pattern, middleware)
+                self.assertIn(pattern, worker_entry)
         for pattern in (
             "PROTECTED_PREFIXES",
             "\"/portal\"",
@@ -3155,7 +3155,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, session_prototype)
 
         cron_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "cron" / "expire-testers" / "route.ts").read_text(encoding="utf-8-sig")
-        self.assertIn("process.env.CRON_SECRET", cron_route)
+        self.assertIn("readRuntimeEnv(\"CRON_SECRET\")", cron_route)
         self.assertIn("dry-run", cron_route)
         self.assertIn("T6 owns real renewal state changes", cron_route)
 
@@ -3308,7 +3308,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         login_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "login" / "page.tsx").read_text(encoding="utf-8-sig")
         login_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "auth" / "login" / "route.ts").read_text(encoding="utf-8-sig")
         logout_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "auth" / "logout" / "route.ts").read_text(encoding="utf-8-sig")
-        middleware = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").read_text(encoding="utf-8-sig")
+        worker_entry = (TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare" / "worker-entry.js").read_text(encoding="utf-8-sig")
         session_prototype_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "session-prototype.ts"
         session_prototype = session_prototype_path.read_text(encoding="utf-8-sig")
 
@@ -3345,7 +3345,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "DEMO_TESTER_EMAIL_ENV = \"T4_DEMO_TESTER_EMAIL\"",
             "DEMO_ACCESS_CODE_ENV = \"T4_DEMO_ACCESS_CODE\"",
             "isDemoLoginEnabled",
-            "process.env[DEMO_LOGIN_FLAG] === \"true\"",
+            "isRuntimeEnvEnabled(DEMO_LOGIN_FLAG)",
             "PROTECTED_PREFIXES = [\"/portal\", \"/admin\", \"/api/tester\", \"/api/admin\"]",
             "SESSION_COOKIE_CONTRACT.name",
             "httpOnly: SESSION_COOKIE_CONTRACT.httpOnly",
@@ -3375,10 +3375,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("applySessionCookie", login_route)
         self.assertIn("NextResponse.redirect", login_route)
         self.assertIn("clearSessionCookie", logout_route)
-        self.assertIn("buildLoginUrl", middleware)
-        self.assertIn("hasPrototypeSession", middleware)
-        self.assertIn("isProtectedPath", middleware)
-        self.assertNotIn("new URL(\"/expired\"", middleware)
+        self.assertIn("loginPage", worker_entry)
+        self.assertIn("hasSession", worker_entry)
+        self.assertIn("requireSessionPage", worker_entry)
+        self.assertNotIn("new URL(\"/expired\"", worker_entry)
 
         combined_template_text = "\n".join(
             path.read_text(encoding="utf-8-sig")
@@ -3769,7 +3769,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         deployment_protection_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "deployment-protection.ts"
         security_hardening = security_hardening_path.read_text(encoding="utf-8-sig")
         deployment_protection = deployment_protection_path.read_text(encoding="utf-8-sig")
-        middleware = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").read_text(encoding="utf-8-sig")
+        worker_entry = (TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare" / "worker-entry.js").read_text(encoding="utf-8-sig")
         security_headers = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "security-headers.ts").read_text(encoding="utf-8-sig")
         health_route = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "api" / "health" / "route.ts").read_text(encoding="utf-8-sig")
         portal_page = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "app" / "portal" / "page.tsx").read_text(encoding="utf-8-sig")
@@ -3847,18 +3847,26 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "isGlobalKillSwitchEnabled",
             "isKillSwitchExemptPath",
-            "global_kill_switch_enabled",
+            "globalKillSwitch",
             "evaluateRateLimit",
             "buildRateLimitKey",
             "rate_limit_exceeded",
-            "Retry-After",
-            "X-RateLimit-Limit",
-            "X-RateLimit-Remaining",
-            "X-RateLimit-Reset",
-            "applySecurityHeaders",
+            "resetAt",
+            "remaining",
+            "limit",
         ):
             with self.subTest(pattern=pattern):
-                self.assertIn(pattern, middleware)
+                self.assertIn(pattern, security_hardening)
+
+        for pattern in (
+            "SECURITY_HEADERS",
+            "Strict-Transport-Security",
+            "Cross-Origin-Opener-Policy",
+            "Cross-Origin-Resource-Policy",
+            "Content-Security-Policy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, worker_entry)
 
         for pattern in (
             "Strict-Transport-Security",
@@ -3972,9 +3980,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "T8_RATE_LIMIT_ENABLED=\"false\"",
             "DEPLOYMENT_PROTECTION_CHECKLIST",
             "Vercel Deployment Protection enabled",
-            "global_kill_switch_enabled",
+            "globalKillSwitch",
             "rate_limit_exceeded",
-            "X-RateLimit-Limit",
             "vercel.json must keep framework=nextjs",
             ".vercel/project.json is local machine state",
             "recommendedDeployCommand",
@@ -8173,7 +8180,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(package["devDependencies"]["@opennextjs/cloudflare"], "latest")
         self.assertEqual(package["devDependencies"]["wrangler"], "latest")
 
-        self.assertEqual(wrangler["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler["main"], "cloudflare/worker-entry.js")
         self.assertEqual(wrangler["assets"]["directory"], ".open-next/assets")
         self.assertEqual(wrangler["assets"]["binding"], "ASSETS")
         self.assertIn("nodejs_compat", wrangler["compatibility_flags"])
@@ -8461,12 +8468,14 @@ class DashboardStaticTestCase(unittest.TestCase):
         package = json.loads((TESTER_PORTAL_TEMPLATE_ROOT / "package.json").read_text(encoding="utf-8-sig"))
         proof_path = TESTER_PORTAL_TEMPLATE_ROOT / "scripts" / "next-proxy-migration-proof.mjs"
         proof = proof_path.read_text(encoding="utf-8-sig")
-        middleware_path = TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts"
-        middleware = middleware_path.read_text(encoding="utf-8-sig")
+        worker_entry_path = TESTER_PORTAL_TEMPLATE_ROOT / "cloudflare" / "worker-entry.js"
+        worker_entry = worker_entry_path.read_text(encoding="utf-8-sig")
+        security_hardening = (TESTER_PORTAL_TEMPLATE_ROOT / "src" / "lib" / "security-hardening.ts").read_text(encoding="utf-8-sig")
 
         self.assertTrue(T10AH_NEXT_PROXY_MIGRATION_DOC.is_file())
         self.assertTrue(proof_path.is_file())
-        self.assertTrue(middleware_path.is_file())
+        self.assertTrue(worker_entry_path.is_file())
+        self.assertFalse((TESTER_PORTAL_TEMPLATE_ROOT / "src" / "middleware.ts").exists())
         self.assertFalse((TESTER_PORTAL_TEMPLATE_ROOT / "src" / "proxy.ts").exists())
         self.assertEqual(
             package["scripts"]["proof:next-proxy-migration"],
@@ -8502,20 +8511,18 @@ class DashboardStaticTestCase(unittest.TestCase):
         )
 
         for pattern in (
-            "export function middleware",
-            "export const config",
             "SECURITY_HEADERS",
-            "isProtectedPath",
-            "hasPrototypeSession",
-            "buildLoginUrl",
-            "global_kill_switch_enabled",
-            "rate_limit_exceeded",
-            "X-RateLimit-Limit",
-            "matcher",
+            "requireSessionPage",
+            "hasSession",
+            "loginPage",
+            "downloadTool",
         ):
             with self.subTest(pattern=pattern):
-                self.assertIn(pattern, middleware)
-        self.assertNotIn("export function proxy", middleware)
+                self.assertIn(pattern, worker_entry)
+        for pattern in ("globalKillSwitch", "rate_limit_exceeded", "evaluateRateLimit"):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, security_hardening)
+        self.assertNotIn("export function proxy", worker_entry)
 
         for pattern in (
             "T10ah Next Proxy Migration Gate",
@@ -8532,9 +8539,9 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             'phase: "T10ah"',
-            'result: "NO_GO_NEXT_PROXY_MIGRATION_BLOCKED_BY_OPENNEXT_NODE_MIDDLEWARE_UNSUPPORTED"',
+            'result: "GO_GLOBAL_MIDDLEWARE_REMOVED_FOR_CLOUDFLARE_RUNTIME_STABILITY"',
             'attemptedConvention: "next_proxy_file_convention"',
-            'retainedConvention: "next_middleware_file_convention_for_cloudflare_compatibility"',
+            'retainedConvention: "route_level_session_checks_and_next_static_headers"',
             "proxyPresent:",
             "middlewarePresent:",
             'proxyPath: "src/proxy.ts"',
@@ -8597,14 +8604,14 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, changelog)
 
         for pattern in (
-            "src/middleware.ts",
+            "cloudflare/worker-entry.js",
             "scripts/next-proxy-migration-proof.mjs",
             "T10ah proof",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, template_readme)
 
-        combined_t10ah_text = "\n".join([t10ah, governance, next_steps, readme, changelog, template_readme, proof, middleware])
+        combined_t10ah_text = "\n".join([t10ah, governance, next_steps, readme, changelog, template_readme, proof, worker_entry])
         for pattern in (
             "@gmail.com",
             "@hotmail.com",
@@ -8641,7 +8648,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         )
         self.assertNotIn("deploy", package["scripts"])
         self.assertEqual(wrangler["name"], "sqx-edge-tester-portal-preview")
-        self.assertEqual(wrangler["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler["main"], "cloudflare/worker-entry.js")
         self.assertIn("nodejs_compat", wrangler["compatibility_flags"])
         for key in ("account_id", "zone_id", "routes", "route", "custom_domain"):
             with self.subTest(key=key):
@@ -10122,7 +10129,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         )
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
 
         for pattern in (
@@ -10270,7 +10277,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         )
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
         self.assertNotIn("routes", wrangler_config)
         self.assertIn("cloudflare-route-access-precreate.local.json", template_gitignore)
@@ -10432,7 +10439,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         )
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
         self.assertNotIn("routes", wrangler_config)
         self.assertIn("cloudflare-hostname-zone-selection.local.json", template_gitignore)
@@ -10715,9 +10722,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         )
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(main_wrangler["workers_dev"], False)
+        self.assertIs(main_wrangler["workers_dev"], True)
         self.assertIs(main_wrangler["preview_urls"], False)
-        self.assertEqual(main_wrangler["main"], ".open-next/worker.js")
+        self.assertEqual(main_wrangler["main"], "cloudflare/worker-entry.js")
         self.assertIs(shell_wrangler["workers_dev"], True)
         self.assertIs(shell_wrangler["preview_urls"], False)
         self.assertEqual(shell_wrangler["main"], "cloudflare/shell-worker.js")
@@ -11255,9 +11262,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("delete", package["scripts"])
         self.assertEqual(package["scripts"]["cf:build"], "opennextjs-cloudflare build")
         self.assertEqual(package["scripts"]["typecheck"], "tsc --noEmit")
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
 
         for pattern in (
@@ -11400,9 +11407,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
 
         for pattern in (
@@ -11535,9 +11542,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
 
         for pattern in (
@@ -11676,9 +11683,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
 
         for pattern in (
@@ -11823,9 +11830,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
 
         for pattern in (
@@ -11857,7 +11864,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "anonymousPortalAccessIntercepted",
             "directAppBodyVisibleToAnonymous",
             "repoWorkersDevRestoredFalseAfterDeployWithoutSecondDeploy",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "testerUrlShared",
             "testerAccountsCreated",
             "testerEmailsCommitted",
@@ -11971,9 +11978,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
         self.assertEqual(example["phase"], "T10aq")
         for key, value in example.items():
@@ -12005,7 +12012,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "testerUrlShared: false",
             "testerAccountsCreated: false",
             "testerEmailsCommitted: false",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "directDeployScriptAbsent",
             "packageScriptReady",
             "T10ar_private_tester_account_activation_gate",
@@ -12116,9 +12123,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
         self.assertEqual(example["phase"], "T10ar")
         for key, value in example.items():
@@ -12153,7 +12160,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "testerUrlShared: false",
             "testerEmailsCommitted: false",
             "credentialsCommitted: false",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "directDeployScriptAbsent",
             "packageScriptReady",
             "T10as_private_tester_activation_evidence_ingest",
@@ -12262,9 +12269,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
         self.assertEqual(example["phase"], "T10as")
         for key, value in example.items():
@@ -12303,7 +12310,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "testerUrlShared: false",
             "credentialsCommitted: false",
             "testerEmailsCommitted: false",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "directDeployScriptAbsent",
             "packageScriptReady",
             "T10at_private_tester_url_share_approval_gate",
@@ -12417,9 +12424,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
         self.assertEqual(example["phase"], "T10at")
         for key, value in example.items():
@@ -12460,7 +12467,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "testerUrlSharedPrivately: false",
             "credentialsCommitted: false",
             "testerEmailsCommitted: false",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "directDeployScriptAbsent",
             "packageScriptReady",
             "T10au_private_first_tester_smoke_gate",
@@ -12574,9 +12581,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
         self.assertEqual(example["phase"], "T10au")
         for key, value in example.items():
@@ -12618,7 +12625,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "testerEmailsCommitted: false",
             "credentialsCommitted: false",
             "screenshotsCommitted: false",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "directDeployScriptAbsent",
             "packageScriptReady",
             "T10av_private_tester_cohort_expansion_gate",
@@ -12732,9 +12739,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
         self.assertEqual(example["phase"], "T10av")
         for key, value in example.items():
@@ -12777,7 +12784,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "credentialsCommitted: false",
             "screenshotsCommitted: false",
             "feedbackIdentitiesCommitted: false",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "directDeployScriptAbsent",
             "packageScriptReady",
             "T10aw_private_tester_feedback_intake_gate",
@@ -12891,9 +12898,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
         self.assertEqual(example["phase"], "T10aw")
         for key, value in example.items():
@@ -12937,7 +12944,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "screenshotsCommitted: false",
             "rawFeedbackCommitted: false",
             "feedbackIdentitiesCommitted: false",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "directDeployScriptAbsent",
             "packageScriptReady",
             "T10ax_private_tester_feedback_triage_gate",
@@ -13051,9 +13058,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
         self.assertEqual(example["phase"], "T10ax")
         for key, value in example.items():
@@ -13098,7 +13105,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "rawFeedbackCommitted: false",
             "feedbackIdentitiesCommitted: false",
             "privateBugDetailsCommitted: false",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "directDeployScriptAbsent",
             "packageScriptReady",
             "T10ay_private_tester_action_plan_gate",
@@ -13212,9 +13219,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
         self.assertEqual(example["phase"], "T10ay")
         for key, value in example.items():
@@ -13258,7 +13265,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "feedbackIdentitiesCommitted: false",
             "privateBugDetailsCommitted: false",
             "privateActionDetailsCommitted: false",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "directDeployScriptAbsent",
             "packageScriptReady",
             "T10az_private_tester_action_execution_gate",
@@ -13372,9 +13379,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
         self.assertEqual(example["phase"], "T10az")
         for key, value in example.items():
@@ -13420,7 +13427,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "privateActionDetailsCommitted: false",
             "privateExecutionNotesCommitted: false",
             "providerMutationsPerformed: false",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "directDeployScriptAbsent",
             "packageScriptReady",
             "T10ba_private_tester_result_validation_gate",
@@ -13534,9 +13541,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
         self.assertEqual(example["phase"], "T10ba")
         for key, value in example.items():
@@ -13583,7 +13590,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "privateExecutionNotesCommitted: false",
             "privateResultNotesCommitted: false",
             "providerMutationsPerformed: false",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "directDeployScriptAbsent",
             "packageScriptReady",
             "T10bb_private_tester_iteration_decision_gate",
@@ -13697,9 +13704,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
         self.assertEqual(example["phase"], "T10bb")
         self.assertIn(
@@ -13758,7 +13765,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "privateResultNotesCommitted: false",
             "privateDecisionNotesCommitted: false",
             "providerMutationsPerformed: false",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "directDeployScriptAbsent",
             "packageScriptReady",
             "T10bc_private_tester_next_iteration_gate",
@@ -13872,9 +13879,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
         self.assertEqual(example["phase"], "T10bc")
         self.assertIn(
@@ -13936,7 +13943,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "privateSupportNotesCommitted: false",
             "providerMutationsPerformed: false",
             "testerAccountsCreated: false",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "directDeployScriptAbsent",
             "packageScriptReady",
             "T10bd_private_tester_next_iteration_execution_gate",
@@ -14050,9 +14057,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("deploy", package["scripts"])
         self.assertNotIn("cf:deploy", package["scripts"])
         self.assertNotIn("delete", package["scripts"])
-        self.assertIs(wrangler_config["workers_dev"], False)
+        self.assertIs(wrangler_config["workers_dev"], True)
         self.assertIs(wrangler_config["preview_urls"], False)
-        self.assertEqual(wrangler_config["main"], ".open-next/worker.js")
+        self.assertEqual(wrangler_config["main"], "cloudflare/worker-entry.js")
         self.assertNotIn("routes", wrangler_config)
         self.assertEqual(example["phase"], "TL1")
         self.assertIn(example["launchMode"], {"hold", "first_private_tester", "micro_cohort", "pause"})
@@ -14096,7 +14103,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "privateNotesCommitted: false",
             "providerMutationsPerformed: false",
             "testerAccountsCreated: false",
-            "wranglerWorkersDevSafeDefault",
+            "wranglerWorkersDevProtectedTargetEnabled",
             "directDeployScriptAbsent",
             "packageScriptReady",
             "fill_private_launch_candidate_evidence_and_run_single_proof",

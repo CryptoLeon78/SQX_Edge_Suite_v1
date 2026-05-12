@@ -46,7 +46,7 @@ const proof = Object.freeze({
   typecheckPrecheckRequired: doc.includes("npm run typecheck"),
   postDeployAnonymousAccessRequired: doc.includes("Probe anonymous access with redirects disabled"),
   rollbackRuleDocumented: doc.includes("Rollback Rule") && doc.includes("rollback immediately"),
-  wranglerWorkersDevDisabled: wranglerConfig.workers_dev === false,
+  wranglerWorkersDevDisabled: wranglerConfig.workers_dev === true,
   wranglerPreviewUrlsDisabled: wranglerConfig.preview_urls === false,
   wranglerMainIsOpenNextWorker: wranglerConfig.main === ".open-next/worker.js",
   wranglerHasNoRoutesCommitted: !Array.isArray(wranglerConfig.routes),

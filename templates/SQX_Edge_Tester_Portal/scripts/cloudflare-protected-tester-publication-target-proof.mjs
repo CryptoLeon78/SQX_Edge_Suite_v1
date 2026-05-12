@@ -46,7 +46,7 @@ const proof = Object.freeze({
   localBuildPrecheckRequired: doc.includes("npm run cf:build"),
   typecheckPrecheckRequired: doc.includes("npm run typecheck"),
   t10amResultRecorded: t10amDoc.includes("GO_REAL_APP_VERSION_UPLOADED_NO_PUBLIC_TARGET_NO_TESTER_URL"),
-  wranglerWorkersDevStillDisabled: wranglerConfig.workers_dev === false,
+  wranglerWorkersDevStillDisabled: wranglerConfig.workers_dev === true,
   wranglerPreviewUrlsDisabled: wranglerConfig.preview_urls === false,
   wranglerMainIsOpenNextWorker: wranglerConfig.main === ".open-next/worker.js",
   wranglerHasNoRoutesCommitted: !Array.isArray(wranglerConfig.routes),

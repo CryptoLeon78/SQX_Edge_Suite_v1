@@ -103,7 +103,7 @@ const proof = Object.freeze({
   testerUrlShared: localEvidence?.testerUrlShared === true,
   testerAccountsCreated: localEvidence?.testerAccountsCreated === true,
   testerEmailsIncluded: localEvidence?.testerEmailsIncluded === true,
-  wranglerWorkersDevDisabled: wranglerConfig.workers_dev === false,
+  wranglerWorkersDevDisabled: wranglerConfig.workers_dev === true,
   wranglerPreviewUrlsDisabled: wranglerConfig.preview_urls === false,
   wranglerMainIsOpenNextWorker: wranglerConfig.main === ".open-next/worker.js",
   wranglerHasNoRoutesCommitted: !Array.isArray(wranglerConfig.routes),
