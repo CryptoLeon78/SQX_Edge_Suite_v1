@@ -2175,14 +2175,19 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("WF Ret/DD Ratio &gt;= 5", self.html)
         self.assertIn('data-workflow-subtab-target="wf-capa2"', workflow_pipeline)
         self.assertIn("Material operativo extendido", workflow_pipeline)
-        workflow_capa2 = self.html.split('id="wf-capa2"', 1)[1].split('id="wf-postproc"', 1)[0]
+        workflow_capa2 = self.html.split('id="wf-capa2"', 1)[1].split('id="wf-diff"', 1)[0]
+        workflow_rules = self.html.split('id="wf-rules"', 1)[1].split("<!-- ── Scripts:", 1)[0]
         self.assertIn("Capa 2 - operativa extendida", workflow_capa2)
         self.assertNotIn("Capa 2 — Cheatsheet operativo", workflow_capa2)
         self.assertNotIn("Config Base Builder Capa 2", workflow_capa2)
-        self.assertIn("Orden de ejecución Capa 2", workflow_capa2)
-        self.assertIn("wf-capa2-mining2-tree-detail", workflow_capa2)
+        self.assertNotIn("Orden de ejecución Capa 2", workflow_capa2)
+        self.assertNotIn("wf-capa2-mining2-tree-detail", workflow_capa2)
         self.assertIn("Checklist de aplicación Capa 2", workflow_capa2)
-        self.assertIn("Reglas de oro Capa 2", workflow_capa2)
+        self.assertIn("Embudo esperado Capa 2", workflow_capa2)
+        self.assertNotIn("Reglas de oro Capa 2", workflow_capa2)
+        self.assertIn("Reglas de oro Capa 2", workflow_rules)
+        self.assertLess(workflow_capa2.index("Checklist de aplicación Capa 2"), workflow_capa2.index("Embudo esperado Capa 2"))
+        self.assertLess(workflow_capa2.index("Embudo esperado Capa 2"), workflow_capa2.index("Configuraciones opcionales según objetivo"))
         self.assertIn("Configuraciones opcionales según objetivo", workflow_capa2)
         self.assertIn('class="views-handoff-copy"', self.html)
         self.assertNotIn('<div class="stat-num">14</div><div class="stat-label">Minings Plan</div>', self.html)

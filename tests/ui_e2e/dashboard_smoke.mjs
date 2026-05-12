@@ -167,13 +167,23 @@ async function run() {
     if (!capa2TabText.includes('Capa 2 - operativa extendida')) {
       throw new Error('Workflow Capa 2 tab should keep the extended operational content');
     }
-    ['Orden de ejecución Capa 2', 'Checklist de aplicación Capa 2', 'Reglas de oro Capa 2'].forEach(expected => {
+    ['Checklist de aplicación Capa 2', 'Embudo esperado Capa 2', 'Configuraciones opcionales según objetivo'].forEach(expected => {
       if (!capa2TabText.includes(expected)) throw new Error(`Workflow Capa 2 tab should preserve: ${expected}`);
     });
-    ['Capa 2 — Cheatsheet operativo', 'Config Base Builder Capa 2'].forEach(removedText => {
-      if (capa2TabText.includes(removedText)) throw new Error(`Workflow Capa 2 tab should not duplicate: ${removedText}`);
+    ['Orden de ejecución Capa 2', 'Reglas de oro Capa 2', 'wf-capa2-mining2-tree-detail', 'Capa 2 — Cheatsheet operativo', 'Config Base Builder Capa 2'].forEach(removedText => {
+      if (capa2TabText.includes(removedText)) throw new Error(`Workflow Capa 2 tab should not include: ${removedText}`);
     });
+    if (capa2TabText.indexOf('Checklist de aplicación Capa 2') > capa2TabText.indexOf('Embudo esperado Capa 2')) {
+      throw new Error('Workflow Capa 2 checklist should appear before the expected funnel');
+    }
     await saveShot(desktop, 'e2e-workflow-capa2-operational-desktop.png');
+    await desktop.locator('.subtab[data-subtab="wf-rules"]').click();
+    await desktop.waitForSelector('#wf-rules.active');
+    const rulesTabText = await desktop.locator('#wf-rules').innerText();
+    ['Reglas de Oro del Pipeline', 'Reglas de oro Capa 2', 'Apply optimized parameters: SIEMPRE OFF'].forEach(expected => {
+      if (!rulesTabText.includes(expected)) throw new Error(`Workflow rules tab should preserve: ${expected}`);
+    });
+    await saveShot(desktop, 'e2e-workflow-rules-capa2-desktop.png');
     await desktop.locator('.subtab[data-subtab="wf-overview"]').click();
     await desktop.waitForSelector('#wf-overview.active');
     await desktop.locator('[data-wf-detail-target="wf-sqx-views-required-detail"]').click();
