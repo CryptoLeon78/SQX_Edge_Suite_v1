@@ -1605,36 +1605,8 @@
       <div class="subtab" data-subtab="wf-cheat">Cheatsheet</div>
       <div class="subtab" data-subtab="wf-rules">Reglas Oro</div>
     </div>
-    <div class="workflow-plan-summary" id="wf-plan-v2-summary">
-      <div>
-        <span class="workflow-plan-eyebrow">Plan operativo actual</span>
-        <strong id="wf-plan-v2-title">Plan v2 cargando...</strong>
-      </div>
-      <div class="workflow-plan-metrics" id="wf-plan-v2-metrics">
-        <span>-- fases</span>
-        <span>-- minings</span>
-        <span>-- activos</span>
-      </div>
-      <p id="wf-plan-v2-detail">Resumen dinámico del plan configurado y de sus extensiones locales.</p>
-    </div>
     <div class="subtab-host">
       <div id="wf-overview" class="subtab-content active">
-
-  <div class="views-handoff" id="workflow-views-handoff">
-    <div>
-      <span>Vista SQX recomendada</span>
-      <strong>Crear las vistas .vw antes de lanzar minings o exportar CSV</strong>
-      <p class="views-handoff-copy">
-        Abre SQX Views desde estos accesos y genera una vista por apartado operativo: EGT Core para lectura anual/base,
-        Robustez para validacion y comparativas. Los tags de Views se usan como secciones de trabajo, no como simples etiquetas:
-        selecciona el pack, revisa columnas, descarga el .vw e importalo en StrategyQuant X antes de analizar resultados.
-      </p>
-    </div>
-    <div class="views-handoff-actions">
-      <button class="filter-btn" type="button" data-vc-handoff="egt-core" data-vc-name="EGT - Anual" data-vc-years="9">EGT Core</button>
-      <button class="filter-btn" type="button" data-vc-handoff="robustness" data-vc-name="SQX Robustez" data-vc-years="9">Robustez</button>
-    </div>
-  </div>
 
   <div class="card">
     <div class="card-header">
@@ -1671,6 +1643,44 @@
     </summary>
     <div class="workflow-accordion-body">
       <div class="pipeline">
+      <div class="pipeline-step val workflow-step-trigger" role="button" tabindex="0" data-wf-detail-target="wf-sqx-views-required-detail" aria-controls="wf-sqx-views-required-detail" aria-expanded="false">
+        <div class="step-num">0</div>
+        <div class="step-content">
+          <div class="step-title">Vista SQX obligatoria</div>
+          <div class="step-desc">Crear e importar las vistas .vw antes de lanzar minings, revisar Databank o exportar CSV.</div>
+        </div>
+        <span class="step-action">Desplegar</span>
+      </div>
+      <div class="workflow-step-detail" id="wf-sqx-views-required-detail" hidden>
+        <div class="workflow-tree">
+          <div class="workflow-tree-branch">
+            <div class="pipeline-step val compact workflow-config-node">
+              <div class="step-num">0.0</div>
+              <div class="step-content">
+                <div class="step-title">Preparar SQX Views antes del pipeline</div>
+                <div class="step-desc">Sin vistas operativas no hay lectura fiable de retests, robustez, WFM ni exportaciones CSV.</div>
+                <div class="views-handoff" id="workflow-views-handoff">
+                  <div>
+                    <span>Vista SQX obligatoria</span>
+                    <strong>Crear las vistas .vw antes de lanzar minings o exportar CSV</strong>
+                    <p class="views-handoff-copy">
+                      Abre SQX Views desde estos accesos y genera una vista por apartado operativo: EGT Core para lectura anual/base,
+                      Robustez para validacion y comparativas. Los tags de Views se usan como secciones de trabajo, no como simples etiquetas:
+                      selecciona el pack, revisa columnas, descarga el .vw e importalo en StrategyQuant X antes de analizar resultados.
+                    </p>
+                  </div>
+                  <div class="views-handoff-actions">
+                    <button class="filter-btn" type="button" data-vc-handoff="egt-core" data-vc-name="EGT - Anual" data-vc-years="9">EGT Core</button>
+                    <button class="filter-btn" type="button" data-vc-handoff="robustness" data-vc-name="SQX Robustez" data-vc-years="9">Robustez</button>
+                  </div>
+                </div>
+                <label class="workflow-tree-check"><input type="checkbox" data-check="views-required-created"> Vistas .vw creadas e importadas en StrategyQuant X</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pipeline-arrow">↓</div>
       <div class="pipeline-step l1 workflow-step-trigger" role="button" tabindex="0" data-wf-detail-target="wf-capa1-tree-detail" aria-controls="wf-capa1-tree-detail" aria-expanded="false">
         <div class="step-num">1</div>
         <div class="step-content">
@@ -1909,11 +1919,171 @@ Ret/DD &gt; 0.5</pre>
       </div>
       <div class="pipeline-arrow">↓</div>
 
-      <div class="pipeline-step l2">
+      <div class="pipeline-step l2 workflow-step-trigger" role="button" tabindex="0" data-wf-detail-target="wf-pipeline-mining2-tree-detail" aria-controls="wf-pipeline-mining2-tree-detail" aria-expanded="false">
         <div class="step-num">3</div>
         <div class="step-content">
-          <div class="step-title">Mining Capa 2 sobre cada Template</div>
-          <div class="step-desc">AlgoWizard con edge fijo + filtros random + SL/TP/Trailing optimizados. Weighted Fitness.</div>
+          <div class="step-title">Mining 2 - Capa 2 sobre Template</div>
+          <div class="step-desc">Edge fijo de Capa 1, filtros random, SL/TP/Trailing ATR-based, Weighted Fitness, PF>=1.20 y #trades&gt;100.</div>
+        </div>
+        <span class="step-action">Desplegar</span>
+      </div>
+      <div class="workflow-step-detail" id="wf-pipeline-mining2-tree-detail" hidden>
+        <div class="workflow-tree">
+          <div class="workflow-tree-branch">
+            <div class="pipeline-step l2 compact workflow-config-node">
+              <div class="step-num">2.0</div>
+              <div class="step-content">
+                <div class="step-title">Setup base AlgoWizard</div>
+                <div class="step-desc">Cargar el template ganador de Capa 1 como base y hacer operable el edge sin modificarlo.</div>
+                <div class="workflow-tree-config">
+                  <div class="workflow-config-card">
+                    <h5>Settings</h5>
+                    <pre>Edge: NO RANDOM (template fijo)
+Random conditions: 1-2 filtros adicionales
+ExitAfterBars: 20 opcional
+Stop Loss: ATR-based random
+Profit Target: ATR-based random
+Trailing Stop: ATR-based random
+Building blocks: BS_Filtros_v5.sqb</pre>
+                  </div>
+                  <div class="workflow-config-card">
+                    <h5>Fitness</h5>
+                    <pre>Weighted Fitness (multiple goals)
+CAGR/Max DD %: Maximize
+Profit Factor: Maximize
+R Expectancy: Maximize
+# of Trades: Maximize
+Avg. % Drawdown: Minimize</pre>
+                  </div>
+                  <div class="workflow-config-card">
+                    <h5>Filtering mining</h5>
+                    <pre>PF &gt;= 1.20
+# trades &gt; 100
+Sharpe: OFF
+SQN: OFF</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="workflow-tree-children">
+              <div class="pipeline-step val compact workflow-config-node">
+                <div class="step-num">2.1</div>
+                <div class="step-content">
+                  <div class="step-title">RETEST 0 - Periodo completo</div>
+                  <div class="step-desc">Validacion temporal sobre todo el historico disponible, sin reoptimizar.</div>
+                  <div class="workflow-tree-config">
+                    <div class="workflow-config-card">
+                      <h5>Settings</h5>
+                      <pre>Period: 2017.10 - 2026.04 (rango completo)
+Re-optimize: NO</pre>
+                    </div>
+                    <div class="workflow-config-card">
+                      <h5>Filtering</h5>
+                      <pre>PF &gt; 1.0
+# trades &gt; 100
+Ret/DD &gt; 1.0</pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="pipeline-step l2 compact workflow-config-node">
+                <div class="step-num">2.2</div>
+                <div class="step-content">
+                  <div class="step-title">Filtros estrictos manuales</div>
+                  <div class="step-desc">Aplicar sobre Databank antes de gastar tiempo en robustez pesada.</div>
+                  <div class="workflow-tree-config">
+                    <div class="workflow-config-card">
+                      <h5>Thresholds</h5>
+                      <pre>Profit Factor &gt;= 1.5
+Ret/DD Ratio &gt;= 5
+R Expectancy &gt;= 0.30
+Stagnation % &lt; 25%
+# trades &gt; 150</pre>
+                    </div>
+                    <div class="workflow-config-card emphasis">
+                      <h5>Decision</h5>
+                      <p>Capa 2 ya busca estrategias operables, no solo edge potencial. Si no supera estos filtros, queda en reserva.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="pipeline-step val compact workflow-config-node">
+                <div class="step-num">2.3</div>
+                <div class="step-content">
+                  <div class="step-title">RETEST 1 - OOS hacia atras</div>
+                  <div class="step-desc">Periodo nunca visto durante el mining IS. En Capa 2 se exige volumen operativo.</div>
+                  <div class="workflow-tree-config">
+                    <div class="workflow-config-card">
+                      <h5>Settings</h5>
+                      <pre>Period: 2010.01 - 2016.12
+Re-optimize: NO</pre>
+                    </div>
+                    <div class="workflow-config-card">
+                      <h5>Filtering</h5>
+                      <pre>PF &gt; 1.0
+# trades &gt; 100
+Ret/DD &gt; 1.0</pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="pipeline-step l2 compact workflow-config-node">
+                <div class="step-num">2.4</div>
+                <div class="step-content">
+                  <div class="step-title">Robustez operativa</div>
+                  <div class="step-desc">Skip trades, slippage y filtros WFM de despliegue sobre supervivientes operables.</div>
+                  <div class="workflow-robustness-grid">
+                    <div class="workflow-config-card">
+                      <h5>MC Trades</h5>
+                      <pre>Number of simulations: 200
+Randomize trades order: ON
+Randomly skip trades 10%: ON</pre>
+                    </div>
+                    <div class="workflow-config-card">
+                      <h5>MC2</h5>
+                      <pre>Randomize history data: ON
+Randomize spread: ON
+Randomize slippage: ON
+Randomize strategy parameters: OFF</pre>
+                    </div>
+                    <div class="workflow-config-card">
+                      <h5>Sequential</h5>
+                      <pre>Apply optimized parameters: OFF
+Periods: OFF
+Constants: OFF
+Entry levels: ON
+Exit params only used: ON</pre>
+                    </div>
+                    <div class="workflow-config-card">
+                      <h5>WFM</h5>
+                      <pre>Profitable runs &gt;= 70%
+WF Stagnation &lt;= 365 dias
+WF Ret/DD Ratio &gt;= 5</pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="pipeline-step dep compact workflow-config-node">
+                <div class="step-num">2.5</div>
+                <div class="step-content">
+                  <div class="step-title">Forward final 2024-2026</div>
+                  <div class="step-desc">Ultima puerta antes de portfolio, correlacion y despliegue MT5. Si falla aqui, no se despliega.</div>
+                  <div class="workflow-tree-config">
+                    <div class="workflow-config-card">
+                      <h5>Filtering</h5>
+                      <pre>PF &gt; 1.0
+# trades &gt; 30
+Ret/DD &gt; 1.0</pre>
+                    </div>
+                    <div class="workflow-config-card emphasis">
+                      <h5>Decision</h5>
+                      <p>Forward en Capa 2 exige Ret/DD operativo. Sin pasar esta puerta no hay MT5 real.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="pipeline-arrow">↓</div>

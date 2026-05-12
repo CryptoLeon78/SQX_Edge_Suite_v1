@@ -79,9 +79,22 @@ async function run() {
     if (capa1Subtab !== 0) throw new Error('Capa 1 should live inside the pipeline step, not as a top workflow subtab');
     const setupGlobalKpi = await desktop.locator('#wf-setup-global-details').count();
     if (setupGlobalKpi !== 0) throw new Error('Setup Global KPI should be removed from Workflow overview');
+    const planSummaryKpi = await desktop.locator('#wf-plan-v2-summary').count();
+    if (planSummaryKpi !== 0) throw new Error('Plan operativo actual KPI should be removed from Workflow');
+    const recommendedViewsText = await desktop.locator('#wf-overview', { hasText: 'Vista SQX recomendada' }).count();
+    if (recommendedViewsText !== 0) throw new Error('SQX Views KPI should be mandatory, not recommended');
     const initialPipelineClosed = await desktop.locator('#wf-pipeline-flow-details:not([open])').count();
     if (initialPipelineClosed !== 1) throw new Error('Pipeline flow accordion should be closed by default');
     await desktop.locator('#wf-pipeline-flow-details summary').click();
+    const viewsRequiredTrigger = await desktop.locator('[data-wf-detail-target="wf-sqx-views-required-detail"] .step-num', { hasText: '0' }).count();
+    if (viewsRequiredTrigger !== 1) throw new Error('Mandatory SQX Views should be KPI 0 in the workflow pipeline');
+    await desktop.locator('[data-wf-detail-target="wf-sqx-views-required-detail"]').click();
+    await desktop.waitForSelector('#wf-sqx-views-required-detail:not([hidden])');
+    const viewsCopy = await desktop.locator('#workflow-views-handoff .views-handoff-copy').innerText();
+    if (!viewsCopy.includes('descarga el .vw') || !viewsCopy.includes('importalo en StrategyQuant X')) {
+      throw new Error('Workflow SQX Views handoff should explain where and how to create views');
+    }
+    await saveShot(desktop, 'e2e-workflow-views-required-desktop.png');
     const removedOosKpi = await desktop.locator('#wf-pipeline-flow-details .step-title', { hasText: 'Validación OOS 2010-2017' }).count();
     if (removedOosKpi !== 0) throw new Error('OOS validation KPI should be removed from the full pipeline');
     const removedForwardKpi = await desktop.locator('#wf-pipeline-flow-details .step-title', { hasText: 'Validación Forward 2024-2026' }).count();
@@ -126,18 +139,12 @@ async function run() {
     if (removedWorkflowStats !== 0) throw new Error('Workflow overview KPI cards should be removed');
     const setupSubtab = await desktop.locator('.subtab[data-subtab="wf-setup"]').count();
     if (setupSubtab !== 0) throw new Error('Setup Global should be integrated inside Vista General, not exposed as a subtab');
-    const viewsCopy = await desktop.locator('#workflow-views-handoff .views-handoff-copy').innerText();
-    if (!viewsCopy.includes('descarga el .vw') || !viewsCopy.includes('importalo en StrategyQuant X')) {
-      throw new Error('Workflow SQX Views handoff should explain where and how to create views');
-    }
     await saveShot(desktop, 'e2e-workflow-handoff-desktop.png');
-    await desktop.locator('.subtab[data-subtab="wf-capa2"]').click();
-    await desktop.waitForSelector('#wf-capa2.active');
-    await desktop.locator('[data-wf-detail-target="wf-capa2-mining2-tree-detail"]').click();
-    await desktop.waitForSelector('#wf-capa2-mining2-tree-detail:not([hidden])');
-    const capa2TriggerExpanded = await desktop.locator('[data-wf-detail-target="wf-capa2-mining2-tree-detail"][aria-expanded="true"]').count();
-    if (capa2TriggerExpanded !== 1) throw new Error('Mining 2 KPI should expand the inline Capa 2 tree detail');
-    const capa2TreeText = await desktop.locator('#wf-capa2-mining2-tree-detail').innerText();
+    await desktop.locator('[data-wf-detail-target="wf-pipeline-mining2-tree-detail"]').click();
+    await desktop.waitForSelector('#wf-pipeline-mining2-tree-detail:not([hidden])');
+    const capa2TriggerExpanded = await desktop.locator('[data-wf-detail-target="wf-pipeline-mining2-tree-detail"][aria-expanded="true"]').count();
+    if (capa2TriggerExpanded !== 1) throw new Error('Mining 2 KPI should expand from the main workflow pipeline');
+    const capa2TreeText = await desktop.locator('#wf-pipeline-mining2-tree-detail').innerText();
     [
       'Edge: NO RANDOM (template fijo)',
       'PF >= 1.20',
@@ -149,9 +156,11 @@ async function run() {
     ].forEach(expected => {
       if (!capa2TreeText.includes(expected)) throw new Error(`Mining 2 tree should preserve Capa 2 config: ${expected}`);
     });
-    await saveShot(desktop, 'e2e-workflow-capa2-mining2-desktop.png');
+    await saveShot(desktop, 'e2e-workflow-mining2-desktop.png');
     await desktop.locator('.subtab[data-subtab="wf-overview"]').click();
     await desktop.waitForSelector('#wf-overview.active');
+    await desktop.locator('[data-wf-detail-target="wf-sqx-views-required-detail"]').click();
+    await desktop.waitForSelector('#wf-sqx-views-required-detail:not([hidden])');
     await desktop.locator('#workflow-views-handoff [data-vc-handoff="robustness"]').click();
     await desktop.waitForSelector('.tab[data-tab="views"].active');
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'SQX Robustez');
