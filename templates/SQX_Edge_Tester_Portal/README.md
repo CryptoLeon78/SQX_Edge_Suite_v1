@@ -163,6 +163,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/tester-launch-candidate-proof.mjs`: TL1 macro proof for private tester launch readiness without committing tester URLs, emails, credentials, screenshots, raw feedback or private notes.
 - `tester-launch-candidate.example.json`: public-safe TL1 launch-candidate shape; copy to ignored `tester-launch-candidate.local.json` only.
 - `scripts/feedback-packet-capture.mjs`: TL4 local-only helper that captures a copied `SQX-FB-...` packet into ignored `.local/feedback-packets/` JSON for operator triage.
+- `scripts/feedback-intake-rollup.mjs`: TL5 local-only helper that converts ignored feedback packet JSON into aggregate `tester-feedback-intake.local.json` evidence.
 - `cloudflare-access-policy-boundary.example.json`: public-safe T10ak evidence template; copy to ignored `cloudflare-access-policy-boundary.local.json` only.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
@@ -187,6 +188,15 @@ npm run operator:capture-feedback-packet -- --file .local\packet.txt
 ```
 
 The output is written to ignored `.local/feedback-packets/`. If `publicSafe` is `false`, review the packet privately before producing any public-safe summary.
+
+After capturing one or more packets, generate aggregate intake evidence:
+
+```powershell
+npm run operator:rollup-feedback-intake
+npm run proof:tester-feedback-intake-gate
+```
+
+This writes ignored `tester-feedback-intake.local.json` plus `.local/feedback-intake-rollup.json`. Only aggregate counts and redacted categories are produced.
 
 ```powershell
 npm run audit:vercel-protection

@@ -80,6 +80,7 @@
     "proof:tester-next-iteration-gate": "node scripts/tester-next-iteration-gate-proof.mjs",
     "proof:tester-launch-candidate": "node scripts/tester-launch-candidate-proof.mjs",
     "operator:capture-feedback-packet": "node scripts/feedback-packet-capture.mjs",
+    "operator:rollup-feedback-intake": "node scripts/feedback-intake-rollup.mjs",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
