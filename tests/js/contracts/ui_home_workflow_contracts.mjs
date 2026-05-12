@@ -22,7 +22,7 @@ assert.equal(filterB.classList.contains('active'), true);
 
 [
   'home-assets-count', 'home-assets-sub', 'home-minings-count', 'home-plan-sub',
-  'home-strategies-count', 'home-strategies-sub', 'home-priority-count',
+  'home-strategies-count', 'home-strategies-sub',
   'home-next-action', 'home-backend-status', 'home-data-status',
   'home-readiness-score', 'home-hero-status', 'home-audit-score',
   'home-readiness-bar', 'home-check-manifest', 'home-check-plan',

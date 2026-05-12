@@ -58,11 +58,6 @@
             <strong id="home-strategies-count">--</strong>
             <span id="home-strategies-sub">candidatas y validadas</span>
           </button>
-          <button class="home-kpi" data-home-tab="priority">
-            <span class="home-kpi-label">Tracking</span>
-            <strong id="home-priority-count">--</strong>
-            <span>items marcados</span>
-          </button>
         </div>
 
         <div class="home-readiness">
@@ -1583,22 +1578,22 @@
           <p>Genera los .cfx cuando el plan y las vistas ya esten alineados con la metodologia.</p>
           <button class="filter-btn" type="button" data-home-tab="projectgen">Generar .cfx</button>
         </article>
-        <article class="workflow-command-step" data-wf-step="builder">
-          <label><input type="checkbox" data-check="command-center-builder"> Strategy Builder</label>
-          <p>Empaqueta ideas, presets y handoff de comprador cuando el flujo necesite una entrega reutilizable.</p>
-          <button class="filter-btn" type="button" data-home-tab="strategybuilder">Abrir builder</button>
+        <article class="workflow-command-step" data-wf-step="estrategias">
+          <label><input type="checkbox" data-check="command-center-estrategias"> Estrategias</label>
+          <p>Importa supervivientes, limpia duplicados y deja candidatas listas para la comparacion final.</p>
+          <button class="filter-btn" type="button" data-home-tab="estrategias">Abrir estrategias</button>
         </article>
-        <article class="workflow-command-step" data-wf-step="validacion">
-          <label><input type="checkbox" data-check="command-center-validacion"> Estrategias y validacion</label>
-          <p>Importa supervivientes, limpia duplicados, compara finalistas y prepara entrega final.</p>
-          <button class="filter-btn" type="button" data-home-tab="estrategias">Validar estrategias</button>
+        <article class="workflow-command-step" data-wf-step="cvc">
+          <label><input type="checkbox" data-check="command-center-cvc"> Champion vs Challenger</label>
+          <p>Compara finalistas, confirma campeona y prepara la decision antes de entrega o despliegue.</p>
+          <button class="filter-btn" type="button" data-home-tab="cvc">Comparar finalistas</button>
         </article>
       </div>
     </section>
     <div class="subtabs">
       <div class="subtab active" data-subtab="wf-overview">Vista General</div>
-      <div class="subtab" data-subtab="wf-capa2">Capa 2</div>
-      <div class="subtab" data-subtab="wf-diff">Capa 1 vs 2</div>
+      <div class="subtab" data-subtab="wf-capa2">Checklist C2</div>
+      <div class="subtab" data-subtab="wf-diff">Comparativa Capas</div>
       <div class="subtab" data-subtab="wf-postproc">Post-Procesamiento</div>
       <div class="subtab" data-subtab="wf-portfolio">Portfolio</div>
       <div class="subtab" data-subtab="wf-deploy">Despliegue MT5</div>
@@ -2669,7 +2664,7 @@ Ret/DD > 0.5       ← muy permisivo (Forward es validación)</pre>
 
   <div class="card">
     <div class="card-header">
-      <h2>Capa 2 - operativa extendida</h2>
+      <h2>Checklist operativo Capa 2</h2>
       <span class="badge layer2">Mining 2</span>
       <span class="badge info">Checklist y control</span>
     </div>

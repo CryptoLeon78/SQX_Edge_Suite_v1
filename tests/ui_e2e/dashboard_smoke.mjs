@@ -46,6 +46,13 @@ async function run() {
     await desktop.waitForSelector('#workflow-command-center');
     const categoryTabCount = await desktop.locator('.tab[data-tab="categorias"]').count();
     if (categoryTabCount !== 0) throw new Error('Por Categoria should not be a primary tab');
+    const priorityTabCount = await desktop.locator('.tab[data-tab="priority"]').count();
+    if (priorityTabCount !== 0) throw new Error('Priority should not be a primary navigation section');
+    const commandCenterText = await desktop.locator('#workflow-command-center').innerText();
+    if (commandCenterText.includes('Strategy Builder')) throw new Error('Workflow command center should not expose Strategy Builder');
+    ['Estrategias', 'Champion vs Challenger'].forEach(expected => {
+      if (!commandCenterText.includes(expected)) throw new Error(`Workflow command center should expose ${expected}`);
+    });
     await desktop.locator('#workflow-command-center [data-home-tab="pipeline"]').click();
     await desktop.waitForSelector('.tab[data-tab="pipeline"].active');
     await desktop.waitForSelector('#ps-current-pipeline-status');
@@ -164,7 +171,7 @@ async function run() {
     await desktop.locator('[data-workflow-subtab-target="wf-capa2"]').click();
     await desktop.waitForSelector('#wf-capa2.active');
     const capa2TabText = await desktop.locator('#wf-capa2').innerText();
-    if (!capa2TabText.includes('Capa 2 - operativa extendida')) {
+    if (!capa2TabText.includes('Checklist operativo Capa 2')) {
       throw new Error('Workflow Capa 2 tab should keep the extended operational content');
     }
     ['Checklist de aplicación Capa 2', 'Embudo esperado Capa 2', 'Configuraciones opcionales según objetivo'].forEach(expected => {

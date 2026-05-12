@@ -41,10 +41,6 @@ window.SQX_MANIFEST = {
         "label": "Mining Control"
       },
       {
-        "id": "priority",
-        "label": "Priority"
-      },
-      {
         "id": "filtros",
         "label": "Avanzado"
       },
