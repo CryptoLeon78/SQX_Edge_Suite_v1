@@ -2122,6 +2122,14 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn('"id": "categorias"', manifest_js)
         self.assertIn('id="tab-inicio" class="tab-content" style="display:none"', self.html)
         self.assertIn('id="tab-workflow" class="tab-content"', self.html)
+        pipeline_tab = self.html.split('id="tab-pipeline"', 1)[1].split('id="tab-projectgen"', 1)[0]
+        workflow_overview = self.html.split('id="wf-overview"', 1)[1].split('id="wf-capa1"', 1)[0]
+        self.assertIn('id="ps-current-pipeline-status"', pipeline_tab)
+        self.assertIn("Estado actual del pipeline", pipeline_tab)
+        self.assertIn("TEMPLATE LINEAR cerrada", pipeline_tab)
+        self.assertIn("filter-by-correlation", pipeline_tab)
+        self.assertNotIn("Estado actual del pipeline", workflow_overview)
+        self.assertNotIn("TEMPLATE LINEAR cerrada", workflow_overview)
         self.assertIn('id="workflow-command-center"', self.html)
         self.assertIn('id="wf-command-progress-label"', self.html)
         self.assertIn('data-check="command-center-diagnostico"', self.html)

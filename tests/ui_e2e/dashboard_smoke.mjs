@@ -48,6 +48,12 @@ async function run() {
     if (categoryTabCount !== 0) throw new Error('Por Categoria should not be a primary tab');
     await desktop.locator('#workflow-command-center [data-home-tab="pipeline"]').click();
     await desktop.waitForSelector('.tab[data-tab="pipeline"].active');
+    await desktop.waitForSelector('#ps-current-pipeline-status');
+    const miningControlStatusText = await desktop.locator('#ps-current-pipeline-status').innerText();
+    if (!miningControlStatusText.includes('TEMPLATE LINEAR cerrada') || !miningControlStatusText.includes('filter-by-correlation')) {
+      throw new Error('Mining Control should own the current pipeline status section');
+    }
+    await saveShot(desktop, 'e2e-mining-control-status-desktop.png');
     await desktop.locator('.tab[data-tab="workflow"]').click();
     await desktop.waitForSelector('.tab[data-tab="workflow"].active');
     await desktop.locator('#wf-command-steps input[data-check="command-center-diagnostico"]').check();
@@ -112,6 +118,10 @@ async function run() {
     await saveShot(desktop, 'e2e-workflow-desktop.png');
     await desktop.locator('.subtab[data-subtab="wf-overview"]').click();
     await desktop.waitForSelector('#wf-overview.active');
+    const workflowOverviewText = await desktop.locator('#wf-overview').innerText();
+    if (workflowOverviewText.includes('Estado actual del pipeline') || workflowOverviewText.includes('TEMPLATE LINEAR cerrada')) {
+      throw new Error('Workflow overview should not render the current pipeline status section');
+    }
     const removedWorkflowStats = await desktop.locator('#wf-overview .stats-row .stat-card').count();
     if (removedWorkflowStats !== 0) throw new Error('Workflow overview KPI cards should be removed');
     const setupSubtab = await desktop.locator('.subtab[data-subtab="wf-setup"]').count();
