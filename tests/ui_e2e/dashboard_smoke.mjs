@@ -121,6 +121,27 @@ async function run() {
       throw new Error('Workflow SQX Views handoff should explain where and how to create views');
     }
     await saveShot(desktop, 'e2e-workflow-handoff-desktop.png');
+    await desktop.locator('.subtab[data-subtab="wf-capa2"]').click();
+    await desktop.waitForSelector('#wf-capa2.active');
+    await desktop.locator('[data-wf-detail-target="wf-capa2-mining2-tree-detail"]').click();
+    await desktop.waitForSelector('#wf-capa2-mining2-tree-detail:not([hidden])');
+    const capa2TriggerExpanded = await desktop.locator('[data-wf-detail-target="wf-capa2-mining2-tree-detail"][aria-expanded="true"]').count();
+    if (capa2TriggerExpanded !== 1) throw new Error('Mining 2 KPI should expand the inline Capa 2 tree detail');
+    const capa2TreeText = await desktop.locator('#wf-capa2-mining2-tree-detail').innerText();
+    [
+      'Edge: NO RANDOM (template fijo)',
+      'PF >= 1.20',
+      'Randomly skip trades 10%: ON',
+      'Randomize slippage: ON',
+      'Entry levels: ON',
+      'WF Ret/DD Ratio >= 5',
+      'Ret/DD > 1.0',
+    ].forEach(expected => {
+      if (!capa2TreeText.includes(expected)) throw new Error(`Mining 2 tree should preserve Capa 2 config: ${expected}`);
+    });
+    await saveShot(desktop, 'e2e-workflow-capa2-mining2-desktop.png');
+    await desktop.locator('.subtab[data-subtab="wf-overview"]').click();
+    await desktop.waitForSelector('#wf-overview.active');
     await desktop.locator('#workflow-views-handoff [data-vc-handoff="robustness"]').click();
     await desktop.waitForSelector('.tab[data-tab="views"].active');
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'SQX Robustez');
