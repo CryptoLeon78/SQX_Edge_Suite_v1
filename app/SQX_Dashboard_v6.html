@@ -1577,7 +1577,6 @@
     </section>
     <div class="subtabs">
       <div class="subtab active" data-subtab="wf-overview">Vista General</div>
-      <div class="subtab" data-subtab="wf-setup">Setup Global</div>
       <div class="subtab" data-subtab="wf-capa1">Capa 1</div>
       <div class="subtab" data-subtab="wf-capa2">Capa 2</div>
       <div class="subtab" data-subtab="wf-diff">Capa 1 vs 2</div>
@@ -1600,24 +1599,141 @@
       <p id="wf-plan-v2-detail">Resumen dinámico del plan configurado y de sus extensiones locales.</p>
     </div>
     <div class="subtab-host">
-      <div id="wf-overview" class="subtab-content active"><div class="stats-row">
-    <div class="stat-card"><div class="stat-num">2</div><div class="stat-label">Capas</div></div>
-    <div class="stat-card"><div class="stat-num">14</div><div class="stat-label">Minings Plan</div></div>
-    <div class="stat-card"><div class="stat-num">5</div><div class="stat-label">Fases</div></div>
-    <div class="stat-card"><div class="stat-num">8-12</div><div class="stat-label">Portfolio Final</div></div>
-    <div class="stat-card"><div class="stat-num">0.2%</div><div class="stat-label">Risk/Trade</div></div>
-  </div>
+      <div id="wf-overview" class="subtab-content active">
 
   <div class="views-handoff" id="workflow-views-handoff">
     <div>
       <span>Vista SQX recomendada</span>
-      <strong>Crear .vw para Capa 1/Capa 2 antes del CSV</strong>
+      <strong>Crear las vistas .vw antes de lanzar minings o exportar CSV</strong>
+      <p class="views-handoff-copy">
+        Abre SQX Views desde estos accesos y genera una vista por apartado operativo: EGT Core para lectura anual/base,
+        Robustez para validacion y comparativas. Los tags de Views se usan como secciones de trabajo, no como simples etiquetas:
+        selecciona el pack, revisa columnas, descarga el .vw e importalo en StrategyQuant X antes de analizar resultados.
+      </p>
     </div>
     <div class="views-handoff-actions">
       <button class="filter-btn" type="button" data-vc-handoff="egt-core" data-vc-name="EGT - Anual" data-vc-years="9">EGT Core</button>
       <button class="filter-btn" type="button" data-vc-handoff="robustness" data-vc-name="SQX Robustez" data-vc-years="9">Robustez</button>
     </div>
   </div>
+
+  <details class="workflow-accordion" id="wf-setup-global-details">
+    <summary>
+      <span>Setup global</span>
+      <small>Configuracion base comun antes de empezar cada ciclo</small>
+    </summary>
+    <div class="workflow-accordion-body">
+      <div class="card">
+        <div class="card-header">
+          <h2>Money Management (comun a todos los minings)</h2>
+          <span class="badge info">Configuracion fija</span>
+        </div>
+
+        <div class="config-grid">
+          <div class="config-box">
+            <h4><span class="icon">$</span>Capital y Riesgo</h4>
+            <ul class="config-list">
+              <li><span class="key">Initial Capital:</span><span class="value">$100,000</span></li>
+              <li><span class="key">Method:</span><span class="value">Fixed amount</span></li>
+              <li><span class="key">RiskedMoney:</span><span class="value">$200 (0.2%)</span></li>
+              <li><span class="key">Size Decimals:</span><span class="value">1</span></li>
+              <li><span class="key">Size if no MM:</span><span class="value">0.1 lots</span></li>
+            </ul>
+          </div>
+
+          <div class="config-box">
+            <h4><span class="icon">⚙</span>Maximum Lots por Activo</h4>
+            <ul class="config-list">
+              <li><span class="key">XAUUSD (Oro):</span><span class="value">3 lots</span></li>
+              <li><span class="key">Forex Majors:</span><span class="value">5 lots</span></li>
+              <li><span class="key">Forex Minors:</span><span class="value">3 lots</span></li>
+              <li><span class="key">Indices:</span><span class="value">2 contratos</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Blocksettings disponibles</h2>
+          <span class="badge layer1">Capa 1</span>
+          <span class="badge layer2">Capa 2</span>
+        </div>
+
+        <table class="mining-table">
+          <thead>
+            <tr>
+              <th>Archivo</th>
+              <th>Capa</th>
+              <th>Uso</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>BS_Tendencia_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges trend (SuperTrend, EMA, MACD, Ichimoku, LinearRegression)</td></tr>
+            <tr><td><code>BS_Momentum_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges osciladores (RSI, Stochastic, CCI)</td></tr>
+            <tr><td><code>BS_Volatilidad_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges Bollinger, Keltner, ATR</td></tr>
+            <tr><td><code>BS_SoporteResistencia_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges S/R, Pivots</td></tr>
+            <tr><td><code>BS_Filtros_v5.sqb</code></td><td><span class="badge layer2">Capa 2</span></td><td>Filtros adicionales + Trailing limpio</td></tr>
+            <tr><td><code>BS_Estadistico_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges estadisticos</td></tr>
+            <tr><td><code>BS_Volumen_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges volumen</td></tr>
+            <tr><td><code>BS_Regimen_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges regimen mercado</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Pasos al cambiar de activo</h2>
+          <span class="badge warning">Obligatorio</span>
+        </div>
+        <ol style="padding-left:20px; line-height:2; color:var(--text2);">
+          <li><strong style="color:var(--text);">Cargar datos</strong> del nuevo activo en SQX (Data Manager)</li>
+          <li><strong style="color:var(--text);">Calibrate indicators</strong> en el Builder (boton) - actualiza rangos</li>
+          <li><strong style="color:var(--text);">Ajustar Maximum lots</strong> segun activo (tabla arriba)</li>
+          <li><strong style="color:var(--text);">Configurar direccion</strong> (Long-only o Long+Short segun activo)</li>
+          <li><strong style="color:var(--text);">Verificar spread y comisiones</strong> realistas (config Darwinex)</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h2>Direcciones por tipo de activo</h2>
+        </div>
+
+        <table class="mining-table">
+          <thead>
+            <tr><th>Tipo</th><th>Long</th><th>Short</th><th>Razon</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Oro (XAUUSD)</strong></td>
+              <td><span class="dir-icon long">SI</span></td>
+              <td><span class="dir-icon short">NO</span></td>
+              <td>Tendencia secular alcista. Operar short es ir contra macro.</td>
+            </tr>
+            <tr>
+              <td><strong>Indices (US500/USTEC/US30)</strong></td>
+              <td><span class="dir-icon long">SI</span></td>
+              <td><span class="dir-icon short">NO</span></td>
+              <td>Bull bias estructural. Empresas crecen, gobiernos rescatan crashes.</td>
+            </tr>
+            <tr>
+              <td><strong>Forex Majors</strong></td>
+              <td><span class="dir-icon long">SI</span></td>
+              <td><span class="dir-icon long">SI</span></td>
+              <td>Sin direccion secular. Pares oscilan en rangos. L/S simetrico.</td>
+            </tr>
+            <tr>
+              <td><strong>Forex Minors</strong></td>
+              <td><span class="dir-icon long">SI</span></td>
+              <td><span class="dir-icon long">SI</span></td>
+              <td>Mean reversion en rangos. L/S aprovecha ambos lados.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
 
   <div class="card">
     <div class="card-header">
@@ -1647,12 +1763,13 @@
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-header">
-      <h2>Flujo Completo del Pipeline</h2>
-    </div>
-
-    <div class="pipeline">
+  <details class="workflow-accordion" id="wf-pipeline-flow-details">
+    <summary>
+      <span>Flujo completo del pipeline</span>
+      <small>Secuencia completa de mineria, validacion, robustez y despliegue</small>
+    </summary>
+    <div class="workflow-accordion-body">
+      <div class="pipeline">
       <div class="pipeline-step l1">
         <div class="step-num">1</div>
         <div class="step-content">
@@ -1741,8 +1858,9 @@
           <div class="step-desc">Selección 8-12 estrategias. Demo primero, luego real progresivo.</div>
         </div>
       </div>
+      </div>
     </div>
-  </div>
+  </details>
 
   <div class="alert success">
     <div class="alert-icon">✓</div>
@@ -1757,115 +1875,6 @@
       </div>
       <div style="margin-top:8px; color:var(--text2); font-size:12px;"><strong style="color:var(--text);">Siguiente paso:</strong> filter-by-correlation entre las 3 PASSED del WFM (threshold 0.7) → confirmar diversidad estructural → cerrar TEMPLATE LINEAR. Después: Capa 2 sobre los 4 templates restantes.</div>
     </div></div>
-</div>
-            <div id="wf-setup" class="subtab-content"><div class="card">
-    <div class="card-header">
-      <h2>Money Management (común a todos los minings)</h2>
-      <span class="badge info">Configuración fija</span>
-    </div>
-
-    <div class="config-grid">
-      <div class="config-box">
-        <h4><span class="icon">$</span>Capital y Riesgo</h4>
-        <ul class="config-list">
-          <li><span class="key">Initial Capital:</span><span class="value">$100,000</span></li>
-          <li><span class="key">Method:</span><span class="value">Fixed amount</span></li>
-          <li><span class="key">RiskedMoney:</span><span class="value">$200 (0.2%)</span></li>
-          <li><span class="key">Size Decimals:</span><span class="value">1</span></li>
-          <li><span class="key">Size if no MM:</span><span class="value">0.1 lots</span></li>
-        </ul>
-      </div>
-
-      <div class="config-box">
-        <h4><span class="icon">⚙</span>Maximum Lots por Activo</h4>
-        <ul class="config-list">
-          <li><span class="key">XAUUSD (Oro):</span><span class="value">3 lots</span></li>
-          <li><span class="key">Forex Majors:</span><span class="value">5 lots</span></li>
-          <li><span class="key">Forex Minors:</span><span class="value">3 lots</span></li>
-          <li><span class="key">Índices:</span><span class="value">2 contratos</span></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-header">
-      <h2>Blocksettings disponibles</h2>
-      <span class="badge layer1">Capa 1</span>
-      <span class="badge layer2">Capa 2</span>
-    </div>
-
-    <table class="mining-table">
-      <thead>
-        <tr>
-          <th>Archivo</th>
-          <th>Capa</th>
-          <th>Uso</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td><code>BS_Tendencia_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges trend (SuperTrend, EMA, MACD, Ichimoku, LinearRegression)</td></tr>
-        <tr><td><code>BS_Momentum_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges osciladores (RSI, Stochastic, CCI)</td></tr>
-        <tr><td><code>BS_Volatilidad_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges Bollinger, Keltner, ATR</td></tr>
-        <tr><td><code>BS_SoporteResistencia_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges S/R, Pivots</td></tr>
-        <tr><td><code>BS_Filtros_v5.sqb</code></td><td><span class="badge layer2">Capa 2</span></td><td>Filtros adicionales + Trailing limpio</td></tr>
-        <tr><td><code>BS_Estadistico_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges estadísticos</td></tr>
-        <tr><td><code>BS_Volumen_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges volumen</td></tr>
-        <tr><td><code>BS_Regimen_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges régimen mercado</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="card">
-    <div class="card-header">
-      <h2>Pasos al cambiar de activo</h2>
-      <span class="badge warning">Obligatorio</span>
-    </div>
-    <ol style="padding-left:20px; line-height:2; color:var(--text2);">
-      <li><strong style="color:var(--text);">Cargar datos</strong> del nuevo activo en SQX (Data Manager)</li>
-      <li><strong style="color:var(--text);">Calibrate indicators</strong> en el Builder (botón) — actualiza rangos</li>
-      <li><strong style="color:var(--text);">Ajustar Maximum lots</strong> según activo (tabla arriba)</li>
-      <li><strong style="color:var(--text);">Configurar dirección</strong> (Long-only o Long+Short según activo)</li>
-      <li><strong style="color:var(--text);">Verificar spread y comisiones</strong> realistas (config Darwinex)</li>
-    </ol>
-  </div>
-
-  <div class="card">
-    <div class="card-header">
-      <h2>Direcciones por tipo de activo</h2>
-    </div>
-
-    <table class="mining-table">
-      <thead>
-        <tr><th>Tipo</th><th>Long</th><th>Short</th><th>Razón</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Oro (XAUUSD)</strong></td>
-          <td><span class="dir-icon long">SÍ</span></td>
-          <td><span class="dir-icon short">NO</span></td>
-          <td>Tendencia secular alcista. Operar short es ir contra macro.</td>
-        </tr>
-        <tr>
-          <td><strong>Índices (US500/USTEC/US30)</strong></td>
-          <td><span class="dir-icon long">SÍ</span></td>
-          <td><span class="dir-icon short">NO</span></td>
-          <td>Bull bias estructural. Empresas crecen, gobiernos rescatan crashes.</td>
-        </tr>
-        <tr>
-          <td><strong>Forex Majors</strong></td>
-          <td><span class="dir-icon long">SÍ</span></td>
-          <td><span class="dir-icon long">SÍ</span></td>
-          <td>Sin dirección secular. Pares oscilan en rangos. L/S simétrico.</td>
-        </tr>
-        <tr>
-          <td><strong>Forex Minors</strong></td>
-          <td><span class="dir-icon long">SÍ</span></td>
-          <td><span class="dir-icon long">SÍ</span></td>
-          <td>Mean reversion en rangos. L/S aprovecha ambos lados.</td>
-        </tr>
-      </tbody>
-    </table></div>
 </div>
             <div id="wf-capa1" class="subtab-content">
 

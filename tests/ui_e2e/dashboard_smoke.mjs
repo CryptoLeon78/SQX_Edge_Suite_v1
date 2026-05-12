@@ -80,6 +80,18 @@ async function run() {
     await saveShot(desktop, 'e2e-workflow-desktop.png');
     await desktop.locator('.subtab[data-subtab="wf-overview"]').click();
     await desktop.waitForSelector('#wf-overview.active');
+    const removedWorkflowStats = await desktop.locator('#wf-overview .stats-row .stat-card').count();
+    if (removedWorkflowStats !== 0) throw new Error('Workflow overview KPI cards should be removed');
+    const setupSubtab = await desktop.locator('.subtab[data-subtab="wf-setup"]').count();
+    if (setupSubtab !== 0) throw new Error('Setup Global should be integrated inside Vista General, not exposed as a subtab');
+    const setupClosed = await desktop.locator('#wf-setup-global-details:not([open])').count();
+    if (setupClosed !== 1) throw new Error('Setup Global accordion should be closed by default');
+    const pipelineClosed = await desktop.locator('#wf-pipeline-flow-details:not([open])').count();
+    if (pipelineClosed !== 1) throw new Error('Pipeline flow accordion should be closed by default');
+    const viewsCopy = await desktop.locator('#workflow-views-handoff .views-handoff-copy').innerText();
+    if (!viewsCopy.includes('descarga el .vw') || !viewsCopy.includes('importalo en StrategyQuant X')) {
+      throw new Error('Workflow SQX Views handoff should explain where and how to create views');
+    }
     await saveShot(desktop, 'e2e-workflow-handoff-desktop.png');
     await desktop.locator('#workflow-views-handoff [data-vc-handoff="robustness"]').click();
     await desktop.waitForSelector('.tab[data-tab="views"].active');

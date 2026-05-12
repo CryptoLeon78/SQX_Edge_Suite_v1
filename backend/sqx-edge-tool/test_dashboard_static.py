@@ -2124,6 +2124,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn('data-check="command-center-diagnostico"', self.html)
         self.assertIn('data-home-tab="projectgen"', self.html)
         self.assertNotIn('data-home-tab="categorias"', self.html)
+        self.assertNotIn('data-subtab="wf-setup"', self.html)
+        self.assertNotIn('id="wf-setup" class="subtab-content"', self.html)
+        self.assertIn('id="wf-setup-global-details"', self.html)
+        self.assertIn('id="wf-pipeline-flow-details"', self.html)
+        self.assertIn('class="views-handoff-copy"', self.html)
+        self.assertNotIn('<div class="stat-num">14</div><div class="stat-label">Minings Plan</div>', self.html)
         self.assertIn(".workflow-command-center", (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig"))
 
         self.assertIn("window.SQX.workflow.init()", main_js)
@@ -10507,8 +10513,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: UX-NAV1 convierte Workflow en pantalla inicial",
-            "Por Categoria sale de la navegacion principal",
+            "Estado interno: UX-NAV pasa a optimizacion tab por tab; el tab activo es Workflow",
+            "reordenamiento global queda aplazado hasta completar las optimizaciones individuales",
             "Ultimo ZIP portable tester conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",
             "SHA256 del ZIP tester: `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`",
             "Siguiente paso recomendado: completar evidencia privada TL1",
