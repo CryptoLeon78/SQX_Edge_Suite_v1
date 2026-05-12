@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: TL8 - Feedback Action Execution Rollup.
+- Current phase completed: TL9 - Feedback Result Validation Rollup.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: use TL8 local action execution rollup to produce ignored result-validation evidence, then continue result validation without committing raw feedback, tester identities, credentials, screenshots or protected URLs.
+- Next implementation phase: use TL9 local result validation rollup to produce ignored iteration-decision evidence, then continue iteration decision without committing raw feedback, tester identities, credentials, screenshots or protected URLs.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.
