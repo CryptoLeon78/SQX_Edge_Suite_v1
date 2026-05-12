@@ -166,6 +166,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/feedback-intake-rollup.mjs`: TL5 local-only helper that converts ignored feedback packet JSON into aggregate `tester-feedback-intake.local.json` evidence.
 - `scripts/feedback-triage-rollup.mjs`: TL6 local-only helper that converts aggregate intake evidence into ignored triage priority/action evidence.
 - `scripts/feedback-action-plan-rollup.mjs`: TL7 local-only helper that converts triage evidence into ignored action-plan evidence.
+- `scripts/feedback-action-execution-rollup.mjs`: TL8 local-only helper that converts action-plan evidence into ignored execution evidence.
 - `cloudflare-access-policy-boundary.example.json`: public-safe T10ak evidence template; copy to ignored `cloudflare-access-policy-boundary.local.json` only.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
@@ -217,6 +218,15 @@ npm run proof:tester-action-plan-gate
 ```
 
 This writes ignored `tester-action-plan.local.json` plus `.local/feedback-action-plan-rollup.json`. Public-safe action labels are derived from triage labels only.
+
+Then generate private execution evidence:
+
+```powershell
+npm run operator:rollup-feedback-action-execution
+npm run proof:tester-action-execution-gate
+```
+
+This writes ignored `tester-action-execution.local.json` plus `.local/feedback-action-execution-rollup.json`. The execution labels are public-safe and derived from action labels only.
 
 ```powershell
 npm run audit:vercel-protection

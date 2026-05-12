@@ -83,6 +83,7 @@
     "operator:rollup-feedback-intake": "node scripts/feedback-intake-rollup.mjs",
     "operator:rollup-feedback-triage": "node scripts/feedback-triage-rollup.mjs",
     "operator:rollup-feedback-action-plan": "node scripts/feedback-action-plan-rollup.mjs",
+    "operator:rollup-feedback-action-execution": "node scripts/feedback-action-execution-rollup.mjs",
     "cf:build": "opennextjs-cloudflare build",
     "cf:preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
