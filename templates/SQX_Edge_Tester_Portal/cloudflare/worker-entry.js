@@ -3,12 +3,63 @@ import openNextWorker from "../.open-next/worker.js";
 const SESSION_COOKIE = "__Host-sqx_tester_session";
 const SESSION_MAX_AGE_SECONDS = 60 * 60;
 const FEATURES = [
-  "sqx_dashboard_full",
-  "strategy_builder",
-  "project_generator",
-  "views_creator",
-  "buyer_handoff_exports",
-  "support_case_bundle"
+  {
+    id: "sqx_dashboard_full",
+    label: "SQX Dashboard full",
+    description: "Premium dashboard access for the protected tester cohort.",
+    status: "ready"
+  },
+  {
+    id: "strategy_builder",
+    label: "Strategy Builder",
+    description: "Commercial hook reserved for the next product iteration.",
+    status: "planned"
+  },
+  {
+    id: "project_generator",
+    label: "Project Generator",
+    description: "Generate buyer-ready project packs from approved profiles.",
+    status: "ready"
+  },
+  {
+    id: "views_creator",
+    label: "Views Creator",
+    description: "Prepare focused tester views without exposing internals.",
+    status: "ready"
+  },
+  {
+    id: "buyer_handoff_exports",
+    label: "Buyer handoff exports",
+    description: "Package delivery material for Pro buyer onboarding.",
+    status: "ready"
+  },
+  {
+    id: "support_case_bundle",
+    label: "Support case bundle",
+    description: "Collect reproducible support context for operator review.",
+    status: "ready"
+  }
+];
+
+const PORTAL_ACTIONS = [
+  {
+    href: "/handoff",
+    title: "Start tester handoff",
+    text: "Open the controlled launch checklist and confirm what to test first.",
+    badge: "Today"
+  },
+  {
+    href: "/feedback",
+    title: "Send structured feedback",
+    text: "Report friction, missing value or buying objections without exposing secrets.",
+    badge: "Important"
+  },
+  {
+    href: "/renewal",
+    title: "Review access window",
+    text: "Check the 15-day tester cycle and the renewal decision flow.",
+    badge: "Cycle"
+  }
 ];
 
 const SECURITY_HEADERS = {
@@ -73,6 +124,24 @@ function readEnv(env, name, fallback = "") {
   return typeof env?.[name] === "string" ? env[name] : fallback;
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function statusMessage(status) {
+  const messages = {
+    demo_login_disabled: "Demo login is not enabled for this Worker yet.",
+    invalid_demo_credential: "The email or access code does not match the active tester gate.",
+    feedback_ready: "Feedback packet prepared. Send the private notes through the agreed operator channel."
+  };
+  return messages[status] || status;
+}
+
 function buildShell(title, content) {
   return `<!doctype html>
 <html lang="en">
@@ -86,31 +155,59 @@ function buildShell(title, content) {
     body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 15% 12%, rgba(101, 165, 255, 0.18), transparent 30%), linear-gradient(135deg, #07101d 0%, #0f172a 52%, #07111f 100%); color: var(--text); font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
     .shell { width: min(1120px, calc(100% - 40px)); margin: 0 auto; padding: 56px 0; }
     .panel { border: 1px solid var(--border); border-radius: 8px; background: rgba(16, 26, 43, 0.84); box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28); }
-    .hero { display: grid; gap: 22px; padding: 32px; }
+    .hero, .section { display: grid; gap: 22px; padding: 32px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; color: var(--muted); }
+    .brand { color: var(--text); font-weight: 900; }
     .eyebrow { margin: 0; color: var(--blue); text-transform: uppercase; font-size: 0.78rem; font-weight: 800; letter-spacing: 0; }
     h1 { margin: 0; font-size: clamp(2rem, 4vw, 4rem); letter-spacing: 0; }
+    h2 { margin: 0; font-size: clamp(1.25rem, 2vw, 1.8rem); letter-spacing: 0; }
     p { margin: 0; color: var(--muted); line-height: 1.6; }
     .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .action-card { display: grid; gap: 12px; padding: 18px; border: 1px solid var(--border); border-radius: 8px; background: rgba(21, 34, 56, 0.72); text-decoration: none; color: var(--text); }
+    .action-card:hover { border-color: rgba(101, 165, 255, 0.72); background: rgba(24, 43, 74, 0.78); }
+    .badge { width: fit-content; padding: 6px 9px; border: 1px solid rgba(35, 209, 139, 0.38); border-radius: 999px; color: var(--green); background: rgba(35, 209, 139, 0.08); font-size: 0.76rem; font-weight: 800; }
     .metric { padding: 18px; border: 1px solid var(--border); border-radius: 8px; background: rgba(21, 34, 56, 0.72); }
     .metric strong { display: block; margin-bottom: 8px; }
+    .stack { display: grid; gap: 14px; }
+    .checklist { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+    .checklist li { padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; background: rgba(8, 17, 31, 0.56); color: var(--muted); }
+    .checklist strong { color: var(--text); }
     .auth-form { display: grid; gap: 16px; max-width: 460px; }
     label { display: grid; gap: 8px; color: var(--text); font-weight: 700; }
-    input { min-height: 44px; border-radius: 8px; border: 1px solid var(--border); background: #08111f; color: var(--text); padding: 0 12px; }
+    input, select, textarea { min-height: 44px; border-radius: 8px; border: 1px solid var(--border); background: #08111f; color: var(--text); padding: 0 12px; }
+    textarea { min-height: 120px; padding: 12px; resize: vertical; }
     button, .button { min-height: 44px; width: fit-content; padding: 0 18px; border: 0; border-radius: 8px; background: #1d4ed8; color: white; font-weight: 800; cursor: pointer; text-decoration: none; display: inline-grid; place-items: center; }
+    .button.secondary { background: rgba(101, 165, 255, 0.14); border: 1px solid rgba(101, 165, 255, 0.38); }
+    .inline-actions { display: flex; flex-wrap: wrap; gap: 10px; }
     .feature-list { display: flex; flex-wrap: wrap; gap: 8px; }
     .feature-list span { padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; background: rgba(35, 209, 139, 0.1); color: var(--green); }
+    .notice { padding: 14px; border: 1px solid rgba(101, 165, 255, 0.38); border-radius: 8px; background: rgba(101, 165, 255, 0.1); }
     .watermark { position: fixed; right: 18px; bottom: 16px; font-size: 0.72rem; color: rgba(247, 251, 255, 0.58); }
-    @media (max-width: 760px) { .grid { grid-template-columns: 1fr; } .hero { padding: 22px; } }
+    @media (max-width: 860px) { .grid, .actions { grid-template-columns: 1fr; } .hero, .section { padding: 22px; } .topbar { align-items: flex-start; flex-direction: column; } }
   </style>
 </head>
 <body>${content}</body>
 </html>`;
 }
 
+function renderTopbar() {
+  return `<div class="topbar">
+    <div><span class="brand">SQX Edge</span> Tester Portal</div>
+    <form action="/api/auth/logout" method="post"><button type="submit">Sign out</button></form>
+  </div>`;
+}
+
+function requireSessionPage(request, renderer) {
+  return hasSession(request) ? htmlResponse(renderer()) : redirect("/login?next=/portal");
+}
+
 function loginPage(url) {
   const next = url.searchParams.get("next")?.startsWith("/") ? url.searchParams.get("next") : "/portal";
   const status = url.searchParams.get("status");
-  const message = status ? `<div class="metric"><strong>Access status</strong><p>${status}</p></div>` : "";
+  const message = status
+    ? `<div class="metric"><strong>Access status</strong><p>${escapeHtml(statusMessage(status))}</p></div>`
+    : "";
   return buildShell(
     "SQX Edge Tester Portal",
     `<main class="shell">
@@ -120,7 +217,7 @@ function loginPage(url) {
         <p>Protected tester bootstrap for the SQX Edge Pro experience.</p>
         ${message}
         <form class="auth-form" action="/api/auth/login" method="post">
-          <input type="hidden" name="next" value="${next}" />
+          <input type="hidden" name="next" value="${escapeHtml(next)}" />
           <label>Email<input name="email" type="email" autocomplete="email" required /></label>
           <label>Access code<input name="accessCode" type="password" autocomplete="one-time-code" required /></label>
           <button type="submit">Continue</button>
@@ -131,24 +228,131 @@ function loginPage(url) {
 }
 
 function portalPage() {
+  const actionCards = PORTAL_ACTIONS.map(
+    (action) => `<a class="action-card" href="${action.href}">
+      <span class="badge">${action.badge}</span>
+      <strong>${action.title}</strong>
+      <p>${action.text}</p>
+    </a>`
+  ).join("");
+  const features = FEATURES.map(
+    (feature) => `<span title="${feature.description}">${feature.label} - ${feature.status}</span>`
+  ).join("");
   return buildShell(
     "SQX Edge Tester Portal",
     `<main class="shell">
+      ${renderTopbar()}
       <section class="panel hero">
         <p class="eyebrow">Tester Pro</p>
-        <h1>Protected portal</h1>
-        <p>SQX Edge Pro tester access is active for this protected preview. This rescue shell avoids the unstable Next/OpenNext runtime path while the tester pilot is validated.</p>
+        <h1>Tester launch room</h1>
+        <p>SQX Edge Pro tester access is active. This protected room gives testers a practical first path: what to validate, where to report friction and how the 15-day review cycle works.</p>
         <div class="grid">
-          <div class="metric"><strong>Access</strong><p>Cloudflare Access plus SQX tester session.</p></div>
-          <div class="metric"><strong>Cycle</strong><p>15-day tester review window.</p></div>
-          <div class="metric"><strong>Watermark</strong><p>Demo tester identity marker enabled.</p></div>
+          <div class="metric"><strong>Access</strong><p>Cloudflare Access plus SQX tester session is active.</p></div>
+          <div class="metric"><strong>Cycle</strong><p>15-day tester review window with manual continuation decision.</p></div>
+          <div class="metric"><strong>Scope</strong><p>Pro pilot features only. No payment data is collected here.</p></div>
         </div>
-        <div class="feature-list">${FEATURES.map((feature) => `<span>${feature}</span>`).join("")}</div>
-        <form action="/api/auth/logout" method="post"><button type="submit">Sign out</button></form>
+        <div class="actions">${actionCards}</div>
+        <div class="stack">
+          <h2>Available Pro surface</h2>
+          <div class="feature-list">${features}</div>
+        </div>
       </section>
       <p class="watermark">SQX-DEMO-TESTER-LOCAL-ONLY</p>
     </main>`
   );
+}
+
+function handoffPage() {
+  return buildShell(
+    "SQX Edge Tester Handoff",
+    `<main class="shell">
+      ${renderTopbar()}
+      <section class="panel section">
+        <p class="eyebrow">Tester handoff</p>
+        <h1>What to test first</h1>
+        <p>This is the controlled first-run checklist for invited testers. Keep feedback practical: what confused you, what created value, what would block a paid subscription.</p>
+        <ul class="checklist">
+          <li><strong>1. Access</strong><br />Confirm Cloudflare Access, SQX login and sign-out work cleanly in an incognito window.</li>
+          <li><strong>2. Product value</strong><br />Review the Pro feature surface and mark what feels commercially useful versus decorative.</li>
+          <li><strong>3. Trading workflow</strong><br />Validate whether dashboard, project generation and view creation match a real buyer workflow.</li>
+          <li><strong>4. Objections</strong><br />Record anything that would stop you from recommending or paying for SQX Edge Pro.</li>
+        </ul>
+        <div class="inline-actions">
+          <a class="button" href="/feedback">Prepare feedback</a>
+          <a class="button secondary" href="/portal">Back to portal</a>
+        </div>
+      </section>
+      <p class="watermark">SQX-DEMO-TESTER-LOCAL-ONLY</p>
+    </main>`
+  );
+}
+
+function feedbackPage(url) {
+  const status = url.searchParams.get("status");
+  const category = url.searchParams.get("category");
+  const message = status
+    ? `<div class="notice"><strong>${escapeHtml(statusMessage(status))}</strong>${category ? `<p>Category: ${escapeHtml(category)}</p>` : ""}</div>`
+    : "";
+  return buildShell(
+    "SQX Edge Tester Feedback",
+    `<main class="shell">
+      ${renderTopbar()}
+      <section class="panel section">
+        <p class="eyebrow">Feedback</p>
+        <h1>Structured tester signal</h1>
+        <p>This form prepares a private feedback packet. The Worker does not persist raw notes; send detailed private notes through the agreed operator channel after submitting.</p>
+        ${message}
+        <form class="auth-form" action="/api/tester/feedback" method="post">
+          <label>Category
+            <select name="category" required>
+              <option value="onboarding">Onboarding</option>
+              <option value="product_value">Product value</option>
+              <option value="workflow">Workflow</option>
+              <option value="commercial_objection">Commercial objection</option>
+              <option value="bug_or_blocker">Bug or blocker</option>
+            </select>
+          </label>
+          <label>Signal summary<textarea name="summary" maxlength="800" placeholder="Short private summary. Do not include passwords, URLs, screenshots or account secrets." required></textarea></label>
+          <button type="submit">Prepare feedback packet</button>
+        </form>
+        <div class="inline-actions"><a class="button secondary" href="/portal">Back to portal</a></div>
+      </section>
+      <p class="watermark">SQX-DEMO-TESTER-LOCAL-ONLY</p>
+    </main>`
+  );
+}
+
+function renewalPage() {
+  return buildShell(
+    "SQX Edge Tester Renewal",
+    `<main class="shell">
+      ${renderTopbar()}
+      <section class="panel section">
+        <p class="eyebrow">Review cycle</p>
+        <h1>15-day access window</h1>
+        <p>Tester access is intentionally temporary. At the end of the cycle, the operator reviews activity, feedback quality and product fit before continuing, pausing or closing access.</p>
+        <div class="grid">
+          <div class="metric"><strong>Continue</strong><p>Useful feedback and clear fit for the Pro pilot.</p></div>
+          <div class="metric"><strong>Pause</strong><p>No current availability or feedback still pending.</p></div>
+          <div class="metric"><strong>Close</strong><p>Access no longer needed or distribution risk detected.</p></div>
+        </div>
+        <div class="inline-actions">
+          <a class="button" href="/feedback">Prepare renewal feedback</a>
+          <a class="button secondary" href="/portal">Back to portal</a>
+        </div>
+      </section>
+      <p class="watermark">SQX-DEMO-TESTER-LOCAL-ONLY</p>
+    </main>`
+  );
+}
+
+async function feedback(request) {
+  if (!hasSession(request)) {
+    return jsonResponse({ ok: false, reasonCode: "missing_session" }, { status: 401 });
+  }
+  const form = await request.formData();
+  const category = String(form.get("category") || "uncategorized").slice(0, 80);
+  return redirect(`/feedback?status=feedback_ready&category=${encodeURIComponent(category)}`);
 }
 
 async function login(request, env) {
@@ -202,6 +406,22 @@ export default {
 
     if (request.method === "GET" && url.pathname === "/portal") {
       return hasSession(request) ? htmlResponse(portalPage()) : redirect("/login?next=/portal");
+    }
+
+    if (request.method === "GET" && url.pathname === "/handoff") {
+      return requireSessionPage(request, handoffPage);
+    }
+
+    if (request.method === "GET" && url.pathname === "/feedback") {
+      return requireSessionPage(request, () => feedbackPage(url));
+    }
+
+    if (request.method === "POST" && url.pathname === "/api/tester/feedback") {
+      return feedback(request);
+    }
+
+    if (request.method === "GET" && url.pathname === "/renewal") {
+      return requireSessionPage(request, renewalPage);
     }
 
     if (request.method === "GET" && url.pathname === "/api/health") {
