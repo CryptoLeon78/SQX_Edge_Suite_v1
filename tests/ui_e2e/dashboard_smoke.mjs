@@ -71,11 +71,15 @@ async function run() {
     await desktop.evaluate(() => localStorage.removeItem('sqx_workflow_checklist_v1'));
     const capa1Subtab = await desktop.locator('.subtab[data-subtab="wf-capa1"]').count();
     if (capa1Subtab !== 0) throw new Error('Capa 1 should live inside the pipeline step, not as a top workflow subtab');
-    const initialSetupClosed = await desktop.locator('#wf-setup-global-details:not([open])').count();
-    if (initialSetupClosed !== 1) throw new Error('Setup Global accordion should be closed by default');
+    const setupGlobalKpi = await desktop.locator('#wf-setup-global-details').count();
+    if (setupGlobalKpi !== 0) throw new Error('Setup Global KPI should be removed from Workflow overview');
     const initialPipelineClosed = await desktop.locator('#wf-pipeline-flow-details:not([open])').count();
     if (initialPipelineClosed !== 1) throw new Error('Pipeline flow accordion should be closed by default');
     await desktop.locator('#wf-pipeline-flow-details summary').click();
+    const removedOosKpi = await desktop.locator('#wf-pipeline-flow-details .step-title', { hasText: 'Validación OOS 2010-2017' }).count();
+    if (removedOosKpi !== 0) throw new Error('OOS validation KPI should be removed from the full pipeline');
+    const removedForwardKpi = await desktop.locator('#wf-pipeline-flow-details .step-title', { hasText: 'Validación Forward 2024-2026' }).count();
+    if (removedForwardKpi !== 0) throw new Error('Forward validation KPI should be removed from the full pipeline');
     await desktop.locator('[data-wf-detail-target="wf-capa1-tree-detail"]').click();
     await desktop.waitForSelector('#wf-capa1-tree-detail:not([hidden])');
     const overviewStillActive = await desktop.locator('#wf-overview.active').count();

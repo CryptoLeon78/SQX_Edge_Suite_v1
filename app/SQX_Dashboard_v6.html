@@ -1616,124 +1616,6 @@
     </div>
   </div>
 
-  <details class="workflow-accordion" id="wf-setup-global-details">
-    <summary>
-      <span>Setup global</span>
-      <small>Configuracion base comun antes de empezar cada ciclo</small>
-    </summary>
-    <div class="workflow-accordion-body">
-      <div class="card">
-        <div class="card-header">
-          <h2>Money Management (comun a todos los minings)</h2>
-          <span class="badge info">Configuracion fija</span>
-        </div>
-
-        <div class="config-grid">
-          <div class="config-box">
-            <h4><span class="icon">$</span>Capital y Riesgo</h4>
-            <ul class="config-list">
-              <li><span class="key">Initial Capital:</span><span class="value">$100,000</span></li>
-              <li><span class="key">Method:</span><span class="value">Fixed amount</span></li>
-              <li><span class="key">RiskedMoney:</span><span class="value">$200 (0.2%)</span></li>
-              <li><span class="key">Size Decimals:</span><span class="value">1</span></li>
-              <li><span class="key">Size if no MM:</span><span class="value">0.1 lots</span></li>
-            </ul>
-          </div>
-
-          <div class="config-box">
-            <h4><span class="icon">⚙</span>Maximum Lots por Activo</h4>
-            <ul class="config-list">
-              <li><span class="key">XAUUSD (Oro):</span><span class="value">3 lots</span></li>
-              <li><span class="key">Forex Majors:</span><span class="value">5 lots</span></li>
-              <li><span class="key">Forex Minors:</span><span class="value">3 lots</span></li>
-              <li><span class="key">Indices:</span><span class="value">2 contratos</span></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h2>Blocksettings disponibles</h2>
-          <span class="badge layer1">Capa 1</span>
-          <span class="badge layer2">Capa 2</span>
-        </div>
-
-        <table class="mining-table">
-          <thead>
-            <tr>
-              <th>Archivo</th>
-              <th>Capa</th>
-              <th>Uso</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td><code>BS_Tendencia_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges trend (SuperTrend, EMA, MACD, Ichimoku, LinearRegression)</td></tr>
-            <tr><td><code>BS_Momentum_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges osciladores (RSI, Stochastic, CCI)</td></tr>
-            <tr><td><code>BS_Volatilidad_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges Bollinger, Keltner, ATR</td></tr>
-            <tr><td><code>BS_SoporteResistencia_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges S/R, Pivots</td></tr>
-            <tr><td><code>BS_Filtros_v5.sqb</code></td><td><span class="badge layer2">Capa 2</span></td><td>Filtros adicionales + Trailing limpio</td></tr>
-            <tr><td><code>BS_Estadistico_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges estadisticos</td></tr>
-            <tr><td><code>BS_Volumen_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges volumen</td></tr>
-            <tr><td><code>BS_Regimen_v4.sqb</code></td><td><span class="badge layer1">Capa 1</span></td><td>Edges regimen mercado</td></tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h2>Pasos al cambiar de activo</h2>
-          <span class="badge warning">Obligatorio</span>
-        </div>
-        <ol style="padding-left:20px; line-height:2; color:var(--text2);">
-          <li><strong style="color:var(--text);">Cargar datos</strong> del nuevo activo en SQX (Data Manager)</li>
-          <li><strong style="color:var(--text);">Calibrate indicators</strong> en el Builder (boton) - actualiza rangos</li>
-          <li><strong style="color:var(--text);">Ajustar Maximum lots</strong> segun activo (tabla arriba)</li>
-          <li><strong style="color:var(--text);">Configurar direccion</strong> (Long-only o Long+Short segun activo)</li>
-          <li><strong style="color:var(--text);">Verificar spread y comisiones</strong> realistas (config Darwinex)</li>
-        </ol>
-      </div>
-
-      <div class="card">
-        <div class="card-header">
-          <h2>Direcciones por tipo de activo</h2>
-        </div>
-
-        <table class="mining-table">
-          <thead>
-            <tr><th>Tipo</th><th>Long</th><th>Short</th><th>Razon</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Oro (XAUUSD)</strong></td>
-              <td><span class="dir-icon long">SI</span></td>
-              <td><span class="dir-icon short">NO</span></td>
-              <td>Tendencia secular alcista. Operar short es ir contra macro.</td>
-            </tr>
-            <tr>
-              <td><strong>Indices (US500/USTEC/US30)</strong></td>
-              <td><span class="dir-icon long">SI</span></td>
-              <td><span class="dir-icon short">NO</span></td>
-              <td>Bull bias estructural. Empresas crecen, gobiernos rescatan crashes.</td>
-            </tr>
-            <tr>
-              <td><strong>Forex Majors</strong></td>
-              <td><span class="dir-icon long">SI</span></td>
-              <td><span class="dir-icon long">SI</span></td>
-              <td>Sin direccion secular. Pares oscilan en rangos. L/S simetrico.</td>
-            </tr>
-            <tr>
-              <td><strong>Forex Minors</strong></td>
-              <td><span class="dir-icon long">SI</span></td>
-              <td><span class="dir-icon long">SI</span></td>
-              <td>Mean reversion en rangos. L/S aprovecha ambos lados.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </details>
-
   <div class="card">
     <div class="card-header">
       <h2>Filosofía del Proceso</h2>
@@ -1998,26 +1880,8 @@ Ret/DD &gt; 0.5</pre>
       </div>
       <div class="pipeline-arrow">↓</div>
 
-      <div class="pipeline-step val">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <div class="step-title">Validación OOS 2010-2017 (retest pasivo)</div>
-          <div class="step-desc">Retest sin re-optimizar. Filtro: PF > 1.0, # trades > 50.</div>
-        </div>
-      </div>
-      <div class="pipeline-arrow">↓</div>
-
-      <div class="pipeline-step val">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <div class="step-title">Validación Forward 2024-2026 (retest pasivo)</div>
-          <div class="step-desc">Confirmación con datos intocados. Solo backtest.</div>
-        </div>
-      </div>
-      <div class="pipeline-arrow">↓</div>
-
       <div class="pipeline-step l1">
-        <div class="step-num">4</div>
+        <div class="step-num">2</div>
         <div class="step-content">
           <div class="step-title">Extracción de Templates ganadores</div>
           <div class="step-desc">Identificar 4-6 edges distintos. Exportar como .sqx para usar de base en Capa 2.</div>
@@ -2026,7 +1890,7 @@ Ret/DD &gt; 0.5</pre>
       <div class="pipeline-arrow">↓</div>
 
       <div class="pipeline-step l2">
-        <div class="step-num">5</div>
+        <div class="step-num">3</div>
         <div class="step-content">
           <div class="step-title">Mining Capa 2 sobre cada Template</div>
           <div class="step-desc">AlgoWizard con edge fijo + filtros random + SL/TP/Trailing optimizados. Weighted Fitness.</div>
@@ -2035,7 +1899,7 @@ Ret/DD &gt; 0.5</pre>
       <div class="pipeline-arrow">↓</div>
 
       <div class="pipeline-step val">
-        <div class="step-num">6</div>
+        <div class="step-num">4</div>
         <div class="step-content">
           <div class="step-title">Filtros estrictos + Retest OOS + Forward Capa 2</div>
           <div class="step-desc">PF≥1.5, Ret/DD≥5, R Exp≥0.30, Stagnation<25%. Después retest pasivos.</div>
@@ -2044,7 +1908,7 @@ Ret/DD &gt; 0.5</pre>
       <div class="pipeline-arrow">↓</div>
 
       <div class="pipeline-step l2">
-        <div class="step-num">7</div>
+        <div class="step-num">5</div>
         <div class="step-content">
           <div class="step-title">Tests de Robustez sobre supervivientes</div>
           <div class="step-desc">Sequential, MC, WFM solo a las que pasaron OOS+Forward. Eficiencia computacional.</div>
@@ -2053,7 +1917,7 @@ Ret/DD &gt; 0.5</pre>
       <div class="pipeline-arrow">↓</div>
 
       <div class="pipeline-step l2">
-        <div class="step-num">8</div>
+        <div class="step-num">6</div>
         <div class="step-content">
           <div class="step-title">Análisis correlación intra-template</div>
           <div class="step-desc">Quedarse con 1 ganadora por template. Repetir para cada template.</div>
@@ -2062,7 +1926,7 @@ Ret/DD &gt; 0.5</pre>
       <div class="pipeline-arrow">↓</div>
 
       <div class="pipeline-step val">
-        <div class="step-num">9</div>
+        <div class="step-num">7</div>
         <div class="step-content">
           <div class="step-title">Análisis correlación cross-todo</div>
           <div class="step-desc">Cross-templates → cross-blocksetting → cross-TF → cross-activos. Threshold 0.5.</div>
@@ -2071,7 +1935,7 @@ Ret/DD &gt; 0.5</pre>
       <div class="pipeline-arrow">↓</div>
 
       <div class="pipeline-step dep">
-        <div class="step-num">10</div>
+        <div class="step-num">8</div>
         <div class="step-content">
           <div class="step-title">Portfolio Master + Despliegue gradual MT5</div>
           <div class="step-desc">Selección 8-12 estrategias. Demo primero, luego real progresivo.</div>
