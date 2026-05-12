@@ -16,6 +16,7 @@ from tools.license_signer import sign_license_payload  # noqa: E402
 
 
 DEFAULT_PLAN_DAYS = {
+    "pro_tester_15": 15,
     "pro_monthly": 31,
     "pro_annual": 366,
     "setup_assist": 31,

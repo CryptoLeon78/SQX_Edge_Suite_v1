@@ -136,6 +136,51 @@ class LicenseManagerTestCase(unittest.TestCase):
                 status = license_manager.preview_license_payload(signed, today=date(2026, 5, 7))
             self.assertEqual(status["state"], "pro_active")
 
+    def test_signed_tester_license_activates_pro_with_distribution_marker(self):
+        product = self.product()
+        payload = self.signed_payload(
+            license_id="LIC-TESTER-001",
+            plan="pro_tester_15",
+            customer_name="Tester One",
+            customer_email="tester@example.com",
+            expires_at="2026-05-16",
+            machine_limit=1,
+            distribution={
+                "channel": "tester_pilot",
+                "tester_marker": "TL11-TESTER-001",
+                "redistribution_allowed": False,
+            },
+        )
+
+        with patch.object(license_manager, "load_product_manifest", return_value=product):
+            status = license_manager.preview_license_payload(payload, today=date(2026, 5, 10))
+
+        self.assertTrue(status["ok"])
+        self.assertTrue(status["active"])
+        self.assertEqual(status["state"], "pro_active")
+        self.assertEqual(status["customer_email"], "tester@example.com")
+        self.assertEqual(status["machine_limit"], 1)
+        self.assertEqual(status["distribution"]["channel"], "tester_pilot")
+        self.assertEqual(status["distribution"]["tester_marker"], "TL11-TESTER-001")
+        self.assertFalse(status["distribution"]["redistribution_allowed"])
+
+    def test_tester_profile_without_license_stays_free_locked(self):
+        product = self.product()
+        product["build"]["channel"] = "tester"
+        product["build"]["label"] = "Tester Build"
+        product["build"]["defaultPlan"] = "free"
+        product["build"]["activationMode"] = "signed_tester_file"
+
+        with patch.object(license_manager, "load_product_manifest", return_value=product):
+            with patch.object(license_manager, "load_license_payload", return_value=None):
+                status = license_manager.license_status(today=date(2026, 5, 10))
+
+        self.assertTrue(status["ok"])
+        self.assertFalse(status["active"])
+        self.assertEqual(status["state"], "free")
+        self.assertEqual(status["build_channel"], "tester")
+        self.assertNotIn("project_generator.generate", status["features"])
+
 
 if __name__ == "__main__":
     unittest.main()

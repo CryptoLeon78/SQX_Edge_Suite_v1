@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: TL10 - Real Tool Delivery Path.
+- Current phase completed: TL11 - Anti-Redistribution License Gate.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: deploy TL10 real tool delivery only with exact operator approval after preparing ignored portable ZIP assets, then run protected Access/download smoke before sharing with testers.
+- Next implementation phase: issue or package per-tester signed license delivery only with private-key material outside Git, then regenerate protected tester ZIP and run distribution audit before replacing the Cloudflare asset.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.

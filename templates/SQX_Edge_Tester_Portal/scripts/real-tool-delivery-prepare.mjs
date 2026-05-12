@@ -22,19 +22,27 @@ function latestPortableZip() {
     throw new Error(`dist directory not found: ${distDir}`);
   }
 
-  const candidates = readdirSync(distDir)
+  const files = readdirSync(distDir);
+  const testerCandidates = files
+    .filter((name) => /^SQX_Edge_Tool_Portable_Tester_\d{8}_\d{6}\.zip$/.test(name))
+    .map((name) => {
+      const fullPath = join(distDir, name);
+      return { fullPath, stats: statSync(fullPath), releaseProfile: "tester" };
+    });
+  const genericCandidates = files
     .filter((name) => /^SQX_Edge_Tool_Portable_\d{8}_\d{6}\.zip$/.test(name))
     .map((name) => {
       const fullPath = join(distDir, name);
-      return { fullPath, stats: statSync(fullPath) };
-    })
+      return { fullPath, stats: statSync(fullPath), releaseProfile: "generic" };
+    });
+  const candidates = (testerCandidates.length ? testerCandidates : genericCandidates)
     .sort((a, b) => b.stats.mtimeMs - a.stats.mtimeMs);
 
   if (candidates.length === 0) {
-    throw new Error("No SQX_Edge_Tool_Portable_*.zip package found in dist.");
+    throw new Error("No SQX_Edge_Tool_Portable_*.zip or SQX_Edge_Tool_Portable_Tester_*.zip package found in dist.");
   }
 
-  return candidates[0].fullPath;
+  return candidates[0];
 }
 
 function sha256(path) {
@@ -47,7 +55,10 @@ function sha256(path) {
   return hash.digest("hex").toUpperCase();
 }
 
-const inputZip = argValue("--zip") ? resolve(repoRoot, argValue("--zip")) : latestPortableZip();
+const selectedPackage = argValue("--zip")
+  ? { fullPath: resolve(repoRoot, argValue("--zip")), releaseProfile: "manual" }
+  : latestPortableZip();
+const inputZip = selectedPackage.fullPath;
 
 if (!existsSync(inputZip)) {
   throw new Error(`portable ZIP not found: ${inputZip}`);
@@ -58,9 +69,10 @@ copyFileSync(inputZip, assetPath);
 
 const stats = statSync(inputZip);
 const manifest = {
-  phase: "TL10",
+  phase: "TL11",
   preparedAt: new Date().toISOString(),
   sourceZipName: inputZip.split(/[\\/]/).pop(),
+  sourceReleaseProfile: selectedPackage.releaseProfile,
   sourceZipBytes: stats.size,
   sourceZipSha256: sha256(inputZip),
   assetRelativePath: ".open-next/assets/downloads/SQX_Edge_Tool_Portable_Tester.zip",
@@ -77,8 +89,9 @@ console.log(
   JSON.stringify(
     {
       ok: true,
-      phase: "TL10",
+      phase: "TL11",
       sourceZip: inputZip,
+      sourceReleaseProfile: selectedPackage.releaseProfile,
       assetPath,
       manifestPath: localManifestPath,
       bytes: manifest.sourceZipBytes,

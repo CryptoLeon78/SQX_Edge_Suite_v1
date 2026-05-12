@@ -242,16 +242,18 @@ This writes ignored `tester-result-validation.local.json` plus `.local/feedback-
 
 ## TL10 Real Tool Delivery Path
 
-The protected portal can expose the real portable tool through `/tool` and `/download/sqx-edge-tool.zip`. The ZIP itself is never committed. Prepare it locally after building a fresh portable package:
+The protected portal can expose the real portable tool through `/tool` and `/download/sqx-edge-tool.zip`. The ZIP itself is never committed. Prepare it locally after building a fresh TL11 tester-profile portable package:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File ..\..\backend\sqx-edge-tool\tools\package_portable.ps1 -RequireEmbeddedPython
+powershell -NoProfile -ExecutionPolicy Bypass -File ..\..\backend\sqx-edge-tool\tools\package_portable.ps1 -RequireEmbeddedPython -ReleaseProfile tester
 npm run cf:build
 npm run operator:prepare-real-tool-delivery
 npm run proof:real-tool-delivery
 ```
 
 This copies the latest `dist\SQX_Edge_Tool_Portable_*.zip` into ignored `.open-next/assets/downloads/SQX_Edge_Tool_Portable_Tester.zip` and writes ignored `.local/real-tool-delivery.local.json` with size/hash evidence. The proof also guards the Cloudflare Workers Assets 25 MiB individual file limit and requires `assets.run_worker_first=true` so the internal ZIP asset cannot bypass the protected Worker download handler. A Cloudflare deploy is still exact-approval-only.
+
+TL11 requires the prepared package to be a tester-profile ZIP (`SQX_Edge_Tool_Portable_Tester_*.zip`). Generic/internal ZIPs are rejected by the proof so a redistributed download cannot run as an internal build.
 
 For the live protected tester route, Cloudflare Access is the first identity gate. When Access forwards the authenticated tester email through `Cf-Access-Authenticated-User-Email`, the portal bridges that identity into an SQX session without asking for a second access code. The local demo access code remains only for local/non-Access tests.
 

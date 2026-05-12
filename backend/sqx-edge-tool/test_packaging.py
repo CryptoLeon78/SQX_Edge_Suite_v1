@@ -124,9 +124,18 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
     def test_portable_package_includes_embedded_runtime(self):
         text = (TOOL_ROOT / "tools" / "package_portable.ps1").read_text(encoding="utf-8-sig")
         self.assertIn('"runtime\\python\\python.exe"', text)
+        self.assertIn("ReleaseProfile", text)
+        self.assertIn('"tester"', text)
+        self.assertIn("SQX_Edge_Tool_Portable_Tester_", text)
+        self.assertIn("signed_tester_file", text)
+        self.assertIn("LicensePath", text)
+        self.assertIn("backend\\sqx-edge-tool\\config\\license.json", text)
         self.assertNotIn('"runtime"', text)
         self.assertIn('"\\\\backend\\\\sqx-edge-tool\\\\runtime\\\\downloads\\\\",', text)
         self.assertIn('"node_modules"', text)
+        self.assertIn('".open-next"', text)
+        self.assertIn('".wrangler"', text)
+        self.assertIn('".local"', text)
         self.assertIn('"analysis_output"', text)
         self.assertIn("RELEASE_SQX_EDGE", text)
         self.assertIn("license\\.json", text)
@@ -589,12 +598,18 @@ class EmbeddedPackagingTestCase(unittest.TestCase):
             ".env",
             ".git",
             "node_modules",
+            ".open-next",
+            ".wrangler",
+            ".local",
             "backups",
             "Get-FileHash",
             "SQX_distribution_audit.txt",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, text)
+        self.assertIn("Test-AllowedSignedLicenseEntry", text)
+        self.assertIn("backend/sqx-edge-tool/config/license.json", text)
+        self.assertIn("Test-SignedLicensePayload", text)
 
     def test_gitignore_guards_local_license_file(self):
         text = (PROJECT_ROOT / ".gitignore").read_text(encoding="utf-8-sig")

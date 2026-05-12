@@ -9,7 +9,7 @@ const CLOUDFLARE_ASSET_FILE_LIMIT_BYTES = 25 * 1024 * 1024;
 
 function assert(condition, message, details = {}) {
   if (!condition) {
-    console.error(JSON.stringify({ ok: false, phase: "TL10", message, details }, null, 2));
+    console.error(JSON.stringify({ ok: false, phase: "TL11", message, details }, null, 2));
     process.exit(1);
   }
 }
@@ -29,6 +29,14 @@ async function loadWorkerWithStubbedOpenNext() {
 
 const manifest = existsSync(manifestPath) ? readJson(manifestPath) : null;
 assert(manifest, "real tool delivery manifest is missing; run npm run operator:prepare-real-tool-delivery first");
+assert(
+  manifest.sourceReleaseProfile !== "generic" && manifest.sourceZipName?.includes("_Tester_"),
+  "real tool delivery must attach a TL11 tester-profile portable ZIP, not the generic/internal ZIP",
+  {
+    sourceZipName: manifest.sourceZipName,
+    sourceReleaseProfile: manifest.sourceReleaseProfile,
+  },
+);
 
 const wranglerConfig = readJson(wranglerPath);
 assert(
@@ -140,6 +148,8 @@ const result = {
   downloadDisposition: download.headers.get("content-disposition"),
   downloadBody,
   missingStatus: missing.status,
+  sourceZipName: manifest.sourceZipName,
+  sourceReleaseProfile: manifest.sourceReleaseProfile,
   manifestBytes: manifest.sourceZipBytes,
   cloudflareAssetLimitBytes: CLOUDFLARE_ASSET_FILE_LIMIT_BYTES,
   runWorkerFirst: wranglerConfig.assets.run_worker_first,
@@ -168,8 +178,8 @@ console.log(
   JSON.stringify(
     {
       ok: true,
-      phase: "TL10",
-      status: "GO_REAL_TOOL_DELIVERY_PATH_READY_NO_DEPLOY",
+      phase: "TL11",
+      status: "GO_TESTER_LICENSE_GATED_DELIVERY_PATH_READY_NO_DEPLOY",
       result,
     },
     null,

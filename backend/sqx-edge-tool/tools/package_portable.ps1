@@ -1,6 +1,9 @@
 param(
   [string]$OutputDir = "",
-  [switch]$RequireEmbeddedPython
+  [switch]$RequireEmbeddedPython,
+  [ValidateSet("internal", "pro", "tester")]
+  [string]$ReleaseProfile = "internal",
+  [string]$LicensePath = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -20,6 +23,9 @@ if ($RequireEmbeddedPython -and -not (Test-Path -LiteralPath $PythonExe)) {
 
 $Stamp = Get-Date -Format "yyyyMMdd_HHmmss"
 $PackageName = "SQX_Edge_Tool_Portable_$Stamp.zip"
+if ($ReleaseProfile -eq "tester") {
+  $PackageName = "SQX_Edge_Tool_Portable_Tester_$Stamp.zip"
+}
 $PackagePath = Join-Path $OutputDir $PackageName
 $StageDir = Join-Path $OutputDir "stage_$Stamp"
 
@@ -35,6 +41,11 @@ $excludeNames = @(
   "backups",
   ".pytest_cache",
   ".playwright-cli",
+  ".next",
+  ".open-next",
+  ".vercel",
+  ".wrangler",
+  ".local",
   "node_modules",
   "license_keys",
   "licenses_private",
@@ -225,6 +236,33 @@ Get-ChildItem -LiteralPath $ProjectRoot -Recurse -File -Force | ForEach-Object {
   Copy-Item -LiteralPath $_.FullName -Destination $dest -Force
 }
 
+$StageManifestPath = Join-Path $StageDir "backend\sqx-edge-tool\config\product_manifest.json"
+if (Test-Path -LiteralPath $StageManifestPath) {
+  $manifest = Get-Content -LiteralPath $StageManifestPath -Raw | ConvertFrom-Json
+  if ($ReleaseProfile -eq "tester") {
+    $manifest.build.channel = "tester"
+    $manifest.build.label = "Tester Build"
+    $manifest.build.defaultPlan = "free"
+    $manifest.build.activationMode = "signed_tester_file"
+    $manifest.build.allowOfflineUse = $true
+    $manifest.licensing.manualBetaDelivery = $true
+  } elseif ($ReleaseProfile -eq "pro") {
+    $manifest.build.channel = "pro"
+    $manifest.build.label = "Pro Licensed Build"
+    $manifest.build.defaultPlan = "free"
+    $manifest.build.activationMode = "manual_signed_file"
+    $manifest.build.allowOfflineUse = $true
+  }
+  $manifest | ConvertTo-Json -Depth 80 | Set-Content -LiteralPath $StageManifestPath -Encoding UTF8
+}
+
+if ($LicensePath) {
+  $ResolvedLicensePath = (Resolve-Path -LiteralPath $LicensePath).Path
+  $StageLicensePath = Join-Path $StageDir "backend\sqx-edge-tool\config\license.json"
+  New-Item -ItemType Directory -Path (Split-Path -Parent $StageLicensePath) -Force | Out-Null
+  Copy-Item -LiteralPath $ResolvedLicensePath -Destination $StageLicensePath -Force
+}
+
 if (Test-Path -LiteralPath $PackagePath) {
   Remove-Item -LiteralPath $PackagePath -Force
 }
@@ -234,6 +272,12 @@ Remove-Item -LiteralPath $StageDir -Recurse -Force
 
 Write-Host "Portable package created:"
 Write-Host "  $PackagePath"
+Write-Host "Release profile: $ReleaseProfile"
+if ($LicensePath) {
+  Write-Host "Signed license included: backend\sqx-edge-tool\config\license.json"
+} else {
+  Write-Host "Signed license not included. Pro/tester features require license import."
+}
 if (Test-Path -LiteralPath $PythonExe) {
   Write-Host "Embedded Python included."
 } else {

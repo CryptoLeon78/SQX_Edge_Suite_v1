@@ -59,6 +59,11 @@
       "node_modules",
       "venv",
       ".git",
+      ".next",
+      ".open-next",
+      ".vercel",
+      ".wrangler",
+      ".local",
       "license_keys",
       "licenses_private",
       "private_keys",
@@ -850,6 +855,13 @@
       "label": "Pro licensed ZIP",
       "includeInternalTools": false,
       "defaultPlan": "free"
+    },
+    "tester": {
+      "label": "Tester licensed ZIP",
+      "includeInternalTools": false,
+      "defaultPlan": "free",
+      "activationMode": "signed_tester_file",
+      "redistributionAllowed": false
     },
     "internal": {
       "label": "Internal development build",

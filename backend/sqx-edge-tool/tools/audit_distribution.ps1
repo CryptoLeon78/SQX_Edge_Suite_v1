@@ -25,6 +25,11 @@ $denySegments = @(
   "__pycache__",
   ".pytest_cache",
   ".playwright-cli",
+  ".next",
+  ".open-next",
+  ".vercel",
+  ".wrangler",
+  ".local",
   "license_keys",
   "licenses_private",
   "private_keys",
@@ -199,6 +204,11 @@ $requiredPackageGuards = @(
   '"analysis_output"',
   '".pytest_cache"',
   '".playwright-cli"',
+  '".next"',
+  '".open-next"',
+  '".vercel"',
+  '".wrangler"',
+  '".local"',
   '"license_keys"',
   '"licenses_private"',
   '"private_keys"',
@@ -386,6 +396,41 @@ function Test-DeniedEntry {
   return $false
 }
 
+function Test-AllowedSignedLicenseEntry {
+  param([string]$Name)
+  $normalized = $Name.Replace("\", "/").Trim("/")
+  return $normalized -eq "backend/sqx-edge-tool/config/license.json"
+}
+
+function Test-SignedLicensePayload {
+  param(
+    [System.IO.Compression.ZipArchiveEntry]$Entry,
+    [System.Collections.Generic.List[string]]$Findings
+  )
+  try {
+    $reader = [System.IO.StreamReader]::new($Entry.Open())
+    try {
+      $payload = $reader.ReadToEnd() | ConvertFrom-Json
+    } finally {
+      $reader.Dispose()
+    }
+  } catch {
+    Add-Finding $Findings "Packaged license is not valid JSON: $($Entry.FullName)"
+    return
+  }
+
+  foreach ($field in @("license_id", "plan", "signature", "signature_algorithm", "public_key_id")) {
+    if (-not $payload.PSObject.Properties.Name.Contains($field)) {
+      Add-Finding $Findings "Packaged license missing signed field '$field': $($Entry.FullName)"
+    }
+  }
+  foreach ($privateField in @("private_key", "d", "p", "q", "dp", "dq", "qi")) {
+    if ($payload.PSObject.Properties.Name.Contains($privateField)) {
+      Add-Finding $Findings "Packaged license contains private key material field '$privateField': $($Entry.FullName)"
+    }
+  }
+}
+
 function Test-PackageScriptGuards {
   param([System.Collections.Generic.List[string]]$Findings)
   $text = Get-Content -Raw -LiteralPath $PackageScript
@@ -413,7 +458,11 @@ function Test-ZipContents {
   try {
     foreach ($entry in $archive.Entries) {
       if (Test-DeniedEntry $entry.FullName) {
-        Add-Finding $Findings "Denied entry included in ZIP: $($entry.FullName)"
+        if (Test-AllowedSignedLicenseEntry $entry.FullName) {
+          Test-SignedLicensePayload -Entry $entry -Findings $Findings
+        } else {
+          Add-Finding $Findings "Denied entry included in ZIP: $($entry.FullName)"
+        }
       }
     }
   } finally {
