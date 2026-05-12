@@ -76,6 +76,17 @@ async function run() {
     await desktop.locator('.tab[data-tab="inicio"]').click();
     await desktop.waitForSelector('.tab[data-tab="inicio"].active');
     await desktop.waitForSelector('#home-readiness-score');
+    const panelTitle = await desktop.locator('#tab-inicio .home-hero h2').innerText();
+    if (panelTitle.trim() !== 'Panel de estado') throw new Error(`Panel tab should be a status surface, got: ${panelTitle}`);
+    const homeMethodSteps = await desktop.locator('#home-method-map .home-method-step').count();
+    if (homeMethodSteps !== 6) throw new Error(`Panel methodology map should expose 6 ordered steps, got ${homeMethodSteps}`);
+    const homeMethodText = await desktop.locator('#home-method-map').innerText();
+    ['Workflow', 'SQX Views', 'Mining Control', 'Project Generator', 'Estrategias', 'Champion vs Challenger'].forEach(expected => {
+      if (!homeMethodText.includes(expected)) throw new Error(`Panel methodology map should include ${expected}`);
+    });
+    const homeBuilderLinks = await desktop.locator('#tab-inicio [data-home-tab="strategybuilder"]').count();
+    if (homeBuilderLinks !== 0) throw new Error('Panel should not expose retired Strategy Builder links');
+    await saveShot(desktop, 'e2e-panel-desktop.png');
     await desktop.locator('[data-home-tab="pipeline"]').first().click();
     await desktop.waitForSelector('.tab[data-tab="pipeline"].active');
     await desktop.locator('.tab[data-tab="activos"]').click();

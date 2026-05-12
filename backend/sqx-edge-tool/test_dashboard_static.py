@@ -2124,6 +2124,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn('"id": "priority"', manifest_js)
         self.assertNotIn('"id": "strategybuilder"', manifest_js)
         self.assertIn('id="tab-inicio" class="tab-content" style="display:none"', self.html)
+        self.assertIn("Panel de estado", self.html)
+        self.assertIn('id="home-method-map"', self.html)
+        self.assertIn("Ruta metodologica", self.html)
+        self.assertIn("Vista obligatoria", self.html)
+        self.assertIn("Secuencia recomendada", self.html)
+        self.assertIn('data-home-tab="workflow"', self.html)
+        self.assertNotIn("SQX Edge Control Center", self.html)
         self.assertIn('id="tab-workflow" class="tab-content"', self.html)
         pipeline_tab = self.html.split('id="tab-pipeline"', 1)[1].split('id="tab-projectgen"', 1)[0]
         workflow_overview = self.html.split('id="wf-overview"', 1)[1].split('id="wf-capa1"', 1)[0]

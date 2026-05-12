@@ -24,17 +24,17 @@
   <div id="tab-inicio" class="tab-content" style="display:none">
     <section class="home-hero">
       <div class="home-hero-copy">
-        <span class="home-eyebrow">Cockpit operativo</span>
-        <h2>SQX Edge Control Center</h2>
+        <span class="home-eyebrow">Estado operativo</span>
+        <h2>Panel de estado</h2>
         <p id="home-hero-status">Manifest activo. API local pendiente de comprobar.</p>
       </div>
       <div class="home-hero-actions">
-        <button class="home-command primary" data-home-tab="projectgen">
-          <span>Generar</span>
-          <strong>Project Generator</strong>
+        <button class="home-command primary" data-home-tab="workflow">
+          <span>Guia</span>
+          <strong>Abrir Workflow</strong>
         </button>
         <button class="home-command" data-home-tab="pipeline">
-          <span>Plan</span>
+          <span>Control</span>
           <strong>Mining Control</strong>
         </button>
       </div>
@@ -58,6 +58,11 @@
             <strong id="home-strategies-count">--</strong>
             <span id="home-strategies-sub">candidatas y validadas</span>
           </button>
+          <button class="home-kpi" data-home-tab="workflow">
+            <span class="home-kpi-label">Workflow</span>
+            <strong>0-4</strong>
+            <span>ruta guiada de trabajo</span>
+          </button>
         </div>
 
         <div class="home-readiness">
@@ -73,6 +78,45 @@
             <div class="home-check" id="home-check-backend"><span></span><strong>Backend</strong></div>
           </div>
         </div>
+
+        <section class="home-method-map" id="home-method-map">
+          <div class="home-method-head">
+            <span>Ruta metodologica</span>
+            <strong>Resumen del flujo real</strong>
+          </div>
+          <div class="home-method-steps">
+            <button class="home-method-step is-active" data-home-tab="workflow">
+              <span>0</span>
+              <strong>Workflow</strong>
+              <small>Guia y cumplimiento</small>
+            </button>
+            <button class="home-method-step" data-home-tab="views">
+              <span>1</span>
+              <strong>SQX Views</strong>
+              <small>Vista obligatoria</small>
+            </button>
+            <button class="home-method-step" data-home-tab="pipeline">
+              <span>2</span>
+              <strong>Mining Control</strong>
+              <small>Capa 1 y Capa 2</small>
+            </button>
+            <button class="home-method-step" data-home-tab="projectgen">
+              <span>3</span>
+              <strong>Project Generator</strong>
+              <small>.cfx controlado</small>
+            </button>
+            <button class="home-method-step" data-home-tab="estrategias">
+              <span>4</span>
+              <strong>Estrategias</strong>
+              <small>Supervivientes</small>
+            </button>
+            <button class="home-method-step" data-home-tab="cvc">
+              <span>5</span>
+              <strong>Champion vs Challenger</strong>
+              <small>Decision final</small>
+            </button>
+          </div>
+        </section>
 
         <div class="home-audit">
           <div class="home-audit-head">
@@ -108,25 +152,29 @@
         </div>
 
         <div class="home-actions">
-          <button class="home-action primary" data-home-tab="pipeline">
+          <button class="home-action primary" data-home-tab="workflow">
+            <span>Metodo guiado</span>
+            <strong>Continuar en Workflow</strong>
+          </button>
+          <button class="home-action" data-home-tab="pipeline">
             <span>Siguiente accion</span>
             <strong id="home-next-action">--</strong>
-          </button>
-          <button class="home-action" data-home-tab="projectgen">
-            <span>Project Generator</span>
-            <strong>Generar .cfx</strong>
           </button>
           <button class="home-action" data-home-tab="views">
             <span>SQX Views</span>
             <strong>Crear .vw anual</strong>
           </button>
-          <button class="home-action" data-home-tab="cvc">
-            <span>Champion</span>
-            <strong>Comparar finalistas</strong>
+          <button class="home-action" data-home-tab="projectgen">
+            <span>Project Generator</span>
+            <strong>Generar .cfx</strong>
           </button>
-          <button class="home-action" data-home-tab="workflow">
-            <span>Workflow</span>
-            <strong>Metodo operativo</strong>
+          <button class="home-action" data-home-tab="estrategias">
+            <span>Estrategias</span>
+            <strong>Revisar supervivientes</strong>
+          </button>
+          <button class="home-action" data-home-tab="cvc">
+            <span>Champion vs Challenger</span>
+            <strong>Comparar finalistas</strong>
           </button>
         </div>
       </section>
@@ -199,18 +247,22 @@
           <small id="license-feedback" class="license-feedback"></small>
         </div>
         <div class="home-panel home-ops">
-          <div class="home-panel-title">Arranque rapido</div>
-          <button class="home-step" data-home-tab="projectgen">
+          <div class="home-panel-title">Secuencia recomendada</div>
+          <button class="home-step" data-home-tab="workflow">
+            <span>0</span>
+            <strong>Abrir Workflow y seguir el pipeline</strong>
+          </button>
+          <button class="home-step" data-home-tab="views">
             <span>1</span>
-            <strong>Validar API y rutas SQX</strong>
+            <strong>Preparar la vista SQX obligatoria</strong>
           </button>
           <button class="home-step" data-home-tab="pipeline">
             <span>2</span>
-            <strong>Revisar plan de minings</strong>
+            <strong>Revisar Capa 1, Capa 2 y estado mining</strong>
           </button>
-          <button class="home-step" data-home-tab="workflow">
+          <button class="home-step" data-home-tab="projectgen">
             <span>3</span>
-            <strong>Ejecutar workflow operativo</strong>
+            <strong>Validar API, rutas SQX y generar .cfx</strong>
           </button>
         </div>
         <div class="home-panel support-panel" id="support-panel">
