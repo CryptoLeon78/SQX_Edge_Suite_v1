@@ -142,6 +142,18 @@ function statusMessage(status) {
   return messages[status] || status;
 }
 
+function normalizeField(value, fallback, maxLength) {
+  const normalized = String(value || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  return (normalized || fallback).slice(0, maxLength);
+}
+
+function packetReference() {
+  const random = crypto.randomUUID().slice(0, 8).toUpperCase();
+  return `SQX-FB-${random}`;
+}
+
 function buildShell(title, content) {
   return `<!doctype html>
 <html lang="en">
@@ -177,6 +189,8 @@ function buildShell(title, content) {
     label { display: grid; gap: 8px; color: var(--text); font-weight: 700; }
     input, select, textarea { min-height: 44px; border-radius: 8px; border: 1px solid var(--border); background: #08111f; color: var(--text); padding: 0 12px; }
     textarea { min-height: 120px; padding: 12px; resize: vertical; }
+    .packet { display: grid; gap: 12px; padding: 18px; border: 1px solid rgba(35, 209, 139, 0.34); border-radius: 8px; background: rgba(8, 17, 31, 0.72); }
+    .packet pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; color: #d9fbe9; font: 0.92rem/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     button, .button { min-height: 44px; width: fit-content; padding: 0 18px; border: 0; border-radius: 8px; background: #1d4ed8; color: white; font-weight: 800; cursor: pointer; text-decoration: none; display: inline-grid; place-items: center; }
     .button.secondary { background: rgba(101, 165, 255, 0.14); border: 1px solid rgba(101, 165, 255, 0.38); }
     .inline-actions { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -312,10 +326,49 @@ function feedbackPage(url) {
               <option value="bug_or_blocker">Bug or blocker</option>
             </select>
           </label>
+          <label>Severity
+            <select name="severity" required>
+              <option value="signal">Signal</option>
+              <option value="friction">Friction</option>
+              <option value="blocker">Blocker</option>
+              <option value="commercial">Commercial</option>
+            </select>
+          </label>
           <label>Signal summary<textarea name="summary" maxlength="800" placeholder="Short private summary. Do not include passwords, URLs, screenshots or account secrets." required></textarea></label>
           <button type="submit">Prepare feedback packet</button>
         </form>
         <div class="inline-actions"><a class="button secondary" href="/portal">Back to portal</a></div>
+      </section>
+      <p class="watermark">SQX-DEMO-TESTER-LOCAL-ONLY</p>
+    </main>`
+  );
+}
+
+function feedbackPacketPage(packet) {
+  const packetText = [
+    `Reference: ${packet.reference}`,
+    `Category: ${packet.category}`,
+    `Severity: ${packet.severity}`,
+    `Summary: ${packet.summary}`,
+    "Private evidence: attach only through the agreed operator channel"
+  ].join("\n");
+  return buildShell(
+    "SQX Edge Feedback Packet",
+    `<main class="shell">
+      ${renderTopbar()}
+      <section class="panel section">
+        <p class="eyebrow">Feedback packet</p>
+        <h1>Ready to send</h1>
+        <p>The Worker generated this handoff packet and did not store it. Copy the text below into the private operator channel, then return to the portal.</p>
+        <div class="packet">
+          <strong>${escapeHtml(packet.reference)}</strong>
+          <pre>${escapeHtml(packetText)}</pre>
+        </div>
+        <div class="notice"><strong>Privacy guard</strong><p>Do not add passwords, access codes, private URLs, screenshots or account secrets to public channels.</p></div>
+        <div class="inline-actions">
+          <a class="button" href="/feedback">Prepare another packet</a>
+          <a class="button secondary" href="/portal">Back to portal</a>
+        </div>
       </section>
       <p class="watermark">SQX-DEMO-TESTER-LOCAL-ONLY</p>
     </main>`
@@ -351,8 +404,13 @@ async function feedback(request) {
     return jsonResponse({ ok: false, reasonCode: "missing_session" }, { status: 401 });
   }
   const form = await request.formData();
-  const category = String(form.get("category") || "uncategorized").slice(0, 80);
-  return redirect(`/feedback?status=feedback_ready&category=${encodeURIComponent(category)}`);
+  const packet = {
+    reference: packetReference(),
+    category: normalizeField(form.get("category"), "uncategorized", 80),
+    severity: normalizeField(form.get("severity"), "signal", 40),
+    summary: normalizeField(form.get("summary"), "No summary provided.", 800)
+  };
+  return htmlResponse(feedbackPacketPage(packet));
 }
 
 async function login(request, env) {

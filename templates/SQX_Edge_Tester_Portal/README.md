@@ -73,7 +73,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `src/lib/security-hardening.ts`: T8 kill switch, rate-limit and watermark helpers.
 - `src/lib/deployment-protection.ts`: T8 checklist for protected staging before any tester rollout.
 - `src/lib/security-headers.ts`: baseline browser protection headers.
-- `cloudflare/worker-entry.js`: TL1d/TL2 Cloudflare rescue entry. It serves the protected tester login, portal, handoff checklist, feedback packet flow and renewal information before falling back to OpenNext for non-rescue routes.
+- `cloudflare/worker-entry.js`: TL1d/TL2/TL3 Cloudflare rescue entry. It serves the protected tester login, portal, handoff checklist, copyable feedback packet flow and renewal information before falling back to OpenNext for non-rescue routes.
 - `scripts/vercel-preview-preflight.mjs`: T9 local preflight before retrying protected preview deploy.
 - `scripts/vercel-protection-audit.mjs`: T9c go/no-go audit for Vercel Deployment Protection before deploy retry.
 - `scripts/vercel-preview-path-proof.mjs`: T9f proof gate for Git/PR preview readiness without deploying.
