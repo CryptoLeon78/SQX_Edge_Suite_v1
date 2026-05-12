@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-12 - TL1c Cloudflare Middleware Stability Hotfix
+
+- Removes the global Next middleware from the Cloudflare/OpenNext tester portal path after authenticated Access traffic returned a runtime 500.
+- Moves browser security headers to `next.config.mjs` and keeps route-level session redirects on `/portal` and `/admin/testers`.
+- Keeps Cloudflare Access as the external protected gate and preserves the no-leak tester launch proof boundary.
+
 ## 2026-05-12 - TL1b Workers.dev Protected Target Fix
 
 - Enables the committed Cloudflare `workers_dev` target for the protected tester portal after the hotfix deployment exposed a version with no public target.

@@ -1,8 +1,17 @@
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { ADMIN_TESTER_ACTIONS, buildDemoAdminTesterRows } from "@/lib/admin-console";
+import { SESSION_COOKIE_CONTRACT } from "@/lib/auth-data-contract";
+import { LOGIN_ROUTE } from "@/lib/session-prototype";
 
 const rows = buildDemoAdminTesterRows();
 
-export default function AdminTestersPage() {
+export default async function AdminTestersPage() {
+  const session = (await cookies()).get(SESSION_COOKIE_CONTRACT.name)?.value;
+  if (!session) {
+    redirect(`${LOGIN_ROUTE}?next=/admin/testers`);
+  }
+
   return (
     <main className="shell">
       <section className="panel hero">

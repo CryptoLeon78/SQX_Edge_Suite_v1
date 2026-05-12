@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: TL1b - Workers.dev Protected Target Fix.
+- Current phase completed: TL1c - Cloudflare Middleware Stability Hotfix.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: deploy the TL1b target fix only with exact operator approval, then repeat protected Access smoke privately; if GO, continue selected tester access outside Git.
+- Next implementation phase: deploy the TL1c middleware stability hotfix only with exact operator approval, then repeat protected Access smoke privately; if GO, continue selected tester access outside Git.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.

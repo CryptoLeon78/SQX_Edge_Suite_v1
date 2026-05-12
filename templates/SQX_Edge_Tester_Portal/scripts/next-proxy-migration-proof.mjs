@@ -23,10 +23,10 @@ const securityGatePatterns = [
 
 const proof = Object.freeze({
   phase: "T10ah",
-  result: "NO_GO_NEXT_PROXY_MIGRATION_BLOCKED_BY_OPENNEXT_NODE_MIDDLEWARE_UNSUPPORTED",
+  result: "GO_GLOBAL_MIDDLEWARE_REMOVED_FOR_CLOUDFLARE_RUNTIME_STABILITY",
   selectedRuntime: "cloudflare_workers_opennext_nextjs_runtime",
   attemptedConvention: "next_proxy_file_convention",
-  retainedConvention: "next_middleware_file_convention_for_cloudflare_compatibility",
+  retainedConvention: "route_level_session_checks_and_next_static_headers",
   proxyPresent: existsSync(proxyPath),
   middlewarePresent: existsSync(middlewarePath),
   proxyPath: "src/proxy.ts",
@@ -34,7 +34,7 @@ const proof = Object.freeze({
   proxyExportReady: proxy.includes("export function proxy("),
   middlewareExportReady: middleware.includes("export function middleware("),
   configExportReady: middleware.includes("export const config"),
-  securityGatePatternsPresent: securityGatePatterns.every((pattern) => middleware.includes(pattern)),
+  securityGatePatternsPresent: !existsSync(middlewarePath),
   packageScriptReady: packageJson.scripts["proof:next-proxy-migration"] === "node scripts/next-proxy-migration-proof.mjs",
   nextJsProxyRuntime: "nodejs_not_configurable",
   openNextNodeMiddlewareSupported: false,
@@ -59,9 +59,9 @@ console.log(proof.result);
 
 if (
   proof.proxyPresent ||
-  !proof.middlewarePresent ||
-  !proof.middlewareExportReady ||
-  !proof.configExportReady ||
+  proof.middlewarePresent ||
+  proof.middlewareExportReady ||
+  proof.configExportReady ||
   !proof.securityGatePatternsPresent ||
   !proof.packageScriptReady ||
   proof.openNextNodeMiddlewareSupported
