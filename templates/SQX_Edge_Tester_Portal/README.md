@@ -170,6 +170,7 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/feedback-result-validation-rollup.mjs`: TL9 local-only helper that converts execution evidence into ignored result-validation evidence.
 - `scripts/real-tool-delivery-prepare.mjs`: TL10 local-only helper that attaches the latest portable ZIP to the ignored Cloudflare asset bundle for protected tester download.
 - `scripts/real-tool-delivery-proof.mjs`: TL10 no-deploy proof for the protected `/tool` page and `/download/sqx-edge-tool.zip` route.
+- TL12 tester licenses are issued outside Git in `licenses_private/` and delivered one-to-one. The protected portal ZIP stays generic; testers import their assigned signed JSON from the SQX Edge `Inicio > Licencia` panel after starting the tool.
 - `cloudflare-access-policy-boundary.example.json`: public-safe T10ak evidence template; copy to ignored `cloudflare-access-policy-boundary.local.json` only.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.

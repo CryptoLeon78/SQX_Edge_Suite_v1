@@ -1269,6 +1269,9 @@
     gap:8px;
     flex-wrap:wrap;
   }
+  .license-file-label {
+    margin:0;
+  }
   .license-actions .export-btn::before {
     display:none;
   }

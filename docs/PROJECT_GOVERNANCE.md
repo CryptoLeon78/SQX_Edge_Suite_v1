@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: TL11 - Anti-Redistribution License Gate.
+- Current phase completed: TL12 - Per-Tester Signed License Delivery Flow.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: issue or package per-tester signed license delivery only with private-key material outside Git, then regenerate protected tester ZIP and run distribution audit before replacing the Cloudflare asset.
+- Next implementation phase: regenerate the protected tester ZIP with the TL12 public key and file-import UX, run distribution audit plus protected smoke, then replace the Cloudflare asset only after explicit operator approval.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.

@@ -203,6 +203,8 @@
           <textarea id="license-key-input" class="license-input" rows="4" placeholder='Pega aqui el JSON de licencia cuando llegue la fase de activacion firmada.'></textarea>
           <div class="license-actions">
             <a class="export-btn license-checkout-link" id="license-checkout-link" href="#" target="_blank" rel="noopener" style="display:none">Comprar Pro</a>
+            <input class="visually-hidden" id="license-file-input" type="file" accept=".json,application/json">
+            <label class="export-btn license-file-label" for="license-file-input">Importar archivo</label>
             <button class="export-btn" id="license-import-btn" type="button">Cargar licencia</button>
             <button class="export-btn pg-ghost-btn" id="license-clear-btn" type="button">Limpiar</button>
           </div>

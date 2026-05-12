@@ -75,6 +75,13 @@ def build_license_payload(args: argparse.Namespace, today: date | None = None) -
     if args.grace_days is not None:
         payload["grace_days"] = int(args.grace_days)
 
+    if args.distribution_channel or args.tester_marker:
+        payload["distribution"] = {
+            "channel": str(args.distribution_channel or "").strip(),
+            "tester_marker": str(args.tester_marker or "").strip(),
+            "redistribution_allowed": bool(args.redistribution_allowed),
+        }
+
     return payload
 
 
@@ -112,6 +119,9 @@ def main() -> int:
     parser.add_argument("--machine-limit", type=int, default=1, help="Allowed machine count for support policy.")
     parser.add_argument("--support-level", default="standard", choices=["none", "standard", "priority"])
     parser.add_argument("--grace-days", type=int, default=None, help="Optional per-license grace days.")
+    parser.add_argument("--distribution-channel", default="", help="Optional delivery channel marker, e.g. tester_pilot.")
+    parser.add_argument("--tester-marker", default="", help="Optional non-secret per-tester distribution marker.")
+    parser.add_argument("--redistribution-allowed", action="store_true", help="Mark redistribution as allowed. Omit for tester licenses.")
     parser.add_argument("--notes", default="", help="Private support note stored in the license JSON.")
     args = parser.parse_args()
 

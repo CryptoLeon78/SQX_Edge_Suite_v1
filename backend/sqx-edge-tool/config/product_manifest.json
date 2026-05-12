@@ -35,9 +35,9 @@
     },
     "publicKey": {
       "kty": "RSA",
-      "kid": "sqx-prod-2026-05-placeholder",
+      "kid": "sqx-tester-2026-05-v1",
       "alg": "RS256",
-      "n": "rn0HogKI_r59abwzTUhgZAQsCKCq4qsMD8pW3nGsSoV_1iwOFotw4YEXm-rRaYNjgMydgYAMiBgblGMKv8SI8aYcIYEzMpIe7jw7LZSdwqiqhbTU7wTUh-rLhUDCkw2es5syqK1-IH_XWavaIJoVHKPk3wmBVkqtjOjdfFqXOq3EoG0-kRQiEDSk6vG9ow2zzThMFMpR01nRMvbWmOeR20NpEY_WQnse0Db-z2QvA9p5J81jqCk28VGz9EzqgbWMVycX21_QNGUD6hcWshSE7jItWJUbSbOUcme-GMnmMcSlDiQ_rugZxqD7-oV2vmhUsVQR768QjsTHuByNiXqphQ",
+      "n": "6VcVwszmZim-p_tumiPvN-M1qoqLPgj8dT8eroA5m8p04e2DjWeAaALdvj_M6BQnWZtIZi5OKo4hWj2CBpAHjySDdZChApeF3vz54UPkhOghIH8JlhiTzrthlLC2sN8NyfUuLLVZT5JYCwrxcLcnRt4_012iATlEHbusuxLuHDEPGTsXzlCE9yjD9csMV3tDv6tOWA5Kr9C9rII6NhKY-s4esRm9QN8W1oY00X9Q-XSO9R_AZGgypp812gAuj27zAV_ro824Du2ir7CzN6tVlZS4SD1ClmOKBUtj16n102UJl4c6nd6APh08e6yugIPJbnoiTxegme91yYjv2oOBjQ",
       "e": "AQAB"
     }
   },
