@@ -219,15 +219,14 @@ SQX Views:
 
 Project Generator:
 
-- `Custom libre` permite crear `.cfx` fuera del plan mining con asset, timeframe, blocksetting, direccion y capa propios.
-- Incluye presets locales reutilizables, exportacion/importacion JSON, perfiles starter y familias por objetivo para usuarios que quieren empezar sin configurar todo desde cero.
+- `Custom libre` permite crear `.cfx` fuera de Mining Control con asset, timeframe, blocksetting, direccion y capa propios.
+- Incluye presets locales reutilizables y exportacion/importacion JSON para mover configuraciones propias entre instalaciones.
 - La importacion de packs custom muestra preview de presets, assets, capas y reemplazos antes de fusionarlos con los guardados locales.
 - Las tarjetas de activo/categoria pueden prefijar un Custom Project desde acciones rapidas sin ejecutar generacion automatica.
-- `Entrega comprador .cfx` prepara notas Markdown copiables/descargables con configuracion, archivos referenciados, checklist y limites responsables.
 
-Pipeline State:
+Mining Control:
 
-- Incluye acciones rapidas para anadir candidatos al Plan Mining desde activo/categoria.
+- Incluye acciones rapidas para anadir candidatos a Mining Control desde activo/categoria.
 - Muestra salud operativa compacta y funnel visual editable sin recuperar tabs eliminados como Top Picks o Matriz.
 
 Herramientas analiticas:
@@ -360,7 +359,6 @@ El resultado se escribe en `app\js\manifest-data.js`.
 - El custom libre usa el template configurado de la capa seleccionada, o un template opcional indicado en el formulario.
 - Los presets custom se guardan en el navegador local para reutilizar combinaciones frecuentes sin reescribir campos.
 - Los presets custom se pueden exportar/importar como packs JSON para moverlos entre instalaciones.
-- Las familias por objetivo agrupan perfiles custom para comprador inicial, validacion intradia, revision de riesgo o muestra Pro completa.
 - La API local expone `/api/generate-custom` y aplica la misma licencia Pro que `/api/generate`.
 
 ## Plan Quality Advisor

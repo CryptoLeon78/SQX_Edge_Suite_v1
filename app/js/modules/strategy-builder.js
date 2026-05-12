@@ -148,7 +148,7 @@
     setValue(IDS.timeframe, model.timeframe || 'H1', doc);
     setValue(IDS.archetype, model.idea_archetype || model.ideaArchetype || 'trend_following', doc);
     setValue(IDS.validationPack, model.validation_pack_id || model.validationPackId || 'robustness', doc);
-    setValue(IDS.projectProfile, model.project_profile_id || model.projectProfileId || 'starter-forex-h1-balanced', doc);
+    setValue(IDS.projectProfile, model.project_profile_id || model.projectProfileId || 'custom-forex-h1-balanced', doc);
     setChecked(IDS.reviewed, !!(model.operator_reviewed || model.operatorReviewed), doc);
   }
 
@@ -278,7 +278,7 @@
     setValue(IDS.timeframe, 'H1', doc);
     setValue(IDS.archetype, 'trend_following', doc);
     setValue(IDS.validationPack, 'robustness', doc);
-    setValue(IDS.projectProfile, 'starter-forex-h1-balanced', doc);
+    setValue(IDS.projectProfile, 'custom-forex-h1-balanced', doc);
     setChecked(IDS.reviewed, true, doc);
     return build({ document: doc });
   }
@@ -301,7 +301,7 @@
     setValue(IDS.timeframe, 'H1', doc);
     setValue(IDS.archetype, 'trend_following', doc);
     setValue(IDS.validationPack, 'robustness', doc);
-    setValue(IDS.projectProfile, 'starter-forex-h1-balanced', doc);
+    setValue(IDS.projectProfile, 'custom-forex-h1-balanced', doc);
     setChecked(IDS.reviewed, false, doc);
     return build({ document: doc });
   }

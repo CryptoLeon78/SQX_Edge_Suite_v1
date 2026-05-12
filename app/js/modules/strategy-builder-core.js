@@ -277,7 +277,7 @@
       };
     }
     if (mode === 'project_generator_profile') {
-      return { type: mode, profile_id: normalizeText(input.project_profile_id || input.projectProfileId, 'starter-forex-h1-balanced') };
+      return { type: mode, profile_id: normalizeText(input.project_profile_id || input.projectProfileId, 'custom-forex-h1-balanced') };
     }
     if (mode === 'views_workflow') {
       return { type: mode, validation_pack_id: normalizeText(input.validation_pack_id || input.validationPackId, 'asset-family-review') };
@@ -330,7 +330,7 @@
         evidence_review: summary.evidence_review || null
       },
       mtf_summary: data.mtf_summary || data.mtfSummary || { status: 'not_attached' },
-      project_profile_id: normalizeText(data.project_profile_id || data.projectProfileId, 'starter-forex-h1-balanced'),
+      project_profile_id: normalizeText(data.project_profile_id || data.projectProfileId, 'custom-forex-h1-balanced'),
       validation_pack_id: normalizeText(data.validation_pack_id || data.validationPackId, defaultValidationPack(archetype)),
       risk_profile: normalizeText(data.risk_profile || data.riskProfile, 'review_required'),
       idea_archetype: archetype,
@@ -491,7 +491,7 @@
       timeframe: normalizeTimeframe(assetProfile.timeframe),
       idea_archetype: normalizeText(idea.id, 'trend_following'),
       validation_pack_id: normalizeText(validation.validation_pack_id, defaultValidationPack(idea.id)),
-      project_profile_id: normalizeText(project.profile_id, 'starter-forex-h1-balanced'),
+      project_profile_id: normalizeText(project.profile_id, 'custom-forex-h1-balanced'),
       operator_reviewed: false,
       traceability: (payload.traceability || []).concat(['SB4 imported package re-review'])
     };
@@ -506,7 +506,7 @@
       timeframe: normalizeTimeframe(candidate.timeframe || 'H1'),
       idea_archetype: 'trend_following',
       validation_pack_id: 'robustness',
-      project_profile_id: 'starter-forex-h1-balanced',
+      project_profile_id: 'custom-forex-h1-balanced',
       operator_reviewed: false,
       traceability: ['SB4 imported CVC handoff re-review']
     };

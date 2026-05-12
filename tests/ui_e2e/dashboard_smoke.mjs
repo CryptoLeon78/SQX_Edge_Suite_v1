@@ -95,27 +95,8 @@ async function run() {
       return Boolean(match);
     });
     await desktop.waitForSelector('#pg-custom-generate');
-    await desktop.waitForSelector('#pg-custom-starter-list .pg-custom-starter-card');
-    const customStarterCount = await desktop.locator('#pg-custom-starter-list .pg-custom-starter-card').count();
-    if (customStarterCount < 8) throw new Error(`Expected richer Project Generator starter profiles, got ${customStarterCount}`);
-    await desktop.waitForSelector('#pg-custom-family-list .pg-custom-family-card');
-    const customFamilyCount = await desktop.locator('#pg-custom-family-list .pg-custom-family-card').count();
-    if (customFamilyCount < 4) throw new Error(`Expected Project Generator profile families, got ${customFamilyCount}`);
-    await desktop.locator('[data-pg-starter-load="forex-h1-balanced"]').click();
-    await desktop.waitForFunction(() => document.getElementById('pg-custom-asset')?.value === 'EURUSD');
-    await desktop.waitForFunction(() => document.getElementById('pg-custom-tf')?.value === 'H1');
-    await desktop.locator('[data-pg-family-load="buyer-first-setup"]').click();
-    await desktop.waitForFunction(() => document.getElementById('pg-custom-status')?.textContent.includes('Familia cargada'));
-    await desktop.locator('[data-pg-family-save="buyer-first-setup"]').click();
-    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_pg_custom_presets_v1') || '[]').some(preset => preset.id === 'family-buyer-first-setup-forex-h1-balanced'));
-    const familyPack = await desktop.evaluate(() => window.SQX.projectGenerator.buildCustomProfileFamilyPack('buyer-first-setup'));
-    if (familyPack.type !== 'sqx-edge.project-generator-custom-presets' || familyPack.presets.length !== 3) throw new Error('Project Generator profile family pack contract failed');
-    await desktop.evaluate(() => localStorage.removeItem('sqx_pg_custom_presets_v1'));
-    await desktop.locator('[data-pg-starter-save="forex-h1-balanced"]').click();
-    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_pg_custom_presets_v1') || '[]').some(preset => preset.id === 'starter-forex-h1-balanced'));
-    const starterPack = await desktop.evaluate(() => window.SQX.projectGenerator.buildCustomStarterProfilePack());
-    if (starterPack.type !== 'sqx-edge.project-generator-custom-presets' || starterPack.presets.length < 8) throw new Error('Project Generator starter pack contract failed');
-    await desktop.evaluate(() => localStorage.removeItem('sqx_pg_custom_presets_v1'));
+    const removedProjectGeneratorPanels = await desktop.locator('#pg-custom-starter-list, #pg-custom-family-list, #pg-buyer-handoff-card').count();
+    if (removedProjectGeneratorPanels !== 0) throw new Error('Project Generator removed panels should not be visible in UX-NAV2');
     await desktop.locator('#pg-custom-asset').fill('EURUSD');
     await desktop.locator('#pg-custom-tf').fill('H1');
     await desktop.locator('#pg-custom-name').fill('Custom_EURUSD_H1');
@@ -242,7 +223,7 @@ async function run() {
       timeframe: 'H1',
       idea_archetype: 'trend_following',
       validation_pack_id: 'robustness',
-      project_profile_id: 'starter-forex-h1-balanced',
+      project_profile_id: 'custom-forex-h1-balanced',
       operator_reviewed: true,
     }));
     if (builderPackage.type !== 'sqx-edge.strategy-builder-package' || builderPackage.workflow_state !== 'package_exportable') throw new Error('Strategy Builder package contract failed');

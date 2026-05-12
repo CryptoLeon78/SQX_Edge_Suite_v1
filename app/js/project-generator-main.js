@@ -133,28 +133,6 @@ function pgRenderCustomPresets(selectedId) {
   return presets;
 }
 
-function pgRenderCustomStarterProfiles() {
-  const profiles = SQX_PG_MODULE.getCustomStarterProfiles ? SQX_PG_MODULE.getCustomStarterProfiles() : [];
-  if (SQX_PG_MODULE.customStarterProfileCountLabel) {
-    pgSetText('pg-custom-starter-count', SQX_PG_MODULE.customStarterProfileCountLabel(profiles.length));
-  }
-  if (SQX_PG_MODULE.customStarterProfileCardsHtml) {
-    pgSetHtml('pg-custom-starter-list', SQX_PG_MODULE.customStarterProfileCardsHtml(profiles));
-  }
-  return profiles;
-}
-
-function pgRenderCustomProfileFamilies() {
-  const families = SQX_PG_MODULE.getCustomProfileFamilies ? SQX_PG_MODULE.getCustomProfileFamilies() : [];
-  if (SQX_PG_MODULE.customProfileFamilyCountLabel) {
-    pgSetText('pg-custom-family-count', SQX_PG_MODULE.customProfileFamilyCountLabel(families.length));
-  }
-  if (SQX_PG_MODULE.customProfileFamilyCardsHtml) {
-    pgSetHtml('pg-custom-family-list', SQX_PG_MODULE.customProfileFamilyCardsHtml(families));
-  }
-  return families;
-}
-
 function pgDownloadJson(filename, payload) {
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -165,65 +143,6 @@ function pgDownloadJson(filename, payload) {
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
-}
-
-function pgDownloadText(filename, text, type) {
-  const blob = new Blob([text || ''], { type: type || 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
-
-function pgBuyerCfxHandoffInput() {
-  return {
-    buyerName: pgTrimmedInputValue('pg-buyer-name'),
-    context: pgInputValue('pg-buyer-context'),
-    config: pgReadCustomInputs(),
-    outputDir: PG_STATE.outputDir,
-    outputFiles: PG_STATE.outputFiles,
-  };
-}
-
-function pgRenderBuyerCfxHandoff() {
-  if (!SQX_PG_MODULE.buyerCfxHandoffMarkdown) return null;
-  const input = pgBuyerCfxHandoffInput();
-  const summary = SQX_PG_MODULE.buyerCfxHandoffSummary(input);
-  const notes = SQX_PG_MODULE.buyerCfxHandoffMarkdown(input);
-  pgSetText('pg-buyer-handoff-summary', summary);
-  const notesEl = pgDom('pg-buyer-handoff-notes');
-  if (notesEl) notesEl.value = notes;
-  return { input, notes, summary };
-}
-
-async function pgCopyBuyerCfxHandoff() {
-  const handoff = pgRenderBuyerCfxHandoff();
-  if (!handoff) return;
-  const notesEl = pgDom('pg-buyer-handoff-notes');
-  const text = (notesEl && notesEl.value) || handoff.notes;
-  try {
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      await navigator.clipboard.writeText(text);
-    } else if (notesEl) {
-      notesEl.focus();
-      notesEl.select();
-      document.execCommand('copy');
-    }
-    pgLog('Notas handoff .cfx copiadas.', 'ok');
-  } catch (e) {
-    pgLog('No se pudieron copiar las notas: ' + e.message, 'err');
-  }
-}
-
-function pgDownloadBuyerCfxHandoff() {
-  const handoff = pgRenderBuyerCfxHandoff();
-  if (!handoff || !SQX_PG_MODULE.buyerCfxHandoffFilename) return;
-  pgDownloadText(SQX_PG_MODULE.buyerCfxHandoffFilename(handoff.input), handoff.notes, 'text/markdown');
-  pgLog('Notas handoff .cfx descargadas.', 'ok');
 }
 
 function pgUpdateMiningSummary(count) {
@@ -241,7 +160,6 @@ function pgRenderMiningsList(infos) {
 function pgRenderOutputState(output) {
   pgSetText('pg-output-count', output.countLabel);
   pgSetHtml('pg-output-list', output.html);
-  pgRenderBuyerCfxHandoff();
 }
 
 function pgGetOnboardingState() {
@@ -477,7 +395,6 @@ function pgLoadCustomPreset() {
   pgSetCustomStatus('Preset cargado: ' + preset.name, 'ok');
   pgLog('Preset custom cargado: ' + preset.name, 'info');
   pgTrace('Preset custom cargado', preset.name, 'info');
-  pgRenderBuyerCfxHandoff();
 }
 
 function pgDeleteCustomPreset() {
@@ -505,110 +422,6 @@ function pgExportCustomPresets() {
   pgSetCustomStatus('Pack exportado: ' + pack.presets.length + ' presets.', 'ok');
   pgSetCustomPackStatus('Pack JSON listo para otra instalacion.');
   pgLog('Pack de presets custom exportado: ' + pack.presets.length + ' presets.', 'ok');
-}
-
-function pgLoadCustomStarterProfile(id) {
-  const profile = SQX_PG_MODULE.findCustomStarterProfile && SQX_PG_MODULE.findCustomStarterProfile(id);
-  if (!profile) {
-    pgSetCustomStatus('No se encontro el perfil starter seleccionado.', 'err');
-    return;
-  }
-  pgWriteCustomInputs(profile.config);
-  pgSetCustomStatus('Perfil starter cargado: ' + profile.name, 'ok');
-  pgSetCustomPackStatus('Ajusta cualquier campo y genera el custom libre.');
-  pgLog('Perfil starter cargado: ' + profile.name, 'info');
-  pgTrace('Perfil starter cargado', profile.name, 'info');
-  pgRenderBuyerCfxHandoff();
-}
-
-function pgSaveCustomStarterProfile(id) {
-  const preset = SQX_PG_MODULE.customStarterProfileToPreset && SQX_PG_MODULE.customStarterProfileToPreset(id);
-  if (!preset) {
-    pgSetCustomStatus('No se pudo guardar el perfil starter.', 'err');
-    return;
-  }
-  const result = SQX_PG_MODULE.importCustomProjectPresetPackage({ presets: [preset] });
-  pgRenderCustomPresets(preset.id);
-  pgSetCustomStatus('Starter guardado como preset: ' + preset.name, 'ok');
-  pgSetCustomPackStatus('Preset disponible en el selector local.');
-  pgLog('Starter guardado como preset: ' + preset.name + ' (' + result.presets.length + ' totales).', 'ok');
-  pgTrace('Starter guardado como preset', preset.name, 'ok');
-}
-
-function pgExportCustomStarterProfiles() {
-  if (!SQX_PG_MODULE.buildCustomStarterProfilePack) return;
-  const pack = SQX_PG_MODULE.buildCustomStarterProfilePack();
-  pgDownloadJson('sqx-custom-starter-profiles-v1.json', pack);
-  pgSetCustomStatus('Pack starter exportado: ' + pack.presets.length + ' perfiles.', 'ok');
-  pgSetCustomPackStatus('Pack starter listo para importar como presets custom.');
-  pgLog('Pack starter custom exportado: ' + pack.presets.length + ' perfiles.', 'ok');
-}
-
-function pgLoadCustomProfileFamily(id) {
-  const family = SQX_PG_MODULE.findCustomProfileFamily && SQX_PG_MODULE.findCustomProfileFamily(id);
-  if (!family || !family.profiles.length) {
-    pgSetCustomStatus('No se encontro la familia de perfiles seleccionada.', 'err');
-    return;
-  }
-  const first = family.profiles[0];
-  pgWriteCustomInputs(first.config);
-  pgSetCustomStatus('Familia cargada: ' + family.name + ' · primer perfil: ' + first.name, 'ok');
-  pgSetCustomPackStatus('Guarda el pack completo o ajusta el primer perfil antes de generar.');
-  pgLog('Familia custom cargada: ' + family.name, 'info');
-  pgTrace('Familia custom cargada', family.name, 'info');
-  pgRenderBuyerCfxHandoff();
-}
-
-function pgSaveCustomProfileFamily(id) {
-  const family = SQX_PG_MODULE.findCustomProfileFamily && SQX_PG_MODULE.findCustomProfileFamily(id);
-  const pack = SQX_PG_MODULE.buildCustomProfileFamilyPack && SQX_PG_MODULE.buildCustomProfileFamilyPack(id);
-  if (!family || !pack || !pack.presets.length) {
-    pgSetCustomStatus('No se pudo guardar la familia de perfiles.', 'err');
-    return;
-  }
-  const result = SQX_PG_MODULE.importCustomProjectPresetPackage(pack);
-  pgRenderCustomPresets(pack.presets[0] && pack.presets[0].id);
-  pgSetCustomStatus('Familia guardada: ' + family.name + ' · ' + pack.presets.length + ' presets.', 'ok');
-  pgSetCustomPackStatus('Pack disponible en el selector de presets custom.');
-  pgLog('Familia custom guardada: ' + family.name + ' (' + result.presets.length + ' totales).', 'ok');
-  pgTrace('Familia custom guardada', family.name, 'ok');
-}
-
-function pgExportCustomProfileFamily(id) {
-  const family = SQX_PG_MODULE.findCustomProfileFamily && SQX_PG_MODULE.findCustomProfileFamily(id);
-  const pack = SQX_PG_MODULE.buildCustomProfileFamilyPack && SQX_PG_MODULE.buildCustomProfileFamilyPack(id);
-  if (!family || !pack) {
-    pgSetCustomStatus('No se pudo exportar la familia de perfiles.', 'err');
-    return;
-  }
-  pgDownloadJson('sqx-custom-profile-family-' + family.id + '.json', pack);
-  pgSetCustomStatus('Familia exportada: ' + family.name + '.', 'ok');
-  pgSetCustomPackStatus('Pack de familia listo para otra instalacion.');
-  pgLog('Familia custom exportada: ' + family.name + ' · ' + pack.presets.length + ' presets.', 'ok');
-}
-
-function pgExportCustomProfileFamilies() {
-  if (!SQX_PG_MODULE.buildAllCustomProfileFamilyPack) return;
-  const pack = SQX_PG_MODULE.buildAllCustomProfileFamilyPack();
-  pgDownloadJson('sqx-custom-profile-families-v1.json', pack);
-  pgSetCustomStatus('Pack de familias exportado: ' + pack.presets.length + ' presets.', 'ok');
-  pgSetCustomPackStatus('Familias listas para importar como presets custom.');
-  pgLog('Pack de familias custom exportado: ' + pack.presets.length + ' presets.', 'ok');
-}
-
-function pgHandleCustomStarterProfileClick(event) {
-  const target = event && event.target;
-  if (!target || !target.dataset) return;
-  if (target.dataset.pgStarterLoad) pgLoadCustomStarterProfile(target.dataset.pgStarterLoad);
-  if (target.dataset.pgStarterSave) pgSaveCustomStarterProfile(target.dataset.pgStarterSave);
-}
-
-function pgHandleCustomProfileFamilyClick(event) {
-  const target = event && event.target;
-  if (!target || !target.dataset) return;
-  if (target.dataset.pgFamilyLoad) pgLoadCustomProfileFamily(target.dataset.pgFamilyLoad);
-  if (target.dataset.pgFamilySave) pgSaveCustomProfileFamily(target.dataset.pgFamilySave);
-  if (target.dataset.pgFamilyExport) pgExportCustomProfileFamily(target.dataset.pgFamilyExport);
 }
 
 function pgOpenImportCustomPresets() {
@@ -805,10 +618,7 @@ async function pgRunOnboardingTertiaryAction() {
 (function pgInit(){
   const refresh = document.getElementById('pg-status-refresh');
   if (!refresh) return; // tab no está en el HTML
-  pgRenderCustomStarterProfiles();
-  pgRenderCustomProfileFamilies();
   pgRenderCustomPresets();
-  pgRenderBuyerCfxHandoff();
 
   // ── Strategy Cleaner ──
   const CLN_STATE = {
@@ -919,16 +729,10 @@ async function pgRunOnboardingTertiaryAction() {
   SQX_PG_BINDINGS.bindProjectGeneratorEvents(document, {
     autodetectSqx: pgAutodetectSqx,
     checkHealth: pgCheckHealth,
-    copyBuyerCfxHandoff: pgCopyBuyerCfxHandoff,
     deleteCustomPreset: pgDeleteCustomPreset,
-    downloadBuyerCfxHandoff: pgDownloadBuyerCfxHandoff,
-    exportCustomStarterProfiles: pgExportCustomStarterProfiles,
-    exportCustomProfileFamilies: pgExportCustomProfileFamilies,
     exportCustomPresets: pgExportCustomPresets,
     generateAll: pgGenerateAll,
     generateCustom: pgGenerateCustom,
-    handleCustomStarterProfileClick: pgHandleCustomStarterProfileClick,
-    handleCustomProfileFamilyClick: pgHandleCustomProfileFamilyClick,
     importCustomPresets: pgImportCustomPresets,
     loadCustomPreset: pgLoadCustomPreset,
     loadConfig: pgLoadConfig,
@@ -938,7 +742,6 @@ async function pgRunOnboardingTertiaryAction() {
     runOnboardingAction: pgRunOnboardingAction,
     runOnboardingSecondaryAction: pgRunOnboardingSecondaryAction,
     runOnboardingTertiaryAction: pgRunOnboardingTertiaryAction,
-    renderBuyerCfxHandoff: pgRenderBuyerCfxHandoff,
     saveCustomPreset: pgSaveCustomPreset,
     saveConfig: pgSaveConfig,
     setSettingsOpen: pgSetSettingsOpen,

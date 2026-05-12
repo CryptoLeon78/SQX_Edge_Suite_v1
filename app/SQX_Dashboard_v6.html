@@ -35,7 +35,7 @@
         </button>
         <button class="home-command" data-home-tab="pipeline">
           <span>Plan</span>
-          <strong>Pipeline State</strong>
+          <strong>Mining Control</strong>
         </button>
       </div>
     </section>
@@ -405,7 +405,7 @@
     </div>
   </div>
 
-  <!-- TAB: PIPELINE STATE — progreso operativo del plan configurado -->
+  <!-- TAB: MINING CONTROL - progreso operativo del plan configurado -->
   <div id="tab-pipeline" class="tab-content" style="display:none">
     <div style="margin-bottom:14px;color:var(--text2);font-size:14px;">
       Estado operativo del pipeline. KPIs auto-calculados de las estrategias supervivientes. Plan configurable con tracking persistente. Embudo de filtrado del mining activo.
@@ -441,7 +441,7 @@
       <div id="ps-orphans-list"></div>
     </div>
 
-    <!-- Plan minings -->
+    <!-- Mining Control plans -->
     <div class="card">
       <div class="card-header ps-plan-header">
         <h2>Plan de minings</h2>
@@ -576,7 +576,7 @@
     <div class="card pg-custom-card">
       <div class="card-header">
         <h2>Custom libre</h2>
-        <span class="badge info">Fuera del plan mining</span>
+        <span class="badge info">Fuera de Mining Control</span>
       </div>
       <div class="strat-form-grid pg-custom-grid">
         <label>Nombre del proyecto
@@ -608,26 +608,6 @@
           <input type="text" id="pg-custom-template" placeholder="Usa el template configurado para la capa si lo dejas vacio">
         </label>
       </div>
-      <div class="pg-custom-starters">
-        <div class="pg-custom-starters-head">
-          <div>
-            <strong>Perfiles starter</strong>
-            <small id="pg-custom-starter-count">0 perfiles listos</small>
-          </div>
-          <button class="export-btn pg-ghost-btn" id="pg-custom-export-starter-profiles">Exportar starters</button>
-        </div>
-        <div class="pg-custom-starter-list" id="pg-custom-starter-list"></div>
-      </div>
-      <div class="pg-custom-families">
-        <div class="pg-custom-starters-head">
-          <div>
-            <strong>Familias por objetivo</strong>
-            <small id="pg-custom-family-count">0 familias listas</small>
-          </div>
-          <button class="export-btn pg-ghost-btn" id="pg-custom-export-family-profiles">Exportar familias</button>
-        </div>
-        <div class="pg-custom-family-list" id="pg-custom-family-list"></div>
-      </div>
       <div class="pg-custom-presets">
         <div>
           <strong>Presets custom</strong>
@@ -650,35 +630,8 @@
       <div class="pg-custom-import-preview" id="pg-custom-import-preview"></div>
       <div class="pg-custom-actions">
         <button class="export-btn" id="pg-custom-generate">Generar custom</button>
-        <small id="pg-custom-status">Crea un .cfx libre sin añadirlo al plan mining.</small>
+        <small id="pg-custom-status">Crea un .cfx libre sin añadirlo a Mining Control.</small>
       </div>
-    </div>
-
-    <div class="card pg-buyer-handoff-card" id="pg-buyer-handoff-card">
-      <div class="card-header">
-        <h2>Entrega comprador .cfx</h2>
-        <span class="badge info">Notas handoff</span>
-      </div>
-      <div class="pg-buyer-handoff-grid">
-        <label>Comprador / caso
-          <input type="text" id="pg-buyer-name" placeholder="Cliente Pro / Setup Assist">
-        </label>
-        <label>Contexto de entrega
-          <select id="pg-buyer-context">
-            <option value="review">Revision inicial</option>
-            <option value="setup">Setup Assist</option>
-            <option value="template-pack">Template Pack</option>
-            <option value="support">Soporte</option>
-          </select>
-        </label>
-        <div class="pg-buyer-actions">
-          <button class="export-btn pg-ghost-btn" id="pg-buyer-handoff-refresh">Actualizar notas</button>
-          <button class="export-btn pg-ghost-btn" id="pg-buyer-handoff-copy">Copiar</button>
-          <button class="export-btn" id="pg-buyer-handoff-download">Descargar .md</button>
-        </div>
-      </div>
-      <div class="pg-buyer-summary" id="pg-buyer-handoff-summary">Completa el custom libre o carga un perfil para preparar la entrega.</div>
-      <textarea id="pg-buyer-handoff-notes" class="pg-buyer-handoff-notes" readonly spellcheck="false"></textarea>
     </div>
 
     <!-- Acciones masivas -->
@@ -1040,9 +993,9 @@
             <label class="views-field">
               <span>Project profile</span>
               <select id="sb-project-profile">
-                <option value="starter-forex-h1-balanced">Forex H1 Balanced</option>
-                <option value="starter-index-m15-breakout">Index M15 Breakout</option>
-                <option value="family-buyer-first-setup-forex-h1-balanced">Buyer First Setup</option>
+                <option value="custom-forex-h1-balanced">Forex H1 Balanced</option>
+                <option value="custom-index-m15-breakout">Index M15 Breakout</option>
+                <option value="custom-gold-h1-risk">Gold H1 Risk</option>
                 <option value="profile-pro-setup-assist-risk-capital-review">Pro Setup Assist</option>
               </select>
             </label>
@@ -1596,9 +1549,9 @@
           <button class="filter-btn" type="button" data-home-tab="activos">Ver activos</button>
         </article>
         <article class="workflow-command-step" data-wf-step="plan">
-          <label><input type="checkbox" data-check="command-center-plan"> Plan Mining</label>
+          <label><input type="checkbox" data-check="command-center-plan"> Mining Control</label>
           <p>Ordena fases, estados, candidatos y dependencias antes de generar proyectos.</p>
-          <button class="filter-btn" type="button" data-home-tab="pipeline">Abrir plan</button>
+          <button class="filter-btn" type="button" data-home-tab="pipeline">Abrir control</button>
         </article>
         <article class="workflow-command-step" data-wf-step="views">
           <label><input type="checkbox" data-check="command-center-views"> SQX Views</label>

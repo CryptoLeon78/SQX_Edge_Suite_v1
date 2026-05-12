@@ -38,7 +38,7 @@ window.SQX_MANIFEST = {
       },
       {
         "id": "pipeline",
-        "label": "Plan Mining"
+        "label": "Mining Control"
       },
       {
         "id": "priority",

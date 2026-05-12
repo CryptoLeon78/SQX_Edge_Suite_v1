@@ -118,7 +118,7 @@
     var title = doc.getElementById('wf-plan-v2-title');
     var metrics = doc.getElementById('wf-plan-v2-metrics');
     var detail = doc.getElementById('wf-plan-v2-detail');
-    if (title) title.textContent = 'Plan v2 sincronizado con Pipeline State';
+    if (title) title.textContent = 'Plan v2 sincronizado con Mining Control';
     if (metrics) {
       metrics.innerHTML =
         '<span>' + summary.phaseCount + ' fases</span>' +

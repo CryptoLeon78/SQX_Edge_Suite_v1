@@ -2202,28 +2202,16 @@ class DashboardStaticTestCase(unittest.TestCase):
             "customPresetIdFromName",
             "customPresetPackageType",
             "customPresetPackageVersion",
-            "customProfileFamilyCardsHtml",
-            "customProfileFamilyCountLabel",
             "customProjectPresetImportPreview",
             "customProjectPresetImportPreviewFromText",
             "customProjectPresetImportPreviewHtml",
             "customProjectPresetImportPreviewSummary",
             "customProjectPresetCountLabel",
             "customProjectPresetOptionsHtml",
-            "customStarterProfileCardsHtml",
-            "customStarterProfileCountLabel",
-            "customStarterProfileToPreset",
             "deleteCustomProjectPreset",
-            "findCustomProjectPreset",
-            "findCustomProfileFamily",
-            "findCustomStarterProfile",
-            "getCustomProfileFamilies",
             "getCustomProjectPresets",
-            "getCustomStarterProfiles",
-            "buildAllCustomProfileFamilyPack",
-            "buildCustomProfileFamilyPack",
+            "findCustomProjectPreset",
             "buildCustomProjectPresetPackage",
-            "buildCustomStarterProfilePack",
             "importCustomProjectPresetPackage",
             "importCustomProjectPresetPackageFromText",
             "generateAllConfirmMessage",
@@ -2278,20 +2266,14 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.generateAllConfirmMessage", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.generateAllResultLines", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.configSaveBody", project_generator_main_js)
-        self.assertIn("SQX_PG_MODULE.buildCustomStarterProfilePack", project_generator_main_js)
-        self.assertIn("SQX_PG_MODULE.buildCustomProfileFamilyPack", project_generator_main_js)
-        self.assertIn("SQX_PG_MODULE.buildAllCustomProfileFamilyPack", project_generator_main_js)
-        self.assertIn("SQX_PG_MODULE.customStarterProfileCardsHtml", project_generator_main_js)
-        self.assertIn("SQX_PG_MODULE.customProfileFamilyCardsHtml", project_generator_main_js)
-        self.assertIn("SQX_PG_MODULE.customStarterProfileToPreset", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.buildCustomProjectPresetPackage", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.customProjectPresetImportPreviewFromText", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.customProjectPresetImportPreviewHtml", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.importCustomProjectPresetPackageFromText", project_generator_main_js)
-        self.assertIn('id="pg-custom-starter-list"', self.html)
-        self.assertIn('id="pg-custom-export-starter-profiles"', self.html)
-        self.assertIn('id="pg-custom-family-list"', self.html)
-        self.assertIn('id="pg-custom-export-family-profiles"', self.html)
+        self.assertNotIn('id="pg-custom-starter-list"', self.html)
+        self.assertNotIn('id="pg-custom-export-starter-profiles"', self.html)
+        self.assertNotIn('id="pg-custom-family-list"', self.html)
+        self.assertNotIn('id="pg-custom-export-family-profiles"', self.html)
         self.assertIn('id="pg-custom-export-presets"', self.html)
         self.assertIn('id="pg-custom-import-presets"', self.html)
         self.assertIn('id="pg-custom-import-presets-file"', self.html)
@@ -2907,16 +2889,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, css)
 
-    def test_pg7_project_generator_buyer_cfx_handoff_is_wired(self):
+    def test_ux_nav2_project_generator_removed_commercial_panels(self):
         pg_config = (APP_ROOT / "js" / "modules" / "project-generator-config.js").read_text(encoding="utf-8-sig")
         pg_bindings = (APP_ROOT / "js" / "modules" / "project-generator-bindings.js").read_text(encoding="utf-8-sig")
         pg_main = (APP_ROOT / "js" / "project-generator-main.js").read_text(encoding="utf-8-sig")
-        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
-        pg7_doc = PG7_PROJECT_GENERATOR_DOC.read_text(encoding="utf-8-sig")
-        next_steps = (PROJECT_ROOT / "docs" / "MODULARIZATION_NEXT_STEPS.md").read_text(encoding="utf-8-sig")
-        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
 
-        for element_id in [
+        removed_html = [
             "pg-buyer-handoff-card",
             "pg-buyer-name",
             "pg-buyer-context",
@@ -2925,58 +2903,39 @@ class DashboardStaticTestCase(unittest.TestCase):
             "pg-buyer-handoff-download",
             "pg-buyer-handoff-summary",
             "pg-buyer-handoff-notes",
-        ]:
-            with self.subTest(element_id=element_id):
-                self.assertIn(f'id="{element_id}"', self.html)
+            "pg-custom-starter-list",
+            "pg-custom-export-starter-profiles",
+            "pg-custom-family-list",
+            "pg-custom-export-family-profiles",
+            "Perfiles starter",
+            "Familias por objetivo",
+            "Entrega comprador .cfx",
+        ]
+        for pattern in removed_html:
+            with self.subTest(pattern=pattern):
+                self.assertNotIn(pattern, self.html)
 
-        for pattern in [
+        removed_js_patterns = [
             "normalizeBuyerCfxHandoffInput",
             "buyerCfxHandoffSummary",
             "buyerCfxHandoffMarkdown",
             "buyerCfxHandoffFilename",
-            "No promete rentabilidad",
-        ]:
-            with self.subTest(pattern=pattern):
-                self.assertIn(pattern, pg_config)
-
-        for pattern in [
             "renderBuyerCfxHandoff",
             "copyBuyerCfxHandoff",
             "downloadBuyerCfxHandoff",
-            "pg-buyer-handoff-refresh",
-        ]:
-            with self.subTest(pattern=pattern):
-                self.assertIn(pattern, pg_bindings)
-
-        for pattern in [
             "pgRenderBuyerCfxHandoff",
             "pgCopyBuyerCfxHandoff",
             "pgDownloadBuyerCfxHandoff",
-            "buyerCfxHandoffMarkdown",
-            "buyerCfxHandoffFilename",
-        ]:
+            "customStarterProfileCardsHtml",
+            "customProfileFamilyCardsHtml",
+            "buildCustomStarterProfilePack",
+            "buildCustomProfileFamilyPack",
+            "buildAllCustomProfileFamilyPack",
+        ]
+        combined_js = "\n".join([pg_config, pg_bindings, pg_main])
+        for pattern in removed_js_patterns:
             with self.subTest(pattern=pattern):
-                self.assertIn(pattern, pg_main)
-
-        for pattern in [
-            ".pg-buyer-handoff-card",
-            ".pg-buyer-handoff-grid",
-            ".pg-buyer-handoff-notes",
-            ".pg-buyer-actions",
-        ]:
-            with self.subTest(pattern=pattern):
-                self.assertIn(pattern, css)
-
-        for pattern in [
-            "PG7 Project Generator Buyer .cfx Handoff",
-            "No backend endpoint is added.",
-            "No remote API call is made.",
-            "No profitability or financial-result claim is made.",
-            "Phase PG7: add buyer-specific `.cfx` handoff notes",
-            "Project Generator buyer handoff track",
-        ]:
-            with self.subTest(pattern=pattern):
-                self.assertTrue(pattern in pg7_doc or pattern in next_steps or pattern in governance, pattern)
+                self.assertNotIn(pattern, combined_js)
 
     def test_t1_cloud_tester_architecture_contract_is_documented(self):
         t1 = T1_CLOUD_TESTER_DOC.read_text(encoding="utf-8-sig")

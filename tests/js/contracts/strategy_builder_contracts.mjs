@@ -48,7 +48,7 @@ const blocked = core.buildPackage({
   timeframe: 'H1',
   idea_archetype: 'trend_following',
   validation_pack_id: 'robustness',
-  project_profile_id: 'starter-forex-h1-balanced',
+  project_profile_id: 'custom-forex-h1-balanced',
 });
 assert.equal(blocked.type, 'sqx-edge.strategy-builder-package');
 assert.equal(blocked.workflow_state, 'blocked_operator_review');
@@ -72,7 +72,7 @@ const ready = core.buildPackage({
   timeframe: 'H1',
   idea_archetype: 'trend_following',
   validation_pack_id: 'robustness',
-  project_profile_id: 'starter-forex-h1-balanced',
+  project_profile_id: 'custom-forex-h1-balanced',
   operator_reviewed: true,
 }, { createdAt: '2026-05-09T00:00:00.000Z' });
 assert.equal(ready.workflow_state, 'package_exportable');
@@ -353,7 +353,7 @@ const selectDefaults = {
   'sb-timeframe': 'H1',
   'sb-archetype': 'trend_following',
   'sb-validation-pack': 'robustness',
-  'sb-project-profile': 'starter-forex-h1-balanced',
+  'sb-project-profile': 'custom-forex-h1-balanced',
 };
 Object.entries(selectDefaults).forEach(([id, value]) => {
   document.getElementById(id).value = value;

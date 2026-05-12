@@ -353,7 +353,7 @@ function renderCategoriesView() {
           <td style="font-size:12px;color:var(--text2);max-width:280px">${row.why}</td>
           <td>
             <div class="quick-actions" style="margin-top:0">
-              <button class="action-btn btn-plan" onclick="event.stopPropagation();quickAddToPlan('${row.asset.id}','${row.isShort ? catKey + '_S' : catKey}','${row.tf}','${row.dir}')" title="Añadir al Plan Mining">+ Plan</button>
+              <button class="action-btn btn-plan" onclick="event.stopPropagation();quickAddToPlan('${row.asset.id}','${row.isShort ? catKey + '_S' : catKey}','${row.tf}','${row.dir}')" title="Añadir a Mining Control">+ Plan</button>
               <button class="action-btn btn-pg" onclick="event.stopPropagation();quickToProjectGen('${row.asset.id}','${row.isShort ? catKey + '_S' : catKey}','${row.tf}','${row.dir}')" title="Ir al Project Generator">Gen</button>
             </div>
           </td>
@@ -470,7 +470,7 @@ function renderPriority() {
     const planRef = (typeof PLAN_MININGS !== 'undefined') ? PLAN_MININGS.find(m =>
       m.asset === r.asset && BS_TO_PRIORITY_CAT[m.bs] === r.cat && m.tf === r.tf && m.dir === r.dir
     ) : null;
-    const planBadge = planRef ? '<span class="ps-pin-badge" title="Mining '+planRef.num+' del plan operativo (Pipeline State)">📌 M'+planRef.num+'</span>' : '';
+    const planBadge = planRef ? '<span class="ps-pin-badge" title="Mining '+planRef.num+' del plan operativo (Mining Control)">📌 M'+planRef.num+'</span>' : '';
     html += '<tr>'
       + '<td style="font-weight:700;color:var(--text2)">'+(i+1)+planBadge+'</td>'
       + '<td><span class="tier-badge '+tier.cls+'">'+tier.label+'</span></td>'
@@ -1179,7 +1179,7 @@ window.navToAsset = function(id) {
   selectAsset(id);
 };
 
-// Quick actions from asset/category cards into Pipeline State and Project Generator.
+// Quick actions from asset/category cards into Mining Control and Project Generator.
 window.quickAddToPlan = function(asset, cat, tf, dir) {
   const catBase = String(cat || '').replace(/_S$/, '');
   const key = asset + '|' + catBase + '|' + tf + '|' + dir;
@@ -1187,7 +1187,7 @@ window.quickAddToPlan = function(asset, cat, tf, dir) {
     window.promoteOrphanToPlan(key);
     return;
   }
-  alert('No se ha podido abrir el Plan Mining desde esta tarjeta.');
+  alert('No se ha podido abrir Mining Control desde esta tarjeta.');
 };
 
 window.quickToProjectGen = function(asset, cat, tf, dir) {
@@ -1235,7 +1235,7 @@ window.cycleMiningStatus = function(id) {
   PRIORITY_PROGRESS[id] = { status: next, updated: new Date().toISOString() };
   savePriorityProgress();
   renderPriority();
-  // Sync con Pipeline State (re-renderiza si la fila importada cambió de estado allí)
+  // Sync con Mining Control (re-renderiza si la fila importada cambió de estado allí)
   if (typeof renderPipelineState === 'function') renderPipelineState();
 };
 
@@ -1308,7 +1308,7 @@ document.addEventListener('keydown', function(e){
 });
 
 // ============================================================
-// PIPELINE STATE — plan configurado + embudo + KPIs
+// MINING CONTROL - plan configurado + embudo + KPIs
 // ============================================================
 
 // ── Plan USER (añadidos por UI, persistente en localStorage) ──
@@ -1418,7 +1418,7 @@ function savePipelineState() { SQX_STORAGE.setJson(PIPELINE_STATE_KEY, PIPELINE_
 
 // Devuelve { status, source } donde source ∈ {'manual','priority','strategies','default'}
 function getMiningStatusInfo(num) {
-  // 1) Override manual en Pipeline State
+  // 1) Override manual en Mining Control
   if (PIPELINE_STATE.overrides[num]) {
     return { status: PIPELINE_STATE.overrides[num], source: 'manual' };
   }
@@ -1524,7 +1524,7 @@ function renderPsKpis() {
 
   document.getElementById('ps-kpis').innerHTML =
     '<div class="ps-kpi k-progress">' +
-      '<div class="ps-k-label">Plan minings</div>' +
+      '<div class="ps-k-label">Mining Control</div>' +
       '<div class="ps-k-value">'+completed+' / '+total+'</div>' +
       '<div class="ps-k-sub">'+current+' en curso · '+pending+' pendientes</div>' +
       '<div class="ps-k-bar-bg"><div class="ps-k-bar-fill" style="width:'+pctDone+'%"></div></div>' +

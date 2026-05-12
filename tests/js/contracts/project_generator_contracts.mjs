@@ -51,11 +51,7 @@ assert.equal(document.getElementById('pg-custom-dir').value, 'short');
   'pg-autodetect', 'pg-aliases-suggest', 'pg-validate', 'pg-gen-all-c1',
   'pg-gen-all-c2', 'pg-custom-generate', 'pg-custom-save-preset', 'pg-custom-load-preset',
   'pg-custom-delete-preset', 'pg-output-refresh', 'pg-open-output', 'pg-log-clear',
-  'pg-custom-starter-list', 'pg-custom-export-starter-profiles',
-  'pg-custom-family-list', 'pg-custom-export-family-profiles',
   'pg-custom-export-presets', 'pg-custom-import-presets', 'pg-custom-import-presets-file',
-  'pg-buyer-name', 'pg-buyer-context', 'pg-buyer-handoff-refresh',
-  'pg-buyer-handoff-copy', 'pg-buyer-handoff-download',
   'pg-settings-body', 'pg-log'
 ].forEach(id => document.add(new Element(id)));
 let checkHealthCalls = 0;
@@ -64,33 +60,19 @@ let generateCustomCalls = 0;
 let saveCustomPresetCalls = 0;
 let loadCustomPresetCalls = 0;
 let deleteCustomPresetCalls = 0;
-let starterProfileClickCalls = 0;
-let exportStarterProfileCalls = 0;
-let profileFamilyClickCalls = 0;
-let exportProfileFamilyCalls = 0;
 let exportCustomPresetCalls = 0;
 let openImportCustomPresetCalls = 0;
 let importCustomPresetCalls = 0;
-let renderBuyerHandoffCalls = 0;
-let copyBuyerHandoffCalls = 0;
-let downloadBuyerHandoffCalls = 0;
 PG.bindings.bindProjectGeneratorEvents(document, {
   checkHealth: () => { checkHealthCalls++; },
-  copyBuyerCfxHandoff: () => { copyBuyerHandoffCalls++; },
-  downloadBuyerCfxHandoff: () => { downloadBuyerHandoffCalls++; },
-  exportCustomStarterProfiles: () => { exportStarterProfileCalls++; },
-  exportCustomProfileFamilies: () => { exportProfileFamilyCalls++; },
   exportCustomPresets: () => { exportCustomPresetCalls++; },
   generateAll: capa => { generateAllCapa = capa; },
   generateCustom: () => { generateCustomCalls++; },
   importCustomPresets: () => { importCustomPresetCalls++; },
-  handleCustomStarterProfileClick: () => { starterProfileClickCalls++; },
-  handleCustomProfileFamilyClick: () => { profileFamilyClickCalls++; },
   saveCustomPreset: () => { saveCustomPresetCalls++; },
   loadCustomPreset: () => { loadCustomPresetCalls++; },
   deleteCustomPreset: () => { deleteCustomPresetCalls++; },
   openImportCustomPresets: () => { openImportCustomPresetCalls++; },
-  renderBuyerCfxHandoff: () => { renderBuyerHandoffCalls++; },
   setSettingsOpen: open => { document.getElementById('pg-settings-body').style.display = open ? 'block' : 'none'; },
 });
 document.getElementById('pg-status-refresh').click();
@@ -99,16 +81,9 @@ document.getElementById('pg-custom-generate').click();
 document.getElementById('pg-custom-save-preset').click();
 document.getElementById('pg-custom-load-preset').click();
 document.getElementById('pg-custom-delete-preset').click();
-document.getElementById('pg-custom-starter-list').dispatch('click', { target: new Element('', [], { pgStarterLoad: 'forex-h1-balanced' }) });
-document.getElementById('pg-custom-export-starter-profiles').click();
-document.getElementById('pg-custom-family-list').dispatch('click', { target: new Element('', [], { pgFamilySave: 'buyer-first-setup' }) });
-document.getElementById('pg-custom-export-family-profiles').click();
 document.getElementById('pg-custom-export-presets').click();
 document.getElementById('pg-custom-import-presets').click();
 document.getElementById('pg-custom-import-presets-file').dispatch('change');
-document.getElementById('pg-buyer-handoff-refresh').click();
-document.getElementById('pg-buyer-handoff-copy').click();
-document.getElementById('pg-buyer-handoff-download').click();
 document.getElementById('pg-custom-asset').dispatch('input');
 document.getElementById('pg-custom-dir').dispatch('change');
 assert.equal(checkHealthCalls, 1);
@@ -117,16 +92,9 @@ assert.equal(generateCustomCalls, 1);
 assert.equal(saveCustomPresetCalls, 1);
 assert.equal(loadCustomPresetCalls, 1);
 assert.equal(deleteCustomPresetCalls, 1);
-assert.equal(starterProfileClickCalls, 1);
-assert.equal(exportStarterProfileCalls, 1);
-assert.equal(profileFamilyClickCalls, 1);
-assert.equal(exportProfileFamilyCalls, 1);
 assert.equal(exportCustomPresetCalls, 1);
 assert.equal(openImportCustomPresetCalls, 1);
 assert.equal(importCustomPresetCalls, 1);
-assert.equal(renderBuyerHandoffCalls, 3);
-assert.equal(copyBuyerHandoffCalls, 1);
-assert.equal(downloadBuyerHandoffCalls, 1);
 document.getElementById('pg-log').textContent = 'old';
 document.getElementById('pg-log-clear').click();
 assert.equal(document.getElementById('pg-log').textContent, '[esperando primera acción…]');
@@ -359,44 +327,12 @@ assert.match(PG.customProjectPresetImportPreviewHtml(importPreview), /reemplaza/
 assert.match(PG.customProjectPresetOptionsHtml(savedCustom.presets), /EURUSD H1 Core/);
 assert.equal(PG.customProjectPresetCountLabel(1), '1 guardado');
 assert.equal(PG.findCustomProjectPreset('eurusd-h1-core', sandbox.localStorage).config.asset, 'EURUSD');
-const buyerHandoffInput = {
-  buyerName: 'Cliente Pro',
-  context: 'setup',
-  generatedAt: '2026-05-09T19:00:00.000Z',
-  outputDir: 'C:/out',
-  config: { name: 'Custom_EURUSD_H1', asset: 'eurusd', tf: 'h1', bs: 'BS_Tendencia', dir: 'both', capa: 1 },
-  outputFiles: [{ name: 'Custom_EURUSD_H1_Capa1.cfx', size_kb: 24 }],
-};
-const buyerHandoff = PG.normalizeBuyerCfxHandoffInput(buyerHandoffInput);
-assert.equal(buyerHandoff.contextLabel, 'Setup Assist');
-assert.equal(buyerHandoff.config.asset, 'EURUSD');
-assert.equal(PG.buyerCfxHandoffFilename(buyerHandoffInput), 'sqx-cfx-handoff-cliente-pro-eurusd-h1-2026-05-09.md');
-assert.match(PG.buyerCfxHandoffSummary(buyerHandoffInput), /Setup Assist: EURUSD H1/);
-const buyerHandoffMd = PG.buyerCfxHandoffMarkdown(buyerHandoffInput);
-assert.match(buyerHandoffMd, /# SQX Edge - Entrega \.cfx comprador/);
-assert.match(buyerHandoffMd, /Custom_EURUSD_H1_Capa1\.cfx/);
-assert.match(buyerHandoffMd, /No promete rentabilidad/);
-const starterProfiles = PG.getCustomStarterProfiles();
-assert.equal(starterProfiles.length, 8);
-assert.equal(PG.customStarterProfileCountLabel(starterProfiles.length), '8 perfiles listos');
-assert.equal(PG.findCustomStarterProfile('forex-h1-balanced').config.asset, 'EURUSD');
-assert.equal(PG.findCustomStarterProfile('forex-h4-swing').guidance.includes('menos operaciones'), true);
-assert.equal(PG.customStarterProfileToPreset('forex-h1-balanced').id, 'starter-forex-h1-balanced');
-assert.match(PG.customStarterProfileCardsHtml(starterProfiles), /data-pg-starter-load="forex-h1-balanced"/);
-const starterPack = PG.buildCustomStarterProfilePack();
-assert.equal(starterPack.type, 'sqx-edge.project-generator-custom-presets');
-assert.equal(starterPack.presets.length, 8);
-const profileFamilies = PG.getCustomProfileFamilies();
-assert.equal(profileFamilies.length, 4);
-assert.equal(PG.customProfileFamilyCountLabel(profileFamilies.length), '4 familias listas');
-assert.equal(PG.findCustomProfileFamily('buyer-first-setup').profiles.length, 3);
-assert.match(PG.customProfileFamilyCardsHtml(profileFamilies), /data-pg-family-save="buyer-first-setup"/);
-const buyerFamilyPack = PG.buildCustomProfileFamilyPack('buyer-first-setup');
-assert.equal(buyerFamilyPack.type, 'sqx-edge.project-generator-custom-presets');
-assert.equal(buyerFamilyPack.presets.length, 3);
-assert.equal(buyerFamilyPack.presets[0].id, 'family-buyer-first-setup-forex-h1-balanced');
-const allFamilyPack = PG.buildAllCustomProfileFamilyPack();
-assert.ok(allFamilyPack.presets.length >= 12);
+assert.equal(PG.getCustomStarterProfiles, undefined);
+assert.equal(PG.buildCustomStarterProfilePack, undefined);
+assert.equal(PG.getCustomProfileFamilies, undefined);
+assert.equal(PG.buildCustomProfileFamilyPack, undefined);
+assert.equal(PG.normalizeBuyerCfxHandoffInput, undefined);
+assert.equal(PG.buyerCfxHandoffMarkdown, undefined);
 assert.equal(PG.deleteCustomProjectPreset('eurusd-h1-core', sandbox.localStorage).deleted, true);
 assert.equal(PG.deleteCustomProjectPreset('gbpusd-m15-short', sandbox.localStorage).deleted, true);
 assert.equal(PG.getCustomProjectPresets(sandbox.localStorage).length, 0);
