@@ -5,6 +5,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 ## Current State
 
 - Current phase completed: UX-NAV2 - Mining Control and Project Generator trim.
+- Current UX surface decision: Strategy Builder tab and visible CVC handoff are retired from the dashboard shell; existing SB modules/docs remain internal historical contracts until a future renamed workflow is approved.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Next implementation phase: UX-NAV tab-by-tab optimization, active tab `Workflow`; do not move to another tab until the operator says `Adelante con el siguiente tab`.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.

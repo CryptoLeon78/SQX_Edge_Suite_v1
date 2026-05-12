@@ -49,10 +49,12 @@ async function run() {
     const priorityTabCount = await desktop.locator('.tab[data-tab="priority"]').count();
     if (priorityTabCount !== 0) throw new Error('Priority should not be a primary navigation section');
     const sidebarOrder = await desktop.locator('#main-tabs .tab').evaluateAll(nodes => nodes.map(node => node.dataset.tab));
-    const expectedSidebarOrder = ['workflow', 'inicio', 'activos', 'pipeline', 'views', 'projectgen', 'estrategias', 'cvc', 'strategybuilder', 'filtros'];
+    const expectedSidebarOrder = ['workflow', 'inicio', 'activos', 'pipeline', 'views', 'projectgen', 'estrategias', 'cvc', 'filtros'];
     if (sidebarOrder.join('|') !== expectedSidebarOrder.join('|')) {
       throw new Error(`Navigation should follow Workflow methodology order: ${sidebarOrder.join('|')}`);
     }
+    const strategyBuilderTabCount = await desktop.locator('.tab[data-tab="strategybuilder"]').count();
+    if (strategyBuilderTabCount !== 0) throw new Error('Strategy Builder should not be a primary navigation section');
     const commandCenterText = await desktop.locator('#workflow-command-center').innerText();
     if (commandCenterText.includes('Strategy Builder')) throw new Error('Workflow command center should not expose Strategy Builder');
     ['Estrategias', 'Champion vs Challenger'].forEach(expected => {
@@ -326,235 +328,12 @@ async function run() {
     if (cvcReview.type !== 'sqx-edge.champion-challenger-review' || cvcReview.summary.candidate_count !== 3) throw new Error('Champion vs Challenger export contract failed');
     if (JSON.stringify(cvcReview).includes('Champion CSV')) throw new Error('Champion vs Challenger export should not include raw CSV payloads');
     const cvcHandoff = await desktop.evaluate(review => window.SQX.championChallenger.buildStrategyBuilderHandoff(review), cvcReview);
-    if (cvcHandoff.type !== 'sqx-edge.strategy-builder-handoff' || !cvcHandoff.recommended_candidate) throw new Error('Strategy Builder handoff contract failed');
-    await desktop.locator('#cvc-handoff-btn').click();
-    await desktop.waitForFunction(() => document.getElementById('cvc-handoff-preview')?.textContent.includes('Strategy Builder handoff'));
+    if (cvcHandoff.type !== 'sqx-edge.strategy-builder-handoff' || !cvcHandoff.recommended_candidate) throw new Error('Internal CVC handoff contract failed');
+    const cvcHandoffButtonCount = await desktop.locator('#cvc-handoff-btn').count();
+    if (cvcHandoffButtonCount !== 0) throw new Error('CVC should not expose the retired Strategy Builder handoff button');
+    const strategyBuilderPanelCount = await desktop.locator('#tab-strategybuilder').count();
+    if (strategyBuilderPanelCount !== 0) throw new Error('Strategy Builder tab panel should be removed from the dashboard shell');
     await saveShot(desktop, 'e2e-champion-challenger-desktop.png');
-    await desktop.locator('.tab[data-tab="strategybuilder"]').click();
-    await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
-    await desktop.waitForSelector('#sb-build-btn');
-    await desktop.locator('#sb-sample-cvc-btn').click();
-    await desktop.waitForFunction(() => document.getElementById('sb-state')?.textContent.trim() === 'package_exportable');
-    await desktop.waitForFunction(() => document.getElementById('sb-workflow-steps')?.querySelectorAll('.sb-workflow-step.is-done').length >= 5);
-    const builderPackage = await desktop.evaluate(() => window.SQX.strategyBuilderCore.buildPackage({
-      source_mode: 'cvc_handoff',
-      source_handoff: window.SQX.strategyBuilderCore.sampleCvcHandoff(),
-      timeframe: 'H1',
-      idea_archetype: 'trend_following',
-      validation_pack_id: 'robustness',
-      project_profile_id: 'custom-forex-h1-balanced',
-      operator_reviewed: true,
-    }));
-    if (builderPackage.type !== 'sqx-edge.strategy-builder-package' || builderPackage.workflow_state !== 'package_exportable') throw new Error('Strategy Builder package contract failed');
-    if (JSON.stringify(builderPackage).includes('Guaranteed profitable')) throw new Error('Strategy Builder package should not include blocked marketing claims');
-    await desktop.locator('#sb-send-pg-btn').click();
-    await desktop.waitForSelector('.tab[data-tab="projectgen"].active');
-    const pgPrefill = await desktop.evaluate(() => ({
-      name: document.getElementById('pg-custom-name')?.value,
-      asset: document.getElementById('pg-custom-asset')?.value,
-      tf: document.getElementById('pg-custom-tf')?.value,
-      bs: document.getElementById('pg-custom-bs')?.value,
-      status: document.getElementById('pg-custom-status')?.textContent,
-      outputText: document.getElementById('pg-output-list')?.textContent || '',
-    }));
-    if (pgPrefill.name !== 'SB_EURUSD_H1_trend_following' || pgPrefill.asset !== 'EURUSD' || pgPrefill.tf !== 'H1' || pgPrefill.bs !== 'BS_Tendencia') throw new Error(`Strategy Builder Project Generator prefill failed: ${JSON.stringify(pgPrefill)}`);
-    if (!pgPrefill.status.includes('Prefill desde Strategy Builder')) throw new Error('Strategy Builder prefill status missing');
-    if (/Custom_EURUSD_H1_Capa/.test(pgPrefill.outputText)) throw new Error('Strategy Builder prefill should not generate custom output');
-    await saveShot(desktop, 'e2e-strategy-builder-pg-prefill-desktop.png');
-    await desktop.locator('.tab[data-tab="strategybuilder"]').click();
-    await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
-    const presetCountBeforeDraft = await desktop.evaluate(() => window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length);
-    await desktop.locator('#sb-prepare-preset-btn').click();
-    await desktop.waitForSelector('.tab[data-tab="projectgen"].active');
-    const pgPresetDraft = await desktop.evaluate(() => ({
-      presetName: document.getElementById('pg-custom-preset-name')?.value,
-      status: document.getElementById('pg-custom-status')?.textContent,
-      savedCount: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length,
-    }));
-    if (pgPresetDraft.presetName !== 'SB EURUSD H1 trend following') throw new Error(`Strategy Builder preset draft failed: ${JSON.stringify(pgPresetDraft)}`);
-    if (!pgPresetDraft.status.includes('Guardar preset manualmente')) throw new Error('Strategy Builder preset draft status missing manual save boundary');
-    if (pgPresetDraft.savedCount !== presetCountBeforeDraft) throw new Error('Strategy Builder preset draft should not auto-save a preset');
-    await saveShot(desktop, 'e2e-strategy-builder-pg-preset-draft-desktop.png');
-    await desktop.locator('.tab[data-tab="strategybuilder"]').click();
-    await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
-    const viewPresetCountBeforeHandoff = await desktop.evaluate(() => window.SQX.viewCreator.getSavedPresets(localStorage).length);
-    await desktop.locator('#sb-send-views-btn').click();
-    await desktop.waitForSelector('.tab[data-tab="views"].active');
-    const viewsHandoff = await desktop.evaluate(() => ({
-      viewName: document.getElementById('vc-view-name')?.value,
-      status: document.getElementById('vc-status')?.textContent,
-      columnCount: Number(document.getElementById('vc-column-count')?.textContent.trim() || 0),
-      savedCount: window.SQX.viewCreator.getSavedPresets(localStorage).length,
-    }));
-    if (viewsHandoff.viewName !== 'SB EURUSD H1 Robustness') throw new Error(`Strategy Builder SQX Views handoff name failed: ${JSON.stringify(viewsHandoff)}`);
-    if (!viewsHandoff.status.includes('Handoff cargado')) throw new Error('Strategy Builder SQX Views handoff status missing');
-    if (viewsHandoff.columnCount <= 104) throw new Error(`Strategy Builder SQX Views handoff columns too low: ${JSON.stringify(viewsHandoff)}`);
-    if (viewsHandoff.savedCount !== viewPresetCountBeforeHandoff) throw new Error('Strategy Builder SQX Views handoff should not auto-save a template');
-    await saveShot(desktop, 'e2e-strategy-builder-views-handoff-desktop.png');
-    await desktop.locator('.tab[data-tab="strategybuilder"]').click();
-    await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
-    await desktop.locator('#sb-prepare-cleaner-btn').click();
-    await desktop.waitForSelector('.tab[data-tab="projectgen"].active');
-    const cleanerDraft = await desktop.evaluate(() => ({
-      recursive: document.getElementById('cln-recursive')?.checked,
-      removeExitBars: document.getElementById('cln-opt-eab')?.checked,
-      rename: document.getElementById('cln-opt-rename')?.checked,
-      pattern: document.getElementById('cln-pattern')?.value,
-      info: document.getElementById('cln-info')?.textContent,
-      tableText: document.getElementById('cln-table')?.textContent || '',
-      log: document.getElementById('pg-log')?.textContent || '',
-    }));
-    if (!cleanerDraft.recursive || !cleanerDraft.removeExitBars || !cleanerDraft.rename || cleanerDraft.pattern !== '{asset}_{tf}_{dir}_{id}') throw new Error(`Strategy Cleaner draft options failed: ${JSON.stringify(cleanerDraft)}`);
-    if (!cleanerDraft.info.includes('procesa manualmente')) throw new Error(`Strategy Cleaner draft info missing manual boundary: ${JSON.stringify(cleanerDraft)}`);
-    if (cleanerDraft.tableText.trim() !== '') throw new Error('Strategy Cleaner draft should not scan .sqx files');
-    if (!cleanerDraft.log.includes('limpieza manual pendientes')) throw new Error('Strategy Cleaner draft should log manual cleanup boundary');
-    await saveShot(desktop, 'e2e-strategy-builder-cleaner-draft-desktop.png');
-    await desktop.locator('.tab[data-tab="strategybuilder"]').click();
-    await desktop.waitForSelector('.tab[data-tab="strategybuilder"].active');
-    await desktop.locator('#sb-prepare-buyer-pack-btn').click();
-    const buyerHandoffPack = await desktop.evaluate(() => ({
-      preview: document.getElementById('sb-package-preview')?.textContent || '',
-      pack: JSON.parse(document.getElementById('sb-package-preview')?.textContent || '{}'),
-      status: document.getElementById('sb-status')?.textContent || '',
-      auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
-      storageText: localStorage.getItem('sqx_strategy_builder_buyer_pack_v1'),
-      viewPresetCount: window.SQX.viewCreator.getSavedPresets(localStorage).length,
-      pgPresetCount: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length,
-    }));
-    if (!buyerHandoffPack.preview.includes('sqx-edge.strategy-builder-buyer-handoff-pack')) throw new Error('Strategy Builder buyer pack preview missing type');
-    if (!buyerHandoffPack.preview.includes('project_generator_prefill') || !buyerHandoffPack.preview.includes('sqx_views') || !buyerHandoffPack.preview.includes('strategy_cleaner')) throw new Error(`Strategy Builder buyer pack missing destination handoffs: ${buyerHandoffPack.preview}`);
-    if (!buyerHandoffPack.status.includes('No destination action')) throw new Error(`Strategy Builder buyer pack status missing manual boundary: ${JSON.stringify(buyerHandoffPack)}`);
-    if (!buyerHandoffPack.auditRows.some(text => text.includes('Buyer Handoff Pack'))) throw new Error(`Strategy Builder buyer pack audit row missing: ${JSON.stringify(buyerHandoffPack)}`);
-    if (buyerHandoffPack.storageText !== null) throw new Error('Strategy Builder buyer pack should stay preview-only, not localStorage');
-    if (buyerHandoffPack.viewPresetCount !== viewPresetCountBeforeHandoff) throw new Error('Strategy Builder buyer pack should not auto-save SQX Views presets');
-    if (buyerHandoffPack.pgPresetCount !== presetCountBeforeDraft) throw new Error('Strategy Builder buyer pack should not auto-save Project Generator presets');
-    await saveShot(desktop, 'e2e-strategy-builder-buyer-pack-desktop.png');
-    const auditTrail = await desktop.evaluate(() => ({
-      rows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
-      workflowDone: document.querySelectorAll('#sb-workflow-steps .sb-workflow-step.is-done').length,
-      storageText: localStorage.getItem('sqx_strategy_builder_audit_v1'),
-    }));
-    if (auditTrail.workflowDone < 5) throw new Error(`Strategy Builder workflow polish missing ready steps: ${JSON.stringify(auditTrail)}`);
-    if (!auditTrail.rows.some(text => text.includes('SQX Views')) || !auditTrail.rows.some(text => text.includes('Project Generator')) || !auditTrail.rows.some(text => text.includes('PG Preset Draft')) || !auditTrail.rows.some(text => text.includes('Strategy Cleaner')) || !auditTrail.rows.some(text => text.includes('Buyer Handoff Pack'))) throw new Error(`Strategy Builder audit trail missing handoffs: ${JSON.stringify(auditTrail)}`);
-    if (auditTrail.storageText !== null) throw new Error('Strategy Builder audit trail should stay session-only, not localStorage');
-    await saveShot(desktop, 'e2e-strategy-builder-audit-desktop.png');
-    const buyerPackImport = await desktop.evaluate(pack => {
-      const beforeViewPresets = window.SQX.viewCreator.getSavedPresets(localStorage).length;
-      const beforePgPresets = window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length;
-      const result = window.SQX.strategyBuilder.importText(JSON.stringify(pack));
-      return {
-        ok: result.ok,
-        workflowState: result.package && result.package.workflow_state,
-        reviewType: result.buyer_pack_review && result.buyer_pack_review.type,
-        preview: document.getElementById('sb-package-preview')?.textContent || '',
-        status: document.getElementById('sb-status')?.textContent || '',
-        auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
-        storageText: localStorage.getItem('sqx_strategy_builder_buyer_pack_v1'),
-        viewPresetDelta: window.SQX.viewCreator.getSavedPresets(localStorage).length - beforeViewPresets,
-        pgPresetDelta: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length - beforePgPresets,
-      };
-    }, buyerHandoffPack.pack);
-    if (!buyerPackImport.ok || buyerPackImport.workflowState !== 'blocked_operator_review') throw new Error(`Strategy Builder buyer pack import should require fresh review: ${JSON.stringify(buyerPackImport)}`);
-    if (buyerPackImport.reviewType !== 'sqx-edge.strategy-builder-buyer-handoff-pack-review') throw new Error(`Strategy Builder buyer pack import review missing: ${JSON.stringify(buyerPackImport)}`);
-    if (!buyerPackImport.preview.includes('included_handoffs')) throw new Error('Strategy Builder buyer pack import preview should show review handoffs');
-    if (!buyerPackImport.status.includes('Buyer pack imported for local review')) throw new Error(`Strategy Builder buyer pack import status missing: ${JSON.stringify(buyerPackImport)}`);
-    if (!buyerPackImport.auditRows.some(text => text.includes('Buyer Pack Import Review'))) throw new Error(`Strategy Builder buyer pack import audit missing: ${JSON.stringify(buyerPackImport)}`);
-    if (buyerPackImport.storageText !== null || buyerPackImport.viewPresetDelta !== 0 || buyerPackImport.pgPresetDelta !== 0) throw new Error(`Strategy Builder buyer pack import should not persist destination state: ${JSON.stringify(buyerPackImport)}`);
-    await saveShot(desktop, 'e2e-strategy-builder-buyer-pack-import-desktop.png');
-    await desktop.locator('#sb-buyer-session-btn').click();
-    const buyerSessionChecklist = await desktop.evaluate(() => ({
-      preview: document.getElementById('sb-package-preview')?.textContent || '',
-      status: document.getElementById('sb-status')?.textContent || '',
-      auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
-      storageText: localStorage.getItem('sqx_strategy_builder_buyer_session_v1'),
-      viewPresetCount: window.SQX.viewCreator.getSavedPresets(localStorage).length,
-      pgPresetCount: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length,
-    }));
-    if (!buyerSessionChecklist.preview.includes('sqx-edge.strategy-builder-buyer-session-checklist')) throw new Error('Strategy Builder buyer session checklist preview missing type');
-    if (!buyerSessionChecklist.preview.includes('Confirm manual review first') || !buyerSessionChecklist.preview.includes('operator_executes_every_step_manually')) throw new Error(`Strategy Builder buyer session checklist missing manual guidance: ${buyerSessionChecklist.preview}`);
-    if (!buyerSessionChecklist.status.includes('Buyer session checklist prepared')) throw new Error(`Strategy Builder buyer session checklist status missing: ${JSON.stringify(buyerSessionChecklist)}`);
-    if (!buyerSessionChecklist.auditRows.some(text => text.includes('Buyer Session Checklist'))) throw new Error(`Strategy Builder buyer session checklist audit missing: ${JSON.stringify(buyerSessionChecklist)}`);
-    if (buyerSessionChecklist.storageText !== null || buyerSessionChecklist.viewPresetCount !== viewPresetCountBeforeHandoff || buyerSessionChecklist.pgPresetCount !== presetCountBeforeDraft) throw new Error(`Strategy Builder buyer session checklist should not persist destination state: ${JSON.stringify(buyerSessionChecklist)}`);
-    await saveShot(desktop, 'e2e-strategy-builder-buyer-session-desktop.png');
-    await desktop.locator('#sb-buyer-summary-btn').click();
-    const buyerSessionSummary = await desktop.evaluate(() => ({
-      preview: document.getElementById('sb-package-preview')?.textContent || '',
-      status: document.getElementById('sb-status')?.textContent || '',
-      auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
-      storageText: localStorage.getItem('sqx_strategy_builder_buyer_session_summary_v1'),
-      viewPresetCount: window.SQX.viewCreator.getSavedPresets(localStorage).length,
-      pgPresetCount: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length,
-    }));
-    if (!buyerSessionSummary.preview.includes('sqx-edge.strategy-builder-buyer-session-summary')) throw new Error('Strategy Builder buyer session summary preview missing type');
-    if (!buyerSessionSummary.preview.includes('no_buyer_identity') || !buyerSessionSummary.preview.includes('no_destination_action_triggered')) throw new Error(`Strategy Builder buyer session summary missing redaction/manual guardrails: ${buyerSessionSummary.preview}`);
-    if (!buyerSessionSummary.status.includes('Buyer session summary')) throw new Error(`Strategy Builder buyer session summary status missing: ${JSON.stringify(buyerSessionSummary)}`);
-    if (!buyerSessionSummary.auditRows.some(text => text.includes('Buyer Session Summary'))) throw new Error(`Strategy Builder buyer session summary audit missing: ${JSON.stringify(buyerSessionSummary)}`);
-    if (buyerSessionSummary.storageText !== null || buyerSessionSummary.viewPresetCount !== viewPresetCountBeforeHandoff || buyerSessionSummary.pgPresetCount !== presetCountBeforeDraft) throw new Error(`Strategy Builder buyer session summary should not persist destination state: ${JSON.stringify(buyerSessionSummary)}`);
-    await saveShot(desktop, 'e2e-strategy-builder-buyer-summary-desktop.png');
-    await desktop.locator('#sb-buyer-notes-btn').click();
-    const buyerSessionNotes = await desktop.evaluate(() => ({
-      preview: document.getElementById('sb-package-preview')?.textContent || '',
-      status: document.getElementById('sb-status')?.textContent || '',
-      auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
-      storageText: localStorage.getItem('sqx_strategy_builder_buyer_session_notes_v1'),
-      viewPresetCount: window.SQX.viewCreator.getSavedPresets(localStorage).length,
-      pgPresetCount: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length,
-    }));
-    if (!buyerSessionNotes.preview.includes('SQX Edge buyer session notes - EURUSD H1')) throw new Error('Strategy Builder buyer session notes preview missing title');
-    if (!buyerSessionNotes.preview.includes('Handoff targets') || !buyerSessionNotes.preview.includes('Operator guardrails')) throw new Error(`Strategy Builder buyer session notes missing printable sections: ${buyerSessionNotes.preview}`);
-    if (!buyerSessionNotes.status.includes('Buyer session printable notes')) throw new Error(`Strategy Builder buyer session notes status missing: ${JSON.stringify(buyerSessionNotes)}`);
-    if (!buyerSessionNotes.auditRows.some(text => text.includes('Buyer Session Notes'))) throw new Error(`Strategy Builder buyer session notes audit missing: ${JSON.stringify(buyerSessionNotes)}`);
-    if (buyerSessionNotes.storageText !== null || buyerSessionNotes.viewPresetCount !== viewPresetCountBeforeHandoff || buyerSessionNotes.pgPresetCount !== presetCountBeforeDraft) throw new Error(`Strategy Builder buyer session notes should not persist destination state: ${JSON.stringify(buyerSessionNotes)}`);
-    await saveShot(desktop, 'e2e-strategy-builder-buyer-notes-desktop.png');
-    await desktop.locator('#sb-buyer-support-case-btn').click();
-    const buyerSupportCase = await desktop.evaluate(() => ({
-      preview: document.getElementById('sb-package-preview')?.textContent || '',
-      status: document.getElementById('sb-status')?.textContent || '',
-      auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
-      storageText: localStorage.getItem('sqx_strategy_builder_buyer_support_case_v1'),
-      viewPresetCount: window.SQX.viewCreator.getSavedPresets(localStorage).length,
-      pgPresetCount: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length,
-    }));
-    if (!buyerSupportCase.preview.includes('sqx-edge.strategy-builder-buyer-session-support-case-bundle')) throw new Error('Strategy Builder buyer support case preview missing type');
-    if (!buyerSupportCase.preview.includes('no_remote_ticket_created') || !buyerSupportCase.preview.includes('full_strategy_builder_package')) throw new Error(`Strategy Builder buyer support case missing safety manifest: ${buyerSupportCase.preview}`);
-    if (!buyerSupportCase.status.includes('Buyer support case bundle')) throw new Error(`Strategy Builder buyer support case status missing: ${JSON.stringify(buyerSupportCase)}`);
-    if (!buyerSupportCase.auditRows.some(text => text.includes('Buyer Support Case'))) throw new Error(`Strategy Builder buyer support case audit missing: ${JSON.stringify(buyerSupportCase)}`);
-    if (buyerSupportCase.storageText !== null || buyerSupportCase.viewPresetCount !== viewPresetCountBeforeHandoff || buyerSupportCase.pgPresetCount !== presetCountBeforeDraft) throw new Error(`Strategy Builder buyer support case should not persist destination state: ${JSON.stringify(buyerSupportCase)}`);
-    await saveShot(desktop, 'e2e-strategy-builder-buyer-support-case-desktop.png');
-    await desktop.locator('#sb-buyer-resolution-btn').click();
-    const buyerResolution = await desktop.evaluate(() => ({
-      preview: document.getElementById('sb-package-preview')?.textContent || '',
-      status: document.getElementById('sb-status')?.textContent || '',
-      auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
-      storageText: localStorage.getItem('sqx_strategy_builder_buyer_resolution_v1'),
-      viewPresetCount: window.SQX.viewCreator.getSavedPresets(localStorage).length,
-      pgPresetCount: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length,
-    }));
-    if (!buyerResolution.preview.includes('sqx-edge.strategy-builder-buyer-session-support-resolution-checklist')) throw new Error('Strategy Builder buyer resolution preview missing type');
-    if (!buyerResolution.preview.includes('case_close_or_escalate') || !buyerResolution.preview.includes('strategyquant_validation_boundary_confirmed')) throw new Error(`Strategy Builder buyer resolution missing close/escalation conditions: ${buyerResolution.preview}`);
-    if (!buyerResolution.status.includes('Buyer support resolution checklist')) throw new Error(`Strategy Builder buyer resolution status missing: ${JSON.stringify(buyerResolution)}`);
-    if (!buyerResolution.auditRows.some(text => text.includes('Buyer Resolution Checklist'))) throw new Error(`Strategy Builder buyer resolution audit missing: ${JSON.stringify(buyerResolution)}`);
-    if (buyerResolution.storageText !== null || buyerResolution.viewPresetCount !== viewPresetCountBeforeHandoff || buyerResolution.pgPresetCount !== presetCountBeforeDraft) throw new Error(`Strategy Builder buyer resolution should not persist destination state: ${JSON.stringify(buyerResolution)}`);
-    await saveShot(desktop, 'e2e-strategy-builder-buyer-resolution-desktop.png');
-    await desktop.locator('#sb-evidence-index-btn').click();
-    const evidenceIndex = await desktop.evaluate(() => ({
-      preview: document.getElementById('sb-package-preview')?.textContent || '',
-      status: document.getElementById('sb-status')?.textContent || '',
-      auditRows: Array.from(document.querySelectorAll('#sb-audit-list .sb-audit-row')).map(row => row.textContent),
-      storageText: localStorage.getItem('sqx_strategy_builder_evidence_index_v1'),
-      viewPresetCount: window.SQX.viewCreator.getSavedPresets(localStorage).length,
-      pgPresetCount: window.SQX.projectGenerator.getCustomProjectPresets(localStorage).length,
-    }));
-    if (!evidenceIndex.preview.includes('sqx-edge.strategy-builder-evidence-handoff-index')) throw new Error('Strategy Builder evidence index preview missing type');
-    if (!evidenceIndex.preview.includes('buyer_resolution_checklist') || !evidenceIndex.preview.includes('ready_for_buyer_handoff')) throw new Error(`Strategy Builder evidence index missing handoff readiness: ${evidenceIndex.preview}`);
-    if (!evidenceIndex.status.includes('Evidence handoff index prepared')) throw new Error(`Strategy Builder evidence index status missing: ${JSON.stringify(evidenceIndex)}`);
-    if (!evidenceIndex.auditRows.some(text => text.includes('Evidence Index'))) throw new Error(`Strategy Builder evidence index audit missing: ${JSON.stringify(evidenceIndex)}`);
-    if (evidenceIndex.storageText !== null || evidenceIndex.viewPresetCount !== viewPresetCountBeforeHandoff || evidenceIndex.pgPresetCount !== presetCountBeforeDraft) throw new Error(`Strategy Builder evidence index should not persist destination state: ${JSON.stringify(evidenceIndex)}`);
-    await saveShot(desktop, 'e2e-strategy-builder-evidence-index-desktop.png');
-    const importResult = await desktop.evaluate(pkg => window.SQX.strategyBuilder.importText(JSON.stringify(pkg)), builderPackage);
-    if (!importResult.ok || importResult.package.workflow_state !== 'blocked_operator_review') throw new Error('Strategy Builder import should require fresh operator review');
-    await desktop.waitForFunction(() => document.getElementById('sb-status')?.textContent.includes('Confirm manual review'));
-    await saveShot(desktop, 'e2e-strategy-builder-desktop.png');
     await desktop.locator('.tab[data-tab="estrategias"]').click();
     await desktop.waitForSelector('#tab-estrategias .strat-card');
     const cards = await desktop.locator('#tab-estrategias .strat-card').count();
@@ -597,13 +376,9 @@ async function run() {
     const mobileHandoff = await mobile.evaluate(() => window.SQX.championChallenger.buildStrategyBuilderHandoff(window.SQX.championChallenger.buildReviewExport(window.SQX.championChallenger.evaluate())));
     if (mobileHandoff.type !== 'sqx-edge.strategy-builder-handoff') throw new Error('Mobile CVC handoff contract failed');
     await assertNoMobileOverflow(mobile);
+    const mobileStrategyBuilderTabCount = await mobile.locator('.tab[data-tab="strategybuilder"]').count();
+    if (mobileStrategyBuilderTabCount !== 0) throw new Error('Mobile navigation should not expose Strategy Builder');
     await saveShot(mobile, 'e2e-champion-challenger-mobile.png');
-    await mobile.locator('.tab[data-tab="strategybuilder"]').click();
-    await mobile.waitForSelector('#sb-build-btn');
-    await mobile.locator('#sb-sample-cvc-btn').click();
-    await mobile.waitForFunction(() => document.getElementById('sb-state')?.textContent.trim() === 'package_exportable');
-    await assertNoMobileOverflow(mobile);
-    await saveShot(mobile, 'e2e-strategy-builder-mobile.png');
     await mobile.locator('.tab[data-tab="estrategias"]').click();
     await mobile.waitForSelector('#tab-estrategias .strat-card');
     const activeTabBox = await mobile.locator('.tab.active').boundingBox();

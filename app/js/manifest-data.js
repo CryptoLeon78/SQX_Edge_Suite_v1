@@ -41,10 +41,6 @@ window.SQX_MANIFEST = {
         "label": "Champion vs Challenger"
       },
       {
-        "id": "strategybuilder",
-        "label": "Strategy Builder"
-      },
-      {
         "id": "filtros",
         "label": "Avanzado"
       }

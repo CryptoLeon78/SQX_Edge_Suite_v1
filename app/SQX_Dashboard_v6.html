@@ -124,10 +124,6 @@
             <span>Champion</span>
             <strong>Comparar finalistas</strong>
           </button>
-          <button class="home-action" data-home-tab="strategybuilder">
-            <span>Builder</span>
-            <strong>Paquete de idea</strong>
-          </button>
           <button class="home-action" data-home-tab="workflow">
             <span>Workflow</span>
             <strong>Metodo operativo</strong>
@@ -919,7 +915,6 @@
             <button class="export-btn" id="cvc-run-btn" type="button">Evaluar</button>
             <button class="filter-btn" id="cvc-sample-btn" type="button">Cargar ejemplo</button>
             <button class="filter-btn" id="cvc-export-btn" type="button">Exportar resumen</button>
-            <button class="filter-btn" id="cvc-handoff-btn" type="button">Handoff Builder</button>
             <button class="filter-btn" id="cvc-clear-btn" type="button">Limpiar</button>
           </div>
           <div id="cvc-status" class="cvc-status">Esperando datos para comparar.</div>
@@ -941,136 +936,6 @@
           </div>
           <div id="cvc-empty" class="cvc-empty">Carga CSV o usa el ejemplo para ver el ranking.</div>
           <div id="cvc-ranking" class="cvc-ranking"></div>
-          <div id="cvc-handoff-preview" class="cvc-handoff-preview" style="display:none"></div>
-        </div>
-      </section>
-    </div>
-  </div>
-
-  <!-- TAB: STRATEGY BUILDER - prototipo read-only de paquetes de idea -->
-  <div id="tab-strategybuilder" class="tab-content" style="display:none">
-    <div class="sb-shell">
-      <section class="sb-hero">
-        <div>
-          <span class="views-eyebrow">Only One Platform Bridge</span>
-          <h2>Strategy Builder</h2>
-          <p>Prepara un paquete local y revisable desde evidencia SQX hacia Project Generator, SQX Views y validacion manual en StrategyQuant.</p>
-        </div>
-        <div class="sb-hero-stats">
-          <div><span id="sb-state">--</span><small>estado</small></div>
-          <div><span id="sb-source">--</span><small>fuente</small></div>
-          <div><span id="sb-asset-out">--</span><small>activo / TF</small></div>
-          <div><span id="sb-check-count">0/7</span><small>checklist</small></div>
-        </div>
-      </section>
-
-      <section class="sb-workspace">
-        <div class="sb-panel">
-          <div class="views-panel-head">
-            <div>
-              <span>Contexto</span>
-              <strong>Paquete de idea read-only</strong>
-            </div>
-            <small>Sin generacion real ni claims.</small>
-          </div>
-          <div class="sb-form-grid">
-            <label class="views-field">
-              <span>Fuente</span>
-              <select id="sb-source-mode"></select>
-            </label>
-            <label class="views-field">
-              <span>Activo</span>
-              <input id="sb-asset" type="text" value="EURUSD">
-            </label>
-            <label class="views-field">
-              <span>Timeframe</span>
-              <select id="sb-timeframe">
-                <option>H1</option>
-                <option>M15</option>
-                <option>M30</option>
-                <option>H4</option>
-                <option>D1</option>
-              </select>
-            </label>
-            <label class="views-field">
-              <span>Arquetipo</span>
-              <select id="sb-archetype"></select>
-            </label>
-            <label class="views-field">
-              <span>Validation pack</span>
-              <select id="sb-validation-pack">
-                <option value="robustness">Robustness</option>
-                <option value="risk-capital-review">Risk Capital Review</option>
-                <option value="asset-family-review">Asset Family Review</option>
-                <option value="pro-setup-assist">Pro Setup Assist</option>
-              </select>
-            </label>
-            <label class="views-field">
-              <span>Project profile</span>
-              <select id="sb-project-profile">
-                <option value="custom-forex-h1-balanced">Forex H1 Balanced</option>
-                <option value="custom-index-m15-breakout">Index M15 Breakout</option>
-                <option value="custom-gold-h1-risk">Gold H1 Risk</option>
-                <option value="profile-pro-setup-assist-risk-capital-review">Pro Setup Assist</option>
-              </select>
-            </label>
-          </div>
-          <label class="views-check sb-review-check">
-            <input id="sb-reviewed" type="checkbox">
-            <span>Confirmo revision manual antes de exportar el paquete.</span>
-          </label>
-          <div id="sb-review-list" class="sb-review-list"></div>
-          <div class="cvc-actions">
-            <button class="export-btn" id="sb-build-btn" type="button">Preparar paquete</button>
-            <button class="filter-btn" id="sb-sample-cvc-btn" type="button">Usar ejemplo CVC</button>
-            <button class="filter-btn" id="sb-import-btn" type="button">Importar JSON</button>
-            <button class="filter-btn" id="sb-export-btn" type="button">Exportar JSON</button>
-            <button class="filter-btn" id="sb-send-pg-btn" type="button">Enviar a Project Generator</button>
-            <button class="filter-btn" id="sb-prepare-preset-btn" type="button">Preparar preset PG</button>
-            <button class="filter-btn" id="sb-send-views-btn" type="button">Enviar a SQX Views</button>
-            <button class="filter-btn" id="sb-prepare-cleaner-btn" type="button">Preparar Cleaner</button>
-            <button class="filter-btn" id="sb-prepare-buyer-pack-btn" type="button">Preparar pack comprador</button>
-            <button class="filter-btn" id="sb-buyer-session-btn" type="button">Guía sesión comprador</button>
-            <button class="filter-btn" id="sb-buyer-summary-btn" type="button">Exportar resumen sesión</button>
-            <button class="filter-btn" id="sb-buyer-notes-btn" type="button">Notas imprimibles</button>
-            <button class="filter-btn" id="sb-buyer-support-case-btn" type="button">Bundle soporte</button>
-            <button class="filter-btn" id="sb-buyer-resolution-btn" type="button">Checklist resolución</button>
-            <button class="filter-btn" id="sb-evidence-index-btn" type="button">Indice evidencia</button>
-            <button class="filter-btn" id="sb-clear-btn" type="button">Limpiar</button>
-            <input id="sb-import-file" class="visually-hidden" type="file" accept=".json,application/json">
-          </div>
-          <div id="sb-status" class="cvc-status">Esperando contexto para preparar paquete.</div>
-          <div class="sb-flow-panel">
-            <div class="views-panel-head">
-              <div>
-                <span>Workflow comprador</span>
-                <strong>Pasos controlados</strong>
-              </div>
-              <small>Sesion local.</small>
-            </div>
-            <div id="sb-workflow-steps" class="sb-workflow-steps"></div>
-          </div>
-          <div class="sb-flow-panel">
-            <div class="views-panel-head">
-              <div>
-                <span>Trazabilidad</span>
-                <strong>Handoffs preparados</strong>
-              </div>
-              <small>Sin guardados ocultos.</small>
-            </div>
-            <div id="sb-audit-list" class="sb-audit-list"></div>
-          </div>
-        </div>
-
-        <div class="sb-panel">
-          <div class="views-panel-head">
-            <div>
-              <span>Preview</span>
-              <strong>Strategy Builder package</strong>
-            </div>
-            <small>Local y revisable.</small>
-          </div>
-          <pre id="sb-package-preview" class="sb-preview"></pre>
         </div>
       </section>
     </div>
