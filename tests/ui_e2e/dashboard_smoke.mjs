@@ -157,6 +157,16 @@ async function run() {
       if (!capa2TreeText.includes(expected)) throw new Error(`Mining 2 tree should preserve Capa 2 config: ${expected}`);
     });
     await saveShot(desktop, 'e2e-workflow-mining2-desktop.png');
+    await desktop.locator('.subtab[data-subtab="wf-capa2"]').click();
+    await desktop.waitForSelector('#wf-capa2.active');
+    const capa2TabText = await desktop.locator('#wf-capa2').innerText();
+    if (!capa2TabText.includes('Capa 2 centralizada en el pipeline')) {
+      throw new Error('Workflow Capa 2 tab should point to the centralized pipeline content');
+    }
+    ['Capa 2 — Cheatsheet operativo', 'Config Base Builder Capa 2', 'Orden de ejecución Capa 2'].forEach(removedText => {
+      if (capa2TabText.includes(removedText)) throw new Error(`Workflow Capa 2 tab should not duplicate: ${removedText}`);
+    });
+    await saveShot(desktop, 'e2e-workflow-capa2-centralized-desktop.png');
     await desktop.locator('.subtab[data-subtab="wf-overview"]').click();
     await desktop.waitForSelector('#wf-overview.active');
     await desktop.locator('[data-wf-detail-target="wf-sqx-views-required-detail"]').click();
