@@ -86,6 +86,19 @@ async function run() {
     if (capa1TriggerExpanded !== 1) throw new Error('Capa 1 pipeline trigger should expand the inline tree detail');
     const capa1TreeNodes = await desktop.locator('#wf-capa1-tree-detail .pipeline-step.compact').count();
     if (capa1TreeNodes < 7) throw new Error('Capa 1 inline detail should render as a compact tree of KPI-style nodes');
+    const capa1TreeText = await desktop.locator('#wf-capa1-tree-detail').innerText();
+    [
+      'Period: 2017.10 - 2026.04',
+      'Re-optimize: NO (retest pasivo)',
+      'Randomly skip trades 10%: OFF',
+      'Apply optimized parameters to strategy: OFF',
+      'Synthetic Bootstrap V2: ON',
+      'Walk-Forward type: Simulated IS, Simulated OOS (fastest)',
+      'Period: 2024.01 - 2026.04',
+      'Ret/DD > 0.5',
+    ].forEach(expected => {
+      if (!capa1TreeText.includes(expected)) throw new Error(`Capa 1 tree should preserve retest config: ${expected}`);
+    });
     await desktop.locator('#wf-capa1-tree-detail input[data-check="capa1-pre-mm"]').check();
     await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_workflow_checklist_v1') || '{}')['capa1-pre-mm'] === true);
     await desktop.locator('#wf-capa1-tree-detail button[data-checklist-clear="capa1"]').click();
