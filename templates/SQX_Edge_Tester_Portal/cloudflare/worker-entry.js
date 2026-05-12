@@ -2,6 +2,7 @@ import openNextWorker from "../.open-next/worker.js";
 
 const SESSION_COOKIE = "__Host-sqx_tester_session";
 const SESSION_MAX_AGE_SECONDS = 60 * 60;
+const TOOL_DOWNLOAD_PATH = "/download/sqx-edge-tool.zip";
 const FEATURES = [
   {
     id: "sqx_dashboard_full",
@@ -42,6 +43,12 @@ const FEATURES = [
 ];
 
 const PORTAL_ACTIONS = [
+  {
+    href: "/tool",
+    title: "Download SQX Edge tool",
+    text: "Get the protected portable package for real end-user testing.",
+    badge: "Real tool"
+  },
   {
     href: "/handoff",
     title: "Start tester handoff",
@@ -212,8 +219,8 @@ function renderTopbar() {
   </div>`;
 }
 
-function requireSessionPage(request, renderer) {
-  return hasSession(request) ? htmlResponse(renderer()) : redirect("/login?next=/portal");
+function requireSessionPage(request, renderer, next = "/portal") {
+  return hasSession(request) ? htmlResponse(renderer()) : redirect(`/login?next=${encodeURIComponent(next)}`);
 }
 
 function loginPage(url) {
@@ -293,6 +300,32 @@ function handoffPage() {
         </ul>
         <div class="inline-actions">
           <a class="button" href="/feedback">Prepare feedback</a>
+          <a class="button secondary" href="/portal">Back to portal</a>
+        </div>
+      </section>
+      <p class="watermark">SQX-DEMO-TESTER-LOCAL-ONLY</p>
+    </main>`
+  );
+}
+
+function toolPage() {
+  return buildShell(
+    "SQX Edge Tool Delivery",
+    `<main class="shell">
+      ${renderTopbar()}
+      <section class="panel section">
+        <p class="eyebrow">Real tool</p>
+        <h1>Download SQX Edge Pro</h1>
+        <p>This protected delivery path is for invited testers only. The package is portable: download, extract and run the launcher. No Python installation is required on the tester machine.</p>
+        <div class="grid">
+          <div class="metric"><strong>1. Download</strong><p>Use the protected download button from this portal session.</p></div>
+          <div class="metric"><strong>2. Extract</strong><p>Unzip the package into a normal folder, not inside the ZIP viewer.</p></div>
+          <div class="metric"><strong>3. Launch</strong><p>Run START_SQX_EDGE.bat and keep feedback in the protected flow.</p></div>
+        </div>
+        <div class="notice"><strong>Tester boundary</strong><p>Do not redistribute the package, publish links, share access codes or upload screenshots containing private account data.</p></div>
+        <div class="inline-actions">
+          <a class="button" href="${TOOL_DOWNLOAD_PATH}">Download portable ZIP</a>
+          <a class="button secondary" href="/handoff">Open handoff checklist</a>
           <a class="button secondary" href="/portal">Back to portal</a>
         </div>
       </section>
@@ -413,6 +446,52 @@ async function feedback(request) {
   return htmlResponse(feedbackPacketPage(packet));
 }
 
+async function downloadTool(request, env) {
+  if (!hasSession(request)) {
+    return redirect("/login?next=/tool");
+  }
+
+  if (!env?.ASSETS?.fetch) {
+    return htmlResponse(toolPage(), { status: 503 });
+  }
+
+  const url = new URL(request.url);
+  url.pathname = "/downloads/SQX_Edge_Tool_Portable_Tester.zip";
+  url.search = "";
+  const assetResponse = await env.ASSETS.fetch(new Request(url.toString(), request));
+
+  if (assetResponse.status === 404) {
+    return htmlResponse(
+      buildShell(
+        "SQX Edge Tool Delivery Pending",
+        `<main class="shell">
+          ${renderTopbar()}
+          <section class="panel section">
+            <p class="eyebrow">Real tool</p>
+            <h1>Package pending</h1>
+            <p>The protected delivery route is ready, but the portable ZIP has not been attached to this Worker asset bundle yet.</p>
+            <div class="inline-actions">
+              <a class="button secondary" href="/tool">Back to delivery</a>
+              <a class="button secondary" href="/portal">Back to portal</a>
+            </div>
+          </section>
+          <p class="watermark">SQX-DEMO-TESTER-LOCAL-ONLY</p>
+        </main>`,
+      ),
+      { status: 404 },
+    );
+  }
+
+  const headers = new Headers(assetResponse.headers);
+  headers.set("Content-Type", "application/zip");
+  headers.set("Content-Disposition", 'attachment; filename="SQX_Edge_Tool_Portable_Tester.zip"');
+  headers.set("X-Robots-Tag", "noindex, nofollow");
+  return new Response(assetResponse.body, {
+    status: assetResponse.status,
+    headers,
+  });
+}
+
 async function login(request, env) {
   const form = await request.formData();
   const email = String(form.get("email") || "").trim().toLowerCase();
@@ -467,11 +546,19 @@ export default {
     }
 
     if (request.method === "GET" && url.pathname === "/handoff") {
-      return requireSessionPage(request, handoffPage);
+      return requireSessionPage(request, handoffPage, "/handoff");
+    }
+
+    if (request.method === "GET" && url.pathname === "/tool") {
+      return requireSessionPage(request, toolPage, "/tool");
+    }
+
+    if (request.method === "GET" && url.pathname === TOOL_DOWNLOAD_PATH) {
+      return downloadTool(request, env);
     }
 
     if (request.method === "GET" && url.pathname === "/feedback") {
-      return requireSessionPage(request, () => feedbackPage(url));
+      return requireSessionPage(request, () => feedbackPage(url), "/feedback");
     }
 
     if (request.method === "POST" && url.pathname === "/api/tester/feedback") {
@@ -479,7 +566,7 @@ export default {
     }
 
     if (request.method === "GET" && url.pathname === "/renewal") {
-      return requireSessionPage(request, renewalPage);
+      return requireSessionPage(request, renewalPage, "/renewal");
     }
 
     if (request.method === "GET" && url.pathname === "/api/health") {

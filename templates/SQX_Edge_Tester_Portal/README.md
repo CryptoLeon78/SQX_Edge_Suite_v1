@@ -168,6 +168,8 @@ This template is safe to keep in the public/core repository because it contains 
 - `scripts/feedback-action-plan-rollup.mjs`: TL7 local-only helper that converts triage evidence into ignored action-plan evidence.
 - `scripts/feedback-action-execution-rollup.mjs`: TL8 local-only helper that converts action-plan evidence into ignored execution evidence.
 - `scripts/feedback-result-validation-rollup.mjs`: TL9 local-only helper that converts execution evidence into ignored result-validation evidence.
+- `scripts/real-tool-delivery-prepare.mjs`: TL10 local-only helper that attaches the latest portable ZIP to the ignored Cloudflare asset bundle for protected tester download.
+- `scripts/real-tool-delivery-proof.mjs`: TL10 no-deploy proof for the protected `/tool` page and `/download/sqx-edge-tool.zip` route.
 - `cloudflare-access-policy-boundary.example.json`: public-safe T10ak evidence template; copy to ignored `cloudflare-access-policy-boundary.local.json` only.
 - `cloudflare/shell-worker.js`: harmless locked shell Worker used only to create a target before Access is enabled.
 - `wrangler.shell.example.jsonc`: dedicated shell Worker config with `workers_dev=true`; the real app config remains `workers_dev=false`.
@@ -237,6 +239,19 @@ npm run proof:tester-result-validation-gate
 ```
 
 This writes ignored `tester-result-validation.local.json` plus `.local/feedback-result-validation-rollup.json`. Result labels stay public-safe and derived only from execution labels.
+
+## TL10 Real Tool Delivery Path
+
+The protected portal can expose the real portable tool through `/tool` and `/download/sqx-edge-tool.zip`. The ZIP itself is never committed. Prepare it locally after building a fresh portable package:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File ..\..\backend\sqx-edge-tool\tools\package_portable.ps1 -RequireEmbeddedPython
+npm run cf:build
+npm run operator:prepare-real-tool-delivery
+npm run proof:real-tool-delivery
+```
+
+This copies the latest `dist\SQX_Edge_Tool_Portable_*.zip` into ignored `.open-next/assets/downloads/SQX_Edge_Tool_Portable_Tester.zip` and writes ignored `.local/real-tool-delivery.local.json` with size/hash evidence. The proof also guards the Cloudflare Workers Assets 25 MiB individual file limit. A Cloudflare deploy is still exact-approval-only.
 
 ```powershell
 npm run audit:vercel-protection
