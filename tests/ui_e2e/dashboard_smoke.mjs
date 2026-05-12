@@ -48,6 +48,11 @@ async function run() {
     if (categoryTabCount !== 0) throw new Error('Por Categoria should not be a primary tab');
     const priorityTabCount = await desktop.locator('.tab[data-tab="priority"]').count();
     if (priorityTabCount !== 0) throw new Error('Priority should not be a primary navigation section');
+    const sidebarOrder = await desktop.locator('#main-tabs .tab').evaluateAll(nodes => nodes.map(node => node.dataset.tab));
+    const expectedSidebarOrder = ['workflow', 'inicio', 'activos', 'pipeline', 'views', 'projectgen', 'estrategias', 'cvc', 'strategybuilder', 'filtros'];
+    if (sidebarOrder.join('|') !== expectedSidebarOrder.join('|')) {
+      throw new Error(`Navigation should follow Workflow methodology order: ${sidebarOrder.join('|')}`);
+    }
     const commandCenterText = await desktop.locator('#workflow-command-center').innerText();
     if (commandCenterText.includes('Strategy Builder')) throw new Error('Workflow command center should not expose Strategy Builder');
     ['Estrategias', 'Champion vs Challenger'].forEach(expected => {

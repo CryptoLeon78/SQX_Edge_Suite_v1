@@ -13,8 +13,16 @@ window.SQX_MANIFEST = {
         "active": true
       },
       {
+        "id": "inicio",
+        "label": "Panel"
+      },
+      {
         "id": "activos",
         "label": "Por Activo"
+      },
+      {
+        "id": "pipeline",
+        "label": "Mining Control"
       },
       {
         "id": "views",
@@ -25,10 +33,6 @@ window.SQX_MANIFEST = {
         "label": "Project Generator"
       },
       {
-        "id": "strategybuilder",
-        "label": "Strategy Builder"
-      },
-      {
         "id": "estrategias",
         "label": "Estrategias"
       },
@@ -37,16 +41,12 @@ window.SQX_MANIFEST = {
         "label": "Champion vs Challenger"
       },
       {
-        "id": "pipeline",
-        "label": "Mining Control"
+        "id": "strategybuilder",
+        "label": "Strategy Builder"
       },
       {
         "id": "filtros",
         "label": "Avanzado"
-      },
-      {
-        "id": "inicio",
-        "label": "Panel"
       }
     ],
     "filters": {

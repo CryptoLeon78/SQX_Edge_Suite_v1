@@ -2118,6 +2118,21 @@ class DashboardStaticTestCase(unittest.TestCase):
         tabs = ui_manifest["tabs"]
         self.assertEqual(tabs[0]["id"], "workflow")
         self.assertTrue(tabs[0]["active"])
+        self.assertEqual(
+            [tab["id"] for tab in tabs],
+            [
+                "workflow",
+                "inicio",
+                "activos",
+                "pipeline",
+                "views",
+                "projectgen",
+                "estrategias",
+                "cvc",
+                "strategybuilder",
+                "filtros",
+            ],
+        )
         self.assertNotIn("categorias", [tab["id"] for tab in tabs])
         self.assertNotIn("priority", [tab["id"] for tab in tabs])
         self.assertIn('"id": "workflow"', manifest_js)

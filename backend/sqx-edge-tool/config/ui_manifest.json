@@ -11,8 +11,16 @@
       "active": true
     },
     {
+      "id": "inicio",
+      "label": "Panel"
+    },
+    {
       "id": "activos",
       "label": "Por Activo"
+    },
+    {
+      "id": "pipeline",
+      "label": "Mining Control"
     },
     {
       "id": "views",
@@ -23,10 +31,6 @@
       "label": "Project Generator"
     },
     {
-      "id": "strategybuilder",
-      "label": "Strategy Builder"
-    },
-    {
       "id": "estrategias",
       "label": "Estrategias"
     },
@@ -35,16 +39,12 @@
       "label": "Champion vs Challenger"
     },
     {
-      "id": "pipeline",
-      "label": "Mining Control"
+      "id": "strategybuilder",
+      "label": "Strategy Builder"
     },
     {
       "id": "filtros",
       "label": "Avanzado"
-    },
-    {
-      "id": "inicio",
-      "label": "Panel"
     }
   ],
   "filters": {
