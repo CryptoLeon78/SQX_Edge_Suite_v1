@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: TL13 - Cloudflare Test Baseline Refresh.
+- Current phase completed: TL14 - Aggressive Workspace Cleanup.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: clean old and unnecessary files only after confirming the refreshed Cloudflare tests remain green.
+- Next implementation phase: continue sales/tester hardening only after confirming the workspace cleanup remains reproducible and no private evidence was removed from local-only storage.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.

@@ -4,13 +4,23 @@ Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custo
 
 ## Estado Actual
 
-- Estado interno: TL1 resume el lanzamiento tester en una unica decision operativa listo/no listo, sin URL, emails, credenciales, feedback crudo, capturas, IDs, planes privados ni notas privadas en Git.
+- Estado interno: TL14 completa una limpieza agresiva reproducible de caches, builds locales y ZIPs antiguos sin tocar runtime portable, venv, licencias ni evidencia privada.
 - Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
-- Ultimo ZIP portable verificado: `dist/SQX_Edge_Tool_Portable_20260509_102131.zip`.
-- SHA256 del ZIP: `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
+- Ultimo ZIP portable tester conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`.
+- SHA256 del ZIP tester: `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`.
 - Siguiente paso recomendado: completar evidencia privada TL1 y ejecutar `proof:tester-launch-candidate`; si devuelve GO, enviar acceso manualmente a los testers fuera de Git.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
+
+## Limpieza Local
+
+Para retirar caches, builds y artefactos generados sin tocar runtime portable, venv, licencias ni evidencia privada:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\clean_workspace.ps1 -Aggressive
+```
+
+El modo agresivo conserva el ZIP tester mas reciente en `dist/` y elimina ZIPs/builds antiguos que se pueden regenerar.
 
 ## SQX Edge Pro
 
@@ -236,7 +246,7 @@ Herramientas analiticas:
 Paquete recomendado para usuario final:
 
 ```text
-dist/SQX_Edge_Tool_Portable_20260509_102131.zip
+dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip
 ```
 
 Uso para usuario basico:
@@ -263,8 +273,8 @@ Estado real: preparado para demos Pro asistidas, early access, compradores funda
 
 Antes de entregar a un comprador:
 
-1. Usar el ZIP verificado `SQX_Edge_Tool_Portable_20260509_102131.zip`.
-2. Confirmar SHA256 `18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D`.
+1. Usar el ZIP tester verificado `SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`.
+2. Confirmar SHA256 `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`.
 3. Entregar la licencia Pro firmada por separado, nunca dentro del ZIP.
 4. Mantener claims seguros: productividad, orden, trazabilidad y reduccion de errores operativos; nunca prometer rentabilidad.
 5. Registrar incidencias de instalacion, activacion, soporte y decision de repetir/pausar antes de ampliar trafico.

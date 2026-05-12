@@ -12,6 +12,7 @@ TOOL_ROOT = PROJECT_ROOT / "backend" / "sqx-edge-tool"
 ANALYSIS_ROOT = PROJECT_ROOT / "analysis"
 ARCHITECTURE_DOC = PROJECT_ROOT / "docs" / "ARCHITECTURE.md"
 PROJECT_GOVERNANCE_DOC = PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md"
+CLEAN_WORKSPACE_SCRIPT = PROJECT_ROOT / "tools" / "clean_workspace.ps1"
 J1_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J1_CHAMPION_CHALLENGER_CONTRACT.md"
 J2_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J2_CHAMPION_CHALLENGER_CORE.md"
 J3_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J3_CHAMPION_CHALLENGER_OOS.md"
@@ -10528,8 +10529,11 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: TL1 resume el lanzamiento tester",
+            "Estado interno: TL14 completa una limpieza agresiva reproducible",
+            "Ultimo ZIP portable tester conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",
+            "SHA256 del ZIP tester: `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`",
             "Siguiente paso recomendado: completar evidencia privada TL1",
+            "powershell -ExecutionPolicy Bypass -File tools\\clean_workspace.ps1 -Aggressive",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
             with self.subTest(pattern=pattern):
@@ -16475,6 +16479,37 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, tool_text)
+
+    def test_workspace_cleanup_script_keeps_portable_runtime_and_private_evidence_safe(self):
+        script = CLEAN_WORKSPACE_SCRIPT.read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "Resolve-InRepo",
+            "Refusing to clean outside repository",
+            "Remove-PycacheOutsideEmbeddedRuntime",
+            "\\backend\\sqx-edge-tool\\runtime\\",
+            "\\backend\\sqx-edge-tool\\venv\\",
+            "SQX_Edge_Tool_Portable_Tester_*.zip",
+            "latest tester delivery",
+            "templates\\SQX_Edge_Tester_Portal\\.open-next",
+            "templates\\SQX_Edge_Tester_Portal\\.next",
+            "templates\\SQX_Edge_Tester_Portal\\node_modules",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, script)
+
+        for forbidden in (
+            "license_keys",
+            "licenses_private",
+            "commercial-private",
+            "private-commercial",
+            "cloudflare-access-policy-boundary.local.json",
+            "tester-launch-candidate.local.json",
+            "backend\\sqx-edge-tool\\runtime",
+            "backend\\sqx-edge-tool\\venv",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(f'Remove-RepoItem "{forbidden}', script)
 
 
 if __name__ == "__main__":
