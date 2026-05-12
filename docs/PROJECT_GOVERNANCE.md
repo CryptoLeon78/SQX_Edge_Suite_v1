@@ -4,9 +4,9 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: UX-NAV1 - Workflow As Command Center.
+- Current phase completed: UX-NAV2 - Mining Control and Project Generator trim.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
-- Next implementation phase: validate guided Workflow with testers, then refine gating rules before removing any additional advanced panels.
+- Next implementation phase: UX-NAV tab-by-tab optimization, active tab `Workflow`; do not move to another tab until the operator says `Adelante con el siguiente tab`.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
 - Previous governance baseline: G5 - Institutional Core Synchronized Gate.
@@ -210,6 +210,14 @@ G6 - Institutional Dashboard Quick Actions Gate:
 - Asset detail/category rows expose quick actions to promote a candidate into Mining Control or prefill Project Generator custom inputs.
 - Mining Control includes a compact operational health panel and graph-style funnel visualization while preserving editable counts and local-only state.
 - Required checks: JS syntax/contracts, static dashboard tests, backend pytest, `git diff --check` and E2E screenshots for Mining Control and Project Generator prefill flow.
+
+UX-NAV Tab Optimization Gate:
+
+- UX-NAV is now a sequential tab-by-tab optimization track documented in `docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md`.
+- Only one active tab can be optimized at a time; the current active tab is `Workflow`.
+- Treat every operator message during an active tab pass as feedback for that same tab unless the operator explicitly changes the active scope.
+- Do not begin the next tab until the operator says exactly: `Adelante con el siguiente tab`.
+- Defer global tab reordering, tab removal/merging beyond active scope and final navigation flow until all individual tab passes are complete.
 
 ## Internal Automation Risk Levels
 
