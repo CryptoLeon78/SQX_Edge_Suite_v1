@@ -35,6 +35,8 @@ backend/sqx-edge-tool/config/license.json
 .env.*
 !.env.example
 !.env.staging.example
+.local/
+templates/SQX_Edge_Tester_Portal/.local/
 license_keys/
 licenses_private/
 private_keys/
