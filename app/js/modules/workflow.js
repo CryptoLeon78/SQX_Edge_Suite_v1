@@ -68,6 +68,19 @@
     return tabs.length;
   }
 
+  function bindSubtabLinks(options) {
+    var opts = options || {};
+    var doc = opts.document || global.document;
+    var links = all(opts.subtabLinkSelector || '[data-workflow-subtab-target]', doc);
+    links.forEach(function(link) {
+      link.addEventListener('click', function(event) {
+        if (event && event.preventDefault) event.preventDefault();
+        activateWorkflowPanel(link.dataset.workflowSubtabTarget, null, opts);
+      });
+    });
+    return links.length;
+  }
+
   function bindStepDetails(options) {
     var opts = options || {};
     var doc = opts.document || global.document;
@@ -252,6 +265,7 @@
     return {
       planSummary: renderPlanSummary(opts),
       subtabCount: bindSubtabs(opts),
+      subtabLinkCount: bindSubtabLinks(opts),
       stepDetailCount: bindStepDetails(opts),
       checklist: checklist,
       commandCenter: bindCommandCenter(opts)
@@ -263,6 +277,7 @@
     bindChecklist: bindChecklist,
     bindCommandCenter: bindCommandCenter,
     bindStepDetails: bindStepDetails,
+    bindSubtabLinks: bindSubtabLinks,
     bindSubtabs: bindSubtabs,
     computePlanSummary: computePlanSummary,
     init: init,

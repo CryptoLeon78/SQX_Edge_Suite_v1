@@ -136,6 +136,9 @@ class FakeDocument {
     if (selector === '[data-wf-detail-target]') {
       return Array.from(this.elements.values()).filter(el => el.dataset.wfDetailTarget);
     }
+    if (selector === '[data-workflow-subtab-target]') {
+      return Array.from(this.elements.values()).filter(el => el.dataset.workflowSubtabTarget);
+    }
     const checkPrefix = selector.match(/^input\[type="checkbox"\]\[data-check\^="([^"]+)"\]$/);
     if (checkPrefix) {
       return Array.from(this.elements.values()).filter(el => el.tagName === 'input' && el.type === 'checkbox' && (el.dataset.check || '').startsWith(checkPrefix[1]));

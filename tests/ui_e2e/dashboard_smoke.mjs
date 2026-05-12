@@ -153,20 +153,24 @@ async function run() {
       'Entry levels: ON',
       'WF Ret/DD Ratio >= 5',
       'Ret/DD > 1.0',
+      'Material operativo extendido',
     ].forEach(expected => {
       if (!capa2TreeText.includes(expected)) throw new Error(`Mining 2 tree should preserve Capa 2 config: ${expected}`);
     });
     await saveShot(desktop, 'e2e-workflow-mining2-desktop.png');
-    await desktop.locator('.subtab[data-subtab="wf-capa2"]').click();
+    await desktop.locator('[data-workflow-subtab-target="wf-capa2"]').click();
     await desktop.waitForSelector('#wf-capa2.active');
     const capa2TabText = await desktop.locator('#wf-capa2').innerText();
-    if (!capa2TabText.includes('Capa 2 centralizada en el pipeline')) {
-      throw new Error('Workflow Capa 2 tab should point to the centralized pipeline content');
+    if (!capa2TabText.includes('Capa 2 - operativa extendida')) {
+      throw new Error('Workflow Capa 2 tab should keep the extended operational content');
     }
-    ['Capa 2 — Cheatsheet operativo', 'Config Base Builder Capa 2', 'Orden de ejecución Capa 2'].forEach(removedText => {
+    ['Orden de ejecución Capa 2', 'Checklist de aplicación Capa 2', 'Reglas de oro Capa 2'].forEach(expected => {
+      if (!capa2TabText.includes(expected)) throw new Error(`Workflow Capa 2 tab should preserve: ${expected}`);
+    });
+    ['Capa 2 — Cheatsheet operativo', 'Config Base Builder Capa 2'].forEach(removedText => {
       if (capa2TabText.includes(removedText)) throw new Error(`Workflow Capa 2 tab should not duplicate: ${removedText}`);
     });
-    await saveShot(desktop, 'e2e-workflow-capa2-centralized-desktop.png');
+    await saveShot(desktop, 'e2e-workflow-capa2-operational-desktop.png');
     await desktop.locator('.subtab[data-subtab="wf-overview"]').click();
     await desktop.waitForSelector('#wf-overview.active');
     await desktop.locator('[data-wf-detail-target="wf-sqx-views-required-detail"]').click();

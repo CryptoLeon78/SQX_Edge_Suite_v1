@@ -72,6 +72,14 @@ stepTrigger.click();
 assert.equal(stepTrigger.classList.contains('is-active'), false);
 assert.equal(stepTrigger.getAttribute('aria-expanded'), 'false');
 assert.equal(stepDetail.hidden, true);
+const tabC = document.add(new Element('wf-capa2-tab', ['subtab'], { subtab: 'wf-capa2' }));
+const panelC = document.add(new Element('wf-capa2', ['subtab-content']));
+const subtabLink = document.add(new Element('wf-capa2-link', [], { workflowSubtabTarget: 'wf-capa2' }));
+subtabLink.tagName = 'button';
+assert.equal(SQX.workflow.bindSubtabLinks({ document }), 1);
+subtabLink.click();
+assert.equal(tabC.classList.contains('active'), true);
+assert.equal(panelC.classList.contains('active'), true);
 
 const writes = [];
 const box = document.add(new Element('check-one', [], { check: 'capa1-alpha' }));

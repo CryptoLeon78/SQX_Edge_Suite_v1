@@ -2082,6 +2082,20 @@ Ret/DD &gt; 1.0</pre>
                   </div>
                 </div>
               </div>
+              <div class="pipeline-step l2 compact workflow-config-node">
+                <div class="step-num">2.6</div>
+                <div class="step-content">
+                  <div class="step-title">Material operativo extendido</div>
+                  <div class="step-desc">Orden completo, embudo esperado, checklist persistente, reglas de oro y configuraciones opcionales se consultan en el tab Capa 2.</div>
+                  <div class="workflow-tree-config">
+                    <div class="workflow-config-card emphasis">
+                      <h5>Capa 2</h5>
+                      <p>Usa este acceso cuando ya estes ejecutando Mining 2 y necesites comprobar la parte operativa sin saturar el pipeline.</p>
+                      <button class="export-btn" type="button" data-workflow-subtab-target="wf-capa2">Abrir Capa 2</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -2654,26 +2668,526 @@ Ret/DD > 0.5       ← muy permisivo (Forward es validación)</pre>
 
   <div class="card">
     <div class="card-header">
-      <h2>Capa 2 centralizada en el pipeline</h2>
+      <h2>Capa 2 - operativa extendida</h2>
       <span class="badge layer2">Mining 2</span>
-      <span class="badge info">Sin duplicados</span>
+      <span class="badge info">Checklist y control</span>
     </div>
     <p style="color:var(--text2);line-height:1.6;">
-      La guia operativa de Capa 2 ya vive en <strong style="color:var(--text);">Vista General</strong>, dentro de <strong style="color:var(--text);">Flujo completo del pipeline</strong>, KPI <strong style="color:var(--text);">3 - Mining 2 - Capa 2 sobre Template</strong>.
+      El setup, retests, robustez y filtros estrictos detallados viven ahora en <strong style="color:var(--text);">Vista General</strong> dentro del pipeline. Este tab conserva el material operativo que no conviene meter entero en el flujo principal: orden, embudo, checklist, reglas y configuraciones opcionales.
     </p>
-    <div class="workflow-tree-config">
-      <div class="workflow-config-card">
-        <h5>Donde trabajar</h5>
-        <p>Abre el desplegable de Mining 2 en el pipeline para revisar setup, retests, filtros, robustez, WFM y Forward.</p>
+  </div>
+  <!-- Orden de ejecución -->
+  <div class="card">
+    <div class="card-header">
+      <h2>🔢 Orden de ejecución Capa 2</h2>
+    </div>
+    <div class="pipeline">
+      <div class="pipeline-step l2 workflow-step-trigger" data-wf-detail-target="wf-capa2-mining2-tree-detail" role="button" tabindex="0" aria-expanded="false"><div class="step-num">1</div><div class="step-content"><div class="step-title">Mining 2 - Capa 2 sobre Template</div><div class="step-desc">Edge fijo de Capa 1, filtros random, SL/TP/Trailing ATR-based, Weighted Fitness, PF≥1.20 y #trades&gt;100.</div></div><span class="step-action">Desplegar</span></div>
+      <div class="workflow-step-detail" id="wf-capa2-mining2-tree-detail" hidden>
+        <div class="workflow-tree">
+          <div class="workflow-tree-branch">
+            <div class="pipeline-step l2 compact workflow-config-node">
+              <div class="step-num">2.0</div>
+              <div class="step-content">
+                <div class="step-title">Setup base AlgoWizard</div>
+                <div class="step-desc">Cargar el template ganador de Capa 1 como base y hacer operable el edge sin modificarlo.</div>
+                <div class="workflow-tree-config">
+                  <div class="workflow-config-card">
+                    <h5>Settings</h5>
+                    <pre>Edge: NO RANDOM (template fijo)
+Random conditions: 1-2 filtros adicionales
+ExitAfterBars: 20 opcional
+Stop Loss: ATR-based random
+Profit Target: ATR-based random
+Trailing Stop: ATR-based random
+Building blocks: BS_Filtros_v5.sqb</pre>
+                  </div>
+                  <div class="workflow-config-card">
+                    <h5>Fitness</h5>
+                    <pre>Weighted Fitness (multiple goals)
+CAGR/Max DD %: Maximize
+Profit Factor: Maximize
+R Expectancy: Maximize
+# of Trades: Maximize
+Avg. % Drawdown: Minimize</pre>
+                  </div>
+                  <div class="workflow-config-card">
+                    <h5>Filtering mining</h5>
+                    <pre>PF &gt;= 1.20
+# trades &gt; 100
+Sharpe: OFF
+SQN: OFF</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="workflow-tree-children">
+              <div class="pipeline-step val compact workflow-config-node">
+                <div class="step-num">2.1</div>
+                <div class="step-content">
+                  <div class="step-title">RETEST 0 - Periodo completo</div>
+                  <div class="step-desc">Validacion temporal sobre todo el historico disponible, sin reoptimizar.</div>
+                  <div class="workflow-tree-config">
+                    <div class="workflow-config-card">
+                      <h5>Settings</h5>
+                      <pre>Period: 2017.10 - 2026.04 (rango completo)
+Re-optimize: NO</pre>
+                    </div>
+                    <div class="workflow-config-card">
+                      <h5>Filtering</h5>
+                      <pre>PF &gt; 1.0
+# trades &gt; 100
+Ret/DD &gt; 1.0</pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="pipeline-step l2 compact workflow-config-node">
+                <div class="step-num">2.2</div>
+                <div class="step-content">
+                  <div class="step-title">Filtros estrictos manuales</div>
+                  <div class="step-desc">Aplicar sobre Databank antes de gastar tiempo en robustez pesada.</div>
+                  <div class="workflow-tree-config">
+                    <div class="workflow-config-card">
+                      <h5>Thresholds</h5>
+                      <pre>Profit Factor &gt;= 1.5
+Ret/DD Ratio &gt;= 5
+R Expectancy &gt;= 0.30
+Stagnation % &lt; 25%
+# trades &gt; 150</pre>
+                    </div>
+                    <div class="workflow-config-card emphasis">
+                      <h5>Decision</h5>
+                      <p>Capa 2 ya busca estrategias operables, no solo edge potencial. Si no supera estos filtros, queda en reserva.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="pipeline-step val compact workflow-config-node">
+                <div class="step-num">2.3</div>
+                <div class="step-content">
+                  <div class="step-title">RETEST 1 - OOS hacia atras</div>
+                  <div class="step-desc">Periodo nunca visto durante el mining IS. En Capa 2 se exige volumen operativo.</div>
+                  <div class="workflow-tree-config">
+                    <div class="workflow-config-card">
+                      <h5>Settings</h5>
+                      <pre>Period: 2010.01 - 2016.12
+Re-optimize: NO</pre>
+                    </div>
+                    <div class="workflow-config-card">
+                      <h5>Filtering</h5>
+                      <pre>PF &gt; 1.0
+# trades &gt; 100
+Ret/DD &gt; 1.0</pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="pipeline-step l2 compact workflow-config-node">
+                <div class="step-num">2.4</div>
+                <div class="step-content">
+                  <div class="step-title">Robustez operativa</div>
+                  <div class="step-desc">Mismos pilares que Capa 1, pero con exigencia operativa: Skip trades, slippage y filtros WFM de despliegue.</div>
+                  <div class="workflow-robustness-grid">
+                    <div class="workflow-config-card">
+                      <h5>HBP</h5>
+                      <pre>Number of simulations: 100
+Use Full sample: ON
+
+Net profit (HBP, Conf. 80%) &gt; 0
+Max DD % (HBP, Conf. 80%) &lt;= 150% of Max DD %</pre>
+                    </div>
+                    <div class="workflow-config-card">
+                      <h5>MC Trades</h5>
+                      <pre>Number of simulations: 200
+Randomize trades order: ON
+Randomly skip trades 10%: ON
+
+Net profit (MC trades, Conf. 80%) &gt;= 50% of Net profit
+Max DD % (MC trades, Conf. 80%) &lt;= 150% of Max DD %</pre>
+                    </div>
+                    <div class="workflow-config-card">
+                      <h5>MC2</h5>
+                      <pre>Randomize history data: ON
+Randomize spread: ON
+Randomize slippage: ON
+Randomize strategy parameters: OFF
+
+Slippage min/max: 0 / 5
+Spread min/max: 10 / 25</pre>
+                    </div>
+                    <div class="workflow-config-card">
+                      <h5>Sequential</h5>
+                      <pre>Apply optimized parameters: OFF
+Periods: OFF
+Constants: OFF
+Entry levels: ON
+Exit params only used: ON
+
+Stability pass: 80%
+Stable area results: 5
+Fitness stability range: 25%</pre>
+                    </div>
+                    <div class="workflow-config-card">
+                      <h5>SPP</h5>
+                      <pre>Maximum tests: 3000
+Your own settings: ON
+Recommended parameters: OFF
+Entry levels: ON
+Exit params only used: ON
+
+Profitable Optimizations &gt; 50
+80% Net profit median &gt;= 50%
+80% Max DD median &lt;= 150%</pre>
+                    </div>
+                    <div class="workflow-config-card">
+                      <h5>WFM</h5>
+                      <pre>Walk-Forward type: Simulated IS, Simulated OOS
+OOS %: 20 - 36 / Step 2
+Runs: 4 - 8 / Step 1
+Entry levels: ON
+Exit params only used: ON
+Apply optimized parameters: OFF
+
+Profitable runs &gt;= 70%
+WF Stagnation &lt;= 365 dias
+WF Ret/DD Ratio &gt;= 5</pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="pipeline-step dep compact workflow-config-node">
+                <div class="step-num">2.5</div>
+                <div class="step-content">
+                  <div class="step-title">Forward final 2024-2026</div>
+                  <div class="step-desc">Ultima puerta antes de portfolio, correlacion y despliegue MT5. Si falla aqui, no se despliega.</div>
+                  <div class="workflow-tree-config">
+                    <div class="workflow-config-card">
+                      <h5>Settings</h5>
+                      <pre>Period: 2024.01 - 2026.04 (~2.5 anos)
+Re-optimize: NO
+Direction: igual al mining</pre>
+                    </div>
+                    <div class="workflow-config-card">
+                      <h5>Filtering</h5>
+                      <pre>PF &gt; 1.0
+# trades &gt; 30
+Ret/DD &gt; 1.0</pre>
+                    </div>
+                    <div class="workflow-config-card emphasis">
+                      <h5>Decision</h5>
+                      <p>Forward en Capa 2 exige Ret/DD operativo. Sin pasar esta puerta no hay MT5 real.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="pipeline-step val compact workflow-config-node">
+                <div class="step-num">2.6</div>
+                <div class="step-content">
+                  <div class="step-title">Correlacion y cierre del template</div>
+                  <div class="step-desc">Filter by correlation 0.7, elegir 1-3 ganadoras por template y documentar TIER.</div>
+                  <label class="workflow-tree-check"><input type="checkbox" data-check="capa2-post-corr"> Correlacion 0.7 aplicada</label>
+                  <label class="workflow-tree-check"><input type="checkbox" data-check="capa2-post-tier"> TIER 1 / TIER 2 / TIER 3 documentado</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="workflow-config-card emphasis">
-        <h5>Regla de mantenimiento</h5>
-        <p>Este tab queda como aviso de trazabilidad para evitar que la metodologia se duplique o se desactualice fuera del flujo principal.</p>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step val"><div class="step-num">2</div><div class="step-content"><div class="step-title">RETEST 0 período completo</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">3</div><div class="step-content"><div class="step-title">Filtros estrictos post-Capa 2 manuales</div><div class="step-desc">PF≥1.5, Ret/DD≥5, R Exp≥0.30, Stagnation&lt;25%, #trades&gt;150</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step val"><div class="step-num">4</div><div class="step-content"><div class="step-title">RETEST 1 OOS 2010-2017</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">5</div><div class="step-content"><div class="step-title">HBP</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">6</div><div class="step-content"><div class="step-title">MC (con Skip trades activado)</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">7</div><div class="step-content"><div class="step-title">MC2 (con Slippage activado)</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">8</div><div class="step-content"><div class="step-title">Sequential (solo Exit params)</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">9</div><div class="step-content"><div class="step-title">Monkey Test</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">10</div><div class="step-content"><div class="step-title">Synthetic Bootstrap V2</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">11</div><div class="step-content"><div class="step-title">SPP (Your own settings)</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step l2"><div class="step-num">12</div><div class="step-content"><div class="step-title">WFM (filtros operativos)</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step dep"><div class="step-num">13</div><div class="step-content"><div class="step-title">FOWARD 2024-2026</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step val"><div class="step-num">14</div><div class="step-content"><div class="step-title">Filter by correlation (threshold 0.7)</div></div></div>
+      <div class="pipeline-arrow">↓</div>
+      <div class="pipeline-step val"><div class="step-num">15</div><div class="step-content"><div class="step-title">1-3 ganadoras por template ⭐</div></div></div>
+    </div>
+  </div>
+
+  <!-- Embudo esperado -->
+  <div class="card">
+    <div class="card-header">
+      <h2>📉 Embudo esperado Capa 2</h2>
+      <span class="badge info">Tasa supervivencia 0.05-0.3%</span>
+    </div>
+    <div class="ps-funnel">
+      <div class="ps-funnel-step"><div class="pf-name">Mining inicial</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:100%"></div></div><div class="pf-count">~500-2000</div><div class="pf-survival">100%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">Filtros automáticos</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:25%"></div></div><div class="pf-count">~100-500</div><div class="pf-survival">~25%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">RETEST 0</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:20%"></div></div><div class="pf-count">~80-400</div><div class="pf-survival">~20%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">Filtros estrictos manual</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:6%"></div></div><div class="pf-count">~30-100</div><div class="pf-survival">~6%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">RETEST 1 OOS</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:2%"></div></div><div class="pf-count">~10-30</div><div class="pf-survival">~2%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">HBP</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:1.5%"></div></div><div class="pf-count">~10-25</div><div class="pf-survival">~1.5%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">MC</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:1.2%"></div></div><div class="pf-count">~5-20</div><div class="pf-survival">~1.2%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">MC2</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:1%"></div></div><div class="pf-count">~5-15</div><div class="pf-survival">~1%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">Sequential</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.7%"></div></div><div class="pf-count">~3-10</div><div class="pf-survival">~0.7%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">Monkey Test</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.6%"></div></div><div class="pf-count">~3-10</div><div class="pf-survival">~0.6%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">Synthetic</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.5%"></div></div><div class="pf-count">~2-7</div><div class="pf-survival">~0.5%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">SPP</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.4%"></div></div><div class="pf-count">~2-5</div><div class="pf-survival">~0.4%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">WFM</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.3%"></div></div><div class="pf-count">~1-4</div><div class="pf-survival">~0.3%</div></div>
+      <div class="ps-funnel-step terminal ps-funnel-final"><div class="pf-name">FOWARD ⭐</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:0.2%"></div></div><div class="pf-count">~1-3</div><div class="pf-survival">~0.2%</div></div>
+    </div>
+  </div>
+
+  <!-- Checklist -->
+  <div class="card">
+    <div class="card-header">
+      <h2>✅ Checklist de aplicación Capa 2</h2>
+      <span class="badge info">Persistente en localStorage</span>
+      <span style="flex:1"></span>
+      <button class="export-btn" data-checklist-clear="capa2">Resetear checklist</button>
+    </div>
+    <div class="checklist-section">
+      <h4>Antes del mining</h4>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-tpl"><span>Template Capa 1 seleccionado y validado</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-aw"><span>AlgoWizard configurado con template como base</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-edge"><span>Edge: NO RANDOM</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-rc"><span>Random conditions: 1-2</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-exits"><span>SL/TP/Trailing: ATR-based random</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-bs"><span>BS_Filtros_v5.sqb cargado</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-mm"><span>Money Management: $200, max lots correcto</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-fitness"><span>Fitness: Weighted Fitness con 5 métricas</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-filtros"><span>Filtros mining: PF≥1.20, #trades&gt;100</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-cc"><span>Cross-checks activos (todos los relevantes)</span></label>
+    </div>
+    <div class="checklist-section">
+      <h4>Durante el mining</h4>
+      <label class="check-row"><input type="checkbox" data-check="capa2-dur-mon"><span>Monitorear progreso</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-dur-coh"><span>Verificar coherencia con embudo esperado</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-dur-relax"><span>Si pasan 0 estrategias por algún test, considerar relajar filtros</span></label>
+    </div>
+    <div class="checklist-section">
+      <h4>Después del mining</h4>
+      <label class="check-row"><input type="checkbox" data-check="capa2-post-filt"><span>Aplicar filtros estrictos sobre databank</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-post-corr"><span>Filter by correlation 0.7</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-post-fwd"><span>Validar Forward sobre supervivientes</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-post-tier"><span>Identificar 1-3 ganadoras por template</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-post-doc"><span>Documentar TIER 1 / TIER 2 / TIER 3 según margen de pase</span></label>
+    </div>
+  </div>
+
+  <!-- Reglas de oro -->
+  <div class="card">
+    <div class="card-header">
+      <h2>📜 Reglas de oro Capa 2</h2>
+    </div>
+    <div class="rules">
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Edge FIJO del template</strong>, NO tocar entradas (Periods, Constants)</div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Apply optimized parameters: SIEMPRE OFF</strong></div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Walk-Forward type: Simulated (fastest)</strong></div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Sequential/WFM/SPP:</strong> SOLO marcar Entry levels + Exit params</div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>MC con Skip trades activado</strong> (simula errores ejecución)</div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>MC2 con Slippage activado</strong> (simula slippage real con SL/TP)</div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>Filtros más estrictos que Capa 1</strong> (objetivo: excelencia operativa)</div></div>
+      <div class="rule do"><div class="rule-icon">✓</div><div class="rule-text"><strong>WFM con filtros operativos</strong> (Ret/DD, Stagnation, Win%)</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Marcar Periods/Constants en Capa 2</strong> — rompe template</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Aplicar valores optimizados</strong> — rompe metodología</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>"Recommended parameters" en SPP Capa 2</strong> — toca entradas</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Filtros laxos en Capa 2</strong> — objetivo es excelencia operativa</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Saltarse FOWARD</strong> — datos intocados son críticos</div></div>
+      <div class="rule dont"><div class="rule-icon">✗</div><div class="rule-text"><strong>Aplicar optimizaciones del WFM</strong> — degrada NetProfit ~30% sin beneficio</div></div>
+    </div>
+  </div>
+
+  <!-- Configuraciones opcionales -->
+  <div class="card">
+    <div class="card-header">
+      <h2>🎚 Configuraciones opcionales según objetivo</h2>
+    </div>
+    <div class="config-grid">
+      <div class="config-box">
+        <h4><span class="icon">+</span>Más estrategias supervivientes (umbral medio)</h4>
+        <ul class="config-list">
+          <li><span class="key">SPP Net profit:</span><span class="value">≥ 40%</span></li>
+          <li><span class="key">WFM Robustness:</span><span class="value">50%</span></li>
+          <li><span class="key">WFM Profitable runs:</span><span class="value">60%</span></li>
+          <li><span class="key">MC Max DD:</span><span class="value">≤ 200%</span></li>
+        </ul>
+      </div>
+      <div class="config-box">
+        <h4><span class="icon">⭐</span>Pocas pero excepcionales (umbral alto)</h4>
+        <ul class="config-list">
+          <li><span class="key">SPP Net profit:</span><span class="value">≥ 60%</span></li>
+          <li><span class="key">SPP Profitable:</span><span class="value">≥ 70%</span></li>
+          <li><span class="key">WFM Robustness:</span><span class="value">70%</span></li>
+          <li><span class="key">WFM Profitable runs:</span><span class="value">80%</span></li>
+          <li><span class="key">WFM Ret/DD:</span><span class="value">≥ 7</span></li>
+          <li><span class="key">Filtros estrictos PF:</span><span class="value">≥ 1.7</span></li>
+          <li><span class="key">Filtros estrictos Ret/DD:</span><span class="value">≥ 7</span></li>
+        </ul>
+      </div>
+      <div class="config-box">
+        <h4><span class="icon">⏱</span>Test reducido (si tienes prisa)</h4>
+        <ul class="config-list">
+          <li><span class="key">DESACTIVAR:</span><span class="value">MC2, Synthetic, SPP</span></li>
+          <li><span class="key">MANTENER:</span><span class="value">HBP, MC, Sequential, WFM, FOWARD</span></li>
+          <li><span class="key">WFM OOS:</span><span class="value">25-35 step 5</span></li>
+          <li><span class="key">WFM runs:</span><span class="value">5-7 step 1</span></li>
+        </ul>
       </div>
     </div>
   </div>
 
-</div>            <div id="wf-postproc" class="subtab-content"><div class="card">
+</div>
+
+            <div id="wf-diff" class="subtab-content">
+
+  <div class="card">
+    <div class="card-header">
+      <h2>Capa 1 vs Capa 2 — Tabla comparativa</h2>
+      <span class="badge info">Diferencias clave</span>
+    </div>
+    <p style="color:var(--text2);line-height:1.6;">
+      Misma metodología, distintos parámetros. Capa 1 busca <strong>edge puro</strong> sin gestión; Capa 2 hace el edge <strong>operable</strong> con SL/TP/Trailing.
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>📊 Tabla comparativa general</h2>
+    </div>
+    <table class="filter-table">
+      <thead>
+        <tr><th>Aspecto</th><th>Capa 1</th><th>Capa 2</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Edge</strong></td><td>Variable (mining)</td><td>Fijo (template)</td></tr>
+        <tr><td><strong>SL/TP/Trailing</strong></td><td>NO</td><td>SÍ (random ATR-based)</td></tr>
+        <tr><td><strong>ExitAfterBars</strong></td><td>20 fijo</td><td>Variable o mantener 20</td></tr>
+        <tr><td><strong>Filtros mining</strong></td><td class="v">PF ≥ 1.10</td><td class="v">PF ≥ 1.20</td></tr>
+        <tr><td><strong>Fitness</strong></td><td>R Expectancy</td><td>Weighted (5 métricas)</td></tr>
+        <tr><td><strong>MC Skip trades</strong></td><td>DESACTIVADO</td><td>ACTIVADO</td></tr>
+        <tr><td><strong>MC2 Slippage</strong></td><td>DESACTIVADO</td><td>ACTIVADO</td></tr>
+        <tr><td><strong>MC2 estado</strong></td><td>OPCIONAL</td><td>RECOMENDADO</td></tr>
+        <tr><td><strong>Sequential parametrize</strong></td><td>Periods + Const + Exit</td><td>Entry levels + Exit</td></tr>
+        <tr><td><strong>WFM parametrize</strong></td><td>Periods + Const + Entry + Exit</td><td>Entry + Exit</td></tr>
+        <tr><td><strong>WFM filtros</strong></td><td>DD-focused</td><td>Stagnation, Ret/DD, Win%</td></tr>
+        <tr><td><strong>SPP modo</strong></td><td>Your own settings</td><td>Your own settings</td></tr>
+        <tr><td><strong>SPP Net profit</strong></td><td class="v">≥ 40%</td><td class="v">≥ 50%</td></tr>
+        <tr><td><strong>SPP % Profitable</strong></td><td class="v">&gt; 30</td><td class="v">&gt; 50</td></tr>
+        <tr><td><strong>Forward Ret/DD</strong></td><td class="v">&gt; 0.5</td><td class="v">&gt; 1.0</td></tr>
+        <tr><td><strong>Tasa supervivencia</strong></td><td>0.1-0.5%</td><td>0.05-0.3%</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>🔍 Diferencias específicas en cross-checks</h2>
+    </div>
+
+    <div class="config-grid">
+      <div class="config-box">
+        <h4><span class="icon">S</span>Sequential</h4>
+        <ul class="config-list">
+          <li><span class="key">Capa 1:</span><span class="value">Periods + Const + Exit</span></li>
+          <li><span class="key">Capa 2:</span><span class="value">Entry levels + Exit</span></li>
+        </ul>
+        <p style="font-size:11px;color:var(--text2);margin-top:6px;">En Capa 2 las entradas son del template fijo y NO se tocan.</p>
+      </div>
+
+      <div class="config-box">
+        <h4><span class="icon">W</span>WFM</h4>
+        <ul class="config-list">
+          <li><span class="key">Capa 1:</span><span class="value">Periods + Const + Entry + Exit (4 categorías)</span></li>
+          <li><span class="key">Capa 2:</span><span class="value">Entry levels + Exit (2 categorías)</span></li>
+        </ul>
+        <p style="font-size:11px;color:var(--text2);margin-top:6px;">Filtros también distintos: WF Win% OOS/IS y WF Stagnation solo en Capa 2.</p>
+      </div>
+
+      <div class="config-box">
+        <h4><span class="icon">P</span>SPP</h4>
+        <ul class="config-list">
+          <li><span class="key">Capa 1:</span><span class="value">Periods + Const + Entry + Exit</span></li>
+          <li><span class="key">Capa 2:</span><span class="value">Entry levels + Exit</span></li>
+        </ul>
+        <p style="font-size:11px;color:var(--text2);margin-top:6px;">Ambas usan "Your own settings" (no Recommended) para control explícito.</p>
+      </div>
+
+      <div class="config-box">
+        <h4><span class="icon">M</span>MC</h4>
+        <ul class="config-list">
+          <li><span class="key">Capa 1:</span><span class="value">Solo Randomize order (sin Skip)</span></li>
+          <li><span class="key">Capa 2:</span><span class="value">Randomize order + Skip trades</span></li>
+        </ul>
+        <p style="font-size:11px;color:var(--text2);margin-top:6px;">Skip trades en Capa 2 simula errores de ejecución reales.</p>
+      </div>
+
+      <div class="config-box">
+        <h4><span class="icon">M2</span>MC2</h4>
+        <ul class="config-list">
+          <li><span class="key">Capa 1:</span><span class="value">history + spread (sin slippage)</span></li>
+          <li><span class="key">Capa 2:</span><span class="value">history + spread + slippage</span></li>
+        </ul>
+        <p style="font-size:11px;color:var(--text2);margin-top:6px;">Slippage solo aplica con SL/TP (Capa 2).</p>
+      </div>
+
+      <div class="config-box">
+        <h4><span class="icon">F</span>Filtros mining</h4>
+        <ul class="config-list">
+          <li><span class="key">Capa 1:</span><span class="value">PF≥1.10, R Exp&gt;0.05, #trades&gt;100</span></li>
+          <li><span class="key">Capa 2:</span><span class="value">PF≥1.20, #trades&gt;100 (Sharpe/SQN OFF)</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2>💡 Por qué estas diferencias</h2>
+    </div>
+    <div class="alert info">
+      <div class="alert-icon">ℹ</div>
+      <div class="alert-content">
+        <strong>Edge fijo en Capa 2</strong>
+        El template ya pasó todos los tests de Capa 1. Si en Capa 2 tocas Periods/Constants, modificas el edge validado y rompes la metodología.
+      </div>
+    </div>
+    <div class="alert info">
+      <div class="alert-icon">ℹ</div>
+      <div class="alert-content">
+        <strong>Skip trades + Slippage activados en Capa 2</strong>
+        Las estrategias con SL/TP están expuestas a slippage real y errores de ejecución (gaps, conexión). En Capa 1 sin SL/TP, estos eventos descartaban estrategias válidas con muestras pequeñas.
+      </div>
+    </div>
+    <div class="alert info">
+      <div class="alert-icon">ℹ</div>
+      <div class="alert-content">
+        <strong>Filtros más estrictos en Capa 2</strong>
+        Capa 1 busca cualquier edge potencial (permisivo). Capa 2 selecciona estrategias <strong>desplegables en MT5 real</strong> (estrictos: PF≥1.5, Ret/DD≥5, Stagnation&lt;25%).
+      </div>
+    </div>
+    <div class="alert success">
+      <div class="alert-icon">✓</div>
+      <div class="alert-content">
+        <strong>Tasa supervivencia menor en Capa 2 (0.05-0.3%) vs Capa 1 (0.1-0.5%)</strong>
+        Es esperado y deseable. De 1000-2000 estrategias mining → 1-3 ganadoras finales por template. Las que sobreviven están listas para portfolio real.
+      </div>
+    </div>
+  </div>
+
+</div>
+            <div id="wf-postproc" class="subtab-content"><div class="card">
     <div class="card-header">
       <h2>Filtros estrictos post-Capa 2</h2>
       <span class="badge validation">Manual en databank</span>

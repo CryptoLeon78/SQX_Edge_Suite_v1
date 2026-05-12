@@ -65,6 +65,14 @@ assert.equal(wfA.classList.contains('active'), false);
 assert.equal(wfB.classList.contains('active'), true);
 assert.equal(wfMainPanel.classList.contains('active'), false);
 assert.equal(wfRulesPanel.classList.contains('active'), true);
+const wfCapa2Tab = document.add(new Element('wf-capa2-tab', ['subtab'], { subtab: 'wf-capa2' }));
+const wfCapa2Panel = document.add(new Element('wf-capa2', ['subtab-content']));
+const wfCapa2Link = document.add(new Element('wf-capa2-link', [], { workflowSubtabTarget: 'wf-capa2' }));
+wfCapa2Link.tagName = 'button';
+assert.equal(SQX.workflow.bindSubtabLinks({ document }), 1);
+wfCapa2Link.click();
+assert.equal(wfCapa2Tab.classList.contains('active'), true);
+assert.equal(wfCapa2Panel.classList.contains('active'), true);
 
 const boxC1 = document.add(new Element('check-c1-a', [], { check: 'capa1-a' }));
 boxC1.tagName = 'input';
