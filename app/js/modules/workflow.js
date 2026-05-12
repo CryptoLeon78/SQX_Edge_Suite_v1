@@ -7,21 +7,65 @@
     return Array.from((doc || global.document).querySelectorAll(selector));
   }
 
+  function activateWorkflowPanel(panelId, trigger, options) {
+    var opts = options || {};
+    var doc = opts.document || global.document;
+    if (!panelId) return false;
+
+    all(opts.tabSelector || '.subtab', doc).forEach(function(node) { node.classList.remove('active'); });
+    all(opts.panelTriggerSelector || '[data-wf-panel-target]', doc).forEach(function(node) {
+      node.classList.remove('is-active');
+      if (node.setAttribute) node.setAttribute('aria-expanded', 'false');
+    });
+
+    if (trigger && trigger.dataset && trigger.dataset.subtab) {
+      trigger.classList.add('active');
+    } else {
+      all(opts.tabSelector || '.subtab', doc).forEach(function(node) {
+        if (node.dataset && node.dataset.subtab === panelId) node.classList.add('active');
+      });
+    }
+
+    all(opts.contentSelector || '.subtab-content', doc).forEach(function(node) { node.classList.remove('active'); });
+    var target = doc.getElementById(panelId);
+    if (target) target.classList.add('active');
+
+    if (trigger && trigger.dataset && trigger.dataset.wfPanelTarget) {
+      trigger.classList.add('is-active');
+      if (trigger.setAttribute) trigger.setAttribute('aria-expanded', 'true');
+    }
+
+    return Boolean(target);
+  }
+
   function bindSubtabs(options) {
     var opts = options || {};
     var doc = opts.document || global.document;
     var tabs = all(opts.tabSelector || '.subtab', doc);
     tabs.forEach(function(tab) {
       tab.addEventListener('click', function() {
-        var sub = tab.dataset.subtab;
-        all(opts.tabSelector || '.subtab', doc).forEach(function(node) { node.classList.remove('active'); });
-        tab.classList.add('active');
-        all(opts.contentSelector || '.subtab-content', doc).forEach(function(node) { node.classList.remove('active'); });
-        var target = doc.getElementById(sub);
-        if (target) target.classList.add('active');
+        activateWorkflowPanel(tab.dataset.subtab, tab, opts);
       });
     });
     return tabs.length;
+  }
+
+  function bindPanelTriggers(options) {
+    var opts = options || {};
+    var doc = opts.document || global.document;
+    var triggers = all(opts.panelTriggerSelector || '[data-wf-panel-target]', doc);
+    triggers.forEach(function(trigger) {
+      function activate() {
+        activateWorkflowPanel(trigger.dataset.wfPanelTarget, trigger, opts);
+      }
+      trigger.addEventListener('click', activate);
+      trigger.addEventListener('keydown', function(event) {
+        if (!event || (event.key !== 'Enter' && event.key !== ' ')) return;
+        if (event.preventDefault) event.preventDefault();
+        activate();
+      });
+    });
+    return triggers.length;
   }
 
   function resolveChecklistKey(config, fallback) {
@@ -190,14 +234,17 @@
     return {
       planSummary: renderPlanSummary(opts),
       subtabCount: bindSubtabs(opts),
+      panelTriggerCount: bindPanelTriggers(opts),
       checklist: checklist,
       commandCenter: bindCommandCenter(opts)
     };
   }
 
   SQX.workflow = SQX.workflow || {
+    activateWorkflowPanel: activateWorkflowPanel,
     bindChecklist: bindChecklist,
     bindCommandCenter: bindCommandCenter,
+    bindPanelTriggers: bindPanelTriggers,
     bindSubtabs: bindSubtabs,
     computePlanSummary: computePlanSummary,
     init: init,

@@ -60,6 +60,13 @@ assert.equal(tabA.classList.contains('active'), false);
 assert.equal(tabB.classList.contains('active'), true);
 assert.equal(panelA.classList.contains('active'), false);
 assert.equal(panelB.classList.contains('active'), true);
+const stepTrigger = document.add(new Element('wf-capa1-step-trigger', ['pipeline-step'], { wfPanelTarget: 'wf-main' }));
+assert.equal(SQX.workflow.bindPanelTriggers({ document }), 1);
+stepTrigger.click();
+assert.equal(stepTrigger.classList.contains('is-active'), true);
+assert.equal(stepTrigger.getAttribute('aria-expanded'), 'true');
+assert.equal(tabA.classList.contains('active'), true);
+assert.equal(panelA.classList.contains('active'), true);
 
 const writes = [];
 const box = document.add(new Element('check-one', [], { check: 'capa1-alpha' }));

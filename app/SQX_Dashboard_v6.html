@@ -1577,7 +1577,6 @@
     </section>
     <div class="subtabs">
       <div class="subtab active" data-subtab="wf-overview">Vista General</div>
-      <div class="subtab" data-subtab="wf-capa1">Capa 1</div>
       <div class="subtab" data-subtab="wf-capa2">Capa 2</div>
       <div class="subtab" data-subtab="wf-diff">Capa 1 vs 2</div>
       <div class="subtab" data-subtab="wf-postproc">Post-Procesamiento</div>
@@ -1770,12 +1769,13 @@
     </summary>
     <div class="workflow-accordion-body">
       <div class="pipeline">
-      <div class="pipeline-step l1">
+      <div class="pipeline-step l1 workflow-panel-trigger" role="button" tabindex="0" data-wf-panel-target="wf-capa1" aria-controls="wf-capa1" aria-expanded="false">
         <div class="step-num">1</div>
         <div class="step-content">
           <div class="step-title">Mining Capa 1 IS 2017-2023</div>
           <div class="step-desc">Generar estrategias con 1-2 indicadores, ExitAfterBars=20 fijo, sin SL/TP/Trailing. Buscar edge puro.</div>
         </div>
+        <span class="step-action">Abrir Capa 1</span>
       </div>
       <div class="pipeline-arrow">↓</div>
 

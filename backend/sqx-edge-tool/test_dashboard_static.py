@@ -2100,8 +2100,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         manifest_js = (APP_ROOT / "js" / "manifest-data.js").read_text(encoding="utf-8-sig")
 
         expected_exports = [
+            "activateWorkflowPanel",
             "bindChecklist",
             "bindCommandCenter",
+            "bindPanelTriggers",
             "bindSubtabs",
             "init",
             "renderCommandCenter",
@@ -2125,9 +2127,12 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn('data-home-tab="projectgen"', self.html)
         self.assertNotIn('data-home-tab="categorias"', self.html)
         self.assertNotIn('data-subtab="wf-setup"', self.html)
+        self.assertNotIn('data-subtab="wf-capa1"', self.html)
         self.assertNotIn('id="wf-setup" class="subtab-content"', self.html)
         self.assertIn('id="wf-setup-global-details"', self.html)
         self.assertIn('id="wf-pipeline-flow-details"', self.html)
+        self.assertIn('data-wf-panel-target="wf-capa1"', self.html)
+        self.assertIn('aria-controls="wf-capa1"', self.html)
         self.assertIn('class="views-handoff-copy"', self.html)
         self.assertNotIn('<div class="stat-num">14</div><div class="stat-label">Minings Plan</div>', self.html)
         self.assertIn(".workflow-command-center", (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig"))

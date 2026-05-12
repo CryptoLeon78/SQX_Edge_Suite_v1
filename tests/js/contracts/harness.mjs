@@ -41,6 +41,7 @@ class Element {
     this.tagName = '';
     this.type = '';
     this.scrollTop = 0;
+    this.attributes = {};
   }
   append(...nodes) {
     nodes.forEach(node => {
@@ -54,6 +55,12 @@ class Element {
   addEventListener(type, handler) {
     this.listeners[type] = this.listeners[type] || [];
     this.listeners[type].push(handler);
+  }
+  setAttribute(name, value) {
+    this.attributes[name] = String(value);
+  }
+  getAttribute(name) {
+    return this.attributes[name];
   }
   click() {
     (this.listeners.click || []).forEach(handler => handler({ target: this }));
@@ -124,6 +131,9 @@ class FakeDocument {
     }
     if (selector === 'button[data-checklist-clear]') {
       return Array.from(this.elements.values()).filter(el => el.tagName === 'button' && el.dataset.checklistClear);
+    }
+    if (selector === '[data-wf-panel-target]') {
+      return Array.from(this.elements.values()).filter(el => el.dataset.wfPanelTarget);
     }
     const checkPrefix = selector.match(/^input\[type="checkbox"\]\[data-check\^="([^"]+)"\]$/);
     if (checkPrefix) {
