@@ -2282,6 +2282,12 @@
     .pipeline-step { padding:10px; gap:10px; }
 
     .pipeline-step .step-num { width:30px; height:30px; font-size:14px; }
+
+    .workflow-method-brief { grid-template-columns:1fr; }
+
+    .workflow-accordion summary { align-items:flex-start; flex-direction:column; }
+
+    .workflow-accordion summary small { text-align:left; }
   }
 
   .progress-wrap { margin:14px 0; }
@@ -2336,6 +2342,50 @@
   .workflow-accordion-body { padding:0 14px 14px; border-top:1px solid rgba(148,163,184,.14); }
   .workflow-accordion-body > .card:first-child,
   .workflow-accordion-body > .pipeline:first-child { margin-top:14px; }
+  .workflow-method-accordion[open] summary { border-bottom:1px solid rgba(148,163,184,.12); }
+  .workflow-method-brief {
+    display:grid;
+    grid-template-columns:minmax(0,1.3fr) minmax(260px,.7fr);
+    gap:16px;
+    padding:16px 0 4px;
+    align-items:stretch;
+  }
+  .workflow-method-brief h3 {
+    margin:10px 0 8px;
+    font-size:20px;
+    color:var(--text);
+    letter-spacing:0;
+  }
+  .workflow-method-brief p {
+    margin:0;
+    color:var(--text2);
+    line-height:1.65;
+  }
+  .workflow-method-brief strong { color:var(--text); }
+  .workflow-method-goals {
+    display:grid;
+    gap:8px;
+  }
+  .workflow-method-goals div {
+    border:1px solid rgba(96,165,250,.2);
+    background:rgba(15,23,42,.48);
+    border-radius:8px;
+    padding:10px 12px;
+  }
+  .workflow-method-goals strong {
+    display:block;
+    color:var(--accent);
+    font-size:12px;
+    margin-bottom:4px;
+    text-transform:uppercase;
+  }
+  .workflow-method-goals span {
+    display:block;
+    color:var(--text2);
+    line-height:1.45;
+    font-size:12px;
+  }
+  .workflow-periods-inline { margin-bottom:14px; }
   .workflow-command-center { border:1px solid rgba(96,165,250,.2); background:linear-gradient(180deg, rgba(15,23,42,.96), rgba(9,14,26,.96)); border-radius:8px; padding:18px; margin-bottom:16px; box-shadow:0 16px 42px rgba(0,0,0,.22); }
   .workflow-command-hero { display:grid; grid-template-columns:minmax(0,1fr) 280px; gap:18px; align-items:end; margin-bottom:16px; }
   .workflow-command-eyebrow { display:block; color:var(--accent); font-size:11px; font-weight:900; letter-spacing:.08em; text-transform:uppercase; margin-bottom:8px; }

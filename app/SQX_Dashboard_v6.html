@@ -1608,40 +1608,41 @@
     <div class="subtab-host">
       <div id="wf-overview" class="subtab-content active">
 
-  <div class="card">
-    <div class="card-header">
-      <h2>Filosofía del Proceso</h2>
-      <span class="badge info">Concepto</span>
-    </div>
-    <p style="color:var(--text2); margin-bottom:16px; line-height:1.6;">
-      Pipeline de dos capas para encontrar estrategias robustas: <strong style="color:var(--accent);">Capa 1</strong> busca edge puro,
-      <strong style="color:var(--purple);">Capa 2</strong> optimiza la operativa. Validación cronológica con datos reales (OOS hacia atrás + Forward intocado)
-      tiene preferencia sobre tests de robustez simulados.
-    </p>
-
-    <h4 style="margin:16px 0 8px; color:var(--text2); font-size:12px; text-transform:uppercase; letter-spacing:.5px;">Periodos cronológicos</h4>
-    <div class="periods-bar">
-      <div class="period-seg period-oos">
-        <div class="yr">2010-2017</div>
-        <div>OOS hacia atrás</div>
-      </div>
-      <div class="period-seg period-is">
-        <div class="yr">2017-2023</div>
-        <div>IS (Mining)</div>
-      </div>
-      <div class="period-seg period-fwd">
-        <div class="yr">2024-2026</div>
-        <div>Forward intocado</div>
-      </div>
-    </div>
-  </div>
-
-  <details class="workflow-accordion" id="wf-pipeline-flow-details">
+  <details class="workflow-accordion workflow-method-accordion" id="wf-pipeline-flow-details" open>
     <summary>
-      <span>Flujo completo del pipeline</span>
-      <small>Secuencia completa de mineria, validacion, robustez y despliegue</small>
+      <span>Filosofía y flujo completo del pipeline</span>
+      <small>Metodologia guiada: vistas, Capa 1, retests pasivos, Capa 2, filtros, robustez y despliegue</small>
     </summary>
     <div class="workflow-accordion-body">
+      <div class="workflow-method-brief">
+        <div>
+          <span class="badge info">Metodo SQX</span>
+          <h3>Primero demostrar edge, despues hacerlo operable</h3>
+          <p>
+            La metodologia separa descubrimiento y ejecucion. <strong>Capa 1</strong> mina edge puro en IS 2017-2023 sin SL/TP/Trailing para comprobar si la entrada predice movimiento. Despues se aplican retests pasivos, OOS hacia atras 2010-2017 y Forward 2024-2026 sin reoptimizar. <strong>Capa 2</strong> mantiene fijo el template ganador y solo convierte el edge en estrategia operable con filtros adicionales, SL, TP y trailing.
+          </p>
+        </div>
+        <div class="workflow-method-goals">
+          <div><strong>Objetivo 1</strong><span>Evitar sobreoptimizar entradas.</span></div>
+          <div><strong>Objetivo 2</strong><span>Validar supervivencia cronologica antes de gastar robustez pesada.</span></div>
+          <div><strong>Objetivo 3</strong><span>Llegar a 1-3 candidatas finales por template antes de correlacion y portfolio.</span></div>
+        </div>
+      </div>
+      <h4 style="margin:16px 0 8px; color:var(--text2); font-size:12px; text-transform:uppercase; letter-spacing:.5px;">Periodos cronológicos</h4>
+      <div class="periods-bar workflow-periods-inline">
+        <div class="period-seg period-oos">
+          <div class="yr">2010-2017</div>
+          <div>OOS hacia atras</div>
+        </div>
+        <div class="period-seg period-is">
+          <div class="yr">2017-2023</div>
+          <div>IS (Mining)</div>
+        </div>
+        <div class="period-seg period-fwd">
+          <div class="yr">2024-2026</div>
+          <div>Forward intocado</div>
+        </div>
+      </div>
       <div class="pipeline">
       <div class="pipeline-step val workflow-step-trigger" role="button" tabindex="0" data-wf-detail-target="wf-sqx-views-required-detail" aria-controls="wf-sqx-views-required-detail" aria-expanded="false">
         <div class="step-num">0</div>

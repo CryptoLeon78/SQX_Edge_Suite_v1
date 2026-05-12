@@ -83,9 +83,12 @@ async function run() {
     if (planSummaryKpi !== 0) throw new Error('Plan operativo actual KPI should be removed from Workflow');
     const recommendedViewsText = await desktop.locator('#wf-overview', { hasText: 'Vista SQX recomendada' }).count();
     if (recommendedViewsText !== 0) throw new Error('SQX Views KPI should be mandatory, not recommended');
-    const initialPipelineClosed = await desktop.locator('#wf-pipeline-flow-details:not([open])').count();
-    if (initialPipelineClosed !== 1) throw new Error('Pipeline flow accordion should be closed by default');
-    await desktop.locator('#wf-pipeline-flow-details summary').click();
+    const initialPipelineOpen = await desktop.locator('#wf-pipeline-flow-details[open]').count();
+    if (initialPipelineOpen !== 1) throw new Error('Pipeline flow accordion should be open by default');
+    const unifiedMethodTitle = await desktop.locator('#wf-pipeline-flow-details summary', { hasText: 'Filosofía y flujo completo del pipeline' }).count();
+    if (unifiedMethodTitle !== 1) throw new Error('Workflow philosophy and pipeline flow should be unified in one accordion');
+    const initiallyExpandedDetails = await desktop.locator('#wf-pipeline-flow-details .workflow-step-detail:not([hidden])').count();
+    if (initiallyExpandedDetails !== 0) throw new Error('Open pipeline should show only main KPI cards by default');
     const viewsRequiredTrigger = await desktop.locator('[data-wf-detail-target="wf-sqx-views-required-detail"] .step-num', { hasText: '0' }).count();
     if (viewsRequiredTrigger !== 1) throw new Error('Mandatory SQX Views should be KPI 0 in the workflow pipeline');
     await desktop.locator('[data-wf-detail-target="wf-sqx-views-required-detail"]').click();
