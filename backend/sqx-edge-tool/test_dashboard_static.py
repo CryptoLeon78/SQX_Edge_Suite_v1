@@ -2096,16 +2096,35 @@ class DashboardStaticTestCase(unittest.TestCase):
     def test_workflow_shell_delegates_to_workflow_module(self):
         main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
         workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
+        ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
+        manifest_js = (APP_ROOT / "js" / "manifest-data.js").read_text(encoding="utf-8-sig")
 
         expected_exports = [
             "bindChecklist",
+            "bindCommandCenter",
             "bindSubtabs",
             "init",
+            "renderCommandCenter",
             "resolveChecklistKey",
         ]
         for export in expected_exports:
             with self.subTest(export=export):
                 self.assertIn(export, workflow_js)
+
+        tabs = ui_manifest["tabs"]
+        self.assertEqual(tabs[0]["id"], "workflow")
+        self.assertTrue(tabs[0]["active"])
+        self.assertNotIn("categorias", [tab["id"] for tab in tabs])
+        self.assertIn('"id": "workflow"', manifest_js)
+        self.assertNotIn('"id": "categorias"', manifest_js)
+        self.assertIn('id="tab-inicio" class="tab-content" style="display:none"', self.html)
+        self.assertIn('id="tab-workflow" class="tab-content"', self.html)
+        self.assertIn('id="workflow-command-center"', self.html)
+        self.assertIn('id="wf-command-progress-label"', self.html)
+        self.assertIn('data-check="command-center-diagnostico"', self.html)
+        self.assertIn('data-home-tab="projectgen"', self.html)
+        self.assertNotIn('data-home-tab="categorias"', self.html)
+        self.assertIn(".workflow-command-center", (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig"))
 
         self.assertIn("window.SQX.workflow.init()", main_js)
         self.assertNotIn("CHECKLIST_STATE", main_js)
@@ -10529,7 +10548,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: TL14 completa una limpieza agresiva reproducible",
+            "Estado interno: UX-NAV1 convierte Workflow en pantalla inicial",
+            "Por Categoria sale de la navegacion principal",
             "Ultimo ZIP portable tester conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",
             "SHA256 del ZIP tester: `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`",
             "Siguiente paso recomendado: completar evidencia privada TL1",

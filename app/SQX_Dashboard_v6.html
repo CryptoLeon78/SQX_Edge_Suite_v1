@@ -21,7 +21,7 @@
 <div class="container">
 
   <!-- TAB: INICIO -->
-  <div id="tab-inicio" class="tab-content">
+  <div id="tab-inicio" class="tab-content" style="display:none">
     <section class="home-hero">
       <div class="home-hero-copy">
         <span class="home-eyebrow">Cockpit operativo</span>
@@ -132,10 +132,6 @@
           <button class="home-action" data-home-tab="strategybuilder">
             <span>Builder</span>
             <strong>Paquete de idea</strong>
-          </button>
-          <button class="home-action" data-home-tab="categorias">
-            <span>Por Categoria</span>
-            <strong>Mapa de edges</strong>
           </button>
           <button class="home-action" data-home-tab="workflow">
             <span>Workflow</span>
@@ -1573,7 +1569,59 @@
   </div>
 
   <!-- TAB: WORKFLOW (metodología completa - integrado de SQX_Workflow_Dashboard) -->
-  <div id="tab-workflow" class="tab-content" style="display:none">
+  <div id="tab-workflow" class="tab-content">
+    <section class="workflow-command-center" id="workflow-command-center">
+      <div class="workflow-command-hero">
+        <div>
+          <span class="workflow-command-eyebrow">Metodo guiado SQX Edge</span>
+          <h2>Workflow operativo</h2>
+          <p>Avanza por la metodologia en orden. Cada paso indica que revisar, que herramienta abrir y que queda pendiente antes de pasar al siguiente bloque.</p>
+        </div>
+        <div class="workflow-command-status">
+          <span id="wf-command-progress-label">0 de 7 pasos</span>
+          <strong id="wf-command-next">Siguiente: Diagnostico inicial</strong>
+          <div class="workflow-command-meter"><span id="wf-command-meter-bar"></span></div>
+        </div>
+      </div>
+
+      <div class="workflow-command-grid" id="wf-command-steps">
+        <article class="workflow-command-step" data-wf-step="diagnostico">
+          <label><input type="checkbox" data-check="command-center-diagnostico"> Diagnostico inicial</label>
+          <p>Confirma universo, estado de API, licencia y plan base antes de producir nada.</p>
+          <button class="filter-btn" type="button" data-home-tab="inicio">Abrir panel</button>
+        </article>
+        <article class="workflow-command-step" data-wf-step="activos">
+          <label><input type="checkbox" data-check="command-center-activos"> Seleccion de activos</label>
+          <p>Revisa activos por prioridad operativa y define que minings entran en el plan.</p>
+          <button class="filter-btn" type="button" data-home-tab="activos">Ver activos</button>
+        </article>
+        <article class="workflow-command-step" data-wf-step="plan">
+          <label><input type="checkbox" data-check="command-center-plan"> Plan Mining</label>
+          <p>Ordena fases, estados, candidatos y dependencias antes de generar proyectos.</p>
+          <button class="filter-btn" type="button" data-home-tab="pipeline">Abrir plan</button>
+        </article>
+        <article class="workflow-command-step" data-wf-step="views">
+          <label><input type="checkbox" data-check="command-center-views"> SQX Views</label>
+          <p>Prepara vistas .vw para Databank segun la fase: edge, robustez, riesgo o auditoria.</p>
+          <button class="filter-btn" type="button" data-home-tab="views">Crear vistas</button>
+        </article>
+        <article class="workflow-command-step" data-wf-step="generador">
+          <label><input type="checkbox" data-check="command-center-generador"> Project Generator</label>
+          <p>Genera los .cfx cuando el plan y las vistas ya esten alineados con la metodologia.</p>
+          <button class="filter-btn" type="button" data-home-tab="projectgen">Generar .cfx</button>
+        </article>
+        <article class="workflow-command-step" data-wf-step="builder">
+          <label><input type="checkbox" data-check="command-center-builder"> Strategy Builder</label>
+          <p>Empaqueta ideas, presets y handoff de comprador cuando el flujo necesite una entrega reutilizable.</p>
+          <button class="filter-btn" type="button" data-home-tab="strategybuilder">Abrir builder</button>
+        </article>
+        <article class="workflow-command-step" data-wf-step="validacion">
+          <label><input type="checkbox" data-check="command-center-validacion"> Estrategias y validacion</label>
+          <p>Importa supervivientes, limpia duplicados, compara finalistas y prepara entrega final.</p>
+          <button class="filter-btn" type="button" data-home-tab="estrategias">Validar estrategias</button>
+        </article>
+      </div>
+    </section>
     <div class="subtabs">
       <div class="subtab active" data-subtab="wf-overview">Vista General</div>
       <div class="subtab" data-subtab="wf-setup">Setup Global</div>

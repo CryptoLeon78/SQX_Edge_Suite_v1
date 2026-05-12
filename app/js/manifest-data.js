@@ -8,8 +8,8 @@ window.SQX_MANIFEST = {
     },
     "tabs": [
       {
-        "id": "inicio",
-        "label": "Inicio",
+        "id": "workflow",
+        "label": "Workflow",
         "active": true
       },
       {
@@ -17,32 +17,12 @@ window.SQX_MANIFEST = {
         "label": "Por Activo"
       },
       {
-        "id": "categorias",
-        "label": "Por Categoria"
-      },
-      {
-        "id": "filtros",
-        "label": "Filtros Fase 2"
-      },
-      {
-        "id": "priority",
-        "label": "SQX Priority"
-      },
-      {
-        "id": "pipeline",
-        "label": "Pipeline State"
-      },
-      {
-        "id": "projectgen",
-        "label": "Project Generator"
-      },
-      {
         "id": "views",
         "label": "SQX Views"
       },
       {
-        "id": "cvc",
-        "label": "Champion vs Challenger"
+        "id": "projectgen",
+        "label": "Project Generator"
       },
       {
         "id": "strategybuilder",
@@ -53,12 +33,24 @@ window.SQX_MANIFEST = {
         "label": "Estrategias"
       },
       {
-        "id": "analyzer",
-        "label": "Analyzer C2"
+        "id": "cvc",
+        "label": "Champion vs Challenger"
       },
       {
-        "id": "workflow",
-        "label": "Workflow"
+        "id": "pipeline",
+        "label": "Plan Mining"
+      },
+      {
+        "id": "priority",
+        "label": "Priority"
+      },
+      {
+        "id": "filtros",
+        "label": "Avanzado"
+      },
+      {
+        "id": "inicio",
+        "label": "Panel"
       }
     ],
     "filters": {
@@ -842,9 +834,9 @@ window.SQX_MANIFEST = {
       },
       "publicKey": {
         "kty": "RSA",
-        "kid": "sqx-prod-2026-05-placeholder",
+        "kid": "sqx-tester-2026-05-v1",
         "alg": "RS256",
-        "n": "rn0HogKI_r59abwzTUhgZAQsCKCq4qsMD8pW3nGsSoV_1iwOFotw4YEXm-rRaYNjgMydgYAMiBgblGMKv8SI8aYcIYEzMpIe7jw7LZSdwqiqhbTU7wTUh-rLhUDCkw2es5syqK1-IH_XWavaIJoVHKPk3wmBVkqtjOjdfFqXOq3EoG0-kRQiEDSk6vG9ow2zzThMFMpR01nRMvbWmOeR20NpEY_WQnse0Db-z2QvA9p5J81jqCk28VGz9EzqgbWMVycX21_QNGUD6hcWshSE7jItWJUbSbOUcme-GMnmMcSlDiQ_rugZxqD7-oV2vmhUsVQR768QjsTHuByNiXqphQ",
+        "n": "6VcVwszmZim-p_tumiPvN-M1qoqLPgj8dT8eroA5m8p04e2DjWeAaALdvj_M6BQnWZtIZi5OKo4hWj2CBpAHjySDdZChApeF3vz54UPkhOghIH8JlhiTzrthlLC2sN8NyfUuLLVZT5JYCwrxcLcnRt4_012iATlEHbusuxLuHDEPGTsXzlCE9yjD9csMV3tDv6tOWA5Kr9C9rII6NhKY-s4esRm9QN8W1oY00X9Q-XSO9R_AZGgypp812gAuj27zAV_ro824Du2ir7CzN6tVlZS4SD1ClmOKBUtj16n102UJl4c6nd6APh08e6yugIPJbnoiTxegme91yYjv2oOBjQ",
         "e": "AQAB"
       }
     },
@@ -866,6 +858,11 @@ window.SQX_MANIFEST = {
         "node_modules",
         "venv",
         ".git",
+        ".next",
+        ".open-next",
+        ".vercel",
+        ".wrangler",
+        ".local",
         "license_keys",
         "licenses_private",
         "private_keys",
@@ -980,7 +977,43 @@ window.SQX_MANIFEST = {
         "backend/sqx-edge-tool/data/manual_publication_monitor",
         "backend/sqx-edge-tool/tools/manual_publication_monitor.py",
         "backend/sqx-edge-tool/data/controlled_traffic_expansion_review",
-        "backend/sqx-edge-tool/tools/controlled_traffic_expansion_review.py"
+        "backend/sqx-edge-tool/tools/controlled_traffic_expansion_review.py",
+        "backend/sqx-edge-tool/data/controlled_traffic_expansion_step",
+        "backend/sqx-edge-tool/tools/controlled_traffic_expansion_step.py",
+        "backend/sqx-edge-tool/data/controlled_traffic_expansion_monitor",
+        "backend/sqx-edge-tool/tools/controlled_traffic_expansion_monitor.py",
+        "backend/sqx-edge-tool/data/controlled_traffic_expansion_decision",
+        "backend/sqx-edge-tool/tools/controlled_traffic_expansion_decision.py",
+        "backend/sqx-edge-tool/data/controlled_traffic_expansion_execution",
+        "backend/sqx-edge-tool/tools/controlled_traffic_expansion_execution.py",
+        "backend/sqx-edge-tool/data/controlled_traffic_expansion_execution_monitor",
+        "backend/sqx-edge-tool/tools/controlled_traffic_expansion_execution_monitor.py",
+        "backend/sqx-edge-tool/data/controlled_commercial_next_movement",
+        "backend/sqx-edge-tool/tools/controlled_commercial_next_movement.py",
+        "backend/sqx-edge-tool/data/controlled_commercial_next_movement_execution",
+        "backend/sqx-edge-tool/tools/controlled_commercial_next_movement_execution.py",
+        "backend/sqx-edge-tool/data/controlled_commercial_next_movement_execution_monitor",
+        "backend/sqx-edge-tool/tools/controlled_commercial_next_movement_execution_monitor.py",
+        "backend/sqx-edge-tool/data/next_controlled_commercial_movement_decision",
+        "backend/sqx-edge-tool/tools/next_controlled_commercial_movement_decision.py",
+        "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_execution",
+        "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_execution.py",
+        "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_execution_monitor",
+        "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_execution_monitor.py",
+        "backend/sqx-edge-tool/data/next_controlled_commercial_movement_from_m92_decision",
+        "backend/sqx-edge-tool/tools/next_controlled_commercial_movement_from_m92_decision.py",
+        "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m93_execution",
+        "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m93_execution.py",
+        "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m93_execution_monitor",
+        "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m93_execution_monitor.py",
+        "backend/sqx-edge-tool/data/next_controlled_commercial_movement_from_m95_decision",
+        "backend/sqx-edge-tool/tools/next_controlled_commercial_movement_from_m95_decision.py",
+        "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m96_decision_execution",
+        "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m96_decision_execution.py",
+        "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m96_decision_execution_monitor",
+        "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m96_decision_execution_monitor.py",
+        "backend/sqx-edge-tool/data/next_controlled_commercial_movement_from_m98_decision",
+        "backend/sqx-edge-tool/tools/next_controlled_commercial_movement_from_m98_decision.py"
       ],
       "releaseAudit": "backend/sqx-edge-tool/tools/audit_distribution.ps1"
     },
@@ -1147,7 +1180,7 @@ window.SQX_MANIFEST = {
       "checkoutLabel": "Comprar Pro",
       "checkoutUrl": "",
       "checkout": {
-        "status": "controlled_traffic_expansion_review_ready",
+        "status": "next_controlled_commercial_movement_from_m98_decision_ready",
         "primaryProvider": "Lemon Squeezy",
         "fallbackProvider": "Gumroad",
         "mode": "hosted_checkout",
@@ -1157,12 +1190,12 @@ window.SQX_MANIFEST = {
         "fulfillmentMode": "manual_signed_license",
         "deliveryArtifact": "SQX_Edge_Tool_Portable_*.zip",
         "verifiedReleaseCandidate": {
-          "phase": "R45",
-          "status": "prepared_not_published",
-          "portableZip": "dist/SQX_Edge_Tool_Portable_20260508_201652.zip",
-          "sha256": "2725D2FC7CB9FD6E05AFDF1C7E20772B629BFBE8BE98532D4F5622A08628116E",
-          "tagDraft": "v0.2.0-r45",
-          "publicationPlan": "docs/R45_CONTROLLED_PUBLICATION_PLAN.md",
+          "phase": "R47",
+          "status": "controlled_commercial_candidate_ready",
+          "portableZip": "dist/SQX_Edge_Tool_Portable_20260509_102131.zip",
+          "sha256": "18EC98981D8B52535E1FE26EA47876588FA2EB8321DD2A9706CBD30B6A0B7E5D",
+          "tagDraft": "v0.2.0-r47",
+          "publicationPlan": "docs/R47_CONTROLLED_COMMERCIAL_RELEASE.md",
           "publishPolicy": "manual_github_release_only_after_public_release_gate_go"
         },
         "licenseIssuerTool": "backend/sqx-edge-tool/tools/license_issue.py",
@@ -1329,7 +1362,7 @@ window.SQX_MANIFEST = {
         "privateAssetReviewPolicy": "approve_asset_for_controlled_publication_only_after_private_review_safe_claims_support_release_notes_and_rollback",
         "rollbackPolicy": "disable_checkout_pause_webhook_pause_worker_manual_fulfillment",
         "automation": {
-          "status": "controlled_traffic_expansion_review_ready",
+          "status": "next_controlled_commercial_movement_from_m98_decision_ready",
           "webhookProvider": "Lemon Squeezy",
           "webhookSignatureHeader": "X-Signature",
           "webhookSigningAlgorithm": "hmac_sha256_hex",
@@ -1519,7 +1552,79 @@ window.SQX_MANIFEST = {
         "controlledTrafficExpansionReviewConfig": "backend/sqx-edge-tool/config/controlled_traffic_expansion_review.json",
         "controlledTrafficExpansionReviewTool": "backend/sqx-edge-tool/tools/controlled_traffic_expansion_review.py",
         "controlledTrafficExpansionReviewEvidenceDir": "backend/sqx-edge-tool/data/controlled_traffic_expansion_review",
-        "controlledTrafficExpansionReviewPolicy": "approve_only_tiny_controlled_traffic_expansion_after_m80_monitoring_support_claims_refunds_incidents_rollback_and_pause_rule_are_clean"
+        "controlledTrafficExpansionReviewPolicy": "approve_only_tiny_controlled_traffic_expansion_after_m80_monitoring_support_claims_refunds_incidents_rollback_and_pause_rule_are_clean",
+        "controlledTrafficExpansionStepConfig": "backend/sqx-edge-tool/config/controlled_traffic_expansion_step.json",
+        "controlledTrafficExpansionStepTool": "backend/sqx-edge-tool/tools/controlled_traffic_expansion_step.py",
+        "controlledTrafficExpansionStepEvidenceDir": "backend/sqx-edge-tool/data/controlled_traffic_expansion_step",
+        "controlledTrafficExpansionStepPolicy": "execute_only_one_tiny_reversible_traffic_step_after_m81_go_with_support_rollback_pause_rule_and_safe_claims_confirmed",
+        "controlledTrafficExpansionMonitorConfig": "backend/sqx-edge-tool/config/controlled_traffic_expansion_monitor.json",
+        "controlledTrafficExpansionMonitorTool": "backend/sqx-edge-tool/tools/controlled_traffic_expansion_monitor.py",
+        "controlledTrafficExpansionMonitorEvidenceDir": "backend/sqx-edge-tool/data/controlled_traffic_expansion_monitor",
+        "controlledTrafficExpansionMonitorPolicy": "monitor_m82_tiny_step_before_repeating_pausing_or_widening_again",
+        "controlledTrafficExpansionDecisionConfig": "backend/sqx-edge-tool/config/controlled_traffic_expansion_decision.json",
+        "controlledTrafficExpansionDecisionTool": "backend/sqx-edge-tool/tools/controlled_traffic_expansion_decision.py",
+        "controlledTrafficExpansionDecisionEvidenceDir": "backend/sqx-edge-tool/data/controlled_traffic_expansion_decision",
+        "controlledTrafficExpansionDecisionPolicy": "convert_m83_monitor_evidence_into_one_small_operator_decision_without_automatic_traffic_checkout_or_license_actions",
+        "controlledTrafficExpansionExecutionConfig": "backend/sqx-edge-tool/config/controlled_traffic_expansion_execution.json",
+        "controlledTrafficExpansionExecutionTool": "backend/sqx-edge-tool/tools/controlled_traffic_expansion_execution.py",
+        "controlledTrafficExpansionExecutionEvidenceDir": "backend/sqx-edge-tool/data/controlled_traffic_expansion_execution",
+        "controlledTrafficExpansionExecutionPolicy": "record_only_the_manual_m84_approved_action_without_automatic_traffic_checkout_email_or_license_execution",
+        "controlledTrafficExpansionExecutionMonitorConfig": "backend/sqx-edge-tool/config/controlled_traffic_expansion_execution_monitor.json",
+        "controlledTrafficExpansionExecutionMonitorTool": "backend/sqx-edge-tool/tools/controlled_traffic_expansion_execution_monitor.py",
+        "controlledTrafficExpansionExecutionMonitorEvidenceDir": "backend/sqx-edge-tool/data/controlled_traffic_expansion_execution_monitor",
+        "controlledTrafficExpansionExecutionMonitorPolicy": "monitor_m85_execution_result_before_any_further_traffic_or_commercial_movement",
+        "controlledCommercialNextMovementConfig": "backend/sqx-edge-tool/config/controlled_commercial_next_movement.json",
+        "controlledCommercialNextMovementTool": "backend/sqx-edge-tool/tools/controlled_commercial_next_movement.py",
+        "controlledCommercialNextMovementEvidenceDir": "backend/sqx-edge-tool/data/controlled_commercial_next_movement",
+        "controlledCommercialNextMovementPolicy": "decide_next_controlled_commercial_movement_from_m86_evidence_without_automatic_traffic_checkout_email_or_license_actions",
+        "controlledCommercialNextMovementExecutionConfig": "backend/sqx-edge-tool/config/controlled_commercial_next_movement_execution.json",
+        "controlledCommercialNextMovementExecutionTool": "backend/sqx-edge-tool/tools/controlled_commercial_next_movement_execution.py",
+        "controlledCommercialNextMovementExecutionEvidenceDir": "backend/sqx-edge-tool/data/controlled_commercial_next_movement_execution",
+        "controlledCommercialNextMovementExecutionPolicy": "record_only_the_manual_m87_approved_movement_without_automatic_traffic_checkout_email_or_license_execution",
+        "controlledCommercialNextMovementExecutionMonitorConfig": "backend/sqx-edge-tool/config/controlled_commercial_next_movement_execution_monitor.json",
+        "controlledCommercialNextMovementExecutionMonitorTool": "backend/sqx-edge-tool/tools/controlled_commercial_next_movement_execution_monitor.py",
+        "controlledCommercialNextMovementExecutionMonitorEvidenceDir": "backend/sqx-edge-tool/data/controlled_commercial_next_movement_execution_monitor",
+        "controlledCommercialNextMovementExecutionMonitorPolicy": "monitor_m88_execution_result_before_any_broader_commercial_movement",
+        "nextControlledCommercialMovementDecisionConfig": "backend/sqx-edge-tool/config/next_controlled_commercial_movement_decision.json",
+        "nextControlledCommercialMovementDecisionTool": "backend/sqx-edge-tool/tools/next_controlled_commercial_movement_decision.py",
+        "nextControlledCommercialMovementDecisionEvidenceDir": "backend/sqx-edge-tool/data/next_controlled_commercial_movement_decision",
+        "nextControlledCommercialMovementDecisionPolicy": "decide_next_controlled_commercial_movement_from_m89_evidence_without_automatic_traffic_checkout_email_or_license_actions",
+        "approvedControlledCommercialMovementExecutionConfig": "backend/sqx-edge-tool/config/approved_controlled_commercial_movement_execution.json",
+        "approvedControlledCommercialMovementExecutionTool": "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_execution.py",
+        "approvedControlledCommercialMovementExecutionEvidenceDir": "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_execution",
+        "approvedControlledCommercialMovementExecutionPolicy": "record_only_the_manual_m90_approved_movement_without_automatic_traffic_checkout_email_or_license_execution",
+        "approvedControlledCommercialMovementExecutionMonitorConfig": "backend/sqx-edge-tool/config/approved_controlled_commercial_movement_execution_monitor.json",
+        "approvedControlledCommercialMovementExecutionMonitorTool": "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_execution_monitor.py",
+        "approvedControlledCommercialMovementExecutionMonitorEvidenceDir": "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_execution_monitor",
+        "approvedControlledCommercialMovementExecutionMonitorPolicy": "monitor_m91_execution_result_before_any_additional_commercial_movement",
+        "nextControlledCommercialMovementFromM92DecisionConfig": "backend/sqx-edge-tool/config/next_controlled_commercial_movement_from_m92_decision.json",
+        "nextControlledCommercialMovementFromM92DecisionTool": "backend/sqx-edge-tool/tools/next_controlled_commercial_movement_from_m92_decision.py",
+        "nextControlledCommercialMovementFromM92DecisionEvidenceDir": "backend/sqx-edge-tool/data/next_controlled_commercial_movement_from_m92_decision",
+        "nextControlledCommercialMovementFromM92DecisionPolicy": "decide_next_controlled_commercial_movement_from_m92_evidence_without_automatic_traffic_checkout_email_or_license_actions",
+        "approvedControlledCommercialMovementFromM93ExecutionConfig": "backend/sqx-edge-tool/config/approved_controlled_commercial_movement_from_m93_execution.json",
+        "approvedControlledCommercialMovementFromM93ExecutionTool": "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m93_execution.py",
+        "approvedControlledCommercialMovementFromM93ExecutionEvidenceDir": "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m93_execution",
+        "approvedControlledCommercialMovementFromM93ExecutionPolicy": "record_only_the_manual_m93_approved_movement_without_automatic_traffic_checkout_email_or_license_execution",
+        "approvedControlledCommercialMovementFromM93ExecutionMonitorConfig": "backend/sqx-edge-tool/config/approved_controlled_commercial_movement_from_m93_execution_monitor.json",
+        "approvedControlledCommercialMovementFromM93ExecutionMonitorTool": "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m93_execution_monitor.py",
+        "approvedControlledCommercialMovementFromM93ExecutionMonitorEvidenceDir": "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m93_execution_monitor",
+        "approvedControlledCommercialMovementFromM93ExecutionMonitorPolicy": "monitor_m94_execution_result_before_any_additional_commercial_movement",
+        "nextControlledCommercialMovementFromM95DecisionConfig": "backend/sqx-edge-tool/config/next_controlled_commercial_movement_from_m95_decision.json",
+        "nextControlledCommercialMovementFromM95DecisionTool": "backend/sqx-edge-tool/tools/next_controlled_commercial_movement_from_m95_decision.py",
+        "nextControlledCommercialMovementFromM95DecisionEvidenceDir": "backend/sqx-edge-tool/data/next_controlled_commercial_movement_from_m95_decision",
+        "nextControlledCommercialMovementFromM95DecisionPolicy": "decide_next_controlled_commercial_movement_from_m95_evidence_without_automatic_traffic_checkout_email_or_license_actions",
+        "approvedControlledCommercialMovementFromM96DecisionExecutionConfig": "backend/sqx-edge-tool/config/approved_controlled_commercial_movement_from_m96_decision_execution.json",
+        "approvedControlledCommercialMovementFromM96DecisionExecutionTool": "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m96_decision_execution.py",
+        "approvedControlledCommercialMovementFromM96DecisionExecutionEvidenceDir": "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m96_decision_execution",
+        "approvedControlledCommercialMovementFromM96DecisionExecutionPolicy": "record_only_the_manual_m96_approved_movement_without_automatic_traffic_checkout_email_or_license_execution",
+        "approvedControlledCommercialMovementFromM96DecisionExecutionMonitorConfig": "backend/sqx-edge-tool/config/approved_controlled_commercial_movement_from_m96_decision_execution_monitor.json",
+        "approvedControlledCommercialMovementFromM96DecisionExecutionMonitorTool": "backend/sqx-edge-tool/tools/approved_controlled_commercial_movement_from_m96_decision_execution_monitor.py",
+        "approvedControlledCommercialMovementFromM96DecisionExecutionMonitorEvidenceDir": "backend/sqx-edge-tool/data/approved_controlled_commercial_movement_from_m96_decision_execution_monitor",
+        "approvedControlledCommercialMovementFromM96DecisionExecutionMonitorPolicy": "monitor_m97_execution_result_before_any_additional_commercial_movement",
+        "nextControlledCommercialMovementFromM98DecisionConfig": "backend/sqx-edge-tool/config/next_controlled_commercial_movement_from_m98_decision.json",
+        "nextControlledCommercialMovementFromM98DecisionTool": "backend/sqx-edge-tool/tools/next_controlled_commercial_movement_from_m98_decision.py",
+        "nextControlledCommercialMovementFromM98DecisionEvidenceDir": "backend/sqx-edge-tool/data/next_controlled_commercial_movement_from_m98_decision",
+        "nextControlledCommercialMovementFromM98DecisionPolicy": "decide_next_controlled_commercial_movement_from_m98_evidence_without_automatic_traffic_checkout_email_or_license_actions"
       }
     },
     "marketing": {
@@ -1549,6 +1654,13 @@ window.SQX_MANIFEST = {
         "label": "Pro licensed ZIP",
         "includeInternalTools": false,
         "defaultPlan": "free"
+      },
+      "tester": {
+        "label": "Tester licensed ZIP",
+        "includeInternalTools": false,
+        "defaultPlan": "free",
+        "activationMode": "signed_tester_file",
+        "redistributionAllowed": false
       },
       "internal": {
         "label": "Internal development build",

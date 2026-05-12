@@ -134,20 +134,74 @@
     return summary;
   }
 
+  function renderCommandCenter(options) {
+    var opts = options || {};
+    var doc = opts.document || global.document;
+    var steps = all('#wf-command-steps .workflow-command-step', doc);
+    var progressLabel = doc.getElementById('wf-command-progress-label');
+    var nextLabel = doc.getElementById('wf-command-next');
+    var meter = doc.getElementById('wf-command-meter-bar');
+    if (!steps.length) {
+      return { stepCount: 0, doneCount: 0, nextTitle: '' };
+    }
+
+    var doneCount = 0;
+    var nextTitle = '';
+    steps.forEach(function(step) {
+      var box = step.querySelector('input[type="checkbox"][data-check]');
+      var done = !!(box && box.checked);
+      step.classList.toggle('is-done', done);
+      step.classList.remove('is-current');
+      if (done) doneCount += 1;
+      else if (!nextTitle) {
+        step.classList.add('is-current');
+        var label = step.querySelector('label');
+        nextTitle = label ? label.textContent.trim() : '';
+      }
+    });
+
+    if (!nextTitle) nextTitle = 'Workflow completo';
+    if (progressLabel) progressLabel.textContent = doneCount + ' de ' + steps.length + ' pasos';
+    if (nextLabel) nextLabel.textContent = doneCount === steps.length ? 'Listo para cierre o nueva iteracion' : 'Siguiente: ' + nextTitle;
+    if (meter) meter.style.width = Math.round((doneCount / steps.length) * 100) + '%';
+
+    return {
+      stepCount: steps.length,
+      doneCount: doneCount,
+      nextTitle: nextTitle
+    };
+  }
+
+  function bindCommandCenter(options) {
+    var opts = options || {};
+    var doc = opts.document || global.document;
+    var boxes = all('#wf-command-steps input[type="checkbox"][data-check]', doc);
+    boxes.forEach(function(box) {
+      box.addEventListener('change', function() {
+        renderCommandCenter(opts);
+      });
+    });
+    return renderCommandCenter(opts);
+  }
+
   function init(options) {
     var opts = options || {};
+    var checklist = bindChecklist(opts);
     return {
       planSummary: renderPlanSummary(opts),
       subtabCount: bindSubtabs(opts),
-      checklist: bindChecklist(opts)
+      checklist: checklist,
+      commandCenter: bindCommandCenter(opts)
     };
   }
 
   SQX.workflow = SQX.workflow || {
     bindChecklist: bindChecklist,
+    bindCommandCenter: bindCommandCenter,
     bindSubtabs: bindSubtabs,
     computePlanSummary: computePlanSummary,
     init: init,
+    renderCommandCenter: renderCommandCenter,
     renderPlanSummary: renderPlanSummary,
     resolveChecklistKey: resolveChecklistKey
   };

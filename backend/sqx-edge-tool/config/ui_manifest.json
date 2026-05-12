@@ -6,8 +6,8 @@
   },
   "tabs": [
     {
-      "id": "inicio",
-      "label": "Inicio",
+      "id": "workflow",
+      "label": "Workflow",
       "active": true
     },
     {
@@ -15,32 +15,12 @@
       "label": "Por Activo"
     },
     {
-      "id": "categorias",
-      "label": "Por Categoria"
-    },
-    {
-      "id": "filtros",
-      "label": "Filtros Fase 2"
-    },
-    {
-      "id": "priority",
-      "label": "SQX Priority"
-    },
-    {
-      "id": "pipeline",
-      "label": "Pipeline State"
-    },
-    {
-      "id": "projectgen",
-      "label": "Project Generator"
-    },
-    {
       "id": "views",
       "label": "SQX Views"
     },
     {
-      "id": "cvc",
-      "label": "Champion vs Challenger"
+      "id": "projectgen",
+      "label": "Project Generator"
     },
     {
       "id": "strategybuilder",
@@ -51,8 +31,24 @@
       "label": "Estrategias"
     },
     {
-      "id": "workflow",
-      "label": "Workflow"
+      "id": "cvc",
+      "label": "Champion vs Challenger"
+    },
+    {
+      "id": "pipeline",
+      "label": "Plan Mining"
+    },
+    {
+      "id": "priority",
+      "label": "Priority"
+    },
+    {
+      "id": "filtros",
+      "label": "Avanzado"
+    },
+    {
+      "id": "inicio",
+      "label": "Panel"
     }
   ],
   "filters": {

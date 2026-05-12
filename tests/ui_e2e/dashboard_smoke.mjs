@@ -42,6 +42,18 @@ async function run() {
     collectBrowserErrors(desktop, desktopErrors);
     desktop.on('dialog', dialog => dialog.accept());
     await desktop.goto(dashboardUrl, { waitUntil: 'load' });
+    await desktop.waitForSelector('.tab[data-tab="workflow"].active');
+    await desktop.waitForSelector('#workflow-command-center');
+    const categoryTabCount = await desktop.locator('.tab[data-tab="categorias"]').count();
+    if (categoryTabCount !== 0) throw new Error('Por Categoria should not be a primary tab');
+    await desktop.locator('#workflow-command-center [data-home-tab="pipeline"]').click();
+    await desktop.waitForSelector('.tab[data-tab="pipeline"].active');
+    await desktop.locator('.tab[data-tab="workflow"]').click();
+    await desktop.waitForSelector('.tab[data-tab="workflow"].active');
+    await desktop.locator('#wf-command-steps input[data-check="command-center-diagnostico"]').check();
+    await desktop.waitForSelector('#wf-command-steps .workflow-command-step.is-done');
+    await desktop.waitForFunction(() => document.getElementById('wf-command-progress-label')?.textContent.includes('1 de 7'));
+    await desktop.locator('.tab[data-tab="inicio"]').click();
     await desktop.waitForSelector('.tab[data-tab="inicio"].active');
     await desktop.waitForSelector('#home-readiness-score');
     await desktop.locator('[data-home-tab="pipeline"]').first().click();
@@ -470,7 +482,8 @@ async function run() {
     const mobileErrors = [];
     collectBrowserErrors(mobile, mobileErrors);
     await mobile.goto(dashboardUrl, { waitUntil: 'load' });
-    await mobile.waitForSelector('.tab[data-tab="inicio"].active');
+    await mobile.waitForSelector('.tab[data-tab="workflow"].active');
+    await mobile.waitForSelector('#workflow-command-center');
     await mobile.locator('.tab[data-tab="views"]').click();
     await mobile.waitForSelector('#vc-preview');
     await assertNoMobileOverflow(mobile);
