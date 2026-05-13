@@ -2823,6 +2823,15 @@
   .ps-mining-table { width:100%; border-collapse:collapse; font-size:13px; }
   .ps-mining-table td { padding:10px 12px; border-bottom:1px solid var(--border); }
   .ps-mining-table tr:hover td { background:rgba(59,130,246,.04); }
+  .ps-mining-table .ps-empty-phase-row td {
+    color:var(--text2);
+    background:rgba(148,163,184,.04);
+    border:1px dashed rgba(148,163,184,.22);
+    border-radius:6px;
+    font-size:12px;
+    line-height:1.45;
+  }
+  .ps-mining-table .ps-empty-phase-row strong { color:var(--accent); }
   .ps-mining-table .ps-m-num { font-weight:800; color:var(--accent); width:32px; }
   .ps-mining-table .ps-m-asset { font-weight:700; }
   .ps-mining-table .ps-m-tf { font-family:'Consolas',monospace; font-size:12px; color:var(--text2); }

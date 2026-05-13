@@ -1825,8 +1825,10 @@ function renderPsPlan() {
   refreshPlanAll();
   const allMinings = getPlanMinings();
   const allPhases = getPlanPhases();
-  const phases = getPlanPhaseNums().filter(p => allMinings.some(m => m.phase === p));
-  if (!allMinings.length) {
+  const phases = getPlanPhaseNums().filter(function(p) {
+    return !!PLAN_USER.phases[p] || allMinings.some(function(m) { return m.phase === p; });
+  });
+  if (!allMinings.length && !phases.length) {
     document.getElementById('ps-plan-table').innerHTML =
       '<div class="ps-empty-plan">' +
         '<strong>Plan mining vacío</strong>' +
@@ -1840,7 +1842,7 @@ function renderPsPlan() {
     const minings = allMinings.filter(m => m.phase === p);
     const done = minings.filter(m => getMiningStatus(m.num)==='completed').length;
     const pct = minings.length ? Math.round(done/minings.length*100) : 0;
-    const rows = minings.map(m => {
+    const rows = minings.length ? minings.map(m => {
       const info = getMiningStatusInfo(m.num);
       const st = info.status;
       const stLbl = sqxStatusMeta(st).label;
@@ -1889,7 +1891,7 @@ function renderPsPlan() {
         '<td>'+survBadge+tentBadge+'</td>' +
         '<td><span class="status '+st+' clickable-status" onclick="cycleMiningStatusPS('+m.num+')">'+stLbl+'</span> '+srcBadge+removeBtn+'</td>' +
       '</tr>';
-    }).join('');
+    }).join('') : '<tr class="ps-empty-phase-row"><td colspan="8">Fase sin minings todavia. Usa <strong>+ Mining</strong> y asignala a esta fase para empezar a poblarla.</td></tr>';
     const phaseCls = p > 5 ? 'p1' : 'p'+p; // las USER reusan estilo p1
     const isBasePhase = !!PHASE_META[p];
     const isCustomPhase = isUserPhase && !isBasePhase;

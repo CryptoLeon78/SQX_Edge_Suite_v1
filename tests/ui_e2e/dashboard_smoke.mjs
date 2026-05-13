@@ -102,13 +102,26 @@ async function run() {
       throw new Error('Added asset-card mining should join the unified Plan mining control center');
     }
     await desktop.locator('#ps-plan-table .ps-phase-reset-btn').first().click();
-    await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
+    await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('Fase sin minings todavia'));
     await desktop.evaluate(() => {
       window.resetProjectWorkingData();
       window.renderPipelineState();
     });
     await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
     await desktop.waitForFunction(() => document.getElementById('ps-current-pipeline-status')?.innerText.includes('No hay mining activo que dirigir'));
+    await desktop.locator('#ps-add-phase-btn').click();
+    await desktop.locator('#psp-num').fill('7');
+    await desktop.locator('#psp-name').fill('Fase vacia E2E');
+    await desktop.locator('#psp-desc').fill('Debe verse aunque todavia no tenga minings');
+    await desktop.locator('#psp-save').click();
+    await desktop.waitForFunction(() => {
+      const text = document.getElementById('ps-plan-table')?.innerText || '';
+      return text.includes('FASE 7') && text.includes('Fase vacia E2E') && text.includes('Fase sin minings todavia');
+    });
+    const emptyPhasePlanText = await desktop.locator('#ps-plan-table').innerText();
+    if (emptyPhasePlanText.includes('Plan mining vacío')) {
+      throw new Error('+ Fase should render an empty phase card instead of the empty plan placeholder');
+    }
     const cleanPlanState = await desktop.evaluate(() => JSON.parse(localStorage.getItem('sqx_plan_user_v1') || '{}'));
     if (!cleanPlanState.baseDisabled || !Array.isArray(cleanPlanState.hiddenBaseMinings) || cleanPlanState.hiddenBaseMinings.length === 0) {
       throw new Error('Clean project reset should disable and explicitly hide base plan minings');

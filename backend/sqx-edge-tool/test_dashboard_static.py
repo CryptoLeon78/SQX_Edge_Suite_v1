@@ -2082,6 +2082,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
         workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         manifest_js = (APP_ROOT / "js" / "manifest-data.js").read_text(encoding="utf-8-sig")
 
@@ -2257,6 +2258,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("getOperationalFocusModel", dashboard_js)
         self.assertIn("Foco operativo", dashboard_js)
         self.assertIn("No hay mining activo que dirigir", dashboard_js)
+        self.assertIn("!!PLAN_USER.phases[p] || allMinings.some", dashboard_js)
+        self.assertIn("Fase sin minings todavia", dashboard_js)
+        self.assertIn(".ps-empty-phase-row", css)
         self.assertIn("planNums.concat(miningsWithStrats)", dashboard_js)
         self.assertIn("STRATEGIES_DELETED = STRATEGIES.map(strategyKey)", dashboard_js)
         self.assertIn("SQX_STORAGE_KEYS.workflowChecklist", dashboard_js)
