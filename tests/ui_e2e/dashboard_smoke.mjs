@@ -103,9 +103,38 @@ async function run() {
     await desktop.locator('#ps-plan-table .ps-phase-reset-btn').first().click();
     await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
     await desktop.evaluate(() => {
-      window.clearPlanUser();
+      window.resetProjectWorkingData();
       window.renderPipelineState();
     });
+    await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
+    const cleanPlanState = await desktop.evaluate(() => JSON.parse(localStorage.getItem('sqx_plan_user_v1') || '{}'));
+    if (!cleanPlanState.baseDisabled || !Array.isArray(cleanPlanState.hiddenBaseMinings) || cleanPlanState.hiddenBaseMinings.length === 0) {
+      throw new Error('Clean project reset should disable and explicitly hide base plan minings');
+    }
+    const hiddenStrategyCount = await desktop.evaluate(() => JSON.parse(localStorage.getItem('sqx_strategies_deleted_v1') || '[]').length);
+    if (hiddenStrategyCount === 0) throw new Error('Clean project reset should hide base strategies from the working view');
+    await desktop.evaluate(() => {
+      const ok = window.addMiningUser({
+        num: 1,
+        phase: 1,
+        asset: 'XAUUSD',
+        tf: 'H1',
+        bs: 'BS_Tendencia',
+        dir: 'L',
+        source: 'manual'
+      });
+      if (!ok) throw new Error('Manual mining should be allowed after clean reset even when it matches a hidden base seed');
+      window.renderPipelineState();
+    });
+    await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('XAUUSD'));
+    await desktop.evaluate(() => {
+      window.clearPlanUser();
+      localStorage.removeItem('sqx_strategies_deleted_v1');
+    });
+    await desktop.reload({ waitUntil: 'load' });
+    await desktop.waitForSelector('.tab[data-tab="workflow"].active');
+    await desktop.locator('.tab[data-tab="pipeline"]').click();
+    await desktop.waitForSelector('.tab[data-tab="pipeline"].active');
     await desktop.waitForFunction(() => !document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
     const miningControlStatusText = await desktop.locator('#ps-current-pipeline-status').innerText();
     if (!miningControlStatusText.includes('TEMPLATE LINEAR cerrada') || !miningControlStatusText.includes('filter-by-correlation')) {

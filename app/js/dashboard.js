@@ -1002,18 +1002,21 @@ function renderHome() {
     }
     if (detailEl) detailEl.textContent = detail;
   }
+  var activePlanMinings = typeof getPlanMinings === 'function' ? getPlanMinings() : (PLAN_MININGS || []);
+  var activePlanPhases = typeof getPlanPhases === 'function' ? getPlanPhases() : (PHASE_META || {});
+  var visibleStrategies = typeof getAllStrategies === 'function' ? getAllStrategies() : (STRATEGIES || []);
   var model = SQX_HOME.computeHomeModel
     ? SQX_HOME.computeHomeModel({
       assets: ASSETS,
       backendState: HOME_BACKEND_STATE,
       catKeys: CAT_KEYS,
       manifestVersion: (SQX_MANIFEST && SQX_MANIFEST.version) || 1,
-      phaseMeta: PHASE_META,
+      phaseMeta: activePlanPhases,
       pipelineState: PIPELINE_STATE,
-      planMinings: PLAN_MININGS,
+      planMinings: activePlanMinings,
       priorityProgress: PRIORITY_PROGRESS,
-      strategies: STRATEGIES,
-      strategiesUser: STRATEGIES_USER
+      strategies: visibleStrategies,
+      strategiesUser: []
     })
     : null;
   if (!model) {
@@ -1024,10 +1027,10 @@ function renderHome() {
     var strategyUserCount = Array.isArray(STRATEGIES_USER) ? STRATEGIES_USER.length : 0;
     var marked = Object.keys(PRIORITY_PROGRESS || {}).length;
     var nextAction = (PIPELINE_STATE && PIPELINE_STATE.nextAction) || 'Plan operativo';
-    var phaseCount = Object.keys(PHASE_META || {}).length;
-    var manifestOk = !!((ASSETS || []).length && (PLAN_MININGS || []).length && (STRATEGIES || []).length);
-    var planOk = (PLAN_MININGS || []).length > 0;
-    var strategiesOk = ((STRATEGIES || []).length + strategyUserCount) > 0;
+    var phaseCount = Object.keys(activePlanPhases || {}).length;
+    var manifestOk = !!((ASSETS || []).length && activePlanMinings.length && visibleStrategies.length);
+    var planOk = activePlanMinings.length > 0;
+    var strategiesOk = visibleStrategies.length > 0;
     var backendOk = HOME_BACKEND_STATE.state === 'up';
     var backendMeta = HOME_BACKEND_STATE.meta || {};
     var templatesOk = backendOk && !!(backendMeta.templates_capa1_exists && backendMeta.templates_capa2_exists);
@@ -1039,10 +1042,10 @@ function renderHome() {
     model = {
       assetCount: (ASSETS || []).length,
       assetsSub: (assetCounts.forex || 0) + ' Forex · ' + (assetCounts.index || 0) + ' Indices · ' + (assetCounts.oro || 0) + ' Oro',
-      planCount: (PLAN_MININGS || []).length,
+      planCount: activePlanMinings.length,
       planSub: phaseCount + ' fases · minings configurados',
-      strategyCount: (STRATEGIES || []).length + strategyUserCount,
-      strategiesSub: (STRATEGIES || []).length + ' base · ' + strategyUserCount + ' importadas',
+      strategyCount: visibleStrategies.length,
+      strategiesSub: visibleStrategies.length + ' visibles · ' + strategyUserCount + ' importadas',
       priorityCount: marked,
       nextAction: nextAction,
       backendTitle: HOME_BACKEND_STATE.title,
@@ -1054,7 +1057,7 @@ function renderHome() {
       states: { backend: backendOk ? 'ok' : 'warn', data: manifestOk ? 'ok' : 'warn' },
       audit: {
         manifest: { ok: manifestOk, detail: (ASSETS || []).length + ' activos · ' + (CAT_KEYS || []).length + ' categorias' },
-        plan: { ok: planOk, detail: phaseCount + ' fases · ' + (PLAN_MININGS || []).length + ' minings' },
+        plan: { ok: planOk, detail: phaseCount + ' fases · ' + activePlanMinings.length + ' minings' },
         backend: { ok: backendOk, detail: backendOk ? 'API v' + (backendMeta.version || '?') : 'API no conectada' },
         templates: { ok: templatesOk, detail: backendOk ? (templatesOk ? 'Capa 1 + Capa 2 OK' : 'revisar templates') : 'requiere API' },
         sqx: { ok: sqxPathOk, detail: backendOk ? (sqxPathOk ? 'ruta configurada' : 'ruta pendiente') : 'requiere API' },
@@ -1370,6 +1373,7 @@ function nextPhaseNum() {
   return nums.length ? Math.max(...nums) + 1 : 1;
 }
 function addMiningUser(m) {
+  const currentMinings = getPlanMinings();
   const mining = {
     num: parseInt(m.num, 10) || nextMiningNum(),
     phase: parseInt(m.phase, 10) || 1,
@@ -1380,8 +1384,8 @@ function addMiningUser(m) {
     source: m.source || 'manual',
   };
   if (!mining.asset || !mining.tf || !mining.bs || !mining.dir || !mining.phase) return false;
-  if (getPlanMinings().some(x => x.num === mining.num)) return false;
-  if (getPlanMinings().some(x => x.asset === mining.asset && x.tf === mining.tf && x.bs === mining.bs && x.dir === mining.dir)) return false;
+  if (currentMinings.some(x => x.num === mining.num)) return false;
+  if (currentMinings.some(x => x.asset === mining.asset && x.tf === mining.tf && x.bs === mining.bs && x.dir === mining.dir)) return false;
   if (!getPlanPhases()[mining.phase]) {
     PLAN_USER.phases[mining.phase] = { name: 'Fase ' + mining.phase, desc: 'Fase creada desde Plan mining' };
   }
@@ -1462,10 +1466,17 @@ function clearPlanUser() {
   savePlanUser();
 }
 function resetPlanMiningUserState() {
-  PLAN_USER = { minings:[], phases:{}, baseDisabled:true, hiddenBaseMinings:[] };
+  PLAN_USER = {
+    minings:[],
+    phases:{},
+    baseDisabled:true,
+    hiddenBaseMinings: PLAN_MININGS.map(function(m) { return m.num; }),
+    resetAt: new Date().toISOString()
+  };
   savePlanUser();
   PIPELINE_STATE.overrides = {};
   PIPELINE_STATE.funnels = {};
+  PIPELINE_STATE.nextAction = '';
   savePipelineState();
 }
 function resetPlanPhaseMinings(phase) {
@@ -1490,6 +1501,7 @@ window.PLAN_ALL = null;
 function refreshPlanAll() { window.PLAN_ALL = getPlanMinings(); }
 refreshPlanAll();
 window.setPhaseMetaUser = setPhaseMetaUser;
+window.addMiningUser = addMiningUser;
 window.addPlanMiningFromCandidate = addPlanMiningFromCandidate;
 window.resetPlanMiningUserState = resetPlanMiningUserState;
 window.clearPlanUser = clearPlanUser;
@@ -2156,6 +2168,13 @@ document.getElementById('ps-clear-plan-user-btn').addEventListener('click', func
   }
 });
 
+document.getElementById('ps-project-zero-state').addEventListener('click', function(){
+  if (confirm('¿Poner a cero el proyecto operativo local? Se borran plan, prioridad, embudos, estrategias visibles, checklist y presets de trabajo. No se toca licencia ni API.')) {
+    resetProjectWorkingData();
+    alert('Proyecto limpio activado. Ya puedes validar el flujo desde datos nuevos.');
+  }
+});
+
 document.getElementById('ps-consolidate-plan').addEventListener('click', function(){
   const all = getPlanMinings().map(m => { const c = {...m}; delete c._user; return c; });
   const phases = getPlanPhases();
@@ -2190,6 +2209,39 @@ if (!Array.isArray(STRATEGIES_USER)) STRATEGIES_USER = [];
 if (!Array.isArray(STRATEGIES_DELETED)) STRATEGIES_DELETED = [];
 function saveStrategiesUser() { SQX_STORAGE.setJson(STRAT_USER_KEY, STRATEGIES_USER); }
 function saveStrategiesDeleted() { SQX_STORAGE.setJson(STRAT_DELETED_KEY, STRATEGIES_DELETED); }
+
+function resetProjectWorkingData() {
+  resetPlanMiningUserState();
+
+  PRIORITY_PROGRESS = {};
+  savePriorityProgress();
+
+  PIPELINE_STATE = { overrides:{}, funnels:{}, nextAction:'' };
+  savePipelineState();
+
+  STRATEGIES_USER = [];
+  STRATEGIES_DELETED = STRATEGIES.map(strategyKey);
+  saveStrategiesUser();
+  saveStrategiesDeleted();
+
+  HOME_TRACE = [];
+  saveHomeTrace();
+
+  [
+    SQX_STORAGE_KEYS.workflowChecklist || 'sqx_workflow_checklist_v1',
+    SQX_STORAGE_KEYS.viewCreatorPresets || 'sqx_view_creator_presets_v1',
+    'sqx_pg_custom_presets_v1'
+  ].forEach(function(key) {
+    try { localStorage.removeItem(key); } catch (err) {}
+  });
+
+  renderPriority();
+  renderStrategies();
+  renderPipelineState();
+  renderHomeTrace();
+  renderHome();
+}
+window.resetProjectWorkingData = resetProjectWorkingData;
 
 const SQX_COLUMN_MAP = sqxConfigValue('csvImport.columnMap', {});
 
