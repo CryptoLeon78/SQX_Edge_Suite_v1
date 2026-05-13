@@ -897,7 +897,7 @@
             </div>
             <label class="views-check">
               <input id="vc-include-total" type="checkbox" checked>
-              <span>Añadir columna total consolidada de SQX (<code>sampleType=127</code>)</span>
+              <span>Añadir Total consolidado de SQX al final de la view. Es la columna resumen global, no un año OOS.</span>
             </label>
           </details>
           </section>
@@ -928,46 +928,6 @@
               <small id="vc-status" class="views-status">Listo para generar la vista.</small>
             </div>
           </section>
-
-          <details class="views-panel views-details views-saved" id="vc-saved-details">
-            <summary>
-              <span>Mis presets</span>
-              <small id="vc-saved-count">0 guardados</small>
-            </summary>
-            <p class="views-help">Zona secundaria para guardar variantes propias o mover packs entre equipos.</p>
-            <div class="views-saved-grid">
-              <input id="vc-preset-name" class="search-input" type="text" placeholder="Nombre del preset">
-              <button class="filter-btn" id="vc-save-preset-btn" type="button">Guardar preset</button>
-              <select id="vc-saved-select" class="filter-select">
-                <option value="">Sin presets guardados</option>
-              </select>
-              <button class="filter-btn" id="vc-load-preset-btn" type="button">Cargar</button>
-              <button class="filter-btn danger" id="vc-delete-preset-btn" type="button">Eliminar</button>
-            </div>
-            <div class="views-saved-tools">
-              <button class="filter-btn" id="vc-export-template-pack-btn" type="button">Exportar views base</button>
-              <button class="filter-btn" id="vc-export-presets-btn" type="button">Exportar pack</button>
-              <button class="filter-btn" id="vc-import-presets-btn" type="button">Importar pack</button>
-              <input id="vc-import-presets-file" class="visually-hidden" type="file" accept="application/json,.json">
-            </div>
-            <div id="vc-import-preview" class="views-import-preview"></div>
-          </details>
-
-          <details class="views-panel views-details views-advanced-tools" id="vc-advanced-actions">
-            <summary>Acciones avanzadas</summary>
-            <p class="views-help">Atajos tecnicos para aplicar presets antiguos o limpiar la seleccion sin pasar por las tarjetas guiadas.</p>
-            <div class="views-presets" id="vc-presets">
-              <div class="views-preset-primary">
-                <button class="filter-btn active" data-vc-preset="egt-core" type="button">EGT Core</button>
-                <button class="filter-btn" data-vc-preset="robustness" type="button">Robustez</button>
-                <button class="filter-btn" data-vc-preset="risk" type="button">Risk</button>
-                <button class="filter-btn" data-vc-preset="full-audit" type="button">Full audit</button>
-              </div>
-              <div class="views-preset-reset">
-                <button class="filter-btn danger" data-vc-preset="clear" type="button">Limpiar</button>
-              </div>
-            </div>
-          </details>
         </div>
       </section>
 

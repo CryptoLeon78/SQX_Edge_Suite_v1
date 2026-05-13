@@ -467,8 +467,8 @@
   function guideConfigText(template) {
     var cfg = normalizeConfig(template && template.config);
     var sampleEnd = cfg.sampleStart + cfg.yearCount - 1;
-    return cfg.yearCount + ' OOS · sampleType ' + cfg.sampleStart + '..' + sampleEnd
-      + (cfg.includeTotal ? ' + total 127' : '')
+    return cfg.yearCount + ' OOS · bloques SQX ' + cfg.sampleStart + '..' + sampleEnd
+      + (cfg.includeTotal ? ' + Total consolidado' : '')
       + ' · ' + (cfg.groupMode === 'by_metric' ? 'orden por métrica' : 'orden por año');
   }
 
@@ -677,12 +677,13 @@
     var columns = columnSpecs(selected, yearCount, sampleStart, opts.includeTotal !== false, opts.groupMode);
     var lines = [
       "Vista: '" + (opts.viewName || 'EGT - Anual') + "'",
-      'Samples: ' + sampleStart + '..' + (sampleStart + yearCount - 1) + (opts.includeTotal !== false ? ' + 127 total' : ''),
+      'Bloques OOS: ' + sampleStart + '..' + (sampleStart + yearCount - 1) + (opts.includeTotal !== false ? ' + Total consolidado' : ''),
       'Metricas: ' + selected.length + ' | Columnas: ' + columns.length,
       '------------------------------------------------------------'
     ];
     columns.slice(0, 80).forEach(function(column, index) {
-      lines.push(String(index + 1).padStart(3, ' ') + '. ' + column.display + '  s' + column.sampleType + '  [' + column.className + ']');
+      var sampleLabel = column.sampleType === 127 ? 'Total consolidado' : 'OOS ' + column.sampleType;
+      lines.push(String(index + 1).padStart(3, ' ') + '. ' + column.display + '  ' + sampleLabel + '  [' + column.className + ']');
     });
     if (columns.length > 80) lines.push('... ' + (columns.length - 80) + ' columnas mas');
     return lines;
@@ -776,7 +777,7 @@
     var selected = state.selected ? ' checked' : '';
     var annual = state.annual && metric.category !== 'fixed' ? ' checked' : '';
     var annualControl = metric.category === 'fixed'
-      ? '<span class="views-annual-pill total">127</span>'
+      ? '<span class="views-annual-pill total">Total</span>'
       : '<label class="views-annual-pill"><input id="vc-annual-' + escapeHtml(metric.className) + '" type="checkbox" data-vc-annual="' + escapeHtml(metric.className) + '"' + annual + '> anual</label>';
     return '<div class="views-metric-row" title="' + escapeHtml(metric.display + ' / ' + metric.className) + '">' +
       '<label class="views-metric-main">' +
@@ -837,7 +838,6 @@
         '</div>' +
         '<div class="views-template-actions">' +
           '<button class="export-btn views-template-select" data-vc-template-load="' + escapeHtml(template.id) + '" type="button"' + actionAttrs + '>Usar esta view</button>' +
-          '<button class="filter-btn" data-vc-template-save="' + escapeHtml(template.id) + '" type="button"' + actionAttrs + '>Guardar como preset</button>' +
         '</div>' +
       '</article>';
     }).join('');

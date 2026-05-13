@@ -360,11 +360,10 @@ async function run() {
     });
     const defaultClosedDetails = await desktop.evaluate(() => ({
       advanced: document.getElementById('vc-advanced-config')?.open === false,
-      presets: document.getElementById('vc-saved-details')?.open === false,
       metrics: document.getElementById('vc-metrics-details')?.open === false,
     }));
-    if (!defaultClosedDetails.advanced || !defaultClosedDetails.presets || !defaultClosedDetails.metrics) {
-      throw new Error('SQX Views advanced settings, custom presets and metrics editor should start collapsed');
+    if (!defaultClosedDetails.advanced || !defaultClosedDetails.metrics) {
+      throw new Error('SQX Views advanced settings and metrics editor should start collapsed');
     }
     await desktop.locator('#vc-metrics-details > summary').click();
     await desktop.waitForSelector('#vc-metric-list .views-metric-row');
@@ -410,22 +409,21 @@ async function run() {
     if (await desktop.locator('#vc-profile-list, #vc-workflow-pack-list').count() !== 0) {
       throw new Error('SQX Views profile/workflow pack KPI lists should be removed from the visible tab');
     }
-    if (await desktop.locator('.views-preset-reset [data-vc-preset="clear"]').count() !== 1) {
-      throw new Error('SQX Views clear preset should be visually separated from primary presets');
+    if (await desktop.locator('#vc-saved-details, #vc-advanced-actions, #vc-save-preset-btn, #vc-export-presets-btn, #vc-import-presets-btn').count() !== 0) {
+      throw new Error('SQX Views should not expose custom preset or advanced action KPIs');
     }
-    if (await desktop.locator('#vc-template-list [data-vc-preset="clear"]').count() !== 0) {
-      throw new Error('SQX Views clear action should not be mixed with guided view cards');
+    if (templateListText.includes('Guardar como preset')) {
+      throw new Error('SQX Views guided cards should not expose save-as-preset actions');
+    }
+    if (viewsTabText.includes('sampleType=127') || viewsTabText.includes('127 total')) {
+      throw new Error('SQX Views should explain the consolidated total without raw sampleType jargon');
     }
     const templateCount = await desktop.locator('#vc-template-list .views-template-card').count();
     if (templateCount < 4) throw new Error(`Expected buyer-ready SQX Views examples, got ${templateCount}`);
     await desktop.locator('[data-vc-template-load="risk-capital-review"]').click();
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Risk');
-    await desktop.locator('#vc-saved-details > summary').click();
-    await desktop.locator('[data-vc-template-save="risk-capital-review"]').click();
-    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').some(preset => preset.id === 'buyer-risk-capital-review'));
     const buyerPack = await desktop.evaluate(() => window.SQX.viewCreator.buildBuyerReadyTemplatePack());
     if (buyerPack.type !== 'sqx-edge.view-presets' || buyerPack.presets.length < 4) throw new Error('SQX Views buyer-ready pack contract failed');
-    await desktop.evaluate(() => localStorage.removeItem('sqx_view_creator_presets_v1'));
     const retiredPackApis = await desktop.evaluate(() => ({
       buyerProfile: typeof window.SQX.viewCreator.buildBuyerProfilePack,
       validationWorkflow: typeof window.SQX.viewCreator.buildValidationWorkflowPack,
@@ -437,27 +435,6 @@ async function run() {
     await desktop.locator('[data-vc-template-load="risk-capital-review"]').click();
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Risk');
     await desktop.locator('#vc-year-count').fill('5');
-    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
-    await desktop.locator('#vc-preset-name').fill('Risk V2 Smoke');
-    await desktop.locator('#vc-save-preset-btn').click();
-    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').length === 1);
-    const exportedPack = await desktop.evaluate(() => window.SQX.viewCreator.buildPresetPackage());
-    if (exportedPack.type !== 'sqx-edge.view-presets' || exportedPack.presets.length !== 1) throw new Error('SQX Views export pack contract failed');
-    await desktop.locator('#vc-advanced-actions > summary').click();
-    await desktop.locator('[data-vc-preset="egt-core"]').click();
-    await desktop.waitForFunction(() => document.getElementById('vc-column-count')?.textContent.trim() === '64');
-    await desktop.locator('#vc-load-preset-btn').click();
-    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
-    await desktop.locator('#vc-delete-preset-btn').click();
-    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').length === 0);
-    await mkdir(screenshotDir, { recursive: true });
-    const importPackPath = path.join(screenshotDir, 'view-preset-pack-smoke.json');
-    await writeFile(importPackPath, JSON.stringify(exportedPack, null, 2), 'utf8');
-    await desktop.locator('#vc-import-presets-file').setInputFiles(importPackPath);
-    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').length === 1);
-    await desktop.waitForFunction(() => document.getElementById('vc-import-preview')?.classList.contains('has-items'));
-    await desktop.waitForFunction(() => document.getElementById('vc-import-preview')?.textContent.includes('Preview: 1 preset'));
-    await desktop.locator('#vc-load-preset-btn').click();
     await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
     await saveShot(desktop, 'e2e-view-creator-desktop.png');
     await desktop.locator('.tab[data-tab="cvc"]').click();
