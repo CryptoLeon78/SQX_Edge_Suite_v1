@@ -9,10 +9,12 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current UX surface decision: Strategy Builder tab and visible CVC handoff are retired from the dashboard shell; existing SB modules/docs remain internal historical contracts until a future renamed workflow is approved.
 - Current scoring surface decision: Template Maker is the active Capa 1 scoring and C2 generation surface; Capa 2 comparison/relationships belong to Champion vs Challenger.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
+- Current maintenance rule: every new phase backup must be versioned and paired with a retention check using `docs/maintenance/BACKUP_RETENTION_POLICY.md`.
 - Next UX-NAV phase after UX-TMA1: resume tab-by-tab optimization; do not move to another UX tab until the operator says `Adelante con el siguiente tab`.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
-- Governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
-- Previous governance baseline: G5 - Institutional Core Synchronized Gate.
+- Governance baseline: G7 - Backup Retention And Artifact Steward Gate.
+- Previous governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
+- Earlier governance baseline: G5 - Institutional Core Synchronized Gate.
 - Earlier governance baseline: G4 - Institutional Core Repository Gate.
 - Earlier governance baseline: G3 - Internal Automation and Agent Gate.
 - Earlier governance baseline: G2 - Governance Lookup Before Work.
@@ -151,6 +153,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 | Monetization/Product | Pro offer, pricing, support, renewal, buyer journey, safe claims. | `docs/MONETIZATION_ROADMAP.md`, `docs/MONETIZATION_M*.md`, `docs/sales`, product manifest, README. | Commercial docs tests, safe-claims review, roadmap/status alignment. |
 | Security/Distribution | Secrets, license material, relay exposure, packaging exclusions. | `.gitignore`, product manifest security, packaging/audit scripts, relay settings, license manager. | Packaging tests, audit rules, sensitive-file staged review. |
 | Architecture/Docs | Load order, module contracts, ADRs, ownership matrix, roadmap hygiene. | `docs/ARCHITECTURE.md`, `docs/PROJECT_GOVERNANCE.md`, `docs/decisions`, roadmap docs, module contracts. | Static docs tests, load-order contracts, roadmap consistency checks. |
+| Backup/Artifact Steward | Backup versioning, retention, local disk pressure, reproducible artifact cleanup and cleanup manifests. | `backups/` manifests, `docs/maintenance/`, `.gitignore`, generated `output/`, `.pytest_cache/`, `analysis_output/` and backup pruning decisions. | Retention policy check, safe path verification before deletion, protected-evidence review with QA/Release and Security/Distribution. |
 | Access/Security Gatekeeper | Tester auth, sessions, renewals, cloud access, anti-distribution controls and Vercel security. | Future `SQX_Edge_Tester_Portal`, `templates/SQX_Edge_Tester_Portal/`, `docs/T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md`, `docs/T2_TESTER_PORTAL_BOOTSTRAP.md`, `docs/T3_TESTER_AUTH_DATA_CONTRACT.md`, `docs/T4_LOGIN_SESSION_PROTOTYPE.md`, `docs/T5_TESTER_PRO_ENTITLEMENT_GATES.md`, `docs/T6_15_DAY_EXPIRY_RENEWAL_FLOW.md`, `docs/T7_ADMIN_TESTER_CONSOLE.md`, `docs/T8_TESTER_PORTAL_SECURITY_HARDENING.md`, `docs/T9_PROTECTED_VERCEL_PREVIEW_PREFLIGHT.md`, `docs/T9B_VERCEL_PREVIEW_DEPLOY_ROLLBACK.md`, `docs/T9C_VERCEL_DEPLOYMENT_PROTECTION_GATE.md`, `docs/T9D_VERCEL_AUTH_PROTECTION_VERIFIED.md`, `docs/T9E_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md`, `docs/T9F_PREVIEW_PATH_PROOF.md`, `docs/T9G_PRIVATE_GIT_PREVIEW_SOURCE.md`, `docs/T10_INTERNAL_PREVIEW_ROLLBACK.md`, `docs/T10B_VERCEL_TARGET_GUARD.md`, `docs/T10C_EXPLICIT_API_PREVIEW_PATH.md`, `docs/T10D_EXPLICIT_API_PREVIEW_ROLLBACK.md`, `docs/T10E_OMITTED_TARGET_PREVIEW_ROLLBACK.md`, `docs/T10F_SEPARATED_PREVIEW_PROJECT.md`, `docs/T10G_LINKED_PREVIEW_PROJECT_PROOF.md`, `docs/T10H_PROTECTED_PREVIEW_DEPLOY_ROLLBACK.md`, `docs/T10I_CLI_DEFAULT_PREVIEW_ROUTE.md`, `docs/T10J_CLI_DEFAULT_PREVIEW_COMMAND_ROLLBACK.md`, `docs/T10K_CLI_DEFAULT_PREVIEW_ROLLBACK.md`, `docs/T10L_VERCEL_ROUTE_INVESTIGATION.md`, `docs/T10M_VERCEL_CONFIG_HARDENING.md`, `docs/T10N_VERCEL_ROUTE_DECISION.md`, `docs/T10O_REPLACEMENT_ROUTE_CONTRACT.md`, `docs/T10P_FRESH_STAGING_ROUTE_PREFLIGHT.md`, `docs/T10Q_FRESH_STAGING_ROUTE_ACCESS_CHECK.md`, `docs/T10R_FRESH_STAGING_PROJECT_CREATED.md`, `docs/T10S_STAGING_PROTECTION_VERIFIED.md`, `docs/T10T_STAGING_LOCAL_LINK_CONFIGURED.md`, `docs/T10U_STAGING_DEPLOYMENT_READINESS_GATE.md`, `docs/T10V_CONTROLLED_STAGING_DEPLOY_ROLLBACK.md`, `docs/T10W_PROVIDER_TARGET_MAPPING_INVESTIGATION.md`, `docs/T10X_EXPLICIT_PREVIEW_TARGET_ROLLBACK.md`, `docs/T10Y_NO_DEPLOY_PROVIDER_DASHBOARD_DECISION.md`, `docs/T10Z_PROVIDER_DASHBOARD_CORRECTION_PACKAGE.md`, `docs/T10AA_PROVIDER_DASHBOARD_EVIDENCE_RECORD.md`, tester access contracts, Vercel env/protection docs, audit and watermark policies. | Unauthenticated blocked, expired/denied/blocked tester blocked, active `tester_pro` allowed, admin operator preview protected, rate limit and audit contracts, no secrets in git, security headers and deployment protection reviewed. |
 
 ## Phase Namespaces
@@ -214,6 +217,14 @@ G6 - Institutional Dashboard Quick Actions Gate:
 - Mining Control includes a compact operational health panel and graph-style funnel visualization while preserving editable counts and local-only state.
 - Required checks: JS syntax/contracts, static dashboard tests, backend pytest, `git diff --check` and E2E screenshots for Mining Control and Project Generator prefill flow.
 
+G7 - Backup Retention And Artifact Steward Gate:
+
+- Every backup must use a phase-scoped, timestamped name and declare whether it is source backup, release evidence, private evidence or cleanup manifest.
+- After creating any new backup, run the retention check in `docs/maintenance/BACKUP_RETENTION_POLICY.md`: measure `backups/`, identify superseded or obsolete backups and keep only the required recent/protected set.
+- Before deleting backup or generated artifact directories, resolve absolute paths and verify they stay inside the workspace or the explicitly named target directory.
+- Do not delete `dist/`, private/commercial material, license material or release evidence unless QA/Release plus Security/Distribution ownership explicitly marks it obsolete or superseded.
+- For aggressive cleanup, leave a manifest in `backups/cleanup-<phase>-YYYYMMDD-HHMMSS/` before deletion and summarize freed space in the phase result.
+
 UX-NAV Tab Optimization Gate:
 
 - UX-NAV is now a sequential tab-by-tab optimization track documented in `docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md`.
@@ -242,6 +253,7 @@ UX-NAV Tab Optimization Gate:
 | Security/Distribution | Sensitive-file staged review, manifest exclusions, package/audit deny-lists. | Licenses, keys, buyer logs, relay, checkout evidence, commercial-private docs or generated packages are touched. |
 | Architecture/Docs | Architecture/load-order docs, governance docs, contract map consistency. | Module boundaries, roadmap structure, phase taxonomy or governance rules move. |
 | Access/Security Gatekeeper | Cloud auth threat model, tester lifecycle tests, secret review, deployment-protection review, audit/watermark contracts. | Any Vercel tester portal, auth/session, renewal, tester data, cloud URL, password rotation or anti-distribution behavior moves. |
+| Backup/Artifact Steward | Backup retention policy, cleanup manifest review, safe deletion checks and disk pressure report. | Backups exceed normal working size, generated artifacts accumulate, a phase creates large backups, or the operator asks to lighten the workspace. |
 
 ## Local Tooling Notes
 
@@ -250,6 +262,7 @@ UX-NAV Tab Optimization Gate:
 - Playwright remains on-demand for frontend visual/E2E work; install temporarily only when UI behavior needs browser validation.
 - MetaTrader5 tooling is only needed for real-data A58/A62 style phases, not for governance, packaging or commercial monitor phases.
 - Tunnels such as ngrok/cloudflared should remain out of the default path until relay staging work explicitly needs them.
+- Backup retention is a standing maintenance routine; use `docs/maintenance/BACKUP_RETENTION_POLICY.md` whenever a phase creates backups or cleanup touches ignored artifacts.
 
 ## Phase Workflow
 
@@ -257,17 +270,18 @@ Every implementation phase must follow this loop:
 
 1. Consult Project Governance or the Specialist Agents ownership matrix before every work phase/message.
 2. Confirm working tree state.
-3. Create a backup before changing files.
-4. Define active agent ownership and expected touched areas.
-5. Apply the G3 automation risk level if the phase adds tools, evidence, gates or external actions.
-6. Implement narrowly against the phase objective.
-7. Update docs, manifests and tests in the same phase when contracts move.
-8. Run required checks for touched areas.
-9. Run E2E screenshots when frontend behavior or `manifest-data.js` changes.
-10. Clean temporary Playwright/npm artifacts.
-11. Commit once per phase after verification.
-12. Push immediately after every successful commit unless the user explicitly asks to hold the push or the remote is unavailable.
-13. For Institutional Core, push separately to `institutional` only when the remote is aligned or after an explicit sync phase; never use `--force` to satisfy routine discipline.
+3. Create a versioned backup before changing files and record its scope.
+4. Run the backup retention check from `docs/maintenance/BACKUP_RETENTION_POLICY.md`; prune obsolete ignored backups/artifacts only when safe and leave a manifest for aggressive cleanup.
+5. Define active agent ownership and expected touched areas.
+6. Apply the G3 automation risk level if the phase adds tools, evidence, gates or external actions.
+7. Implement narrowly against the phase objective.
+8. Update docs, manifests and tests in the same phase when contracts move.
+9. Run required checks for touched areas.
+10. Run E2E screenshots when frontend behavior or `manifest-data.js` changes.
+11. Clean temporary Playwright/npm artifacts and re-run the retention check if new heavy artifacts were generated.
+12. Commit once per phase after verification.
+13. Push immediately after every successful commit unless the user explicitly asks to hold the push or the remote is unavailable.
+14. For Institutional Core, push separately to `institutional` only when the remote is aligned or after an explicit sync phase; never use `--force` to satisfy routine discipline.
 
 ## M46 Entry Criteria
 
@@ -288,6 +302,7 @@ M46 is accepted when these criteria are true:
 - Portable distribution: `package_portable.ps1`, `audit_distribution.ps1`, `release_checklist.ps1`.
 - Commercial gates: `backend/sqx-edge-tool/tools/*` and `docs/sales/*`.
 - Internal automation gate: this document, especially G3 risk levels, agent matrix and local tooling notes.
+- Backup retention and artifact cleanup: `docs/maintenance/BACKUP_RETENTION_POLICY.md`, `docs/maintenance/ARTIFACT_CLEANUP_20260514.md` and ignored manifests under `backups/cleanup-*`.
 - CI baseline: `.github/workflows/tests.yml` and `requirements-dev.txt`.
 - Public application repository: `https://github.com/CryptoLeon78/SQX_Edge_Suite_v1.git` (local remote `origin`).
 - Institutional Core repository: `https://github.com/CryptoLeon78/SQX_Institutional_Core.git` (local remote `institutional`; synced by G5 merge, preserving institutional-only files and analyzer assets).
