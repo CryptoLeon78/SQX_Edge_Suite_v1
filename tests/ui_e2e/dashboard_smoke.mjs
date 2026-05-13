@@ -49,7 +49,7 @@ async function run() {
     const priorityTabCount = await desktop.locator('.tab[data-tab="priority"]').count();
     if (priorityTabCount !== 0) throw new Error('Priority should not be a primary navigation section');
     const sidebarOrder = await desktop.locator('#main-tabs .tab').evaluateAll(nodes => nodes.map(node => node.dataset.tab));
-    const expectedSidebarOrder = ['workflow', 'activos', 'pipeline', 'views', 'projectgen', 'estrategias', 'cvc', 'filtros', 'inicio'];
+    const expectedSidebarOrder = ['workflow', 'activos', 'pipeline', 'views', 'projectgen', 'templatemaker', 'estrategias', 'cvc', 'filtros', 'inicio'];
     if (sidebarOrder.join('|') !== expectedSidebarOrder.join('|')) {
       throw new Error(`Navigation should follow Workflow methodology order: ${sidebarOrder.join('|')}`);
     }
@@ -446,6 +446,31 @@ async function run() {
     await desktop.locator('#vc-year-count').fill('5');
     await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
     await saveShot(desktop, 'e2e-view-creator-desktop.png');
+
+    await desktop.locator('.tab[data-tab="templatemaker"]').click();
+    await desktop.waitForSelector('.tab[data-tab="templatemaker"].active');
+    await desktop.waitForSelector('#tm-csv-input', { state: 'attached' });
+    const templateMakerText = await desktop.locator('#tab-templatemaker').innerText();
+    ['Template Maker', 'Importar CSV', 'Importar .sqx', 'Umbrales KPI editables', 'Scoring de estrategias'].forEach(expected => {
+      if (!templateMakerText.includes(expected)) throw new Error(`Template Maker tab should include ${expected}`);
+    });
+    const csvSamplePath = path.join(repoRoot, 'resources', 'template-maker-tool', 'test_capa1.csv');
+    await desktop.locator('#tm-csv-input').setInputFiles(csvSamplePath);
+    await desktop.waitForFunction(() => window.SQX?.templateMaker?.getStrategies().length > 0);
+    await desktop.waitForSelector('#tm-results-table:not([hidden])');
+    const tmAuditAfterCsv = await desktop.evaluate(() => window.SQX.templateMaker.getAuditReport());
+    if (tmAuditAfterCsv.total < 1 || tmAuditAfterCsv.passed < 1) {
+      throw new Error('Template Maker should show loaded CSV scoring results');
+    }
+    await desktop.locator('[data-tm-capa="2"]').click();
+    await desktop.waitForFunction(() => window.SQX.templateMaker.getCapa() === 2);
+    await desktop.locator('#tm-audit-btn').click();
+    await desktop.waitForSelector('#tm-modal-audit:not([hidden])');
+    await desktop.locator('#tm-audit-close').click();
+    await desktop.locator('#tm-reset-btn').click();
+    await desktop.waitForFunction(() => window.SQX.templateMaker.getStrategies().length === 0);
+    await saveShot(desktop, 'e2e-template-maker-desktop.png');
+
     await desktop.locator('.tab[data-tab="cvc"]').click();
     await desktop.waitForSelector('.tab[data-tab="cvc"].active');
     await desktop.waitForSelector('#cvc-run-btn');

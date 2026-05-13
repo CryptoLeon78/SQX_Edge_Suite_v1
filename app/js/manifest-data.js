@@ -29,6 +29,10 @@ window.SQX_MANIFEST = {
         "label": "Project Generator"
       },
       {
+        "id": "templatemaker",
+        "label": "Template Maker"
+      },
+      {
         "id": "estrategias",
         "label": "Estrategias"
       },

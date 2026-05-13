@@ -99,27 +99,29 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 19. `js/modules/renderers.js`
 20. `js/modules/charts.js`
 21. `js/modules/strategies.js`
-22. `js/modules/analyzer.js`
-23. `js/modules/home.js`
-24. `js/modules/mtf-evidence.js`
-25. `js/modules/support.js`
-26. `js/modules/fulfillment.js`
-27. `js/modules/customer-cockpit.js`
-28. `js/modules/workflow.js`
-29. `js/modules/view-creator.js`
-30. `js/modules/project-generator-core.js`
-31. `js/modules/project-generator-config.js`
-32. `js/modules/project-generator-dom.js`
-33. `js/modules/project-generator-bindings.js`
-34. `js/modules/project-generator-renderers.js`
-35. `js/modules/project-generator-status.js`
-36. `js/modules/project-generator-cleaner.js`
-37. `js/modules/project-generator.js`
-38. `js/modules/index.js`
-39. `js/data.js`
-40. `js/dashboard.js`
-41. `js/main.js`
-42. `js/project-generator-main.js`
+22. `vendor/jszip.min.js`
+23. `js/modules/template-maker.js`
+24. `js/modules/template-maker-ui.js`
+25. `js/modules/home.js`
+26. `js/modules/mtf-evidence.js`
+27. `js/modules/support.js`
+28. `js/modules/fulfillment.js`
+29. `js/modules/customer-cockpit.js`
+30. `js/modules/workflow.js`
+31. `js/modules/view-creator.js`
+32. `js/modules/project-generator-core.js`
+33. `js/modules/project-generator-config.js`
+34. `js/modules/project-generator-dom.js`
+35. `js/modules/project-generator-bindings.js`
+36. `js/modules/project-generator-renderers.js`
+37. `js/modules/project-generator-status.js`
+38. `js/modules/project-generator-cleaner.js`
+39. `js/modules/project-generator.js`
+40. `js/modules/index.js`
+41. `js/data.js`
+42. `js/dashboard.js`
+43. `js/main.js`
+44. `js/project-generator-main.js`
 
 ## Why This Order Matters
 
@@ -129,6 +131,8 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 - Focused modules attach stable contracts under `window.SQX`.
 - `champion-challenger-regime.js` loads after `datasets.js` because it adapts first-party historical and score evidence.
 - `strategy-builder-core.js` and `strategy-builder.js` load after Champion vs Challenger so the Builder can consume the reduced J6 handoff shape without coupling to raw CSV; SQX Views handoff is resolved at click time through the later `view-creator.js` runtime contract.
+- `vendor/jszip.min.js` loads before Template Maker because local/offline `.sqx` parsing and C2 export cannot depend on a CDN.
+- `template-maker.js` and `template-maker-ui.js` replace the old active analyzer surface with a native SQX module for Capa 1/2 scoring and C2 generation.
 - `modules/index.js` marks the module layer as booted and flushes ready callbacks.
 - `data.js` and `dashboard.js` preserve existing global render functions and dashboard behavior.
 - `main.js` runs shell-level initial rendering and workflow initialization.

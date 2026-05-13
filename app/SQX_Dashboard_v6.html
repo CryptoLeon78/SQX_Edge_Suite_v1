@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SQX Edge</title>
 <link rel="stylesheet" href="css/dashboard.css">
-<link rel="stylesheet" href="css/analyzer.css">
 </head>
 <body>
 
@@ -1019,6 +1018,120 @@
     </div>
   </div>
 
+  <!-- TAB: TEMPLATE MAKER - scoring Capa 1/2 y generacion C2 -->
+  <div id="tab-templatemaker" class="tab-content" style="display:none">
+    <section class="tm-shell">
+      <div class="tm-hero">
+        <div>
+          <span class="views-eyebrow">Template Maker</span>
+          <h2>Template Maker</h2>
+          <p>Importa un CSV de Databank o estrategias .sqx, valida Capa 1/Capa 2 con umbrales editables y prepara candidatos C2 sin salir del flujo SQX Edge.</p>
+        </div>
+        <div class="tm-stats">
+          <div><span id="tm-stat-total">0</span><small>Total</small></div>
+          <div><span id="tm-stat-passed">0</span><small>Passed</small></div>
+          <div><span id="tm-stat-review">0</span><small>Review</small></div>
+          <div><span id="tm-stat-failed">0</span><small>Failed</small></div>
+        </div>
+      </div>
+
+      <div class="tm-toolbar">
+        <div>
+          <strong id="tm-capa-label">Capa 1 - Mining Edge</strong>
+          <span>Elige capa, perfil de activo y carga datos reales para evaluar estrategias.</span>
+        </div>
+        <div class="tm-toolbar-actions">
+          <div class="tm-capa-toggle" aria-label="Selector de capa">
+            <button class="filter-btn active" type="button" data-tm-capa="1">Capa 1</button>
+            <button class="filter-btn" type="button" data-tm-capa="2">Capa 2</button>
+          </div>
+          <select id="tm-preset-select" class="filter-select" aria-label="Perfil de activo"></select>
+          <button class="filter-btn" id="tm-auto-preset" type="button">Auto perfil</button>
+          <button class="filter-btn tm-danger" id="tm-reset-btn" type="button">Reset</button>
+          <button class="export-btn" id="tm-audit-btn" type="button">Auditoria</button>
+        </div>
+      </div>
+
+      <div class="tm-upload-grid">
+        <button class="tm-upload-zone" id="tm-csv-zone" type="button">
+          <strong>Importar CSV</strong>
+          <span>Databank Export de StrategyQuant X con metricas de resultados.</span>
+          <input type="file" id="tm-csv-input" accept=".csv">
+        </button>
+        <button class="tm-upload-zone" id="tm-sqx-zone" type="button">
+          <strong>Importar .sqx</strong>
+          <span>Estrategias originales para habilitar generacion C2.</span>
+          <input type="file" id="tm-sqx-input" accept=".sqx" multiple>
+        </button>
+      </div>
+
+      <details class="tm-panel tm-help-panel" open>
+        <summary>Guia rapida</summary>
+        <p><strong>Capa 1</strong> filtra edge estadistico crudo. <strong>Capa 2</strong> exige estrategias mas operables con umbrales mas estrictos. El boton C2 aparece solo en estrategias PASSED que tengan .sqx de origen.</p>
+      </details>
+
+      <div class="tm-panel">
+        <button id="tm-thresholds-toggle" class="tm-panel-head" type="button">
+          <span>Umbrales KPI editables</span>
+          <small>Ajusta solo si tu metodologia lo requiere.</small>
+        </button>
+        <div id="tm-thresholds-content" hidden>
+          <div id="tm-thresholds-grid" class="tm-thresholds-grid"></div>
+        </div>
+      </div>
+
+      <div class="tm-panel">
+        <div class="tm-results-head">
+          <div>
+            <span class="views-eyebrow">Resultados</span>
+            <strong>Scoring de estrategias</strong>
+          </div>
+          <div class="tm-search-row">
+            <input id="tm-search" class="search-input" type="search" placeholder="Buscar estrategia, simbolo o activo">
+            <button id="tm-prev" class="filter-btn" type="button">Anterior</button>
+            <span id="tm-page-info">1 / 1</span>
+            <button id="tm-next" class="filter-btn" type="button">Siguiente</button>
+          </div>
+        </div>
+        <div id="tm-status" class="tm-status">Esperando CSV o .sqx.</div>
+        <div id="tm-empty-state" class="tm-empty-state">Carga un CSV de Databank o archivos .sqx para empezar.</div>
+        <div class="tm-results-wrap">
+          <table class="cat-table tm-results-table" id="tm-results-table" hidden>
+            <thead id="tm-results-thead"></thead>
+            <tbody id="tm-results-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <div id="tm-modal-audit" class="tm-modal" hidden>
+      <div class="tm-modal-card">
+        <div class="tm-modal-head">
+          <h3>Auditoria de Template Maker</h3>
+          <button class="filter-btn" id="tm-audit-close" type="button">Cerrar</button>
+        </div>
+        <div id="tm-audit-content"></div>
+      </div>
+    </div>
+
+    <div id="tm-modal-c2" class="tm-modal" hidden>
+      <div class="tm-modal-card tm-modal-card-small">
+        <div class="tm-modal-head">
+          <h3>Generar Template C2</h3>
+          <button class="filter-btn" id="tm-c2-cancel" type="button">Cerrar</button>
+        </div>
+        <div class="tm-c2-grid">
+          <label><span>Activo</span><input class="search-input" id="tm-c2-asset" type="text"></label>
+          <label><span>Direccion</span><select class="filter-select" id="tm-c2-direction"><option value="LONG">LONG</option><option value="SHORT">SHORT</option><option value="BOTH">BOTH</option></select></label>
+          <label><span>Timeframe</span><input class="search-input" id="tm-c2-tf" type="text"></label>
+          <label><span>Indicador base</span><input class="search-input" id="tm-c2-indicator" type="text" placeholder="EMA, ICHIMOKU..."></label>
+          <label><span>Bloque</span><select class="filter-select" id="tm-c2-block"><option value="TENDENCIA">TENDENCIA</option><option value="MOMENTUM">MOMENTUM</option><option value="VOLATILIDAD">VOLATILIDAD</option><option value="REGIMEN">REGIMEN</option><option value="SR">SOPORTE/RESISTENCIA</option><option value="VOLUMEN">VOLUMEN</option><option value="ESTADISTICO">ESTADISTICO</option></select></label>
+        </div>
+        <button class="export-btn tm-c2-confirm" id="tm-c2-confirm" type="button">Generar .sqx C2</button>
+      </div>
+    </div>
+  </div>
+
   <!-- TAB: ESTRATEGIAS — repositorio de .sqx supervivientes del pipeline -->
   <div id="tab-estrategias" class="tab-content" style="display:none">
     <div style="margin-bottom:14px;color:var(--text2);font-size:14px;">
@@ -1409,72 +1522,6 @@
           <span id="state-restore-status">Sin consultar.</span>
         </div>
         <div class="state-restore-list" id="state-restore-list"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- TAB: ANALYZER - certificacion institucional C2 -->
-  <div id="tab-analyzer" class="tab-content" style="display:none">
-    <div class="analyzer-controls">
-      <input type="file" id="analyzer-file-input" class="search-input" accept=".csv" style="flex:1">
-      <button class="export-btn" id="analyzer-reset-btn" style="border-color:var(--red); color:var(--red); background:rgba(239,68,68,.08);">Reset</button>
-      <div style="font-size:12px; color:var(--text2);">Sube <code>DatabankExport.csv</code> de SQX para certificar metricas.</div>
-    </div>
-
-    <div id="analyzer-top-scroll" class="scroll-proxy" style="display:none">
-      <div style="height:1px;"></div>
-    </div>
-
-    <div id="analyzer-results">
-      <div class="ps-na-text" style="text-align:center; padding:40px;">Sube un DatabankExport.csv para comenzar el analisis...</div>
-    </div>
-
-    <div id="analyzer-modal" class="modal-overlay">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Certificacion Institucional C2</h3>
-          <button class="close-btn" type="button">&times;</button>
-        </div>
-        <div class="modal-form">
-          <div class="form-group">
-            <label>ACTIVO (ej. NDX, EURUSD)</label>
-            <input type="text" id="c2-activo" class="search-input" placeholder="NDX">
-          </div>
-          <div class="form-group">
-            <label>DIRECCION</label>
-            <select id="c2-direccion" class="filter-select">
-              <option value="LONG">LONG</option>
-              <option value="SHORT">SHORT</option>
-              <option value="BOTH">BOTH (L+S)</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>TIMEFRAME (ej. H1, M15)</label>
-            <input type="text" id="c2-tf" class="search-input" placeholder="H1">
-          </div>
-          <div class="form-group">
-            <label>INDICADOR BASE (ej. EMA, ICHIMOKU)</label>
-            <input type="text" id="c2-indicador" class="search-input" placeholder="EMA">
-          </div>
-          <div class="form-group">
-            <label>BLOQUE</label>
-            <select id="c2-bloque-select" class="filter-select">
-              <option value="TENDENCIA">TENDENCIA</option>
-              <option value="MOMENTUM">MOMENTUM</option>
-              <option value="VOLATILIDAD">VOLATILIDAD</option>
-              <option value="REGIMEN">REGIMEN</option>
-              <option value="SOPORTE/RESISTENCIA">SOPORTE/RESISTENCIA</option>
-              <option value="VOLUMEN">VOLUMEN</option>
-              <option value="ESTADISTICO">ESTADISTICO</option>
-              <option value="OTROS">OTROS...</option>
-            </select>
-            <input type="text" id="c2-bloque-manual" class="search-input" style="display:none; margin-top:8px;" placeholder="Especificar bloque...">
-          </div>
-          <div class="modal-actions">
-            <button class="export-btn secondary" type="button">Cancelar</button>
-            <button class="export-btn primary" type="button">Confirmar Certificacion</button>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -3399,7 +3446,9 @@ Ret/DD > 0.5       ← muy permisivo (Forward es validación)</pre>
 <script src="js/modules/renderers.js"></script>
 <script src="js/modules/charts.js"></script>
 <script src="js/modules/strategies.js"></script>
-<script src="js/modules/analyzer.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="js/modules/template-maker.js"></script>
+<script src="js/modules/template-maker-ui.js"></script>
 <script src="js/modules/home.js"></script>
 <script src="js/modules/mtf-evidence.js"></script>
 <script src="js/modules/support.js"></script>

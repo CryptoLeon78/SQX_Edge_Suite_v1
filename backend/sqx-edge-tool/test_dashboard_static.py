@@ -277,7 +277,9 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/renderers.js",
                 "js/modules/charts.js",
                 "js/modules/strategies.js",
-                "js/modules/analyzer.js",
+                "vendor/jszip.min.js",
+                "js/modules/template-maker.js",
+                "js/modules/template-maker-ui.js",
                 "js/modules/home.js",
                 "js/modules/mtf-evidence.js",
                 "js/modules/support.js",
@@ -883,7 +885,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Current phase completed: T10l - Vercel Route Investigation.", governance)
         self.assertIn("M100 - execute exactly the M99-approved controlled commercial movement", governance)
         self.assertIn("Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.", governance)
-        self.assertIn("The institutional analyzer is exposed as a normal SQX tab", governance)
+        self.assertIn("Template Maker is the active Capa 1/2 scoring and C2 generation surface", governance)
         self.assertIn("Asset detail/category rows expose quick actions", governance)
         self.assertIn("docs/PG7_PROJECT_GENERATOR_BUYER_CFX_HANDOFF.md", governance)
         self.assertIn("docs/T1_CLOUD_TESTER_ARCHITECTURE_CONTRACT.md", governance)
@@ -972,7 +974,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/renderers.js",
             "js/modules/charts.js",
             "js/modules/strategies.js",
-            "js/modules/analyzer.js",
+            "vendor/jszip.min.js",
+            "js/modules/template-maker.js",
+            "js/modules/template-maker-ui.js",
             "js/modules/home.js",
             "js/modules/mtf-evidence.js",
             "js/modules/support.js",
@@ -1012,7 +1016,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         renderers_js = (APP_ROOT / "js" / "modules" / "renderers.js").read_text(encoding="utf-8-sig")
         charts_js = (APP_ROOT / "js" / "modules" / "charts.js").read_text(encoding="utf-8-sig")
         strategies_js = (APP_ROOT / "js" / "modules" / "strategies.js").read_text(encoding="utf-8-sig")
-        analyzer_js = (APP_ROOT / "js" / "modules" / "analyzer.js").read_text(encoding="utf-8-sig")
+        template_maker_js = (APP_ROOT / "js" / "modules" / "template-maker.js").read_text(encoding="utf-8-sig")
+        template_maker_ui_js = (APP_ROOT / "js" / "modules" / "template-maker-ui.js").read_text(encoding="utf-8-sig")
         home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
         mtf_evidence_js = (APP_ROOT / "js" / "modules" / "mtf-evidence.js").read_text(encoding="utf-8-sig")
         support_js = (APP_ROOT / "js" / "modules" / "support.js").read_text(encoding="utf-8-sig")
@@ -1048,12 +1053,17 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.license", license_js)
         self.assertIn("SQX.ui", ui_js)
         self.assertIn("SQX.formatters", formatters_js)
-        self.assertIn("SQX.analyzer", analyzer_js)
-        self.assertIn("SQX.registerModule('analyzer'", analyzer_js)
-        self.assertIn("window.SQX.analyzer.init()", main_js)
-        self.assertIn('id="tab-analyzer"', self.html)
-        self.assertIn('id="analyzer-file-input"', self.html)
-        self.assertIn('href="css/analyzer.css"', self.html)
+        self.assertIn("SQX.templateMaker", template_maker_js)
+        self.assertIn("SQX.registerModule('template-maker'", template_maker_js)
+        self.assertIn("SQX.templateMakerUI", template_maker_ui_js)
+        self.assertIn("SQX.registerModule('template-maker-ui'", template_maker_ui_js)
+        self.assertIn("window.SQX.templateMakerUI.init()", main_js)
+        self.assertIn('id="tab-templatemaker"', self.html)
+        self.assertIn('id="tm-csv-input"', self.html)
+        self.assertIn('id="tm-sqx-input"', self.html)
+        self.assertNotIn('id="tab-analyzer"', self.html)
+        self.assertNotIn('id="analyzer-file-input"', self.html)
+        self.assertNotIn('href="css/analyzer.css"', self.html)
         self.assertIn("SQX.championChallengerCore", champion_core_js)
         self.assertIn("computeTemporalHealth", champion_core_js)
         self.assertIn("detectDirection", champion_core_js)
@@ -2145,6 +2155,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "pipeline",
                 "views",
                 "projectgen",
+                "templatemaker",
                 "estrategias",
                 "cvc",
                 "filtros",
