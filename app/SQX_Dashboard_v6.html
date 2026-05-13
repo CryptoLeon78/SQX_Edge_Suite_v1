@@ -803,9 +803,9 @@
     <div class="views-shell">
       <section class="views-hero">
         <div>
-          <span class="views-eyebrow">Databank View Builder</span>
+          <span class="views-eyebrow">Asistente guiado</span>
           <h2>SQX Views</h2>
-          <p>Genera vistas <code>.vw</code> para StrategyQuant X con columnas anuales por <code>sampleType</code>. El preset EGT Core esta listo para Regimen, Champion vs Challenger y export CSV posterior.</p>
+          <p>Crea la view correcta para cada retest sin tocar XML a mano: elige una plantilla, revisa la configuracion, comprueba columnas y descarga el archivo <code>.vw</code> para importarlo en StrategyQuant X.</p>
         </div>
         <div class="views-hero-stats">
           <div><span id="vc-selected-count">0</span><small>métricas</small></div>
@@ -814,74 +814,130 @@
         </div>
       </section>
 
-      <section class="views-grid">
-        <div class="views-panel views-config-panel">
+      <ol class="views-guide-flow" aria-label="Flujo SQX Views">
+        <li><span>1</span><strong>Elige view</strong><small>Obligatoria o recomendable</small></li>
+        <li><span>2</span><strong>Revisa config</strong><small>OOS, muestra y orden</small></li>
+        <li><span>3</span><strong>Comprueba</strong><small>Columnas y validacion</small></li>
+        <li><span>4</span><strong>Exporta</strong><small>.vw listo para SQX</small></li>
+      </ol>
+
+      <section class="views-guide-layout">
+        <div class="views-guide-main">
+          <section class="views-panel views-step-panel views-step-choose">
+            <div class="views-panel-head">
+              <div>
+                <span>Paso 1</span>
+                <strong>Elige la view que necesitas</strong>
+              </div>
+              <small id="vc-template-count">0 views</small>
+            </div>
+            <p class="views-step-copy">Estas tarjetas aplican la configuracion completa. Usa primero las obligatorias y deja Risk o Full audit para revision avanzada o entrega.</p>
+            <div id="vc-template-list" class="views-template-list"></div>
+          </section>
+
+          <section class="views-panel views-active-guide" id="vc-active-guide" aria-live="polite">
+            <div class="views-panel-head">
+              <div>
+                <span>View activa</span>
+                <strong id="vc-guide-title">EGT Core</strong>
+              </div>
+              <small id="vc-guide-source">View recomendada para empezar</small>
+            </div>
+            <div class="views-guide-text">
+              <p><strong>Para que sirve:</strong> <span id="vc-guide-purpose">Primera lectura obligatoria del edge.</span></p>
+              <p><strong>Cuando usarla:</strong> <span id="vc-guide-when">Antes de decidir si una tanda merece robustez.</span></p>
+              <p><strong>Siguiente paso:</strong> <span id="vc-guide-next">Descarga la .vw e importala en SQX.</span></p>
+            </div>
+            <div class="views-guide-tags" id="vc-guide-tags"></div>
+            <div class="views-guide-config" id="vc-guide-config"></div>
+          </section>
+        </div>
+
+        <div class="views-guide-side">
+          <section class="views-panel views-config-panel">
           <div class="views-panel-head">
             <div>
-              <span>Configuración</span>
-              <strong>Vista anual portable</strong>
+              <span>Paso 2</span>
+              <strong>Revisa la configuración</strong>
             </div>
             <small id="vc-license-note">Preset EGT Core activo.</small>
           </div>
 
-          <div class="views-form-grid">
-            <label class="views-field">
-              <span>Nombre</span>
-              <input id="vc-view-name" class="search-input" type="text" value="EGT - Anual">
-            </label>
-            <label class="views-field">
-              <span>Años</span>
-              <input id="vc-year-count" class="search-input" type="number" min="1" max="30" value="9">
-            </label>
-            <label class="views-field">
-              <span>Sample base</span>
-              <input id="vc-sample-start" class="search-input" type="number" min="0" max="126" value="21">
-            </label>
-            <label class="views-field">
-              <span>Orden</span>
-              <select id="vc-group-mode" class="filter-select">
-                <option value="by_year">Por año</option>
-                <option value="by_metric">Por métrica</option>
-              </select>
-            </label>
+          <div class="views-config-summary">
+            <div><span>View</span><strong id="vc-summary-view">EGT Core</strong></div>
+            <div><span>OOS</span><strong id="vc-summary-oos">9 bloques</strong></div>
+            <div><span>Muestra</span><strong id="vc-summary-sample">21..29</strong></div>
+            <div><span>Orden</span><strong id="vc-summary-order">Por año</strong></div>
+            <div><span>Total</span><strong id="vc-summary-total">Incluido</strong></div>
           </div>
 
-          <label class="views-check">
-            <input id="vc-include-total" type="checkbox" checked>
-            <span>Incluir total consolidado <code>sampleType=127</code></span>
-          </label>
+          <details class="views-details views-advanced-config" id="vc-advanced-config">
+            <summary>Ajustes avanzados</summary>
+            <p class="views-help">Normalmente no hace falta tocar esto. Ajustalo solo si tu retest usa otro numero de bloques OOS o un sample inicial distinto.</p>
+            <div class="views-form-grid">
+              <label class="views-field">
+                <span>Nombre de la view</span>
+                <input id="vc-view-name" class="search-input" type="text" value="EGT - Anual">
+              </label>
+              <label class="views-field">
+                <span>Bloques OOS</span>
+                <input id="vc-year-count" class="search-input" type="number" min="1" max="30" value="9">
+              </label>
+              <label class="views-field">
+                <span>Primer bloque OOS</span>
+                <input id="vc-sample-start" class="search-input" type="number" min="0" max="126" value="21">
+              </label>
+              <label class="views-field">
+                <span>Como ordenar columnas</span>
+                <select id="vc-group-mode" class="filter-select">
+                  <option value="by_year">Por año</option>
+                  <option value="by_metric">Por métrica</option>
+                </select>
+              </label>
+            </div>
+            <label class="views-check">
+              <input id="vc-include-total" type="checkbox" checked>
+              <span>Añadir columna total consolidada de SQX (<code>sampleType=127</code>)</span>
+            </label>
+          </details>
+          </section>
 
-          <div class="views-presets" id="vc-presets">
-            <div class="views-preset-primary">
-              <button class="filter-btn active" data-vc-preset="egt-core" type="button">EGT Core</button>
-              <button class="filter-btn" data-vc-preset="robustness" type="button">Robustez</button>
-              <button class="filter-btn" data-vc-preset="risk" type="button">Risk</button>
-              <button class="filter-btn" data-vc-preset="full-audit" type="button">Full audit</button>
+          <section class="views-panel views-preview-panel">
+          <div class="views-panel-head">
+            <div>
+              <span>Paso 3 · Comprueba la vista</span>
+              <strong id="vc-preview-title">EGT - Anual</strong>
             </div>
-            <div class="views-preset-reset">
-              <button class="filter-btn danger" data-vc-preset="clear" type="button">Limpiar</button>
-            </div>
+            <small id="vc-mode-label">Agrupado por año</small>
           </div>
+          <p class="views-step-copy">Comprueba que el contador de columnas y el rango OOS encajan antes de descargar.</p>
+          <pre id="vc-preview" class="views-preview"></pre>
+          </section>
 
-          <div class="views-templates">
-            <div class="views-saved-title">
-              <span>Views obligatorias y recomendables</span>
-              <small id="vc-template-count">0 views</small>
+          <section class="views-panel views-export-panel">
+            <div class="views-panel-head">
+              <div>
+                <span>Paso 4</span>
+                <strong>Exporta e importa en SQX</strong>
+              </div>
             </div>
-            <div id="vc-template-list" class="views-template-list"></div>
-            <div class="views-saved-tools">
-              <button class="filter-btn" id="vc-export-template-pack-btn" type="button">Exportar views</button>
+            <p class="views-step-copy">Descarga el archivo e importalo en StrategyQuant X desde Databank Views. Copiar XML queda como salida secundaria.</p>
+            <div class="views-actions">
+              <button class="export-btn views-primary-action" id="vc-download-btn" type="button">Descargar .vw</button>
+              <button class="filter-btn" id="vc-copy-btn" type="button">Copiar XML</button>
+              <small id="vc-status" class="views-status">Listo para generar la vista.</small>
             </div>
-          </div>
+          </section>
 
-          <div class="views-saved">
-            <div class="views-saved-title">
-              <span>Presets propios</span>
+          <details class="views-panel views-details views-saved" id="vc-saved-details">
+            <summary>
+              <span>Mis presets</span>
               <small id="vc-saved-count">0 guardados</small>
-            </div>
+            </summary>
+            <p class="views-help">Zona secundaria para guardar variantes propias o mover packs entre equipos.</p>
             <div class="views-saved-grid">
               <input id="vc-preset-name" class="search-input" type="text" placeholder="Nombre del preset">
-              <button class="filter-btn" id="vc-save-preset-btn" type="button">Guardar</button>
+              <button class="filter-btn" id="vc-save-preset-btn" type="button">Guardar preset</button>
               <select id="vc-saved-select" class="filter-select">
                 <option value="">Sin presets guardados</option>
               </select>
@@ -889,33 +945,35 @@
               <button class="filter-btn danger" id="vc-delete-preset-btn" type="button">Eliminar</button>
             </div>
             <div class="views-saved-tools">
+              <button class="filter-btn" id="vc-export-template-pack-btn" type="button">Exportar views base</button>
               <button class="filter-btn" id="vc-export-presets-btn" type="button">Exportar pack</button>
               <button class="filter-btn" id="vc-import-presets-btn" type="button">Importar pack</button>
               <input id="vc-import-presets-file" class="visually-hidden" type="file" accept="application/json,.json">
             </div>
             <div id="vc-import-preview" class="views-import-preview"></div>
-          </div>
+          </details>
 
-          <div class="views-actions">
-            <button class="export-btn" id="vc-download-btn" type="button">Descargar .vw</button>
-            <button class="filter-btn" id="vc-copy-btn" type="button">Copiar XML</button>
-            <small id="vc-status" class="views-status">Listo para generar la vista.</small>
-          </div>
-        </div>
-
-        <div class="views-panel views-preview-panel">
-          <div class="views-panel-head">
-            <div>
-              <span>Preview</span>
-              <strong id="vc-preview-title">EGT - Anual</strong>
+          <details class="views-panel views-details views-advanced-tools" id="vc-advanced-actions">
+            <summary>Acciones avanzadas</summary>
+            <p class="views-help">Atajos tecnicos para aplicar presets antiguos o limpiar la seleccion sin pasar por las tarjetas guiadas.</p>
+            <div class="views-presets" id="vc-presets">
+              <div class="views-preset-primary">
+                <button class="filter-btn active" data-vc-preset="egt-core" type="button">EGT Core</button>
+                <button class="filter-btn" data-vc-preset="robustness" type="button">Robustez</button>
+                <button class="filter-btn" data-vc-preset="risk" type="button">Risk</button>
+                <button class="filter-btn" data-vc-preset="full-audit" type="button">Full audit</button>
+              </div>
+              <div class="views-preset-reset">
+                <button class="filter-btn danger" data-vc-preset="clear" type="button">Limpiar</button>
+              </div>
             </div>
-            <small id="vc-mode-label">Agrupado por año</small>
-          </div>
-          <pre id="vc-preview" class="views-preview"></pre>
+          </details>
         </div>
       </section>
 
-      <section class="views-panel views-metrics-panel">
+      <details class="views-panel views-details views-metrics-panel" id="vc-metrics-details">
+        <summary>Editar métricas avanzadas</summary>
+        <p class="views-help">Normalmente no hace falta tocar este catalogo: las views obligatorias ya cargan las metricas necesarias para los retests.</p>
         <div class="views-panel-head">
           <div>
             <span>Catálogo</span>
@@ -924,7 +982,7 @@
           <input id="vc-search" class="search-input" type="search" placeholder="Buscar métrica o class">
         </div>
         <div id="vc-metric-list" class="views-metric-list"></div>
-      </section>
+      </details>
     </div>
   </div>
 

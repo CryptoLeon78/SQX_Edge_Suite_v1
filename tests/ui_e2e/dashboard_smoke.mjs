@@ -352,18 +352,40 @@ async function run() {
     await saveShot(desktop, 'e2e-projectgen-desktop.png');
     await desktop.locator('.tab[data-tab="views"]').click();
     await desktop.waitForSelector('.tab[data-tab="views"].active');
+    const guidedHeadings = ['Elige la view que necesitas', 'Revisa la configuración', 'Comprueba la vista', 'Exporta e importa en SQX'];
+    const guidedText = await desktop.locator('#tab-views').innerText();
+    const guidedTextLower = guidedText.toLowerCase();
+    guidedHeadings.forEach(expected => {
+      if (!guidedTextLower.includes(expected.toLowerCase())) throw new Error(`SQX Views guided assistant should include step: ${expected}`);
+    });
+    const defaultClosedDetails = await desktop.evaluate(() => ({
+      advanced: document.getElementById('vc-advanced-config')?.open === false,
+      presets: document.getElementById('vc-saved-details')?.open === false,
+      metrics: document.getElementById('vc-metrics-details')?.open === false,
+    }));
+    if (!defaultClosedDetails.advanced || !defaultClosedDetails.presets || !defaultClosedDetails.metrics) {
+      throw new Error('SQX Views advanced settings, custom presets and metrics editor should start collapsed');
+    }
+    await desktop.locator('#vc-metrics-details > summary').click();
     await desktop.waitForSelector('#vc-metric-list .views-metric-row');
-    await desktop.locator('[data-vc-preset="egt-core"]').click();
+    await desktop.locator('[data-vc-template-load="egt-first-review"]').click();
     await desktop.waitForFunction(() => document.getElementById('vc-column-count')?.textContent.trim() === '104');
+    await desktop.locator('#vc-advanced-config > summary').click();
     await desktop.locator('#vc-year-count').fill('5');
     await desktop.waitForFunction(() => document.getElementById('vc-column-count')?.textContent.trim() === '64');
-    await desktop.locator('[data-vc-preset="risk"]').click();
-    await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
+    await desktop.locator('[data-vc-template-load="robustness-pack-screen"]').click();
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Robustez');
+    await desktop.waitForFunction(() => document.getElementById('vc-active-guide')?.textContent.includes('Robustez'));
+    const robustnessGuide = await desktop.locator('#vc-active-guide').innerText();
+    ['HBP', 'WFM', 'Siguiente paso'].forEach(expected => {
+      if (!robustnessGuide.includes(expected)) throw new Error(`SQX Views Robustez guide should include ${expected}`);
+    });
+    if (await desktop.locator('#vc-download-btn').count() !== 1) throw new Error('SQX Views should keep one primary .vw download button');
     await desktop.waitForSelector('#vc-template-list .views-template-card');
     const viewsTabText = await desktop.locator('#tab-views').innerText();
     const viewsTabTextUpper = viewsTabText.toUpperCase();
     const viewsTabTextLower = viewsTabText.toLowerCase();
-    if (!viewsTabTextUpper.includes('VIEWS OBLIGATORIAS Y RECOMENDABLES')) throw new Error('SQX Views should rename buyer examples to required/recommended views');
+    if (!viewsTabTextUpper.includes('ELIGE LA VIEW QUE NECESITAS')) throw new Error('SQX Views should expose guided view choice as the main entry');
     ['EGT Core', 'Robustez', 'Risk', 'Full audit', 'obligatoria', 'recomendable'].forEach(expected => {
       if (!viewsTabText.includes(expected)) throw new Error(`SQX Views required/recommended block should include ${expected}`);
     });
@@ -391,10 +413,14 @@ async function run() {
     if (await desktop.locator('.views-preset-reset [data-vc-preset="clear"]').count() !== 1) {
       throw new Error('SQX Views clear preset should be visually separated from primary presets');
     }
+    if (await desktop.locator('#vc-template-list [data-vc-preset="clear"]').count() !== 0) {
+      throw new Error('SQX Views clear action should not be mixed with guided view cards');
+    }
     const templateCount = await desktop.locator('#vc-template-list .views-template-card').count();
     if (templateCount < 4) throw new Error(`Expected buyer-ready SQX Views examples, got ${templateCount}`);
     await desktop.locator('[data-vc-template-load="risk-capital-review"]').click();
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Risk');
+    await desktop.locator('#vc-saved-details > summary').click();
     await desktop.locator('[data-vc-template-save="risk-capital-review"]').click();
     await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').some(preset => preset.id === 'buyer-risk-capital-review'));
     const buyerPack = await desktop.evaluate(() => window.SQX.viewCreator.buildBuyerReadyTemplatePack());
@@ -408,14 +434,16 @@ async function run() {
       throw new Error('SQX Views retired profile/workflow pack APIs should not remain exposed');
     }
     await desktop.evaluate(() => localStorage.removeItem('sqx_view_creator_presets_v1'));
+    await desktop.locator('[data-vc-template-load="risk-capital-review"]').click();
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Risk');
     await desktop.locator('#vc-year-count').fill('5');
-    await desktop.locator('[data-vc-preset="risk"]').click();
     await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
     await desktop.locator('#vc-preset-name').fill('Risk V2 Smoke');
     await desktop.locator('#vc-save-preset-btn').click();
     await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').length === 1);
     const exportedPack = await desktop.evaluate(() => window.SQX.viewCreator.buildPresetPackage());
     if (exportedPack.type !== 'sqx-edge.view-presets' || exportedPack.presets.length !== 1) throw new Error('SQX Views export pack contract failed');
+    await desktop.locator('#vc-advanced-actions > summary').click();
     await desktop.locator('[data-vc-preset="egt-core"]').click();
     await desktop.waitForFunction(() => document.getElementById('vc-column-count')?.textContent.trim() === '64');
     await desktop.locator('#vc-load-preset-btn').click();
@@ -493,6 +521,7 @@ async function run() {
     await mobile.locator('.tab[data-tab="views"]').click();
     await mobile.waitForSelector('#vc-preview');
     await assertNoMobileOverflow(mobile);
+    await saveShot(mobile, 'e2e-view-creator-mobile.png');
     await mobile.locator('.tab[data-tab="cvc"]').click();
     await mobile.waitForSelector('#cvc-run-btn');
     await mobile.locator('#cvc-sample-btn').click();

@@ -498,6 +498,47 @@
     white-space:pre-wrap;
   }
   .views-grid { display:grid; grid-template-columns:minmax(360px, .9fr) minmax(420px, 1.1fr); gap:16px; align-items:stretch; }
+  .views-guide-flow {
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:10px;
+    margin:0;
+    padding:0;
+    list-style:none;
+  }
+  .views-guide-flow li {
+    display:grid;
+    grid-template-columns:auto minmax(0, 1fr);
+    gap:3px 9px;
+    align-items:center;
+    min-height:68px;
+    padding:12px;
+    border:1px solid rgba(148,163,184,.18);
+    border-radius:8px;
+    background:rgba(15,23,42,.72);
+  }
+  .views-guide-flow li > span {
+    grid-row:1 / span 2;
+    display:grid;
+    place-items:center;
+    width:30px;
+    height:30px;
+    border-radius:8px;
+    color:#bfdbfe;
+    background:rgba(59,130,246,.16);
+    border:1px solid rgba(96,165,250,.28);
+    font-weight:900;
+  }
+  .views-guide-flow strong { font-size:13px; color:var(--text); }
+  .views-guide-flow small { color:var(--text2); font-size:11px; line-height:1.3; }
+  .views-guide-layout {
+    display:grid;
+    grid-template-columns:minmax(420px, .96fr) minmax(460px, 1.04fr);
+    gap:16px;
+    align-items:start;
+  }
+  .views-guide-main,
+  .views-guide-side { display:grid; gap:16px; min-width:0; }
   .views-panel {
     border:1px solid var(--border);
     border-radius:8px;
@@ -523,6 +564,97 @@
   .views-panel-head strong { display:block; margin-top:3px; font-size:16px; }
   .views-panel-head small,
   .views-status { color:var(--text2); font-size:12px; }
+  .views-step-copy,
+  .views-help {
+    margin:0 0 12px;
+    color:var(--text2);
+    font-size:12px;
+    line-height:1.55;
+  }
+  .views-details > summary {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    margin:-2px 0 0;
+    color:var(--text);
+    cursor:pointer;
+    font-size:14px;
+    font-weight:850;
+    list-style:none;
+  }
+  .views-details > summary::-webkit-details-marker { display:none; }
+  .views-details > summary::after {
+    content:'Abrir';
+    padding:3px 8px;
+    border:1px solid rgba(148,163,184,.20);
+    border-radius:6px;
+    color:var(--text2);
+    background:rgba(148,163,184,.07);
+    font-size:10px;
+    font-weight:900;
+    text-transform:uppercase;
+  }
+  .views-details[open] > summary { margin-bottom:12px; }
+  .views-details[open] > summary::after { content:'Cerrar'; }
+  .views-config-summary {
+    display:grid;
+    grid-template-columns:repeat(5, minmax(0, 1fr));
+    gap:8px;
+  }
+  .views-config-summary div {
+    min-height:62px;
+    padding:10px;
+    border:1px solid rgba(148,163,184,.16);
+    border-radius:8px;
+    background:#101827;
+  }
+  .views-config-summary span {
+    display:block;
+    color:var(--text2);
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.35px;
+    text-transform:uppercase;
+  }
+  .views-config-summary strong {
+    display:block;
+    margin-top:7px;
+    color:var(--text);
+    font-size:13px;
+    line-height:1.25;
+  }
+  .views-advanced-config { margin-top:12px; background:#101827; }
+  .views-active-guide {
+    background:linear-gradient(135deg, rgba(59,130,246,.09), rgba(20,184,166,.06)), var(--surface);
+  }
+  .views-guide-text {
+    display:grid;
+    gap:8px;
+  }
+  .views-guide-text p {
+    margin:0;
+    color:var(--text2);
+    font-size:13px;
+    line-height:1.55;
+  }
+  .views-guide-text strong { color:var(--text); }
+  .views-guide-tags {
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:12px;
+  }
+  .views-guide-config {
+    margin-top:10px;
+    padding:9px 10px;
+    border:1px solid rgba(20,184,166,.20);
+    border-radius:8px;
+    color:#a7f3d0;
+    background:rgba(20,184,166,.08);
+    font-size:12px;
+    font-weight:750;
+  }
   .views-form-grid { display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:10px; }
   .views-field { display:grid; gap:6px; }
   .views-field span {
@@ -590,6 +722,15 @@
     border-radius:7px;
     background:rgba(15,23,42,.76);
   }
+  .views-template-card.is-guide-card {
+    padding:12px;
+    border-color:rgba(96,165,250,.20);
+  }
+  .views-template-card.is-active {
+    border-color:rgba(34,211,238,.48);
+    background:linear-gradient(135deg, rgba(20,184,166,.10), rgba(59,130,246,.07)), rgba(15,23,42,.92);
+    box-shadow:0 0 0 1px rgba(34,211,238,.08) inset;
+  }
   .views-template-top {
     display:flex;
     align-items:flex-start;
@@ -599,6 +740,16 @@
   .views-template-badges { display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end; }
   .views-template-name { color:var(--text); font-size:13px; font-weight:850; line-height:1.25; }
   .views-template-desc { color:var(--text2); font-size:12px; line-height:1.45; }
+  .views-template-when {
+    padding:8px 9px;
+    border:1px solid rgba(148,163,184,.13);
+    border-radius:7px;
+    color:var(--text2);
+    background:rgba(8,13,23,.42);
+    font-size:12px;
+    line-height:1.45;
+  }
+  .views-template-when strong { color:#dbeafe; }
   .views-template-meta {
     display:flex;
     gap:6px;
@@ -627,6 +778,12 @@
     flex-wrap:wrap;
   }
   .views-template-actions .filter-btn { flex:1 1 110px; }
+  .views-template-actions .views-template-select { flex:1 1 150px; }
+  .views-export-panel {
+    border-color:rgba(20,184,166,.24);
+    background:linear-gradient(135deg, rgba(20,184,166,.08), rgba(59,130,246,.05)), var(--surface);
+  }
+  .views-primary-action { min-width:170px; }
   .views-saved {
     margin-top:12px;
     padding:11px;
@@ -5058,9 +5215,13 @@
     }
 
     .views-grid,
+    .views-guide-layout,
     .cvc-workspace,
     .sb-workspace {
       grid-template-columns:1fr;
+    }
+    .views-guide-flow {
+      grid-template-columns:repeat(2, minmax(0, 1fr));
     }
   }
 
@@ -5151,7 +5312,9 @@
     }
 
     .views-form-grid,
+    .views-config-summary,
     .views-hero-stats,
+    .views-guide-flow,
     .cvc-hero-stats,
     .sb-hero-stats,
     .cvc-summary,
@@ -5169,6 +5332,7 @@
 
     .views-actions .filter-btn,
     .views-actions .export-btn,
+    .views-template-actions .export-btn,
     .views-template-actions .filter-btn,
     .views-saved-grid .filter-btn,
     .views-saved-tools .filter-btn,

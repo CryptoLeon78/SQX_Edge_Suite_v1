@@ -144,6 +144,9 @@
       priority: 'obligatoria',
       preset: 'egt-core',
       description: 'View obligatoria para la primera lectura anual del edge, regimen y base de comparacion.',
+      objective: 'Primera lectura obligatoria del edge: rentabilidad, volumen de trades y ratio Ret/DD por bloque OOS.',
+      when: 'Antes de Mining 1 y en cada revision inicial del databank.',
+      nextAction: 'Descarga la .vw, importala en SQX y decide si el edge merece pasar a Robustez.',
       metricTags: ['PF', 'Trades', 'Ret/DD', 'Net Profit'],
       oosTag: '9oos',
       oosOptions: [1, 2, 3, 7, 9],
@@ -156,6 +159,9 @@
       priority: 'obligatoria',
       preset: 'robustness',
       description: 'View obligatoria para revisar estabilidad, años malos, stagnation y ratios antes de portfolio.',
+      objective: 'Control obligatorio de estabilidad: HBP, MC, SPP, WFM, años malos y ratios de supervivencia.',
+      when: 'Despues de EGT Core, antes de aceptar una estrategia para portfolio o entrega.',
+      nextAction: 'Revisa estabilidad y años malos; si aguanta, pasa a Risk o Full audit segun el caso.',
       metricTags: ['HBP', 'MC', 'SPP', 'WFM'],
       oosTag: '9oos',
       oosOptions: [1, 2, 3, 7, 9],
@@ -168,6 +174,9 @@
       priority: 'recomendable',
       preset: 'risk',
       description: 'View recomendable para drawdown, dispersion, rachas negativas y stress previo a entrega.',
+      objective: 'Revision de riesgo operativo: drawdown, VaR/CVaR, Z-Score, dispersion y rachas negativas.',
+      when: 'Antes de entregar una estrategia o cuando el riesgo decide si se descarta.',
+      nextAction: 'Confirma que el riesgo encaja con el perfil objetivo antes de exportar resultados.',
       metricTags: ['VaR', 'CVaR', 'Z-Score', 'Drawdown'],
       oosTag: '7oos',
       oosOptions: [1, 2, 3, 7, 9],
@@ -180,6 +189,9 @@
       priority: 'recomendable',
       preset: 'full-audit',
       description: 'View recomendable para auditoria completa y CSV posterior cuando una tanda merece investigacion.',
+      objective: 'Vista amplia para auditoria final, documentacion de decisiones y CSV completo.',
+      when: 'Cuando una tanda ya supero filtros iniciales y merece revision profunda.',
+      nextAction: 'Exporta CSV desde SQX con esta view para documentar la decision final.',
       metricTags: ['PF', 'R Exp', 'CAGR/DD', 'Stagnation'],
       oosTag: '9oos',
       oosOptions: [1, 2, 3, 7, 9],
@@ -188,6 +200,7 @@
   ];
 
   var metricState = {};
+  var activeTemplateId = 'egt-first-review';
   METRICS.forEach(function(metric) {
     metricState[metric.className] = {
       selected: !!metric.selectedDefault,
@@ -419,6 +432,9 @@
       priority: definition.priority || 'recomendable',
       preset: definition.preset || 'egt-core',
       description: definition.description || '',
+      objective: definition.objective || definition.description || '',
+      when: definition.when || '',
+      nextAction: definition.nextAction || '',
       metricTags: Array.isArray(definition.metricTags) ? definition.metricTags.slice() : [],
       oosTag: definition.oosTag || '',
       oosOptions: Array.isArray(definition.oosOptions) ? definition.oosOptions.slice() : [],
@@ -432,6 +448,68 @@
 
   function findBuyerReadyTemplate(id) {
     return getBuyerReadyTemplates().find(function(template) { return template.id === id; }) || null;
+  }
+
+  function findBuyerReadyTemplateByPreset(presetName) {
+    return getBuyerReadyTemplates().find(function(template) { return template.preset === presetName; }) || null;
+  }
+
+  function setText(id, value) {
+    var el = byId(id);
+    if (el) el.textContent = value == null ? '' : String(value);
+  }
+
+  function setHtml(id, value) {
+    var el = byId(id);
+    if (el) el.innerHTML = value || '';
+  }
+
+  function guideConfigText(template) {
+    var cfg = normalizeConfig(template && template.config);
+    var sampleEnd = cfg.sampleStart + cfg.yearCount - 1;
+    return cfg.yearCount + ' OOS · sampleType ' + cfg.sampleStart + '..' + sampleEnd
+      + (cfg.includeTotal ? ' + total 127' : '')
+      + ' · ' + (cfg.groupMode === 'by_metric' ? 'orden por métrica' : 'orden por año');
+  }
+
+  function updateGuideCards() {
+    Array.from(global.document.querySelectorAll('[data-vc-template-card]')).forEach(function(card) {
+      var active = card.dataset.vcTemplateCard === activeTemplateId;
+      card.classList.toggle('is-active', active);
+      card.setAttribute('aria-current', active ? 'true' : 'false');
+    });
+    Array.from(global.document.querySelectorAll('[data-vc-preset]')).forEach(function(button) {
+      var template = findBuyerReadyTemplate(activeTemplateId);
+      button.classList.toggle('active', !!template && button.dataset.vcPreset === template.preset);
+    });
+  }
+
+  function setActiveViewGuide(templateId, source) {
+    var template = findBuyerReadyTemplate(templateId);
+    if (!template) {
+      activeTemplateId = '';
+      setText('vc-guide-title', 'View personalizada');
+      setText('vc-guide-source', source || 'Seleccion manual');
+      setText('vc-guide-purpose', 'Has cambiado metricas o ajustes fuera de una plantilla guiada.');
+      setText('vc-guide-when', 'Usala solo si sabes que columnas necesita el retest.');
+      setText('vc-guide-next', 'Comprueba la preview y descarga la .vw cuando el contador sea coherente.');
+      setHtml('vc-guide-tags', '<span class="views-template-metric-tag">custom</span>');
+      setText('vc-guide-config', 'Configuracion manual activa');
+      updateGuideCards();
+      return null;
+    }
+    activeTemplateId = template.id;
+    setText('vc-guide-title', template.name);
+    setText('vc-guide-source', source || 'View cargada');
+    setText('vc-guide-purpose', template.objective || template.description);
+    setText('vc-guide-when', template.when || 'Sigue el orden del pipeline antes de exportar.');
+    setText('vc-guide-next', template.nextAction || 'Descarga la .vw e importala en SQX.');
+    setHtml('vc-guide-tags', (template.metricTags || []).map(function(tag) {
+      return '<span class="views-template-metric-tag">' + escapeHtml(tag) + '</span>';
+    }).join('') + '<span class="views-template-metric-tag">' + escapeHtml(template.oosTag || (template.config.yearCount + 'oos')) + '</span>');
+    setText('vc-guide-config', guideConfigText(template));
+    updateGuideCards();
+    return template;
   }
 
   function templateToPreset(template) {
@@ -650,6 +728,18 @@
     return presets;
   }
 
+  function updateConfigSummary(opts) {
+    var options = opts || optionsFromDom();
+    var yearCount = sanitizeInt(options.yearCount, 9, 1, 30);
+    var sampleStart = sanitizeInt(options.sampleStart, 21, 0, 126);
+    var sampleEnd = sampleStart + yearCount - 1;
+    setText('vc-summary-view', options.viewName || 'EGT - Anual');
+    setText('vc-summary-oos', yearCount + (yearCount === 1 ? ' bloque' : ' bloques'));
+    setText('vc-summary-sample', sampleStart + '..' + sampleEnd);
+    setText('vc-summary-order', options.groupMode === 'by_metric' ? 'Por métrica' : 'Por año');
+    setText('vc-summary-total', options.includeTotal !== false ? 'Incluido' : 'Sin total');
+  }
+
   function updatePreview() {
     var opts = optionsFromDom();
     var selected = opts.selected || [];
@@ -664,6 +754,7 @@
     if (byId('vc-year-range')) byId('vc-year-range').textContent = sampleStart + '..' + (sampleStart + yearCount - 1);
     if (byId('vc-preview-title')) byId('vc-preview-title').textContent = opts.viewName || 'EGT - Anual';
     if (byId('vc-mode-label')) byId('vc-mode-label').textContent = opts.groupMode === 'by_metric' ? 'Agrupado por métrica' : 'Agrupado por año';
+    updateConfigSummary(opts);
     setStatus(columnCount + ' columnas preparadas para descargar.', 'ok');
     return opts;
   }
@@ -729,22 +820,24 @@
       var metricTags = (template.metricTags || []).map(function(tag) {
         return '<span class="views-template-metric-tag">' + escapeHtml(tag) + '</span>';
       }).join('');
-      return '<article class="views-template-card">' +
+      var isActive = template.id === activeTemplateId;
+      return '<article class="views-template-card is-guide-card' + (isActive ? ' is-active' : '') + '" data-vc-template-card="' + escapeHtml(template.id) + '" aria-current="' + (isActive ? 'true' : 'false') + '">' +
         '<div class="views-template-top">' +
           '<div><div class="views-template-name">' + escapeHtml(template.name) + '</div>' +
-          '<p class="views-template-desc">' + escapeHtml(template.description) + '</p></div>' +
+          '<p class="views-template-desc">' + escapeHtml(template.objective || template.description) + '</p></div>' +
           '<div class="views-template-badges">' +
             '<span class="views-template-priority ' + escapeHtml(template.priority || 'recomendable') + '">' + escapeHtml(template.priority || 'recomendable') + '</span>' +
           '</div>' +
         '</div>' +
+        '<div class="views-template-when"><strong>Uso:</strong> ' + escapeHtml(template.when || template.description) + '</div>' +
         '<div class="views-template-meta">' +
           '<span>' + template.config.metrics.length + ' métricas</span>' +
           '<span' + oosTitle + '>' + escapeHtml(template.oosTag || (template.config.yearCount + 'oos')) + '</span>' +
           metricTags +
         '</div>' +
         '<div class="views-template-actions">' +
-          '<button class="filter-btn" data-vc-template-load="' + escapeHtml(template.id) + '" type="button"' + actionAttrs + '>Cargar</button>' +
-          '<button class="filter-btn" data-vc-template-save="' + escapeHtml(template.id) + '" type="button"' + actionAttrs + '>Guardar</button>' +
+          '<button class="export-btn views-template-select" data-vc-template-load="' + escapeHtml(template.id) + '" type="button"' + actionAttrs + '>Usar esta view</button>' +
+          '<button class="filter-btn" data-vc-template-save="' + escapeHtml(template.id) + '" type="button"' + actionAttrs + '>Guardar como preset</button>' +
         '</div>' +
       '</article>';
     }).join('');
@@ -779,6 +872,7 @@
     });
     renderMetrics();
     updatePreview();
+    setActiveViewGuide(name === 'clear' ? '' : (findBuyerReadyTemplateByPreset(name) || {}).id, name === 'clear' ? 'Seleccion limpia' : 'Preset aplicado');
   }
 
   function setFieldValue(id, value) {
@@ -796,6 +890,7 @@
     setFieldValue('vc-sample-start', opts.sampleStart);
     if (opts.groupMode) setFieldValue('vc-group-mode', opts.groupMode);
     applyPreset(preset);
+    setActiveViewGuide((findBuyerReadyTemplateByPreset(preset) || {}).id, 'Handoff cargado');
     var shell = global.document.querySelector('.views-shell');
     if (shell && shell.scrollIntoView) shell.scrollIntoView({ behavior: 'smooth', block: 'start' });
     var preview = updatePreview();
@@ -850,6 +945,11 @@
       return;
     }
     applyConfig(preset.config);
+    setActiveViewGuide('', 'Preset propio cargado');
+    setText('vc-guide-title', preset.name);
+    setText('vc-guide-purpose', 'Preset propio cargado con la configuracion que guardaste.');
+    setText('vc-guide-when', 'Usalo como variante controlada si mantiene el mismo objetivo metodologico.');
+    setText('vc-guide-next', 'Comprueba columnas y descarga la .vw cuando la preview encaje.');
     setStatus('Preset cargado: ' + preset.name, 'ok');
   }
 
@@ -875,7 +975,8 @@
       return null;
     }
     applyConfig(template.config);
-    setStatus('View cargada: ' + template.name + '.', 'ok');
+    setActiveViewGuide(template.id, 'View cargada');
+    setStatus('View cargada: ' + template.name + '. ' + (template.nextAction || ''), 'ok');
     if (global.addHomeTrace) global.addHomeTrace('SQX Views', 'View ' + template.name + ' cargada', 'ok');
     return template;
   }
@@ -896,6 +997,7 @@
     setSavedPresets(presets);
     renderSavedPresets();
     if (byId('vc-saved-select')) byId('vc-saved-select').value = preset.id;
+    setActiveViewGuide(template.id, 'View guardada como preset');
     setStatus('View guardada como preset: ' + preset.name + '.', 'ok');
     return preset;
   }
@@ -1049,6 +1151,7 @@
     var note = byId('vc-license-note');
     if (note) note.textContent = hasFullAccess() ? 'Catálogo completo habilitado.' : 'Preset EGT Core activo. Las views avanzadas requieren licencia.';
     updatePreview();
+    setActiveViewGuide(activeTemplateId, 'View recomendada para empezar');
   }
 
   SQX.viewCreator = SQX.viewCreator || {
@@ -1084,6 +1187,7 @@
     saveCurrentPreset: saveCurrentPreset,
     selectedMetrics: selectedMetrics,
     serializeConfig: serializeConfig,
+    setActiveViewGuide: setActiveViewGuide,
     setSavedPresets: setSavedPresets,
     storageKey: presetsStorageKey
   };

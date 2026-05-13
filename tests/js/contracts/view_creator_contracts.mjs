@@ -20,7 +20,21 @@ assert.ok(html.includes('id="vc-import-presets-btn"'), 'missing preset pack impo
 assert.ok(html.includes('id="vc-import-preview"'), 'missing preset import preview panel');
 assert.ok(html.includes('id="vc-template-list"'), 'missing buyer-ready template list');
 assert.ok(html.includes('id="vc-export-template-pack-btn"'), 'missing buyer-ready template pack export button');
-assert.ok(html.includes('Views obligatorias y recomendables'), 'missing required/recommended views block');
+assert.ok(html.includes('views-guide-flow'), 'missing guided SQX Views flow');
+assert.ok(html.includes('Elige la view que necesitas'), 'missing guided view choice step');
+assert.ok(html.includes('Revisa la configuración'), 'missing guided configuration step');
+assert.ok(html.includes('Comprueba la vista'), 'missing guided preview step');
+assert.ok(html.includes('Exporta e importa en SQX'), 'missing guided export step');
+assert.ok(html.includes('id="vc-active-guide"'), 'missing active view guide');
+assert.ok(html.includes('id="vc-guide-title"'), 'missing active guide title');
+assert.ok(html.includes('id="vc-summary-view"'), 'missing guided config summary');
+assert.ok(html.includes('id="vc-advanced-config"'), 'missing collapsed advanced config');
+assert.ok(html.includes('id="vc-saved-details"'), 'missing collapsed custom presets section');
+assert.ok(html.includes('id="vc-metrics-details"'), 'missing collapsed advanced metric editor');
+assert.ok(html.includes('Ajustes avanzados'), 'missing advanced settings disclosure');
+assert.ok(html.includes('Mis presets'), 'missing guided custom presets label');
+assert.ok(html.includes('Editar métricas avanzadas'), 'missing advanced metrics disclosure');
+assert.ok(html.includes('Descargar .vw'), 'missing primary .vw CTA');
 assert.ok(html.includes('views-preset-primary'), 'missing primary preset group');
 assert.ok(html.includes('views-preset-reset'), 'missing separated clear preset group');
 assert.ok(!html.includes('id="vc-profile-list"'), 'buyer profile packs should not render as visible KPI');
@@ -95,6 +109,7 @@ assert.ok(buyerTemplates.some(template => template.id === 'full-audit-handoff' &
 assert.ok(buyerTemplates.some(template => template.id === 'full-audit-handoff' && template.config.groupMode === 'by_metric'));
 assert.ok(buyerTemplates.every(template => template.config.metrics.length > 0));
 assert.ok(buyerTemplates.every(template => Array.isArray(template.metricTags) && template.metricTags.length >= 4));
+assert.ok(buyerTemplates.every(template => template.objective && template.when && template.nextAction));
 assert.ok(buyerTemplates.some(template => template.id === 'egt-first-review' && template.oosTag === '9oos' && template.oosOptions.includes(1) && template.oosOptions.includes(9)));
 assert.ok(buyerTemplates.some(template => template.id === 'risk-capital-review' && template.oosTag === '7oos' && template.metricTags.includes('VaR')));
 const buyerPack = viewCreator.buildBuyerReadyTemplatePack();
@@ -180,6 +195,18 @@ handoffSandbox.document.addTab('views', false);
   'vc-preview-title',
   'vc-mode-label',
   'vc-status',
+  'vc-guide-title',
+  'vc-guide-source',
+  'vc-guide-purpose',
+  'vc-guide-when',
+  'vc-guide-next',
+  'vc-guide-tags',
+  'vc-guide-config',
+  'vc-summary-view',
+  'vc-summary-oos',
+  'vc-summary-sample',
+  'vc-summary-order',
+  'vc-summary-total',
 ].forEach(id => handoffSandbox.document.add(new Element(id)));
 handoffSandbox.document.getElementById('vc-include-total').checked = true;
 handoffSandbox.document.getElementById('vc-group-mode').value = 'by_year';
@@ -207,6 +234,18 @@ const templateSandbox = createLoadedSandbox(['app/js/modules/view-creator.js']);
   'vc-saved-count',
   'vc-template-list',
   'vc-template-count',
+  'vc-guide-title',
+  'vc-guide-source',
+  'vc-guide-purpose',
+  'vc-guide-when',
+  'vc-guide-next',
+  'vc-guide-tags',
+  'vc-guide-config',
+  'vc-summary-view',
+  'vc-summary-oos',
+  'vc-summary-sample',
+  'vc-summary-order',
+  'vc-summary-total',
 ].forEach(id => templateSandbox.document.add(new Element(id)));
 templateSandbox.document.getElementById('vc-include-total').checked = true;
 templateSandbox.document.getElementById('vc-group-mode').value = 'by_year';
@@ -214,11 +253,18 @@ const loadedTemplate = templateSandbox.SQX.viewCreator.loadBuyerReadyTemplate('r
 assert.equal(loadedTemplate.name, 'Risk');
 assert.equal(templateSandbox.document.getElementById('vc-view-name').value, 'Risk');
 assert.ok(Number(templateSandbox.document.getElementById('vc-column-count').textContent) > 64);
+assert.equal(templateSandbox.document.getElementById('vc-guide-title').textContent, 'Risk');
+assert.match(templateSandbox.document.getElementById('vc-guide-next').textContent, /riesgo|perfil objetivo/i);
+assert.equal(templateSandbox.document.getElementById('vc-summary-view').textContent, 'Risk');
+assert.match(templateSandbox.document.getElementById('vc-summary-oos').textContent, /7/);
 const savedTemplate = templateSandbox.SQX.viewCreator.saveBuyerReadyTemplate('risk-capital-review');
 assert.equal(savedTemplate.id, 'buyer-risk-capital-review');
 assert.equal(templateSandbox.SQX.viewCreator.getSavedPresets().length, 1);
 templateSandbox.SQX.viewCreator.renderBuyerReadyTemplates();
 const renderedTemplates = templateSandbox.document.getElementById('vc-template-list').innerHTML;
+assert.ok(renderedTemplates.includes('Usar esta view'));
+assert.ok(renderedTemplates.includes('views-template-select'));
+assert.ok(renderedTemplates.includes('data-vc-template-card'));
 assert.ok(renderedTemplates.includes('9oos'));
 assert.ok(renderedTemplates.includes('7oos'));
 assert.ok(renderedTemplates.includes('VaR'));
