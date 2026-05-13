@@ -564,9 +564,19 @@
   .views-panel-head strong { display:block; margin-top:3px; font-size:16px; }
   .views-step-panel .views-panel-head strong,
   .views-config-panel .views-panel-head strong,
+  .views-preview-panel .views-panel-head strong,
   .views-export-panel .views-panel-head strong { color:#facc15; }
   .views-panel-head small,
   .views-status { color:var(--text2); font-size:12px; }
+  .views-panel-head .views-preview-subtitle {
+    display:block;
+    margin-top:5px;
+    color:var(--text);
+    font-size:15px;
+    font-weight:850;
+    letter-spacing:0;
+    text-transform:none;
+  }
   .views-step-copy,
   .views-help {
     margin:0 0 12px;

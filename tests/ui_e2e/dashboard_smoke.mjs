@@ -374,6 +374,15 @@ async function run() {
     await desktop.waitForFunction(() => document.getElementById('vc-column-count')?.textContent.trim() === '64');
     await desktop.locator('[data-vc-template-load="robustness-pack-screen"]').click();
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Robustez');
+    await desktop.waitForFunction(() => document.getElementById('vc-preview-title')?.textContent.trim() === 'Robustez');
+    const previewHead = await desktop.locator('.views-preview-panel .views-panel-head').innerText();
+    const previewHeadLower = previewHead.toLowerCase();
+    if (!previewHeadLower.includes('paso 3') || !previewHead.includes('Comprueba la vista') || !previewHead.includes('Robustez')) {
+      throw new Error('SQX Views preview step should show Paso 3, fixed title and selected view subtitle');
+    }
+    if (previewHead.includes('Paso 3 · Comprueba la vista')) {
+      throw new Error('SQX Views preview step should not merge the step label and title');
+    }
     await desktop.waitForFunction(() => document.getElementById('vc-active-guide')?.textContent.includes('Robustez'));
     const robustnessGuide = await desktop.locator('#vc-active-guide').innerText();
     ['HBP', 'WFM', 'Siguiente paso'].forEach(expected => {
