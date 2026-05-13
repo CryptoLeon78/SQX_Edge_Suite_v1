@@ -906,6 +906,12 @@
     background:rgba(245,158,11,.08);
   }
   .tm-reset-results-action:hover { background:rgba(245,158,11,.14); }
+  .tm-delete-selected-action {
+    border-color:rgba(239,68,68,.45);
+    color:var(--red);
+    background:rgba(239,68,68,.08);
+  }
+  .tm-delete-selected-action:hover { background:rgba(239,68,68,.14); }
   .tm-status { min-height:18px; margin-bottom:10px; color:var(--text2); font-size:12px; }
   .tm-status.is-error { color:var(--red); }
   .tm-problem-panel {
@@ -964,6 +970,7 @@
     letter-spacing:.2px;
   }
   .tm-results-table .tm-col-index { width:28px; text-align:center; }
+  .tm-results-table .tm-col-select { width:30px; text-align:center; }
   .tm-results-table .tm-col-score { width:58px; }
   .tm-results-table .tm-col-state { width:68px; }
   .tm-results-table .tm-col-contract { width:86px; }
@@ -975,6 +982,13 @@
     text-overflow:ellipsis;
   }
   .tm-results-table td.tm-col-score strong { display:block; margin-top:3px; font-size:10px; }
+  .tm-results-table .tm-row-check,
+  .tm-results-table .tm-select-visible {
+    width:15px;
+    height:15px;
+    accent-color:#38bdf8;
+    cursor:pointer;
+  }
   .tm-score {
     display:block;
     width:100%;

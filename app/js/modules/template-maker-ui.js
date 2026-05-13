@@ -6,6 +6,7 @@
   var query = '';
   var pageSize = 50;
   var initialized = false;
+  var selectedStrategyIds = {};
 
   function byId(id) {
     return global.document.getElementById(id);
@@ -77,6 +78,7 @@
       if (!global.confirm || global.confirm('Resetear todos los resultados cargados en Template Maker? Perfil y umbrales se conservan.')) {
         SQX.templateMaker.clearResultStrategies().then(function(summary) {
           page = 1;
+          selectedStrategyIds = {};
           clearFileInput('tm-files-input');
           clearFileInput('tm-csv-input');
           clearFileInput('tm-sqx-input');
@@ -85,9 +87,26 @@
         });
       }
     });
+    bindClick('tm-delete-selected-btn', function() {
+      if (!SQX.templateMaker.deleteResultStrategies) return;
+      var selected = getSelectedStrategyIds();
+      if (!selected.length) {
+        setStatus('Selecciona una o varias estrategias antes de borrar.', true);
+        return;
+      }
+      if (!global.confirm || global.confirm('Borrar ' + selected.length + ' estrategias seleccionadas de Template Maker?')) {
+        SQX.templateMaker.deleteResultStrategies(selected).then(function(summary) {
+          page = 1;
+          selectedStrategyIds = {};
+          setStatus('Estrategias seleccionadas eliminadas: ' + summary.removed + '.');
+          renderAll();
+        });
+      }
+    });
     bindClick('tm-reset-btn', function() {
       if (!global.confirm || global.confirm('Resetear estrategias y configuracion de Template Maker?')) {
         SQX.templateMaker.reset().then(function() {
+          selectedStrategyIds = {};
           setStatus('Template Maker limpio.');
           renderAll();
         });
@@ -175,6 +194,7 @@
     renderStats();
     renderContractSummary();
     renderResultsResetAction();
+    renderDeleteSelectedAction();
     renderResults();
   }
 
@@ -186,6 +206,34 @@
     button.title = total
       ? 'Borra todas las estrategias cargadas en la tabla de resultados.'
       : 'Carga estrategias para habilitar este reset.';
+  }
+
+  function cleanupSelectedStrategies() {
+    var existing = {};
+    SQX.templateMaker.getStrategies().forEach(function(strategy) {
+      existing[String(strategy._id)] = true;
+    });
+    Object.keys(selectedStrategyIds).forEach(function(id) {
+      if (!existing[id]) delete selectedStrategyIds[id];
+    });
+  }
+
+  function getSelectedStrategyIds() {
+    cleanupSelectedStrategies();
+    return Object.keys(selectedStrategyIds).filter(function(id) {
+      return selectedStrategyIds[id];
+    });
+  }
+
+  function renderDeleteSelectedAction() {
+    var button = byId('tm-delete-selected-btn');
+    if (!button) return;
+    var count = getSelectedStrategyIds().length;
+    button.disabled = count === 0;
+    button.textContent = count ? 'Borrar seleccionadas (' + count + ')' : 'Borrar seleccionadas';
+    button.title = count
+      ? 'Borra solo las estrategias marcadas en la tabla.'
+      : 'Marca estrategias en la tabla para habilitar este borrado.';
   }
 
   function renderPreset() {
@@ -305,6 +353,7 @@
   }
 
   function renderResults() {
+    cleanupSelectedStrategies();
     var all = SQX.templateMaker.scoreAll();
     if (query) {
       all = all.filter(function(item) {
@@ -328,12 +377,13 @@
     if (!all.length) {
       byId('tm-results-thead').innerHTML = '';
       byId('tm-results-tbody').innerHTML = '';
+      renderDeleteSelectedAction();
       return;
     }
 
     var infoCols = SQX.templateMaker.getInfoColumns();
     var kpiCols = SQX.templateMaker.getKPIColumns();
-    byId('tm-results-thead').innerHTML = '<tr><th class="tm-col-index">#</th><th class="tm-col-score">Score</th><th class="tm-col-state">Estado</th><th class="tm-col-contract">Contrato</th>' +
+    byId('tm-results-thead').innerHTML = '<tr><th class="tm-col-select"><input id="tm-select-visible" class="tm-select-visible" type="checkbox" aria-label="Seleccionar estrategias visibles"></th><th class="tm-col-index">#</th><th class="tm-col-score">Score</th><th class="tm-col-state">Estado</th><th class="tm-col-contract">Contrato</th>' +
       infoCols.map(function(col) { return '<th class="tm-col-info">' + esc(col) + '</th>'; }).join('') +
       kpiCols.map(function(col) { return '<th class="tm-col-kpi">' + esc(col) + '</th>'; }).join('') +
       '<th class="tm-col-action">Accion</th></tr>';
@@ -348,7 +398,9 @@
         contractStatus === 'Completa' ? 'tm-badge-pass' :
         contractStatus === 'Falta SQX' ? 'tm-badge-review' : 'tm-badge-fail';
       var canC2 = SQX.templateMaker.canGenerateC2(strategy);
+      var strategyId = String(strategy._id);
       return '<tr>' +
+        '<td class="tm-col-select"><input class="tm-row-check" type="checkbox" data-tm-select="' + esc(strategyId) + '" aria-label="Seleccionar estrategia ' + globalIndex + '"' + (selectedStrategyIds[strategyId] ? ' checked' : '') + '></td>' +
         '<td class="tm-col-index">' + globalIndex + '</td>' +
         '<td class="tm-col-score"><div class="tm-score"><span style="width:' + score.pct + '%"></span></div><strong>' + score.pct + '%</strong></td>' +
         '<td class="tm-col-state"><span class="tm-badge ' + badge + '">' + score.classification + '</span></td>' +
@@ -367,6 +419,43 @@
         openC2(button.dataset.tmExport);
       });
     });
+    Array.prototype.forEach.call(global.document.querySelectorAll('[data-tm-select]'), function(checkbox) {
+      checkbox.addEventListener('change', function() {
+        selectedStrategyIds[String(checkbox.dataset.tmSelect)] = checkbox.checked;
+        if (!checkbox.checked) delete selectedStrategyIds[String(checkbox.dataset.tmSelect)];
+        updateVisibleSelectionState(visible);
+        renderDeleteSelectedAction();
+      });
+    });
+    var selectVisible = byId('tm-select-visible');
+    if (selectVisible) {
+      selectVisible.addEventListener('change', function() {
+        visible.forEach(function(item) {
+          var id = String(item.strategy._id);
+          if (selectVisible.checked) {
+            selectedStrategyIds[id] = true;
+          } else {
+            delete selectedStrategyIds[id];
+          }
+        });
+        renderResults();
+      });
+      updateVisibleSelectionState(visible);
+    }
+    renderDeleteSelectedAction();
+  }
+
+  function updateVisibleSelectionState(visible) {
+    var selectVisible = byId('tm-select-visible');
+    if (!selectVisible) return;
+    var ids = (visible || []).map(function(item) {
+      return String(item.strategy._id);
+    });
+    var selectedCount = ids.filter(function(id) {
+      return selectedStrategyIds[id];
+    }).length;
+    selectVisible.checked = ids.length > 0 && selectedCount === ids.length;
+    selectVisible.indeterminate = selectedCount > 0 && selectedCount < ids.length;
   }
 
   function renderProblems() {

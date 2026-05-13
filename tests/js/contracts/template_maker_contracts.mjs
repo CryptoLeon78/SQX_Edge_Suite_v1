@@ -17,6 +17,7 @@ const requiredApi = [
   'init',
   'reset',
   'clearResultStrategies',
+  'deleteResultStrategies',
   'clearCSVStrategies',
   'ingestFiles',
   'computeFileHash',
@@ -59,6 +60,8 @@ assert.ok(html.includes('id="tm-contract-summary"'), 'missing contract summary c
 assert.ok(html.includes('id="tm-problem-panel"'), 'missing contract problem panel');
 assert.ok(html.includes('id="tm-reset-results-btn"'), 'missing results reset');
 assert.ok(html.includes('Reset resultados'), 'results reset should be user-facing');
+assert.ok(html.includes('id="tm-delete-selected-btn"'), 'missing selected delete action');
+assert.ok(html.includes('Borrar seleccionadas'), 'selected delete should be user-facing');
 assert.ok(html.includes('id="tm-csv-input"'), 'missing CSV input');
 assert.ok(html.includes('id="tm-sqx-input"'), 'missing SQX input');
 ['Genera la view obligatoria', 'Carga tus fuentes', 'Resuelve el contrato', 'Evalua Perfil Capa 1', 'Resultados y C2'].forEach(step => {
@@ -113,6 +116,17 @@ assert.ok(tm.getProvenance(tm.getStrategies()[0]._id).certVersion, 'provenance s
 const csvOnlyClear = await tm.clearResultStrategies();
 assert.equal(csvOnlyClear.removed, 1, 'clearResultStrategies should remove CSV-only rows');
 assert.equal(tm.getStrategies().length, 0, 'results clear should empty CSV rows');
+await tm.loadFromCSV([
+  'Strategy Name;Symbol;TimeFrame;Net profit;# of trades;Profit factor;Max DD %;Sharpe Ratio;Stability;CAGR/Max DD %;Winning Percent;SQN;RecoveryFactor;CalmarRatio;SortinoRatio;% Profitable Months',
+  'Delete me;XAUUSD;H1;10000;260;1.45;12;0.9;0.8;1.1;48;2.1;3.5;0.8;1.1;62',
+  'Keep me;EURUSD;H1;9000;240;1.4;14;0.8;0.7;1.0;47;1.9;3.2;0.7;1.0;58',
+].join('\n'), { fileName: 'template-maker-cert.csv' });
+const deleteTargetId = tm.getStrategies()[0]._id;
+const selectedDelete = await tm.deleteResultStrategies([deleteTargetId]);
+assert.equal(selectedDelete.removed, 1, 'deleteResultStrategies should remove selected rows only');
+assert.equal(tm.getStrategies().length, 1, 'selected delete should leave unselected rows');
+assert.equal(tm.getStrategies()[0]['Strategy Name'], 'Keep me', 'selected delete should preserve unselected strategy');
+await tm.clearResultStrategies();
 await tm.loadFromCSV(certCsv, { fileName: 'template-maker-cert.csv' });
 const strategyCopy = tm.getStrategies();
 strategyCopy.push({ _id: 'mutated' });

@@ -524,8 +524,19 @@ async function run() {
     await saveShot(desktop, 'e2e-template-maker-results-desktop.png');
     const enabledC2 = await desktop.locator('#tm-results-table [data-tm-export]:not([disabled])').count();
     if (enabledC2 < 1) throw new Error('Template Maker should enable C2 only for valid PASSED candidates');
-    await desktop.waitForFunction(() => window.SQX.templateMaker.getCapa() === 1);
+    const beforeSelectedDelete = await desktop.evaluate(() => window.SQX.templateMaker.getStrategies().length);
+    await desktop.locator('#tm-results-table [data-tm-select]').first().check();
+    await desktop.waitForFunction(() => !document.getElementById('tm-delete-selected-btn')?.disabled);
     await desktop.evaluate(() => { window.confirm = () => true; });
+    await desktop.locator('#tm-delete-selected-btn').click();
+    await desktop.waitForFunction(previous => window.SQX.templateMaker.getStrategies().length === previous - 1, beforeSelectedDelete);
+    await desktop.waitForFunction(() => document.getElementById('tm-results-table')?.hidden === false);
+    const afterSelectedDelete = await desktop.evaluate(() => window.SQX.templateMaker.getStrategies().length);
+    if (afterSelectedDelete !== beforeSelectedDelete - 1) {
+      throw new Error('Template Maker selected delete should remove only checked strategies');
+    }
+    await saveShot(desktop, 'e2e-template-maker-selected-delete-desktop.png');
+    await desktop.waitForFunction(() => window.SQX.templateMaker.getCapa() === 1);
     await desktop.locator('#tm-reset-results-btn').click();
     await desktop.waitForFunction(() => window.SQX.templateMaker.getStrategies().length === 0);
     await desktop.waitForFunction(() => document.getElementById('tm-results-table')?.hidden === true);

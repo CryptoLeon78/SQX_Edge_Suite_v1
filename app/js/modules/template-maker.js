@@ -292,6 +292,24 @@
     });
   }
 
+  function deleteResultStrategies(strategyIds) {
+    var ids = {};
+    (strategyIds || []).forEach(function(id) {
+      ids[String(id)] = true;
+    });
+    var before = _strategies.length;
+    _strategies = _strategies.filter(function(strategy) {
+      return !ids[String(strategy._id)];
+    });
+    syncNextId();
+    return saveStrategiesToDB().then(function() {
+      return {
+        removed: before - _strategies.length,
+        total: _strategies.length
+      };
+    });
+  }
+
   function clearCSVStrategies() {
     return clearResultStrategies();
   }
@@ -1123,6 +1141,7 @@
     init: init,
     reset: reset,
     clearResultStrategies: clearResultStrategies,
+    deleteResultStrategies: deleteResultStrategies,
     clearCSVStrategies: clearCSVStrategies,
     ingestFiles: ingestFiles,
     computeFileHash: computeFileHash,
