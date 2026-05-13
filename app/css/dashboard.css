@@ -548,7 +548,32 @@
   }
   .views-check input,
   .views-metric-row input { accent-color:var(--accent); }
-  .views-presets { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .views-presets {
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-top:12px;
+    padding-top:12px;
+    border-top:1px solid rgba(148,163,184,.12);
+  }
+  .views-preset-primary {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    flex:1 1 auto;
+  }
+  .views-preset-reset {
+    display:flex;
+    flex:0 0 auto;
+    padding-left:12px;
+    border-left:1px solid rgba(239,68,68,.24);
+  }
+  .views-preset-reset .filter-btn {
+    border-color:rgba(239,68,68,.44);
+    color:#fca5a5;
+    background:rgba(239,68,68,.07);
+  }
   .views-templates {
     margin-top:12px;
     padding:11px;
@@ -575,6 +600,7 @@
     justify-content:space-between;
     gap:10px;
   }
+  .views-template-badges { display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end; }
   .views-template-name { color:var(--text); font-size:13px; font-weight:850; line-height:1.25; }
   .views-template-desc { color:var(--text2); font-size:12px; line-height:1.45; }
   .views-template-meta {
@@ -598,6 +624,8 @@
   }
   .views-template-tier.free { color:#86efac; border-color:rgba(34,197,94,.30); background:rgba(34,197,94,.10); }
   .views-template-tier.pro { color:#d8b4fe; border-color:rgba(168,85,247,.34); background:rgba(168,85,247,.13); }
+  .views-template-tier.obligatoria { color:#bfdbfe; border-color:rgba(96,165,250,.34); background:rgba(59,130,246,.13); }
+  .views-template-tier.recomendable { color:#bae6fd; border-color:rgba(34,211,238,.30); background:rgba(34,211,238,.11); }
   .views-template-actions {
     display:flex;
     gap:7px;
@@ -4666,6 +4694,28 @@
   }
 
   @media (max-width: 640px) {
+    .views-presets,
+    .views-preset-primary,
+    .views-preset-reset {
+      width:100%;
+    }
+
+    .views-presets {
+      flex-direction:column;
+    }
+
+    .views-preset-reset {
+      padding-left:0;
+      padding-top:10px;
+      border-left:0;
+      border-top:1px solid rgba(239,68,68,.22);
+    }
+
+    .views-preset-primary .filter-btn,
+    .views-preset-reset .filter-btn {
+      flex:1 1 130px;
+    }
+
     .home-hero {
       padding:18px;
     }

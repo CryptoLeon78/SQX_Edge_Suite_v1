@@ -139,35 +139,39 @@
   var BUYER_READY_TEMPLATE_DEFINITIONS = [
     {
       id: 'egt-first-review',
-      name: 'EGT First Review',
+      name: 'EGT Core',
       tier: 'free',
+      priority: 'obligatoria',
       preset: 'egt-core',
-      description: 'Vista inicial para revisar candidatos con el set EGT Core anual.',
-      config: { viewName: 'EGT First Review', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_year' }
+      description: 'View obligatoria para la primera lectura anual del edge, regimen y base de comparacion.',
+      config: { viewName: 'EGT Core', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_year' }
     },
     {
       id: 'robustness-pack-screen',
-      name: 'Robustness Pack Screen',
+      name: 'Robustez',
       tier: 'pro',
+      priority: 'obligatoria',
       preset: 'robustness',
-      description: 'Revision de estabilidad, anos malos, stagnation y ratios para filtrar antes de portfolio.',
-      config: { viewName: 'Robustness Pack Screen', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
+      description: 'View obligatoria para revisar estabilidad, anos malos, stagnation y ratios antes de portfolio.',
+      config: { viewName: 'Robustez', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
     },
     {
       id: 'risk-capital-review',
-      name: 'Risk Capital Review',
+      name: 'Risk',
       tier: 'pro',
+      priority: 'recomendable',
       preset: 'risk',
-      description: 'Vista de riesgo para drawdown, dispersion, rachas negativas y stress previo a entrega.',
-      config: { viewName: 'Risk Capital Review', yearCount: 7, sampleStart: 23, includeTotal: true, groupMode: 'by_year' }
+      description: 'View recomendable para drawdown, dispersion, rachas negativas y stress previo a entrega.',
+      config: { viewName: 'Risk', yearCount: 7, sampleStart: 23, includeTotal: true, groupMode: 'by_year' }
     },
     {
       id: 'full-audit-handoff',
-      name: 'Full Audit Handoff',
+      name: 'Full audit',
       tier: 'pro',
+      priority: 'recomendable',
       preset: 'full-audit',
-      description: 'Salida amplia para auditoria completa y CSV posterior cuando una tanda ya merece investigacion.',
-      config: { viewName: 'Full Audit Handoff', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
+      description: 'View recomendable para auditoria completa y CSV posterior cuando una tanda merece investigacion.',
+      config: { viewName: 'Full audit', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
     }
   ];
 
@@ -479,6 +483,7 @@
       id: definition.id,
       name: definition.name,
       tier: definition.tier || 'pro',
+      priority: definition.priority || 'recomendable',
       preset: definition.preset || 'egt-core',
       description: definition.description || '',
       config: configFromPresetName(definition.preset, definition.config)
@@ -900,7 +905,7 @@
     var count = byId('vc-template-count');
     var templates = getBuyerReadyTemplates();
     var full = hasFullAccess();
-    if (count) count.textContent = templates.length + (templates.length === 1 ? ' ejemplo' : ' ejemplos');
+    if (count) count.textContent = templates.length + (templates.length === 1 ? ' view' : ' views');
     if (!list) return templates;
     list.innerHTML = templates.map(function(template) {
       var disabled = template.tier === 'pro' && !full;
@@ -909,7 +914,10 @@
         '<div class="views-template-top">' +
           '<div><div class="views-template-name">' + escapeHtml(template.name) + '</div>' +
           '<p class="views-template-desc">' + escapeHtml(template.description) + '</p></div>' +
-          '<span class="views-template-tier ' + escapeHtml(template.tier) + '">' + escapeHtml(template.tier) + '</span>' +
+          '<div class="views-template-badges">' +
+            '<span class="views-template-tier ' + escapeHtml(template.priority || 'recomendable') + '">' + escapeHtml(template.priority || 'recomendable') + '</span>' +
+            '<span class="views-template-tier ' + escapeHtml(template.tier) + '">' + escapeHtml(template.tier) + '</span>' +
+          '</div>' +
         '</div>' +
         '<div class="views-template-meta">' +
           '<span>' + template.config.metrics.length + ' metricas</span>' +
@@ -1109,16 +1117,16 @@
   function loadBuyerReadyTemplate(id) {
     var template = findBuyerReadyTemplate(id);
     if (!template) {
-      setStatus('Ejemplo no encontrado.', 'warn');
+      setStatus('View no encontrada.', 'warn');
       return null;
     }
     if (template.tier === 'pro' && !hasFullAccess()) {
-      setStatus('Este ejemplo requiere SQX Edge Pro.', 'warn');
+      setStatus('Esta view requiere SQX Edge Pro.', 'warn');
       return null;
     }
     applyConfig(template.config);
-    setStatus('Ejemplo cargado: ' + template.name + '.', 'ok');
-    if (global.addHomeTrace) global.addHomeTrace('SQX Views', 'Ejemplo ' + template.name + ' cargado', 'ok');
+    setStatus('View cargada: ' + template.name + '.', 'ok');
+    if (global.addHomeTrace) global.addHomeTrace('SQX Views', 'View ' + template.name + ' cargada', 'ok');
     return template;
   }
 
@@ -1126,11 +1134,11 @@
     var template = findBuyerReadyTemplate(id);
     var preset = templateToPreset(template);
     if (!preset) {
-      setStatus('Ejemplo no encontrado.', 'warn');
+      setStatus('View no encontrada.', 'warn');
       return null;
     }
     if (template.tier === 'pro' && !hasFullAccess()) {
-      setStatus('Este ejemplo requiere SQX Edge Pro.', 'warn');
+      setStatus('Esta view requiere SQX Edge Pro.', 'warn');
       return null;
     }
     var presets = getSavedPresets().filter(function(item) { return item.id !== preset.id; });
@@ -1138,7 +1146,7 @@
     setSavedPresets(presets);
     renderSavedPresets();
     if (byId('vc-saved-select')) byId('vc-saved-select').value = preset.id;
-    setStatus('Ejemplo guardado como preset: ' + preset.name + '.', 'ok');
+    setStatus('View guardada como preset: ' + preset.name + '.', 'ok');
     return preset;
   }
 
@@ -1263,11 +1271,11 @@
   function exportBuyerReadyTemplatePack() {
     var pack = buildBuyerReadyTemplatePack();
     if (!pack.presets.length) {
-      setStatus('No hay ejemplos disponibles para exportar.', 'warn');
+      setStatus('No hay views disponibles para exportar.', 'warn');
       return;
     }
     downloadJson('sqx-view-buyer-ready-pack-v' + PRESET_PACKAGE_VERSION + '.json', pack);
-    setStatus('Ejemplos exportados: ' + pack.presets.length + ' presets.', 'ok');
+    setStatus('Views exportadas: ' + pack.presets.length + ' presets.', 'ok');
   }
 
   function exportBuyerProfilePack(id) {

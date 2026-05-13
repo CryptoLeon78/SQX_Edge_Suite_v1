@@ -360,31 +360,32 @@ async function run() {
     await desktop.locator('[data-vc-preset="risk"]').click();
     await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
     await desktop.waitForSelector('#vc-template-list .views-template-card');
+    const viewsTabText = await desktop.locator('#tab-views').innerText();
+    const viewsTabTextUpper = viewsTabText.toUpperCase();
+    if (!viewsTabTextUpper.includes('VIEWS OBLIGATORIAS Y RECOMENDABLES')) throw new Error('SQX Views should rename buyer examples to required/recommended views');
+    ['EGT Core', 'Robustez', 'Risk', 'Full audit', 'obligatoria', 'recomendable'].forEach(expected => {
+      if (!viewsTabText.includes(expected)) throw new Error(`SQX Views required/recommended block should include ${expected}`);
+    });
+    ['Packs por perfil', 'Flujos por activo/validacion'].forEach(removed => {
+      if (viewsTabText.includes(removed)) throw new Error(`SQX Views should not show retired KPI block: ${removed}`);
+    });
+    if (await desktop.locator('#vc-profile-list, #vc-workflow-pack-list').count() !== 0) {
+      throw new Error('SQX Views profile/workflow pack KPI lists should be removed from the visible tab');
+    }
+    if (await desktop.locator('.views-preset-reset [data-vc-preset="clear"]').count() !== 1) {
+      throw new Error('SQX Views clear preset should be visually separated from primary presets');
+    }
     const templateCount = await desktop.locator('#vc-template-list .views-template-card').count();
     if (templateCount < 4) throw new Error(`Expected buyer-ready SQX Views examples, got ${templateCount}`);
     await desktop.locator('[data-vc-template-load="risk-capital-review"]').click();
-    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Risk Capital Review');
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Risk');
     await desktop.locator('[data-vc-template-save="risk-capital-review"]').click();
     await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').some(preset => preset.id === 'buyer-risk-capital-review'));
     const buyerPack = await desktop.evaluate(() => window.SQX.viewCreator.buildBuyerReadyTemplatePack());
     if (buyerPack.type !== 'sqx-edge.view-presets' || buyerPack.presets.length < 4) throw new Error('SQX Views buyer-ready pack contract failed');
     await desktop.evaluate(() => localStorage.removeItem('sqx_view_creator_presets_v1'));
-    await desktop.waitForSelector('#vc-profile-list .views-profile-card');
-    const profilePackCount = await desktop.locator('#vc-profile-list .views-profile-card').count();
-    if (profilePackCount < 4) throw new Error(`Expected SQX Views buyer profile packs, got ${profilePackCount}`);
-    await desktop.locator('[data-vc-profile-load="pro-setup-assist"]').click();
-    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'EGT First Review');
-    await desktop.locator('[data-vc-profile-save="pro-setup-assist"]').click();
-    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').some(preset => preset.id === 'profile-pro-setup-assist-risk-capital-review'));
     const profilePack = await desktop.evaluate(() => window.SQX.viewCreator.buildBuyerProfilePack('pro-setup-assist'));
     if (profilePack.type !== 'sqx-edge.view-presets' || profilePack.presets.length !== 3) throw new Error('SQX Views buyer profile pack contract failed');
-    await desktop.waitForSelector('#vc-workflow-pack-list .views-workflow-card');
-    const workflowPackCount = await desktop.locator('#vc-workflow-pack-list .views-workflow-card').count();
-    if (workflowPackCount < 4) throw new Error(`Expected SQX Views workflow packs, got ${workflowPackCount}`);
-    await desktop.locator('[data-vc-workflow-load="asset-family-review"]').click();
-    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Forex First Review');
-    await desktop.locator('[data-vc-workflow-save="asset-family-review"]').click();
-    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_view_creator_presets_v1') || '[]').some(preset => preset.id === 'workflow-asset-family-review-gold-risk-review'));
     const workflowPack = await desktop.evaluate(() => window.SQX.viewCreator.buildValidationWorkflowPack('asset-family-review'));
     if (workflowPack.type !== 'sqx-edge.view-presets' || workflowPack.presets.length !== 3) throw new Error('SQX Views workflow pack contract failed');
     await desktop.evaluate(() => localStorage.removeItem('sqx_view_creator_presets_v1'));

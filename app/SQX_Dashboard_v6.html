@@ -852,38 +852,26 @@
           </label>
 
           <div class="views-presets" id="vc-presets">
-            <button class="filter-btn active" data-vc-preset="egt-core" type="button">EGT Core</button>
-            <button class="filter-btn" data-vc-preset="robustness" type="button">Robustez</button>
-            <button class="filter-btn" data-vc-preset="risk" type="button">Risk</button>
-            <button class="filter-btn" data-vc-preset="full-audit" type="button">Full Audit</button>
-            <button class="filter-btn" data-vc-preset="clear" type="button">Limpiar</button>
+            <div class="views-preset-primary">
+              <button class="filter-btn active" data-vc-preset="egt-core" type="button">EGT Core</button>
+              <button class="filter-btn" data-vc-preset="robustness" type="button">Robustez</button>
+              <button class="filter-btn" data-vc-preset="risk" type="button">Risk</button>
+              <button class="filter-btn" data-vc-preset="full-audit" type="button">Full audit</button>
+            </div>
+            <div class="views-preset-reset">
+              <button class="filter-btn danger" data-vc-preset="clear" type="button">Limpiar</button>
+            </div>
           </div>
 
           <div class="views-templates">
             <div class="views-saved-title">
-              <span>Ejemplos buyer-ready</span>
-              <small id="vc-template-count">0 ejemplos</small>
+              <span>Views obligatorias y recomendables</span>
+              <small id="vc-template-count">0 views</small>
             </div>
             <div id="vc-template-list" class="views-template-list"></div>
             <div class="views-saved-tools">
-              <button class="filter-btn" id="vc-export-template-pack-btn" type="button">Exportar ejemplos</button>
+              <button class="filter-btn" id="vc-export-template-pack-btn" type="button">Exportar views</button>
             </div>
-          </div>
-
-          <div class="views-profile-packs">
-            <div class="views-saved-title">
-              <span>Packs por perfil</span>
-              <small id="vc-profile-count">0 packs</small>
-            </div>
-            <div id="vc-profile-list" class="views-profile-list"></div>
-          </div>
-
-          <div class="views-workflow-packs">
-            <div class="views-saved-title">
-              <span>Flujos por activo/validacion</span>
-              <small id="vc-workflow-pack-count">0 flujos</small>
-            </div>
-            <div id="vc-workflow-pack-list" class="views-workflow-list"></div>
           </div>
 
           <div class="views-saved">
