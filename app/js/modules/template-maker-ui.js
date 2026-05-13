@@ -91,10 +91,6 @@
     bindClick('tm-audit-close', closeAudit);
     bindClick('tm-c2-cancel', closeC2);
     bindClick('tm-c2-confirm', confirmC2);
-    bindClick('tm-thresholds-toggle', function() {
-      var body = byId('tm-thresholds-content');
-      if (body) body.hidden = !body.hidden;
-    });
   }
 
   function bindClick(id, handler) {
@@ -149,7 +145,7 @@
 
   function handleSQXFiles(files) {
     var list = Array.prototype.slice.call(files || []).filter(function(file) {
-      return /\.sqx$/i.test(file.name);
+      return /\.(sqx|zip)$/i.test(file.name);
     });
     if (!list.length) return;
     setStatus('Procesando ' + list.length + ' archivos .sqx...');
@@ -166,6 +162,7 @@
     renderCapa();
     renderThresholds();
     renderStats();
+    renderContractSummary();
     renderResults();
   }
 
@@ -241,6 +238,54 @@
     });
   }
 
+  function renderContractSummary() {
+    var mount = byId('tm-contract-summary');
+    if (!mount) return;
+    var scored = SQX.templateMaker.scoreAll();
+    var labels = [
+      {
+        status: 'Lista para C2',
+        className: 'is-ready',
+        action: 'Ya puede generar C2 si el candidato es el elegido.'
+      },
+      {
+        status: 'Completa',
+        className: 'is-complete',
+        action: 'Tiene CSV y .sqx; revisa scoring antes de C2.'
+      },
+      {
+        status: 'Falta SQX',
+        className: 'is-warning',
+        action: 'Añade el .sqx original para habilitar C2.'
+      },
+      {
+        status: 'Faltan métricas',
+        className: 'is-danger',
+        action: 'Exporta CSV con Template Maker Cert desde SQX.'
+      },
+      {
+        status: 'Métricas no compatibles',
+        className: 'is-danger',
+        action: 'Regenera el Databank CSV con la view obligatoria.'
+      }
+    ];
+    var counts = labels.reduce(function(acc, item) {
+      acc[item.status] = 0;
+      return acc;
+    }, {});
+    scored.forEach(function(item) {
+      var status = SQX.templateMaker.getStrategyStatus(item.strategy, item.score);
+      counts[status] = (counts[status] || 0) + 1;
+    });
+    mount.innerHTML = labels.map(function(item) {
+      return '<div class="tm-contract-card ' + item.className + '">' +
+        '<span>' + esc(item.status) + '</span>' +
+        '<strong>' + esc(counts[item.status] || 0) + '</strong>' +
+        '<small>' + esc(item.action) + '</small>' +
+      '</div>';
+    }).join('');
+  }
+
   function renderResults() {
     var all = SQX.templateMaker.scoreAll();
     if (query) {
@@ -291,7 +336,7 @@
           var detail = score.details[col] || {};
           return '<td class="tm-kpi-' + (detail.result || 'na') + '">' + esc(detail.value === undefined || detail.value === '' ? '-' : detail.value) + '</td>';
         }).join('') +
-        '<td><button class="filter-btn" type="button" data-tm-export="' + esc(strategy._id) + '"' + (!canC2 ? ' disabled' : '') + '>C2</button></td>' +
+        '<td><button class="filter-btn tm-c2-action" type="button" data-tm-export="' + esc(strategy._id) + '"' + (!canC2 ? ' disabled' : '') + '>C2</button></td>' +
       '</tr>';
     }).join('');
 
@@ -305,9 +350,15 @@
   function renderProblems() {
     var panel = byId('tm-problem-panel');
     if (!panel) return;
+    var total = SQX.templateMaker.getStrategies().length;
+    if (!total) {
+      panel.innerHTML = '<strong>Contrato pendiente</strong><span>Carga CSV Template Maker Cert y/o archivos .sqx para iniciar la certificacion.</span>';
+      panel.classList.remove('is-ok');
+      return;
+    }
     var incomplete = SQX.templateMaker.getIncompleteRecords();
     if (!incomplete.length) {
-      panel.innerHTML = '<strong>Contrato completo</strong><span>Todas las estrategias visibles tienen CSV Template Maker Cert, .sqx y estado operativo coherente.</span>';
+      panel.innerHTML = '<strong>Contrato completo</strong><span>Todas las estrategias tienen CSV Template Maker Cert, .sqx y estado operativo coherente.</span>';
       panel.classList.add('is-ok');
       return;
     }
@@ -317,11 +368,19 @@
       acc[status] = (acc[status] || 0) + 1;
       return acc;
     }, {});
-    panel.innerHTML = '<strong>Problemas de contrato detectados</strong>' +
+    panel.innerHTML = '<strong>Accion requerida antes de C2</strong>' +
       '<span>Template Maker solo habilita C2 cuando existe .sqx, CSV Template Maker Cert compatible y scoring PASSED.</span>' +
       '<div class="tm-problem-tags">' + Object.keys(groups).map(function(status) {
-        return '<span>' + esc(status) + ': ' + groups[status] + '</span>';
+        return '<span>' + esc(status) + ': ' + groups[status] + ' · ' + esc(problemHint(status)) + '</span>';
       }).join('') + '</div>';
+  }
+
+  function problemHint(status) {
+    if (status === 'Falta SQX') return 'añade el .sqx original';
+    if (status === 'Faltan métricas') return 'exporta CSV con Template Maker Cert';
+    if (status === 'Métricas no compatibles') return 'regenera la view obligatoria';
+    if (status === 'Completa') return 'necesita scoring PASSED para C2';
+    return 'revisa fuentes';
   }
 
   function openAudit() {

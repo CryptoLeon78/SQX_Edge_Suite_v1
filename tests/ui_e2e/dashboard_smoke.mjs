@@ -458,14 +458,26 @@ async function run() {
     await desktop.waitForSelector('.tab[data-tab="templatemaker"].active');
     await desktop.waitForSelector('#tm-csv-input', { state: 'attached' });
     const templateMakerText = await desktop.locator('#tab-templatemaker').innerText();
-    ['Template Maker', 'Template Maker Cert', 'Cargar archivos', 'Umbrales KPI editables', 'Scoring de estrategias'].forEach(expected => {
+    ['Template Maker', 'Template Maker Cert', 'Genera la view obligatoria', 'Carga tus fuentes', 'Resuelve el contrato', 'Evalua Capa y Perfil', 'Resultados y C2', 'Cargar archivos', 'Umbrales KPI editables'].forEach(expected => {
       if (!templateMakerText.includes(expected)) throw new Error(`Template Maker tab should include ${expected}`);
     });
+    const templateMakerTextLower = templateMakerText.toLowerCase();
+    if (!templateMakerTextLower.includes('paso 1') || !templateMakerTextLower.includes('paso 5')) {
+      throw new Error('Template Maker should render a five-step guided flow');
+    }
+    const advancedDefaults = await desktop.evaluate(() => ({
+      loads: document.querySelector('.tm-secondary-loads')?.open === false,
+      thresholds: document.querySelector('.tm-thresholds-details')?.open === false,
+    }));
+    if (!advancedDefaults.loads || !advancedDefaults.thresholds) {
+      throw new Error('Template Maker advanced loads and thresholds should start collapsed');
+    }
     await desktop.locator('.tm-secondary-loads > summary').click();
     const templateMakerSecondaryText = await desktop.locator('#tab-templatemaker').innerText();
     ['Importar CSV', 'Importar .sqx'].forEach(expected => {
       if (!templateMakerSecondaryText.includes(expected)) throw new Error(`Template Maker secondary loads should include ${expected}`);
     });
+    await desktop.locator('.tm-secondary-loads > summary').click();
     await desktop.locator('#tm-open-cert-view').click();
     await desktop.waitForSelector('.tab[data-tab="views"].active');
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Template Maker Cert');
@@ -476,6 +488,8 @@ async function run() {
     await desktop.waitForFunction(() => window.SQX?.templateMaker?.getStrategies().length > 0);
     await desktop.waitForSelector('#tm-results-table:not([hidden])');
     await desktop.waitForFunction(() => document.getElementById('tm-problem-panel')?.textContent.includes('Falta SQX'));
+    await desktop.waitForFunction(() => document.getElementById('tm-problem-panel')?.textContent.includes('añade el .sqx original'));
+    await desktop.waitForFunction(() => (document.getElementById('tm-contract-summary')?.innerText || '').toLowerCase().includes('falta sqx'));
     const tmAuditAfterCsv = await desktop.evaluate(() => window.SQX.templateMaker.getAuditReport());
     if (tmAuditAfterCsv.total < 1 || tmAuditAfterCsv.passed < 1) {
       throw new Error('Template Maker should show loaded CSV scoring results');
@@ -496,6 +510,9 @@ async function run() {
     }, tmCsvText);
     await desktop.waitForFunction(() => window.SQX.templateMaker.getStrategies().some(strategy => window.SQX.templateMaker.getStrategyStatus(strategy) === 'Lista para C2'));
     await desktop.waitForFunction(() => document.getElementById('tm-results-table')?.innerText.includes('Lista para C2'));
+    await desktop.waitForFunction(() => (document.getElementById('tm-contract-summary')?.innerText || '').toLowerCase().includes('lista para c2'));
+    const enabledC2 = await desktop.locator('#tm-results-table [data-tm-export]:not([disabled])').count();
+    if (enabledC2 < 1) throw new Error('Template Maker should enable C2 only for valid PASSED candidates');
     await desktop.locator('[data-tm-capa="2"]').click();
     await desktop.waitForFunction(() => window.SQX.templateMaker.getCapa() === 2);
     await desktop.locator('#tm-audit-btn').click();

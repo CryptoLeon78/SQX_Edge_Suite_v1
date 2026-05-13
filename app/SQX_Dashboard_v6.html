@@ -1035,82 +1035,103 @@
         </div>
       </div>
 
-      <div class="tm-contract-panel">
-        <div>
-          <span class="views-eyebrow">Paso 0 obligatorio</span>
-          <strong>Genera la view Template Maker Cert en SQX Views</strong>
-          <p>Antes de certificar, importa esta .vw en StrategyQuant X y exporta el Databank CSV. Sin ese CSV compatible, Template Maker marcara la estrategia como incompleta.</p>
+      <section class="tm-panel tm-step-panel tm-step-cert">
+        <div class="views-panel-head">
+          <div>
+            <span>Paso 1</span>
+            <strong>Genera la view obligatoria</strong>
+          </div>
+          <small>SQX Views &gt; Template Maker Cert</small>
         </div>
-        <button class="export-btn" id="tm-open-cert-view" type="button">Abrir SQX Views</button>
-      </div>
+        <p class="views-step-copy">Primero crea la view `Template Maker Cert` en SQX Views, importala en StrategyQuant X y exporta el Databank CSV. Ese CSV es la fuente oficial de metricas.</p>
+        <div class="tm-method-grid">
+          <div><strong>CSV</strong><span>Metricas, scoring y certificacion.</span></div>
+          <div><strong>.sqx</strong><span>Logica original y generacion C2.</span></div>
+          <div><strong>CSV + .sqx</strong><span>Estrategia completa lista para decidir.</span></div>
+        </div>
+        <button class="export-btn tm-step-cta" id="tm-open-cert-view" type="button">Abrir SQX Views</button>
+      </section>
 
-      <div class="tm-toolbar">
-        <div>
-          <strong id="tm-capa-label">Capa 1 - Mining Edge</strong>
-          <span>Elige capa, perfil de activo y carga datos reales para evaluar estrategias.</span>
+      <section class="tm-panel tm-step-panel tm-step-load">
+        <div class="views-panel-head">
+          <div>
+            <span>Paso 2</span>
+            <strong>Carga tus fuentes</strong>
+          </div>
+          <small>CSV, SQX o ZIP en lote</small>
         </div>
-        <div class="tm-toolbar-actions">
+        <p class="views-step-copy">Arrastra el CSV `Template Maker Cert` y los `.sqx` originales. La app reconciliara estrategias por nombre, simbolo, timeframe y hash.</p>
+        <div class="tm-upload-grid tm-upload-grid-primary">
+          <button class="tm-upload-zone tm-upload-zone-primary" id="tm-unified-zone" type="button">
+            <strong>Cargar archivos</strong>
+            <span>CSV Template Maker Cert + .sqx/.zip. Puedes cargar todo junto.</span>
+            <input type="file" id="tm-files-input" accept=".csv,.sqx,.zip" multiple>
+          </button>
+        </div>
+        <details class="tm-secondary-loads views-details">
+          <summary>Avanzado: cargas separadas</summary>
+          <div class="tm-upload-grid">
+            <button class="tm-upload-zone" id="tm-csv-zone" type="button">
+              <strong>Importar CSV</strong>
+              <span>Databank exportado desde SQX con la view obligatoria Template Maker Cert.</span>
+              <input type="file" id="tm-csv-input" accept=".csv">
+            </button>
+            <button class="tm-upload-zone" id="tm-sqx-zone" type="button">
+              <strong>Importar .sqx</strong>
+              <span>Estrategias originales para logica, trazabilidad y generacion C2.</span>
+              <input type="file" id="tm-sqx-input" accept=".sqx,.zip" multiple>
+            </button>
+          </div>
+        </details>
+      </section>
+
+      <section class="tm-panel tm-step-panel tm-step-contract">
+        <div class="views-panel-head">
+          <div>
+            <span>Paso 3</span>
+            <strong>Resuelve el contrato</strong>
+          </div>
+          <small>Completitud antes de C2</small>
+        </div>
+        <p class="views-step-copy">Cada estrategia debe tener metricas compatibles y archivo `.sqx`. Si algo falta, esta zona indica la accion correcta antes de seguir.</p>
+        <div id="tm-contract-summary" class="tm-contract-summary" aria-live="polite"></div>
+        <div id="tm-status" class="tm-status">Esperando CSV o .sqx.</div>
+        <div id="tm-problem-panel" class="tm-problem-panel"><strong>Contrato pendiente</strong><span>Carga archivos para verificar que cada estrategia tenga metricas y logica.</span></div>
+      </section>
+
+      <section class="tm-panel tm-step-panel tm-step-evaluate">
+        <div class="views-panel-head">
+          <div>
+            <span>Paso 4</span>
+            <strong>Evalua Capa y Perfil</strong>
+          </div>
+          <small id="tm-capa-label">Capa 1 - Mining Edge</small>
+        </div>
+        <p class="views-step-copy">Elige la capa metodologica y el perfil del activo. Usa auditoria para revisar la tanda y reset solo para limpiar Template Maker.</p>
+        <div class="tm-toolbar-actions tm-evaluate-actions">
           <div class="tm-capa-toggle" aria-label="Selector de capa">
             <button class="filter-btn active" type="button" data-tm-capa="1">Capa 1</button>
             <button class="filter-btn" type="button" data-tm-capa="2">Capa 2</button>
           </div>
           <select id="tm-preset-select" class="filter-select" aria-label="Perfil de activo"></select>
           <button class="filter-btn" id="tm-auto-preset" type="button">Auto perfil</button>
-          <button class="filter-btn tm-danger" id="tm-reset-btn" type="button">Reset</button>
           <button class="export-btn" id="tm-audit-btn" type="button">Auditoria</button>
+          <button class="filter-btn tm-danger" id="tm-reset-btn" type="button">Reset</button>
         </div>
-      </div>
+        <details class="tm-thresholds-details views-details">
+          <summary>Avanzado: Umbrales KPI editables</summary>
+          <p class="views-step-copy">Ajusta estos limites solo si tu metodologia lo requiere; afectan al scoring PASSED/REVIEW/FAILED.</p>
+          <div id="tm-thresholds-content">
+            <div id="tm-thresholds-grid" class="tm-thresholds-grid"></div>
+          </div>
+        </details>
+      </section>
 
-      <div class="tm-upload-grid tm-upload-grid-primary">
-        <button class="tm-upload-zone tm-upload-zone-primary" id="tm-unified-zone" type="button">
-          <strong>Cargar archivos</strong>
-          <span>Arrastra o selecciona CSV Template Maker Cert + .sqx/.zip. La app reconciliara fuentes por nombre, simbolo, timeframe y hash.</span>
-          <input type="file" id="tm-files-input" accept=".csv,.sqx,.zip" multiple>
-        </button>
-      </div>
-
-      <details class="tm-panel tm-secondary-loads">
-        <summary>Cargas separadas de compatibilidad</summary>
-        <div class="tm-upload-grid">
-        <button class="tm-upload-zone" id="tm-csv-zone" type="button">
-          <strong>Importar CSV</strong>
-          <span>CSV Databank exportado desde SQX con la view obligatoria Template Maker Cert.</span>
-          <input type="file" id="tm-csv-input" accept=".csv">
-        </button>
-        <button class="tm-upload-zone" id="tm-sqx-zone" type="button">
-          <strong>Importar .sqx</strong>
-          <span>Estrategias originales para logica, trazabilidad y generacion C2.</span>
-          <input type="file" id="tm-sqx-input" accept=".sqx,.zip" multiple>
-        </button>
-        </div>
-      </details>
-
-      <div class="tm-flow-grid">
-        <div class="tm-status-card"><strong>.sqx</strong><span>Logica, configuracion y generacion C2.</span></div>
-        <div class="tm-status-card"><strong>CSV Template Maker Cert</strong><span>Metricas oficiales y certificacion.</span></div>
-        <div class="tm-status-card"><strong>.sqx + CSV</strong><span>Estrategia completa; C2 solo si queda PASSED.</span></div>
-      </div>
-
-      <details class="tm-panel tm-help-panel" open>
-        <summary>Guia rapida</summary>
-        <p><strong>Capa 1</strong> filtra edge estadistico crudo. <strong>Capa 2</strong> exige estrategias mas operables con umbrales mas estrictos. El boton C2 aparece solo si la estrategia tiene .sqx, CSV Template Maker Cert compatible y scoring PASSED.</p>
-      </details>
-
-      <div class="tm-panel">
-        <button id="tm-thresholds-toggle" class="tm-panel-head" type="button">
-          <span>Umbrales KPI editables</span>
-          <small>Ajusta solo si tu metodologia lo requiere.</small>
-        </button>
-        <div id="tm-thresholds-content" hidden>
-          <div id="tm-thresholds-grid" class="tm-thresholds-grid"></div>
-        </div>
-      </div>
-
-      <div class="tm-panel">
+      <section class="tm-panel tm-step-panel tm-step-results">
         <div class="tm-results-head">
           <div>
-            <span class="views-eyebrow">Resultados</span>
-            <strong>Scoring de estrategias</strong>
+            <span>Paso 5</span>
+            <strong>Resultados y C2</strong>
           </div>
           <div class="tm-search-row">
             <input id="tm-search" class="search-input" type="search" placeholder="Buscar estrategia, simbolo o activo">
@@ -1119,8 +1140,7 @@
             <button id="tm-next" class="filter-btn" type="button">Siguiente</button>
           </div>
         </div>
-        <div id="tm-status" class="tm-status">Esperando CSV o .sqx.</div>
-        <div id="tm-problem-panel" class="tm-problem-panel"><strong>Contrato pendiente</strong><span>Carga archivos para verificar que cada estrategia tenga metricas y logica.</span></div>
+        <p class="views-step-copy">La tabla prioriza estado, contrato y accion C2. C2 solo se activa cuando hay `.sqx`, CSV compatible y scoring PASSED.</p>
         <div id="tm-empty-state" class="tm-empty-state">Carga CSV Template Maker Cert, .sqx o ambos desde el boton principal para empezar.</div>
         <div class="tm-results-wrap">
           <table class="cat-table tm-results-table" id="tm-results-table" hidden>
@@ -1128,7 +1148,7 @@
             <tbody id="tm-results-tbody"></tbody>
           </table>
         </div>
-      </div>
+      </section>
     </section>
 
     <div id="tm-modal-audit" class="tm-modal" hidden>

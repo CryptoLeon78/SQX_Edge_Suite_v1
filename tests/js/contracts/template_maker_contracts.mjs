@@ -53,9 +53,20 @@ assert.ok(html.includes('Template Maker Cert'), 'Template Maker should explain t
 assert.ok(html.includes('id="tm-files-input"'), 'missing unified file input');
 assert.ok(html.includes('id="tm-unified-zone"'), 'missing unified upload zone');
 assert.ok(html.includes('id="tm-open-cert-view"'), 'missing SQX Views handoff');
+assert.ok(html.includes('id="tm-contract-summary"'), 'missing contract summary cards');
 assert.ok(html.includes('id="tm-problem-panel"'), 'missing contract problem panel');
 assert.ok(html.includes('id="tm-csv-input"'), 'missing CSV input');
 assert.ok(html.includes('id="tm-sqx-input"'), 'missing SQX input');
+['Genera la view obligatoria', 'Carga tus fuentes', 'Resuelve el contrato', 'Evalua Capa y Perfil', 'Resultados y C2'].forEach(step => {
+  assert.ok(html.includes(step), `Template Maker guided flow should include ${step}`);
+});
+['Completa', 'Falta SQX', 'Faltan métricas', 'Métricas no compatibles', 'Lista para C2'].forEach(status => {
+  assert.ok(html.includes(status) || fs.readFileSync(path.join(repoRoot, 'app/js/modules/template-maker-ui.js'), 'utf8').includes(status), `Template Maker should render status ${status}`);
+});
+assert.ok(html.includes('Avanzado: cargas separadas'), 'separate loads should be advanced');
+assert.ok(html.includes('Avanzado: Umbrales KPI editables'), 'thresholds should be advanced');
+assert.ok(!html.includes('tm-help-panel'), 'old quick guide panel should be merged into guided steps');
+assert.ok(!html.includes('tm-flow-grid'), 'old source cards should be merged into guided steps');
 assert.ok(html.includes('vendor/jszip.min.js'), 'missing local JSZip script');
 assert.ok(html.includes('js/modules/template-maker.js'), 'missing template-maker script');
 assert.ok(html.includes('js/modules/template-maker-ui.js'), 'missing template-maker-ui script');
