@@ -1681,6 +1681,146 @@ function renderPsNextAction() {
   document.getElementById('ps-na-text').textContent = PIPELINE_STATE.nextAction || '(sin definir)';
 }
 
+function hasFunnelDataForKey(key) {
+  const data = getFunnelData(key);
+  return Object.values(data).some(function(v) { return typeof v === 'number' && v > 0; });
+}
+
+function getTemplateForMining(num, preferredTemplate) {
+  const templates = getTemplatesByMining(num);
+  if (preferredTemplate && (templates.includes(preferredTemplate) || hasFunnelDataForKey(num + '|' + preferredTemplate))) {
+    return preferredTemplate;
+  }
+  if (templates.length) return templates[0];
+  const funnelKey = Object.keys(PIPELINE_STATE.funnels || {}).find(function(key) {
+    return key.indexOf(num + '|') === 0 && hasFunnelDataForKey(key);
+  });
+  return funnelKey ? funnelKey.split('|')[1] : '';
+}
+
+function getOperationalFocusModel() {
+  const minings = getPlanMinings();
+  if (!minings.length) return { empty:true };
+
+  const selectedNum = parseInt((document.getElementById('ps-funnel-mining') || {}).value, 10);
+  const selectedTemplate = (document.getElementById('ps-funnel-template') || {}).value || '';
+  const selectedMining = minings.find(function(m) { return m.num === selectedNum; });
+  const selectedKey = selectedMining && selectedTemplate ? selectedMining.num + '|' + selectedTemplate : '';
+  const selectedHasData = !!selectedMining && (
+    hasFunnelDataForKey(selectedKey) ||
+    getStrategiesByMining(selectedMining.num).some(function(s) { return s.template === selectedTemplate; })
+  );
+
+  let mining = selectedHasData ? selectedMining : null;
+  if (!mining) mining = minings.find(function(m) { return getStrategiesByMining(m.num).length > 0; }) || null;
+  if (!mining) mining = minings.find(function(m) { return getMiningStatus(m.num) === 'current'; }) || null;
+  if (!mining) mining = minings[0];
+
+  const template = getTemplateForMining(mining.num, mining.num === selectedNum ? selectedTemplate : '');
+  const templateLabel = template || 'Pendiente';
+  const key = template ? mining.num + '|' + template : '';
+  const funnel = key ? getFunnelData(key) : {};
+  const initial = typeof funnel.mining === 'number' ? funnel.mining : 0;
+  const terminalStage = FUNNEL_STAGES_DEFAULT[FUNNEL_STAGES_DEFAULT.length - 1];
+  const terminal = terminalStage && typeof funnel[terminalStage.id] === 'number'
+    ? funnel[terminalStage.id]
+    : FUNNEL_STAGES_DEFAULT.reduce(function(last, stage) {
+      return typeof funnel[stage.id] === 'number' ? funnel[stage.id] : last;
+    }, 0);
+  const survival = initial > 0 ? (terminal / initial * 100) : null;
+  const allStrategies = getStrategiesByMining(mining.num);
+  const strategies = template ? allStrategies.filter(function(s) { return s.template === template; }) : allStrategies;
+  const tier1 = strategies.filter(function(s) { return s.tier === '1'; }).length;
+  const tier15 = strategies.filter(function(s) { return s.tier === '1.5'; }).length;
+  const tier2 = strategies.filter(function(s) { return s.tier === '2'; }).length;
+  const tentative = strategies.filter(function(s) { return s.tier === 'tentativa'; }).length;
+  const failed = strategies.reduce(function(acc, s) {
+    (s.tests_failed || []).forEach(function(test) {
+      if (acc.indexOf(test) === -1) acc.push(test);
+    });
+    return acc;
+  }, []);
+  const info = getMiningStatusInfo(mining.num);
+
+  return {
+    empty:false,
+    mining:mining,
+    template:templateLabel,
+    status:info.status,
+    statusLabel:sqxStatusMeta(info.status).label,
+    statusSource:info.source,
+    initial:initial,
+    terminal:terminal,
+    survival:survival,
+    strategyCount:strategies.length,
+    tier1:tier1,
+    tier15:tier15,
+    tier2:tier2,
+    tentative:tentative,
+    failed:failed,
+    nextAction:PIPELINE_STATE.nextAction || '(sin definir)'
+  };
+}
+
+function renderPsOperationalFocus() {
+  const card = document.getElementById('ps-current-pipeline-status');
+  if (!card) return;
+  const model = getOperationalFocusModel();
+  card.classList.add('ps-focus-card');
+  if (model.empty) {
+    card.innerHTML =
+      '<div class="card-header">' +
+        '<h2>Foco operativo</h2>' +
+        '<span class="badge warning">Plan vacio</span>' +
+      '</div>' +
+      '<div class="ps-focus-empty">' +
+        '<strong>No hay mining activo que dirigir.</strong>' +
+        '<span>Empieza con <b>+ Mining</b> o añade assets desde <b>Por Activo</b>. Cuando exista un plan, esta tarjeta resumira el foco real, embudo, estrategias y siguiente accion.</span>' +
+      '</div>';
+    return;
+  }
+
+  const mining = model.mining;
+  const statusClass = model.status || 'pending';
+  const statusSource = model.statusSource === 'manual' ? 'manual' : (model.statusSource === 'priority' ? 'prioridad' : (model.statusSource === 'strategies' ? 'auto' : 'default'));
+  const survivalLabel = model.survival == null ? 'sin embudo' : model.survival.toFixed(1) + '%';
+  const funnelLabel = model.initial > 0 ? fmtInt(model.initial) + ' -> ' + fmtInt(model.terminal) : 'sin datos';
+  const failedLabel = model.failed.length ? model.failed.slice(0, 2).map(planEsc).join(' · ') + (model.failed.length > 2 ? ' +' + (model.failed.length - 2) : '') : 'sin fallos registrados';
+
+  card.innerHTML =
+    '<div class="card-header">' +
+      '<h2>Foco operativo</h2>' +
+      '<span class="badge layer1">Mining ' + mining.num + '</span>' +
+      '<span class="badge info">' + planEsc(model.template) + '</span>' +
+      '<span class="status ' + statusClass + '">' + planEsc(model.statusLabel) + '</span>' +
+    '</div>' +
+    '<div class="ps-focus-grid">' +
+      '<div class="ps-focus-main">' +
+        '<div class="ps-focus-title">' +
+          '<strong>' + planEsc(mining.asset) + ' ' + planEsc(mining.tf) + '</strong>' +
+          '<span>' + planEsc(mining.bs) + ' · ' + planEsc(mining.dir) + ' · Fase ' + mining.phase + '</span>' +
+        '</div>' +
+        '<div class="ps-focus-meta">' +
+          '<span class="ps-focus-pill">Estado: <strong>' + planEsc(model.statusLabel) + '</strong></span>' +
+          '<span class="ps-focus-pill">Fuente: <strong>' + planEsc(statusSource) + '</strong></span>' +
+          '<span class="ps-focus-pill">Template: <strong>' + planEsc(model.template) + '</strong></span>' +
+        '</div>' +
+        '<div class="ps-focus-next"><strong>Siguiente accion:</strong> ' + planEsc(model.nextAction) + '</div>' +
+        '<div class="ps-focus-actions">' +
+          '<button class="export-btn" onclick="document.getElementById(\'ps-plan-card\').scrollIntoView({behavior:\'smooth\',block:\'start\'})">Ver plan</button>' +
+          '<button class="export-btn" onclick="document.getElementById(\'ps-funnel-card\').scrollIntoView({behavior:\'smooth\',block:\'start\'})">Ver embudo</button>' +
+          '<button class="export-btn" onclick="activateTabById(\'estrategias\')">Ver estrategias</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="ps-focus-metrics">' +
+        '<div class="ps-focus-metric"><span>Embudo</span><strong>' + planEsc(survivalLabel) + '</strong><small>' + planEsc(funnelLabel) + '</small></div>' +
+        '<div class="ps-focus-metric"><span>Estrategias</span><strong>' + model.strategyCount + '</strong><small>' + model.tier1 + ' T1 · ' + (model.tier15 + model.tier2) + ' T1.5/T2 · ' + model.tentative + ' tentativas</small></div>' +
+        '<div class="ps-focus-metric"><span>Ganadoras</span><strong>' + (model.tier1 + model.tier15 + model.tier2) + '</strong><small>Supervivientes visibles para este foco</small></div>' +
+        '<div class="ps-focus-metric"><span>Riesgo pendiente</span><strong>' + (model.failed.length || 0) + '</strong><small>' + failedLabel + '</small></div>' +
+      '</div>' +
+    '</div>';
+}
+
 function renderPsPlan() {
   refreshPlanAll();
   const allMinings = getPlanMinings();
@@ -1802,14 +1942,20 @@ function populateFunnelSelectors() {
   const selM = document.getElementById('ps-funnel-mining');
   const selT = document.getElementById('ps-funnel-template');
   // mining selector
-  const miningsWithStrats = [...new Set(getAllStrategies().map(s => s.mining))].sort((a,b)=>a-b);
-  const miningsAll = miningsWithStrats.length ? miningsWithStrats : [1];
+  const planNums = getPlanMinings().map(function(m) { return m.num; });
+  const miningsWithStrats = getAllStrategies().map(function(s) { return s.mining; });
+  const miningsAll = [...new Set(planNums.concat(miningsWithStrats))].filter(Boolean).sort((a,b)=>a-b);
+  if (!miningsAll.length) miningsAll.push(1);
   const curM = parseInt(selM.value,10) || miningsAll[0];
   selM.innerHTML = miningsAll.map(m => '<option value="'+m+'">Mining '+m+'</option>').join('');
   selM.value = miningsAll.includes(curM) ? curM : miningsAll[0];
   // template selector
   const tpls = getTemplatesByMining(parseInt(selM.value,10));
-  const tplsAll = tpls.length ? tpls : ['LINEAR'];
+  const funnelTemplates = Object.keys(PIPELINE_STATE.funnels || {}).filter(function(key) {
+    return key.indexOf(selM.value + '|') === 0;
+  }).map(function(key) { return key.split('|')[1]; });
+  const tplsAll = [...new Set(tpls.concat(funnelTemplates))].filter(Boolean);
+  if (!tplsAll.length) tplsAll.push('LINEAR');
   const curT = selT.value || tplsAll[0];
   selT.innerHTML = tplsAll.map(t => '<option value="'+t+'">'+t+'</option>').join('');
   selT.value = tplsAll.includes(curT) ? curT : tplsAll[0];
@@ -1867,6 +2013,7 @@ window.editFunnelCell = function(el, key, stage) {
     const v = inp.value.trim();
     setFunnelValue(key, stage, v);
     el.classList.remove('editing');
+    renderPsOperationalFocus();
     renderPsFunnel();
   }
   inp.addEventListener('blur', commit);
@@ -1976,6 +2123,7 @@ function renderPipelineState() {
   renderPsPlan();
   populateFunnelSelectors();
   renderPsNextAction();
+  renderPsOperationalFocus();
   renderPsFunnel();
   renderOrphans();
   // override info bar
@@ -2033,13 +2181,17 @@ function renderPipelineState() {
 // listeners
 document.getElementById('ps-funnel-mining').addEventListener('change', function(){
   populateFunnelSelectors();
+  renderPsOperationalFocus();
   renderPsFunnel();
 });
-document.getElementById('ps-funnel-template').addEventListener('change', renderPsFunnel);
+document.getElementById('ps-funnel-template').addEventListener('change', function() {
+  renderPsOperationalFocus();
+  renderPsFunnel();
+});
 
 document.getElementById('ps-na-edit').addEventListener('click', function(){
   const v = prompt('Próxima acción inmediata:', PIPELINE_STATE.nextAction || '');
-  if (v != null) { PIPELINE_STATE.nextAction = v.trim(); savePipelineState(); renderPsNextAction(); }
+  if (v != null) { PIPELINE_STATE.nextAction = v.trim(); savePipelineState(); renderPsNextAction(); renderPsOperationalFocus(); }
 });
 
 document.getElementById('ps-plan-reset').addEventListener('click', function(){

@@ -63,6 +63,7 @@ async function run() {
     await desktop.locator('#workflow-command-center [data-home-tab="pipeline"]').click();
     await desktop.waitForSelector('.tab[data-tab="pipeline"].active');
     await desktop.waitForSelector('#ps-current-pipeline-status');
+    await desktop.waitForFunction(() => document.getElementById('ps-current-pipeline-status')?.innerText.includes('Foco operativo'));
     await desktop.waitForSelector('#ps-command-strip');
     const miningControlCommandText = await desktop.locator('#ps-command-strip').innerText();
     ['Workflow', 'SQX Views', 'Plan mining', 'Project Generator', 'Estrategias', 'Champion vs Challenger'].forEach(expected => {
@@ -107,6 +108,7 @@ async function run() {
       window.renderPipelineState();
     });
     await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
+    await desktop.waitForFunction(() => document.getElementById('ps-current-pipeline-status')?.innerText.includes('No hay mining activo que dirigir'));
     const cleanPlanState = await desktop.evaluate(() => JSON.parse(localStorage.getItem('sqx_plan_user_v1') || '{}'));
     if (!cleanPlanState.baseDisabled || !Array.isArray(cleanPlanState.hiddenBaseMinings) || cleanPlanState.hiddenBaseMinings.length === 0) {
       throw new Error('Clean project reset should disable and explicitly hide base plan minings');
@@ -127,6 +129,10 @@ async function run() {
       window.renderPipelineState();
     });
     await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('XAUUSD'));
+    await desktop.waitForFunction(() => {
+      const text = document.getElementById('ps-current-pipeline-status')?.innerText || '';
+      return text.includes('Foco operativo') && text.includes('XAUUSD H1') && text.includes('BS_Tendencia');
+    });
     await desktop.evaluate(() => {
       window.clearPlanUser();
       localStorage.removeItem('sqx_strategies_deleted_v1');
@@ -137,8 +143,12 @@ async function run() {
     await desktop.waitForSelector('.tab[data-tab="pipeline"].active');
     await desktop.waitForFunction(() => !document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
     const miningControlStatusText = await desktop.locator('#ps-current-pipeline-status').innerText();
-    if (!miningControlStatusText.includes('TEMPLATE LINEAR cerrada') || !miningControlStatusText.includes('filter-by-correlation')) {
-      throw new Error('Mining Control should own the current pipeline status section');
+    const miningControlStatusTextUpper = miningControlStatusText.toUpperCase();
+    if (!miningControlStatusText.includes('Foco operativo') || !miningControlStatusTextUpper.includes('MINING 1') || !miningControlStatusTextUpper.includes('LINEAR') || !miningControlStatusTextUpper.includes('XAUUSD H1')) {
+      throw new Error('Mining Control should render a dynamic operational focus section');
+    }
+    if (miningControlStatusText.includes('TEMPLATE LINEAR cerrada')) {
+      throw new Error('Mining Control focus should not render the old hardcoded pipeline chronicle');
     }
     await saveShot(desktop, 'e2e-mining-control-status-desktop.png');
     await desktop.locator('.tab[data-tab="workflow"]').click();

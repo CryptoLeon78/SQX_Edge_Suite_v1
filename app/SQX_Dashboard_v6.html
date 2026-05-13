@@ -503,25 +503,7 @@
       <button class="export-btn" id="ps-na-edit">✎ Editar</button>
     </div>
 
-    <div class="card" id="ps-current-pipeline-status">
-      <div class="card-header">
-        <h2>Estado actual del pipeline</h2>
-        <span class="badge success">2026-05-02</span>
-        <span class="badge layer1">Mining 1</span>
-      </div>
-      <p style="color:var(--text2);line-height:1.6;margin-bottom:10px;">
-        <strong style="color:var(--accent);">Mining 1</strong> (XAUUSD H1 BS_Tendencia) — Capa 1 cerrada con 5 templates extraidos (ICHIMOKU, ICHIMOKU 2, LINEAR, MACD, SUPER).
-        Capa 2 sobre <strong style="color:var(--text);">TEMPLATE LINEAR cerrada</strong>: embudo 1000 → 388 → 21 → 17 → 17 → 8 → 6 → 4 → 4 → <strong style="color:var(--green);">3 ganadoras</strong> (tasa de supervivencia 0.3%).
-      </p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-        <span class="tier-high">TIER 1 · 0.621529 ATR+LR · pasa todos los tests</span>
-        <span class="tier-mid">TIER 1.5 · 0.920817 KER+LR · fallo Synthetic 4.2%</span>
-        <span class="tier-low">TIER 2 · 0.553059 LR puro</span>
-      </div>
-      <div style="color:var(--text2);font-size:12px;line-height:1.55;">
-        <strong style="color:var(--text);">Siguiente paso:</strong> filter-by-correlation entre las 3 PASSED del WFM (threshold 0.7) → confirmar diversidad estructural → cerrar TEMPLATE LINEAR. Después: Capa 2 sobre los 4 templates restantes.
-      </div>
-    </div>
+    <div class="card" id="ps-current-pipeline-status" aria-live="polite"></div>
 
     <!-- Precarga desde Por Activo -->
     <div class="card" id="ps-orphans-card" style="display:none;">
