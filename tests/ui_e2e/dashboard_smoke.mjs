@@ -65,11 +65,26 @@ async function run() {
     await desktop.waitForSelector('#ps-current-pipeline-status');
     await desktop.waitForSelector('#ps-command-strip');
     const miningControlCommandText = await desktop.locator('#ps-command-strip').innerText();
-    ['Workflow', 'SQX Views', 'Plan mining', 'Embudo', 'Estrategias', 'Champion vs Challenger'].forEach(expected => {
+    ['Workflow', 'SQX Views', 'Plan mining', 'Project Generator', 'Estrategias', 'Champion vs Challenger'].forEach(expected => {
       if (!miningControlCommandText.includes(expected)) throw new Error(`Mining Control command strip should include ${expected}`);
     });
+    if (miningControlCommandText.includes('Embudo')) throw new Error('Mining Control command strip should route to Project Generator instead of Embudo');
     const pipelinePriorityText = await desktop.locator('#tab-pipeline', { hasText: 'SQX Priority' }).count();
     if (pipelinePriorityText !== 0) throw new Error('Mining Control should not expose retired SQX Priority copy');
+    await desktop.waitForSelector('#ps-plan-reset-plan');
+    const planResetButtonText = await desktop.locator('#ps-plan-reset-plan').innerText();
+    if (!planResetButtonText.includes('Reset plan mining')) throw new Error('Mining Control should expose a plan-level reset action');
+    await desktop.evaluate(() => {
+      window.setPhaseMetaUser(1, 'Fase editable E2E', 'Texto persistente E2E');
+      window.renderPipelineState();
+    });
+    await desktop.waitForSelector('#ps-plan-table .ps-user-badge');
+    const editedPlanText = await desktop.locator('#ps-plan-table').innerText();
+    if (!editedPlanText.includes('Fase editable E2E') || !editedPlanText.includes('Texto persistente E2E')) {
+      throw new Error('Mining Control phase edits should persist in the rendered plan');
+    }
+    await desktop.locator('#ps-plan-reset-plan').click();
+    await desktop.waitForFunction(() => !document.getElementById('ps-plan-table')?.innerText.includes('Fase editable E2E'));
     const miningControlStatusText = await desktop.locator('#ps-current-pipeline-status').innerText();
     if (!miningControlStatusText.includes('TEMPLATE LINEAR cerrada') || !miningControlStatusText.includes('filter-by-correlation')) {
       throw new Error('Mining Control should own the current pipeline status section');

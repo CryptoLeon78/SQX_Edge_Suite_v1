@@ -1319,6 +1319,7 @@ try {
   PLAN_USER = { minings: stored.minings || [], phases: stored.phases || {} };
 } catch(e){ /* keep defaults */ }
 function savePlanUser() { SQX_STORAGE.setJson(PLAN_USER_KEY, PLAN_USER); }
+function planEsc(value) { return stratEsc(value); }
 
 function getPlanMinings() {
   // Combina DEFAULT + USER, ordena por num
@@ -1360,6 +1361,18 @@ function addPhaseUser(num, name, desc) {
   savePlanUser();
   return true;
 }
+function setPhaseMetaUser(num, name, desc) {
+  if (!num || !name) return false;
+  PLAN_USER.phases[num] = { name: name, desc: desc || '' };
+  savePlanUser();
+  return true;
+}
+function revertPhaseMetaUser(num) {
+  if (!PLAN_USER.phases[num]) return false;
+  delete PLAN_USER.phases[num];
+  savePlanUser();
+  return true;
+}
 function removeUserMining(num) {
   PLAN_USER.minings = PLAN_USER.minings.filter(m => m.num !== num);
   savePlanUser();
@@ -1376,14 +1389,20 @@ function clearPlanUser() {
   PLAN_USER = { minings:[], phases:{} };
   savePlanUser();
 }
+function resetPlanMiningUserState() {
+  clearPlanUser();
+  PIPELINE_STATE.overrides = {};
+  savePipelineState();
+}
 // Alias visible para el helper de status (lee PLAN_ALL si existe)
 window.PLAN_ALL = null;
 function refreshPlanAll() { window.PLAN_ALL = getPlanMinings(); }
 refreshPlanAll();
+window.setPhaseMetaUser = setPhaseMetaUser;
 
-// Mapping inverso BS → categoría Priority (para sync con SQX Priority)
+// Mapping inverso BS → categoría de prioridad operativa
 
-// Convierte un mining → key del SQX Priority (formato 'asset|cat|tf|dir')
+// Convierte un mining → key de prioridad operativa (formato 'asset|cat|tf|dir')
 function miningToPriorityKey(mining) {
   const cat = BS_TO_PRIORITY_CAT[mining.bs];
   if (!cat) return null;
@@ -1392,7 +1411,7 @@ function miningToPriorityKey(mining) {
 
 // localStorage state — pipeline tracking
 // Estructura: { overrides: { num: 'current'|... }, funnels: {...}, nextAction:'' }
-// `overrides` solo guarda los manuales; el estado por defecto se deriva de SQX Priority
+// `overrides` solo guarda los manuales; el estado por defecto se deriva de prioridad operativa
 const PIPELINE_STATE_KEY = SQX_STORAGE_KEYS.pipelineState || 'sqx_pipeline_state_v1';
 let PIPELINE_STATE = { overrides:{}, funnels:{}, nextAction:'' };
 try {
@@ -1400,7 +1419,7 @@ try {
   // Migración del formato antiguo (miningStatus → overrides) + limpieza del preset fantasma
   let overrides = stored.overrides || stored.miningStatus || {};
   // Si solo hay UN override y es el preset Mining 1 = 'current' (preset antiguo), limpiarlo
-  // — así el auto-sync con SQX Priority funciona desde el primer momento
+  // — así el auto-sync con la prioridad operativa funciona desde el primer momento
   if (!stored.overrides && stored.miningStatus &&
       Object.keys(stored.miningStatus).length === 1 &&
       stored.miningStatus[1] === 'current') {
@@ -1422,7 +1441,7 @@ function getMiningStatusInfo(num) {
   if (PIPELINE_STATE.overrides[num]) {
     return { status: PIPELINE_STATE.overrides[num], source: 'manual' };
   }
-  // 2) Estado del SQX Priority (source of truth por defecto)
+  // 2) Estado de la prioridad operativa (source of truth por defecto)
   const m = (typeof PLAN_ALL !== 'undefined' ? PLAN_ALL : PLAN_MININGS).find(x => x.num === num);
   if (m) {
     const key = miningToPriorityKey(m);
@@ -1574,9 +1593,9 @@ function renderPsPlan() {
       // Badge de fuente del estado
       let srcBadge = '';
       if (info.source === 'manual') {
-        srcBadge = '<span class="ps-src-badge ps-src-manual" title="Override manual — click ↻ para volver a auto-sync con Priority" onclick="event.stopPropagation();clearMiningOverride('+m.num+')">✏ Manual ↻</span>';
+        srcBadge = '<span class="ps-src-badge ps-src-manual" title="Override manual. Click para volver a prioridad operativa" onclick="event.stopPropagation();clearMiningOverride('+m.num+')">Manual ↻</span>';
       } else if (info.source === 'priority') {
-        srcBadge = '<span class="ps-src-badge ps-src-priority" title="Sincronizado desde SQX Priority">🔗 Priority</span>';
+        srcBadge = '<span class="ps-src-badge ps-src-priority" title="Sincronizado desde prioridad operativa">Prioridad</span>';
       } else if (info.source === 'strategies') {
         srcBadge = '<span class="ps-src-badge ps-src-strategies" title="Auto-detectado: hay estrategias importadas de este mining">Auto</span>';
       }
@@ -1603,31 +1622,40 @@ function renderPsPlan() {
         '<span class="ps-m-survivors" title="' + survivors + ' supervivientes (TIER 1/1.5/2)">' + survivors + '</span>' :
         '<span class="ps-m-survivors zero">0</span>';
       const tentBadge = tentativas > 0 ? ' <span class="ps-m-survivors zero" style="background:rgba(249,115,22,.12);color:var(--orange);">' + tentativas + ' ?</span>' : '';
-      const tplsHtml = tpls.length ? '<div style="font-size:10px;color:var(--text2);margin-top:3px;">Templates: '+tpls.join(', ')+'</div>' : '';
+      const tplsHtml = tpls.length ? '<div style="font-size:10px;color:var(--text2);margin-top:3px;">Templates: '+tpls.map(planEsc).join(', ')+'</div>' : '';
       const userBadge = m._user ? '<span class="ps-user-badge" title="Añadido por UI (vive en localStorage)">USER</span>' : '';
       const removeBtn = m._user ? '<button class="ps-remove-btn" title="Eliminar este mining USER" onclick="removeUserMiningClick('+m.num+')">✕</button>' : '';
       return '<tr>' +
         '<td class="ps-m-num">'+m.num+userBadge+'</td>' +
-        '<td><div class="ps-m-asset">'+m.asset+'</div>'+tplsHtml+'</td>' +
-        '<td class="ps-m-tf">'+m.tf+'</td>' +
-        '<td><span class="ps-m-bs">'+m.bs+'</span></td>' +
-        '<td><span class="'+dirCls+'" style="font-weight:700;font-size:12px;">'+m.dir+'</span></td>' +
+        '<td><div class="ps-m-asset">'+planEsc(m.asset)+'</div>'+tplsHtml+'</td>' +
+        '<td class="ps-m-tf">'+planEsc(m.tf)+'</td>' +
+        '<td><span class="ps-m-bs">'+planEsc(m.bs)+'</span></td>' +
+        '<td><span class="'+dirCls+'" style="font-weight:700;font-size:12px;">'+planEsc(m.dir)+'</span></td>' +
         '<td>'+compHtml+'</td>' +
         '<td>'+survBadge+tentBadge+'</td>' +
         '<td><span class="status '+st+' clickable-status" onclick="cycleMiningStatusPS('+m.num+')">'+stLbl+'</span> '+srcBadge+removeBtn+'</td>' +
       '</tr>';
     }).join('');
     const phaseCls = p > 5 ? 'p1' : 'p'+p; // las USER reusan estilo p1
-    const phaseUserBadge = isUserPhase ? '<span class="ps-user-badge" title="Fase USER (localStorage)">USER</span>' : '';
-    const phaseRemove = isUserPhase ? '<button class="ps-remove-btn" title="Eliminar fase USER" onclick="removeUserPhaseClick('+p+')">✕</button>' : '';
+    const isBasePhase = !!PHASE_META[p];
+    const isCustomPhase = isUserPhase && !isBasePhase;
+    const phaseUserBadge = isCustomPhase
+      ? '<span class="ps-user-badge" title="Fase creada en localStorage">USER</span>'
+      : (isUserPhase ? '<span class="ps-user-badge" title="Texto editado en localStorage">EDIT</span>' : '');
+    const phaseEdit = '<button class="ps-phase-edit-btn" title="Editar nombre y descripcion de esta fase" onclick="editPlanPhaseClick('+p+')">Editar fase</button>';
+    const phaseReset = isCustomPhase
+      ? '<button class="ps-remove-btn" title="Eliminar fase local" onclick="removeUserPhaseClick('+p+')">✕</button>'
+      : (isUserPhase ? '<button class="ps-remove-btn" title="Revertir texto base de la fase" onclick="revertPlanPhaseClick('+p+')">↻</button>' : '');
     return '<div class="ps-phase">' +
       '<div class="ps-phase-head '+phaseCls+'">' +
         '<div class="ps-phase-num">'+p+'</div>' +
-        '<h3>FASE '+p+' — '+meta.name+phaseUserBadge+'</h3>' +
-        '<span style="color:var(--text2);font-size:12px;">'+meta.desc+'</span>' +
+        '<div class="ps-phase-copy">' +
+          '<h3>FASE '+p+' — '+planEsc(meta.name)+phaseUserBadge+'</h3>' +
+          '<span>'+planEsc(meta.desc)+'</span>' +
+        '</div>' +
         '<span class="ps-phase-count">'+done+'/'+minings.length+'</span>' +
         '<div class="ps-phase-bar"><div style="width:'+pct+'%"></div></div>' +
-        phaseRemove +
+        '<div class="ps-phase-tools">'+phaseEdit+phaseReset+'</div>' +
       '</div>' +
       '<table class="ps-mining-table">' +
         '<thead><tr><th>#</th><th>Asset</th><th>TF</th><th>Blocksetting</th><th>Dir</th><th>Composite</th><th>Estrategias</th><th>Estado</th></tr></thead>' +
@@ -1733,7 +1761,7 @@ window.editFunnelCell = function(el, key, stage) {
   });
 };
 
-// ── Orphans: items current/completed en SQX Priority sin match en el plan ──
+// ── Orphans: items current/completed en prioridad operativa sin match en el plan ──
 function getOrphanPriorityItems() {
   if (typeof PRIORITY_PROGRESS === 'undefined') return [];
   const planKeys = new Set(getPlanMinings().map(m => miningToPriorityKey(m)).filter(Boolean));
@@ -1784,7 +1812,7 @@ function renderOrphans() {
     const dirTxt = o.dir==='L'?'LONG':(o.dir==='S'?'SHORT':'L+S');
     const compHtml = o.composite != null ? '<span class="po-comp">'+o.composite+'%</span>' : '';
     const stLbl = sqxStatusMeta(o.status).label;
-    const legacyBadge = o.isLegacy ? '<span class="po-legacy" title="Key del Priority en formato antiguo (TFs juntos). Se ha hecho split visual; al «Quitar» se elimina la key entera.">⚠ Legacy</span>' : '';
+    const legacyBadge = o.isLegacy ? '<span class="po-legacy" title="Key de prioridad operativa en formato antiguo (TFs juntos). Se ha hecho split visual; al quitar se elimina la key entera.">Legacy</span>' : '';
     const safeOrig = o.origKey.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     const safeNew  = o.key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     return '<div class="ps-orphan-row">' +
@@ -1797,7 +1825,7 @@ function renderOrphans() {
       '<span class="po-status '+o.status+'">'+stLbl+'</span>' +
       legacyBadge +
       '<button class="po-add-btn" onclick="promoteOrphanToPlan(\''+safeNew+'\')">+ Añadir al plan</button>' +
-      '<button class="po-remove-btn" title="Eliminar este item del SQX Priority (no afecta el plan)" onclick="removeOrphanFromPriority(\''+safeOrig+'\','+(o.isLegacy?'true':'false')+')">✕ Quitar</button>' +
+      '<button class="po-remove-btn" title="Eliminar este item de la prioridad operativa (no afecta el plan)" onclick="removeOrphanFromPriority(\''+safeOrig+'\','+(o.isLegacy?'true':'false')+')">✕ Quitar</button>' +
     '</div>';
   }).join('');
 }
@@ -1806,8 +1834,8 @@ window.removeOrphanFromPriority = function(origKey, isLegacy) {
   if (typeof PRIORITY_PROGRESS === 'undefined') return;
   if (!PRIORITY_PROGRESS[origKey]) { renderPipelineState(); return; }
   const msg = isLegacy
-    ? '¿Eliminar la key legacy "'+origKey+'" del SQX Priority? (Contiene varios TFs juntos — se borran todos.)'
-    : '¿Eliminar este item del SQX Priority?';
+    ? '¿Eliminar la key legacy "'+origKey+'" de la prioridad operativa? (Contiene varios TFs juntos; se borran todos.)'
+    : '¿Eliminar este item de la prioridad operativa?';
   if (!confirm(msg)) return;
   delete PRIORITY_PROGRESS[origKey];
   if (typeof savePriorityProgress === 'function') savePriorityProgress();
@@ -1886,9 +1914,19 @@ document.getElementById('ps-na-edit').addEventListener('click', function(){
 });
 
 document.getElementById('ps-plan-reset').addEventListener('click', function(){
-  if (confirm('¿Resetear COMPLETAMENTE el tracking? Borra overrides manuales y deja solo el auto-sync con SQX Priority. (No afecta estrategias ni embudos.)')) {
+  if (confirm('¿Resetear estados del plan mining? Borra overrides manuales y vuelve a la prioridad operativa. No afecta fases, assets, estrategias ni embudos.')) {
     PIPELINE_STATE.overrides = {};
     savePipelineState();
+    renderPipelineState();
+  }
+});
+
+document.getElementById('ps-plan-reset-plan').addEventListener('click', function(){
+  const editedPhases = Object.keys(PLAN_USER.phases || {}).length;
+  const addedMinings = PLAN_USER.minings.length;
+  if (!editedPhases && !addedMinings && !Object.keys(PIPELINE_STATE.overrides || {}).length) return;
+  if (confirm('¿Resetear el plan mining local? Se borran minings añadidos, fases nuevas, textos editados de fases y estados manuales. El plan base y las estrategias se mantienen.')) {
+    resetPlanMiningUserState();
     renderPipelineState();
   }
 });
@@ -1896,7 +1934,7 @@ document.getElementById('ps-plan-reset').addEventListener('click', function(){
 document.getElementById('ps-restore-auto').addEventListener('click', function(){
   const n = Object.keys(PIPELINE_STATE.overrides || {}).length;
   if (!n) return;
-  if (confirm('¿Limpiar los '+n+' override(s) manual(es) y volver al auto-sync con SQX Priority?')) {
+  if (confirm('¿Limpiar los '+n+' override(s) manual(es) y volver a la prioridad operativa?')) {
     clearAllOverrides();
     renderPipelineState();
   }
@@ -1952,6 +1990,23 @@ window.removeUserMiningClick = function(num) {
 };
 window.removeUserPhaseClick = function(num) {
   if (confirm('¿Eliminar fase '+num+' del plan USER?')) { if (removeUserPhase(num)) renderPipelineState(); }
+};
+window.editPlanPhaseClick = function(num) {
+  const phases = getPlanPhases();
+  const meta = phases[num] || { name:'', desc:'' };
+  const name = prompt('Nombre corto de la fase '+num+':', meta.name || '');
+  if (name == null) return;
+  const cleanName = name.trim();
+  if (!cleanName) { alert('El nombre de fase no puede quedar vacío.'); return; }
+  const desc = prompt('Descripción operativa de la fase '+num+':', meta.desc || '');
+  if (desc == null) return;
+  setPhaseMetaUser(num, cleanName, desc.trim());
+  renderPipelineState();
+};
+window.revertPlanPhaseClick = function(num) {
+  if (confirm('¿Revertir el texto editado de la fase '+num+' y volver al valor base?')) {
+    if (revertPhaseMetaUser(num)) renderPipelineState();
+  }
 };
 
 document.getElementById('ps-add-mining-btn').addEventListener('click', openAddMiningModal);
