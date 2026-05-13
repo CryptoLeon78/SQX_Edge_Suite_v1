@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -394,7 +394,7 @@ async function run() {
     const viewsTabTextUpper = viewsTabText.toUpperCase();
     const viewsTabTextLower = viewsTabText.toLowerCase();
     if (!viewsTabTextUpper.includes('ELIGE LA VIEW QUE NECESITAS')) throw new Error('SQX Views should expose guided view choice as the main entry');
-    ['EGT Core', 'Robustez', 'Risk', 'Full audit', 'obligatoria', 'recomendable'].forEach(expected => {
+    ['EGT Core', 'Robustez', 'Template Maker Cert', 'Risk', 'Full audit', 'obligatoria', 'recomendable'].forEach(expected => {
       if (!viewsTabText.includes(expected)) throw new Error(`SQX Views required/recommended block should include ${expected}`);
     });
     ['9oos', '7oos'].forEach(expected => {
@@ -403,7 +403,7 @@ async function run() {
     const templateListText = await desktop.locator('#vc-template-list').innerText();
     const templateListTextUpper = templateListText.toUpperCase();
     const templateListTextLower = templateListText.toLowerCase();
-    ['PF', 'Trades', 'Ret/DD', 'HBP', 'MC', 'VaR', 'CVaR', 'CAGR/DD'].forEach(expected => {
+    ['PF', 'Trades', 'Ret/DD', 'HBP', 'MC', 'VaR', 'CVaR', 'CAGR/DD', 'CSV Cert'].forEach(expected => {
       if (!templateListTextUpper.includes(expected.toUpperCase())) throw new Error(`SQX Views template tags should include ${expected}`);
     });
     if (/\bfree\b|\bpro\b/i.test(templateListText)) {
@@ -428,11 +428,18 @@ async function run() {
       throw new Error('SQX Views should explain the consolidated total without raw sampleType jargon');
     }
     const templateCount = await desktop.locator('#vc-template-list .views-template-card').count();
-    if (templateCount < 4) throw new Error(`Expected buyer-ready SQX Views examples, got ${templateCount}`);
+    if (templateCount < 5) throw new Error(`Expected buyer-ready SQX Views examples, got ${templateCount}`);
+    await desktop.locator('[data-vc-template-load="template-maker-cert"]').click();
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Template Maker Cert');
+    await desktop.waitForFunction(() => document.getElementById('vc-active-guide')?.textContent.includes('Databank CSV'));
+    const certMetrics = await desktop.evaluate(() => window.SQX.viewCreator.getTemplateMakerRequiredMetrics());
+    if (!certMetrics.includes('Net profit') || !certMetrics.includes('Ret/DD Ratio')) {
+      throw new Error('SQX Views should expose Template Maker Cert required metrics');
+    }
     await desktop.locator('[data-vc-template-load="risk-capital-review"]').click();
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Risk');
     const buyerPack = await desktop.evaluate(() => window.SQX.viewCreator.buildBuyerReadyTemplatePack());
-    if (buyerPack.type !== 'sqx-edge.view-presets' || buyerPack.presets.length < 4) throw new Error('SQX Views buyer-ready pack contract failed');
+    if (buyerPack.type !== 'sqx-edge.view-presets' || buyerPack.presets.length < 5) throw new Error('SQX Views buyer-ready pack contract failed');
     const retiredPackApis = await desktop.evaluate(() => ({
       buyerProfile: typeof window.SQX.viewCreator.buildBuyerProfilePack,
       validationWorkflow: typeof window.SQX.viewCreator.buildValidationWorkflowPack,
@@ -451,17 +458,44 @@ async function run() {
     await desktop.waitForSelector('.tab[data-tab="templatemaker"].active');
     await desktop.waitForSelector('#tm-csv-input', { state: 'attached' });
     const templateMakerText = await desktop.locator('#tab-templatemaker').innerText();
-    ['Template Maker', 'Importar CSV', 'Importar .sqx', 'Umbrales KPI editables', 'Scoring de estrategias'].forEach(expected => {
+    ['Template Maker', 'Template Maker Cert', 'Cargar archivos', 'Umbrales KPI editables', 'Scoring de estrategias'].forEach(expected => {
       if (!templateMakerText.includes(expected)) throw new Error(`Template Maker tab should include ${expected}`);
     });
+    await desktop.locator('.tm-secondary-loads > summary').click();
+    const templateMakerSecondaryText = await desktop.locator('#tab-templatemaker').innerText();
+    ['Importar CSV', 'Importar .sqx'].forEach(expected => {
+      if (!templateMakerSecondaryText.includes(expected)) throw new Error(`Template Maker secondary loads should include ${expected}`);
+    });
+    await desktop.locator('#tm-open-cert-view').click();
+    await desktop.waitForSelector('.tab[data-tab="views"].active');
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Template Maker Cert');
+    await desktop.locator('.tab[data-tab="templatemaker"]').click();
+    await desktop.waitForSelector('.tab[data-tab="templatemaker"].active');
     const csvSamplePath = path.join(repoRoot, 'resources', 'template-maker-tool', 'test_capa1.csv');
-    await desktop.locator('#tm-csv-input').setInputFiles(csvSamplePath);
+    await desktop.locator('#tm-files-input').setInputFiles(csvSamplePath);
     await desktop.waitForFunction(() => window.SQX?.templateMaker?.getStrategies().length > 0);
     await desktop.waitForSelector('#tm-results-table:not([hidden])');
+    await desktop.waitForFunction(() => document.getElementById('tm-problem-panel')?.textContent.includes('Falta SQX'));
     const tmAuditAfterCsv = await desktop.evaluate(() => window.SQX.templateMaker.getAuditReport());
     if (tmAuditAfterCsv.total < 1 || tmAuditAfterCsv.passed < 1) {
       throw new Error('Template Maker should show loaded CSV scoring results');
     }
+    const csvOnlyStatus = await desktop.evaluate(() => window.SQX.templateMaker.getStrategyStatus(window.SQX.templateMaker.getStrategies()[0]));
+    if (csvOnlyStatus !== 'Falta SQX') throw new Error(`CSV-only strategy should show Falta SQX, got ${csvOnlyStatus}`);
+    const tmCsvText = await readFile(csvSamplePath, 'utf8');
+    await desktop.evaluate(async csvText => {
+      const zip = new window.JSZip();
+      zip.file('strategy_Portfolio.xml', '<Strategy><options><StrategyName>Strategy 1.15.34(3)</StrategyName></options><Datas><data><symbol>NASDAQ_darwinex</symbol><timeFrame>H1</timeFrame></data></Datas></Strategy>');
+      zip.file('settings.xml', '<Settings><ResultsGroup ResultName="Strategy 1.15.34(3)"><Fitnesses FS="1" IS="1" OOS="1"/><Result resultKey="Main: NASDAQ_darwinex/H1"/></ResultsGroup></Settings>');
+      const sqxBlob = await zip.generateAsync({ type: 'blob' });
+      const csvFile = new File([csvText], 'test_capa1.csv', { type: 'text/csv' });
+      const sqxFile = new File([sqxBlob], 'Strategy 1.15.34(3).sqx', { type: 'application/zip' });
+      await window.SQX.templateMaker.reset();
+      await window.SQX.templateMaker.ingestFiles([csvFile, sqxFile]);
+      window.SQX.templateMakerUI.renderAll();
+    }, tmCsvText);
+    await desktop.waitForFunction(() => window.SQX.templateMaker.getStrategies().some(strategy => window.SQX.templateMaker.getStrategyStatus(strategy) === 'Lista para C2'));
+    await desktop.waitForFunction(() => document.getElementById('tm-results-table')?.innerText.includes('Lista para C2'));
     await desktop.locator('[data-tm-capa="2"]').click();
     await desktop.waitForFunction(() => window.SQX.templateMaker.getCapa() === 2);
     await desktop.locator('#tm-audit-btn').click();

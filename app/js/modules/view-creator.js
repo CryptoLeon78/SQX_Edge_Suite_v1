@@ -9,6 +9,40 @@
   var presetsStorageKey = storageKeys.viewCreatorPresets || 'sqx_view_creator_presets_v1';
   var PRESET_PACKAGE_TYPE = 'sqx-edge.view-presets';
   var PRESET_PACKAGE_VERSION = 1;
+  var TEMPLATE_MAKER_REQUIRED_METRICS = [
+    'Net profit',
+    '# of trades',
+    'Profit factor',
+    'Max DD %',
+    'Sharpe Ratio',
+    'Stability',
+    'CAGR/Max DD %',
+    'Winning Percent',
+    'SQN',
+    'Recovery Factor',
+    'Calmar Ratio',
+    'Sortino Ratio',
+    '% Profitable Months',
+    'Ret/DD Ratio'
+  ];
+  var TEMPLATE_MAKER_CERT_CLASSES = [
+    'Symbol',
+    'TimeFrame',
+    'Fitness',
+    'NetProfit',
+    'NumberOfTrades',
+    'ProfitFactor',
+    'DrawdownPct',
+    'SharpeRatio',
+    'Stability',
+    'AnnualPctReturnDDRatio',
+    'WinningPct',
+    'SQN',
+    'RecoveryFactor',
+    'CalmarRatio',
+    'SortinoRatio',
+    'ProfitableMonthsPct'
+  ];
 
   var CATEGORY_LABELS = {
     fixed: 'Identificacion / contexto',
@@ -132,6 +166,9 @@
       return metric.category === 'fixed' && metric.selectedDefault ||
         ['DrawdownPct', 'Drawdown', 'AvgDrawdown', 'AvgPctDrawdown', 'MaxNewHighDuration', 'UlcerIndex', 'UlcerPerformanceIndex', 'VaR_Hobbiecode', 'CVaR_Hobbiecode', 'StandardDev', 'ZScore', 'ZProbability'].indexOf(metric.className) >= 0;
     },
+    'template-maker-cert': function(metric) {
+      return TEMPLATE_MAKER_CERT_CLASSES.indexOf(metric.className) >= 0;
+    },
     'full-audit': function(metric) { return metric.category !== 'fixed' || metric.selectedDefault; },
     clear: function(metric) { return metric.category === 'fixed' && metric.selectedDefault; }
   };
@@ -166,6 +203,21 @@
       oosTag: '9oos',
       oosOptions: [1, 2, 3, 7, 9],
       config: { viewName: 'Robustez', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
+    },
+    {
+      id: 'template-maker-cert',
+      name: 'Template Maker Cert',
+      tier: 'free',
+      priority: 'obligatoria',
+      preset: 'template-maker-cert',
+      description: 'View obligatoria para exportar el Databank CSV que certifica KPIs en Template Maker.',
+      objective: 'Contrato oficial de métricas: Template Maker usa este CSV para certificar Capa 1/Capa 2 y habilitar C2.',
+      when: 'Antes de certificar estrategias en Template Maker. Primero importa esta .vw en SQX y exporta el Databank CSV.',
+      nextAction: 'Exporta el Databank CSV con esta view antes de certificar estrategias en Template Maker.',
+      metricTags: ['CSV Cert', 'KPIs C1/C2', 'Ret/DD', 'PASSED', 'C2'],
+      oosTag: '9oos',
+      oosOptions: [1, 2, 3, 7, 9],
+      config: { viewName: 'Template Maker Cert', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
     },
     {
       id: 'risk-capital-review',
@@ -533,6 +585,21 @@
     return buildPresetPackage(accessibleBuyerReadyTemplates().map(templateToPreset));
   }
 
+  function buildTemplateMakerCertView() {
+    var template = findBuyerReadyTemplate('template-maker-cert');
+    return buildViewXml(template ? template.config : configFromPresetName('template-maker-cert', {
+      viewName: 'Template Maker Cert',
+      yearCount: 9,
+      sampleStart: 21,
+      includeTotal: true,
+      groupMode: 'by_metric'
+    }));
+  }
+
+  function getTemplateMakerRequiredMetrics() {
+    return TEMPLATE_MAKER_REQUIRED_METRICS.slice();
+  }
+
   function parsePresetPackage(payload) {
     var data = typeof payload === 'string' ? safeJsonParse(payload, null) : payload;
     if (!data) return [];
@@ -859,7 +926,7 @@
   function applyPreset(name) {
     var hasFull = hasFullAccess();
     var preset = PRESETS[name] || PRESETS['egt-core'];
-    if (!hasFull && name !== 'egt-core' && name !== 'clear') {
+    if (!hasFull && name !== 'egt-core' && name !== 'template-maker-cert' && name !== 'clear') {
       setStatus('El catalogo completo requiere SQX Edge Pro.', 'warn');
       name = 'egt-core';
       preset = PRESETS[name];
@@ -1164,11 +1231,13 @@
     downloadView: downloadView,
     bindHandoffLinks: bindHandoffLinks,
     buildBuyerReadyTemplatePack: buildBuyerReadyTemplatePack,
+    buildTemplateMakerCertView: buildTemplateMakerCertView,
     buildPresetPackage: buildPresetPackage,
     buyerReadyTemplates: getBuyerReadyTemplates,
     importPresetPackage: importPresetPackage,
     importPresetPackageFromText: importPresetPackageFromText,
     getSavedPresets: getSavedPresets,
+    getTemplateMakerRequiredMetrics: getTemplateMakerRequiredMetrics,
     groupedMetrics: groupedMetrics,
     init: init,
     loadBuyerReadyTemplate: loadBuyerReadyTemplate,

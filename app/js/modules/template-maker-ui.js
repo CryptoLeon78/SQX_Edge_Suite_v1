@@ -28,8 +28,10 @@
     if (!root || root.dataset.tmBound === '1') return;
     root.dataset.tmBound = '1';
 
+    bindUpload('tm-unified-zone', 'tm-files-input', handleUnifiedFiles);
     bindUpload('tm-csv-zone', 'tm-csv-input', handleCSVFiles);
     bindUpload('tm-sqx-zone', 'tm-sqx-input', handleSQXFiles);
+    bindClick('tm-open-cert-view', openCertView);
 
     Array.prototype.forEach.call(root.querySelectorAll('[data-tm-capa]'), function(button) {
       button.addEventListener('click', function() {
@@ -124,12 +126,24 @@
     var file = files && files[0];
     if (!file) return;
     file.text().then(function(text) {
-      return SQX.templateMaker.loadFromCSV(text);
+      return SQX.templateMaker.loadFromCSV(text, { fileName: file.name || '' });
     }).then(function(rows) {
       setStatus(rows.length + ' estrategias cargadas desde CSV.');
       renderAll();
     }).catch(function(err) {
       setStatus('Error CSV: ' + (err && err.message ? err.message : err), true);
+    });
+  }
+
+  function handleUnifiedFiles(files) {
+    var list = Array.prototype.slice.call(files || []);
+    if (!list.length) return;
+    setStatus('Procesando ' + list.length + ' archivos CSV/SQX...');
+    SQX.templateMaker.ingestFiles(list).then(function(rows) {
+      setStatus(rows.length + ' estrategias reconciliadas con contrato Template Maker Cert.');
+      renderAll();
+    }).catch(function(err) {
+      setStatus('Error de carga: ' + (err && err.message ? err.message : err), true);
     });
   }
 
@@ -180,6 +194,14 @@
     setText('tm-stat-passed', report.passed);
     setText('tm-stat-review', report.review);
     setText('tm-stat-failed', report.failed);
+  }
+
+  function openCertView() {
+    var tab = global.document.querySelector('.tab[data-tab="views"]');
+    if (tab && typeof tab.click === 'function') tab.click();
+    if (SQX.viewCreator && SQX.viewCreator.loadBuyerReadyTemplate) {
+      SQX.viewCreator.loadBuyerReadyTemplate('template-maker-cert');
+    }
   }
 
   function setText(id, value) {
@@ -239,11 +261,12 @@
     if (!table) return;
     if (empty) empty.hidden = all.length !== 0;
     table.hidden = all.length === 0;
+    renderProblems();
     if (!all.length) return;
 
     var infoCols = SQX.templateMaker.getInfoColumns();
     var kpiCols = SQX.templateMaker.getKPIColumns();
-    byId('tm-results-thead').innerHTML = '<tr><th>#</th><th>Score</th><th>Estado</th>' +
+    byId('tm-results-thead').innerHTML = '<tr><th>#</th><th>Score</th><th>Estado</th><th>Contrato</th>' +
       infoCols.map(function(col) { return '<th>' + esc(col) + '</th>'; }).join('') +
       kpiCols.map(function(col) { return '<th>' + esc(col) + '</th>'; }).join('') +
       '<th>Accion</th></tr>';
@@ -253,16 +276,22 @@
       var score = item.score;
       var strategy = item.strategy;
       var badge = score.classification === 'PASSED' ? 'tm-badge-pass' : score.classification === 'REVIEW' ? 'tm-badge-review' : 'tm-badge-fail';
+      var contractStatus = SQX.templateMaker.getStrategyStatus(strategy, score);
+      var contractBadge = contractStatus === 'Lista para C2' ? 'tm-badge-ready' :
+        contractStatus === 'Completa' ? 'tm-badge-pass' :
+        contractStatus === 'Falta SQX' ? 'tm-badge-review' : 'tm-badge-fail';
+      var canC2 = SQX.templateMaker.canGenerateC2(strategy);
       return '<tr>' +
         '<td>' + globalIndex + '</td>' +
         '<td><div class="tm-score"><span style="width:' + score.pct + '%"></span></div><strong>' + score.pct + '%</strong></td>' +
         '<td><span class="tm-badge ' + badge + '">' + score.classification + '</span></td>' +
+        '<td><span class="tm-badge ' + contractBadge + '">' + esc(contractStatus) + '</span></td>' +
         infoCols.map(function(col) { return '<td>' + esc(strategy[col] || '-') + '</td>'; }).join('') +
         kpiCols.map(function(col) {
           var detail = score.details[col] || {};
           return '<td class="tm-kpi-' + (detail.result || 'na') + '">' + esc(detail.value === undefined || detail.value === '' ? '-' : detail.value) + '</td>';
         }).join('') +
-        '<td><button class="filter-btn" type="button" data-tm-export="' + esc(strategy._id) + '"' + (score.classification !== 'PASSED' || !strategy._fileData ? ' disabled' : '') + '>C2</button></td>' +
+        '<td><button class="filter-btn" type="button" data-tm-export="' + esc(strategy._id) + '"' + (!canC2 ? ' disabled' : '') + '>C2</button></td>' +
       '</tr>';
     }).join('');
 
@@ -271,6 +300,28 @@
         openC2(button.dataset.tmExport);
       });
     });
+  }
+
+  function renderProblems() {
+    var panel = byId('tm-problem-panel');
+    if (!panel) return;
+    var incomplete = SQX.templateMaker.getIncompleteRecords();
+    if (!incomplete.length) {
+      panel.innerHTML = '<strong>Contrato completo</strong><span>Todas las estrategias visibles tienen CSV Template Maker Cert, .sqx y estado operativo coherente.</span>';
+      panel.classList.add('is-ok');
+      return;
+    }
+    panel.classList.remove('is-ok');
+    var groups = incomplete.reduce(function(acc, strategy) {
+      var status = strategy.certification && strategy.certification.status || 'Pendiente';
+      acc[status] = (acc[status] || 0) + 1;
+      return acc;
+    }, {});
+    panel.innerHTML = '<strong>Problemas de contrato detectados</strong>' +
+      '<span>Template Maker solo habilita C2 cuando existe .sqx, CSV Template Maker Cert compatible y scoring PASSED.</span>' +
+      '<div class="tm-problem-tags">' + Object.keys(groups).map(function(status) {
+        return '<span>' + esc(status) + ': ' + groups[status] + '</span>';
+      }).join('') + '</div>';
   }
 
   function openAudit() {
@@ -283,6 +334,7 @@
       auditTile('Passed', report.passed + ' (' + report.passedPct + '%)') +
       auditTile('Review', report.review) +
       auditTile('Failed', report.failed) +
+      auditTile('Pendientes', SQX.templateMaker.getIncompleteRecords().length) +
       auditTile('Certificadas', report.certified + ' (' + report.certifiedPct + '%)') +
       auditTile('Perfil', report.preset + ' / Capa ' + report.capa) +
       '</div>';

@@ -1025,7 +1025,7 @@
         <div>
           <span class="views-eyebrow">Template Maker</span>
           <h2>Template Maker</h2>
-          <p>Importa un CSV de Databank o estrategias .sqx, valida Capa 1/Capa 2 con umbrales editables y prepara candidatos C2 sin salir del flujo SQX Edge.</p>
+          <p>Certifica estrategias con dos fuentes claras: el .sqx aporta logica y generacion C2; el CSV exportado con Template Maker Cert aporta metricas oficiales.</p>
         </div>
         <div class="tm-stats">
           <div><span id="tm-stat-total">0</span><small>Total</small></div>
@@ -1033,6 +1033,15 @@
           <div><span id="tm-stat-review">0</span><small>Review</small></div>
           <div><span id="tm-stat-failed">0</span><small>Failed</small></div>
         </div>
+      </div>
+
+      <div class="tm-contract-panel">
+        <div>
+          <span class="views-eyebrow">Paso 0 obligatorio</span>
+          <strong>Genera la view Template Maker Cert en SQX Views</strong>
+          <p>Antes de certificar, importa esta .vw en StrategyQuant X y exporta el Databank CSV. Sin ese CSV compatible, Template Maker marcara la estrategia como incompleta.</p>
+        </div>
+        <button class="export-btn" id="tm-open-cert-view" type="button">Abrir SQX Views</button>
       </div>
 
       <div class="tm-toolbar">
@@ -1052,22 +1061,39 @@
         </div>
       </div>
 
-      <div class="tm-upload-grid">
+      <div class="tm-upload-grid tm-upload-grid-primary">
+        <button class="tm-upload-zone tm-upload-zone-primary" id="tm-unified-zone" type="button">
+          <strong>Cargar archivos</strong>
+          <span>Arrastra o selecciona CSV Template Maker Cert + .sqx/.zip. La app reconciliara fuentes por nombre, simbolo, timeframe y hash.</span>
+          <input type="file" id="tm-files-input" accept=".csv,.sqx,.zip" multiple>
+        </button>
+      </div>
+
+      <details class="tm-panel tm-secondary-loads">
+        <summary>Cargas separadas de compatibilidad</summary>
+        <div class="tm-upload-grid">
         <button class="tm-upload-zone" id="tm-csv-zone" type="button">
           <strong>Importar CSV</strong>
-          <span>Databank Export de StrategyQuant X con metricas de resultados.</span>
+          <span>CSV Databank exportado desde SQX con la view obligatoria Template Maker Cert.</span>
           <input type="file" id="tm-csv-input" accept=".csv">
         </button>
         <button class="tm-upload-zone" id="tm-sqx-zone" type="button">
           <strong>Importar .sqx</strong>
-          <span>Estrategias originales para habilitar generacion C2.</span>
-          <input type="file" id="tm-sqx-input" accept=".sqx" multiple>
+          <span>Estrategias originales para logica, trazabilidad y generacion C2.</span>
+          <input type="file" id="tm-sqx-input" accept=".sqx,.zip" multiple>
         </button>
+        </div>
+      </details>
+
+      <div class="tm-flow-grid">
+        <div class="tm-status-card"><strong>.sqx</strong><span>Logica, configuracion y generacion C2.</span></div>
+        <div class="tm-status-card"><strong>CSV Template Maker Cert</strong><span>Metricas oficiales y certificacion.</span></div>
+        <div class="tm-status-card"><strong>.sqx + CSV</strong><span>Estrategia completa; C2 solo si queda PASSED.</span></div>
       </div>
 
       <details class="tm-panel tm-help-panel" open>
         <summary>Guia rapida</summary>
-        <p><strong>Capa 1</strong> filtra edge estadistico crudo. <strong>Capa 2</strong> exige estrategias mas operables con umbrales mas estrictos. El boton C2 aparece solo en estrategias PASSED que tengan .sqx de origen.</p>
+        <p><strong>Capa 1</strong> filtra edge estadistico crudo. <strong>Capa 2</strong> exige estrategias mas operables con umbrales mas estrictos. El boton C2 aparece solo si la estrategia tiene .sqx, CSV Template Maker Cert compatible y scoring PASSED.</p>
       </details>
 
       <div class="tm-panel">
@@ -1094,7 +1120,8 @@
           </div>
         </div>
         <div id="tm-status" class="tm-status">Esperando CSV o .sqx.</div>
-        <div id="tm-empty-state" class="tm-empty-state">Carga un CSV de Databank o archivos .sqx para empezar.</div>
+        <div id="tm-problem-panel" class="tm-problem-panel"><strong>Contrato pendiente</strong><span>Carga archivos para verificar que cada estrategia tenga metricas y logica.</span></div>
+        <div id="tm-empty-state" class="tm-empty-state">Carga CSV Template Maker Cert, .sqx o ambos desde el boton principal para empezar.</div>
         <div class="tm-results-wrap">
           <table class="cat-table tm-results-table" id="tm-results-table" hidden>
             <thead id="tm-results-thead"></thead>

@@ -7,6 +7,53 @@
   var TM_DB_VERSION = 1;
   var TM_STORE_STRATEGIES = 'tm_strategies';
   var TM_STORE_CONFIG = 'tm_config';
+  var TM_CERT_VERSION = 'TMA2.1';
+  var TM_RULESET = 'template-maker-cert-v1';
+  var TM_CERT_VIEW_NAME = 'Template Maker Cert';
+  var REQUIRED_METRICS_ALL = [
+    'Net profit',
+    '# of trades',
+    'Profit factor',
+    'Max DD %',
+    'Sharpe Ratio',
+    'Stability',
+    'CAGR/Max DD %',
+    'Winning Percent',
+    'SQN',
+    'Recovery Factor',
+    'Calmar Ratio',
+    'Sortino Ratio',
+    '% Profitable Months',
+    'Ret/DD Ratio'
+  ];
+  var METRIC_ALIASES = {
+    RecoveryFactor: ['Recovery Factor', 'RecoveryFactor'],
+    'Recovery Factor': ['Recovery Factor', 'RecoveryFactor'],
+    CalmarRatio: ['Calmar Ratio', 'CalmarRatio'],
+    'Calmar Ratio': ['Calmar Ratio', 'CalmarRatio'],
+    SortinoRatio: ['Sortino Ratio', 'SortinoRatio'],
+    'Sortino Ratio': ['Sortino Ratio', 'SortinoRatio'],
+    'Profit Factor': ['Profit factor', 'Profit Factor'],
+    'Profit factor': ['Profit factor', 'Profit Factor'],
+    NumberOfTrades: ['# of trades', 'NumberOfTrades'],
+    '# of trades': ['# of trades', 'NumberOfTrades'],
+    DrawdownPct: ['Max DD %', 'DrawdownPct'],
+    'Max DD %': ['Max DD %', 'DrawdownPct'],
+    SharpeRatio: ['Sharpe Ratio', 'SharpeRatio'],
+    'Sharpe Ratio': ['Sharpe Ratio', 'SharpeRatio'],
+    WinningPct: ['Winning Percent', 'WinningPct', 'Win %'],
+    'Win %': ['Winning Percent', 'WinningPct', 'Win %'],
+    'Winning Percent': ['Winning Percent', 'WinningPct', 'Win %'],
+    SQN: ['SQN'],
+    Stability: ['Stability'],
+    NetProfit: ['Net profit', 'NetProfit'],
+    'Net profit': ['Net profit', 'NetProfit'],
+    ProfitableMonthsPct: ['% Profitable Months', 'ProfitableMonthsPct'],
+    '% Profitable Months': ['% Profitable Months', 'ProfitableMonthsPct'],
+    'CAGR/Max DD %': ['CAGR/Max DD %', 'AnnualPctReturnDDRatio', 'Ret/DD Ratio'],
+    AnnualPctReturnDDRatio: ['CAGR/Max DD %', 'AnnualPctReturnDDRatio', 'Ret/DD Ratio'],
+    'Ret/DD Ratio': ['Ret/DD Ratio', 'CAGR/Max DD %', 'AnnualPctReturnDDRatio']
+  };
 
   var PRESETS = {
     Generic: {
@@ -130,6 +177,97 @@
     return JSON.parse(JSON.stringify(value));
   }
 
+  function createBaseRecord(source) {
+    var record = Object.assign({
+      sources: {},
+      metrics: {},
+      logic: {},
+      provenance: {
+        certVersion: TM_CERT_VERSION,
+        ruleset: TM_RULESET,
+        importedAt: new Date().toISOString(),
+        events: []
+      },
+      certification: {}
+    }, source || {});
+    record.sources = Object.assign({}, record.sources || {});
+    record.metrics = Object.assign({}, record.metrics || {});
+    record.logic = Object.assign({}, record.logic || {});
+    record.provenance = Object.assign({
+      certVersion: TM_CERT_VERSION,
+      ruleset: TM_RULESET,
+      importedAt: new Date().toISOString(),
+      events: []
+    }, record.provenance || {});
+    record.provenance.events = Array.isArray(record.provenance.events) ? record.provenance.events.slice() : [];
+    record.certification = Object.assign({}, record.certification || {});
+    return record;
+  }
+
+  function addEvent(strategy, type, source) {
+    var target = strategy.provenance = strategy.provenance || { events: [] };
+    target.events = Array.isArray(target.events) ? target.events : [];
+    target.events.push({
+      type: type,
+      source: source || '',
+      at: new Date().toISOString()
+    });
+  }
+
+  function stableStringify(value) {
+    if (value === null || typeof value !== 'object') return JSON.stringify(value);
+    if (Array.isArray(value)) return '[' + value.map(stableStringify).join(',') + ']';
+    return '{' + Object.keys(value).sort().map(function(key) {
+      return JSON.stringify(key) + ':' + stableStringify(value[key]);
+    }).join(',') + '}';
+  }
+
+  function bytesToHex(buffer) {
+    return Array.prototype.map.call(new Uint8Array(buffer), function(byte) {
+      return byte.toString(16).padStart(2, '0');
+    }).join('');
+  }
+
+  function fallbackHash(value) {
+    var text = typeof value === 'string' ? value : stableStringify(value);
+    var h1 = 2166136261;
+    var h2 = 16777619;
+    for (var i = 0; i < text.length; i += 1) {
+      h1 ^= text.charCodeAt(i);
+      h1 = Math.imul(h1, 16777619);
+      h2 ^= text.charCodeAt(i) << (i % 8);
+      h2 = Math.imul(h2, 1099511627);
+    }
+    return ('00000000' + (h1 >>> 0).toString(16)).slice(-8) + ('00000000' + (h2 >>> 0).toString(16)).slice(-8);
+  }
+
+  function computeFileHash(fileOrValue) {
+    if (fileOrValue && typeof fileOrValue.arrayBuffer === 'function') {
+      return fileOrValue.arrayBuffer().then(function(buffer) {
+        if (global.crypto && global.crypto.subtle && global.crypto.subtle.digest) {
+          return global.crypto.subtle.digest('SHA-256', buffer).then(bytesToHex);
+        }
+        return fallbackHash(Array.prototype.join.call(new Uint8Array(buffer), ','));
+      });
+    }
+    return Promise.resolve(fallbackHash(fileOrValue || ''));
+  }
+
+  function computeRowFingerprint(row) {
+    return fallbackHash(stripRuntimeFields(row || {}));
+  }
+
+  function inferViewName(headers) {
+    var names = headers || [];
+    var required = REQUIRED_METRICS_ALL.filter(function(metric) {
+      return metric !== 'Ret/DD Ratio';
+    });
+    var compatible = required.every(function(metric) {
+      return findMetricKeyFromList(metric, names);
+    });
+    return compatible ? TM_CERT_VIEW_NAME : 'CSV compatible no identificado';
+  }
+
   function init() {
     return dbInit().then(loadConfigFromDB).then(loadStrategiesFromDB).catch(function() {
       return _strategies.slice();
@@ -142,7 +280,8 @@
     return clearDB();
   }
 
-  function parseCSV(text) {
+  function parseCSV(text, options) {
+    var opts = options || {};
     var lines = String(text || '').split(/\r?\n/).filter(function(line) {
       return line.trim();
     });
@@ -151,10 +290,20 @@
     return lines.slice(1).map(function(line) {
       var values = parseCsvLine(line);
       if (values.length < 2) return null;
-      var row = { _id: _nextId++, _source: 'csv' };
+      var row = createBaseRecord({ _id: _nextId++, _source: 'csv' });
       headers.forEach(function(header, index) {
         row[header] = values[index] || '';
       });
+      row.sources.csv = {
+        fileName: opts.fileName || '',
+        fingerprint: computeRowFingerprint(row),
+        importedAt: new Date().toISOString(),
+        viewName: inferViewName(headers)
+      };
+      row.provenance.csvFingerprint = row.sources.csv.fingerprint;
+      row.provenance.viewName = row.sources.csv.viewName;
+      addEvent(row, 'imported', 'csv');
+      addEvent(row, 'parsed', 'csv');
       return normalizeStrategy(row);
     }).filter(Boolean);
   }
@@ -186,8 +335,20 @@
     return out;
   }
 
-  function loadFromCSV(input) {
-    var rows = Array.isArray(input) ? input.map(normalizeStrategy) : parseCSV(input);
+  function loadFromCSV(input, options) {
+    var rows = Array.isArray(input) ? input.map(function(row) {
+      var next = createBaseRecord(row || {});
+      next.sources.csv = next.sources.csv || {
+        fileName: options && options.fileName || '',
+        fingerprint: computeRowFingerprint(row),
+        importedAt: new Date().toISOString(),
+        viewName: TM_CERT_VIEW_NAME
+      };
+      next.provenance.csvFingerprint = next.sources.csv.fingerprint;
+      next.provenance.viewName = next.sources.csv.viewName;
+      addEvent(next, 'imported', 'csv');
+      return normalizeStrategy(next);
+    }) : parseCSV(input, options);
     return addStrategies(rows);
   }
 
@@ -199,23 +360,36 @@
 
   function parseSQX(file) {
     if (!global.JSZip) return Promise.reject(new Error('JSZip no esta cargado'));
-    return global.JSZip.loadAsync(file).then(function(zip) {
-      var result = {
+    return computeFileHash(file).then(function(hash) {
+      return global.JSZip.loadAsync(file).then(function(zip) {
+        var result = createBaseRecord({
         _id: _nextId++,
         _source: 'sqx',
         'Strategy Name': String(file.name || 'strategy').replace(/\.sqx$/i, ''),
         _fileData: file
-      };
-      var strategyFile = zip.file('strategy_Portfolio.xml');
-      var settingsFile = zip.file('settings.xml');
-      var strategyPromise = strategyFile ? strategyFile.async('string').then(function(xml) {
-        mergeStrategyXml(result, xml);
-      }) : Promise.resolve();
-      var settingsPromise = settingsFile ? settingsFile.async('string').then(function(xml) {
-        mergeSettingsXml(result, xml);
-      }) : Promise.resolve();
-      return Promise.all([strategyPromise, settingsPromise]).then(function() {
-        return normalizeStrategy(result);
+        });
+        result.sources.sqx = {
+          fileName: file.name || 'strategy.sqx',
+          hash: hash,
+          importedAt: new Date().toISOString()
+        };
+        result.provenance.sqxHash = hash;
+        result.provenance.importedAt = result.sources.sqx.importedAt;
+        addEvent(result, 'imported', 'sqx');
+        var strategyFile = zip.file('strategy_Portfolio.xml');
+        var settingsFile = zip.file('settings.xml');
+        var strategyPromise = strategyFile ? strategyFile.async('string').then(function(xml) {
+          result.logic.strategyXmlPresent = true;
+          mergeStrategyXml(result, xml);
+        }) : Promise.resolve();
+        var settingsPromise = settingsFile ? settingsFile.async('string').then(function(xml) {
+          result.logic.settingsXmlPresent = true;
+          mergeSettingsXml(result, xml);
+        }) : Promise.resolve();
+        return Promise.all([strategyPromise, settingsPromise]).then(function() {
+          addEvent(result, 'parsed', 'sqx');
+          return normalizeStrategy(result);
+        });
       });
     });
   }
@@ -263,6 +437,14 @@
     var map = {
       RecoveryFactor: 'Recovery Factor',
       CalmarRatio: 'Calmar Ratio',
+      SortinoRatio: 'Sortino Ratio',
+      AnnualPctReturnDDRatio: 'CAGR/Max DD %',
+      NumberOfTrades: '# of trades',
+      NetProfit: 'Net profit',
+      DrawdownPct: 'Max DD %',
+      SharpeRatio: 'Sharpe Ratio',
+      WinningPct: 'Winning Percent',
+      ProfitableMonthsPct: '% Profitable Months',
       'Profit Factor': 'Profit factor',
       'Win %': 'Winning Percent',
       SQN: 'SQN'
@@ -270,13 +452,69 @@
     return map[key] || key;
   }
 
+  function findMetricKeyFromList(metric, keys) {
+    var aliases = METRIC_ALIASES[metric] || [metric];
+    for (var i = 0; i < aliases.length; i += 1) {
+      if ((keys || []).indexOf(aliases[i]) >= 0) return aliases[i];
+    }
+    return '';
+  }
+
+  function metricValue(strategy, metric) {
+    var aliases = METRIC_ALIASES[metric] || [metric];
+    for (var i = 0; i < aliases.length; i += 1) {
+      var key = aliases[i];
+      if (strategy && strategy[key] !== undefined && strategy[key] !== '') return strategy[key];
+      if (strategy && strategy.metrics && strategy.metrics[key] !== undefined && strategy.metrics[key] !== '') return strategy.metrics[key];
+    }
+    return undefined;
+  }
+
+  function pickMetrics(strategy) {
+    var metrics = {};
+    REQUIRED_METRICS_ALL.forEach(function(metric) {
+      var value = metricValue(strategy, metric);
+      if (value !== undefined && value !== '') metrics[metric] = value;
+    });
+    Object.keys(_thresholds[1] || {}).concat(Object.keys(_thresholds[2] || {})).forEach(function(metric) {
+      var value = metricValue(strategy, metric);
+      if (value !== undefined && value !== '') metrics[metric] = value;
+    });
+    return metrics;
+  }
+
+  function stripRuntimeFields(strategy) {
+    var copy = {};
+    Object.keys(strategy || {}).forEach(function(key) {
+      if (key === '_fileData') return;
+      copy[key] = strategy[key];
+    });
+    if (copy.sources && copy.sources.sqx) {
+      copy.sources = Object.assign({}, copy.sources, {
+        sqx: Object.assign({}, copy.sources.sqx)
+      });
+      delete copy.sources.sqx.fileData;
+    }
+    return copy;
+  }
+
   function normalizeStrategy(strategy) {
-    var normalized = {};
+    var base = createBaseRecord(strategy);
+    var normalized = createBaseRecord({});
     Object.keys(strategy || {}).forEach(function(key) {
       normalized[normalizeKey(key)] = strategy[key];
     });
+    normalized.sources = Object.assign({}, base.sources || {}, normalized.sources || {});
+    normalized.metrics = Object.assign({}, base.metrics || {}, normalized.metrics || {});
+    normalized.logic = Object.assign({}, base.logic || {}, normalized.logic || {});
+    normalized.provenance = Object.assign({}, base.provenance || {}, normalized.provenance || {});
+    normalized.provenance.events = Array.isArray(base.provenance && base.provenance.events) ? base.provenance.events.slice() : [];
+    normalized.certification = Object.assign({}, base.certification || {}, normalized.certification || {});
     if (!normalized._id) normalized._id = _nextId++;
     normalized.Asset = normalized.Asset || detectAssetClass(normalized.Symbol || normalized._symbol || '');
+    normalized.metrics = Object.assign({}, normalized.metrics, pickMetrics(normalized));
+    normalized.certification = validateMetricsContract(normalized);
+    normalized.certification.status = getStrategyStatus(normalized, scoreStrategy(normalized));
     return normalized;
   }
 
@@ -284,19 +522,27 @@
     (newStrategies || []).forEach(function(strategy) {
       var next = normalizeStrategy(strategy);
       var name = next['Strategy Name'];
-      var existing = name ? _strategies.find(function(item) {
-        return item['Strategy Name'] === name;
-      }) : null;
+      var existing = findExistingStrategy(next, name);
       if (existing) {
+        addEvent(existing, 'matched', next._source || '');
         Object.keys(next).forEach(function(key) {
           if (key === '_id') return;
+          if (key === 'sources' || key === 'metrics' || key === 'logic' || key === 'provenance' || key === 'certification') return;
           if (key === '_source' && existing._source !== next._source) {
             existing._source = 'csv+sqx';
             return;
           }
           if (next[key] !== undefined && next[key] !== '') existing[key] = next[key];
         });
+        existing.sources = Object.assign({}, existing.sources || {}, next.sources || {});
+        existing.metrics = Object.assign({}, existing.metrics || {}, pickMetrics(existing), next.metrics || {});
+        existing.logic = Object.assign({}, existing.logic || {}, next.logic || {});
+        existing.provenance = Object.assign({}, existing.provenance || {}, next.provenance || {});
+        existing.provenance.events = [].concat(existing.provenance.events || [], next.provenance.events || []);
+        existing.certification = validateMetricsContract(existing);
+        existing.certification.status = getStrategyStatus(existing, scoreStrategy(existing));
       } else {
+        addEvent(next, 'certified', next.certification && next.certification.valid ? 'metrics' : 'pending');
         _strategies.push(next);
       }
     });
@@ -304,6 +550,28 @@
     return saveStrategiesToDB().then(function() {
       return _strategies.slice();
     });
+  }
+
+  function findExistingStrategy(next, name) {
+    var sqxHash = next.sources && next.sources.sqx && next.sources.sqx.hash;
+    if (sqxHash) {
+      var byHash = _strategies.find(function(item) {
+        return item.sources && item.sources.sqx && item.sources.sqx.hash === sqxHash;
+      });
+      if (byHash) return byHash;
+    }
+    var key = identityKey(next);
+    return _strategies.find(function(item) {
+      return identityKey(item) === key || (name && item['Strategy Name'] === name);
+    }) || null;
+  }
+
+  function identityKey(strategy) {
+    return [
+      String(strategy && strategy['Strategy Name'] || '').toLowerCase().trim(),
+      String(strategy && strategy.Symbol || '').toLowerCase().trim(),
+      String(strategy && strategy.TimeFrame || '').toLowerCase().trim()
+    ].join('|');
   }
 
   function syncNextId() {
@@ -364,6 +632,140 @@
     return clone(_thresholds[capa || _currentCapa] || {});
   }
 
+  function getRequiredMetricNames(capa, preset) {
+    var selectedPreset = preset || _currentPreset;
+    var selectedCapa = Number(capa || _currentCapa) === 2 ? 2 : 1;
+    var thresholds = PRESETS[selectedPreset] && PRESETS[selectedPreset][selectedCapa]
+      ? PRESETS[selectedPreset][selectedCapa]
+      : (_thresholds[selectedCapa] || {});
+    var names = Object.keys(thresholds || {});
+    REQUIRED_METRICS_ALL.forEach(function(metric) {
+      if (names.indexOf(metric) < 0 && metric !== 'Ret/DD Ratio') names.push(metric);
+    });
+    return names;
+  }
+
+  function validateMetricsContract(strategy, capa, preset) {
+    var required = getRequiredMetricNames(capa, preset);
+    var keys = Object.keys(strategy || {}).concat(Object.keys(strategy && strategy.metrics || {}));
+    var hasCsv = !!(strategy && strategy.sources && strategy.sources.csv) || String(strategy && strategy._source || '').indexOf('csv') >= 0;
+    var missing = required.filter(function(metric) {
+      if (metric === 'Ret/DD Ratio') return false;
+      return !findMetricKeyFromList(metric, keys) || metricValue(strategy, metric) === undefined || metricValue(strategy, metric) === '';
+    });
+    var valid = hasCsv && missing.length === 0;
+    return {
+      valid: valid,
+      required: required,
+      missing: missing,
+      present: required.filter(function(metric) { return missing.indexOf(metric) < 0; }),
+      sourceView: strategy && strategy.provenance && strategy.provenance.viewName || strategy && strategy.sources && strategy.sources.csv && strategy.sources.csv.viewName || '',
+      certVersion: TM_CERT_VERSION,
+      ruleset: TM_RULESET,
+      status: !hasCsv ? 'Faltan métricas' : missing.length ? 'Métricas no compatibles' : 'Completa'
+    };
+  }
+
+  function hasSQX(strategy) {
+    return !!(strategy && (strategy._fileData || strategy.sources && strategy.sources.sqx));
+  }
+
+  function getStrategyStatus(strategy, score) {
+    var contract = validateMetricsContract(strategy);
+    if (!contract.valid) return contract.status;
+    if (!hasSQX(strategy)) return 'Falta SQX';
+    var resolvedScore = score || scoreStrategy(strategy);
+    if (resolvedScore.classification === 'PASSED') return 'Lista para C2';
+    return 'Completa';
+  }
+
+  function canGenerateC2(strategy) {
+    return hasSQX(strategy) && validateMetricsContract(strategy).valid && scoreStrategy(strategy).classification === 'PASSED';
+  }
+
+  function getIncompleteRecords() {
+    return scoreAll().filter(function(item) {
+      return getStrategyStatus(item.strategy, item.score) !== 'Lista para C2';
+    }).map(function(item) {
+      return Object.assign({}, item.strategy, {
+        certification: Object.assign({}, item.strategy.certification || {}, {
+          status: getStrategyStatus(item.strategy, item.score)
+        })
+      });
+    });
+  }
+
+  function getProvenance(strategyId) {
+    var strategy = typeof strategyId === 'object' ? strategyId : _strategies.find(function(item) {
+      return String(item._id) === String(strategyId);
+    });
+    return clone(strategy && strategy.provenance || {});
+  }
+
+  function getStrategyRecords() {
+    return _strategies.map(function(strategy) {
+      var copy = clone(stripRuntimeFields(strategy));
+      copy.certification = Object.assign({}, copy.certification || {}, {
+        status: getStrategyStatus(strategy, scoreStrategy(strategy))
+      });
+      return copy;
+    });
+  }
+
+  function reconcileStrategySources(records) {
+    var merged = [];
+    (records || []).forEach(function(record) {
+      var next = normalizeStrategy(record);
+      var hash = next.sources && next.sources.sqx && next.sources.sqx.hash;
+      var target = hash ? merged.find(function(item) {
+        return item.sources && item.sources.sqx && item.sources.sqx.hash === hash;
+      }) : null;
+      if (!target) {
+        target = merged.find(function(item) { return identityKey(item) === identityKey(next); });
+      }
+      if (!target) {
+        merged.push(next);
+        return;
+      }
+      Object.keys(next).forEach(function(key) {
+        if (key === '_id') return;
+        if (key === 'sources' || key === 'metrics' || key === 'logic' || key === 'provenance' || key === 'certification') return;
+        if (next[key] !== undefined && next[key] !== '') target[key] = next[key];
+      });
+      target._source = target._source === next._source ? target._source : 'csv+sqx';
+      target.sources = Object.assign({}, target.sources || {}, next.sources || {});
+      target.metrics = Object.assign({}, target.metrics || {}, next.metrics || {});
+      target.logic = Object.assign({}, target.logic || {}, next.logic || {});
+      target.provenance = Object.assign({}, target.provenance || {}, next.provenance || {});
+      target.provenance.events = [].concat(target.provenance.events || [], next.provenance.events || []);
+      target.certification = validateMetricsContract(target);
+      target.certification.status = getStrategyStatus(target, scoreStrategy(target));
+    });
+    return merged;
+  }
+
+  function ingestFiles(files) {
+    var list = Array.prototype.slice.call(files || []);
+    if (!list.length) return Promise.resolve(_strategies.slice());
+    var csvFiles = list.filter(function(file) { return /\.csv$/i.test(file.name || ''); });
+    var sqxFiles = list.filter(function(file) { return /\.(sqx|zip)$/i.test(file.name || ''); });
+    var csvPromise = Promise.all(csvFiles.map(function(file) {
+      return file.text().then(function(text) {
+        return loadFromCSV(text, { fileName: file.name || '' });
+      });
+    }));
+    var sqxPromise = sqxFiles.length ? loadFromSQX(sqxFiles) : Promise.resolve(_strategies.slice());
+    return csvPromise.then(function() {
+      return sqxPromise;
+    }).then(function() {
+      _strategies = reconcileStrategySources(_strategies);
+      syncNextId();
+      return saveStrategiesToDB();
+    }).then(function() {
+      return _strategies.slice();
+    });
+  }
+
   function setThreshold(kpi, field, value, capa) {
     var selectedCapa = capa || _currentCapa;
     if (!_thresholds[selectedCapa] || !_thresholds[selectedCapa][kpi]) {
@@ -400,8 +802,9 @@
     var total = 0;
     var details = {};
     Object.keys(thresholds).forEach(function(kpi) {
-      var result = evaluateKPI((strategy || {})[kpi], thresholds[kpi]);
-      details[kpi] = { value: (strategy || {})[kpi], result: result, threshold: clone(thresholds[kpi]) };
+      var value = metricValue(strategy || {}, kpi);
+      var result = evaluateKPI(value, thresholds[kpi]);
+      details[kpi] = { value: value, result: result, threshold: clone(thresholds[kpi]) };
       if (result !== 'na') {
         total += 1;
         if (result === 'pass') pass += 1;
@@ -460,6 +863,7 @@
 
   function generateC2Template(strategy, options) {
     if (!strategy || !strategy._fileData) return Promise.reject(new Error('La estrategia no tiene .sqx de origen'));
+    if (!canGenerateC2(strategy)) return Promise.reject(new Error('Requiere .sqx, CSV Template Maker Cert compatible y estado PASSED.'));
     if (!global.JSZip) return Promise.reject(new Error('JSZip no esta cargado'));
     return global.JSZip.loadAsync(strategy._fileData).then(function(zip) {
       var file = zip.file('strategy_Portfolio.xml');
@@ -618,8 +1022,7 @@
       var store = tx.objectStore(TM_STORE_STRATEGIES);
       store.clear();
       _strategies.forEach(function(strategy) {
-        var copy = Object.assign({}, strategy);
-        delete copy._fileData;
+        var copy = stripRuntimeFields(strategy);
         store.put(copy);
       });
       tx.oncomplete = resolve;
@@ -635,7 +1038,7 @@
       var tx = _db.transaction([TM_STORE_STRATEGIES], 'readonly');
       var request = tx.objectStore(TM_STORE_STRATEGIES).getAll();
       request.onsuccess = function() {
-        _strategies = request.result || [];
+        _strategies = (request.result || []).map(normalizeStrategy);
         syncNextId();
         resolve(_strategies.slice());
       };
@@ -701,9 +1104,14 @@
   var api = {
     init: init,
     reset: reset,
+    ingestFiles: ingestFiles,
+    computeFileHash: computeFileHash,
     loadFromCSV: loadFromCSV,
     loadFromSQX: loadFromSQX,
     getStrategies: function() { return _strategies.slice(); },
+    getStrategyRecords: getStrategyRecords,
+    getIncompleteRecords: getIncompleteRecords,
+    getProvenance: getProvenance,
     getPassingStrategies: getPassingStrategies,
     setCapa: setCapa,
     getCapa: function() { return _currentCapa; },
@@ -712,6 +1120,11 @@
     getPresets: getPresets,
     autoDetectPreset: autoDetectPreset,
     getThresholds: getThresholds,
+    getRequiredMetricNames: getRequiredMetricNames,
+    validateMetricsContract: validateMetricsContract,
+    reconcileStrategySources: reconcileStrategySources,
+    getStrategyStatus: getStrategyStatus,
+    canGenerateC2: canGenerateC2,
     setThreshold: setThreshold,
     scoreStrategy: scoreStrategy,
     scoreAll: scoreAll,
