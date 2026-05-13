@@ -49,7 +49,7 @@ async function run() {
     const priorityTabCount = await desktop.locator('.tab[data-tab="priority"]').count();
     if (priorityTabCount !== 0) throw new Error('Priority should not be a primary navigation section');
     const sidebarOrder = await desktop.locator('#main-tabs .tab').evaluateAll(nodes => nodes.map(node => node.dataset.tab));
-    const expectedSidebarOrder = ['workflow', 'inicio', 'activos', 'pipeline', 'views', 'projectgen', 'estrategias', 'cvc', 'filtros'];
+    const expectedSidebarOrder = ['workflow', 'activos', 'pipeline', 'views', 'projectgen', 'estrategias', 'cvc', 'filtros', 'inicio'];
     if (sidebarOrder.join('|') !== expectedSidebarOrder.join('|')) {
       throw new Error(`Navigation should follow Workflow methodology order: ${sidebarOrder.join('|')}`);
     }

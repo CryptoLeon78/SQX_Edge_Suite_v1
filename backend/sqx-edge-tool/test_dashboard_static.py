@@ -2106,7 +2106,6 @@ class DashboardStaticTestCase(unittest.TestCase):
             [tab["id"] for tab in tabs],
             [
                 "workflow",
-                "inicio",
                 "activos",
                 "pipeline",
                 "views",
@@ -2114,6 +2113,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "estrategias",
                 "cvc",
                 "filtros",
+                "inicio",
             ],
         )
         self.assertNotIn("categorias", [tab["id"] for tab in tabs])

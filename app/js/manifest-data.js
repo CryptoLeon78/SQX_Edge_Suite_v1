@@ -13,10 +13,6 @@ window.SQX_MANIFEST = {
         "active": true
       },
       {
-        "id": "inicio",
-        "label": "Panel"
-      },
-      {
         "id": "activos",
         "label": "Por Activo"
       },
@@ -43,6 +39,10 @@ window.SQX_MANIFEST = {
       {
         "id": "filtros",
         "label": "Avanzado"
+      },
+      {
+        "id": "inicio",
+        "label": "Panel"
       }
     ],
     "filters": {
