@@ -57,9 +57,11 @@ assert.ok(html.includes('id="tm-contract-summary"'), 'missing contract summary c
 assert.ok(html.includes('id="tm-problem-panel"'), 'missing contract problem panel');
 assert.ok(html.includes('id="tm-csv-input"'), 'missing CSV input');
 assert.ok(html.includes('id="tm-sqx-input"'), 'missing SQX input');
-['Genera la view obligatoria', 'Carga tus fuentes', 'Resuelve el contrato', 'Evalua Capa y Perfil', 'Resultados y C2'].forEach(step => {
+['Genera la view obligatoria', 'Carga tus fuentes', 'Resuelve el contrato', 'Evalua Perfil Capa 1', 'Resultados y C2'].forEach(step => {
   assert.ok(html.includes(step), `Template Maker guided flow should include ${step}`);
 });
+assert.ok(!html.includes('data-tm-capa="2"'), 'Template Maker should not expose Capa 2 analysis control');
+assert.ok(!html.includes('Capa 2 - Validacion operable'), 'Template Maker should not describe Capa 2 as an active mode');
 ['Completa', 'Falta SQX', 'Faltan métricas', 'Métricas no compatibles', 'Lista para C2'].forEach(status => {
   assert.ok(html.includes(status) || fs.readFileSync(path.join(repoRoot, 'app/js/modules/template-maker-ui.js'), 'utf8').includes(status), `Template Maker should render status ${status}`);
 });
@@ -126,8 +128,8 @@ assert.ok(merged[0].sources.sqx, 'reconciled record should keep SQX source');
 assert.equal(tm.validateMetricsContract(merged[0]).valid, true, 'reconciled record should keep valid metrics');
 assert.equal(await tm.computeFileHash('abc').then(hash => hash.length >= 8), true, 'computeFileHash should return a stable hash');
 
-await tm.setCapa(2);
-assert.equal(tm.getCapa(), 2, 'setCapa should update state');
+await tm.setCapa(1);
+assert.equal(tm.getCapa(), 1, 'Template Maker contract should stay on Capa 1 for UI workflow');
 await tm.setPreset('Forex');
 assert.equal(tm.getCurrentPreset(), 'Forex', 'setPreset should update state');
 const thresholds = tm.getThresholds();

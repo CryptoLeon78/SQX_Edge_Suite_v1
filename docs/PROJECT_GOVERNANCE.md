@@ -7,7 +7,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current phase completed: UX-NAV5e - SQX Views preview step visual fix.
 - Current implementation phase: UX-TMA1 - Template Maker visual and operational optimization after TMA2-TMA5 metric contract; UX-NAV tab-by-tab optimization remains paused until this tab polish is verified.
 - Current UX surface decision: Strategy Builder tab and visible CVC handoff are retired from the dashboard shell; existing SB modules/docs remain internal historical contracts until a future renamed workflow is approved.
-- Current scoring surface decision: Template Maker is the active Capa 1/2 scoring and C2 generation surface; the old analyzer surface is retired from the dashboard shell after migration.
+- Current scoring surface decision: Template Maker is the active Capa 1 scoring and C2 generation surface; Capa 2 comparison/relationships belong to Champion vs Challenger.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Next UX-NAV phase after UX-TMA1: resume tab-by-tab optimization; do not move to another UX tab until the operator says `Adelante con el siguiente tab`.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
@@ -217,7 +217,7 @@ G6 - Institutional Dashboard Quick Actions Gate:
 UX-NAV Tab Optimization Gate:
 
 - UX-NAV is now a sequential tab-by-tab optimization track documented in `docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md`.
-- Only one active tab can be optimized at a time; the current active tab is `SQX Views`.
+- Only one active tab can be optimized at a time; the current active tab is `Template Maker` until this polish is accepted.
 - Treat every operator message during an active tab pass as feedback for that same tab unless the operator explicitly changes the active scope.
 - Do not begin the next tab until the operator says exactly: `Adelante con el siguiente tab`.
 - Defer global tab reordering, tab removal/merging beyond active scope and final navigation flow until all individual tab passes are complete.

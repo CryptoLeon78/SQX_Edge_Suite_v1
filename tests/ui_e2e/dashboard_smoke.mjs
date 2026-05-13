@@ -458,9 +458,15 @@ async function run() {
     await desktop.waitForSelector('.tab[data-tab="templatemaker"].active');
     await desktop.waitForSelector('#tm-csv-input', { state: 'attached' });
     const templateMakerText = await desktop.locator('#tab-templatemaker').innerText();
-    ['Template Maker', 'Template Maker Cert', 'Genera la view obligatoria', 'Carga tus fuentes', 'Resuelve el contrato', 'Evalua Capa y Perfil', 'Resultados y C2', 'Cargar archivos', 'Umbrales KPI editables'].forEach(expected => {
+    ['Template Maker', 'Template Maker Cert', 'Genera la view obligatoria', 'Carga tus fuentes', 'Resuelve el contrato', 'Evalua Perfil Capa 1', 'Resultados y C2', 'Cargar archivos', 'Umbrales KPI editables'].forEach(expected => {
       if (!templateMakerText.includes(expected)) throw new Error(`Template Maker tab should include ${expected}`);
     });
+    if (await desktop.locator('#tab-templatemaker [data-tm-capa="2"]').count() !== 0) {
+      throw new Error('Template Maker should not expose a Capa 2 analysis control');
+    }
+    if (templateMakerText.includes('Validacion operable')) {
+      throw new Error('Template Maker should keep Capa 2 validation language out of this tab');
+    }
     const templateMakerTextLower = templateMakerText.toLowerCase();
     if (!templateMakerTextLower.includes('paso 1') || !templateMakerTextLower.includes('paso 5')) {
       throw new Error('Template Maker should render a five-step guided flow');
@@ -511,10 +517,14 @@ async function run() {
     await desktop.waitForFunction(() => window.SQX.templateMaker.getStrategies().some(strategy => window.SQX.templateMaker.getStrategyStatus(strategy) === 'Lista para C2'));
     await desktop.waitForFunction(() => document.getElementById('tm-results-table')?.innerText.includes('Lista para C2'));
     await desktop.waitForFunction(() => (document.getElementById('tm-contract-summary')?.innerText || '').toLowerCase().includes('lista para c2'));
+    await desktop.waitForFunction(() => {
+      const wrap = document.querySelector('#tab-templatemaker .tm-results-wrap');
+      return wrap && wrap.scrollWidth <= wrap.clientWidth + 2;
+    });
+    await saveShot(desktop, 'e2e-template-maker-results-desktop.png');
     const enabledC2 = await desktop.locator('#tm-results-table [data-tm-export]:not([disabled])').count();
     if (enabledC2 < 1) throw new Error('Template Maker should enable C2 only for valid PASSED candidates');
-    await desktop.locator('[data-tm-capa="2"]').click();
-    await desktop.waitForFunction(() => window.SQX.templateMaker.getCapa() === 2);
+    await desktop.waitForFunction(() => window.SQX.templateMaker.getCapa() === 1);
     await desktop.locator('#tm-audit-btn').click();
     await desktop.waitForSelector('#tm-modal-audit:not([hidden])');
     await desktop.locator('#tm-audit-close').click();

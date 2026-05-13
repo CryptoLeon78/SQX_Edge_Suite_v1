@@ -16,6 +16,8 @@
     if (!tm) return;
     bindOnce();
     return tm.init().then(function() {
+      return tm.setCapa(1);
+    }).then(function() {
       initialized = true;
       renderAll();
     }).catch(function(err) {
@@ -32,15 +34,6 @@
     bindUpload('tm-csv-zone', 'tm-csv-input', handleCSVFiles);
     bindUpload('tm-sqx-zone', 'tm-sqx-input', handleSQXFiles);
     bindClick('tm-open-cert-view', openCertView);
-
-    Array.prototype.forEach.call(root.querySelectorAll('[data-tm-capa]'), function(button) {
-      button.addEventListener('click', function() {
-        SQX.templateMaker.setCapa(Number(button.dataset.tmCapa)).then(function() {
-          page = 1;
-          renderAll();
-        });
-      });
-    });
 
     var preset = byId('tm-preset-select');
     if (preset) {
@@ -177,12 +170,8 @@
   }
 
   function renderCapa() {
-    var capa = SQX.templateMaker.getCapa();
-    Array.prototype.forEach.call(global.document.querySelectorAll('[data-tm-capa]'), function(button) {
-      button.classList.toggle('active', Number(button.dataset.tmCapa) === capa);
-    });
     var label = byId('tm-capa-label');
-    if (label) label.textContent = capa === 1 ? 'Capa 1 - Mining Edge' : 'Capa 2 - Validacion operable';
+    if (label) label.textContent = 'Capa 1 - Mining Edge';
   }
 
   function renderStats() {
@@ -311,10 +300,10 @@
 
     var infoCols = SQX.templateMaker.getInfoColumns();
     var kpiCols = SQX.templateMaker.getKPIColumns();
-    byId('tm-results-thead').innerHTML = '<tr><th>#</th><th>Score</th><th>Estado</th><th>Contrato</th>' +
-      infoCols.map(function(col) { return '<th>' + esc(col) + '</th>'; }).join('') +
-      kpiCols.map(function(col) { return '<th>' + esc(col) + '</th>'; }).join('') +
-      '<th>Accion</th></tr>';
+    byId('tm-results-thead').innerHTML = '<tr><th class="tm-col-index">#</th><th class="tm-col-score">Score</th><th class="tm-col-state">Estado</th><th class="tm-col-contract">Contrato</th>' +
+      infoCols.map(function(col) { return '<th class="tm-col-info">' + esc(col) + '</th>'; }).join('') +
+      kpiCols.map(function(col) { return '<th class="tm-col-kpi">' + esc(col) + '</th>'; }).join('') +
+      '<th class="tm-col-action">Accion</th></tr>';
 
     byId('tm-results-tbody').innerHTML = visible.map(function(item, index) {
       var globalIndex = (page - 1) * pageSize + index + 1;
@@ -327,16 +316,16 @@
         contractStatus === 'Falta SQX' ? 'tm-badge-review' : 'tm-badge-fail';
       var canC2 = SQX.templateMaker.canGenerateC2(strategy);
       return '<tr>' +
-        '<td>' + globalIndex + '</td>' +
-        '<td><div class="tm-score"><span style="width:' + score.pct + '%"></span></div><strong>' + score.pct + '%</strong></td>' +
-        '<td><span class="tm-badge ' + badge + '">' + score.classification + '</span></td>' +
-        '<td><span class="tm-badge ' + contractBadge + '">' + esc(contractStatus) + '</span></td>' +
-        infoCols.map(function(col) { return '<td>' + esc(strategy[col] || '-') + '</td>'; }).join('') +
+        '<td class="tm-col-index">' + globalIndex + '</td>' +
+        '<td class="tm-col-score"><div class="tm-score"><span style="width:' + score.pct + '%"></span></div><strong>' + score.pct + '%</strong></td>' +
+        '<td class="tm-col-state"><span class="tm-badge ' + badge + '">' + score.classification + '</span></td>' +
+        '<td class="tm-col-contract"><span class="tm-badge ' + contractBadge + '">' + esc(contractStatus) + '</span></td>' +
+        infoCols.map(function(col) { return '<td class="tm-col-info" title="' + esc(strategy[col] || '-') + '">' + esc(strategy[col] || '-') + '</td>'; }).join('') +
         kpiCols.map(function(col) {
           var detail = score.details[col] || {};
-          return '<td class="tm-kpi-' + (detail.result || 'na') + '">' + esc(detail.value === undefined || detail.value === '' ? '-' : detail.value) + '</td>';
+          return '<td class="tm-col-kpi tm-kpi-' + (detail.result || 'na') + '">' + esc(detail.value === undefined || detail.value === '' ? '-' : detail.value) + '</td>';
         }).join('') +
-        '<td><button class="filter-btn tm-c2-action" type="button" data-tm-export="' + esc(strategy._id) + '"' + (!canC2 ? ' disabled' : '') + '>C2</button></td>' +
+        '<td class="tm-col-action"><button class="filter-btn tm-c2-action" type="button" data-tm-export="' + esc(strategy._id) + '"' + (!canC2 ? ' disabled' : '') + '>C2</button></td>' +
       '</tr>';
     }).join('');
 
