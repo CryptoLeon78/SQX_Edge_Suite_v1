@@ -362,9 +362,25 @@ async function run() {
     await desktop.waitForSelector('#vc-template-list .views-template-card');
     const viewsTabText = await desktop.locator('#tab-views').innerText();
     const viewsTabTextUpper = viewsTabText.toUpperCase();
+    const viewsTabTextLower = viewsTabText.toLowerCase();
     if (!viewsTabTextUpper.includes('VIEWS OBLIGATORIAS Y RECOMENDABLES')) throw new Error('SQX Views should rename buyer examples to required/recommended views');
     ['EGT Core', 'Robustez', 'Risk', 'Full audit', 'obligatoria', 'recomendable'].forEach(expected => {
       if (!viewsTabText.includes(expected)) throw new Error(`SQX Views required/recommended block should include ${expected}`);
+    });
+    ['9oos', '7oos'].forEach(expected => {
+      if (!viewsTabTextLower.includes(expected)) throw new Error(`SQX Views required/recommended block should include ${expected}`);
+    });
+    const templateListText = await desktop.locator('#vc-template-list').innerText();
+    const templateListTextUpper = templateListText.toUpperCase();
+    const templateListTextLower = templateListText.toLowerCase();
+    ['PF', 'Trades', 'Ret/DD', 'HBP', 'MC', 'VaR', 'CVaR', 'CAGR/DD'].forEach(expected => {
+      if (!templateListTextUpper.includes(expected.toUpperCase())) throw new Error(`SQX Views template tags should include ${expected}`);
+    });
+    if (/\bfree\b|\bpro\b/i.test(templateListText)) {
+      throw new Error('SQX Views template block should not include Free/Pro tags');
+    }
+    ['s21..', 's23..', '9 anos', '7 anos'].forEach(removed => {
+      if (templateListTextLower.includes(removed)) throw new Error(`SQX Views template block should not include retired tag: ${removed}`);
     });
     ['Packs por perfil', 'Flujos por activo/validacion'].forEach(removed => {
       if (viewsTabText.includes(removed)) throw new Error(`SQX Views should not show retired KPI block: ${removed}`);
@@ -384,10 +400,13 @@ async function run() {
     const buyerPack = await desktop.evaluate(() => window.SQX.viewCreator.buildBuyerReadyTemplatePack());
     if (buyerPack.type !== 'sqx-edge.view-presets' || buyerPack.presets.length < 4) throw new Error('SQX Views buyer-ready pack contract failed');
     await desktop.evaluate(() => localStorage.removeItem('sqx_view_creator_presets_v1'));
-    const profilePack = await desktop.evaluate(() => window.SQX.viewCreator.buildBuyerProfilePack('pro-setup-assist'));
-    if (profilePack.type !== 'sqx-edge.view-presets' || profilePack.presets.length !== 3) throw new Error('SQX Views buyer profile pack contract failed');
-    const workflowPack = await desktop.evaluate(() => window.SQX.viewCreator.buildValidationWorkflowPack('asset-family-review'));
-    if (workflowPack.type !== 'sqx-edge.view-presets' || workflowPack.presets.length !== 3) throw new Error('SQX Views workflow pack contract failed');
+    const retiredPackApis = await desktop.evaluate(() => ({
+      buyerProfile: typeof window.SQX.viewCreator.buildBuyerProfilePack,
+      validationWorkflow: typeof window.SQX.viewCreator.buildValidationWorkflowPack,
+    }));
+    if (retiredPackApis.buyerProfile !== 'undefined' || retiredPackApis.validationWorkflow !== 'undefined') {
+      throw new Error('SQX Views retired profile/workflow pack APIs should not remain exposed');
+    }
     await desktop.evaluate(() => localStorage.removeItem('sqx_view_creator_presets_v1'));
     await desktop.locator('#vc-year-count').fill('5');
     await desktop.locator('[data-vc-preset="risk"]').click();

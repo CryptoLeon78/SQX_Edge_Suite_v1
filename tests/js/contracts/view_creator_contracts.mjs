@@ -94,28 +94,19 @@ assert.ok(buyerTemplates.some(template => template.id === 'risk-capital-review' 
 assert.ok(buyerTemplates.some(template => template.id === 'full-audit-handoff' && template.name === 'Full audit' && template.priority === 'recomendable'));
 assert.ok(buyerTemplates.some(template => template.id === 'full-audit-handoff' && template.config.groupMode === 'by_metric'));
 assert.ok(buyerTemplates.every(template => template.config.metrics.length > 0));
+assert.ok(buyerTemplates.every(template => Array.isArray(template.metricTags) && template.metricTags.length >= 4));
+assert.ok(buyerTemplates.some(template => template.id === 'egt-first-review' && template.oosTag === '9oos' && template.oosOptions.includes(1) && template.oosOptions.includes(9)));
+assert.ok(buyerTemplates.some(template => template.id === 'risk-capital-review' && template.oosTag === '7oos' && template.metricTags.includes('VaR')));
 const buyerPack = viewCreator.buildBuyerReadyTemplatePack();
 assert.equal(buyerPack.type, 'sqx-edge.view-presets');
 assert.equal(buyerPack.presets.length, 4);
 assert.ok(buyerPack.presets.some(preset => preset.id === 'buyer-risk-capital-review'));
-const profilePacks = viewCreator.buyerProfilePacks();
-assert.equal(profilePacks.length, 4);
-assert.ok(profilePacks.some(pack => pack.id === 'free-evaluation-starter' && pack.tier === 'free'));
-assert.ok(profilePacks.some(pack => pack.id === 'pro-setup-assist' && pack.templates.length === 3));
-const setupPack = viewCreator.buildBuyerProfilePack('pro-setup-assist');
-assert.equal(setupPack.type, 'sqx-edge.view-presets');
-assert.equal(setupPack.presets.length, 3);
-assert.ok(setupPack.presets.some(preset => preset.id === 'profile-pro-setup-assist-risk-capital-review'));
-assert.ok(viewCreator.buildAllBuyerProfilePacks().presets.length >= 9);
-const workflowPacks = viewCreator.validationWorkflowPacks();
-assert.equal(workflowPacks.length, 4);
-assert.ok(workflowPacks.some(pack => pack.id === 'free-core-validation' && pack.tier === 'free'));
-assert.ok(workflowPacks.some(pack => pack.id === 'asset-family-review' && pack.type === 'asset'));
-const assetFamilyPack = viewCreator.buildValidationWorkflowPack('asset-family-review');
-assert.equal(assetFamilyPack.type, 'sqx-edge.view-presets');
-assert.equal(assetFamilyPack.presets.length, 3);
-assert.ok(assetFamilyPack.presets.some(preset => preset.id === 'workflow-asset-family-review-gold-risk-review'));
-assert.ok(viewCreator.buildAllValidationWorkflowPacks().presets.length >= 10);
+assert.equal(viewCreator.buyerProfilePacks, undefined);
+assert.equal(viewCreator.validationWorkflowPacks, undefined);
+assert.equal(viewCreator.buildBuyerProfilePack, undefined);
+assert.equal(viewCreator.buildValidationWorkflowPack, undefined);
+assert.equal(viewCreator.renderBuyerProfilePacks, undefined);
+assert.equal(viewCreator.renderValidationWorkflowPacks, undefined);
 
 const presetPack = viewCreator.buildPresetPackage();
 assert.equal(presetPack.type, 'sqx-edge.view-presets');
@@ -214,6 +205,8 @@ const templateSandbox = createLoadedSandbox(['app/js/modules/view-creator.js']);
   'vc-status',
   'vc-saved-select',
   'vc-saved-count',
+  'vc-template-list',
+  'vc-template-count',
 ].forEach(id => templateSandbox.document.add(new Element(id)));
 templateSandbox.document.getElementById('vc-include-total').checked = true;
 templateSandbox.document.getElementById('vc-group-mode').value = 'by_year';
@@ -224,17 +217,15 @@ assert.ok(Number(templateSandbox.document.getElementById('vc-column-count').text
 const savedTemplate = templateSandbox.SQX.viewCreator.saveBuyerReadyTemplate('risk-capital-review');
 assert.equal(savedTemplate.id, 'buyer-risk-capital-review');
 assert.equal(templateSandbox.SQX.viewCreator.getSavedPresets().length, 1);
-const loadedProfile = templateSandbox.SQX.viewCreator.loadBuyerProfilePack('risk-capital-buyer');
-assert.equal(loadedProfile.name, 'Risk Capital Buyer');
-assert.equal(templateSandbox.document.getElementById('vc-view-name').value, 'Risk');
-const savedProfile = templateSandbox.SQX.viewCreator.saveBuyerProfilePack('risk-capital-buyer');
-assert.equal(savedProfile.length, 2);
-assert.ok(templateSandbox.SQX.viewCreator.getSavedPresets().some(preset => preset.id === 'profile-risk-capital-buyer-risk-capital-review'));
-const loadedWorkflow = templateSandbox.SQX.viewCreator.loadValidationWorkflowPack('asset-family-review');
-assert.equal(loadedWorkflow.name, 'Asset Family Review');
-assert.equal(templateSandbox.document.getElementById('vc-view-name').value, 'Forex First Review');
-const savedWorkflow = templateSandbox.SQX.viewCreator.saveValidationWorkflowPack('asset-family-review');
-assert.equal(savedWorkflow.length, 3);
-assert.ok(templateSandbox.SQX.viewCreator.getSavedPresets().some(preset => preset.id === 'workflow-asset-family-review-gold-risk-review'));
+templateSandbox.SQX.viewCreator.renderBuyerReadyTemplates();
+const renderedTemplates = templateSandbox.document.getElementById('vc-template-list').innerHTML;
+assert.ok(renderedTemplates.includes('9oos'));
+assert.ok(renderedTemplates.includes('7oos'));
+assert.ok(renderedTemplates.includes('VaR'));
+assert.ok(renderedTemplates.includes('HBP'));
+assert.ok(!renderedTemplates.includes('>free<'));
+assert.ok(!renderedTemplates.includes('>pro<'));
+assert.ok(!renderedTemplates.includes('s21..'));
+assert.ok(!renderedTemplates.includes('s23..'));
 
 console.log('view creator contracts ok');

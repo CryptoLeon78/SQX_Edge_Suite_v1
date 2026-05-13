@@ -4,7 +4,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: UX-NAV5a - SQX Views required and recommended views cleanup.
+- Current phase completed: UX-NAV5b - SQX Views retest tags and retired pack cleanup.
 - Current UX surface decision: Strategy Builder tab and visible CVC handoff are retired from the dashboard shell; existing SB modules/docs remain internal historical contracts until a future renamed workflow is approved.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Next implementation phase: UX-NAV tab-by-tab optimization, active tab `SQX Views`; do not move to another tab until the operator says `Adelante con el siguiente tab`.
@@ -215,7 +215,7 @@ G6 - Institutional Dashboard Quick Actions Gate:
 UX-NAV Tab Optimization Gate:
 
 - UX-NAV is now a sequential tab-by-tab optimization track documented in `docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md`.
-- Only one active tab can be optimized at a time; the current active tab is `Workflow`.
+- Only one active tab can be optimized at a time; the current active tab is `SQX Views`.
 - Treat every operator message during an active tab pass as feedback for that same tab unless the operator explicitly changes the active scope.
 - Do not begin the next tab until the operator says exactly: `Adelante con el siguiente tab`.
 - Defer global tab reordering, tab removal/merging beyond active scope and final navigation flow until all individual tab passes are complete.
