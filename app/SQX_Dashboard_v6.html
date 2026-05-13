@@ -523,16 +523,16 @@
       </div>
     </div>
 
-    <!-- Activos fuera del plan (auto-detect de prioridad operativa) -->
+    <!-- Precarga desde Por Activo -->
     <div class="card" id="ps-orphans-card" style="display:none;">
       <div class="card-header">
-        <h2>Activos fuera del plan</h2>
-        <span class="badge warning">Detectados en prioridad operativa</span>
+        <h2>Precarga desde Por Activo</h2>
+        <span class="badge warning">Añadidos desde tarjetas</span>
         <span style="flex:1"></span>
-        <span style="font-size:11px; color:var(--text2);">Click "+ Añadir al plan" para promover a mining oficial</span>
+        <span style="font-size:11px; color:var(--text2);">Escaparate de entradas incorporadas al Plan mining</span>
       </div>
       <div style="color:var(--text2);font-size:12px;margin-bottom:12px;">
-        Items que has marcado como <strong style="color:var(--accent);">En curso</strong> o <strong style="color:var(--green);">Completado</strong> en la prioridad operativa pero <strong>no matchean ningún mining del plan</strong>. Promuévelos al plan con 1 click para que entren en el tracking oficial.
+        Estos assets vienen del botón <strong style="color:var(--accent);">+ Plan</strong> de las tarjetas de <strong>Por Activo</strong>. Ya forman parte del Plan mining; esta sección sólo muestra la precarga y su procedencia.
       </div>
       <div id="ps-orphans-list"></div>
     </div>
@@ -553,12 +553,14 @@
         <button class="export-btn" id="ps-consolidate-plan" title="Exporta el plan mining actual para consolidarlo como configuración estable">Consolidar</button>
         <button class="export-btn" id="ps-restore-auto" style="display:none; border-color:var(--purple); color:var(--purple);">Restaurar estados auto</button>
         <button class="export-btn" id="ps-plan-reset">Reset estados</button>
-        <button class="export-btn" id="ps-plan-reset-plan" style="border-color:var(--red); color:var(--red); background:rgba(239,68,68,.08);" title="Borra minings añadidos, fases nuevas y textos editados del plan local">Reset plan mining</button>
+        <button class="export-btn" id="ps-plan-reset-plan" style="border-color:var(--red); color:var(--red); background:rgba(239,68,68,.08);" title="Borra todos los minings, incluido el plan base, para empezar desde cero">Reset plan mining</button>
       </div>
       <div id="ps-plan-user-info" style="display:none; padding:10px 14px; background:rgba(59,130,246,.08); border:1px solid rgba(59,130,246,.3); border-radius:8px; margin-bottom:14px; font-size:13px;">
         <strong style="color:var(--accent);">Plan extendido:</strong>
-        <span id="ps-plan-user-count">0</span> añadidos en localStorage.
-        <button id="ps-clear-plan-user-btn" style="margin-left:10px; padding:3px 10px; border-radius:4px; border:1px solid var(--red); background:transparent; color:var(--red); font-size:11px; cursor:pointer;">Limpiar añadidos</button>
+        <span id="ps-plan-user-count">0</span> añadidos al Plan mining.
+        <span id="ps-plan-user-summary" style="margin-left:8px;color:var(--text2);font-size:12px;"></span>
+        <button id="ps-clear-plan-user-btn" style="margin-left:10px; padding:3px 10px; border-radius:4px; border:1px solid var(--red); background:transparent; color:var(--red); font-size:11px; cursor:pointer;">Limpiar precarga</button>
+        <div id="ps-plan-user-preview" class="ps-plan-user-preview"></div>
       </div>
       <div style="color:var(--text2);font-size:12px;margin-bottom:12px;">
         Este bloque controla el plan real de trabajo: fases, assets/timeframes, dirección, estado y supervivientes por mining.

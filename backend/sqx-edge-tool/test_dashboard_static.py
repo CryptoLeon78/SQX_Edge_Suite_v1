@@ -2150,8 +2150,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn('id="ps-funnel-card"', pipeline_tab)
         self.assertIn('id="ps-plan-reset-plan"', pipeline_tab)
         self.assertIn("Reset plan mining", pipeline_tab)
+        self.assertIn("Borra todos los minings, incluido el plan base", pipeline_tab)
+        self.assertIn("Precarga desde Por Activo", pipeline_tab)
+        self.assertIn("Añadidos desde tarjetas", pipeline_tab)
+        self.assertIn('id="ps-plan-user-preview"', pipeline_tab)
         self.assertIn("+ Mining", pipeline_tab)
         self.assertIn("+ Fase", pipeline_tab)
+        self.assertNotIn("Detectados en prioridad operativa", pipeline_tab)
         self.assertNotIn("SQX Priority", pipeline_tab)
         self.assertNotIn("Estado actual del pipeline", workflow_overview)
         self.assertNotIn("TEMPLATE LINEAR cerrada", workflow_overview)
@@ -2227,8 +2232,19 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn(".ps-command-strip", (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig"))
         self.assertIn("setPhaseMetaUser", dashboard_js)
         self.assertIn("window.setPhaseMetaUser = setPhaseMetaUser", dashboard_js)
+        self.assertIn("window.addPlanMiningFromCandidate = addPlanMiningFromCandidate", dashboard_js)
+        self.assertIn("window.resetPlanMiningUserState = resetPlanMiningUserState", dashboard_js)
         self.assertIn("editPlanPhaseClick", dashboard_js)
+        self.assertIn("resetPlanPhaseClick", dashboard_js)
+        self.assertIn("Reset fase", dashboard_js)
         self.assertIn("resetPlanMiningUserState", dashboard_js)
+        self.assertIn("baseDisabled:true", dashboard_js)
+        self.assertIn("hiddenBaseMinings", dashboard_js)
+        self.assertIn("source: source || 'manual'", dashboard_js)
+        self.assertIn("addPlanMiningFromCandidate", dashboard_js)
+        self.assertIn("phases.length ? phases : [1]", dashboard_js)
+        self.assertIn("Plan mining vacío", dashboard_js)
+        self.assertIn("source === 'asset-card'", dashboard_js)
         self.assertIn("ps-plan-reset-plan", dashboard_js)
         self.assertNotIn("auto-sync con SQX Priority", dashboard_js)
 
@@ -2974,7 +2990,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "window.quickAddToPlan",
             "window.quickToProjectGen",
             "catBase = String(cat || '').replace(/_S$/, '')",
-            "window.promoteOrphanToPlan(key)",
+            "addPlanMiningFromCandidate(asset, catBase, tf, dir, 'asset-card')",
             "writeCustomProjectInputs(document, config)",
             "renderPsHealth()",
             "ps-funnel-graph",

@@ -85,6 +85,28 @@ async function run() {
     }
     await desktop.locator('#ps-plan-reset-plan').click();
     await desktop.waitForFunction(() => !document.getElementById('ps-plan-table')?.innerText.includes('Fase editable E2E'));
+    await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
+    await desktop.evaluate(() => {
+      const ok = window.addPlanMiningFromCandidate('EURUSD', 'tendencia', 'H1', 'L/S', 'asset-card');
+      if (!ok) throw new Error('E2E addPlanMiningFromCandidate failed');
+      window.renderPipelineState();
+    });
+    await desktop.waitForSelector('#ps-orphans-card', { state: 'visible' });
+    const planPreloadText = await desktop.locator('#ps-orphans-card').innerText();
+    if (!planPreloadText.includes('EURUSD') || !planPreloadText.includes('Mining #')) {
+      throw new Error('Por Activo + Plan should appear as Plan mining preload, not as priority orphan');
+    }
+    const unifiedPlanText = await desktop.locator('#ps-plan-card').innerText();
+    if (!unifiedPlanText.includes('EURUSD') || !unifiedPlanText.includes('Plan extendido')) {
+      throw new Error('Added asset-card mining should join the unified Plan mining control center');
+    }
+    await desktop.locator('#ps-plan-table .ps-phase-reset-btn').first().click();
+    await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
+    await desktop.evaluate(() => {
+      window.clearPlanUser();
+      window.renderPipelineState();
+    });
+    await desktop.waitForFunction(() => !document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
     const miningControlStatusText = await desktop.locator('#ps-current-pipeline-status').innerText();
     if (!miningControlStatusText.includes('TEMPLATE LINEAR cerrada') || !miningControlStatusText.includes('filter-by-correlation')) {
       throw new Error('Mining Control should own the current pipeline status section');

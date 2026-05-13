@@ -1182,12 +1182,13 @@ window.navToAsset = function(id) {
 // Quick actions from asset/category cards into Mining Control and Project Generator.
 window.quickAddToPlan = function(asset, cat, tf, dir) {
   const catBase = String(cat || '').replace(/_S$/, '');
-  const key = asset + '|' + catBase + '|' + tf + '|' + dir;
-  if (typeof window.promoteOrphanToPlan === 'function') {
-    window.promoteOrphanToPlan(key);
-    return;
-  }
-  alert('No se ha podido abrir Mining Control desde esta tarjeta.');
+  const ok = addPlanMiningFromCandidate(asset, catBase, tf, dir, 'asset-card');
+  if (!ok) return;
+  activateTabById('pipeline');
+  renderPipelineState();
+  setTimeout(() => {
+    document.getElementById('ps-plan-card')?.scrollIntoView({ behavior:'smooth', block:'start' });
+  }, 50);
 };
 
 window.quickToProjectGen = function(asset, cat, tf, dir) {
@@ -1313,25 +1314,48 @@ document.addEventListener('keydown', function(e){
 
 // ── Plan USER (añadidos por UI, persistente en localStorage) ──
 const PLAN_USER_KEY = SQX_STORAGE_KEYS.planUser || 'sqx_plan_user_v1';
-let PLAN_USER = { minings:[], phases:{} };
+let PLAN_USER = { minings:[], phases:{}, baseDisabled:false, hiddenBaseMinings:[] };
 try {
   const stored = SQX_STORAGE.getJson(PLAN_USER_KEY, {});
-  PLAN_USER = { minings: stored.minings || [], phases: stored.phases || {} };
+  PLAN_USER = {
+    minings: Array.isArray(stored.minings) ? stored.minings : [],
+    phases: stored.phases || {},
+    baseDisabled: !!stored.baseDisabled,
+    hiddenBaseMinings: Array.isArray(stored.hiddenBaseMinings) ? stored.hiddenBaseMinings : [],
+  };
 } catch(e){ /* keep defaults */ }
+function normalizePlanUserState() {
+  PLAN_USER.minings = (Array.isArray(PLAN_USER.minings) ? PLAN_USER.minings : []).map(function(m) {
+    return Object.assign({}, m, {
+      num: parseInt(m.num, 10),
+      phase: parseInt(m.phase, 10),
+      source: m.source || 'manual',
+    });
+  }).filter(function(m) {
+    return m.num && m.phase && m.asset && m.tf && m.bs && m.dir;
+  });
+  PLAN_USER.phases = PLAN_USER.phases || {};
+  PLAN_USER.baseDisabled = !!PLAN_USER.baseDisabled;
+  PLAN_USER.hiddenBaseMinings = (Array.isArray(PLAN_USER.hiddenBaseMinings) ? PLAN_USER.hiddenBaseMinings : [])
+    .map(function(n) { return parseInt(n, 10); })
+    .filter(function(n, idx, arr) { return n && arr.indexOf(n) === idx; });
+}
+normalizePlanUserState();
 function savePlanUser() { SQX_STORAGE.setJson(PLAN_USER_KEY, PLAN_USER); }
 function planEsc(value) { return stratEsc(value); }
 
 function getPlanMinings() {
-  // Combina DEFAULT + USER, ordena por num
+  normalizePlanUserState();
+  const hidden = new Set(PLAN_USER.hiddenBaseMinings || []);
   const all = [
-    ...PLAN_MININGS,
+    ...(PLAN_USER.baseDisabled ? [] : PLAN_MININGS.filter(function(m) { return !hidden.has(m.num); })),
     ...PLAN_USER.minings.map(m => ({...m, _user:true}))
   ];
   return all.sort((a,b) => a.num - b.num);
 }
 function getPlanPhases() {
-  // Combina PHASE_META + USER phases
-  return Object.assign({}, PHASE_META, PLAN_USER.phases);
+  normalizePlanUserState();
+  return Object.assign({}, PLAN_USER.baseDisabled ? {} : PHASE_META, PLAN_USER.phases);
 }
 function getPlanPhaseNums() {
   const phases = getPlanPhases();
@@ -1346,13 +1370,61 @@ function nextPhaseNum() {
   return nums.length ? Math.max(...nums) + 1 : 1;
 }
 function addMiningUser(m) {
-  // Validación mínima
-  if (!m.asset || !m.tf || !m.bs || !m.dir || !m.phase) return false;
-  // Dedupe por (num)
-  if (getPlanMinings().some(x => x.num === m.num)) return false;
-  PLAN_USER.minings.push({ num:m.num, phase:m.phase, asset:m.asset, tf:m.tf, bs:m.bs, dir:m.dir });
+  const mining = {
+    num: parseInt(m.num, 10) || nextMiningNum(),
+    phase: parseInt(m.phase, 10) || 1,
+    asset: String(m.asset || '').trim().toUpperCase(),
+    tf: String(m.tf || '').trim().toUpperCase(),
+    bs: String(m.bs || '').trim(),
+    dir: String(m.dir || '').trim(),
+    source: m.source || 'manual',
+  };
+  if (!mining.asset || !mining.tf || !mining.bs || !mining.dir || !mining.phase) return false;
+  if (getPlanMinings().some(x => x.num === mining.num)) return false;
+  if (getPlanMinings().some(x => x.asset === mining.asset && x.tf === mining.tf && x.bs === mining.bs && x.dir === mining.dir)) return false;
+  if (!getPlanPhases()[mining.phase]) {
+    PLAN_USER.phases[mining.phase] = { name: 'Fase ' + mining.phase, desc: 'Fase creada desde Plan mining' };
+  }
+  PLAN_USER.minings.push(mining);
   savePlanUser();
   return true;
+}
+function resolvePlanPhaseForMining(asset) {
+  const all = getPlanMinings();
+  const sameAssetMining = all.find(function(m) { return m.asset === asset; });
+  if (sameAssetMining) return sameAssetMining.phase;
+  const nums = getPlanPhaseNums();
+  if (nums.length) return nums[0];
+  PLAN_USER.phases[1] = { name: 'Manual', desc: 'Minings añadidos por el usuario' };
+  return 1;
+}
+function addPlanMiningFromCandidate(asset, cat, tf, dir, source) {
+  const catBase = String(cat || '').replace(/_S$/, '');
+  const bs = PRIORITY_CAT_TO_BS[cat] || PRIORITY_CAT_TO_BS[catBase] || CAT_TO_BS[cat] || CAT_TO_BS[catBase];
+  if (!bs) { alert('Categoría desconocida: '+catBase); return false; }
+  const tfList = String(tf || '').split(',').map(function(t) { return t.trim().toUpperCase(); }).filter(Boolean);
+  const firstTf = tfList[0] || 'H1';
+  const cleanAsset = String(asset || '').trim().toUpperCase();
+  const cleanDir = String(dir || 'L').trim();
+  const exists = getPlanMinings().some(function(m) {
+    return m.asset === cleanAsset && m.tf === firstTf && m.bs === bs && m.dir === cleanDir;
+  });
+  if (exists) {
+    alert('Ese mining ya existe en el Plan mining.');
+    return false;
+  }
+  const phase = resolvePlanPhaseForMining(cleanAsset);
+  const ok = addMiningUser({
+    num: nextMiningNum(),
+    phase: phase,
+    asset: cleanAsset,
+    tf: firstTf,
+    bs: bs,
+    dir: cleanDir,
+    source: source || 'manual',
+  });
+  if (!ok) alert('No se ha podido añadir el mining al Plan mining.');
+  return ok;
 }
 function addPhaseUser(num, name, desc) {
   if (!num || !name) return false;
@@ -1386,19 +1458,41 @@ function removeUserPhase(num) {
   return true;
 }
 function clearPlanUser() {
-  PLAN_USER = { minings:[], phases:{} };
+  PLAN_USER = { minings:[], phases:{}, baseDisabled:false, hiddenBaseMinings:[] };
   savePlanUser();
 }
 function resetPlanMiningUserState() {
-  clearPlanUser();
+  PLAN_USER = { minings:[], phases:{}, baseDisabled:true, hiddenBaseMinings:[] };
+  savePlanUser();
   PIPELINE_STATE.overrides = {};
+  PIPELINE_STATE.funnels = {};
   savePipelineState();
+}
+function resetPlanPhaseMinings(phase) {
+  const p = parseInt(phase, 10);
+  if (!p) return false;
+  const baseNums = PLAN_MININGS.filter(function(m) { return m.phase === p; }).map(function(m) { return m.num; });
+  const userNums = PLAN_USER.minings.filter(function(m) { return m.phase === p; }).map(function(m) { return m.num; });
+  const removedNums = baseNums.concat(userNums);
+  const hidden = new Set(PLAN_USER.hiddenBaseMinings || []);
+  baseNums.forEach(function(num) { hidden.add(num); });
+  PLAN_USER.hiddenBaseMinings = Array.from(hidden);
+  PLAN_USER.minings = PLAN_USER.minings.filter(function(m) { return m.phase !== p; });
+  Object.keys(PIPELINE_STATE.overrides || {}).forEach(function(num) {
+    if (removedNums.indexOf(parseInt(num, 10)) !== -1) delete PIPELINE_STATE.overrides[num];
+  });
+  savePlanUser();
+  savePipelineState();
+  return true;
 }
 // Alias visible para el helper de status (lee PLAN_ALL si existe)
 window.PLAN_ALL = null;
 function refreshPlanAll() { window.PLAN_ALL = getPlanMinings(); }
 refreshPlanAll();
 window.setPhaseMetaUser = setPhaseMetaUser;
+window.addPlanMiningFromCandidate = addPlanMiningFromCandidate;
+window.resetPlanMiningUserState = resetPlanMiningUserState;
+window.clearPlanUser = clearPlanUser;
 
 // Mapping inverso BS → categoría de prioridad operativa
 
@@ -1580,6 +1674,14 @@ function renderPsPlan() {
   const allMinings = getPlanMinings();
   const allPhases = getPlanPhases();
   const phases = getPlanPhaseNums().filter(p => allMinings.some(m => m.phase === p));
+  if (!allMinings.length) {
+    document.getElementById('ps-plan-table').innerHTML =
+      '<div class="ps-empty-plan">' +
+        '<strong>Plan mining vacío</strong>' +
+        '<span>Empieza desde cero con <b>+ Mining</b> o añade assets desde las tarjetas de <b>Por Activo</b>. Todo lo que agregues entrará aquí como centro de control.</span>' +
+      '</div>';
+    return;
+  }
   const html = phases.map(p => {
     const meta = allPhases[p] || { name:'(sin nombre)', desc:'' };
     const isUserPhase = !!PLAN_USER.phases[p];
@@ -1643,6 +1745,7 @@ function renderPsPlan() {
       ? '<span class="ps-user-badge" title="Fase creada en localStorage">USER</span>'
       : (isUserPhase ? '<span class="ps-user-badge" title="Texto editado en localStorage">EDIT</span>' : '');
     const phaseEdit = '<button class="ps-phase-edit-btn" title="Editar nombre y descripcion de esta fase" onclick="editPlanPhaseClick('+p+')">Editar fase</button>';
+    const phaseClear = '<button class="ps-phase-reset-btn" title="Quitar todos los minings de esta fase" onclick="resetPlanPhaseClick('+p+')">Reset fase</button>';
     const phaseReset = isCustomPhase
       ? '<button class="ps-remove-btn" title="Eliminar fase local" onclick="removeUserPhaseClick('+p+')">✕</button>'
       : (isUserPhase ? '<button class="ps-remove-btn" title="Revertir texto base de la fase" onclick="revertPlanPhaseClick('+p+')">↻</button>' : '');
@@ -1655,7 +1758,7 @@ function renderPsPlan() {
         '</div>' +
         '<span class="ps-phase-count">'+done+'/'+minings.length+'</span>' +
         '<div class="ps-phase-bar"><div style="width:'+pct+'%"></div></div>' +
-        '<div class="ps-phase-tools">'+phaseEdit+phaseReset+'</div>' +
+        '<div class="ps-phase-tools">'+phaseEdit+phaseClear+phaseReset+'</div>' +
       '</div>' +
       '<table class="ps-mining-table">' +
         '<thead><tr><th>#</th><th>Asset</th><th>TF</th><th>Blocksetting</th><th>Dir</th><th>Composite</th><th>Estrategias</th><th>Estado</th></tr></thead>' +
@@ -1761,7 +1864,7 @@ window.editFunnelCell = function(el, key, stage) {
   });
 };
 
-// ── Orphans: items current/completed en prioridad operativa sin match en el plan ──
+// ── Precarga desde Por Activo: items añadidos con + Plan y ya unidos al plan ──
 function getOrphanPriorityItems() {
   if (typeof PRIORITY_PROGRESS === 'undefined') return [];
   const planKeys = new Set(getPlanMinings().map(m => miningToPriorityKey(m)).filter(Boolean));
@@ -1799,33 +1902,25 @@ function getOrphanPriorityItems() {
 }
 
 function renderOrphans() {
-  const orphans = getOrphanPriorityItems();
   const card = document.getElementById('ps-orphans-card');
   const list = document.getElementById('ps-orphans-list');
   if (!card || !list) return;
-  if (!orphans.length) { card.style.display = 'none'; return; }
+  const preloaded = PLAN_USER.minings.filter(function(m) { return m.source === 'asset-card'; });
+  if (!preloaded.length) { card.style.display = 'none'; list.innerHTML = ''; return; }
   card.style.display = 'block';
-  const meta = (typeof CAT_META !== 'undefined') ? CAT_META : {};
-  list.innerHTML = orphans.map(o => {
-    const catName = (meta[o.cat] && meta[o.cat].name) || o.cat;
-    const dirCls = o.dir==='L'?'dir-l':(o.dir==='S'?'dir-s':'dir-ls');
-    const dirTxt = o.dir==='L'?'LONG':(o.dir==='S'?'SHORT':'L+S');
-    const compHtml = o.composite != null ? '<span class="po-comp">'+o.composite+'%</span>' : '';
-    const stLbl = sqxStatusMeta(o.status).label;
-    const legacyBadge = o.isLegacy ? '<span class="po-legacy" title="Key de prioridad operativa en formato antiguo (TFs juntos). Se ha hecho split visual; al quitar se elimina la key entera.">Legacy</span>' : '';
-    const safeOrig = o.origKey.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    const safeNew  = o.key.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+  list.innerHTML = preloaded.map(function(m) {
+    const dirCls = m.dir==='L'?'dir-l':(m.dir==='S'?'dir-s':'dir-ls');
+    const dirTxt = m.dir==='L'?'LONG':(m.dir==='S'?'SHORT':'L+S');
+    const phaseMeta = getPlanPhases()[m.phase] || { name: '' };
     return '<div class="ps-orphan-row">' +
-      '<span class="po-asset">'+o.asset+'</span>' +
-      '<span class="po-cat">'+catName+'</span>' +
-      '<span class="po-tf">'+o.tf+'</span>' +
+      '<span class="po-asset">'+planEsc(m.asset)+'</span>' +
+      '<span class="po-cat">FASE '+m.phase+(phaseMeta.name ? ' · '+planEsc(phaseMeta.name) : '')+'</span>' +
+      '<span class="po-tf">'+planEsc(m.tf)+'</span>' +
       '<span class="'+dirCls+' po-dir">'+dirTxt+'</span>' +
-      '<span class="po-bs">'+o.bs+'</span>' +
-      compHtml +
-      '<span class="po-status '+o.status+'">'+stLbl+'</span>' +
-      legacyBadge +
-      '<button class="po-add-btn" onclick="promoteOrphanToPlan(\''+safeNew+'\')">+ Añadir al plan</button>' +
-      '<button class="po-remove-btn" title="Eliminar este item de la prioridad operativa (no afecta el plan)" onclick="removeOrphanFromPriority(\''+safeOrig+'\','+(o.isLegacy?'true':'false')+')">✕ Quitar</button>' +
+      '<span class="po-bs">'+planEsc(m.bs)+'</span>' +
+      '<span class="po-status current">Mining #'+m.num+'</span>' +
+      '<button class="po-add-btn" onclick="document.getElementById(\'ps-plan-card\').scrollIntoView({behavior:\'smooth\',block:\'start\'})">Ver en plan</button>' +
+      '<button class="po-remove-btn" title="Quitar esta precarga del Plan mining" onclick="removeUserMiningClick('+m.num+')">Quitar</button>' +
     '</div>';
   }).join('');
 }
@@ -1893,10 +1988,32 @@ function renderPipelineState() {
   // banner USER
   const userInfo = document.getElementById('ps-plan-user-info');
   if (userInfo) {
-    const userCount = PLAN_USER.minings.length + Object.keys(PLAN_USER.phases).length;
+    const editedPhases = Object.keys(PLAN_USER.phases || {}).length;
+    const addedMinings = PLAN_USER.minings.length;
+    const hiddenBase = (PLAN_USER.hiddenBaseMinings || []).length;
+    const baseDisabled = !!PLAN_USER.baseDisabled;
+    const userCount = addedMinings + editedPhases + hiddenBase + (baseDisabled ? 1 : 0);
     userInfo.style.display = userCount > 0 ? 'block' : 'none';
     const cnt = document.getElementById('ps-plan-user-count');
-    if (cnt) cnt.textContent = userCount;
+    if (cnt) cnt.textContent = addedMinings;
+    const summary = document.getElementById('ps-plan-user-summary');
+    if (summary) {
+      const parts = [];
+      if (addedMinings) parts.push(addedMinings + ' mining' + (addedMinings===1?'':'s') + ' añadidos');
+      if (editedPhases) parts.push(editedPhases + ' fase' + (editedPhases===1?'':'s') + '/texto' + (editedPhases===1?'':'s'));
+      if (hiddenBase) parts.push(hiddenBase + ' base oculto' + (hiddenBase===1?'':'s'));
+      if (baseDisabled) parts.push('plan base desactivado');
+      summary.textContent = parts.length ? parts.join(' · ') : '';
+    }
+    const preview = document.getElementById('ps-plan-user-preview');
+    if (preview) {
+      const sample = PLAN_USER.minings.slice(0, 8).map(function(m) {
+        return '<span>'+planEsc(m.asset)+' '+planEsc(m.tf)+' · F'+m.phase+' · '+planEsc(m.bs)+'</span>';
+      }).join('');
+      const more = PLAN_USER.minings.length > 8 ? '<span>+'+(PLAN_USER.minings.length - 8)+' mas</span>' : '';
+      const baseFlag = baseDisabled ? '<span>Base apagada</span>' : '';
+      preview.innerHTML = sample + more + baseFlag;
+    }
   }
   renderHome();
 }
@@ -1924,8 +2041,10 @@ document.getElementById('ps-plan-reset').addEventListener('click', function(){
 document.getElementById('ps-plan-reset-plan').addEventListener('click', function(){
   const editedPhases = Object.keys(PLAN_USER.phases || {}).length;
   const addedMinings = PLAN_USER.minings.length;
-  if (!editedPhases && !addedMinings && !Object.keys(PIPELINE_STATE.overrides || {}).length) return;
-  if (confirm('¿Resetear el plan mining local? Se borran minings añadidos, fases nuevas, textos editados de fases y estados manuales. El plan base y las estrategias se mantienen.')) {
+  const hiddenBase = (PLAN_USER.hiddenBaseMinings || []).length;
+  const hasBase = !PLAN_USER.baseDisabled && PLAN_MININGS.length > 0;
+  if (!editedPhases && !addedMinings && !hiddenBase && !hasBase && !Object.keys(PIPELINE_STATE.overrides || {}).length) return;
+  if (confirm('¿Resetear TODO el Plan mining? Se borran minings añadidos, se oculta el plan base y se limpian estados/embudos para empezar desde cero.')) {
     resetPlanMiningUserState();
     renderPipelineState();
   }
@@ -1947,7 +2066,8 @@ function openAddMiningModal() {
   const sel = document.getElementById('psm-phase');
   const phases = getPlanPhaseNums();
   const meta = getPlanPhases();
-  sel.innerHTML = phases.map(p => '<option value="'+p+'">FASE '+p+' — '+(meta[p]?.name || '')+'</option>').join('');
+  const modalPhases = phases.length ? phases : [1];
+  sel.innerHTML = modalPhases.map(p => '<option value="'+p+'">FASE '+p+' — '+(meta[p]?.name || 'Manual')+'</option>').join('');
   document.getElementById('ps-add-mining-backdrop').style.display = 'flex';
 }
 function closeAddMiningModal() { document.getElementById('ps-add-mining-backdrop').style.display = 'none'; }
@@ -2008,6 +2128,14 @@ window.revertPlanPhaseClick = function(num) {
     if (revertPhaseMetaUser(num)) renderPipelineState();
   }
 };
+window.resetPlanPhaseClick = function(num) {
+  const p = parseInt(num, 10);
+  const phaseMinings = getPlanMinings().filter(function(m) { return m.phase === p; });
+  if (!phaseMinings.length) return;
+  if (confirm('¿Resetear todos los minings de la fase '+p+'? Se quitan del Plan mining los base y los añadidos de esa fase.')) {
+    if (resetPlanPhaseMinings(p)) renderPipelineState();
+  }
+};
 
 document.getElementById('ps-add-mining-btn').addEventListener('click', openAddMiningModal);
 document.getElementById('ps-add-phase-btn').addEventListener('click', openAddPhaseModal);
@@ -2021,9 +2149,9 @@ document.getElementById('psm-save').addEventListener('click', saveAddMining);
 document.getElementById('psp-save').addEventListener('click', saveAddPhase);
 
 document.getElementById('ps-clear-plan-user-btn').addEventListener('click', function(){
-  const n = PLAN_USER.minings.length + Object.keys(PLAN_USER.phases).length;
+  const n = PLAN_USER.minings.length + Object.keys(PLAN_USER.phases).length + (PLAN_USER.hiddenBaseMinings || []).length + (PLAN_USER.baseDisabled ? 1 : 0);
   if (!n) return;
-  if (confirm('¿Borrar los '+n+' añadidos USER del plan? Los DEFAULT se mantienen.')) {
+  if (confirm('¿Limpiar la precarga local del plan? Se borran minings añadidos y textos editados; se restaura el plan base.')) {
     clearPlanUser(); renderPipelineState();
   }
 });
