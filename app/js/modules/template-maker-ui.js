@@ -72,6 +72,18 @@
       page += 1;
       renderResults();
     });
+    bindClick('tm-clear-csv-btn', function() {
+      if (!SQX.templateMaker.clearCSVStrategies) return;
+      if (!global.confirm || global.confirm('Limpiar solo las estrategias y metricas importadas desde CSV? Los .sqx reconciliados se conservan.')) {
+        SQX.templateMaker.clearCSVStrategies().then(function(summary) {
+          page = 1;
+          clearFileInput('tm-files-input');
+          clearFileInput('tm-csv-input');
+          setStatus('CSV limpiado: ' + summary.removed + ' filas CSV eliminadas, ' + summary.preservedSQX + ' .sqx conservados.');
+          renderAll();
+        });
+      }
+    });
     bindClick('tm-reset-btn', function() {
       if (!global.confirm || global.confirm('Resetear estrategias y configuracion de Template Maker?')) {
         SQX.templateMaker.reset().then(function() {
@@ -109,6 +121,11 @@
       zone.classList.remove('is-drag');
       handler(event.dataTransfer.files);
     });
+  }
+
+  function clearFileInput(id) {
+    var input = byId(id);
+    if (input) input.value = '';
   }
 
   function handleCSVFiles(files) {
@@ -156,7 +173,20 @@
     renderThresholds();
     renderStats();
     renderContractSummary();
+    renderCSVClearAction();
     renderResults();
+  }
+
+  function renderCSVClearAction() {
+    var button = byId('tm-clear-csv-btn');
+    if (!button) return;
+    var hasCSV = SQX.templateMaker.getStrategyRecords().some(function(record) {
+      return record.sources && record.sources.csv;
+    });
+    button.disabled = !hasCSV;
+    button.title = hasCSV
+      ? 'Borra solo el lote CSV y conserva los .sqx reconciliados.'
+      : 'Carga un CSV para habilitar esta limpieza.';
   }
 
   function renderPreset() {

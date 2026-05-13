@@ -458,7 +458,7 @@ async function run() {
     await desktop.waitForSelector('.tab[data-tab="templatemaker"].active');
     await desktop.waitForSelector('#tm-csv-input', { state: 'attached' });
     const templateMakerText = await desktop.locator('#tab-templatemaker').innerText();
-    ['Template Maker', 'Template Maker Cert', 'Genera la view obligatoria', 'Carga tus fuentes', 'Resuelve el contrato', 'Evalua Perfil Capa 1', 'Resultados y C2', 'Cargar archivos', 'Umbrales KPI editables'].forEach(expected => {
+    ['Template Maker', 'Template Maker Cert', 'Genera la view obligatoria', 'Carga tus fuentes', 'Resuelve el contrato', 'Evalua Perfil Capa 1', 'Resultados y C2', 'Cargar archivos', 'Reset CSV', 'Umbrales KPI editables'].forEach(expected => {
       if (!templateMakerText.includes(expected)) throw new Error(`Template Maker tab should include ${expected}`);
     });
     if (await desktop.locator('#tab-templatemaker [data-tm-capa="2"]').count() !== 0) {
@@ -525,6 +525,18 @@ async function run() {
     const enabledC2 = await desktop.locator('#tm-results-table [data-tm-export]:not([disabled])').count();
     if (enabledC2 < 1) throw new Error('Template Maker should enable C2 only for valid PASSED candidates');
     await desktop.waitForFunction(() => window.SQX.templateMaker.getCapa() === 1);
+    await desktop.evaluate(() => { window.confirm = () => true; });
+    await desktop.locator('#tm-clear-csv-btn').click();
+    await desktop.waitForFunction(() => {
+      const strategies = window.SQX.templateMaker.getStrategies();
+      if (strategies.length !== 1) return false;
+      const strategy = strategies[0];
+      return strategy.sources && strategy.sources.sqx && !strategy.sources.csv &&
+        window.SQX.templateMaker.getStrategyStatus(strategy) === 'Faltan métricas';
+    });
+    await desktop.waitForFunction(() => document.getElementById('tm-results-table')?.innerText.includes('Faltan métricas'));
+    const enabledC2AfterCSVClear = await desktop.locator('#tm-results-table [data-tm-export]:not([disabled])').count();
+    if (enabledC2AfterCSVClear !== 0) throw new Error('Template Maker should disable C2 after clearing CSV metrics');
     await desktop.locator('#tm-audit-btn').click();
     await desktop.waitForSelector('#tm-modal-audit:not([hidden])');
     await desktop.locator('#tm-audit-close').click();
