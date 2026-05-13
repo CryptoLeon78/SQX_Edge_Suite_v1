@@ -72,14 +72,15 @@
       page += 1;
       renderResults();
     });
-    bindClick('tm-clear-csv-btn', function() {
-      if (!SQX.templateMaker.clearCSVStrategies) return;
-      if (!global.confirm || global.confirm('Limpiar solo las estrategias y metricas importadas desde CSV? Los .sqx reconciliados se conservan.')) {
-        SQX.templateMaker.clearCSVStrategies().then(function(summary) {
+    bindClick('tm-reset-results-btn', function() {
+      if (!SQX.templateMaker.clearResultStrategies) return;
+      if (!global.confirm || global.confirm('Resetear todos los resultados cargados en Template Maker? Perfil y umbrales se conservan.')) {
+        SQX.templateMaker.clearResultStrategies().then(function(summary) {
           page = 1;
           clearFileInput('tm-files-input');
           clearFileInput('tm-csv-input');
-          setStatus('CSV limpiado: ' + summary.removed + ' filas CSV eliminadas, ' + summary.preservedSQX + ' .sqx conservados.');
+          clearFileInput('tm-sqx-input');
+          setStatus('Resultados limpiados: ' + summary.removed + ' estrategias eliminadas.');
           renderAll();
         });
       }
@@ -173,20 +174,18 @@
     renderThresholds();
     renderStats();
     renderContractSummary();
-    renderCSVClearAction();
+    renderResultsResetAction();
     renderResults();
   }
 
-  function renderCSVClearAction() {
-    var button = byId('tm-clear-csv-btn');
+  function renderResultsResetAction() {
+    var button = byId('tm-reset-results-btn');
     if (!button) return;
-    var hasCSV = SQX.templateMaker.getStrategyRecords().some(function(record) {
-      return record.sources && record.sources.csv;
-    });
-    button.disabled = !hasCSV;
-    button.title = hasCSV
-      ? 'Borra solo el lote CSV y conserva los .sqx reconciliados.'
-      : 'Carga un CSV para habilitar esta limpieza.';
+    var total = SQX.templateMaker.getStrategies().length;
+    button.disabled = total === 0;
+    button.title = total
+      ? 'Borra todas las estrategias cargadas en la tabla de resultados.'
+      : 'Carga estrategias para habilitar este reset.';
   }
 
   function renderPreset() {
@@ -326,7 +325,11 @@
     if (empty) empty.hidden = all.length !== 0;
     table.hidden = all.length === 0;
     renderProblems();
-    if (!all.length) return;
+    if (!all.length) {
+      byId('tm-results-thead').innerHTML = '';
+      byId('tm-results-tbody').innerHTML = '';
+      return;
+    }
 
     var infoCols = SQX.templateMaker.getInfoColumns();
     var kpiCols = SQX.templateMaker.getKPIColumns();

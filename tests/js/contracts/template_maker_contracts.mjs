@@ -16,6 +16,7 @@ const tm = SQX.templateMaker;
 const requiredApi = [
   'init',
   'reset',
+  'clearResultStrategies',
   'clearCSVStrategies',
   'ingestFiles',
   'computeFileHash',
@@ -56,7 +57,8 @@ assert.ok(html.includes('id="tm-unified-zone"'), 'missing unified upload zone');
 assert.ok(html.includes('id="tm-open-cert-view"'), 'missing SQX Views handoff');
 assert.ok(html.includes('id="tm-contract-summary"'), 'missing contract summary cards');
 assert.ok(html.includes('id="tm-problem-panel"'), 'missing contract problem panel');
-assert.ok(html.includes('id="tm-clear-csv-btn"'), 'missing CSV-only results reset');
+assert.ok(html.includes('id="tm-reset-results-btn"'), 'missing results reset');
+assert.ok(html.includes('Reset resultados'), 'results reset should be user-facing');
 assert.ok(html.includes('id="tm-csv-input"'), 'missing CSV input');
 assert.ok(html.includes('id="tm-sqx-input"'), 'missing SQX input');
 ['Genera la view obligatoria', 'Carga tus fuentes', 'Resuelve el contrato', 'Evalua Perfil Capa 1', 'Resultados y C2'].forEach(step => {
@@ -108,9 +110,9 @@ assert.equal(tm.canGenerateC2(tm.getStrategies()[0]), false, 'CSV-only strategy 
 assert.equal(tm.getIncompleteRecords().length, 1, 'CSV-only strategy should be incomplete');
 assert.ok(tm.getStrategyRecords()[0].sources.csv, 'strategy records should expose CSV source');
 assert.ok(tm.getProvenance(tm.getStrategies()[0]._id).certVersion, 'provenance should expose cert version');
-const csvOnlyClear = await tm.clearCSVStrategies();
-assert.equal(csvOnlyClear.removed, 1, 'clearCSVStrategies should remove CSV-only rows');
-assert.equal(tm.getStrategies().length, 0, 'CSV-only clear should empty CSV rows');
+const csvOnlyClear = await tm.clearResultStrategies();
+assert.equal(csvOnlyClear.removed, 1, 'clearResultStrategies should remove CSV-only rows');
+assert.equal(tm.getStrategies().length, 0, 'results clear should empty CSV rows');
 await tm.loadFromCSV(certCsv, { fileName: 'template-maker-cert.csv' });
 const strategyCopy = tm.getStrategies();
 strategyCopy.push({ _id: 'mutated' });
@@ -153,12 +155,9 @@ await tm.loadFromCSV([{
   '% Profitable Months': 62,
   sources: { sqx: { fileName: 'Keep SQX.sqx', hash: 'hash-keep', importedAt: '2026-05-13T00:00:00.000Z' } }
 }], { fileName: 'template-maker-cert.csv' });
-const clearMerged = await tm.clearCSVStrategies();
-assert.equal(clearMerged.preservedSQX, 1, 'clearCSVStrategies should preserve reconciled SQX rows');
-assert.equal(tm.getStrategies().length, 1, 'clearCSVStrategies should keep SQX rows');
-assert.ok(tm.getStrategies()[0].sources.sqx, 'preserved row should keep SQX source');
-assert.ok(!tm.getStrategies()[0].sources.csv, 'preserved row should remove CSV source');
-assert.equal(tm.getStrategyStatus(tm.getStrategies()[0]), 'Faltan métricas', 'preserved SQX row should need metrics after CSV clear');
+const clearMerged = await tm.clearResultStrategies();
+assert.equal(clearMerged.removed, 1, 'clearResultStrategies should remove reconciled CSV/SQX rows');
+assert.equal(tm.getStrategies().length, 0, 'results clear should remove residual SQX rows too');
 
 await tm.setCapa(1);
 assert.equal(tm.getCapa(), 1, 'Template Maker contract should stay on Capa 1 for UI workflow');

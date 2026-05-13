@@ -280,31 +280,20 @@
     return clearDB();
   }
 
-  function clearCSVStrategies() {
-    var removed = 0;
-    var preservedSQX = 0;
-    _strategies = _strategies.reduce(function(acc, strategy) {
-      if (!hasCSVSource(strategy)) {
-        acc.push(strategy);
-        return acc;
-      }
-      if (hasSQX(strategy)) {
-        clearCSVFromStrategy(strategy);
-        preservedSQX += 1;
-        acc.push(strategy);
-        return acc;
-      }
-      removed += 1;
-      return acc;
-    }, []);
-    syncNextId();
+  function clearResultStrategies() {
+    var removed = _strategies.length;
+    _strategies = [];
+    _nextId = 1;
     return saveStrategiesToDB().then(function() {
       return {
         removed: removed,
-        preservedSQX: preservedSQX,
         total: _strategies.length
       };
     });
+  }
+
+  function clearCSVStrategies() {
+    return clearResultStrategies();
   }
 
   function parseCSV(text, options) {
@@ -512,44 +501,6 @@
     return metrics;
   }
 
-  function getMetricFieldNames() {
-    var names = {};
-    REQUIRED_METRICS_ALL.concat(
-      Object.keys(_thresholds[1] || {}),
-      Object.keys(_thresholds[2] || {})
-    ).forEach(function(metric) {
-      names[metric] = true;
-      names[normalizeKey(metric)] = true;
-      (METRIC_ALIASES[metric] || []).forEach(function(alias) {
-        names[alias] = true;
-        names[normalizeKey(alias)] = true;
-      });
-    });
-    return Object.keys(names);
-  }
-
-  function getCSVFieldNames(strategy) {
-    var safe = {
-      _id: true,
-      _source: true,
-      _fileData: true,
-      sources: true,
-      metrics: true,
-      logic: true,
-      provenance: true,
-      certification: true,
-      'Strategy Name': true,
-      Asset: true,
-      Symbol: true,
-      TimeFrame: true,
-      Fitness: true,
-      _IS: true,
-      _OOS: true
-    };
-    var columns = strategy && strategy.sources && strategy.sources.csv && strategy.sources.csv.columns || [];
-    return columns.filter(function(key) { return !safe[key]; }).map(normalizeKey);
-  }
-
   function stripRuntimeFields(strategy) {
     var copy = {};
     Object.keys(strategy || {}).forEach(function(key) {
@@ -735,27 +686,6 @@
 
   function hasSQX(strategy) {
     return !!(strategy && (strategy._fileData || strategy.sources && strategy.sources.sqx));
-  }
-
-  function hasCSVSource(strategy) {
-    return !!(strategy && strategy.sources && strategy.sources.csv) || String(strategy && strategy._source || '').indexOf('csv') >= 0;
-  }
-
-  function clearCSVFromStrategy(strategy) {
-    getMetricFieldNames().concat(getCSVFieldNames(strategy)).forEach(function(key) {
-      delete strategy[key];
-    });
-    strategy.metrics = {};
-    if (strategy.sources) delete strategy.sources.csv;
-    if (strategy.provenance) {
-      delete strategy.provenance.csvFingerprint;
-      delete strategy.provenance.viewName;
-    }
-    strategy._source = strategy.sources && strategy.sources.sqx ? 'sqx' : '';
-    addEvent(strategy, 'csv_cleared', 'csv');
-    strategy.certification = validateMetricsContract(strategy);
-    strategy.certification.status = getStrategyStatus(strategy, scoreStrategy(strategy));
-    return strategy;
   }
 
   function getStrategyStatus(strategy, score) {
@@ -1192,6 +1122,7 @@
   var api = {
     init: init,
     reset: reset,
+    clearResultStrategies: clearResultStrategies,
     clearCSVStrategies: clearCSVStrategies,
     ingestFiles: ingestFiles,
     computeFileHash: computeFileHash,
