@@ -63,6 +63,13 @@ async function run() {
     await desktop.locator('#workflow-command-center [data-home-tab="pipeline"]').click();
     await desktop.waitForSelector('.tab[data-tab="pipeline"].active');
     await desktop.waitForSelector('#ps-current-pipeline-status');
+    await desktop.waitForSelector('#ps-command-strip');
+    const miningControlCommandText = await desktop.locator('#ps-command-strip').innerText();
+    ['Workflow', 'SQX Views', 'Plan mining', 'Embudo', 'Estrategias', 'Champion vs Challenger'].forEach(expected => {
+      if (!miningControlCommandText.includes(expected)) throw new Error(`Mining Control command strip should include ${expected}`);
+    });
+    const pipelinePriorityText = await desktop.locator('#tab-pipeline', { hasText: 'SQX Priority' }).count();
+    if (pipelinePriorityText !== 0) throw new Error('Mining Control should not expose retired SQX Priority copy');
     const miningControlStatusText = await desktop.locator('#ps-current-pipeline-status').innerText();
     if (!miningControlStatusText.includes('TEMPLATE LINEAR cerrada') || !miningControlStatusText.includes('filter-by-correlation')) {
       throw new Error('Mining Control should own the current pipeline status section');

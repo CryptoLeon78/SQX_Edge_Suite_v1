@@ -454,6 +454,39 @@
       Estado operativo del pipeline. KPIs auto-calculados de las estrategias supervivientes. Plan configurable con tracking persistente. Embudo de filtrado del mining activo.
     </div>
 
+    <section class="ps-command-strip" id="ps-command-strip" aria-label="Ruta operativa de Mining Control">
+      <button class="ps-command-item" type="button" data-home-tab="workflow">
+        <span>0</span>
+        <strong>Workflow</strong>
+        <small>Guia metodologica</small>
+      </button>
+      <button class="ps-command-item" type="button" data-home-tab="views">
+        <span>1</span>
+        <strong>SQX Views</strong>
+        <small>Vista obligatoria</small>
+      </button>
+      <a class="ps-command-item is-current" href="#ps-plan-card">
+        <span>2</span>
+        <strong>Plan mining</strong>
+        <small>Tracking, fases y estado</small>
+      </a>
+      <a class="ps-command-item" href="#ps-funnel-card">
+        <span>3</span>
+        <strong>Embudo</strong>
+        <small>Supervivencia por test</small>
+      </a>
+      <button class="ps-command-item" type="button" data-home-tab="estrategias">
+        <span>4</span>
+        <strong>Estrategias</strong>
+        <small>Ganadoras y tentativas</small>
+      </button>
+      <button class="ps-command-item" type="button" data-home-tab="cvc">
+        <span>5</span>
+        <strong>Champion vs Challenger</strong>
+        <small>Decision final</small>
+      </button>
+    </section>
+
     <!-- KPIs globales -->
     <div class="ps-kpis" id="ps-kpis"></div>
 
@@ -490,22 +523,22 @@
       </div>
     </div>
 
-    <!-- Activos fuera del plan (auto-detect del SQX Priority) -->
+    <!-- Activos fuera del plan (auto-detect de prioridad operativa) -->
     <div class="card" id="ps-orphans-card" style="display:none;">
       <div class="card-header">
         <h2>Activos fuera del plan</h2>
-        <span class="badge warning">Detectados en SQX Priority</span>
+        <span class="badge warning">Detectados en prioridad operativa</span>
         <span style="flex:1"></span>
         <span style="font-size:11px; color:var(--text2);">Click "+ Añadir al plan" para promover a mining oficial</span>
       </div>
       <div style="color:var(--text2);font-size:12px;margin-bottom:12px;">
-        Items que has marcado como <strong style="color:var(--accent);">En curso</strong> o <strong style="color:var(--green);">Completado</strong> en SQX Priority pero <strong>no matchean ningún mining del plan</strong>. Promuévelos al plan con 1 click para que entren en el tracking oficial.
+        Items que has marcado como <strong style="color:var(--accent);">En curso</strong> o <strong style="color:var(--green);">Completado</strong> en la prioridad operativa pero <strong>no matchean ningún mining del plan</strong>. Promuévelos al plan con 1 click para que entren en el tracking oficial.
       </div>
       <div id="ps-orphans-list"></div>
     </div>
 
     <!-- Mining Control plans -->
-    <div class="card">
+    <div class="card" id="ps-plan-card">
       <div class="card-header ps-plan-header">
         <h2>Plan de minings</h2>
         <span class="badge info" id="ps-plan-counts">— fases · — minings</span>
@@ -527,14 +560,14 @@
         <button id="ps-clear-plan-user-btn" style="margin-left:10px; padding:3px 10px; border-radius:4px; border:1px solid var(--red); background:transparent; color:var(--red); font-size:11px; cursor:pointer;">Limpiar añadidos</button>
       </div>
       <div style="color:var(--text2);font-size:12px;margin-bottom:12px;">
-        Estado por defecto se sincroniza desde <strong style="color:var(--purple);">SQX Priority</strong> (matching <code>asset|cat|tf|dir</code>).
+        Estado por defecto se sincroniza desde <strong style="color:var(--purple);">prioridad operativa</strong> (matching <code>asset|cat|tf|dir</code>).
         Click en el badge para override manual. Los manuales muestran <span class="ps-src-badge ps-src-manual" style="margin:0; cursor:default;">✏ Manual ↻</span> — click ahí para volver a auto-sync de ese mining.
       </div>
       <div id="ps-plan-table"></div>
     </div>
 
     <!-- Embudo del mining activo -->
-    <div class="card">
+    <div class="card" id="ps-funnel-card">
       <div class="card-header">
         <h2>Embudo de filtrado <span style="font-size:12px;color:var(--text2);font-weight:normal;">— mining seleccionado</span></h2>
         <select id="ps-funnel-mining" class="filter-select" style="margin-left:auto;"></select>
