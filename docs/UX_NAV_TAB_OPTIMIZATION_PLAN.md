@@ -13,25 +13,25 @@ UX-NAV now runs as a sequential tab-by-tab optimization track.
 
 ## Current Active Tab
 
-`Project Generator`
+`Mining Control`
 
-Champion vs Challenger is closed as the final decision board. Project Generator is the active pass and is being optimized as a guided `.cfx` generation assistant without changing backend, preset or `.cfx` contracts.
+Project Generator is closed as a guided `.cfx` assistant. Mining Control is reopened as the active pass for a focused operational cleanup.
 
-Active correction: Project Generator now moves into an accordion workflow. All five steps start closed; Step 3 selects between `Generación metodológica` and `Generación manual`; Step 4 shows only the matching workspace (`Minings del plan` or `Custom libre`) and keeps `Abrir output` in the generation area.
+Active correction: `Foco operativo` and `Precarga desde Por Activo` are retired completely from the visible UI. `Plan mining` remains the single source of truth, and rows added from asset cards are identified in-table with the source tag `TARJETA`, alongside manual rows tagged as `MANUAL`.
 
-Visual correction: visual bulk generation is retired. Operators can still generate everything by using `Seleccionar todos` plus `Generar selección`, while per-row Capa 1/Capa 2 buttons and global decorative button symbols stay removed.
+Visual correction: duplicate showcase/preload panels are removed so the tab stays dense, traceable and action-oriented.
 
 ## Tab Pass Order
 
 This is the working order for individual optimization. It can be adjusted only after the active tab is completed or if the operator explicitly changes priority.
 
 1. `Workflow` - completed as command center.
-2. `Mining Control` - completed as mining plan/control surface.
+2. `Mining Control` - active again for focused cleanup of duplicate informational surfaces.
 3. `SQX Views` - completed as guided view assistant.
 4. `Template Maker` - completed as Capa 1 scoring and C2 generation surface.
 5. `Estrategias` - completed as operational repository.
 6. `Champion vs Challenger` - completed as final decision board.
-7. `Project Generator` - active now as guided `.cfx` generation assistant.
+7. `Project Generator` - completed as guided `.cfx` generation assistant.
 8. `Por Activo`
 9. `Filtros Fase 2`
 10. `Inicio`

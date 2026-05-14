@@ -4,13 +4,13 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: UX-NAV Champion vs Challenger - decision board pass.
-- Current implementation phase: UX-NAV Project Generator - accordion and generation-mode pass, converting the guided `.cfx` assistant into closed-by-default steps, removing visual bulk generation and routing Step 4 through methodological Plan Mining or manual Custom libre workspaces without changing backend or `.cfx` contracts.
+- Current phase completed: UX-NAV Project Generator - accordion and generation-mode pass.
+- Current implementation phase: UX-NAV Mining Control - focused cleanup pass, removing informational-only `Foco operativo` and `Precarga desde Por Activo` cards so `Plan mining` remains the single operational control center.
 - Current UX surface decision: Strategy Builder tab and visible CVC handoff are retired from the dashboard shell; existing SB modules/docs remain internal historical contracts until a future renamed workflow is approved.
 - Current scoring surface decision: Template Maker is the active Capa 1 scoring and C2 generation surface; Capa 2 comparison/relationships belong to Champion vs Challenger.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Current maintenance rule: every new phase backup must be versioned and paired with a retention check using `docs/maintenance/BACKUP_RETENTION_POLICY.md`.
-- Active UX-NAV tab: `Project Generator`; do not move to another UX tab until the operator says `Adelante con el siguiente tab`.
+- Active UX-NAV tab: `Mining Control`; do not move to another UX tab until the operator says `Adelante con el siguiente tab`.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G7 - Backup Retention And Artifact Steward Gate.
 - Previous governance baseline: G6 - Institutional Dashboard Quick Actions Gate.

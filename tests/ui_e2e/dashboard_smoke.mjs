@@ -62,8 +62,8 @@ async function run() {
     });
     await desktop.locator('#workflow-command-center [data-home-tab="pipeline"]').click();
     await desktop.waitForSelector('.tab[data-tab="pipeline"].active');
-    await desktop.waitForSelector('#ps-current-pipeline-status');
-    await desktop.waitForFunction(() => document.getElementById('ps-current-pipeline-status')?.innerText.includes('Foco operativo'));
+    const retiredMiningInfoCards = await desktop.locator('#ps-current-pipeline-status, #ps-orphans-card, #ps-plan-user-info').count();
+    if (retiredMiningInfoCards !== 0) throw new Error('Mining Control should not render retired focus/preload info cards');
     await desktop.waitForSelector('#ps-command-strip');
     const miningControlCommandText = await desktop.locator('#ps-command-strip').innerText();
     ['Workflow', 'SQX Views', 'Plan mining', 'Project Generator', 'Estrategias', 'Champion vs Challenger'].forEach(expected => {
@@ -92,14 +92,13 @@ async function run() {
       if (!ok) throw new Error('E2E addPlanMiningFromCandidate failed');
       window.renderPipelineState();
     });
-    await desktop.waitForSelector('#ps-orphans-card', { state: 'visible' });
-    const planPreloadText = await desktop.locator('#ps-orphans-card').innerText();
-    if (!planPreloadText.includes('EURUSD') || !planPreloadText.includes('Mining #')) {
-      throw new Error('Por Activo + Plan should appear as Plan mining preload, not as priority orphan');
-    }
+    await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('EURUSD'));
     const unifiedPlanText = await desktop.locator('#ps-plan-card').innerText();
-    if (!unifiedPlanText.includes('EURUSD') || !unifiedPlanText.includes('Plan extendido')) {
-      throw new Error('Added asset-card mining should join the unified Plan mining control center');
+    if (!unifiedPlanText.includes('EURUSD') || !unifiedPlanText.includes('TARJETA')) {
+      throw new Error('Added asset-card mining should join the unified Plan mining table with TARJETA source tag');
+    }
+    if (unifiedPlanText.includes('Plan extendido') || unifiedPlanText.includes('Precarga desde Por Activo')) {
+      throw new Error('Mining Control should not keep retired plan preload showcase copy');
     }
     await desktop.locator('#ps-plan-table .ps-phase-reset-btn').first().click();
     await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('Fase sin minings todavia'));
@@ -108,7 +107,6 @@ async function run() {
       window.renderPipelineState();
     });
     await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
-    await desktop.waitForFunction(() => document.getElementById('ps-current-pipeline-status')?.innerText.includes('No hay mining activo que dirigir'));
     await desktop.locator('#ps-add-phase-btn').click();
     await desktop.locator('#psp-num').fill('7');
     await desktop.locator('#psp-name').fill('Fase vacia E2E');
@@ -142,10 +140,7 @@ async function run() {
       window.renderPipelineState();
     });
     await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('XAUUSD'));
-    await desktop.waitForFunction(() => {
-      const text = document.getElementById('ps-current-pipeline-status')?.innerText || '';
-      return text.includes('Foco operativo') && text.includes('XAUUSD H1') && text.includes('BS_Tendencia');
-    });
+    await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('MANUAL'));
     await desktop.evaluate(() => {
       window.clearPlanUser();
       localStorage.removeItem('sqx_strategies_deleted_v1');
@@ -155,13 +150,16 @@ async function run() {
     await desktop.locator('.tab[data-tab="pipeline"]').click();
     await desktop.waitForSelector('.tab[data-tab="pipeline"].active');
     await desktop.waitForFunction(() => !document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
-    const miningControlStatusText = await desktop.locator('#ps-current-pipeline-status').innerText();
-    const miningControlStatusTextUpper = miningControlStatusText.toUpperCase();
-    if (!miningControlStatusText.includes('Foco operativo') || !miningControlStatusTextUpper.includes('MINING 1') || !miningControlStatusTextUpper.includes('LINEAR') || !miningControlStatusTextUpper.includes('XAUUSD H1')) {
-      throw new Error('Mining Control should render a dynamic operational focus section');
+    const miningControlText = await desktop.locator('#tab-pipeline').innerText();
+    const miningControlTextUpper = miningControlText.toUpperCase();
+    if (!miningControlTextUpper.includes('MINING 1') || !miningControlTextUpper.includes('XAUUSD') || !miningControlTextUpper.includes('BS_TENDENCIA')) {
+      throw new Error('Mining Control plan should render the restored base plan as the operational source of truth');
     }
-    if (miningControlStatusText.includes('TEMPLATE LINEAR cerrada')) {
-      throw new Error('Mining Control focus should not render the old hardcoded pipeline chronicle');
+    if (miningControlText.includes('Foco operativo') || miningControlText.includes('Precarga desde Por Activo') || miningControlText.includes('Plan extendido')) {
+      throw new Error('Mining Control should not render retired focus/preload sections');
+    }
+    if (miningControlText.includes('TEMPLATE LINEAR cerrada')) {
+      throw new Error('Mining Control should not render the old hardcoded pipeline chronicle');
     }
     await saveShot(desktop, 'e2e-mining-control-status-desktop.png');
     await desktop.locator('.tab[data-tab="workflow"]').click();

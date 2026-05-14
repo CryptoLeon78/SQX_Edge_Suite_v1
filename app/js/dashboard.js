@@ -1734,146 +1734,6 @@ function renderPsNextAction() {
   document.getElementById('ps-na-text').textContent = PIPELINE_STATE.nextAction || '(sin definir)';
 }
 
-function hasFunnelDataForKey(key) {
-  const data = getFunnelData(key);
-  return Object.values(data).some(function(v) { return typeof v === 'number' && v > 0; });
-}
-
-function getTemplateForMining(num, preferredTemplate) {
-  const templates = getTemplatesByMining(num);
-  if (preferredTemplate && (templates.includes(preferredTemplate) || hasFunnelDataForKey(num + '|' + preferredTemplate))) {
-    return preferredTemplate;
-  }
-  if (templates.length) return templates[0];
-  const funnelKey = Object.keys(PIPELINE_STATE.funnels || {}).find(function(key) {
-    return key.indexOf(num + '|') === 0 && hasFunnelDataForKey(key);
-  });
-  return funnelKey ? funnelKey.split('|')[1] : '';
-}
-
-function getOperationalFocusModel() {
-  const minings = getPlanMinings();
-  if (!minings.length) return { empty:true };
-
-  const selectedNum = parseInt((document.getElementById('ps-funnel-mining') || {}).value, 10);
-  const selectedTemplate = (document.getElementById('ps-funnel-template') || {}).value || '';
-  const selectedMining = minings.find(function(m) { return m.num === selectedNum; });
-  const selectedKey = selectedMining && selectedTemplate ? selectedMining.num + '|' + selectedTemplate : '';
-  const selectedHasData = !!selectedMining && (
-    hasFunnelDataForKey(selectedKey) ||
-    getStrategiesByMining(selectedMining.num).some(function(s) { return s.template === selectedTemplate; })
-  );
-
-  let mining = selectedHasData ? selectedMining : null;
-  if (!mining) mining = minings.find(function(m) { return getStrategiesByMining(m.num).length > 0; }) || null;
-  if (!mining) mining = minings.find(function(m) { return getMiningStatus(m.num) === 'current'; }) || null;
-  if (!mining) mining = minings[0];
-
-  const template = getTemplateForMining(mining.num, mining.num === selectedNum ? selectedTemplate : '');
-  const templateLabel = template || 'Pendiente';
-  const key = template ? mining.num + '|' + template : '';
-  const funnel = key ? getFunnelData(key) : {};
-  const initial = typeof funnel.mining === 'number' ? funnel.mining : 0;
-  const terminalStage = FUNNEL_STAGES_DEFAULT[FUNNEL_STAGES_DEFAULT.length - 1];
-  const terminal = terminalStage && typeof funnel[terminalStage.id] === 'number'
-    ? funnel[terminalStage.id]
-    : FUNNEL_STAGES_DEFAULT.reduce(function(last, stage) {
-      return typeof funnel[stage.id] === 'number' ? funnel[stage.id] : last;
-    }, 0);
-  const survival = initial > 0 ? (terminal / initial * 100) : null;
-  const allStrategies = getStrategiesByMining(mining.num);
-  const strategies = template ? allStrategies.filter(function(s) { return s.template === template; }) : allStrategies;
-  const tier1 = strategies.filter(function(s) { return s.tier === '1'; }).length;
-  const tier15 = strategies.filter(function(s) { return s.tier === '1.5'; }).length;
-  const tier2 = strategies.filter(function(s) { return s.tier === '2'; }).length;
-  const tentative = strategies.filter(function(s) { return s.tier === 'tentativa'; }).length;
-  const failed = strategies.reduce(function(acc, s) {
-    (s.tests_failed || []).forEach(function(test) {
-      if (acc.indexOf(test) === -1) acc.push(test);
-    });
-    return acc;
-  }, []);
-  const info = getMiningStatusInfo(mining.num);
-
-  return {
-    empty:false,
-    mining:mining,
-    template:templateLabel,
-    status:info.status,
-    statusLabel:sqxStatusMeta(info.status).label,
-    statusSource:info.source,
-    initial:initial,
-    terminal:terminal,
-    survival:survival,
-    strategyCount:strategies.length,
-    tier1:tier1,
-    tier15:tier15,
-    tier2:tier2,
-    tentative:tentative,
-    failed:failed,
-    nextAction:PIPELINE_STATE.nextAction || '(sin definir)'
-  };
-}
-
-function renderPsOperationalFocus() {
-  const card = document.getElementById('ps-current-pipeline-status');
-  if (!card) return;
-  const model = getOperationalFocusModel();
-  card.classList.add('ps-focus-card');
-  if (model.empty) {
-    card.innerHTML =
-      '<div class="card-header">' +
-        '<h2>Foco operativo</h2>' +
-        '<span class="badge warning">Plan vacio</span>' +
-      '</div>' +
-      '<div class="ps-focus-empty">' +
-        '<strong>No hay mining activo que dirigir.</strong>' +
-        '<span>Empieza con <b>+ Mining</b> o añade assets desde <b>Por Activo</b>. Cuando exista un plan, esta tarjeta resumira el foco real, embudo, estrategias y siguiente accion.</span>' +
-      '</div>';
-    return;
-  }
-
-  const mining = model.mining;
-  const statusClass = model.status || 'pending';
-  const statusSource = model.statusSource === 'manual' ? 'manual' : (model.statusSource === 'priority' ? 'prioridad' : (model.statusSource === 'strategies' ? 'auto' : 'default'));
-  const survivalLabel = model.survival == null ? 'sin embudo' : model.survival.toFixed(1) + '%';
-  const funnelLabel = model.initial > 0 ? fmtInt(model.initial) + ' -> ' + fmtInt(model.terminal) : 'sin datos';
-  const failedLabel = model.failed.length ? model.failed.slice(0, 2).map(planEsc).join(' · ') + (model.failed.length > 2 ? ' +' + (model.failed.length - 2) : '') : 'sin fallos registrados';
-
-  card.innerHTML =
-    '<div class="card-header">' +
-      '<h2>Foco operativo</h2>' +
-      '<span class="badge layer1">Mining ' + mining.num + '</span>' +
-      '<span class="badge info">' + planEsc(model.template) + '</span>' +
-      '<span class="status ' + statusClass + '">' + planEsc(model.statusLabel) + '</span>' +
-    '</div>' +
-    '<div class="ps-focus-grid">' +
-      '<div class="ps-focus-main">' +
-        '<div class="ps-focus-title">' +
-          '<strong>' + planEsc(mining.asset) + ' ' + planEsc(mining.tf) + '</strong>' +
-          '<span>' + planEsc(mining.bs) + ' · ' + planEsc(mining.dir) + ' · Fase ' + mining.phase + '</span>' +
-        '</div>' +
-        '<div class="ps-focus-meta">' +
-          '<span class="ps-focus-pill">Estado: <strong>' + planEsc(model.statusLabel) + '</strong></span>' +
-          '<span class="ps-focus-pill">Fuente: <strong>' + planEsc(statusSource) + '</strong></span>' +
-          '<span class="ps-focus-pill">Template: <strong>' + planEsc(model.template) + '</strong></span>' +
-        '</div>' +
-        '<div class="ps-focus-next"><strong>Siguiente accion:</strong> ' + planEsc(model.nextAction) + '</div>' +
-        '<div class="ps-focus-actions">' +
-          '<button class="export-btn" onclick="document.getElementById(\'ps-plan-card\').scrollIntoView({behavior:\'smooth\',block:\'start\'})">Ver plan</button>' +
-          '<button class="export-btn" onclick="document.getElementById(\'ps-funnel-card\').scrollIntoView({behavior:\'smooth\',block:\'start\'})">Ver embudo</button>' +
-          '<button class="export-btn" onclick="activateTabById(\'estrategias\')">Ver estrategias</button>' +
-        '</div>' +
-      '</div>' +
-      '<div class="ps-focus-metrics">' +
-        '<div class="ps-focus-metric"><span>Embudo</span><strong>' + planEsc(survivalLabel) + '</strong><small>' + planEsc(funnelLabel) + '</small></div>' +
-        '<div class="ps-focus-metric"><span>Estrategias</span><strong>' + model.strategyCount + '</strong><small>' + model.tier1 + ' T1 · ' + (model.tier15 + model.tier2) + ' T1.5/T2 · ' + model.tentative + ' tentativas</small></div>' +
-        '<div class="ps-focus-metric"><span>Ganadoras</span><strong>' + (model.tier1 + model.tier15 + model.tier2) + '</strong><small>Supervivientes visibles para este foco</small></div>' +
-        '<div class="ps-focus-metric"><span>Riesgo pendiente</span><strong>' + (model.failed.length || 0) + '</strong><small>' + failedLabel + '</small></div>' +
-      '</div>' +
-    '</div>';
-}
-
 function renderPsPlan() {
   refreshPlanAll();
   const allMinings = getPlanMinings();
@@ -1932,7 +1792,11 @@ function renderPsPlan() {
         '<span class="ps-m-survivors zero">0</span>';
       const tentBadge = tentativas > 0 ? ' <span class="ps-m-survivors zero" style="background:rgba(249,115,22,.12);color:var(--orange);">' + tentativas + ' ?</span>' : '';
       const tplsHtml = tpls.length ? '<div style="font-size:10px;color:var(--text2);margin-top:3px;">Templates: '+tpls.map(planEsc).join(', ')+'</div>' : '';
-      const userBadge = m._user ? '<span class="ps-user-badge" title="Añadido por UI (vive en localStorage)">USER</span>' : '';
+      const userBadge = m._user
+        ? (m.source === 'asset-card'
+          ? '<span class="ps-user-badge ps-user-source-card" title="Añadido desde tarjeta Por Activo">TARJETA</span>'
+          : '<span class="ps-user-badge ps-user-source-manual" title="Añadido manualmente desde Mining Control">MANUAL</span>')
+        : '';
       const removeBtn = m._user ? '<button class="ps-remove-btn" title="Eliminar este mining USER" onclick="removeUserMiningClick('+m.num+')">✕</button>' : '';
       return '<tr>' +
         '<td class="ps-m-num">'+m.num+userBadge+'</td>' +
@@ -2068,7 +1932,6 @@ window.editFunnelCell = function(el, key, stage) {
     const v = inp.value.trim();
     setFunnelValue(key, stage, v);
     el.classList.remove('editing');
-    renderPsOperationalFocus();
     renderPsFunnel();
   }
   inp.addEventListener('blur', commit);
@@ -2078,109 +1941,13 @@ window.editFunnelCell = function(el, key, stage) {
   });
 };
 
-// ── Precarga desde Por Activo: items añadidos con + Plan y ya unidos al plan ──
-function getOrphanPriorityItems() {
-  if (typeof PRIORITY_PROGRESS === 'undefined') return [];
-  const planKeys = new Set(getPlanMinings().map(m => miningToPriorityKey(m)).filter(Boolean));
-  const out = [];
-  for (const [key, val] of Object.entries(PRIORITY_PROGRESS)) {
-    const status = val && val.status;
-    if (status !== 'current' && status !== 'completed') continue;
-    if (planKeys.has(key)) continue;
-    const parts = key.split('|');
-    if (parts.length !== 4) continue;
-    const [asset, cat, tfRaw, dir] = parts;
-    if (!PRIORITY_CAT_TO_BS[cat]) continue;
-    // Detectar key legacy con múltiples TFs ("H1, H4, D1") → split en múltiples orphans
-    const tfs = tfRaw.includes(',') ? tfRaw.split(',').map(t => t.trim()).filter(Boolean) : [tfRaw];
-    const isLegacy = tfs.length > 1;
-    for (const tf of tfs) {
-      // Si este TF específico ya tiene un mining en el plan → no es huérfano
-      const newKey = asset+'|'+cat+'|'+tf+'|'+dir;
-      if (planKeys.has(newKey)) continue;
-      // Composite del scoring
-      let comp = null;
-      const a = (typeof ASSETS !== 'undefined') ? ASSETS.find(x => x.id === asset) : null;
-      if (a && typeof getScore === 'function') {
-        const sc = getScore(asset, dir==='S' ? (cat+'_S') : cat);
-        if (sc && sc.composite != null) comp = Math.round(sc.composite * 100);
-      }
-      out.push({ origKey: key, key: newKey, asset, cat, tf, dir, status, bs: PRIORITY_CAT_TO_BS[cat], composite: comp, isLegacy });
-    }
-  }
-  out.sort((a,b) => {
-    if (a.status !== b.status) return a.status === 'completed' ? -1 : 1;
-    return (b.composite||0) - (a.composite||0);
-  });
-  return out;
-}
-
-function renderOrphans() {
-  const card = document.getElementById('ps-orphans-card');
-  const list = document.getElementById('ps-orphans-list');
-  if (!card || !list) return;
-  const preloaded = PLAN_USER.minings.filter(function(m) { return m.source === 'asset-card'; });
-  if (!preloaded.length) { card.style.display = 'none'; list.innerHTML = ''; return; }
-  card.style.display = 'block';
-  list.innerHTML = preloaded.map(function(m) {
-    const dirCls = m.dir==='L'?'dir-l':(m.dir==='S'?'dir-s':'dir-ls');
-    const dirTxt = m.dir==='L'?'LONG':(m.dir==='S'?'SHORT':'L+S');
-    const phaseMeta = getPlanPhases()[m.phase] || { name: '' };
-    return '<div class="ps-orphan-row">' +
-      '<span class="po-asset">'+planEsc(m.asset)+'</span>' +
-      '<span class="po-cat">FASE '+m.phase+(phaseMeta.name ? ' · '+planEsc(phaseMeta.name) : '')+'</span>' +
-      '<span class="po-tf">'+planEsc(m.tf)+'</span>' +
-      '<span class="'+dirCls+' po-dir">'+dirTxt+'</span>' +
-      '<span class="po-bs">'+planEsc(m.bs)+'</span>' +
-      '<span class="po-status current">Mining #'+m.num+'</span>' +
-      '<button class="po-add-btn" onclick="document.getElementById(\'ps-plan-card\').scrollIntoView({behavior:\'smooth\',block:\'start\'})">Ver en plan</button>' +
-      '<button class="po-remove-btn" title="Quitar esta precarga del Plan mining" onclick="removeUserMiningClick('+m.num+')">Quitar</button>' +
-    '</div>';
-  }).join('');
-}
-
-window.removeOrphanFromPriority = function(origKey, isLegacy) {
-  if (typeof PRIORITY_PROGRESS === 'undefined') return;
-  if (!PRIORITY_PROGRESS[origKey]) { renderPipelineState(); return; }
-  const msg = isLegacy
-    ? '¿Eliminar la key legacy "'+origKey+'" de la prioridad operativa? (Contiene varios TFs juntos; se borran todos.)'
-    : '¿Eliminar este item de la prioridad operativa?';
-  if (!confirm(msg)) return;
-  delete PRIORITY_PROGRESS[origKey];
-  if (typeof savePriorityProgress === 'function') savePriorityProgress();
-  if (typeof renderPriority === 'function') renderPriority();
-  renderPipelineState();
-};
-
-window.promoteOrphanToPlan = function(key) {
-  const parts = key.split('|');
-  if (parts.length !== 4) return;
-  const [asset, cat, tf, dir] = parts;
-  const bs = PRIORITY_CAT_TO_BS[cat];
-  if (!bs) { alert('Categoría desconocida: '+cat); return; }
-  // Abrir modal pre-rellenado
-  openAddMiningModal();
-  document.getElementById('psm-num').value = nextMiningNum();
-  document.getElementById('psm-asset').value = asset;
-  document.getElementById('psm-tf').value = tf;
-  document.getElementById('psm-bs').value = bs;
-  document.getElementById('psm-dir').value = dir;
-  // Sugerir fase: si el asset coincide con el de alguna fase DEFAULT lo elegimos, si no la última
-  const phaseSel = document.getElementById('psm-phase');
-  const allMin = getPlanMinings();
-  const sameAssetMining = allMin.find(m => m.asset === asset);
-  if (sameAssetMining) phaseSel.value = String(sameAssetMining.phase);
-};
-
 function renderPipelineState() {
   renderPsKpis();
   renderPsHealth();
   renderPsPlan();
   populateFunnelSelectors();
   renderPsNextAction();
-  renderPsOperationalFocus();
   renderPsFunnel();
-  renderOrphans();
   // override info bar
   const ovCount = Object.keys(PIPELINE_STATE.overrides || {}).length;
   const info = document.getElementById('ps-overrides-info');
@@ -2200,53 +1967,21 @@ function renderPipelineState() {
   const allPhasesCount = getPlanPhaseNums().filter(p => allMinings.some(m => m.phase === p)).length;
   const cntEl = document.getElementById('ps-plan-counts');
   if (cntEl) cntEl.textContent = allPhasesCount + ' fases · ' + allMinings.length + ' minings';
-  // banner USER
-  const userInfo = document.getElementById('ps-plan-user-info');
-  if (userInfo) {
-    const editedPhases = Object.keys(PLAN_USER.phases || {}).length;
-    const addedMinings = PLAN_USER.minings.length;
-    const hiddenBase = (PLAN_USER.hiddenBaseMinings || []).length;
-    const baseDisabled = !!PLAN_USER.baseDisabled;
-    const userCount = addedMinings + editedPhases + hiddenBase + (baseDisabled ? 1 : 0);
-    userInfo.style.display = userCount > 0 ? 'block' : 'none';
-    const cnt = document.getElementById('ps-plan-user-count');
-    if (cnt) cnt.textContent = addedMinings;
-    const summary = document.getElementById('ps-plan-user-summary');
-    if (summary) {
-      const parts = [];
-      if (addedMinings) parts.push(addedMinings + ' mining' + (addedMinings===1?'':'s') + ' añadidos');
-      if (editedPhases) parts.push(editedPhases + ' fase' + (editedPhases===1?'':'s') + '/texto' + (editedPhases===1?'':'s'));
-      if (hiddenBase) parts.push(hiddenBase + ' base oculto' + (hiddenBase===1?'':'s'));
-      if (baseDisabled) parts.push('plan base desactivado');
-      summary.textContent = parts.length ? parts.join(' · ') : '';
-    }
-    const preview = document.getElementById('ps-plan-user-preview');
-    if (preview) {
-      const sample = PLAN_USER.minings.slice(0, 8).map(function(m) {
-        return '<span>'+planEsc(m.asset)+' '+planEsc(m.tf)+' · F'+m.phase+' · '+planEsc(m.bs)+'</span>';
-      }).join('');
-      const more = PLAN_USER.minings.length > 8 ? '<span>+'+(PLAN_USER.minings.length - 8)+' mas</span>' : '';
-      const baseFlag = baseDisabled ? '<span>Base apagada</span>' : '';
-      preview.innerHTML = sample + more + baseFlag;
-    }
-  }
   renderHome();
 }
 
 // listeners
 document.getElementById('ps-funnel-mining').addEventListener('change', function(){
   populateFunnelSelectors();
-  renderPsOperationalFocus();
   renderPsFunnel();
 });
 document.getElementById('ps-funnel-template').addEventListener('change', function() {
-  renderPsOperationalFocus();
   renderPsFunnel();
 });
 
 document.getElementById('ps-na-edit').addEventListener('click', function(){
   const v = prompt('Próxima acción inmediata:', PIPELINE_STATE.nextAction || '');
-  if (v != null) { PIPELINE_STATE.nextAction = v.trim(); savePipelineState(); renderPsNextAction(); renderPsOperationalFocus(); }
+  if (v != null) { PIPELINE_STATE.nextAction = v.trim(); savePipelineState(); renderPsNextAction(); }
 });
 
 document.getElementById('ps-plan-reset').addEventListener('click', function(){
@@ -2366,14 +2101,6 @@ document.getElementById('psm-cancel').addEventListener('click', closeAddMiningMo
 document.getElementById('psp-cancel').addEventListener('click', closeAddPhaseModal);
 document.getElementById('psm-save').addEventListener('click', saveAddMining);
 document.getElementById('psp-save').addEventListener('click', saveAddPhase);
-
-document.getElementById('ps-clear-plan-user-btn').addEventListener('click', function(){
-  const n = PLAN_USER.minings.length + Object.keys(PLAN_USER.phases).length + (PLAN_USER.hiddenBaseMinings || []).length + (PLAN_USER.baseDisabled ? 1 : 0);
-  if (!n) return;
-  if (confirm('¿Limpiar la precarga local del plan? Se borran minings añadidos y textos editados; se restaura el plan base.')) {
-    clearPlanUser(); renderPipelineState();
-  }
-});
 
 document.getElementById('ps-project-zero-state').addEventListener('click', function(){
   if (confirm('¿Poner a cero el proyecto operativo local? Se borran plan, prioridad, embudos, estrategias visibles, checklist y presets de trabajo. No se toca licencia ni API.')) {
