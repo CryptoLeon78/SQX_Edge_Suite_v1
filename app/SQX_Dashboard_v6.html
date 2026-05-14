@@ -1180,71 +1180,139 @@
 
   <!-- TAB: ESTRATEGIAS — repositorio de .sqx supervivientes del pipeline -->
   <div id="tab-estrategias" class="tab-content" style="display:none">
-    <div style="margin-bottom:14px;color:var(--text2);font-size:14px;">
-      Estrategias supervivientes del pipeline SQX. Cada entrada representa una <code>.sqx</code> producida tras Capa 2 con sus métricas y estado de validación.
-    </div>
-
-    <div class="views-handoff" id="strat-views-handoff">
+    <section class="strat-hero-panel">
       <div>
-        <span>Handoff a Databank</span>
-        <strong>Preparar vista anual para revisar finalistas</strong>
+        <span class="strat-step-eyebrow">Repositorio operativo</span>
+        <h2>Estrategias</h2>
+        <p>Organiza las supervivientes y candidatas que llegan desde el pipeline. Aqui se filtra, limpia, importa y prepara el traspaso; el analisis profundo queda en Template Maker y Champion vs Challenger.</p>
       </div>
-      <div class="views-handoff-actions">
-        <button class="filter-btn" type="button" data-vc-handoff="risk" data-vc-name="SQX Risk Review" data-vc-years="5">Vista Risk</button>
-        <button class="filter-btn" type="button" data-vc-handoff="full-audit" data-vc-name="SQX Full Audit" data-vc-years="9">Full Audit</button>
+      <div class="strat-legend">
+        <span><strong>Base</strong> estrategia incluida en el Core.</span>
+        <span><strong>Importada</strong> añadida desde CSV o manual.</span>
+        <span><strong>Oculta</strong> base eliminada de la vista, recuperable.</span>
+        <span><strong>Candidata</strong> pendiente de decision final.</span>
+        <span><strong>PASSED</strong> supera la validacion definida.</span>
+        <span><strong>DEPLOYED</strong> marcada para despliegue.</span>
+        <span><strong>REJECTED</strong> descartada y mantenida como trazabilidad.</span>
       </div>
-    </div>
+    </section>
 
-    <div class="strat-summary" id="strat-summary"></div>
+    <section class="strat-step-panel" data-strat-step="1">
+      <div class="strat-step-head">
+        <div>
+          <span class="strat-step-eyebrow">Paso 1</span>
+          <h3>Resumen operativo</h3>
+        </div>
+        <p>Total, TIERs, candidatas, desplegadas, rechazadas y procedencia. Es el pulso rapido antes de tocar filtros.</p>
+      </div>
+      <div class="strat-summary" id="strat-summary"></div>
+      <div id="strat-user-info" class="strat-user-info" style="display:none;">
+        <div>
+          <strong>Estado local</strong>
+          <span><span id="strat-user-count">0</span> importadas guardadas en este navegador.</span>
+          <span id="strat-hidden-wrap" style="display:none;">
+            <span id="strat-hidden-count">0</span> estrategias base ocultas.
+          </span>
+        </div>
+        <div class="strat-user-actions">
+          <button id="strat-restore-hidden-btn" class="filter-btn" type="button">Restaurar eliminadas</button>
+          <button id="strat-clear-user-btn" class="strat-danger-btn" type="button">Limpiar importadas</button>
+        </div>
+      </div>
+    </section>
 
-    <div class="filters">
-      <div class="filter-group">
-        <label>Mining:</label>
-        <select class="filter-select" id="strat-filter-mining"><option value="all">Todos</option></select>
+    <section class="strat-step-panel" data-strat-step="2">
+      <div class="strat-step-head">
+        <div>
+          <span class="strat-step-eyebrow">Paso 2</span>
+          <h3>Filtra y prioriza</h3>
+        </div>
+        <p>Reduce ruido por mining, template, TIER, estado o texto. La busqueda mira nombre, activo, indicadores, exits y notas.</p>
       </div>
-      <div class="filter-group">
-        <label>Template:</label>
-        <select class="filter-select" id="strat-filter-template"><option value="all">Todos</option></select>
+      <div class="filters strat-filter-toolbar">
+        <div class="filter-group">
+          <label>Mining</label>
+          <select class="filter-select" id="strat-filter-mining"><option value="all">Todos</option></select>
+        </div>
+        <div class="filter-group">
+          <label>Template</label>
+          <select class="filter-select" id="strat-filter-template"><option value="all">Todos</option></select>
+        </div>
+        <div class="filter-group strat-tier-filter">
+          <label>TIER</label>
+          <button class="filter-btn active" data-strat-tier="all" type="button">Todos</button>
+          <button class="filter-btn" data-strat-tier="1" type="button">TIER 1</button>
+          <button class="filter-btn" data-strat-tier="1.5" type="button">TIER 1.5</button>
+          <button class="filter-btn" data-strat-tier="2" type="button">TIER 2</button>
+          <button class="filter-btn" data-strat-tier="tentativa" type="button">Tentativa</button>
+        </div>
+        <div class="filter-group">
+          <label>Status</label>
+          <select class="filter-select" id="strat-filter-status">
+            <option value="all">Todos</option>
+            <option value="PASSED">PASSED</option>
+            <option value="PASSED_ASTERISK">PASSED*</option>
+            <option value="CANDIDATA">CANDIDATA</option>
+            <option value="DEPLOYED">DEPLOYED</option>
+            <option value="REJECTED">REJECTED</option>
+          </select>
+        </div>
+        <label class="strat-search-box">
+          <span>Buscar</span>
+          <input class="search-input" id="strat-search" type="search" placeholder="Nombre, activo, indicador, nota..." autocomplete="off">
+        </label>
+        <span class="strat-filter-count" id="strat-filter-count">0 visibles</span>
       </div>
-      <div class="filter-group">
-        <label>TIER:</label>
-        <button class="filter-btn active" data-strat-tier="all">Todos</button>
-        <button class="filter-btn" data-strat-tier="1">TIER 1</button>
-        <button class="filter-btn" data-strat-tier="1.5">TIER 1.5</button>
-        <button class="filter-btn" data-strat-tier="2">TIER 2</button>
-        <button class="filter-btn" data-strat-tier="tentativa">Tentativa</button>
-      </div>
-      <div class="filter-group">
-        <label>Status:</label>
-        <select class="filter-select" id="strat-filter-status">
-          <option value="all">Todos</option>
-          <option value="PASSED">PASSED</option>
-          <option value="PASSED_ASTERISK">PASSED*</option>
-          <option value="CANDIDATA">CANDIDATA</option>
-          <option value="DEPLOYED">DEPLOYED</option>
-          <option value="REJECTED">REJECTED</option>
-        </select>
-      </div>
-      <span style="flex:1"></span>
-      <button class="export-btn" id="strat-import-btn" style="border-color:var(--purple); color:var(--purple); background:rgba(168,85,247,.08);">Importar CSV de SQX</button>
-      <button class="export-btn" id="strat-add-btn" style="border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08);">Añadir estrategia</button>
-      <button class="export-btn" id="strat-consolidate-btn" title="Exporta JSON con todas las estrategias (DEFAULT + importadas)">Consolidar JSON</button>
-      <button class="export-btn" id="strat-export-btn">CSV</button>
-      <input type="file" id="strat-import-file" accept=".csv,.txt" style="display:none">
-    </div>
+    </section>
 
-    <div id="strat-user-info" style="display:none; padding:10px 14px; background:rgba(168,85,247,.08); border:1px solid rgba(168,85,247,.3); border-radius:8px; margin-bottom:14px; font-size:13px;">
-      <strong style="color:var(--purple);">Importadas:</strong>
-      <span id="strat-user-count">0</span> estrategias en localStorage (sesión persistente).
-      <button id="strat-clear-user-btn" style="margin-left:10px; padding:3px 10px; border-radius:4px; border:1px solid var(--red); background:transparent; color:var(--red); font-size:11px; cursor:pointer;">Limpiar importadas</button>
-      <span id="strat-hidden-wrap" style="display:none;">
-        <strong style="color:var(--red); margin-left:12px;">Ocultas:</strong>
-        <span id="strat-hidden-count">0</span> estrategias base.
-        <button id="strat-restore-hidden-btn" style="margin-left:8px; padding:3px 10px; border-radius:4px; border:1px solid var(--accent); background:transparent; color:var(--accent); font-size:11px; cursor:pointer;">Restaurar eliminadas</button>
-      </span>
-    </div>
+    <section class="strat-step-panel" data-strat-step="3">
+      <div class="strat-step-head">
+        <div>
+          <span class="strat-step-eyebrow">Paso 3</span>
+          <h3>Repositorio</h3>
+        </div>
+        <p>Cada tarjeta muestra estado, origen, metrica clave y acciones. Eliminar una base solo la oculta; una importada se borra de localStorage.</p>
+      </div>
+      <div class="strat-grid" id="strat-grid"></div>
+    </section>
 
-    <div class="strat-grid" id="strat-grid"></div>
+    <section class="strat-step-panel" data-strat-step="4">
+      <div class="strat-step-head">
+        <div>
+          <span class="strat-step-eyebrow">Paso 4</span>
+          <h3>Acciones</h3>
+        </div>
+        <p>Añade candidatas, importa Databank CSV, exporta el listado o consolida el JSON para convertir datos locales en fuente estable.</p>
+      </div>
+      <div class="strat-action-grid">
+        <button class="export-btn strat-action-main" id="strat-import-btn" type="button">Importar CSV de SQX</button>
+        <button class="export-btn strat-action-blue" id="strat-add-btn" type="button">Añadir estrategia</button>
+        <button class="export-btn" id="strat-consolidate-btn" title="Exporta JSON con todas las estrategias (DEFAULT + importadas)" type="button">Consolidar JSON</button>
+        <button class="export-btn" id="strat-export-btn" type="button">Exportar CSV</button>
+        <input type="file" id="strat-import-file" accept=".csv,.txt" style="display:none">
+      </div>
+    </section>
+
+    <section class="strat-step-panel" data-strat-step="5">
+      <div class="strat-step-head">
+        <div>
+          <span class="strat-step-eyebrow">Paso 5</span>
+          <h3>Handoff</h3>
+        </div>
+        <p>Usa SQX Views para revisar columnas en Databank y Champion vs Challenger para comparar finalistas cuando ya tengas candidatas limpias.</p>
+      </div>
+      <div class="views-handoff strat-handoff" id="strat-views-handoff">
+        <div>
+          <span>Databank y comparacion final</span>
+          <strong>Prepara vista, revisa riesgo y compara solo finalistas</strong>
+        </div>
+        <div class="views-handoff-actions">
+          <button class="filter-btn" type="button" data-vc-handoff="risk" data-vc-name="SQX Risk Review" data-vc-years="5">Abrir Risk</button>
+          <button class="filter-btn" type="button" data-vc-handoff="full-audit" data-vc-name="SQX Full Audit" data-vc-years="9">Abrir Full audit</button>
+          <button class="filter-btn strat-cvc-btn" type="button" id="strat-open-cvc-btn">Abrir Champion vs Challenger</button>
+        </div>
+      </div>
+    </section>
   </div>
 
   <!-- MODAL: Añadir estrategia -->

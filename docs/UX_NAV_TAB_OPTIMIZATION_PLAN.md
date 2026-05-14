@@ -13,27 +13,38 @@ UX-NAV now runs as a sequential tab-by-tab optimization track.
 
 ## Current Active Tab
 
-`Workflow`
+`Estrategias`
 
-Workflow is the command center and must become the user's guided operating surface before any other tab is optimized.
+Template Maker visual polish is closed and UX-NAV has resumed. Estrategias is the active pass and is being optimized as the operational repository for surviving/imported strategies.
 
 ## Tab Pass Order
 
 This is the working order for individual optimization. It can be adjusted only after the active tab is completed or if the operator explicitly changes priority.
 
-1. `Workflow` - active now.
-2. `Mining Control`
-3. `Project Generator`
-4. `SQX Views`
-5. `Strategy Builder`
+1. `Workflow` - completed as command center.
+2. `Mining Control` - completed as mining plan/control surface.
+3. `SQX Views` - completed as guided view assistant.
+4. `Template Maker` - completed as Capa 1 scoring and C2 generation surface.
+5. `Estrategias` - active now as operational repository.
 6. `Champion vs Challenger`
-7. `Estrategias`
+7. `Project Generator`
 8. `Por Activo`
 9. `Filtros Fase 2`
-10. `SQX Priority`
-11. `Analyzer C2`
-12. `Inicio`
-13. Final navigation reordering and complete methodology flow.
+10. `Inicio`
+11. Final navigation reordering and complete methodology flow.
+
+## Estrategias Optimization Scope
+
+Goal: make Estrategias a repository, not another scoring engine.
+
+Estrategias should answer:
+
+- Which strategies are visible right now?
+- Which are base, imported or hidden?
+- Which are candidates, deployed or rejected?
+- How do I filter/prioritize without guessing?
+- How do I import, add, export, consolidate or clean safely?
+- Where do I go next for SQX Views or Champion vs Challenger?
 
 ## Workflow Optimization Scope
 

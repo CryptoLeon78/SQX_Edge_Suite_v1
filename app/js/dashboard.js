@@ -536,6 +536,7 @@ let stratFilterMining   = 'all';
 let stratFilterTemplate = 'all';
 let stratFilterTier     = 'all';
 let stratFilterStatus   = 'all';
+let stratSearchQuery     = '';
 
 function tierClass(tier) {
   if (SQX_FORMATTERS.tierClass) return SQX_FORMATTERS.tierClass(tier);
@@ -588,13 +589,22 @@ function getFilteredStrategies() {
       mining: stratFilterMining,
       template: stratFilterTemplate,
       tier: stratFilterTier,
-      status: stratFilterStatus
+      status: stratFilterStatus,
+      query: stratSearchQuery
     })
     : getAllStrategies().filter(s => {
       if (stratFilterMining   !== 'all' && String(s.mining)   !== stratFilterMining)   return false;
       if (stratFilterTemplate !== 'all' && s.template !== stratFilterTemplate) return false;
       if (stratFilterTier     !== 'all' && s.tier     !== stratFilterTier)     return false;
       if (stratFilterStatus   !== 'all' && s.status   !== stratFilterStatus)   return false;
+      if (stratSearchQuery) {
+        const haystack = [
+          s.id, s.name, s.asset, s.tf, s.blocksetting, s.template, s.direction,
+          s.tier, s.status, s.indicators, s.exits, s.notes,
+          (s.tests_passed || []).join(' '), (s.tests_failed || []).join(' ')
+        ].map(v => String(v == null ? '' : v).toLowerCase()).join(' ');
+        if (!haystack.includes(stratSearchQuery.toLowerCase())) return false;
+      }
       return true;
     });
 }
@@ -602,7 +612,11 @@ function getFilteredStrategies() {
 function renderStratSummary() {
   const all = getAllStrategies();
   const summary = SQX_STRATEGIES.summarize
-    ? SQX_STRATEGIES.summarize(all)
+    ? SQX_STRATEGIES.summarize(all, {
+      baseCount: Math.max(0, STRATEGIES.length - STRATEGIES_DELETED.length),
+      userCount: STRATEGIES_USER.length,
+      hiddenCount: STRATEGIES_DELETED.length
+    })
     : {
       total: all.length,
       tier1: all.filter(s => s.tier === '1').length,
@@ -610,6 +624,11 @@ function renderStratSummary() {
       tier2: all.filter(s => s.tier === '2').length,
       tentative: all.filter(s => s.tier === 'tentativa').length,
       deployed: all.filter(s => s.status === 'DEPLOYED').length,
+      candidate: all.filter(s => s.status === 'CANDIDATA').length,
+      rejected: all.filter(s => s.status === 'REJECTED').length,
+      base: Math.max(0, STRATEGIES.length - STRATEGIES_DELETED.length),
+      imported: STRATEGIES_USER.length,
+      hidden: STRATEGIES_DELETED.length,
       totalProfit: all.reduce((acc,s) => acc + ((s.metrics && s.metrics.net_profit) || 0), 0)
     };
 
@@ -634,6 +653,8 @@ function populateStratFilters() {
     : '<option value="all">Todos</option>' + [...new Set(all.map(s => s.mining))].sort((a,b)=>a-b).map(m =>
       '<option value="'+m+'">Mining ' + m + '</option>'
     ).join('');
+  if ([...mSel.options].some(opt => opt.value === stratFilterMining)) mSel.value = stratFilterMining;
+  else { stratFilterMining = 'all'; mSel.value = 'all'; }
 
   const tSel = document.getElementById('strat-filter-template');
   tSel.innerHTML = SQX_STRATEGIES.filterOptionsHtml
@@ -641,6 +662,8 @@ function populateStratFilters() {
     : '<option value="all">Todos</option>' + [...new Set(all.map(s => s.template))].sort().map(t =>
       '<option value="'+t+'">' + t + '</option>'
     ).join('');
+  if ([...tSel.options].some(opt => opt.value === stratFilterTemplate)) tSel.value = stratFilterTemplate;
+  else { stratFilterTemplate = 'all'; tSel.value = 'all'; }
 }
 
 function stratEsc(value) {
@@ -705,10 +728,11 @@ function renderStrategyCard(s) {
   const importedCls = s._imported ? ' user-imported' : '';
   return '<div class="strat-card ' + tierClass(s.tier) + importedCls + '">' +
     '<div class="sc-head">' +
-      '<span class="sc-id">' + s.id + '</span>' +
-      '<span class="sc-name">' + s.name + '</span>' +
-      '<span class="strat-tier-badge ' + tierClass(s.tier) + '">' + tierLabel(s.tier) + '</span>' +
-      '<span class="strat-status-badge ' + s.status + '">' + s.status.replace('_',' ') + '</span>' +
+        '<span class="sc-id">' + s.id + '</span>' +
+        '<span class="sc-name">' + s.name + '</span>' +
+        '<span class="strat-source-badge ' + (s._imported ? 'imported' : 'base') + '">' + (s._imported ? 'IMPORTADA' : 'BASE') + '</span>' +
+        '<span class="strat-tier-badge ' + tierClass(s.tier) + '">' + tierLabel(s.tier) + '</span>' +
+        '<span class="strat-status-badge ' + s.status + '">' + s.status.replace('_',' ') + '</span>' +
     '</div>' +
     '<div class="sc-meta">' +
       '<span class="sc-meta-pill">M' + s.mining + '</span>' +
@@ -737,18 +761,24 @@ function renderStrategies() {
   if (userInfo) {
     const cnt = STRATEGIES_USER.length;
     const hiddenCnt = STRATEGIES_DELETED.length;
-    userInfo.style.display = (cnt > 0 || hiddenCnt > 0) ? 'block' : 'none';
+    userInfo.style.display = (cnt > 0 || hiddenCnt > 0) ? 'flex' : 'none';
     const cntEl = document.getElementById('strat-user-count');
     if (cntEl) cntEl.textContent = cnt;
     const hiddenWrap = document.getElementById('strat-hidden-wrap');
     const hiddenCntEl = document.getElementById('strat-hidden-count');
     if (hiddenWrap) hiddenWrap.style.display = hiddenCnt > 0 ? 'inline' : 'none';
     if (hiddenCntEl) hiddenCntEl.textContent = hiddenCnt;
+    const restoreBtn = document.getElementById('strat-restore-hidden-btn');
+    const clearBtn = document.getElementById('strat-clear-user-btn');
+    if (restoreBtn) restoreBtn.style.display = hiddenCnt > 0 ? 'inline-flex' : 'none';
+    if (clearBtn) clearBtn.style.display = cnt > 0 ? 'inline-flex' : 'none';
   }
   const list = getFilteredStrategies();
+  const countEl = document.getElementById('strat-filter-count');
+  if (countEl) countEl.textContent = list.length + ' visibles de ' + getAllStrategies().length;
   const grid = document.getElementById('strat-grid');
   if (!list.length) {
-    grid.innerHTML = '<div class="no-data" style="grid-column:1/-1;">Sin estrategias que coincidan con los filtros.</div>';
+    grid.innerHTML = '<div class="no-data strat-empty" style="grid-column:1/-1;">Sin estrategias que coincidan con los filtros. Limpia busqueda o cambia Mining/Template/TIER/Status.</div>';
     return;
   }
   const displayList = SQX_STRATEGIES.sortForDisplay ? SQX_STRATEGIES.sortForDisplay(list) : list;
@@ -1282,7 +1312,15 @@ bindBtns('[data-strat-tier]', 'stratTier', function(v){ stratFilterTier = v; }, 
 document.getElementById('strat-filter-mining').addEventListener('change',  function(e){ stratFilterMining   = e.target.value; renderStrategies(); });
 document.getElementById('strat-filter-template').addEventListener('change',function(e){ stratFilterTemplate = e.target.value; renderStrategies(); });
 document.getElementById('strat-filter-status').addEventListener('change',  function(e){ stratFilterStatus   = e.target.value; renderStrategies(); });
+document.getElementById('strat-search').addEventListener('input', function(e){
+  stratSearchQuery = (e.target.value || '').trim();
+  renderStrategies();
+});
 document.getElementById('strat-export-btn').addEventListener('click', exportStrategiesCSV);
+document.getElementById('strat-open-cvc-btn').addEventListener('click', function(){
+  activateTabById('cvc');
+  setTimeout(() => document.getElementById('tab-cvc')?.scrollIntoView({ behavior:'smooth', block:'start' }), 50);
+});
 
 document.getElementById('strat-add-btn').addEventListener('click', openStratModal);
 document.getElementById('strat-modal-close').addEventListener('click', closeStratModal);

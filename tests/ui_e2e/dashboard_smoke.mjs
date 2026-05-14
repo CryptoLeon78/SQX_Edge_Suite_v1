@@ -582,10 +582,42 @@ async function run() {
     await saveShot(desktop, 'e2e-champion-challenger-desktop.png');
     await desktop.locator('.tab[data-tab="estrategias"]').click();
     await desktop.waitForSelector('#tab-estrategias .strat-card');
+    const estrategiasText = await desktop.locator('#tab-estrategias').innerText();
+    const estrategiasTextLower = estrategiasText.toLowerCase();
+    ['repositorio operativo', 'resumen operativo', 'filtra y prioriza', 'repositorio', 'acciones', 'handoff', 'champion vs challenger'].forEach(expected => {
+      if (!estrategiasTextLower.includes(expected)) throw new Error(`Strategies tab should include guided repository section: ${expected}`);
+    });
+    const summaryText = await desktop.locator('#strat-summary').innerText();
+    const summaryTextLower = summaryText.toLowerCase();
+    ['tier 1', 'candidatas', 'deployed', 'rejected', 'base visible', 'importadas', 'ocultas'].forEach(expected => {
+      if (!summaryTextLower.includes(expected)) throw new Error(`Strategies summary should expose ${expected}`);
+    });
     const cards = await desktop.locator('#tab-estrategias .strat-card').count();
     const deleteButtons = await desktop.locator('#tab-estrategias .strat-remove-btn').count();
+    const sourceBadges = await desktop.locator('#tab-estrategias .strat-source-badge').count();
     if (cards < 1) throw new Error('Strategies tab rendered without strategy cards');
     if (cards !== deleteButtons) throw new Error(`Expected one delete button per card, got ${cards} cards and ${deleteButtons} buttons`);
+    if (sourceBadges !== cards) throw new Error(`Expected one source badge per card, got ${sourceBadges} badges and ${cards} cards`);
+
+    const firstStrategyId = await desktop.locator('#tab-estrategias .strat-card .sc-id').first().innerText();
+    await desktop.locator('#strat-search').fill(firstStrategyId.trim());
+    await desktop.waitForFunction(() => document.querySelectorAll('#tab-estrategias .strat-card').length >= 1);
+    await desktop.waitForFunction(() => document.getElementById('strat-filter-count')?.textContent.includes('visibles de'));
+    await desktop.locator('#strat-search').fill('');
+    await desktop.locator('#tab-estrategias [data-strat-tier="1"]').click();
+    await desktop.waitForFunction(() => document.getElementById('strat-filter-count')?.textContent.includes('visibles de'));
+    await desktop.locator('#strat-filter-status').selectOption('PASSED');
+    await desktop.waitForFunction(() => document.getElementById('strat-filter-count')?.textContent.includes('visibles de'));
+    const firstTemplateOption = await desktop.evaluate(() => {
+      const select = document.getElementById('strat-filter-template');
+      return Array.from(select.options).find(option => option.value !== 'all')?.value || 'all';
+    });
+    await desktop.locator('#strat-filter-template').selectOption(firstTemplateOption);
+    await desktop.waitForFunction(() => document.getElementById('strat-filter-count')?.textContent.includes('visibles de'));
+    await desktop.locator('#tab-estrategias [data-strat-tier="all"]').click();
+    await desktop.locator('#strat-filter-status').selectOption('all');
+    await desktop.locator('#strat-filter-template').selectOption('all');
+    await desktop.waitForSelector('#tab-estrategias .strat-card');
 
     await desktop.locator('#tab-estrategias .strat-remove-btn').first().click();
     await desktop.waitForFunction(() => localStorage.getItem('sqx_strategies_deleted_v1') !== null);
@@ -595,7 +627,28 @@ async function run() {
     await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_strategies_deleted_v1') || '[]').length === 0);
     const afterRestore = await desktop.locator('#tab-estrategias .strat-card').count();
     if (afterRestore !== cards) throw new Error(`Restoring hidden strategies should recover cards, got ${afterRestore} from ${cards}`);
+
+    await desktop.locator('#strat-import-btn').click();
+    await desktop.locator('#strat-import-file').setInputFiles(csvSamplePath);
+    await desktop.waitForSelector('#csv-file-info');
+    await desktop.locator('#csv-next-btn').click();
+    await desktop.waitForSelector('#csv-pane-2.active');
+    await desktop.locator('#csv-next-btn').click();
+    await desktop.waitForSelector('#csv-pane-3.active');
+    await desktop.locator('#csv-select-top10').click();
+    await desktop.locator('#csv-next-btn').click();
+    await desktop.waitForSelector('#csv-pane-4.active');
+    await desktop.locator('#csv-finish-btn').click();
+    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_strategies_user_v1') || '[]').length > 0);
+    await desktop.waitForFunction(() => document.getElementById('strat-summary')?.textContent.includes('Importadas'));
+    await desktop.locator('#strat-clear-user-btn').click();
+    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_strategies_user_v1') || '[]').length === 0);
+
     await saveShot(desktop, 'e2e-strategies-desktop.png');
+    await desktop.locator('#strat-open-cvc-btn').click();
+    await desktop.waitForSelector('.tab[data-tab="cvc"].active');
+    await desktop.locator('.tab[data-tab="estrategias"]').click();
+    await desktop.waitForSelector('.tab[data-tab="estrategias"].active');
     await desktop.locator('#strat-views-handoff [data-vc-handoff="risk"]').click();
     await desktop.waitForSelector('.tab[data-tab="views"].active');
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'SQX Risk Review');

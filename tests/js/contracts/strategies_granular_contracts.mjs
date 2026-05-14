@@ -11,10 +11,21 @@ const user = { id: 'B', name: 'User', mining: 2, template: 'T2', asset: 'GBPUSD'
 assert.equal(SQX.strategies.strategyKey(base), 'A|1|T1|EURUSD|H1');
 assert.deepEqual(SQX.strategies.getAllStrategies([base], [user], [SQX.strategies.strategyKey(base)]), [user]);
 assert.equal(SQX.strategies.filterStrategies([base, user], { mining: '2', template: 'all', tier: 'all', status: 'all' })[0].id, 'B');
-assert.equal(SQX.strategies.summarize([base, user]).totalProfit, 50);
-assert.match(SQX.strategies.summaryHtml(SQX.strategies.summarize([base, user]), String), /TIER 1/);
+assert.equal(SQX.strategies.filterStrategies([base, user], { mining: 'all', template: 'all', tier: 'all', status: 'all', query: 'gbpusd' })[0].id, 'B');
+const summary = SQX.strategies.summarize([base, user], { userCount: 1, hiddenCount: 2, baseCount: 1 });
+assert.equal(summary.totalProfit, 50);
+assert.equal(summary.imported, 1);
+assert.equal(summary.hidden, 2);
+assert.equal(summary.base, 1);
+assert.equal(summary.candidate, 1);
+assert.equal(summary.deployed, 1);
+assert.match(SQX.strategies.summaryHtml(summary, String), /TIER 1/);
+assert.match(SQX.strategies.summaryHtml(summary, String), /Importadas/);
+assert.match(SQX.strategies.summaryHtml(summary, String), /Ocultas/);
+assert.match(SQX.strategies.summaryHtml(summary, String), /Candidatas/);
 assert.match(SQX.strategies.filterOptionsHtml([base, user], 'template'), /<option value="T2">T2<\/option>/);
 assert.match(SQX.strategies.strategyCard(base, { escapeHtml: String }), /data-strategy-key="A\|1\|T1\|EURUSD\|H1"/);
+assert.match(SQX.strategies.strategyCard(user, { escapeHtml: String }), /strat-source-badge imported/);
 assert.equal(SQX.strategies.sortForDisplay([user, base])[0].id, 'A');
 assert.equal(SQX.strategies.autoDetectTemplate('EMA, MACD', [{ keywords: ['MACD'], template: 'TREND' }]), 'TREND');
 
