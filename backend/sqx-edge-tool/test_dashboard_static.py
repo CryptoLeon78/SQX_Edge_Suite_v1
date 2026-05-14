@@ -2105,6 +2105,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         )
 
     def test_dashboard_navigation_delegates_to_ui_module(self):
+        app_config_js = (APP_ROOT / "js" / "app-config.js").read_text(encoding="utf-8-sig")
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
         ui_js = (APP_ROOT / "js" / "modules" / "ui.js").read_text(encoding="utf-8-sig")
 
@@ -2121,6 +2122,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(export=export):
                 self.assertIn(export, ui_js)
                 self.assertIn(f"SQX_UI_MODULE.{export}", dashboard_js)
+        self.assertIn("tabs-collapse-toggle", app_config_js)
+        self.assertIn("navCollapsed", app_config_js)
+        self.assertIn("tab-icon", app_config_js)
+        self.assertIn("tab-label", app_config_js)
 
     def test_workflow_shell_delegates_to_workflow_module(self):
         main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
@@ -2162,6 +2167,36 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "filtros",
                 "inicio",
             ],
+        )
+        self.assertEqual(
+            {tab["id"]: tab["label"] for tab in tabs},
+            {
+                "workflow": "Workflow",
+                "activos": "Activos",
+                "pipeline": "Mining Control",
+                "views": "SQX Views",
+                "projectgen": "Project Generator",
+                "templatemaker": "Template Maker",
+                "estrategias": "Strategy Control",
+                "cvc": "Champion vs Challenger",
+                "filtros": "Help",
+                "inicio": "Control Panel",
+            },
+        )
+        self.assertEqual(
+            {tab["id"]: tab.get("icon") for tab in tabs},
+            {
+                "workflow": "W",
+                "activos": "A",
+                "pipeline": "M",
+                "views": "V",
+                "projectgen": "P",
+                "templatemaker": "T",
+                "estrategias": "S",
+                "cvc": "CvC",
+                "filtros": "H",
+                "inicio": "C",
+            },
         )
         self.assertNotIn("categorias", [tab["id"] for tab in tabs])
         self.assertNotIn("priority", [tab["id"] for tab in tabs])

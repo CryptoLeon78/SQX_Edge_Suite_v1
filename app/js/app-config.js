@@ -43,6 +43,40 @@
     }).join('');
   }
 
+  function navCollapsedKey() {
+    return storageKeys.navCollapsed || 'sqx_nav_collapsed_v1';
+  }
+
+  function readNavCollapsed() {
+    try {
+      return localStorage.getItem(navCollapsedKey()) === '1';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function writeNavCollapsed(collapsed) {
+    try {
+      localStorage.setItem(navCollapsedKey(), collapsed ? '1' : '0');
+    } catch (e) {}
+  }
+
+  function applyNavCollapsed(collapsed) {
+    if (document.body) document.body.classList.toggle('nav-collapsed', collapsed);
+    const toggle = document.getElementById('tabs-collapse-toggle');
+    if (!toggle) return;
+    toggle.setAttribute('aria-pressed', collapsed ? 'true' : 'false');
+    toggle.setAttribute('aria-label', collapsed ? 'Expandir navegación' : 'Ocultar navegación');
+    toggle.setAttribute('title', collapsed ? 'Expandir navegación' : 'Ocultar navegación');
+    const label = toggle.querySelector('.tabs-toggle-label');
+    if (label) label.textContent = collapsed ? 'Expandir' : 'Ocultar';
+  }
+
+  function fallbackTabIcon(tab) {
+    const label = String((tab && tab.label) || '').trim();
+    return label ? label.slice(0, 1).toUpperCase() : '';
+  }
+
   function renderButtonGroup(id, label, datasetKey, options) {
     const group = document.getElementById(id);
     if (!group || !Array.isArray(options)) return;
@@ -57,10 +91,28 @@
   function renderTabs() {
     const tabs = document.getElementById('main-tabs') || document.querySelector('.tabs');
     if (!tabs || !Array.isArray(ui.tabs)) return;
-    tabs.innerHTML = ui.tabs.map(tab => {
+    const toggleHtml =
+      '<button class="tabs-toggle" id="tabs-collapse-toggle" type="button" aria-pressed="false">' +
+        '<span class="tabs-toggle-icon" aria-hidden="true"></span>' +
+        '<span class="tabs-toggle-label">Ocultar</span>' +
+      '</button>';
+    tabs.innerHTML = toggleHtml + ui.tabs.map(tab => {
       const cls = tab.active ? 'tab active' : 'tab';
-      return '<div class="' + cls + '" data-tab="' + esc(tab.id) + '">' + esc(tab.label) + '</div>';
+      const icon = tab.icon || fallbackTabIcon(tab);
+      return '<div class="' + cls + '" data-tab="' + esc(tab.id) + '" title="' + esc(tab.label) + '">' +
+        '<span class="tab-icon" aria-hidden="true">' + esc(icon) + '</span>' +
+        '<span class="tab-label">' + esc(tab.label) + '</span>' +
+      '</div>';
     }).join('');
+    const toggle = document.getElementById('tabs-collapse-toggle');
+    if (toggle) {
+      toggle.addEventListener('click', function() {
+        const collapsed = !document.body.classList.contains('nav-collapsed');
+        writeNavCollapsed(collapsed);
+        applyNavCollapsed(collapsed);
+      });
+    }
+    applyNavCollapsed(readNavCollapsed());
   }
 
   function syncHeader() {

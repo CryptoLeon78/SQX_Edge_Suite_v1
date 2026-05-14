@@ -5,7 +5,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 ## Current State
 
 - Current phase completed: UX-NAV Project Generator - accordion and generation-mode pass.
-- Current implementation phase: UX-NAV Mining Control - focused cleanup pass, removing informational-only `Foco operativo` and `Precarga desde Por Activo` cards so `Plan mining` remains the single operational control center.
+- Current implementation phase: UX-NAV sidebar navigation polish inside the Mining Control pass, correcting visible tab labels/icons and adding a collapsible navigation rail so the dashboard can free horizontal workspace.
 - Current UX surface decision: Strategy Builder tab and visible CVC handoff are retired from the dashboard shell; existing SB modules/docs remain internal historical contracts until a future renamed workflow is approved.
 - Current scoring surface decision: Template Maker is the active Capa 1 scoring and C2 generation surface; Capa 2 comparison/relationships belong to Champion vs Challenger.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.

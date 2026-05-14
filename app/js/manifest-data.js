@@ -10,43 +10,53 @@ window.SQX_MANIFEST = {
       {
         "id": "workflow",
         "label": "Workflow",
+        "icon": "W",
         "active": true
       },
       {
         "id": "activos",
-        "label": "Por Activo"
+        "label": "Activos",
+        "icon": "A"
       },
       {
         "id": "pipeline",
-        "label": "Mining Control"
+        "label": "Mining Control",
+        "icon": "M"
       },
       {
         "id": "views",
-        "label": "SQX Views"
+        "label": "SQX Views",
+        "icon": "V"
       },
       {
         "id": "projectgen",
-        "label": "Project Generator"
+        "label": "Project Generator",
+        "icon": "P"
       },
       {
         "id": "templatemaker",
-        "label": "Template Maker"
+        "label": "Template Maker",
+        "icon": "T"
       },
       {
         "id": "estrategias",
-        "label": "Estrategias"
+        "label": "Strategy Control",
+        "icon": "S"
       },
       {
         "id": "cvc",
-        "label": "Champion vs Challenger"
+        "label": "Champion vs Challenger",
+        "icon": "CvC"
       },
       {
         "id": "filtros",
-        "label": "Avanzado"
+        "label": "Help",
+        "icon": "H"
       },
       {
         "id": "inicio",
-        "label": "Panel"
+        "label": "Control Panel",
+        "icon": "C"
       }
     ],
     "filters": {
@@ -570,6 +580,7 @@ window.SQX_MANIFEST = {
       "strategiesDeleted": "sqx_strategies_deleted_v1",
       "workflowChecklist": "sqx_workflow_checklist_v1",
       "viewCreatorPresets": "sqx_view_creator_presets_v1",
+      "navCollapsed": "sqx_nav_collapsed_v1",
       "apiBase": "sqx_pg_api_base_v1"
     },
     "chart": {

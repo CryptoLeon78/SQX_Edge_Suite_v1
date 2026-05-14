@@ -21,6 +21,8 @@ Active correction: `Foco operativo` and `Precarga desde Por Activo` are retired 
 
 Visual correction: duplicate showcase/preload panels are removed so the tab stays dense, traceable and action-oriented.
 
+Navigation correction: the sidebar labels/icons are standardized for the current methodology: `Activos`, `Mining Control`, `Project Generator`, `Template Maker`, `Strategy Control`, `Champion vs Challenger`, `Help` and `Control Panel`. The navigation rail can be collapsed to icon-only mode to recover workspace width.
+
 ## Tab Pass Order
 
 This is the working order for individual optimization. It can be adjusted only after the active tab is completed or if the operator explicitly changes priority.
@@ -29,10 +31,10 @@ This is the working order for individual optimization. It can be adjusted only a
 2. `Mining Control` - active again for focused cleanup of duplicate informational surfaces.
 3. `SQX Views` - completed as guided view assistant.
 4. `Template Maker` - completed as Capa 1 scoring and C2 generation surface.
-5. `Estrategias` - completed as operational repository.
+5. `Strategy Control` - completed as operational repository.
 6. `Champion vs Challenger` - completed as final decision board.
 7. `Project Generator` - completed as guided `.cfx` generation assistant.
-8. `Por Activo`
+8. `Activos`
 9. `Filtros Fase 2`
 10. `Inicio`
 11. Final navigation reordering and complete methodology flow.

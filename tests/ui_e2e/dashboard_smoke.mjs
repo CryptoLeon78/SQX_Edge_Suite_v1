@@ -53,6 +53,36 @@ async function run() {
     if (sidebarOrder.join('|') !== expectedSidebarOrder.join('|')) {
       throw new Error(`Navigation should follow Workflow methodology order: ${sidebarOrder.join('|')}`);
     }
+    const sidebarModel = await desktop.locator('#main-tabs .tab').evaluateAll(nodes => nodes.map(node => ({
+      id: node.dataset.tab,
+      label: node.querySelector('.tab-label')?.textContent.trim(),
+      icon: node.querySelector('.tab-icon')?.textContent.trim(),
+    })));
+    const expectedSidebarModel = {
+      workflow: ['Workflow', 'W'],
+      activos: ['Activos', 'A'],
+      pipeline: ['Mining Control', 'M'],
+      views: ['SQX Views', 'V'],
+      projectgen: ['Project Generator', 'P'],
+      templatemaker: ['Template Maker', 'T'],
+      estrategias: ['Strategy Control', 'S'],
+      cvc: ['Champion vs Challenger', 'CvC'],
+      filtros: ['Help', 'H'],
+      inicio: ['Control Panel', 'C'],
+    };
+    sidebarModel.forEach(item => {
+      const expected = expectedSidebarModel[item.id];
+      if (!expected || item.label !== expected[0] || item.icon !== expected[1]) {
+        throw new Error(`Navigation item ${item.id} should render ${expected?.join('/')} but got ${item.label}/${item.icon}`);
+      }
+    });
+    await desktop.locator('#tabs-collapse-toggle').click();
+    await desktop.waitForSelector('body.nav-collapsed');
+    const collapsedNavWidth = await desktop.locator('#main-tabs').evaluate(node => Math.round(node.getBoundingClientRect().width));
+    if (collapsedNavWidth > 90) throw new Error(`Collapsed navigation should leave only icons, got ${collapsedNavWidth}px`);
+    await saveShot(desktop, 'e2e-navigation-collapsed-desktop.png');
+    await desktop.locator('#tabs-collapse-toggle').click();
+    await desktop.waitForFunction(() => !document.body.classList.contains('nav-collapsed'));
     const strategyBuilderTabCount = await desktop.locator('.tab[data-tab="strategybuilder"]').count();
     if (strategyBuilderTabCount !== 0) throw new Error('Strategy Builder should not be a primary navigation section');
     const commandCenterText = await desktop.locator('#workflow-command-center').innerText();
