@@ -385,8 +385,14 @@
   .egt-v2-strong,
   .egt-v2-compliant,
   .direction-long-only,
+  .direction-short-only,
   .direction-long-short,
   .coherence-ok,
+  .coherence-ok-mean-revert,
+  .archetype-mean-revert,
+  .archetype-scalper,
+  .archetype-breakout,
+  .volatility-vol-positive,
   .score-pro-ok {
     color:#86efac;
     border-color:rgba(34,197,94,.32);
@@ -398,6 +404,10 @@
   .coherence-weak,
   .coherence-suspicious,
   .coherence-insufficient-data,
+  .archetype-trend-following,
+  .archetype-unknown,
+  .volatility-vol-neutral,
+  .volatility-insufficient-data,
   .score-pro-review {
     color:#fde68a;
     border-color:rgba(234,179,8,.30);
@@ -405,7 +415,8 @@
   }
   .health-declining,
   .egt-v2-risk,
-  .coherence-broken {
+  .coherence-broken,
+  .volatility-vol-negative {
     color:#fecaca;
     border-color:rgba(239,68,68,.30);
     background:rgba(239,68,68,.08);

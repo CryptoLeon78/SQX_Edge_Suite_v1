@@ -43,6 +43,33 @@
     'SortinoRatio',
     'ProfitableMonthsPct'
   ];
+  var CVC_DECISION_REQUIRED_METRICS = [
+    'Net profit',
+    '# of trades',
+    'Profit factor',
+    'CAGR/Max DD %',
+    'Max DD %',
+    'Worst Year Profit',
+    'Entry indicators',
+    'Avg. Bars in Trade',
+    'Avg. Trades Per Month'
+  ];
+  var CVC_DECISION_CERT_CLASSES = [
+    'Symbol',
+    'TimeFrame',
+    'Fitness',
+    'EntryIndicators',
+    'NetProfit',
+    'NumberOfTrades',
+    'ProfitFactor',
+    'AnnualPctReturnDDRatio',
+    'DrawdownPct',
+    'WorstYearProfit',
+    'AvgBarsInTrade',
+    'AvgTradesPerMonth',
+    'RecoveryFactor',
+    'Stability'
+  ];
 
   var CATEGORY_LABELS = {
     fixed: 'Identificacion / contexto',
@@ -169,6 +196,9 @@
     'template-maker-cert': function(metric) {
       return TEMPLATE_MAKER_CERT_CLASSES.indexOf(metric.className) >= 0;
     },
+    'cvc-decision-cert': function(metric) {
+      return CVC_DECISION_CERT_CLASSES.indexOf(metric.className) >= 0;
+    },
     'full-audit': function(metric) { return metric.category !== 'fixed' || metric.selectedDefault; },
     clear: function(metric) { return metric.category === 'fixed' && metric.selectedDefault; }
   };
@@ -218,6 +248,21 @@
       oosTag: '9oos',
       oosOptions: [1, 2, 3, 7, 9],
       config: { viewName: 'Template Maker Cert', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
+    },
+    {
+      id: 'cvc-decision-cert',
+      name: 'CVC Decision Cert',
+      tier: 'free',
+      priority: 'obligatoria',
+      preset: 'cvc-decision-cert',
+      description: 'View obligatoria para exportar Champion, Challengers y OOS con las columnas que decide Champion vs Challenger.',
+      objective: 'Contrato oficial CVC: direccion, arquetipo, OOS, volatilidad y score final sin depender de columnas ocultas.',
+      when: 'Antes de comparar finalistas en Champion vs Challenger.',
+      nextAction: 'Exporta Champion, Challengers y OOS con esta view antes de tomar la decision final.',
+      metricTags: ['CVC', 'OOS', 'Arquetipo', 'Volatilidad', 'Short'],
+      oosTag: '9oos',
+      oosOptions: [1, 2, 3, 7, 9],
+      config: { viewName: 'CVC Decision Cert', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
     },
     {
       id: 'risk-capital-review',
@@ -598,6 +643,21 @@
 
   function getTemplateMakerRequiredMetrics() {
     return TEMPLATE_MAKER_REQUIRED_METRICS.slice();
+  }
+
+  function buildCvcDecisionCertView() {
+    var template = findBuyerReadyTemplate('cvc-decision-cert');
+    return buildViewXml(template ? template.config : configFromPresetName('cvc-decision-cert', {
+      viewName: 'CVC Decision Cert',
+      yearCount: 9,
+      sampleStart: 21,
+      includeTotal: true,
+      groupMode: 'by_metric'
+    }));
+  }
+
+  function getCvcDecisionRequiredMetrics() {
+    return CVC_DECISION_REQUIRED_METRICS.slice();
   }
 
   function parsePresetPackage(payload) {
@@ -1231,12 +1291,14 @@
     downloadView: downloadView,
     bindHandoffLinks: bindHandoffLinks,
     buildBuyerReadyTemplatePack: buildBuyerReadyTemplatePack,
+    buildCvcDecisionCertView: buildCvcDecisionCertView,
     buildTemplateMakerCertView: buildTemplateMakerCertView,
     buildPresetPackage: buildPresetPackage,
     buyerReadyTemplates: getBuyerReadyTemplates,
     importPresetPackage: importPresetPackage,
     importPresetPackageFromText: importPresetPackageFromText,
     getSavedPresets: getSavedPresets,
+    getCvcDecisionRequiredMetrics: getCvcDecisionRequiredMetrics,
     getTemplateMakerRequiredMetrics: getTemplateMakerRequiredMetrics,
     groupedMetrics: groupedMetrics,
     init: init,

@@ -4,13 +4,13 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: UX-NAV Project Generator - accordion and generation-mode pass.
-- Current implementation phase: UX-NAV sidebar navigation polish inside the Mining Control pass, correcting visible tab labels/icons and adding a collapsible navigation rail so the dashboard can free horizontal workspace.
+- Current phase completed: UX-NAV sidebar navigation polish inside the Mining Control pass.
+- Current implementation phase: J12-J15 JoseLivan CVC evidence pass, integrating short-only EGT v2, real OOS timeline, OK_MEAN_REVERT, edge archetype, volatility coherence and the SQX Views CVC Decision Cert contract.
 - Current UX surface decision: Strategy Builder tab and visible CVC handoff are retired from the dashboard shell; existing SB modules/docs remain internal historical contracts until a future renamed workflow is approved.
 - Current scoring surface decision: Template Maker is the active Capa 1 scoring and C2 generation surface; Capa 2 comparison/relationships belong to Champion vs Challenger.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Current maintenance rule: every new phase backup must be versioned and paired with a retention check using `docs/maintenance/BACKUP_RETENTION_POLICY.md`.
-- Active UX-NAV tab: `Mining Control`; do not move to another UX tab until the operator says `Adelante con el siguiente tab`.
+- Active UX-NAV tab: `Mining Control`; temporarily paused only for the J12-J15 JoseLivan CVC evidence pass. Resume Mining Control after this phase unless the operator says `Adelante con el siguiente tab`.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G7 - Backup Retention And Artifact Steward Gate.
 - Previous governance baseline: G6 - Institutional Dashboard Quick Actions Gate.

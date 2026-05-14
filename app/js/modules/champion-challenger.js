@@ -101,20 +101,20 @@
   function sampleData() {
     return {
       champion: [
-        'Strategy Name;Symbol;Profit factor;Return/Drawdown;# trades;Drawdown %;Filters Result',
-        'Champion Base;EURUSD;1.50;4.00;200;5.0;PASSED'
+        'Strategy Name;Symbol;TimeFrame;Profit factor;Return/Drawdown;# trades;Drawdown %;Filters Result',
+        'Champion Base;AUDCAD;M30;1.50;4.00;200;5.0;PASSED'
       ].join('\n'),
       challenger: [
-        'Strategy Name;Symbol;Profit factor;Return/Drawdown;# trades;Trades Long;Trades Short;Drawdown %;Filters Result;Entry indicators',
-        'Challenger A Long;EURUSD;1.62;3.95;180;180;0;5.2;PASSED;EMA RSI',
-        'Challenger B Long;EURUSD;1.55;4.25;130;130;0;4.8;PASSED;MACD',
-        'Challenger C Long;EURUSD;1.70;3.60;260;260;0;7.1;FAILED;Bollinger'
+        'Strategy Name;Symbol;TimeFrame;Profit factor;Return/Drawdown;# trades;Trades Long;Trades Short;Drawdown %;Filters Result;Entry indicators;Avg. Bars in Trade;Avg. Trades Per Month',
+        'Challenger A Short MR;AUDCAD;M30;1.62;3.95;180;0;180;5.2;PASSED;ATR SuperTrend RSI;10.5;16',
+        'Challenger B Short Trend;AUDCAD;M30;1.55;4.25;130;0;130;4.8;PASSED;MACD EMA;65;8',
+        'Challenger C Long;AUDCAD;H1;1.70;3.60;260;260;0;7.1;FAILED;Bollinger RSI;14;11'
       ].join('\n'),
       oos: [
         'Strategy Name;Symbol;CAGR/Max DD (OOS1);Net Profit (OOS1);Trades (OOS1);Worst Year Profit (OOS1);CAGR/Max DD (OOS2);Net Profit (OOS2);Trades (OOS2);Worst Year Profit (OOS2);CAGR/Max DD (OOS3);Net Profit (OOS3);Trades (OOS3);Worst Year Profit (OOS3);CAGR/Max DD (OOS4);Net Profit (OOS4);Trades (OOS4);Worst Year Profit (OOS4);CAGR/Max DD (OOS5);Net Profit (OOS5);Trades (OOS5);Worst Year Profit (OOS5);CAGR/Max DD (OOS6);Net Profit (OOS6);Trades (OOS6);Worst Year Profit (OOS6)',
-        'Challenger A Long;EURUSD;3.0;100;80;120;2.8;90;82;110;3.1;95;84;115;2.9;100;86;105;3.2;110;88;120;3.0;115;90;125',
-        'Challenger B Long;EURUSD;1.4;80;60;60;-0.4;-30;42;-30;1.0;20;52;20;0.8;15;48;15;1.1;30;55;30;0.7;10;44;10',
-        'Challenger C Long;EURUSD;1.8;90;90;90;1.7;80;88;85;0.3;-60;40;-15;0.4;20;42;20;0.2;10;38;10;0.3;5;36;5'
+        'Challenger A Short MR;AUDCAD;1.2;60;80;60;1.1;55;82;55;1.0;62;84;62;1.3;70;86;70;1.4;160;88;160;1.5;190;90;190',
+        'Challenger B Short Trend;AUDCAD;1.4;80;60;60;-0.4;-30;42;-30;1.0;20;52;20;0.8;15;48;15;1.1;30;55;30;0.7;10;44;10',
+        'Challenger C Long;AUDCAD;1.8;90;90;90;1.7;80;88;85;0.3;-60;40;-15;0.4;20;42;20;0.2;10;38;10;0.3;5;36;5'
       ].join('\n')
     };
   }
@@ -185,8 +185,13 @@
       item.regime_evidence = regime && regime.assessCandidate ? regime.assessCandidate(item) : null;
       item.temporal_health = core.computeTemporalHealth && oosRecord ? core.computeTemporalHealth(oosRecord) : null;
       item.direction_evidence = core.detectDirection ? core.detectDirection(item.normalized_metrics || item) : null;
+      item.oos_timeline = core.buildOosTimeline && oosRecord ? core.buildOosTimeline(oosRecord, {
+        symbol: item.symbol || (item.normalized_metrics || {}).symbol
+      }) : null;
+      item.archetype = core.detectArchetype ? core.detectArchetype(item.normalized_metrics || item) : null;
       item.directional_coherence = buildDirectionalCoherence(item, oosRecord, regime);
       item.egt_v2 = buildEgtV2Evidence(item, oosRecord, regime);
+      item.volatility_coherence = buildVolatilityCoherence(item, oosRecord, regime);
       item.consolidated_score = computeConsolidatedScore(item);
       return item;
     }).sort(function(a, b) {
@@ -208,7 +213,8 @@
     if (regime.buildRegimeBlocksForSymbol) {
       blocks = regime.buildRegimeBlocksForSymbol(item.symbol || (item.normalized_metrics || {}).symbol, oosRecord.block_count);
     }
-    var direction = item.direction_evidence && item.direction_evidence.direction === 'long_short' ? 'long_short' : 'long_only';
+    var direction = item.direction_evidence && item.direction_evidence.direction || 'long_only';
+    if (direction !== 'long_only' && direction !== 'short_only' && direction !== 'long_short') direction = 'long_only';
     return regime.assessEgtV2(oosRecord, blocks && blocks.blocks ? blocks.blocks : [], {
       thresholds: { direction: direction }
     });
@@ -227,6 +233,15 @@
     );
   }
 
+  function buildVolatilityCoherence(item, oosRecord, regime) {
+    if (!regime || !regime.computeVolatilityCoherence || !oosRecord) return null;
+    var blocks = null;
+    if (regime.buildRegimeBlocksForSymbol) {
+      blocks = regime.buildRegimeBlocksForSymbol(item.symbol || (item.normalized_metrics || {}).symbol, oosRecord.block_count);
+    }
+    return regime.computeVolatilityCoherence(oosRecord, blocks && blocks.blocks ? blocks.blocks : []);
+  }
+
   function clampScore(value) {
     return Math.max(0, Math.min(100, Math.round(value)));
   }
@@ -234,7 +249,10 @@
   function computeConsolidatedScore(item) {
     var metrics = item.normalized_metrics || {};
     var hardFails = [];
+    var warnings = [];
     var bonus = 0;
+    var archetype = item.archetype && item.archetype.archetype || 'UNKNOWN';
+    var trendSensitive = archetype === 'TREND_FOLLOWING' || archetype === 'UNKNOWN';
     var breakdown = {
       profit_factor: Math.min(25, Math.max(0, ((metrics.profit_factor || 0) - 1) * 25)),
       return_drawdown: Math.min(25, Math.max(0, (metrics.return_drawdown || 0) * 4)),
@@ -245,18 +263,34 @@
     };
 
     if (item.formal_fail_count > 0) hardFails.push('formal_checks');
-    if (item.egt_v2 && item.egt_v2.verdict === 'RISK') hardFails.push('egt_v2_risk');
+    if (item.egt_v2 && item.egt_v2.verdict === 'RISK') {
+      if (trendSensitive) hardFails.push('egt_v2_risk');
+      else warnings.push('egt_v2_risk_adaptive_warning');
+    }
     if (item.temporal_health && item.temporal_health.status === 'declining') hardFails.push('temporal_health_declining');
-    if (item.directional_coherence && item.directional_coherence.verdict === 'BROKEN') hardFails.push('directional_coherence_broken');
+    if (item.directional_coherence && item.directional_coherence.verdict === 'BROKEN') {
+      if (trendSensitive) hardFails.push('directional_coherence_broken');
+      else warnings.push('directional_coherence_broken_adaptive_warning');
+    }
 
     if (item.oos_stable) bonus += 5;
     if (item.temporal_health && item.temporal_health.status === 'fresh') bonus += 5;
     else if (item.temporal_health && item.temporal_health.status === 'recovered') bonus += 3;
     if (item.egt_v2 && item.egt_v2.verdict === 'STRONG') bonus += 5;
     else if (item.egt_v2 && item.egt_v2.verdict === 'DEFENSIVE') bonus -= 3;
-    if (item.directional_coherence && item.directional_coherence.verdict === 'OK') bonus += 5;
+    var coherenceWeight = trendSensitive ? 1 : 0.5;
+    if (item.directional_coherence && item.directional_coherence.verdict === 'OK') bonus += Math.round(5 * coherenceWeight);
+    else if (item.directional_coherence && item.directional_coherence.verdict === 'OK_MEAN_REVERT') bonus += Math.round(5 * coherenceWeight);
     else if (item.directional_coherence && item.directional_coherence.verdict === 'SUSPICIOUS') bonus -= 8;
     else if (item.directional_coherence && item.directional_coherence.verdict === 'WEAK') bonus -= 3;
+    else if (item.directional_coherence && item.directional_coherence.verdict === 'BROKEN' && !trendSensitive) bonus -= 8;
+    if (item.volatility_coherence && item.volatility_coherence.verdict === 'VOL_POSITIVE') {
+      if (archetype === 'SCALPER' || archetype === 'BREAKOUT') bonus += 5;
+      else if (archetype === 'MEAN_REVERT') bonus += 3;
+      else bonus += 2;
+    } else if (item.volatility_coherence && item.volatility_coherence.verdict === 'VOL_NEGATIVE') {
+      bonus -= 4;
+    }
     if (item.oos && item.oos.has_negative_worst_year) bonus -= 5;
 
     var base = Object.keys(breakdown).reduce(function(total, key) { return total + breakdown[key]; }, 0);
@@ -266,6 +300,7 @@
       bonus: Math.round(bonus),
       passed_hard: hardFails.length === 0,
       hard_fails: hardFails,
+      warnings: warnings,
       breakdown: breakdown
     };
   }
@@ -293,11 +328,15 @@
     var egt = item.egt_v2;
     var direction = item.direction_evidence;
     var coherence = item.directional_coherence;
+    var archetype = item.archetype;
+    var volatility = item.volatility_coherence;
     var score = item.consolidated_score;
     var healthLabel = health ? health.status : 'unknown';
     var egtLabel = egt ? egt.verdict : 'UNKNOWN';
     var directionLabel = direction ? direction.direction : 'unknown';
     var coherenceLabel = coherence ? coherence.verdict : 'UNKNOWN';
+    var archetypeLabel = archetype ? archetype.archetype : 'UNKNOWN';
+    var volatilityLabel = volatility ? volatility.verdict : 'UNKNOWN';
     var healthTitle = health
       ? 'Peak OOS' + (health.peak_block || '-') + ' | DD cierre ' + pct(health.dd_at_close) + ' | Recovery ' + pct(health.recovery_index)
       : 'Temporal Health pendiente';
@@ -311,14 +350,22 @@
       ? 'Bull ' + (coherence.bull_check || '-') + ' | Bear ' + (coherence.bear_check || '-') + ' | Flags ' + ((coherence.flags || []).join(', ') || '-')
       : 'Coherencia pendiente';
     var scoreTitle = score
-      ? 'Score Pro ' + score.score + '/100 | Hard ' + (score.passed_hard ? 'OK' : (score.hard_fails || []).join(', '))
+      ? 'Score Pro ' + score.score + '/100 | Hard ' + (score.passed_hard ? 'OK' : (score.hard_fails || []).join(', ')) + ' | Warn ' + ((score.warnings || []).join(', ') || '-')
       : 'Score Pro pendiente';
+    var archetypeTitle = archetype
+      ? 'Arquetipo ' + archetype.archetype + ' | Conf ' + archetype.confidence + ' | ' + ((archetype.reasons || []).join(', ') || '-')
+      : 'Arquetipo pendiente';
+    var volatilityTitle = volatility
+      ? 'Coherencia volatilidad ' + volatility.verdict + ' | Corr ' + fmt(volatility.correlation, 2) + ' | Bloques ' + (volatility.block_count || 0)
+      : 'Coherencia volatilidad pendiente';
     return [
       '<div class="cvc-evidence-chips">',
       '<span class="cvc-evidence-chip ' + chipClass('health', healthLabel) + '" title="' + core.escapeHtml(healthTitle) + '">Health ' + core.escapeHtml(healthLabel) + '</span>',
       '<span class="cvc-evidence-chip ' + chipClass('egt-v2', egtLabel) + '" title="' + core.escapeHtml(egtTitle) + '">EGT v2 ' + core.escapeHtml(egtLabel) + '</span>',
       '<span class="cvc-evidence-chip ' + chipClass('direction', directionLabel) + '" title="' + core.escapeHtml(directionTitle) + '">Dir ' + core.escapeHtml(directionLabel) + '</span>',
       '<span class="cvc-evidence-chip ' + chipClass('coherence', coherenceLabel) + '" title="' + core.escapeHtml(coherenceTitle) + '">Coherencia ' + core.escapeHtml(coherenceLabel) + '</span>',
+      '<span class="cvc-evidence-chip ' + chipClass('archetype', archetypeLabel) + '" title="' + core.escapeHtml(archetypeTitle) + '">Arquetipo ' + core.escapeHtml(archetypeLabel) + '</span>',
+      '<span class="cvc-evidence-chip ' + chipClass('volatility', volatilityLabel) + '" title="' + core.escapeHtml(volatilityTitle) + '">Vol ' + core.escapeHtml(volatilityLabel) + '</span>',
       '<span class="cvc-evidence-chip ' + chipClass('score-pro', score && score.passed_hard ? 'ok' : 'review') + '" title="' + core.escapeHtml(scoreTitle) + '">Score Pro ' + core.escapeHtml(score ? score.score : '-') + '</span>',
       '</div>'
     ].join('');
@@ -332,6 +379,20 @@
     var oosText = oos
       ? 'OOS ' + pct(oos.positive_block_ratio) + ' positivo, ' + (oos.stable_enough ? oos.block_count + ' bloques' : 'bloques insuficientes')
       : 'Sin OOS asociado';
+    if (oos && item.oos_timeline && item.oos_timeline.ok) {
+      var oldNegatives = 0;
+      var recentNegatives = 0;
+      var timelineByBlock = {};
+      (item.oos_timeline.blocks || []).forEach(function(block) { timelineByBlock[block.block] = block; });
+      Object.keys(oos.metrics_by_block || {}).forEach(function(blockId) {
+        var value = oos.metrics_by_block[blockId] && oos.metrics_by_block[blockId][oos.primary_metric];
+        var meta = timelineByBlock[parseInt(blockId, 10)];
+        if (value < 0 && meta && meta.age_bucket === 'old') oldNegatives += 1;
+        else if (value < 0 && meta) recentNegatives += 1;
+      });
+      oosText += ' | ' + item.oos_timeline.start + '-' + item.oos_timeline.end;
+      if (oldNegatives || recentNegatives) oosText += ' | negativos antiguos ' + oldNegatives + ', recientes ' + recentNegatives;
+    }
     var regimeText = regime && regime.evidenceSummary
       ? regime.evidenceSummary(item.regime_evidence)
       : 'UNKNOWN - sin evidencia';
@@ -371,7 +432,7 @@
   }
 
   function coherenceOk(item) {
-    return !!(item.directional_coherence && item.directional_coherence.verdict === 'OK');
+    return !!(item.directional_coherence && (item.directional_coherence.verdict === 'OK' || item.directional_coherence.verdict === 'OK_MEAN_REVERT'));
   }
 
   function scoreProOk(item) {
@@ -420,6 +481,25 @@
       min_primary_metric: roundMetric(oos.min_primary_metric, 4),
       max_primary_metric: roundMetric(oos.max_primary_metric, 4),
       decay_ratio: roundMetric(oos.decay_ratio, 4)
+    };
+  }
+
+  function compactOosTimeline(timeline) {
+    if (!timeline) return null;
+    return {
+      ok: !!timeline.ok,
+      profile: timeline.profile || 'unknown',
+      start: timeline.start || null,
+      end: timeline.end || null,
+      blocks: (timeline.blocks || []).slice(0, 12).map(function(block) {
+        return {
+          block: block.block,
+          start: block.start,
+          end: block.end,
+          age_years: roundMetric(block.age_years, 1),
+          age_bucket: block.age_bucket
+        };
+      })
     };
   }
 
@@ -505,6 +585,26 @@
     };
   }
 
+  function compactArchetype(archetype) {
+    if (!archetype) return null;
+    return {
+      archetype: archetype.archetype || 'UNKNOWN',
+      confidence: archetype.confidence || 'unknown',
+      reasons: (archetype.reasons || []).slice(0, 5)
+    };
+  }
+
+  function compactVolatilityCoherence(evidence) {
+    if (!evidence) return null;
+    return {
+      verdict: evidence.verdict || 'UNKNOWN',
+      metric: evidence.metric || null,
+      correlation: roundMetric(evidence.correlation, 4),
+      block_count: evidence.block_count || 0,
+      warnings: (evidence.warnings || []).slice(0, 4).map(function(item) { return item.code || String(item); })
+    };
+  }
+
   function compactConsolidatedScore(score) {
     if (!score) return null;
     return {
@@ -512,7 +612,8 @@
       base_score: Number(score.base_score),
       bonus: Number(score.bonus),
       passed_hard: !!score.passed_hard,
-      hard_fails: (score.hard_fails || []).slice(0, 6)
+      hard_fails: (score.hard_fails || []).slice(0, 6),
+      warnings: (score.warnings || []).slice(0, 6)
     };
   }
 
@@ -534,12 +635,15 @@
         drawdown_pct: roundMetric(metrics.drawdown_pct, 4)
       },
       oos: compactOos(item.oos),
+      oos_timeline: compactOosTimeline(item.oos_timeline),
       oos_stable: !!item.oos_stable,
       regime: compactRegime(item.regime_evidence),
       temporal_health: compactTemporalHealth(item.temporal_health),
       egt_v2: compactEgtV2(item.egt_v2),
       direction: compactDirection(item.direction_evidence),
       directional_coherence: compactDirectionalCoherence(item.directional_coherence),
+      archetype: compactArchetype(item.archetype),
+      volatility_coherence: compactVolatilityCoherence(item.volatility_coherence),
       consolidated_score: compactConsolidatedScore(item.consolidated_score)
     };
   }
@@ -600,7 +704,10 @@
         candidate.egt_v2.verdict === 'COMPLIANT' ||
         candidate.egt_v2.verdict === 'DEFENSIVE'
       ));
-      var coherenceOk = !!(candidate.directional_coherence && candidate.directional_coherence.verdict === 'OK');
+      var coherenceOk = !!(candidate.directional_coherence && (
+        candidate.directional_coherence.verdict === 'OK' ||
+        candidate.directional_coherence.verdict === 'OK_MEAN_REVERT'
+      ));
       var scoreProOk = !!(candidate.consolidated_score && candidate.consolidated_score.passed_hard && candidate.consolidated_score.score >= 60);
       var formalOk = candidate.formal_fail_count === 0;
       var oosStable = !!candidate.oos_stable;
@@ -616,6 +723,8 @@
         egt_v2: candidate.egt_v2,
         direction: candidate.direction,
         directional_coherence: candidate.directional_coherence,
+        archetype: candidate.archetype,
+        volatility_coherence: candidate.volatility_coherence,
         consolidated_score: candidate.consolidated_score,
         evidence_review: {
           formal_ok: formalOk,

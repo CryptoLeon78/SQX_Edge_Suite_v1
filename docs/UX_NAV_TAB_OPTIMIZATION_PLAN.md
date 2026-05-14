@@ -13,9 +13,11 @@ UX-NAV now runs as a sequential tab-by-tab optimization track.
 
 ## Current Active Tab
 
-`Mining Control`
+`Mining Control` paused for J12-J15
 
 Project Generator is closed as a guided `.cfx` assistant. Mining Control is reopened as the active pass for a focused operational cleanup.
+
+Temporary integration pause: J12-J15 integrates the latest JoseLivan Champion vs Challenger evidence pass. This does not advance the UX-NAV tab order and does not reopen Champion vs Challenger as a design pass; it only enriches the already completed final decision board with new evidence contracts.
 
 Active correction: `Foco operativo` and `Precarga desde Por Activo` are retired completely from the visible UI. `Plan mining` remains the single source of truth, and rows added from asset cards are identified in-table with the source tag `TARJETA`, alongside manual rows tagged as `MANUAL`.
 

@@ -28,9 +28,24 @@ const { SQX, document, sandbox } = createLoadedSandbox([
 
 sandbox.SQX_HISTORICAL_DATA = {
   EURUSD: { start: '2020-01', v: Array.from({ length: 72 }, (_value, index) => 100 + index * 1.2) },
+  AUDCAD: {
+    start: '2017-10',
+    v: (() => {
+      const values = [100];
+      [0.02, 0.01, -0.06, 0.01, 0.015, 0.02].forEach((change, blockIndex) => {
+        const step = Math.pow(1 + change, 1 / 12) - 1;
+        for (let i = 0; i < 12; i += 1) {
+          const wobble = blockIndex >= 4 ? (i % 2 === 0 ? 0.003 : -0.002) : 0;
+          values.push(values[values.length - 1] * (1 + step + wobble));
+        }
+      });
+      return values;
+    })(),
+  },
 };
 sandbox.SQX_SCORES_DATA = {
   EURUSD: { regimen: { objective: '+', composite_score: 0.67, scope: 'global' }, metrics: { regimen: { sma200_persistence_bars: 32 } } },
+  AUDCAD: { regimen: { objective: '-', composite_score: 0.72, scope: 'global' }, metrics: { regimen: { sma200_persistence_bars: 18 } } },
 };
 
 [
@@ -65,16 +80,18 @@ document.getElementById('cvc-sample-btn').click();
 assert.equal(document.getElementById('cvc-candidate-count').textContent, '3');
 assert.equal(document.getElementById('cvc-ready-count').textContent, '1');
 assert.equal(document.getElementById('cvc-oos-ready-count').textContent, '1');
-assert.equal(document.getElementById('cvc-regime-ready-count').textContent, '3');
+assert.equal(document.getElementById('cvc-regime-ready-count').textContent, '0');
 assert.match(document.getElementById('cvc-status').textContent, /Comparacion lista/);
-assert.match(document.getElementById('cvc-ranking').innerHTML, /Challenger A Long/);
+assert.match(document.getElementById('cvc-ranking').innerHTML, /Challenger A Short MR/);
 assert.match(document.getElementById('cvc-ranking').innerHTML, /OOS 100% positivo/);
 assert.match(document.getElementById('cvc-ranking').innerHTML, /EGT/);
-assert.match(document.getElementById('cvc-ranking').innerHTML, /COMPLIANT/);
-assert.match(document.getElementById('cvc-ranking').innerHTML, /Health fresh/);
 assert.match(document.getElementById('cvc-ranking').innerHTML, /EGT v2 STRONG/);
-assert.match(document.getElementById('cvc-ranking').innerHTML, /Dir long_only/);
-assert.match(document.getElementById('cvc-ranking').innerHTML, /Coherencia OK/);
+assert.match(document.getElementById('cvc-ranking').innerHTML, /Health fresh/);
+assert.match(document.getElementById('cvc-ranking').innerHTML, /EGT v2/);
+assert.match(document.getElementById('cvc-ranking').innerHTML, /Dir short_only/);
+assert.match(document.getElementById('cvc-ranking').innerHTML, /Coherencia OK_MEAN_REVERT/);
+assert.match(document.getElementById('cvc-ranking').innerHTML, /Arquetipo MEAN_REVERT/);
+assert.match(document.getElementById('cvc-ranking').innerHTML, /Vol VOL_/);
 assert.match(document.getElementById('cvc-ranking').innerHTML, /Score Pro/);
 assert.match(document.getElementById('cvc-summary').innerHTML, /Health OK/);
 assert.match(document.getElementById('cvc-summary').innerHTML, /EGT v2 OK/);
@@ -84,12 +101,12 @@ assert.match(document.getElementById('cvc-summary').innerHTML, /Score Pro OK/);
 document.getElementById('cvc-filter-health-ok').checked = true;
 document.getElementById('cvc-filter-health-ok').dispatch('change');
 assert.match(document.getElementById('cvc-status').textContent, /Filtro activo: 2\/3 visibles/);
-assert.match(document.getElementById('cvc-ranking').innerHTML, /Challenger A Long/);
+assert.match(document.getElementById('cvc-ranking').innerHTML, /Challenger A Short MR/);
 assert.doesNotMatch(document.getElementById('cvc-ranking').innerHTML, /Challenger C/);
 
 document.getElementById('cvc-filter-egt-v2-ok').checked = true;
 document.getElementById('cvc-filter-egt-v2-ok').dispatch('change');
-assert.match(document.getElementById('cvc-status').textContent, /Filtro activo: 1\/3 visibles/);
+assert.match(document.getElementById('cvc-status').textContent, /Filtro activo: 2\/3 visibles/);
 document.getElementById('cvc-filter-health-ok').checked = false;
 document.getElementById('cvc-filter-egt-v2-ok').checked = false;
 document.getElementById('cvc-filter-health-ok').dispatch('change');
@@ -105,17 +122,18 @@ assert.equal(reviewExport.type, 'sqx-edge.champion-challenger-review');
 assert.equal(reviewExport.summary.candidate_count, 3);
 assert.equal(reviewExport.summary.oos_stable_count, 1);
 assert.equal(reviewExport.summary.temporal_health_ok_count, 2);
-assert.equal(reviewExport.summary.egt_v2_ok_count, 1);
+assert.equal(reviewExport.summary.egt_v2_ok_count, 3);
 assert.equal(reviewExport.summary.directional_coherence_ok_count, 3);
 assert.ok(reviewExport.summary.score_pro_ok_count >= 1);
 assert.equal(reviewExport.redaction.raw_csv, 'excluded');
 assert.equal(reviewExport.redaction.remote_calls, 'none');
-assert.equal(reviewExport.candidates[0].strategy_name, 'Challenger A Long');
+assert.equal(reviewExport.candidates[0].strategy_name, 'Challenger A Short MR');
 assert.equal(reviewExport.candidates[0].temporal_health.status, 'fresh');
 assert.equal(reviewExport.candidates[0].temporal_health.pass_all, true);
-assert.equal(reviewExport.candidates[0].egt_v2.verdict, 'STRONG');
-assert.equal(reviewExport.candidates[0].direction.direction, 'long_only');
-assert.equal(reviewExport.candidates[0].directional_coherence.verdict, 'OK');
+assert.equal(reviewExport.candidates[0].direction.direction, 'short_only');
+assert.equal(reviewExport.candidates[0].directional_coherence.verdict, 'OK_MEAN_REVERT');
+assert.equal(reviewExport.candidates[0].archetype.archetype, 'MEAN_REVERT');
+assert.ok(reviewExport.candidates[0].volatility_coherence.verdict.startsWith('VOL_') || reviewExport.candidates[0].volatility_coherence.verdict === 'INSUFFICIENT_DATA');
 assert.equal(reviewExport.candidates[0].consolidated_score.passed_hard, true);
 assert.equal(Array.isArray(reviewExport.candidates[0].egt_v2.failed_regimes), true);
 assert.equal(Object.prototype.hasOwnProperty.call(reviewExport.candidates[0], 'raw'), false);
@@ -125,14 +143,14 @@ const handoff = cvc.buildStrategyBuilderHandoff(reviewExport, { generatedAt: '20
 assert.equal(handoff.type, 'sqx-edge.strategy-builder-handoff');
 assert.equal(handoff.source_review.candidate_count, 3);
 assert.equal(handoff.source_review.temporal_health_ok_count, 2);
-assert.equal(handoff.source_review.egt_v2_ok_count, 1);
+assert.equal(handoff.source_review.egt_v2_ok_count, 3);
 assert.equal(handoff.source_review.directional_coherence_ok_count, 3);
 assert.ok(handoff.source_review.score_pro_ok_count >= 1);
-assert.equal(handoff.recommended_candidate.strategy_name, 'Challenger A Long');
+assert.equal(handoff.recommended_candidate.strategy_name, 'Challenger A Short MR');
 assert.equal(handoff.recommended_candidate.decision, 'builder_candidate');
 assert.equal(handoff.recommended_candidate.temporal_health.status, 'fresh');
-assert.equal(handoff.recommended_candidate.egt_v2.verdict, 'STRONG');
-assert.equal(handoff.recommended_candidate.directional_coherence.verdict, 'OK');
+assert.equal(handoff.recommended_candidate.directional_coherence.verdict, 'OK_MEAN_REVERT');
+assert.equal(handoff.recommended_candidate.archetype.archetype, 'MEAN_REVERT');
 assert.equal(handoff.recommended_candidate.evidence_review.directional_coherence_ok, true);
 assert.equal(handoff.recommended_candidate.evidence_review.score_pro_ok, true);
 assert.equal(handoff.recommended_candidate.evidence_review.operator_review_required, true);

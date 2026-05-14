@@ -148,11 +148,11 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/state-backup.js` | Dashboard local-state snapshot and restore UI against the local backup API, limited to non-sensitive localStorage keys. |
 | `modules/ui.js` | Shared DOM/UI helpers and tab helpers. |
 | `modules/formatters.js` | Display formatting, escaping, labels, badges. |
-| `modules/champion-challenger-core.js` | Pure CSV parsing, alias resolution, Champion vs Challenger comparison and OOS stability scoring. |
+| `modules/champion-challenger-core.js` | Pure CSV parsing, alias resolution, Champion vs Challenger comparison, OOS stability/timeline helpers, direction detection and edge archetype classification. |
 | `modules/domain.js` | Domain rules that are independent from DOM rendering. |
 | `modules/datasets.js` | Normalized access to asset, score and manifest datasets. |
-| `modules/champion-challenger-regime.js` | First-party Regime/EGT evidence adapter for Champion vs Challenger using historical and score datasets. |
-| `modules/champion-challenger.js` | Native dashboard UI facade for `tab-cvc`, delegating parsing, scoring, contextual evidence, safe JSON export and future Strategy Builder handoff to focused contracts without local persistence. |
+| `modules/champion-challenger-regime.js` | First-party Regime/EGT evidence adapter for Champion vs Challenger using historical and score datasets, including `short_only`, `OK_MEAN_REVERT` and volatility coherence. |
+| `modules/champion-challenger.js` | Native dashboard UI facade for `tab-cvc`, delegating parsing, scoring, contextual evidence, safe JSON export and internal handoff contracts without local persistence. |
 | `modules/strategy-builder-core.js` | Pure read-only Strategy Builder package builder for local `sqx-edge.strategy-builder-package` previews, import validation, re-review gating, review summaries, buyer workflow summaries, visible audit entries, Project Generator prefill/preset draft mapping, SQX Views validation-pack handoff mapping, Strategy Cleaner draft mapping, unified buyer handoff packs, buyer pack import reviews, guided buyer session checklists, redacted buyer session summaries, printable operator notes, local support-case bundles and support resolution checklists. |
 | `modules/strategy-builder.js` | Native dashboard UI facade for `tab-strategybuilder`, building local previews plus gated JSON import/export, visible review checklist, session-only handoff audit trail, Project Generator custom/preset prefill, SQX Views handoff, Strategy Cleaner draft handoff, preview-only buyer packs, buyer pack import reviews, buyer session checklists, local redacted buyer summary exports, printable operator notes, support-case bundles and support resolution checklists without backend calls or generated trading logic. |
 | `modules/renderers.js` | Reusable HTML rendering helpers for dashboard lists/tables. |
@@ -164,7 +164,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/fulfillment.js` | Internal operator queue cockpit for manual fulfillment states and retries. |
 | `modules/customer-cockpit.js` | Redacted customer success cockpit for Pro renewal, support and expansion state. |
 | `modules/workflow.js` | Workflow tab initialization and subtab behavior. |
-| `modules/view-creator.js` | Native SQX `.vw` generator for annual Databank views, EGT presets, buyer-ready examples, buyer-profile packs, asset-family/validation workflow packs, saved local presets, JSON preset packs with import preview, workflow handoffs and XML downloads. This is the maintained replacement for the archived Tkinter staging prototype. |
+| `modules/view-creator.js` | Native SQX `.vw` generator for annual Databank views, EGT/Robustez/Template Maker/CVC Decision Cert presets, saved local presets, JSON preset packs with import preview, workflow handoffs and XML downloads. This is the maintained replacement for the archived Tkinter staging prototype. |
 | `modules/project-generator-core.js` | Project Generator shared helpers and API primitives. |
 | `modules/project-generator-config.js` | Project Generator config read/write helpers, enriched starter custom profiles, profile-family packs, local custom preset persistence, import preview and portable custom preset JSON packs. |
 | `modules/project-generator-dom.js` | Project Generator DOM helpers, config inputs, custom project inputs, settings panel and log output. |

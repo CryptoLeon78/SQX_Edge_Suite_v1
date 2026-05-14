@@ -470,7 +470,7 @@ async function run() {
     const viewsTabTextUpper = viewsTabText.toUpperCase();
     const viewsTabTextLower = viewsTabText.toLowerCase();
     if (!viewsTabTextUpper.includes('ELIGE LA VIEW QUE NECESITAS')) throw new Error('SQX Views should expose guided view choice as the main entry');
-    ['EGT Core', 'Robustez', 'Template Maker Cert', 'Risk', 'Full audit', 'obligatoria', 'recomendable'].forEach(expected => {
+    ['EGT Core', 'Robustez', 'Template Maker Cert', 'CVC Decision Cert', 'Risk', 'Full audit', 'obligatoria', 'recomendable'].forEach(expected => {
       if (!viewsTabText.includes(expected)) throw new Error(`SQX Views required/recommended block should include ${expected}`);
     });
     ['9oos', '7oos'].forEach(expected => {
@@ -479,7 +479,7 @@ async function run() {
     const templateListText = await desktop.locator('#vc-template-list').innerText();
     const templateListTextUpper = templateListText.toUpperCase();
     const templateListTextLower = templateListText.toLowerCase();
-    ['PF', 'Trades', 'Ret/DD', 'HBP', 'MC', 'VaR', 'CVaR', 'CAGR/DD', 'CSV Cert'].forEach(expected => {
+    ['PF', 'Trades', 'Ret/DD', 'HBP', 'MC', 'VaR', 'CVaR', 'CAGR/DD', 'CSV Cert', 'Arquetipo', 'Volatilidad'].forEach(expected => {
       if (!templateListTextUpper.includes(expected.toUpperCase())) throw new Error(`SQX Views template tags should include ${expected}`);
     });
     if (/\bfree\b|\bpro\b/i.test(templateListText)) {
@@ -511,6 +511,12 @@ async function run() {
     const certMetrics = await desktop.evaluate(() => window.SQX.viewCreator.getTemplateMakerRequiredMetrics());
     if (!certMetrics.includes('Net profit') || !certMetrics.includes('Ret/DD Ratio')) {
       throw new Error('SQX Views should expose Template Maker Cert required metrics');
+    }
+    await desktop.locator('[data-vc-template-load="cvc-decision-cert"]').click();
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'CVC Decision Cert');
+    const cvcCertMetrics = await desktop.evaluate(() => window.SQX.viewCreator.getCvcDecisionRequiredMetrics());
+    if (!cvcCertMetrics.includes('Avg. Bars in Trade') || !cvcCertMetrics.includes('Avg. Trades Per Month')) {
+      throw new Error('SQX Views should expose CVC Decision Cert required metrics');
     }
     await desktop.locator('[data-vc-template-load="risk-capital-review"]').click();
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Risk');
@@ -640,12 +646,16 @@ async function run() {
     await desktop.waitForSelector('#cvc-ranking .cvc-result-row');
     await desktop.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('Health fresh'));
     await desktop.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('EGT v2 STRONG'));
+    await desktop.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('Dir short_only'));
+    await desktop.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('Coherencia'));
+    await desktop.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('Arquetipo MEAN_REVERT'));
+    await desktop.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('Vol VOL_'));
     await desktop.waitForFunction(() => document.getElementById('cvc-ready-count')?.textContent.trim() === '1');
-    await desktop.waitForFunction(() => Number(document.getElementById('cvc-regime-ready-count')?.textContent.trim() || 0) > 0);
+    await desktop.waitForFunction(() => document.getElementById('cvc-regime-ready-count')?.textContent.trim() === '3');
     await desktop.locator('#cvc-filter-health-ok').check();
     await desktop.waitForFunction(() => document.getElementById('cvc-status')?.textContent.includes('Filtro activo: 2/3 visibles'));
     await desktop.locator('#cvc-filter-egt-v2-ok').check();
-    await desktop.waitForFunction(() => document.getElementById('cvc-status')?.textContent.includes('Filtro activo: 1/3 visibles'));
+    await desktop.waitForFunction(() => document.getElementById('cvc-status')?.textContent.includes('Filtro activo: 2/3 visibles'));
     await desktop.locator('#cvc-filter-health-ok').uncheck();
     await desktop.locator('#cvc-filter-egt-v2-ok').uncheck();
     await desktop.waitForFunction(() => document.querySelectorAll('#cvc-ranking .cvc-result-row').length === 3);
@@ -655,7 +665,9 @@ async function run() {
     await desktop.waitForSelector('#cvc-ranking .cvc-result-row');
     const cvcModel = await desktop.evaluate(() => window.SQX.championChallenger.evaluate());
     if (!cvcModel.ok || cvcModel.rankings.length !== 3) throw new Error('Champion vs Challenger sample contract failed');
-    if (!cvcModel.rankings.every(row => row.regime_evidence && row.regime_evidence.symbol === 'EURUSD')) throw new Error('Champion vs Challenger regime evidence missing');
+    if (!cvcModel.rankings.every(row => row.regime_evidence && row.regime_evidence.symbol === 'AUDCAD')) throw new Error('Champion vs Challenger regime evidence missing');
+    if (!cvcModel.rankings.some(row => row.egt_v2?.direction === 'short_only' && row.archetype?.archetype === 'MEAN_REVERT')) throw new Error('Champion vs Challenger should expose short-only mean-revert evidence');
+    if (!cvcModel.rankings.every(row => row.oos_timeline && row.volatility_coherence?.verdict)) throw new Error('Champion vs Challenger should expose OOS timeline and volatility evidence');
     const cvcReview = await desktop.evaluate(() => window.SQX.championChallenger.buildReviewExport(window.SQX.championChallenger.evaluate()));
     if (cvcReview.type !== 'sqx-edge.champion-challenger-review' || cvcReview.summary.candidate_count !== 3) throw new Error('Champion vs Challenger export contract failed');
     if (JSON.stringify(cvcReview).includes('Champion CSV')) throw new Error('Champion vs Challenger export should not include raw CSV payloads');
@@ -768,7 +780,9 @@ async function run() {
     await mobile.waitForSelector('#cvc-ranking .cvc-result-row');
     await mobile.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('Health fresh'));
     await mobile.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('EGT v2 STRONG'));
-    await mobile.waitForFunction(() => Number(document.getElementById('cvc-regime-ready-count')?.textContent.trim() || 0) > 0);
+    await mobile.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('Dir short_only'));
+    await mobile.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('Arquetipo MEAN_REVERT'));
+    await mobile.waitForFunction(() => document.getElementById('cvc-regime-ready-count')?.textContent.trim() === '3');
     const mobileHandoff = await mobile.evaluate(() => window.SQX.championChallenger.buildStrategyBuilderHandoff(window.SQX.championChallenger.buildReviewExport(window.SQX.championChallenger.evaluate())));
     if (mobileHandoff.type !== 'sqx-edge.strategy-builder-handoff') throw new Error('Mobile CVC handoff contract failed');
     await assertNoMobileOverflow(mobile);
