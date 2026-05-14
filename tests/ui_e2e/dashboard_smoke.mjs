@@ -554,6 +554,12 @@ async function run() {
     await desktop.locator('.tab[data-tab="cvc"]').click();
     await desktop.waitForSelector('.tab[data-tab="cvc"].active');
     await desktop.waitForSelector('#cvc-run-btn');
+    const cvcGuidedText = await desktop.locator('#tab-cvc').innerText();
+    ['contexto de decisión', 'carga de datos', 'validación rápida', 'ranking operativo', 'entrega y siguiente acción'].forEach(expected => {
+      if (!cvcGuidedText.toLowerCase().includes(expected)) throw new Error(`Champion vs Challenger should expose guided section: ${expected}`);
+    });
+    const cvcGuideSteps = await desktop.locator('#tab-cvc .cvc-guide-flow li').count();
+    if (cvcGuideSteps !== 5) throw new Error(`Champion vs Challenger should render 5 guided steps, got ${cvcGuideSteps}`);
     await desktop.locator('#cvc-sample-btn').click();
     await desktop.waitForSelector('#cvc-ranking .cvc-result-row');
     await desktop.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('Health fresh'));
@@ -567,6 +573,10 @@ async function run() {
     await desktop.locator('#cvc-filter-health-ok').uncheck();
     await desktop.locator('#cvc-filter-egt-v2-ok').uncheck();
     await desktop.waitForFunction(() => document.querySelectorAll('#cvc-ranking .cvc-result-row').length === 3);
+    await desktop.locator('#cvc-clear-btn').click();
+    await desktop.waitForFunction(() => document.getElementById('cvc-empty')?.textContent.includes('Carga CSV') && document.getElementById('cvc-candidate-count')?.textContent.trim() === '0');
+    await desktop.locator('#cvc-sample-btn').click();
+    await desktop.waitForSelector('#cvc-ranking .cvc-result-row');
     const cvcModel = await desktop.evaluate(() => window.SQX.championChallenger.evaluate());
     if (!cvcModel.ok || cvcModel.rankings.length !== 3) throw new Error('Champion vs Challenger sample contract failed');
     if (!cvcModel.rankings.every(row => row.regime_evidence && row.regime_evidence.symbol === 'EURUSD')) throw new Error('Champion vs Challenger regime evidence missing');

@@ -13,9 +13,9 @@ UX-NAV now runs as a sequential tab-by-tab optimization track.
 
 ## Current Active Tab
 
-`Estrategias`
+`Champion vs Challenger`
 
-Template Maker visual polish is closed and UX-NAV has resumed. Estrategias is the active pass and is being optimized as the operational repository for surviving/imported strategies.
+Estrategias is closed as the operational repository. Champion vs Challenger is the active pass and is being optimized as the final decision board for comparing finalist strategies without changing scoring, exports or hidden internal handoff contracts.
 
 ## Tab Pass Order
 
@@ -25,8 +25,8 @@ This is the working order for individual optimization. It can be adjusted only a
 2. `Mining Control` - completed as mining plan/control surface.
 3. `SQX Views` - completed as guided view assistant.
 4. `Template Maker` - completed as Capa 1 scoring and C2 generation surface.
-5. `Estrategias` - active now as operational repository.
-6. `Champion vs Challenger`
+5. `Estrategias` - completed as operational repository.
+6. `Champion vs Challenger` - active now as final decision board.
 7. `Project Generator`
 8. `Por Activo`
 9. `Filtros Fase 2`
@@ -45,6 +45,18 @@ Estrategias should answer:
 - How do I filter/prioritize without guessing?
 - How do I import, add, export, consolidate or clean safely?
 - Where do I go next for SQX Views or Champion vs Challenger?
+
+## Champion vs Challenger Optimization Scope
+
+Goal: make Champion vs Challenger a guided final decision board, not a raw CSV console.
+
+Champion vs Challenger should answer:
+
+- When should I compare Champion against Challengers?
+- Which CSV blocks do I need and what does each one mean?
+- Are the inputs valid enough to evaluate?
+- Which candidate survives Health, EGT v2, OOS and coherence filters?
+- How do I export a safe review and return to the workflow?
 
 ## Workflow Optimization Scope
 

@@ -951,69 +951,128 @@
     <div class="cvc-shell">
       <section class="cvc-hero">
         <div>
-          <span class="views-eyebrow">Strategy Validation Board</span>
+          <span class="views-eyebrow">Mesa de decisión final</span>
           <h2>Champion vs Challenger</h2>
-          <p>Compara una estrategia base contra candidatas y cruza el resultado con bloques OOS para separar mejoras reales de ruido operativo.</p>
+          <p>Compara una estrategia Champion contra sus Challengers antes de promocionar, reconstruir o entregar. La pantalla cruza métricas, OOS, Health, EGT v2 y coherencia para separar mejora real de ruido operativo.</p>
         </div>
         <div class="cvc-hero-stats">
           <div><span id="cvc-candidate-count">0</span><small>candidatas</small></div>
-          <div><span id="cvc-ready-count">0</span><small>sin fallos</small></div>
+          <div><span id="cvc-ready-count">0</span><small>aptas</small></div>
           <div><span id="cvc-oos-ready-count">0</span><small>OOS estable</small></div>
           <div><span id="cvc-regime-ready-count">0</span><small>EGT ok</small></div>
         </div>
       </section>
 
-      <section class="cvc-workspace">
-        <div class="cvc-panel cvc-input-panel">
+      <ol class="cvc-guide-flow" aria-label="Flujo Champion vs Challenger">
+        <li><span>1</span><strong>Contexto</strong><small>Decide cuándo comparar finalistas.</small></li>
+        <li><span>2</span><strong>Carga de datos</strong><small>Pega Champion, Challengers y OOS.</small></li>
+        <li><span>3</span><strong>Validación rápida</strong><small>Comprueba que hay datos útiles.</small></li>
+        <li><span>4</span><strong>Ranking</strong><small>Filtra evidencia y orden operativo.</small></li>
+        <li><span>5</span><strong>Entrega</strong><small>Exporta resumen seguro y vuelve al flujo.</small></li>
+      </ol>
+
+      <section class="cvc-main-grid">
+        <article class="cvc-panel cvc-step-panel cvc-context-panel">
           <div class="views-panel-head">
             <div>
-              <span>Entrada</span>
-              <strong>CSV de Champion, Challengers y OOS</strong>
+              <span>Paso 1</span>
+              <strong>Contexto de decisión</strong>
             </div>
-            <small>Sin subida externa ni persistencia.</small>
+            <small>Comparativa finalista, no scoring Capa 1.</small>
           </div>
+          <p class="views-step-copy">Usa este tab cuando ya tienes supervivientes limpias. Template Maker certifica y genera C2; aquí decides si una Challenger mejora al Champion sin romper OOS, Health, EGT v2 ni coherencia direccional.</p>
+          <div class="cvc-method-grid">
+            <div><span>Champion</span><strong>Estrategia base</strong><small>La referencia que ya consideras defendible.</small></div>
+            <div><span>Challenger</span><strong>Candidatas</strong><small>Variantes que compiten contra el Champion.</small></div>
+            <div><span>OOS</span><strong>Evidencia externa</strong><small>Bloques fuera de muestra para evitar decisiones por ruido.</small></div>
+          </div>
+        </article>
+
+        <article class="cvc-panel cvc-step-panel cvc-input-panel">
+          <div class="views-panel-head">
+            <div>
+              <span>Paso 2</span>
+              <strong>Carga de datos</strong>
+            </div>
+            <small>Manual, local y sin persistencia.</small>
+          </div>
+          <p class="views-step-copy">Pega los CSV exportados desde StrategyQuant X. Champion y Challengers deben compartir columnas clave; OOS añade bloques tipo `CAGR/Max DD (OOS1)` o `Profit Factor (OOS1)`.</p>
 
           <div class="cvc-fields">
             <label class="cvc-field">
               <span>Champion CSV</span>
               <textarea id="cvc-champion-input" class="cvc-input" spellcheck="false" placeholder="Strategy Name;Symbol;Profit factor;Return/Drawdown;# trades"></textarea>
+              <small>Una fila principal: la estrategia que quieres defender.</small>
             </label>
             <label class="cvc-field">
               <span>Challengers CSV</span>
               <textarea id="cvc-challenger-input" class="cvc-input" spellcheck="false" placeholder="Una o mas candidatas con las mismas columnas clave"></textarea>
+              <small>Una o varias candidatas para ranking operativo.</small>
             </label>
             <label class="cvc-field">
               <span>OOS blocks CSV</span>
               <textarea id="cvc-oos-input" class="cvc-input compact" spellcheck="false" placeholder="Columnas tipo CAGR/Max DD (OOS1), Profit Factor (OOS1)..."></textarea>
+              <small>Opcional pero recomendado para bloquear falsas mejoras.</small>
             </label>
           </div>
 
           <div class="cvc-actions">
             <button class="export-btn" id="cvc-run-btn" type="button">Evaluar</button>
             <button class="filter-btn" id="cvc-sample-btn" type="button">Cargar ejemplo</button>
-            <button class="filter-btn" id="cvc-export-btn" type="button">Exportar resumen</button>
             <button class="filter-btn" id="cvc-clear-btn" type="button">Limpiar</button>
           </div>
-          <div id="cvc-status" class="cvc-status">Esperando datos para comparar.</div>
-        </div>
+        </article>
 
-        <div class="cvc-panel cvc-results-panel">
+        <article class="cvc-panel cvc-step-panel cvc-validation-panel">
           <div class="views-panel-head">
             <div>
-              <span>Resultado</span>
+              <span>Paso 3</span>
+              <strong>Validación rápida</strong>
+            </div>
+            <small>La app no guarda CSV crudo.</small>
+          </div>
+          <div id="cvc-status" class="cvc-status">Esperando datos para comparar.</div>
+          <div class="cvc-validation-grid">
+            <div><span>Columnas mínimas</span><strong>Strategy Name, Symbol, PF, Ret/DD, trades</strong><small>Si falta algo, la evaluación te pedirá revisar datos.</small></div>
+            <div><span>Privacidad</span><strong>Sin subida externa</strong><small>El export final sale redactado y sin payload CSV.</small></div>
+            <div><span>Uso correcto</span><strong>Compara finalistas</strong><small>No sustituye Template Maker ni certifica Capa 1.</small></div>
+          </div>
+        </article>
+
+        <article class="cvc-panel cvc-step-panel cvc-results-panel">
+          <div class="views-panel-head">
+            <div>
+              <span>Paso 4</span>
               <strong>Ranking operativo</strong>
             </div>
             <small id="cvc-oos-summary">OOS pendiente.</small>
           </div>
+          <p class="views-step-copy">Primero revisa el ranking completo. Luego usa filtros para quedarte sólo con candidatas sanas, compatibles con EGT v2 y coherentes con la dirección esperada.</p>
           <div id="cvc-summary" class="cvc-summary"></div>
           <div class="cvc-filter-strip" id="cvc-filter-strip">
-            <label><input type="checkbox" id="cvc-filter-health-ok"> <span>Health OK</span></label>
-            <label><input type="checkbox" id="cvc-filter-egt-v2-ok"> <span>EGT v2 OK</span></label>
-            <label><input type="checkbox" id="cvc-filter-coherence-ok"> <span>Coherencia OK</span></label>
+            <label title="Muestra sólo candidatas con salud temporal aceptable"><input type="checkbox" id="cvc-filter-health-ok"> <span>Health OK</span></label>
+            <label title="Muestra sólo candidatas con evidencia EGT v2 defendible"><input type="checkbox" id="cvc-filter-egt-v2-ok"> <span>EGT v2 OK</span></label>
+            <label title="Muestra sólo candidatas coherentes con la dirección del activo"><input type="checkbox" id="cvc-filter-coherence-ok"> <span>Coherencia OK</span></label>
           </div>
-          <div id="cvc-empty" class="cvc-empty">Carga CSV o usa el ejemplo para ver el ranking.</div>
+          <div id="cvc-empty" class="cvc-empty">Carga CSV o usa el ejemplo para ver qué candidata merece revisión final.</div>
           <div id="cvc-ranking" class="cvc-ranking"></div>
-        </div>
+        </article>
+
+        <article class="cvc-panel cvc-step-panel cvc-delivery-panel">
+          <div class="views-panel-head">
+            <div>
+              <span>Paso 5</span>
+              <strong>Entrega y siguiente acción</strong>
+            </div>
+            <small>Resumen seguro para trazabilidad.</small>
+          </div>
+          <p class="views-step-copy">Exporta el resumen cuando el ranking tenga sentido. El JSON incluye evidencia reducida, decisión y métricas derivadas; no incluye CSV crudo ni llamadas remotas.</p>
+          <div class="cvc-delivery-actions">
+            <button class="export-btn" id="cvc-export-btn" type="button">Exportar resumen</button>
+            <button class="filter-btn" type="button" data-home-tab="estrategias">Volver a Estrategias</button>
+            <button class="filter-btn" type="button" data-home-tab="views" data-vc-handoff="full-audit">Abrir SQX Views</button>
+          </div>
+        </article>
       </section>
     </div>
   </div>

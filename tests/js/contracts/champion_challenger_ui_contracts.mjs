@@ -1,4 +1,21 @@
-import { assert, Element, createLoadedSandbox } from './harness.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { assert, Element, createLoadedSandbox, repoRoot } from './harness.mjs';
+
+const html = fs.readFileSync(path.join(repoRoot, 'app/SQX_Dashboard_v6.html'), 'utf8');
+
+assert.ok(html.includes('id="tab-cvc"'), 'Champion vs Challenger tab panel should render');
+assert.ok(html.includes('cvc-guide-flow'), 'Champion vs Challenger should expose guided step flow');
+assert.ok(html.includes('Contexto de decisión'), 'Champion vs Challenger should explain decision context');
+assert.ok(html.includes('Carga de datos'), 'Champion vs Challenger should guide CSV loading');
+assert.ok(html.includes('Validación rápida'), 'Champion vs Challenger should show validation step');
+assert.ok(html.includes('Ranking operativo'), 'Champion vs Challenger should keep ranking step');
+assert.ok(html.includes('Entrega y siguiente acción'), 'Champion vs Challenger should expose delivery step');
+assert.ok(html.includes('Exportar resumen'), 'Champion vs Challenger should keep safe review export CTA');
+assert.ok(html.includes('Volver a Estrategias'), 'Champion vs Challenger should hand back to strategies');
+assert.ok(html.includes('Abrir SQX Views'), 'Champion vs Challenger should hand back to SQX Views');
+assert.ok(!html.includes('id="cvc-handoff-btn"'), 'retired Strategy Builder handoff button must not be visible');
+assert.ok(!html.includes('Strategy Validation Board'), 'old English CVC hero eyebrow should be retired');
 
 const { SQX, document, sandbox } = createLoadedSandbox([
   'app/js/modules/formatters.js',

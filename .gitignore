@@ -116,6 +116,7 @@ private-commercial/
 
 # ── Backups and temporary refactor snapshots ────────
 backups/
+app - copia/
 *_backup_*/
 *_backup_hardcode_refactor_*/
 *.bak
