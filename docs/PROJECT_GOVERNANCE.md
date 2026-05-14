@@ -10,6 +10,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current scoring surface decision: Template Maker is the active Capa 1 scoring and C2 generation surface; Capa 2 comparison/relationships belong to Champion vs Challenger.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Current maintenance rule: every new phase backup must be versioned and paired with a retention check using `docs/maintenance/BACKUP_RETENTION_POLICY.md`.
+- Local diagnostic material rule: `material de diagnostico/` is an ignored, local-only inbox for bug samples, CSV/SQX/View evidence and files the operator wants Codex to inspect during troubleshooting. Never commit, package or distribute it.
 - Active UX-NAV tab: `Mining Control`; temporarily paused only for the J12-J15 JoseLivan CVC evidence pass. Resume Mining Control after this phase unless the operator says `Adelante con el siguiente tab`.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G7 - Backup Retention And Artifact Steward Gate.
@@ -380,9 +381,10 @@ M46 is accepted when these criteria are true:
 ## Security Notes
 
 - Never commit `backend/sqx-edge-tool/config/license.json`.
-- Never package private keys, signed customer licenses, fulfillment events, relay data, `.env` files, backups or internal release tools.
+- Never package private keys, signed customer licenses, fulfillment events, relay data, `.env` files, backups, `material de diagnostico/` or internal release tools.
 - Any new internal M46+ or A58+ operator tool must be added to product manifest exclusions, packaging exclusions, audit deny-lists, release checklist assertions and tests.
 - Any new `tools/*`, `data/*`, `docs/sales/*` or Pro resource must declare one of: public, public redaction pointer, private-only, or excluded from portable packaging.
 - Move buyer logs, commercial gates, pricing experiments, support scripts and checkout evidence to a private repository before wider public distribution.
 - Keep `docs/private-commercial/`, `commercial-private/` and `private-commercial/` local-only staging folders ignored by git.
+- Keep `material de diagnostico/` local-only and ignored by git; use it only as diagnostic input when reproducing bugs or comparing user-provided examples. If a diagnostic sample becomes a permanent test fixture, create a sanitized copy under `tests/fixtures/` instead of moving the original folder into git.
 - Do not deploy tester access, create tester accounts, publish Vercel URLs, rotate tester passwords or send renewal emails without explicit user approval for that exact external action.
