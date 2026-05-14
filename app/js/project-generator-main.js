@@ -16,6 +16,7 @@ const PG_STATE = {
   outputDir: '',
   outputFiles: [],
   planCount: 0,
+  generationMode: '',
   selectedMiningNums: new Set(),
 };
 const PG_ALIAS_MIN_SCORE = (window.SQX_CONFIG && window.SQX_CONFIG.value('projectGenerator.aliasSuggestMinScore', 80)) || 80;
@@ -36,6 +37,45 @@ function pgTrace(title, detail, level) {
 
 function pgSetSettingsOpen(open) {
   if (SQX_PG_DOM.setSettingsOpen) SQX_PG_DOM.setSettingsOpen(document, open);
+}
+
+function pgSetStepOpen(id, open) {
+  const el = pgDom(id);
+  if (!el || String(el.tagName || '').toLowerCase() !== 'details') return false;
+  el.open = !!open;
+  return true;
+}
+
+function pgSetGenerationMode(mode) {
+  const normalized = mode === 'manual' ? 'manual' : (mode === 'methodological' ? 'methodological' : '');
+  PG_STATE.generationMode = normalized;
+  document.querySelectorAll('[data-pg-mode]').forEach(btn => {
+    const active = btn.dataset.pgMode === normalized;
+    btn.classList.toggle('is-active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+
+  const methodPanel = pgDom('pg-mode-methodological-panel');
+  const manualPanel = pgDom('pg-mode-manual-panel');
+  const placeholder = pgDom('pg-mode-placeholder');
+  if (methodPanel) methodPanel.hidden = normalized !== 'methodological';
+  if (manualPanel) manualPanel.hidden = normalized !== 'manual';
+  if (placeholder) placeholder.hidden = !!normalized;
+
+  const status = normalized === 'manual'
+    ? 'Modo activo: Generación manual · Custom libre.'
+    : (normalized === 'methodological'
+      ? 'Modo activo: Generación metodológica · Minings del plan.'
+      : 'Elige un modo en el Paso 3 para mostrar su panel de trabajo.');
+  pgSetText('pg-generation-mode-status', status);
+
+  if (normalized) {
+    pgSetStepOpen('pg-step-generate', true);
+    const target = normalized === 'manual' ? manualPanel : methodPanel;
+    if (target && target.scrollIntoView) {
+      window.setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    }
+  }
 }
 
 function pgFocusSettingsField(id) {
@@ -148,7 +188,6 @@ function pgDownloadJson(filename, payload) {
 
 function pgUpdateMiningSummary(count) {
   pgSetText('pg-minings-count', SQX_PG_MODULE.miningsCountLabel(count));
-  pgSetText('pg-bulk-count', SQX_PG_MODULE.bulkGenerateLabel(count));
 }
 
 function pgSelectedMiningMap() {
@@ -789,6 +828,7 @@ async function pgRunOnboardingTertiaryAction() {
   const refresh = document.getElementById('pg-status-refresh');
   if (!refresh) return; // tab no está en el HTML
   pgRenderCustomPresets();
+  pgSetGenerationMode('');
   pgLoadMinings();
 
   // ── Strategy Cleaner ──
@@ -903,7 +943,6 @@ async function pgRunOnboardingTertiaryAction() {
     deleteCustomPreset: pgDeleteCustomPreset,
     exportCustomPresets: pgExportCustomPresets,
     clearSelectedMinings: pgClearSelectedMinings,
-    generateAll: pgGenerateAll,
     generateCustom: pgGenerateCustom,
     generateSelected: pgGenerateSelected,
     importCustomPresets: pgImportCustomPresets,
@@ -918,6 +957,7 @@ async function pgRunOnboardingTertiaryAction() {
     saveCustomPreset: pgSaveCustomPreset,
     saveConfig: pgSaveConfig,
     selectAllMinings: pgSelectAllMinings,
+    setGenerationMode: pgSetGenerationMode,
     setSettingsOpen: pgSetSettingsOpen,
     suggestAll: pgSuggestAll,
     validateSqxPath: pgValidateSqxPath,
@@ -937,4 +977,5 @@ async function pgRunOnboardingTertiaryAction() {
     pgRenderAliases();
     pgRenderOnboarding();
   });
+  window.pgActivateProjectGenerationMode = pgSetGenerationMode;
 })();

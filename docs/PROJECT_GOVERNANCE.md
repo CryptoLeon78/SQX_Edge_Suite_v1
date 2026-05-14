@@ -5,7 +5,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 ## Current State
 
 - Current phase completed: UX-NAV Champion vs Challenger - decision board pass.
-- Current implementation phase: UX-NAV Project Generator - guided `.cfx` assistant pass, now correcting Step 4 so it consumes the live UI Plan Mining, supports selected mining generation, and retires global decorative button pseudo-symbols without changing backend or `.cfx` contracts.
+- Current implementation phase: UX-NAV Project Generator - accordion and generation-mode pass, converting the guided `.cfx` assistant into closed-by-default steps, removing visual bulk generation and routing Step 4 through methodological Plan Mining or manual Custom libre workspaces without changing backend or `.cfx` contracts.
 - Current UX surface decision: Strategy Builder tab and visible CVC handoff are retired from the dashboard shell; existing SB modules/docs remain internal historical contracts until a future renamed workflow is approved.
 - Current scoring surface decision: Template Maker is the active Capa 1 scoring and C2 generation surface; Capa 2 comparison/relationships belong to Champion vs Challenger.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.

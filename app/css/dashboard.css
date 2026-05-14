@@ -3795,7 +3795,7 @@
   .pg-step-panel {
     position:relative;
     overflow:hidden;
-    padding:15px;
+    padding:0;
     border:1px solid var(--border);
     border-radius:8px;
     background:var(--surface);
@@ -3810,12 +3810,42 @@
   }
   .pg-step-panel > * { position:relative; }
   .pg-step-panel .views-panel-head strong { color:#facc15; }
-  .pg-step-panel .views-panel-head { margin-bottom:12px; }
+  .pg-step-panel .views-panel-head { margin-bottom:0; }
+  .pg-step-panel summary.views-panel-head {
+    cursor:pointer;
+    list-style:none;
+    padding:15px;
+    user-select:none;
+  }
+  .pg-step-panel summary.views-panel-head::-webkit-details-marker { display:none; }
+  .pg-step-panel summary.views-panel-head::marker { content:''; }
+  .pg-step-body {
+    display:grid;
+    gap:12px;
+    padding:0 15px 15px;
+  }
+  .pg-step-panel:not([open]) .pg-step-body { display:none; }
+  .pg-disclosure-indicator {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:62px;
+    min-height:24px;
+    padding:3px 9px;
+    border:1px solid rgba(148,163,184,.24);
+    border-radius:6px;
+    background:rgba(15,23,42,.72);
+    color:var(--text2);
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.35px;
+    text-transform:uppercase;
+  }
+  .pg-disclosure-indicator::before { content:'Abrir'; }
+  .pg-step-panel[open] .pg-disclosure-indicator::before { content:'Cerrar'; }
   .pg-step-api .pg-status-banner { margin-bottom:14px; }
-  .pg-settings-card .views-panel-head { cursor:pointer; user-select:none; }
   .pg-settings-grid { margin-top:10px; }
   .pg-settings-actions,
-  .pg-bulk-actions,
   .pg-delivery-actions {
     display:flex;
     align-items:center;
@@ -3863,6 +3893,25 @@
     border-radius:8px;
     background:#101827;
   }
+  .pg-mode-card {
+    width:100%;
+    color:var(--text);
+    font:inherit;
+    text-align:left;
+    cursor:pointer;
+    transition:border-color .18s ease, background .18s ease, transform .18s ease;
+  }
+  .pg-mode-card:hover,
+  .pg-mode-card:focus-visible {
+    border-color:rgba(96,165,250,.55);
+    background:#142034;
+    outline:none;
+  }
+  .pg-mode-card.is-active {
+    border-color:rgba(250,204,21,.60);
+    background:linear-gradient(135deg, rgba(250,204,21,.12), rgba(59,130,246,.10));
+    box-shadow:0 0 0 1px rgba(250,204,21,.12) inset;
+  }
   .pg-choice-card strong {
     display:block;
     margin-top:7px;
@@ -3886,6 +3935,37 @@
     margin:0 0 12px;
     padding:0 0 10px;
   }
+  .pg-generation-toolbar {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    padding:10px;
+    border:1px solid rgba(148,163,184,.16);
+    border-radius:8px;
+    background:rgba(15,23,42,.54);
+  }
+  .pg-generation-toolbar span {
+    flex:1;
+    min-width:220px;
+    color:var(--text2);
+    font-size:12px;
+    line-height:1.35;
+  }
+  .pg-mode-placeholder {
+    display:grid;
+    gap:5px;
+    padding:16px;
+    border:1px dashed rgba(148,163,184,.26);
+    border-radius:8px;
+    background:rgba(15,23,42,.38);
+    color:var(--text2);
+  }
+  .pg-mode-placeholder strong { color:var(--text); }
+  .pg-mode-placeholder[hidden],
+  .pg-mode-panel[hidden] {
+    display:none !important;
+  }
   .pg-mining-toolbar {
     display:flex;
     align-items:center;
@@ -3902,10 +3982,6 @@
     color:var(--text2);
     font-size:12px;
     font-weight:800;
-  }
-  .pg-bulk-actions span:not(.pg-action-spacer) {
-    color:var(--text2);
-    font-size:12px;
   }
   .pg-primary-soft { border-color:rgba(34,197,94,.42); color:var(--green); background:rgba(34,197,94,.08); }
   .pg-accent-soft { border-color:rgba(59,130,246,.42); color:var(--accent2); background:rgba(59,130,246,.08); }
@@ -4957,14 +5033,14 @@
     }
     .pg-settings-actions,
     .pg-mining-toolbar,
-    .pg-bulk-actions {
+    .pg-generation-toolbar {
       align-items:stretch;
       flex-direction:column;
     }
     .pg-action-spacer { display:none; }
     .pg-settings-actions .export-btn,
     .pg-mining-toolbar .export-btn,
-    .pg-bulk-actions .export-btn,
+    .pg-generation-toolbar .export-btn,
     .pg-action-card .export-btn {
       width:100%;
       justify-content:center;
@@ -4989,9 +5065,6 @@
     .pg-buyer-actions { justify-content:stretch; }
     .pg-buyer-actions .export-btn { flex:1 1 140px; justify-content:center; }
   }
-  .pg-settings-card .collapse-arrow { font-size:11px; transition:transform .2s; }
-  .pg-settings-card .collapse-arrow.closed { transform:rotate(-90deg); }
-
   .pg-mining-row { display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; margin-bottom:6px; }
   .pg-mining-row .pgm-check {
     display:inline-flex;

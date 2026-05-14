@@ -70,7 +70,7 @@ function miningRowsHtml(minings, selectedMap) {
 
 function outputListHtml(files) {
     if (!files || !files.length) {
-      return '<div class="pg-output-empty">No hay .cfx generados todav&iacute;a. Selecciona minings y usa los botones superiores de Capa 1 o Capa 2.</div>';
+      return '<div class="pg-output-empty">No hay .cfx generados todav&iacute;a. Elige un modo, selecciona minings o completa Custom libre y genera Capa 1 o Capa 2.</div>';
     }
     return files.map(function(file) {
       return ''

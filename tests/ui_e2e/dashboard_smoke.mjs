@@ -315,7 +315,7 @@ async function run() {
     await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 104);
     await desktop.locator('.tab[data-tab="projectgen"]').click();
     await desktop.waitForSelector('.tab[data-tab="projectgen"].active');
-    await desktop.waitForSelector('#pg-onboarding-title');
+    await desktop.waitForSelector('#pg-step-api');
     const pgGuidedText = await desktop.locator('#tab-projectgen').innerText();
     const pgGuidedTextLower = pgGuidedText.toLowerCase();
     ['api local', 'configura sqx', 'elige generación', 'genera y revisa', 'resultado'].forEach(expected => {
@@ -323,12 +323,25 @@ async function run() {
     });
     const pgGuideSteps = await desktop.locator('#tab-projectgen .pg-guide-flow li').count();
     if (pgGuideSteps !== 5) throw new Error(`Project Generator should render 5 guided steps, got ${pgGuideSteps}`);
-    if (!pgGuidedText.includes('Plan Mining') || !pgGuidedText.includes('Custom libre')) throw new Error('Project Generator should clarify Plan Mining and Custom libre paths');
+    if (!pgGuidedTextLower.includes('plan mining') || !pgGuidedTextLower.includes('custom libre')) throw new Error('Project Generator should clarify Plan Mining and Custom libre paths');
+    const pgClosedSteps = await desktop.locator('#tab-projectgen details.pg-step-panel:not([open])').count();
+    if (pgClosedSteps !== 5) throw new Error(`Project Generator steps should start closed, got ${pgClosedSteps} closed`);
+    await desktop.locator('#pg-step-choice > summary').click();
+    await desktop.locator('#pg-mode-methodological').click();
+    await desktop.waitForSelector('#pg-step-generate[open]');
+    await desktop.waitForSelector('#pg-mode-methodological-panel:not([hidden])');
+    if (await desktop.locator('#pg-mode-manual-panel:not([hidden])').count() !== 0) {
+      throw new Error('Project Generator should hide manual workspace when methodological generation is active');
+    }
+    if (await desktop.locator('#pg-gen-all-c1, #pg-gen-all-c2').count() !== 0) {
+      throw new Error('Project Generator should remove bulk-all generation buttons');
+    }
     await desktop.evaluate(() => {
       window.resetPlanMiningUserState();
       const ok = window.addMiningUser({ num: 1, phase: 1, asset: 'EURUSD', tf: 'H1', bs: 'BS_Tendencia', dir: 'L/S', source: 'e2e' });
       if (!ok) throw new Error('Project Generator E2E could not seed Plan Mining');
     });
+    await desktop.locator('#pg-step-api > summary').click();
     await desktop.locator('#pg-status-refresh').click();
     await desktop.waitForFunction(() => {
       const text = document.getElementById('pg-minings-table')?.innerText || '';
@@ -351,11 +364,15 @@ async function run() {
       const match = progress.match(/^([0-4])\/4$/);
       return Boolean(match);
     });
-    await desktop.waitForSelector('#pg-custom-generate');
     const removedProjectGeneratorPanels = await desktop.locator('#pg-custom-starter-list, #pg-custom-family-list, #pg-buyer-handoff-card').count();
     if (removedProjectGeneratorPanels !== 0) throw new Error('Project Generator removed panels should not be visible in UX-NAV2');
     const cleanerStillVisible = await desktop.locator('#cln-scan').count();
     if (cleanerStillVisible !== 1) throw new Error('Strategy Cleaner should remain available during Project Generator pass');
+    await desktop.locator('#pg-mode-manual').click();
+    await desktop.waitForSelector('#pg-mode-manual-panel:not([hidden]) #pg-custom-generate');
+    if (await desktop.locator('#pg-mode-methodological-panel:not([hidden])').count() !== 0) {
+      throw new Error('Project Generator should hide Plan Mining workspace when manual generation is active');
+    }
     await desktop.locator('#pg-custom-asset').fill('EURUSD');
     await desktop.locator('#pg-custom-tf').fill('H1');
     await desktop.locator('#pg-custom-name').fill('Custom_EURUSD_H1');
@@ -705,7 +722,10 @@ async function run() {
     await mobile.waitForSelector('#workflow-command-center');
     await mobile.locator('.tab[data-tab="projectgen"]').click();
     await mobile.waitForSelector('.tab[data-tab="projectgen"].active');
-    await mobile.waitForSelector('#pg-custom-generate');
+    await mobile.waitForSelector('#tab-projectgen details.pg-step-panel:not([open])');
+    await mobile.locator('#pg-step-choice > summary').click();
+    await mobile.locator('#pg-mode-manual').click();
+    await mobile.waitForSelector('#pg-mode-manual-panel:not([hidden]) #pg-custom-generate');
     const mobilePgGuideSteps = await mobile.locator('#tab-projectgen .pg-guide-flow li').count();
     if (mobilePgGuideSteps !== 5) throw new Error('Mobile Project Generator guided flow should render 5 steps');
     await assertNoMobileOverflow(mobile);

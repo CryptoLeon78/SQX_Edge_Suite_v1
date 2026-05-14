@@ -21,11 +21,6 @@
     if (!refresh) return false;
 
     refresh.addEventListener('click', h.checkHealth);
-    bind(doc, 'pg-settings-toggle', 'click', function() {
-      var body = byId(doc, 'pg-settings-body');
-      var open = body && body.style.display !== 'none';
-      if (h.setSettingsOpen) h.setSettingsOpen(!open);
-    });
     bind(doc, 'pg-settings-save', 'click', h.saveConfig);
     bind(doc, 'pg-settings-reload', 'click', h.loadConfig);
     bind(doc, 'pg-onboarding-action', 'click', h.runOnboardingAction);
@@ -41,8 +36,8 @@
     bind(doc, 'pg-custom-export-presets', 'click', h.exportCustomPresets);
     bind(doc, 'pg-custom-import-presets', 'click', h.openImportCustomPresets);
     bind(doc, 'pg-custom-import-presets-file', 'change', h.importCustomPresets);
-    bind(doc, 'pg-gen-all-c1', 'click', function() { h.generateAll(1); });
-    bind(doc, 'pg-gen-all-c2', 'click', function() { h.generateAll(2); });
+    bind(doc, 'pg-mode-methodological', 'click', function() { if (h.setGenerationMode) h.setGenerationMode('methodological'); });
+    bind(doc, 'pg-mode-manual', 'click', function() { if (h.setGenerationMode) h.setGenerationMode('manual'); });
     bind(doc, 'pg-select-all-minings', 'click', h.selectAllMinings);
     bind(doc, 'pg-clear-selected-minings', 'click', h.clearSelectedMinings);
     bind(doc, 'pg-generate-selected-c1', 'click', function() { h.generateSelected(1); });

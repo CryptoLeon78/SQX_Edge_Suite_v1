@@ -11,12 +11,23 @@ assert.ok(html.includes('API local'), 'Project Generator should explain API loca
 assert.ok(html.includes('Configura SQX'), 'Project Generator should expose SQX configuration step');
 assert.ok(html.includes('Elige generación'), 'Project Generator should expose generation choice step');
 assert.ok(html.includes('Genera y revisa'), 'Project Generator should expose generation review step');
-assert.ok(html.includes('Paso 5'), 'Project Generator should expose result/log step');
+assert.ok(html.includes('PASO 5'), 'Project Generator should expose result/log step');
 assert.ok(html.includes('Plan Mining'), 'Project Generator should clarify Plan Mining path');
 assert.ok(html.includes('Custom libre'), 'Project Generator should preserve custom generation path');
+assert.equal((html.match(/<details class="pg-step-panel/g) || []).length, 5, 'Project Generator should render 5 collapsible step panels');
+assert.ok(html.includes('pg-step-summary'), 'Project Generator steps should use summary headers');
+assert.doesNotMatch(html, /<details class="pg-step-panel[^>]*\sopen\b/, 'Project Generator steps should start closed by default');
+assert.ok(html.includes('id="pg-mode-methodological"'), 'Project Generator should expose methodological generation mode');
+assert.ok(html.includes('id="pg-mode-manual"'), 'Project Generator should expose manual generation mode');
+assert.ok(html.includes('id="pg-mode-methodological-panel"'), 'Project Generator should render methodological workspace');
+assert.ok(html.includes('id="pg-mode-manual-panel"'), 'Project Generator should render manual workspace');
+assert.ok(html.includes('id="pg-mode-placeholder"'), 'Project Generator should render an empty mode placeholder');
+assert.ok(html.includes('id="pg-open-output"'), 'Project Generator should keep output folder action inside generation step');
 assert.ok(html.includes('id="pg-custom-generate"'), 'Project Generator should keep custom generate action');
-assert.ok(html.includes('id="pg-gen-all-c1"'), 'Project Generator should keep Capa 1 bulk action');
-assert.ok(html.includes('id="pg-gen-all-c2"'), 'Project Generator should keep Capa 2 bulk action');
+assert.ok(html.indexOf('id="pg-custom-generate"') > html.indexOf('id="pg-mode-manual-panel"'), 'Custom libre should live inside the manual generation workspace');
+assert.ok(!html.includes('id="pg-gen-all-c1"'), 'Project Generator should remove Capa 1 bulk-all action');
+assert.ok(!html.includes('id="pg-gen-all-c2"'), 'Project Generator should remove Capa 2 bulk-all action');
+assert.doesNotMatch(html, /Generación masiva/, 'Project Generator should remove the visual bulk generation block');
 assert.ok(html.includes('id="pg-generate-selected-c1"'), 'Project Generator should generate selected Plan Mining rows in Capa 1');
 assert.ok(html.includes('id="pg-generate-selected-c2"'), 'Project Generator should generate selected Plan Mining rows in Capa 2');
 assert.ok(html.includes('id="pg-select-all-minings"'), 'Project Generator should allow selecting all Plan Mining rows');
@@ -78,16 +89,16 @@ assert.equal(document.getElementById('pg-custom-dir').value, 'short');
 [
   'pg-status-refresh', 'pg-settings-toggle', 'pg-settings-save', 'pg-settings-reload',
   'pg-onboarding-action', 'pg-onboarding-secondary', 'pg-onboarding-tertiary',
-  'pg-autodetect', 'pg-aliases-suggest', 'pg-validate', 'pg-gen-all-c1',
-  'pg-gen-all-c2', 'pg-custom-generate', 'pg-custom-save-preset', 'pg-custom-load-preset',
+  'pg-autodetect', 'pg-aliases-suggest', 'pg-validate', 'pg-mode-methodological',
+  'pg-mode-manual', 'pg-custom-generate', 'pg-custom-save-preset', 'pg-custom-load-preset',
   'pg-custom-delete-preset', 'pg-output-refresh', 'pg-open-output', 'pg-log-clear',
   'pg-custom-export-presets', 'pg-custom-import-presets', 'pg-custom-import-presets-file',
   'pg-select-all-minings', 'pg-clear-selected-minings', 'pg-generate-selected-c1', 'pg-generate-selected-c2',
   'pg-settings-body', 'pg-log'
 ].forEach(id => document.add(new Element(id)));
 let checkHealthCalls = 0;
-let generateAllCapa = 0;
 let generateSelectedCapa = 0;
+let generationMode = '';
 let selectedAllCalls = 0;
 let clearSelectedCalls = 0;
 let generateCustomCalls = 0;
@@ -101,7 +112,6 @@ PG.bindings.bindProjectGeneratorEvents(document, {
   checkHealth: () => { checkHealthCalls++; },
   exportCustomPresets: () => { exportCustomPresetCalls++; },
   clearSelectedMinings: () => { clearSelectedCalls++; },
-  generateAll: capa => { generateAllCapa = capa; },
   generateCustom: () => { generateCustomCalls++; },
   generateSelected: capa => { generateSelectedCapa = capa; },
   importCustomPresets: () => { importCustomPresetCalls++; },
@@ -110,10 +120,11 @@ PG.bindings.bindProjectGeneratorEvents(document, {
   deleteCustomPreset: () => { deleteCustomPresetCalls++; },
   openImportCustomPresets: () => { openImportCustomPresetCalls++; },
   selectAllMinings: () => { selectedAllCalls++; },
+  setGenerationMode: mode => { generationMode = mode; },
   setSettingsOpen: open => { document.getElementById('pg-settings-body').style.display = open ? 'block' : 'none'; },
 });
 document.getElementById('pg-status-refresh').click();
-document.getElementById('pg-gen-all-c2').click();
+document.getElementById('pg-mode-methodological').click();
 document.getElementById('pg-select-all-minings').click();
 document.getElementById('pg-clear-selected-minings').click();
 document.getElementById('pg-generate-selected-c1').click();
@@ -127,7 +138,7 @@ document.getElementById('pg-custom-import-presets-file').dispatch('change');
 document.getElementById('pg-custom-asset').dispatch('input');
 document.getElementById('pg-custom-dir').dispatch('change');
 assert.equal(checkHealthCalls, 1);
-assert.equal(generateAllCapa, 2);
+assert.equal(generationMode, 'methodological');
 assert.equal(generateSelectedCapa, 1);
 assert.equal(selectedAllCalls, 1);
 assert.equal(clearSelectedCalls, 1);

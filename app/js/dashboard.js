@@ -1246,6 +1246,9 @@ window.quickToProjectGen = function(asset, cat, tf, dir) {
 
   activateTabById('projectgen');
   setTimeout(() => {
+    if (typeof window.pgActivateProjectGenerationMode === 'function') {
+      window.pgActivateProjectGenerationMode('manual');
+    }
     const target = document.querySelector('.pg-custom-card');
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 100);

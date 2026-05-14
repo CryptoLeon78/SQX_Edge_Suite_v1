@@ -109,12 +109,18 @@
   }
 
   function setSettingsOpen(doc, open) {
+    var card = byId(doc, 'pg-settings-card');
     var body = byId(doc, 'pg-settings-body');
     var arrow = byId(doc, 'pg-settings-arrow');
-    if (!body || !arrow) return false;
     var shouldOpen = !!open;
+    if (card && String(card.tagName || '').toLowerCase() === 'details') {
+      card.open = shouldOpen;
+      if (body) body.style.display = '';
+      return true;
+    }
+    if (!body) return false;
     body.style.display = shouldOpen ? 'block' : 'none';
-    arrow.classList.toggle('closed', !shouldOpen);
+    if (arrow) arrow.classList.toggle('closed', !shouldOpen);
     return true;
   }
 

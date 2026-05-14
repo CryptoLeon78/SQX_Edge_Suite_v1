@@ -17,9 +17,9 @@ UX-NAV now runs as a sequential tab-by-tab optimization track.
 
 Champion vs Challenger is closed as the final decision board. Project Generator is the active pass and is being optimized as a guided `.cfx` generation assistant without changing backend, preset or `.cfx` contracts.
 
-Active correction: Project Generator Step 4 must read the live `Plan Mining` from Mining Control (`getPlanMinings()`), including manual/user minings and reset-hidden base minings. Bulk generation and selected generation must respect that live plan instead of falling back to the backend static `/api/minings` list.
+Active correction: Project Generator now moves into an accordion workflow. All five steps start closed; Step 3 selects between `Generación metodológica` and `Generación manual`; Step 4 shows only the matching workspace (`Minings del plan` or `Custom libre`) and keeps `Abrir output` in the generation area.
 
-Visual correction: global `export-btn` pseudo-symbols are retired across the dashboard. Project Generator uses selected-row generation as the main workflow, so per-row Capa 1/Capa 2 buttons stay removed.
+Visual correction: visual bulk generation is retired. Operators can still generate everything by using `Seleccionar todos` plus `Generar selección`, while per-row Capa 1/Capa 2 buttons and global decorative button symbols stay removed.
 
 ## Tab Pass Order
 
