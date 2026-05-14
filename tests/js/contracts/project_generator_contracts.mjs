@@ -1,4 +1,28 @@
-import { assert, Element, createLoadedSandbox } from './harness.mjs';
+import fs from 'node:fs';
+import path from 'node:path';
+import { assert, Element, createLoadedSandbox, repoRoot } from './harness.mjs';
+
+const html = fs.readFileSync(path.join(repoRoot, 'app/SQX_Dashboard_v6.html'), 'utf8');
+
+assert.ok(html.includes('id="tab-projectgen"'), 'Project Generator tab panel should render');
+assert.ok(html.includes('pg-guide-flow'), 'Project Generator should expose guided step flow');
+assert.ok(html.includes('API local'), 'Project Generator should explain API local step');
+assert.ok(html.includes('Configura SQX'), 'Project Generator should expose SQX configuration step');
+assert.ok(html.includes('Elige generación'), 'Project Generator should expose generation choice step');
+assert.ok(html.includes('Genera y revisa'), 'Project Generator should expose generation review step');
+assert.ok(html.includes('Paso 5'), 'Project Generator should expose result/log step');
+assert.ok(html.includes('Plan Mining'), 'Project Generator should clarify Plan Mining path');
+assert.ok(html.includes('Custom libre'), 'Project Generator should preserve custom generation path');
+assert.ok(html.includes('id="pg-custom-generate"'), 'Project Generator should keep custom generate action');
+assert.ok(html.includes('id="pg-gen-all-c1"'), 'Project Generator should keep Capa 1 bulk action');
+assert.ok(html.includes('id="pg-gen-all-c2"'), 'Project Generator should keep Capa 2 bulk action');
+assert.ok(html.includes('id="pg-custom-save-preset"'), 'Project Generator should keep custom preset save action');
+assert.ok(html.includes('id="pg-custom-import-presets-file"'), 'Project Generator should keep preset pack import input');
+assert.ok(html.includes('id="pg-aliases-suggest"'), 'Project Generator should keep alias suggestion action');
+assert.ok(html.includes('id="cln-scan"'), 'Strategy Cleaner should remain available during Project Generator pass');
+assert.ok(!html.includes('id="pg-custom-starter-list"'), 'retired starter profile list must not return');
+assert.ok(!html.includes('id="pg-custom-family-list"'), 'retired objective family list must not return');
+assert.ok(!html.includes('id="pg-buyer-handoff-card"'), 'retired buyer handoff card must not return');
 
 const { SQX, document, sandbox } = createLoadedSandbox();
 const PG = SQX.projectGenerator;

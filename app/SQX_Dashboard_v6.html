@@ -567,189 +567,248 @@
 
   <!-- TAB: PROJECT GENERATOR — genera Custom Projects .cfx para SQX vía API local -->
   <div id="tab-projectgen" class="tab-content" style="display:none">
-    <div style="margin-bottom:14px;color:var(--text2);font-size:14px;">
-      Generador de <code>.cfx</code> Custom Projects para SQX. Puede clonar tus templates Capa 1 / Capa 2 para el plan de minings o crear un custom libre con asset, TF y dirección propios. Requiere el backend Python corriendo en <code id="pg-api-base-inline">API local</code>.
-    </div>
-
-    <!-- Banner status backend -->
-    <div id="pg-status-banner" class="pg-status-banner pg-status-down">
-      <div class="pg-status-icon">●</div>
-      <div class="pg-status-content">
-        <div class="pg-status-title" id="pg-status-title">Conectando…</div>
-        <div class="pg-status-desc" id="pg-status-desc">Comprobando backend local</div>
-      </div>
-      <button class="export-btn" id="pg-status-refresh">↻ Reintentar</button>
-    </div>
-
-    <div class="card pg-onboarding-card">
-      <div class="card-header">
-        <h2>🧭 Primer arranque</h2>
-        <span class="badge info" id="pg-onboarding-progress">0/4</span>
-      </div>
-      <div class="pg-onboarding-copy">
-        <strong id="pg-onboarding-title">Preparando flujo guiado</strong>
-        <p id="pg-onboarding-desc">Conecta la API y deja la configuración lista para generar tu primer .cfx.</p>
-      </div>
-      <div class="pg-onboarding-track"><div id="pg-onboarding-bar"></div></div>
-      <div class="pg-assistant-panel" id="pg-assistant-panel">
-        <div class="pg-assistant-now">
-          <span class="pg-assistant-label">Ahora toca</span>
-          <strong id="pg-assistant-next">Comprobar API</strong>
-          <p id="pg-assistant-hint">El asistente te dira el siguiente paso en cuanto lea el estado local.</p>
-        </div>
-        <div class="pg-assistant-checks" id="pg-assistant-checks"></div>
-      </div>
-      <div class="pg-onboarding-steps" id="pg-onboarding-steps"></div>
-      <div class="pg-onboarding-actions">
-        <button class="export-btn" id="pg-onboarding-action">Comprobar API</button>
-        <button class="export-btn pg-ghost-btn" id="pg-onboarding-secondary">Abrir configuración</button>
-        <button class="export-btn pg-ghost-btn" id="pg-onboarding-tertiary">Guardar config</button>
-      </div>
-    </div>
-
-    <!-- Settings collapsible -->
-    <div class="card pg-settings-card" id="pg-settings-card">
-      <div class="card-header" style="cursor:pointer;" id="pg-settings-toggle">
-        <h2>⚙️ Configuración</h2>
-        <span class="badge info">Path SQX y carpetas</span>
-        <span style="flex:1"></span>
-        <span id="pg-settings-arrow" class="collapse-arrow closed">▼</span>
-      </div>
-      <div id="pg-settings-body" style="display:none;">
-        <div class="strat-form-grid" style="margin-top:10px;">
-          <label class="full">SQX install path <span class="hint">(donde está StrategyQuantX.exe)</span>
-            <input type="text" id="pg-sqx-path" placeholder="Ruta de instalacion de StrategyQuantX">
-          </label>
-          <label class="full">SQX data.db <span class="hint">(opcional, para auto-detectar spreads/swaps en F2)</span>
-            <input type="text" id="pg-sqx-db" placeholder=".../user/data/data.db">
-          </label>
-          <label class="full">SQX projects dir <span class="hint">(donde quieres copiar los .cfx generados)</span>
-            <input type="text" id="pg-sqx-projects" placeholder=".../user/projects">
-          </label>
-          <label class="full">Output dir <span class="hint">(carpeta local donde se guardan los .cfx generados)</span>
-            <input type="text" id="pg-output-dir" placeholder="output">
-          </label>
-          <label>Template Capa 1 <input type="text" id="pg-tpl-c1" placeholder="templates/Capa1_Long.cfx"></label>
-          <label>Template Capa 2 <input type="text" id="pg-tpl-c2" placeholder="templates/Capa2_Base.cfx"></label>
-        </div>
-        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;">
-          <button class="export-btn" id="pg-settings-save" style="border-color:var(--green);color:var(--green);background:rgba(34,197,94,.08);">Guardar config</button>
-          <button class="export-btn" id="pg-settings-reload">↻ Recargar</button>
-          <span style="flex:1"></span>
-          <button class="export-btn" id="pg-autodetect" style="border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08);">Auto-detectar SQX</button>
-          <button class="export-btn" id="pg-validate">Validar paths</button>
-        </div>
-        <div id="pg-settings-msg" style="margin-top:10px;font-size:12px;color:var(--text2);"></div>
-        <div id="pg-autodetect-results" style="margin-top:10px;"></div>
-
-        <!-- ALIASES editables -->
-        <div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--border);">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-            <h4 style="font-size:13px;color:var(--accent);text-transform:uppercase;letter-spacing:.4px;">Aliases asset → instrument</h4>
-            <span style="font-size:11px;color:var(--text2);">El ticker del activo en SQX puede variar por broker (USTEC → NDXm en Darwinex, NDX en Dukascopy, USTEC100 en otros).</span>
-          </div>
-          <div id="pg-aliases-table" style="margin-bottom:10px;"></div>
-          <button class="export-btn" id="pg-aliases-suggest" style="border-color:var(--accent);color:var(--accent);">Auto-sugerir desde DB</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="card pg-custom-card">
-      <div class="card-header">
-        <h2>Custom libre</h2>
-        <span class="badge info">Fuera de Mining Control</span>
-      </div>
-      <div class="strat-form-grid pg-custom-grid">
-        <label>Nombre del proyecto
-          <input type="text" id="pg-custom-name" placeholder="Custom_EURUSD_H1">
-        </label>
-        <label>Asset / Simbolo
-          <input type="text" id="pg-custom-asset" placeholder="EURUSD">
-        </label>
-        <label>Timeframe
-          <input type="text" id="pg-custom-tf" placeholder="H1">
-        </label>
-        <label>Blocksetting
-          <input type="text" id="pg-custom-bs" placeholder="BS_Custom">
-        </label>
-        <label>Direccion
-          <select id="pg-custom-dir">
-            <option value="long">Long</option>
-            <option value="short">Short</option>
-            <option value="both">Long + Short</option>
-          </select>
-        </label>
-        <label>Capa
-          <select id="pg-custom-capa">
-            <option value="1">Capa 1</option>
-            <option value="2">Capa 2</option>
-          </select>
-        </label>
-        <label class="full">Template opcional
-          <input type="text" id="pg-custom-template" placeholder="Usa el template configurado para la capa si lo dejas vacio">
-        </label>
-      </div>
-      <div class="pg-custom-presets">
+    <div class="pg-shell">
+      <section class="pg-hero">
         <div>
-          <strong>Presets custom</strong>
-          <small id="pg-custom-presets-count">0 guardados</small>
+          <span class="views-eyebrow">Asistente de generación</span>
+          <h2>Project Generator</h2>
+          <p>Genera proyectos <code>.cfx</code> para StrategyQuant X desde el plan de minings o desde un custom libre. Primero verifica API, rutas y templates; después genera y revisa el resultado.</p>
         </div>
-        <select id="pg-custom-presets-select">
-          <option value="">Sin presets guardados</option>
-        </select>
-        <input type="text" id="pg-custom-preset-name" placeholder="Nombre del preset">
-        <button class="export-btn pg-ghost-btn" id="pg-custom-load-preset">Cargar</button>
-        <button class="export-btn pg-ghost-btn" id="pg-custom-save-preset">Guardar preset</button>
-        <button class="export-btn pg-ghost-btn" id="pg-custom-delete-preset">Eliminar</button>
-      </div>
-      <div class="pg-custom-preset-tools">
-        <button class="export-btn pg-ghost-btn" id="pg-custom-export-presets">Exportar presets</button>
-        <button class="export-btn pg-ghost-btn" id="pg-custom-import-presets">Importar presets</button>
-        <input id="pg-custom-import-presets-file" class="visually-hidden" type="file" accept="application/json,.json">
-        <small id="pg-custom-pack-status">Los packs JSON sirven para mover presets entre instalaciones.</small>
-      </div>
-      <div class="pg-custom-import-preview" id="pg-custom-import-preview"></div>
-      <div class="pg-custom-actions">
-        <button class="export-btn" id="pg-custom-generate">Generar custom</button>
-        <small id="pg-custom-status">Crea un .cfx libre sin añadirlo a Mining Control.</small>
-      </div>
-    </div>
+        <div class="pg-hero-cards">
+          <div><span>Entrada</span><strong>Plan Mining</strong><small>Capa 1 y Capa 2 del plan activo.</small></div>
+          <div><span>Salida</span><strong>.cfx</strong><small>Custom Projects listos para SQX.</small></div>
+          <div><span>API</span><strong id="pg-api-base-inline">API local</strong><small>Backend Python en tu equipo.</small></div>
+        </div>
+      </section>
 
-    <!-- Acciones masivas -->
-    <div class="card">
-      <div class="card-header">
-        <h2>Generación masiva</h2>
-        <span class="badge info" id="pg-bulk-count">Minings del plan · Capa 1 + Capa 2</span>
-        <span style="flex:1"></span>
-        <button class="export-btn" id="pg-open-output" title="Abrir carpeta output en Explorer">Abrir output</button>
-      </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-        <button class="export-btn" id="pg-gen-all-c1" style="border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.08);font-size:13px;padding:8px 16px;">Generar TODOS · Capa 1</button>
-        <button class="export-btn" id="pg-gen-all-c2" style="border-color:var(--purple);color:var(--purple);background:rgba(168,85,247,.08);font-size:13px;padding:8px 16px;">Generar TODOS · Capa 2</button>
-        <span style="flex:1"></span>
-        <span style="font-size:12px;color:var(--text2);">Resultado en log abajo</span>
-      </div>
-    </div>
+      <ol class="pg-guide-flow" aria-label="Flujo Project Generator">
+        <li><span>1</span><strong>API local</strong><small>Comprueba que el backend responde.</small></li>
+        <li><span>2</span><strong>Configura SQX</strong><small>Rutas, templates, output y aliases.</small></li>
+        <li><span>3</span><strong>Elige generación</strong><small>Plan Mining o custom libre.</small></li>
+        <li><span>4</span><strong>Genera y revisa</strong><small>Acciones Capa 1/2, minings y output.</small></li>
+        <li><span>5</span><strong>Resultado</strong><small>Log y siguiente acción.</small></li>
+      </ol>
 
-    <!-- Tabla de minings con botones por fila -->
-    <div class="card">
-      <div class="card-header">
-        <h2>Minings del plan</h2>
-        <span class="badge info" id="pg-minings-count">— minings</span>
-      </div>
-      <div id="pg-minings-table"></div>
-    </div>
+      <section class="pg-step-panel pg-step-api">
+        <div class="views-panel-head">
+          <div>
+            <span>Paso 1</span>
+            <strong>API local</strong>
+          </div>
+          <small>Necesaria para leer config, minings, output y generar proyectos.</small>
+        </div>
+        <p class="views-step-copy">Si el backend no responde, arranca <code>START_SQX_EDGE.bat</code> y pulsa Reintentar. No se genera nada hasta que la API local esté disponible.</p>
+        <div id="pg-status-banner" class="pg-status-banner pg-status-down">
+          <div class="pg-status-icon">●</div>
+          <div class="pg-status-content">
+            <div class="pg-status-title" id="pg-status-title">Conectando…</div>
+            <div class="pg-status-desc" id="pg-status-desc">Comprobando backend local</div>
+          </div>
+          <button class="export-btn" id="pg-status-refresh">↻ Reintentar</button>
+        </div>
 
-    <!-- Output existente -->
-    <div class="card">
-      <div class="card-header">
-        <h2>📂 .cfx generados</h2>
-        <span class="badge info" id="pg-output-count">— archivos</span>
-        <span style="flex:1"></span>
-        <button class="export-btn" id="pg-output-refresh">↻ Refrescar</button>
-      </div>
-      <div id="pg-output-list"></div>
-    </div>
+        <div class="card pg-onboarding-card">
+          <div class="card-header">
+            <h2>Primer arranque</h2>
+            <span class="badge info" id="pg-onboarding-progress">0/4</span>
+          </div>
+          <div class="pg-onboarding-copy">
+            <strong id="pg-onboarding-title">Preparando flujo guiado</strong>
+            <p id="pg-onboarding-desc">Conecta la API y deja la configuración lista para generar tu primer .cfx.</p>
+          </div>
+          <div class="pg-onboarding-track"><div id="pg-onboarding-bar"></div></div>
+          <div class="pg-assistant-panel" id="pg-assistant-panel">
+            <div class="pg-assistant-now">
+              <span class="pg-assistant-label">Ahora toca</span>
+              <strong id="pg-assistant-next">Comprobar API</strong>
+              <p id="pg-assistant-hint">El asistente te dirá el siguiente paso en cuanto lea el estado local.</p>
+            </div>
+            <div class="pg-assistant-checks" id="pg-assistant-checks"></div>
+          </div>
+          <div class="pg-onboarding-steps" id="pg-onboarding-steps"></div>
+          <div class="pg-onboarding-actions">
+            <button class="export-btn" id="pg-onboarding-action">Comprobar API</button>
+            <button class="export-btn pg-ghost-btn" id="pg-onboarding-secondary">Abrir configuración</button>
+            <button class="export-btn pg-ghost-btn" id="pg-onboarding-tertiary">Guardar config</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="pg-step-panel pg-settings-card" id="pg-settings-card">
+        <div class="views-panel-head" id="pg-settings-toggle">
+          <div>
+            <span>Paso 2</span>
+            <strong>Configura SQX</strong>
+          </div>
+          <small>Paths SQX, templates Capa 1/2, output y aliases.</small>
+          <span id="pg-settings-arrow" class="collapse-arrow closed">▼</span>
+        </div>
+        <p class="views-step-copy">Esta configuración se guarda localmente. Rellena la ruta de StrategyQuant X, los templates base y la carpeta donde quieres dejar los <code>.cfx</code> generados.</p>
+        <div id="pg-settings-body" style="display:none;">
+          <div class="strat-form-grid pg-settings-grid">
+            <label class="full">SQX install path <span class="hint">(donde está StrategyQuantX.exe)</span>
+              <input type="text" id="pg-sqx-path" placeholder="Ruta de instalacion de StrategyQuantX">
+            </label>
+            <label class="full">SQX data.db <span class="hint">(opcional, para auto-detectar spreads/swaps en F2)</span>
+              <input type="text" id="pg-sqx-db" placeholder=".../user/data/data.db">
+            </label>
+            <label class="full">SQX projects dir <span class="hint">(donde quieres copiar los .cfx generados)</span>
+              <input type="text" id="pg-sqx-projects" placeholder=".../user/projects">
+            </label>
+            <label class="full">Output dir <span class="hint">(carpeta local donde se guardan los .cfx generados)</span>
+              <input type="text" id="pg-output-dir" placeholder="output">
+            </label>
+            <label>Template Capa 1 <input type="text" id="pg-tpl-c1" placeholder="templates/Capa1_Long.cfx"></label>
+            <label>Template Capa 2 <input type="text" id="pg-tpl-c2" placeholder="templates/Capa2_Base.cfx"></label>
+          </div>
+          <div class="pg-settings-actions">
+            <button class="export-btn pg-primary-soft" id="pg-settings-save">Guardar config</button>
+            <button class="export-btn" id="pg-settings-reload">↻ Recargar</button>
+            <span class="pg-action-spacer"></span>
+            <button class="export-btn pg-accent-soft" id="pg-autodetect">Auto-detectar SQX</button>
+            <button class="export-btn" id="pg-validate">Validar paths</button>
+          </div>
+          <div id="pg-settings-msg" class="pg-inline-status"></div>
+          <div id="pg-autodetect-results" class="pg-inline-results"></div>
+
+          <div class="pg-alias-panel">
+            <div class="pg-alias-head">
+              <h4>Aliases asset → instrument</h4>
+              <span>El ticker del activo en SQX puede variar por broker: USTEC, NDXm, NDX o USTEC100.</span>
+            </div>
+            <div id="pg-aliases-table" class="pg-alias-table"></div>
+            <button class="export-btn" id="pg-aliases-suggest">Auto-sugerir desde DB</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="pg-step-panel pg-step-choice">
+        <div class="views-panel-head">
+          <div>
+            <span>Paso 3</span>
+            <strong>Elige generación</strong>
+          </div>
+          <small>Plan Mining para metodología; custom libre para casos manuales.</small>
+        </div>
+        <div class="pg-choice-grid">
+          <div class="pg-choice-card">
+            <span>Plan Mining</span>
+            <strong>Generación metodológica</strong>
+            <p>Usa los minings activos de Mining Control y crea <code>.cfx</code> por fila o por capa completa. Es el camino normal cuando sigues el pipeline.</p>
+          </div>
+          <div class="pg-choice-card">
+            <span>Custom libre</span>
+            <strong>Generación manual</strong>
+            <p>Crea un <code>.cfx</code> con asset, timeframe, dirección y blocksetting propios. Útil para pruebas controladas o encargos específicos.</p>
+          </div>
+        </div>
+
+        <div class="card pg-custom-card">
+          <div class="card-header">
+            <h2>Custom libre</h2>
+            <span class="badge info">Fuera de Mining Control</span>
+          </div>
+          <p class="views-step-copy">Rellena estos campos sólo si necesitas un proyecto que no provenga del Plan Mining. Revisa asset, timeframe y dirección antes de generar.</p>
+          <div class="strat-form-grid pg-custom-grid">
+            <label>Nombre del proyecto
+              <input type="text" id="pg-custom-name" placeholder="Custom_EURUSD_H1">
+            </label>
+            <label>Asset / Simbolo
+              <input type="text" id="pg-custom-asset" placeholder="EURUSD">
+            </label>
+            <label>Timeframe
+              <input type="text" id="pg-custom-tf" placeholder="H1">
+            </label>
+            <label>Blocksetting
+              <input type="text" id="pg-custom-bs" placeholder="BS_Custom">
+            </label>
+            <label>Direccion
+              <select id="pg-custom-dir">
+                <option value="long">Long</option>
+                <option value="short">Short</option>
+                <option value="both">Long + Short</option>
+              </select>
+            </label>
+            <label>Capa
+              <select id="pg-custom-capa">
+                <option value="1">Capa 1</option>
+                <option value="2">Capa 2</option>
+              </select>
+            </label>
+            <label class="full">Template opcional
+              <input type="text" id="pg-custom-template" placeholder="Usa el template configurado para la capa si lo dejas vacio">
+            </label>
+          </div>
+          <div class="pg-custom-presets">
+            <div>
+              <strong>Presets custom</strong>
+              <small id="pg-custom-presets-count">0 guardados</small>
+            </div>
+            <select id="pg-custom-presets-select">
+              <option value="">Sin presets guardados</option>
+            </select>
+            <input type="text" id="pg-custom-preset-name" placeholder="Nombre del preset">
+            <button class="export-btn pg-ghost-btn" id="pg-custom-load-preset">Cargar</button>
+            <button class="export-btn pg-ghost-btn" id="pg-custom-save-preset">Guardar preset</button>
+            <button class="export-btn pg-ghost-btn" id="pg-custom-delete-preset">Eliminar</button>
+          </div>
+          <div class="pg-custom-preset-tools">
+            <button class="export-btn pg-ghost-btn" id="pg-custom-export-presets">Exportar presets</button>
+            <button class="export-btn pg-ghost-btn" id="pg-custom-import-presets">Importar presets</button>
+            <input id="pg-custom-import-presets-file" class="visually-hidden" type="file" accept="application/json,.json">
+            <small id="pg-custom-pack-status">Los packs JSON sirven para mover presets entre instalaciones.</small>
+          </div>
+          <div class="pg-custom-import-preview" id="pg-custom-import-preview"></div>
+          <div class="pg-custom-actions">
+            <button class="export-btn" id="pg-custom-generate">Generar custom</button>
+            <small id="pg-custom-status">Crea un .cfx libre sin añadirlo a Mining Control.</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="pg-step-panel pg-step-generate">
+        <div class="views-panel-head">
+          <div>
+            <span>Paso 4</span>
+            <strong>Genera y revisa</strong>
+          </div>
+          <small>Acciones sobre el Plan Mining y salida `.cfx`.</small>
+        </div>
+        <p class="views-step-copy">Genera Capa 1 o Capa 2 cuando el plan y los templates estén revisados. Después comprueba los minings, refresca output y abre la carpeta si necesitas inspeccionar archivos.</p>
+
+        <div class="pg-action-card">
+          <div class="card-header">
+            <h2>Generación masiva</h2>
+            <span class="badge info" id="pg-bulk-count">Minings del plan · Capa 1 + Capa 2</span>
+            <span style="flex:1"></span>
+            <button class="export-btn" id="pg-open-output" title="Abrir carpeta output en Explorer">Abrir output</button>
+          </div>
+          <div class="pg-bulk-actions">
+            <button class="export-btn pg-accent-soft" id="pg-gen-all-c1">Generar TODOS · Capa 1</button>
+            <button class="export-btn pg-purple-soft" id="pg-gen-all-c2">Generar TODOS · Capa 2</button>
+            <span class="pg-action-spacer"></span>
+            <span>Resultado en log abajo</span>
+          </div>
+        </div>
+
+        <div class="pg-action-card">
+          <div class="card-header">
+            <h2>Minings del plan</h2>
+            <span class="badge info" id="pg-minings-count">— minings</span>
+          </div>
+          <div id="pg-minings-table"></div>
+        </div>
+
+        <div class="pg-action-card">
+          <div class="card-header">
+            <h2>.cfx generados</h2>
+            <span class="badge info" id="pg-output-count">— archivos</span>
+            <span style="flex:1"></span>
+            <button class="export-btn" id="pg-output-refresh">↻ Refrescar</button>
+          </div>
+          <div id="pg-output-list"></div>
+        </div>
+      </section>
 
     <!-- ───────────── Strategy Cleaner (F5) — post-mining ───────────── -->
     <div class="card">
@@ -786,14 +845,24 @@
       </div>
     </div>
 
-    <!-- Log de operaciones -->
-    <div class="card">
-      <div class="card-header">
-        <h2>Log</h2>
-        <span style="flex:1"></span>
-        <button class="export-btn" id="pg-log-clear">Limpiar</button>
-      </div>
-      <pre class="code-block" id="pg-log" style="max-height:280px;overflow:auto;font-size:12px;">[esperando primera acción…]</pre>
+      <section class="pg-step-panel pg-step-result">
+        <div class="views-panel-head">
+          <div>
+            <span>Paso 5</span>
+            <strong>Resultado</strong>
+          </div>
+          <small>Log operativo y trazabilidad local.</small>
+        </div>
+        <p class="views-step-copy">El log muestra lo que se ha intentado, qué se ha generado y qué revisar si aparece un error. Limpia el log sólo cuando ya no necesites esa trazabilidad visual.</p>
+        <div class="pg-action-card">
+          <div class="card-header">
+            <h2>Log</h2>
+            <span style="flex:1"></span>
+            <button class="export-btn" id="pg-log-clear">Limpiar</button>
+          </div>
+          <pre class="code-block" id="pg-log" style="max-height:280px;overflow:auto;font-size:12px;">[esperando primera acción…]</pre>
+        </div>
+      </section>
     </div>
   </div>
 

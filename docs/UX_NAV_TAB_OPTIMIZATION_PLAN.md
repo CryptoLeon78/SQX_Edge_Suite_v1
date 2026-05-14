@@ -13,9 +13,9 @@ UX-NAV now runs as a sequential tab-by-tab optimization track.
 
 ## Current Active Tab
 
-`Champion vs Challenger`
+`Project Generator`
 
-Estrategias is closed as the operational repository. Champion vs Challenger is the active pass and is being optimized as the final decision board for comparing finalist strategies without changing scoring, exports or hidden internal handoff contracts.
+Champion vs Challenger is closed as the final decision board. Project Generator is the active pass and is being optimized as a guided `.cfx` generation assistant without changing backend, preset or `.cfx` contracts.
 
 ## Tab Pass Order
 
@@ -26,8 +26,8 @@ This is the working order for individual optimization. It can be adjusted only a
 3. `SQX Views` - completed as guided view assistant.
 4. `Template Maker` - completed as Capa 1 scoring and C2 generation surface.
 5. `Estrategias` - completed as operational repository.
-6. `Champion vs Challenger` - active now as final decision board.
-7. `Project Generator`
+6. `Champion vs Challenger` - completed as final decision board.
+7. `Project Generator` - active now as guided `.cfx` generation assistant.
 8. `Por Activo`
 9. `Filtros Fase 2`
 10. `Inicio`
@@ -57,6 +57,20 @@ Champion vs Challenger should answer:
 - Are the inputs valid enough to evaluate?
 - Which candidate survives Health, EGT v2, OOS and coherence filters?
 - How do I export a safe review and return to the workflow?
+
+## Project Generator Optimization Scope
+
+Goal: make Project Generator a guided `.cfx` generation assistant, not a mixed technical console.
+
+Project Generator should answer:
+
+- Is the local backend available?
+- Are SQX paths, templates, output and aliases ready?
+- Should I generate from Plan Mining or use Custom libre?
+- Which Capa 1/Capa 2 actions are safe to press now?
+- Where are the generated `.cfx` files and what did the log report?
+
+Strategy Cleaner remains available in its current position during this pass. Its final location will be reviewed in the global navigation/reflow phase.
 
 ## Workflow Optimization Scope
 

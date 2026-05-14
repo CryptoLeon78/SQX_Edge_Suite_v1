@@ -3717,6 +3717,185 @@
   .check-row input[type="checkbox"]:checked + span { color:var(--text2); text-decoration:line-through; }
 
   /* ── PROJECT GENERATOR tab ── */
+  .pg-shell { display:grid; gap:16px; }
+  .pg-hero {
+    display:flex;
+    justify-content:space-between;
+    gap:18px;
+    padding:22px;
+    border:1px solid rgba(96,165,250,.28);
+    border-radius:10px;
+    background:
+      linear-gradient(135deg, rgba(59,130,246,.13), rgba(20,184,166,.08) 46%, rgba(17,24,39,.86)),
+      var(--surface);
+  }
+  .pg-hero h2 { margin:0; font-size:28px; line-height:1.1; }
+  .pg-hero p { margin:8px 0 0; max-width:790px; color:var(--text2); font-size:13px; line-height:1.55; }
+  .pg-hero-cards {
+    display:grid;
+    grid-template-columns:repeat(3, minmax(96px, 1fr));
+    gap:8px;
+    min-width:390px;
+  }
+  .pg-hero-cards div {
+    min-height:78px;
+    padding:12px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:rgba(15,23,42,.80);
+  }
+  .pg-hero-cards span,
+  .pg-choice-card span {
+    display:block;
+    color:var(--text2);
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.35px;
+    text-transform:uppercase;
+  }
+  .pg-hero-cards strong {
+    display:block;
+    margin-top:7px;
+    color:var(--text);
+    font-size:15px;
+    line-height:1.2;
+    overflow-wrap:anywhere;
+  }
+  .pg-hero-cards small { display:block; margin-top:6px; color:var(--text2); font-size:11px; line-height:1.35; }
+  .pg-guide-flow {
+    display:grid;
+    grid-template-columns:repeat(5, minmax(0, 1fr));
+    gap:10px;
+    margin:0;
+    padding:0;
+    list-style:none;
+  }
+  .pg-guide-flow li {
+    display:grid;
+    grid-template-columns:auto minmax(0, 1fr);
+    gap:3px 9px;
+    align-items:center;
+    min-height:68px;
+    padding:12px;
+    border:1px solid rgba(148,163,184,.18);
+    border-radius:8px;
+    background:rgba(15,23,42,.72);
+  }
+  .pg-guide-flow li > span {
+    grid-row:1 / span 2;
+    display:grid;
+    place-items:center;
+    width:30px;
+    height:30px;
+    border-radius:8px;
+    color:#bfdbfe;
+    background:rgba(59,130,246,.16);
+    border:1px solid rgba(96,165,250,.28);
+    font-weight:900;
+  }
+  .pg-guide-flow strong { font-size:13px; color:#facc15; }
+  .pg-guide-flow small { color:var(--text2); font-size:11px; line-height:1.3; }
+  .pg-step-panel {
+    position:relative;
+    overflow:hidden;
+    padding:15px;
+    border:1px solid var(--border);
+    border-radius:8px;
+    background:var(--surface);
+    min-width:0;
+  }
+  .pg-step-panel::before {
+    content:'';
+    position:absolute;
+    inset:0 auto 0 0;
+    width:3px;
+    background:linear-gradient(180deg, rgba(250,204,21,.78), rgba(96,165,250,.24));
+  }
+  .pg-step-panel > * { position:relative; }
+  .pg-step-panel .views-panel-head strong { color:#facc15; }
+  .pg-step-panel .views-panel-head { margin-bottom:12px; }
+  .pg-step-api .pg-status-banner { margin-bottom:14px; }
+  .pg-settings-card .views-panel-head { cursor:pointer; user-select:none; }
+  .pg-settings-grid { margin-top:10px; }
+  .pg-settings-actions,
+  .pg-bulk-actions,
+  .pg-delivery-actions {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+  .pg-action-spacer { flex:1; }
+  .pg-inline-status,
+  .pg-inline-results {
+    margin-top:10px;
+    font-size:12px;
+    color:var(--text2);
+  }
+  .pg-alias-panel {
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px solid var(--border);
+  }
+  .pg-alias-head {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:10px;
+  }
+  .pg-alias-head h4 {
+    margin:0;
+    font-size:13px;
+    color:var(--accent);
+    text-transform:uppercase;
+    letter-spacing:.4px;
+  }
+  .pg-alias-head span { font-size:11px; color:var(--text2); line-height:1.35; }
+  .pg-alias-table { margin-bottom:10px; }
+  .pg-choice-grid {
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .pg-choice-card {
+    min-height:110px;
+    padding:13px;
+    border:1px solid rgba(148,163,184,.18);
+    border-radius:8px;
+    background:#101827;
+  }
+  .pg-choice-card strong {
+    display:block;
+    margin-top:7px;
+    color:var(--text);
+    font-size:14px;
+  }
+  .pg-choice-card p {
+    margin:7px 0 0;
+    color:var(--text2);
+    font-size:12px;
+    line-height:1.45;
+  }
+  .pg-action-card {
+    padding:14px;
+    border:1px solid rgba(148,163,184,.18);
+    border-radius:8px;
+    background:rgba(15,23,42,.72);
+  }
+  .pg-action-card + .pg-action-card { margin-top:12px; }
+  .pg-action-card .card-header {
+    margin:0 0 12px;
+    padding:0 0 10px;
+  }
+  .pg-bulk-actions span:not(.pg-action-spacer) {
+    color:var(--text2);
+    font-size:12px;
+  }
+  .pg-primary-soft { border-color:rgba(34,197,94,.42); color:var(--green); background:rgba(34,197,94,.08); }
+  .pg-accent-soft { border-color:rgba(59,130,246,.42); color:var(--accent2); background:rgba(59,130,246,.08); }
+  .pg-purple-soft { border-color:rgba(168,85,247,.42); color:var(--purple); background:rgba(168,85,247,.08); }
   .pg-status-banner { display:flex; align-items:center; gap:14px; padding:14px 18px; border-radius:12px; margin-bottom:18px; border:1px solid var(--border); }
   .pg-status-banner.pg-status-up { background:linear-gradient(135deg, rgba(34,197,94,.10), rgba(34,197,94,.04)); border-color:rgba(34,197,94,.4); }
   .pg-status-banner.pg-status-down { background:linear-gradient(135deg, rgba(239,68,68,.10), rgba(239,68,68,.04)); border-color:rgba(239,68,68,.4); }
@@ -4684,6 +4863,24 @@
       padding:18px 14px 28px;
     }
 
+    .pg-hero {
+      align-items:flex-start;
+      flex-direction:column;
+    }
+
+    .pg-hero-cards {
+      width:100%;
+      min-width:0;
+    }
+
+    .pg-guide-flow {
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
+
+    .pg-choice-grid {
+      grid-template-columns:1fr;
+    }
+
     .pg-onboarding-steps {
       grid-template-columns:repeat(2, minmax(0, 1fr));
     }
@@ -4711,6 +4908,55 @@
     }
   }
   @media (max-width: 640px) {
+    .pg-hero-cards,
+    .pg-guide-flow {
+      grid-template-columns:1fr;
+    }
+    #tab-projectgen .card-header {
+      align-items:flex-start;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+    #tab-projectgen .card-header h2 {
+      flex:1 1 100%;
+      font-size:18px;
+    }
+    #tab-projectgen .card-header .badge {
+      max-width:100%;
+      white-space:normal;
+      line-height:1.25;
+    }
+    #tab-projectgen .card-header > span[style*="flex:1"] {
+      display:none;
+    }
+    #tab-projectgen .card-header .export-btn {
+      width:100%;
+      justify-content:center;
+    }
+    #tab-projectgen #cln-dir {
+      min-width:0 !important;
+      flex:1 1 100% !important;
+    }
+    #tab-projectgen #cln-scan {
+      width:100%;
+      justify-content:center;
+    }
+    .pg-settings-actions,
+    .pg-bulk-actions {
+      align-items:stretch;
+      flex-direction:column;
+    }
+    .pg-action-spacer { display:none; }
+    .pg-settings-actions .export-btn,
+    .pg-bulk-actions .export-btn,
+    .pg-action-card .export-btn {
+      width:100%;
+      justify-content:center;
+    }
+    .pg-alias-head {
+      align-items:flex-start;
+      flex-direction:column;
+    }
     .pg-onboarding-steps { grid-template-columns:1fr; }
     .pg-assistant-checks { grid-template-columns:1fr; }
     .pg-custom-grid { grid-template-columns:1fr; }
@@ -4901,6 +5147,10 @@
   .strat-summary-card,
   .strat-card,
   .ps-kpi,
+  .pg-hero,
+  .pg-step-panel,
+  .pg-action-card,
+  .pg-choice-card,
   .config-box,
   .cheat-box,
   .history-section,
@@ -5791,6 +6041,10 @@
   }
 
   .pg-status-banner,
+  .pg-hero,
+  .pg-step-panel,
+  .pg-action-card,
+  .pg-choice-card,
   .pg-onboarding-card,
   .pg-assistant-panel,
   .pg-step {
@@ -5901,6 +6155,7 @@
     }
 
     .views-hero,
+    .pg-hero,
     .cvc-hero,
     .sb-hero {
       align-items:flex-start;
@@ -5908,6 +6163,7 @@
     }
 
     .views-hero-stats,
+    .pg-hero-cards,
     .cvc-hero-stats,
     .sb-hero-stats {
       width:100%;
@@ -6005,6 +6261,9 @@
     .views-config-summary,
     .views-hero-stats,
     .views-guide-flow,
+    .pg-guide-flow,
+    .pg-hero-cards,
+    .pg-choice-grid,
     .cvc-guide-flow,
     .cvc-hero-stats,
     .sb-hero-stats,

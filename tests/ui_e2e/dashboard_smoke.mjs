@@ -316,6 +316,14 @@ async function run() {
     await desktop.locator('.tab[data-tab="projectgen"]').click();
     await desktop.waitForSelector('.tab[data-tab="projectgen"].active');
     await desktop.waitForSelector('#pg-onboarding-title');
+    const pgGuidedText = await desktop.locator('#tab-projectgen').innerText();
+    const pgGuidedTextLower = pgGuidedText.toLowerCase();
+    ['api local', 'configura sqx', 'elige generación', 'genera y revisa', 'resultado'].forEach(expected => {
+      if (!pgGuidedTextLower.includes(expected)) throw new Error(`Project Generator should expose guided section: ${expected}`);
+    });
+    const pgGuideSteps = await desktop.locator('#tab-projectgen .pg-guide-flow li').count();
+    if (pgGuideSteps !== 5) throw new Error(`Project Generator should render 5 guided steps, got ${pgGuideSteps}`);
+    if (!pgGuidedText.includes('Plan Mining') || !pgGuidedText.includes('Custom libre')) throw new Error('Project Generator should clarify Plan Mining and Custom libre paths');
     await desktop.waitForFunction(() => document.getElementById('pg-onboarding-steps')?.querySelectorAll('.pg-step').length === 4);
     await desktop.waitForFunction(() => {
       const progress = document.getElementById('pg-onboarding-progress')?.textContent.trim() || '';
@@ -325,6 +333,8 @@ async function run() {
     await desktop.waitForSelector('#pg-custom-generate');
     const removedProjectGeneratorPanels = await desktop.locator('#pg-custom-starter-list, #pg-custom-family-list, #pg-buyer-handoff-card').count();
     if (removedProjectGeneratorPanels !== 0) throw new Error('Project Generator removed panels should not be visible in UX-NAV2');
+    const cleanerStillVisible = await desktop.locator('#cln-scan').count();
+    if (cleanerStillVisible !== 1) throw new Error('Strategy Cleaner should remain available during Project Generator pass');
     await desktop.locator('#pg-custom-asset').fill('EURUSD');
     await desktop.locator('#pg-custom-tf').fill('H1');
     await desktop.locator('#pg-custom-name').fill('Custom_EURUSD_H1');
@@ -672,6 +682,13 @@ async function run() {
     await mobile.goto(dashboardUrl, { waitUntil: 'load' });
     await mobile.waitForSelector('.tab[data-tab="workflow"].active');
     await mobile.waitForSelector('#workflow-command-center');
+    await mobile.locator('.tab[data-tab="projectgen"]').click();
+    await mobile.waitForSelector('.tab[data-tab="projectgen"].active');
+    await mobile.waitForSelector('#pg-custom-generate');
+    const mobilePgGuideSteps = await mobile.locator('#tab-projectgen .pg-guide-flow li').count();
+    if (mobilePgGuideSteps !== 5) throw new Error('Mobile Project Generator guided flow should render 5 steps');
+    await assertNoMobileOverflow(mobile);
+    await saveShot(mobile, 'e2e-projectgen-mobile.png');
     await mobile.locator('.tab[data-tab="views"]').click();
     await mobile.waitForSelector('#vc-preview');
     await assertNoMobileOverflow(mobile);
