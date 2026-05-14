@@ -180,9 +180,6 @@ function pgRenderMiningsList(infos) {
       pgUpdateSelectedMiningCount();
     });
   });
-  document.querySelectorAll('button[data-pg-gen]').forEach(btn => {
-    btn.addEventListener('click', () => pgGenerateOne(parseInt(btn.dataset.pgGen,10), parseInt(btn.dataset.pgCapa,10)));
-  });
   pgUpdateSelectedMiningCount();
 }
 

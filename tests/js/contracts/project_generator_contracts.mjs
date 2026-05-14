@@ -3,6 +3,7 @@ import path from 'node:path';
 import { assert, Element, createLoadedSandbox, repoRoot } from './harness.mjs';
 
 const html = fs.readFileSync(path.join(repoRoot, 'app/SQX_Dashboard_v6.html'), 'utf8');
+const dashboardCss = fs.readFileSync(path.join(repoRoot, 'app/css/dashboard.css'), 'utf8');
 
 assert.ok(html.includes('id="tab-projectgen"'), 'Project Generator tab panel should render');
 assert.ok(html.includes('pg-guide-flow'), 'Project Generator should expose guided step flow');
@@ -26,6 +27,8 @@ assert.ok(html.includes('id="cln-scan"'), 'Strategy Cleaner should remain availa
 assert.ok(!html.includes('id="pg-custom-starter-list"'), 'retired starter profile list must not return');
 assert.ok(!html.includes('id="pg-custom-family-list"'), 'retired objective family list must not return');
 assert.ok(!html.includes('id="pg-buyer-handoff-card"'), 'retired buyer handoff card must not return');
+assert.ok(!dashboardCss.includes('export-btn::before'), 'Export buttons must not render decorative pseudo-symbols');
+assert.doesNotMatch(html, /↻|📂|📦/, 'Project Generator controls should avoid decorative symbols in button text');
 
 const { SQX, document, sandbox } = createLoadedSandbox();
 const PG = SQX.projectGenerator;
@@ -248,7 +251,8 @@ const miningHtml = PG.miningRowsHtml([{
   dir: 'long',
   _info: { source: 'db', instrument: 'EURUSD_M1', spread: 1.2, swap_long: -1, swap_short: 0.5 },
 }]);
-assert.match(miningHtml, /data-pg-gen="7"/);
+assert.doesNotMatch(miningHtml, /data-pg-gen=/);
+assert.doesNotMatch(miningHtml, /&#128202;|&#128203;|📦/);
 assert.match(miningHtml, /pgm-dir long/);
 assert.match(miningHtml, /EURUSD_M1/);
 const outputHtml = PG.outputListHtml([{ name: 'M07.cfx', size_kb: 12, mtime: 1770000000 }]);

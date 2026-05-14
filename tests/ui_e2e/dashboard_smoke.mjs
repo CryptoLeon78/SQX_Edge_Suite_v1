@@ -342,8 +342,8 @@ async function run() {
     await desktop.waitForFunction(() => document.getElementById('pg-selected-count')?.textContent.includes('1 seleccionado'));
     await desktop.locator('#pg-clear-selected-minings').click();
     await desktop.waitForFunction(() => document.getElementById('pg-selected-count')?.textContent.includes('0 seleccionados'));
-    if (await desktop.locator('#pg-generate-selected-c1').count() !== 1 || await desktop.locator('#pg-minings-table button[data-pg-gen="1"][data-pg-capa="1"]').count() !== 1) {
-      throw new Error('Project Generator should expose selected and per-mining generation actions');
+    if (await desktop.locator('#pg-generate-selected-c1').count() !== 1 || await desktop.locator('#pg-minings-table button[data-pg-gen]').count() !== 0) {
+      throw new Error('Project Generator should expose selected generation and remove per-row generation buttons');
     }
     await desktop.waitForFunction(() => document.getElementById('pg-onboarding-steps')?.querySelectorAll('.pg-step').length === 4);
     await desktop.waitForFunction(() => {

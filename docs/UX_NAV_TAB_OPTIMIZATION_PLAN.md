@@ -19,6 +19,8 @@ Champion vs Challenger is closed as the final decision board. Project Generator 
 
 Active correction: Project Generator Step 4 must read the live `Plan Mining` from Mining Control (`getPlanMinings()`), including manual/user minings and reset-hidden base minings. Bulk generation and selected generation must respect that live plan instead of falling back to the backend static `/api/minings` list.
 
+Visual correction: global `export-btn` pseudo-symbols are retired across the dashboard. Project Generator uses selected-row generation as the main workflow, so per-row Capa 1/Capa 2 buttons stay removed.
+
 ## Tab Pass Order
 
 This is the working order for individual optimization. It can be adjusted only after the active tab is completed or if the operator explicitly changes priority.

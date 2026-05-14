@@ -26,9 +26,9 @@ function symbolSourceBadge(info) {
       return '<span class="pgm-src pgm-src-db" title="Costos leidos de data.db: '
         + escapeHtml(info.instrument) + ' spread=' + escapeHtml(info.spread)
         + ' swap=' + escapeHtml(info.swap_long) + '/' + escapeHtml(info.swap_short)
-        + '">&#128202; DB</span>';
+        + '">DB</span>';
     }
-    return '<span class="pgm-src pgm-src-fallback" title="Costos por defecto (data.db no disponible o asset no encontrado)">&#128203; Default</span>';
+    return '<span class="pgm-src pgm-src-fallback" title="Costos por defecto (data.db no disponible o asset no encontrado)">Default</span>';
   }
 
 function miningSourceBadge(mining) {
@@ -64,17 +64,13 @@ function miningRowsHtml(minings, selectedMap) {
         +   '<div class="pgm-dir ' + directionClass(mining.dir) + '">' + directionLabel(mining.dir) + '</div>'
         +   miningSourceBadge(mining)
         +   symbolSourceBadge(info)
-        +   '<div class="pgm-actions">'
-        +     '<button class="pgm-btn c1" data-pg-gen="' + mining.num + '" data-pg-capa="1">&#128230; Capa 1</button>'
-        +     '<button class="pgm-btn c2" data-pg-gen="' + mining.num + '" data-pg-capa="2">&#128230; Capa 2</button>'
-        +   '</div>'
         + '</div>';
     }).join('');
   }
 
 function outputListHtml(files) {
     if (!files || !files.length) {
-      return '<div class="pg-output-empty">No hay .cfx generados todav&iacute;a. Pulsa un bot&oacute;n "&#128230; Capa 1/2" arriba.</div>';
+      return '<div class="pg-output-empty">No hay .cfx generados todav&iacute;a. Selecciona minings y usa los botones superiores de Capa 1 o Capa 2.</div>';
     }
     return files.map(function(file) {
       return ''
