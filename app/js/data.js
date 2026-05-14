@@ -14,6 +14,7 @@ var SQX_STRATEGY_MANIFEST = SQX_MANIFEST.strategies || {};
 var CAT_META = SQX_UI.categories || {};
 var ASSETS = SQX_ASSET_MANIFEST.assets || [];
 var FILTROS = SQX_UI.filtros || [];
+var BLOCK_SETTINGS_INFO = SQX_UI.blockSettingsInfo || {};
 var RATING_ORDER = SQX_UI.ratingOrder || {};
 var CAT_KEYS = Object.keys(CAT_META);
 var SQX_CONFIG_DESC = SQX_UI.sqxConfigDesc || {};
@@ -32,6 +33,7 @@ Object.assign(SQX_GLOBAL, {
   CAT_META,
   ASSETS,
   FILTROS,
+  BLOCK_SETTINGS_INFO,
   RATING_ORDER,
   CAT_KEYS,
   SQX_CONFIG_DESC,

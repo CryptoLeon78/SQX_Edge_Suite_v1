@@ -50,8 +50,8 @@ window.SQX_MANIFEST = {
       },
       {
         "id": "filtros",
-        "label": "Help",
-        "icon": "H"
+        "label": "BlockSettings Info",
+        "icon": "B"
       },
       {
         "id": "inicio",
@@ -434,6 +434,196 @@ window.SQX_MANIFEST = {
         "short": "> 1.2x media en indices (volumen alto confirma sell-off real)"
       }
     ],
+    "blockSettingsInfo": {
+      "title": "BlockSettings Info",
+      "subtitle": "Escaparate metodologico de los BlockSettings usados para buscar Edge y despues endurecerlo con filtros operativos.",
+      "mode": "hibrido",
+      "capa1Title": "Capa 1 · Buscar Edge",
+      "capa1Intro": "Cada tarjeta de Activos propone una hipotesis de edge por familia de mercado. En Capa 1 se usa el BlockSetting de esa familia para descubrir plantillas sin contaminar todavia con SL/TP/Trailing.",
+      "capa2Title": "Capa 2 · Filtros operativos",
+      "capa2Intro": "Capa 2 conserva el edge ganador de Capa 1 y anade filtros random controlados, SL, TP y Trailing basados en ATR para convertirlo en una estrategia operable.",
+      "capa1": [
+        {
+          "category": "tendencia",
+          "blockSetting": "BS_Tendencia_v4",
+          "displayBlockSetting": "BS_Tendencia",
+          "objective": "Detectar persistencia direccional limpia.",
+          "marketLogic": "Busca mercados con continuidad, pendiente y ruptura ordenada. Encaja con EMA, MACD, Ichimoku y SuperTrend.",
+          "whenToUse": "Activos con sesgo tendencial, rupturas con seguimiento y ratings altos en tarjetas de Tendencia.",
+          "capaUse": "Capa 1: edge direccional base sin gestion operativa avanzada.",
+          "assetCardLink": "Tarjetas de Activos etiquetadas como Tendencia.",
+          "tags": [
+            "Trend follow",
+            "EMA",
+            "MACD",
+            "Ichimoku",
+            "SuperTrend"
+          ],
+          "parameterStatus": "Parametros internos calibrados en SQX; detalle exacto pendiente de fuente .sqb."
+        },
+        {
+          "category": "momentum",
+          "blockSetting": "BS_Momentum_v4",
+          "displayBlockSetting": "BS_Momentum",
+          "objective": "Capturar impulso, agotamiento y reversion de corto plazo.",
+          "marketLogic": "Normaliza osciladores para detectar aceleracion, sobrecompra/sobreventa y cambios de ritmo.",
+          "whenToUse": "Activos donde la tarjeta muestra momentum recurrente o rebotes estadisticos con volumen suficiente.",
+          "capaUse": "Capa 1: edge de impulso/reversion antes de optimizar salidas.",
+          "assetCardLink": "Tarjetas de Activos etiquetadas como Momentum.",
+          "tags": [
+            "RSI",
+            "Stochastic",
+            "CCI",
+            "ROC",
+            "Reversal"
+          ],
+          "parameterStatus": "Parametros internos calibrados en SQX; detalle exacto pendiente de fuente .sqb."
+        },
+        {
+          "category": "volatilidad",
+          "blockSetting": "BS_Volatilidad_v4",
+          "displayBlockSetting": "BS_Volatilidad",
+          "objective": "Explotar expansion, contraccion y ruptura de rango.",
+          "marketLogic": "Trabaja con bandas/canales para diferenciar ruptura aprovechable de ruido lateral.",
+          "whenToUse": "Activos con comportamiento de breakout, compresion previa o expansion volatil identificada en tarjetas.",
+          "capaUse": "Capa 1: edge de volatilidad sin filtros operativos extra.",
+          "assetCardLink": "Tarjetas de Activos etiquetadas como Volatilidad.",
+          "tags": [
+            "Bollinger",
+            "Keltner",
+            "Donchian",
+            "StdDev",
+            "Breakout"
+          ],
+          "parameterStatus": "Parametros internos calibrados en SQX; detalle exacto pendiente de fuente .sqb."
+        },
+        {
+          "category": "regimen",
+          "blockSetting": "BS_Regimen_v4",
+          "displayBlockSetting": "BS_Regimen",
+          "objective": "Separar contextos de tendencia, rango y ruido.",
+          "marketLogic": "Usa indicadores de regimen para evitar mezclar edges que solo funcionan bajo una estructura concreta.",
+          "whenToUse": "Activos donde el problema principal es elegir contexto de mercado antes de disparar entradas.",
+          "capaUse": "Capa 1: edge condicionado por regimen sin sobrecargar la salida.",
+          "assetCardLink": "Tarjetas de Activos etiquetadas como Regimen.",
+          "tags": [
+            "ADX",
+            "Hurst",
+            "Entropy",
+            "Hilbert",
+            "SMA200"
+          ],
+          "parameterStatus": "Parametros internos calibrados en SQX; detalle exacto pendiente de fuente .sqb."
+        },
+        {
+          "category": "volumen",
+          "blockSetting": "BS_Volumen_v4",
+          "displayBlockSetting": "BS_Volumen",
+          "objective": "Confirmar participacion, liquidez y zonas con rechazo real.",
+          "marketLogic": "Filtra senales que necesitan volumen relativo o precio respecto a VWAP para no operar movimientos debiles.",
+          "whenToUse": "Activos con patrones de liquidez, rechazo a VWAP o necesidad de confirmar participacion.",
+          "capaUse": "Capa 1: edge apoyado en contexto de volumen.",
+          "assetCardLink": "Tarjetas de Activos etiquetadas como Volumen.",
+          "tags": [
+            "VWAP",
+            "AvgVolume",
+            "Liquidity",
+            "Rejection"
+          ],
+          "parameterStatus": "Parametros internos calibrados en SQX; detalle exacto pendiente de fuente .sqb."
+        },
+        {
+          "category": "sr",
+          "blockSetting": "BS_SoporteResistencia_v4",
+          "displayBlockSetting": "BS_SoporteResistencia",
+          "objective": "Buscar respuesta del precio en zonas tecnicas repetibles.",
+          "marketLogic": "Estructura entradas alrededor de pivots, fractales, fibonacci y extremos de rango.",
+          "whenToUse": "Activos que respetan niveles, rechazos o zonas de soporte/resistencia con suficiente recurrencia.",
+          "capaUse": "Capa 1: edge de nivel tecnico antes de gestion operativa.",
+          "assetCardLink": "Tarjetas de Activos etiquetadas como Soporte/Resistencia.",
+          "tags": [
+            "Pivots",
+            "Fibo",
+            "Fractals",
+            "H/L",
+            "Bounce"
+          ],
+          "parameterStatus": "Parametros internos calibrados en SQX; detalle exacto pendiente de fuente .sqb."
+        },
+        {
+          "category": "estadistico",
+          "blockSetting": "BS_Estadistico_v4",
+          "displayBlockSetting": "BS_Estadistico",
+          "objective": "Detectar desviaciones estadisticas con probabilidad de normalizacion.",
+          "marketLogic": "Agrupa senales de distancia, percentiles y mean reversion para edges no puramente tendenciales.",
+          "whenToUse": "Activos con ratings estadisticos altos, desviaciones repetibles y comportamiento de retorno a media.",
+          "capaUse": "Capa 1: edge estadistico base con control posterior en Capa 2.",
+          "assetCardLink": "Tarjetas de Activos etiquetadas como Estadistico.",
+          "tags": [
+            "ZScore",
+            "PercentRank",
+            "OU",
+            "Mean reversion"
+          ],
+          "parameterStatus": "Parametros internos calibrados en SQX; detalle exacto pendiente de fuente .sqb."
+        }
+      ],
+      "capa2": {
+        "blockSetting": "BS_Filtros_v5.sqb",
+        "objective": "Endurecer una plantilla ganadora con filtros operativos sin cambiar el edge base.",
+        "marketLogic": "Los filtros se anaden como condiciones random controladas y se combinan con salidas ATR-based para mejorar operabilidad.",
+        "capaUse": "Capa 2: TEMPLATE ganador fijo, 1-2 filtros adicionales, SL/TP/Trailing y retests completos.",
+        "parameterStatus": "Umbrales visibles normalizados; parametros internos exactos quedan preparados para completarse con fuente .sqb.",
+        "filterIds": [
+          "ADX",
+          "ATR",
+          "Choppiness",
+          "Hurst",
+          "KER",
+          "AvgVolume"
+        ]
+      },
+      "principles": [
+        {
+          "title": "Familias de comportamiento",
+          "text": "El BlockSetting se elige por comportamiento de mercado, no por capricho ni por nombre del activo."
+        },
+        {
+          "title": "Capa 1 no contamina salidas",
+          "text": "Primero se busca edge estructural; la gestion operativa se deja para Capa 2."
+        },
+        {
+          "title": "Capa 2 conserva el template",
+          "text": "El edge ganador queda fijo y solo se anaden filtros/SL/TP/Trailing para hacerlo operable."
+        },
+        {
+          "title": "No relajar sin diagnostico",
+          "text": "Si no aparecen candidatos, revisa activo, categoria o timeframe antes de romper la calibracion."
+        }
+      ],
+      "flow": [
+        {
+          "step": "Activos",
+          "text": "La tarjeta marca la hipotesis: activo, categoria, direccion y timeframe."
+        },
+        {
+          "step": "Plan Mining",
+          "text": "El mining conserva el origen y el BlockSetting metodologico que toca usar."
+        },
+        {
+          "step": "Project Generator",
+          "text": "Genera el .cfx con el BlockSetting correcto para Capa 1 o Capa 2."
+        },
+        {
+          "step": "SQX",
+          "text": "Se ejecuta el mining/retest con la configuracion calibrada."
+        },
+        {
+          "step": "Template Maker / CVC",
+          "text": "Se certifican metricas, C2 y decision final sin perder trazabilidad."
+        }
+      ]
+    },
     "ratingOrder": {
       "++": 3,
       "+": 2,

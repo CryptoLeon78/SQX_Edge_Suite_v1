@@ -299,6 +299,7 @@ M46 is accepted when these criteria are true:
 - Frontend load order: `docs/ARCHITECTURE.md` and `backend/sqx-edge-tool/test_dashboard_static.py`.
 - Dashboard quick actions: `app/js/dashboard.js`, `app/css/dashboard.css`, `app/SQX_Dashboard_v6.html` and `backend/sqx-edge-tool/test_dashboard_static.py`.
 - Manifest mirror: `backend/sqx-edge-tool/tools/build_frontend_manifest.py` and `app/js/manifest-data.js`.
+- BlockSettings Info contract: `backend/sqx-edge-tool/config/ui_manifest.json` field `blockSettingsInfo`, mirrored into `app/js/manifest-data.js`, rendered by `app/js/dashboard.js` inside tab id `filtros`.
 - Product/commercial state: `backend/sqx-edge-tool/config/product_manifest.json`.
 - Portable distribution: `package_portable.ps1`, `audit_distribution.ps1`, `release_checklist.ps1`.
 - Commercial gates: `backend/sqx-edge-tool/tools/*` and `docs/sales/*`.

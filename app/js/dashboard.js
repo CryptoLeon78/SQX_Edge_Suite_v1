@@ -101,6 +101,15 @@ function hmCls(r) {
 function dirCls(d) {
   return SQX_FORMATTERS.assetDirectionClass ? SQX_FORMATTERS.assetDirectionClass(d) : d==='L' ? 'dir-long' : d==='S' ? 'dir-short' : 'dir-both';
 }
+function dashboardEsc(value) {
+  if (SQX_FORMATTERS.escapeHtml) return SQX_FORMATTERS.escapeHtml(value);
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 
 // SQX Config: A = Both + Entry Symmetry, B = Both sin symmetry, C = Only Long, D = Only Short
 function getSqxConfig(asset) {
@@ -376,14 +385,161 @@ window.toggleCat = function toggleCat(key) {
 // ============================================================
 // RENDER: FILTROS
 // ============================================================
-function renderFiltros() {
-  document.getElementById('filtros-view').innerHTML=FILTROS.map(f=>`<div class="filtro-card">
-    <h3>${f.name}</h3><div class="filtro-desc">${f.desc}</div>
-    <div class="thresholds">
-      <div class="threshold threshold-long"><div class="th-label">Long</div>${f.long}</div>
-      <div class="threshold threshold-short"><div class="th-label">Short</div>${f.short}</div>
+function renderBlockSettingTags(tags) {
+  const list = Array.isArray(tags) ? tags : [];
+  return list.map(tag => `<span class="bs-chip">${dashboardEsc(tag)}</span>`).join('');
+}
+
+function renderBlockSettingCapa1Card(item) {
+  const meta = CAT_META[item.category] || {};
+  const color = meta.color || '#3b82f6';
+  const icon = meta.icon || 'B';
+  const name = meta.name || item.category || 'BlockSetting';
+  return `<article class="bs-card" style="--bs-accent:${dashboardEsc(color)}">
+    <div class="bs-card-top">
+      <span class="bs-icon">${dashboardEsc(icon)}</span>
+      <div>
+        <span class="bs-layer">Capa 1 · Buscar Edge</span>
+        <h3>${dashboardEsc(name)}</h3>
+      </div>
     </div>
-  </div>`).join('');
+    <div class="bs-file">${dashboardEsc(item.displayBlockSetting || item.blockSetting)}</div>
+    <p class="bs-objective">${dashboardEsc(item.objective)}</p>
+    <dl class="bs-facts">
+      <div><dt>Lógica</dt><dd>${dashboardEsc(item.marketLogic)}</dd></div>
+      <div><dt>Cuándo usarlo</dt><dd>${dashboardEsc(item.whenToUse)}</dd></div>
+      <div><dt>Conecta con</dt><dd>${dashboardEsc(item.assetCardLink)}</dd></div>
+    </dl>
+    <div class="bs-chip-row">${renderBlockSettingTags(item.tags)}</div>
+    <div class="bs-param-slot">
+      <strong>Detalle híbrido</strong>
+      <span>${dashboardEsc(item.parameterStatus || 'Preparado para completar parametros exactos cuando exista fuente .sqb fiable.')}</span>
+    </div>
+  </article>`;
+}
+
+function renderBlockSettingFilterCard(filter) {
+  return `<article class="bs-filter-card">
+    <div class="bs-filter-head">
+      <span>${dashboardEsc(filter.id || filter.name)}</span>
+      <strong>${dashboardEsc(filter.name)}</strong>
+    </div>
+    <p>${dashboardEsc(filter.desc)}</p>
+    <div class="bs-threshold-grid">
+      <div class="bs-threshold is-long"><small>Long</small><span>${dashboardEsc(filter.long)}</span></div>
+      <div class="bs-threshold is-short"><small>Short</small><span>${dashboardEsc(filter.short)}</span></div>
+    </div>
+  </article>`;
+}
+
+function renderFiltros() {
+  const target = document.getElementById('filtros-view');
+  if (!target) return;
+  const info = BLOCK_SETTINGS_INFO || {};
+  const capa1 = Array.isArray(info.capa1) && info.capa1.length ? info.capa1 : CAT_KEYS.map(key => ({
+    category: key,
+    blockSetting: CAT_TO_BS[key] || key,
+    displayBlockSetting: PRIORITY_CAT_TO_BS[key] || CAT_TO_BS[key] || key,
+    objective: (CAT_META[key] && CAT_META[key].desc) || key,
+    marketLogic: APPROACH_HINTS[key] || '',
+    whenToUse: 'Cuando la tarjeta de Activos prioriza esta familia.',
+    assetCardLink: 'Tarjetas de Activos',
+    tags: ((CAT_META[key] && CAT_META[key].desc) || '').split(',').map(t => t.trim()).filter(Boolean),
+  }));
+  const filterById = {};
+  FILTROS.forEach(filter => { filterById[filter.id] = filter; });
+  const capa2 = info.capa2 || {};
+  const capa2Filters = Array.isArray(capa2.filterIds) && capa2.filterIds.length
+    ? capa2.filterIds.map(id => filterById[id]).filter(Boolean)
+    : FILTROS;
+  const principles = Array.isArray(info.principles) ? info.principles : [];
+  const flow = Array.isArray(info.flow) ? info.flow : [];
+
+  target.innerHTML = `
+    <section class="bs-hero">
+      <div>
+        <span class="bs-kicker">${dashboardEsc(info.title || 'BlockSettings Info')}</span>
+        <h2>Biblioteca metodológica de BlockSettings SQX</h2>
+        <p>${dashboardEsc(info.subtitle || 'Consulta que bloque usar en cada capa y como encaja en la metodologia.')}</p>
+        <div class="bs-hero-actions">
+          <button class="filter-btn" type="button" data-home-tab="activos">Abrir Activos</button>
+          <button class="filter-btn" type="button" data-home-tab="pipeline">Abrir Plan Mining</button>
+          <button class="filter-btn" type="button" data-home-tab="projectgen">Abrir Project Generator</button>
+        </div>
+      </div>
+      <aside class="bs-hero-panel">
+        <span>Modo de detalle</span>
+        <strong>${dashboardEsc((info.mode || 'hibrido').toUpperCase())}</strong>
+        <p>Metodología visible ahora; parámetros internos exactos preparados para completarse sólo con fuente .sqb fiable.</p>
+      </aside>
+    </section>
+
+    <section class="bs-section">
+      <div class="bs-section-head">
+        <span>PASO 1</span>
+        <h3>${dashboardEsc(info.capa1Title || 'Capa 1 · Buscar Edge')}</h3>
+        <p>${dashboardEsc(info.capa1Intro || '')}</p>
+      </div>
+      <div class="bs-capa1-grid">${capa1.map(renderBlockSettingCapa1Card).join('')}</div>
+    </section>
+
+    <section class="bs-section bs-capa2-section">
+      <div class="bs-section-head">
+        <span>PASO 2</span>
+        <h3>${dashboardEsc(info.capa2Title || 'Capa 2 · Filtros operativos')}</h3>
+        <p>${dashboardEsc(info.capa2Intro || '')}</p>
+      </div>
+      <div class="bs-capa2-card">
+        <div class="bs-capa2-main">
+          <span class="bs-layer">Capa 2 · Filtros + gestión</span>
+          <h3>${dashboardEsc(capa2.blockSetting || 'BS_Filtros_v5.sqb')}</h3>
+          <p>${dashboardEsc(capa2.objective || '')}</p>
+          <div class="bs-param-slot">
+            <strong>Uso metodológico</strong>
+            <span>${dashboardEsc(capa2.capaUse || '')}</span>
+          </div>
+          <div class="bs-param-slot">
+            <strong>Detalle híbrido</strong>
+            <span>${dashboardEsc(capa2.parameterStatus || '')}</span>
+          </div>
+        </div>
+        <div class="bs-filter-grid">${capa2Filters.map(renderBlockSettingFilterCard).join('')}</div>
+      </div>
+    </section>
+
+    <section class="bs-section bs-principles-section">
+      <div class="bs-section-head">
+        <span>PASO 3</span>
+        <h3>Calibración normalizada</h3>
+        <p>Los BlockSettings están calibrados por lógica de mercado para que el usuario no empiece rompiendo la metodología desde el primer run.</p>
+      </div>
+      <div class="bs-principles">${principles.map(item => `
+        <article>
+          <strong>${dashboardEsc(item.title)}</strong>
+          <p>${dashboardEsc(item.text)}</p>
+        </article>`).join('')}</div>
+    </section>
+
+    <section class="bs-section">
+      <div class="bs-section-head">
+        <span>PASO 4</span>
+        <h3>Cómo se conecta con el flujo</h3>
+        <p>Este tab no genera archivos: explica que bloque toca usar y mantiene trazabilidad entre metodología y herramientas.</p>
+      </div>
+      <div class="bs-flow">${flow.map((item, idx) => `
+        <article>
+          <span>${idx + 1}</span>
+          <strong>${dashboardEsc(item.step)}</strong>
+          <p>${dashboardEsc(item.text)}</p>
+        </article>`).join('')}</div>
+    </section>`;
+  if (SQX_UI_MODULE.bindHomeTabButtons) {
+    SQX_UI_MODULE.bindHomeTabButtons('#filtros-view [data-home-tab]', activateTabById, document);
+  } else {
+    target.querySelectorAll('[data-home-tab]').forEach(function(btn) {
+      btn.addEventListener('click', function() { activateTabById(btn.dataset.homeTab); });
+    });
+  }
 }
 
 // ============================================================

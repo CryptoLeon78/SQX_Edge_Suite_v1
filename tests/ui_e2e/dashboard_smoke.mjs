@@ -67,7 +67,7 @@ async function run() {
       templatemaker: ['Template Maker', 'T'],
       estrategias: ['Strategy Control', 'S'],
       cvc: ['Champion vs Challenger', 'CvC'],
-      filtros: ['Help', 'H'],
+      filtros: ['BlockSettings Info', 'B'],
       inicio: ['Control Panel', 'C'],
     };
     sidebarModel.forEach(item => {
@@ -83,6 +83,30 @@ async function run() {
     await saveShot(desktop, 'e2e-navigation-collapsed-desktop.png');
     await desktop.locator('#tabs-collapse-toggle').click();
     await desktop.waitForFunction(() => !document.body.classList.contains('nav-collapsed'));
+    await desktop.locator('.tab[data-tab="filtros"]').click();
+    await desktop.waitForSelector('.tab[data-tab="filtros"].active');
+    await desktop.waitForSelector('#filtros-view .bs-card');
+    const blockSettingsText = await desktop.locator('#tab-filtros').innerText();
+    [
+      'Biblioteca metodológica de BlockSettings SQX',
+      'Capa 1 · Buscar Edge',
+      'Capa 2 · Filtros operativos',
+      'BS_Filtros_v5.sqb',
+      'Calibración normalizada',
+      'Cómo se conecta con el flujo',
+    ].forEach(expected => {
+      if (!blockSettingsText.includes(expected)) throw new Error(`BlockSettings Info should include ${expected}`);
+    });
+    const capa1Blocks = await desktop.locator('#filtros-view .bs-card').count();
+    if (capa1Blocks !== 7) throw new Error(`BlockSettings Info should render 7 Capa 1 cards, got ${capa1Blocks}`);
+    const capa2Filters = await desktop.locator('#filtros-view .bs-filter-card').count();
+    if (capa2Filters !== 6) throw new Error(`BlockSettings Info should render 6 Capa 2 filter cards, got ${capa2Filters}`);
+    if (blockSettingsText.includes('Umbrales recomendados para la segunda fase de filtrado')) {
+      throw new Error('BlockSettings Info should not render the old generic Help copy');
+    }
+    await saveShot(desktop, 'e2e-blocksettings-info-desktop.png');
+    await desktop.locator('.tab[data-tab="workflow"]').click();
+    await desktop.waitForSelector('.tab[data-tab="workflow"].active');
     const strategyBuilderTabCount = await desktop.locator('.tab[data-tab="strategybuilder"]').count();
     if (strategyBuilderTabCount !== 0) throw new Error('Strategy Builder should not be a primary navigation section');
     const commandCenterText = await desktop.locator('#workflow-command-center').innerText();
@@ -797,6 +821,12 @@ async function run() {
     if (tabsBox && tabsBox.height > 90) throw new Error('Mobile tabs bar is too tall');
     await assertNoMobileOverflow(mobile);
     await saveShot(mobile, 'e2e-strategies-mobile.png');
+    await mobile.locator('.tab[data-tab="filtros"]').click();
+    await mobile.waitForSelector('#filtros-view .bs-card');
+    const mobileBlockSettingsCards = await mobile.locator('#filtros-view .bs-card').count();
+    if (mobileBlockSettingsCards !== 7) throw new Error('Mobile BlockSettings Info should render 7 Capa 1 cards');
+    await assertNoMobileOverflow(mobile);
+    await saveShot(mobile, 'e2e-blocksettings-info-mobile.png');
     assertNoBrowserErrors(mobileErrors, 'mobile');
     await mobile.close();
   } finally {

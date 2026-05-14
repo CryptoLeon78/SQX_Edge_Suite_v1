@@ -23,7 +23,9 @@ Active correction: `Foco operativo` and `Precarga desde Por Activo` are retired 
 
 Visual correction: duplicate showcase/preload panels are removed so the tab stays dense, traceable and action-oriented.
 
-Navigation correction: the sidebar labels/icons are standardized for the current methodology: `Activos`, `Mining Control`, `Project Generator`, `Template Maker`, `Strategy Control`, `Champion vs Challenger`, `Help` and `Control Panel`. The navigation rail can be collapsed to icon-only mode to recover workspace width.
+Navigation correction: the sidebar labels/icons are standardized for the current methodology: `Activos`, `Mining Control`, `Project Generator`, `Template Maker`, `Strategy Control`, `Champion vs Challenger`, `BlockSettings Info` and `Control Panel`. The navigation rail can be collapsed to icon-only mode to recover workspace width.
+
+BlockSettings Info pass: `Help/Filtros Fase 2` is repurposed as a methodological BlockSettings showcase. It keeps internal tab id `filtros`, but now explains Capa 1 edge-search BlockSettings, Capa 2 `BS_Filtros_v5.sqb`, calibrated market logic and the connection with Activos, Plan Mining and Project Generator.
 
 ## Tab Pass Order
 
@@ -37,7 +39,7 @@ This is the working order for individual optimization. It can be adjusted only a
 6. `Champion vs Challenger` - completed as final decision board.
 7. `Project Generator` - completed as guided `.cfx` generation assistant.
 8. `Activos`
-9. `Filtros Fase 2`
+9. `BlockSettings Info` - completed as methodological BlockSettings showcase.
 10. `Inicio`
 11. Final navigation reordering and complete methodology flow.
 

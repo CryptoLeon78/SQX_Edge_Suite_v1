@@ -2179,7 +2179,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "templatemaker": "Template Maker",
                 "estrategias": "Strategy Control",
                 "cvc": "Champion vs Challenger",
-                "filtros": "Help",
+                "filtros": "BlockSettings Info",
                 "inicio": "Control Panel",
             },
         )
@@ -2194,10 +2194,34 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "templatemaker": "T",
                 "estrategias": "S",
                 "cvc": "CvC",
-                "filtros": "H",
+                "filtros": "B",
                 "inicio": "C",
             },
         )
+        blocksettings = ui_manifest["blockSettingsInfo"]
+        self.assertEqual(blocksettings["title"], "BlockSettings Info")
+        self.assertEqual(len(blocksettings["capa1"]), 7)
+        self.assertEqual(blocksettings["capa2"]["blockSetting"], "BS_Filtros_v5.sqb")
+        self.assertEqual(
+            [item["displayBlockSetting"] for item in blocksettings["capa1"]],
+            [
+                "BS_Tendencia",
+                "BS_Momentum",
+                "BS_Volatilidad",
+                "BS_Regimen",
+                "BS_Volumen",
+                "BS_SoporteResistencia",
+                "BS_Estadistico",
+            ],
+        )
+        self.assertIn("blockSettingsInfo", manifest_js)
+        self.assertIn('"label": "BlockSettings Info"', manifest_js)
+        self.assertIn('"icon": "B"', manifest_js)
+        self.assertIn('id="tab-filtros" class="tab-content" style="display:none"', self.html)
+        self.assertIn('class="blocksettings-info" id="filtros-view"', self.html)
+        self.assertIn("renderBlockSettingCapa1Card", (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig"))
+        self.assertIn("BS_Filtros_v5.sqb", manifest_js)
+        self.assertNotIn("Umbrales recomendados para la segunda fase de filtrado", self.html)
         self.assertNotIn("categorias", [tab["id"] for tab in tabs])
         self.assertNotIn("priority", [tab["id"] for tab in tabs])
         self.assertNotIn("strategybuilder", [tab["id"] for tab in tabs])
