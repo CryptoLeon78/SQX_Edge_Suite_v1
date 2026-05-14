@@ -796,6 +796,15 @@
             <h2>Minings del plan</h2>
             <span class="badge info" id="pg-minings-count">— minings</span>
           </div>
+          <p class="views-step-copy">Aquí se lee el Plan Mining activo de Mining Control, incluyendo minings manuales y minings añadidos desde tarjetas de activos. Marca uno o varios para generar sólo lo que necesitas.</p>
+          <div class="pg-mining-toolbar">
+            <span id="pg-selected-count">0 seleccionados</span>
+            <button class="export-btn" id="pg-select-all-minings">Seleccionar todos</button>
+            <button class="export-btn" id="pg-clear-selected-minings">Limpiar selección</button>
+            <span class="pg-action-spacer"></span>
+            <button class="export-btn pg-accent-soft" id="pg-generate-selected-c1">Generar selección · Capa 1</button>
+            <button class="export-btn pg-purple-soft" id="pg-generate-selected-c2">Generar selección · Capa 2</button>
+          </div>
           <div id="pg-minings-table"></div>
         </div>
 

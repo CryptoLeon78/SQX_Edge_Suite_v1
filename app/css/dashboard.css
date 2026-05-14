@@ -3889,6 +3889,23 @@
     margin:0 0 12px;
     padding:0 0 10px;
   }
+  .pg-mining-toolbar {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+    margin:10px 0 12px;
+    padding:10px;
+    border:1px solid rgba(148,163,184,.14);
+    border-radius:8px;
+    background:rgba(15,23,42,.54);
+  }
+  .pg-mining-toolbar > span:first-child {
+    min-width:112px;
+    color:var(--text2);
+    font-size:12px;
+    font-weight:800;
+  }
   .pg-bulk-actions span:not(.pg-action-spacer) {
     color:var(--text2);
     font-size:12px;
@@ -4942,12 +4959,14 @@
       justify-content:center;
     }
     .pg-settings-actions,
+    .pg-mining-toolbar,
     .pg-bulk-actions {
       align-items:stretch;
       flex-direction:column;
     }
     .pg-action-spacer { display:none; }
     .pg-settings-actions .export-btn,
+    .pg-mining-toolbar .export-btn,
     .pg-bulk-actions .export-btn,
     .pg-action-card .export-btn {
       width:100%;
@@ -4977,6 +4996,23 @@
   .pg-settings-card .collapse-arrow.closed { transform:rotate(-90deg); }
 
   .pg-mining-row { display:flex; align-items:center; gap:12px; padding:10px 14px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; margin-bottom:6px; }
+  .pg-mining-row .pgm-check {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:26px;
+    height:26px;
+    border:1px solid rgba(148,163,184,.24);
+    border-radius:7px;
+    background:rgba(2,6,23,.28);
+    cursor:pointer;
+  }
+  .pg-mining-row .pgm-check input {
+    width:14px;
+    height:14px;
+    accent-color:var(--accent);
+    cursor:pointer;
+  }
   .pg-mining-row .pgm-num { font-weight:800; color:var(--accent); width:32px; font-family:'Consolas',monospace; }
   .pg-mining-row .pgm-asset { font-weight:700; min-width:80px; }
   .pg-mining-row .pgm-tf { font-family:'Consolas',monospace; font-size:11px; padding:2px 8px; background:var(--surface); border-radius:4px; min-width:36px; text-align:center; }
@@ -4992,6 +5028,36 @@
   .pg-mining-row .pgm-btn.c2 { border-color:var(--purple); color:var(--purple); }
   .pg-mining-row .pgm-btn.c2:hover { background:rgba(168,85,247,.15); }
   .pg-mining-row .pgm-btn:disabled { opacity:.4; cursor:not-allowed; }
+  .pgm-plan-source {
+    min-width:56px;
+    padding:2px 7px;
+    border-radius:4px;
+    font-size:10px;
+    font-weight:800;
+    text-align:center;
+    letter-spacing:.3px;
+    cursor:help;
+  }
+  .pgm-plan-source.base {
+    color:var(--accent2);
+    border:1px solid rgba(96,165,250,.35);
+    background:rgba(59,130,246,.10);
+  }
+  .pgm-plan-source.user {
+    color:var(--green);
+    border:1px solid rgba(34,197,94,.36);
+    background:rgba(34,197,94,.10);
+  }
+  .pg-minings-empty {
+    display:grid;
+    gap:6px;
+    padding:18px;
+    border:1px dashed rgba(148,163,184,.24);
+    border-radius:8px;
+    color:var(--text2);
+    background:rgba(15,23,42,.38);
+  }
+  .pg-minings-empty strong { color:var(--text); }
 
   .pg-output-row { display:flex; align-items:center; gap:12px; padding:8px 12px; font-size:13px; border-bottom:1px solid var(--border); }
   .pg-output-row:last-child { border-bottom:none; }
@@ -5582,12 +5648,13 @@
 
     .pg-mining-row {
       display:grid;
-      grid-template-columns:auto minmax(0, 1fr) auto;
+      grid-template-columns:auto auto minmax(0, 1fr);
       gap:8px;
     }
 
     .pg-mining-row .pgm-bs,
     .pg-mining-row .pgm-actions,
+    .pgm-plan-source,
     .pgm-src {
       grid-column:1 / -1;
     }

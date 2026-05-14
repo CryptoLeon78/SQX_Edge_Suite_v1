@@ -16,6 +16,7 @@ const PG_STATE = {
   outputDir: '',
   outputFiles: [],
   planCount: 0,
+  selectedMiningNums: new Set(),
 };
 const PG_ALIAS_MIN_SCORE = (window.SQX_CONFIG && window.SQX_CONFIG.value('projectGenerator.aliasSuggestMinScore', 80)) || 80;
 const pgApiInline = document.getElementById('pg-api-base-inline');
@@ -150,11 +151,39 @@ function pgUpdateMiningSummary(count) {
   pgSetText('pg-bulk-count', SQX_PG_MODULE.bulkGenerateLabel(count));
 }
 
+function pgSelectedMiningMap() {
+  const map = {};
+  PG_STATE.selectedMiningNums.forEach(num => { map[num] = true; });
+  return map;
+}
+
+function pgUpdateSelectedMiningCount() {
+  pgSetText('pg-selected-count', SQX_PG_MODULE.selectedMiningCountLabel(PG_STATE.selectedMiningNums.size));
+}
+
+function pgSyncSelectedMinings() {
+  const valid = new Set((PG_STATE.minings || []).map(mining => parseInt(mining.num, 10)));
+  Array.from(PG_STATE.selectedMiningNums).forEach(num => {
+    if (!valid.has(num)) PG_STATE.selectedMiningNums.delete(num);
+  });
+  pgUpdateSelectedMiningCount();
+}
+
 function pgRenderMiningsList(infos) {
-  pgSetHtml('pg-minings-table', SQX_PG_MODULE.miningRowsHtml(infos));
+  pgSyncSelectedMinings();
+  pgSetHtml('pg-minings-table', SQX_PG_MODULE.miningRowsHtml(infos, pgSelectedMiningMap()));
+  document.querySelectorAll('input[data-pg-mining-check]').forEach(input => {
+    input.addEventListener('change', () => {
+      const num = parseInt(input.dataset.pgMiningCheck, 10);
+      if (input.checked) PG_STATE.selectedMiningNums.add(num);
+      else PG_STATE.selectedMiningNums.delete(num);
+      pgUpdateSelectedMiningCount();
+    });
+  });
   document.querySelectorAll('button[data-pg-gen]').forEach(btn => {
     btn.addEventListener('click', () => pgGenerateOne(parseInt(btn.dataset.pgGen,10), parseInt(btn.dataset.pgCapa,10)));
   });
+  pgUpdateSelectedMiningCount();
 }
 
 function pgRenderOutputState(output) {
@@ -220,11 +249,52 @@ async function pgCheckHealth() {
       '🔴 Backend desconectado',
       'Lanza "backend/sqx-edge-tool/run-web.bat" para arrancar la API local (' + PG_API + '). Detalle: ' + e.message,
       { error: e.message });
+    await pgLoadMinings();
   }
 }
 
 async function pgLoadAll() {
   await Promise.all([pgLoadConfig(), pgLoadMinings(), pgLoadOutput()]);
+}
+
+function pgNormalizePlanMining(mining) {
+  const data = mining || {};
+  return {
+    num: parseInt(data.num, 10),
+    phase: parseInt(data.phase, 10) || 0,
+    asset: String(data.asset || '').trim().toUpperCase(),
+    tf: String(data.tf || '').trim().toUpperCase(),
+    bs: String(data.bs || data.blocksetting || '').trim(),
+    dir: String(data.dir || data.direction || 'long').trim(),
+    name: data.name || '',
+    source: data.source || '',
+    _user: !!data._user,
+  };
+}
+
+function pgActivePlanMinings() {
+  let sourceAvailable = false;
+  let minings = [];
+  try {
+    if (typeof window.getPlanMinings === 'function') {
+      sourceAvailable = true;
+      minings = window.getPlanMinings();
+    } else if (Array.isArray(window.PLAN_ALL)) {
+      sourceAvailable = true;
+      minings = window.PLAN_ALL;
+    } else if (Array.isArray(window.PLAN_MININGS)) {
+      sourceAvailable = true;
+      minings = window.PLAN_MININGS;
+    }
+  } catch (_err) {
+    minings = [];
+  }
+  return {
+    sourceAvailable,
+    minings: (minings || []).map(pgNormalizePlanMining).filter(mining => {
+      return mining.num && mining.asset && mining.tf && mining.bs && mining.dir;
+    }).sort((a, b) => a.num - b.num),
+  };
 }
 
 async function pgLoadConfig() {
@@ -241,6 +311,22 @@ async function pgLoadConfig() {
 function pgRenderAliases() {
   const tbl = document.getElementById('pg-aliases-table');
   if (!tbl) return;
+  const activePlan = pgActivePlanMinings();
+  if (activePlan.sourceAvailable) {
+    tbl.innerHTML = SQX_PG_MODULE.aliasTableHtml(activePlan.minings, PG_STATE.aliases);
+    tbl.querySelectorAll('input[data-pg-alias]').forEach(inp => {
+      inp.addEventListener('change', function(){
+        const k = this.dataset.pgAlias;
+        const v = this.value.trim();
+        if (v) PG_STATE.aliases[k] = v;
+        else delete PG_STATE.aliases[k];
+      });
+    });
+    tbl.querySelectorAll('button[data-pg-suggest-asset]').forEach(btn => {
+      btn.addEventListener('click', () => pgSuggestForAsset(btn.dataset.pgSuggestAsset));
+    });
+    return;
+  }
   pgFetch('/minings').then(minings => {
     tbl.innerHTML = SQX_PG_MODULE.aliasTableHtml(minings, PG_STATE.aliases);
     tbl.querySelectorAll('input[data-pg-alias]').forEach(inp => {
@@ -301,16 +387,55 @@ async function pgSuggestAll() {
 
 async function pgLoadMinings() {
   try {
-    const minings = await pgFetch('/minings');
+    const activePlan = pgActivePlanMinings();
+    const minings = activePlan.sourceAvailable ? activePlan.minings : await pgFetch('/minings');
     PG_STATE.minings = minings;
     PG_STATE.planCount = minings.length;
     pgUpdateMiningSummary(minings.length);
+    pgRenderMiningsList(minings);
     const infos = await SQX_PG_MODULE.enrichMiningsWithSymbolInfo(minings, async asset => {
       return (await pgFetch('/symbol-info/' + asset)).info;
     });
+    PG_STATE.minings = infos;
     pgRenderMiningsList(infos);
     pgRenderOnboarding();
-  } catch(e) { pgLog('Error cargando minings: ' + e.message, 'err'); }
+  } catch(e) {
+    PG_STATE.minings = [];
+    PG_STATE.planCount = 0;
+    pgUpdateMiningSummary(0);
+    pgRenderMiningsList([]);
+    pgLog('Error cargando minings: ' + e.message, 'err');
+  }
+}
+
+function pgFindMining(num) {
+  const miningNum = parseInt(num, 10);
+  return (PG_STATE.minings || []).find(mining => parseInt(mining.num, 10) === miningNum) || null;
+}
+
+function pgProjectNameFromMining(mining) {
+  const num = String(mining.num || 0).padStart(2, '0');
+  const dir = SQX_PG_MODULE.directionLabel(mining.dir).replace(/[^A-Z0-9]/g, '');
+  return ['Mining' + num, mining.asset, mining.tf, mining.bs, dir].filter(Boolean).join('_');
+}
+
+function pgCustomPayloadFromMining(mining, capa) {
+  return {
+    name: mining.name || pgProjectNameFromMining(mining),
+    asset: mining.asset,
+    tf: mining.tf,
+    bs: mining.bs,
+    dir: mining.dir,
+    capa,
+  };
+}
+
+async function pgGenerateMiningRequest(mining, capa) {
+  if (mining && mining._user) {
+    const customResult = await pgFetch('/generate-custom', { method:'POST', body: pgCustomPayloadFromMining(mining, capa) });
+    return Object.assign({}, customResult, { mining: mining.num });
+  }
+  return await pgFetch('/generate', { method:'POST', body: { mining: mining.num, capa } });
 }
 
 async function pgLoadOutput() {
@@ -325,10 +450,11 @@ async function pgLoadOutput() {
 }
 
 async function pgGenerateOne(mining, capa) {
-  pgLog(SQX_PG_MODULE.generateOneStartMessage(mining, capa), 'info');
+  const planMining = pgFindMining(mining) || pgNormalizePlanMining({ num: mining, asset: '', tf: '', bs: '', dir: 'long' });
+  pgLog(SQX_PG_MODULE.generateOneStartMessage(planMining.num, capa), 'info');
   try {
-    const r = await pgFetch('/generate', { method:'POST', body: { mining, capa } });
-    const result = SQX_PG_MODULE.generateOneResult(r, mining, capa);
+    const r = await pgGenerateMiningRequest(planMining, capa);
+    const result = SQX_PG_MODULE.generateOneResult(r, planMining.num, capa);
     pgLog(result.logText, result.logLevel);
     pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
     if (r.ok) await pgLoadOutput();
@@ -466,23 +592,70 @@ function pgImportCustomPresets(event) {
 }
 
 async function pgGenerateAll(capa) {
-  if (!confirm(SQX_PG_MODULE.generateAllConfirmMessage(capa, PG_STATE.planCount))) return;
-  pgLog(SQX_PG_MODULE.generateAllStartMessage(capa), 'info');
-  try {
-    const r = await pgFetch('/generate-all', { method:'POST', body: { capa } });
-    const summary = SQX_PG_MODULE.generateAllResultSummary(r);
-    const trace = SQX_PG_MODULE.generateAllTrace(capa, r);
-    pgLog(summary.text, summary.level);
-    pgTrace(trace.title, trace.detail, trace.level);
-    SQX_PG_MODULE.generateAllResultLines(r.results).forEach(line => {
-      pgLog(line.text, line.level);
-    });
-    await pgLoadOutput();
-  } catch(e) {
-    const result = SQX_PG_MODULE.generateErrorResult(e.message, 'Error en generacion masiva');
-    pgLog(result.logText, result.logLevel);
-    pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
+  const minings = (PG_STATE.minings || []).slice();
+  if (!minings.length) {
+    pgLog('No hay minings activos en Plan Mining para generar.', 'err');
+    return;
   }
+  if (!confirm(SQX_PG_MODULE.generateAllConfirmMessage(capa, minings.length))) return;
+  pgLog(SQX_PG_MODULE.generateAllStartMessage(capa), 'info');
+  const results = [];
+  for (const mining of minings) {
+    try {
+      pgLog(SQX_PG_MODULE.generateOneStartMessage(mining.num, capa), 'info');
+      const r = await pgGenerateMiningRequest(mining, capa);
+      results.push(Object.assign({}, r, { mining: mining.num }));
+    } catch(e) {
+      results.push({ ok:false, mining:mining.num, error:e.message });
+    }
+  }
+  const okCount = results.filter(result => result.ok).length;
+  const summaryPayload = { ok: okCount === results.length, ok_count: okCount, fail_count: results.length - okCount, results };
+  const summary = SQX_PG_MODULE.generateAllResultSummary(summaryPayload);
+  const trace = SQX_PG_MODULE.generateAllTrace(capa, summaryPayload);
+  pgLog(summary.text, summary.level);
+  pgTrace(trace.title, trace.detail, trace.level);
+  SQX_PG_MODULE.generateAllResultLines(results).forEach(line => {
+    pgLog(line.text, line.level);
+  });
+  await pgLoadOutput();
+}
+
+async function pgGenerateSelected(capa) {
+  const selected = (PG_STATE.minings || []).filter(mining => PG_STATE.selectedMiningNums.has(parseInt(mining.num, 10)));
+  if (!selected.length) {
+    pgLog('Selecciona al menos un mining del plan antes de generar.', 'err');
+    return;
+  }
+  if (!confirm(SQX_PG_MODULE.generateAllConfirmMessage(capa, selected.length))) return;
+  pgLog('Generando seleccionados · Capa ' + capa + '…', 'info');
+  const results = [];
+  for (const mining of selected) {
+    try {
+      pgLog(SQX_PG_MODULE.generateOneStartMessage(mining.num, capa), 'info');
+      const r = await pgGenerateMiningRequest(mining, capa);
+      results.push(Object.assign({}, r, { mining: mining.num }));
+    } catch(e) {
+      results.push({ ok:false, mining:mining.num, error:e.message });
+    }
+  }
+  const okCount = results.filter(result => result.ok).length;
+  const summary = SQX_PG_MODULE.generateAllResultSummary({ ok_count: okCount, fail_count: results.length - okCount });
+  pgLog(summary.text, summary.level);
+  SQX_PG_MODULE.generateAllResultLines(results).forEach(line => {
+    pgLog(line.text, line.level);
+  });
+  await pgLoadOutput();
+}
+
+function pgSelectAllMinings() {
+  (PG_STATE.minings || []).forEach(mining => PG_STATE.selectedMiningNums.add(parseInt(mining.num, 10)));
+  pgRenderMiningsList(PG_STATE.minings);
+}
+
+function pgClearSelectedMinings() {
+  PG_STATE.selectedMiningNums.clear();
+  pgRenderMiningsList(PG_STATE.minings);
 }
 
 async function pgSaveConfig() {
@@ -619,6 +792,7 @@ async function pgRunOnboardingTertiaryAction() {
   const refresh = document.getElementById('pg-status-refresh');
   if (!refresh) return; // tab no está en el HTML
   pgRenderCustomPresets();
+  pgLoadMinings();
 
   // ── Strategy Cleaner ──
   const CLN_STATE = {
@@ -731,8 +905,10 @@ async function pgRunOnboardingTertiaryAction() {
     checkHealth: pgCheckHealth,
     deleteCustomPreset: pgDeleteCustomPreset,
     exportCustomPresets: pgExportCustomPresets,
+    clearSelectedMinings: pgClearSelectedMinings,
     generateAll: pgGenerateAll,
     generateCustom: pgGenerateCustom,
+    generateSelected: pgGenerateSelected,
     importCustomPresets: pgImportCustomPresets,
     loadCustomPreset: pgLoadCustomPreset,
     loadConfig: pgLoadConfig,
@@ -744,6 +920,7 @@ async function pgRunOnboardingTertiaryAction() {
     runOnboardingTertiaryAction: pgRunOnboardingTertiaryAction,
     saveCustomPreset: pgSaveCustomPreset,
     saveConfig: pgSaveConfig,
+    selectAllMinings: pgSelectAllMinings,
     setSettingsOpen: pgSetSettingsOpen,
     suggestAll: pgSuggestAll,
     validateSqxPath: pgValidateSqxPath,
@@ -757,5 +934,10 @@ async function pgRunOnboardingTertiaryAction() {
   SQX_PG_BINDINGS.bindProjectGeneratorPolling(window, document, {
     checkHealth: pgCheckHealth,
     renderOnboarding: pgRenderOnboarding,
+  });
+  window.addEventListener('sqx:plan-minings-changed', () => {
+    pgLoadMinings();
+    pgRenderAliases();
+    pgRenderOnboarding();
   });
 })();

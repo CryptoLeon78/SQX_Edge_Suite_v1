@@ -1383,6 +1383,11 @@ function normalizePlanUserState() {
 }
 normalizePlanUserState();
 function savePlanUser() { SQX_STORAGE.setJson(PLAN_USER_KEY, PLAN_USER); }
+function notifyPlanMiningChanged() {
+  try {
+    window.dispatchEvent(new CustomEvent('sqx:plan-minings-changed', { detail: { count: getPlanMinings().length } }));
+  } catch(e) { /* CustomEvent can fail in constrained test sandboxes */ }
+}
 function planEsc(value) { return stratEsc(value); }
 
 function getPlanMinings() {
@@ -1429,6 +1434,7 @@ function addMiningUser(m) {
   }
   PLAN_USER.minings.push(mining);
   savePlanUser();
+  notifyPlanMiningChanged();
   return true;
 }
 function resolvePlanPhaseForMining(asset) {
@@ -1479,6 +1485,7 @@ function setPhaseMetaUser(num, name, desc) {
   if (!num || !name) return false;
   PLAN_USER.phases[num] = { name: name, desc: desc || '' };
   savePlanUser();
+  notifyPlanMiningChanged();
   return true;
 }
 function revertPhaseMetaUser(num) {
@@ -1490,6 +1497,7 @@ function revertPhaseMetaUser(num) {
 function removeUserMining(num) {
   PLAN_USER.minings = PLAN_USER.minings.filter(m => m.num !== num);
   savePlanUser();
+  notifyPlanMiningChanged();
 }
 function removeUserPhase(num) {
   // No eliminar fase si tiene minings asignados
@@ -1502,6 +1510,7 @@ function removeUserPhase(num) {
 function clearPlanUser() {
   PLAN_USER = { minings:[], phases:{}, baseDisabled:false, hiddenBaseMinings:[] };
   savePlanUser();
+  notifyPlanMiningChanged();
 }
 function resetPlanMiningUserState() {
   PLAN_USER = {
@@ -1516,6 +1525,7 @@ function resetPlanMiningUserState() {
   PIPELINE_STATE.funnels = {};
   PIPELINE_STATE.nextAction = '';
   savePipelineState();
+  notifyPlanMiningChanged();
 }
 function resetPlanPhaseMinings(phase) {
   const p = parseInt(phase, 10);
@@ -1532,12 +1542,14 @@ function resetPlanPhaseMinings(phase) {
   });
   savePlanUser();
   savePipelineState();
+  notifyPlanMiningChanged();
   return true;
 }
 // Alias visible para el helper de status (lee PLAN_ALL si existe)
 window.PLAN_ALL = null;
 function refreshPlanAll() { window.PLAN_ALL = getPlanMinings(); }
 refreshPlanAll();
+window.getPlanMinings = getPlanMinings;
 window.setPhaseMetaUser = setPhaseMetaUser;
 window.addMiningUser = addMiningUser;
 window.addPlanMiningFromCandidate = addPlanMiningFromCandidate;

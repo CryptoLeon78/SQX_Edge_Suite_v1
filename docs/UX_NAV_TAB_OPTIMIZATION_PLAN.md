@@ -17,6 +17,8 @@ UX-NAV now runs as a sequential tab-by-tab optimization track.
 
 Champion vs Challenger is closed as the final decision board. Project Generator is the active pass and is being optimized as a guided `.cfx` generation assistant without changing backend, preset or `.cfx` contracts.
 
+Active correction: Project Generator Step 4 must read the live `Plan Mining` from Mining Control (`getPlanMinings()`), including manual/user minings and reset-hidden base minings. Bulk generation and selected generation must respect that live plan instead of falling back to the backend static `/api/minings` list.
+
 ## Tab Pass Order
 
 This is the working order for individual optimization. It can be adjusted only after the active tab is completed or if the operator explicitly changes priority.
@@ -67,6 +69,7 @@ Project Generator should answer:
 - Is the local backend available?
 - Are SQX paths, templates, output and aliases ready?
 - Should I generate from Plan Mining or use Custom libre?
+- Which Plan Mining rows do I want to generate now?
 - Which Capa 1/Capa 2 actions are safe to press now?
 - Where are the generated `.cfx` files and what did the log report?
 

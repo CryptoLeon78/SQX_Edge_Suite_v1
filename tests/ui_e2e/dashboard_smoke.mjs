@@ -324,6 +324,27 @@ async function run() {
     const pgGuideSteps = await desktop.locator('#tab-projectgen .pg-guide-flow li').count();
     if (pgGuideSteps !== 5) throw new Error(`Project Generator should render 5 guided steps, got ${pgGuideSteps}`);
     if (!pgGuidedText.includes('Plan Mining') || !pgGuidedText.includes('Custom libre')) throw new Error('Project Generator should clarify Plan Mining and Custom libre paths');
+    await desktop.evaluate(() => {
+      window.resetPlanMiningUserState();
+      const ok = window.addMiningUser({ num: 1, phase: 1, asset: 'EURUSD', tf: 'H1', bs: 'BS_Tendencia', dir: 'L/S', source: 'e2e' });
+      if (!ok) throw new Error('Project Generator E2E could not seed Plan Mining');
+    });
+    await desktop.locator('#pg-status-refresh').click();
+    await desktop.waitForFunction(() => {
+      const text = document.getElementById('pg-minings-table')?.innerText || '';
+      return text.includes('EURUSD') && text.includes('USER');
+    });
+    const pgMiningPlanText = await desktop.locator('#pg-minings-table').innerText();
+    if (!pgMiningPlanText.includes('EURUSD') || !pgMiningPlanText.includes('USER')) {
+      throw new Error('Project Generator should render active local Plan Mining rows, including user minings');
+    }
+    await desktop.locator('#pg-select-all-minings').click();
+    await desktop.waitForFunction(() => document.getElementById('pg-selected-count')?.textContent.includes('1 seleccionado'));
+    await desktop.locator('#pg-clear-selected-minings').click();
+    await desktop.waitForFunction(() => document.getElementById('pg-selected-count')?.textContent.includes('0 seleccionados'));
+    if (await desktop.locator('#pg-generate-selected-c1').count() !== 1 || await desktop.locator('#pg-minings-table button[data-pg-gen="1"][data-pg-capa="1"]').count() !== 1) {
+      throw new Error('Project Generator should expose selected and per-mining generation actions');
+    }
     await desktop.waitForFunction(() => document.getElementById('pg-onboarding-steps')?.querySelectorAll('.pg-step').length === 4);
     await desktop.waitForFunction(() => {
       const progress = document.getElementById('pg-onboarding-progress')?.textContent.trim() || '';

@@ -16,6 +16,9 @@ assert.ok(html.includes('Custom libre'), 'Project Generator should preserve cust
 assert.ok(html.includes('id="pg-custom-generate"'), 'Project Generator should keep custom generate action');
 assert.ok(html.includes('id="pg-gen-all-c1"'), 'Project Generator should keep Capa 1 bulk action');
 assert.ok(html.includes('id="pg-gen-all-c2"'), 'Project Generator should keep Capa 2 bulk action');
+assert.ok(html.includes('id="pg-generate-selected-c1"'), 'Project Generator should generate selected Plan Mining rows in Capa 1');
+assert.ok(html.includes('id="pg-generate-selected-c2"'), 'Project Generator should generate selected Plan Mining rows in Capa 2');
+assert.ok(html.includes('id="pg-select-all-minings"'), 'Project Generator should allow selecting all Plan Mining rows');
 assert.ok(html.includes('id="pg-custom-save-preset"'), 'Project Generator should keep custom preset save action');
 assert.ok(html.includes('id="pg-custom-import-presets-file"'), 'Project Generator should keep preset pack import input');
 assert.ok(html.includes('id="pg-aliases-suggest"'), 'Project Generator should keep alias suggestion action');
@@ -76,10 +79,14 @@ assert.equal(document.getElementById('pg-custom-dir').value, 'short');
   'pg-gen-all-c2', 'pg-custom-generate', 'pg-custom-save-preset', 'pg-custom-load-preset',
   'pg-custom-delete-preset', 'pg-output-refresh', 'pg-open-output', 'pg-log-clear',
   'pg-custom-export-presets', 'pg-custom-import-presets', 'pg-custom-import-presets-file',
+  'pg-select-all-minings', 'pg-clear-selected-minings', 'pg-generate-selected-c1', 'pg-generate-selected-c2',
   'pg-settings-body', 'pg-log'
 ].forEach(id => document.add(new Element(id)));
 let checkHealthCalls = 0;
 let generateAllCapa = 0;
+let generateSelectedCapa = 0;
+let selectedAllCalls = 0;
+let clearSelectedCalls = 0;
 let generateCustomCalls = 0;
 let saveCustomPresetCalls = 0;
 let loadCustomPresetCalls = 0;
@@ -90,17 +97,23 @@ let importCustomPresetCalls = 0;
 PG.bindings.bindProjectGeneratorEvents(document, {
   checkHealth: () => { checkHealthCalls++; },
   exportCustomPresets: () => { exportCustomPresetCalls++; },
+  clearSelectedMinings: () => { clearSelectedCalls++; },
   generateAll: capa => { generateAllCapa = capa; },
   generateCustom: () => { generateCustomCalls++; },
+  generateSelected: capa => { generateSelectedCapa = capa; },
   importCustomPresets: () => { importCustomPresetCalls++; },
   saveCustomPreset: () => { saveCustomPresetCalls++; },
   loadCustomPreset: () => { loadCustomPresetCalls++; },
   deleteCustomPreset: () => { deleteCustomPresetCalls++; },
   openImportCustomPresets: () => { openImportCustomPresetCalls++; },
+  selectAllMinings: () => { selectedAllCalls++; },
   setSettingsOpen: open => { document.getElementById('pg-settings-body').style.display = open ? 'block' : 'none'; },
 });
 document.getElementById('pg-status-refresh').click();
 document.getElementById('pg-gen-all-c2').click();
+document.getElementById('pg-select-all-minings').click();
+document.getElementById('pg-clear-selected-minings').click();
+document.getElementById('pg-generate-selected-c1').click();
 document.getElementById('pg-custom-generate').click();
 document.getElementById('pg-custom-save-preset').click();
 document.getElementById('pg-custom-load-preset').click();
@@ -112,6 +125,9 @@ document.getElementById('pg-custom-asset').dispatch('input');
 document.getElementById('pg-custom-dir').dispatch('change');
 assert.equal(checkHealthCalls, 1);
 assert.equal(generateAllCapa, 2);
+assert.equal(generateSelectedCapa, 1);
+assert.equal(selectedAllCalls, 1);
+assert.equal(clearSelectedCalls, 1);
 assert.equal(generateCustomCalls, 1);
 assert.equal(saveCustomPresetCalls, 1);
 assert.equal(loadCustomPresetCalls, 1);
@@ -240,7 +256,15 @@ assert.match(outputHtml, /M07\.cfx/);
 assert.match(outputHtml, /12 KB/);
 assert.match(PG.outputListHtml([]), /No hay \.cfx/);
 assert.equal(PG.miningsCountLabel(4), '4 minings');
+assert.equal(PG.selectedMiningCountLabel(1), '1 seleccionado');
+assert.equal(PG.selectedMiningCountLabel(2), '2 seleccionados');
 assert.equal(PG.bulkGenerateLabel(4), '4 minings · Capa 1 + Capa 2');
+assert.equal(PG.normalizeDirection('L'), 'long');
+assert.equal(PG.directionLabel('S'), 'SHORT');
+const miningRowsHtml = PG.miningRowsHtml([{ num: 9, asset: 'XAUUSD', tf: 'H1', bs: 'BS_Tendencia', dir: 'L', _user: true, source: 'manual' }], { 9: true });
+assert.match(miningRowsHtml, /data-pg-mining-check="9" checked/);
+assert.match(miningRowsHtml, /USER/);
+assert.match(PG.miningRowsHtml([], {}), /Plan Mining vac/);
 const enrichedMinings = await PG.enrichMiningsWithSymbolInfo(
   [{ asset: 'EURUSD' }, { asset: 'FAIL' }],
   async asset => {

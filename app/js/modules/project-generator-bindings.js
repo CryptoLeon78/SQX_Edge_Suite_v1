@@ -43,6 +43,10 @@
     bind(doc, 'pg-custom-import-presets-file', 'change', h.importCustomPresets);
     bind(doc, 'pg-gen-all-c1', 'click', function() { h.generateAll(1); });
     bind(doc, 'pg-gen-all-c2', 'click', function() { h.generateAll(2); });
+    bind(doc, 'pg-select-all-minings', 'click', h.selectAllMinings);
+    bind(doc, 'pg-clear-selected-minings', 'click', h.clearSelectedMinings);
+    bind(doc, 'pg-generate-selected-c1', 'click', function() { h.generateSelected(1); });
+    bind(doc, 'pg-generate-selected-c2', 'click', function() { h.generateSelected(2); });
     bind(doc, 'pg-output-refresh', 'click', h.loadOutput);
     bind(doc, 'pg-open-output', 'click', h.openOutputFolder);
     bind(doc, 'pg-log-clear', 'click', function() {
