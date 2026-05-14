@@ -116,6 +116,19 @@ assert.ok(tm.getProvenance(tm.getStrategies()[0]._id).certVersion, 'provenance s
 const csvOnlyClear = await tm.clearResultStrategies();
 assert.equal(csvOnlyClear.removed, 1, 'clearResultStrategies should remove CSV-only rows');
 assert.equal(tm.getStrategies().length, 0, 'results clear should empty CSV rows');
+const suffixedCertCsv = [
+  'Strategy Name;Symbol (IS);TimeFrame (IS);Net profit (IS);# of trades (IS);Profit factor (IS);Max DD % (IS);Sharpe Ratio (IS);Stability (IS);CAGR/Max DD % (IS);Winning Percent (IS);SQN (IS);RecoveryFactor (IS);CalmarRatio (IS);SortinoRatio (IS);% Profitable Months (IS);Net profit (OOS);# of trades (OOS);Profit factor (OOS);Max DD % (OOS);Sharpe Ratio (OOS);Stability (OOS);CAGR/Max DD % (OOS);Winning Percent (OOS);SQN (OOS);Recovery Factor (OOS);Calmar Ratio (OOS);Sortino Ratio (OOS);% Profitable Months (OOS)',
+  'Strategy 4.21.40;XAUUSD_tick_TICK_ESTPlus07;H1;3675,22;218;1,45;18,2;0,69;0,82;0,66;45;1,7;2,4;0,6;0,9;54;5967,27;220;1,72;12,5;1,1;0,68;1,11;49;2,2;3,5;0,8;1,1;62',
+].join('\n');
+await tm.loadFromCSV(suffixedCertCsv, { fileName: 'DatabankExport.csv' });
+const suffixed = tm.getStrategies().find(strategy => strategy['Strategy Name'] === 'Strategy 4.21.40');
+assert.ok(suffixed, 'suffixed SQX databank export should add a strategy');
+assert.equal(suffixed.Symbol, 'XAUUSD_tick_TICK_ESTPlus07', 'Symbol (IS) should normalize to Symbol');
+assert.equal(suffixed.TimeFrame, 'H1', 'TimeFrame (IS) should normalize to TimeFrame');
+assert.equal(tm.validateMetricsContract(suffixed).valid, true, 'suffixed IS/OOS columns should satisfy metric contract');
+assert.equal(tm.scoreStrategy(suffixed).details['Profit factor'].result, 'pass', 'decimal comma metrics should parse as decimal values, not thousands');
+assert.equal(tm.scoreStrategy(suffixed).details['Profit factor'].value, '1,72', 'OOS value should win when only IS/OOS samples exist');
+await tm.clearResultStrategies();
 await tm.loadFromCSV([
   'Strategy Name;Symbol;TimeFrame;Net profit;# of trades;Profit factor;Max DD %;Sharpe Ratio;Stability;CAGR/Max DD %;Winning Percent;SQN;RecoveryFactor;CalmarRatio;SortinoRatio;% Profitable Months',
   'Delete me;XAUUSD;H1;10000;260;1.45;12;0.9;0.8;1.1;48;2.1;3.5;0.8;1.1;62',

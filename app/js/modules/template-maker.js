@@ -470,6 +470,7 @@
   }
 
   function normalizeKey(key) {
+    var canonical = stripSampleSuffix(key);
     var map = {
       RecoveryFactor: 'Recovery Factor',
       CalmarRatio: 'Calmar Ratio',
@@ -485,23 +486,56 @@
       'Win %': 'Winning Percent',
       SQN: 'SQN'
     };
-    return map[key] || key;
+    return map[canonical] || canonical;
+  }
+
+  function cleanHeaderName(key) {
+    return String(key || '').replace(/^\uFEFF/, '').trim();
+  }
+
+  function sampleSuffix(key) {
+    var text = cleanHeaderName(key);
+    var match = text.match(/\s*\(([^()]*)\)\s*$/);
+    return match ? match[1].trim() : '';
+  }
+
+  function stripSampleSuffix(key) {
+    var text = cleanHeaderName(key);
+    var suffix = sampleSuffix(text);
+    if (!suffix) return text;
+    if (/^(is|oos|full sample|full|total|portfolio|main|backtest|training|validation|test|sample\s*\d+|is\s*\d+|oos\s*\d+|\d+)$/i.test(suffix)) {
+      return text.replace(/\s*\([^()]*\)\s*$/, '').trim();
+    }
+    return text;
+  }
+
+  function sampleRank(key) {
+    var suffix = sampleSuffix(key).toLowerCase();
+    if (/^(full sample|full|total|main|portfolio|127)$/.test(suffix)) return 0;
+    if (!suffix) return 1;
+    if (/^oos/.test(suffix)) return 2;
+    if (/^is/.test(suffix)) return 3;
+    return 4;
   }
 
   function findMetricKeyFromList(metric, keys) {
     var aliases = METRIC_ALIASES[metric] || [metric];
-    for (var i = 0; i < aliases.length; i += 1) {
-      if ((keys || []).indexOf(aliases[i]) >= 0) return aliases[i];
-    }
-    return '';
+    var normalizedAliases = aliases.map(normalizeKey);
+    var matches = (keys || []).filter(function(key) {
+      return normalizedAliases.indexOf(normalizeKey(key)) >= 0;
+    });
+    matches.sort(function(a, b) {
+      return sampleRank(a) - sampleRank(b);
+    });
+    return matches[0] || '';
   }
 
   function metricValue(strategy, metric) {
-    var aliases = METRIC_ALIASES[metric] || [metric];
-    for (var i = 0; i < aliases.length; i += 1) {
-      var key = aliases[i];
-      if (strategy && strategy[key] !== undefined && strategy[key] !== '') return strategy[key];
-      if (strategy && strategy.metrics && strategy.metrics[key] !== undefined && strategy.metrics[key] !== '') return strategy.metrics[key];
+    var containers = [strategy && strategy.metrics, strategy];
+    for (var i = 0; i < containers.length; i += 1) {
+      var source = containers[i] || {};
+      var key = findMetricKeyFromList(metric, Object.keys(source));
+      if (key && source[key] !== undefined && source[key] !== '') return source[key];
     }
     return undefined;
   }
@@ -815,7 +849,16 @@
 
   function getNumeric(value) {
     if (value === '' || value === 'N/A' || value === 'null' || value === undefined || value === null) return null;
-    var normalized = String(value).replace(/%/g, '').replace(/,/g, '').trim();
+    var normalized = String(value).replace(/%/g, '').replace(/\s/g, '').trim();
+    if (normalized.indexOf(',') >= 0 && normalized.indexOf('.') >= 0) {
+      normalized = normalized.lastIndexOf(',') > normalized.lastIndexOf('.')
+        ? normalized.replace(/\./g, '').replace(',', '.')
+        : normalized.replace(/,/g, '');
+    } else if (normalized.indexOf(',') >= 0) {
+      normalized = /,\d{1,4}$/.test(normalized)
+        ? normalized.replace(',', '.')
+        : normalized.replace(/,/g, '');
+    }
     var parsed = parseFloat(normalized);
     return Number.isNaN(parsed) ? null : parsed;
   }

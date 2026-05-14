@@ -410,10 +410,23 @@
       '" direction="0" plType="10" resultType="main" confidenceLevel="50" market="1" subresult="30" showMainResult="true"/>';
   }
 
+  function hydrateMetricSelection(items) {
+    return (items || []).map(function(item) {
+      var metric = item && metricByClass(item.className || item);
+      if (!metric) return null;
+      return {
+        display: metric.display,
+        className: metric.className,
+        category: metric.category,
+        annual: metric.category !== 'fixed' && item.annual !== false
+      };
+    }).filter(Boolean);
+  }
+
   function buildViewXml(options) {
     var opts = options || {};
     var viewName = String(opts.viewName || 'EGT - Anual').trim() || 'EGT - Anual';
-    var selected = opts.selected || [];
+    var selected = hydrateMetricSelection(opts.selected || opts.metrics || []);
     var yearCount = sanitizeInt(opts.yearCount, 9, 1, 30);
     var sampleStart = sanitizeInt(opts.sampleStart, 21, 0, 126);
     var includeTotal = opts.includeTotal !== false;

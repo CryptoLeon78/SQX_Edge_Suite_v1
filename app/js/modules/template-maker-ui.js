@@ -480,7 +480,7 @@
       return acc;
     }, {});
     panel.innerHTML = '<strong>Accion requerida antes de C2</strong>' +
-      '<span>Template Maker solo habilita C2 cuando existe .sqx, CSV Template Maker Cert compatible y scoring PASSED.</span>' +
+      '<span>Template Maker solo habilita C2 cuando existe .sqx, CSV exportado con Template Maker Cert y scoring PASSED.</span>' +
       '<div class="tm-problem-tags">' + Object.keys(groups).map(function(status) {
         return '<span>' + esc(status) + ': ' + groups[status] + ' · ' + esc(problemHint(status)) + '</span>';
       }).join('') + '</div>';
@@ -489,7 +489,7 @@
   function problemHint(status) {
     if (status === 'Falta SQX') return 'añade el .sqx original';
     if (status === 'Faltan métricas') return 'exporta CSV con Template Maker Cert';
-    if (status === 'Métricas no compatibles') return 'regenera la view obligatoria';
+    if (status === 'Métricas no compatibles') return 'CSV de otra view: reexporta con Template Maker Cert';
     if (status === 'Completa') return 'necesita scoring PASSED para C2';
     return 'revisa fuentes';
   }
