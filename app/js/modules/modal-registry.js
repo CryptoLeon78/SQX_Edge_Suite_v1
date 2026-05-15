@@ -83,6 +83,16 @@
       writes: ['solo delega en la accion confirmada'],
       trace: ['origen', 'impacto', 'destino', 'recuperacion'],
       failures: ['cancelacion usuario', 'accion bloqueada por validacion']
+    },
+    {
+      id: 'tf-select-backdrop',
+      tab: 'Activos / Mining Control / Project Generator',
+      owner: 'dashboard',
+      action: 'seleccionar timeframe antes de crear mining o custom project',
+      reads: ['tarjeta de activo', 'familia metodologica', 'BlockSettings reales'],
+      writes: ['localStorage sqx_plan_user_v1 o prefill Project Generator'],
+      trace: ['asset', 'familia', 'direccion', 'timeframe elegido', 'timeframes disponibles', 'BlockSetting real'],
+      failures: ['cancelacion usuario', 'timeframe no seleccionado', 'duplicado en Plan Mining']
     }
   ];
 

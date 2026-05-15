@@ -19,6 +19,7 @@ const ids = registry.map(item => item.id);
   'ps-add-phase-backdrop',
   'state-restore-backdrop',
   'sqx-decision-backdrop',
+  'tf-select-backdrop',
 ].forEach(id => assert.ok(ids.includes(id), `modal registry should include ${id}`));
 
 registry.forEach(item => {
@@ -35,6 +36,8 @@ assert.ok(SQX.modalRegistry.nativeDecisions().includes('reset plan mining'));
 const html = fs.readFileSync(path.join(repoRoot, 'app', 'SQX_Dashboard_v6.html'), 'utf8');
 assert.ok(html.indexOf('js/modules/modal-registry.js') < html.indexOf('js/modules/state-backup.js'), 'modal registry should load before state backup');
 assert.match(html, /id="sqx-decision-backdrop"/);
+assert.match(html, /id="tf-select-backdrop"/);
+assert.match(html, /Seleccionar temporalidad/);
 assert.match(html, /Trazabilidad obligatoria C2/);
 assert.match(html, /Alta manual trazable/);
 assert.match(html, /Batch de importacion trazable/);

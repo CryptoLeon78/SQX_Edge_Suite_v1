@@ -1047,6 +1047,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.storage", storage_js)
         self.assertIn("SQX.modalRegistry", modal_registry_js)
         self.assertIn('id="sqx-decision-backdrop"', self.html)
+        self.assertIn('id="tf-select-backdrop"', self.html)
+        self.assertIn("tf-select-backdrop", modal_registry_js)
+        self.assertIn("buildTimeframeSelectionTrace", dashboard_js)
         self.assertIn("SQX.stateBackup", state_backup_js)
         self.assertIn("window.SQX.stateBackup.init()", main_js)
         self.assertIn('id="state-backup-now"', self.html)
@@ -3158,7 +3161,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "window.quickAddToPlan",
             "window.quickToProjectGen",
             "catBase = String(cat || '').replace(/_S$/, '')",
-            "addPlanMiningFromCandidate(asset, catBase, tf, dir, 'asset-card')",
+            "performQuickAddToPlan(asset, catBase, selectedTf, dir, trace)",
+            "openTimeframeSelection({ action: 'plan'",
             "writeCustomProjectInputs(document, config)",
             "renderPsHealth()",
             "ps-funnel-graph",

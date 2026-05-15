@@ -292,6 +292,7 @@ function renderDetail() {
         </div>
         <div class="info-row"><span class="info-label">Direccion</span><span class="info-value ${dirCls(entry.dir)}">${dLabel}</span></div>
         <div class="info-row"><span class="info-label">Timeframes</span><span class="info-value">${entry.tf}</span></div>
+        ${parseCardTimeframes(entry.tf).length > 1 ? '<div class="tf-selection-hint">Elegir timeframe al enviar</div>' : ''}
         <div class="info-row"><span class="info-label">Por que</span><span class="info-value" style="font-weight:400;font-size:12px">${entry.why}</span></div>
         ${compositeBar(sc)}
         <div class="quick-actions">
@@ -357,7 +358,7 @@ function renderCategoriesView() {
           <td><span class="asset-link" onclick="event.stopPropagation();navToAsset('${row.asset.id}')">${row.asset.id}</span></td>
           <td>${row.asset.sub}</td>
           <td class="${dirCls(row.dir)}" style="font-weight:700">${dl}</td>
-          <td>${row.tf}</td>
+          <td>${row.tf}${parseCardTimeframes(row.tf).length > 1 ? '<div class="tf-selection-hint">Elegir al enviar</div>' : ''}</td>
           <td><span class="rating ${r.cls}">${r.text}</span></td>
           <td style="font-size:12px;color:var(--text2);max-width:280px">${row.why}</td>
           <td>
@@ -417,6 +418,62 @@ function blockSettingTraceHtml(value) {
   const hash = entry && entry.sha256 ? String(entry.sha256).slice(0, 12).toUpperCase() : '';
   return '<span class="ps-m-bs-main">' + planEsc(id || 'BS') + '</span>' +
     (file || hash ? '<small>' + planEsc([file, hash ? 'SHA ' + hash : ''].filter(Boolean).join(' · ')) + '</small>' : '');
+}
+
+function parseCardTimeframes(tf) {
+  const seen = {};
+  return String(tf || '').split(',')
+    .map(function(item) { return item.trim().toUpperCase(); })
+    .filter(function(item) {
+      if (!item || seen[item]) return false;
+      seen[item] = true;
+      return true;
+    });
+}
+
+function directionTraceLabel(dir) {
+  const value = String(dir || '').trim().toUpperCase();
+  if (value === 'L') return 'LONG';
+  if (value === 'S') return 'SHORT';
+  return 'L+S';
+}
+
+function blockSettingTraceForSelection(cat, tf) {
+  const bs = resolveCapa1BlockSettingForCategory(cat, tf) || 'BS_Custom';
+  const entry = blockSettingCatalogEntry(bs);
+  return {
+    blocksetting: bs,
+    blocksettingTrace: entry ? {
+      canonicalId: entry.canonicalId,
+      filename: entry.filename,
+      sha256Short: entry.sha256Short || (entry.sha256 ? String(entry.sha256).slice(0, 12).toUpperCase() : ''),
+      family: entry.family,
+      layer: entry.layer,
+      variant: entry.variant
+    } : { canonicalId: bs }
+  };
+}
+
+function buildTimeframeSelectionTrace(ctx, selectedTf) {
+  const catBase = String((ctx && ctx.cat) || '').replace(/_S$/, '');
+  const trace = blockSettingTraceForSelection(catBase, selectedTf);
+  return {
+    source: 'asset-card',
+    selectedTimeframe: selectedTf,
+    availableTimeframes: (ctx && ctx.tfList) || [selectedTf],
+    timeframeSource: ((ctx && ctx.tfList) || []).length > 1 ? 'card-selection' : 'card-single',
+    blocksetting: trace.blocksetting,
+    blocksettingTrace: trace.blocksettingTrace,
+    trace: {
+      origin: 'Tarjeta de Activos',
+      destination: ctx && ctx.action === 'projectgen' ? 'Project Generator custom prefill' : PLAN_USER_KEY,
+      selectedTimeframe: selectedTf,
+      availableTimeframes: ((ctx && ctx.tfList) || [selectedTf]).join(', '),
+      timeframeSource: ((ctx && ctx.tfList) || []).length > 1 ? 'card-selection' : 'card-single',
+      blocksetting: trace.blocksetting,
+      blocksettingTrace: trace.blocksettingTrace
+    }
+  };
 }
 
 function renderBlockSettingCapa1Card(item) {
@@ -1463,21 +1520,134 @@ window.navToAsset = function(id) {
 };
 
 // Quick actions from asset/category cards into Mining Control and Project Generator.
+let PENDING_TIMEFRAME_SELECTION = null;
+
+function timeframeTraceItemsHtml(ctx, selectedTf) {
+  const trace = buildTimeframeSelectionTrace(ctx, selectedTf);
+  const bsTrace = trace.blocksettingTrace || {};
+  return [
+    'Asset: ' + (ctx.asset || 'ASSET'),
+    'Familia: ' + String(ctx.cat || '').replace(/_S$/, ''),
+    'Direccion: ' + directionTraceLabel(ctx.dir),
+    'Timeframe: ' + selectedTf,
+    'Destino: ' + (ctx.action === 'projectgen' ? 'Project Generator' : 'Plan Mining'),
+    'BlockSetting: ' + (bsTrace.canonicalId || trace.blocksetting),
+    bsTrace.filename ? 'Archivo: ' + bsTrace.filename : '',
+    bsTrace.sha256Short ? 'SHA: ' + bsTrace.sha256Short : ''
+  ].filter(Boolean).map(function(item) {
+    return '<span>' + dashboardEsc(item) + '</span>';
+  }).join('');
+}
+
+function updateTimeframeSelectionPreview(selectedTf) {
+  const ctx = PENDING_TIMEFRAME_SELECTION;
+  if (!ctx) return;
+  const trace = buildTimeframeSelectionTrace(ctx, selectedTf);
+  const bsTrace = trace.blocksettingTrace || {};
+  const traceItems = document.getElementById('tf-select-trace-items');
+  const preview = document.getElementById('tf-select-preview');
+  if (traceItems) traceItems.innerHTML = timeframeTraceItemsHtml(ctx, selectedTf);
+  if (preview) {
+    preview.textContent = 'Origen tarjeta -> ' +
+      (ctx.action === 'projectgen' ? 'Project Generator' : 'Plan Mining') +
+      ' · ' + ctx.asset + ' ' + selectedTf +
+      ' · ' + (bsTrace.canonicalId || trace.blocksetting) +
+      (bsTrace.filename ? ' · ' + bsTrace.filename : '') +
+      (bsTrace.sha256Short ? ' · SHA ' + bsTrace.sha256Short : '') + '.';
+  }
+}
+
+function setTimeframeSelection(selectedTf) {
+  if (!PENDING_TIMEFRAME_SELECTION) return;
+  PENDING_TIMEFRAME_SELECTION.selectedTf = selectedTf;
+  document.querySelectorAll('#tf-select-options .tf-select-option').forEach(function(btn) {
+    btn.classList.toggle('active', btn.dataset.tf === selectedTf);
+  });
+  updateTimeframeSelectionPreview(selectedTf);
+}
+
+function openTimeframeSelection(ctx) {
+  const modal = document.getElementById('tf-select-backdrop');
+  const options = document.getElementById('tf-select-options');
+  if (!modal || !options) return false;
+  const firstTf = (ctx.tfList && ctx.tfList[0]) || 'H1';
+  PENDING_TIMEFRAME_SELECTION = Object.assign({}, ctx, { selectedTf: firstTf });
+  options.innerHTML = ctx.tfList.map(function(tf, idx) {
+    const trace = blockSettingTraceForSelection(ctx.cat, tf);
+    const bsTrace = trace.blocksettingTrace || {};
+    return '<button type="button" class="tf-select-option' + (idx === 0 ? ' active' : '') + '" data-tf="' + dashboardEsc(tf) + '">' +
+      '<strong>' + dashboardEsc(tf) + '</strong>' +
+      '<small>' + dashboardEsc(bsTrace.canonicalId || trace.blocksetting) + '</small>' +
+      '<small>' + dashboardEsc([bsTrace.filename, bsTrace.sha256Short ? 'SHA ' + bsTrace.sha256Short : ''].filter(Boolean).join(' · ')) + '</small>' +
+    '</button>';
+  }).join('');
+  options.querySelectorAll('.tf-select-option').forEach(function(btn) {
+    btn.addEventListener('click', function() { setTimeframeSelection(btn.dataset.tf); });
+  });
+  updateTimeframeSelectionPreview(firstTf);
+  modal.style.display = 'flex';
+  return true;
+}
+
+function closeTimeframeSelection() {
+  const modal = document.getElementById('tf-select-backdrop');
+  if (modal) modal.style.display = 'none';
+  PENDING_TIMEFRAME_SELECTION = null;
+}
+
+function confirmTimeframeSelection() {
+  const ctx = PENDING_TIMEFRAME_SELECTION;
+  if (!ctx) return;
+  const selectedTf = ctx.selectedTf || (ctx.tfList && ctx.tfList[0]) || 'H1';
+  const trace = buildTimeframeSelectionTrace(ctx, selectedTf);
+  closeTimeframeSelection();
+  if (ctx.action === 'projectgen') {
+    performQuickToProjectGen(ctx.asset, ctx.cat, selectedTf, ctx.dir, trace);
+  } else {
+    performQuickAddToPlan(ctx.asset, ctx.cat, selectedTf, ctx.dir, trace);
+  }
+}
+
+function shouldAskTimeframe(tfList) {
+  return Array.isArray(tfList) && tfList.length > 1;
+}
+
 window.quickAddToPlan = function(asset, cat, tf, dir) {
   const catBase = String(cat || '').replace(/_S$/, '');
-  const ok = addPlanMiningFromCandidate(asset, catBase, tf, dir, 'asset-card');
+  const tfList = parseCardTimeframes(tf);
+  if (shouldAskTimeframe(tfList)) {
+    openTimeframeSelection({ action: 'plan', asset: asset, cat: catBase, tfList: tfList, dir: dir });
+    return;
+  }
+  const selectedTf = tfList[0] || 'H1';
+  const trace = buildTimeframeSelectionTrace({ action: 'plan', asset: asset, cat: catBase, tfList: tfList, dir: dir }, selectedTf);
+  performQuickAddToPlan(asset, catBase, selectedTf, dir, trace);
+};
+
+function performQuickAddToPlan(asset, catBase, tf, dir, trace) {
+  const ok = addPlanMiningFromCandidate(asset, catBase, tf, dir, 'asset-card', trace);
   if (!ok) return;
   activateTabById('pipeline');
   renderPipelineState();
   setTimeout(() => {
     document.getElementById('ps-plan-card')?.scrollIntoView({ behavior:'smooth', block:'start' });
   }, 50);
-};
+}
 
 window.quickToProjectGen = function(asset, cat, tf, dir) {
   const catBase = String(cat || '').replace(/_S$/, '');
-  const tfList = String(tf || '').split(',').map(t => t.trim()).filter(Boolean);
-  const firstTf = tfList[0] || 'H1';
+  const tfList = parseCardTimeframes(tf);
+  if (shouldAskTimeframe(tfList)) {
+    openTimeframeSelection({ action: 'projectgen', asset: asset, cat: catBase, tfList: tfList, dir: dir });
+    return;
+  }
+  const selectedTf = tfList[0] || 'H1';
+  const trace = buildTimeframeSelectionTrace({ action: 'projectgen', asset: asset, cat: catBase, tfList: tfList, dir: dir }, selectedTf);
+  performQuickToProjectGen(asset, catBase, selectedTf, dir, trace);
+};
+
+function performQuickToProjectGen(asset, catBase, tf, dir, trace) {
+  const firstTf = String(tf || 'H1').trim().toUpperCase();
   const bs = resolveCapa1BlockSettingForCategory(catBase, firstTf) || 'BS_Custom';
   const cleanCat = catBase.replace(/[^a-z0-9]+/gi, '');
   const config = {
@@ -1492,6 +1662,13 @@ window.quickToProjectGen = function(asset, cat, tf, dir) {
 
   if (window.SQX && window.SQX.projectGenerator && window.SQX.projectGenerator.dom) {
     window.SQX.projectGenerator.dom.writeCustomProjectInputs(document, config);
+    if (window.SQX.projectGenerator.dom.setCustomProjectStatus && trace) {
+      const bsTrace = trace.blocksettingTrace || {};
+      window.SQX.projectGenerator.dom.setCustomProjectStatus(document, {
+        text: 'Prefill desde tarjeta · timeframe ' + firstTf + ' confirmado · ' + (bsTrace.canonicalId || bs) + '.',
+        level: 'info'
+      });
+    }
   }
 
   activateTabById('projectgen');
@@ -1502,7 +1679,7 @@ window.quickToProjectGen = function(asset, cat, tf, dir) {
     const target = document.querySelector('.pg-custom-card');
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 100);
-};
+}
 
 // ── SQX PRIORITY: tracking persistente en localStorage ──
 const PRIORITY_STATE_KEY = SQX_STORAGE_KEYS.priorityProgress || 'sqx_priority_progress_v1';
@@ -1585,6 +1762,12 @@ document.getElementById('strat-modal-close').addEventListener('click', closeStra
 document.getElementById('strat-modal-backdrop').addEventListener('click', function(e){
   if (e.target === this) closeStratModal();
 });
+document.getElementById('tf-select-close')?.addEventListener('click', closeTimeframeSelection);
+document.getElementById('tf-select-cancel')?.addEventListener('click', closeTimeframeSelection);
+document.getElementById('tf-select-confirm')?.addEventListener('click', confirmTimeframeSelection);
+document.getElementById('tf-select-backdrop')?.addEventListener('click', function(e){
+  if (e.target === this) closeTimeframeSelection();
+});
 document.getElementById('sf-generate').addEventListener('click', generateStratJSON);
 document.getElementById('sf-clear').addEventListener('click', clearStratForm);
 document.querySelectorAll('#strat-modal-backdrop input, #strat-modal-backdrop select, #strat-modal-backdrop textarea').forEach(function(el) {
@@ -1604,8 +1787,10 @@ document.addEventListener('keydown', function(e){
   if (e.key === 'Escape') {
     if (document.getElementById('strat-modal-backdrop').style.display !== 'none') closeStratModal();
     if (document.getElementById('strat-import-backdrop').style.display !== 'none') closeImportModal();
+    const tfSelect = document.getElementById('tf-select-backdrop');
     const psm = document.getElementById('ps-add-mining-backdrop');
     const psp = document.getElementById('ps-add-phase-backdrop');
+    if (tfSelect && tfSelect.style.display !== 'none') closeTimeframeSelection();
     if (psm && psm.style.display !== 'none') closeAddMiningModal();
     if (psp && psp.style.display !== 'none') closeAddPhaseModal();
   }
@@ -1687,6 +1872,10 @@ function addMiningUser(m) {
     bs: String(m.bs || '').trim(),
     dir: String(m.dir || '').trim(),
     source: m.source || 'manual',
+    selectedTimeframe: m.selectedTimeframe || String(m.tf || '').trim().toUpperCase(),
+    availableTimeframes: Array.isArray(m.availableTimeframes) ? m.availableTimeframes : [],
+    timeframeSource: m.timeframeSource || '',
+    blocksettingTrace: m.blocksettingTrace || null,
     trace: Object.assign({
       origin: 'Mining Control + Mining',
       destination: PLAN_USER_KEY,
@@ -1714,7 +1903,7 @@ function resolvePlanPhaseForMining(asset) {
   PLAN_USER.phases[1] = { name: 'Manual', desc: 'Minings añadidos por el usuario' };
   return 1;
 }
-function addPlanMiningFromCandidate(asset, cat, tf, dir, source) {
+function addPlanMiningFromCandidate(asset, cat, tf, dir, source, selectionTrace) {
   const catBase = String(cat || '').replace(/_S$/, '');
   const tfList = String(tf || '').split(',').map(function(t) { return t.trim().toUpperCase(); }).filter(Boolean);
   const firstTf = tfList[0] || 'H1';
@@ -1738,6 +1927,11 @@ function addPlanMiningFromCandidate(asset, cat, tf, dir, source) {
     bs: bs,
     dir: cleanDir,
     source: source || 'manual',
+    selectedTimeframe: selectionTrace && selectionTrace.selectedTimeframe || firstTf,
+    availableTimeframes: selectionTrace && selectionTrace.availableTimeframes || tfList,
+    timeframeSource: selectionTrace && selectionTrace.timeframeSource || (source === 'asset-card' ? 'card-single' : 'manual'),
+    blocksettingTrace: selectionTrace && selectionTrace.blocksettingTrace || blockSettingTraceForSelection(catBase, firstTf).blocksettingTrace,
+    trace: selectionTrace && selectionTrace.trace || null,
   });
   if (!ok) alert('No se ha podido añadir el mining al Plan mining.');
   return ok;
@@ -2072,10 +2266,13 @@ function renderPsPlan() {
           : '<span class="ps-user-badge ps-user-source-manual" title="Añadido manualmente desde Mining Control">MANUAL</span>')
         : '';
       const removeBtn = m._user ? '<button class="ps-remove-btn" title="Eliminar este mining USER" onclick="removeUserMiningClick('+m.num+')">✕</button>' : '';
+      const tfTrace = m.timeframeSource === 'card-selection'
+        ? '<small title="Timeframe confirmado desde tarjeta con varias temporalidades">tarjeta</small>'
+        : (m.timeframeSource === 'card-single' ? '<small title="Timeframe unico de tarjeta">tarjeta unica</small>' : '');
       return '<tr>' +
         '<td class="ps-m-num">'+m.num+userBadge+'</td>' +
         '<td><div class="ps-m-asset">'+planEsc(m.asset)+'</div>'+tplsHtml+'</td>' +
-        '<td class="ps-m-tf">'+planEsc(m.tf)+'</td>' +
+        '<td class="ps-m-tf"><span>'+planEsc(m.tf)+'</span>'+tfTrace+'</td>' +
         '<td><span class="ps-m-bs">'+blockSettingTraceHtml(m.bs)+'</span></td>' +
         '<td><span class="'+dirCls+'" style="font-weight:700;font-size:12px;">'+planEsc(m.dir)+'</span></td>' +
         '<td>'+compHtml+'</td>' +

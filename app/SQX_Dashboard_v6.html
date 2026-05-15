@@ -1874,6 +1874,31 @@
     </div>
   </div>
 
+  <!-- MODAL GLOBAL: seleccion trazable de timeframe desde tarjetas -->
+  <div class="strat-modal-backdrop" id="tf-select-backdrop" style="display:none;">
+    <div class="strat-modal tf-select-modal">
+      <div class="strat-modal-header">
+        <h3>Seleccionar temporalidad</h3>
+        <button class="strat-modal-close" id="tf-select-close" aria-label="Cancelar">×</button>
+      </div>
+      <div class="strat-modal-body">
+        <div class="modal-trace-panel">
+          <strong>Trazabilidad de origen</strong>
+          <div class="modal-trace-items" id="tf-select-trace-items"></div>
+        </div>
+        <p class="tf-select-copy">
+          Esta tarjeta contiene varias temporalidades recomendadas. Elige una para que Plan Mining y Project Generator nazcan con timeframe, BlockSetting real y hash trazables desde el origen.
+        </p>
+        <div class="tf-select-options" id="tf-select-options"></div>
+        <p id="tf-select-preview" class="modal-trace-preview">Selecciona una temporalidad para ver la traza final.</p>
+        <div class="sqx-decision-actions">
+          <button class="export-btn" id="tf-select-cancel" type="button">Cancelar</button>
+          <button class="export-btn sqx-decision-confirm" id="tf-select-confirm" type="button">Confirmar temporalidad</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- TAB: WORKFLOW (metodología completa - integrado de SQX_Workflow_Dashboard) -->
   <div id="tab-workflow" class="tab-content">
     <section class="workflow-command-center" id="workflow-command-center">

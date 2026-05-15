@@ -5,7 +5,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 ## Current State
 
 - Current phase completed: UX-NAV sidebar navigation polish inside the Mining Control pass.
-- Current implementation phase: BS-TRACE1 - integrate real versioned BlockSettings as the source of truth for Activos, Plan Mining, Project Generator and Template Maker C2 traceability.
+- Current implementation phase: TF-TRACE1 - require traceable timeframe selection from asset cards before sending multi-timeframe ideas to Plan Mining or Project Generator.
 - Current UX surface decision: Strategy Builder tab and visible CVC handoff are retired from the dashboard shell; existing SB modules/docs remain internal historical contracts until a future renamed workflow is approved.
 - Current scoring surface decision: Template Maker is the active Capa 1 scoring and C2 generation surface, now including certification, structural diversity and mandatory C2 traceability before C2; Capa 2 comparison/relationships belong to Champion vs Challenger, including portfolio relationships.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
@@ -14,6 +14,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Branding source rule: generated originals under `material de diagnostico/imagenes_prompts/` remain local-only; only cleaned, optimized derivatives under `app/assets/brand/` may become tracked product assets.
 - Template Maker C2 traceability rule: every generated C2 template name and internal `StrategyName` must include asset, BlockSetting, base indicator, NumCluster, direction, timeframe and source strategy so the operator can trace origin to final template without relying on memory.
 - BlockSettings Source Gate: every mining, generated `.cfx` or Template Maker C2 output must preserve `family`, `canonicalId`, `filename`, `sha256`, `layer`, `timeframeRule` and origin. Legacy labels such as `BS_Tendencia` are aliases only; generation must resolve to the real `.sqb` in `backend/sqx-edge-tool/resources/blocksettings/`.
+- Timeframe Trace Gate: when an asset card exposes multiple timeframes, the user must confirm one timeframe before the idea enters Plan Mining or Project Generator. The resulting mining/prefill must preserve selected timeframe, available timeframes, source card and resolved BlockSetting trace.
 - Modal Traceability Gate: every active modal must declare owner, source data, destination data, impact, failure modes and user-visible trace before it can mutate local state. Critical reset/delete/import/restore actions must use the unified decision surface or an equivalent traceable modal, not a blind native prompt.
 - Active UX-NAV tab: `Mining Control`; temporarily paused for MODAL-TRACE modal governance and traceability hardening. Resume Mining Control after this phase unless the operator says `Adelante con el siguiente tab`.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.

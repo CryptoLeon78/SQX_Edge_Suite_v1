@@ -158,15 +158,30 @@ async function run() {
     await acceptDecision(desktop);
     await desktop.waitForFunction(() => !document.getElementById('ps-plan-table')?.innerText.includes('Fase editable E2E'));
     await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
-    await desktop.evaluate(() => {
-      const ok = window.addPlanMiningFromCandidate('EURUSD', 'tendencia', 'H1', 'L/S', 'asset-card');
-      if (!ok) throw new Error('E2E addPlanMiningFromCandidate failed');
-      window.renderPipelineState();
+    await desktop.evaluate(() => window.quickAddToPlan('EURUSD', 'momentum', 'M15, M30, H1', 'L/S'));
+    await desktop.waitForSelector('#tf-select-backdrop[style*="flex"]');
+    await desktop.locator('#tf-select-options [data-tf="M30"]').click();
+    await desktop.locator('#tf-select-confirm').click();
+    await desktop.waitForFunction(() => {
+      const text = document.getElementById('ps-plan-table')?.innerText || '';
+      return text.includes('EURUSD') && text.includes('M30');
     });
-    await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('EURUSD'));
     const unifiedPlanText = await desktop.locator('#ps-plan-card').innerText();
-    if (!unifiedPlanText.includes('EURUSD') || !unifiedPlanText.includes('TARJETA')) {
-      throw new Error('Added asset-card mining should join the unified Plan mining table with TARJETA source tag');
+    if (!unifiedPlanText.includes('EURUSD') || !unifiedPlanText.includes('TARJETA') || !unifiedPlanText.includes('M30')) {
+      throw new Error('Added asset-card mining should join the unified Plan mining table with selected timeframe and TARJETA source tag');
+    }
+    const tfTraceState = await desktop.evaluate(() => {
+      const state = JSON.parse(localStorage.getItem('sqx_plan_user_v1') || '{}');
+      const mining = (state.minings || []).find(item => item.asset === 'EURUSD' && item.tf === 'M30');
+      return mining ? {
+        selectedTimeframe: mining.selectedTimeframe,
+        timeframeSource: mining.timeframeSource,
+        availableTimeframes: mining.availableTimeframes,
+        blocksetting: mining.blocksettingTrace && mining.blocksettingTrace.canonicalId
+      } : null;
+    });
+    if (!tfTraceState || tfTraceState.selectedTimeframe !== 'M30' || tfTraceState.timeframeSource !== 'card-selection' || !tfTraceState.blocksetting) {
+      throw new Error('Asset-card mining should persist selected timeframe trace and real BlockSetting trace');
     }
     if (unifiedPlanText.includes('Plan extendido') || unifiedPlanText.includes('Precarga desde Por Activo')) {
       throw new Error('Mining Control should not keep retired plan preload showcase copy');
@@ -442,6 +457,16 @@ async function run() {
     await desktop.waitForSelector('#pg-mode-manual-panel:not([hidden]) #pg-custom-generate');
     if (await desktop.locator('#pg-mode-methodological-panel:not([hidden])').count() !== 0) {
       throw new Error('Project Generator should hide Plan Mining workspace when manual generation is active');
+    }
+    await desktop.evaluate(() => window.quickToProjectGen('AUDCAD', 'momentum', 'M15, M30, H1', 'L/S'));
+    await desktop.waitForSelector('#tf-select-backdrop[style*="flex"]');
+    await desktop.locator('#tf-select-options [data-tf="M30"]').click();
+    await desktop.locator('#tf-select-confirm').click();
+    await desktop.waitForFunction(() => document.getElementById('pg-custom-tf')?.value === 'M30');
+    await desktop.waitForFunction(() => document.getElementById('pg-custom-bs')?.value === 'BS_Momentum_v4');
+    const pgTfTraceStatus = await desktop.locator('#pg-custom-status').innerText();
+    if (!pgTfTraceStatus.includes('timeframe M30 confirmado')) {
+      throw new Error('Project Generator card prefill should announce selected timeframe trace');
     }
     await desktop.locator('#pg-custom-asset').fill('EURUSD');
     await desktop.locator('#pg-custom-tf').fill('H1');
