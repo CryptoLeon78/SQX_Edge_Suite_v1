@@ -8,6 +8,7 @@ const uiManifest = JSON.parse(fs.readFileSync(path.join(repoRoot, 'backend/sqx-e
 
 const { SQX } = createLoadedSandbox([
   'app/js/modules/storage.js',
+  'app/js/modules/exit-policy.js',
   'app/js/modules/template-maker.js',
   'app/js/modules/template-maker-ui.js',
 ]);
@@ -46,6 +47,9 @@ const requiredApi = [
   'getDiversitySettings',
   'setDiversitySetting',
   'getDiversityStatus',
+  'detectExitComponents',
+  'getC2GenerationPreview',
+  'getExitAuditReport',
   'reconcileStrategySources',
   'getStrategyStatus',
   'canGenerateC2',
@@ -75,6 +79,8 @@ assert.ok(html.includes('Descorrelación de templates'), 'Template Maker should 
 assert.ok(html.includes('id="tm-c2-selected-btn"'), 'missing external selected C2 action');
 assert.ok(html.includes('id="tm-c2-cluster"'), 'missing C2 cluster trace field');
 assert.ok(html.includes('id="tm-c2-name-preview"'), 'missing C2 traceable filename preview');
+assert.ok(html.includes('id="tm-c2-exit-list"'), 'missing C2 exit policy list');
+assert.ok(html.includes('Salidas y randomización'), 'C2 modal should expose exit/randomization control');
 assert.ok(html.includes('value="BS_Tendencia_v4"'), 'C2 block selector should use real versioned BS_* values');
 assert.ok(html.includes('id="tm-reset-results-btn"'), 'missing results reset');
 assert.ok(html.includes('Reset resultados'), 'results reset should be user-facing');
@@ -95,6 +101,7 @@ assert.ok(html.includes('Avanzado: Umbrales KPI editables'), 'thresholds should 
 assert.ok(!html.includes('tm-help-panel'), 'old quick guide panel should be merged into guided steps');
 assert.ok(!html.includes('tm-flow-grid'), 'old source cards should be merged into guided steps');
 assert.ok(html.includes('vendor/jszip.min.js'), 'missing local JSZip script');
+assert.ok(html.includes('js/modules/exit-policy.js'), 'missing global exit policy script');
 assert.ok(html.includes('js/modules/template-maker.js'), 'missing template-maker script');
 assert.ok(html.includes('js/modules/template-maker-ui.js'), 'missing template-maker-ui script');
 assert.ok(!html.includes('id="tab-analyzer"'), 'old analyzer tab should not remain active');
@@ -108,6 +115,7 @@ assert.equal(tabIds.indexOf('templatemaker'), tabIds.indexOf('estrategias') - 1,
 
 assert.ok(SQX.modules['template-maker'], 'template-maker module should register');
 assert.ok(SQX.modules['template-maker-ui'], 'template-maker-ui module should register');
+assert.ok(SQX.modules['exit-policy'], 'exit-policy module should register');
 requiredApi.forEach(method => assert.equal(typeof tm[method], 'function', `API ${method} should be a function`));
 assert.equal(tm.getCurrentPreset(), 'Generic', 'default preset should be Generic');
 assert.equal(tm.getCapa(), 1, 'default capa should be 1');
@@ -133,6 +141,7 @@ const certV2Csv = fs.readFileSync(path.join(repoRoot, 'resources/template-maker-
 ['Strategy TM.01.sqx', 'Strategy TM.02.sqx', 'Strategy TM.03.sqx'].forEach(fileName => {
   assert.ok(fs.existsSync(path.join(repoRoot, 'resources/template-maker-tool', fileName)), `missing tracked diversity SQX fixture ${fileName}`);
 });
+assert.ok(fs.existsSync(path.join(repoRoot, 'resources/template-maker-tool', 'Strategy TM ExitPolicy.sqx')), 'missing tracked exit policy SQX fixture');
 await tm.loadFromCSV(certV2Csv, { fileName: 'template-maker-cert-v2.csv' });
 assert.equal(tm.getStrategies().length, 3, 'realistic Template Maker Cert v2 fixture should load all rows');
 const certV2Strategy = tm.getStrategies()[0];
@@ -232,6 +241,14 @@ assert.ok(c2Trace.name.includes('hma_atr_bands'), 'C2 name should include base i
 assert.ok(c2Trace.name.includes(div02.clusterId), 'C2 name should include cluster id');
 assert.ok(c2Trace.name.includes('TM_Div_02'), 'C2 name should include source strategy');
 assert.equal(tm.buildC2TemplateName(c2Winner, c2Trace), c2Trace.name, 'C2 name builder should be the single source of truth');
+const lacityExitXml = fs.readFileSync(path.join(repoRoot, 'resources/template-maker-tool/exit_policy_lacity_strategy.xml'), 'utf8');
+const exitPreview = await tm.getC2GenerationPreview(Object.assign({}, c2Winner, { _strategyXml: lacityExitXml }), { blockSetting: 'BS_Tendencia_v4' });
+assert.equal(exitPreview.exitPolicyVersion, 'sqx-exit-policy-v1', 'C2 preview should expose exit policy version');
+assert.ok(exitPreview.exitSummary.disabled.includes('Exit After Days LaCity'), 'C2 preview should disable ExitAfterDays');
+assert.ok(exitPreview.exitSummary.disabled.includes('Exit After TDays LaCity'), 'C2 preview should disable ExitAfterTDays');
+assert.ok(exitPreview.exitSummary.randomized.includes('Profit Target'), 'C2 preview should randomize Profit Target');
+assert.ok(tm.detectExitComponents({ _strategyXml: lacityExitXml }).some(component => component.kind === 'exit_after_days'), 'Template Maker should expose detected ExitAfterDays');
+assert.ok(tm.getExitAuditReport({ _strategyXml: lacityExitXml }).summary.disabled.includes('Exit After Bars'), 'Template Maker exit audit should use the global policy');
 await tm.setDiversitySetting('structuralThreshold', 0.99);
 assert.equal(tm.getDiversitySettings().structuralThreshold, 0.99, 'diversity setting should be editable');
 await tm.clearResultStrategies();

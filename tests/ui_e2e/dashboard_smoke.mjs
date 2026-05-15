@@ -645,7 +645,7 @@ async function run() {
     const csvSamplePath = path.join(repoRoot, 'resources', 'template-maker-tool', 'template_maker_cert_v2_sample.csv');
     const sqxSamplePaths = [
       path.join(repoRoot, 'resources', 'template-maker-tool', 'Strategy TM.01.sqx'),
-      path.join(repoRoot, 'resources', 'template-maker-tool', 'Strategy TM.02.sqx'),
+      path.join(repoRoot, 'resources', 'template-maker-tool', 'Strategy TM ExitPolicy.sqx'),
       path.join(repoRoot, 'resources', 'template-maker-tool', 'Strategy TM.03.sqx'),
     ];
     await desktop.locator('#tm-files-input').setInputFiles(csvSamplePath);
@@ -687,12 +687,15 @@ async function run() {
     await desktop.waitForSelector('#tm-modal-c2:not([hidden])');
     await desktop.waitForFunction(() => (document.getElementById('tm-c2-indicator')?.value || '').length > 0);
     await desktop.waitForFunction(() => /^CL\d+/.test(document.getElementById('tm-c2-cluster')?.value || ''));
+    await desktop.waitForFunction(() => (document.getElementById('tm-c2-exit-list')?.innerText || '').length > 0);
     const c2TraceInitial = await desktop.evaluate(() => ({
       indicator: document.getElementById('tm-c2-indicator')?.value || '',
       cluster: document.getElementById('tm-c2-cluster')?.value || '',
       block: document.getElementById('tm-c2-block')?.value || '',
       detected: document.getElementById('tm-c2-indicators-detected')?.textContent || '',
       preview: document.getElementById('tm-c2-name-preview')?.textContent || '',
+      exits: document.getElementById('tm-c2-exit-list')?.innerText || '',
+      exitVersion: document.getElementById('tm-c2-exit-version')?.textContent || '',
     }));
     if (!c2TraceInitial.indicator || c2TraceInitial.indicator === 'SIN_INDICADOR') {
       throw new Error('Template Maker C2 modal should prefill the base indicator from SQX logic');
@@ -705,6 +708,12 @@ async function run() {
     if (!c2TraceInitial.detected || c2TraceInitial.detected === '-') {
       throw new Error('Template Maker C2 modal should show detected indicators');
     }
+    if (!c2TraceInitial.exitVersion.includes('sqx-exit-policy-v1')) {
+      throw new Error('Template Maker C2 modal should expose the exit policy version');
+    }
+    ['Profit Target', 'Stop Loss', 'Trailing Stop'].forEach(expected => {
+      if (!c2TraceInitial.exits.includes(expected)) throw new Error(`C2 exit policy should list ${expected}`);
+    });
     await desktop.locator('#tm-c2-indicator').fill(`${c2TraceInitial.indicator}_custom`);
     await desktop.locator('#tm-c2-cluster').fill('CL09');
     await desktop.waitForFunction(() => {
@@ -729,6 +738,10 @@ async function run() {
       return {
         name: trace.name,
         xmlHasName: xml.includes(`<StrategyName>${trace.name}</StrategyName>`),
+        exitAfterBarsDisabled: /#ExitAfterBars\.ExitAfterBars#"[^>]*>0<\/Param>/.test(xml),
+        ptRandom: /#ProfitTarget\.ProfitTarget#"[^>]*generate="random"[^>]*randomValue="default"/.test(xml),
+        slRandom: /#StopLoss\.StopLoss#"[^>]*generate="random"[^>]*randomValue="default"/.test(xml),
+        tsRandom: /#TrailingStop\.TrailingStop#"[^>]*generate="random"[^>]*randomValue="default"/.test(xml),
       };
     });
     if (!generatedC2Trace.name.includes('CL09') || !generatedC2Trace.name.includes('_custom')) {
@@ -736,6 +749,12 @@ async function run() {
     }
     if (!generatedC2Trace.xmlHasName) {
       throw new Error('Generated C2 SQX should write the traceable name into StrategyName');
+    }
+    if (!generatedC2Trace.exitAfterBarsDisabled) {
+      throw new Error('Generated C2 SQX should disable ExitAfterBars through exit policy');
+    }
+    if (!generatedC2Trace.ptRandom || !generatedC2Trace.slRandom || !generatedC2Trace.tsRandom) {
+      throw new Error('Generated C2 SQX should randomize PT/SL/TS through exit policy');
     }
     await desktop.locator('#tm-c2-cancel').click();
     await desktop.locator('#tm-results-table [data-tm-select]').nth(1).uncheck();

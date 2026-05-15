@@ -11,7 +11,7 @@ El registro runtime vive en `SQX.modalRegistry` y cubre estas superficies:
 | Modal | Tab | Proposito | Trazabilidad minima |
 | --- | --- | --- | --- |
 | `tm-modal-audit` | Template Maker | Auditar estrategias cargadas | CSV/view, contrato, registros, clusters, ganadoras C2 |
-| `tm-modal-c2` | Template Maker | Generar template C2 | Asset, BlockSetting, indicador, cluster, direccion, timeframe, origen |
+| `tm-modal-c2` | Template Maker | Generar template C2 | Asset, BlockSetting, indicador, cluster, direccion, timeframe, origen, politica de salidas |
 | `strat-modal-backdrop` | Strategy Control | Crear JSON manual | Origen manual, mining, asset, template, blocksetting, status |
 | `strat-import-backdrop` | Strategy Control | Importar CSV | Batch, archivo, columnas, seleccion, duplicados, localStorage destino |
 | `ps-add-mining-backdrop` | Mining Control | Anadir mining | Fase, asset, timeframe, blocksetting, direccion, tag MANUAL |
@@ -32,7 +32,7 @@ El registro runtime vive en `SQX.modalRegistry` y cubre estas superficies:
 - Duplicado detectado: no debe crear estado fantasma.
 - CSV invalido: no debe importar registros parciales sin aviso.
 - Restore state: debe crear backup previo antes de aplicar claves permitidas.
-- Template Maker C2: debe avisar si usa `SIN_INDICADOR` o `CL00`.
+- Template Maker C2: debe avisar si usa `SIN_INDICADOR` o `CL00`, y debe bloquear salidas desconocidas activas hasta que exista decision explicita en la politica `sqx-exit-policy-v1`.
 
 ## Verificacion
 

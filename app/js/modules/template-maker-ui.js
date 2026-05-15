@@ -695,6 +695,7 @@
       auditTile('Clusters diversidad', report.diversity ? report.diversity.clusters : 0) +
       auditTile('Ganadores C2', report.diversity ? report.diversity.winners : 0) +
       auditTile('Descartadas similitud', report.diversity ? report.diversity.discarded : 0) +
+      auditTile('Salidas detectadas', report.exitPolicy ? report.exitPolicy.detected : 0) +
       auditTile('Perfil', report.preset + ' / Capa ' + report.capa) +
       '</div>';
     modal.hidden = false;
@@ -762,6 +763,20 @@
       clusterId: (byId('tm-c2-cluster') && byId('tm-c2-cluster').value.trim()) || 'CL00',
       blockSetting: byId('tm-c2-block') && byId('tm-c2-block').value || 'BS_Tendencia_v4'
     };
+    options.exitOverrides = readExitOverrides();
+    return options;
+  }
+
+  function readExitOverrides() {
+    var overrides = {};
+    var modal = byId('tm-modal-c2');
+    if (!modal) return overrides;
+    Array.prototype.forEach.call(modal.querySelectorAll('[data-tm-exit-action]'), function(select) {
+      var id = select.getAttribute('data-tm-exit-action');
+      if (!id) return;
+      overrides[id] = { action: select.value };
+    });
+    return overrides;
   }
 
   function renderC2TracePreview() {
@@ -783,6 +798,80 @@
         ? 'Completa o confirma estos campos antes de generar: ' + trace.missing.join(', ') + '.'
         : '';
     }
+    if (SQX.templateMaker.getC2GenerationPreview) {
+      SQX.templateMaker.getC2GenerationPreview(strategy, readC2Options(strategy)).then(function(result) {
+        renderC2ExitPolicy(result);
+      }).catch(function(err) {
+        renderC2ExitPolicy({
+          blocked: true,
+          exitPolicyVersion: 'sqx-exit-policy-v1',
+          exitPlan: { components: [] },
+          exitSummary: { detected: [], blocked: [err && err.message ? err.message : 'error'] }
+        });
+      });
+    }
+  }
+
+  function renderC2ExitPolicy(result) {
+    var summary = result && result.exitSummary || {};
+    var plan = result && result.exitPlan || { components: [] };
+    var summaryEl = byId('tm-c2-exit-summary');
+    var versionEl = byId('tm-c2-exit-version');
+    var listEl = byId('tm-c2-exit-list');
+    var overridesEl = byId('tm-c2-exit-overrides');
+    var warningEl = byId('tm-c2-exit-warning');
+    var confirm = byId('tm-c2-confirm');
+    var components = plan.components || [];
+    if (versionEl) versionEl.textContent = result && result.exitPolicyVersion || summary.version || 'sqx-exit-policy-v1';
+    if (summaryEl) {
+      summaryEl.textContent = components.length
+        ? components.length + ' salidas detectadas · ' + (summary.randomized || []).length + ' randomizadas · ' + (summary.disabled || []).length + ' desactivadas'
+        : 'Sin salidas detectadas en strategy_Portfolio.xml';
+    }
+    if (listEl) {
+      listEl.innerHTML = components.length ? components.map(function(component) {
+        return '<span class="tm-c2-exit-chip" data-action="' + esc(component.action) + '">' +
+          esc(component.label) + ' · ' + esc(actionLabel(component.action)) +
+          '</span>';
+      }).join('') : '<span class="tm-c2-exit-chip">No hay salidas configuradas</span>';
+    }
+    if (overridesEl) {
+      overridesEl.innerHTML = components.map(function(component) {
+        return '<div class="tm-c2-exit-row">' +
+          '<div><strong>' + esc(component.label) + '</strong><small>' + esc(component.key || component.kind) + ' · valor original: ' + esc(component.value || '-') + '</small></div>' +
+          '<select class="filter-select" data-tm-exit-action="' + esc(component.id) + '">' +
+            optionHtml('keep', 'Mantener', component.action) +
+            optionHtml('disable', 'Desactivar', component.action) +
+            optionHtml('randomize', 'Randomizar', component.action) +
+            optionHtml('block', 'Bloquear', component.action) +
+          '</select>' +
+          '<small>' + esc(component.reason || '') + '</small>' +
+        '</div>';
+      }).join('');
+      Array.prototype.forEach.call(overridesEl.querySelectorAll('[data-tm-exit-action]'), function(select) {
+        select.addEventListener('change', renderC2TracePreview);
+      });
+    }
+    var blocked = !!(summary.blocked && summary.blocked.length);
+    if (warningEl) {
+      warningEl.hidden = !blocked;
+      warningEl.textContent = blocked
+        ? 'Hay salidas activas sin decisión metodológica: ' + summary.blocked.join(', ') + '. Revísalas en avanzado antes de generar.'
+        : '';
+    }
+    if (confirm) confirm.disabled = blocked;
+  }
+
+  function optionHtml(value, label, selected) {
+    return '<option value="' + esc(value) + '"' + (value === selected ? ' selected' : '') + '>' + esc(label) + '</option>';
+  }
+
+  function actionLabel(action) {
+    if (action === 'randomize') return 'random';
+    if (action === 'disable') return 'off';
+    if (action === 'keep') return 'mantener';
+    if (action === 'block') return 'requiere decisión';
+    return action || '-';
   }
 
   function setSelectValue(id, value) {

@@ -279,6 +279,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/charts.js",
                 "js/modules/strategies.js",
                 "vendor/jszip.min.js",
+                "js/modules/exit-policy.js",
                 "js/modules/template-maker.js",
                 "js/modules/template-maker-ui.js",
                 "js/modules/home.js",
@@ -978,6 +979,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/charts.js",
             "js/modules/strategies.js",
             "vendor/jszip.min.js",
+            "js/modules/exit-policy.js",
             "js/modules/template-maker.js",
             "js/modules/template-maker-ui.js",
             "js/modules/home.js",
@@ -1020,6 +1022,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         renderers_js = (APP_ROOT / "js" / "modules" / "renderers.js").read_text(encoding="utf-8-sig")
         charts_js = (APP_ROOT / "js" / "modules" / "charts.js").read_text(encoding="utf-8-sig")
         strategies_js = (APP_ROOT / "js" / "modules" / "strategies.js").read_text(encoding="utf-8-sig")
+        exit_policy_js = (APP_ROOT / "js" / "modules" / "exit-policy.js").read_text(encoding="utf-8-sig")
         template_maker_js = (APP_ROOT / "js" / "modules" / "template-maker.js").read_text(encoding="utf-8-sig")
         template_maker_ui_js = (APP_ROOT / "js" / "modules" / "template-maker-ui.js").read_text(encoding="utf-8-sig")
         home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
@@ -1062,6 +1065,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.license", license_js)
         self.assertIn("SQX.ui", ui_js)
         self.assertIn("SQX.formatters", formatters_js)
+        self.assertIn("SQX.exitPolicy", exit_policy_js)
+        self.assertIn("sqx-exit-policy-v1", exit_policy_js)
+        self.assertIn("exit_after_trading_days", exit_policy_js)
         self.assertIn("SQX.templateMaker", template_maker_js)
         self.assertIn("SQX.registerModule('template-maker'", template_maker_js)
         self.assertIn("SQX.templateMakerUI", template_maker_ui_js)

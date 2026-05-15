@@ -39,6 +39,7 @@ assert.match(html, /id="sqx-decision-backdrop"/);
 assert.match(html, /id="tf-select-backdrop"/);
 assert.match(html, /Seleccionar temporalidad/);
 assert.match(html, /Trazabilidad obligatoria C2/);
+assert.match(html, /Salidas: política sqx-exit-policy-v1/);
 assert.match(html, /Alta manual trazable/);
 assert.match(html, /Batch de importacion trazable/);
 assert.match(html, /Alta de mining trazable/);

@@ -36,6 +36,7 @@
     'Ret/DD Ratio': 'CAGR/Max DD %'
   };
   var DIVERSITY_VERSION = 'template-maker-diversity-v1';
+  var EXIT_POLICY_VERSION = 'sqx-exit-policy-v1';
   var DIVERSITY_METRICS = [
     'CAGR/Max DD %',
     'Profit factor',
@@ -274,6 +275,7 @@
         certVersion: TM_CERT_VERSION,
         diversityVersion: DIVERSITY_VERSION,
         ruleset: TM_RULESET,
+        exitPolicyVersion: EXIT_POLICY_VERSION,
         importedAt: new Date().toISOString(),
         events: []
       },
@@ -287,6 +289,7 @@
       certVersion: TM_CERT_VERSION,
       diversityVersion: DIVERSITY_VERSION,
       ruleset: TM_RULESET,
+      exitPolicyVersion: EXIT_POLICY_VERSION,
       importedAt: new Date().toISOString(),
       events: []
     }, record.provenance || {});
@@ -302,6 +305,7 @@
     provenance.certVersion = TM_CERT_VERSION;
     provenance.diversityVersion = DIVERSITY_VERSION;
     provenance.ruleset = TM_RULESET;
+    provenance.exitPolicyVersion = EXIT_POLICY_VERSION;
   }
 
   function addEvent(strategy, type, source) {
@@ -552,6 +556,10 @@
 
   function mergeStrategyXml(result, xml) {
     if (!global.DOMParser) return;
+    result._strategyXml = xml;
+    if (SQX.exitPolicy && SQX.exitPolicy.detectExitComponentsFromXml) {
+      result.logic.exitComponents = SQX.exitPolicy.detectExitComponentsFromXml(xml);
+    }
     var doc = new global.DOMParser().parseFromString(xml, 'text/xml');
     var opts = doc.querySelector('options');
     if (opts) {
@@ -853,6 +861,7 @@
     var copy = {};
     Object.keys(strategy || {}).forEach(function(key) {
       if (key === '_fileData') return;
+      if (key === '_strategyXml') return;
       copy[key] = strategy[key];
     });
     if (copy.sources && copy.sources.sqx) {
@@ -1396,6 +1405,61 @@
       && (diversity.status === 'Diverso' || diversity.status === 'Ganador cluster');
   }
 
+  function detectExitComponents(strategy) {
+    if (strategy && strategy._strategyXml && SQX.exitPolicy && SQX.exitPolicy.detectExitComponentsFromXml) {
+      return SQX.exitPolicy.detectExitComponentsFromXml(strategy._strategyXml);
+    }
+    if (strategy && strategy.logic && Array.isArray(strategy.logic.exitComponents)) {
+      return clone(strategy.logic.exitComponents);
+    }
+    return [];
+  }
+
+  function getExitAuditReport(strategy) {
+    var components = detectExitComponents(strategy);
+    var plan = SQX.exitPolicy && SQX.exitPolicy.buildDefaultExitPlan
+      ? SQX.exitPolicy.buildDefaultExitPlan(strategy || {}, {})
+      : { version: EXIT_POLICY_VERSION, components: components };
+    var summary = SQX.exitPolicy && SQX.exitPolicy.summarizeExitPlan
+      ? SQX.exitPolicy.summarizeExitPlan(plan)
+      : { version: EXIT_POLICY_VERSION, detected: components.map(function(item) { return item.label || item.key; }) };
+    return {
+      version: EXIT_POLICY_VERSION,
+      components: components,
+      plan: plan,
+      summary: summary
+    };
+  }
+
+  function readStrategyXml(strategy) {
+    if (strategy && strategy._strategyXml) return Promise.resolve(strategy._strategyXml);
+    if (!strategy || !strategy._fileData || !global.JSZip) return Promise.resolve('');
+    return global.JSZip.loadAsync(strategy._fileData).then(function(zip) {
+      var file = zip.file('strategy_Portfolio.xml');
+      return file ? file.async('string') : '';
+    });
+  }
+
+  function getC2GenerationPreview(strategy, options) {
+    var opts = options || {};
+    return readStrategyXml(strategy).then(function(xml) {
+      var trace = resolveC2Trace(strategy, opts);
+      var plan = SQX.exitPolicy && SQX.exitPolicy.buildDefaultExitPlan
+        ? SQX.exitPolicy.buildDefaultExitPlan(xml || strategy || {}, opts.exitOverrides || {})
+        : { version: EXIT_POLICY_VERSION, components: [] };
+      var summary = SQX.exitPolicy && SQX.exitPolicy.summarizeExitPlan
+        ? SQX.exitPolicy.summarizeExitPlan(plan)
+        : { version: EXIT_POLICY_VERSION, detected: [] };
+      return {
+        trace: trace,
+        exitPolicyVersion: EXIT_POLICY_VERSION,
+        exitPlan: plan,
+        exitSummary: summary,
+        blocked: !!(summary.blocked && summary.blocked.length)
+      };
+    });
+  }
+
   function formatLogicIndicators(strategy) {
     var features = extractLogicFeatures(strategy);
     var tokens = uniqueSorted(features.indicators || []);
@@ -1706,6 +1770,12 @@
         winners: diversity.winners,
         discarded: diversity.discarded
       },
+      exitPolicy: {
+        version: EXIT_POLICY_VERSION,
+        detected: _strategies.reduce(function(count, strategy) {
+          return count + detectExitComponents(strategy).length;
+        }, 0)
+      },
       capa: _currentCapa,
       preset: _currentPreset
     };
@@ -1720,7 +1790,7 @@
       var file = zip.file('strategy_Portfolio.xml');
       if (!file) throw new Error('strategy_Portfolio.xml no existe en el .sqx');
       return file.async('string').then(function(xml) {
-        return patchStrategyXml(xml, strategy, trace);
+        return patchStrategyXml(xml, strategy, Object.assign({}, options || {}, trace));
       }).then(function(xml) {
         zip.file('strategy_Portfolio.xml', xml);
         return zip.generateAsync({ type: 'blob' });
@@ -1733,13 +1803,16 @@
     var doc = new global.DOMParser().parseFromString(xml, 'text/xml');
     injectRandomCondition(doc, '33333333-1111-1111-3333-333333333333', 1);
     injectRandomCondition(doc, '33333333-2222-1111-3333-333333333333', 2);
-    updateExits(doc, 'Long entry', 1);
-    updateExits(doc, 'Short entry', 2);
     var stratNode = doc.querySelector('Strategy');
     if (stratNode) stratNode.setAttribute('allowRandom', 'true');
     var opts = doc.querySelector('options StrategyName');
     if (opts) opts.textContent = buildC2TemplateName(strategy, options);
-    return new global.XMLSerializer().serializeToString(doc);
+    var patchedXml = new global.XMLSerializer().serializeToString(doc);
+    if (SQX.exitPolicy && SQX.exitPolicy.buildDefaultExitPlan && SQX.exitPolicy.applyExitPlanToStrategyXml) {
+      var exitPlan = SQX.exitPolicy.buildDefaultExitPlan(patchedXml, options && options.exitOverrides || {});
+      patchedXml = SQX.exitPolicy.applyExitPlanToStrategyXml(patchedXml, exitPlan);
+    }
+    return patchedXml;
   }
 
   function createRandomConditionBlock(doc, idNumber) {
@@ -1765,57 +1838,6 @@
     andItem.appendChild(randomBlock);
     while (signalNode.firstChild) signalNode.removeChild(signalNode.firstChild);
     signalNode.appendChild(andItem);
-  }
-
-  function findRule(doc, ruleName) {
-    var rules = doc.querySelectorAll('Rule');
-    for (var i = 0; i < rules.length; i += 1) {
-      if (rules[i].getAttribute('name') === ruleName) return rules[i];
-    }
-    return null;
-  }
-
-  function updateExits(doc, ruleName, idNumber) {
-    var ruleNode = findRule(doc, ruleName);
-    if (!ruleNode) return;
-    var enterItem = ruleNode.querySelector('Then Item[key="EnterAtMarket"]');
-    if (!enterItem) return;
-    var exitBars = enterItem.querySelector('Param[key="#ExitAfterBars.ExitAfterBars#"]');
-    if (exitBars) exitBars.textContent = '0';
-    randomizeExitParam(doc, enterItem, '#ProfitTarget.ProfitTarget#', 'SQ.Formulas.SLPT.FixedValue', idNumber);
-    randomizeExitParam(doc, enterItem, '#StopLoss.StopLoss#', 'SQ.Formulas.SLPT.FixedValue', idNumber);
-    randomizeExitParam(doc, enterItem, '#TrailingStop.TrailingStop#', 'SQ.Formulas.RangeLevel.FixedValue', idNumber);
-  }
-
-  function randomizeExitParam(doc, enterItem, key, formulaKey, idNumber) {
-    var param = enterItem.querySelector('Param[key="' + key + '"]');
-    if (!param) return;
-    param.setAttribute('generate', 'random');
-    param.setAttribute('randomValue', 'default');
-    param.setAttribute('identification', 'EnterAtMarket' + idNumber);
-    while (param.firstChild) param.removeChild(param.firstChild);
-    param.appendChild(createFixedValueFormula(doc, formulaKey));
-  }
-
-  function createFixedValueFormula(doc, formulaKey) {
-    var formula = doc.createElement('Formula');
-    formula.setAttribute('key', formulaKey);
-    var param = doc.createElement('Param');
-    param.setAttribute('key', '#Value#');
-    param.setAttribute('name', 'Value');
-    param.setAttribute('type', 'double');
-    param.setAttribute('defaultValue', '50');
-    param.setAttribute('controlType', 'jspinnerVar');
-    param.setAttribute('minValue', '1');
-    param.setAttribute('maxValue', '9999999');
-    param.setAttribute('step', '1');
-    param.setAttribute('postfix', 'pips');
-    param.setAttribute('builderMinValue', '5');
-    param.setAttribute('builderMaxValue', '500');
-    param.setAttribute('builderStep', '1');
-    param.textContent = '50';
-    formula.appendChild(param);
-    return formula;
   }
 
   function buildTemplateName(strategy, options) {
@@ -2007,6 +2029,9 @@
     getDiversitySettings: getDiversitySettings,
     setDiversitySetting: setDiversitySetting,
     getDiversityStatus: getDiversityStatus,
+    detectExitComponents: detectExitComponents,
+    getC2GenerationPreview: getC2GenerationPreview,
+    getExitAuditReport: getExitAuditReport,
     reconcileStrategySources: reconcileStrategySources,
     getStrategyStatus: getStrategyStatus,
     canGenerateC2: canGenerateC2,

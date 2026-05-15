@@ -1329,6 +1329,7 @@
             <span>Origen: estrategia certificada + SQX logic</span>
             <span>Destino: descarga .sqx C2</span>
             <span>Nombre: asset + BS + indicador + cluster + direccion + TF + origen</span>
+            <span>Salidas: política sqx-exit-policy-v1</span>
           </div>
         </div>
         <div class="tm-c2-grid">
@@ -1345,6 +1346,22 @@
           <span>Nombre final trazable</span>
           <code id="tm-c2-name-preview">-</code>
           <small id="tm-c2-trace-warning" hidden></small>
+        </div>
+        <div class="tm-c2-exit-policy">
+          <div class="tm-c2-exit-head">
+            <div>
+              <span>Política de salidas</span>
+              <strong>Salidas y randomización</strong>
+              <small id="tm-c2-exit-summary">Detectando salidas...</small>
+            </div>
+            <small id="tm-c2-exit-version">sqx-exit-policy-v1</small>
+          </div>
+          <div id="tm-c2-exit-list" class="tm-c2-exit-list"></div>
+          <details class="tm-c2-exit-advanced">
+            <summary>Avanzado: revisar salidas y randomización</summary>
+            <div id="tm-c2-exit-overrides" class="tm-c2-exit-overrides"></div>
+          </details>
+          <small id="tm-c2-exit-warning" class="tm-c2-exit-warning" hidden></small>
         </div>
         <button class="export-btn tm-c2-confirm" id="tm-c2-confirm" type="button">Generar .sqx C2</button>
       </div>
@@ -3821,6 +3838,7 @@ Ret/DD > 0.5       ← muy permisivo (Forward es validación)</pre>
 <script src="js/modules/charts.js"></script>
 <script src="js/modules/strategies.js"></script>
 <script src="vendor/jszip.min.js"></script>
+<script src="js/modules/exit-policy.js"></script>
 <script src="js/modules/template-maker.js"></script>
 <script src="js/modules/template-maker-ui.js"></script>
 <script src="js/modules/home.js"></script>

@@ -19,10 +19,10 @@
       tab: 'Template Maker',
       owner: 'template-maker-ui',
       action: 'generar template C2 trazable',
-      reads: ['estrategia certificada', 'logica SQX', 'cluster diversidad'],
-      writes: ['descarga .sqx C2'],
-      trace: ['asset', 'BlockSetting', 'indicador base', 'NumCluster', 'direccion', 'timeframe', 'origen'],
-      failures: ['sin indicador', 'sin cluster', 'sin .sqx', 'no PASSED']
+      reads: ['estrategia certificada', 'logica SQX', 'cluster diversidad', 'politica sqx-exit-policy-v1'],
+      writes: ['descarga .sqx C2 con salidas controladas'],
+      trace: ['asset', 'BlockSetting', 'indicador base', 'NumCluster', 'direccion', 'timeframe', 'origen', 'salidas detectadas', 'salidas randomizadas/desactivadas'],
+      failures: ['sin indicador', 'sin cluster', 'sin .sqx', 'no PASSED', 'salida desconocida activa']
     },
     {
       id: 'strat-modal-backdrop',
