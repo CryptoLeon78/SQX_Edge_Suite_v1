@@ -5,7 +5,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 ## Current State
 
 - Current phase completed: UX-NAV sidebar navigation polish inside the Mining Control pass.
-- Current implementation phase: BS-V6 - BlockSettings v6 source update across official resources, resolvers, UI manifests, Project Generator, Template Maker C2 and tests.
+- Current implementation phase: PG-RESET-CFX - Reset Plan Mining also resets the Project Generator generated `.cfx` session/list so stale outputs from previous plans do not remain operationally visible.
 - Current UX surface decision: Strategy Builder tab and visible CVC handoff are retired from the dashboard shell; existing SB modules/docs remain internal historical contracts until a future renamed workflow is approved.
 - Current scoring surface decision: Template Maker is the active Capa 1 scoring and C2 generation surface, now including certification, structural diversity and mandatory C2 traceability before C2; Capa 2 comparison/relationships belong to Champion vs Challenger, including portfolio relationships.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
@@ -17,6 +17,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Exit Policy Gate: every generated SQX/C2 artifact must preserve the detected exit methods, policy version, removed/disabled exits, randomized exits, overrides and unknown-exit decision. Template Maker C2 must not export an active unknown exit without explicit override.
 - BlockSettings Source Gate: every mining, generated `.cfx` or Template Maker C2 output must preserve `family`, `canonicalId`, `filename`, `sha256`, `layer`, `timeframeRule` and origin. Legacy labels such as `BS_Tendencia` are aliases only; default generation must resolve to the official v6 `.sqb` in `backend/sqx-edge-tool/resources/blocksettings/`, with older v4/v5/v7 files retained only as explicit legacy compatibility.
 - Timeframe Trace Gate: when an asset card exposes multiple timeframes, the user must confirm one timeframe before the idea enters Plan Mining or Project Generator. The resulting mining/prefill must preserve selected timeframe, available timeframes, source card and resolved BlockSetting trace.
+- Generated CFX Session Gate: Reset Plan Mining defines a new generation session for Project Generator. The `.cfx generados` list must hide outputs older than that reset and clear the in-memory UI/log context, while preserving physical files on disk unless a separate cleanup action explicitly deletes them.
 - Modal Traceability Gate: every active modal must declare owner, source data, destination data, impact, failure modes and user-visible trace before it can mutate local state. Critical reset/delete/import/restore actions must use the unified decision surface or an equivalent traceable modal, not a blind native prompt.
 - Active UX-NAV tab: `Mining Control`; temporarily paused for MODAL-TRACE modal governance and traceability hardening. Resume Mining Control after this phase unless the operator says `Adelante con el siguiente tab`.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.

@@ -295,6 +295,25 @@ const outputState = PG.outputState({ output_dir: 'C:/out', files: [{ name: 'A.cf
 assert.equal(outputState.outputDir, 'C:/out');
 assert.equal(outputState.countLabel, '1 archivos');
 assert.match(outputState.html, /A\.cfx/);
+const resetState = PG.markGeneratedOutputReset([{ name: 'OLD.cfx', size_kb: 2, mtime: 1770000000 }], { now: 1770000000500 });
+assert.equal(resetState.reason, 'plan-mining-reset');
+assert.deepEqual(
+  PG.filterOutputFilesSinceReset([
+    { name: 'OLD.cfx', size_kb: 2, mtime: 1770000000 },
+    { name: 'NEW.cfx', size_kb: 2, mtime: 1770000020 },
+  ], resetState).map(file => file.name),
+  ['NEW.cfx']
+);
+const resetOutputState = PG.outputState({
+  output_dir: 'C:/out',
+  files: [
+    { name: 'OLD.cfx', size_kb: 2, mtime: 1770000000 },
+    { name: 'NEW.cfx', size_kb: 2, mtime: 1770000020 },
+  ],
+}, resetState);
+assert.equal(resetOutputState.countLabel, '1 archivos');
+assert.doesNotMatch(resetOutputState.html, /OLD\.cfx/);
+assert.match(resetOutputState.html, /NEW\.cfx/);
 assert.equal(PG.openOutputDisconnectedStatus().logText, 'Backend desconectado');
 assert.equal(PG.openOutputSuccessStatus('C:/out').traceDetail, 'C:/out');
 assert.equal(PG.openOutputErrorStatus('denied').logText, 'Error abrir carpeta: denied');

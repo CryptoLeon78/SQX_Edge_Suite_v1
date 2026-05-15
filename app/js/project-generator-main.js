@@ -240,6 +240,18 @@ function pgRenderOutputState(output) {
   pgSetHtml('pg-output-list', output.html);
 }
 
+function pgResetGeneratedCfxSession(detail) {
+  const resetState = detail && detail.resetState
+    ? detail.resetState
+    : SQX_PG_MODULE.markGeneratedOutputReset(PG_STATE.outputFiles || [], { reason: 'plan-mining-reset' });
+  PG_STATE.outputFiles = [];
+  pgRenderOutputState(SQX_PG_MODULE.outputState({ output_dir: PG_STATE.outputDir, files: [] }, resetState));
+  const log = pgDom('pg-log');
+  if (log) log.textContent = '[Plan Mining reiniciado: .cfx generados vacíos para la nueva sesión.]';
+  pgRenderOnboarding();
+  return resetState;
+}
+
 function pgGetOnboardingState() {
   return SQX_PG_MODULE.computeOnboardingState({
     apiBase: PG_API,
@@ -985,6 +997,11 @@ async function pgRunOnboardingTertiaryAction() {
   SQX_PG_BINDINGS.bindProjectGeneratorPolling(window, document, {
     checkHealth: pgCheckHealth,
     renderOnboarding: pgRenderOnboarding,
+  });
+  SQX_PG_MODULE.getCurrentOutputFiles = () => (PG_STATE.outputFiles || []).slice();
+  SQX_PG_MODULE.resetGeneratedCfxSession = pgResetGeneratedCfxSession;
+  window.addEventListener('sqx:project-generator-output-reset', event => {
+    pgResetGeneratedCfxSession(event && event.detail);
   });
   window.addEventListener('sqx:plan-minings-changed', () => {
     pgLoadMinings();

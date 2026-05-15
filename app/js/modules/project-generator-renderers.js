@@ -4,6 +4,8 @@
   var SQX = global.SQX = global.SQX || {};
   var PG = SQX.projectGenerator = SQX.projectGenerator || {};
   var escapeHtml = PG.escapeHtml;
+  var OUTPUT_RESET_STORAGE_KEY = 'sqx_pg_generated_cfx_reset_v1';
+  var OUTPUT_RESET_SCHEMA = 'pg-generated-cfx-reset-v1';
 
 function normalizeDirection(direction) {
     var value = String(direction || '').trim().toLowerCase();
@@ -103,6 +105,76 @@ function outputListHtml(files) {
     }).join('');
   }
 
+function outputFileTimestampMs(file) {
+    var data = file || {};
+    if (Number.isFinite(Number(data.mtime_ms))) return Number(data.mtime_ms);
+    if (Number.isFinite(Number(data.mtime))) return Number(data.mtime) * 1000;
+    if (data.modified_at) {
+      var parsed = Date.parse(data.modified_at);
+      if (Number.isFinite(parsed)) return parsed;
+    }
+    return 0;
+  }
+
+function outputFileSignature(file) {
+    var data = file || {};
+    return [
+      String(data.name || ''),
+      String(data.size_kb == null ? '' : data.size_kb),
+      String(data.mtime == null ? '' : data.mtime)
+    ].join('|');
+  }
+
+function readGeneratedOutputReset(storage) {
+    var store = storage || global.localStorage;
+    if (!store || typeof store.getItem !== 'function') return {};
+    try {
+      var raw = store.getItem(OUTPUT_RESET_STORAGE_KEY);
+      if (!raw) return {};
+      var parsed = JSON.parse(raw);
+      return parsed && typeof parsed === 'object' ? parsed : {};
+    } catch (_err) {
+      return {};
+    }
+  }
+
+function writeGeneratedOutputReset(state, storage) {
+    var store = storage || global.localStorage;
+    if (!store || typeof store.setItem !== 'function') return false;
+    try {
+      store.setItem(OUTPUT_RESET_STORAGE_KEY, JSON.stringify(state || {}));
+      return true;
+    } catch (_err) {
+      return false;
+    }
+  }
+
+function markGeneratedOutputReset(files, options) {
+    var opts = options || {};
+    var now = Number.isFinite(Number(opts.now)) ? Number(opts.now) : Date.now();
+    var state = {
+      schema: OUTPUT_RESET_SCHEMA,
+      resetAt: now,
+      reason: opts.reason || 'plan-mining-reset',
+      hiddenSignatures: (files || []).map(outputFileSignature).filter(Boolean)
+    };
+    writeGeneratedOutputReset(state, opts.storage);
+    return state;
+  }
+
+function filterOutputFilesSinceReset(files, resetState) {
+    var rows = files || [];
+    var state = resetState || readGeneratedOutputReset();
+    var resetAt = Number(state && state.resetAt) || 0;
+    var hidden = new Set((state && state.hiddenSignatures) || []);
+    if (!resetAt && !hidden.size) return rows.slice();
+    return rows.filter(function(file) {
+      if (hidden.has(outputFileSignature(file))) return false;
+      var timestamp = outputFileTimestampMs(file);
+      return !resetAt || !timestamp || timestamp > resetAt;
+    });
+  }
+
 function miningsCountLabel(count) {
     return (count || 0) + ' minings';
   }
@@ -132,9 +204,9 @@ function outputCountLabel(files) {
     return ((files || []).length) + ' archivos';
   }
 
-function outputState(result) {
+function outputState(result, resetState) {
     var data = result || {};
-    var files = data.files || [];
+    var files = filterOutputFilesSinceReset(data.files || [], resetState);
     return {
       outputDir: data.output_dir || '',
       files: files,
@@ -153,8 +225,14 @@ function outputState(result) {
     normalizeDirection: normalizeDirection,
     miningsCountLabel: miningsCountLabel,
     outputCountLabel: outputCountLabel,
+    outputFileSignature: outputFileSignature,
+    outputFileTimestampMs: outputFileTimestampMs,
+    filterOutputFilesSinceReset: filterOutputFilesSinceReset,
+    markGeneratedOutputReset: markGeneratedOutputReset,
     outputListHtml: outputListHtml,
+    outputResetStorageKey: OUTPUT_RESET_STORAGE_KEY,
     outputState: outputState,
+    readGeneratedOutputReset: readGeneratedOutputReset,
     selectedMiningCountLabel: selectedMiningCountLabel
   });
 })(window);

@@ -1984,6 +1984,7 @@ function clearPlanUser() {
   notifyPlanMiningChanged();
 }
 function resetPlanMiningUserState() {
+  resetProjectGeneratorGeneratedCfxState();
   PLAN_USER = {
     minings:[],
     phases:{},
@@ -1997,6 +1998,27 @@ function resetPlanMiningUserState() {
   PIPELINE_STATE.nextAction = '';
   savePipelineState();
   notifyPlanMiningChanged();
+}
+function resetProjectGeneratorGeneratedCfxState() {
+  var PG = window.SQX && window.SQX.projectGenerator;
+  if (!PG || typeof PG.markGeneratedOutputReset !== 'function') return false;
+  var files = typeof PG.getCurrentOutputFiles === 'function' ? PG.getCurrentOutputFiles() : [];
+  var resetState = PG.markGeneratedOutputReset(files, { reason: 'plan-mining-reset' });
+  if (typeof PG.outputState === 'function') {
+    var output = PG.outputState({ output_dir: '', files: [] }, resetState);
+    var count = document.getElementById('pg-output-count');
+    var list = document.getElementById('pg-output-list');
+    if (count) count.textContent = output.countLabel;
+    if (list) list.innerHTML = output.html;
+  }
+  var log = document.getElementById('pg-log');
+  if (log) log.textContent = '[Plan Mining reiniciado: .cfx generados vacíos para la nueva sesión.]';
+  if (typeof window.dispatchEvent === 'function' && typeof CustomEvent === 'function') {
+    window.dispatchEvent(new CustomEvent('sqx:project-generator-output-reset', {
+      detail: { reason: 'plan-mining-reset', resetState: resetState }
+    }));
+  }
+  return true;
 }
 function resetPlanPhaseMinings(phase) {
   const p = parseInt(phase, 10);
@@ -2492,6 +2514,7 @@ document.getElementById('ps-plan-reset-plan').addEventListener('click', function
       'Destino: sqx_plan_user_v1 y sqx_pipeline_state_v1',
       'Borra: minings locales, fases locales, overrides y embudos',
       'Oculta: plan base para proyecto limpio',
+      'Reinicia: lista/log de .cfx generados de Project Generator',
       'Recuperacion: Backup estado o restore manual'
     ]
   }, function() {

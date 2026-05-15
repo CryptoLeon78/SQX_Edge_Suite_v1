@@ -423,6 +423,14 @@ async function run() {
     }
     await desktop.evaluate(() => {
       window.resetPlanMiningUserState();
+      const key = window.SQX?.projectGenerator?.outputResetStorageKey;
+      const resetState = key ? JSON.parse(localStorage.getItem(key) || '{}') : {};
+      if (resetState.reason !== 'plan-mining-reset') throw new Error('Plan Mining reset should reset the generated CFX session');
+      const outputText = document.getElementById('pg-output-list')?.innerText || '';
+      const logText = document.getElementById('pg-log')?.textContent || '';
+      if (!outputText.includes('No hay .cfx') || !logText.includes('nueva sesión')) {
+        throw new Error('Plan Mining reset should clear Project Generator CFX list and log context');
+      }
       const ok = window.addMiningUser({ num: 1, phase: 1, asset: 'EURUSD', tf: 'H1', bs: 'BS_Tendencia_v6', dir: 'L/S', source: 'e2e' });
       if (!ok) throw new Error('Project Generator E2E could not seed Plan Mining');
     });
