@@ -44,6 +44,11 @@ from core.license_manager import (
     load_product_manifest,
 )
 from core.project_generator import DEFAULT_BROKER_POSTFIX, resolve_costs
+from core.blocksettings import (
+    blocksetting_trace,
+    load_blocksettings_manifest,
+    resolve_blocksetting_entry,
+)
 from core.sqx_db import SqxDb
 from core.strategy_cleaner import (
     extract_metadata, list_sqx_directory, clean_exit_after_bars,
@@ -225,7 +230,18 @@ def build_custom_mining(data: dict) -> tuple[Mining, str]:
     direction = normalize_direction(str(data.get("dir") or data.get("direction") or "long"))
     mining = Mining(num=0, phase=0, asset=asset, tf=tf, bs=blocksetting, dir=direction)
     direction_tag = {"long": "L", "short": "S", "both": "LS"}[direction]
-    default_name = f"Custom_{asset}_{tf}_{blocksetting}_{direction_tag}"
+    try:
+        capa = parse_generation_capa(data.get("capa", 1))
+        bs_entry = resolve_blocksetting_entry(
+            blocksetting,
+            timeframe=tf,
+            capa=capa,
+            blocksetting_capa2=data.get("blocksetting_capa2") or data.get("capa2_blocksetting"),
+        )
+        resolved_blocksetting = str(bs_entry.get("canonicalId") or blocksetting)
+    except Exception:
+        resolved_blocksetting = blocksetting
+    default_name = f"Custom_{asset}_{tf}_{resolved_blocksetting}_{direction_tag}"
     project_name = safe_project_token(str(data.get("name") or data.get("project_name") or default_name), default_name)
     return mining, project_name
 
@@ -397,7 +413,13 @@ def manifest():
         "plan": load_manifest("plan.json"),
         "assets": load_manifest("assets.json"),
         "strategies": load_manifest("strategies.json"),
+        "blocksettings": load_manifest("blocksettings_manifest.json"),
     })
+
+
+@app.get("/api/blocksettings")
+def api_blocksettings():
+    return jsonify({"ok": True, "blocksettings": load_blocksettings_manifest()})
 
 
 @app.get("/api/license/status")
@@ -626,6 +648,7 @@ def generate_one():
     cfg = load_config()
     template = data.get("template") or resolve_template(cfg, capa)
     output = data.get("output") or resolve_output_dir(cfg)
+    blocksetting_capa2 = data.get("blocksetting_capa2") or data.get("capa2_blocksetting")
 
     try:
         mining = get_mining(int(data["mining"]))
@@ -642,14 +665,17 @@ def generate_one():
         out_path = generate_project(
             mining, template_path=template, output_dir=output, capa=capa,
             sqx_db_path=db_path, broker_postfix=postfix, alias_override=aliases,
+            blocksetting_capa2=blocksetting_capa2,
         )
         # Mostrar al cliente qué fuente de costos se usó
         costs = resolve_costs(mining, db_path, postfix, alias_override=aliases)
+        bs_entry = resolve_blocksetting_entry(mining.bs, timeframe=mining.tf, capa=capa, blocksetting_capa2=blocksetting_capa2)
         return jsonify({
             "ok": True, "mining": mining.num, "capa": capa,
             "output_path": out_path, "filename": os.path.basename(out_path),
             "costs_source": costs["source"], "symbol": costs["symbol"],
             "spread": costs["spread"], "swap_long": costs["swap_long"], "swap_short": costs["swap_short"],
+            "blocksetting": blocksetting_trace(bs_entry),
         })
     except Exception as e:
         return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
@@ -670,6 +696,7 @@ def generate_custom():
     cfg = load_config()
     template = data.get("template") or resolve_template(cfg, capa)
     output = data.get("output") or resolve_output_dir(cfg)
+    blocksetting_capa2 = data.get("blocksetting_capa2") or data.get("capa2_blocksetting")
     if not os.path.isfile(template):
         return jsonify({"ok": False, "error": f"template not found: {template}"}), 404
 
@@ -681,14 +708,17 @@ def generate_custom():
             mining, template_path=template, output_dir=output, capa=capa,
             sqx_db_path=db_path, broker_postfix=postfix, alias_override=aliases,
             project_name=project_name,
+            blocksetting_capa2=blocksetting_capa2,
         )
         costs = resolve_costs(mining, db_path, postfix, alias_override=aliases)
+        bs_entry = resolve_blocksetting_entry(mining.bs, timeframe=mining.tf, capa=capa, blocksetting_capa2=blocksetting_capa2)
         return jsonify({
             "ok": True, "custom": True, "project_name": project_name,
             "asset": mining.asset, "tf": mining.tf, "bs": mining.bs, "dir": mining.dir,
             "capa": capa, "output_path": out_path, "filename": os.path.basename(out_path),
             "costs_source": costs["source"], "symbol": costs["symbol"],
             "spread": costs["spread"], "swap_long": costs["swap_long"], "swap_short": costs["swap_short"],
+            "blocksetting": blocksetting_trace(bs_entry),
         })
     except Exception as e:
         return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
@@ -707,6 +737,7 @@ def generate_all():
     cfg = load_config()
     template = data.get("template") or resolve_template(cfg, capa)
     output = data.get("output") or resolve_output_dir(cfg)
+    blocksetting_capa2 = data.get("blocksetting_capa2") or data.get("capa2_blocksetting")
 
     if not os.path.isfile(template):
         return jsonify({"ok": False, "error": f"template not found: {template}"}), 404
@@ -720,12 +751,15 @@ def generate_all():
             out_path = generate_project(
                 m, template_path=template, output_dir=output, capa=capa,
                 sqx_db_path=db_path, broker_postfix=postfix, alias_override=aliases,
+                blocksetting_capa2=blocksetting_capa2,
             )
             costs = resolve_costs(m, db_path, postfix, alias_override=aliases)
+            bs_entry = resolve_blocksetting_entry(m.bs, timeframe=m.tf, capa=capa, blocksetting_capa2=blocksetting_capa2)
             results.append({
                 "mining": m.num, "ok": True,
                 "filename": os.path.basename(out_path),
                 "costs_source": costs["source"],
+                "blocksetting": blocksetting_trace(bs_entry),
             })
         except Exception as e:
             results.append({"mining": m.num, "ok": False, "error": str(e)})

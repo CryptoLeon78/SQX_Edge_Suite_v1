@@ -13,6 +13,7 @@ from datetime import datetime
 from typing import Optional
 
 from .cfx_editor import CfxEditor
+from .blocksettings import apply_blocksetting_to_xml, blocksetting_trace, resolve_blocksetting_entry
 from .config_loader import load_manifest
 from .plan import Mining
 from .sqx_db import SqxDb
@@ -111,6 +112,7 @@ def generate_project(
     alias_override: Optional[dict] = None,
     overwrite: bool = True,
     project_name: Optional[str] = None,
+    blocksetting_capa2: Optional[str] = None,
 ) -> str:
     """
     Genera un .cfx para el mining especificado.
@@ -132,10 +134,16 @@ def generate_project(
         raise FileNotFoundError(f"Template not found: {template_path}")
     if capa not in CAPA_TASK_MAPS:
         raise ValueError(f"capa must be 1 or 2, got {capa}")
-    base_project_name = project_name or mining.name
-
     editor = CfxEditor(template_path)
     task_map = CAPA_TASK_MAPS[capa]
+    blocksetting_entry = resolve_blocksetting_entry(
+        mining.bs,
+        timeframe=mining.tf,
+        capa=capa,
+        blocksetting_capa2=blocksetting_capa2,
+    )
+    resolved_bs = str(blocksetting_entry.get("canonicalId") or mining.bs)
+    base_project_name = project_name or f"Mining{mining.num:02d}_{mining.asset}_{mining.tf}_{resolved_bs}"
 
     # Resolver costos: data.db → fallback. Override manual con sqx_data si pasa.
     costs = resolve_costs(mining, sqx_db_path, broker_postfix, alias_override=alias_override)
@@ -145,7 +153,8 @@ def generate_project(
     # Aplicar patches a todos los XMLs internos del .cfx
     total_stats = {"files_patched": 0, "charts": 0, "swaps": 0, "sides": 0,
                    "dates": 0, "paths_cleaned": 0, "commissions": 0,
-                   "costs_source": costs["source"], "symbol": costs["symbol"]}
+                   "blocksettings": 0, "costs_source": costs["source"], "symbol": costs["symbol"],
+                   "blocksetting": blocksetting_trace(blocksetting_entry)}
     for filename, tree in editor.iter_xml_files():
         if filename == "config.xml":
             continue  # config.xml no contiene Setup nodes
@@ -168,6 +177,8 @@ def generate_project(
             period=period,
             clean_paths=True,
         )
+        if apply_blocksetting_to_xml(root, blocksetting_entry):
+            total_stats["blocksettings"] += 1
         editor.update_xml(filename, tree)
         total_stats["files_patched"] += 1
         for k in ("charts", "swaps", "sides", "dates", "paths_cleaned", "commissions"):

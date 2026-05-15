@@ -51,12 +51,12 @@
     rawData: true
   };
   var PG_BLOCKSETTINGS = {
-    trend_following: 'BS_Tendencia',
-    mean_reversion: 'BS_Reversion',
-    breakout: 'BS_Breakout',
-    pullback: 'BS_Pullback',
-    volatility_filter: 'BS_Volatility',
-    regime_filter: 'BS_Regime'
+    trend_following: 'BS_Tendencia_v4',
+    mean_reversion: 'BS_Regimen_v4',
+    breakout: 'BS_Volatilidad_v4',
+    pullback: 'BS_Momentum_v4',
+    volatility_filter: 'BS_Volatilidad_v4',
+    regime_filter: 'BS_Regimen_v4'
   };
   var VIEWS_HANDOFF_PACKS = {
     robustness: {

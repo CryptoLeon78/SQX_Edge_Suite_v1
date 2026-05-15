@@ -717,7 +717,7 @@
     if (!strategy || !modal) return;
     var trace = SQX.templateMaker.resolveC2Trace(strategy, {
       direction: byId('tm-c2-direction') && byId('tm-c2-direction').value || '',
-      blockSetting: byId('tm-c2-block') && byId('tm-c2-block').value || 'BS_Tendencia'
+      blockSetting: byId('tm-c2-block') && byId('tm-c2-block').value || 'BS_Tendencia_v4'
     });
     modal.dataset.strategyId = strategy._id;
     byId('tm-c2-asset').value = trace.asset || strategy.Symbol || '';
@@ -725,7 +725,7 @@
     byId('tm-c2-indicator').value = trace.indicatorBase || 'SIN_INDICADOR';
     byId('tm-c2-cluster').value = trace.clusterId || 'CL00';
     setSelectValue('tm-c2-direction', trace.direction || 'BOTH');
-    setSelectValue('tm-c2-block', trace.blockSetting || 'BS_Tendencia');
+    setSelectValue('tm-c2-block', trace.blockSetting || 'BS_Tendencia_v4');
     modal.hidden = false;
     renderC2TracePreview();
   }
@@ -760,7 +760,7 @@
       timeframe: (byId('tm-c2-tf') && byId('tm-c2-tf').value.trim()) || strategy.TimeFrame || 'TF',
       indicatorBase: (byId('tm-c2-indicator') && byId('tm-c2-indicator').value.trim()) || 'SIN_INDICADOR',
       clusterId: (byId('tm-c2-cluster') && byId('tm-c2-cluster').value.trim()) || 'CL00',
-      blockSetting: byId('tm-c2-block') && byId('tm-c2-block').value || 'BS_Tendencia'
+      blockSetting: byId('tm-c2-block') && byId('tm-c2-block').value || 'BS_Tendencia_v4'
     };
   }
 

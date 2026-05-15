@@ -10,6 +10,7 @@ var SQX_UI = SQX_MANIFEST.ui || {};
 var SQX_PLAN = SQX_MANIFEST.plan || {};
 var SQX_ASSET_MANIFEST = SQX_MANIFEST.assets || {};
 var SQX_STRATEGY_MANIFEST = SQX_MANIFEST.strategies || {};
+var SQX_BLOCKSETTINGS = SQX_MANIFEST.blocksettings || {};
 
 var CAT_META = SQX_UI.categories || {};
 var ASSETS = SQX_ASSET_MANIFEST.assets || [];
@@ -40,6 +41,7 @@ Object.assign(SQX_GLOBAL, {
   MACRO_EVENTS,
   APPROACH_HINTS,
   CAT_TO_BS,
+  SQX_BLOCKSETTINGS,
   STRATEGIES,
   PLAN_MININGS,
   PHASE_META,

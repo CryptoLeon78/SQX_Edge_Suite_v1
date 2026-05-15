@@ -390,6 +390,35 @@ function renderBlockSettingTags(tags) {
   return list.map(tag => `<span class="bs-chip">${dashboardEsc(tag)}</span>`).join('');
 }
 
+function resolveCapa1BlockSettingForCategory(cat, tf) {
+  const catBase = String(cat || '').replace(/_S$/, '');
+  const resolver = SQX_UI.capa1Resolver || {};
+  const rules = (resolver.families || {})[catBase] || {};
+  const timeframe = String(tf || '').split(',')[0].trim().toUpperCase();
+  const intraday = new Set(resolver.intradayTimeframes || ['M5', 'M15', 'M30', 'H1']);
+  if (timeframe && intraday.has(timeframe) && rules.intraday) return rules.intraday;
+  return rules.default || PRIORITY_CAT_TO_BS[cat] || PRIORITY_CAT_TO_BS[catBase] || CAT_TO_BS[cat] || CAT_TO_BS[catBase] || '';
+}
+
+function blockSettingCatalogEntry(value) {
+  const catalog = SQX_UI.blockSettingsCatalog || {};
+  const aliases = catalog.aliases || (SQX_BLOCKSETTINGS && SQX_BLOCKSETTINGS.aliases) || {};
+  const entries = catalog.entries || (SQX_BLOCKSETTINGS && SQX_BLOCKSETTINGS.entries) || [];
+  const id = aliases[value] || value;
+  return entries.find(function(entry) {
+    return entry.canonicalId === id || entry.filename === id || entry.filename === (id + '.sqb');
+  }) || null;
+}
+
+function blockSettingTraceHtml(value) {
+  const entry = blockSettingCatalogEntry(value);
+  const id = entry ? entry.canonicalId : value;
+  const file = entry ? entry.filename : '';
+  const hash = entry && entry.sha256 ? String(entry.sha256).slice(0, 12).toUpperCase() : '';
+  return '<span class="ps-m-bs-main">' + planEsc(id || 'BS') + '</span>' +
+    (file || hash ? '<small>' + planEsc([file, hash ? 'SHA ' + hash : ''].filter(Boolean).join(' · ')) + '</small>' : '');
+}
+
 function renderBlockSettingCapa1Card(item) {
   const meta = CAT_META[item.category] || {};
   const color = meta.color || '#3b82f6';
@@ -404,6 +433,11 @@ function renderBlockSettingCapa1Card(item) {
       </div>
     </div>
     <div class="bs-file">${dashboardEsc(item.displayBlockSetting || item.blockSetting)}</div>
+    <div class="bs-chip-row">
+      ${item.filename ? `<span class="bs-chip">${dashboardEsc(item.filename)}</span>` : ''}
+      ${item.sha256Short ? `<span class="bs-chip">SHA ${dashboardEsc(item.sha256Short)}</span>` : ''}
+      ${item.variant ? `<span class="bs-chip">${dashboardEsc(item.variant)}</span>` : ''}
+    </div>
     <p class="bs-objective">${dashboardEsc(item.objective)}</p>
     <dl class="bs-facts">
       <div><dt>Lógica</dt><dd>${dashboardEsc(item.marketLogic)}</dd></div>
@@ -412,9 +446,10 @@ function renderBlockSettingCapa1Card(item) {
     </dl>
     <div class="bs-chip-row">${renderBlockSettingTags(item.tags)}</div>
     <div class="bs-param-slot">
-      <strong>Detalle híbrido</strong>
-      <span>${dashboardEsc(item.parameterStatus || 'Preparado para completar parametros exactos cuando exista fuente .sqb fiable.')}</span>
+      <strong>Fuente real versionada</strong>
+      <span>${dashboardEsc(item.parameterStatus || 'Fuente .sqb real disponible en el manifiesto de BlockSettings.')}</span>
     </div>
+    ${Array.isArray(item.activeIndicators) && item.activeIndicators.length ? `<div class="bs-chip-row">${renderBlockSettingTags(item.activeIndicators)}</div>` : ''}
   </article>`;
 }
 
@@ -469,8 +504,8 @@ function renderFiltros() {
       </div>
       <aside class="bs-hero-panel">
         <span>Modo de detalle</span>
-        <strong>${dashboardEsc((info.mode || 'hibrido').toUpperCase())}</strong>
-        <p>Metodología visible ahora; parámetros internos exactos preparados para completarse sólo con fuente .sqb fiable.</p>
+        <strong>${dashboardEsc(info.modeLabel || (info.mode || 'hibrido').toUpperCase())}</strong>
+        <p>${dashboardEsc(info.modeText || 'Metodología enlazada con .sqb reales versionados y trazables por hash.')}</p>
       </aside>
     </section>
 
@@ -492,8 +527,13 @@ function renderFiltros() {
       <div class="bs-capa2-card">
         <div class="bs-capa2-main">
           <span class="bs-layer">Capa 2 · Filtros + gestión</span>
-          <h3>${dashboardEsc(capa2.blockSetting || 'BS_Filtros_v5.sqb')}</h3>
+          <h3>${dashboardEsc(capa2.displayBlockSetting || capa2.blockSetting || 'BS_Filtros por timeframe')}</h3>
           <p>${dashboardEsc(capa2.objective || '')}</p>
+          ${capa2.filename || capa2.sha256Short ? `<div class="bs-chip-row">
+            ${capa2.filename ? `<span class="bs-chip">${dashboardEsc(capa2.filename)}</span>` : ''}
+            ${capa2.sha256Short ? `<span class="bs-chip">SHA ${dashboardEsc(capa2.sha256Short)}</span>` : ''}
+          </div>` : ''}
+          ${capa2.recommendations ? `<div class="bs-chip-row">${Object.keys(capa2.recommendations).map(tf => `<span class="bs-chip">${dashboardEsc(tf)}: ${dashboardEsc(capa2.recommendations[tf])}</span>`).join('')}</div>` : ''}
           <div class="bs-param-slot">
             <strong>Uso metodológico</strong>
             <span>${dashboardEsc(capa2.capaUse || '')}</span>
@@ -1053,7 +1093,7 @@ function clearStratForm() {
   document.getElementById('sf-mining').value = '1';
   document.getElementById('sf-asset').value = 'XAUUSD';
   document.getElementById('sf-tf').value = 'H1';
-  document.getElementById('sf-bs').value = 'BS_Tendencia';
+  document.getElementById('sf-bs').value = 'BS_Tendencia_v4';
   document.getElementById('sf-dir').value = 'L';
   document.getElementById('sf-tier').value = 'tentativa';
   document.getElementById('sf-status').value = 'CANDIDATA';
@@ -1436,12 +1476,12 @@ window.quickAddToPlan = function(asset, cat, tf, dir) {
 
 window.quickToProjectGen = function(asset, cat, tf, dir) {
   const catBase = String(cat || '').replace(/_S$/, '');
-  const bs = PRIORITY_CAT_TO_BS[cat] || PRIORITY_CAT_TO_BS[catBase] || CAT_TO_BS[cat] || CAT_TO_BS[catBase] || 'BS_Custom';
   const tfList = String(tf || '').split(',').map(t => t.trim()).filter(Boolean);
   const firstTf = tfList[0] || 'H1';
+  const bs = resolveCapa1BlockSettingForCategory(catBase, firstTf) || 'BS_Custom';
   const cleanCat = catBase.replace(/[^a-z0-9]+/gi, '');
   const config = {
-    name: 'Project_' + asset + '_' + firstTf + '_' + cleanCat,
+    name: 'Project_' + asset + '_' + firstTf + '_' + bs + '_' + cleanCat,
     asset: asset,
     tf: firstTf,
     bs: bs,
@@ -1676,10 +1716,10 @@ function resolvePlanPhaseForMining(asset) {
 }
 function addPlanMiningFromCandidate(asset, cat, tf, dir, source) {
   const catBase = String(cat || '').replace(/_S$/, '');
-  const bs = PRIORITY_CAT_TO_BS[cat] || PRIORITY_CAT_TO_BS[catBase] || CAT_TO_BS[cat] || CAT_TO_BS[catBase];
-  if (!bs) { alert('Categoría desconocida: '+catBase); return false; }
   const tfList = String(tf || '').split(',').map(function(t) { return t.trim().toUpperCase(); }).filter(Boolean);
   const firstTf = tfList[0] || 'H1';
+  const bs = resolveCapa1BlockSettingForCategory(catBase, firstTf);
+  if (!bs) { alert('Categoría desconocida: '+catBase); return false; }
   const cleanAsset = String(asset || '').trim().toUpperCase();
   const cleanDir = String(dir || 'L').trim();
   const exists = getPlanMinings().some(function(m) {
@@ -2036,7 +2076,7 @@ function renderPsPlan() {
         '<td class="ps-m-num">'+m.num+userBadge+'</td>' +
         '<td><div class="ps-m-asset">'+planEsc(m.asset)+'</div>'+tplsHtml+'</td>' +
         '<td class="ps-m-tf">'+planEsc(m.tf)+'</td>' +
-        '<td><span class="ps-m-bs">'+planEsc(m.bs)+'</span></td>' +
+        '<td><span class="ps-m-bs">'+blockSettingTraceHtml(m.bs)+'</span></td>' +
         '<td><span class="'+dirCls+'" style="font-weight:700;font-size:12px;">'+planEsc(m.dir)+'</span></td>' +
         '<td>'+compHtml+'</td>' +
         '<td>'+survBadge+tentBadge+'</td>' +

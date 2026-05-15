@@ -106,7 +106,8 @@ async function run() {
       'Biblioteca metodológica de BlockSettings SQX',
       'Capa 1 · Buscar Edge',
       'Capa 2 · Filtros operativos',
-      'BS_Filtros_v5.sqb',
+      'BS_Filtros_v7_H1',
+      'BS_Filtros_v5_D1',
       'Calibración normalizada',
       'Cómo se conecta con el flujo',
     ].forEach(expected => {
@@ -203,7 +204,7 @@ async function run() {
         phase: 1,
         asset: 'XAUUSD',
         tf: 'H1',
-        bs: 'BS_Tendencia',
+        bs: 'BS_Tendencia_v4',
         dir: 'L',
         source: 'manual'
       });
@@ -407,7 +408,7 @@ async function run() {
     }
     await desktop.evaluate(() => {
       window.resetPlanMiningUserState();
-      const ok = window.addMiningUser({ num: 1, phase: 1, asset: 'EURUSD', tf: 'H1', bs: 'BS_Tendencia', dir: 'L/S', source: 'e2e' });
+      const ok = window.addMiningUser({ num: 1, phase: 1, asset: 'EURUSD', tf: 'H1', bs: 'BS_Tendencia_v4', dir: 'L/S', source: 'e2e' });
       if (!ok) throw new Error('Project Generator E2E could not seed Plan Mining');
     });
     await desktop.locator('#pg-step-api > summary').click();

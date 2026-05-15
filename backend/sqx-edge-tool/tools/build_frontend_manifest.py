@@ -23,6 +23,7 @@ def main() -> None:
         "plan": read_json("plan.json"),
         "assets": read_json("assets.json"),
         "strategies": read_json("strategies.json"),
+        "blocksettings": read_json("blocksettings_manifest.json"),
     }
     OUT_PATH.write_text(
         "window.SQX_MANIFEST = " + json.dumps(manifest, indent=2, ensure_ascii=False) + ";\n",

@@ -3768,7 +3768,8 @@
   .ps-mining-table .ps-m-num { font-weight:800; color:var(--accent); width:32px; }
   .ps-mining-table .ps-m-asset { font-weight:700; }
   .ps-mining-table .ps-m-tf { font-family:'Consolas',monospace; font-size:12px; color:var(--text2); }
-  .ps-mining-table .ps-m-bs  { font-family:'Consolas',monospace; font-size:11px; padding:2px 8px; background:var(--surface2); border-radius:4px; display:inline-block; }
+  .ps-mining-table .ps-m-bs  { font-family:'Consolas',monospace; font-size:11px; padding:4px 8px; background:var(--surface2); border-radius:4px; display:inline-flex; flex-direction:column; gap:2px; min-width:170px; }
+  .ps-mining-table .ps-m-bs small { color:var(--text2); font-size:10px; font-family:inherit; line-height:1.2; overflow-wrap:anywhere; }
   .ps-mining-table .ps-m-survivors { font-size:11px; padding:2px 8px; background:rgba(34,197,94,.12); color:var(--green); border-radius:4px; font-weight:700; }
   .ps-mining-table .ps-m-survivors.zero { background:var(--surface2); color:var(--text2); }
   .ps-mining-table thead th { text-align:left; padding:8px 12px; font-size:10px; text-transform:uppercase; letter-spacing:.4px; color:var(--text2); font-weight:600; border-bottom:1px solid var(--border); background:transparent; }
@@ -4139,6 +4140,28 @@
     color:var(--text2);
     font-size:12px;
     line-height:1.35;
+  }
+  .pg-capa2-select-label {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--text2);
+    font-size:11px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.35px;
+  }
+  .pg-capa2-select-label select {
+    min-width:260px;
+    max-width:360px;
+    padding:7px 10px;
+    border:1px solid var(--border);
+    border-radius:7px;
+    background:var(--surface2);
+    color:var(--text);
+    font-size:12px;
+    text-transform:none;
+    letter-spacing:0;
   }
   .pg-mode-placeholder {
     display:grid;
@@ -5273,7 +5296,8 @@
   .pg-mining-row .pgm-num { font-weight:800; color:var(--accent); width:32px; font-family:'Consolas',monospace; }
   .pg-mining-row .pgm-asset { font-weight:700; min-width:80px; }
   .pg-mining-row .pgm-tf { font-family:'Consolas',monospace; font-size:11px; padding:2px 8px; background:var(--surface); border-radius:4px; min-width:36px; text-align:center; }
-  .pg-mining-row .pgm-bs { font-family:'Consolas',monospace; font-size:11px; padding:2px 8px; background:rgba(168,85,247,.12); color:var(--purple); border-radius:4px; min-width:140px; text-align:center; }
+  .pg-mining-row .pgm-bs { display:flex; flex-direction:column; gap:2px; font-family:'Consolas',monospace; font-size:11px; padding:4px 8px; background:rgba(168,85,247,.12); color:var(--purple); border-radius:4px; min-width:190px; text-align:left; }
+  .pg-mining-row .pgm-bs small { color:var(--text2); font-size:10px; font-family:inherit; }
   .pg-mining-row .pgm-dir { font-size:11px; padding:2px 8px; border-radius:4px; font-weight:700; min-width:50px; text-align:center; }
   .pg-mining-row .pgm-dir.long { background:rgba(34,197,94,.15); color:var(--green); }
   .pg-mining-row .pgm-dir.short { background:rgba(239,68,68,.15); color:var(--red); }

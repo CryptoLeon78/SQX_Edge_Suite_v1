@@ -145,6 +145,19 @@ function pgReadCustomInputs() {
   return SQX_PG_DOM.readCustomProjectInputs ? SQX_PG_DOM.readCustomProjectInputs(document) : {};
 }
 
+function pgSelectedCapa2Blocksetting() {
+  return pgInputValue('pg-capa2-bs').trim();
+}
+
+function pgApplyCapa2Selection(payload, capa) {
+  const data = payload || {};
+  const selected = pgSelectedCapa2Blocksetting();
+  if (Number(capa || data.capa || 1) === 2 && selected) {
+    data.blocksetting_capa2 = selected;
+  }
+  return data;
+}
+
 function pgSetCustomStatus(text, level) {
   if (SQX_PG_DOM.setCustomProjectStatus) {
     SQX_PG_DOM.setCustomProjectStatus(document, { text, level });
@@ -304,6 +317,7 @@ function pgNormalizePlanMining(mining) {
     dir: String(data.dir || data.direction || 'long').trim(),
     name: data.name || '',
     source: data.source || '',
+    blocksetting: data.blocksetting || data.blocksetting_trace || null,
     _user: !!data._user,
   };
 }
@@ -456,14 +470,14 @@ function pgProjectNameFromMining(mining) {
 }
 
 function pgCustomPayloadFromMining(mining, capa) {
-  return {
+  return pgApplyCapa2Selection({
     name: mining.name || pgProjectNameFromMining(mining),
     asset: mining.asset,
     tf: mining.tf,
     bs: mining.bs,
     dir: mining.dir,
     capa,
-  };
+  }, capa);
 }
 
 async function pgGenerateMiningRequest(mining, capa) {
@@ -471,7 +485,7 @@ async function pgGenerateMiningRequest(mining, capa) {
     const customResult = await pgFetch('/generate-custom', { method:'POST', body: pgCustomPayloadFromMining(mining, capa) });
     return Object.assign({}, customResult, { mining: mining.num });
   }
-  return await pgFetch('/generate', { method:'POST', body: { mining: mining.num, capa } });
+  return await pgFetch('/generate', { method:'POST', body: pgApplyCapa2Selection({ mining: mining.num, capa }, capa) });
 }
 
 async function pgLoadOutput() {
@@ -502,7 +516,7 @@ async function pgGenerateOne(mining, capa) {
 }
 
 async function pgGenerateCustom() {
-  const body = pgReadCustomInputs();
+  const body = pgApplyCapa2Selection(pgReadCustomInputs());
   if (!body.asset || !body.tf) {
     const status = SQX_PG_MODULE.generateCustomMissingStatus();
     pgSetCustomStatus(status.text, status.level);

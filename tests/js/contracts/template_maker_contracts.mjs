@@ -75,7 +75,7 @@ assert.ok(html.includes('Descorrelación de templates'), 'Template Maker should 
 assert.ok(html.includes('id="tm-c2-selected-btn"'), 'missing external selected C2 action');
 assert.ok(html.includes('id="tm-c2-cluster"'), 'missing C2 cluster trace field');
 assert.ok(html.includes('id="tm-c2-name-preview"'), 'missing C2 traceable filename preview');
-assert.ok(html.includes('value="BS_Tendencia"'), 'C2 block selector should use BS_* values');
+assert.ok(html.includes('value="BS_Tendencia_v4"'), 'C2 block selector should use real versioned BS_* values');
 assert.ok(html.includes('id="tm-reset-results-btn"'), 'missing results reset');
 assert.ok(html.includes('Reset resultados'), 'results reset should be user-facing');
 assert.ok(html.includes('id="tm-delete-selected-btn"'), 'missing selected delete action');
@@ -223,11 +223,11 @@ assert.equal(tm.canGenerateC2(diversityStrategies.find(strategy => strategy['Str
 assert.equal(tm.canGenerateC2(diversityStrategies.find(strategy => strategy['Strategy Name'] === 'TM Div 02')), true, 'cluster winner should generate C2');
 assert.equal(tm.canGenerateC2(diversityStrategies.find(strategy => strategy['Strategy Name'] === 'TM Div 03')), true, 'diverse singleton should generate C2');
 const c2Winner = diversityStrategies.find(strategy => strategy['Strategy Name'] === 'TM Div 02');
-const c2Trace = tm.resolveC2Trace(c2Winner, { blockSetting: 'BS_Tendencia', direction: 'LONG' });
+const c2Trace = tm.resolveC2Trace(c2Winner, { blockSetting: 'BS_Tendencia_v4', direction: 'LONG' });
 assert.equal(c2Trace.indicatorBase, 'hma_atr_bands', 'C2 trace should prefill indicator base from logic features');
 assert.equal(c2Trace.clusterId, div02.clusterId, 'C2 trace should prefill NumCluster from diversity status');
-assert.equal(c2Trace.blockSetting, 'BS_Tendencia', 'C2 trace should keep BS_* blocksetting');
-assert.ok(c2Trace.name.includes('BS_Tendencia'), 'C2 name should include blocksetting');
+assert.equal(c2Trace.blockSetting, 'BS_Tendencia_v4', 'C2 trace should keep real BS_* blocksetting');
+assert.ok(c2Trace.name.includes('BS_Tendencia_v4'), 'C2 name should include blocksetting');
 assert.ok(c2Trace.name.includes('hma_atr_bands'), 'C2 name should include base indicator');
 assert.ok(c2Trace.name.includes(div02.clusterId), 'C2 name should include cluster id');
 assert.ok(c2Trace.name.includes('TM_Div_02'), 'C2 name should include source strategy');

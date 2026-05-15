@@ -31,6 +31,27 @@ function symbolSourceBadge(info) {
     return '<span class="pgm-src pgm-src-fallback" title="Costos por defecto (data.db no disponible o asset no encontrado)">Default</span>';
   }
 
+function blocksettingEntry(value) {
+    var manifest = (global.SQX_MANIFEST && global.SQX_MANIFEST.blocksettings) || {};
+    var aliases = manifest.aliases || {};
+    var entries = manifest.entries || [];
+    var token = String(value || '').replace(/\.sqb$/i, '');
+    var canonical = aliases[token] || aliases[token + '.sqb'] || token;
+    for (var i = 0; i < entries.length; i += 1) {
+      if (entries[i].canonicalId === canonical) return entries[i];
+    }
+    return null;
+  }
+
+function blocksettingTraceHtml(value) {
+    var entry = blocksettingEntry(value);
+    if (!entry) return '<div class="pgm-bs">' + escapeHtml(value || 'BS_Custom') + '<small>sin manifiesto</small></div>';
+    return '<div class="pgm-bs" title="Archivo real: ' + escapeHtml(entry.filename) + ' · SHA ' + escapeHtml(entry.sha256Short) + '">'
+      + '<span>' + escapeHtml(entry.canonicalId) + '</span>'
+      + '<small>' + escapeHtml(entry.variant || '-') + ' · ' + escapeHtml(entry.sha256Short || '-') + '</small>'
+      + '</div>';
+  }
+
 function miningSourceBadge(mining) {
     if (mining && mining._user) {
       var source = mining.source ? ' · ' + escapeHtml(mining.source) : '';
@@ -60,7 +81,7 @@ function miningRowsHtml(minings, selectedMap) {
         +   '<div class="pgm-num">M' + String(mining.num).padStart(2, '0') + '</div>'
         +   '<div class="pgm-asset">' + escapeHtml(mining.asset) + alias + '</div>'
         +   '<div class="pgm-tf">' + escapeHtml(mining.tf) + '</div>'
-        +   '<div class="pgm-bs">' + escapeHtml(mining.bs) + '</div>'
+        +   blocksettingTraceHtml(mining.bs)
         +   '<div class="pgm-dir ' + directionClass(mining.dir) + '">' + directionLabel(mining.dir) + '</div>'
         +   miningSourceBadge(mining)
         +   symbolSourceBadge(info)

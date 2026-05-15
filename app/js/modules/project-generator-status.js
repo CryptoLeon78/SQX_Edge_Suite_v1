@@ -34,12 +34,13 @@ function generateOneStartMessage(mining, capa) {
 
 function generateOneResult(result, mining, capa) {
     var data = result || {};
+    var bs = data.blocksetting && data.blocksetting.canonicalId ? ' · ' + data.blocksetting.canonicalId : '';
     if (data.ok) {
       return {
         logText: '✓ ' + data.filename,
         logLevel: 'ok',
         traceTitle: 'Proyecto generado',
-        traceDetail: 'Mining ' + mining + ' · Capa ' + capa + ' · ' + data.filename,
+        traceDetail: 'Mining ' + mining + ' · Capa ' + capa + bs + ' · ' + data.filename,
         traceLevel: 'ok'
       };
     }
@@ -72,6 +73,7 @@ function generateCustomMissingStatus() {
 function generateCustomResult(result, payload) {
     var data = result || {};
     var request = payload || {};
+    var bs = data.blocksetting && data.blocksetting.canonicalId ? ' · ' + data.blocksetting.canonicalId : '';
     if (data.ok) {
       return {
         text: 'Generado: ' + data.filename,
@@ -79,7 +81,7 @@ function generateCustomResult(result, payload) {
         logText: '✓ Custom libre → ' + data.filename,
         logLevel: 'ok',
         traceTitle: 'Custom libre generado',
-        traceDetail: (data.project_name || request.name || request.asset || 'custom') + ' · Capa ' + (data.capa || request.capa || 1),
+        traceDetail: (data.project_name || request.name || request.asset || 'custom') + ' · Capa ' + (data.capa || request.capa || 1) + bs,
         traceLevel: 'ok'
       };
     }
@@ -137,8 +139,9 @@ function generateAllResultLines(results) {
     return (results || []).map(function(result) {
       var mining = String(result.mining).padStart(2, '0');
       if (result.ok) {
+        var bs = result.blocksetting && result.blocksetting.canonicalId ? ' · ' + result.blocksetting.canonicalId : '';
         return {
-          text: '  ✓ M' + mining + ' → ' + result.filename,
+          text: '  ✓ M' + mining + ' → ' + result.filename + bs,
           level: 'ok'
         };
       }

@@ -45,7 +45,7 @@ const imported = SQX.strategies.rowToStrategy({
   'Net profit': '55',
 }, {
   mining: 3,
-  bs: 'BS_Tendencia',
+  bs: 'BS_Tendencia_v4',
   dir: 'L',
   tier: '1',
   status: 'CANDIDATA',

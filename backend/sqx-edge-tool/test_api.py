@@ -37,6 +37,8 @@ class ApiTestCase(unittest.TestCase):
         self.assertIn("minings", data["plan"])
         self.assertIn("assets", data["assets"])
         self.assertIn("strategies", data["strategies"])
+        self.assertIn("entries", data["blocksettings"])
+        self.assertGreaterEqual(len(data["blocksettings"]["entries"]), 17)
 
     def test_license_status_and_feature_check_endpoints(self):
         response = self.client.get("/api/license/status")
@@ -429,7 +431,7 @@ class ApiTestCase(unittest.TestCase):
                 "name": "Custom EURUSD H1",
                 "asset": "eurusd",
                 "tf": "h1",
-                "bs": "BS Manual",
+                "bs": "BS_Tendencia_v4",
                 "dir": "both",
                 "capa": 1,
             })
@@ -444,7 +446,7 @@ class ApiTestCase(unittest.TestCase):
         mining = gen.call_args.args[0]
         self.assertEqual(mining.asset, "EURUSD")
         self.assertEqual(mining.tf, "H1")
-        self.assertEqual(mining.bs, "BS_Manual")
+        self.assertEqual(mining.bs, "BS_Tendencia_v4")
         self.assertEqual(gen.call_args.kwargs["project_name"], "Custom_EURUSD_H1")
 
     def test_generate_custom_requires_asset_and_timeframe(self):

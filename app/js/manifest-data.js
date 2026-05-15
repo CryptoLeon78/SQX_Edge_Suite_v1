@@ -436,7 +436,7 @@ window.SQX_MANIFEST = {
     ],
     "blockSettingsInfo": {
       "title": "BlockSettings Info",
-      "subtitle": "Escaparate metodologico de los BlockSettings usados para buscar Edge y despues endurecerlo con filtros operativos.",
+      "subtitle": "Escaparate metodologico de los BlockSettings reales versionados que usa SQX Edge para buscar Edge y endurecerlo con filtros operativos.",
       "mode": "hibrido",
       "capa1Title": "Capa 1 · Buscar Edge",
       "capa1Intro": "Cada tarjeta de Activos propone una hipotesis de edge por familia de mercado. En Capa 1 se usa el BlockSetting de esa familia para descubrir plantillas sin contaminar todavia con SL/TP/Trailing.",
@@ -446,7 +446,7 @@ window.SQX_MANIFEST = {
         {
           "category": "tendencia",
           "blockSetting": "BS_Tendencia_v4",
-          "displayBlockSetting": "BS_Tendencia",
+          "displayBlockSetting": "BS_Tendencia_v4",
           "objective": "Detectar persistencia direccional limpia.",
           "marketLogic": "Busca mercados con continuidad, pendiente y ruptura ordenada. Encaja con EMA, MACD, Ichimoku y SuperTrend.",
           "whenToUse": "Activos con sesgo tendencial, rupturas con seguimiento y ratings altos en tarjetas de Tendencia.",
@@ -459,12 +459,26 @@ window.SQX_MANIFEST = {
             "Ichimoku",
             "SuperTrend"
           ],
-          "parameterStatus": "Parametros internos calibrados en SQX; detalle exacto pendiente de fuente .sqb."
+          "parameterStatus": "Fuente real: BS_Tendencia_v4.sqb · hash 9838AC0CB575.",
+          "filename": "BS_Tendencia_v4.sqb",
+          "sha256Short": "9838AC0CB575",
+          "activeBlocks": 36,
+          "activeIndicators": [
+            "Indicators.ATRTrailingStops",
+            "Indicators.EMA",
+            "Indicators.LinearRegression",
+            "Indicators.MACD",
+            "Indicators.ParabolicSAR",
+            "Indicators.SMA",
+            "Indicators.SuperTrend",
+            "Indicators.Ichimoku"
+          ],
+          "variant": "v4"
         },
         {
           "category": "momentum",
           "blockSetting": "BS_Momentum_v4",
-          "displayBlockSetting": "BS_Momentum",
+          "displayBlockSetting": "BS_Momentum_v4",
           "objective": "Capturar impulso, agotamiento y reversion de corto plazo.",
           "marketLogic": "Normaliza osciladores para detectar aceleracion, sobrecompra/sobreventa y cambios de ritmo.",
           "whenToUse": "Activos donde la tarjeta muestra momentum recurrente o rebotes estadisticos con volumen suficiente.",
@@ -477,12 +491,26 @@ window.SQX_MANIFEST = {
             "ROC",
             "Reversal"
           ],
-          "parameterStatus": "Parametros internos calibrados en SQX; detalle exacto pendiente de fuente .sqb."
+          "parameterStatus": "Fuente real: BS_Momentum_v4.sqb · hash 394C66C00CA6.",
+          "filename": "BS_Momentum_v4.sqb",
+          "sha256Short": "394C66C00CA6",
+          "activeBlocks": 26,
+          "activeIndicators": [
+            "Indicators.AwesomeOscillator",
+            "Indicators.CCI",
+            "Indicators.Momentum",
+            "Indicators.OSMA",
+            "Indicators.ROC",
+            "Indicators.RSI",
+            "Indicators.Stochastic",
+            "Indicators.WilliamsPR"
+          ],
+          "variant": "v4"
         },
         {
           "category": "volatilidad",
           "blockSetting": "BS_Volatilidad_v4",
-          "displayBlockSetting": "BS_Volatilidad",
+          "displayBlockSetting": "BS_Volatilidad_v4",
           "objective": "Explotar expansion, contraccion y ruptura de rango.",
           "marketLogic": "Trabaja con bandas/canales para diferenciar ruptura aprovechable de ruido lateral.",
           "whenToUse": "Activos con comportamiento de breakout, compresion previa o expansion volatil identificada en tarjetas.",
@@ -495,12 +523,26 @@ window.SQX_MANIFEST = {
             "StdDev",
             "Breakout"
           ],
-          "parameterStatus": "Parametros internos calibrados en SQX; detalle exacto pendiente de fuente .sqb."
+          "parameterStatus": "Fuente real: BS_Volatilidad_v4.sqb · hash 112975F33993.",
+          "filename": "BS_Volatilidad_v4.sqb",
+          "sha256Short": "112975F33993",
+          "activeBlocks": 39,
+          "activeIndicators": [
+            "Indicators.BollingerBands",
+            "Indicators.DonchianChannels",
+            "Indicators.HullMovingAverageATRBands",
+            "Indicators.HullMovingAverageBollingerBands",
+            "Indicators.KeltnerChannel",
+            "Indicators.LogATR",
+            "Indicators.MTATR",
+            "Indicators.MTKeltnerChannel"
+          ],
+          "variant": "v4"
         },
         {
           "category": "regimen",
           "blockSetting": "BS_Regimen_v4",
-          "displayBlockSetting": "BS_Regimen",
+          "displayBlockSetting": "BS_Regimen_v4",
           "objective": "Separar contextos de tendencia, rango y ruido.",
           "marketLogic": "Usa indicadores de regimen para evitar mezclar edges que solo funcionan bajo una estructura concreta.",
           "whenToUse": "Activos donde el problema principal es elegir contexto de mercado antes de disparar entradas.",
@@ -513,12 +555,21 @@ window.SQX_MANIFEST = {
             "Hilbert",
             "SMA200"
           ],
-          "parameterStatus": "Parametros internos calibrados en SQX; detalle exacto pendiente de fuente .sqb."
+          "parameterStatus": "Fuente real: BS_Regimen_v4.sqb · hash 7D655C44656C.",
+          "filename": "BS_Regimen_v4.sqb",
+          "sha256Short": "7D655C44656C",
+          "activeBlocks": 19,
+          "activeIndicators": [
+            "Indicators.CSSAMarketRegime",
+            "Indicators.EhlersHilbertTransform",
+            "Indicators.EntropyMath"
+          ],
+          "variant": "v4"
         },
         {
           "category": "volumen",
           "blockSetting": "BS_Volumen_v4",
-          "displayBlockSetting": "BS_Volumen",
+          "displayBlockSetting": "BS_Volumen_v4",
           "objective": "Confirmar participacion, liquidez y zonas con rechazo real.",
           "marketLogic": "Filtra senales que necesitan volumen relativo o precio respecto a VWAP para no operar movimientos debiles.",
           "whenToUse": "Activos con patrones de liquidez, rechazo a VWAP o necesidad de confirmar participacion.",
@@ -530,12 +581,19 @@ window.SQX_MANIFEST = {
             "Liquidity",
             "Rejection"
           ],
-          "parameterStatus": "Parametros internos calibrados en SQX; detalle exacto pendiente de fuente .sqb."
+          "parameterStatus": "Fuente real: BS_Volumen_v4.sqb · hash 8425FE9589BC.",
+          "filename": "BS_Volumen_v4.sqb",
+          "sha256Short": "8425FE9589BC",
+          "activeBlocks": 25,
+          "activeIndicators": [
+            "Indicators.VWAP"
+          ],
+          "variant": "v4"
         },
         {
           "category": "sr",
           "blockSetting": "BS_SoporteResistencia_v4",
-          "displayBlockSetting": "BS_SoporteResistencia",
+          "displayBlockSetting": "BS_SoporteResistencia_v4",
           "objective": "Buscar respuesta del precio en zonas tecnicas repetibles.",
           "marketLogic": "Estructura entradas alrededor de pivots, fractales, fibonacci y extremos de rango.",
           "whenToUse": "Activos que respetan niveles, rechazos o zonas de soporte/resistencia con suficiente recurrencia.",
@@ -548,12 +606,23 @@ window.SQX_MANIFEST = {
             "H/L",
             "Bounce"
           ],
-          "parameterStatus": "Parametros internos calibrados en SQX; detalle exacto pendiente de fuente .sqb."
+          "parameterStatus": "Fuente real: BS_SoporteResistencia_v4.sqb · hash D55DFCC3E2CB.",
+          "filename": "BS_SoporteResistencia_v4.sqb",
+          "sha256Short": "D55DFCC3E2CB",
+          "activeBlocks": 30,
+          "activeIndicators": [
+            "Indicators.Fractal",
+            "Indicators.Highest",
+            "Indicators.HighestInRange",
+            "Indicators.Lowest",
+            "Indicators.LowestInRange"
+          ],
+          "variant": "v4"
         },
         {
           "category": "estadistico",
           "blockSetting": "BS_Estadistico_v4",
-          "displayBlockSetting": "BS_Estadistico",
+          "displayBlockSetting": "BS_Estadistico_v4",
           "objective": "Detectar desviaciones estadisticas con probabilidad de normalizacion.",
           "marketLogic": "Agrupa senales de distancia, percentiles y mean reversion para edges no puramente tendenciales.",
           "whenToUse": "Activos con ratings estadisticos altos, desviaciones repetibles y comportamiento de retorno a media.",
@@ -565,15 +634,23 @@ window.SQX_MANIFEST = {
             "OU",
             "Mean reversion"
           ],
-          "parameterStatus": "Parametros internos calibrados en SQX; detalle exacto pendiente de fuente .sqb."
+          "parameterStatus": "Fuente real: BS_Estadistico_v4.sqb · hash 812A906949CA.",
+          "filename": "BS_Estadistico_v4.sqb",
+          "sha256Short": "812A906949CA",
+          "activeBlocks": 20,
+          "activeIndicators": [
+            "Indicators.SRPercentRank",
+            "Indicators.ZScore"
+          ],
+          "variant": "v4"
         }
       ],
       "capa2": {
-        "blockSetting": "BS_Filtros_v5.sqb",
+        "blockSetting": "BS_Filtros_v7_* / BS_Filtros_v5_D1",
         "objective": "Endurecer una plantilla ganadora con filtros operativos sin cambiar el edge base.",
         "marketLogic": "Los filtros se anaden como condiciones random controladas y se combinan con salidas ATR-based para mejorar operabilidad.",
         "capaUse": "Capa 2: TEMPLATE ganador fijo, 1-2 filtros adicionales, SL/TP/Trailing y retests completos.",
-        "parameterStatus": "Umbrales visibles normalizados; parametros internos exactos quedan preparados para completarse con fuente .sqb.",
+        "parameterStatus": "Capa 2 usa selector manual en Project Generator con recomendacion por timeframe y fallback BS_Filtros_v4.",
         "filterIds": [
           "ADX",
           "ATR",
@@ -581,7 +658,19 @@ window.SQX_MANIFEST = {
           "Hurst",
           "KER",
           "AvgVolume"
-        ]
+        ],
+        "displayBlockSetting": "BS_Filtros por timeframe",
+        "filename": "Selector manual con recomendacion automatica",
+        "sha256Short": "ver opcion elegida",
+        "recommendations": {
+          "M5": "BS_Filtros_v7_M5",
+          "M15": "BS_Filtros_v7_M15",
+          "M30": "BS_Filtros_v7_M30",
+          "H1": "BS_Filtros_v7_H1",
+          "H4": "BS_Filtros_v7_H4",
+          "D1": "BS_Filtros_v5_D1",
+          "fallback": "BS_Filtros_v4"
+        }
       },
       "principles": [
         {
@@ -622,7 +711,9 @@ window.SQX_MANIFEST = {
           "step": "Template Maker / CVC",
           "text": "Se certifican metricas, C2 y decision final sin perder trazabilidad."
         }
-      ]
+      ],
+      "modeLabel": "FUENTE SQB REAL",
+      "modeText": "Cada tarjeta enlaza con un .sqb versionado, hash SHA-256 y parametros extraidos del config.xml real."
     },
     "ratingOrder": {
       "++": 3,
@@ -705,16 +796,26 @@ window.SQX_MANIFEST = {
       "BS_Regimen": "regimen",
       "BS_Volumen": "volumen",
       "BS_SoporteResistencia": "sr",
-      "BS_Estadistico": "estadistico"
+      "BS_Estadistico": "estadistico",
+      "BS_Estadistico_v4": "estadistico",
+      "BS_Momentum_v4": "momentum",
+      "BS_Regimen_v4": "regimen",
+      "BS_SoporteResistencia_v4": "sr",
+      "BS_SoporteResistencia_v4_intraday_v5": "sr",
+      "BS_Tendencia_v4": "tendencia",
+      "BS_Volatilidad_v4": "volatilidad",
+      "BS_Volatilidad_v4_intraday_v5": "volatilidad",
+      "BS_Volumen_v4": "volumen",
+      "BS_Volumen_v4_intraday_v5": "volumen"
     },
     "priorityCatToBs": {
-      "tendencia": "BS_Tendencia",
-      "momentum": "BS_Momentum",
-      "volatilidad": "BS_Volatilidad",
-      "regimen": "BS_Regimen",
-      "volumen": "BS_Volumen",
-      "sr": "BS_SoporteResistencia",
-      "estadistico": "BS_Estadistico"
+      "tendencia": "BS_Tendencia_v4",
+      "momentum": "BS_Momentum_v4",
+      "volatilidad": "BS_Volatilidad_v4",
+      "regimen": "BS_Regimen_v4",
+      "volumen": "BS_Volumen_v4",
+      "sr": "BS_SoporteResistencia_v4",
+      "estadistico": "BS_Estadistico_v4"
     },
     "priorityTiers": [
       {
@@ -992,6 +1093,5898 @@ window.SQX_MANIFEST = {
       "defaultHost": "127.0.0.1",
       "defaultPort": 5050,
       "basePath": "/api"
+    },
+    "blockSettingsCatalog": {
+      "entries": [
+        {
+          "canonicalId": "BS_Estadistico_v4",
+          "filename": "BS_Estadistico_v4.sqb",
+          "family": "estadistico",
+          "familyLabel": "Estadistico",
+          "layer": 1,
+          "variant": "v4",
+          "timeframes": [
+            "M5",
+            "M15",
+            "M30",
+            "H1",
+            "H4",
+            "D1"
+          ],
+          "sha256": "812A906949CA2555B8FC4E2C6142A030F89863EBC2D1FE21A91550E9F6D69010",
+          "sha256Short": "812A906949CA",
+          "sqxVersion": "142.2336",
+          "counts": {
+            "blocks": 749,
+            "activeBlocks": 20,
+            "changedBlocks": 76,
+            "categories": {
+              "indicators": 124,
+              "signals": 553,
+              "stopLimitBlocks": 72
+            },
+            "activeCategories": {
+              "indicators": 20
+            }
+          },
+          "activeBlocks": [
+            "Indicators.SRPercentRank",
+            "Indicators.ZScore",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLowerCount",
+            "IsLower",
+            "IsLowerOrEqual",
+            "NotEquals",
+            "Equals",
+            "IsGreaterPercentil",
+            "IsGreaterCount",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.SRPercentRank",
+            "Indicators.ZScore"
+          ],
+          "activeBlockPreview": [
+            "Indicators.SRPercentRank",
+            "Indicators.ZScore",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLowerCount",
+            "IsLower",
+            "IsLowerOrEqual",
+            "NotEquals",
+            "Equals"
+          ],
+          "parameterPreview": {
+            "Indicators.SRPercentRank": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Mode#",
+                  "name": "Mode",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Length#",
+                  "name": "Length",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#ATRPeriod#",
+                  "name": "ATR Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.ZScore": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Input",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Close": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.High": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Low": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Open": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "IsLowerPercentil": {
+              "generated": [
+                {
+                  "key": "#Indicator#",
+                  "name": "Indicator",
+                  "type": "value",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Bars#",
+                  "name": "Bars",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "100",
+                  "max": "1000",
+                  "step": "100"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Percentile#",
+                  "name": "Percentile",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "5",
+                  "max": "95",
+                  "step": "5"
+                }
+              ]
+            },
+            "IsLowerCount": {
+              "generated": [
+                {
+                  "key": "#Bars#",
+                  "name": "Bars",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "2",
+                  "max": "10",
+                  "step": "1"
+                },
+                {
+                  "key": "#NotStrict#",
+                  "name": "Allow same values",
+                  "type": "boolean",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#IndicatorLeft#",
+                  "name": "Indicator Left",
+                  "type": "value",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#IndicatorRight#",
+                  "name": "Indicator Right",
+                  "type": "value",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_Filtros_v4",
+          "filename": "BS_Filtros_v4.sqb",
+          "family": "filtros",
+          "familyLabel": "Filtros operativos",
+          "layer": 2,
+          "variant": "v4",
+          "timeframes": [
+            "M5",
+            "M15",
+            "M30",
+            "H1",
+            "H4",
+            "D1"
+          ],
+          "sha256": "EAED2430BB0ACC4E6477704BDFB8F807D5555DD5B1EA8733B5C952255B02669E",
+          "sha256Short": "EAED2430BB0A",
+          "sqxVersion": "141.2225",
+          "counts": {
+            "blocks": 540,
+            "activeBlocks": 21,
+            "changedBlocks": 62,
+            "categories": {
+              "indicators": 100,
+              "signals": 383,
+              "stopLimitBlocks": 57
+            },
+            "activeCategories": {
+              "indicators": 20,
+              "signals": 1
+            }
+          },
+          "activeBlocks": [
+            "AlwaysTrue",
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual",
+            "NotEquals",
+            "Equals",
+            "IsGreaterPercentil",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio"
+          ],
+          "activeBlockPreview": [
+            "AlwaysTrue",
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual"
+          ],
+          "parameterPreview": {
+            "AlwaysTrue": {
+              "generated": []
+            },
+            "Indicators.ADX": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Input",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.ATR": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.AvgVolume": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.KaufmanEfficiencyRatio": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Close": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.High": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Low": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_Filtros_v5_D1",
+          "filename": "BS_Filtros_v5_D1.sqb",
+          "family": "filtros",
+          "familyLabel": "Filtros operativos",
+          "layer": 2,
+          "variant": "v5_d1",
+          "timeframes": [
+            "D1"
+          ],
+          "sha256": "B5AB92C6390A994C0550788FBB257CFA0158DA8376BEE5ADD80D9C575DC1E3A9",
+          "sha256Short": "B5AB92C6390A",
+          "sqxVersion": "141.2225",
+          "counts": {
+            "blocks": 540,
+            "activeBlocks": 31,
+            "changedBlocks": 62,
+            "categories": {
+              "indicators": 100,
+              "signals": 383,
+              "stopLimitBlocks": 57
+            },
+            "activeCategories": {
+              "indicators": 28,
+              "signals": 3
+            }
+          },
+          "activeBlocks": [
+            "AlwaysTrue",
+            "CBlock_DCloseMayorSMA20",
+            "CBlock_DCloseMinorSMA20",
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio",
+            "Prices.Close",
+            "Prices.CloseD",
+            "Prices.HighD",
+            "Prices.LowD",
+            "Prices.OpenD",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "Prices.CloseW",
+            "Prices.HighW",
+            "Prices.LowW",
+            "Prices.OpenW",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual",
+            "NotEquals",
+            "Equals",
+            "IsGreaterPercentil",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio"
+          ],
+          "activeBlockPreview": [
+            "AlwaysTrue",
+            "CBlock_DCloseMayorSMA20",
+            "CBlock_DCloseMinorSMA20",
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio",
+            "Prices.Close",
+            "Prices.CloseD",
+            "Prices.HighD",
+            "Prices.LowD",
+            "Prices.OpenD"
+          ],
+          "parameterPreview": {
+            "AlwaysTrue": {
+              "generated": []
+            },
+            "CBlock_DCloseMayorSMA20": {
+              "generated": [
+                {
+                  "key": "#Chart1#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                }
+              ]
+            },
+            "CBlock_DCloseMinorSMA20": {
+              "generated": [
+                {
+                  "key": "#Chart1#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                }
+              ]
+            },
+            "Indicators.ADX": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Input",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.ATR": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.AvgVolume": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.KaufmanEfficiencyRatio": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Close": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_Filtros_v7_H1",
+          "filename": "BS_Filtros_v7_H1.sqb",
+          "family": "filtros",
+          "familyLabel": "Filtros operativos",
+          "layer": 2,
+          "variant": "v7_h1",
+          "timeframes": [
+            "H1"
+          ],
+          "sha256": "BBB9FAC0B8174DE15F62B1F0CE89D806B73F64EFFCF4423D85779A3C16D5D360",
+          "sha256Short": "BBB9FAC0B817",
+          "sqxVersion": "141.2225",
+          "counts": {
+            "blocks": 540,
+            "activeBlocks": 21,
+            "changedBlocks": 62,
+            "categories": {
+              "indicators": 100,
+              "signals": 383,
+              "stopLimitBlocks": 57
+            },
+            "activeCategories": {
+              "indicators": 20,
+              "signals": 1
+            }
+          },
+          "activeBlocks": [
+            "AlwaysTrue",
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual",
+            "NotEquals",
+            "Equals",
+            "IsGreaterPercentil",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio"
+          ],
+          "activeBlockPreview": [
+            "AlwaysTrue",
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual"
+          ],
+          "parameterPreview": {
+            "AlwaysTrue": {
+              "generated": []
+            },
+            "Indicators.ADX": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Input",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.ATR": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.AvgVolume": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.KaufmanEfficiencyRatio": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Close": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.High": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Low": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_Filtros_v7_H4",
+          "filename": "BS_Filtros_v7_H4.sqb",
+          "family": "filtros",
+          "familyLabel": "Filtros operativos",
+          "layer": 2,
+          "variant": "v7_h4",
+          "timeframes": [
+            "H4"
+          ],
+          "sha256": "B11EE14CED4B5B006262376CDB738BC2DE2F09F836C6A775A6B9873C7972A9FE",
+          "sha256Short": "B11EE14CED4B",
+          "sqxVersion": "141.2225",
+          "counts": {
+            "blocks": 540,
+            "activeBlocks": 21,
+            "changedBlocks": 62,
+            "categories": {
+              "indicators": 100,
+              "signals": 383,
+              "stopLimitBlocks": 57
+            },
+            "activeCategories": {
+              "indicators": 20,
+              "signals": 1
+            }
+          },
+          "activeBlocks": [
+            "AlwaysTrue",
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual",
+            "NotEquals",
+            "Equals",
+            "IsGreaterPercentil",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio"
+          ],
+          "activeBlockPreview": [
+            "AlwaysTrue",
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual"
+          ],
+          "parameterPreview": {
+            "AlwaysTrue": {
+              "generated": []
+            },
+            "Indicators.ADX": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Input",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.ATR": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.AvgVolume": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.KaufmanEfficiencyRatio": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Close": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.High": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Low": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_Filtros_v7_M15",
+          "filename": "BS_Filtros_v7_M15.sqb",
+          "family": "filtros",
+          "familyLabel": "Filtros operativos",
+          "layer": 2,
+          "variant": "v7_m15",
+          "timeframes": [
+            "M15"
+          ],
+          "sha256": "A5FF1A9E80075F6845DCDE2655B9FAC64E9C2FD8EC768F0ECC8D7E8C80942FC2",
+          "sha256Short": "A5FF1A9E8007",
+          "sqxVersion": "141.2225",
+          "counts": {
+            "blocks": 540,
+            "activeBlocks": 21,
+            "changedBlocks": 62,
+            "categories": {
+              "indicators": 100,
+              "signals": 383,
+              "stopLimitBlocks": 57
+            },
+            "activeCategories": {
+              "indicators": 20,
+              "signals": 1
+            }
+          },
+          "activeBlocks": [
+            "AlwaysTrue",
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual",
+            "NotEquals",
+            "Equals",
+            "IsGreaterPercentil",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio"
+          ],
+          "activeBlockPreview": [
+            "AlwaysTrue",
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual"
+          ],
+          "parameterPreview": {
+            "AlwaysTrue": {
+              "generated": []
+            },
+            "Indicators.ADX": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Input",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.ATR": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.AvgVolume": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.KaufmanEfficiencyRatio": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Close": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.High": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Low": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_Filtros_v7_M30",
+          "filename": "BS_Filtros_v7_M30.sqb",
+          "family": "filtros",
+          "familyLabel": "Filtros operativos",
+          "layer": 2,
+          "variant": "v7_m30",
+          "timeframes": [
+            "M30"
+          ],
+          "sha256": "301882B9E55AD54E5427735898313361771C122BFEE9777C256C9B3D476E3B5A",
+          "sha256Short": "301882B9E55A",
+          "sqxVersion": "141.2225",
+          "counts": {
+            "blocks": 540,
+            "activeBlocks": 21,
+            "changedBlocks": 62,
+            "categories": {
+              "indicators": 100,
+              "signals": 383,
+              "stopLimitBlocks": 57
+            },
+            "activeCategories": {
+              "indicators": 20,
+              "signals": 1
+            }
+          },
+          "activeBlocks": [
+            "AlwaysTrue",
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual",
+            "NotEquals",
+            "Equals",
+            "IsGreaterPercentil",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio"
+          ],
+          "activeBlockPreview": [
+            "AlwaysTrue",
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual"
+          ],
+          "parameterPreview": {
+            "AlwaysTrue": {
+              "generated": []
+            },
+            "Indicators.ADX": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Input",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.ATR": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.AvgVolume": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.KaufmanEfficiencyRatio": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Close": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.High": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Low": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_Filtros_v7_M5",
+          "filename": "BS_Filtros_v7_M5.sqb",
+          "family": "filtros",
+          "familyLabel": "Filtros operativos",
+          "layer": 2,
+          "variant": "v7_m5",
+          "timeframes": [
+            "M5"
+          ],
+          "sha256": "4834062C9D1541FF8CABB996AA8B2871DD6DDA9087FCF5106D2FEC583A99FAD6",
+          "sha256Short": "4834062C9D15",
+          "sqxVersion": "141.2225",
+          "counts": {
+            "blocks": 540,
+            "activeBlocks": 21,
+            "changedBlocks": 62,
+            "categories": {
+              "indicators": 100,
+              "signals": 383,
+              "stopLimitBlocks": 57
+            },
+            "activeCategories": {
+              "indicators": 20,
+              "signals": 1
+            }
+          },
+          "activeBlocks": [
+            "AlwaysTrue",
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual",
+            "NotEquals",
+            "Equals",
+            "IsGreaterPercentil",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio"
+          ],
+          "activeBlockPreview": [
+            "AlwaysTrue",
+            "Indicators.ADX",
+            "Indicators.ATR",
+            "Indicators.AvgVolume",
+            "Indicators.KaufmanEfficiencyRatio",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual"
+          ],
+          "parameterPreview": {
+            "AlwaysTrue": {
+              "generated": []
+            },
+            "Indicators.ADX": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Input",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.ATR": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.AvgVolume": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.KaufmanEfficiencyRatio": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Close": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.High": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Low": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_Momentum_v4",
+          "filename": "BS_Momentum_v4.sqb",
+          "family": "momentum",
+          "familyLabel": "Momentum",
+          "layer": 1,
+          "variant": "v4",
+          "timeframes": [
+            "M5",
+            "M15",
+            "M30",
+            "H1",
+            "H4",
+            "D1"
+          ],
+          "sha256": "394C66C00CA610EC36C40FF5A1C78C34352AC77A15A1DBA8E397C79307199854",
+          "sha256Short": "394C66C00CA6",
+          "sqxVersion": "142.2336",
+          "counts": {
+            "blocks": 749,
+            "activeBlocks": 26,
+            "changedBlocks": 76,
+            "categories": {
+              "indicators": 124,
+              "signals": 553,
+              "stopLimitBlocks": 72
+            },
+            "activeCategories": {
+              "indicators": 26
+            }
+          },
+          "activeBlocks": [
+            "Indicators.AwesomeOscillator",
+            "Indicators.CCI",
+            "Indicators.Momentum",
+            "Indicators.OSMA",
+            "Indicators.ROC",
+            "Indicators.RSI",
+            "Indicators.Stochastic",
+            "Indicators.WilliamsPR",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLowerCount",
+            "IsLower",
+            "IsLowerOrEqual",
+            "NotEquals",
+            "Equals",
+            "IsGreaterPercentil",
+            "IsGreaterCount",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.AwesomeOscillator",
+            "Indicators.CCI",
+            "Indicators.Momentum",
+            "Indicators.OSMA",
+            "Indicators.ROC",
+            "Indicators.RSI",
+            "Indicators.Stochastic",
+            "Indicators.WilliamsPR"
+          ],
+          "activeBlockPreview": [
+            "Indicators.AwesomeOscillator",
+            "Indicators.CCI",
+            "Indicators.Momentum",
+            "Indicators.OSMA",
+            "Indicators.ROC",
+            "Indicators.RSI",
+            "Indicators.Stochastic",
+            "Indicators.WilliamsPR",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open"
+          ],
+          "parameterPreview": {
+            "Indicators.AwesomeOscillator": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.CCI": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.Momentum": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.OSMA": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#FastEMA#",
+                  "name": "Fast EMA",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#SlowEMA#",
+                  "name": "Slow EMA",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#SignalPeriod#",
+                  "name": "Signal Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.ROC": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.RSI": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.Stochastic": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#KPeriod#",
+                  "name": "%K Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#DPeriod#",
+                  "name": "%D Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Slowing#",
+                  "name": "Slowing",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#MAMethod#",
+                  "name": "MA Method",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#PriceField#",
+                  "name": "Price Field",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.WilliamsPR": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_Regimen_v4",
+          "filename": "BS_Regimen_v4.sqb",
+          "family": "regimen",
+          "familyLabel": "Regimen",
+          "layer": 1,
+          "variant": "v4",
+          "timeframes": [
+            "M5",
+            "M15",
+            "M30",
+            "H1",
+            "H4",
+            "D1"
+          ],
+          "sha256": "7D655C44656C2FF7FA6A756E9951318AA06203F6E52B6EDC0E5B718F3676FF41",
+          "sha256Short": "7D655C44656C",
+          "sqxVersion": "142.2336",
+          "counts": {
+            "blocks": 749,
+            "activeBlocks": 19,
+            "changedBlocks": 76,
+            "categories": {
+              "indicators": 124,
+              "signals": 553,
+              "stopLimitBlocks": 72
+            },
+            "activeCategories": {
+              "indicators": 19
+            }
+          },
+          "activeBlocks": [
+            "Indicators.CSSAMarketRegime",
+            "Indicators.EhlersHilbertTransform",
+            "Indicators.EntropyMath",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual",
+            "NotEquals",
+            "Equals",
+            "IsGreaterPercentil",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.CSSAMarketRegime",
+            "Indicators.EhlersHilbertTransform",
+            "Indicators.EntropyMath"
+          ],
+          "activeBlockPreview": [
+            "Indicators.CSSAMarketRegime",
+            "Indicators.EhlersHilbertTransform",
+            "Indicators.EntropyMath",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual",
+            "NotEquals",
+            "Equals"
+          ],
+          "parameterPreview": {
+            "Indicators.CSSAMarketRegime": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#HLSumPeriod#",
+                  "name": "HL Sum Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#HLPeriod#",
+                  "name": "HL Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#AvgPeriod#",
+                  "name": "Avg Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#PercRankPeriod#",
+                  "name": "Perc Rank Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.EhlersHilbertTransform": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.EntropyMath": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#EMPeriod#",
+                  "name": "EM Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Close": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.High": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Low": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Open": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "IsLowerPercentil": {
+              "generated": [
+                {
+                  "key": "#Indicator#",
+                  "name": "Indicator",
+                  "type": "value",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Bars#",
+                  "name": "Bars",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "100",
+                  "max": "1000",
+                  "step": "100"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Percentile#",
+                  "name": "Percentile",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "5",
+                  "max": "95",
+                  "step": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_SoporteResistencia_v4",
+          "filename": "BS_SoporteResistencia_v4.sqb",
+          "family": "sr",
+          "familyLabel": "Soporte/Resistencia",
+          "layer": 1,
+          "variant": "v4",
+          "timeframes": [
+            "M5",
+            "M15",
+            "M30",
+            "H1",
+            "H4",
+            "D1"
+          ],
+          "sha256": "D55DFCC3E2CB6F74A56663C0DB4FAD8F4BE6F866DB634E640AC9A7FFAD89FEFA",
+          "sha256Short": "D55DFCC3E2CB",
+          "sqxVersion": "142.2336",
+          "counts": {
+            "blocks": 749,
+            "activeBlocks": 30,
+            "changedBlocks": 76,
+            "categories": {
+              "indicators": 124,
+              "signals": 553,
+              "stopLimitBlocks": 72
+            },
+            "activeCategories": {
+              "indicators": 30
+            }
+          },
+          "activeBlocks": [
+            "Indicators.Fractal",
+            "Indicators.Highest",
+            "Indicators.HighestInRange",
+            "Indicators.Lowest",
+            "Indicators.LowestInRange",
+            "Prices.Close",
+            "Prices.CloseD",
+            "Prices.HighD",
+            "Prices.LowD",
+            "Prices.OpenD",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.CloseM",
+            "Prices.HighM",
+            "Prices.LowM",
+            "Prices.OpenM",
+            "Prices.Open",
+            "Prices.CloseW",
+            "Prices.HighW",
+            "Prices.LowW",
+            "Prices.OpenW",
+            "IsLower",
+            "IsLowerOrEqual",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising",
+            "Not"
+          ],
+          "activeIndicators": [
+            "Indicators.Fractal",
+            "Indicators.Highest",
+            "Indicators.HighestInRange",
+            "Indicators.Lowest",
+            "Indicators.LowestInRange"
+          ],
+          "activeBlockPreview": [
+            "Indicators.Fractal",
+            "Indicators.Highest",
+            "Indicators.HighestInRange",
+            "Indicators.Lowest",
+            "Indicators.LowestInRange",
+            "Prices.Close",
+            "Prices.CloseD",
+            "Prices.HighD",
+            "Prices.LowD",
+            "Prices.OpenD",
+            "Prices.High",
+            "Prices.Low"
+          ],
+          "parameterPreview": {
+            "Indicators.Fractal": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Fractal#",
+                  "name": "Fractal",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.Highest": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.HighestInRange": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#TimeFrom#",
+                  "name": "Time From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "0",
+                  "max": "2359",
+                  "step": "30"
+                },
+                {
+                  "key": "#TimeTo#",
+                  "name": "Time To",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "0",
+                  "max": "2359",
+                  "step": "30"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.Lowest": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.LowestInRange": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#TimeFrom#",
+                  "name": "Time From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "0",
+                  "max": "2359",
+                  "step": "30"
+                },
+                {
+                  "key": "#TimeTo#",
+                  "name": "Time To",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "0",
+                  "max": "2359",
+                  "step": "30"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Close": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.CloseD": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.HighD": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_SoporteResistencia_v4_intraday_v5",
+          "filename": "BS_SoporteResistencia_v4_intraday_v5.sqb",
+          "family": "sr",
+          "familyLabel": "Soporte/Resistencia",
+          "layer": 1,
+          "variant": "intraday_v5",
+          "timeframes": [
+            "M5",
+            "M15",
+            "M30",
+            "H1"
+          ],
+          "sha256": "4325F5C4D16A9BE0007E64908A34A603372BAD8BCF2AB2C16C40CEFF3EA52B2C",
+          "sha256Short": "4325F5C4D16A",
+          "sqxVersion": "142.2336",
+          "counts": {
+            "blocks": 749,
+            "activeBlocks": 18,
+            "changedBlocks": 76,
+            "categories": {
+              "indicators": 124,
+              "signals": 553,
+              "stopLimitBlocks": 72
+            },
+            "activeCategories": {
+              "indicators": 18
+            }
+          },
+          "activeBlocks": [
+            "Indicators.Fractal",
+            "Indicators.Highest",
+            "Indicators.HighestInRange",
+            "Indicators.Lowest",
+            "Indicators.LowestInRange",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLower",
+            "IsLowerOrEqual",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising",
+            "Not"
+          ],
+          "activeIndicators": [
+            "Indicators.Fractal",
+            "Indicators.Highest",
+            "Indicators.HighestInRange",
+            "Indicators.Lowest",
+            "Indicators.LowestInRange"
+          ],
+          "activeBlockPreview": [
+            "Indicators.Fractal",
+            "Indicators.Highest",
+            "Indicators.HighestInRange",
+            "Indicators.Lowest",
+            "Indicators.LowestInRange",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLower",
+            "IsLowerOrEqual",
+            "IsGreater"
+          ],
+          "parameterPreview": {
+            "Indicators.Fractal": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Fractal#",
+                  "name": "Fractal",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.Highest": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.HighestInRange": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#TimeFrom#",
+                  "name": "Time From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "0",
+                  "max": "2359",
+                  "step": "30"
+                },
+                {
+                  "key": "#TimeTo#",
+                  "name": "Time To",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "0",
+                  "max": "2359",
+                  "step": "30"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.Lowest": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.LowestInRange": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#TimeFrom#",
+                  "name": "Time From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "0",
+                  "max": "2359",
+                  "step": "30"
+                },
+                {
+                  "key": "#TimeTo#",
+                  "name": "Time To",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "0",
+                  "max": "2359",
+                  "step": "30"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Close": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.High": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Low": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_Tendencia_v4",
+          "filename": "BS_Tendencia_v4.sqb",
+          "family": "tendencia",
+          "familyLabel": "Tendencia",
+          "layer": 1,
+          "variant": "v4",
+          "timeframes": [
+            "M5",
+            "M15",
+            "M30",
+            "H1",
+            "H4",
+            "D1"
+          ],
+          "sha256": "9838AC0CB5753CAA5AFB7D584E5D51B0657AD4EAD8485DCAF4FE6530A6E1A4E0",
+          "sha256Short": "9838AC0CB575",
+          "sqxVersion": "142.2336",
+          "counts": {
+            "blocks": 749,
+            "activeBlocks": 36,
+            "changedBlocks": 76,
+            "categories": {
+              "indicators": 124,
+              "signals": 553,
+              "stopLimitBlocks": 72
+            },
+            "activeCategories": {
+              "indicators": 36
+            }
+          },
+          "activeBlocks": [
+            "Indicators.ATRTrailingStops",
+            "Indicators.EMA",
+            "Indicators.LinearRegression",
+            "Indicators.MACD",
+            "Indicators.ParabolicSAR",
+            "Indicators.SMA",
+            "Indicators.SuperTrend",
+            "Indicators.Ichimoku",
+            "Prices.Close",
+            "Prices.CloseD",
+            "Prices.HighD",
+            "Prices.LowD",
+            "Prices.OpenD",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.CloseM",
+            "Prices.HighM",
+            "Prices.LowM",
+            "Prices.OpenM",
+            "Prices.Open",
+            "Prices.CloseW",
+            "Prices.HighW",
+            "Prices.LowW",
+            "Prices.OpenW",
+            "IsLower",
+            "IsLowerOrEqual",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "IndicatorCrossesAboveMA",
+            "IndicatorCrossesBelowMA",
+            "IndicatorBelowMA",
+            "IndicatorAboveMA",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.ATRTrailingStops",
+            "Indicators.EMA",
+            "Indicators.LinearRegression",
+            "Indicators.MACD",
+            "Indicators.ParabolicSAR",
+            "Indicators.SMA",
+            "Indicators.SuperTrend",
+            "Indicators.Ichimoku"
+          ],
+          "activeBlockPreview": [
+            "Indicators.ATRTrailingStops",
+            "Indicators.EMA",
+            "Indicators.LinearRegression",
+            "Indicators.MACD",
+            "Indicators.ParabolicSAR",
+            "Indicators.SMA",
+            "Indicators.SuperTrend",
+            "Indicators.Ichimoku",
+            "Prices.Close",
+            "Prices.CloseD",
+            "Prices.HighD",
+            "Prices.LowD"
+          ],
+          "parameterPreview": {
+            "Indicators.ATRTrailingStops": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ATRPeriod#",
+                  "name": "ATR Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#ATRSmoothigPeriod#",
+                  "name": "ATR Smoothig Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#ATRMultiplier#",
+                  "name": "ATR Multiplier",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "0.5",
+                  "max": "5.0",
+                  "step": "0.5"
+                },
+                {
+                  "key": "#ATRSmoothingMode#",
+                  "name": "ATRSmoothingMode",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Method#",
+                  "name": "Method",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.EMA": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.LinearRegression": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.MACD": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Fast#",
+                  "name": "Fast",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Slow#",
+                  "name": "Slow",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Smooth#",
+                  "name": "Smooth",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.ParabolicSAR": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Step#",
+                  "name": "Step",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "0.01",
+                  "max": "0.04",
+                  "step": "0.01"
+                },
+                {
+                  "key": "#Maximum#",
+                  "name": "Maximum",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "0.1",
+                  "max": "0.4",
+                  "step": "0.1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.SMA": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.SuperTrend": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Mode#",
+                  "name": "Mode",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#ATRPeriod#",
+                  "name": "ATR Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#ATRMult#",
+                  "name": "ATR Mult",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "1.0",
+                  "max": "5.0",
+                  "step": "0.5"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.Ichimoku": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#TenkanPeriod#",
+                  "name": "Tenkan",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#KijunPeriod#",
+                  "name": "Kijun",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#SenkouPeriod#",
+                  "name": "Senkou",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_Volatilidad_v4",
+          "filename": "BS_Volatilidad_v4.sqb",
+          "family": "volatilidad",
+          "familyLabel": "Volatilidad",
+          "layer": 1,
+          "variant": "v4",
+          "timeframes": [
+            "M5",
+            "M15",
+            "M30",
+            "H1",
+            "H4",
+            "D1"
+          ],
+          "sha256": "112975F339939FB00BE56420D053A3A8CD840B4824E328A78D8F8E7E407D8815",
+          "sha256Short": "112975F33993",
+          "sqxVersion": "142.2336",
+          "counts": {
+            "blocks": 749,
+            "activeBlocks": 39,
+            "changedBlocks": 76,
+            "categories": {
+              "indicators": 124,
+              "signals": 553,
+              "stopLimitBlocks": 72
+            },
+            "activeCategories": {
+              "indicators": 39
+            }
+          },
+          "activeBlocks": [
+            "Indicators.BollingerBands",
+            "Indicators.DonchianChannels",
+            "Indicators.HullMovingAverageATRBands",
+            "Indicators.HullMovingAverageBollingerBands",
+            "Indicators.KeltnerChannel",
+            "Indicators.LogATR",
+            "Indicators.MTATR",
+            "Indicators.MTKeltnerChannel",
+            "Indicators.StdDev",
+            "Indicators.TrueRange",
+            "Indicators.UlcerIndex",
+            "Indicators.VWAPATRBands",
+            "Indicators.VWAPBollingerBands",
+            "Prices.Close",
+            "Prices.CloseD",
+            "Prices.HighD",
+            "Prices.LowD",
+            "Prices.OpenD",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.CloseM",
+            "Prices.HighM",
+            "Prices.LowM",
+            "Prices.OpenM",
+            "Prices.Open",
+            "Prices.CloseW",
+            "Prices.HighW",
+            "Prices.LowW",
+            "Prices.OpenW",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual",
+            "IsGreaterPercentil",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.BollingerBands",
+            "Indicators.DonchianChannels",
+            "Indicators.HullMovingAverageATRBands",
+            "Indicators.HullMovingAverageBollingerBands",
+            "Indicators.KeltnerChannel",
+            "Indicators.LogATR",
+            "Indicators.MTATR",
+            "Indicators.MTKeltnerChannel",
+            "Indicators.StdDev",
+            "Indicators.TrueRange",
+            "Indicators.UlcerIndex",
+            "Indicators.VWAPATRBands",
+            "Indicators.VWAPBollingerBands"
+          ],
+          "activeBlockPreview": [
+            "Indicators.BollingerBands",
+            "Indicators.DonchianChannels",
+            "Indicators.HullMovingAverageATRBands",
+            "Indicators.HullMovingAverageBollingerBands",
+            "Indicators.KeltnerChannel",
+            "Indicators.LogATR",
+            "Indicators.MTATR",
+            "Indicators.MTKeltnerChannel",
+            "Indicators.StdDev",
+            "Indicators.TrueRange",
+            "Indicators.UlcerIndex",
+            "Indicators.VWAPATRBands"
+          ],
+          "parameterPreview": {
+            "Indicators.BollingerBands": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Deviation#",
+                  "name": "Deviation",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "1.0",
+                  "max": "3.0",
+                  "step": "0.5"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.DonchianChannels": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.HullMovingAverageATRBands": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Multiplication#",
+                  "name": "Multiplication",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "1.0",
+                  "max": "5.0",
+                  "step": "0.5"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.HullMovingAverageBollingerBands": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Deviation#",
+                  "name": "Deviation",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "1.0",
+                  "max": "3.0",
+                  "step": "0.5"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.KeltnerChannel": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Deviation#",
+                  "name": "Deviation",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "1.0",
+                  "max": "3.0",
+                  "step": "0.5"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.LogATR": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.MTATR": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.MTKeltnerChannel": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Deviation#",
+                  "name": "Deviation",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "1.0",
+                  "max": "3.0",
+                  "step": "0.5"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_Volatilidad_v4_intraday_v5",
+          "filename": "BS_Volatilidad_v4_intraday_v5.sqb",
+          "family": "volatilidad",
+          "familyLabel": "Volatilidad",
+          "layer": 1,
+          "variant": "intraday_v5",
+          "timeframes": [
+            "M5",
+            "M15",
+            "M30",
+            "H1"
+          ],
+          "sha256": "4D52651F0868BA88A6DD53A09043B566024D52FF64B3CB64E77F82E045737AD7",
+          "sha256Short": "4D52651F0868",
+          "sqxVersion": "142.2336",
+          "counts": {
+            "blocks": 749,
+            "activeBlocks": 28,
+            "changedBlocks": 76,
+            "categories": {
+              "indicators": 124,
+              "signals": 553,
+              "stopLimitBlocks": 72
+            },
+            "activeCategories": {
+              "indicators": 28
+            }
+          },
+          "activeBlocks": [
+            "Indicators.ATR",
+            "Indicators.BollingerBands",
+            "Indicators.DonchianChannels",
+            "Indicators.HullMovingAverageATRBands",
+            "Indicators.HullMovingAverageBollingerBands",
+            "Indicators.KeltnerChannel",
+            "Indicators.LogATR",
+            "Indicators.MTATR",
+            "Indicators.MTKeltnerChannel",
+            "Indicators.StdDev",
+            "Indicators.TrueRange",
+            "Indicators.UlcerIndex",
+            "Indicators.VWAPATRBands",
+            "Indicators.VWAPBollingerBands",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLowerPercentil",
+            "IsLower",
+            "IsLowerOrEqual",
+            "IsGreaterPercentil",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.ATR",
+            "Indicators.BollingerBands",
+            "Indicators.DonchianChannels",
+            "Indicators.HullMovingAverageATRBands",
+            "Indicators.HullMovingAverageBollingerBands",
+            "Indicators.KeltnerChannel",
+            "Indicators.LogATR",
+            "Indicators.MTATR",
+            "Indicators.MTKeltnerChannel",
+            "Indicators.StdDev",
+            "Indicators.TrueRange",
+            "Indicators.UlcerIndex",
+            "Indicators.VWAPATRBands",
+            "Indicators.VWAPBollingerBands"
+          ],
+          "activeBlockPreview": [
+            "Indicators.ATR",
+            "Indicators.BollingerBands",
+            "Indicators.DonchianChannels",
+            "Indicators.HullMovingAverageATRBands",
+            "Indicators.HullMovingAverageBollingerBands",
+            "Indicators.KeltnerChannel",
+            "Indicators.LogATR",
+            "Indicators.MTATR",
+            "Indicators.MTKeltnerChannel",
+            "Indicators.StdDev",
+            "Indicators.TrueRange",
+            "Indicators.UlcerIndex"
+          ],
+          "parameterPreview": {
+            "Indicators.ATR": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.BollingerBands": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Deviation#",
+                  "name": "Deviation",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "1.0",
+                  "max": "3.0",
+                  "step": "0.5"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.DonchianChannels": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.HullMovingAverageATRBands": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Multiplication#",
+                  "name": "Multiplication",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "1.0",
+                  "max": "5.0",
+                  "step": "0.5"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.HullMovingAverageBollingerBands": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#ComputedFrom#",
+                  "name": "Computed From",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Deviation#",
+                  "name": "Deviation",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "1.0",
+                  "max": "3.0",
+                  "step": "0.5"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.KeltnerChannel": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Deviation#",
+                  "name": "Deviation",
+                  "type": "double",
+                  "generation": "random",
+                  "min": "1.0",
+                  "max": "3.0",
+                  "step": "0.5"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                },
+                {
+                  "key": "#Line#",
+                  "name": "Line",
+                  "type": "int",
+                  "generation": "random",
+                  "min": null,
+                  "max": null,
+                  "step": null
+                }
+              ]
+            },
+            "Indicators.LogATR": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.MTATR": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_Volumen_v4",
+          "filename": "BS_Volumen_v4.sqb",
+          "family": "volumen",
+          "familyLabel": "Volumen",
+          "layer": 1,
+          "variant": "v4",
+          "timeframes": [
+            "M5",
+            "M15",
+            "M30",
+            "H1",
+            "H4",
+            "D1"
+          ],
+          "sha256": "8425FE9589BCF2E67E63C9710E886BB0223D5A698E85B238B53C190384210C78",
+          "sha256Short": "8425FE9589BC",
+          "sqxVersion": "142.2336",
+          "counts": {
+            "blocks": 749,
+            "activeBlocks": 25,
+            "changedBlocks": 76,
+            "categories": {
+              "indicators": 124,
+              "signals": 553,
+              "stopLimitBlocks": 72
+            },
+            "activeCategories": {
+              "indicators": 25
+            }
+          },
+          "activeBlocks": [
+            "Indicators.VWAP",
+            "Prices.Close",
+            "Prices.CloseD",
+            "Prices.HighD",
+            "Prices.LowD",
+            "Prices.OpenD",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.CloseM",
+            "Prices.HighM",
+            "Prices.LowM",
+            "Prices.OpenM",
+            "Prices.Open",
+            "Prices.CloseW",
+            "Prices.HighW",
+            "Prices.LowW",
+            "Prices.OpenW",
+            "IsLower",
+            "IsLowerOrEqual",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.VWAP"
+          ],
+          "activeBlockPreview": [
+            "Indicators.VWAP",
+            "Prices.Close",
+            "Prices.CloseD",
+            "Prices.HighD",
+            "Prices.LowD",
+            "Prices.OpenD",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.CloseM",
+            "Prices.HighM",
+            "Prices.LowM",
+            "Prices.OpenM"
+          ],
+          "parameterPreview": {
+            "Indicators.VWAP": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#VWAPPeriod#",
+                  "name": "VWAP Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000003",
+                  "max": "-1000004",
+                  "step": "1"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Close": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.CloseD": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.HighD": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.LowD": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.OpenD": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.High": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Low": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "canonicalId": "BS_Volumen_v4_intraday_v5",
+          "filename": "BS_Volumen_v4_intraday_v5.sqb",
+          "family": "volumen",
+          "familyLabel": "Volumen",
+          "layer": 1,
+          "variant": "intraday_v5",
+          "timeframes": [
+            "M5",
+            "M15",
+            "M30",
+            "H1"
+          ],
+          "sha256": "6F432A092DD0509EA75D668FF8DEEA1F159A0CADC5DEF1E77C45FD5493068CFA",
+          "sha256Short": "6F432A092DD0",
+          "sqxVersion": "142.2336",
+          "counts": {
+            "blocks": 749,
+            "activeBlocks": 14,
+            "changedBlocks": 76,
+            "categories": {
+              "indicators": 124,
+              "signals": 553,
+              "stopLimitBlocks": 72
+            },
+            "activeCategories": {
+              "indicators": 14
+            }
+          },
+          "activeBlocks": [
+            "Indicators.AvgVolume",
+            "Indicators.VWAP",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLower",
+            "IsLowerOrEqual",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow",
+            "IsFalling",
+            "IsRising"
+          ],
+          "activeIndicators": [
+            "Indicators.AvgVolume",
+            "Indicators.VWAP"
+          ],
+          "activeBlockPreview": [
+            "Indicators.AvgVolume",
+            "Indicators.VWAP",
+            "Prices.Close",
+            "Prices.High",
+            "Prices.Low",
+            "Prices.Open",
+            "IsLower",
+            "IsLowerOrEqual",
+            "IsGreater",
+            "IsGreaterOrEqual",
+            "CrossesAbove",
+            "CrossesBelow"
+          ],
+          "parameterPreview": {
+            "Indicators.AvgVolume": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Period#",
+                  "name": "Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Indicators.VWAP": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#VWAPPeriod#",
+                  "name": "VWAP Period",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "10",
+                  "max": "200",
+                  "step": "10"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Close": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.High": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Low": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "Prices.Open": {
+              "generated": [
+                {
+                  "key": "#Chart#",
+                  "name": "Chart",
+                  "type": "data",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Shift#",
+                  "name": "Shift",
+                  "type": "int",
+                  "generation": "random",
+                  "min": "-1000001",
+                  "max": "-1000002",
+                  "step": "1"
+                }
+              ]
+            },
+            "IsLower": {
+              "generated": [
+                {
+                  "key": "#Left#",
+                  "name": "Left",
+                  "type": "value",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Right#",
+                  "name": "Right",
+                  "type": "value",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                }
+              ]
+            },
+            "IsLowerOrEqual": {
+              "generated": [
+                {
+                  "key": "#Left#",
+                  "name": "Left",
+                  "type": "value",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                },
+                {
+                  "key": "#Right#",
+                  "name": "Right",
+                  "type": "value",
+                  "generation": "random",
+                  "min": "null",
+                  "max": "null",
+                  "step": "null"
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "aliases": {
+        "BS_Tendencia": "BS_Tendencia_v4",
+        "BS_Momentum": "BS_Momentum_v4",
+        "BS_Volatilidad": "BS_Volatilidad_v4",
+        "BS_Regimen": "BS_Regimen_v4",
+        "BS_Volumen": "BS_Volumen_v4",
+        "BS_SoporteResistencia": "BS_SoporteResistencia_v4",
+        "BS_Estadistico": "BS_Estadistico_v4",
+        "BS_Filtros": "BS_Filtros_v4",
+        "BS_Filtros_v5": "BS_Filtros_v5_D1",
+        "BS_Filtros_v7": "BS_Filtros_v7_H1",
+        "BS_Estadistico_v4": "BS_Estadistico_v4",
+        "BS_Filtros_v4": "BS_Filtros_v4",
+        "BS_Filtros_v5_D1": "BS_Filtros_v5_D1",
+        "BS_Filtros_v7_H1": "BS_Filtros_v7_H1",
+        "BS_Filtros_v7_H4": "BS_Filtros_v7_H4",
+        "BS_Filtros_v7_M15": "BS_Filtros_v7_M15",
+        "BS_Filtros_v7_M30": "BS_Filtros_v7_M30",
+        "BS_Filtros_v7_M5": "BS_Filtros_v7_M5",
+        "BS_Momentum_v4": "BS_Momentum_v4",
+        "BS_Regimen_v4": "BS_Regimen_v4",
+        "BS_SoporteResistencia_v4": "BS_SoporteResistencia_v4",
+        "BS_SoporteResistencia_v4_intraday_v5": "BS_SoporteResistencia_v4_intraday_v5",
+        "BS_Tendencia_v4": "BS_Tendencia_v4",
+        "BS_Volatilidad_v4": "BS_Volatilidad_v4",
+        "BS_Volatilidad_v4_intraday_v5": "BS_Volatilidad_v4_intraday_v5",
+        "BS_Volumen_v4": "BS_Volumen_v4",
+        "BS_Volumen_v4_intraday_v5": "BS_Volumen_v4_intraday_v5",
+        "BS_Estadistico_v4.sqb": "BS_Estadistico_v4",
+        "BS_Filtros_v4.sqb": "BS_Filtros_v4",
+        "BS_Filtros_v5_D1.sqb": "BS_Filtros_v5_D1",
+        "BS_Filtros_v7_H1.sqb": "BS_Filtros_v7_H1",
+        "BS_Filtros_v7_H4.sqb": "BS_Filtros_v7_H4",
+        "BS_Filtros_v7_M15.sqb": "BS_Filtros_v7_M15",
+        "BS_Filtros_v7_M30.sqb": "BS_Filtros_v7_M30",
+        "BS_Filtros_v7_M5.sqb": "BS_Filtros_v7_M5",
+        "BS_Momentum_v4.sqb": "BS_Momentum_v4",
+        "BS_Regimen_v4.sqb": "BS_Regimen_v4",
+        "BS_SoporteResistencia_v4.sqb": "BS_SoporteResistencia_v4",
+        "BS_SoporteResistencia_v4_intraday_v5.sqb": "BS_SoporteResistencia_v4_intraday_v5",
+        "BS_Tendencia_v4.sqb": "BS_Tendencia_v4",
+        "BS_Volatilidad_v4.sqb": "BS_Volatilidad_v4",
+        "BS_Volatilidad_v4_intraday_v5.sqb": "BS_Volatilidad_v4_intraday_v5",
+        "BS_Volumen_v4.sqb": "BS_Volumen_v4",
+        "BS_Volumen_v4_intraday_v5.sqb": "BS_Volumen_v4_intraday_v5"
+      },
+      "resourceDir": "backend/sqx-edge-tool/resources/blocksettings",
+      "capa1Options": [
+        {
+          "value": "BS_Estadistico_v4",
+          "label": "BS_Estadistico_v4",
+          "family": "estadistico",
+          "variant": "v4",
+          "sha256Short": "812A906949CA"
+        },
+        {
+          "value": "BS_Momentum_v4",
+          "label": "BS_Momentum_v4",
+          "family": "momentum",
+          "variant": "v4",
+          "sha256Short": "394C66C00CA6"
+        },
+        {
+          "value": "BS_Regimen_v4",
+          "label": "BS_Regimen_v4",
+          "family": "regimen",
+          "variant": "v4",
+          "sha256Short": "7D655C44656C"
+        },
+        {
+          "value": "BS_SoporteResistencia_v4",
+          "label": "BS_SoporteResistencia_v4",
+          "family": "sr",
+          "variant": "v4",
+          "sha256Short": "D55DFCC3E2CB"
+        },
+        {
+          "value": "BS_SoporteResistencia_v4_intraday_v5",
+          "label": "BS_SoporteResistencia_v4_intraday_v5",
+          "family": "sr",
+          "variant": "intraday_v5",
+          "sha256Short": "4325F5C4D16A"
+        },
+        {
+          "value": "BS_Tendencia_v4",
+          "label": "BS_Tendencia_v4",
+          "family": "tendencia",
+          "variant": "v4",
+          "sha256Short": "9838AC0CB575"
+        },
+        {
+          "value": "BS_Volatilidad_v4",
+          "label": "BS_Volatilidad_v4",
+          "family": "volatilidad",
+          "variant": "v4",
+          "sha256Short": "112975F33993"
+        },
+        {
+          "value": "BS_Volatilidad_v4_intraday_v5",
+          "label": "BS_Volatilidad_v4_intraday_v5",
+          "family": "volatilidad",
+          "variant": "intraday_v5",
+          "sha256Short": "4D52651F0868"
+        },
+        {
+          "value": "BS_Volumen_v4",
+          "label": "BS_Volumen_v4",
+          "family": "volumen",
+          "variant": "v4",
+          "sha256Short": "8425FE9589BC"
+        },
+        {
+          "value": "BS_Volumen_v4_intraday_v5",
+          "label": "BS_Volumen_v4_intraday_v5",
+          "family": "volumen",
+          "variant": "intraday_v5",
+          "sha256Short": "6F432A092DD0"
+        }
+      ],
+      "capa2Options": [
+        {
+          "value": "BS_Filtros_v4",
+          "label": "BS_Filtros_v4",
+          "family": "filtros",
+          "variant": "v4",
+          "sha256Short": "EAED2430BB0A",
+          "timeframes": [
+            "M5",
+            "M15",
+            "M30",
+            "H1",
+            "H4",
+            "D1"
+          ]
+        },
+        {
+          "value": "BS_Filtros_v5_D1",
+          "label": "BS_Filtros_v5_D1",
+          "family": "filtros",
+          "variant": "v5_d1",
+          "sha256Short": "B5AB92C6390A",
+          "timeframes": [
+            "D1"
+          ]
+        },
+        {
+          "value": "BS_Filtros_v7_H1",
+          "label": "BS_Filtros_v7_H1",
+          "family": "filtros",
+          "variant": "v7_h1",
+          "sha256Short": "BBB9FAC0B817",
+          "timeframes": [
+            "H1"
+          ]
+        },
+        {
+          "value": "BS_Filtros_v7_H4",
+          "label": "BS_Filtros_v7_H4",
+          "family": "filtros",
+          "variant": "v7_h4",
+          "sha256Short": "B11EE14CED4B",
+          "timeframes": [
+            "H4"
+          ]
+        },
+        {
+          "value": "BS_Filtros_v7_M15",
+          "label": "BS_Filtros_v7_M15",
+          "family": "filtros",
+          "variant": "v7_m15",
+          "sha256Short": "A5FF1A9E8007",
+          "timeframes": [
+            "M15"
+          ]
+        },
+        {
+          "value": "BS_Filtros_v7_M30",
+          "label": "BS_Filtros_v7_M30",
+          "family": "filtros",
+          "variant": "v7_m30",
+          "sha256Short": "301882B9E55A",
+          "timeframes": [
+            "M30"
+          ]
+        },
+        {
+          "value": "BS_Filtros_v7_M5",
+          "label": "BS_Filtros_v7_M5",
+          "family": "filtros",
+          "variant": "v7_m5",
+          "sha256Short": "4834062C9D15",
+          "timeframes": [
+            "M5"
+          ]
+        }
+      ]
+    },
+    "capa1Resolver": {
+      "intradayTimeframes": [
+        "M5",
+        "M15",
+        "M30",
+        "H1"
+      ],
+      "families": {
+        "tendencia": {
+          "default": "BS_Tendencia_v4"
+        },
+        "momentum": {
+          "default": "BS_Momentum_v4"
+        },
+        "volatilidad": {
+          "default": "BS_Volatilidad_v4",
+          "intraday": "BS_Volatilidad_v4_intraday_v5"
+        },
+        "regimen": {
+          "default": "BS_Regimen_v4"
+        },
+        "volumen": {
+          "default": "BS_Volumen_v4",
+          "intraday": "BS_Volumen_v4_intraday_v5"
+        },
+        "sr": {
+          "default": "BS_SoporteResistencia_v4",
+          "intraday": "BS_SoporteResistencia_v4_intraday_v5"
+        },
+        "estadistico": {
+          "default": "BS_Estadistico_v4"
+        }
+      }
+    },
+    "capa2Recommendations": {
+      "manual": true,
+      "recommendations": {
+        "M5": "BS_Filtros_v7_M5",
+        "M15": "BS_Filtros_v7_M15",
+        "M30": "BS_Filtros_v7_M30",
+        "H1": "BS_Filtros_v7_H1",
+        "H4": "BS_Filtros_v7_H4",
+        "D1": "BS_Filtros_v5_D1",
+        "fallback": "BS_Filtros_v4"
+      }
     }
   },
   "product": {
@@ -1874,7 +7867,7 @@ window.SQX_MANIFEST = {
         "phase": 1,
         "asset": "XAUUSD",
         "tf": "H1",
-        "bs": "BS_Tendencia",
+        "bs": "BS_Tendencia_v4",
         "dir": "L"
       },
       {
@@ -1882,7 +7875,7 @@ window.SQX_MANIFEST = {
         "phase": 1,
         "asset": "XAUUSD",
         "tf": "H4",
-        "bs": "BS_Tendencia",
+        "bs": "BS_Tendencia_v4",
         "dir": "L"
       },
       {
@@ -1890,7 +7883,7 @@ window.SQX_MANIFEST = {
         "phase": 1,
         "asset": "XAUUSD",
         "tf": "M30",
-        "bs": "BS_Tendencia",
+        "bs": "BS_Tendencia_v4",
         "dir": "L"
       },
       {
@@ -1898,7 +7891,7 @@ window.SQX_MANIFEST = {
         "phase": 2,
         "asset": "EURUSD",
         "tf": "H1",
-        "bs": "BS_Tendencia",
+        "bs": "BS_Tendencia_v4",
         "dir": "L/S"
       },
       {
@@ -1906,7 +7899,7 @@ window.SQX_MANIFEST = {
         "phase": 2,
         "asset": "EURUSD",
         "tf": "H4",
-        "bs": "BS_Tendencia",
+        "bs": "BS_Tendencia_v4",
         "dir": "L/S"
       },
       {
@@ -1914,7 +7907,7 @@ window.SQX_MANIFEST = {
         "phase": 2,
         "asset": "EURUSD",
         "tf": "M30",
-        "bs": "BS_Momentum",
+        "bs": "BS_Momentum_v4",
         "dir": "L/S"
       },
       {
@@ -1922,7 +7915,7 @@ window.SQX_MANIFEST = {
         "phase": 3,
         "asset": "USTEC",
         "tf": "H1",
-        "bs": "BS_Tendencia",
+        "bs": "BS_Tendencia_v4",
         "dir": "L"
       },
       {
@@ -1930,7 +7923,7 @@ window.SQX_MANIFEST = {
         "phase": 3,
         "asset": "USTEC",
         "tf": "H1",
-        "bs": "BS_Momentum",
+        "bs": "BS_Momentum_v4",
         "dir": "L"
       },
       {
@@ -1938,7 +7931,7 @@ window.SQX_MANIFEST = {
         "phase": 3,
         "asset": "USTEC",
         "tf": "M30",
-        "bs": "BS_Momentum",
+        "bs": "BS_Momentum_v4",
         "dir": "L"
       },
       {
@@ -1946,7 +7939,7 @@ window.SQX_MANIFEST = {
         "phase": 4,
         "asset": "GBPUSD",
         "tf": "H1",
-        "bs": "BS_Volatilidad",
+        "bs": "BS_Volatilidad_v4_intraday_v5",
         "dir": "L/S"
       },
       {
@@ -1954,7 +7947,7 @@ window.SQX_MANIFEST = {
         "phase": 4,
         "asset": "GBPJPY",
         "tf": "H1",
-        "bs": "BS_Volatilidad",
+        "bs": "BS_Volatilidad_v4_intraday_v5",
         "dir": "L/S"
       },
       {
@@ -1962,7 +7955,7 @@ window.SQX_MANIFEST = {
         "phase": 5,
         "asset": "EURGBP",
         "tf": "H4",
-        "bs": "BS_Regimen",
+        "bs": "BS_Regimen_v4",
         "dir": "L/S"
       },
       {
@@ -1970,7 +7963,7 @@ window.SQX_MANIFEST = {
         "phase": 5,
         "asset": "AUDNZD",
         "tf": "H4",
-        "bs": "BS_Regimen",
+        "bs": "BS_Regimen_v4",
         "dir": "L/S"
       },
       {
@@ -1978,7 +7971,7 @@ window.SQX_MANIFEST = {
         "phase": 5,
         "asset": "EURGBP",
         "tf": "H1",
-        "bs": "BS_Estadistico",
+        "bs": "BS_Estadistico_v4",
         "dir": "L/S"
       }
     ],
@@ -2988,7 +8981,7 @@ window.SQX_MANIFEST = {
         "mining": 1,
         "asset": "XAUUSD",
         "tf": "H1",
-        "blocksetting": "BS_Tendencia",
+        "blocksetting": "BS_Tendencia_v4",
         "template": "LINEAR",
         "direction": "L",
         "indicators": "ATR + LinearRegression",
@@ -3027,7 +9020,7 @@ window.SQX_MANIFEST = {
         "mining": 1,
         "asset": "XAUUSD",
         "tf": "H1",
-        "blocksetting": "BS_Tendencia",
+        "blocksetting": "BS_Tendencia_v4",
         "template": "LINEAR",
         "direction": "L",
         "indicators": "KaufmanEfficiencyRatio + LinearRegression",
@@ -3067,7 +9060,7 @@ window.SQX_MANIFEST = {
         "mining": 1,
         "asset": "XAUUSD",
         "tf": "H1",
-        "blocksetting": "BS_Tendencia",
+        "blocksetting": "BS_Tendencia_v4",
         "template": "LINEAR",
         "direction": "L",
         "indicators": "LinearRegression (sin filtro adicional)",
@@ -3106,7 +9099,7 @@ window.SQX_MANIFEST = {
         "mining": 1,
         "asset": "XAUUSD",
         "tf": "H1",
-        "blocksetting": "BS_Tendencia",
+        "blocksetting": "BS_Tendencia_v4",
         "template": "MACD",
         "direction": "L",
         "indicators": "MACD(8,17,9) Signal[1] crosses above 2.7 + ADX(40,+DI)[1] >= ADX(30,Main)[1]",
@@ -3137,5 +9130,5752 @@ window.SQX_MANIFEST = {
         "added": "2026-05-02"
       }
     ]
+  },
+  "blocksettings": {
+    "version": 1,
+    "source": {
+      "resourceDir": "backend/sqx-edge-tool/resources/blocksettings",
+      "generatedFrom": "versioned .sqb resources"
+    },
+    "entries": [
+      {
+        "canonicalId": "BS_Estadistico_v4",
+        "filename": "BS_Estadistico_v4.sqb",
+        "family": "estadistico",
+        "familyLabel": "Estadistico",
+        "layer": 1,
+        "variant": "v4",
+        "timeframes": [
+          "M5",
+          "M15",
+          "M30",
+          "H1",
+          "H4",
+          "D1"
+        ],
+        "sha256": "812A906949CA2555B8FC4E2C6142A030F89863EBC2D1FE21A91550E9F6D69010",
+        "sha256Short": "812A906949CA",
+        "sqxVersion": "142.2336",
+        "counts": {
+          "blocks": 749,
+          "activeBlocks": 20,
+          "changedBlocks": 76,
+          "categories": {
+            "indicators": 124,
+            "signals": 553,
+            "stopLimitBlocks": 72
+          },
+          "activeCategories": {
+            "indicators": 20
+          }
+        },
+        "activeBlocks": [
+          "Indicators.SRPercentRank",
+          "Indicators.ZScore",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLowerCount",
+          "IsLower",
+          "IsLowerOrEqual",
+          "NotEquals",
+          "Equals",
+          "IsGreaterPercentil",
+          "IsGreaterCount",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.SRPercentRank",
+          "Indicators.ZScore"
+        ],
+        "activeBlockPreview": [
+          "Indicators.SRPercentRank",
+          "Indicators.ZScore",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLowerCount",
+          "IsLower",
+          "IsLowerOrEqual",
+          "NotEquals",
+          "Equals"
+        ],
+        "parameterPreview": {
+          "Indicators.SRPercentRank": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Mode#",
+                "name": "Mode",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Length#",
+                "name": "Length",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#ATRPeriod#",
+                "name": "ATR Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.ZScore": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Input",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Close": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.High": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Low": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Open": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "IsLowerPercentil": {
+            "generated": [
+              {
+                "key": "#Indicator#",
+                "name": "Indicator",
+                "type": "value",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Bars#",
+                "name": "Bars",
+                "type": "int",
+                "generation": "random",
+                "min": "100",
+                "max": "1000",
+                "step": "100"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Percentile#",
+                "name": "Percentile",
+                "type": "double",
+                "generation": "random",
+                "min": "5",
+                "max": "95",
+                "step": "5"
+              }
+            ]
+          },
+          "IsLowerCount": {
+            "generated": [
+              {
+                "key": "#Bars#",
+                "name": "Bars",
+                "type": "int",
+                "generation": "random",
+                "min": "2",
+                "max": "10",
+                "step": "1"
+              },
+              {
+                "key": "#NotStrict#",
+                "name": "Allow same values",
+                "type": "boolean",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#IndicatorLeft#",
+                "name": "Indicator Left",
+                "type": "value",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#IndicatorRight#",
+                "name": "Indicator Right",
+                "type": "value",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_Filtros_v4",
+        "filename": "BS_Filtros_v4.sqb",
+        "family": "filtros",
+        "familyLabel": "Filtros operativos",
+        "layer": 2,
+        "variant": "v4",
+        "timeframes": [
+          "M5",
+          "M15",
+          "M30",
+          "H1",
+          "H4",
+          "D1"
+        ],
+        "sha256": "EAED2430BB0ACC4E6477704BDFB8F807D5555DD5B1EA8733B5C952255B02669E",
+        "sha256Short": "EAED2430BB0A",
+        "sqxVersion": "141.2225",
+        "counts": {
+          "blocks": 540,
+          "activeBlocks": 21,
+          "changedBlocks": 62,
+          "categories": {
+            "indicators": 100,
+            "signals": 383,
+            "stopLimitBlocks": 57
+          },
+          "activeCategories": {
+            "indicators": 20,
+            "signals": 1
+          }
+        },
+        "activeBlocks": [
+          "AlwaysTrue",
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual",
+          "NotEquals",
+          "Equals",
+          "IsGreaterPercentil",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio"
+        ],
+        "activeBlockPreview": [
+          "AlwaysTrue",
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual"
+        ],
+        "parameterPreview": {
+          "AlwaysTrue": {
+            "generated": []
+          },
+          "Indicators.ADX": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Input",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.ATR": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.AvgVolume": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.KaufmanEfficiencyRatio": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Close": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.High": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Low": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_Filtros_v5_D1",
+        "filename": "BS_Filtros_v5_D1.sqb",
+        "family": "filtros",
+        "familyLabel": "Filtros operativos",
+        "layer": 2,
+        "variant": "v5_d1",
+        "timeframes": [
+          "D1"
+        ],
+        "sha256": "B5AB92C6390A994C0550788FBB257CFA0158DA8376BEE5ADD80D9C575DC1E3A9",
+        "sha256Short": "B5AB92C6390A",
+        "sqxVersion": "141.2225",
+        "counts": {
+          "blocks": 540,
+          "activeBlocks": 31,
+          "changedBlocks": 62,
+          "categories": {
+            "indicators": 100,
+            "signals": 383,
+            "stopLimitBlocks": 57
+          },
+          "activeCategories": {
+            "indicators": 28,
+            "signals": 3
+          }
+        },
+        "activeBlocks": [
+          "AlwaysTrue",
+          "CBlock_DCloseMayorSMA20",
+          "CBlock_DCloseMinorSMA20",
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio",
+          "Prices.Close",
+          "Prices.CloseD",
+          "Prices.HighD",
+          "Prices.LowD",
+          "Prices.OpenD",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "Prices.CloseW",
+          "Prices.HighW",
+          "Prices.LowW",
+          "Prices.OpenW",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual",
+          "NotEquals",
+          "Equals",
+          "IsGreaterPercentil",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio"
+        ],
+        "activeBlockPreview": [
+          "AlwaysTrue",
+          "CBlock_DCloseMayorSMA20",
+          "CBlock_DCloseMinorSMA20",
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio",
+          "Prices.Close",
+          "Prices.CloseD",
+          "Prices.HighD",
+          "Prices.LowD",
+          "Prices.OpenD"
+        ],
+        "parameterPreview": {
+          "AlwaysTrue": {
+            "generated": []
+          },
+          "CBlock_DCloseMayorSMA20": {
+            "generated": [
+              {
+                "key": "#Chart1#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              }
+            ]
+          },
+          "CBlock_DCloseMinorSMA20": {
+            "generated": [
+              {
+                "key": "#Chart1#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              }
+            ]
+          },
+          "Indicators.ADX": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Input",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.ATR": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.AvgVolume": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.KaufmanEfficiencyRatio": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Close": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_Filtros_v7_H1",
+        "filename": "BS_Filtros_v7_H1.sqb",
+        "family": "filtros",
+        "familyLabel": "Filtros operativos",
+        "layer": 2,
+        "variant": "v7_h1",
+        "timeframes": [
+          "H1"
+        ],
+        "sha256": "BBB9FAC0B8174DE15F62B1F0CE89D806B73F64EFFCF4423D85779A3C16D5D360",
+        "sha256Short": "BBB9FAC0B817",
+        "sqxVersion": "141.2225",
+        "counts": {
+          "blocks": 540,
+          "activeBlocks": 21,
+          "changedBlocks": 62,
+          "categories": {
+            "indicators": 100,
+            "signals": 383,
+            "stopLimitBlocks": 57
+          },
+          "activeCategories": {
+            "indicators": 20,
+            "signals": 1
+          }
+        },
+        "activeBlocks": [
+          "AlwaysTrue",
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual",
+          "NotEquals",
+          "Equals",
+          "IsGreaterPercentil",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio"
+        ],
+        "activeBlockPreview": [
+          "AlwaysTrue",
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual"
+        ],
+        "parameterPreview": {
+          "AlwaysTrue": {
+            "generated": []
+          },
+          "Indicators.ADX": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Input",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.ATR": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.AvgVolume": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.KaufmanEfficiencyRatio": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Close": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.High": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Low": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_Filtros_v7_H4",
+        "filename": "BS_Filtros_v7_H4.sqb",
+        "family": "filtros",
+        "familyLabel": "Filtros operativos",
+        "layer": 2,
+        "variant": "v7_h4",
+        "timeframes": [
+          "H4"
+        ],
+        "sha256": "B11EE14CED4B5B006262376CDB738BC2DE2F09F836C6A775A6B9873C7972A9FE",
+        "sha256Short": "B11EE14CED4B",
+        "sqxVersion": "141.2225",
+        "counts": {
+          "blocks": 540,
+          "activeBlocks": 21,
+          "changedBlocks": 62,
+          "categories": {
+            "indicators": 100,
+            "signals": 383,
+            "stopLimitBlocks": 57
+          },
+          "activeCategories": {
+            "indicators": 20,
+            "signals": 1
+          }
+        },
+        "activeBlocks": [
+          "AlwaysTrue",
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual",
+          "NotEquals",
+          "Equals",
+          "IsGreaterPercentil",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio"
+        ],
+        "activeBlockPreview": [
+          "AlwaysTrue",
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual"
+        ],
+        "parameterPreview": {
+          "AlwaysTrue": {
+            "generated": []
+          },
+          "Indicators.ADX": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Input",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.ATR": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.AvgVolume": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.KaufmanEfficiencyRatio": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Close": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.High": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Low": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_Filtros_v7_M15",
+        "filename": "BS_Filtros_v7_M15.sqb",
+        "family": "filtros",
+        "familyLabel": "Filtros operativos",
+        "layer": 2,
+        "variant": "v7_m15",
+        "timeframes": [
+          "M15"
+        ],
+        "sha256": "A5FF1A9E80075F6845DCDE2655B9FAC64E9C2FD8EC768F0ECC8D7E8C80942FC2",
+        "sha256Short": "A5FF1A9E8007",
+        "sqxVersion": "141.2225",
+        "counts": {
+          "blocks": 540,
+          "activeBlocks": 21,
+          "changedBlocks": 62,
+          "categories": {
+            "indicators": 100,
+            "signals": 383,
+            "stopLimitBlocks": 57
+          },
+          "activeCategories": {
+            "indicators": 20,
+            "signals": 1
+          }
+        },
+        "activeBlocks": [
+          "AlwaysTrue",
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual",
+          "NotEquals",
+          "Equals",
+          "IsGreaterPercentil",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio"
+        ],
+        "activeBlockPreview": [
+          "AlwaysTrue",
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual"
+        ],
+        "parameterPreview": {
+          "AlwaysTrue": {
+            "generated": []
+          },
+          "Indicators.ADX": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Input",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.ATR": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.AvgVolume": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.KaufmanEfficiencyRatio": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Close": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.High": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Low": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_Filtros_v7_M30",
+        "filename": "BS_Filtros_v7_M30.sqb",
+        "family": "filtros",
+        "familyLabel": "Filtros operativos",
+        "layer": 2,
+        "variant": "v7_m30",
+        "timeframes": [
+          "M30"
+        ],
+        "sha256": "301882B9E55AD54E5427735898313361771C122BFEE9777C256C9B3D476E3B5A",
+        "sha256Short": "301882B9E55A",
+        "sqxVersion": "141.2225",
+        "counts": {
+          "blocks": 540,
+          "activeBlocks": 21,
+          "changedBlocks": 62,
+          "categories": {
+            "indicators": 100,
+            "signals": 383,
+            "stopLimitBlocks": 57
+          },
+          "activeCategories": {
+            "indicators": 20,
+            "signals": 1
+          }
+        },
+        "activeBlocks": [
+          "AlwaysTrue",
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual",
+          "NotEquals",
+          "Equals",
+          "IsGreaterPercentil",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio"
+        ],
+        "activeBlockPreview": [
+          "AlwaysTrue",
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual"
+        ],
+        "parameterPreview": {
+          "AlwaysTrue": {
+            "generated": []
+          },
+          "Indicators.ADX": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Input",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.ATR": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.AvgVolume": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.KaufmanEfficiencyRatio": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Close": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.High": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Low": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_Filtros_v7_M5",
+        "filename": "BS_Filtros_v7_M5.sqb",
+        "family": "filtros",
+        "familyLabel": "Filtros operativos",
+        "layer": 2,
+        "variant": "v7_m5",
+        "timeframes": [
+          "M5"
+        ],
+        "sha256": "4834062C9D1541FF8CABB996AA8B2871DD6DDA9087FCF5106D2FEC583A99FAD6",
+        "sha256Short": "4834062C9D15",
+        "sqxVersion": "141.2225",
+        "counts": {
+          "blocks": 540,
+          "activeBlocks": 21,
+          "changedBlocks": 62,
+          "categories": {
+            "indicators": 100,
+            "signals": 383,
+            "stopLimitBlocks": 57
+          },
+          "activeCategories": {
+            "indicators": 20,
+            "signals": 1
+          }
+        },
+        "activeBlocks": [
+          "AlwaysTrue",
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual",
+          "NotEquals",
+          "Equals",
+          "IsGreaterPercentil",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio"
+        ],
+        "activeBlockPreview": [
+          "AlwaysTrue",
+          "Indicators.ADX",
+          "Indicators.ATR",
+          "Indicators.AvgVolume",
+          "Indicators.KaufmanEfficiencyRatio",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual"
+        ],
+        "parameterPreview": {
+          "AlwaysTrue": {
+            "generated": []
+          },
+          "Indicators.ADX": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Input",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.ATR": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.AvgVolume": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.KaufmanEfficiencyRatio": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Close": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.High": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Low": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_Momentum_v4",
+        "filename": "BS_Momentum_v4.sqb",
+        "family": "momentum",
+        "familyLabel": "Momentum",
+        "layer": 1,
+        "variant": "v4",
+        "timeframes": [
+          "M5",
+          "M15",
+          "M30",
+          "H1",
+          "H4",
+          "D1"
+        ],
+        "sha256": "394C66C00CA610EC36C40FF5A1C78C34352AC77A15A1DBA8E397C79307199854",
+        "sha256Short": "394C66C00CA6",
+        "sqxVersion": "142.2336",
+        "counts": {
+          "blocks": 749,
+          "activeBlocks": 26,
+          "changedBlocks": 76,
+          "categories": {
+            "indicators": 124,
+            "signals": 553,
+            "stopLimitBlocks": 72
+          },
+          "activeCategories": {
+            "indicators": 26
+          }
+        },
+        "activeBlocks": [
+          "Indicators.AwesomeOscillator",
+          "Indicators.CCI",
+          "Indicators.Momentum",
+          "Indicators.OSMA",
+          "Indicators.ROC",
+          "Indicators.RSI",
+          "Indicators.Stochastic",
+          "Indicators.WilliamsPR",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLowerCount",
+          "IsLower",
+          "IsLowerOrEqual",
+          "NotEquals",
+          "Equals",
+          "IsGreaterPercentil",
+          "IsGreaterCount",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.AwesomeOscillator",
+          "Indicators.CCI",
+          "Indicators.Momentum",
+          "Indicators.OSMA",
+          "Indicators.ROC",
+          "Indicators.RSI",
+          "Indicators.Stochastic",
+          "Indicators.WilliamsPR"
+        ],
+        "activeBlockPreview": [
+          "Indicators.AwesomeOscillator",
+          "Indicators.CCI",
+          "Indicators.Momentum",
+          "Indicators.OSMA",
+          "Indicators.ROC",
+          "Indicators.RSI",
+          "Indicators.Stochastic",
+          "Indicators.WilliamsPR",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open"
+        ],
+        "parameterPreview": {
+          "Indicators.AwesomeOscillator": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.CCI": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.Momentum": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.OSMA": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#FastEMA#",
+                "name": "Fast EMA",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#SlowEMA#",
+                "name": "Slow EMA",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#SignalPeriod#",
+                "name": "Signal Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.ROC": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.RSI": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.Stochastic": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#KPeriod#",
+                "name": "%K Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#DPeriod#",
+                "name": "%D Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Slowing#",
+                "name": "Slowing",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#MAMethod#",
+                "name": "MA Method",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#PriceField#",
+                "name": "Price Field",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.WilliamsPR": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_Regimen_v4",
+        "filename": "BS_Regimen_v4.sqb",
+        "family": "regimen",
+        "familyLabel": "Regimen",
+        "layer": 1,
+        "variant": "v4",
+        "timeframes": [
+          "M5",
+          "M15",
+          "M30",
+          "H1",
+          "H4",
+          "D1"
+        ],
+        "sha256": "7D655C44656C2FF7FA6A756E9951318AA06203F6E52B6EDC0E5B718F3676FF41",
+        "sha256Short": "7D655C44656C",
+        "sqxVersion": "142.2336",
+        "counts": {
+          "blocks": 749,
+          "activeBlocks": 19,
+          "changedBlocks": 76,
+          "categories": {
+            "indicators": 124,
+            "signals": 553,
+            "stopLimitBlocks": 72
+          },
+          "activeCategories": {
+            "indicators": 19
+          }
+        },
+        "activeBlocks": [
+          "Indicators.CSSAMarketRegime",
+          "Indicators.EhlersHilbertTransform",
+          "Indicators.EntropyMath",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual",
+          "NotEquals",
+          "Equals",
+          "IsGreaterPercentil",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.CSSAMarketRegime",
+          "Indicators.EhlersHilbertTransform",
+          "Indicators.EntropyMath"
+        ],
+        "activeBlockPreview": [
+          "Indicators.CSSAMarketRegime",
+          "Indicators.EhlersHilbertTransform",
+          "Indicators.EntropyMath",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual",
+          "NotEquals",
+          "Equals"
+        ],
+        "parameterPreview": {
+          "Indicators.CSSAMarketRegime": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#HLSumPeriod#",
+                "name": "HL Sum Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#HLPeriod#",
+                "name": "HL Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#AvgPeriod#",
+                "name": "Avg Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#PercRankPeriod#",
+                "name": "Perc Rank Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.EhlersHilbertTransform": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.EntropyMath": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#EMPeriod#",
+                "name": "EM Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Close": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.High": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Low": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Open": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "IsLowerPercentil": {
+            "generated": [
+              {
+                "key": "#Indicator#",
+                "name": "Indicator",
+                "type": "value",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Bars#",
+                "name": "Bars",
+                "type": "int",
+                "generation": "random",
+                "min": "100",
+                "max": "1000",
+                "step": "100"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Percentile#",
+                "name": "Percentile",
+                "type": "double",
+                "generation": "random",
+                "min": "5",
+                "max": "95",
+                "step": "5"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_SoporteResistencia_v4",
+        "filename": "BS_SoporteResistencia_v4.sqb",
+        "family": "sr",
+        "familyLabel": "Soporte/Resistencia",
+        "layer": 1,
+        "variant": "v4",
+        "timeframes": [
+          "M5",
+          "M15",
+          "M30",
+          "H1",
+          "H4",
+          "D1"
+        ],
+        "sha256": "D55DFCC3E2CB6F74A56663C0DB4FAD8F4BE6F866DB634E640AC9A7FFAD89FEFA",
+        "sha256Short": "D55DFCC3E2CB",
+        "sqxVersion": "142.2336",
+        "counts": {
+          "blocks": 749,
+          "activeBlocks": 30,
+          "changedBlocks": 76,
+          "categories": {
+            "indicators": 124,
+            "signals": 553,
+            "stopLimitBlocks": 72
+          },
+          "activeCategories": {
+            "indicators": 30
+          }
+        },
+        "activeBlocks": [
+          "Indicators.Fractal",
+          "Indicators.Highest",
+          "Indicators.HighestInRange",
+          "Indicators.Lowest",
+          "Indicators.LowestInRange",
+          "Prices.Close",
+          "Prices.CloseD",
+          "Prices.HighD",
+          "Prices.LowD",
+          "Prices.OpenD",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.CloseM",
+          "Prices.HighM",
+          "Prices.LowM",
+          "Prices.OpenM",
+          "Prices.Open",
+          "Prices.CloseW",
+          "Prices.HighW",
+          "Prices.LowW",
+          "Prices.OpenW",
+          "IsLower",
+          "IsLowerOrEqual",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising",
+          "Not"
+        ],
+        "activeIndicators": [
+          "Indicators.Fractal",
+          "Indicators.Highest",
+          "Indicators.HighestInRange",
+          "Indicators.Lowest",
+          "Indicators.LowestInRange"
+        ],
+        "activeBlockPreview": [
+          "Indicators.Fractal",
+          "Indicators.Highest",
+          "Indicators.HighestInRange",
+          "Indicators.Lowest",
+          "Indicators.LowestInRange",
+          "Prices.Close",
+          "Prices.CloseD",
+          "Prices.HighD",
+          "Prices.LowD",
+          "Prices.OpenD",
+          "Prices.High",
+          "Prices.Low"
+        ],
+        "parameterPreview": {
+          "Indicators.Fractal": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Fractal#",
+                "name": "Fractal",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.Highest": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.HighestInRange": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#TimeFrom#",
+                "name": "Time From",
+                "type": "int",
+                "generation": "random",
+                "min": "0",
+                "max": "2359",
+                "step": "30"
+              },
+              {
+                "key": "#TimeTo#",
+                "name": "Time To",
+                "type": "int",
+                "generation": "random",
+                "min": "0",
+                "max": "2359",
+                "step": "30"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.Lowest": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.LowestInRange": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#TimeFrom#",
+                "name": "Time From",
+                "type": "int",
+                "generation": "random",
+                "min": "0",
+                "max": "2359",
+                "step": "30"
+              },
+              {
+                "key": "#TimeTo#",
+                "name": "Time To",
+                "type": "int",
+                "generation": "random",
+                "min": "0",
+                "max": "2359",
+                "step": "30"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Close": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.CloseD": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.HighD": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_SoporteResistencia_v4_intraday_v5",
+        "filename": "BS_SoporteResistencia_v4_intraday_v5.sqb",
+        "family": "sr",
+        "familyLabel": "Soporte/Resistencia",
+        "layer": 1,
+        "variant": "intraday_v5",
+        "timeframes": [
+          "M5",
+          "M15",
+          "M30",
+          "H1"
+        ],
+        "sha256": "4325F5C4D16A9BE0007E64908A34A603372BAD8BCF2AB2C16C40CEFF3EA52B2C",
+        "sha256Short": "4325F5C4D16A",
+        "sqxVersion": "142.2336",
+        "counts": {
+          "blocks": 749,
+          "activeBlocks": 18,
+          "changedBlocks": 76,
+          "categories": {
+            "indicators": 124,
+            "signals": 553,
+            "stopLimitBlocks": 72
+          },
+          "activeCategories": {
+            "indicators": 18
+          }
+        },
+        "activeBlocks": [
+          "Indicators.Fractal",
+          "Indicators.Highest",
+          "Indicators.HighestInRange",
+          "Indicators.Lowest",
+          "Indicators.LowestInRange",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLower",
+          "IsLowerOrEqual",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising",
+          "Not"
+        ],
+        "activeIndicators": [
+          "Indicators.Fractal",
+          "Indicators.Highest",
+          "Indicators.HighestInRange",
+          "Indicators.Lowest",
+          "Indicators.LowestInRange"
+        ],
+        "activeBlockPreview": [
+          "Indicators.Fractal",
+          "Indicators.Highest",
+          "Indicators.HighestInRange",
+          "Indicators.Lowest",
+          "Indicators.LowestInRange",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLower",
+          "IsLowerOrEqual",
+          "IsGreater"
+        ],
+        "parameterPreview": {
+          "Indicators.Fractal": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Fractal#",
+                "name": "Fractal",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.Highest": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.HighestInRange": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#TimeFrom#",
+                "name": "Time From",
+                "type": "int",
+                "generation": "random",
+                "min": "0",
+                "max": "2359",
+                "step": "30"
+              },
+              {
+                "key": "#TimeTo#",
+                "name": "Time To",
+                "type": "int",
+                "generation": "random",
+                "min": "0",
+                "max": "2359",
+                "step": "30"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.Lowest": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.LowestInRange": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#TimeFrom#",
+                "name": "Time From",
+                "type": "int",
+                "generation": "random",
+                "min": "0",
+                "max": "2359",
+                "step": "30"
+              },
+              {
+                "key": "#TimeTo#",
+                "name": "Time To",
+                "type": "int",
+                "generation": "random",
+                "min": "0",
+                "max": "2359",
+                "step": "30"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Close": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.High": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Low": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_Tendencia_v4",
+        "filename": "BS_Tendencia_v4.sqb",
+        "family": "tendencia",
+        "familyLabel": "Tendencia",
+        "layer": 1,
+        "variant": "v4",
+        "timeframes": [
+          "M5",
+          "M15",
+          "M30",
+          "H1",
+          "H4",
+          "D1"
+        ],
+        "sha256": "9838AC0CB5753CAA5AFB7D584E5D51B0657AD4EAD8485DCAF4FE6530A6E1A4E0",
+        "sha256Short": "9838AC0CB575",
+        "sqxVersion": "142.2336",
+        "counts": {
+          "blocks": 749,
+          "activeBlocks": 36,
+          "changedBlocks": 76,
+          "categories": {
+            "indicators": 124,
+            "signals": 553,
+            "stopLimitBlocks": 72
+          },
+          "activeCategories": {
+            "indicators": 36
+          }
+        },
+        "activeBlocks": [
+          "Indicators.ATRTrailingStops",
+          "Indicators.EMA",
+          "Indicators.LinearRegression",
+          "Indicators.MACD",
+          "Indicators.ParabolicSAR",
+          "Indicators.SMA",
+          "Indicators.SuperTrend",
+          "Indicators.Ichimoku",
+          "Prices.Close",
+          "Prices.CloseD",
+          "Prices.HighD",
+          "Prices.LowD",
+          "Prices.OpenD",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.CloseM",
+          "Prices.HighM",
+          "Prices.LowM",
+          "Prices.OpenM",
+          "Prices.Open",
+          "Prices.CloseW",
+          "Prices.HighW",
+          "Prices.LowW",
+          "Prices.OpenW",
+          "IsLower",
+          "IsLowerOrEqual",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "IndicatorCrossesAboveMA",
+          "IndicatorCrossesBelowMA",
+          "IndicatorBelowMA",
+          "IndicatorAboveMA",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.ATRTrailingStops",
+          "Indicators.EMA",
+          "Indicators.LinearRegression",
+          "Indicators.MACD",
+          "Indicators.ParabolicSAR",
+          "Indicators.SMA",
+          "Indicators.SuperTrend",
+          "Indicators.Ichimoku"
+        ],
+        "activeBlockPreview": [
+          "Indicators.ATRTrailingStops",
+          "Indicators.EMA",
+          "Indicators.LinearRegression",
+          "Indicators.MACD",
+          "Indicators.ParabolicSAR",
+          "Indicators.SMA",
+          "Indicators.SuperTrend",
+          "Indicators.Ichimoku",
+          "Prices.Close",
+          "Prices.CloseD",
+          "Prices.HighD",
+          "Prices.LowD"
+        ],
+        "parameterPreview": {
+          "Indicators.ATRTrailingStops": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ATRPeriod#",
+                "name": "ATR Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#ATRSmoothigPeriod#",
+                "name": "ATR Smoothig Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#ATRMultiplier#",
+                "name": "ATR Multiplier",
+                "type": "double",
+                "generation": "random",
+                "min": "0.5",
+                "max": "5.0",
+                "step": "0.5"
+              },
+              {
+                "key": "#ATRSmoothingMode#",
+                "name": "ATRSmoothingMode",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Method#",
+                "name": "Method",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.EMA": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.LinearRegression": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.MACD": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Fast#",
+                "name": "Fast",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Slow#",
+                "name": "Slow",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Smooth#",
+                "name": "Smooth",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.ParabolicSAR": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Step#",
+                "name": "Step",
+                "type": "double",
+                "generation": "random",
+                "min": "0.01",
+                "max": "0.04",
+                "step": "0.01"
+              },
+              {
+                "key": "#Maximum#",
+                "name": "Maximum",
+                "type": "double",
+                "generation": "random",
+                "min": "0.1",
+                "max": "0.4",
+                "step": "0.1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.SMA": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.SuperTrend": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Mode#",
+                "name": "Mode",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#ATRPeriod#",
+                "name": "ATR Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#ATRMult#",
+                "name": "ATR Mult",
+                "type": "double",
+                "generation": "random",
+                "min": "1.0",
+                "max": "5.0",
+                "step": "0.5"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.Ichimoku": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#TenkanPeriod#",
+                "name": "Tenkan",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#KijunPeriod#",
+                "name": "Kijun",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#SenkouPeriod#",
+                "name": "Senkou",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_Volatilidad_v4",
+        "filename": "BS_Volatilidad_v4.sqb",
+        "family": "volatilidad",
+        "familyLabel": "Volatilidad",
+        "layer": 1,
+        "variant": "v4",
+        "timeframes": [
+          "M5",
+          "M15",
+          "M30",
+          "H1",
+          "H4",
+          "D1"
+        ],
+        "sha256": "112975F339939FB00BE56420D053A3A8CD840B4824E328A78D8F8E7E407D8815",
+        "sha256Short": "112975F33993",
+        "sqxVersion": "142.2336",
+        "counts": {
+          "blocks": 749,
+          "activeBlocks": 39,
+          "changedBlocks": 76,
+          "categories": {
+            "indicators": 124,
+            "signals": 553,
+            "stopLimitBlocks": 72
+          },
+          "activeCategories": {
+            "indicators": 39
+          }
+        },
+        "activeBlocks": [
+          "Indicators.BollingerBands",
+          "Indicators.DonchianChannels",
+          "Indicators.HullMovingAverageATRBands",
+          "Indicators.HullMovingAverageBollingerBands",
+          "Indicators.KeltnerChannel",
+          "Indicators.LogATR",
+          "Indicators.MTATR",
+          "Indicators.MTKeltnerChannel",
+          "Indicators.StdDev",
+          "Indicators.TrueRange",
+          "Indicators.UlcerIndex",
+          "Indicators.VWAPATRBands",
+          "Indicators.VWAPBollingerBands",
+          "Prices.Close",
+          "Prices.CloseD",
+          "Prices.HighD",
+          "Prices.LowD",
+          "Prices.OpenD",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.CloseM",
+          "Prices.HighM",
+          "Prices.LowM",
+          "Prices.OpenM",
+          "Prices.Open",
+          "Prices.CloseW",
+          "Prices.HighW",
+          "Prices.LowW",
+          "Prices.OpenW",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual",
+          "IsGreaterPercentil",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.BollingerBands",
+          "Indicators.DonchianChannels",
+          "Indicators.HullMovingAverageATRBands",
+          "Indicators.HullMovingAverageBollingerBands",
+          "Indicators.KeltnerChannel",
+          "Indicators.LogATR",
+          "Indicators.MTATR",
+          "Indicators.MTKeltnerChannel",
+          "Indicators.StdDev",
+          "Indicators.TrueRange",
+          "Indicators.UlcerIndex",
+          "Indicators.VWAPATRBands",
+          "Indicators.VWAPBollingerBands"
+        ],
+        "activeBlockPreview": [
+          "Indicators.BollingerBands",
+          "Indicators.DonchianChannels",
+          "Indicators.HullMovingAverageATRBands",
+          "Indicators.HullMovingAverageBollingerBands",
+          "Indicators.KeltnerChannel",
+          "Indicators.LogATR",
+          "Indicators.MTATR",
+          "Indicators.MTKeltnerChannel",
+          "Indicators.StdDev",
+          "Indicators.TrueRange",
+          "Indicators.UlcerIndex",
+          "Indicators.VWAPATRBands"
+        ],
+        "parameterPreview": {
+          "Indicators.BollingerBands": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Deviation#",
+                "name": "Deviation",
+                "type": "double",
+                "generation": "random",
+                "min": "1.0",
+                "max": "3.0",
+                "step": "0.5"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.DonchianChannels": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.HullMovingAverageATRBands": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Multiplication#",
+                "name": "Multiplication",
+                "type": "double",
+                "generation": "random",
+                "min": "1.0",
+                "max": "5.0",
+                "step": "0.5"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.HullMovingAverageBollingerBands": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Deviation#",
+                "name": "Deviation",
+                "type": "double",
+                "generation": "random",
+                "min": "1.0",
+                "max": "3.0",
+                "step": "0.5"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.KeltnerChannel": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Deviation#",
+                "name": "Deviation",
+                "type": "double",
+                "generation": "random",
+                "min": "1.0",
+                "max": "3.0",
+                "step": "0.5"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.LogATR": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.MTATR": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.MTKeltnerChannel": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Deviation#",
+                "name": "Deviation",
+                "type": "double",
+                "generation": "random",
+                "min": "1.0",
+                "max": "3.0",
+                "step": "0.5"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_Volatilidad_v4_intraday_v5",
+        "filename": "BS_Volatilidad_v4_intraday_v5.sqb",
+        "family": "volatilidad",
+        "familyLabel": "Volatilidad",
+        "layer": 1,
+        "variant": "intraday_v5",
+        "timeframes": [
+          "M5",
+          "M15",
+          "M30",
+          "H1"
+        ],
+        "sha256": "4D52651F0868BA88A6DD53A09043B566024D52FF64B3CB64E77F82E045737AD7",
+        "sha256Short": "4D52651F0868",
+        "sqxVersion": "142.2336",
+        "counts": {
+          "blocks": 749,
+          "activeBlocks": 28,
+          "changedBlocks": 76,
+          "categories": {
+            "indicators": 124,
+            "signals": 553,
+            "stopLimitBlocks": 72
+          },
+          "activeCategories": {
+            "indicators": 28
+          }
+        },
+        "activeBlocks": [
+          "Indicators.ATR",
+          "Indicators.BollingerBands",
+          "Indicators.DonchianChannels",
+          "Indicators.HullMovingAverageATRBands",
+          "Indicators.HullMovingAverageBollingerBands",
+          "Indicators.KeltnerChannel",
+          "Indicators.LogATR",
+          "Indicators.MTATR",
+          "Indicators.MTKeltnerChannel",
+          "Indicators.StdDev",
+          "Indicators.TrueRange",
+          "Indicators.UlcerIndex",
+          "Indicators.VWAPATRBands",
+          "Indicators.VWAPBollingerBands",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLowerPercentil",
+          "IsLower",
+          "IsLowerOrEqual",
+          "IsGreaterPercentil",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.ATR",
+          "Indicators.BollingerBands",
+          "Indicators.DonchianChannels",
+          "Indicators.HullMovingAverageATRBands",
+          "Indicators.HullMovingAverageBollingerBands",
+          "Indicators.KeltnerChannel",
+          "Indicators.LogATR",
+          "Indicators.MTATR",
+          "Indicators.MTKeltnerChannel",
+          "Indicators.StdDev",
+          "Indicators.TrueRange",
+          "Indicators.UlcerIndex",
+          "Indicators.VWAPATRBands",
+          "Indicators.VWAPBollingerBands"
+        ],
+        "activeBlockPreview": [
+          "Indicators.ATR",
+          "Indicators.BollingerBands",
+          "Indicators.DonchianChannels",
+          "Indicators.HullMovingAverageATRBands",
+          "Indicators.HullMovingAverageBollingerBands",
+          "Indicators.KeltnerChannel",
+          "Indicators.LogATR",
+          "Indicators.MTATR",
+          "Indicators.MTKeltnerChannel",
+          "Indicators.StdDev",
+          "Indicators.TrueRange",
+          "Indicators.UlcerIndex"
+        ],
+        "parameterPreview": {
+          "Indicators.ATR": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.BollingerBands": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Deviation#",
+                "name": "Deviation",
+                "type": "double",
+                "generation": "random",
+                "min": "1.0",
+                "max": "3.0",
+                "step": "0.5"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.DonchianChannels": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.HullMovingAverageATRBands": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Multiplication#",
+                "name": "Multiplication",
+                "type": "double",
+                "generation": "random",
+                "min": "1.0",
+                "max": "5.0",
+                "step": "0.5"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.HullMovingAverageBollingerBands": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#ComputedFrom#",
+                "name": "Computed From",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Deviation#",
+                "name": "Deviation",
+                "type": "double",
+                "generation": "random",
+                "min": "1.0",
+                "max": "3.0",
+                "step": "0.5"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.KeltnerChannel": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Deviation#",
+                "name": "Deviation",
+                "type": "double",
+                "generation": "random",
+                "min": "1.0",
+                "max": "3.0",
+                "step": "0.5"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              },
+              {
+                "key": "#Line#",
+                "name": "Line",
+                "type": "int",
+                "generation": "random",
+                "min": null,
+                "max": null,
+                "step": null
+              }
+            ]
+          },
+          "Indicators.LogATR": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.MTATR": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_Volumen_v4",
+        "filename": "BS_Volumen_v4.sqb",
+        "family": "volumen",
+        "familyLabel": "Volumen",
+        "layer": 1,
+        "variant": "v4",
+        "timeframes": [
+          "M5",
+          "M15",
+          "M30",
+          "H1",
+          "H4",
+          "D1"
+        ],
+        "sha256": "8425FE9589BCF2E67E63C9710E886BB0223D5A698E85B238B53C190384210C78",
+        "sha256Short": "8425FE9589BC",
+        "sqxVersion": "142.2336",
+        "counts": {
+          "blocks": 749,
+          "activeBlocks": 25,
+          "changedBlocks": 76,
+          "categories": {
+            "indicators": 124,
+            "signals": 553,
+            "stopLimitBlocks": 72
+          },
+          "activeCategories": {
+            "indicators": 25
+          }
+        },
+        "activeBlocks": [
+          "Indicators.VWAP",
+          "Prices.Close",
+          "Prices.CloseD",
+          "Prices.HighD",
+          "Prices.LowD",
+          "Prices.OpenD",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.CloseM",
+          "Prices.HighM",
+          "Prices.LowM",
+          "Prices.OpenM",
+          "Prices.Open",
+          "Prices.CloseW",
+          "Prices.HighW",
+          "Prices.LowW",
+          "Prices.OpenW",
+          "IsLower",
+          "IsLowerOrEqual",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.VWAP"
+        ],
+        "activeBlockPreview": [
+          "Indicators.VWAP",
+          "Prices.Close",
+          "Prices.CloseD",
+          "Prices.HighD",
+          "Prices.LowD",
+          "Prices.OpenD",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.CloseM",
+          "Prices.HighM",
+          "Prices.LowM",
+          "Prices.OpenM"
+        ],
+        "parameterPreview": {
+          "Indicators.VWAP": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#VWAPPeriod#",
+                "name": "VWAP Period",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000003",
+                "max": "-1000004",
+                "step": "1"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Close": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.CloseD": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.HighD": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.LowD": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.OpenD": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.High": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Low": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "canonicalId": "BS_Volumen_v4_intraday_v5",
+        "filename": "BS_Volumen_v4_intraday_v5.sqb",
+        "family": "volumen",
+        "familyLabel": "Volumen",
+        "layer": 1,
+        "variant": "intraday_v5",
+        "timeframes": [
+          "M5",
+          "M15",
+          "M30",
+          "H1"
+        ],
+        "sha256": "6F432A092DD0509EA75D668FF8DEEA1F159A0CADC5DEF1E77C45FD5493068CFA",
+        "sha256Short": "6F432A092DD0",
+        "sqxVersion": "142.2336",
+        "counts": {
+          "blocks": 749,
+          "activeBlocks": 14,
+          "changedBlocks": 76,
+          "categories": {
+            "indicators": 124,
+            "signals": 553,
+            "stopLimitBlocks": 72
+          },
+          "activeCategories": {
+            "indicators": 14
+          }
+        },
+        "activeBlocks": [
+          "Indicators.AvgVolume",
+          "Indicators.VWAP",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLower",
+          "IsLowerOrEqual",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow",
+          "IsFalling",
+          "IsRising"
+        ],
+        "activeIndicators": [
+          "Indicators.AvgVolume",
+          "Indicators.VWAP"
+        ],
+        "activeBlockPreview": [
+          "Indicators.AvgVolume",
+          "Indicators.VWAP",
+          "Prices.Close",
+          "Prices.High",
+          "Prices.Low",
+          "Prices.Open",
+          "IsLower",
+          "IsLowerOrEqual",
+          "IsGreater",
+          "IsGreaterOrEqual",
+          "CrossesAbove",
+          "CrossesBelow"
+        ],
+        "parameterPreview": {
+          "Indicators.AvgVolume": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Period#",
+                "name": "Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Indicators.VWAP": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#VWAPPeriod#",
+                "name": "VWAP Period",
+                "type": "int",
+                "generation": "random",
+                "min": "10",
+                "max": "200",
+                "step": "10"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Close": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.High": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Low": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "Prices.Open": {
+            "generated": [
+              {
+                "key": "#Chart#",
+                "name": "Chart",
+                "type": "data",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Shift#",
+                "name": "Shift",
+                "type": "int",
+                "generation": "random",
+                "min": "-1000001",
+                "max": "-1000002",
+                "step": "1"
+              }
+            ]
+          },
+          "IsLower": {
+            "generated": [
+              {
+                "key": "#Left#",
+                "name": "Left",
+                "type": "value",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Right#",
+                "name": "Right",
+                "type": "value",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              }
+            ]
+          },
+          "IsLowerOrEqual": {
+            "generated": [
+              {
+                "key": "#Left#",
+                "name": "Left",
+                "type": "value",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              },
+              {
+                "key": "#Right#",
+                "name": "Right",
+                "type": "value",
+                "generation": "random",
+                "min": "null",
+                "max": "null",
+                "step": "null"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "aliases": {
+      "BS_Tendencia": "BS_Tendencia_v4",
+      "BS_Momentum": "BS_Momentum_v4",
+      "BS_Volatilidad": "BS_Volatilidad_v4",
+      "BS_Regimen": "BS_Regimen_v4",
+      "BS_Volumen": "BS_Volumen_v4",
+      "BS_SoporteResistencia": "BS_SoporteResistencia_v4",
+      "BS_Estadistico": "BS_Estadistico_v4",
+      "BS_Filtros": "BS_Filtros_v4",
+      "BS_Filtros_v5": "BS_Filtros_v5_D1",
+      "BS_Filtros_v7": "BS_Filtros_v7_H1",
+      "BS_Estadistico_v4": "BS_Estadistico_v4",
+      "BS_Filtros_v4": "BS_Filtros_v4",
+      "BS_Filtros_v5_D1": "BS_Filtros_v5_D1",
+      "BS_Filtros_v7_H1": "BS_Filtros_v7_H1",
+      "BS_Filtros_v7_H4": "BS_Filtros_v7_H4",
+      "BS_Filtros_v7_M15": "BS_Filtros_v7_M15",
+      "BS_Filtros_v7_M30": "BS_Filtros_v7_M30",
+      "BS_Filtros_v7_M5": "BS_Filtros_v7_M5",
+      "BS_Momentum_v4": "BS_Momentum_v4",
+      "BS_Regimen_v4": "BS_Regimen_v4",
+      "BS_SoporteResistencia_v4": "BS_SoporteResistencia_v4",
+      "BS_SoporteResistencia_v4_intraday_v5": "BS_SoporteResistencia_v4_intraday_v5",
+      "BS_Tendencia_v4": "BS_Tendencia_v4",
+      "BS_Volatilidad_v4": "BS_Volatilidad_v4",
+      "BS_Volatilidad_v4_intraday_v5": "BS_Volatilidad_v4_intraday_v5",
+      "BS_Volumen_v4": "BS_Volumen_v4",
+      "BS_Volumen_v4_intraday_v5": "BS_Volumen_v4_intraday_v5",
+      "BS_Estadistico_v4.sqb": "BS_Estadistico_v4",
+      "BS_Filtros_v4.sqb": "BS_Filtros_v4",
+      "BS_Filtros_v5_D1.sqb": "BS_Filtros_v5_D1",
+      "BS_Filtros_v7_H1.sqb": "BS_Filtros_v7_H1",
+      "BS_Filtros_v7_H4.sqb": "BS_Filtros_v7_H4",
+      "BS_Filtros_v7_M15.sqb": "BS_Filtros_v7_M15",
+      "BS_Filtros_v7_M30.sqb": "BS_Filtros_v7_M30",
+      "BS_Filtros_v7_M5.sqb": "BS_Filtros_v7_M5",
+      "BS_Momentum_v4.sqb": "BS_Momentum_v4",
+      "BS_Regimen_v4.sqb": "BS_Regimen_v4",
+      "BS_SoporteResistencia_v4.sqb": "BS_SoporteResistencia_v4",
+      "BS_SoporteResistencia_v4_intraday_v5.sqb": "BS_SoporteResistencia_v4_intraday_v5",
+      "BS_Tendencia_v4.sqb": "BS_Tendencia_v4",
+      "BS_Volatilidad_v4.sqb": "BS_Volatilidad_v4",
+      "BS_Volatilidad_v4_intraday_v5.sqb": "BS_Volatilidad_v4_intraday_v5",
+      "BS_Volumen_v4.sqb": "BS_Volumen_v4",
+      "BS_Volumen_v4_intraday_v5.sqb": "BS_Volumen_v4_intraday_v5"
+    },
+    "capa1Resolver": {
+      "intradayTimeframes": [
+        "M5",
+        "M15",
+        "M30",
+        "H1"
+      ],
+      "families": {
+        "tendencia": {
+          "default": "BS_Tendencia_v4"
+        },
+        "momentum": {
+          "default": "BS_Momentum_v4"
+        },
+        "volatilidad": {
+          "default": "BS_Volatilidad_v4",
+          "intraday": "BS_Volatilidad_v4_intraday_v5"
+        },
+        "regimen": {
+          "default": "BS_Regimen_v4"
+        },
+        "volumen": {
+          "default": "BS_Volumen_v4",
+          "intraday": "BS_Volumen_v4_intraday_v5"
+        },
+        "sr": {
+          "default": "BS_SoporteResistencia_v4",
+          "intraday": "BS_SoporteResistencia_v4_intraday_v5"
+        },
+        "estadistico": {
+          "default": "BS_Estadistico_v4"
+        }
+      }
+    },
+    "capa2Recommendations": {
+      "manual": true,
+      "recommendations": {
+        "M5": "BS_Filtros_v7_M5",
+        "M15": "BS_Filtros_v7_M15",
+        "M30": "BS_Filtros_v7_M30",
+        "H1": "BS_Filtros_v7_H1",
+        "H4": "BS_Filtros_v7_H4",
+        "D1": "BS_Filtros_v5_D1",
+        "fallback": "BS_Filtros_v4"
+      }
+    }
   }
 };

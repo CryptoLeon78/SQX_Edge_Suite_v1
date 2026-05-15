@@ -711,6 +711,11 @@
           <p class="views-step-copy">Genera Capa 1 o Capa 2 cuando el plan y los templates estén revisados. Si entras desde un activo concreto, el modo manual se abre con los campos ya preparados.</p>
           <div class="pg-generation-toolbar">
             <span id="pg-generation-mode-status">Elige un modo en el Paso 3 para mostrar su panel de trabajo.</span>
+            <label class="pg-capa2-select-label">BlockSetting Capa 2
+              <select id="pg-capa2-bs">
+                <option value="">Auto recomendado por timeframe</option>
+              </select>
+            </label>
             <button class="export-btn" id="pg-open-output" title="Abrir carpeta output en Explorer">Abrir output</button>
           </div>
 
@@ -1332,7 +1337,7 @@
           <label><span>Timeframe</span><input class="search-input" id="tm-c2-tf" type="text"></label>
           <label><span>Indicador base</span><input class="search-input" id="tm-c2-indicator" type="text" placeholder="Auto desde .sqx"></label>
           <label><span>NumCluster</span><input class="search-input" id="tm-c2-cluster" type="text" placeholder="CL01"></label>
-          <label><span>Bloque</span><select class="filter-select" id="tm-c2-block"><option value="BS_Tendencia">BS_Tendencia</option><option value="BS_Momentum">BS_Momentum</option><option value="BS_Volatilidad">BS_Volatilidad</option><option value="BS_Regimen">BS_Regimen</option><option value="BS_SoporteResistencia">BS_SoporteResistencia</option><option value="BS_Volumen">BS_Volumen</option><option value="BS_Estadistico">BS_Estadistico</option><option value="BS_Custom">BS_Custom</option></select></label>
+          <label><span>Bloque</span><select class="filter-select" id="tm-c2-block"><option value="BS_Tendencia_v4">BS_Tendencia_v4</option><option value="BS_Momentum_v4">BS_Momentum_v4</option><option value="BS_Volatilidad_v4">BS_Volatilidad_v4</option><option value="BS_Regimen_v4">BS_Regimen_v4</option><option value="BS_SoporteResistencia_v4">BS_SoporteResistencia_v4</option><option value="BS_Volumen_v4">BS_Volumen_v4</option><option value="BS_Estadistico_v4">BS_Estadistico_v4</option><option value="BS_Custom">BS_Custom</option></select></label>
         </div>
         <div class="tm-c2-trace">
           <span>Indicadores detectados</span>
@@ -1512,8 +1517,8 @@
           </label>
           <label>Blocksetting
             <select id="sf-bs">
-              <option selected>BS_Tendencia</option><option>BS_Momentum</option><option>BS_Volatilidad</option>
-              <option>BS_SoporteResistencia</option><option>BS_Estadistico</option><option>BS_Volumen</option><option>BS_Regimen</option>
+              <option selected>BS_Tendencia_v4</option><option>BS_Momentum_v4</option><option>BS_Volatilidad_v4</option>
+              <option>BS_SoporteResistencia_v4</option><option>BS_Estadistico_v4</option><option>BS_Volumen_v4</option><option>BS_Regimen_v4</option>
             </select>
           </label>
           <label>Template <span class="hint">(LINEAR, ICHIMOKU, MACD…)</span><input type="text" id="sf-template" placeholder="LINEAR"></label>
@@ -1635,8 +1640,8 @@
             <label>Mining # <input type="number" id="csv-meta-mining" min="1" max="14" value="1"></label>
             <label>Blocksetting
               <select id="csv-meta-bs">
-                <option selected>BS_Tendencia</option><option>BS_Momentum</option><option>BS_Volatilidad</option>
-                <option>BS_SoporteResistencia</option><option>BS_Estadistico</option><option>BS_Volumen</option><option>BS_Regimen</option>
+                <option selected>BS_Tendencia_v4</option><option>BS_Momentum_v4</option><option>BS_Volatilidad_v4</option>
+                <option>BS_SoporteResistencia_v4</option><option>BS_Estadistico_v4</option><option>BS_Volumen_v4</option><option>BS_Regimen_v4</option>
               </select>
             </label>
             <label>Template <span class="hint">(default si no auto-detectado)</span><input type="text" id="csv-meta-template" placeholder="LINEAR"></label>
@@ -1769,8 +1774,8 @@
           </label>
           <label>Blocksetting
             <select id="psm-bs">
-              <option selected>BS_Tendencia</option><option>BS_Momentum</option><option>BS_Volatilidad</option>
-              <option>BS_SoporteResistencia</option><option>BS_Estadistico</option><option>BS_Volumen</option><option>BS_Regimen</option>
+              <option selected>BS_Tendencia_v4</option><option>BS_Momentum_v4</option><option>BS_Volatilidad_v4</option>
+              <option>BS_SoporteResistencia_v4</option><option>BS_Estadistico_v4</option><option>BS_Volumen_v4</option><option>BS_Regimen_v4</option>
             </select>
           </label>
           <label>Dirección
@@ -2273,7 +2278,7 @@ ExitAfterBars: 20 opcional
 Stop Loss: ATR-based random
 Profit Target: ATR-based random
 Trailing Stop: ATR-based random
-Building blocks: BS_Filtros_v5.sqb</pre>
+Building blocks: BS_Filtros_v7 por timeframe (D1: BS_Filtros_v5_D1, fallback: BS_Filtros_v4)</pre>
                   </div>
                   <div class="workflow-config-card">
                     <h5>Fitness</h5>
@@ -3020,7 +3025,7 @@ Ret/DD > 0.5       ← muy permisivo (Forward es validación)</pre>
       <label class="check-row"><input type="checkbox" data-check="capa2-pre-edge"><span>Edge: NO RANDOM</span></label>
       <label class="check-row"><input type="checkbox" data-check="capa2-pre-rc"><span>Random conditions: 1-2</span></label>
       <label class="check-row"><input type="checkbox" data-check="capa2-pre-exits"><span>SL/TP/Trailing: ATR-based random</span></label>
-      <label class="check-row"><input type="checkbox" data-check="capa2-pre-bs"><span>BS_Filtros_v5.sqb cargado</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa2-pre-bs"><span>BlockSetting Capa 2 real seleccionado por timeframe</span></label>
       <label class="check-row"><input type="checkbox" data-check="capa2-pre-mm"><span>Money Management: $200, max lots correcto</span></label>
       <label class="check-row"><input type="checkbox" data-check="capa2-pre-fitness"><span>Fitness: Weighted Fitness con 5 métricas</span></label>
       <label class="check-row"><input type="checkbox" data-check="capa2-pre-filtros"><span>Filtros mining: PF≥1.20, #trades&gt;100</span></label>

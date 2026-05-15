@@ -5,7 +5,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 ## Current State
 
 - Current phase completed: UX-NAV sidebar navigation polish inside the Mining Control pass.
-- Current implementation phase: MODAL-TRACE - audit all active modals as critical decision surfaces with explicit user and technical traceability.
+- Current implementation phase: BS-TRACE1 - integrate real versioned BlockSettings as the source of truth for Activos, Plan Mining, Project Generator and Template Maker C2 traceability.
 - Current UX surface decision: Strategy Builder tab and visible CVC handoff are retired from the dashboard shell; existing SB modules/docs remain internal historical contracts until a future renamed workflow is approved.
 - Current scoring surface decision: Template Maker is the active Capa 1 scoring and C2 generation surface, now including certification, structural diversity and mandatory C2 traceability before C2; Capa 2 comparison/relationships belong to Champion vs Challenger, including portfolio relationships.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
@@ -13,6 +13,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Local diagnostic material rule: `material de diagnostico/` is an ignored, local-only inbox for bug samples, CSV/SQX/View evidence and files the operator wants Codex to inspect during troubleshooting. Never commit, package or distribute it.
 - Branding source rule: generated originals under `material de diagnostico/imagenes_prompts/` remain local-only; only cleaned, optimized derivatives under `app/assets/brand/` may become tracked product assets.
 - Template Maker C2 traceability rule: every generated C2 template name and internal `StrategyName` must include asset, BlockSetting, base indicator, NumCluster, direction, timeframe and source strategy so the operator can trace origin to final template without relying on memory.
+- BlockSettings Source Gate: every mining, generated `.cfx` or Template Maker C2 output must preserve `family`, `canonicalId`, `filename`, `sha256`, `layer`, `timeframeRule` and origin. Legacy labels such as `BS_Tendencia` are aliases only; generation must resolve to the real `.sqb` in `backend/sqx-edge-tool/resources/blocksettings/`.
 - Modal Traceability Gate: every active modal must declare owner, source data, destination data, impact, failure modes and user-visible trace before it can mutate local state. Critical reset/delete/import/restore actions must use the unified decision surface or an equivalent traceable modal, not a blind native prompt.
 - Active UX-NAV tab: `Mining Control`; temporarily paused for MODAL-TRACE modal governance and traceability hardening. Resume Mining Control after this phase unless the operator says `Adelante con el siguiente tab`.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
@@ -302,6 +303,7 @@ M46 is accepted when these criteria are true:
 - Frontend load order: `docs/ARCHITECTURE.md` and `backend/sqx-edge-tool/test_dashboard_static.py`.
 - Dashboard quick actions: `app/js/dashboard.js`, `app/css/dashboard.css`, `app/SQX_Dashboard_v6.html` and `backend/sqx-edge-tool/test_dashboard_static.py`.
 - Manifest mirror: `backend/sqx-edge-tool/tools/build_frontend_manifest.py` and `app/js/manifest-data.js`.
+- BlockSettings source contract: real `.sqb` files live in `backend/sqx-edge-tool/resources/blocksettings/`, are indexed by `backend/sqx-edge-tool/tools/build_blocksettings_manifest.py`, and produce `backend/sqx-edge-tool/config/blocksettings_manifest.json`. Project Generator must patch generated `.cfx` `<Blocks>` from that source, not from legacy display names.
 - BlockSettings Info contract: `backend/sqx-edge-tool/config/ui_manifest.json` field `blockSettingsInfo`, mirrored into `app/js/manifest-data.js`, rendered by `app/js/dashboard.js` inside tab id `filtros`.
 - Product/commercial state: `backend/sqx-edge-tool/config/product_manifest.json`.
 - Portable distribution: `package_portable.ps1`, `audit_distribution.ps1`, `release_checklist.ps1`.
