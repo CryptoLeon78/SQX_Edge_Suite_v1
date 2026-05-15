@@ -1046,6 +1046,62 @@
     border-radius:999px;
     background:rgba(15,23,42,.7);
   }
+  .tm-contract-diagnostics {
+    display:grid;
+    gap:8px;
+    margin-top:10px;
+  }
+  .tm-diagnostic-grid {
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:8px;
+  }
+  .tm-diagnostic-card {
+    min-width:0;
+    padding:10px;
+    border:1px solid rgba(96,165,250,.22);
+    border-radius:8px;
+    background:rgba(15,23,42,.62);
+  }
+  .tm-diagnostic-card span {
+    display:block;
+    color:var(--text2);
+    font-size:10px;
+    font-weight:900;
+    text-transform:uppercase;
+  }
+  .tm-diagnostic-card strong {
+    display:block;
+    margin-top:6px;
+    color:var(--cyan);
+    font-size:13px;
+    line-height:1.25;
+    overflow-wrap:anywhere;
+  }
+  .tm-diagnostic-card small {
+    display:block;
+    margin-top:6px;
+    color:var(--text2);
+    font-size:11px;
+    line-height:1.35;
+  }
+  .tm-diagnostic-tags {
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+  }
+  .tm-diagnostic-tags span {
+    max-width:100%;
+    padding:5px 8px;
+    border:1px solid rgba(148,163,184,.22);
+    border-radius:8px;
+    background:rgba(15,23,42,.58);
+    color:var(--text2);
+    font-size:11px;
+    line-height:1.35;
+    overflow-wrap:anywhere;
+  }
+  .tm-diagnostic-tags strong { color:var(--text); }
   .tm-empty-state {
     padding:34px;
     border:1px dashed var(--border);
@@ -1189,6 +1245,7 @@
     .tm-hero { flex-direction:column; align-items:stretch; }
     .tm-stats { min-width:0; grid-template-columns:repeat(2, minmax(0, 1fr)); }
     .tm-contract-summary,
+    .tm-diagnostic-grid,
     .tm-flow-grid,
     .tm-method-grid,
     .tm-upload-grid { grid-template-columns:1fr; }

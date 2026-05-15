@@ -193,6 +193,7 @@
     renderThresholds();
     renderStats();
     renderContractSummary();
+    renderContractDiagnostics();
     renderResultsResetAction();
     renderDeleteSelectedAction();
     renderResults();
@@ -350,6 +351,34 @@
         '<small>' + esc(item.action) + '</small>' +
       '</div>';
     }).join('');
+  }
+
+  function renderContractDiagnostics() {
+    var mount = byId('tm-contract-diagnostics');
+    if (!mount || !SQX.templateMaker.getContractDiagnostics) return;
+    var diagnostics = SQX.templateMaker.getContractDiagnostics();
+    var missing = diagnostics.missingRequired || [];
+    var recognized = diagnostics.recognizedColumns || [];
+    var derived = diagnostics.derivedMetrics || [];
+    var required = diagnostics.requiredColumns || [];
+    mount.innerHTML = '<div class="tm-diagnostic-grid">' +
+      diagnosticCard('Contrato', diagnostics.schemaVersion || 'template-maker-cert-v2', 'Regla activa de certificacion. Si cambia, Template Maker limpia estado antiguo.') +
+      diagnosticCard('Perfil CSV', diagnostics.detectedCsvProfile || 'Sin datos', 'Lectura inferida desde las columnas detectadas.') +
+      diagnosticCard('Columnas', recognized.length + ' / ' + required.length, 'Reconocidas frente a las obligatorias de Template Maker Cert.') +
+      diagnosticCard('Derivadas', derived.length ? derived.join(', ') : 'Ninguna', 'Metricas calculadas por alias controlado, no bloqueantes.') +
+      '</div>' +
+      '<div class="tm-diagnostic-tags">' +
+        '<span><strong>Faltantes reales:</strong> ' + esc(missing.length ? missing.join(', ') : 'ninguna') + '</span>' +
+        '<span><strong>Reconocidas:</strong> ' + esc(recognized.length ? recognized.slice(0, 12).join(', ') + (recognized.length > 12 ? '...' : '') : 'pendiente de CSV') + '</span>' +
+      '</div>';
+  }
+
+  function diagnosticCard(label, value, help) {
+    return '<div class="tm-diagnostic-card">' +
+      '<span>' + esc(label) + '</span>' +
+      '<strong>' + esc(value) + '</strong>' +
+      '<small>' + esc(help) + '</small>' +
+    '</div>';
   }
 
   function renderResults() {

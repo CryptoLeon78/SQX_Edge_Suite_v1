@@ -114,7 +114,8 @@ assert.ok(buyerTemplates.some(template => template.id === 'egt-first-review' && 
 assert.ok(buyerTemplates.some(template => template.id === 'risk-capital-review' && template.oosTag === '7oos' && template.metricTags.includes('VaR')));
 const templateMakerRequired = viewCreator.getTemplateMakerRequiredMetrics();
 assert.ok(templateMakerRequired.includes('Net profit'));
-assert.ok(templateMakerRequired.includes('Ret/DD Ratio'));
+assert.ok(templateMakerRequired.includes('CAGR/Max DD %'));
+assert.ok(!templateMakerRequired.includes('Ret/DD Ratio'), 'Ret/DD should be derived by Template Maker, not required in exported CSV');
 const cvcRequired = viewCreator.getCvcDecisionRequiredMetrics();
 assert.ok(cvcRequired.includes('Avg. Bars in Trade'));
 assert.ok(cvcRequired.includes('Avg. Trades Per Month'));
@@ -122,6 +123,7 @@ assert.ok(cvcRequired.includes('Entry indicators'));
 const tmCert = buyerTemplates.find(template => template.id === 'template-maker-cert');
 assert.ok(tmCert.config.metrics.some(metric => metric.className === 'NetProfit'));
 assert.ok(tmCert.config.metrics.some(metric => metric.className === 'AnnualPctReturnDDRatio'));
+assert.ok(tmCert.metricTags.includes('Ret/DD derivado'));
 const templateMakerCertXml = viewCreator.buildTemplateMakerCertView();
 assert.ok(templateMakerCertXml.includes('name="Template Maker Cert"'));
 assert.equal((templateMakerCertXml.match(/<Column /g) || []).length, 133, 'Template Maker Cert helper should build a real SQX view, not an empty shell');

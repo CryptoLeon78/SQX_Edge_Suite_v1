@@ -22,8 +22,7 @@
     'Recovery Factor',
     'Calmar Ratio',
     'Sortino Ratio',
-    '% Profitable Months',
-    'Ret/DD Ratio'
+    '% Profitable Months'
   ];
   var TEMPLATE_MAKER_CERT_CLASSES = [
     'Symbol',
@@ -241,10 +240,10 @@
       priority: 'obligatoria',
       preset: 'template-maker-cert',
       description: 'View obligatoria para exportar el Databank CSV que certifica KPIs en Template Maker.',
-      objective: 'Contrato oficial de métricas: Template Maker usa este CSV para certificar Capa 1/Capa 2 y habilitar C2.',
+      objective: 'Contrato oficial de métricas: Template Maker usa este CSV para certificar Capa 1 y habilitar C2. Ret/DD se deriva desde CAGR/Max DD % si SQX no lo exporta como columna propia.',
       when: 'Antes de certificar estrategias en Template Maker. Primero importa esta .vw en SQX y exporta el Databank CSV.',
       nextAction: 'Exporta el Databank CSV con esta view antes de certificar estrategias en Template Maker.',
-      metricTags: ['CSV Cert', 'KPIs C1/C2', 'Ret/DD', 'PASSED', 'C2'],
+      metricTags: ['CSV Cert', 'KPIs C1', 'Ret/DD derivado', 'PASSED', 'C2'],
       oosTag: '9oos',
       oosOptions: [1, 2, 3, 7, 9],
       config: { viewName: 'Template Maker Cert', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }

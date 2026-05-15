@@ -533,8 +533,8 @@ async function run() {
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Template Maker Cert');
     await desktop.waitForFunction(() => document.getElementById('vc-active-guide')?.textContent.includes('Databank CSV'));
     const certMetrics = await desktop.evaluate(() => window.SQX.viewCreator.getTemplateMakerRequiredMetrics());
-    if (!certMetrics.includes('Net profit') || !certMetrics.includes('Ret/DD Ratio')) {
-      throw new Error('SQX Views should expose Template Maker Cert required metrics');
+    if (!certMetrics.includes('Net profit') || !certMetrics.includes('CAGR/Max DD %') || certMetrics.includes('Ret/DD Ratio')) {
+      throw new Error('SQX Views should expose Template Maker Cert v2 metrics without Ret/DD as hard requirement');
     }
     await desktop.locator('[data-vc-template-load="cvc-decision-cert"]').click();
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'CVC Decision Cert');
@@ -595,13 +595,15 @@ async function run() {
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Template Maker Cert');
     await desktop.locator('.tab[data-tab="templatemaker"]').click();
     await desktop.waitForSelector('.tab[data-tab="templatemaker"].active');
-    const csvSamplePath = path.join(repoRoot, 'resources', 'template-maker-tool', 'test_capa1.csv');
+    const csvSamplePath = path.join(repoRoot, 'resources', 'template-maker-tool', 'template_maker_cert_v2_sample.csv');
     await desktop.locator('#tm-files-input').setInputFiles(csvSamplePath);
     await desktop.waitForFunction(() => window.SQX?.templateMaker?.getStrategies().length > 0);
     await desktop.waitForSelector('#tm-results-table:not([hidden])');
     await desktop.waitForFunction(() => document.getElementById('tm-problem-panel')?.textContent.includes('Falta SQX'));
     await desktop.waitForFunction(() => document.getElementById('tm-problem-panel')?.textContent.includes('añade el .sqx original'));
     await desktop.waitForFunction(() => (document.getElementById('tm-contract-summary')?.innerText || '').toLowerCase().includes('falta sqx'));
+    await desktop.waitForFunction(() => (document.getElementById('tm-contract-diagnostics')?.innerText || '').includes('template-maker-cert-v2'));
+    await desktop.waitForFunction(() => (document.getElementById('tm-contract-diagnostics')?.innerText || '').toLowerCase().includes('faltantes reales: ninguna'));
     const tmAuditAfterCsv = await desktop.evaluate(() => window.SQX.templateMaker.getAuditReport());
     if (tmAuditAfterCsv.total < 1 || tmAuditAfterCsv.passed < 1) {
       throw new Error('Template Maker should show loaded CSV scoring results');
@@ -611,11 +613,11 @@ async function run() {
     const tmCsvText = await readFile(csvSamplePath, 'utf8');
     await desktop.evaluate(async csvText => {
       const zip = new window.JSZip();
-      zip.file('strategy_Portfolio.xml', '<Strategy><options><StrategyName>Strategy 1.15.34(3)</StrategyName></options><Datas><data><symbol>NASDAQ_darwinex</symbol><timeFrame>H1</timeFrame></data></Datas></Strategy>');
-      zip.file('settings.xml', '<Settings><ResultsGroup ResultName="Strategy 1.15.34(3)"><Fitnesses FS="1" IS="1" OOS="1"/><Result resultKey="Main: NASDAQ_darwinex/H1"/></ResultsGroup></Settings>');
+      zip.file('strategy_Portfolio.xml', '<Strategy><options><StrategyName>Strategy TM.01</StrategyName></options><Datas><data><symbol>XAUUSD_darwinex</symbol><timeFrame>H1</timeFrame></data></Datas></Strategy>');
+      zip.file('settings.xml', '<Settings><ResultsGroup ResultName="Strategy TM.01"><Fitnesses FS="1" IS="1" OOS="1"/><Result resultKey="Main: XAUUSD_darwinex/H1"/></ResultsGroup></Settings>');
       const sqxBlob = await zip.generateAsync({ type: 'blob' });
-      const csvFile = new File([csvText], 'test_capa1.csv', { type: 'text/csv' });
-      const sqxFile = new File([sqxBlob], 'Strategy 1.15.34(3).sqx', { type: 'application/zip' });
+      const csvFile = new File([csvText], 'template_maker_cert_v2_sample.csv', { type: 'text/csv' });
+      const sqxFile = new File([sqxBlob], 'Strategy TM.01.sqx', { type: 'application/zip' });
       await window.SQX.templateMaker.reset();
       await window.SQX.templateMaker.ingestFiles([csvFile, sqxFile]);
       window.SQX.templateMakerUI.renderAll();

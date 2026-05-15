@@ -37,6 +37,7 @@ const requiredApi = [
   'getThresholds',
   'getRequiredMetricNames',
   'validateMetricsContract',
+  'getContractDiagnostics',
   'reconcileStrategySources',
   'getStrategyStatus',
   'canGenerateC2',
@@ -58,6 +59,7 @@ assert.ok(html.includes('id="tm-unified-zone"'), 'missing unified upload zone');
 assert.ok(html.includes('id="tm-open-cert-view"'), 'missing SQX Views handoff');
 assert.ok(html.includes('id="tm-contract-summary"'), 'missing contract summary cards');
 assert.ok(html.includes('id="tm-problem-panel"'), 'missing contract problem panel');
+assert.ok(html.includes('id="tm-contract-diagnostics"'), 'missing contract diagnostics panel');
 assert.ok(html.includes('id="tm-reset-results-btn"'), 'missing results reset');
 assert.ok(html.includes('Reset resultados'), 'results reset should be user-facing');
 assert.ok(html.includes('id="tm-delete-selected-btn"'), 'missing selected delete action');
@@ -98,12 +100,49 @@ assert.ok(tm.getPresets().includes('Commodities'), 'Commodities preset should ex
 assert.equal(tm.getStrategies().length, 0, 'initial strategies should be empty');
 assert.ok(tm.getRequiredMetricNames(1, 'Generic').includes('Net profit'), 'required metrics should include Net profit');
 assert.ok(tm.getRequiredMetricNames(1, 'Commodities').includes('Ret/DD Ratio'), 'commodity contract should keep Ret/DD alias');
+assert.equal(tm.getContractDiagnostics().schemaVersion, 'template-maker-cert-v2', 'contract diagnostics should expose v2 schema');
 
 const emptyScore = tm.scoreStrategy({});
 assert.equal(emptyScore.classification, 'FAILED', 'empty score should fail defensively');
 assert.equal(emptyScore.total, 0, 'empty score should not count missing KPI as evaluated');
 
-const certCsv = 'Strategy Name;Symbol;TimeFrame;Net profit;# of trades;Profit factor;Max DD %;Sharpe Ratio;Stability;CAGR/Max DD %;Winning Percent;SQN;RecoveryFactor;CalmarRatio;SortinoRatio;% Profitable Months\nStrategy 1;XAUUSD;H1;10000;260;1.45;12;0.9;0.8;1.1;48;2.1;3.5;0.8;1.1;62';
+const certV2Csv = fs.readFileSync(path.join(repoRoot, 'resources/template-maker-tool/template_maker_cert_v2_sample.csv'), 'utf8');
+await tm.loadFromCSV(certV2Csv, { fileName: 'template-maker-cert-v2.csv' });
+assert.equal(tm.getStrategies().length, 3, 'realistic Template Maker Cert v2 fixture should load all rows');
+const certV2Strategy = tm.getStrategies()[0];
+const certV2Contract = tm.validateMetricsContract(certV2Strategy);
+assert.equal(certV2Contract.schemaVersion, 'template-maker-cert-v2', 'v2 contract should expose schemaVersion');
+assert.equal(certV2Contract.valid, true, 'v2 CSV should satisfy metric contract without Ret/DD column');
+assert.equal(certV2Contract.missingRequired.length, 0, 'v2 CSV should not report missing required columns');
+assert.ok(certV2Contract.requiredColumns.includes('Calmar Ratio'), 'v2 required columns should include Calmar Ratio');
+assert.ok(certV2Contract.recognizedColumns.includes('Recovery Factor'), 'v2 parser should accept RecoveryFactor without space');
+assert.ok(certV2Contract.derivedMetrics.includes('Ret/DD Ratio <- CAGR/Max DD %'), 'Ret/DD should be derived from CAGR/Max DD %');
+await tm.setPreset('Commodities');
+assert.equal(tm.scoreStrategy(certV2Strategy).details['Ret/DD Ratio'].value, '0.44', 'Ret/DD scoring should use derived CAGR/Max DD % value');
+await tm.setPreset('Generic');
+const v2Diagnostics = tm.getContractDiagnostics();
+assert.equal(v2Diagnostics.detectedCsvProfile, 'Template Maker Cert v2', 'diagnostics should identify v2 CSV');
+assert.equal(v2Diagnostics.missingRequired.length, 0, 'diagnostics should not report v2 missing columns');
+await tm.clearResultStrategies();
+const [certV2Header, certV2FirstRow] = certV2Csv.trim().split(/\r?\n/);
+const certV2Rows32 = Array.from({ length: 32 }, (_, index) => certV2FirstRow.replace('Strategy TM.01', `Strategy TM.${String(index + 1).padStart(2, '0')}`));
+await tm.loadFromCSV([certV2Header].concat(certV2Rows32).join('\n'), { fileName: 'template-maker-cert-v2-32.csv' });
+const sqxRecords32 = Array.from({ length: 32 }, (_, index) => ({
+  _id: 1000 + index,
+  _source: 'sqx',
+  'Strategy Name': `Strategy TM.${String(index + 1).padStart(2, '0')}`,
+  Symbol: 'XAUUSD_darwinex',
+  TimeFrame: 'H1',
+  sources: { sqx: { fileName: `Strategy TM.${String(index + 1).padStart(2, '0')}.sqx`, hash: `hash-${index + 1}`, importedAt: '2026-05-15T00:00:00.000Z' } },
+  provenance: { events: [], certVersion: 'TMA2.1', ruleset: 'template-maker-cert-v1' },
+}));
+const reconciled32 = tm.reconcileStrategySources(tm.getStrategies().concat(sqxRecords32));
+assert.equal(reconciled32.length, 32, 'CSV + 32 SQX records should reconcile into 32 strategy records');
+assert.ok(reconciled32.every(strategy => strategy.sources.csv && strategy.sources.sqx), 'each reconciled v2 record should keep csv+sqx sources');
+assert.ok(reconciled32.every(strategy => tm.validateMetricsContract(strategy).valid), 'all reconciled v2 records should keep valid metrics');
+await tm.clearResultStrategies();
+
+const certCsv = 'Strategy Name;Symbol;TimeFrame;Fitness;Net profit;# of trades;Profit factor;Max DD %;Sharpe Ratio;Stability;CAGR/Max DD %;Winning Percent;SQN;RecoveryFactor;CalmarRatio;SortinoRatio;% Profitable Months\nStrategy 1;XAUUSD;H1;0.91;10000;260;1.45;12;0.9;0.8;1.1;48;2.1;3.5;0.8;1.1;62';
 await tm.loadFromCSV(certCsv, { fileName: 'template-maker-cert.csv' });
 assert.equal(tm.getStrategies().length, 1, 'CSV load should add one strategy');
 assert.equal(tm.getStrategies()[0].Asset, 'Commodities', 'XAUUSD should auto-detect as Commodities');
@@ -117,8 +156,8 @@ const csvOnlyClear = await tm.clearResultStrategies();
 assert.equal(csvOnlyClear.removed, 1, 'clearResultStrategies should remove CSV-only rows');
 assert.equal(tm.getStrategies().length, 0, 'results clear should empty CSV rows');
 const suffixedCertCsv = [
-  'Strategy Name;Symbol (IS);TimeFrame (IS);Net profit (IS);# of trades (IS);Profit factor (IS);Max DD % (IS);Sharpe Ratio (IS);Stability (IS);CAGR/Max DD % (IS);Winning Percent (IS);SQN (IS);RecoveryFactor (IS);CalmarRatio (IS);SortinoRatio (IS);% Profitable Months (IS);Net profit (OOS);# of trades (OOS);Profit factor (OOS);Max DD % (OOS);Sharpe Ratio (OOS);Stability (OOS);CAGR/Max DD % (OOS);Winning Percent (OOS);SQN (OOS);Recovery Factor (OOS);Calmar Ratio (OOS);Sortino Ratio (OOS);% Profitable Months (OOS)',
-  'Strategy 4.21.40;XAUUSD_tick_TICK_ESTPlus07;H1;3675,22;218;1,45;18,2;0,69;0,82;0,66;45;1,7;2,4;0,6;0,9;54;5967,27;220;1,72;12,5;1,1;0,68;1,11;49;2,2;3,5;0,8;1,1;62',
+  'Strategy Name;Symbol (IS);TimeFrame (IS);Fitness;Net profit (IS);# of trades (IS);Profit factor (IS);Max DD % (IS);Sharpe Ratio (IS);Stability (IS);CAGR/Max DD % (IS);Winning Percent (IS);SQN (IS);RecoveryFactor (IS);CalmarRatio (IS);SortinoRatio (IS);% Profitable Months (IS);Net profit (OOS);# of trades (OOS);Profit factor (OOS);Max DD % (OOS);Sharpe Ratio (OOS);Stability (OOS);CAGR/Max DD % (OOS);Winning Percent (OOS);SQN (OOS);Recovery Factor (OOS);Calmar Ratio (OOS);Sortino Ratio (OOS);% Profitable Months (OOS)',
+  'Strategy 4.21.40;XAUUSD_tick_TICK_ESTPlus07;H1;0,88;3675,22;218;1,45;18,2;0,69;0,82;0,66;45;1,7;2,4;0,6;0,9;54;5967,27;220;1,72;12,5;1,1;0,68;1,11;49;2,2;3,5;0,8;1,1;62',
 ].join('\n');
 await tm.loadFromCSV(suffixedCertCsv, { fileName: 'DatabankExport.csv' });
 const suffixed = tm.getStrategies().find(strategy => strategy['Strategy Name'] === 'Strategy 4.21.40');
@@ -130,9 +169,9 @@ assert.equal(tm.scoreStrategy(suffixed).details['Profit factor'].result, 'pass',
 assert.equal(tm.scoreStrategy(suffixed).details['Profit factor'].value, '1,72', 'OOS value should win when only IS/OOS samples exist');
 await tm.clearResultStrategies();
 await tm.loadFromCSV([
-  'Strategy Name;Symbol;TimeFrame;Net profit;# of trades;Profit factor;Max DD %;Sharpe Ratio;Stability;CAGR/Max DD %;Winning Percent;SQN;RecoveryFactor;CalmarRatio;SortinoRatio;% Profitable Months',
-  'Delete me;XAUUSD;H1;10000;260;1.45;12;0.9;0.8;1.1;48;2.1;3.5;0.8;1.1;62',
-  'Keep me;EURUSD;H1;9000;240;1.4;14;0.8;0.7;1.0;47;1.9;3.2;0.7;1.0;58',
+  'Strategy Name;Symbol;TimeFrame;Fitness;Net profit;# of trades;Profit factor;Max DD %;Sharpe Ratio;Stability;CAGR/Max DD %;Winning Percent;SQN;RecoveryFactor;CalmarRatio;SortinoRatio;% Profitable Months',
+  'Delete me;XAUUSD;H1;0.91;10000;260;1.45;12;0.9;0.8;1.1;48;2.1;3.5;0.8;1.1;62',
+  'Keep me;EURUSD;H1;0.87;9000;240;1.4;14;0.8;0.7;1.0;47;1.9;3.2;0.7;1.0;58',
 ].join('\n'), { fileName: 'template-maker-cert.csv' });
 const deleteTargetId = tm.getStrategies()[0]._id;
 const selectedDelete = await tm.deleteResultStrategies([deleteTargetId]);
@@ -161,12 +200,14 @@ assert.equal(merged.length, 1, 'CSV and SQX for same strategy should reconcile i
 assert.ok(merged[0].sources.csv, 'reconciled record should keep CSV source');
 assert.ok(merged[0].sources.sqx, 'reconciled record should keep SQX source');
 assert.equal(tm.validateMetricsContract(merged[0]).valid, true, 'reconciled record should keep valid metrics');
+assert.equal(tm.getProvenance(merged[0]).ruleset, 'template-maker-cert-v2', 'reconciled provenance should stay on v2 ruleset');
 assert.equal(await tm.computeFileHash('abc').then(hash => hash.length >= 8), true, 'computeFileHash should return a stable hash');
 await tm.reset();
 await tm.loadFromCSV([{
   'Strategy Name': 'Keep SQX',
   Symbol: 'XAUUSD',
   TimeFrame: 'H1',
+  Fitness: 0.91,
   'Net profit': 10000,
   '# of trades': 260,
   'Profit factor': 1.45,
