@@ -133,6 +133,9 @@
         ? blockCatalog.capa2Options.map(o => ({ value: o.value, label: (o.label || o.value) + (o.timeframes && o.timeframes.length ? ' · ' + o.timeframes.join('/') : '') }))
         : []
     );
+    const defaultCapa1Block = (ui.capa1Resolver && ui.capa1Resolver.families && ui.capa1Resolver.families.tendencia && ui.capa1Resolver.families.tendencia.default)
+      || (capa1Options[0] && capa1Options[0].value)
+      || 'BS_Tendencia_v6';
     renderButtonGroup('asset-type-filter', 'Tipo', 'filterType', filters.assetTypes);
     renderButtonGroup('asset-sqx-filter', 'Config SQX', 'filterSqx', filters.sqxConfigs);
     renderButtonGroup('category-dir-filter', 'Direccion', 'filterDir', filters.directions);
@@ -146,10 +149,10 @@
     fillSelect('priority-cat-filter', filters.categories);
     fillSelect('strat-filter-status', filters.strategyStatus);
     fillSelect('sf-tf', (filters.timeframes || []).filter(o => o.value !== 'all'), 'H1');
-    fillSelect('sf-bs', capa1Options, 'BS_Tendencia_v4');
-    fillSelect('psm-bs', capa1Options, 'BS_Tendencia_v4');
-    fillSelect('csv-meta-bs', capa1Options, 'BS_Tendencia_v4');
-    fillSelect('tm-c2-block', capa1Options.concat([{ value: 'BS_Custom', label: 'BS_Custom' }]), 'BS_Tendencia_v4');
+    fillSelect('sf-bs', capa1Options, defaultCapa1Block);
+    fillSelect('psm-bs', capa1Options, defaultCapa1Block);
+    fillSelect('csv-meta-bs', capa1Options, defaultCapa1Block);
+    fillSelect('tm-c2-block', capa1Options.concat([{ value: 'BS_Custom', label: 'BS_Custom' }]), defaultCapa1Block);
     fillSelect('pg-capa2-bs', capa2Options, '');
     fillSelect('sf-dir', filters.directionsFull, 'L');
     fillSelect('sf-tier', [

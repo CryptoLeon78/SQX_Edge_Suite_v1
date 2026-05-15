@@ -55,16 +55,14 @@ def family_from_id(cid: str) -> str:
 
 def variant_from_id(cid: str) -> str:
     lower = cid.lower()
-    if "intraday_v5" in lower:
-        return "intraday_v5"
-    match = re.search(r"_v\d+(?:_[a-z0-9]+)?", lower)
+    match = re.search(r"_v\d+(?:_[a-z0-9]+)*", lower)
     return match.group(0).lstrip("_") if match else "base"
 
 
 def timeframes_from_id(cid: str, layer: int, variant: str) -> list[str]:
     upper = cid.upper()
     if layer == 1:
-        return INTRADAY_TIMEFRAMES if variant == "intraday_v5" else ALL_CAPA1_TIMEFRAMES
+        return INTRADAY_TIMEFRAMES if "intraday" in variant else ALL_CAPA1_TIMEFRAMES
     for tf in ("M5", "M15", "M30", "H1", "H4", "D1"):
         if upper.endswith("_" + tf):
             return [tf]
@@ -143,15 +141,17 @@ def parse_sqb(path: Path) -> dict:
 def build_manifest() -> dict:
     entries = [parse_sqb(path) for path in sorted(RESOURCE_DIR.glob("*.sqb"))]
     aliases = {
-        "BS_Tendencia": "BS_Tendencia_v4",
-        "BS_Momentum": "BS_Momentum_v4",
+        "BS_Tendencia": "BS_Tendencia_v6",
+        "BS_Momentum": "BS_Momentum_v6",
         "BS_Volatilidad": "BS_Volatilidad_v4",
-        "BS_Regimen": "BS_Regimen_v4",
-        "BS_Volumen": "BS_Volumen_v4",
-        "BS_SoporteResistencia": "BS_SoporteResistencia_v4",
-        "BS_Estadistico": "BS_Estadistico_v4",
-        "BS_Filtros": "BS_Filtros_v4",
+        "BS_Regimen": "BS_Regimen_v6",
+        "BS_Volumen": "BS_Volumen_v6",
+        "BS_SoporteResistencia": "BS_SoporteResistencia_v6",
+        "BS_Estadistico": "BS_Estadistico_v6",
+        "BS_Filtros": "BS_Filtros_v6",
         "BS_Filtros_v5": "BS_Filtros_v5_D1",
+        "BS_Filtros_v6_D1": "BS_Filtros_v6_D1",
+        "BS_Filtros_v6": "BS_Filtros_v6",
         "BS_Filtros_v7": "BS_Filtros_v7_H1",
     }
     aliases.update({entry["canonicalId"]: entry["canonicalId"] for entry in entries})
@@ -159,32 +159,34 @@ def build_manifest() -> dict:
     capa1 = {
         "intradayTimeframes": INTRADAY_TIMEFRAMES,
         "families": {
-            "tendencia": {"default": "BS_Tendencia_v4"},
-            "momentum": {"default": "BS_Momentum_v4"},
-            "volatilidad": {"default": "BS_Volatilidad_v4", "intraday": "BS_Volatilidad_v4_intraday_v5"},
-            "regimen": {"default": "BS_Regimen_v4"},
-            "volumen": {"default": "BS_Volumen_v4", "intraday": "BS_Volumen_v4_intraday_v5"},
-            "sr": {"default": "BS_SoporteResistencia_v4", "intraday": "BS_SoporteResistencia_v4_intraday_v5"},
-            "estadistico": {"default": "BS_Estadistico_v4"},
+            "tendencia": {"default": "BS_Tendencia_v6"},
+            "momentum": {"default": "BS_Momentum_v6"},
+            "volatilidad": {"default": "BS_Volatilidad_v4", "intraday": "BS_Volatilidad_v6_intraday_v6"},
+            "regimen": {"default": "BS_Regimen_v6"},
+            "volumen": {"default": "BS_Volumen_v6", "intraday": "BS_Volumen_v6_intraday_v6"},
+            "sr": {"default": "BS_SoporteResistencia_v6", "intraday": "BS_SoporteResistencia_v6_intraday_v6"},
+            "estadistico": {"default": "BS_Estadistico_v6"},
         },
     }
     capa2 = {
         "manual": True,
         "recommendations": {
-            "M5": "BS_Filtros_v7_M5",
-            "M15": "BS_Filtros_v7_M15",
-            "M30": "BS_Filtros_v7_M30",
-            "H1": "BS_Filtros_v7_H1",
-            "H4": "BS_Filtros_v7_H4",
-            "D1": "BS_Filtros_v5_D1",
-            "fallback": "BS_Filtros_v4",
+            "M5": "BS_Filtros_v6",
+            "M15": "BS_Filtros_v6",
+            "M30": "BS_Filtros_v6",
+            "H1": "BS_Filtros_v6",
+            "H4": "BS_Filtros_v6",
+            "D1": "BS_Filtros_v6_D1",
+            "fallback": "BS_Filtros_v6",
         },
     }
     return {
-        "version": 1,
+        "version": 2,
         "source": {
             "resourceDir": "backend/sqx-edge-tool/resources/blocksettings",
             "generatedFrom": "versioned .sqb resources",
+            "defaultGeneration": "v6",
+            "legacyGeneration": "v4/v5/v7 resources retained for backwards compatibility",
         },
         "entries": entries,
         "aliases": aliases,

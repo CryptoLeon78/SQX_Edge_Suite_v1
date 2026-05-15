@@ -78,7 +78,7 @@ def recommend_capa2_id(timeframe: str | None) -> str:
     manifest = load_blocksettings_manifest()
     recommendations = ((manifest.get("capa2Recommendations") or {}).get("recommendations") or {})
     tf = str(timeframe or "").strip().upper()
-    return str(recommendations.get(tf) or recommendations.get("fallback") or "BS_Filtros_v4")
+    return str(recommendations.get(tf) or recommendations.get("fallback") or "BS_Filtros_v6")
 
 
 def resolve_blocksetting_entry(

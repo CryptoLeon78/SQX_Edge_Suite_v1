@@ -431,7 +431,7 @@ class ApiTestCase(unittest.TestCase):
                 "name": "Custom EURUSD H1",
                 "asset": "eurusd",
                 "tf": "h1",
-                "bs": "BS_Tendencia_v4",
+                "bs": "BS_Tendencia_v6",
                 "dir": "both",
                 "capa": 1,
             })
@@ -446,7 +446,7 @@ class ApiTestCase(unittest.TestCase):
         mining = gen.call_args.args[0]
         self.assertEqual(mining.asset, "EURUSD")
         self.assertEqual(mining.tf, "H1")
-        self.assertEqual(mining.bs, "BS_Tendencia_v4")
+        self.assertEqual(mining.bs, "BS_Tendencia_v6")
         self.assertEqual(gen.call_args.kwargs["project_name"], "Custom_EURUSD_H1")
 
     def test_generate_custom_requires_asset_and_timeframe(self):

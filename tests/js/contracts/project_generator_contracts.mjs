@@ -84,7 +84,7 @@ assert.equal(customInputs.template, 'C2.cfx');
 assert.equal(PG.dom.setCustomProjectStatus(document, { text: 'Generado', level: 'ok' }), true);
 assert.equal(document.getElementById('pg-custom-status').textContent, 'Generado');
 assert.equal(document.getElementById('pg-custom-status').classList.contains('is-ok'), true);
-PG.dom.writeCustomProjectInputs(document, { name: 'Preset EURUSD', asset: 'GBPUSD', tf: 'M15', bs: 'BS_Momentum_v4', dir: 'short', capa: 2, template: 'Tpl.cfx' });
+PG.dom.writeCustomProjectInputs(document, { name: 'Preset EURUSD', asset: 'GBPUSD', tf: 'M15', bs: 'BS_Momentum_v6', dir: 'short', capa: 2, template: 'Tpl.cfx' });
 assert.equal(document.getElementById('pg-custom-asset').value, 'GBPUSD');
 assert.equal(document.getElementById('pg-custom-dir').value, 'short');
 [
@@ -259,7 +259,7 @@ const miningHtml = PG.miningRowsHtml([{
   num: 7,
   asset: 'EURUSD',
   tf: 'H1',
-  bs: 'BS_Tendencia_v4',
+  bs: 'BS_Tendencia_v6',
   dir: 'long',
   _info: { source: 'db', instrument: 'EURUSD_M1', spread: 1.2, swap_long: -1, swap_short: 0.5 },
 }]);
@@ -277,8 +277,8 @@ assert.equal(PG.selectedMiningCountLabel(2), '2 seleccionados');
 assert.equal(PG.bulkGenerateLabel(4), '4 minings · Capa 1 + Capa 2');
 assert.equal(PG.normalizeDirection('L'), 'long');
 assert.equal(PG.directionLabel('S'), 'SHORT');
-assert.match(miningHtml, /BS_Tendencia_v4/);
-const miningRowsHtml = PG.miningRowsHtml([{ num: 9, asset: 'XAUUSD', tf: 'H1', bs: 'BS_Tendencia_v4', dir: 'L', _user: true, source: 'manual' }], { 9: true });
+assert.match(miningHtml, /BS_Tendencia_v6/);
+const miningRowsHtml = PG.miningRowsHtml([{ num: 9, asset: 'XAUUSD', tf: 'H1', bs: 'BS_Tendencia_v6', dir: 'L', _user: true, source: 'manual' }], { 9: true });
 assert.match(miningRowsHtml, /data-pg-mining-check="9" checked/);
 assert.match(miningRowsHtml, /USER/);
 assert.match(PG.miningRowsHtml([], {}), /Plan Mining vac/);

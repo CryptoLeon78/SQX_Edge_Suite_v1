@@ -27,7 +27,7 @@ Visual correction: duplicate showcase/preload panels are removed so the tab stay
 
 Navigation correction: the sidebar labels/icons are standardized for the current methodology: `Activos`, `Mining Control`, `Project Generator`, `Template Maker`, `Strategy Control`, `Champion vs Challenger`, `BlockSettings Info` and `Control Panel`. The navigation rail can be collapsed to icon-only mode to recover workspace width.
 
-BlockSettings Info pass: `Help/Filtros Fase 2` is repurposed as a methodological BlockSettings showcase. It keeps internal tab id `filtros`, but now explains Capa 1 edge-search BlockSettings from real `_v4`/intraday `.sqb` files, Capa 2 `BS_Filtros_v7_*`/`BS_Filtros_v5_D1` recommendations, calibrated market logic and the connection with Activos, Plan Mining and Project Generator.
+BlockSettings Info pass: `Help/Filtros Fase 2` is repurposed as a methodological BlockSettings showcase. It keeps internal tab id `filtros`, but now explains Capa 1 edge-search BlockSettings from real `_v6`/intraday v6 `.sqb` files, the explicit `BS_Volatilidad_v4` fallback for higher timeframes until a general v6 file exists, Capa 2 `BS_Filtros_v6`/`BS_Filtros_v6_D1` recommendations, calibrated market logic and the connection with Activos, Plan Mining and Project Generator.
 
 ## Tab Pass Order
 

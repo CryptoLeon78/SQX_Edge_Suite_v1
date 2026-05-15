@@ -106,8 +106,8 @@ async function run() {
       'Biblioteca metodológica de BlockSettings SQX',
       'Capa 1 · Buscar Edge',
       'Capa 2 · Filtros operativos',
-      'BS_Filtros_v7_H1',
-      'BS_Filtros_v5_D1',
+      'BS_Filtros_v6',
+      'BS_Filtros_v6_D1',
       'Calibración normalizada',
       'Cómo se conecta con el flujo',
     ].forEach(expected => {
@@ -219,7 +219,7 @@ async function run() {
         phase: 1,
         asset: 'XAUUSD',
         tf: 'H1',
-        bs: 'BS_Tendencia_v4',
+        bs: 'BS_Tendencia_v6',
         dir: 'L',
         source: 'manual'
       });
@@ -423,7 +423,7 @@ async function run() {
     }
     await desktop.evaluate(() => {
       window.resetPlanMiningUserState();
-      const ok = window.addMiningUser({ num: 1, phase: 1, asset: 'EURUSD', tf: 'H1', bs: 'BS_Tendencia_v4', dir: 'L/S', source: 'e2e' });
+      const ok = window.addMiningUser({ num: 1, phase: 1, asset: 'EURUSD', tf: 'H1', bs: 'BS_Tendencia_v6', dir: 'L/S', source: 'e2e' });
       if (!ok) throw new Error('Project Generator E2E could not seed Plan Mining');
     });
     await desktop.locator('#pg-step-api > summary').click();
@@ -463,7 +463,7 @@ async function run() {
     await desktop.locator('#tf-select-options [data-tf="M30"]').click();
     await desktop.locator('#tf-select-confirm').click();
     await desktop.waitForFunction(() => document.getElementById('pg-custom-tf')?.value === 'M30');
-    await desktop.waitForFunction(() => document.getElementById('pg-custom-bs')?.value === 'BS_Momentum_v4');
+    await desktop.waitForFunction(() => document.getElementById('pg-custom-bs')?.value === 'BS_Momentum_v6');
     const pgTfTraceStatus = await desktop.locator('#pg-custom-status').innerText();
     if (!pgTfTraceStatus.includes('timeframe M30 confirmado')) {
       throw new Error('Project Generator card prefill should announce selected timeframe trace');

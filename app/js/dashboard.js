@@ -1150,7 +1150,7 @@ function clearStratForm() {
   document.getElementById('sf-mining').value = '1';
   document.getElementById('sf-asset').value = 'XAUUSD';
   document.getElementById('sf-tf').value = 'H1';
-  document.getElementById('sf-bs').value = 'BS_Tendencia_v4';
+  document.getElementById('sf-bs').value = (SQX_UI.capa1Resolver && SQX_UI.capa1Resolver.families && SQX_UI.capa1Resolver.families.tendencia && SQX_UI.capa1Resolver.families.tendencia.default) || 'BS_Tendencia_v6';
   document.getElementById('sf-dir').value = 'L';
   document.getElementById('sf-tier').value = 'tentativa';
   document.getElementById('sf-status').value = 'CANDIDATA';

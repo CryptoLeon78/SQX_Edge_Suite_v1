@@ -6,7 +6,7 @@
       "phase": 1,
       "asset": "XAUUSD",
       "tf": "H1",
-      "bs": "BS_Tendencia_v4",
+      "bs": "BS_Tendencia_v6",
       "dir": "L"
     },
     {
@@ -14,7 +14,7 @@
       "phase": 1,
       "asset": "XAUUSD",
       "tf": "H4",
-      "bs": "BS_Tendencia_v4",
+      "bs": "BS_Tendencia_v6",
       "dir": "L"
     },
     {
@@ -22,7 +22,7 @@
       "phase": 1,
       "asset": "XAUUSD",
       "tf": "M30",
-      "bs": "BS_Tendencia_v4",
+      "bs": "BS_Tendencia_v6",
       "dir": "L"
     },
     {
@@ -30,7 +30,7 @@
       "phase": 2,
       "asset": "EURUSD",
       "tf": "H1",
-      "bs": "BS_Tendencia_v4",
+      "bs": "BS_Tendencia_v6",
       "dir": "L/S"
     },
     {
@@ -38,7 +38,7 @@
       "phase": 2,
       "asset": "EURUSD",
       "tf": "H4",
-      "bs": "BS_Tendencia_v4",
+      "bs": "BS_Tendencia_v6",
       "dir": "L/S"
     },
     {
@@ -46,7 +46,7 @@
       "phase": 2,
       "asset": "EURUSD",
       "tf": "M30",
-      "bs": "BS_Momentum_v4",
+      "bs": "BS_Momentum_v6",
       "dir": "L/S"
     },
     {
@@ -54,7 +54,7 @@
       "phase": 3,
       "asset": "USTEC",
       "tf": "H1",
-      "bs": "BS_Tendencia_v4",
+      "bs": "BS_Tendencia_v6",
       "dir": "L"
     },
     {
@@ -62,7 +62,7 @@
       "phase": 3,
       "asset": "USTEC",
       "tf": "H1",
-      "bs": "BS_Momentum_v4",
+      "bs": "BS_Momentum_v6",
       "dir": "L"
     },
     {
@@ -70,7 +70,7 @@
       "phase": 3,
       "asset": "USTEC",
       "tf": "M30",
-      "bs": "BS_Momentum_v4",
+      "bs": "BS_Momentum_v6",
       "dir": "L"
     },
     {
@@ -78,7 +78,7 @@
       "phase": 4,
       "asset": "GBPUSD",
       "tf": "H1",
-      "bs": "BS_Volatilidad_v4_intraday_v5",
+      "bs": "BS_Volatilidad_v6_intraday_v6",
       "dir": "L/S"
     },
     {
@@ -86,7 +86,7 @@
       "phase": 4,
       "asset": "GBPJPY",
       "tf": "H1",
-      "bs": "BS_Volatilidad_v4_intraday_v5",
+      "bs": "BS_Volatilidad_v6_intraday_v6",
       "dir": "L/S"
     },
     {
@@ -94,7 +94,7 @@
       "phase": 5,
       "asset": "EURGBP",
       "tf": "H4",
-      "bs": "BS_Regimen_v4",
+      "bs": "BS_Regimen_v6",
       "dir": "L/S"
     },
     {
@@ -102,7 +102,7 @@
       "phase": 5,
       "asset": "AUDNZD",
       "tf": "H4",
-      "bs": "BS_Regimen_v4",
+      "bs": "BS_Regimen_v6",
       "dir": "L/S"
     },
     {
@@ -110,7 +110,7 @@
       "phase": 5,
       "asset": "EURGBP",
       "tf": "H1",
-      "bs": "BS_Estadistico_v4",
+      "bs": "BS_Estadistico_v6",
       "dir": "L/S"
     }
   ],

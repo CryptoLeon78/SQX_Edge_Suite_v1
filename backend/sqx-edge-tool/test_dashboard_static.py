@@ -2243,31 +2243,31 @@ class DashboardStaticTestCase(unittest.TestCase):
         blocksettings = ui_manifest["blockSettingsInfo"]
         self.assertEqual(blocksettings["title"], "BlockSettings Info")
         self.assertEqual(len(blocksettings["capa1"]), 7)
-        self.assertEqual(blocksettings["capa2"]["blockSetting"], "BS_Filtros_v7_* / BS_Filtros_v5_D1")
+        self.assertEqual(blocksettings["capa2"]["blockSetting"], "BS_Filtros_v6 / BS_Filtros_v6_D1")
         self.assertEqual(
             [item["displayBlockSetting"] for item in blocksettings["capa1"]],
             [
-                "BS_Tendencia_v4",
-                "BS_Momentum_v4",
-                "BS_Volatilidad_v4",
-                "BS_Regimen_v4",
-                "BS_Volumen_v4",
-                "BS_SoporteResistencia_v4",
-                "BS_Estadistico_v4",
+                "BS_Tendencia_v6",
+                "BS_Momentum_v6",
+                "BS_Volatilidad_v4 · intraday BS_Volatilidad_v6_intraday_v6",
+                "BS_Regimen_v6",
+                "BS_Volumen_v6 · intraday BS_Volumen_v6_intraday_v6",
+                "BS_SoporteResistencia_v6 · intraday BS_SoporteResistencia_v6_intraday_v6",
+                "BS_Estadistico_v6",
             ],
         )
         self.assertIn("blockSettingsCatalog", ui_manifest)
-        self.assertEqual(len(ui_manifest["blockSettingsCatalog"]["entries"]), 17)
-        self.assertEqual(ui_manifest["capa2Recommendations"]["recommendations"]["H1"], "BS_Filtros_v7_H1")
-        self.assertEqual(ui_manifest["capa2Recommendations"]["recommendations"]["D1"], "BS_Filtros_v5_D1")
+        self.assertEqual(len(ui_manifest["blockSettingsCatalog"]["entries"]), 28)
+        self.assertEqual(ui_manifest["capa2Recommendations"]["recommendations"]["H1"], "BS_Filtros_v6")
+        self.assertEqual(ui_manifest["capa2Recommendations"]["recommendations"]["D1"], "BS_Filtros_v6_D1")
         self.assertIn("blockSettingsInfo", manifest_js)
         self.assertIn('"label": "BlockSettings Info"', manifest_js)
         self.assertIn('"icon": "B"', manifest_js)
         self.assertIn('id="tab-filtros" class="tab-content" style="display:none"', self.html)
         self.assertIn('class="blocksettings-info" id="filtros-view"', self.html)
         self.assertIn("renderBlockSettingCapa1Card", (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig"))
-        self.assertIn("BS_Filtros_v7_H1", manifest_js)
-        self.assertIn("BS_Filtros_v5_D1", manifest_js)
+        self.assertIn("BS_Filtros_v6", manifest_js)
+        self.assertIn("BS_Filtros_v6_D1", manifest_js)
         self.assertNotIn("Umbrales recomendados para la segunda fase de filtrado", self.html)
         self.assertNotIn("categorias", [tab["id"] for tab in tabs])
         self.assertNotIn("priority", [tab["id"] for tab in tabs])

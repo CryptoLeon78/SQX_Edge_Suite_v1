@@ -2775,18 +2775,18 @@
   .bs-section-head h3 { color:var(--yellow); font-size:18px; font-weight:900; letter-spacing:0; }
   .bs-section-head p { color:var(--text2); font-size:13px; line-height:1.55; max-width:1100px; }
   .bs-capa1-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px; }
-  .bs-card { display:flex; flex-direction:column; gap:12px; min-height:320px; padding:16px; border:1px solid color-mix(in srgb, var(--bs-accent) 34%, var(--border)); border-radius:10px; background:linear-gradient(180deg, color-mix(in srgb, var(--bs-accent) 10%, transparent), rgba(15,23,42,.34)); }
+  .bs-card { display:flex; flex-direction:column; gap:12px; min-width:0; min-height:320px; padding:16px; border:1px solid color-mix(in srgb, var(--bs-accent) 34%, var(--border)); border-radius:10px; background:linear-gradient(180deg, color-mix(in srgb, var(--bs-accent) 10%, transparent), rgba(15,23,42,.34)); }
   .bs-card-top { display:flex; align-items:center; gap:12px; }
   .bs-icon { display:flex; align-items:center; justify-content:center; width:42px; height:42px; border-radius:9px; color:var(--bs-accent); background:color-mix(in srgb, var(--bs-accent) 15%, transparent); border:1px solid color-mix(in srgb, var(--bs-accent) 35%, transparent); font-weight:900; font-size:19px; flex:0 0 auto; }
   .bs-card h3, .bs-capa2-main h3 { margin:3px 0 0; color:var(--text); font-size:17px; font-weight:900; letter-spacing:0; }
-  .bs-file { width:max-content; max-width:100%; padding:5px 9px; border-radius:6px; border:1px solid rgba(59,130,246,.34); background:rgba(59,130,246,.10); color:#bfdbfe; font-family:Consolas, monospace; font-size:12px; font-weight:800; overflow-wrap:anywhere; }
+  .bs-file { width:max-content; max-width:100%; padding:5px 9px; border-radius:6px; border:1px solid rgba(59,130,246,.34); background:rgba(59,130,246,.10); color:#bfdbfe; font-family:Consolas, monospace; font-size:12px; font-weight:800; overflow-wrap:anywhere; word-break:break-word; }
   .bs-objective { color:var(--text); font-size:13px; line-height:1.5; font-weight:700; }
   .bs-facts { display:grid; gap:8px; margin:0; }
   .bs-facts div { padding:9px; border:1px solid rgba(148,163,184,.14); border-radius:8px; background:rgba(2,6,23,.22); }
   .bs-facts dt { color:var(--text2); font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:.45px; }
   .bs-facts dd { margin:3px 0 0; color:var(--text); font-size:12px; line-height:1.45; }
   .bs-chip-row { display:flex; flex-wrap:wrap; gap:6px; margin-top:auto; }
-  .bs-chip { display:inline-flex; align-items:center; min-height:24px; padding:4px 8px; border-radius:6px; border:1px solid rgba(59,130,246,.24); background:rgba(59,130,246,.10); color:#bfdbfe; font-size:11px; font-weight:800; }
+  .bs-chip { display:inline-flex; align-items:center; max-width:100%; min-height:24px; padding:4px 8px; border-radius:6px; border:1px solid rgba(59,130,246,.24); background:rgba(59,130,246,.10); color:#bfdbfe; font-size:11px; font-weight:800; overflow-wrap:anywhere; word-break:break-word; }
   .bs-param-slot { display:flex; flex-direction:column; gap:4px; padding:10px; border:1px dashed rgba(234,179,8,.34); border-radius:8px; background:rgba(234,179,8,.06); }
   .bs-param-slot strong { color:var(--yellow); font-size:11px; text-transform:uppercase; letter-spacing:.45px; }
   .bs-param-slot span { color:var(--text2); font-size:12px; line-height:1.45; }

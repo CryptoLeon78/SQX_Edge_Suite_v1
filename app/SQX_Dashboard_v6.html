@@ -1338,7 +1338,7 @@
           <label><span>Timeframe</span><input class="search-input" id="tm-c2-tf" type="text"></label>
           <label><span>Indicador base</span><input class="search-input" id="tm-c2-indicator" type="text" placeholder="Auto desde .sqx"></label>
           <label><span>NumCluster</span><input class="search-input" id="tm-c2-cluster" type="text" placeholder="CL01"></label>
-          <label><span>Bloque</span><select class="filter-select" id="tm-c2-block"><option value="BS_Tendencia_v4">BS_Tendencia_v4</option><option value="BS_Momentum_v4">BS_Momentum_v4</option><option value="BS_Volatilidad_v4">BS_Volatilidad_v4</option><option value="BS_Regimen_v4">BS_Regimen_v4</option><option value="BS_SoporteResistencia_v4">BS_SoporteResistencia_v4</option><option value="BS_Volumen_v4">BS_Volumen_v4</option><option value="BS_Estadistico_v4">BS_Estadistico_v4</option><option value="BS_Custom">BS_Custom</option></select></label>
+          <label><span>Bloque</span><select class="filter-select" id="tm-c2-block"><option value="BS_Tendencia_v6">BS_Tendencia_v6</option><option value="BS_Momentum_v6">BS_Momentum_v6</option><option value="BS_Volatilidad_v6_intraday_v6">BS_Volatilidad_v6_intraday_v6</option><option value="BS_Regimen_v6">BS_Regimen_v6</option><option value="BS_SoporteResistencia_v6">BS_SoporteResistencia_v6</option><option value="BS_Volumen_v6">BS_Volumen_v6</option><option value="BS_Estadistico_v6">BS_Estadistico_v6</option><option value="BS_Custom">BS_Custom</option></select></label>
         </div>
         <div class="tm-c2-trace">
           <span>Indicadores detectados</span>
@@ -1534,8 +1534,8 @@
           </label>
           <label>Blocksetting
             <select id="sf-bs">
-              <option selected>BS_Tendencia_v4</option><option>BS_Momentum_v4</option><option>BS_Volatilidad_v4</option>
-              <option>BS_SoporteResistencia_v4</option><option>BS_Estadistico_v4</option><option>BS_Volumen_v4</option><option>BS_Regimen_v4</option>
+              <option selected>BS_Tendencia_v6</option><option>BS_Momentum_v6</option><option>BS_Volatilidad_v6_intraday_v6</option>
+              <option>BS_SoporteResistencia_v6</option><option>BS_Estadistico_v6</option><option>BS_Volumen_v6</option><option>BS_Regimen_v6</option>
             </select>
           </label>
           <label>Template <span class="hint">(LINEAR, ICHIMOKU, MACD…)</span><input type="text" id="sf-template" placeholder="LINEAR"></label>
@@ -1657,8 +1657,8 @@
             <label>Mining # <input type="number" id="csv-meta-mining" min="1" max="14" value="1"></label>
             <label>Blocksetting
               <select id="csv-meta-bs">
-                <option selected>BS_Tendencia_v4</option><option>BS_Momentum_v4</option><option>BS_Volatilidad_v4</option>
-                <option>BS_SoporteResistencia_v4</option><option>BS_Estadistico_v4</option><option>BS_Volumen_v4</option><option>BS_Regimen_v4</option>
+                <option selected>BS_Tendencia_v6</option><option>BS_Momentum_v6</option><option>BS_Volatilidad_v6_intraday_v6</option>
+                <option>BS_SoporteResistencia_v6</option><option>BS_Estadistico_v6</option><option>BS_Volumen_v6</option><option>BS_Regimen_v6</option>
               </select>
             </label>
             <label>Template <span class="hint">(default si no auto-detectado)</span><input type="text" id="csv-meta-template" placeholder="LINEAR"></label>
@@ -1791,8 +1791,8 @@
           </label>
           <label>Blocksetting
             <select id="psm-bs">
-              <option selected>BS_Tendencia_v4</option><option>BS_Momentum_v4</option><option>BS_Volatilidad_v4</option>
-              <option>BS_SoporteResistencia_v4</option><option>BS_Estadistico_v4</option><option>BS_Volumen_v4</option><option>BS_Regimen_v4</option>
+              <option selected>BS_Tendencia_v6</option><option>BS_Momentum_v6</option><option>BS_Volatilidad_v6_intraday_v6</option>
+              <option>BS_SoporteResistencia_v6</option><option>BS_Estadistico_v6</option><option>BS_Volumen_v6</option><option>BS_Regimen_v6</option>
             </select>
           </label>
           <label>Dirección
@@ -2320,7 +2320,7 @@ ExitAfterBars: 20 opcional
 Stop Loss: ATR-based random
 Profit Target: ATR-based random
 Trailing Stop: ATR-based random
-Building blocks: BS_Filtros_v7 por timeframe (D1: BS_Filtros_v5_D1, fallback: BS_Filtros_v4)</pre>
+Building blocks: BS_Filtros_v6 por timeframe (D1: BS_Filtros_v6_D1, fallback: BS_Filtros_v6)</pre>
                   </div>
                   <div class="workflow-config-card">
                     <h5>Fitness</h5>
