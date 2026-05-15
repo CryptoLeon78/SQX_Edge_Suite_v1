@@ -18,7 +18,7 @@ from core.config_loader import ROOT
 class BlockSettingsSourceTestCase(unittest.TestCase):
     def test_manifest_indexes_real_sqb_sources(self):
         manifest = load_blocksettings_manifest()
-        self.assertEqual(len(manifest["entries"]), 28)
+        self.assertEqual(len(manifest["entries"]), 29)
         self.assertEqual(manifest["version"], 2)
         for entry in manifest["entries"]:
             path = blocksetting_file(entry)
@@ -30,7 +30,7 @@ class BlockSettingsSourceTestCase(unittest.TestCase):
         intraday = resolve_blocksetting_entry("BS_Volatilidad", timeframe="H1", capa=1)
         higher_tf = resolve_blocksetting_entry("BS_Volatilidad", timeframe="H4", capa=1)
         self.assertEqual(intraday["canonicalId"], "BS_Volatilidad_v6_intraday_v6")
-        self.assertEqual(higher_tf["canonicalId"], "BS_Volatilidad_v4")
+        self.assertEqual(higher_tf["canonicalId"], "BS_Volatilidad_v6")
 
     def test_resolves_capa2_recommendations_and_manual_override(self):
         h1 = resolve_blocksetting_entry("BS_Tendencia_v6", timeframe="H1", capa=2)

@@ -104,7 +104,7 @@ def update_blocksettings_info(ui: dict, bs_manifest: dict) -> None:
     info["capa1Intro"] = (
         "Cada tarjeta de Activos propone una hipotesis de edge por familia. En Capa 1 se resuelve "
         "automaticamente el BlockSetting oficial correcto; en familias con variante intraday, M5/M15/M30/H1 usan la variante intraday. "
-        "Volatilidad mantiene fallback general v4 en H4/D1 porque el paquete v6 recibido no incluye un .sqb general de esa familia."
+        "Volatilidad queda cerrada con BS_Volatilidad_v6 como fuente general y BS_Volatilidad_v6_intraday_v6 para M5/M15/M30/H1."
     )
     capa2 = info.setdefault("capa2", {})
     recommendations = (bs_manifest.get("capa2Recommendations") or {}).get("recommendations") or {}

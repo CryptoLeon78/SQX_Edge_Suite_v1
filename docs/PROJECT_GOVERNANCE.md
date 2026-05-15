@@ -5,7 +5,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 ## Current State
 
 - Current phase completed: UX-NAV sidebar navigation polish inside the Mining Control pass.
-- Current implementation phase: SQX142-CFX-COMPAT - diagnose and harden generated `.cfx` compatibility against local StrategyQuant X build 142 resources, brokers, data symbols and project XML expectations.
+- Current implementation phase: BS-VOLATILIDAD-V6 - close the BlockSettings catalog with the missing official `BS_Volatilidad_v6.sqb`, make it the general Volatilidad source, keep `BS_Volatilidad_v6_intraday_v6` for M5/M15/M30/H1 and regenerate backend/frontend manifests.
 - Current UX surface decision: Strategy Builder tab and visible CVC handoff are retired from the dashboard shell; existing SB modules/docs remain internal historical contracts until a future renamed workflow is approved.
 - Current scoring surface decision: Template Maker is the active Capa 1 scoring and C2 generation surface, now including certification, structural diversity and mandatory C2 traceability before C2; Capa 2 comparison/relationships belong to Champion vs Challenger, including portfolio relationships.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.

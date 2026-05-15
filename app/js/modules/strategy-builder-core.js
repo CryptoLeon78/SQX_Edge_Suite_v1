@@ -53,9 +53,9 @@
   var PG_BLOCKSETTINGS = {
     trend_following: 'BS_Tendencia_v6',
     mean_reversion: 'BS_Regimen_v6',
-    breakout: 'BS_Volatilidad_v4',
+    breakout: 'BS_Volatilidad_v6',
     pullback: 'BS_Momentum_v6',
-    volatility_filter: 'BS_Volatilidad_v4',
+    volatility_filter: 'BS_Volatilidad_v6',
     regime_filter: 'BS_Regimen_v6'
   };
   var VIEWS_HANDOFF_PACKS = {

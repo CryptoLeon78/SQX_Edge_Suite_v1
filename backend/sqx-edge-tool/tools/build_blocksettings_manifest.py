@@ -143,7 +143,7 @@ def build_manifest() -> dict:
     aliases = {
         "BS_Tendencia": "BS_Tendencia_v6",
         "BS_Momentum": "BS_Momentum_v6",
-        "BS_Volatilidad": "BS_Volatilidad_v4",
+        "BS_Volatilidad": "BS_Volatilidad_v6",
         "BS_Regimen": "BS_Regimen_v6",
         "BS_Volumen": "BS_Volumen_v6",
         "BS_SoporteResistencia": "BS_SoporteResistencia_v6",
@@ -161,7 +161,7 @@ def build_manifest() -> dict:
         "families": {
             "tendencia": {"default": "BS_Tendencia_v6"},
             "momentum": {"default": "BS_Momentum_v6"},
-            "volatilidad": {"default": "BS_Volatilidad_v4", "intraday": "BS_Volatilidad_v6_intraday_v6"},
+            "volatilidad": {"default": "BS_Volatilidad_v6", "intraday": "BS_Volatilidad_v6_intraday_v6"},
             "regimen": {"default": "BS_Regimen_v6"},
             "volumen": {"default": "BS_Volumen_v6", "intraday": "BS_Volumen_v6_intraday_v6"},
             "sr": {"default": "BS_SoporteResistencia_v6", "intraday": "BS_SoporteResistencia_v6_intraday_v6"},

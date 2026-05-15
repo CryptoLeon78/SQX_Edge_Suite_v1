@@ -2249,7 +2249,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             [
                 "BS_Tendencia_v6",
                 "BS_Momentum_v6",
-                "BS_Volatilidad_v4 · intraday BS_Volatilidad_v6_intraday_v6",
+                "BS_Volatilidad_v6 · intraday BS_Volatilidad_v6_intraday_v6",
                 "BS_Regimen_v6",
                 "BS_Volumen_v6 · intraday BS_Volumen_v6_intraday_v6",
                 "BS_SoporteResistencia_v6 · intraday BS_SoporteResistencia_v6_intraday_v6",
@@ -2257,7 +2257,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             ],
         )
         self.assertIn("blockSettingsCatalog", ui_manifest)
-        self.assertEqual(len(ui_manifest["blockSettingsCatalog"]["entries"]), 28)
+        self.assertEqual(len(ui_manifest["blockSettingsCatalog"]["entries"]), 29)
         self.assertEqual(ui_manifest["capa2Recommendations"]["recommendations"]["H1"], "BS_Filtros_v6")
         self.assertEqual(ui_manifest["capa2Recommendations"]["recommendations"]["D1"], "BS_Filtros_v6_D1")
         self.assertIn("blockSettingsInfo", manifest_js)
