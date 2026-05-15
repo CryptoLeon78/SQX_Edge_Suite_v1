@@ -44,6 +44,16 @@ async function run() {
     await desktop.goto(dashboardUrl, { waitUntil: 'load' });
     await desktop.waitForSelector('.tab[data-tab="workflow"].active');
     await desktop.waitForSelector('#workflow-command-center');
+    await desktop.waitForFunction(() => {
+      const mark = document.querySelector('.brand-mark');
+      return mark && mark.complete && mark.naturalWidth >= 64;
+    });
+    const sidebarBrandImage = await desktop.locator('#main-tabs').evaluate(node => getComputedStyle(node, '::before').backgroundImage);
+    if (!sidebarBrandImage.includes('sqx-favicon.png')) throw new Error('Sidebar brand should use the SQX favicon asset');
+    const workflowWatermark = await desktop.locator('#tab-workflow').evaluate(node => getComputedStyle(node, '::before').backgroundImage);
+    if (!workflowWatermark.includes('sqx-tab-watermark.png')) throw new Error('Tabs should render the SQX watermark asset');
+    const workflowMethodIcon = await desktop.locator('.workflow-command-eyebrow').evaluate(node => getComputedStyle(node, '::before').backgroundImage);
+    if (!workflowMethodIcon.includes('sqx-internal-pipeline-icon.png')) throw new Error('Workflow should render the internal SQX pipeline icon');
     const categoryTabCount = await desktop.locator('.tab[data-tab="categorias"]').count();
     if (categoryTabCount !== 0) throw new Error('Por Categoria should not be a primary tab');
     const priorityTabCount = await desktop.locator('.tab[data-tab="priority"]').count();

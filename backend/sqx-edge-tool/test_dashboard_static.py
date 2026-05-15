@@ -2127,6 +2127,34 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("tab-icon", app_config_js)
         self.assertIn("tab-label", app_config_js)
 
+    def test_dashboard_brand_assets_are_integrated(self):
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        brand_root = APP_ROOT / "assets" / "brand"
+        expected_assets = [
+            "sqx-app-icon.png",
+            "sqx-app-icon-256.png",
+            "sqx-favicon.png",
+            "sqx-internal-pipeline-icon.png",
+            "sqx-social-preview.png",
+            "sqx-tab-watermark.png",
+        ]
+        for asset in expected_assets:
+            with self.subTest(asset=asset):
+                path = brand_root / asset
+                self.assertTrue(path.exists(), f"missing brand asset {asset}")
+                self.assertGreater(path.stat().st_size, 1000, f"brand asset {asset} should not be empty")
+
+        self.assertIn('class="brand-mark"', self.html)
+        self.assertIn("assets/brand/sqx-favicon.png", self.html)
+        self.assertIn("assets/brand/sqx-app-icon-256.png", self.html)
+        self.assertIn("assets/brand/sqx-social-preview.png", self.html)
+        self.assertIn("../assets/brand/sqx-favicon.png", css)
+        self.assertIn("../assets/brand/sqx-internal-pipeline-icon.png", css)
+        self.assertIn("../assets/brand/sqx-tab-watermark.png", css)
+        self.assertIn("material de diagnostico/imagenes_prompts/", governance)
+        self.assertIn("app/assets/brand/", governance)
+
     def test_workflow_shell_delegates_to_workflow_module(self):
         main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")
         workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
