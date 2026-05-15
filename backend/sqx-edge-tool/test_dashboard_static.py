@@ -263,6 +263,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/core.js",
                 "js/modules/config.js",
                 "js/modules/storage.js",
+                "js/modules/modal-registry.js",
                 "js/modules/state-backup.js",
                 "js/modules/license.js",
                 "js/modules/ui.js",
@@ -961,6 +962,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/core.js",
             "js/modules/config.js",
             "js/modules/storage.js",
+            "js/modules/modal-registry.js",
             "js/modules/state-backup.js",
             "js/modules/license.js",
             "js/modules/ui.js",
@@ -1003,6 +1005,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         core_js = (APP_ROOT / "js" / "modules" / "core.js").read_text(encoding="utf-8-sig")
         config_js = (APP_ROOT / "js" / "modules" / "config.js").read_text(encoding="utf-8-sig")
         storage_js = (APP_ROOT / "js" / "modules" / "storage.js").read_text(encoding="utf-8-sig")
+        modal_registry_js = (APP_ROOT / "js" / "modules" / "modal-registry.js").read_text(encoding="utf-8-sig")
         state_backup_js = (APP_ROOT / "js" / "modules" / "state-backup.js").read_text(encoding="utf-8-sig")
         license_js = (APP_ROOT / "js" / "modules" / "license.js").read_text(encoding="utf-8-sig")
         ui_js = (APP_ROOT / "js" / "modules" / "ui.js").read_text(encoding="utf-8-sig")
@@ -1042,6 +1045,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("registerModule", core_js)
         self.assertIn("SQX.config", config_js)
         self.assertIn("SQX.storage", storage_js)
+        self.assertIn("SQX.modalRegistry", modal_registry_js)
+        self.assertIn('id="sqx-decision-backdrop"', self.html)
         self.assertIn("SQX.stateBackup", state_backup_js)
         self.assertIn("window.SQX.stateBackup.init()", main_js)
         self.assertIn('id="state-backup-now"', self.html)

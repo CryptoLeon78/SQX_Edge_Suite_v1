@@ -90,10 +90,12 @@
     }
     return backups.map(function(item) {
       var name = String(item.name || '');
+      var trace = 'Origen: snapshot local · Destino: claves permitidas · Backup previo automatico';
       return '<div class="state-restore-row">' +
         '<div>' +
           '<div class="state-restore-name">' + escapeHtml(name) + '</div>' +
           '<div class="state-restore-meta">' + escapeHtml(fmtDate(item.mtime)) + ' · ' + escapeHtml(item.size_kb || 0) + ' KB</div>' +
+          '<div class="state-restore-meta">' + escapeHtml(trace) + '</div>' +
         '</div>' +
         '<button class="export-btn" type="button" data-state-restore="' + escapeHtml(name) + '">Restaurar</button>' +
       '</div>';
@@ -163,14 +165,30 @@
     var opts = options || {};
     var doc = opts.document || global.document;
     if (!filename) return Promise.resolve([]);
-    if (global.confirm && !global.confirm('Restaurar este snapshot reemplazara el estado local actual. Se creara un backup previo.')) {
-      return Promise.resolve([]);
-    }
-    setStatus(doc, 'Creando backup previo...');
-    return createBackup(opts).catch(function() { return null; }).then(function() {
+    var decision = SQX.modalRegistry && SQX.modalRegistry.confirm
+      ? SQX.modalRegistry.confirm({
+        document: doc,
+        title: 'Restaurar snapshot local',
+        message: 'Restaurar este snapshot reemplazara el estado local actual. Antes se creara un backup previo para poder volver atras.',
+        confirmLabel: 'Restaurar con backup previo',
+        trace: [
+          'Snapshot: ' + filename,
+          'Lee: /state/restore',
+          'Escribe: localStorage permitido',
+          'Excluye: licencias, fulfillment y datos sensibles'
+        ]
+      })
+      : Promise.resolve(!global.confirm || global.confirm('Restaurar este snapshot reemplazara el estado local actual. Se creara un backup previo.'));
+    return decision.then(function(ok) {
+      if (!ok) return [];
+      setStatus(doc, 'Creando backup previo...');
+      return createBackup(opts).catch(function() { return null; });
+    }).then(function(result) {
+      if (Array.isArray(result)) return result;
       setStatus(doc, 'Restaurando ' + filename + '...');
       return fetchJson(apiBase() + '/state/restore/' + encodeURIComponent(filename));
     }).then(function(result) {
+      if (Array.isArray(result)) return result;
       var data = result.payload && result.payload.data ? result.payload.data : {};
       var applied = applyState(data, opts.storage, opts.config);
       setBadge(doc, 'ok', 'Restaurado');

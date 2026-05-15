@@ -1299,6 +1299,15 @@
           <h3>Auditoria de Template Maker</h3>
           <button class="filter-btn" id="tm-audit-close" type="button">Cerrar</button>
         </div>
+        <div class="modal-trace-panel">
+          <strong>Trazabilidad del diagnostico</strong>
+          <div class="modal-trace-items">
+            <span>Origen: CSV Template Maker Cert + .sqx cargados</span>
+            <span>Lee: IndexedDB SQXTemplateMakerDB</span>
+            <span>Impacto: solo lectura</span>
+            <span>Siguiente: corregir contrato o generar C2 solo en ganadoras</span>
+          </div>
+        </div>
         <div id="tm-audit-content"></div>
       </div>
     </div>
@@ -1308,6 +1317,14 @@
         <div class="tm-modal-head">
           <h3>Generar Template C2</h3>
           <button class="filter-btn" id="tm-c2-cancel" type="button">Cerrar</button>
+        </div>
+        <div class="modal-trace-panel">
+          <strong>Trazabilidad obligatoria C2</strong>
+          <div class="modal-trace-items">
+            <span>Origen: estrategia certificada + SQX logic</span>
+            <span>Destino: descarga .sqx C2</span>
+            <span>Nombre: asset + BS + indicador + cluster + direccion + TF + origen</span>
+          </div>
         </div>
         <div class="tm-c2-grid">
           <label><span>Activo</span><input class="search-input" id="tm-c2-asset" type="text"></label>
@@ -1474,9 +1491,16 @@
         <button class="strat-modal-close" id="strat-modal-close">×</button>
       </div>
       <div class="strat-modal-body">
-        <p style="color:var(--text2);font-size:12px;margin-bottom:12px;">
-          Rellena los campos. "Generar JSON" produce una estrategia compatible con el manifiesto de estrategias.
-        </p>
+        <div class="modal-trace-panel">
+          <strong>Alta manual trazable</strong>
+          <div class="modal-trace-items">
+            <span>Origen: Strategy Control manual</span>
+            <span>Destino: JSON compatible con strategies.json</span>
+            <span>No persiste automaticamente: copia o consolida despues</span>
+            <span>Debe conservar mining, asset, blocksetting, template, status y fecha</span>
+          </div>
+        </div>
+        <p id="sf-trace-preview" class="modal-trace-preview">Completa los campos para ver la traza de la estrategia manual.</p>
 
         <div class="strat-form-grid">
           <label>ID / Fitness <span class="hint">(ej. 0.621529)</span><input type="text" id="sf-id" placeholder="0.621529"></label>
@@ -1598,6 +1622,7 @@
               </div>
             </div>
             <div id="csv-mapping-summary" style="margin-top:10px; font-size:12px; color:var(--text2);"></div>
+            <div id="csv-trace-summary" class="modal-trace-preview" style="margin-top:10px;">Esperando deteccion de columnas.</div>
           </div>
         </div>
 
@@ -1680,6 +1705,14 @@
 
         <!-- Step 4: Confirmar -->
         <div class="csv-step-pane" id="csv-pane-4" style="display:none;">
+          <div class="modal-trace-panel">
+            <strong>Batch de importacion trazable</strong>
+            <div class="modal-trace-items" id="csv-import-trace">
+              <span>Origen: CSV Databank Export</span>
+              <span>Destino: localStorage sqx_strategies_user_v1</span>
+              <span>Revision: seleccion, duplicados y meta comun antes de importar</span>
+            </div>
+          </div>
           <div class="alert info" style="margin-bottom:14px;">
             <div class="alert-icon">ℹ</div>
             <div class="alert-content">
@@ -1717,9 +1750,16 @@
         <button class="strat-modal-close" id="ps-add-mining-close">×</button>
       </div>
       <div class="strat-modal-body">
-        <p style="color:var(--text2);font-size:12px;margin-bottom:12px;">
-          Añade un asset/timeframe/dirección a una fase del plan mining. Queda guardado en <code>localStorage</code> y entra en KPIs, estados y tracking hasta que lo consolides.
-        </p>
+        <div class="modal-trace-panel">
+          <strong>Alta de mining trazable</strong>
+          <div class="modal-trace-items">
+            <span>Origen: + Mining manual</span>
+            <span>Destino: Plan Mining unificado</span>
+            <span>Persistencia: localStorage sqx_plan_user_v1</span>
+            <span>Tag visible: MANUAL</span>
+          </div>
+        </div>
+        <p id="psm-trace-preview" class="modal-trace-preview">El mining se guardara con fase, asset, timeframe, blocksetting y direccion.</p>
         <div class="strat-form-grid">
           <label>Mining # <input type="number" id="psm-num" min="1"></label>
           <label>Fase <select id="psm-phase"></select></label>
@@ -1754,9 +1794,16 @@
         <button class="strat-modal-close" id="ps-add-phase-close">×</button>
       </div>
       <div class="strat-modal-body">
-        <p style="color:var(--text2);font-size:12px;margin-bottom:12px;">
-          Crea una fase nueva para agrupar minings adicionales. También puedes editar el nombre y la descripción de cualquier fase desde la cabecera de la fase.
-        </p>
+        <div class="modal-trace-panel">
+          <strong>Fase visible aunque este vacia</strong>
+          <div class="modal-trace-items">
+            <span>Origen: + Fase manual</span>
+            <span>Destino: Plan Mining unificado</span>
+            <span>Persistencia: localStorage sqx_plan_user_v1</span>
+            <span>Uso: agrupar minings futuros sin perder orden metodologico</span>
+          </div>
+        </div>
+        <p id="psp-trace-preview" class="modal-trace-preview">La fase aparecera en Plan Mining aunque todavia no tenga minings.</p>
         <div class="strat-form-grid">
           <label>Número de fase <input type="number" id="psp-num" min="1"></label>
           <label>Nombre corto <input type="text" id="psp-name" placeholder="Yenes"></label>
@@ -1782,11 +1829,42 @@
         <div class="state-restore-note">
           Restaura tracking, plan extendido, estrategias importadas, checklist, vistas guardadas y API base. No restaura licencia, fulfillment ni datos sensibles.
         </div>
+        <div class="modal-trace-panel">
+          <strong>Restore con backup previo automatico</strong>
+          <div class="modal-trace-items">
+            <span>Origen: snapshot local del backend</span>
+            <span>Destino: claves permitidas de localStorage</span>
+            <span>Antes de restaurar: se crea otro backup</span>
+            <span>Excluye: licencias, fulfillment, claves y material privado</span>
+          </div>
+        </div>
         <div class="state-restore-toolbar">
           <button class="export-btn" id="state-restore-refresh">Actualizar lista</button>
           <span id="state-restore-status">Sin consultar.</span>
         </div>
         <div class="state-restore-list" id="state-restore-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL GLOBAL: decisiones criticas trazables -->
+  <div class="strat-modal-backdrop" id="sqx-decision-backdrop" style="display:none;">
+    <div class="strat-modal sqx-decision-modal">
+      <div class="strat-modal-header">
+        <h3 id="sqx-decision-title">Confirmar accion</h3>
+        <button class="strat-modal-close" id="sqx-decision-cancel" aria-label="Cancelar">×</button>
+      </div>
+      <div class="strat-modal-body">
+        <p id="sqx-decision-message" class="sqx-decision-message"></p>
+        <div id="sqx-decision-trace"></div>
+        <label id="sqx-decision-input-wrap" class="sqx-decision-input-wrap" hidden>
+          <span id="sqx-decision-input-label">Valor</span>
+          <input class="search-input" id="sqx-decision-input" type="text">
+        </label>
+        <div class="sqx-decision-actions">
+          <button class="export-btn" id="sqx-decision-dismiss" type="button">Cancelar</button>
+          <button class="export-btn sqx-decision-confirm" id="sqx-decision-confirm" type="button">Confirmar</button>
+        </div>
       </div>
     </div>
   </div>
@@ -3697,6 +3775,7 @@ Ret/DD > 0.5       ← muy permisivo (Forward es validación)</pre>
 <script src="js/modules/core.js"></script>
 <script src="js/modules/config.js"></script>
 <script src="js/modules/storage.js"></script>
+<script src="js/modules/modal-registry.js"></script>
 <script src="js/modules/state-backup.js"></script>
 <script src="js/modules/license.js"></script>
 <script src="js/modules/ui.js"></script>

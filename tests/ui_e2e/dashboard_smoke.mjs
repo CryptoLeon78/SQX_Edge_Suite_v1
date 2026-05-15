@@ -34,6 +34,11 @@ async function saveShot(page, name) {
   await page.screenshot({ path: path.join(screenshotDir, name), fullPage: true });
 }
 
+async function acceptDecision(page) {
+  const visible = await page.locator('#sqx-decision-backdrop').evaluate(node => node && getComputedStyle(node).display !== 'none').catch(() => false);
+  if (visible) await page.locator('#sqx-decision-confirm').click();
+}
+
 async function run() {
   const browser = await chromium.launch({ headless: true });
   try {
@@ -149,6 +154,7 @@ async function run() {
       throw new Error('Mining Control phase edits should persist in the rendered plan');
     }
     await desktop.locator('#ps-plan-reset-plan').click();
+    await acceptDecision(desktop);
     await desktop.waitForFunction(() => !document.getElementById('ps-plan-table')?.innerText.includes('Fase editable E2E'));
     await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
     await desktop.evaluate(() => {
@@ -165,6 +171,7 @@ async function run() {
       throw new Error('Mining Control should not keep retired plan preload showcase copy');
     }
     await desktop.locator('#ps-plan-table .ps-phase-reset-btn').first().click();
+    await acceptDecision(desktop);
     await desktop.waitForFunction(() => document.getElementById('ps-plan-table')?.innerText.includes('Fase sin minings todavia'));
     await desktop.evaluate(() => {
       window.resetProjectWorkingData();
@@ -714,6 +721,7 @@ async function run() {
     await desktop.waitForFunction(() => !document.getElementById('tm-delete-selected-btn')?.disabled);
     await desktop.evaluate(() => { window.confirm = () => true; });
     await desktop.locator('#tm-delete-selected-btn').click();
+    await acceptDecision(desktop);
     await desktop.waitForFunction(previous => window.SQX.templateMaker.getStrategies().length === previous - 1, beforeSelectedDelete);
     await desktop.waitForFunction(() => document.getElementById('tm-results-table')?.hidden === false);
     const afterSelectedDelete = await desktop.evaluate(() => window.SQX.templateMaker.getStrategies().length);
@@ -723,6 +731,7 @@ async function run() {
     await saveShot(desktop, 'e2e-template-maker-selected-delete-desktop.png');
     await desktop.waitForFunction(() => window.SQX.templateMaker.getCapa() === 1);
     await desktop.locator('#tm-reset-results-btn').click();
+    await acceptDecision(desktop);
     await desktop.waitForFunction(() => window.SQX.templateMaker.getStrategies().length === 0);
     await desktop.waitForFunction(() => document.getElementById('tm-results-table')?.hidden === true);
     await desktop.waitForFunction(() => document.getElementById('tm-empty-state')?.hidden === false);
@@ -732,6 +741,7 @@ async function run() {
     await desktop.waitForSelector('#tm-modal-audit:not([hidden])');
     await desktop.locator('#tm-audit-close').click();
     await desktop.locator('#tm-reset-btn').click();
+    await acceptDecision(desktop);
     await desktop.waitForFunction(() => window.SQX.templateMaker.getStrategies().length === 0);
     await saveShot(desktop, 'e2e-template-maker-desktop.png');
 
@@ -820,10 +830,12 @@ async function run() {
     await desktop.waitForSelector('#tab-estrategias .strat-card');
 
     await desktop.locator('#tab-estrategias .strat-remove-btn').first().click();
+    await acceptDecision(desktop);
     await desktop.waitForFunction(() => localStorage.getItem('sqx_strategies_deleted_v1') !== null);
     const afterDelete = await desktop.locator('#tab-estrategias .strat-card').count();
     if (afterDelete !== cards - 1) throw new Error(`Deleting a base strategy should hide exactly one card, got ${afterDelete} from ${cards}`);
     await desktop.locator('#strat-restore-hidden-btn').click();
+    await acceptDecision(desktop);
     await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_strategies_deleted_v1') || '[]').length === 0);
     const afterRestore = await desktop.locator('#tab-estrategias .strat-card').count();
     if (afterRestore !== cards) throw new Error(`Restoring hidden strategies should recover cards, got ${afterRestore} from ${cards}`);
@@ -842,6 +854,7 @@ async function run() {
     await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_strategies_user_v1') || '[]').length > 0);
     await desktop.waitForFunction(() => document.getElementById('strat-summary')?.textContent.includes('Importadas'));
     await desktop.locator('#strat-clear-user-btn').click();
+    await acceptDecision(desktop);
     await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_strategies_user_v1') || '[]').length === 0);
 
     await saveShot(desktop, 'e2e-strategies-desktop.png');

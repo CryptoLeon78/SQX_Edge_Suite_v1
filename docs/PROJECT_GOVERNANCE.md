@@ -5,7 +5,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 ## Current State
 
 - Current phase completed: UX-NAV sidebar navigation polish inside the Mining Control pass.
-- Current implementation phase: TM-TRACE1 - Template Maker C2 traceability from SQX/CSV source to generated template name.
+- Current implementation phase: MODAL-TRACE - audit all active modals as critical decision surfaces with explicit user and technical traceability.
 - Current UX surface decision: Strategy Builder tab and visible CVC handoff are retired from the dashboard shell; existing SB modules/docs remain internal historical contracts until a future renamed workflow is approved.
 - Current scoring surface decision: Template Maker is the active Capa 1 scoring and C2 generation surface, now including certification, structural diversity and mandatory C2 traceability before C2; Capa 2 comparison/relationships belong to Champion vs Challenger, including portfolio relationships.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
@@ -13,7 +13,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Local diagnostic material rule: `material de diagnostico/` is an ignored, local-only inbox for bug samples, CSV/SQX/View evidence and files the operator wants Codex to inspect during troubleshooting. Never commit, package or distribute it.
 - Branding source rule: generated originals under `material de diagnostico/imagenes_prompts/` remain local-only; only cleaned, optimized derivatives under `app/assets/brand/` may become tracked product assets.
 - Template Maker C2 traceability rule: every generated C2 template name and internal `StrategyName` must include asset, BlockSetting, base indicator, NumCluster, direction, timeframe and source strategy so the operator can trace origin to final template without relying on memory.
-- Active UX-NAV tab: `Mining Control`; temporarily paused for TM-TRACE1 Template Maker traceability hardening. Resume Mining Control after this phase unless the operator says `Adelante con el siguiente tab`.
+- Modal Traceability Gate: every active modal must declare owner, source data, destination data, impact, failure modes and user-visible trace before it can mutate local state. Critical reset/delete/import/restore actions must use the unified decision surface or an equivalent traceable modal, not a blind native prompt.
+- Active UX-NAV tab: `Mining Control`; temporarily paused for MODAL-TRACE modal governance and traceability hardening. Resume Mining Control after this phase unless the operator says `Adelante con el siguiente tab`.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G7 - Backup Retention And Artifact Steward Gate.
 - Previous governance baseline: G6 - Institutional Dashboard Quick Actions Gate.

@@ -366,6 +366,16 @@
       tests_failed: [],
       notes: noteParts.join(' · '),
       added: new Date().toISOString().slice(0, 10),
+      source: 'csv-import',
+      trace: {
+        origin: 'Strategy Control CSV import wizard',
+        batchId: meta.importBatchId || '',
+        sourceFile: meta.sourceFile || '',
+        destination: 'sqx_strategies_user_v1',
+        recognizedColumns: meta.recognizedColumns || 0,
+        totalColumns: meta.totalColumns || 0,
+        importedAt: new Date().toISOString()
+      },
       _imported: true,
       _import_id: 'imp_' + Date.now() + '_' + id
     };
@@ -433,7 +443,14 @@
       tests_passed: listFromText(v.testsPassed),
       tests_failed: listFromText(v.testsFailed),
       notes: v.notes || '',
-      added: addedDate || new Date().toISOString().slice(0, 10)
+      added: addedDate || new Date().toISOString().slice(0, 10),
+      source: 'manual',
+      trace: {
+        origin: 'Strategy Control manual modal',
+        destination: 'JSON compatible with backend/sqx-edge-tool/config/strategies.json',
+        createdAt: new Date().toISOString(),
+        fields: ['asset', 'mining', 'blocksetting', 'template', 'direction', 'status']
+      }
     };
   }
 

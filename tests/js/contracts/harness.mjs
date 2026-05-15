@@ -191,6 +191,7 @@ function createLoadedSandbox(modules = [
   'app/js/modules/formatters.js',
   'app/js/modules/domain.js',
   'app/js/modules/storage.js',
+  'app/js/modules/modal-registry.js',
   'app/js/modules/ui.js',
   'app/js/modules/strategies.js',
   'app/js/modules/home.js',

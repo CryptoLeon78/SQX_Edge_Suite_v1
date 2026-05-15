@@ -85,43 +85,44 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 5. `js/modules/core.js`
 6. `js/modules/config.js`
 7. `js/modules/storage.js`
-8. `js/modules/state-backup.js`
-9. `js/modules/license.js`
-10. `js/modules/ui.js`
-11. `js/modules/formatters.js`
-12. `js/modules/champion-challenger-core.js`
-13. `js/modules/domain.js`
-14. `js/modules/datasets.js`
-15. `js/modules/champion-challenger-regime.js`
-16. `js/modules/champion-challenger.js`
-17. `js/modules/strategy-builder-core.js`
-18. `js/modules/strategy-builder.js`
-19. `js/modules/renderers.js`
-20. `js/modules/charts.js`
-21. `js/modules/strategies.js`
-22. `vendor/jszip.min.js`
-23. `js/modules/template-maker.js`
-24. `js/modules/template-maker-ui.js`
-25. `js/modules/home.js`
-26. `js/modules/mtf-evidence.js`
-27. `js/modules/support.js`
-28. `js/modules/fulfillment.js`
-29. `js/modules/customer-cockpit.js`
-30. `js/modules/workflow.js`
-31. `js/modules/view-creator.js`
-32. `js/modules/project-generator-core.js`
-33. `js/modules/project-generator-config.js`
-34. `js/modules/project-generator-dom.js`
-35. `js/modules/project-generator-bindings.js`
-36. `js/modules/project-generator-renderers.js`
-37. `js/modules/project-generator-status.js`
-38. `js/modules/project-generator-cleaner.js`
-39. `js/modules/project-generator.js`
-40. `js/modules/index.js`
-41. `js/data.js`
-42. `js/dashboard.js`
-43. `js/main.js`
-44. `js/project-generator-main.js`
+8. `js/modules/modal-registry.js`
+9. `js/modules/state-backup.js`
+10. `js/modules/license.js`
+11. `js/modules/ui.js`
+12. `js/modules/formatters.js`
+13. `js/modules/champion-challenger-core.js`
+14. `js/modules/domain.js`
+15. `js/modules/datasets.js`
+16. `js/modules/champion-challenger-regime.js`
+17. `js/modules/champion-challenger.js`
+18. `js/modules/strategy-builder-core.js`
+19. `js/modules/strategy-builder.js`
+20. `js/modules/renderers.js`
+21. `js/modules/charts.js`
+22. `js/modules/strategies.js`
+23. `vendor/jszip.min.js`
+24. `js/modules/template-maker.js`
+25. `js/modules/template-maker-ui.js`
+26. `js/modules/home.js`
+27. `js/modules/mtf-evidence.js`
+28. `js/modules/support.js`
+29. `js/modules/fulfillment.js`
+30. `js/modules/customer-cockpit.js`
+31. `js/modules/workflow.js`
+32. `js/modules/view-creator.js`
+33. `js/modules/project-generator-core.js`
+34. `js/modules/project-generator-config.js`
+35. `js/modules/project-generator-dom.js`
+36. `js/modules/project-generator-bindings.js`
+37. `js/modules/project-generator-renderers.js`
+38. `js/modules/project-generator-status.js`
+39. `js/modules/project-generator-cleaner.js`
+40. `js/modules/project-generator.js`
+41. `js/modules/index.js`
+42. `js/data.js`
+43. `js/dashboard.js`
+44. `js/main.js`
+45. `js/project-generator-main.js`
 
 ## Why This Order Matters
 
@@ -129,6 +130,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 - `app-config.js` loads before modules so API base and feature options are available everywhere.
 - `modules/core.js` creates `window.SQX`, module registration, and ready callbacks.
 - Focused modules attach stable contracts under `window.SQX`.
+- `modal-registry.js` loads before state backup and dashboard actions so critical decisions can use a traceable shared modal instead of blind native prompts.
 - `champion-challenger-regime.js` loads after `datasets.js` because it adapts first-party historical and score evidence.
 - `strategy-builder-core.js` and `strategy-builder.js` load after Champion vs Challenger so the Builder can consume the reduced J6 handoff shape without coupling to raw CSV; SQX Views handoff is resolved at click time through the later `view-creator.js` runtime contract.
 - `vendor/jszip.min.js` loads before Template Maker because local/offline `.sqx` parsing and C2 export cannot depend on a CDN.
@@ -145,6 +147,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/core.js` | SQX namespace, module registry, ready queue, shared guards. |
 | `modules/config.js` | Central access to UI/config manifests and dynamic values. |
 | `modules/storage.js` | Local state persistence, safe JSON access, strategy state. |
+| `modules/modal-registry.js` | Registry of active modals, user-visible trace helpers and the shared decision modal for critical reset/delete/import/restore actions. |
 | `modules/state-backup.js` | Dashboard local-state snapshot and restore UI against the local backup API, limited to non-sensitive localStorage keys. |
 | `modules/ui.js` | Shared DOM/UI helpers and tab helpers. |
 | `modules/formatters.js` | Display formatting, escaping, labels, badges. |

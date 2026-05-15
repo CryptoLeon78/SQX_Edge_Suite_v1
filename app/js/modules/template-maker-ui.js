@@ -12,6 +12,13 @@
     return global.document.getElementById(id);
   }
 
+  function confirmTrace(options, fallbackMessage) {
+    if (SQX.modalRegistry && SQX.modalRegistry.confirm) {
+      return SQX.modalRegistry.confirm(options || {});
+    }
+    return Promise.resolve(!global.confirm || global.confirm(fallbackMessage || (options && options.message) || 'Confirmar accion'));
+  }
+
   function init() {
     var tm = SQX.templateMaker;
     if (!tm) return;
@@ -75,7 +82,13 @@
     });
     bindClick('tm-reset-results-btn', function() {
       if (!SQX.templateMaker.clearResultStrategies) return;
-      if (!global.confirm || global.confirm('Resetear todos los resultados cargados en Template Maker? Perfil y umbrales se conservan.')) {
+      confirmTrace({
+        title: 'Reset resultados Template Maker',
+        message: 'Resetear todos los resultados cargados en Template Maker. Perfil y umbrales se conservan.',
+        confirmLabel: 'Reset resultados',
+        trace: ['Destino: IndexedDB SQXTemplateMakerDB', 'Borra: estrategias cargadas', 'Conserva: perfil, umbrales y ajustes']
+      }, 'Resetear todos los resultados cargados en Template Maker? Perfil y umbrales se conservan.').then(function(ok) {
+        if (!ok) return;
         SQX.templateMaker.clearResultStrategies().then(function(summary) {
           page = 1;
           selectedStrategyIds = {};
@@ -85,7 +98,7 @@
           setStatus('Resultados limpiados: ' + summary.removed + ' estrategias eliminadas.');
           renderAll();
         });
-      }
+      });
     });
     bindClick('tm-delete-selected-btn', function() {
       if (!SQX.templateMaker.deleteResultStrategies) return;
@@ -94,14 +107,20 @@
         setStatus('Selecciona una o varias estrategias antes de borrar.', true);
         return;
       }
-      if (!global.confirm || global.confirm('Borrar ' + selected.length + ' estrategias seleccionadas de Template Maker?')) {
+      confirmTrace({
+        title: 'Borrar seleccionadas',
+        message: 'Borrar ' + selected.length + ' estrategias seleccionadas de Template Maker.',
+        confirmLabel: 'Borrar seleccionadas',
+        trace: ['Destino: IndexedDB SQXTemplateMakerDB', 'Impacto: se recalculan contrato, diversidad y acciones C2', 'Recuperacion: recargar CSV/SQX']
+      }, 'Borrar ' + selected.length + ' estrategias seleccionadas de Template Maker?').then(function(ok) {
+        if (!ok) return;
         SQX.templateMaker.deleteResultStrategies(selected).then(function(summary) {
           page = 1;
           selectedStrategyIds = {};
           setStatus('Estrategias seleccionadas eliminadas: ' + summary.removed + '.');
           renderAll();
         });
-      }
+      });
     });
     bindClick('tm-c2-selected-btn', function() {
       var selected = getSelectedStrategyIds();
@@ -119,13 +138,19 @@
       openC2(strategy._id);
     });
     bindClick('tm-reset-btn', function() {
-      if (!global.confirm || global.confirm('Resetear estrategias y configuracion de Template Maker?')) {
+      confirmTrace({
+        title: 'Reset completo Template Maker',
+        message: 'Resetear estrategias y configuracion de Template Maker.',
+        confirmLabel: 'Reset Template Maker',
+        trace: ['Destino: IndexedDB SQXTemplateMakerDB', 'Borra: estrategias y configuracion interna', 'Recuperacion: recargar fuentes y view obligatoria']
+      }, 'Resetear estrategias y configuracion de Template Maker?').then(function(ok) {
+        if (!ok) return;
         SQX.templateMaker.reset().then(function() {
           selectedStrategyIds = {};
           setStatus('Template Maker limpio.');
           renderAll();
         });
-      }
+      });
     });
     bindClick('tm-audit-btn', openAudit);
     bindClick('tm-audit-close', closeAudit);
@@ -646,7 +671,21 @@
     var content = byId('tm-audit-content');
     var modal = byId('tm-modal-audit');
     if (!content || !modal) return;
-    content.innerHTML = '<div class="tm-audit-grid">' +
+    var records = SQX.templateMaker.getStrategyRecords ? SQX.templateMaker.getStrategyRecords() : SQX.templateMaker.getStrategies();
+    var firstCsv = (records || []).find(function(item) { return item && item.sources && item.sources.csv; }) || {};
+    var firstProvenance = firstCsv.provenance || {};
+    var firstSource = firstCsv.sources && firstCsv.sources.csv || {};
+    var traceItems = [
+      'Contrato: ' + (firstProvenance.schemaVersion || firstProvenance.certVersion || 'template-maker-cert-v2'),
+      'View: ' + (firstProvenance.viewName || firstSource.viewName || 'no detectada'),
+      'CSV: ' + (firstSource.filename || 'no cargado'),
+      'Registros: ' + (records || []).length,
+      'Pendientes: ' + SQX.templateMaker.getIncompleteRecords().length
+    ];
+    var traceHtml = SQX.modalRegistry && SQX.modalRegistry.tracePanelHtml
+      ? SQX.modalRegistry.tracePanelHtml('Origen y contrato de auditoria', traceItems)
+      : '';
+    content.innerHTML = traceHtml + '<div class="tm-audit-grid">' +
       auditTile('Total', report.total) +
       auditTile('Passed', report.passed + ' (' + report.passedPct + '%)') +
       auditTile('Review', report.review) +
