@@ -53,6 +53,37 @@
     bridgeStructuralThreshold: 0.45,
     metrics: DIVERSITY_METRICS.slice()
   };
+  var C2_BLOCKSETTINGS = {
+    tendencia: 'BS_Tendencia',
+    bs_tendencia: 'BS_Tendencia',
+    momentum: 'BS_Momentum',
+    bs_momentum: 'BS_Momentum',
+    volatilidad: 'BS_Volatilidad',
+    bs_volatilidad: 'BS_Volatilidad',
+    regimen: 'BS_Regimen',
+    regime: 'BS_Regimen',
+    bs_regimen: 'BS_Regimen',
+    bs_regime: 'BS_Regimen',
+    sr: 'BS_SoporteResistencia',
+    soporte_resistencia: 'BS_SoporteResistencia',
+    soporteresistencia: 'BS_SoporteResistencia',
+    bs_soporte_resistencia: 'BS_SoporteResistencia',
+    bs_soporteresistencia: 'BS_SoporteResistencia',
+    volumen: 'BS_Volumen',
+    volume: 'BS_Volumen',
+    bs_volumen: 'BS_Volumen',
+    bs_volume: 'BS_Volumen',
+    estadistico: 'BS_Estadistico',
+    estadistica: 'BS_Estadistico',
+    statistical: 'BS_Estadistico',
+    bs_estadistico: 'BS_Estadistico',
+    bs_estadistica: 'BS_Estadistico',
+    filtros: 'BS_Filtros_v5',
+    bs_filtros: 'BS_Filtros_v5',
+    bs_filtros_v5: 'BS_Filtros_v5',
+    custom: 'BS_Custom',
+    bs_custom: 'BS_Custom'
+  };
   var METRIC_ALIASES = {
     'Strategy Name': ['Strategy Name', 'Name', 'Strategy'],
     Symbol: ['Symbol', 'Market', 'Instrument'],
@@ -567,15 +598,29 @@
     return extractLogicFeaturesFromText(source);
   }
 
+  function createFeatureBag() {
+    return { indicators: [], indicatorLabelsByToken: {}, operators: [], params: [], rules: [] };
+  }
+
+  function addIndicatorFeature(features, rawValue) {
+    var indicator = normalizeFeatureToken(rawValue);
+    if (!indicator) return '';
+    features.indicators.push(indicator);
+    features.indicatorLabelsByToken = features.indicatorLabelsByToken || {};
+    if (!features.indicatorLabelsByToken[indicator]) {
+      features.indicatorLabelsByToken[indicator] = humanizeIndicatorName(rawValue || indicator);
+    }
+    return indicator;
+  }
+
   function extractLogicFeaturesFromDoc(doc) {
-    var features = { indicators: [], operators: [], params: [], rules: [] };
+    var features = createFeatureBag();
     Array.prototype.forEach.call(doc.querySelectorAll('Item'), function(item) {
       var category = item.getAttribute('categoryType') || '';
       var key = item.getAttribute('key') || item.getAttribute('name') || item.getAttribute('mI') || '';
       if (category === 'indicator') {
-        var indicator = normalizeFeatureToken(key || item.getAttribute('mI') || item.getAttribute('name'));
+        var indicator = addIndicatorFeature(features, key || item.getAttribute('mI') || item.getAttribute('name'));
         if (indicator) {
-          features.indicators.push(indicator);
           Array.prototype.forEach.call(item.querySelectorAll('Param'), function(param) {
             var paramKey = normalizeFeatureToken(param.getAttribute('key') || param.getAttribute('name'));
             if (paramKey) features.params.push(indicator + ':' + paramKey + '=' + normalizeParamValue(param.textContent || param.getAttribute('defaultValue') || ''));
@@ -594,14 +639,13 @@
   }
 
   function extractLogicFeaturesFromText(xml) {
-    var features = { indicators: [], operators: [], params: [], rules: [] };
+    var features = createFeatureBag();
     String(xml || '').replace(/<Item\b[^>]*>/gi, function(tag) {
       var attrs = parseXmlAttributes(tag);
       var category = attrs.categoryType || attrs.categorytype || '';
       var key = attrs.key || attrs.name || attrs.mI || attrs.mi || '';
       if (category === 'indicator') {
-        var indicator = normalizeFeatureToken(key);
-        if (indicator) features.indicators.push(indicator);
+        addIndicatorFeature(features, key);
       } else if (category === 'operators' || /cross|above|below|and|or|not|greater|less/i.test(key)) {
         var operator = normalizeFeatureToken(key);
         if (operator) features.operators.push(operator);
@@ -614,7 +658,7 @@
     });
     String(xml || '').replace(/<Item\b[^>]*categoryType="indicator"[^>]*>[\s\S]*?<\/Item>/gi, function(block) {
       var itemAttrs = parseXmlAttributes(block.split('>')[0] + '>');
-      var indicator = normalizeFeatureToken(itemAttrs.key || itemAttrs.name || itemAttrs.mI || itemAttrs.mi || '');
+      var indicator = addIndicatorFeature(features, itemAttrs.key || itemAttrs.name || itemAttrs.mI || itemAttrs.mi || '');
       if (!indicator) return block;
       block.replace(/<Param\b[^>]*>([\s\S]*?)<\/Param>/gi, function(tag, value) {
         var attrs = parseXmlAttributes(tag);
@@ -644,6 +688,26 @@
       .replace(/^_+|_+$/g, '');
   }
 
+  function humanizeIndicatorName(value) {
+    var raw = String(value || '').replace(/&quot;|&amp;quot;/g, '').trim();
+    if (!raw) return '';
+    raw = raw
+      .replace(/[_-]+/g, ' ')
+      .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+      .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+      .replace(/\bAtr\b/g, 'ATR')
+      .replace(/\bMacd\b/g, 'MACD')
+      .replace(/\bEma\b/g, 'EMA')
+      .replace(/\bSma\b/g, 'SMA')
+      .replace(/\bRsi\b/g, 'RSI')
+      .replace(/\bCci\b/g, 'CCI')
+      .replace(/\bKer\b/g, 'KER')
+      .replace(/\bVwap\b/g, 'VWAP')
+      .replace(/\s+/g, ' ')
+      .trim();
+    return raw || String(value || '');
+  }
+
   function normalizeParamValue(value) {
     var raw = String(value || '').trim();
     var numeric = getNumeric(raw);
@@ -662,6 +726,10 @@
       params: uniqueSorted(features.params),
       rules: uniqueSorted(features.rules)
     };
+    var labelsByToken = features.indicatorLabelsByToken || {};
+    out.indicatorLabels = out.indicators.map(function(token) {
+      return labelsByToken[token] || humanizeIndicatorName(token);
+    });
     out.signature = uniqueSorted([].concat(out.indicators, out.operators, out.params, out.rules)).join('|');
     return out;
   }
@@ -1311,6 +1379,125 @@
       && (diversity.status === 'Diverso' || diversity.status === 'Ganador cluster');
   }
 
+  function formatLogicIndicators(strategy) {
+    var features = extractLogicFeatures(strategy);
+    var tokens = uniqueSorted(features.indicators || []);
+    var labels = Array.isArray(features.indicatorLabels) && features.indicatorLabels.length
+      ? features.indicatorLabels.slice()
+      : tokens.map(humanizeIndicatorName);
+    var labelMap = {};
+    labels.forEach(function(label, index) {
+      if (tokens[index]) labelMap[tokens[index]] = label;
+    });
+    labels = tokens.map(function(token) {
+      return labelMap[token] || humanizeIndicatorName(token);
+    }).filter(Boolean);
+    var compact = tokens.length ? tokens.slice(0, 3).join('_') : 'SIN_INDICADOR';
+    if (tokens.length > 3) compact += '_plus' + String(tokens.length - 3);
+    return {
+      tokens: tokens,
+      labels: labels,
+      display: labels.length ? labels.join(', ') : 'SIN_INDICADOR',
+      compact: compact
+    };
+  }
+
+  function normalizeBlockSetting(value) {
+    var raw = String(value || '').trim();
+    if (!raw) return '';
+    var token = normalizeFeatureToken(raw);
+    if (C2_BLOCKSETTINGS[token]) return C2_BLOCKSETTINGS[token];
+    if (/^bs_/i.test(raw)) return traceNamePart(raw, 'BS_Custom');
+    return '';
+  }
+
+  function normalizeClusterId(value) {
+    var raw = String(value || '').trim();
+    if (!raw || raw === '-') return 'CL00';
+    var digits = raw.match(/\d+/);
+    if (digits) return 'CL' + String(parseInt(digits[0], 10)).padStart(2, '0');
+    var token = traceNamePart(raw, 'CL00').toUpperCase();
+    return token.indexOf('CL') === 0 ? token : 'CL_' + token;
+  }
+
+  function normalizeC2Direction(value) {
+    var raw = String(value || '').trim().toUpperCase();
+    if (raw === 'L' || raw === 'LONG_ONLY' || raw === 'LONG') return 'LONG';
+    if (raw === 'S' || raw === 'SHORT_ONLY' || raw === 'SHORT') return 'SHORT';
+    if (raw === 'L+S' || raw === 'LS' || raw === 'LONG_SHORT' || raw === 'BOTH') return 'BOTH';
+    return raw || 'BOTH';
+  }
+
+  function firstText(strategy, keys) {
+    for (var i = 0; i < keys.length; i += 1) {
+      var value = strategy && strategy[keys[i]];
+      if (value !== undefined && value !== null && String(value).trim() !== '') return String(value).trim();
+    }
+    return '';
+  }
+
+  function traceNamePart(value, fallback) {
+    var text = String(value === undefined || value === null || value === '' ? fallback : value);
+    if (text.normalize) text = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    text = text
+      .replace(/&quot;|&amp;quot;/g, '')
+      .replace(/[^A-Za-z0-9_.-]+/g, '_')
+      .replace(/^_+|_+$/g, '')
+      .replace(/_{2,}/g, '_');
+    return text || fallback || 'NA';
+  }
+
+  function resolveC2Trace(strategy, overrides) {
+    var opts = overrides || {};
+    var indicators = formatLogicIndicators(strategy);
+    var diversity = getDiversityStatus(strategy);
+    var blockSetting = normalizeBlockSetting(
+      opts.blockSetting || opts.block || firstText(strategy, ['BlockSetting', 'blocksetting', 'BS', 'bs', 'Block', 'block'])
+    ) || 'BS_Custom';
+    var sourceName = opts.sourceStrategyName || firstText(strategy, ['Strategy Name', 'name']) || String(strategy && strategy._id || '0');
+    var indicatorBase = String(opts.indicatorBase || opts.indicator || indicators.compact || '').trim() || 'SIN_INDICADOR';
+    var clusterId = normalizeClusterId(opts.clusterId || opts.numCluster || diversity.clusterId || '');
+    var trace = {
+      asset: traceNamePart(opts.asset || firstText(strategy, ['Symbol', 'Asset']) || 'Asset', 'Asset'),
+      blockSetting: blockSetting,
+      indicatorBase: traceNamePart(indicatorBase, 'SIN_INDICADOR'),
+      indicatorDisplay: indicators.display,
+      indicatorTokens: indicators.tokens,
+      clusterId: clusterId,
+      direction: normalizeC2Direction(opts.direction || firstText(strategy, ['Direction', 'direction', 'Dir', 'dir']) || 'BOTH'),
+      timeframe: traceNamePart(opts.timeframe || firstText(strategy, ['TimeFrame', 'Timeframe', 'TF', 'tf']) || 'TF', 'TF'),
+      sourceStrategyName: traceNamePart(sourceName, 'Strategy_0'),
+      sourceStrategyDisplay: sourceName,
+      diversityStatus: diversity.status || 'No evaluable',
+      missing: []
+    };
+    if (trace.indicatorBase === 'SIN_INDICADOR') trace.missing.push('Indicador base');
+    if (trace.clusterId === 'CL00') trace.missing.push('NumCluster');
+    if (trace.blockSetting === 'BS_Custom') trace.missing.push('BlockSetting');
+    trace.name = buildC2TemplateName(strategy, trace);
+    return trace;
+  }
+
+  function buildC2TemplateName(strategy, options) {
+    var opts = options || {};
+    var parts = [
+      'template',
+      opts.asset || firstText(strategy, ['Symbol', 'Asset']) || 'Asset',
+      opts.blockSetting || opts.block || firstText(strategy, ['BlockSetting', 'blocksetting', 'BS', 'bs', 'Block', 'block']) || 'BS_Custom',
+      opts.indicatorBase || opts.indicator || formatLogicIndicators(strategy).compact || 'SIN_INDICADOR',
+      opts.clusterId || opts.numCluster || getDiversityStatus(strategy).clusterId || 'CL00',
+      opts.direction || firstText(strategy, ['Direction', 'direction', 'Dir', 'dir']) || 'BOTH',
+      opts.timeframe || firstText(strategy, ['TimeFrame', 'Timeframe', 'TF', 'tf']) || 'TF',
+      opts.sourceStrategyName || firstText(strategy, ['Strategy Name', 'name']) || String(strategy && strategy._id || '0')
+    ];
+    return parts.map(function(part, index) {
+      if (index === 2) return traceNamePart(normalizeBlockSetting(part) || part, 'BS_Custom');
+      if (index === 4) return traceNamePart(normalizeClusterId(part), 'CL00');
+      if (index === 5) return traceNamePart(normalizeC2Direction(part), 'BOTH');
+      return traceNamePart(part, index === 3 ? 'SIN_INDICADOR' : 'NA');
+    }).join('_');
+  }
+
   function getIncompleteRecords() {
     return scoreAll().filter(function(item) {
       return getStrategyStatus(item.strategy, item.score) !== 'Lista para C2';
@@ -1511,11 +1698,12 @@
     if (!strategy || !strategy._fileData) return Promise.reject(new Error('La estrategia no tiene .sqx de origen'));
     if (!canGenerateC2(strategy)) return Promise.reject(new Error('Requiere .sqx, CSV Template Maker Cert compatible, estado PASSED y diversidad aprobada.'));
     if (!global.JSZip) return Promise.reject(new Error('JSZip no esta cargado'));
+    var trace = resolveC2Trace(strategy, options || {});
     return global.JSZip.loadAsync(strategy._fileData).then(function(zip) {
       var file = zip.file('strategy_Portfolio.xml');
       if (!file) throw new Error('strategy_Portfolio.xml no existe en el .sqx');
       return file.async('string').then(function(xml) {
-        return patchStrategyXml(xml, strategy, options || {});
+        return patchStrategyXml(xml, strategy, trace);
       }).then(function(xml) {
         zip.file('strategy_Portfolio.xml', xml);
         return zip.generateAsync({ type: 'blob' });
@@ -1533,7 +1721,7 @@
     var stratNode = doc.querySelector('Strategy');
     if (stratNode) stratNode.setAttribute('allowRandom', 'true');
     var opts = doc.querySelector('options StrategyName');
-    if (opts) opts.textContent = buildTemplateName(strategy, options);
+    if (opts) opts.textContent = buildC2TemplateName(strategy, options);
     return new global.XMLSerializer().serializeToString(doc);
   }
 
@@ -1614,16 +1802,7 @@
   }
 
   function buildTemplateName(strategy, options) {
-    var parts = [
-      'template',
-      options.asset || strategy.Symbol || 'Asset',
-      options.direction || 'BOTH',
-      options.timeframe || strategy.TimeFrame || 'TF',
-      options.indicator || 'IND',
-      options.block || 'EDGE',
-      String(strategy['Strategy Name'] || strategy._id || '0').replace(/\s+/g, '_')
-    ];
-    return parts.join('_').replace(/[^A-Za-z0-9_.-]+/g, '_');
+    return buildC2TemplateName(strategy, options || {});
   }
 
   function exportTemplateZip(strategies) {
@@ -1804,6 +1983,7 @@
     validateMetricsContract: validateMetricsContract,
     getContractDiagnostics: getContractDiagnostics,
     extractLogicFeatures: extractLogicFeatures,
+    formatLogicIndicators: formatLogicIndicators,
     computeTemplateSimilarity: computeTemplateSimilarity,
     buildDiversityClusters: buildDiversityClusters,
     getDiversityReport: getDiversityReport,
@@ -1817,6 +1997,8 @@
     scoreStrategy: scoreStrategy,
     scoreAll: scoreAll,
     getAuditReport: getAuditReport,
+    resolveC2Trace: resolveC2Trace,
+    buildC2TemplateName: buildC2TemplateName,
     generateC2Template: generateC2Template,
     exportTemplateZip: exportTemplateZip,
     dbInit: dbInit,

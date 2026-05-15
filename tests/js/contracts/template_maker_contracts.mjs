@@ -39,6 +39,7 @@ const requiredApi = [
   'validateMetricsContract',
   'getContractDiagnostics',
   'extractLogicFeatures',
+  'formatLogicIndicators',
   'computeTemplateSimilarity',
   'buildDiversityClusters',
   'getDiversityReport',
@@ -51,6 +52,8 @@ const requiredApi = [
   'setThreshold',
   'scoreStrategy',
   'getAuditReport',
+  'resolveC2Trace',
+  'buildC2TemplateName',
   'generateC2Template',
   'exportTemplateZip',
   'dbInit',
@@ -70,6 +73,9 @@ assert.ok(html.includes('id="tm-contract-diagnostics"'), 'missing contract diagn
 assert.ok(html.includes('id="tm-diversity-settings-grid"'), 'missing diversity settings grid');
 assert.ok(html.includes('Descorrelación de templates'), 'Template Maker should expose diversity controls');
 assert.ok(html.includes('id="tm-c2-selected-btn"'), 'missing external selected C2 action');
+assert.ok(html.includes('id="tm-c2-cluster"'), 'missing C2 cluster trace field');
+assert.ok(html.includes('id="tm-c2-name-preview"'), 'missing C2 traceable filename preview');
+assert.ok(html.includes('value="BS_Tendencia"'), 'C2 block selector should use BS_* values');
 assert.ok(html.includes('id="tm-reset-results-btn"'), 'missing results reset');
 assert.ok(html.includes('Reset resultados'), 'results reset should be user-facing');
 assert.ok(html.includes('id="tm-delete-selected-btn"'), 'missing selected delete action');
@@ -117,6 +123,11 @@ assert.equal(emptyScore.classification, 'FAILED', 'empty score should fail defen
 assert.equal(emptyScore.total, 0, 'empty score should not count missing KPI as evaluated');
 assert.equal(tm.getDiversitySettings().structuralThreshold, 0.70, 'default structural diversity threshold should be 0.70');
 assert.equal(tm.extractLogicFeatures({ _strategyXml: '<Strategy><Rule name="Long entry"><Item categoryType="indicator" key="EMA"><Param key="#Period#">21</Param></Item></Rule></Strategy>' }).indicators[0], 'ema', 'logic extraction should read indicator keys from SQX XML');
+const sqxXmlFixture = fs.readFileSync(path.join(repoRoot, 'resources/template-maker-tool/strategy_example.xml')).toString('utf16le');
+const sqxXmlFeatures = tm.extractLogicFeatures({ _strategyXml: sqxXmlFixture });
+assert.ok(sqxXmlFeatures.indicators.length > 0, 'tracked SQX XML fixture should expose indicator tokens');
+assert.ok(sqxXmlFeatures.indicatorLabels.length > 0, 'SQX indicator extraction should keep readable indicator labels');
+assert.equal(tm.formatLogicIndicators({ _strategyXml: '<Strategy><Item categoryType="indicator" key="HullMovingAverageATRBands"/></Strategy>' }).compact, 'hullmovingaverageatrbands', 'logic formatter should expose compact indicator token for names');
 
 const certV2Csv = fs.readFileSync(path.join(repoRoot, 'resources/template-maker-tool/template_maker_cert_v2_sample.csv'), 'utf8');
 ['Strategy TM.01.sqx', 'Strategy TM.02.sqx', 'Strategy TM.03.sqx'].forEach(fileName => {
@@ -211,6 +222,16 @@ assert.equal(div03.status, 'Diverso', 'structurally different template should st
 assert.equal(tm.canGenerateC2(diversityStrategies.find(strategy => strategy['Strategy Name'] === 'TM Div 01')), false, 'non-winner cluster member should not generate C2');
 assert.equal(tm.canGenerateC2(diversityStrategies.find(strategy => strategy['Strategy Name'] === 'TM Div 02')), true, 'cluster winner should generate C2');
 assert.equal(tm.canGenerateC2(diversityStrategies.find(strategy => strategy['Strategy Name'] === 'TM Div 03')), true, 'diverse singleton should generate C2');
+const c2Winner = diversityStrategies.find(strategy => strategy['Strategy Name'] === 'TM Div 02');
+const c2Trace = tm.resolveC2Trace(c2Winner, { blockSetting: 'BS_Tendencia', direction: 'LONG' });
+assert.equal(c2Trace.indicatorBase, 'hma_atr_bands', 'C2 trace should prefill indicator base from logic features');
+assert.equal(c2Trace.clusterId, div02.clusterId, 'C2 trace should prefill NumCluster from diversity status');
+assert.equal(c2Trace.blockSetting, 'BS_Tendencia', 'C2 trace should keep BS_* blocksetting');
+assert.ok(c2Trace.name.includes('BS_Tendencia'), 'C2 name should include blocksetting');
+assert.ok(c2Trace.name.includes('hma_atr_bands'), 'C2 name should include base indicator');
+assert.ok(c2Trace.name.includes(div02.clusterId), 'C2 name should include cluster id');
+assert.ok(c2Trace.name.includes('TM_Div_02'), 'C2 name should include source strategy');
+assert.equal(tm.buildC2TemplateName(c2Winner, c2Trace), c2Trace.name, 'C2 name builder should be the single source of truth');
 await tm.setDiversitySetting('structuralThreshold', 0.99);
 assert.equal(tm.getDiversitySettings().structuralThreshold, 0.99, 'diversity setting should be editable');
 await tm.clearResultStrategies();

@@ -13,11 +13,13 @@ UX-NAV now runs as a sequential tab-by-tab optimization track.
 
 ## Current Active Tab
 
-`Mining Control` paused for TM-FIX2
+`Mining Control` paused for TM-TRACE1
 
 Project Generator is closed as a guided `.cfx` assistant. Mining Control is reopened as the active pass for a focused operational cleanup.
 
 Temporary repair/enrichment pause: TM-DIV1 adds a hybrid diversity gate to Template Maker after the TM-FIX2 CSV contract repair. This does not advance the UX-NAV tab order and does not reopen Template Maker as a design pass; it prevents redundant C2 templates by clustering similar `.sqx` logic plus CSV metric behavior before Mining Control resumes.
+
+Traceability hardening pause: TM-TRACE1 makes Template Maker C2 generation carry asset, BlockSetting, base indicator, NumCluster, direction, timeframe and source strategy in the generated filename and internal `StrategyName`. This is a product invariant before returning to Mining Control because C2 templates must be traceable from source to output.
 
 Active correction: `Foco operativo` and `Precarga desde Por Activo` are retired completely from the visible UI. `Plan mining` remains the single source of truth, and rows added from asset cards are identified in-table with the source tag `TARJETA`, alongside manual rows tagged as `MANUAL`.
 

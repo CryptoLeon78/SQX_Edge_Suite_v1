@@ -650,6 +650,61 @@ async function run() {
     }
     await desktop.locator('#tm-results-table [data-tm-select]').nth(1).check();
     await desktop.waitForFunction(() => !document.getElementById('tm-c2-selected-btn')?.disabled);
+    await desktop.locator('#tm-c2-selected-btn').click();
+    await desktop.waitForSelector('#tm-modal-c2:not([hidden])');
+    await desktop.waitForFunction(() => (document.getElementById('tm-c2-indicator')?.value || '').length > 0);
+    await desktop.waitForFunction(() => /^CL\d+/.test(document.getElementById('tm-c2-cluster')?.value || ''));
+    const c2TraceInitial = await desktop.evaluate(() => ({
+      indicator: document.getElementById('tm-c2-indicator')?.value || '',
+      cluster: document.getElementById('tm-c2-cluster')?.value || '',
+      block: document.getElementById('tm-c2-block')?.value || '',
+      detected: document.getElementById('tm-c2-indicators-detected')?.textContent || '',
+      preview: document.getElementById('tm-c2-name-preview')?.textContent || '',
+    }));
+    if (!c2TraceInitial.indicator || c2TraceInitial.indicator === 'SIN_INDICADOR') {
+      throw new Error('Template Maker C2 modal should prefill the base indicator from SQX logic');
+    }
+    if (!c2TraceInitial.cluster.startsWith('CL')) throw new Error('Template Maker C2 modal should prefill NumCluster');
+    if (!c2TraceInitial.block.startsWith('BS_')) throw new Error('Template Maker C2 modal should use BS_* blocksettings');
+    ['template_', c2TraceInitial.indicator, c2TraceInitial.cluster, c2TraceInitial.block].forEach(expected => {
+      if (!c2TraceInitial.preview.includes(expected)) throw new Error(`C2 filename preview should include ${expected}`);
+    });
+    if (!c2TraceInitial.detected || c2TraceInitial.detected === '-') {
+      throw new Error('Template Maker C2 modal should show detected indicators');
+    }
+    await desktop.locator('#tm-c2-indicator').fill(`${c2TraceInitial.indicator}_custom`);
+    await desktop.locator('#tm-c2-cluster').fill('CL09');
+    await desktop.waitForFunction(() => {
+      const preview = document.getElementById('tm-c2-name-preview')?.textContent || '';
+      return preview.includes('_custom') && preview.includes('CL09');
+    });
+    const generatedC2Trace = await desktop.evaluate(async () => {
+      const strategyId = document.getElementById('tm-modal-c2')?.dataset.strategyId;
+      const strategy = window.SQX.templateMaker.getStrategies().find(item => String(item._id) === String(strategyId));
+      const options = {
+        asset: document.getElementById('tm-c2-asset')?.value,
+        direction: document.getElementById('tm-c2-direction')?.value,
+        timeframe: document.getElementById('tm-c2-tf')?.value,
+        indicatorBase: document.getElementById('tm-c2-indicator')?.value,
+        clusterId: document.getElementById('tm-c2-cluster')?.value,
+        blockSetting: document.getElementById('tm-c2-block')?.value,
+      };
+      const trace = window.SQX.templateMaker.resolveC2Trace(strategy, options);
+      const blob = await window.SQX.templateMaker.generateC2Template(strategy, options);
+      const zip = await window.JSZip.loadAsync(blob);
+      const xml = await zip.file('strategy_Portfolio.xml').async('string');
+      return {
+        name: trace.name,
+        xmlHasName: xml.includes(`<StrategyName>${trace.name}</StrategyName>`),
+      };
+    });
+    if (!generatedC2Trace.name.includes('CL09') || !generatedC2Trace.name.includes('_custom')) {
+      throw new Error('Generated C2 trace name should include edited indicator and cluster');
+    }
+    if (!generatedC2Trace.xmlHasName) {
+      throw new Error('Generated C2 SQX should write the traceable name into StrategyName');
+    }
+    await desktop.locator('#tm-c2-cancel').click();
     await desktop.locator('#tm-results-table [data-tm-select]').nth(1).uncheck();
     await desktop.locator('#tm-results-table [data-tm-select]').first().check();
     await desktop.waitForFunction(() => document.getElementById('tm-c2-selected-btn')?.disabled === true);

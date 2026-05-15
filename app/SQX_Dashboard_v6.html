@@ -1313,8 +1313,16 @@
           <label><span>Activo</span><input class="search-input" id="tm-c2-asset" type="text"></label>
           <label><span>Direccion</span><select class="filter-select" id="tm-c2-direction"><option value="LONG">LONG</option><option value="SHORT">SHORT</option><option value="BOTH">BOTH</option></select></label>
           <label><span>Timeframe</span><input class="search-input" id="tm-c2-tf" type="text"></label>
-          <label><span>Indicador base</span><input class="search-input" id="tm-c2-indicator" type="text" placeholder="EMA, ICHIMOKU..."></label>
-          <label><span>Bloque</span><select class="filter-select" id="tm-c2-block"><option value="TENDENCIA">TENDENCIA</option><option value="MOMENTUM">MOMENTUM</option><option value="VOLATILIDAD">VOLATILIDAD</option><option value="REGIMEN">REGIMEN</option><option value="SR">SOPORTE/RESISTENCIA</option><option value="VOLUMEN">VOLUMEN</option><option value="ESTADISTICO">ESTADISTICO</option></select></label>
+          <label><span>Indicador base</span><input class="search-input" id="tm-c2-indicator" type="text" placeholder="Auto desde .sqx"></label>
+          <label><span>NumCluster</span><input class="search-input" id="tm-c2-cluster" type="text" placeholder="CL01"></label>
+          <label><span>Bloque</span><select class="filter-select" id="tm-c2-block"><option value="BS_Tendencia">BS_Tendencia</option><option value="BS_Momentum">BS_Momentum</option><option value="BS_Volatilidad">BS_Volatilidad</option><option value="BS_Regimen">BS_Regimen</option><option value="BS_SoporteResistencia">BS_SoporteResistencia</option><option value="BS_Volumen">BS_Volumen</option><option value="BS_Estadistico">BS_Estadistico</option><option value="BS_Custom">BS_Custom</option></select></label>
+        </div>
+        <div class="tm-c2-trace">
+          <span>Indicadores detectados</span>
+          <strong id="tm-c2-indicators-detected">-</strong>
+          <span>Nombre final trazable</span>
+          <code id="tm-c2-name-preview">-</code>
+          <small id="tm-c2-trace-warning" hidden></small>
         </div>
         <button class="export-btn tm-c2-confirm" id="tm-c2-confirm" type="button">Generar .sqx C2</button>
       </div>

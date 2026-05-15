@@ -131,6 +131,10 @@
     bindClick('tm-audit-close', closeAudit);
     bindClick('tm-c2-cancel', closeC2);
     bindClick('tm-c2-confirm', confirmC2);
+    ['tm-c2-asset', 'tm-c2-direction', 'tm-c2-tf', 'tm-c2-indicator', 'tm-c2-cluster', 'tm-c2-block'].forEach(function(id) {
+      var el = byId(id);
+      if (el) el.addEventListener(el.tagName === 'SELECT' ? 'change' : 'input', renderC2TracePreview);
+    });
   }
 
   function bindClick(id, handler) {
@@ -672,10 +676,19 @@
     });
     var modal = byId('tm-modal-c2');
     if (!strategy || !modal) return;
+    var trace = SQX.templateMaker.resolveC2Trace(strategy, {
+      direction: byId('tm-c2-direction') && byId('tm-c2-direction').value || '',
+      blockSetting: byId('tm-c2-block') && byId('tm-c2-block').value || 'BS_Tendencia'
+    });
     modal.dataset.strategyId = strategy._id;
-    byId('tm-c2-asset').value = strategy.Symbol || '';
-    byId('tm-c2-tf').value = strategy.TimeFrame || '';
+    byId('tm-c2-asset').value = trace.asset || strategy.Symbol || '';
+    byId('tm-c2-tf').value = trace.timeframe || strategy.TimeFrame || '';
+    byId('tm-c2-indicator').value = trace.indicatorBase || 'SIN_INDICADOR';
+    byId('tm-c2-cluster').value = trace.clusterId || 'CL00';
+    setSelectValue('tm-c2-direction', trace.direction || 'BOTH');
+    setSelectValue('tm-c2-block', trace.blockSetting || 'BS_Tendencia');
     modal.hidden = false;
+    renderC2TracePreview();
   }
 
   function closeC2() {
@@ -690,19 +703,56 @@
       return String(item._id) === String(modal.dataset.strategyId);
     });
     if (!strategy) return;
-    var options = {
-      asset: byId('tm-c2-asset').value.trim() || strategy.Symbol || 'Asset',
-      direction: byId('tm-c2-direction').value,
-      timeframe: byId('tm-c2-tf').value.trim() || strategy.TimeFrame || 'TF',
-      indicator: byId('tm-c2-indicator').value.trim() || 'IND',
-      block: byId('tm-c2-block').value
-    };
+    var options = readC2Options(strategy);
+    var trace = SQX.templateMaker.resolveC2Trace(strategy, options);
     SQX.templateMaker.generateC2Template(strategy, options).then(function(blob) {
-      downloadBlob(blob, 'template_' + options.asset + '_' + options.direction + '_' + options.timeframe + '.sqx');
+      downloadBlob(blob, trace.name + '.sqx');
+      setStatus('Template C2 generado: ' + trace.name + ' · ' + trace.blockSetting + ' · ' + trace.indicatorBase + ' · ' + trace.clusterId);
       closeC2();
     }).catch(function(err) {
       setStatus('No se pudo generar C2: ' + (err && err.message ? err.message : err), true);
     });
+  }
+
+  function readC2Options(strategy) {
+    return {
+      asset: (byId('tm-c2-asset') && byId('tm-c2-asset').value.trim()) || strategy.Symbol || 'Asset',
+      direction: byId('tm-c2-direction') && byId('tm-c2-direction').value || 'BOTH',
+      timeframe: (byId('tm-c2-tf') && byId('tm-c2-tf').value.trim()) || strategy.TimeFrame || 'TF',
+      indicatorBase: (byId('tm-c2-indicator') && byId('tm-c2-indicator').value.trim()) || 'SIN_INDICADOR',
+      clusterId: (byId('tm-c2-cluster') && byId('tm-c2-cluster').value.trim()) || 'CL00',
+      blockSetting: byId('tm-c2-block') && byId('tm-c2-block').value || 'BS_Tendencia'
+    };
+  }
+
+  function renderC2TracePreview() {
+    var modal = byId('tm-modal-c2');
+    if (!modal || modal.hidden) return;
+    var strategy = SQX.templateMaker.getStrategies().find(function(item) {
+      return String(item._id) === String(modal.dataset.strategyId);
+    });
+    if (!strategy) return;
+    var trace = SQX.templateMaker.resolveC2Trace(strategy, readC2Options(strategy));
+    var indicators = byId('tm-c2-indicators-detected');
+    var preview = byId('tm-c2-name-preview');
+    var warning = byId('tm-c2-trace-warning');
+    if (indicators) indicators.textContent = trace.indicatorDisplay || 'SIN_INDICADOR';
+    if (preview) preview.textContent = trace.name + '.sqx';
+    if (warning) {
+      warning.hidden = !trace.missing.length;
+      warning.textContent = trace.missing.length
+        ? 'Completa o confirma estos campos antes de generar: ' + trace.missing.join(', ') + '.'
+        : '';
+    }
+  }
+
+  function setSelectValue(id, value) {
+    var select = byId(id);
+    if (!select) return;
+    select.value = value;
+    if (select.value !== value && select.options && select.options.length) {
+      select.value = select.options[0].value;
+    }
   }
 
   function downloadBlob(blob, name) {
