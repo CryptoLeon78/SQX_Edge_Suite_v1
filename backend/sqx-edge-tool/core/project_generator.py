@@ -39,6 +39,22 @@ def _symbol_for_sqx(asset: str, postfix: str = DEFAULT_BROKER_POSTFIX) -> str:
     return f"{asset}{postfix}"
 
 
+def _fallback_market_shape(asset: str) -> dict:
+    token = (asset or "").upper()
+    if token.startswith("XAU"):
+        return {"tick_size": 0.01, "tick_step": 0.01, "point_value": 100.0, "sector": "Commodities", "data_type": 4}
+    if len(token) == 6 and token.isalpha():
+        is_jpy = token.endswith("JPY")
+        return {
+            "tick_size": 0.01 if is_jpy else 0.0001,
+            "tick_step": 0.001 if is_jpy else 0.00001,
+            "point_value": 1000.0 if is_jpy else 100000.0,
+            "sector": "Currency",
+            "data_type": 3,
+        }
+    return {"tick_size": 0.01, "tick_step": 0.01, "point_value": 1.0, "sector": "", "data_type": 3}
+
+
 def resolve_costs(mining: Mining, sqx_db_path: Optional[str], postfix: str = DEFAULT_BROKER_POSTFIX,
                   alias_override: Optional[dict] = None) -> dict:
     """
@@ -59,16 +75,17 @@ def resolve_costs(mining: Mining, sqx_db_path: Optional[str], postfix: str = DEF
         try:
             db = SqxDb(sqx_db_path)
             try:
-                info = db.get_symbol_info(mining.asset, alias_override=alias_override)
+                info = db.get_symbol_info(
+                    mining.asset,
+                    alias_override=alias_override,
+                    preferred_postfix=postfix,
+                )
                 if info.get("source") == "db":
-                    # Si broker_postfix es None (SQX 139), no usar postfix
-                    pf = info.get("broker_postfix")
-                    if pf is None:
-                        pf = ""
+                    pf = info.get("broker_postfix") or postfix or ""
                     return {
                         "source": "db",
                         "instrument": info["instrument"],
-                        "symbol": _symbol_for_sqx(info["instrument"], pf) if pf else info["instrument"],
+                        "symbol": info.get("data_symbol") or (_symbol_for_sqx(info["instrument"], pf) if pf else info["instrument"]),
                         "spread": info.get("spread"),
                         "slippage": info.get("slippage"),
                         "swap_long": info.get("swap_long") if info.get("swap_long") is not None else 0.0,
@@ -77,6 +94,29 @@ def resolve_costs(mining: Mining, sqx_db_path: Optional[str], postfix: str = DEF
                         "commission_type": info.get("commission_type"),
                         "commission_value": info.get("commission_value"),
                         "broker_postfix": pf,
+                        "broker_id": info.get("broker_id"),
+                        "broker_name": info.get("broker_name"),
+                        "broker_timezone": info.get("broker_timezone"),
+                        "data_type": info.get("data_type"),
+                        "tick_size": info.get("tick_size"),
+                        "tick_step": info.get("tick_step"),
+                        "point_value": info.get("point_value"),
+                        "description": info.get("description"),
+                        "min_distance": info.get("min_distance"),
+                        "commissions_xml": info.get("commissions_xml"),
+                        "swap_xml": info.get("swap_xml"),
+                        "date_from_ms": info.get("date_from_ms"),
+                        "date_to_ms": info.get("date_to_ms"),
+                        "rows": info.get("rows"),
+                        "u_symbol": info.get("u_symbol"),
+                        "u_symbol_name": info.get("u_symbol_name"),
+                        "exchange": info.get("exchange"),
+                        "country": info.get("country"),
+                        "sector": info.get("sector"),
+                        "ordersize_multiplier": info.get("ordersize_multiplier"),
+                        "ordersize_step": info.get("ordersize_step"),
+                        "data_available": bool(info.get("rows") and int(info.get("rows") or 0) > 0),
+                        "data_rows": info.get("rows"),
                     }
             finally:
                 db.close()
@@ -85,6 +125,7 @@ def resolve_costs(mining: Mining, sqx_db_path: Optional[str], postfix: str = DEF
 
     # 2) Fallback a ASSET_DEFAULTS
     d = ASSET_DEFAULTS.get(mining.asset, {"spread": 10, "swap_long": -1.0, "swap_short": -1.0})
+    shape = _fallback_market_shape(mining.asset)
     return {
         "source": "fallback",
         "instrument": mining.asset,
@@ -97,6 +138,29 @@ def resolve_costs(mining: Mining, sqx_db_path: Optional[str], postfix: str = DEF
         "commission_type": None,
         "commission_value": None,
         "broker_postfix": postfix,
+        "broker_id": 4 if postfix == "_darwinex" else None,
+        "broker_name": "Darwinex" if postfix == "_darwinex" else None,
+        "broker_timezone": "EETUS" if postfix == "_darwinex" else None,
+        "data_type": shape["data_type"],
+        "tick_size": shape["tick_size"],
+        "tick_step": shape["tick_step"],
+        "point_value": shape["point_value"],
+        "description": d.get("description") if isinstance(d, dict) and d.get("description") else mining.asset,
+        "min_distance": 0,
+        "commissions_xml": None,
+        "swap_xml": None,
+        "date_from_ms": None,
+        "date_to_ms": None,
+        "rows": None,
+        "u_symbol": mining.asset,
+        "u_symbol_name": mining.asset,
+        "exchange": "",
+        "country": "",
+        "sector": shape["sector"],
+        "ordersize_multiplier": 1.0,
+        "ordersize_step": 0.01,
+        "data_available": False,
+        "data_rows": None,
     }
 
 
@@ -152,7 +216,7 @@ def generate_project(
 
     # Aplicar patches a todos los XMLs internos del .cfx
     total_stats = {"files_patched": 0, "charts": 0, "swaps": 0, "sides": 0,
-                   "dates": 0, "paths_cleaned": 0, "commissions": 0,
+                   "dates": 0, "resources": 0, "paths_cleaned": 0, "commissions": 0,
                    "blocksettings": 0, "costs_source": costs["source"], "symbol": costs["symbol"],
                    "blocksetting": blocksetting_trace(blocksetting_entry)}
     for filename, tree in editor.iter_xml_files():
@@ -174,6 +238,7 @@ def generate_project(
             swap_type=costs.get("swap_type"),
             commission_type=costs.get("commission_type"),
             commission_value=costs.get("commission_value"),
+            resource={**costs, "asset": mining.asset},
             period=period,
             clean_paths=True,
         )
@@ -181,7 +246,7 @@ def generate_project(
             total_stats["blocksettings"] += 1
         editor.update_xml(filename, tree)
         total_stats["files_patched"] += 1
-        for k in ("charts", "swaps", "sides", "dates", "paths_cleaned", "commissions"):
+        for k in ("charts", "swaps", "sides", "dates", "resources", "paths_cleaned", "commissions"):
             total_stats[k] += stats[k]
 
     # Renombrar el proyecto en config.xml (incluye capa en el nombre)

@@ -95,7 +95,12 @@ class SqxDb:
             "SELECT * FROM INSTRUMENTS WHERE INSTRUMENT = ?", (instrument,)
         ).fetchone()
 
-    def get_symbol_info(self, asset: str, alias_override: Optional[dict] = None) -> dict:
+    def get_symbol_info(
+        self,
+        asset: str,
+        alias_override: Optional[dict] = None,
+        preferred_postfix: Optional[str] = None,
+    ) -> dict:
         """
         Devuelve la mejor data disponible para `asset`.
 
@@ -116,6 +121,13 @@ class SqxDb:
         aliases = {**ASSET_TO_INSTRUMENT_DEFAULTS, **(alias_override or {})}
         instrument = aliases.get(asset, asset)
         row = self.get_instrument_raw(instrument)
+        explicit_alias = asset in (alias_override or {}) or asset in ASSET_TO_INSTRUMENT_DEFAULTS
+        if not explicit_alias and preferred_postfix:
+            broker_instrument = f"{asset}{preferred_postfix}"
+            broker_row = self.get_instrument_raw(broker_instrument)
+            if broker_row is not None:
+                instrument = broker_instrument
+                row = broker_row
         # Si no encuentra exacto, intentar variantes comunes (ej: XAUUSD -> XAUUSD(2))
         if row is None:
             variants = [
@@ -137,8 +149,18 @@ class SqxDb:
             "description": row["DESCRIPTION"],
             "point_value": row["POINTVALUE"],
             "tick_size": row["TICKSIZE"],
+            "tick_step": _row_get(row, "TICKSTEP"),
             "spread": row["DEFAULTSPREAD"],
             "slippage": row["DEFAULTSLIPPAGE"],
+            "data_type": _row_get(row, "DATATYPE"),
+            "exchange": _row_get(row, "EXCHANGE") or "",
+            "country": _row_get(row, "COUNTRY") or "",
+            "sector": _row_get(row, "SECTOR") or "",
+            "ordersize_multiplier": _row_get(row, "ORDERSIZEMULTIPLIER"),
+            "ordersize_step": _row_get(row, "ORDERSIZESTEP"),
+            "min_distance": _row_get(row, "MIN_DISTANCE"),
+            "commissions_xml": _row_get(row, "COMMISSIONS"),
+            "swap_xml": _row_get(row, "SWAP"),
         }
         # SQX 142 tiene BROKER_ID; SQX 139 no
         if "BROKER_ID" in row.keys():
@@ -147,9 +169,82 @@ class SqxDb:
         else:
             info["broker_id"] = None
             info["broker_postfix"] = None
+        broker = self.broker_by_id(info.get("broker_id"))
+        if broker:
+            info["broker_name"] = broker.get("NAME")
+            info["broker_timezone"] = broker.get("MT_TIMEZONE")
+        data_symbol = self.best_data_symbol(
+            asset=asset,
+            instrument=instrument,
+            preferred_postfix=preferred_postfix or info.get("broker_postfix"),
+        )
+        if data_symbol:
+            info.update({
+                "data_symbol": data_symbol.get("SYMBOL"),
+                "data_timeframe": data_symbol.get("TIMEFRAME"),
+                "date_from_ms": data_symbol.get("DATEFROM"),
+                "date_to_ms": data_symbol.get("DATETO"),
+                "rows": data_symbol.get("ROWS"),
+                "u_symbol": data_symbol.get("USYMBOL") or asset,
+                "u_symbol_name": data_symbol.get("USYMBOLNAME") or asset,
+            })
+        else:
+            info.update({
+                "data_symbol": instrument,
+                "date_from_ms": None,
+                "date_to_ms": None,
+                "rows": None,
+                "u_symbol": asset,
+                "u_symbol_name": asset,
+            })
         info.update(_parse_commission_xml(row["COMMISSIONS"]))
         info.update(_parse_swap_xml(row["SWAP"]))
         return info
+
+    def broker_by_id(self, broker_id: Optional[int]) -> Optional[dict]:
+        if broker_id is None:
+            return None
+        for broker in self.brokers():
+            if broker.get("ID") == broker_id:
+                return broker
+        return None
+
+    def best_data_symbol(
+        self,
+        asset: str,
+        instrument: str,
+        preferred_postfix: Optional[str] = None,
+    ) -> Optional[dict]:
+        """Returns the best DATA row for a generated CFX chart/resource symbol."""
+        postfix = preferred_postfix or ""
+        rows = self._conn.execute(
+            """
+            SELECT SYMBOL,INSTRUMENT,TIMEFRAME,TIMEZONE,DATEFROM,DATETO,ROWS,DATATYPE,USYMBOL,USYMBOLNAME,REMOVE_WEEKENDS
+            FROM DATA
+            WHERE INSTRUMENT = ? OR SYMBOL = ? OR SYMBOL LIKE ?
+            """,
+            (instrument, instrument, f"{asset}%"),
+        ).fetchall()
+        if not rows:
+            return None
+
+        def score(row: sqlite3.Row) -> tuple:
+            symbol = str(row["SYMBOL"] or "")
+            tf = str(row["TIMEFRAME"] or "")
+            rows_count = int(row["ROWS"] or 0)
+            preferred_exact = f"{asset}{postfix}" if postfix else ""
+            return (
+                1 if rows_count > 0 else 0,
+                1 if preferred_exact and symbol == preferred_exact else 0,
+                1 if preferred_exact and symbol.startswith(preferred_exact) else 0,
+                1 if postfix and postfix in symbol else 0,
+                1 if symbol == instrument else 0,
+                1 if tf.upper() == "TICK" else 0,
+                rows_count,
+            )
+
+        best = max(rows, key=score)
+        return dict(best)
 
     def suggest_instruments(self, asset: str, broker_id: Optional[int] = None) -> list[dict]:
         """

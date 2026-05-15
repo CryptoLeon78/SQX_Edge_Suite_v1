@@ -675,6 +675,7 @@ def generate_one():
             "output_path": out_path, "filename": os.path.basename(out_path),
             "costs_source": costs["source"], "symbol": costs["symbol"],
             "spread": costs["spread"], "swap_long": costs["swap_long"], "swap_short": costs["swap_short"],
+            "data_available": costs.get("data_available"), "data_rows": costs.get("data_rows"),
             "blocksetting": blocksetting_trace(bs_entry),
         })
     except Exception as e:
@@ -718,6 +719,7 @@ def generate_custom():
             "capa": capa, "output_path": out_path, "filename": os.path.basename(out_path),
             "costs_source": costs["source"], "symbol": costs["symbol"],
             "spread": costs["spread"], "swap_long": costs["swap_long"], "swap_short": costs["swap_short"],
+            "data_available": costs.get("data_available"), "data_rows": costs.get("data_rows"),
             "blocksetting": blocksetting_trace(bs_entry),
         })
     except Exception as e:

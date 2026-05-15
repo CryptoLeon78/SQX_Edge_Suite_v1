@@ -35,12 +35,13 @@ function generateOneStartMessage(mining, capa) {
 function generateOneResult(result, mining, capa) {
     var data = result || {};
     var bs = data.blocksetting && data.blocksetting.canonicalId ? ' · ' + data.blocksetting.canonicalId : '';
+    var dataWarning = data.data_available === false ? ' · sin historico en data.db' : '';
     if (data.ok) {
       return {
-        logText: '✓ ' + data.filename,
+        logText: '✓ ' + data.filename + dataWarning,
         logLevel: 'ok',
         traceTitle: 'Proyecto generado',
-        traceDetail: 'Mining ' + mining + ' · Capa ' + capa + bs + ' · ' + data.filename,
+        traceDetail: 'Mining ' + mining + ' · Capa ' + capa + bs + ' · ' + data.filename + dataWarning,
         traceLevel: 'ok'
       };
     }
@@ -74,14 +75,15 @@ function generateCustomResult(result, payload) {
     var data = result || {};
     var request = payload || {};
     var bs = data.blocksetting && data.blocksetting.canonicalId ? ' · ' + data.blocksetting.canonicalId : '';
+    var dataWarning = data.data_available === false ? ' · sin historico en data.db' : '';
     if (data.ok) {
       return {
         text: 'Generado: ' + data.filename,
         level: 'ok',
-        logText: '✓ Custom libre → ' + data.filename,
+        logText: '✓ Custom libre → ' + data.filename + dataWarning,
         logLevel: 'ok',
         traceTitle: 'Custom libre generado',
-        traceDetail: (data.project_name || request.name || request.asset || 'custom') + ' · Capa ' + (data.capa || request.capa || 1) + bs,
+        traceDetail: (data.project_name || request.name || request.asset || 'custom') + ' · Capa ' + (data.capa || request.capa || 1) + bs + dataWarning,
         traceLevel: 'ok'
       };
     }
@@ -140,8 +142,9 @@ function generateAllResultLines(results) {
       var mining = String(result.mining).padStart(2, '0');
       if (result.ok) {
         var bs = result.blocksetting && result.blocksetting.canonicalId ? ' · ' + result.blocksetting.canonicalId : '';
+        var dataWarning = result.data_available === false ? ' · sin historico en data.db' : '';
         return {
-          text: '  ✓ M' + mining + ' → ' + result.filename + bs,
+          text: '  ✓ M' + mining + ' → ' + result.filename + bs + dataWarning,
           level: 'ok'
         };
       }

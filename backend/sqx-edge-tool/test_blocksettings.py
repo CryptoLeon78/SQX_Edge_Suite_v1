@@ -67,6 +67,30 @@ class BlockSettingsSourceTestCase(unittest.TestCase):
         self.assertIn("Indicators.ATR", active_keys)
         self.assertIn("Indicators.HullMovingAverageATRBands", active_keys)
 
+    def test_generate_project_rebuilds_symbol_resources_for_generated_asset(self):
+        mining = Mining(num=78, phase=1, asset="USDJPY", tf="H4", bs="BS_Volatilidad", dir="both")
+        template = ROOT / "templates" / "Capa1_Long.cfx"
+        with tempfile.TemporaryDirectory() as tmp:
+            out_path = Path(generate_project(mining, str(template), tmp, capa=1, sqx_db_path=None))
+            with zipfile.ZipFile(out_path) as zf:
+                xml = ET.fromstring(zf.read("Build-Task1.xml"))
+
+        charts = xml.findall(".//Setup/Chart")
+        self.assertTrue(charts)
+        self.assertTrue(all(chart.get("symbol") == "USDJPY_darwinex" for chart in charts))
+        resources = xml.findall(".//Resources/Symbols/Symbol")
+        self.assertEqual(len(resources), 1)
+        self.assertEqual(resources[0].get("name"), "USDJPY_darwinex")
+        self.assertEqual(resources[0].get("uSymbol"), "USDJPY")
+        self.assertEqual(resources[0].get("dateFrom"), "0")
+        instrument_info = resources[0].find("InstrumentInfo")
+        self.assertIsNotNone(instrument_info)
+        self.assertEqual(instrument_info.get("instrument"), "USDJPY")
+        self.assertEqual(instrument_info.get("description"), "USDJPY")
+        self.assertEqual(instrument_info.get("pointValue"), "1000.0")
+        self.assertNotIn("XAUUSD_darwinex", ET.tostring(xml, encoding="unicode"))
+        self.assertNotIn("AUDCAD_darwinex", ET.tostring(xml, encoding="unicode"))
+
 
 if __name__ == "__main__":
     unittest.main()

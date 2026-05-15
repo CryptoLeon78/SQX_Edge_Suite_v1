@@ -41,6 +41,24 @@ def _all_strategy_types(root: ET.Element) -> list[ET.Element]:
     return root.findall(".//StrategyType")
 
 
+def _format_attr(value, default: str = "") -> str:
+    if value is None:
+        return default
+    return str(value)
+
+
+def _decimal_count(tick_size) -> str:
+    text = str(tick_size or "")
+    if "E-" in text.upper():
+        try:
+            return str(abs(int(text.upper().split("E-")[-1])))
+        except Exception:
+            return "0"
+    if "." in text:
+        return str(len(text.rstrip("0").split(".")[-1]))
+    return "0"
+
+
 # ── Patches por concepto ──────────────────────────────────────────
 def patch_symbol_tf_spread(
     root: ET.Element,
@@ -57,6 +75,84 @@ def patch_symbol_tf_spread(
             chart.set("spread", str(spread))
         n += 1
     return n
+
+
+def patch_symbol_resources(root: ET.Element, resource: Optional[dict]) -> int:
+    """Rebuilds <Resources><Symbols> so SQX can resolve the generated chart symbol."""
+    if not resource or not resource.get("symbol"):
+        return 0
+    patched = 0
+    for symbols in root.findall(".//Resources/Symbols"):
+        existing = list(symbols.findall("Symbol"))
+        template_symbol = existing[0] if existing else None
+        template_info = template_symbol.find("InstrumentInfo") if template_symbol is not None else None
+        base_attrs = dict(template_symbol.attrib) if template_symbol is not None else {}
+        info_attrs = dict(template_info.attrib) if template_info is not None else {}
+        for node in existing:
+            symbols.remove(node)
+
+        broker_id = resource.get("broker_id")
+        if broker_id is None or str(broker_id) in ("", "-1"):
+            broker_id = base_attrs.get("broker") or 4
+        source = broker_id if str(broker_id) not in ("", "-1", "None") else base_attrs.get("source", "4")
+        date_from = resource.get("date_from_ms")
+        date_to = resource.get("date_to_ms")
+        if date_from is None:
+            date_from = "0"
+        if date_to is None:
+            date_to = "0"
+        timezone = resource.get("broker_timezone") or base_attrs.get("timezone") or "EETUS"
+        u_symbol = resource.get("u_symbol") or resource.get("asset") or resource.get("instrument") or resource.get("symbol")
+        u_symbol_name = resource.get("u_symbol_name") or u_symbol
+
+        symbol_node = ET.SubElement(symbols, "Symbol")
+        symbol_node.attrib.update({
+            "name": _format_attr(resource.get("symbol")),
+            "source": _format_attr(source, "4"),
+            "barType": base_attrs.get("barType", "1"),
+            "precision": base_attrs.get("precision", "TICK"),
+            "timezone": _format_attr(timezone, "EETUS"),
+            "dateFrom": _format_attr(date_from, "0"),
+            "dateTo": _format_attr(date_to, "0"),
+            "uSymbol": _format_attr(u_symbol),
+            "uSymbolName": _format_attr(u_symbol_name),
+            "removeWeekends": base_attrs.get("removeWeekends", "false"),
+            "broker": _format_attr(broker_id, "4"),
+        })
+
+        instrument_info = ET.SubElement(symbol_node, "InstrumentInfo")
+        tick_size = resource.get("tick_size") or info_attrs.get("tickSize")
+        tick_step = resource.get("tick_step") or info_attrs.get("tickStep")
+        instrument_info.attrib.update(info_attrs)
+        instrument_info.attrib.update({
+            "instrument": _format_attr(resource.get("instrument") or resource.get("symbol")),
+            "description": _format_attr(resource.get("description"), info_attrs.get("description", "")),
+            "tickSize": _format_attr(tick_size, info_attrs.get("tickSize", "")),
+            "tickStep": _format_attr(tick_step, info_attrs.get("tickStep", "")),
+            "minDistance": _format_attr(resource.get("min_distance"), info_attrs.get("minDistance", "0.0")),
+            "tickValueInMoney": info_attrs.get("tickValueInMoney", "0.0"),
+            "dateFrom": _format_attr(date_from, info_attrs.get("dateFrom", "0")),
+            "dateTo": _format_attr(date_to, info_attrs.get("dateTo", "0")),
+            "rows": _format_attr(resource.get("rows"), info_attrs.get("rows", "0")),
+            "defaultSpread": _format_attr(resource.get("spread"), info_attrs.get("defaultSpread", "")),
+            "defaultSlippage": _format_attr(resource.get("slippage"), info_attrs.get("defaultSlippage", "0.0")),
+            "decimals": info_attrs.get("decimals") or _decimal_count(tick_size),
+            "pointValue": _format_attr(resource.get("point_value"), info_attrs.get("pointValue", "")),
+            "dataType": _format_attr(resource.get("data_type"), info_attrs.get("dataType", "3")),
+            "recognizedFromOrders": info_attrs.get("recognizedFromOrders", "false"),
+            "exchange": _format_attr(resource.get("exchange"), info_attrs.get("exchange", "")),
+            "country": _format_attr(resource.get("country"), info_attrs.get("country", "")),
+            "sector": _format_attr(resource.get("sector"), info_attrs.get("sector", "")),
+            "orderSizeMultiplier": _format_attr(resource.get("ordersize_multiplier"), info_attrs.get("orderSizeMultiplier", "1.0")),
+            "orderSizeStep": _format_attr(resource.get("ordersize_step"), info_attrs.get("orderSizeStep", "0.01")),
+            "broker": _format_attr(resource.get("broker_id"), info_attrs.get("broker", "-1")),
+        })
+        if resource.get("commissions_xml"):
+            instrument_info.set("commissions", resource["commissions_xml"])
+        if resource.get("swap_xml"):
+            instrument_info.set("swap", resource["swap_xml"])
+        patched += 1
+    return patched
 
 
 def patch_swap(root: ET.Element, swap_long: float, swap_short: float,
@@ -159,6 +255,7 @@ def apply_mining_to_xml(
     swap_type: Optional[str] = None,
     commission_type: Optional[str] = None,
     commission_value: Optional[float] = None,
+    resource: Optional[dict] = None,
     period: tuple[str, str] = RETEST_PERIODS["BUILD"],
     clean_paths: bool = True,
 ) -> dict:
@@ -168,6 +265,7 @@ def apply_mining_to_xml(
         "swaps": patch_swap(root, swap_long, swap_short, swap_type),
         "sides": patch_direction(root, direction),
         "dates": patch_dates(root, period[0], period[1]),
+        "resources": patch_symbol_resources(root, resource),
         "paths_cleaned": clean_external_paths(root) if clean_paths else 0,
         "commissions": 0,
     }

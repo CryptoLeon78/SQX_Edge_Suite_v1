@@ -323,12 +323,14 @@ assert.equal(PG.generateOneStartMessage(3, 2), 'Generando Mining 3 · Capa 2…'
 const generateOneOk = PG.generateOneResult({ ok: true, filename: 'M03.cfx' }, 3, 2);
 assert.equal(generateOneOk.logText, '✓ M03.cfx');
 assert.equal(generateOneOk.traceDetail, 'Mining 3 · Capa 2 · M03.cfx');
+assert.match(PG.generateOneResult({ ok: true, filename: 'M03.cfx', data_available: false }, 3, 2).logText, /sin historico en data\.db/);
 assert.equal(PG.generateOneResult({ ok: false, error: 'bad template' }, 3, 1).traceLevel, 'err');
 assert.equal(PG.generateCustomStartMessage({ asset: 'EURUSD', tf: 'H1', capa: 2 }), 'Generando custom EURUSD H1 · Capa 2…');
 assert.equal(PG.generateCustomMissingStatus().level, 'err');
 const generateCustomOk = PG.generateCustomResult({ ok: true, filename: 'Custom_EURUSD_H1_Capa1.cfx', project_name: 'Custom_EURUSD_H1', capa: 1 }, { asset: 'EURUSD' });
 assert.equal(generateCustomOk.text, 'Generado: Custom_EURUSD_H1_Capa1.cfx');
 assert.equal(generateCustomOk.traceTitle, 'Custom libre generado');
+assert.match(PG.generateCustomResult({ ok: true, filename: 'Custom_USDJPY_H4.cfx', data_available: false }, { asset: 'USDJPY' }).traceDetail, /sin historico en data\.db/);
 assert.equal(PG.generateCustomResult({ ok: false, error: 'missing asset' }, {}).level, 'err');
 assert.equal(PG.generateErrorResult('offline').logText, '✗ Error: offline');
 assert.equal(PG.generateAllConfirmMessage(1, 12), '¿Generar 12 minings en Capa 1? Sobrescribe los existentes en output/.');
