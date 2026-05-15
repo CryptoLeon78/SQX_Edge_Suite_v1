@@ -12,6 +12,8 @@ TOOL_ROOT = PROJECT_ROOT / "backend" / "sqx-edge-tool"
 ANALYSIS_ROOT = PROJECT_ROOT / "analysis"
 ARCHITECTURE_DOC = PROJECT_ROOT / "docs" / "ARCHITECTURE.md"
 PROJECT_GOVERNANCE_DOC = PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md"
+REMOTE_SERVICE_ROADMAP_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_ROADMAP.md"
+REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md"
 CLEAN_WORKSPACE_SCRIPT = PROJECT_ROOT / "tools" / "clean_workspace.ps1"
 J1_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J1_CHAMPION_CHALLENGER_CONTRACT.md"
 J2_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J2_CHAMPION_CHALLENGER_CORE.md"
@@ -319,6 +321,87 @@ class DashboardStaticTestCase(unittest.TestCase):
         documented_scripts = re.findall(r"^\d+\.\s+`([^`]+)`", match.group(0), flags=re.M)
 
         self.assertEqual(documented_scripts, scripts)
+
+    def test_remote_service_pivot_is_documented_and_not_portable_first(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        privacy_copy = REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_SERVICE_ROADMAP_DOC.is_file())
+        self.assertTrue(REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-0",
+            "REMOTE-1 - Laptop Server Baseline",
+            "REMOTE-2 - Cloudflare Tunnel And Domain",
+            "REMOTE-3 - Paid Auth And Webhook",
+            "REMOTE-4 - Workspace Isolation",
+            "REMOTE-8 - Controlled Pilot",
+            "Primary channel: `remote_service`",
+            "Cloudflare Tunnel",
+            "workspace per user",
+            "Fallback Portable Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Remote Service Gate",
+            "authenticated user",
+            "active paid entitlement",
+            "server-derived workspace",
+            "Cloudflare Tunnel/Access",
+            "Remote Ops/SRE",
+            "`REMOTE-xx`: remote-service delivery",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "remote_service",
+            "Cloudflare Tunnel",
+            "workspace per user",
+            "remote_tunnel_only",
+            "Internal Fallback Packaging",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "Servicio web Pro",
+            "Estado comercial: REMOTE-0",
+            "Distribucion principal: enlace remoto protegido",
+            "SQX Edge Pro Mensual: acceso web",
+            "docs/REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md",
+            "Acceso Web Pro",
+            "Cloudflare Access y la autenticacion propia validan su sesion",
+            "El usuario final no instala Python, no descomprime ZIPs, no ejecuta `START_SQX_EDGE.bat`",
+            "El portable queda como herramienta interna de rollback, soporte o diagnostico. No es el flujo comercial principal.",
+            "Launcher interno/fallback",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for forbidden in (
+            "Paquete recomendado para usuario final",
+            "Uso para usuario basico",
+            "Haz doble click en `START_SQX_EDGE.bat`",
+            "No hace falta instalar Python. El ZIP incluye",
+            "SQX Edge Free: descarga portable",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, readme)
+
+        for pattern in (
+            "You do not need to install Python",
+            "Your workspace is isolated from other users",
+            "controlled, audited and isolated operating model",
+            "Do not claim that the service has no risk",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, privacy_copy)
 
     def test_project_governance_defines_agent_ownership_and_m46_entry(self):
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
@@ -10811,9 +10894,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "Estado interno: UX-NAV pasa a optimizacion tab por tab; el tab activo es Workflow",
             "reordenamiento global queda aplazado hasta completar las optimizaciones individuales",
-            "Ultimo ZIP portable tester conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",
-            "SHA256 del ZIP tester: `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`",
-            "Siguiente paso recomendado: completar evidencia privada TL1",
+            "Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro",
+            "Distribucion principal: enlace remoto protegido",
+            "Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",
+            "Siguiente paso recomendado: REMOTE-1",
             "powershell -ExecutionPolicy Bypass -File tools\\clean_workspace.ps1 -Aggressive",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):

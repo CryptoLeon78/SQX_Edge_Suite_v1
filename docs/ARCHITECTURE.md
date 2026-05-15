@@ -4,13 +4,20 @@ Final architecture map and load order after the modularization phases.
 
 ## Runtime Shape
 
-SQX Edge Suite is a portable local web application:
+SQX Edge Suite is moving to `remote_service` as the primary product shape:
 
-- The dashboard runs from `app/SQX_Dashboard_v6.html`.
+- The final user opens a protected web link, validates email and uses the app in the browser with no local installation.
+- Cloudflare Access plus Cloudflare Tunnel protect the public edge and route traffic to the operator laptop during the pilot.
+- A laptop-hosted gateway talks to the SQX Edge backend and assigns every request to a server-derived workspace per user.
+- SQX paths, `data.db`, templates, BlockSettings and generated artifacts live on the server side.
+- The existing local Flask API, dashboard scripts and portable package remain the technical base and internal fallback, but portable ZIP is no longer the commercial user-facing flow.
+
+Current implementation base:
+
+- The dashboard still runs from `app/SQX_Dashboard_v6.html`.
 - Frontend behavior is loaded through plain browser scripts, without a bundler.
 - Shared frontend namespaces live under `window.SQX`.
-- The Project Generator tab talks to the local Python API at `http://127.0.0.1:5050` for both plan-based generation and custom projects outside the plan.
-- The portable package includes an embedded Python runtime and one-click launchers.
+- The Project Generator tab currently talks to the Python API at `http://127.0.0.1:5050`; REMOTE phases will transition this boundary from `local_only` to `remote_tunnel_only`.
 
 ## Top-Level Map
 
@@ -73,6 +80,27 @@ flowchart TD
   RELAYEVIDENCE --> RELAYDEPLOY
   RELAY --> RELAYIN
 ```
+
+## Remote Service Target Map
+
+```mermaid
+flowchart TD
+  U["Paid user browser"] --> CFA["Cloudflare Access"]
+  CFA --> CFT["Cloudflare Tunnel"]
+  CFT --> GW["Laptop gateway"]
+  GW --> AUTH["SQX Edge auth and entitlement"]
+  AUTH --> WS["Workspace per user"]
+  WS --> API["backend/sqx-edge-tool/api/server.py"]
+  API --> SQXCFG["Server SQX config, data.db and templates"]
+  API --> OUT["User exports and generated .cfx"]
+```
+
+Remote-service invariants:
+
+- Browser payloads cannot select arbitrary local paths, user ids or workspace ids.
+- Payment entitlement and validated email are checked before user-facing Pro access.
+- Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
+- The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
 ## Frontend Load Order
 
@@ -272,9 +300,9 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `resources/pro-buyer-pack/*` | Buyer-facing Pro starter data, CSV import template, onboarding, activation/support checklists and first-value material. |
 | `resources/pro-template-pack-1/*` | Buyer-facing add-on source and public offer draft for Template Pack 1, packaged separately from the base portable ZIP. |
 
-## Portable Packaging
+## Internal Fallback Packaging
 
-Portable packaging is owned by `backend/sqx-edge-tool/tools/package_portable.ps1`.
+Portable packaging is owned by `backend/sqx-edge-tool/tools/package_portable.ps1` and remains an internal fallback/rollback path during the remote-service pivot. It is not the final-user commercial onboarding flow unless explicitly re-approved.
 
 The package includes:
 
@@ -317,4 +345,5 @@ When changing load order or module boundaries, update both the implementation an
 - Do not make a module depend on a script loaded later.
 - Prefer adding narrow contracts before moving behavior across files.
 - Any new visible tab, panel, module or manifest-driven UI state must update the architecture map, load-order or module-responsibility table, JS contracts and E2E smoke expectations in the same phase.
-- Keep packaging validation aligned with the actual portable user flow.
+- Keep remote-service validation aligned with Cloudflare Tunnel, paid auth and workspace isolation.
+- Keep fallback packaging validation aligned with the internal portable flow when packaging files change.

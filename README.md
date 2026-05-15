@@ -1,15 +1,15 @@
 # SQX Edge Suite v1
 
-Dashboard y herramienta local para organizar el pipeline SQX Edge, generar Custom Projects `.cfx` para StrategyQuant X y limpiar estrategias `.sqx` post-mining.
+Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.cfx` para StrategyQuant X, crear views, preparar templates y mantener trazabilidad sin instalacion local del usuario final.
 
 ## Estado Actual
 
 - Estado interno: UX-NAV pasa a optimizacion tab por tab; el tab activo es Workflow y el reordenamiento global queda aplazado hasta completar las optimizaciones individuales.
-- Estado comercial: M99 completada con decision local del siguiente movimiento comercial controlado desde evidencia M98.
+- Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro con email validado, pago activo, Cloudflare Tunnel y workspace por usuario.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
-- Ultimo ZIP portable tester conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`.
-- SHA256 del ZIP tester: `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`.
-- Siguiente paso recomendado: completar evidencia privada TL1 y ejecutar `proof:tester-launch-candidate`; si devuelve GO, enviar acceso manualmente a los testers fuera de Git.
+- Distribucion principal: enlace remoto protegido; el usuario final no descarga ZIP, no ejecuta launchers y no instala Python.
+- Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip` con SHA256 `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`.
+- Siguiente paso recomendado: REMOTE-1 para convertir el portatil del operador en servidor controlado con health checks, rutas SQX servidor y watchdog.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## Limpieza Local
@@ -24,14 +24,13 @@ El modo agresivo conserva el ZIP tester mas reciente en `dist/` y elimina ZIPs/b
 
 ## SQX Edge Pro
 
-El proyecto esta preparando una edicion comercial Pro con suscripcion mensual/anual, soporte opcional y packs de plantillas alrededor de la herramienta.
+El proyecto esta preparando una edicion comercial Pro como servicio web con suscripcion mensual/anual, soporte opcional y packs de plantillas alrededor de la metodologia.
 
 Oferta inicial prevista:
 
-- SQX Edge Free: descarga portable para probar el flujo.
-- SQX Edge Pro Mensual: 24 EUR/mes.
-- SQX Edge Pro Anual: 199 EUR/ano.
-- Setup Assist: instalacion y configuracion guiada.
+- SQX Edge Pro Mensual: acceso web con email validado y workspace aislado.
+- SQX Edge Pro Anual: acceso web con email validado y workspace aislado.
+- Soporte opcional: acompanamiento, configuracion operativa y revisiones de metodologia.
 - Template Pack 1: pack comercial separado.
 
 Aviso responsable: SQX Edge Pro no promete rentabilidad ni resultados financieros. La propuesta es productividad, orden, trazabilidad y reduccion de errores operativos dentro de StrategyQuant X.
@@ -82,7 +81,16 @@ Documentos comerciales:
 
 Nota de seguridad comercial: los documentos de venta interna, buyer logs, gates privados, evidencias de checkout/soporte y plantillas operativas ya fueron migrados al repositorio privado `CryptoLeon78/sqx-edge-commercial-private`. El repo publico conserva arquitectura, releases, claims seguros y punteros de trazabilidad; `docs/MONETIZATION_*`, `docs/sales/*` y los packs Pro bajo `resources/` son stubs publicos redactados.
 
-Portal tester Pro previsto:
+Acceso remoto Pro previsto:
+
+- REMOTE-0 fija el roadmap de servicio remoto en `docs/REMOTE_SERVICE_ROADMAP.md`.
+- La comunicacion de seguridad y privacidad vive en `docs/REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md`.
+- El piloto corre en portatil 24/7 mediante dominio propio, Cloudflare Tunnel y Cloudflare Access.
+- Cada usuario pagado tendra workspace aislado para config, imports, outputs, exports y auditoria.
+- El navegador no selecciona rutas locales de SQX; las rutas SQX, `data.db`, templates y BlockSettings se gestionan en el servidor.
+- La comunicacion al usuario se basa en entorno controlado, auditado y aislado; no se promete riesgo cero.
+
+Portal tester Pro previsto (historico):
 
 - T1 define un futuro repo privado `SQX_Edge_Tester_Portal` para alojar en Vercel una experiencia tester Pro controlada.
 - T2 deja un bootstrap seguro en `templates/SQX_Edge_Tester_Portal/`, listo para copiar a un repo privado cuando lo autoricemos.
@@ -240,47 +248,38 @@ Herramientas analiticas:
 - `ohlc_metric_builder.py` convierte CSV OHLC revisables (`ASSET_TF.csv`) en metricas multi-timeframe compatibles con A53/A54.
 - `real_mtf_pipeline_run.py` orquesta A55 -> A53 -> A54 y devuelve GO solo si la cadena completa con datos reales queda validada.
 
-## Entrega Final
+## Acceso Web Pro
 
-Paquete recomendado para usuario final:
+Flujo objetivo para usuario final:
 
-```text
-dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip
-```
+1. El cliente paga o renueva la suscripcion.
+2. El webhook activa su email validado.
+3. El cliente entra por el enlace protegido.
+4. Cloudflare Access y la autenticacion propia validan su sesion.
+5. La app abre su workspace aislado en el servidor.
+6. El cliente usa Workflow, Activos, Mining Control, SQX Views, Project Generator, Template Maker, Strategy Control y Champion vs Challenger desde el navegador.
 
-Uso para usuario basico:
+El usuario final no instala Python, no descomprime ZIPs, no ejecuta `START_SQX_EDGE.bat` y no configura rutas SQX locales. Las rutas SQX, templates, `data.db`, BlockSettings y outputs se gestionan en el servidor remoto controlado.
 
-1. Descomprime el ZIP en una carpeta normal, por ejemplo `C:\SQX_Edge`.
-2. Haz doble click en `START_SQX_EDGE.bat`.
-3. Espera unos segundos: se arranca la API local y se abre el dashboard.
-4. Usa la app desde el navegador que se abre.
-5. Para cerrar la API local, haz doble click en `STOP_SQX_EDGE.bat`.
-
-No hace falta instalar Python. El ZIP incluye un runtime portable dentro de `backend\sqx-edge-tool\runtime\python`.
-
-Problemas frecuentes:
-
-- Si Windows muestra SmartScreen, pulsa `Mas informacion` y despues `Ejecutar de todas formas`.
-- Si no abre el dashboard, ejecuta `STOP_SQX_EDGE.bat` y vuelve a abrir `START_SQX_EDGE.bat`.
-- Si la API no conecta, revisa que el puerto `5050` no este ocupado por otra aplicacion.
-- No muevas archivos internos del ZIP descomprimido; abre siempre desde `START_SQX_EDGE.bat`.
-- Si StrategyQuant X esta en una ruta distinta, configuralo desde el tab `Project Generator`.
+Mensaje base de seguridad: SQX Edge Pro opera en un entorno autenticado, auditado y aislado por workspace. No se promete riesgo cero; se comunica control operativo, trazabilidad y privacidad razonable.
 
 ## Entrega Comercial Controlada
 
-Estado real: preparado para demos Pro asistidas, early access, compradores fundadores y primeras ventas manuales con soporte. No esta planteado aun como lanzamiento masivo autoservicio.
+Estado real: REMOTE-0 documenta el pivote; la entrega comercial controlada pasa a acceso web Pro asistido. No esta planteado aun como lanzamiento masivo autoservicio.
 
-Antes de entregar a un comprador:
+Antes de activar a un comprador:
 
-1. Usar el ZIP tester verificado `SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`.
-2. Confirmar SHA256 `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`.
-3. Entregar la licencia Pro firmada por separado, nunca dentro del ZIP.
+1. Confirmar pago activo y email validado.
+2. Crear o verificar workspace aislado.
+3. Confirmar que Cloudflare Tunnel, Access, backend, rutas SQX servidor y output estan en verde.
 4. Mantener claims seguros: productividad, orden, trazabilidad y reduccion de errores operativos; nunca prometer rentabilidad.
-5. Registrar incidencias de instalacion, activacion, soporte y decision de repetir/pausar antes de ampliar trafico.
+5. Registrar incidencias de acceso, generacion, soporte y decision de ampliar/pausar antes de mas trafico.
 
-## Inicio Rapido
+## Fallback Interno Portable
 
-Para usuario basico, doble click en:
+El portable queda como herramienta interna de rollback, soporte o diagnostico. No es el flujo comercial principal.
+
+Launcher interno:
 
 ```bat
 START_SQX_EDGE.bat
@@ -329,7 +328,7 @@ GitHub Actions ejecuta el baseline en cada push/PR a `main`: compilacion Python,
 ├── data/                         Datasets base versionados
 ├── docs/                         Documentacion y conceptos visuales
 ├── packaging/                    Launchers internos y empaquetado
-├── START_SQX_EDGE.bat            Acceso directo de un click
+├── START_SQX_EDGE.bat            Launcher interno/fallback
 └── STOP_SQX_EDGE.bat
 ```
 
@@ -407,17 +406,17 @@ backend\sqx-edge-tool\venv\Scripts\python.exe -m pytest backend\sqx-edge-tool
 
 Si Playwright no esta instalado, esos tests se saltan automaticamente.
 
-## Empaquetado
+## Empaquetado Interno Fallback
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File backend\sqx-edge-tool\tools\package_portable.ps1 -RequireEmbeddedPython
 ```
 
-El ZIP portable se crea en `dist/` e incluye el Python embebido para que el usuario final pueda abrir `START_SQX_EDGE.bat` sin instalar nada.
+El ZIP portable se crea en `dist/` e incluye el Python embebido. Desde REMOTE-0 se conserva como fallback interno, no como onboarding comercial del usuario final.
 
-## Checklist de entrega
+## Checklist de fallback
 
-Para preparar una entrega completa con pruebas, ZIP portable y validacion del ZIP extraido:
+Para preparar una entrega interna con pruebas, ZIP portable y validacion del ZIP extraido:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File backend\sqx-edge-tool\tools\release_checklist.ps1
