@@ -1249,6 +1249,12 @@
             <div id="tm-thresholds-grid" class="tm-thresholds-grid"></div>
           </div>
         </details>
+        <details class="tm-diversity-details views-details">
+          <summary>Avanzado: Descorrelación de templates</summary>
+          <p class="views-step-copy">Evita generar templates C2 con el mismo ADN. La app agrupa candidatos similares por indicadores del .sqx y comportamiento de métricas; sólo el ganador de cada cluster queda listo para C2.</p>
+          <div id="tm-diversity-settings-grid" class="tm-thresholds-grid tm-diversity-settings-grid"></div>
+          <div id="tm-diversity-report" class="tm-diversity-report" aria-live="polite"></div>
+        </details>
       </section>
 
       <section class="tm-panel tm-step-panel tm-step-results">
@@ -1259,6 +1265,7 @@
           </div>
           <div class="tm-search-row">
             <input id="tm-search" class="search-input" type="search" placeholder="Buscar estrategia, simbolo o activo">
+            <button id="tm-c2-selected-btn" class="filter-btn tm-c2-selected-action" type="button" disabled>Generar C2 seleccionada</button>
             <button id="tm-delete-selected-btn" class="filter-btn tm-danger tm-delete-selected-action" type="button" disabled>Borrar seleccionadas</button>
             <button id="tm-reset-results-btn" class="filter-btn tm-danger tm-reset-results-action" type="button">Reset resultados</button>
             <button id="tm-prev" class="filter-btn" type="button">Anterior</button>

@@ -1,5 +1,5 @@
 import { chromium } from 'playwright';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -567,6 +567,9 @@ async function run() {
     ['Template Maker', 'Template Maker Cert', 'Genera la view obligatoria', 'Carga tus fuentes', 'Resuelve el contrato', 'Evalua Perfil Capa 1', 'Resultados y C2', 'Cargar archivos', 'Reset resultados', 'Umbrales KPI editables'].forEach(expected => {
       if (!templateMakerText.includes(expected)) throw new Error(`Template Maker tab should include ${expected}`);
     });
+    if (!templateMakerText.includes('Descorrelación de templates')) {
+      throw new Error('Template Maker should include diversity controls before C2');
+    }
     if (await desktop.locator('#tab-templatemaker [data-tm-capa="2"]').count() !== 0) {
       throw new Error('Template Maker should not expose a Capa 2 analysis control');
     }
@@ -580,8 +583,9 @@ async function run() {
     const advancedDefaults = await desktop.evaluate(() => ({
       loads: document.querySelector('.tm-secondary-loads')?.open === false,
       thresholds: document.querySelector('.tm-thresholds-details')?.open === false,
+      diversity: document.querySelector('.tm-diversity-details')?.open === false,
     }));
-    if (!advancedDefaults.loads || !advancedDefaults.thresholds) {
+    if (!advancedDefaults.loads || !advancedDefaults.thresholds || !advancedDefaults.diversity) {
       throw new Error('Template Maker advanced loads and thresholds should start collapsed');
     }
     await desktop.locator('.tm-secondary-loads > summary').click();
@@ -596,6 +600,11 @@ async function run() {
     await desktop.locator('.tab[data-tab="templatemaker"]').click();
     await desktop.waitForSelector('.tab[data-tab="templatemaker"].active');
     const csvSamplePath = path.join(repoRoot, 'resources', 'template-maker-tool', 'template_maker_cert_v2_sample.csv');
+    const sqxSamplePaths = [
+      path.join(repoRoot, 'resources', 'template-maker-tool', 'Strategy TM.01.sqx'),
+      path.join(repoRoot, 'resources', 'template-maker-tool', 'Strategy TM.02.sqx'),
+      path.join(repoRoot, 'resources', 'template-maker-tool', 'Strategy TM.03.sqx'),
+    ];
     await desktop.locator('#tm-files-input').setInputFiles(csvSamplePath);
     await desktop.waitForFunction(() => window.SQX?.templateMaker?.getStrategies().length > 0);
     await desktop.waitForSelector('#tm-results-table:not([hidden])');
@@ -610,28 +619,31 @@ async function run() {
     }
     const csvOnlyStatus = await desktop.evaluate(() => window.SQX.templateMaker.getStrategyStatus(window.SQX.templateMaker.getStrategies()[0]));
     if (csvOnlyStatus !== 'Falta SQX') throw new Error(`CSV-only strategy should show Falta SQX, got ${csvOnlyStatus}`);
-    const tmCsvText = await readFile(csvSamplePath, 'utf8');
-    await desktop.evaluate(async csvText => {
-      const zip = new window.JSZip();
-      zip.file('strategy_Portfolio.xml', '<Strategy><options><StrategyName>Strategy TM.01</StrategyName></options><Datas><data><symbol>XAUUSD_darwinex</symbol><timeFrame>H1</timeFrame></data></Datas></Strategy>');
-      zip.file('settings.xml', '<Settings><ResultsGroup ResultName="Strategy TM.01"><Fitnesses FS="1" IS="1" OOS="1"/><Result resultKey="Main: XAUUSD_darwinex/H1"/></ResultsGroup></Settings>');
-      const sqxBlob = await zip.generateAsync({ type: 'blob' });
-      const csvFile = new File([csvText], 'template_maker_cert_v2_sample.csv', { type: 'text/csv' });
-      const sqxFile = new File([sqxBlob], 'Strategy TM.01.sqx', { type: 'application/zip' });
+    await desktop.evaluate(async () => {
       await window.SQX.templateMaker.reset();
-      await window.SQX.templateMaker.ingestFiles([csvFile, sqxFile]);
       window.SQX.templateMakerUI.renderAll();
-    }, tmCsvText);
+    });
+    await desktop.locator('#tm-files-input').setInputFiles([csvSamplePath].concat(sqxSamplePaths));
     await desktop.waitForFunction(() => window.SQX.templateMaker.getStrategies().some(strategy => window.SQX.templateMaker.getStrategyStatus(strategy) === 'Lista para C2'));
     await desktop.waitForFunction(() => document.getElementById('tm-results-table')?.innerText.includes('Lista para C2'));
+    await desktop.waitForFunction(() => document.getElementById('tm-results-table')?.innerText.includes('Similar descartada'));
+    await desktop.waitForFunction(() => document.getElementById('tm-results-table')?.innerText.includes('Ganador cluster'));
+    await desktop.waitForFunction(() => document.getElementById('tm-results-table')?.innerText.includes('Diverso'));
     await desktop.waitForFunction(() => (document.getElementById('tm-contract-summary')?.innerText || '').toLowerCase().includes('lista para c2'));
     await desktop.waitForFunction(() => {
       const wrap = document.querySelector('#tab-templatemaker .tm-results-wrap');
       return wrap && wrap.scrollWidth <= wrap.clientWidth + 2;
     });
     await saveShot(desktop, 'e2e-template-maker-results-desktop.png');
-    const enabledC2 = await desktop.locator('#tm-results-table [data-tm-export]:not([disabled])').count();
-    if (enabledC2 < 1) throw new Error('Template Maker should enable C2 only for valid PASSED candidates');
+    if (await desktop.locator('#tm-results-table [data-tm-export]').count() !== 0) {
+      throw new Error('Template Maker should keep C2 actions outside the result table');
+    }
+    await desktop.locator('#tm-results-table [data-tm-select]').nth(1).check();
+    await desktop.waitForFunction(() => !document.getElementById('tm-c2-selected-btn')?.disabled);
+    await desktop.locator('#tm-results-table [data-tm-select]').nth(1).uncheck();
+    await desktop.locator('#tm-results-table [data-tm-select]').first().check();
+    await desktop.waitForFunction(() => document.getElementById('tm-c2-selected-btn')?.disabled === true);
+    await desktop.locator('#tm-results-table [data-tm-select]').first().uncheck();
     const beforeSelectedDelete = await desktop.evaluate(() => window.SQX.templateMaker.getStrategies().length);
     await desktop.locator('#tm-results-table [data-tm-select]').first().check();
     await desktop.waitForFunction(() => !document.getElementById('tm-delete-selected-btn')?.disabled);
@@ -649,8 +661,7 @@ async function run() {
     await desktop.waitForFunction(() => window.SQX.templateMaker.getStrategies().length === 0);
     await desktop.waitForFunction(() => document.getElementById('tm-results-table')?.hidden === true);
     await desktop.waitForFunction(() => document.getElementById('tm-empty-state')?.hidden === false);
-    const enabledC2AfterResultsReset = await desktop.locator('#tm-results-table [data-tm-export]:not([disabled])').count();
-    if (enabledC2AfterResultsReset !== 0) throw new Error('Template Maker should remove every C2 action after resetting results');
+    await desktop.waitForFunction(() => document.getElementById('tm-c2-selected-btn')?.disabled === true);
     await saveShot(desktop, 'e2e-template-maker-results-reset-desktop.png');
     await desktop.locator('#tm-audit-btn').click();
     await desktop.waitForSelector('#tm-modal-audit:not([hidden])');

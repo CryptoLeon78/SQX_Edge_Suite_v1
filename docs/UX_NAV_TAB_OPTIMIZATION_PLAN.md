@@ -17,7 +17,7 @@ UX-NAV now runs as a sequential tab-by-tab optimization track.
 
 Project Generator is closed as a guided `.cfx` assistant. Mining Control is reopened as the active pass for a focused operational cleanup.
 
-Temporary repair pause: TM-FIX2 rebaselines Template Maker parser/certification against the real current CSV exported by the `Template Maker Cert` view. This does not advance the UX-NAV tab order and does not reopen Template Maker as a design pass; it only repairs the metric contract and diagnostics before Mining Control resumes.
+Temporary repair/enrichment pause: TM-DIV1 adds a hybrid diversity gate to Template Maker after the TM-FIX2 CSV contract repair. This does not advance the UX-NAV tab order and does not reopen Template Maker as a design pass; it prevents redundant C2 templates by clustering similar `.sqx` logic plus CSV metric behavior before Mining Control resumes.
 
 Active correction: `Foco operativo` and `Precarga desde Por Activo` are retired completely from the visible UI. `Plan mining` remains the single source of truth, and rows added from asset cards are identified in-table with the source tag `TARJETA`, alongside manual rows tagged as `MANUAL`.
 

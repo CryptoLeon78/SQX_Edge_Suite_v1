@@ -103,6 +103,21 @@
         });
       }
     });
+    bindClick('tm-c2-selected-btn', function() {
+      var selected = getSelectedStrategyIds();
+      if (selected.length !== 1) {
+        setStatus('Selecciona una sola estrategia lista para C2.', true);
+        return;
+      }
+      var strategy = SQX.templateMaker.getStrategies().find(function(item) {
+        return String(item._id) === String(selected[0]);
+      });
+      if (!strategy || !SQX.templateMaker.canGenerateC2(strategy)) {
+        setStatus('La estrategia seleccionada no supera contrato, scoring y diversidad.', true);
+        return;
+      }
+      openC2(strategy._id);
+    });
     bindClick('tm-reset-btn', function() {
       if (!global.confirm || global.confirm('Resetear estrategias y configuracion de Template Maker?')) {
         SQX.templateMaker.reset().then(function() {
@@ -191,11 +206,13 @@
     renderPreset();
     renderCapa();
     renderThresholds();
+    renderDiversitySettings();
     renderStats();
     renderContractSummary();
     renderContractDiagnostics();
     renderResultsResetAction();
     renderDeleteSelectedAction();
+    renderC2SelectedAction();
     renderResults();
   }
 
@@ -235,6 +252,23 @@
     button.title = count
       ? 'Borra solo las estrategias marcadas en la tabla.'
       : 'Marca estrategias en la tabla para habilitar este borrado.';
+  }
+
+  function renderC2SelectedAction() {
+    var button = byId('tm-c2-selected-btn');
+    if (!button) return;
+    var selected = getSelectedStrategyIds();
+    var strategy = selected.length === 1 ? SQX.templateMaker.getStrategies().find(function(item) {
+      return String(item._id) === String(selected[0]);
+    }) : null;
+    var ready = !!(strategy && SQX.templateMaker.canGenerateC2(strategy));
+    button.disabled = !ready;
+    button.textContent = selected.length === 1 ? 'Generar C2 seleccionada' : 'Generar C2 seleccionada';
+    button.title = ready
+      ? 'Abre la generacion C2 para la estrategia marcada.'
+      : selected.length === 1
+        ? 'La estrategia marcada no es ganadora/diversa o no esta lista para C2.'
+        : 'Marca una unica estrategia lista para C2.';
   }
 
   function renderPreset() {
@@ -305,6 +339,43 @@
     });
   }
 
+  function renderDiversitySettings() {
+    var grid = byId('tm-diversity-settings-grid');
+    var reportMount = byId('tm-diversity-report');
+    if (!grid || !SQX.templateMaker.getDiversitySettings) return;
+    var settings = SQX.templateMaker.getDiversitySettings();
+    var fields = [
+      ['structuralThreshold', 'Estructura', 'Similitud minima por indicadores .sqx'],
+      ['metricThreshold', 'Metricas', 'Confirmacion secundaria por KPIs'],
+      ['hybridThreshold', 'Hibrido', 'Umbral final estructura + metricas'],
+      ['structuralWeight', 'Peso estructura', 'Peso de indicadores/reglas'],
+      ['metricWeight', 'Peso metricas', 'Peso de KPIs CSV']
+    ];
+    grid.innerHTML = fields.map(function(field) {
+      return '<label class="tm-threshold-item tm-diversity-setting-item">' +
+        '<span>' + esc(field[1]) + '<small>' + esc(field[2]) + '</small></span>' +
+        '<input type="number" min="0" max="1" step="0.01" data-tm-diversity-setting="' + esc(field[0]) + '" value="' + esc(settings[field[0]]) + '">' +
+      '</label>';
+    }).join('');
+    Array.prototype.forEach.call(grid.querySelectorAll('[data-tm-diversity-setting]'), function(input) {
+      input.addEventListener('change', function() {
+        SQX.templateMaker.setDiversitySetting(input.dataset.tmDiversitySetting, input.value).then(function() {
+          renderStats();
+          renderContractSummary();
+          renderDiversitySettings();
+          renderResults();
+        });
+      });
+    });
+    if (reportMount && SQX.templateMaker.getDiversityReport) {
+      var report = SQX.templateMaker.getDiversityReport();
+      reportMount.innerHTML = '<span>Candidatos: <strong>' + esc(report.candidates) + '</strong></span>' +
+        '<span>Clusters: <strong>' + esc(report.clusters.length) + '</strong></span>' +
+        '<span>Ganadores C2: <strong>' + esc(report.winners) + '</strong></span>' +
+        '<span>Descartadas por similitud: <strong>' + esc(report.discarded) + '</strong></span>';
+    }
+  }
+
   function renderContractSummary() {
     var mount = byId('tm-contract-summary');
     if (!mount) return;
@@ -314,6 +385,11 @@
         status: 'Lista para C2',
         className: 'is-ready',
         action: 'Ya puede generar C2 si el candidato es el elegido.'
+      },
+      {
+        status: 'Similar descartada',
+        className: 'is-warning',
+        action: 'Pertenece a un cluster; usa el ganador diverso.'
       },
       {
         status: 'Completa',
@@ -412,10 +488,10 @@
 
     var infoCols = SQX.templateMaker.getInfoColumns();
     var kpiCols = SQX.templateMaker.getKPIColumns();
-    byId('tm-results-thead').innerHTML = '<tr><th class="tm-col-select"><input id="tm-select-visible" class="tm-select-visible" type="checkbox" aria-label="Seleccionar estrategias visibles"></th><th class="tm-col-index">#</th><th class="tm-col-score">Score</th><th class="tm-col-state">Estado</th><th class="tm-col-contract">Contrato</th>' +
-      infoCols.map(function(col) { return '<th class="tm-col-info">' + esc(col) + '</th>'; }).join('') +
-      kpiCols.map(function(col) { return '<th class="tm-col-kpi">' + esc(col) + '</th>'; }).join('') +
-      '<th class="tm-col-action">Accion</th></tr>';
+    byId('tm-results-thead').innerHTML = '<tr><th class="tm-col-select"><input id="tm-select-visible" class="tm-select-visible" type="checkbox" aria-label="Seleccionar estrategias visibles"></th><th class="tm-col-index">#</th><th class="tm-col-score">Score</th><th class="tm-col-state">Estado</th><th class="tm-col-contract">Contrato</th><th class="tm-col-diversity">Div.</th><th class="tm-col-cluster">Cluster</th><th class="tm-col-similarity">Sim.</th><th class="tm-col-reason">Motivo</th>' +
+      infoCols.map(function(col) { return '<th class="tm-col-info" title="' + esc(col) + '">' + esc(columnLabel(col)) + '</th>'; }).join('') +
+      kpiCols.map(function(col) { return '<th class="tm-col-kpi" title="' + esc(col) + '">' + esc(columnLabel(col)) + '</th>'; }).join('') +
+      '</tr>';
 
     byId('tm-results-tbody').innerHTML = visible.map(function(item, index) {
       var globalIndex = (page - 1) * pageSize + index + 1;
@@ -425,8 +501,10 @@
       var contractStatus = SQX.templateMaker.getStrategyStatus(strategy, score);
       var contractBadge = contractStatus === 'Lista para C2' ? 'tm-badge-ready' :
         contractStatus === 'Completa' ? 'tm-badge-pass' :
-        contractStatus === 'Falta SQX' ? 'tm-badge-review' : 'tm-badge-fail';
-      var canC2 = SQX.templateMaker.canGenerateC2(strategy);
+        contractStatus === 'Falta SQX' || contractStatus === 'Similar descartada' ? 'tm-badge-review' : 'tm-badge-fail';
+      var diversity = SQX.templateMaker.getDiversityStatus ? SQX.templateMaker.getDiversityStatus(strategy) : { status: 'No evaluable', clusterId: '-', similarity: 0, reason: '-' };
+      var diversityBadge = diversity.status === 'Diverso' || diversity.status === 'Ganador cluster' ? 'tm-badge-ready' :
+        diversity.status === 'Similar descartada' ? 'tm-badge-review' : 'tm-badge-fail';
       var strategyId = String(strategy._id);
       return '<tr>' +
         '<td class="tm-col-select"><input class="tm-row-check" type="checkbox" data-tm-select="' + esc(strategyId) + '" aria-label="Seleccionar estrategia ' + globalIndex + '"' + (selectedStrategyIds[strategyId] ? ' checked' : '') + '></td>' +
@@ -434,26 +512,25 @@
         '<td class="tm-col-score"><div class="tm-score"><span style="width:' + score.pct + '%"></span></div><strong>' + score.pct + '%</strong></td>' +
         '<td class="tm-col-state"><span class="tm-badge ' + badge + '">' + score.classification + '</span></td>' +
         '<td class="tm-col-contract"><span class="tm-badge ' + contractBadge + '">' + esc(contractStatus) + '</span></td>' +
+        '<td class="tm-col-diversity"><span class="tm-badge ' + diversityBadge + '">' + esc(diversity.status) + '</span></td>' +
+        '<td class="tm-col-cluster">' + esc(diversity.clusterId || '-') + '</td>' +
+        '<td class="tm-col-similarity">' + esc(Math.round((diversity.similarity || 0) * 100)) + '%</td>' +
+        '<td class="tm-col-reason" title="' + esc(diversity.reason || '-') + '">' + esc(diversity.reason || '-') + '</td>' +
         infoCols.map(function(col) { return '<td class="tm-col-info" title="' + esc(strategy[col] || '-') + '">' + esc(strategy[col] || '-') + '</td>'; }).join('') +
         kpiCols.map(function(col) {
           var detail = score.details[col] || {};
-          return '<td class="tm-col-kpi tm-kpi-' + (detail.result || 'na') + '">' + esc(detail.value === undefined || detail.value === '' ? '-' : detail.value) + '</td>';
+          return '<td class="tm-col-kpi tm-kpi-' + (detail.result || 'na') + '" title="' + esc(detail.value === undefined || detail.value === '' ? '-' : detail.value) + '">' + esc(displayMetricValue(col, detail.value)) + '</td>';
         }).join('') +
-        '<td class="tm-col-action"><button class="filter-btn tm-c2-action" type="button" data-tm-export="' + esc(strategy._id) + '"' + (!canC2 ? ' disabled' : '') + '>C2</button></td>' +
       '</tr>';
     }).join('');
 
-    Array.prototype.forEach.call(global.document.querySelectorAll('[data-tm-export]'), function(button) {
-      button.addEventListener('click', function() {
-        openC2(button.dataset.tmExport);
-      });
-    });
     Array.prototype.forEach.call(global.document.querySelectorAll('[data-tm-select]'), function(checkbox) {
       checkbox.addEventListener('change', function() {
         selectedStrategyIds[String(checkbox.dataset.tmSelect)] = checkbox.checked;
         if (!checkbox.checked) delete selectedStrategyIds[String(checkbox.dataset.tmSelect)];
         updateVisibleSelectionState(visible);
         renderDeleteSelectedAction();
+        renderC2SelectedAction();
       });
     });
     var selectVisible = byId('tm-select-visible');
@@ -472,6 +549,7 @@
       updateVisibleSelectionState(visible);
     }
     renderDeleteSelectedAction();
+    renderC2SelectedAction();
   }
 
   function updateVisibleSelectionState(visible) {
@@ -520,7 +598,43 @@
     if (status === 'Faltan métricas') return 'exporta CSV con Template Maker Cert';
     if (status === 'Métricas no compatibles') return 'CSV de otra view: reexporta con Template Maker Cert';
     if (status === 'Completa') return 'necesita scoring PASSED para C2';
+    if (status === 'Similar descartada') return 'usa el ganador diverso del cluster';
     return 'revisa fuentes';
+  }
+
+  function columnLabel(column) {
+    var labels = {
+      'Strategy Name': 'Name',
+      Asset: 'Asset',
+      Symbol: 'Symbol',
+      TimeFrame: 'TF',
+      Fitness: 'Fit',
+      'Net profit': 'Net',
+      '# of trades': 'Trades',
+      'Profit factor': 'PF',
+      'Max DD %': 'DD%',
+      'Sharpe Ratio': 'Sharpe',
+      Stability: 'Stab',
+      'CAGR/Max DD %': 'C/DD',
+      'Winning Percent': 'Win%',
+      SQN: 'SQN',
+      'Recovery Factor': 'Recov'
+    };
+    return labels[column] || column;
+  }
+
+  function displayMetricValue(column, value) {
+    if (value === undefined || value === '') return '-';
+    var normalized = String(value).replace(',', '.');
+    var number = Number(normalized);
+    if (Number.isNaN(number)) return String(value);
+    if (column === 'Net profit') {
+      if (Math.abs(number) >= 1000) return (number / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+      return String(Math.round(number));
+    }
+    if (column === '# of trades') return String(Math.round(number));
+    if (column === 'Max DD %' || column === 'Winning Percent') return number.toFixed(1).replace(/\.0$/, '');
+    return number.toFixed(2).replace(/0$/, '').replace(/\.$/, '');
   }
 
   function openAudit() {
@@ -535,6 +649,9 @@
       auditTile('Failed', report.failed) +
       auditTile('Pendientes', SQX.templateMaker.getIncompleteRecords().length) +
       auditTile('Certificadas', report.certified + ' (' + report.certifiedPct + '%)') +
+      auditTile('Clusters diversidad', report.diversity ? report.diversity.clusters : 0) +
+      auditTile('Ganadores C2', report.diversity ? report.diversity.winners : 0) +
+      auditTile('Descartadas similitud', report.diversity ? report.diversity.discarded : 0) +
       auditTile('Perfil', report.preset + ' / Capa ' + report.capa) +
       '</div>';
     modal.hidden = false;

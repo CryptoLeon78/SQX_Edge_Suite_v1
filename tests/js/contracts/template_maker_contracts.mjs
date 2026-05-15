@@ -38,6 +38,13 @@ const requiredApi = [
   'getRequiredMetricNames',
   'validateMetricsContract',
   'getContractDiagnostics',
+  'extractLogicFeatures',
+  'computeTemplateSimilarity',
+  'buildDiversityClusters',
+  'getDiversityReport',
+  'getDiversitySettings',
+  'setDiversitySetting',
+  'getDiversityStatus',
   'reconcileStrategySources',
   'getStrategyStatus',
   'canGenerateC2',
@@ -60,6 +67,9 @@ assert.ok(html.includes('id="tm-open-cert-view"'), 'missing SQX Views handoff');
 assert.ok(html.includes('id="tm-contract-summary"'), 'missing contract summary cards');
 assert.ok(html.includes('id="tm-problem-panel"'), 'missing contract problem panel');
 assert.ok(html.includes('id="tm-contract-diagnostics"'), 'missing contract diagnostics panel');
+assert.ok(html.includes('id="tm-diversity-settings-grid"'), 'missing diversity settings grid');
+assert.ok(html.includes('Descorrelación de templates'), 'Template Maker should expose diversity controls');
+assert.ok(html.includes('id="tm-c2-selected-btn"'), 'missing external selected C2 action');
 assert.ok(html.includes('id="tm-reset-results-btn"'), 'missing results reset');
 assert.ok(html.includes('Reset resultados'), 'results reset should be user-facing');
 assert.ok(html.includes('id="tm-delete-selected-btn"'), 'missing selected delete action');
@@ -105,8 +115,13 @@ assert.equal(tm.getContractDiagnostics().schemaVersion, 'template-maker-cert-v2'
 const emptyScore = tm.scoreStrategy({});
 assert.equal(emptyScore.classification, 'FAILED', 'empty score should fail defensively');
 assert.equal(emptyScore.total, 0, 'empty score should not count missing KPI as evaluated');
+assert.equal(tm.getDiversitySettings().structuralThreshold, 0.70, 'default structural diversity threshold should be 0.70');
+assert.equal(tm.extractLogicFeatures({ _strategyXml: '<Strategy><Rule name="Long entry"><Item categoryType="indicator" key="EMA"><Param key="#Period#">21</Param></Item></Rule></Strategy>' }).indicators[0], 'ema', 'logic extraction should read indicator keys from SQX XML');
 
 const certV2Csv = fs.readFileSync(path.join(repoRoot, 'resources/template-maker-tool/template_maker_cert_v2_sample.csv'), 'utf8');
+['Strategy TM.01.sqx', 'Strategy TM.02.sqx', 'Strategy TM.03.sqx'].forEach(fileName => {
+  assert.ok(fs.existsSync(path.join(repoRoot, 'resources/template-maker-tool', fileName)), `missing tracked diversity SQX fixture ${fileName}`);
+});
 await tm.loadFromCSV(certV2Csv, { fileName: 'template-maker-cert-v2.csv' });
 assert.equal(tm.getStrategies().length, 3, 'realistic Template Maker Cert v2 fixture should load all rows');
 const certV2Strategy = tm.getStrategies()[0];
@@ -140,6 +155,64 @@ const reconciled32 = tm.reconcileStrategySources(tm.getStrategies().concat(sqxRe
 assert.equal(reconciled32.length, 32, 'CSV + 32 SQX records should reconcile into 32 strategy records');
 assert.ok(reconciled32.every(strategy => strategy.sources.csv && strategy.sources.sqx), 'each reconciled v2 record should keep csv+sqx sources');
 assert.ok(reconciled32.every(strategy => tm.validateMetricsContract(strategy).valid), 'all reconciled v2 records should keep valid metrics');
+await tm.clearResultStrategies();
+
+function diversityStrategy(name, indicator, profitFactor, cagr, drawdown, trades, fitness = 0.9) {
+  return {
+    'Strategy Name': name,
+    Symbol: 'XAUUSD_darwinex',
+    TimeFrame: 'H1',
+    Fitness: fitness,
+    'Net profit': 10000,
+    '# of trades': trades,
+    'Profit factor': profitFactor,
+    'Max DD %': drawdown,
+    'Sharpe Ratio': 0.9,
+    Stability: 0.8,
+    'CAGR/Max DD %': cagr,
+    'Winning Percent': 52,
+    SQN: 2.1,
+    RecoveryFactor: 3.5,
+    CalmarRatio: 0.8,
+    SortinoRatio: 1.1,
+    '% Profitable Months': 62,
+    sources: { sqx: { fileName: `${name}.sqx`, hash: `hash-${name}`, importedAt: '2026-05-15T00:00:00.000Z' } },
+    logic: {
+      features: {
+        indicators: [indicator],
+        operators: ['crossesabove'],
+        params: [`${indicator}:period=20`],
+        rules: ['long_entry'],
+        signature: `${indicator}|crossesabove`
+      }
+    }
+  };
+}
+
+await tm.loadFromCSV([
+  diversityStrategy('TM Div 01', 'hma_atr_bands', 1.50, 0.72, 1.9, 280, 0.8),
+  diversityStrategy('TM Div 02', 'hma_atr_bands', 1.64, 0.84, 1.6, 320, 0.9),
+  diversityStrategy('TM Div 03', 'keltner_channel', 1.42, 0.66, 2.4, 260, 0.7),
+], { fileName: 'template-maker-cert-v2-diversity.csv' });
+const diversityStrategies = tm.getStrategies();
+const similaritySame = tm.computeTemplateSimilarity(diversityStrategies[0], diversityStrategies[1]);
+const similarityDifferent = tm.computeTemplateSimilarity(diversityStrategies[0], diversityStrategies[2]);
+assert.equal(similaritySame.clusterMatch, true, 'same indicator templates should cluster');
+assert.equal(similarityDifferent.clusterMatch, false, 'different indicator templates should remain diverse even with valid metrics');
+const diversityReport = tm.getDiversityReport();
+assert.equal(diversityReport.candidates, 3, 'all complete passed strategies should be diversity candidates');
+assert.equal(diversityReport.clusters.length, 2, 'diversity should produce one similar cluster and one singleton');
+const div01 = tm.getDiversityStatus(diversityStrategies.find(strategy => strategy['Strategy Name'] === 'TM Div 01'));
+const div02 = tm.getDiversityStatus(diversityStrategies.find(strategy => strategy['Strategy Name'] === 'TM Div 02'));
+const div03 = tm.getDiversityStatus(diversityStrategies.find(strategy => strategy['Strategy Name'] === 'TM Div 03'));
+assert.equal(div02.status, 'Ganador cluster', 'best score should win similar cluster');
+assert.equal(div01.status, 'Similar descartada', 'non-winner similar template should be blocked');
+assert.equal(div03.status, 'Diverso', 'structurally different template should stay diverse');
+assert.equal(tm.canGenerateC2(diversityStrategies.find(strategy => strategy['Strategy Name'] === 'TM Div 01')), false, 'non-winner cluster member should not generate C2');
+assert.equal(tm.canGenerateC2(diversityStrategies.find(strategy => strategy['Strategy Name'] === 'TM Div 02')), true, 'cluster winner should generate C2');
+assert.equal(tm.canGenerateC2(diversityStrategies.find(strategy => strategy['Strategy Name'] === 'TM Div 03')), true, 'diverse singleton should generate C2');
+await tm.setDiversitySetting('structuralThreshold', 0.99);
+assert.equal(tm.getDiversitySettings().structuralThreshold, 0.99, 'diversity setting should be editable');
 await tm.clearResultStrategies();
 
 const certCsv = 'Strategy Name;Symbol;TimeFrame;Fitness;Net profit;# of trades;Profit factor;Max DD %;Sharpe Ratio;Stability;CAGR/Max DD %;Winning Percent;SQN;RecoveryFactor;CalmarRatio;SortinoRatio;% Profitable Months\nStrategy 1;XAUUSD;H1;0.91;10000;260;1.45;12;0.9;0.8;1.1;48;2.1;3.5;0.8;1.1;62';

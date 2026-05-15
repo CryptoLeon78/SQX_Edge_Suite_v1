@@ -35,6 +35,24 @@
   var DERIVED_METRICS = {
     'Ret/DD Ratio': 'CAGR/Max DD %'
   };
+  var DIVERSITY_VERSION = 'template-maker-diversity-v1';
+  var DIVERSITY_METRICS = [
+    'CAGR/Max DD %',
+    'Profit factor',
+    'Max DD %',
+    '# of trades',
+    'Winning Percent',
+    'Stability'
+  ];
+  var DEFAULT_DIVERSITY_SETTINGS = {
+    structuralThreshold: 0.70,
+    metricThreshold: 0.88,
+    hybridThreshold: 0.78,
+    structuralWeight: 0.65,
+    metricWeight: 0.35,
+    bridgeStructuralThreshold: 0.45,
+    metrics: DIVERSITY_METRICS.slice()
+  };
   var METRIC_ALIASES = {
     'Strategy Name': ['Strategy Name', 'Name', 'Strategy'],
     Symbol: ['Symbol', 'Market', 'Instrument'],
@@ -184,6 +202,7 @@
   var _currentCapa = 1;
   var _currentPreset = 'Generic';
   var _thresholds = clone(PRESETS.Generic);
+  var _diversitySettings = clone(DEFAULT_DIVERSITY_SETTINGS);
   var _nextId = 1;
 
   function clone(value) {
@@ -194,6 +213,7 @@
     _currentCapa = 1;
     _currentPreset = 'Generic';
     _thresholds = clone(PRESETS.Generic);
+    _diversitySettings = clone(DEFAULT_DIVERSITY_SETTINGS);
   }
 
   function createBaseRecord(source) {
@@ -204,6 +224,7 @@
       provenance: {
         schemaVersion: TM_SCHEMA_VERSION,
         certVersion: TM_CERT_VERSION,
+        diversityVersion: DIVERSITY_VERSION,
         ruleset: TM_RULESET,
         importedAt: new Date().toISOString(),
         events: []
@@ -216,6 +237,7 @@
     record.provenance = Object.assign({
       schemaVersion: TM_SCHEMA_VERSION,
       certVersion: TM_CERT_VERSION,
+      diversityVersion: DIVERSITY_VERSION,
       ruleset: TM_RULESET,
       importedAt: new Date().toISOString(),
       events: []
@@ -230,6 +252,7 @@
     if (!provenance) return;
     provenance.schemaVersion = TM_SCHEMA_VERSION;
     provenance.certVersion = TM_CERT_VERSION;
+    provenance.diversityVersion = DIVERSITY_VERSION;
     provenance.ruleset = TM_RULESET;
   }
 
@@ -464,6 +487,7 @@
         var settingsFile = zip.file('settings.xml');
         var strategyPromise = strategyFile ? strategyFile.async('string').then(function(xml) {
           result.logic.strategyXmlPresent = true;
+          result.logic.features = extractLogicFeaturesFromXml(xml);
           mergeStrategyXml(result, xml);
         }) : Promise.resolve();
         var settingsPromise = settingsFile ? settingsFile.async('string').then(function(xml) {
@@ -515,6 +539,142 @@
       result.Symbol = result.Symbol || match[1];
       result.TimeFrame = result.TimeFrame || match[2];
     }
+  }
+
+  function extractLogicFeatures(strategy) {
+    if (!strategy) return finalizeLogicFeatures({});
+    if (strategy.logic && strategy.logic.features) return clone(strategy.logic.features);
+    if (strategy._strategyXml) return extractLogicFeaturesFromXml(strategy._strategyXml);
+    return finalizeLogicFeatures({
+      indicators: String(strategy['Entry indicators'] || strategy.entry_indicators || strategy.indicators || '').split(/[,|;/]+/),
+      operators: String(strategy.operators || '').split(/[,|;/]+/),
+      params: [],
+      rules: []
+    });
+  }
+
+  function extractLogicFeaturesFromXml(xml) {
+    var source = String(xml || '');
+    if (!source) return finalizeLogicFeatures({});
+    if (global.DOMParser) {
+      try {
+        var doc = new global.DOMParser().parseFromString(source, 'text/xml');
+        return extractLogicFeaturesFromDoc(doc);
+      } catch (_err) {
+        return extractLogicFeaturesFromText(source);
+      }
+    }
+    return extractLogicFeaturesFromText(source);
+  }
+
+  function extractLogicFeaturesFromDoc(doc) {
+    var features = { indicators: [], operators: [], params: [], rules: [] };
+    Array.prototype.forEach.call(doc.querySelectorAll('Item'), function(item) {
+      var category = item.getAttribute('categoryType') || '';
+      var key = item.getAttribute('key') || item.getAttribute('name') || item.getAttribute('mI') || '';
+      if (category === 'indicator') {
+        var indicator = normalizeFeatureToken(key || item.getAttribute('mI') || item.getAttribute('name'));
+        if (indicator) {
+          features.indicators.push(indicator);
+          Array.prototype.forEach.call(item.querySelectorAll('Param'), function(param) {
+            var paramKey = normalizeFeatureToken(param.getAttribute('key') || param.getAttribute('name'));
+            if (paramKey) features.params.push(indicator + ':' + paramKey + '=' + normalizeParamValue(param.textContent || param.getAttribute('defaultValue') || ''));
+          });
+        }
+      } else if (category === 'operators' || /cross|above|below|and|or|not|greater|less/i.test(key)) {
+        var operator = normalizeFeatureToken(key);
+        if (operator) features.operators.push(operator);
+      }
+    });
+    Array.prototype.forEach.call(doc.querySelectorAll('Rule'), function(rule) {
+      var name = normalizeFeatureToken(rule.getAttribute('name') || '');
+      if (name) features.rules.push(name);
+    });
+    return finalizeLogicFeatures(features);
+  }
+
+  function extractLogicFeaturesFromText(xml) {
+    var features = { indicators: [], operators: [], params: [], rules: [] };
+    String(xml || '').replace(/<Item\b[^>]*>/gi, function(tag) {
+      var attrs = parseXmlAttributes(tag);
+      var category = attrs.categoryType || attrs.categorytype || '';
+      var key = attrs.key || attrs.name || attrs.mI || attrs.mi || '';
+      if (category === 'indicator') {
+        var indicator = normalizeFeatureToken(key);
+        if (indicator) features.indicators.push(indicator);
+      } else if (category === 'operators' || /cross|above|below|and|or|not|greater|less/i.test(key)) {
+        var operator = normalizeFeatureToken(key);
+        if (operator) features.operators.push(operator);
+      }
+      return tag;
+    });
+    String(xml || '').replace(/<Rule\b[^>]*name="([^"]+)"/gi, function(_match, name) {
+      features.rules.push(normalizeFeatureToken(name));
+      return _match;
+    });
+    String(xml || '').replace(/<Item\b[^>]*categoryType="indicator"[^>]*>[\s\S]*?<\/Item>/gi, function(block) {
+      var itemAttrs = parseXmlAttributes(block.split('>')[0] + '>');
+      var indicator = normalizeFeatureToken(itemAttrs.key || itemAttrs.name || itemAttrs.mI || itemAttrs.mi || '');
+      if (!indicator) return block;
+      block.replace(/<Param\b[^>]*>([\s\S]*?)<\/Param>/gi, function(tag, value) {
+        var attrs = parseXmlAttributes(tag);
+        var paramKey = normalizeFeatureToken(attrs.key || attrs.name || '');
+        if (paramKey) features.params.push(indicator + ':' + paramKey + '=' + normalizeParamValue(value));
+        return tag;
+      });
+      return block;
+    });
+    return finalizeLogicFeatures(features);
+  }
+
+  function parseXmlAttributes(tag) {
+    var attrs = {};
+    String(tag || '').replace(/([A-Za-z0-9_:#.-]+)="([^"]*)"/g, function(_match, key, value) {
+      attrs[key] = value;
+      return _match;
+    });
+    return attrs;
+  }
+
+  function normalizeFeatureToken(value) {
+    return String(value || '')
+      .toLowerCase()
+      .replace(/&quot;|&amp;quot;/g, '')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+  }
+
+  function normalizeParamValue(value) {
+    var raw = String(value || '').trim();
+    var numeric = getNumeric(raw);
+    if (numeric !== null) {
+      if (Math.abs(numeric) <= 5) return String(Math.round(numeric * 10) / 10);
+      if (Math.abs(numeric) <= 50) return String(Math.round(numeric / 5) * 5);
+      return String(Math.round(numeric / 10) * 10);
+    }
+    return normalizeFeatureToken(raw).slice(0, 40);
+  }
+
+  function finalizeLogicFeatures(features) {
+    var out = {
+      indicators: uniqueSorted(features.indicators),
+      operators: uniqueSorted(features.operators),
+      params: uniqueSorted(features.params),
+      rules: uniqueSorted(features.rules)
+    };
+    out.signature = uniqueSorted([].concat(out.indicators, out.operators, out.params, out.rules)).join('|');
+    return out;
+  }
+
+  function uniqueSorted(values) {
+    var seen = {};
+    return (values || []).map(function(value) {
+      return normalizeFeatureToken(value);
+    }).filter(function(value) {
+      if (!value || seen[value]) return false;
+      seen[value] = true;
+      return true;
+    }).sort();
   }
 
   function normalizeKey(key) {
@@ -886,6 +1046,246 @@
     };
   }
 
+  function getDiversitySettings() {
+    return clone(_diversitySettings);
+  }
+
+  function setDiversitySetting(key, value) {
+    if (!_diversitySettings || DEFAULT_DIVERSITY_SETTINGS[key] === undefined) return Promise.resolve(getDiversitySettings());
+    var numeric = Number(value);
+    if (Number.isNaN(numeric)) return Promise.resolve(getDiversitySettings());
+    _diversitySettings[key] = Math.max(0, Math.min(1, numeric));
+    return saveConfigToDB('diversitySettings', _diversitySettings).then(getDiversitySettings);
+  }
+
+  function comparableDiversityGroup(strategy) {
+    return [
+      String(strategy && strategy.Symbol || '').toLowerCase().trim(),
+      String(strategy && strategy.TimeFrame || '').toLowerCase().trim()
+    ].join('|');
+  }
+
+  function isDiversityCandidate(strategy) {
+    if (!strategy) return { ok: false, reason: 'sin estrategia' };
+    if (!validateMetricsContract(strategy).valid) return { ok: false, reason: 'contrato CSV pendiente' };
+    if (!hasSQX(strategy)) return { ok: false, reason: 'falta .sqx' };
+    if (scoreStrategy(strategy).classification !== 'PASSED') return { ok: false, reason: 'scoring no PASSED' };
+    return { ok: true, reason: 'evaluable' };
+  }
+
+  function computeTemplateSimilarity(a, b) {
+    var sameGroup = comparableDiversityGroup(a) === comparableDiversityGroup(b);
+    if (!sameGroup) {
+      return {
+        comparable: false,
+        structuralSimilarity: 0,
+        metricSimilarity: 0,
+        hybridSimilarity: 0,
+        clusterMatch: false,
+        reason: 'asset/timeframe distinto'
+      };
+    }
+    var structural = computeStructuralSimilarity(extractLogicFeatures(a), extractLogicFeatures(b));
+    var metric = computeMetricSimilarity(a, b);
+    var weights = normalizedDiversityWeights();
+    var hybrid = roundSimilarity((structural * weights.structural) + (metric * weights.metric));
+    var settings = _diversitySettings || DEFAULT_DIVERSITY_SETTINGS;
+    var clusterMatch = structural >= settings.structuralThreshold
+      || (structural >= settings.bridgeStructuralThreshold && metric >= settings.metricThreshold)
+      || hybrid >= settings.hybridThreshold;
+    return {
+      comparable: true,
+      structuralSimilarity: structural,
+      metricSimilarity: metric,
+      hybridSimilarity: hybrid,
+      clusterMatch: clusterMatch,
+      reason: clusterMatch ? 'similitud hibrida' : 'diverso'
+    };
+  }
+
+  function normalizedDiversityWeights() {
+    var structural = Number(_diversitySettings.structuralWeight);
+    var metric = Number(_diversitySettings.metricWeight);
+    var total = (structural || 0) + (metric || 0);
+    if (!total) return { structural: 0.65, metric: 0.35 };
+    return { structural: structural / total, metric: metric / total };
+  }
+
+  function computeStructuralSimilarity(aFeatures, bFeatures) {
+    var indicators = jaccard(aFeatures.indicators, bFeatures.indicators);
+    var operators = jaccard(aFeatures.operators, bFeatures.operators);
+    var params = jaccard(aFeatures.params, bFeatures.params);
+    var rules = jaccard(aFeatures.rules, bFeatures.rules);
+    return roundSimilarity((indicators * 0.55) + (operators * 0.20) + (params * 0.20) + (rules * 0.05));
+  }
+
+  function computeMetricSimilarity(a, b) {
+    var sims = [];
+    (_diversitySettings.metrics || DIVERSITY_METRICS).forEach(function(metric) {
+      var av = getNumeric(metricValue(a, metric));
+      var bv = getNumeric(metricValue(b, metric));
+      if (av === null || bv === null) return;
+      var denom = Math.max(Math.abs(av), Math.abs(bv), 1);
+      sims.push(Math.max(0, 1 - (Math.abs(av - bv) / denom)));
+    });
+    if (!sims.length) return 0;
+    return roundSimilarity(sims.reduce(function(sum, value) { return sum + value; }, 0) / sims.length);
+  }
+
+  function jaccard(a, b) {
+    var left = uniqueSorted(a);
+    var right = uniqueSorted(b);
+    if (!left.length && !right.length) return 0;
+    var rightMap = {};
+    right.forEach(function(value) { rightMap[value] = true; });
+    var intersection = left.filter(function(value) { return rightMap[value]; }).length;
+    var unionMap = {};
+    left.concat(right).forEach(function(value) { unionMap[value] = true; });
+    return intersection / Object.keys(unionMap).length;
+  }
+
+  function roundSimilarity(value) {
+    return Math.max(0, Math.min(1, Math.round((Number(value) || 0) * 1000) / 1000));
+  }
+
+  function buildDiversityClusters(strategies) {
+    var list = (strategies || _strategies).slice();
+    var report = {
+      version: DIVERSITY_VERSION,
+      settings: getDiversitySettings(),
+      total: list.length,
+      candidates: 0,
+      clusters: [],
+      winners: 0,
+      discarded: 0,
+      byId: {},
+      statuses: []
+    };
+    var groups = {};
+    list.forEach(function(strategy) {
+      var candidate = isDiversityCandidate(strategy);
+      var id = String(strategy && strategy._id);
+      if (!candidate.ok) {
+        report.byId[id] = diversityStatus(strategy, 'No evaluable', '-', 0, candidate.reason, false);
+        report.statuses.push(report.byId[id]);
+        return;
+      }
+      report.candidates += 1;
+      var key = comparableDiversityGroup(strategy);
+      groups[key] = groups[key] || [];
+      groups[key].push(strategy);
+    });
+    Object.keys(groups).forEach(function(groupKey) {
+      buildGroupClusters(groups[groupKey], groupKey, report);
+    });
+    return report;
+  }
+
+  function buildGroupClusters(group, groupKey, report) {
+    var parent = group.map(function(_item, index) { return index; });
+    var pairEvidence = {};
+    function find(index) {
+      while (parent[index] !== index) {
+        parent[index] = parent[parent[index]];
+        index = parent[index];
+      }
+      return index;
+    }
+    function union(a, b) {
+      var rootA = find(a);
+      var rootB = find(b);
+      if (rootA !== rootB) parent[rootB] = rootA;
+    }
+    for (var i = 0; i < group.length; i += 1) {
+      for (var j = i + 1; j < group.length; j += 1) {
+        var similarity = computeTemplateSimilarity(group[i], group[j]);
+        pairEvidence[i + ':' + j] = similarity;
+        if (similarity.clusterMatch) union(i, j);
+      }
+    }
+    var buckets = {};
+    group.forEach(function(strategy, index) {
+      var root = find(index);
+      buckets[root] = buckets[root] || [];
+      buckets[root].push({ strategy: strategy, index: index });
+    });
+    Object.keys(buckets).forEach(function(root) {
+      var members = buckets[root];
+      var winner = chooseDiversityWinner(members.map(function(item) { return item.strategy; }));
+      var clusterId = 'CL' + String(report.clusters.length + 1).padStart(2, '0');
+      var cluster = {
+        id: clusterId,
+        group: groupKey,
+        size: members.length,
+        winnerId: winner && winner._id,
+        members: members.map(function(item) { return item.strategy._id; })
+      };
+      report.clusters.push(cluster);
+      members.forEach(function(item) {
+        var strategy = item.strategy;
+        var relation = winner && String(strategy._id) !== String(winner._id)
+          ? similarityBetweenIndexes(item.index, members.find(function(candidate) { return String(candidate.strategy._id) === String(winner._id); }).index, pairEvidence)
+          : { hybridSimilarity: 0, structuralSimilarity: 0, metricSimilarity: 0 };
+        var status = members.length === 1 ? 'Diverso' : String(strategy._id) === String(winner._id) ? 'Ganador cluster' : 'Similar descartada';
+        var canGenerate = status === 'Diverso' || status === 'Ganador cluster';
+        var reason = status === 'Similar descartada'
+          ? 'similar a ' + (winner['Strategy Name'] || winner._id)
+          : members.length === 1 ? 'sin similares detectados' : 'mejor score del cluster';
+        var payload = diversityStatus(strategy, status, clusterId, relation.hybridSimilarity || 0, reason, canGenerate, relation);
+        report.byId[String(strategy._id)] = payload;
+        report.statuses.push(payload);
+        if (canGenerate) report.winners += 1;
+        else report.discarded += 1;
+      });
+    });
+  }
+
+  function similarityBetweenIndexes(a, b, evidence) {
+    if (a === b) return { hybridSimilarity: 0, structuralSimilarity: 0, metricSimilarity: 0 };
+    return evidence[Math.min(a, b) + ':' + Math.max(a, b)] || { hybridSimilarity: 0, structuralSimilarity: 0, metricSimilarity: 0 };
+  }
+
+  function chooseDiversityWinner(strategies) {
+    return (strategies || []).slice().sort(function(a, b) {
+      var scoreA = scoreStrategy(a);
+      var scoreB = scoreStrategy(b);
+      return scoreB.pct - scoreA.pct
+        || (getNumeric(metricValue(b, 'Profit factor')) || 0) - (getNumeric(metricValue(a, 'Profit factor')) || 0)
+        || (getNumeric(metricValue(b, 'CAGR/Max DD %')) || 0) - (getNumeric(metricValue(a, 'CAGR/Max DD %')) || 0)
+        || (getNumeric(metricValue(a, 'Max DD %')) || 999999) - (getNumeric(metricValue(b, 'Max DD %')) || 999999)
+        || (getNumeric(metricValue(b, '# of trades')) || 0) - (getNumeric(metricValue(a, '# of trades')) || 0)
+        || (Number(a._id) || 0) - (Number(b._id) || 0);
+    })[0] || null;
+  }
+
+  function diversityStatus(strategy, status, clusterId, similarity, reason, canGenerate, relation) {
+    return {
+      strategyId: strategy && strategy._id,
+      strategyName: strategy && strategy['Strategy Name'] || '',
+      status: status,
+      clusterId: clusterId,
+      similarity: roundSimilarity(similarity || 0),
+      structuralSimilarity: roundSimilarity(relation && relation.structuralSimilarity || 0),
+      metricSimilarity: roundSimilarity(relation && relation.metricSimilarity || 0),
+      reason: reason || '',
+      canGenerateC2: !!canGenerate,
+      version: DIVERSITY_VERSION
+    };
+  }
+
+  function getDiversityReport() {
+    return buildDiversityClusters(_strategies);
+  }
+
+  function getDiversityStatus(strategy) {
+    var resolved = typeof strategy === 'object' ? strategy : _strategies.find(function(item) {
+      return String(item._id) === String(strategy);
+    });
+    if (!resolved) return diversityStatus(null, 'No evaluable', '-', 0, 'estrategia no encontrada', false);
+    var report = getDiversityReport();
+    return report.byId[String(resolved._id)] || diversityStatus(resolved, 'No evaluable', '-', 0, 'sin estado de diversidad', false);
+  }
+
   function hasSQX(strategy) {
     return !!(strategy && (strategy._fileData || strategy.sources && strategy.sources.sqx));
   }
@@ -895,12 +1295,20 @@
     if (!contract.valid) return contract.status;
     if (!hasSQX(strategy)) return 'Falta SQX';
     var resolvedScore = score || scoreStrategy(strategy);
-    if (resolvedScore.classification === 'PASSED') return 'Lista para C2';
+    if (resolvedScore.classification === 'PASSED') {
+      var diversity = getDiversityStatus(strategy);
+      if (diversity.status === 'Similar descartada') return 'Similar descartada';
+      return 'Lista para C2';
+    }
     return 'Completa';
   }
 
   function canGenerateC2(strategy) {
-    return hasSQX(strategy) && validateMetricsContract(strategy).valid && scoreStrategy(strategy).classification === 'PASSED';
+    var diversity = getDiversityStatus(strategy);
+    return hasSQX(strategy)
+      && validateMetricsContract(strategy).valid
+      && scoreStrategy(strategy).classification === 'PASSED'
+      && (diversity.status === 'Diverso' || diversity.status === 'Ganador cluster');
   }
 
   function getIncompleteRecords() {
@@ -1063,6 +1471,7 @@
 
   function getAuditReport() {
     var scored = scoreAll();
+    var diversity = getDiversityReport();
     var total = scored.length;
     var passed = scored.filter(function(item) { return item.score.classification === 'PASSED'; }).length;
     var review = scored.filter(function(item) { return item.score.classification === 'REVIEW'; }).length;
@@ -1086,6 +1495,13 @@
       passedPct: total ? Math.round((passed / total) * 100) : 0,
       certifiedPct: total ? Math.round((certified / total) * 100) : 0,
       assets: assets,
+      diversity: {
+        version: DIVERSITY_VERSION,
+        candidates: diversity.candidates,
+        clusters: diversity.clusters.length,
+        winners: diversity.winners,
+        discarded: diversity.discarded
+      },
       capa: _currentCapa,
       preset: _currentPreset
     };
@@ -1093,7 +1509,7 @@
 
   function generateC2Template(strategy, options) {
     if (!strategy || !strategy._fileData) return Promise.reject(new Error('La estrategia no tiene .sqx de origen'));
-    if (!canGenerateC2(strategy)) return Promise.reject(new Error('Requiere .sqx, CSV Template Maker Cert compatible y estado PASSED.'));
+    if (!canGenerateC2(strategy)) return Promise.reject(new Error('Requiere .sqx, CSV Template Maker Cert compatible, estado PASSED y diversidad aprobada.'));
     if (!global.JSZip) return Promise.reject(new Error('JSZip no esta cargado'));
     return global.JSZip.loadAsync(strategy._fileData).then(function(zip) {
       var file = zip.file('strategy_Portfolio.xml');
@@ -1320,7 +1736,7 @@
     return new Promise(function(resolve, reject) {
       var tx = _db.transaction([TM_STORE_CONFIG], 'readonly');
       var store = tx.objectStore(TM_STORE_CONFIG);
-      var keys = ['currentCapa', 'currentPreset', 'thresholds'];
+    var keys = ['currentCapa', 'currentPreset', 'thresholds', 'diversitySettings'];
       var pending = keys.length;
       var config = {};
       keys.forEach(function(key) {
@@ -1343,6 +1759,10 @@
     if (payload.currentCapa) _currentCapa = Number(payload.currentCapa) === 2 ? 2 : 1;
     if (payload.currentPreset && PRESETS[payload.currentPreset]) _currentPreset = payload.currentPreset;
     if (payload.thresholds) _thresholds = payload.thresholds;
+    if (payload.diversitySettings) {
+      _diversitySettings = Object.assign({}, clone(DEFAULT_DIVERSITY_SETTINGS), payload.diversitySettings);
+      _diversitySettings.metrics = DIVERSITY_METRICS.slice();
+    }
   }
 
   function clearDB() {
@@ -1383,6 +1803,13 @@
     getRequiredMetricNames: getRequiredMetricNames,
     validateMetricsContract: validateMetricsContract,
     getContractDiagnostics: getContractDiagnostics,
+    extractLogicFeatures: extractLogicFeatures,
+    computeTemplateSimilarity: computeTemplateSimilarity,
+    buildDiversityClusters: buildDiversityClusters,
+    getDiversityReport: getDiversityReport,
+    getDiversitySettings: getDiversitySettings,
+    setDiversitySetting: setDiversitySetting,
+    getDiversityStatus: getDiversityStatus,
     reconcileStrategySources: reconcileStrategySources,
     getStrategyStatus: getStrategyStatus,
     canGenerateC2: canGenerateC2,
