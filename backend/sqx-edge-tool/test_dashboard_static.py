@@ -3566,6 +3566,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "cloudflare_access_anonymous_smoke",
             "Cloudflare Access",
             "appBodyVisibleToAnonymous",
+            "backendLocalOnlyVisibleToAnonymous",
+            "local_api_only",
             "<protected-hostname>",
         ):
             with self.subTest(pattern=pattern):

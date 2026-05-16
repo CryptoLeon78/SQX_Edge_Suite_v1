@@ -193,6 +193,7 @@ def add_cors_headers(response):
     origin = request.headers.get("Origin")
     if origin in LOCAL_CORS_ORIGINS or (origin and LOCAL_HTTP_ORIGIN_RE.match(origin)):
         response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
     response.headers["Vary"] = "Origin"
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"

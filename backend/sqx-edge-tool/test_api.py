@@ -296,14 +296,17 @@ class ApiTestCase(unittest.TestCase):
     def test_cors_allows_only_local_origins(self):
         evil = self.client.get("/api/health", headers={"Origin": "https://example.com"})
         self.assertIsNone(evil.headers.get("Access-Control-Allow-Origin"))
+        self.assertIsNone(evil.headers.get("Access-Control-Allow-Credentials"))
         self.assertEqual(evil.headers.get("X-Content-Type-Options"), "nosniff")
         self.assertEqual(evil.headers.get("Cache-Control"), "no-store")
 
         file_origin = self.client.get("/api/health", headers={"Origin": "null"})
         self.assertEqual(file_origin.headers.get("Access-Control-Allow-Origin"), "null")
+        self.assertEqual(file_origin.headers.get("Access-Control-Allow-Credentials"), "true")
 
         local_origin = self.client.get("/api/health", headers={"Origin": "http://localhost:3000"})
         self.assertEqual(local_origin.headers.get("Access-Control-Allow-Origin"), "http://localhost:3000")
+        self.assertEqual(local_origin.headers.get("Access-Control-Allow-Credentials"), "true")
 
     def test_api_rejects_non_local_boundary(self):
         response = self.client.get(

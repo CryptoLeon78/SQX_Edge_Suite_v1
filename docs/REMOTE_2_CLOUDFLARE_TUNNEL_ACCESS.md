@@ -97,6 +97,7 @@ NO-GO is expected until the operator has private Cloudflare domain/tunnel/Access
 - No router ports are opened.
 - The local backend remains bound to `127.0.0.1`.
 - Cloudflare Access must intercept anonymous users before any SQX Edge body is visible.
+- A backend `local_api_only` JSON response is not accepted as Access protection; it means Cloudflare forwarded anonymous traffic to the backend and Access is still missing or mis-scoped.
 - The app-level auth/session layer remains required after Access in REMOTE-3+.
 - The public repository must not contain hostnames, tunnel IDs, Access IDs, account IDs, tokens, emails or private screenshots.
 

@@ -231,19 +231,34 @@
     return Promise.all([
       fetchJson('/remote/access/status'),
       fetchJson('/remote/session/status'),
-      fetchJson('/remote/workspace/status'),
       fetchJson('/remote/security/status'),
       fetchJson('/health')
     ]).then(function(results) {
-      var model = computeRemoteServiceModel({
-        access: results[0],
-        session: results[1],
-        workspace: results[2],
-        security: results[3],
-        health: results[4]
+      var accessPayload = results[0] || {};
+      var sessionPayload = results[1] || {};
+      var access = accessPayload.access || {};
+      var sessionAccess = sessionPayload.access || {};
+      var session = sessionPayload.session || {};
+      var canRequestWorkspace = !!(access.allowed || sessionAccess.allowed || session.active);
+      var workspacePromise = canRequestWorkspace
+        ? fetchJson('/remote/workspace/status')
+        : Promise.resolve({
+            ok: false,
+            error: 'remote_session_pending',
+            reason: 'workspace_requires_valid_remote_session',
+            _httpStatus: 0
+          });
+      return workspacePromise.then(function(workspacePayload) {
+        var model = computeRemoteServiceModel({
+          access: accessPayload,
+          session: sessionPayload,
+          workspace: workspacePayload,
+          security: results[2],
+          health: results[3]
+        });
+        applyRemoteServiceModel(model, target);
+        return model;
       });
-      applyRemoteServiceModel(model, target);
-      return model;
     });
   }
 

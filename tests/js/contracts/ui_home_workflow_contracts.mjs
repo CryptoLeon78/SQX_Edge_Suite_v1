@@ -1,6 +1,6 @@
 import { assert, Element, createLoadedSandbox } from './harness.mjs';
 
-const { SQX, document } = createLoadedSandbox();
+const { sandbox, SQX, document } = createLoadedSandbox();
 const baseStrategy = { id: 'A', mining: 1, template: 'T', asset: 'EURUSD', tf: 'H1', metrics: {}, tests_passed: [], tests_failed: [] };
 const imported = { id: 'B', mining: 1, template: 'T', asset: 'EURUSD', tf: 'H1', metrics: {}, tests_passed: [], tests_failed: [], _imported: true };
 
@@ -76,6 +76,20 @@ assert.match(document.getElementById('remote-session-watermark').textContent, /S
 assert.equal(SQX.home.bindRemoteServicePanel(document), true);
 assert.equal(SQX.home.bindRemoteServicePanel(document), false);
 assert.match(SQX.home.remoteReasonLabel('session_missing'), /Sesion/);
+const remoteStatusCalls = [];
+sandbox.fetch = url => {
+  remoteStatusCalls.push(String(url));
+  const payload = String(url).includes('/health')
+    ? { ok: true, sqx_path_set: true, data_db_exists: true, templates_capa1_exists: true, templates_capa2_exists: true }
+    : { ok: true, access: { allowed: false }, session: { active: false }, mode: 'local_only' };
+  return Promise.resolve({
+    ok: true,
+    status: 200,
+    json: () => Promise.resolve(payload)
+  });
+};
+await SQX.home.refreshRemoteServiceStatus(document);
+assert.equal(remoteStatusCalls.some(url => url.includes('/remote/workspace/status')), false);
 const trace = SQX.home.addTrace([], SQX.home.createTraceItem('Phase 17', 'contracts', 'ok', new Date('2026-05-04T12:00:00Z')), 12);
 assert.match(SQX.home.traceHtml(trace), /Phase 17/);
 
