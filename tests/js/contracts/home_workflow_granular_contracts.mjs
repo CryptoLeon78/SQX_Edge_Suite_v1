@@ -26,7 +26,13 @@ assert.match(SQX.home.traceHtml([traceItem]), /Title/);
   'home-audit-manifest-detail', 'home-audit-plan', 'home-audit-plan-detail',
   'home-audit-backend', 'home-audit-backend-detail', 'home-audit-templates',
   'home-audit-templates-detail', 'home-audit-sqx', 'home-audit-sqx-detail',
-  'home-audit-output', 'home-audit-output-detail'
+  'home-audit-output', 'home-audit-output-detail',
+  'remote-pro-panel', 'remote-pro-title', 'remote-pro-detail', 'remote-pro-badge',
+  'remote-pro-access-item', 'remote-pro-access-status', 'remote-pro-access-detail',
+  'remote-pro-workspace-item', 'remote-pro-workspace-status', 'remote-pro-workspace-detail',
+  'remote-pro-server-item', 'remote-pro-server-status', 'remote-pro-server-detail',
+  'remote-pro-privacy-item', 'remote-pro-privacy-status', 'remote-pro-privacy-detail',
+  'remote-pro-refresh'
 ].forEach(id => document.add(new Element(id)));
 
 const model = SQX.home.computeHomeModel({
@@ -49,6 +55,18 @@ assert.equal(document.getElementById('home-readiness-score').textContent, '75%')
 assert.equal(document.getElementById('home-audit-score').textContent, '2/6');
 assert.equal(document.getElementById('home-readiness-bar').style.width, '75%');
 assert.equal(document.getElementById('home-check-backend').classList.contains('is-warn'), true);
+assert.equal(SQX.home.apiBase(), 'http://127.0.0.1:5050/api');
+assert.equal(SQX.home.shortWorkspaceId('ws_1234567890abcdef'), 'ws_1234567890a...');
+const remotePending = SQX.home.computeRemoteServiceModel({
+  access: { mode: 'local_only', authenticated: false, access: { allowed: false, reason: 'identity_missing' } },
+  session: { session: { active: false }, access: { allowed: false, reason: 'session_missing' } },
+  workspace: { ok: false, error: 'remote_session_required' },
+  health: { ok: false },
+});
+assert.equal(remotePending.state, 'warn');
+SQX.home.applyRemoteServiceModel(remotePending, document);
+assert.equal(document.getElementById('remote-pro-access-status').textContent, 'Sin sesion remota');
+assert.match(document.getElementById('remote-pro-privacy-detail').textContent, /no se muestran rutas internas/);
 
 const tabA = document.add(new Element('wf-main-tab', ['subtab', 'active'], { subtab: 'wf-main' }));
 const tabB = document.add(new Element('wf-rules-tab', ['subtab'], { subtab: 'wf-rules' }));

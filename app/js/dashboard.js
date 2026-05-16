@@ -1478,6 +1478,9 @@ if (homeHistoryClear) {
     renderHomeTrace();
   });
 }
+if (SQX_HOME.initRemoteServicePanel) {
+  SQX_HOME.initRemoteServicePanel(document);
+}
 
 function bindBtns(sel, dataKey, varSetter, cb) {
   if (SQX_UI_MODULE.bindButtonGroup) return SQX_UI_MODULE.bindButtonGroup(sel, dataKey, varSetter, cb, document);

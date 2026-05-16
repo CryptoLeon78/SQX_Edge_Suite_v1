@@ -30,6 +30,33 @@
     return [item].concat(trace || []).slice(0, maxItems || 12);
   }
 
+  function apiBase() {
+    var config = SQX.config || {};
+    var raw = config.raw || global.SQX_CONFIG || {};
+    if (raw.apiBase) return raw.apiBase().replace(/\/$/, '');
+    return 'http://127.0.0.1:5050/api';
+  }
+
+  function fetchJson(path, options) {
+    if (!global.fetch) {
+      return Promise.resolve({ ok: false, error: 'fetch_unavailable', _httpStatus: 0 });
+    }
+    return global.fetch(apiBase() + path, Object.assign({ credentials: 'include' }, options || {}))
+      .then(function(response) {
+        return response.json()
+          .catch(function() { return {}; })
+          .then(function(payload) {
+            var data = payload && typeof payload === 'object' ? payload : {};
+            data._httpStatus = response.status;
+            data._httpOk = response.ok;
+            return data;
+          });
+      })
+      .catch(function(err) {
+        return { ok: false, error: err && err.message ? err.message : 'request_failed', _httpStatus: 0 };
+      });
+  }
+
   function traceHtml(trace, escapeFn) {
     var esc = escapeFn || escapeHtml;
     return (trace || []).map(function(item) {
@@ -43,6 +70,163 @@
         '</div>'
       );
     }).join('');
+  }
+
+  function remoteReasonLabel(reason) {
+    var labels = {
+      access_allowed: 'Permiso activo',
+      session_access_allowed: 'Sesion remota validada',
+      session_created: 'Sesion creada',
+      active_entitlement: 'Permiso activo',
+      identity_missing: 'Email remoto no detectado',
+      entitlement_missing: 'Permiso no encontrado',
+      entitlement_expired: 'Permiso expirado',
+      entitlement_pending: 'Permiso pendiente',
+      entitlement_denied: 'Permiso denegado',
+      entitlement_blocked: 'Permiso bloqueado',
+      tester_grant_key_required: 'Clave tester pendiente',
+      session_missing: 'Sesion de app pendiente',
+      session_expired: 'Sesion expirada',
+      remote_session_required: 'Sesion remota requerida'
+    };
+    return labels[reason] || String(reason || 'Pendiente');
+  }
+
+  function shortWorkspaceId(id) {
+    var value = String(id || '').trim();
+    if (!value) return '';
+    return value.length > 14 ? value.slice(0, 14) + '...' : value;
+  }
+
+  function computeRemoteServiceModel(input) {
+    var data = input || {};
+    var accessPayload = data.access || {};
+    var sessionPayload = data.session || {};
+    var workspacePayload = data.workspace || {};
+    var healthPayload = data.health || {};
+    var access = accessPayload.access || {};
+    var sessionAccess = sessionPayload.access || accessPayload.session_access || {};
+    var session = sessionPayload.session || accessPayload.session || {};
+    var entitlement = sessionPayload.entitlement || accessPayload.entitlement || {};
+    var workspace = workspacePayload.workspace || {};
+    var accessAllowed = !!(sessionAccess.allowed || access.allowed);
+    var authenticated = !!(accessPayload.authenticated || session.active || accessAllowed);
+    var workspaceOk = !!(workspacePayload.ok && workspace.id);
+    var serverOk = !!healthPayload.ok;
+    var serverReady = !!(serverOk && healthPayload.sqx_path_set && healthPayload.data_db_exists && healthPayload.templates_capa1_exists && healthPayload.templates_capa2_exists);
+    var reason = (sessionAccess.reason || access.reason || entitlement.reason || accessPayload.error || sessionPayload.error || 'identity_missing');
+    var mode = accessPayload.mode || 'local_only';
+    var state = accessAllowed && workspaceOk && serverOk ? 'active' : (authenticated || serverOk ? 'pending' : 'warn');
+    if (String(reason).indexOf('blocked') >= 0 || String(reason).indexOf('denied') >= 0) state = 'blocked';
+    var entitlementKind = entitlement.kind || session.entitlement_kind || '';
+    var featureScope = (sessionAccess.feature_scope || access.feature_scope || entitlement.feature_scope || 'none');
+    var accessStatus = accessAllowed ? 'Acceso completo activo' : (authenticated ? 'Identidad detectada' : 'Sin sesion remota');
+    var accessDetail = accessAllowed
+      ? ((entitlementKind ? entitlementKind + ' · ' : '') + featureScope + ' · ' + remoteReasonLabel(reason))
+      : (mode === 'local_only' ? 'Modo local interno; el enlace remoto activara email y permiso.' : remoteReasonLabel(reason));
+    var workspaceStatus = workspaceOk ? shortWorkspaceId(workspace.id) : 'Pendiente';
+    var workspaceDetail = workspaceOk
+      ? 'Workspace aislado gestionado por servidor; rutas locales no expuestas.'
+      : 'Se crea solo con sesion remota valida y permiso activo.';
+    var serverStatus = serverOk ? (serverReady ? 'Recursos listos' : 'Backend disponible') : 'No conectado';
+    var serverDetail = serverOk
+      ? (serverReady ? 'SQX, data.db y templates verificados en servidor.' : 'API responde; completar recursos servidor antes de operar.')
+      : 'Sin conexion con la API del gateway remoto o local.';
+
+    return {
+      state: state,
+      badgeClass: 'is-' + state,
+      badge: state === 'active' ? 'Remote Pro' : (state === 'blocked' ? 'Bloqueado' : (mode === 'local_only' ? 'Local' : 'Pendiente')),
+      title: state === 'active' ? 'Acceso remoto listo' : (state === 'blocked' ? 'Acceso bloqueado' : 'Preparado para acceso remoto'),
+      detail: state === 'active'
+        ? 'Sesion, permiso, workspace y backend estan coordinados para operar desde enlace protegido.'
+        : 'El acceso final se valida con email, permiso activo, sesion de app y workspace aislado.',
+      items: {
+        access: { state: accessAllowed ? 'ok' : (authenticated ? 'pending' : 'warn'), status: accessStatus, detail: accessDetail },
+        workspace: { state: workspaceOk ? 'ok' : 'pending', status: workspaceStatus, detail: workspaceDetail },
+        server: { state: serverReady ? 'ok' : (serverOk ? 'pending' : 'warn'), status: serverStatus, detail: serverDetail },
+        privacy: {
+          state: 'ok',
+          status: 'Sin instalacion local',
+          detail: 'El usuario trabaja por enlace; no se muestran rutas internas, tokens, claves ni carpetas del servidor.'
+        }
+      },
+      raw: {
+        accessVersion: accessPayload.version,
+        workspaceVersion: workspacePayload.version || workspace.version,
+        serverVersion: healthPayload.version
+      }
+    };
+  }
+
+  function setRemoteItem(doc, key, item) {
+    var target = doc || global.document;
+    var box = target.getElementById('remote-pro-' + key + '-item');
+    var status = target.getElementById('remote-pro-' + key + '-status');
+    var detail = target.getElementById('remote-pro-' + key + '-detail');
+    if (box) {
+      box.classList.remove('is-ok', 'is-warn', 'is-pending', 'is-blocked');
+      box.classList.add('is-' + (item.state || 'pending'));
+    }
+    if (status) status.textContent = item.status || 'Pendiente';
+    if (detail) detail.textContent = item.detail || '';
+  }
+
+  function applyRemoteServiceModel(model, doc) {
+    var target = doc || global.document;
+    if (!target || !model) return;
+    var panel = target.getElementById('remote-pro-panel');
+    var badge = target.getElementById('remote-pro-badge');
+    setText(target, 'remote-pro-title', model.title);
+    setText(target, 'remote-pro-detail', model.detail);
+    if (panel) {
+      panel.classList.remove('is-active', 'is-warn', 'is-pending', 'is-blocked');
+      panel.classList.add('is-' + (model.state || 'pending'));
+    }
+    if (badge) {
+      badge.className = 'remote-pro-badge ' + (model.badgeClass || 'is-pending');
+      badge.textContent = model.badge || 'Pendiente';
+    }
+    setRemoteItem(target, 'access', model.items.access);
+    setRemoteItem(target, 'workspace', model.items.workspace);
+    setRemoteItem(target, 'server', model.items.server);
+    setRemoteItem(target, 'privacy', model.items.privacy);
+  }
+
+  function refreshRemoteServiceStatus(doc) {
+    var target = doc || global.document;
+    applyRemoteServiceModel(computeRemoteServiceModel({}), target);
+    return Promise.all([
+      fetchJson('/remote/access/status'),
+      fetchJson('/remote/session/status'),
+      fetchJson('/remote/workspace/status'),
+      fetchJson('/health')
+    ]).then(function(results) {
+      var model = computeRemoteServiceModel({
+        access: results[0],
+        session: results[1],
+        workspace: results[2],
+        health: results[3]
+      });
+      applyRemoteServiceModel(model, target);
+      return model;
+    });
+  }
+
+  function bindRemoteServicePanel(doc) {
+    var target = doc || global.document;
+    var btn = target && target.getElementById('remote-pro-refresh');
+    if (!btn || btn.dataset.boundRemotePro) return false;
+    btn.dataset.boundRemotePro = '1';
+    btn.addEventListener('click', function() { refreshRemoteServiceStatus(target); });
+    return true;
+  }
+
+  function initRemoteServicePanel(doc) {
+    var target = doc || global.document;
+    if (!target || !target.getElementById('remote-pro-panel')) return null;
+    bindRemoteServicePanel(target);
+    return refreshRemoteServiceStatus(target);
   }
 
   function assetCounts(assets) {
@@ -179,8 +363,17 @@
   SQX.home = SQX.home || {
     addTrace: addTrace,
     applyHomeModel: applyHomeModel,
+    applyRemoteServiceModel: applyRemoteServiceModel,
+    apiBase: apiBase,
+    bindRemoteServicePanel: bindRemoteServicePanel,
+    computeRemoteServiceModel: computeRemoteServiceModel,
     computeHomeModel: computeHomeModel,
     createTraceItem: createTraceItem,
+    fetchJson: fetchJson,
+    initRemoteServicePanel: initRemoteServicePanel,
+    refreshRemoteServiceStatus: refreshRemoteServiceStatus,
+    remoteReasonLabel: remoteReasonLabel,
+    shortWorkspaceId: shortWorkspaceId,
     escapeHtml: escapeHtml,
     traceHtml: traceHtml,
     trimAction: trimAction

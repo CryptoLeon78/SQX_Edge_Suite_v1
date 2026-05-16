@@ -103,6 +103,7 @@ Remote-service invariants:
 - Payment entitlement and validated email are checked before user-facing Pro access.
 - REMOTE-3C payment webhooks use `remote-payment-webhook-v1`, `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`, exact-body HMAC verification and idempotent `processedWebhookEvents` before changing paid access.
 - REMOTE-4 workspaces use `remote-workspace-v1`; the workspace id is derived from the active session identity hash and browser-supplied workspace ids or local paths are ignored.
+- REMOTE-5 Home UX uses `remote-pro-panel` to render access, session, workspace, server and privacy state without exposing raw local paths or identities.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -134,6 +135,14 @@ REMOTE-4 workspace isolation foundation:
 - `GET /api/remote/workspace/status` provisions the server-derived workspace for the active session and returns no local paths.
 - `POST /api/remote/protected/write-pilot` now writes its audit proof inside the derived workspace and ignores browser `workspace_id`, `workspaceId` or `path` fields.
 - Workspace files live under ignored `.local/remote_service/workspaces/` or private `SQX_REMOTE_WORKSPACES_ROOT`.
+
+REMOTE-5 remote Pro UX surface:
+
+- `docs/REMOTE_5_REMOTE_UX.md` owns the visible UX contract for remote-service status.
+- `app/SQX_Dashboard_v6.html` contains the Home `remote-pro-panel`.
+- `app/js/modules/home.js` computes and renders the redacted remote status model from `GET /api/remote/access/status`, `GET /api/remote/session/status`, `GET /api/remote/workspace/status` and `GET /api/health`.
+- `app/js/dashboard.js` initializes the panel during dashboard boot.
+- Public copy may show entitlement class, short workspace id and readiness, but never raw SQX paths, workspace roots, `data.db`, output folders, session tokens, grant keys, private URLs, Cloudflare identifiers or raw emails.
 
 REMOTE-SUG1 deployment hardening decision:
 

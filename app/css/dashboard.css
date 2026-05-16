@@ -2031,6 +2031,73 @@
   .home-panel-title { margin-bottom:16px; color:var(--accent2, var(--accent)); }
   .home-focus-row { display:flex; justify-content:space-between; gap:14px; padding:12px 0; border-bottom:1px solid var(--border); }
   .home-focus-row:last-child { border-bottom:none; }
+  .remote-pro-panel {
+    border-color:rgba(96,165,250,.22);
+    background:linear-gradient(180deg, rgba(15,23,42,.88), rgba(10,16,28,.78));
+  }
+  .remote-pro-panel.is-active { border-color:rgba(34,197,94,.36); }
+  .remote-pro-panel.is-blocked { border-color:rgba(239,68,68,.34); }
+  .remote-pro-panel.is-warn,
+  .remote-pro-panel.is-pending { border-color:rgba(234,179,8,.32); }
+  .remote-pro-head {
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+  }
+  .remote-pro-head .home-panel-title { margin-bottom:5px; }
+  .remote-pro-head strong { display:block; color:var(--text); font-size:15px; line-height:1.25; }
+  .remote-pro-badge {
+    flex-shrink:0;
+    display:inline-flex;
+    align-items:center;
+    min-height:26px;
+    padding:4px 9px;
+    border:1px solid rgba(148,163,184,.22);
+    border-radius:6px;
+    color:var(--text2);
+    background:rgba(15,23,42,.82);
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.35px;
+    text-transform:uppercase;
+  }
+  .remote-pro-badge.is-active { color:var(--green); border-color:rgba(34,197,94,.38); background:rgba(34,197,94,.10); }
+  .remote-pro-badge.is-pending { color:var(--yellow); border-color:rgba(234,179,8,.38); background:rgba(234,179,8,.09); }
+  .remote-pro-badge.is-warn { color:var(--orange); border-color:rgba(249,115,22,.38); background:rgba(249,115,22,.09); }
+  .remote-pro-badge.is-blocked { color:var(--red); border-color:rgba(239,68,68,.38); background:rgba(239,68,68,.09); }
+  .remote-pro-panel p {
+    margin:0 0 12px;
+    color:var(--text2);
+    font-size:12px;
+    line-height:1.45;
+  }
+  .remote-pro-grid { display:grid; gap:8px; }
+  .remote-pro-item {
+    min-width:0;
+    padding:10px 11px;
+    border:1px solid rgba(148,163,184,.16);
+    border-radius:8px;
+    background:rgba(15,23,42,.62);
+  }
+  .remote-pro-item span {
+    display:block;
+    margin-bottom:4px;
+    color:var(--text2);
+    font-size:10px;
+    text-transform:uppercase;
+    font-weight:900;
+    letter-spacing:.35px;
+  }
+  .remote-pro-item strong { display:block; color:var(--text); font-size:13px; line-height:1.2; }
+  .remote-pro-item small { display:block; margin-top:4px; color:var(--text2); font-size:11px; line-height:1.35; }
+  .remote-pro-item.is-ok { border-color:rgba(34,197,94,.28); background:rgba(34,197,94,.06); }
+  .remote-pro-item.is-warn,
+  .remote-pro-item.is-pending { border-color:rgba(234,179,8,.26); background:rgba(234,179,8,.055); }
+  .remote-pro-item.is-blocked { border-color:rgba(239,68,68,.28); background:rgba(239,68,68,.055); }
+  .remote-pro-item.is-privacy { border-color:rgba(20,184,166,.24); background:rgba(20,184,166,.06); }
+  .remote-pro-refresh { width:100%; margin-top:12px; }
 
   .license-panel {
     display:grid;

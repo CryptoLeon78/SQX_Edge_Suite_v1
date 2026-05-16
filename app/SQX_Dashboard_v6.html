@@ -203,6 +203,39 @@
             <strong id="home-data-status">Manifest activo</strong>
           </div>
         </div>
+        <div class="home-panel remote-pro-panel is-pending" id="remote-pro-panel">
+          <div class="remote-pro-head">
+            <div>
+              <div class="home-panel-title">Acceso web Pro</div>
+              <strong id="remote-pro-title">Comprobando sesion remota</strong>
+            </div>
+            <span id="remote-pro-badge" class="remote-pro-badge is-pending">Pendiente</span>
+          </div>
+          <p id="remote-pro-detail">El enlace protegido validara email, permiso activo y workspace aislado antes de operar.</p>
+          <div class="remote-pro-grid">
+            <div class="remote-pro-item" id="remote-pro-access-item">
+              <span>Sesion</span>
+              <strong id="remote-pro-access-status">Sin comprobar</strong>
+              <small id="remote-pro-access-detail">Esperando API remota.</small>
+            </div>
+            <div class="remote-pro-item" id="remote-pro-workspace-item">
+              <span>Workspace</span>
+              <strong id="remote-pro-workspace-status">Pendiente</strong>
+              <small id="remote-pro-workspace-detail">Se crea desde la sesion validada.</small>
+            </div>
+            <div class="remote-pro-item" id="remote-pro-server-item">
+              <span>Servidor SQX</span>
+              <strong id="remote-pro-server-status">Pendiente</strong>
+              <small id="remote-pro-server-detail">Preparado para ocultar rutas internas al usuario.</small>
+            </div>
+            <div class="remote-pro-item is-privacy" id="remote-pro-privacy-item">
+              <span>Privacidad</span>
+              <strong id="remote-pro-privacy-status">Sin instalacion local</strong>
+              <small id="remote-pro-privacy-detail">El trabajo se ejecuta en entorno controlado, auditado y aislado.</small>
+            </div>
+          </div>
+          <button class="export-btn remote-pro-refresh" id="remote-pro-refresh" type="button">Actualizar estado</button>
+        </div>
         <div class="home-panel mtf-evidence-panel" id="mtf-evidence-panel">
           <div class="mtf-evidence-head">
             <div>

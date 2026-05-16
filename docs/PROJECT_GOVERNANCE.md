@@ -4,8 +4,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: REMOTE-4 - server-derived workspace isolation foundation and workspace-aware protected write pilot.
-- Current implementation phase: REMOTE-5 - remote UX surface for Pro access state, server readiness, privacy notice and workspace status.
+- Current phase completed: REMOTE-5 - remote Pro UX surface for access state, server readiness, privacy notice and workspace status.
+- Current implementation phase: REMOTE-6 - security and abuse controls for rate limits, revocation, audit visibility, watermark and kill switch.
 - Current repository privacy state: `origin` (`SQX_Edge_Suite_v1`) and `institutional` (`SQX_Institutional_Core`) verified as PRIVATE through GitHub CLI on 2026-05-16.
 - Recent remote anchor: REMOTE-1 - laptop server baseline with localhost backend preflight, SQX path readiness checks, watchdog and optional Windows startup task.
 - Recent remote anchor: REMOTE-2 - Cloudflare Tunnel and Access gate for domain-based protected access; no router ports, no public URL in Git and no private provider identifiers committed.
@@ -35,6 +35,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Remote Session Gate: REMOTE-3B+ app sessions must use `remote-session-v1`, the `__Host-sqx_remote_session` cookie, a private `SQX_REMOTE_SESSION_SECRET`, `HttpOnly`/`Secure`/`SameSite=Lax` cookie flags, entitlement revalidation on every session check and tester grant-key verification without returning session tokens, grant keys or raw tester emails.
 - Payment Webhook Entitlement Gate: REMOTE-3C+ payment events must use `remote-payment-webhook-v1`, private `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`, exact-body HMAC verification, idempotent `processedWebhookEvents`, redacted identity and audit-only local logs. Webhook responses and entitlement grants must not return or persist raw buyer emails, provider secrets or checkout payloads.
 - Workspace Isolation Gate: REMOTE-4+ workspaces must use `remote-workspace-v1`, derive `workspace_id` only from the active app session identity hash, keep local workspace paths out of public JSON, ignore browser-supplied workspace ids/paths and write mutable audit events inside the derived workspace.
+- Remote UX Disclosure Gate: REMOTE-5+ dashboard surfaces may show access state, entitlement class, short workspace id and server readiness, but must not render raw SQX paths, `data.db` paths, output folders, workspace roots, session tokens, grant keys, private URLs, Cloudflare identifiers or raw emails. User-facing copy must say controlled, audited and isolated, never risk-free.
 - Deployment Hardening Review Gate: every hosting/deployment suggestion must be compared against active REMOTE gates before implementation. Adopt zero-ingress, recovery, backup and audit improvements when compatible; do not let infrastructure churn bypass auth, workspace or traceability gates.
 - Containerization Deferral Gate: Docker/Linux is future hardening only until SQX resource compatibility, `data.db` access, generated `.cfx` paths, workspace persistence, backup/restore and protected write endpoints are proven. Do not add a root `Dockerfile`, root `docker-compose.yml` or root `.dockerignore` for the core app during the Windows pilot.
 - Active UX-NAV tab: `Mining Control`; temporarily paused for MODAL-TRACE modal governance and traceability hardening. Resume Mining Control after this phase unless the operator says `Adelante con el siguiente tab`.
@@ -340,6 +341,7 @@ M46 is accepted when these criteria are true:
 - REMOTE-3B app session grant-key gate: `docs/REMOTE_3B_APP_SESSION_GRANT_KEY.md`, `POST /api/remote/session/login`, `GET /api/remote/session/status`, `POST /api/remote/session/logout`, `remote-session-v1`, `__Host-sqx_remote_session`, `SQX_REMOTE_SESSION_SECRET` and `backend/sqx-edge-tool/test_remote_access.py`.
 - REMOTE-3C paid webhook protected write gate: `docs/REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md`, `backend/sqx-edge-tool/core/remote_payments.py`, `POST /api/remote/payment/webhook`, `POST /api/remote/protected/write-pilot`, `remote-payment-webhook-v1`, `remote-write-pilot-v1`, `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET` and `backend/sqx-edge-tool/test_remote_payments.py`.
 - REMOTE-4 workspace isolation foundation: `docs/REMOTE_4_WORKSPACE_ISOLATION.md`, `backend/sqx-edge-tool/core/remote_workspaces.py`, `GET /api/remote/workspace/status`, workspace-aware `POST /api/remote/protected/write-pilot`, `remote-workspace-v1`, `SQX_REMOTE_WORKSPACES_ROOT` and `backend/sqx-edge-tool/test_remote_workspaces.py`.
+- REMOTE-5 remote Pro UX surface: `docs/REMOTE_5_REMOTE_UX.md`, `app/SQX_Dashboard_v6.html`, `app/js/modules/home.js`, `app/js/dashboard.js`, `app/css/dashboard.css`, `Remote UX Disclosure Gate`, `remote-pro-panel` and `GET /api/remote/*` status endpoints rendered without raw local paths.
 - REMOTE-SUG1 deployment hardening review: `docs/REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md`, `Deployment Hardening Review Gate`, `Containerization Deferral Gate`, Windows pilot first and Docker/Linux deferred to REMOTE-9.
 - Commercial gates: `backend/sqx-edge-tool/tools/*` and `docs/sales/*`.
 - Internal automation gate: this document, especially G3 risk levels, agent matrix and local tooling notes.
