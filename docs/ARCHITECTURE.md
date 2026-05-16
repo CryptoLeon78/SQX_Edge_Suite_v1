@@ -117,6 +117,7 @@ Remote-service invariants:
 - REMOTE-8I uses `remote-next-controlled-movement-execution-approval-v1` to approve, reject or defer the REMOTE-8H package. Decision notes, identities and private URLs stay local/ignored; approval only enables a later manual execution record.
 - REMOTE-8J uses `remote-next-controlled-movement-manual-execution-v1` to record the manual execution approved by REMOTE-8I. Executed-user identities, protected URLs, private messages and grant details stay local/ignored; monitoring is required before any further movement.
 - REMOTE-8K uses `remote-next-controlled-movement-monitoring-v1` to observe the REMOTE-8J execution for a clean 24-hour window. Monitored identities, protected URLs, support notes and local paths stay local/ignored; even a clean window only enables REMOTE-8L decision review.
+- REMOTE-8L uses `remote-post-monitoring-decision-review-v1` to convert REMOTE-8K monitoring into one human decision. Decision rationale, reviewed identities, protected URLs and local paths stay local/ignored; even a GO only routes to the next gated phase.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -278,6 +279,16 @@ REMOTE-8K next controlled movement post execution monitoring:
 - Required signals cover access, Cloudflare Access, app session, entitlement, workspace isolation, artifact generation, exports, support loop, no leakage, no security incidents, rollback readiness and pause readiness.
 - Zero-tolerance metrics cover support blockers, tunnel drops, app session failures, workspace leaks, security incidents, generation/export failures, entitlement errors, refunds, public URL leaks, automation jobs, traffic expansion, paid campaigns, checkout links and automated messages/grants.
 - Even on GO, `decision.furtherExpansionAllowedNow` stays false; REMOTE-8L owns any next human decision.
+
+REMOTE-8L post monitoring decision review:
+
+- `backend/sqx-edge-tool/core/remote_post_monitoring_decision_review.py` owns `remote-post-monitoring-decision-review-v1`.
+- `backend/sqx-edge-tool/tools/remote_post_monitoring_decision_review.py` reads ignored private decision evidence from `.local/remote_service/remote8l_post_monitoring_decision_review.local.json`.
+- The redacted output is `.local/remote_service/remote8l_post_monitoring_decision_review/remote8l_post_monitoring_decision_review.public.json`.
+- Source status may be `GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_CLEAN` or `NO_GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_BLOCKED`.
+- `prepare_next_controlled_movement` is allowed only when REMOTE-8K is clean, requested `prepare_next_decision_review`, has at least 24 observation hours and zero monitoring blockers.
+- `continue_monitoring`, `fix_blockers` and `rollback_last_movement` route to their own non-automated follow-up paths.
+- Even on GO, `decision.automationAllowed`, `decision.executionAllowedNow` and `decision.furtherExpansionAllowedNow` stay false.
 
 REMOTE-SUG1 deployment hardening decision:
 

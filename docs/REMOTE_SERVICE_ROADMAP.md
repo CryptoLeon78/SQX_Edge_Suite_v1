@@ -415,7 +415,25 @@ Next REMOTE-8L scope:
 
 ### REMOTE-8L - Post Monitoring Decision Review
 
-Future controlled phase. It reviews REMOTE-8K evidence and decides whether to continue monitoring, fix blockers, roll back or prepare exactly one next controlled movement.
+Turns REMOTE-8K monitoring into a human decision and does not execute traffic, checkout, grants, emails, onboarding or public URL sharing automatically. It accepts clean or blocked REMOTE-8K monitoring, but only clean monitoring with `prepare_next_decision_review` and zero blockers can prepare another controlled movement package.
+
+Artifacts added in REMOTE-8L:
+
+- `docs/REMOTE_8L_POST_MONITORING_DECISION_REVIEW.md`
+- `backend/sqx-edge-tool/core/remote_post_monitoring_decision_review.py`
+- `backend/sqx-edge-tool/tools/remote_post_monitoring_decision_review.py`
+- `backend/sqx-edge-tool/test_remote_post_monitoring_decision_review.py`
+- `docs/examples/remote8l_post_monitoring_decision_review.local.example.json`
+- `remote-post-monitoring-decision-review-v1`
+- ignored evidence root `.local/remote_service/remote8l_post_monitoring_decision_review*`
+- `Post Monitoring Decision Review Gate`
+
+Next route after REMOTE-8L:
+
+- `continue_monitoring` returns to REMOTE-8K observation.
+- `fix_blockers` creates a blocker fix plan, with no access mutation.
+- `rollback_last_movement` creates a manual rollback package, with no automatic rollback.
+- `prepare_next_controlled_movement` routes back to REMOTE-8H package preparation for exactly one movement.
 
 ### REMOTE-9 - Containerization / Dedicated Linux Host
 
@@ -442,6 +460,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Next Controlled Movement Execution Approval Gate`: approval evidence must pass `remote-next-controlled-movement-execution-approval-v1`, require REMOTE-8H GO, allow only approve/reject/defer, keep decision notes and identities local and keep execution metrics at zero.
 - `Next Controlled Movement Manual Execution Gate`: manual execution evidence must pass `remote-next-controlled-movement-manual-execution-v1`, require REMOTE-8I approval, match manual counts to the approved package and keep automation metrics at zero before monitoring.
 - `Next Controlled Movement Monitoring Gate`: post-execution monitoring evidence must pass `remote-next-controlled-movement-monitoring-v1`, require REMOTE-8J GO, prove at least 24 clean hours, keep private monitoring evidence local and keep support/security/workspace/generation/export incidents at zero before any decision review.
+- `Post Monitoring Decision Review Gate`: decision evidence must pass `remote-post-monitoring-decision-review-v1`, review REMOTE-8K clean/blocked monitoring, keep rationale and identities local, keep execution metrics at zero and only route to REMOTE-8H when REMOTE-8K is clean, requested decision review and has zero blockers.
 - `Deployment Hardening Review Gate`: hosting suggestions must be reviewed against active REMOTE gates before implementation.
 - `Containerization Deferral Gate`: Docker/Linux must remain future hardening until SQX compatibility, workspace isolation and backup/restore are proven.
 - `Repository Privacy Gate`: before active sales, `origin` and `institutional` should be private or the operator must explicitly accept public-source commercial exposure.
