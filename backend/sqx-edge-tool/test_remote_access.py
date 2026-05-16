@@ -1,13 +1,20 @@
 from datetime import date
+import json
 from unittest.mock import patch
 
 from api import server
 from core.remote_access import (
+    SESSION_COOKIE_NAME,
+    create_signed_session,
     email_hash,
     evaluate_remote_access,
+    evaluate_remote_session,
     find_entitlement_for_email,
+    grant_key_hash,
     normalize_email,
     redact_email,
+    start_remote_session_from_headers,
+    verify_tester_grant_key,
 )
 
 
@@ -101,6 +108,101 @@ def test_find_entitlement_accepts_hash_or_local_email_without_returning_raw_keys
     assert find_entitlement_for_email("local@example.invalid", store)["entitlementKind"] == "paid_subscription"
 
 
+def test_tester_free_session_requires_matching_grant_key_and_revalidates_entitlement(tmp_path, monkeypatch):
+    store = {
+        "schemaVersion": "remote-entitlements-v1",
+        "grants": [{
+            "emailHash": email_hash("pilot@example.invalid"),
+            "entitlementKind": "tester_free",
+            "status": "active",
+            "featureScope": "full",
+            "grantKeyHash": grant_key_hash("pilot-key"),
+            "source": "operator_grant",
+        }],
+    }
+    store_path = tmp_path / "remote_entitlements.local.json"
+    store_path.write_text(json.dumps(store), encoding="utf-8")
+    monkeypatch.setenv("SQX_REMOTE_ENTITLEMENTS_PATH", str(store_path))
+    monkeypatch.setenv("SQX_REMOTE_SESSION_SECRET", "s" * 40)
+
+    missing = start_remote_session_from_headers(
+        {"Cf-Access-Authenticated-User-Email": "pilot@example.invalid"},
+        {},
+    )
+    assert missing["http_status"] == 403
+    assert missing["error"] == "tester_grant_key_required"
+
+    invalid = start_remote_session_from_headers(
+        {"Cf-Access-Authenticated-User-Email": "pilot@example.invalid"},
+        {"grant_key": "wrong"},
+    )
+    assert invalid["http_status"] == 403
+    assert invalid["error"] == "tester_grant_key_invalid"
+
+    created = start_remote_session_from_headers(
+        {"Cf-Access-Authenticated-User-Email": "pilot@example.invalid"},
+        {"grant_key": "pilot-key"},
+    )
+    assert created["ok"] is True
+    assert created["cookie_name"] == SESSION_COOKIE_NAME
+    assert "session_token" in created
+    assert created["privacy"]["session_token_returned"] is False
+    assert created["privacy"]["grant_key_returned"] is False
+
+    session = evaluate_remote_session(created["session_token"])
+    assert session["access"]["allowed"] is True
+    assert session["session"]["email_ref"] == "pi***@example.invalid"
+
+    store["grants"][0]["status"] = "blocked"
+    store_path.write_text(json.dumps(store), encoding="utf-8")
+    blocked = evaluate_remote_session(created["session_token"])
+    assert blocked["access"]["allowed"] is False
+    assert blocked["access"]["reason"] == "entitlement_blocked"
+
+
+def test_paid_subscription_session_does_not_require_tester_key(tmp_path, monkeypatch):
+    store = {
+        "schemaVersion": "remote-entitlements-v1",
+        "grants": [{
+            "emailHash": email_hash("buyer@example.invalid"),
+            "entitlementKind": "paid_subscription",
+            "status": "active",
+            "featureScope": "full",
+            "source": "checkout_webhook",
+        }],
+    }
+    store_path = tmp_path / "remote_entitlements.local.json"
+    store_path.write_text(json.dumps(store), encoding="utf-8")
+    monkeypatch.setenv("SQX_REMOTE_ENTITLEMENTS_PATH", str(store_path))
+    monkeypatch.setenv("SQX_REMOTE_SESSION_SECRET", "s" * 40)
+
+    created = start_remote_session_from_headers(
+        {"Cf-Access-Authenticated-User-Email": "buyer@example.invalid"},
+        {},
+    )
+
+    assert created["ok"] is True
+    assert created["entitlement"]["kind"] == "paid_subscription"
+    assert evaluate_remote_session(created["session_token"])["access"]["allowed"] is True
+
+
+def test_session_secret_is_required_before_login(monkeypatch):
+    monkeypatch.delenv("SQX_REMOTE_SESSION_SECRET", raising=False)
+    result = start_remote_session_from_headers(
+        {"Cf-Access-Authenticated-User-Email": "buyer@example.invalid"},
+        {},
+    )
+    assert result["http_status"] == 503
+    assert result["error"] == "remote_session_secret_missing_or_short"
+
+
+def test_tester_grant_key_hash_is_constant_time_verifiable():
+    grant = {"grantKeyHash": grant_key_hash("secret-key")}
+    assert verify_tester_grant_key(grant, "secret-key")["ok"] is True
+    assert verify_tester_grant_key(grant, "other")["error"] == "tester_grant_key_invalid"
+    assert verify_tester_grant_key({}, "secret-key")["error"] == "tester_grant_key_not_configured"
+
+
 def test_remote_access_status_endpoint_uses_trusted_header_and_redacts_identity():
     expected = {
         "ok": True,
@@ -111,7 +213,7 @@ def test_remote_access_status_endpoint_uses_trusted_header_and_redacts_identity(
         "access": {"allowed": True, "feature_scope": "full"},
         "privacy": {"raw_email_returned": False},
     }
-    with patch.object(server, "evaluate_remote_access_from_headers", return_value=expected) as evaluator:
+    with patch.object(server, "evaluate_remote_request", return_value=expected) as evaluator:
         response = server.app.test_client().get(
             "/api/remote/access/status",
             headers={"Cf-Access-Authenticated-User-Email": "tester@example.invalid"},
@@ -122,4 +224,64 @@ def test_remote_access_status_endpoint_uses_trusted_header_and_redacts_identity(
     assert data["access"]["allowed"] is True
     assert data["identity"]["email_ref"] == "te***@example.invalid"
     assert data["privacy"]["raw_email_returned"] is False
+    evaluator.assert_called_once()
+
+
+def test_remote_session_endpoints_set_and_clear_secure_cookie(tmp_path, monkeypatch):
+    store = {
+        "schemaVersion": "remote-entitlements-v1",
+        "grants": [{
+            "emailHash": email_hash("pilot@example.invalid"),
+            "entitlementKind": "tester_free",
+            "status": "active",
+            "featureScope": "full",
+            "grantKeyHash": grant_key_hash("pilot-key"),
+        }],
+    }
+    store_path = tmp_path / "remote_entitlements.local.json"
+    store_path.write_text(json.dumps(store), encoding="utf-8")
+    monkeypatch.setenv("SQX_REMOTE_ENTITLEMENTS_PATH", str(store_path))
+    monkeypatch.setenv("SQX_REMOTE_SESSION_SECRET", "s" * 40)
+
+    client = server.app.test_client()
+    login = client.post(
+        "/api/remote/session/login",
+        headers={"Cf-Access-Authenticated-User-Email": "pilot@example.invalid"},
+        json={"grant_key": "pilot-key"},
+    )
+
+    assert login.status_code == 200
+    data = login.get_json()
+    assert data["access"]["allowed"] is True
+    assert data["privacy"]["session_token_returned"] is False
+    assert data["privacy"]["grant_key_returned"] is False
+    cookie_header = login.headers.get("Set-Cookie", "")
+    assert SESSION_COOKIE_NAME in cookie_header
+    assert "HttpOnly" in cookie_header
+    assert "Secure" in cookie_header
+    assert "SameSite=Lax" in cookie_header
+
+    logout = client.post("/api/remote/session/logout")
+    assert logout.status_code == 200
+    assert SESSION_COOKIE_NAME in logout.headers.get("Set-Cookie", "")
+
+
+def test_remote_session_status_endpoint_does_not_return_token(monkeypatch):
+    monkeypatch.setenv("SQX_REMOTE_SESSION_SECRET", "s" * 40)
+    signed = create_signed_session(
+        "buyer@example.invalid",
+        {"kind": "paid_subscription", "grant_id": "paid-1", "feature_scope": "full"},
+    )
+    with patch.object(server, "evaluate_remote_session", return_value={
+        "ok": True,
+        "session": {"active": True, "email_ref": "bu***@example.invalid"},
+        "access": {"allowed": True},
+        "privacy": {"session_token_returned": False},
+    }) as evaluator:
+        response = server.app.test_client().get(
+            "/api/remote/session/status",
+            headers={"Cookie": f"{SESSION_COOKIE_NAME}={signed['token']}"},
+        )
+    assert response.status_code == 200
+    assert response.get_json()["privacy"]["session_token_returned"] is False
     evaluator.assert_called_once()

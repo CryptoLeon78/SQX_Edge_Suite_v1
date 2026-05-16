@@ -69,6 +69,25 @@ Artifacts started in REMOTE-3A:
 - `GET /api/remote/access/status`
 - `backend/sqx-edge-tool/test_remote_access.py`
 
+Artifacts added in REMOTE-3B:
+
+- `docs/REMOTE_3B_APP_SESSION_GRANT_KEY.md`
+- `remote-session-v1`
+- `__Host-sqx_remote_session`
+- `SQX_REMOTE_SESSION_SECRET`
+- `POST /api/remote/session/login`
+- `GET /api/remote/session/status`
+- `POST /api/remote/session/logout`
+- tester-free grant-key verification by `grantKeyHash`
+- entitlement revalidation on every app-session status check
+
+Next REMOTE-3C scope:
+
+- signed payment webhook intake;
+- idempotent activation/cancellation of `paid_subscription` grants;
+- first protected write-endpoint pilot using the app session;
+- no workspace-wide mutation until REMOTE-4 derives workspace server-side.
+
 ### REMOTE-4 - Workspace Isolation
 
 Create server-side workspaces per user. All mutable endpoints must derive `workspace_id` from session, never from client input. Generated `.cfx`, views, uploads, strategy imports, exports, logs and config live in the user's workspace.
@@ -93,6 +112,7 @@ Run one paid/internal user end to end: payment webhook, login, workspace creatio
 
 - `Remote Service Gate`: every remote mutation needs authenticated user, active entitlement, server-derived workspace, audit event and rate-limit boundary.
 - `Tester Free Access Gate`: approved testers may have complete app access without payment only through an explicit `tester_free` entitlement, authenticated session, audit trail and operator-managed grant.
+- `Remote Session Gate`: app sessions must use `remote-session-v1`, `__Host-sqx_remote_session`, private `SQX_REMOTE_SESSION_SECRET`, secure cookie flags, entitlement revalidation and privacy redaction.
 - `Repository Privacy Gate`: before active sales, `origin` and `institutional` should be private or the operator must explicitly accept public-source commercial exposure.
 - `Workspace Isolation Gate`: no endpoint accepts arbitrary workspace paths or user ids from browser payloads.
 - `Tunnel Exposure Gate`: local backend must not be reachable directly from the public internet.

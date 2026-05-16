@@ -4,16 +4,22 @@ import hashlib
 import hmac
 import json
 import os
-from datetime import date, datetime
+import secrets
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Mapping
+import base64
 
 
 ROOT = Path(__file__).resolve().parents[1]
 PROJECT_ROOT = ROOT.parents[1]
 REMOTE_ACCESS_VERSION = "remote-access-v1"
+REMOTE_SESSION_VERSION = "remote-session-v1"
 ENTITLEMENTS_SCHEMA_VERSION = "remote-entitlements-v1"
 DEFAULT_ENTITLEMENTS_PATH = PROJECT_ROOT / ".local" / "remote_service" / "remote_entitlements.local.json"
+SESSION_COOKIE_NAME = "__Host-sqx_remote_session"
+DEFAULT_SESSION_TTL_SECONDS = 8 * 60 * 60
+MIN_SESSION_SECRET_LENGTH = 32
 
 VALID_ENTITLEMENT_KINDS = {"paid_subscription", "tester_free", "internal_operator"}
 VALID_ENTITLEMENT_STATUSES = {"active", "pending", "expired", "denied", "blocked", "cancelled"}
@@ -35,6 +41,13 @@ def email_hash(value: str | None) -> str:
     if not normalized:
         return ""
     return hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+
+
+def grant_key_hash(value: str | None) -> str:
+    raw = (value or "").strip()
+    if not raw:
+        return ""
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
 def redact_email(value: str | None) -> str | None:
@@ -125,6 +138,22 @@ def find_entitlement_for_email(email: str, store: Mapping[str, Any]) -> dict[str
     return None
 
 
+def find_entitlement_for_email_hash(identity_hash: str, store: Mapping[str, Any]) -> dict[str, Any] | None:
+    expected = (identity_hash or "").strip().lower()
+    if not expected:
+        return None
+    for grant in store.get("grants") or []:
+        if not isinstance(grant, Mapping):
+            continue
+        grant_hash = str(grant.get("emailHash") or grant.get("email_hash") or "").strip().lower()
+        if grant_hash and hmac.compare_digest(grant_hash, expected):
+            return dict(grant)
+        grant_email_hash = email_hash(str(grant.get("email") or ""))
+        if grant_email_hash and hmac.compare_digest(grant_email_hash, expected):
+            return dict(grant)
+    return None
+
+
 def normalize_entitlement(grant: Mapping[str, Any] | None, today: date | None = None) -> dict[str, Any]:
     current = _today(today)
     if not grant:
@@ -169,6 +198,244 @@ def normalize_entitlement(grant: Mapping[str, Any] | None, today: date | None = 
         "grant_key_required": bool(grant.get("grantKeyHash") or grant.get("grant_key_hash")),
         "source": grant.get("source") or ("operator_grant" if kind == "tester_free" else "entitlement_store"),
         "expires_at": expires_at.isoformat() if expires_at else None,
+    }
+
+
+def verify_tester_grant_key(grant: Mapping[str, Any], provided_key: str | None) -> dict[str, Any]:
+    expected_hash = str(grant.get("grantKeyHash") or grant.get("grant_key_hash") or "").strip().lower()
+    if not expected_hash:
+        return {"ok": False, "error": "tester_grant_key_not_configured"}
+    provided_hash = grant_key_hash(provided_key)
+    if not provided_hash:
+        return {"ok": False, "error": "tester_grant_key_required"}
+    if not hmac.compare_digest(expected_hash, provided_hash):
+        return {"ok": False, "error": "tester_grant_key_invalid"}
+    return {"ok": True, "error": ""}
+
+
+def _b64url_encode_json(payload: Mapping[str, Any]) -> str:
+    raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode("utf-8")
+    return base64.urlsafe_b64encode(raw).decode("ascii").rstrip("=")
+
+
+def _b64url_decode_json(value: str) -> dict[str, Any]:
+    padded = value + ("=" * (-len(value) % 4))
+    raw = base64.urlsafe_b64decode(padded.encode("ascii"))
+    decoded = json.loads(raw.decode("utf-8"))
+    if not isinstance(decoded, dict):
+        raise ValueError("session payload must be object")
+    return decoded
+
+
+def session_secret() -> str:
+    return os.environ.get("SQX_REMOTE_SESSION_SECRET", "").strip()
+
+
+def session_secret_ready(secret: str | None = None) -> bool:
+    return len((secret if secret is not None else session_secret()).strip()) >= MIN_SESSION_SECRET_LENGTH
+
+
+def _session_hmac(payload_part: str, secret: str) -> str:
+    digest = hmac.new(secret.encode("utf-8"), payload_part.encode("ascii"), hashlib.sha256).digest()
+    return base64.urlsafe_b64encode(digest).decode("ascii").rstrip("=")
+
+
+def sign_session_payload(payload: Mapping[str, Any], secret: str | None = None) -> str:
+    configured_secret = (secret if secret is not None else session_secret()).strip()
+    if not session_secret_ready(configured_secret):
+        raise ValueError("remote_session_secret_missing_or_short")
+    payload_part = _b64url_encode_json(payload)
+    return f"{payload_part}.{_session_hmac(payload_part, configured_secret)}"
+
+
+def verify_session_token(token: str | None, secret: str | None = None, now: datetime | None = None) -> dict[str, Any]:
+    raw = (token or "").strip()
+    configured_secret = (secret if secret is not None else session_secret()).strip()
+    if not raw:
+        return {"ok": False, "error": "session_missing"}
+    if not session_secret_ready(configured_secret):
+        return {"ok": False, "error": "remote_session_secret_missing_or_short"}
+    if "." not in raw:
+        return {"ok": False, "error": "session_malformed"}
+    payload_part, signature = raw.rsplit(".", 1)
+    expected = _session_hmac(payload_part, configured_secret)
+    if not hmac.compare_digest(signature, expected):
+        return {"ok": False, "error": "session_signature_invalid"}
+    try:
+        payload = _b64url_decode_json(payload_part)
+    except Exception:
+        return {"ok": False, "error": "session_payload_invalid"}
+    if payload.get("v") != REMOTE_SESSION_VERSION:
+        return {"ok": False, "error": "session_version_mismatch"}
+    current_ts = int((now or datetime.now(timezone.utc)).timestamp())
+    try:
+        exp = int(payload.get("exp") or 0)
+    except (TypeError, ValueError):
+        return {"ok": False, "error": "session_exp_missing"}
+    if current_ts >= exp:
+        return {"ok": False, "error": "session_expired", "payload": payload}
+    return {"ok": True, "error": "", "payload": payload}
+
+
+def create_session_payload(
+    email: str,
+    entitlement: Mapping[str, Any],
+    ttl_seconds: int = DEFAULT_SESSION_TTL_SECONDS,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    current = now or datetime.now(timezone.utc)
+    iat = int(current.timestamp())
+    exp = int((current + timedelta(seconds=ttl_seconds)).timestamp())
+    identity = normalize_email(email)
+    return {
+        "v": REMOTE_SESSION_VERSION,
+        "sid": secrets.token_urlsafe(18),
+        "email_hash": email_hash(identity),
+        "email_ref": redact_email(identity),
+        "entitlement_kind": entitlement.get("kind"),
+        "grant_id": entitlement.get("grant_id"),
+        "feature_scope": entitlement.get("feature_scope"),
+        "iat": iat,
+        "exp": exp,
+    }
+
+
+def create_signed_session(
+    email: str,
+    entitlement: Mapping[str, Any],
+    ttl_seconds: int = DEFAULT_SESSION_TTL_SECONDS,
+    now: datetime | None = None,
+    secret: str | None = None,
+) -> dict[str, Any]:
+    payload = create_session_payload(email, entitlement, ttl_seconds=ttl_seconds, now=now)
+    token = sign_session_payload(payload, secret=secret)
+    return {
+        "ok": True,
+        "token": token,
+        "payload": payload,
+        "max_age": ttl_seconds,
+        "expires_at": datetime.fromtimestamp(payload["exp"], tz=timezone.utc).isoformat(),
+    }
+
+
+def _public_session_from_payload(payload: Mapping[str, Any], active: bool, reason: str) -> dict[str, Any]:
+    expires_at = None
+    try:
+        expires_at = datetime.fromtimestamp(int(payload.get("exp") or 0), tz=timezone.utc).isoformat()
+    except (TypeError, ValueError, OSError):
+        expires_at = None
+    return {
+        "active": active,
+        "reason": reason,
+        "version": payload.get("v"),
+        "email_ref": payload.get("email_ref"),
+        "email_hash": payload.get("email_hash"),
+        "entitlement_kind": payload.get("entitlement_kind"),
+        "grant_id": payload.get("grant_id"),
+        "feature_scope": payload.get("feature_scope"),
+        "expires_at": expires_at,
+    }
+
+
+def evaluate_remote_session(
+    token: str | None,
+    store: Mapping[str, Any] | None = None,
+    today: date | None = None,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    verified = verify_session_token(token, now=now)
+    if not verified.get("ok"):
+        payload = verified.get("payload") if isinstance(verified.get("payload"), Mapping) else {}
+        return {
+            "ok": True,
+            "version": REMOTE_ACCESS_VERSION,
+            "session": _public_session_from_payload(payload, False, str(verified.get("error") or "session_invalid")),
+            "access": {"allowed": False, "reason": str(verified.get("error") or "session_invalid"), "feature_scope": "none"},
+            "privacy": {"session_token_returned": False, "grant_keys_returned": False},
+        }
+
+    payload = verified["payload"]
+    loaded_store = dict(store) if isinstance(store, Mapping) else load_entitlement_store()
+    grant = find_entitlement_for_email_hash(str(payload.get("email_hash") or ""), loaded_store)
+    entitlement = normalize_entitlement(grant, today=today)
+    allowed = bool(entitlement["active"])
+    reason = "session_access_allowed" if allowed else entitlement["reason"]
+    return {
+        "ok": True,
+        "version": REMOTE_ACCESS_VERSION,
+        "schemaVersion": str(loaded_store.get("schemaVersion") or ENTITLEMENTS_SCHEMA_VERSION),
+        "session": _public_session_from_payload(payload, allowed, reason),
+        "entitlement": entitlement,
+        "access": {
+            "allowed": allowed,
+            "reason": reason,
+            "feature_scope": entitlement["feature_scope"] if allowed else "none",
+            "features": ["*"] if allowed and entitlement["feature_scope"] == FULL_FEATURE_SCOPE else [],
+        },
+        "audit_event": {
+            "type": "remote_session_evaluated",
+            "identity_hash": payload.get("email_hash"),
+            "entitlement_kind": entitlement["kind"],
+            "entitlement_status": entitlement["status"],
+            "allowed": allowed,
+        },
+        "privacy": {"session_token_returned": False, "grant_keys_returned": False},
+    }
+
+
+def start_remote_session_from_headers(headers: Mapping[str, Any], data: Mapping[str, Any] | None = None) -> dict[str, Any]:
+    if not session_secret_ready():
+        return {
+            "ok": False,
+            "http_status": 503,
+            "error": "remote_session_secret_missing_or_short",
+            "message": "Set SQX_REMOTE_SESSION_SECRET privately before enabling remote app sessions.",
+        }
+    payload = data if isinstance(data, Mapping) else {}
+    identity = trusted_email_from_headers(headers)
+    if not identity:
+        return {"ok": False, "http_status": 401, "error": "identity_missing"}
+    store = load_entitlement_store()
+    grant = find_entitlement_for_email(identity, store)
+    entitlement = normalize_entitlement(grant)
+    if not entitlement["active"]:
+        return {
+            "ok": False,
+            "http_status": 403,
+            "error": entitlement["reason"],
+            "entitlement": entitlement,
+            "identity": {"email_ref": redact_email(identity), "email_hash": email_hash(identity)},
+        }
+    if entitlement["kind"] == "tester_free":
+        grant_key_result = verify_tester_grant_key(grant or {}, str(payload.get("grant_key") or ""))
+        if not grant_key_result["ok"]:
+            return {
+                "ok": False,
+                "http_status": 403,
+                "error": grant_key_result["error"],
+                "entitlement": entitlement,
+                "identity": {"email_ref": redact_email(identity), "email_hash": email_hash(identity)},
+                "privacy": {"grant_key_returned": False},
+            }
+    session = create_signed_session(identity, entitlement)
+    return {
+        "ok": True,
+        "http_status": 200,
+        "session_token": session["token"],
+        "cookie_name": SESSION_COOKIE_NAME,
+        "session": {
+            "active": True,
+            "version": REMOTE_SESSION_VERSION,
+            "email_ref": redact_email(identity),
+            "email_hash": email_hash(identity),
+            "entitlement_kind": entitlement["kind"],
+            "feature_scope": entitlement["feature_scope"],
+            "expires_at": session["expires_at"],
+            "max_age": session["max_age"],
+        },
+        "entitlement": entitlement,
+        "access": {"allowed": True, "reason": "session_created", "feature_scope": entitlement["feature_scope"], "features": ["*"]},
+        "privacy": {"session_token_returned": False, "grant_key_returned": False},
     }
 
 
@@ -231,3 +498,27 @@ def evaluate_remote_access(
 
 def evaluate_remote_access_from_headers(headers: Mapping[str, Any], today: date | None = None) -> dict[str, Any]:
     return evaluate_remote_access(trusted_email_from_headers(headers), today=today)
+
+
+def evaluate_remote_request(headers: Mapping[str, Any], session_token: str | None, today: date | None = None) -> dict[str, Any]:
+    edge_status = evaluate_remote_access_from_headers(headers, today=today)
+    session_status = evaluate_remote_session(session_token, today=today)
+    session_allowed = bool(session_status.get("access", {}).get("allowed"))
+    edge_allowed = bool(edge_status.get("access", {}).get("allowed"))
+    allowed = session_allowed or edge_allowed
+    merged = {
+        **edge_status,
+        "session": session_status.get("session"),
+        "session_access": session_status.get("access"),
+        "access": {
+            "allowed": allowed,
+            "reason": "session_access_allowed" if session_allowed else edge_status.get("access", {}).get("reason"),
+            "feature_scope": (
+                session_status.get("access", {}).get("feature_scope")
+                if session_allowed else edge_status.get("access", {}).get("feature_scope")
+            ),
+            "features": session_status.get("access", {}).get("features") if session_allowed else edge_status.get("access", {}).get("features"),
+        },
+    }
+    merged["auth_layers"]["app_session_verified"] = session_allowed
+    return merged

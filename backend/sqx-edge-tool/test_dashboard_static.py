@@ -18,6 +18,7 @@ REMOTE_1_LAPTOP_SERVER_BASELINE_DOC = PROJECT_ROOT / "docs" / "REMOTE_1_LAPTOP_S
 REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC = PROJECT_ROOT / "docs" / "REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS.md"
 REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC = PROJECT_ROOT / "docs" / "REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY.md"
 REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_3A_REMOTE_ACCESS_FOUNDATION.md"
+REMOTE_3B_APP_SESSION_GRANT_KEY_DOC = PROJECT_ROOT / "docs" / "REMOTE_3B_APP_SESSION_GRANT_KEY.md"
 REMOTE_TUNNEL_EXAMPLE_EVIDENCE = PROJECT_ROOT / "docs" / "examples" / "remote_tunnel.local.example.json"
 REMOTE_ENTITLEMENTS_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote_entitlements.local.example.json"
 REMOTE_SERVICE_PREFLIGHT_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_preflight.ps1"
@@ -396,11 +397,12 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Servicio web Pro",
-            "Estado comercial: REMOTE-3A",
+            "Estado comercial: REMOTE-3B",
             "Distribucion principal: enlace remoto protegido",
-            "tester-free grants",
+            "clave tester",
             "REMOTE-2B fija acceso completo `tester_free`",
             "REMOTE-3A fija la base backend `remote-access-v1`",
+            "REMOTE-3B fija la sesion de app `remote-session-v1`",
             "verificados como privados por GitHub CLI",
             "Los testers aprobados podran usar todas las funcionalidades sin pago",
             "Recomendacion comercial: convertir `SQX_Edge_Suite_v1` y `SQX_Institutional_Core` a repos privados",
@@ -547,7 +549,6 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "REMOTE-3A fija la base backend `remote-access-v1`",
-            "Siguiente paso recomendado: REMOTE-3B",
             "Estado de repos: `SQX_Edge_Suite_v1` e `SQX_Institutional_Core` verificados como privados",
         ):
             with self.subTest(pattern=pattern):
@@ -571,9 +572,118 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_access_py)
 
         self.assertIn("/api/remote/access/status", server_py)
-        self.assertIn("evaluate_remote_access_from_headers", server_py)
+        self.assertIn("evaluate_remote_request", server_py)
 
         combined_public = "\n".join([remote_3a, json.dumps(entitlements_example), remote_access_py, server_py, roadmap])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "grant_key=",
+            "tester_password",
+            "CLOUDFLARE_API_TOKEN=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_3b_app_session_grant_key_gate_is_wired_and_redacted(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_3b = REMOTE_3B_APP_SESSION_GRANT_KEY_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        remote_access_py = (TOOL_ROOT / "core" / "remote_access.py").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_3B_APP_SESSION_GRANT_KEY_DOC,
+            TOOL_ROOT / "core" / "remote_access.py",
+            TOOL_ROOT / "api" / "server.py",
+            TOOL_ROOT / "test_remote_access.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-3B - App Session Grant Key Gate",
+            "remote-session-v1",
+            "__Host-sqx_remote_session",
+            "SQX_REMOTE_SESSION_SECRET",
+            "POST /api/remote/session/login",
+            "GET /api/remote/session/status",
+            "POST /api/remote/session/logout",
+            "tester_free",
+            "grantKeyHash",
+            "Never returns the signed token or grant key in JSON",
+            "REMOTE-3B does not yet",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_3b)
+
+        for pattern in (
+            "Current phase completed: REMOTE-3B",
+            "Current implementation phase: REMOTE-3C",
+            "Remote Session Gate",
+            "remote-session-v1",
+            "__Host-sqx_remote_session",
+            "SQX_REMOTE_SESSION_SECRET",
+            "session tokens, grant keys or raw tester emails",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-3B",
+            "docs/REMOTE_3B_APP_SESSION_GRANT_KEY.md",
+            "remote-session-v1",
+            "__Host-sqx_remote_session",
+            "POST /api/remote/session/login",
+            "GET /api/remote/session/status",
+            "POST /api/remote/session/logout",
+            "Next REMOTE-3C scope",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-3B",
+            "Siguiente paso recomendado: REMOTE-3C",
+            "REMOTE-3B fija la sesion de app `remote-session-v1`",
+            "docs/REMOTE_3B_APP_SESSION_GRANT_KEY.md",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "@app.post(\"/api/remote/session/login\")",
+            "@app.get(\"/api/remote/session/status\")",
+            "@app.post(\"/api/remote/session/logout\")",
+            "set_cookie",
+            "httponly=True",
+            "secure=True",
+            "samesite=\"Lax\"",
+            "delete_cookie",
+            "evaluate_remote_request",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "REMOTE_SESSION_VERSION = \"remote-session-v1\"",
+            "SESSION_COOKIE_NAME = \"__Host-sqx_remote_session\"",
+            "SQX_REMOTE_SESSION_SECRET",
+            "grant_key_hash",
+            "verify_tester_grant_key",
+            "start_remote_session_from_headers",
+            "evaluate_remote_session",
+            "evaluate_remote_request",
+            "session_token_returned",
+            "grant_key_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_access_py)
+
+        combined_public = "\n".join([remote_3b, remote_access_py, server_py, roadmap, governance, readme])
         for forbidden in (
             "@" + "gmail.com",
             "@" + "hotmail.com",

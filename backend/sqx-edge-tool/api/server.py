@@ -32,7 +32,7 @@ PROJECT_ROOT = ROOT.parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from flask import Flask, abort, jsonify, request  # type: ignore
+from flask import Flask, abort, jsonify, make_response, request  # type: ignore
 
 from core import Mining, all_minings, generate_project, get_mining, normalize_direction
 from core.config_loader import load_manifest
@@ -55,7 +55,12 @@ from core.strategy_cleaner import (
     institutional_name, rename_sqx, process_files,
 )
 from core.mtf_evidence import build_mtf_evidence
-from core.remote_access import evaluate_remote_access_from_headers
+from core.remote_access import (
+    SESSION_COOKIE_NAME,
+    evaluate_remote_request,
+    evaluate_remote_session,
+    start_remote_session_from_headers,
+)
 from core.support_diagnostics import build_support_diagnostics
 from core.fulfillment_queue import (
     load_request as load_fulfillment_request,
@@ -431,7 +436,46 @@ def api_license_status():
 @app.get("/api/remote/access/status")
 def api_remote_access_status():
     """Public-safe remote-service access status derived from trusted edge/app headers."""
-    return jsonify(evaluate_remote_access_from_headers(request.headers))
+    return jsonify(evaluate_remote_request(request.headers, request.cookies.get(SESSION_COOKIE_NAME)))
+
+
+@app.post("/api/remote/session/login")
+def api_remote_session_login():
+    """Create a signed app session after trusted edge identity and entitlement checks."""
+    data = request.get_json(silent=True) or {}
+    result = start_remote_session_from_headers(request.headers, data)
+    status = int(result.pop("http_status", 200))
+    token = result.pop("session_token", None)
+    response = make_response(jsonify(result), status)
+    if token and result.get("ok"):
+        max_age = int((result.get("session") or {}).get("max_age") or 0)
+        response.set_cookie(
+            SESSION_COOKIE_NAME,
+            token,
+            max_age=max_age,
+            httponly=True,
+            secure=True,
+            samesite="Lax",
+            path="/",
+        )
+    return response
+
+
+@app.get("/api/remote/session/status")
+def api_remote_session_status():
+    """Validate the signed app session cookie without returning the token."""
+    return jsonify(evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME)))
+
+
+@app.post("/api/remote/session/logout")
+def api_remote_session_logout():
+    response = make_response(jsonify({
+        "ok": True,
+        "session": {"active": False, "reason": "logged_out"},
+        "privacy": {"session_token_returned": False},
+    }))
+    response.delete_cookie(SESSION_COOKIE_NAME, path="/")
+    return response
 
 
 @app.post("/api/license/check")
