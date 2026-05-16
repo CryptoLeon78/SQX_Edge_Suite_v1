@@ -14,6 +14,17 @@ flowchart TD
 
 Esta fase prepara y valida el camino de dominio + Tunnel + Access. Los valores privados quedan fuera de Git: hostname, zone id, account id, tunnel id, Access app id, policy id, tokens, emails y URLs reales.
 
+## Current Public-Safe Status
+
+Status: `GO_REMOTE2_TUNNEL_ACCESS_READY_NO_GIT_LEAK`.
+
+Validated on 2026-05-17:
+
+- anonymous traffic is redirected to Cloudflare Access before any SQX Edge body is visible;
+- an approved identity can complete Access authentication and load the remote dashboard;
+- the backend still rejects public-host requests that do not carry the trusted Access identity header;
+- private hostname, account, tunnel, policy and user evidence stays only in ignored local files.
+
 ## Added Tools
 
 - `tools/remote_tunnel_preflight.ps1`: valida `cloudflared`, REMOTE-1, target local, evidencia privada ignorada y que Access/Tunnel estan listos.
