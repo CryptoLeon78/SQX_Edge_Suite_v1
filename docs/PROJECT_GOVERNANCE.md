@@ -4,7 +4,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: REMOTE-3B - app session and tester grant-key verification on top of the REMOTE-3A entitlement model.
+- Current phase completed: REMOTE-SUG1 - deployment hardening review of tester hosting proposal; Windows pilot remains active and Docker/Linux is deferred.
 - Current implementation phase: REMOTE-3C - payment webhook entitlement activation and protected write-endpoint pilot after app sessions.
 - Current repository privacy state: `origin` (`SQX_Edge_Suite_v1`) and `institutional` (`SQX_Institutional_Core`) verified as PRIVATE through GitHub CLI on 2026-05-16.
 - Recent remote anchor: REMOTE-1 - laptop server baseline with localhost backend preflight, SQX path readiness checks, watchdog and optional Windows startup task.
@@ -14,7 +14,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
 - Current distribution decision: user-facing commercial delivery is now remote web Pro access; portable ZIP/download/start-launcher flows are internal fallback and rollback only unless explicitly re-approved.
 - Current maintenance rule: every new phase backup must be versioned and paired with a retention check using `docs/maintenance/BACKUP_RETENTION_POLICY.md`.
-- Local diagnostic material rule: `material de diagnostico/` is an ignored, local-only inbox for bug samples, CSV/SQX/View evidence and files the operator wants Codex to inspect during troubleshooting. Never commit, package or distribute it.
+- Local diagnostic material rule: `material de diagnostico/` is an ignored, local-only inbox for bug samples, CSV/SQX/View evidence, hosting proposals and files the operator wants Codex to inspect during troubleshooting. Never commit, package or distribute it.
+- Local proposals rule: `material de diagnostico/propuestas/` is a local-only source for tester/operator suggestions. Extract decisions into tracked docs, but never commit the raw proposal folder.
 - Local SQX 142 source rule: `C:/BOTS/Versiones/SQX_142_Crack/` is an authorized local-only StrategyQuant X build 142 reference for compatibility diagnostics, broker/data.db inspection, resource shape comparison and generated project validation. Never commit, package, copy wholesale or distribute files from that folder; derive only sanitized signatures/tests when needed.
 - SQX internal diagnostic rule: `material de diagnostico/internos_sqx/` may be used only to derive sanitized detection signatures and fixtures; never commit proprietary/internal SQX source files from that folder.
 - Branding source rule: generated originals under `material de diagnostico/imagenes_prompts/` remain local-only; only cleaned, optimized derivatives under `app/assets/brand/` may become tracked product assets.
@@ -32,6 +33,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Repository Privacy Gate: before active sales, `origin` (`SQX_Edge_Suite_v1`) and `institutional` (`SQX_Institutional_Core`) should be private unless the operator explicitly approves a public-source commercial strategy. Making a repo private reduces future exposure but does not replace secret scanning, history review or the no-private-evidence-in-Git rule.
 - Remote Access Foundation Gate: REMOTE-3+ access checks must use `remote-access-v1` concepts: trusted identity, `paid_subscription`/`tester_free`/`internal_operator`, active entitlement status, feature scope, audit event and privacy redaction. No runtime auth code may hardcode tester emails, grant keys or paid-user state.
 - Remote Session Gate: REMOTE-3B+ app sessions must use `remote-session-v1`, the `__Host-sqx_remote_session` cookie, a private `SQX_REMOTE_SESSION_SECRET`, `HttpOnly`/`Secure`/`SameSite=Lax` cookie flags, entitlement revalidation on every session check and tester grant-key verification without returning session tokens, grant keys or raw tester emails.
+- Deployment Hardening Review Gate: every hosting/deployment suggestion must be compared against active REMOTE gates before implementation. Adopt zero-ingress, recovery, backup and audit improvements when compatible; do not let infrastructure churn bypass auth, workspace or traceability gates.
+- Containerization Deferral Gate: Docker/Linux is future hardening only until SQX resource compatibility, `data.db` access, generated `.cfx` paths, workspace persistence, backup/restore and protected write endpoints are proven. Do not add a root `Dockerfile`, root `docker-compose.yml` or root `.dockerignore` for the core app during the Windows pilot.
 - Active UX-NAV tab: `Mining Control`; temporarily paused for MODAL-TRACE modal governance and traceability hardening. Resume Mining Control after this phase unless the operator says `Adelante con el siguiente tab`.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G7 - Backup Retention And Artifact Steward Gate.
@@ -333,6 +336,7 @@ M46 is accepted when these criteria are true:
 - REMOTE-2 Cloudflare Tunnel and Access: `docs/REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS.md`, `docs/examples/remote_tunnel.local.example.json`, `tools/remote_tunnel_preflight.ps1`, `tools/remote_tunnel_run.ps1`, `tools/remote_tunnel_smoke.ps1` and `tools/remote_tunnel_install_startup_task.ps1`.
 - REMOTE-3A remote access foundation: `docs/REMOTE_3A_REMOTE_ACCESS_FOUNDATION.md`, `docs/examples/remote_entitlements.local.example.json`, `backend/sqx-edge-tool/core/remote_access.py`, `GET /api/remote/access/status` and `backend/sqx-edge-tool/test_remote_access.py`.
 - REMOTE-3B app session grant-key gate: `docs/REMOTE_3B_APP_SESSION_GRANT_KEY.md`, `POST /api/remote/session/login`, `GET /api/remote/session/status`, `POST /api/remote/session/logout`, `remote-session-v1`, `__Host-sqx_remote_session`, `SQX_REMOTE_SESSION_SECRET` and `backend/sqx-edge-tool/test_remote_access.py`.
+- REMOTE-SUG1 deployment hardening review: `docs/REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md`, `Deployment Hardening Review Gate`, `Containerization Deferral Gate`, Windows pilot first and Docker/Linux deferred to REMOTE-9.
 - Commercial gates: `backend/sqx-edge-tool/tools/*` and `docs/sales/*`.
 - Internal automation gate: this document, especially G3 risk levels, agent matrix and local tooling notes.
 - Backup retention and artifact cleanup: `docs/maintenance/BACKUP_RETENTION_POLICY.md`, `docs/maintenance/ARTIFACT_CLEANUP_20260514.md` and ignored manifests under `backups/cleanup-*`.

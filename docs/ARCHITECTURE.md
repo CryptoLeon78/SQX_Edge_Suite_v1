@@ -18,6 +18,8 @@ Current implementation base:
 - Frontend behavior is loaded through plain browser scripts, without a bundler.
 - Shared frontend namespaces live under `window.SQX`.
 - The Project Generator tab currently talks to the Python API at `http://127.0.0.1:5050`; REMOTE phases will transition this boundary from `local_only` to `remote_tunnel_only`.
+- The active pilot host remains the Windows laptop because SQX resources, `data.db`, templates, PowerShell runbooks and compatibility diagnostics are already aligned there.
+- Docker/Linux is a future hardening option, not an active deployment requirement for testers or buyers.
 
 ## Top-Level Map
 
@@ -117,6 +119,19 @@ REMOTE-2 Cloudflare Tunnel and Access:
 - `tools/remote_tunnel_smoke.ps1` verifies anonymous traffic is blocked by Cloudflare Access before any SQX Edge body is visible.
 - `tools/remote_tunnel_install_startup_task.ps1` can register the tunnel runner in Windows Task Scheduler.
 - `docs/examples/remote_tunnel.local.example.json` defines the redacted boolean evidence shape copied into ignored `.local/remote_service/cloudflare_tunnel.local.json`.
+
+REMOTE-SUG1 deployment hardening decision:
+
+- The tester proposal validates our zero-ingress direction: no router ports, Cloudflare Tunnel only, Cloudflare Access before app body and no provider secrets in Git.
+- Its backup, persistence, restart and energy-management ideas reinforce REMOTE-1/2 runbooks.
+- Root Docker/Ubuntu deployment is deferred to REMOTE-9 because current SQX resource access is Windows-centered.
+- The core app must not gain a root `Dockerfile`, root `docker-compose.yml` or root `.dockerignore` until SQX compatibility, workspaces and backup/restore are proven.
+
+REMOTE-9 future containerization:
+
+- Option A: Linux/Docker hosts the web backend while a Windows worker owns SQX resources.
+- Option B: Docker hosts only sanitized backend resources after SQX dependencies are abstracted away.
+- Both options require explicit compatibility tests for `data.db`, templates, `.cfx` output paths, workspace persistence and protected write endpoints.
 
 ## Frontend Load Order
 

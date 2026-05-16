@@ -88,6 +88,21 @@ Next REMOTE-3C scope:
 - first protected write-endpoint pilot using the app session;
 - no workspace-wide mutation until REMOTE-4 derives workspace server-side.
 
+### REMOTE-SUG1 - Deployment Hardening Review
+
+Evaluate the tester hosting suggestion without changing the active runtime. Adopt zero-ingress, Cloudflare Access/Tunnel, persistence, backups, restart recovery and audit ideas. Keep the active pilot on Windows because SQX resources, PowerShell runbooks, `data.db`, templates and paths are already aligned there.
+
+Artifacts:
+
+- `docs/REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md`
+
+Operational reinforcement for REMOTE-1/2:
+
+- laptop sleep/lid/power behavior must be reviewed before pilot expansion;
+- watchdog and Cloudflare Tunnel restart recovery must remain tested;
+- `.local/remote_service/`, workspaces, entitlement data, outputs and logs need backup/restore evidence before adding more users;
+- Docker/Ubuntu is deferred until REMOTE-9 compatibility gates prove it does not break SQX resource access.
+
 ### REMOTE-4 - Workspace Isolation
 
 Create server-side workspaces per user. All mutable endpoints must derive `workspace_id` from session, never from client input. Generated `.cfx`, views, uploads, strategy imports, exports, logs and config live in the user's workspace.
@@ -108,11 +123,17 @@ Update offer, onboarding, FAQ, support copy, sales docs and buyer flow to web Pr
 
 Run one paid/internal user end to end: payment webhook, login, workspace creation, `.cfx` generation, export/download, revocation and restore. Expand to 3-5 users only after no workspace leakage, no tunnel instability and no entitlement bypass.
 
+### REMOTE-9 - Containerization / Dedicated Linux Host
+
+Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace isolation, generation paths and backup/restore are proven on the Windows pilot. Do not add a root `Dockerfile`, root `docker-compose.yml` or root `.dockerignore` until SQX resource compatibility, `data.db` access, `.cfx` generation and workspace persistence are verified.
+
 ## Required Gates
 
 - `Remote Service Gate`: every remote mutation needs authenticated user, active entitlement, server-derived workspace, audit event and rate-limit boundary.
 - `Tester Free Access Gate`: approved testers may have complete app access without payment only through an explicit `tester_free` entitlement, authenticated session, audit trail and operator-managed grant.
 - `Remote Session Gate`: app sessions must use `remote-session-v1`, `__Host-sqx_remote_session`, private `SQX_REMOTE_SESSION_SECRET`, secure cookie flags, entitlement revalidation and privacy redaction.
+- `Deployment Hardening Review Gate`: hosting suggestions must be reviewed against active REMOTE gates before implementation.
+- `Containerization Deferral Gate`: Docker/Linux must remain future hardening until SQX compatibility, workspace isolation and backup/restore are proven.
 - `Repository Privacy Gate`: before active sales, `origin` and `institutional` should be private or the operator must explicitly accept public-source commercial exposure.
 - `Workspace Isolation Gate`: no endpoint accepts arbitrary workspace paths or user ids from browser payloads.
 - `Tunnel Exposure Gate`: local backend must not be reachable directly from the public internet.

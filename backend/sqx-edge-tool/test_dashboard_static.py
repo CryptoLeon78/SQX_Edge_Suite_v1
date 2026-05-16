@@ -19,6 +19,7 @@ REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC = PROJECT_ROOT / "docs" / "REMOTE_2_CLOUDF
 REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC = PROJECT_ROOT / "docs" / "REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY.md"
 REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_3A_REMOTE_ACCESS_FOUNDATION.md"
 REMOTE_3B_APP_SESSION_GRANT_KEY_DOC = PROJECT_ROOT / "docs" / "REMOTE_3B_APP_SESSION_GRANT_KEY.md"
+REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md"
 REMOTE_TUNNEL_EXAMPLE_EVIDENCE = PROJECT_ROOT / "docs" / "examples" / "remote_tunnel.local.example.json"
 REMOTE_ENTITLEMENTS_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote_entitlements.local.example.json"
 REMOTE_SERVICE_PREFLIGHT_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_preflight.ps1"
@@ -532,7 +533,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "remote-access-v1",
             "Current repository privacy state",
             "verified as PRIVATE through GitHub CLI",
-            "REMOTE-3B - app session and tester grant-key verification",
+            "REMOTE-3B app session grant-key gate",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
@@ -621,7 +622,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_3b)
 
         for pattern in (
-            "Current phase completed: REMOTE-3B",
+            "REMOTE-3B app session grant-key gate",
             "Current implementation phase: REMOTE-3C",
             "Remote Session Gate",
             "remote-session-v1",
@@ -695,6 +696,73 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_sug1_deployment_hardening_review_keeps_windows_pilot_active(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        remote_sug1 = REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW_DOC.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-SUG1 - Deployment Hardening Review",
+            "Windows pilot first, Docker/Linux later",
+            "Zero ingress",
+            "Cloudflare Tunnel remains the only public path",
+            "Root `Dockerfile`, root `docker-compose.yml` and root `.dockerignore`",
+            "StrategyQuant X is currently treated as a Windows/local resource",
+            "Future REMOTE-9 Direction",
+            "material de diagnostico/propuestas/",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_sug1)
+
+        for pattern in (
+            "REMOTE-SUG1 - Deployment Hardening Review",
+            "REMOTE-9 - Containerization / Dedicated Linux Host",
+            "Windows",
+            "Docker/Ubuntu is deferred until REMOTE-9",
+            "Deployment Hardening Review Gate",
+            "Containerization Deferral Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Current phase completed: REMOTE-SUG1",
+            "Current implementation phase: REMOTE-3C",
+            "Local proposals rule",
+            "Deployment Hardening Review Gate",
+            "Containerization Deferral Gate",
+            "Windows pilot",
+            "Docker/Linux deferred to REMOTE-9",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "active pilot host remains the Windows laptop",
+            "Docker/Linux is a future hardening option",
+            "REMOTE-SUG1 deployment hardening decision",
+            "REMOTE-9 future containerization",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "Estado de despliegue: REMOTE-SUG1",
+            "Windows laptop + API localhost + Cloudflare Tunnel",
+            "Docker/Linux queda como ruta futura REMOTE-9",
+            "no se debe anadir `Dockerfile`, `docker-compose.yml` ni `.dockerignore` en la raiz",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for root_artifact in ("Dockerfile", "docker-compose.yml", "docker-compose.yaml", ".dockerignore"):
+            with self.subTest(root_artifact=root_artifact):
+                self.assertFalse((PROJECT_ROOT / root_artifact).exists(), root_artifact)
 
     def test_remote_1_laptop_server_baseline_is_documented_and_local_only(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
