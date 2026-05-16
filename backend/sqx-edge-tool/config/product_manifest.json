@@ -292,6 +292,77 @@
     },
     "nextPhase": "REMOTE-8F-tiny-cohort-monitoring"
   },
+  "remoteTinyCohortMonitoring": {
+    "phase": "REMOTE-8F",
+    "version": "remote-tiny-cohort-monitoring-v1",
+    "tool": "backend/sqx-edge-tool/tools/remote_tiny_cohort_monitoring.py",
+    "doc": "docs/REMOTE_8F_TINY_COHORT_MONITORING.md",
+    "example": "docs/examples/remote8f_tiny_cohort_monitoring.local.example.json",
+    "evidenceRoot": ".local/remote_service/remote8f_tiny_cohort_monitoring",
+    "summaryOutput": ".local/remote_service/remote8f_tiny_cohort_monitoring/remote8f_tiny_cohort_monitoring.public.json",
+    "sourceStatusRequired": "GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED",
+    "minCohortSize": 3,
+    "maxCohortSize": 5,
+    "minimumObservationHours": 24,
+    "validRequestedDecisions": [
+      "stay_tiny_cohort",
+      "fix_blockers",
+      "rollback_tiny_cohort",
+      "prepare_next_controlled_movement"
+    ],
+    "validEntitlementKinds": [
+      "paid_subscription",
+      "tester_free",
+      "internal_operator"
+    ],
+    "requiredSignals": [
+      "remote8eExecutionGoConfirmed",
+      "cohortAccessStable",
+      "cloudflareAccessStable",
+      "appSessionStable",
+      "entitlementStable",
+      "workspaceIsolationClean",
+      "artifactGenerationObserved",
+      "exportsDownloaded",
+      "supportLoopObserved",
+      "noWorkspaceLeakage",
+      "noSecurityIncidents",
+      "noUnresolvedSupportBlockers",
+      "rollbackPlanReady",
+      "pauseRuleReady",
+      "privateEvidenceStoredOutsideGit"
+    ],
+    "zeroToleranceMetrics": [
+      "openSupportItems",
+      "unresolvedBlockers",
+      "tunnelDrops",
+      "appSessionFailures",
+      "workspaceLeakEvents",
+      "securityIncidents",
+      "generationFailures",
+      "entitlementErrors",
+      "refundRequests",
+      "crossUserDataFindings",
+      "publicUrlLeaks",
+      "automationJobsStarted"
+    ],
+    "privacy": {
+      "rawEmailsReturned": false,
+      "protectedUrlReturned": false,
+      "localPathsReturned": false,
+      "secretsReturned": false,
+      "sessionTokenReturned": false,
+      "grantKeysReturned": false,
+      "supportLogsReturned": false,
+      "privateEvidenceCommitted": false
+    },
+    "decision": {
+      "automationAllowed": false,
+      "furtherExpansionAllowedNow": false,
+      "requiresOperatorApprovalForNextMovement": true
+    },
+    "nextPhase": "REMOTE-8G-tiny-cohort-decision-review"
+  },
   "licensing": {
     "storageKey": "sqx_license_state_v1",
     "licenseFile": "config/license.json",

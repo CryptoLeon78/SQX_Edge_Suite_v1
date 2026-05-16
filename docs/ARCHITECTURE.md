@@ -111,6 +111,7 @@ Remote-service invariants:
 - REMOTE-8C uses `remote-first-user-observation-v1` to decide whether the first real user experience is clean enough to prepare a manual 3-5 user cohort package. It never automates invites, grants, checkout, emails or protected URL sharing.
 - REMOTE-8D uses `remote-tiny-cohort-activation-v1` to prepare the manual 3-5 user activation package after REMOTE-8C GO. Candidate identities, protected URLs and communication copy stay local/ignored; the public summary contains only redacted refs and zero-automation proof.
 - REMOTE-8E uses `remote-tiny-cohort-execution-v1` to record the operator's manual 3-5 user execution after REMOTE-8D GO. Activated identities, protected URLs, private message bodies and local paths stay local/ignored; the public summary proves manual counts, zero automation and monitoring readiness.
+- REMOTE-8F uses `remote-tiny-cohort-monitoring-v1` to observe the activated cohort for at least 24 clean hours. Support, tunnel, session, workspace, security, generation, export and entitlement evidence stays local/ignored; the public summary proves zero incidents and keeps expansion blocked until REMOTE-8G.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -212,6 +213,15 @@ REMOTE-8E tiny cohort manual execution record:
 - Manual counts for invites, grants, private messages and protected URL sharing must match activated user count.
 - Automation metrics for jobs, checkout links, public URLs, automated emails and automated grants must remain zero.
 - Even on GO, `record.automationAllowed` stays false and further expansion remains blocked until REMOTE-8F monitoring.
+
+REMOTE-8F tiny cohort monitoring:
+
+- `backend/sqx-edge-tool/core/remote_tiny_cohort_monitoring.py` owns `remote-tiny-cohort-monitoring-v1`.
+- `backend/sqx-edge-tool/tools/remote_tiny_cohort_monitoring.py` reads ignored private monitoring evidence from `.local/remote_service/remote8f_tiny_cohort_monitoring.local.json`.
+- The redacted output is `.local/remote_service/remote8f_tiny_cohort_monitoring/remote8f_tiny_cohort_monitoring.public.json`.
+- The monitor requires REMOTE-8E GO, 3-5 monitored users, at least 24 hours, stable cohort access, Cloudflare Access, app session, entitlement, workspace isolation, artifact generation, exports and support loop evidence.
+- Zero-tolerance metrics for support blockers, tunnel drops, session failures, workspace leaks, incidents, generation failures, entitlement errors, refunds, public URL leaks and automation jobs must remain zero.
+- Even on GO, `decision.automationAllowed` and `decision.furtherExpansionAllowedNow` stay false; REMOTE-8G owns the next human decision.
 
 REMOTE-SUG1 deployment hardening decision:
 
