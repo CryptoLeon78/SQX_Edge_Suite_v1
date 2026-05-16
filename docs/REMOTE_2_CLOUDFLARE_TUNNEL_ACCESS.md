@@ -17,10 +17,12 @@ Esta fase prepara y valida el camino de dominio + Tunnel + Access. Los valores p
 ## Added Tools
 
 - `tools/remote_tunnel_preflight.ps1`: valida `cloudflared`, REMOTE-1, target local, evidencia privada ignorada y que Access/Tunnel estan listos.
+- `tools/remote_tunnel_operator_handoff.ps1`: genera instrucciones privadas locales y plantilla de config ignorada para terminar login, tunel, ruta DNS y Access sin filtrar datos al repo.
 - `tools/remote_tunnel_run.ps1`: arranca el tunel con config local ignorada solo si el preflight devuelve GO.
 - `tools/remote_tunnel_smoke.ps1`: prueba anonima contra la URL protegida y espera que Cloudflare Access bloquee antes de exponer cuerpo de app.
 - `tools/remote_tunnel_install_startup_task.ps1`: registra el tunel en Windows Task Scheduler cuando el operador lo decida.
 - `docs/examples/remote_tunnel.local.example.json`: plantilla publica segura para crear `.local/remote_service/cloudflare_tunnel.local.json`.
+- `docs/examples/cloudflared-config.local.example.yml`: plantilla publica segura para crear `.local/remote_service/cloudflared-config.local.yml`.
 
 ## Private Evidence File
 
@@ -50,6 +52,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_service_preflig
 3. Create a private hostname route for the tunnel.
 4. Create Cloudflare Access application and policy before sharing any URL.
 5. Fill `.local/remote_service/cloudflare_tunnel.local.json` with boolean evidence only.
+5.1. Use the local handoff when the Cloudflare state is incomplete:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_operator_handoff.ps1 -CloudflaredPath C:\Tools\cloudflared\cloudflared.exe
+```
+
 6. Run preflight:
 
 ```powershell

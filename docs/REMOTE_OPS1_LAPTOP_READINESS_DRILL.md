@@ -66,9 +66,12 @@ Then check `http://127.0.0.1:5050/api/health` locally.
 5. Confirm Cloudflare Tunnel and Access readiness with private evidence only:
 
 ```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_operator_handoff.ps1 -CloudflaredPath C:\Tools\cloudflared\cloudflared.exe
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_preflight.ps1 -RequireEvidence
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_smoke.ps1 -ProtectedUrl "<private protected url>"
 ```
+
+The handoff writes `.local/remote_service/cloudflare_tunnel_operator_handoff.local.md` and starts from `docs/examples/cloudflared-config.local.example.yml` as the safe placeholder shape for the ignored real tunnel config.
 
 6. Smoke app-level login, workspace, artifact generation/export, revocation and restore using private local notes only.
 

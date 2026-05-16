@@ -41,6 +41,17 @@ function Resolve-Cloudflared {
     return $cmd.Source
 }
 
+function Get-OriginCertCandidates {
+    $items = @()
+    if (-not [string]::IsNullOrWhiteSpace($env:TUNNEL_ORIGIN_CERT)) {
+        $items += $env:TUNNEL_ORIGIN_CERT
+    }
+    $items += (Join-Path $HOME ".cloudflared\cert.pem")
+    $items += (Join-Path $HOME ".cloudflare-warp\cert.pem")
+    $items += (Join-Path $HOME "cloudflare-warp\cert.pem")
+    return $items
+}
+
 function Test-SensitiveEvidenceText {
     param([string]$Text)
     $patterns = @(
@@ -77,6 +88,7 @@ if ($cloudflared) {
         $cloudflaredVersion = $null
     }
 }
+$originCert = (Get-OriginCertCandidates | Where-Object { Test-Path -LiteralPath $_ } | Select-Object -First 1)
 
 $remote1 = $null
 $remote1Ok = $false
@@ -114,6 +126,7 @@ $checks = [ordered]@{
     apiUrlLocalOnly = Test-LocalApiUrl $ApiUrl
     targetUrlLocalOnly = Test-LocalApiUrl $targetUrl
     cloudflaredInstalled = [bool]$cloudflared
+    originCertPresentPrivately = -not [string]::IsNullOrWhiteSpace($originCert)
     evidencePresent = $evidencePresent
     evidenceReadable = $evidenceReadable
     evidencePublicSafeShape = (-not $evidencePresent) -or (Test-SensitiveEvidenceText $evidenceText)

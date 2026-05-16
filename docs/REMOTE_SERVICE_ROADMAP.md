@@ -68,6 +68,22 @@ Next route:
 - `NO_GO_REMOTE_OPS1_LAPTOP_READINESS_BLOCKED` routes to blocker fixes before any tester expansion.
 - REMOTE-OPS1 never creates users, grants, checkout links, emails, public URL sharing or automation jobs.
 
+### REMOTE-OPS1B - Cloudflare Operator Handoff
+
+Turns the remaining Cloudflare blocker into a local-only operator handoff. It creates ignored handoff/config templates, verifies `cloudflared` status, keeps placeholders in Git and tells the operator exactly how to finish Tunnel + Access privately.
+
+Artifacts:
+
+- `docs/REMOTE_OPS1B_CLOUDFLARE_OPERATOR_HANDOFF.md`
+- `docs/examples/cloudflared-config.local.example.yml`
+- `tools/remote_tunnel_operator_handoff.ps1`
+- generated ignored files under `.local/remote_service/`
+
+Next route:
+
+- `GO_REMOTE2_TUNNEL_ACCESS_READY_NO_GIT_LEAK` plus anonymous Access smoke allows REMOTE-OPS1 to flip `tunnelPreflightGo` and `accessAnonymousBlocked`.
+- `GO_REMOTE_OPS1_LAPTOP_READY` is still required before returning to REMOTE-8H private package evidence.
+
 ### REMOTE-2B - Tester Grants And Repository Privacy
 
 Lock the pre-auth product decisions that REMOTE-3 must respect: approved testers get full `tester_free` access without payment but with the same authentication/audit path as paid users, and the working repositories should become private before active sales.

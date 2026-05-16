@@ -132,10 +132,12 @@ REMOTE-1 laptop server baseline:
 REMOTE-2 Cloudflare Tunnel and Access:
 
 - `tools/remote_tunnel_preflight.ps1` checks Cloudflare Tunnel readiness, private evidence, REMOTE-1 readiness and that the target remains `http://127.0.0.1:5050`.
+- `tools/remote_tunnel_operator_handoff.ps1` creates local-only operator instructions and an ignored `cloudflared` config template so Cloudflare login, route and Access evidence can be completed without leaking provider details.
 - `tools/remote_tunnel_run.ps1` runs `cloudflared` from ignored local config only after preflight GO.
 - `tools/remote_tunnel_smoke.ps1` verifies anonymous traffic is blocked by Cloudflare Access before any SQX Edge body is visible.
 - `tools/remote_tunnel_install_startup_task.ps1` can register the tunnel runner in Windows Task Scheduler.
 - `docs/examples/remote_tunnel.local.example.json` defines the redacted boolean evidence shape copied into ignored `.local/remote_service/cloudflare_tunnel.local.json`.
+- `docs/examples/cloudflared-config.local.example.yml` documents the safe placeholder shape for the ignored real tunnel config.
 
 REMOTE-OPS1 laptop production readiness drill:
 

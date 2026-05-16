@@ -2,6 +2,9 @@
 param(
     [string]$RepoRoot = "",
     [string]$TaskName = "SQX Edge Cloudflare Tunnel",
+    [string]$CloudflaredPath = "",
+    [string]$CloudflaredConfig = "",
+    [string]$TunnelName = "",
     [switch]$AtStartup
 )
 
@@ -25,6 +28,15 @@ $trigger = if ($AtStartup) {
 }
 
 $argument = "-NoProfile -ExecutionPolicy Bypass -File `"$tunnelRun`" -RepoRoot `"$repo`""
+if (-not [string]::IsNullOrWhiteSpace($CloudflaredPath)) {
+    $argument += " -CloudflaredPath `"$CloudflaredPath`""
+}
+if (-not [string]::IsNullOrWhiteSpace($CloudflaredConfig)) {
+    $argument += " -CloudflaredConfig `"$CloudflaredConfig`""
+}
+if (-not [string]::IsNullOrWhiteSpace($TunnelName)) {
+    $argument += " -TunnelName `"$TunnelName`""
+}
 $action = New-ScheduledTaskAction -Execute "powershell.exe" -Argument $argument
 $settings = New-ScheduledTaskSettingsSet `
     -AllowStartIfOnBatteries `

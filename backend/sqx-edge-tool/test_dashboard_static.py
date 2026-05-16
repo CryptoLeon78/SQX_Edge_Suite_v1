@@ -75,9 +75,11 @@ REMOTE_SERVICE_START_SERVER_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_st
 REMOTE_SERVICE_WATCHDOG_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_watchdog.ps1"
 REMOTE_SERVICE_INSTALL_STARTUP_TASK_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_install_startup_task.ps1"
 REMOTE_TUNNEL_PREFLIGHT_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_preflight.ps1"
+REMOTE_TUNNEL_OPERATOR_HANDOFF_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_operator_handoff.ps1"
 REMOTE_TUNNEL_RUN_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_run.ps1"
 REMOTE_TUNNEL_SMOKE_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_smoke.ps1"
 REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_install_startup_task.ps1"
+REMOTE_CLOUDFLARED_CONFIG_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "cloudflared-config.local.example.yml"
 CLEAN_WORKSPACE_SCRIPT = PROJECT_ROOT / "tools" / "clean_workspace.ps1"
 J1_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J1_CHAMPION_CHALLENGER_CONTRACT.md"
 J2_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J2_CHAMPION_CHALLENGER_CORE.md"
@@ -3580,6 +3582,118 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, startup_task)
 
         combined_public = "\n".join([remote_2, json.dumps(example), preflight, runner, smoke, startup_task, roadmap, architecture])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "https://sqx" + "-edge",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+            "-----BEGIN PRIVATE KEY-----",
+            "sk_live_",
+            "pk_live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_ops1b_cloudflare_operator_handoff_is_documented_and_secret_safe(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        ops1 = REMOTE_OPS1_LAPTOP_READINESS_DOC.read_text(encoding="utf-8-sig")
+        handoff_doc = (PROJECT_ROOT / "docs" / "REMOTE_OPS1B_CLOUDFLARE_OPERATOR_HANDOFF.md").read_text(encoding="utf-8-sig")
+        handoff_script = REMOTE_TUNNEL_OPERATOR_HANDOFF_SCRIPT.read_text(encoding="utf-8-sig")
+        config_example = REMOTE_CLOUDFLARED_CONFIG_EXAMPLE.read_text(encoding="utf-8-sig")
+        startup_task = REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT.read_text(encoding="utf-8-sig")
+        preflight = REMOTE_TUNNEL_PREFLIGHT_SCRIPT.read_text(encoding="utf-8-sig")
+
+        for path in (
+            PROJECT_ROOT / "docs" / "REMOTE_OPS1B_CLOUDFLARE_OPERATOR_HANDOFF.md",
+            REMOTE_TUNNEL_OPERATOR_HANDOFF_SCRIPT,
+            REMOTE_CLOUDFLARED_CONFIG_EXAMPLE,
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-OPS1B - Cloudflare Operator Handoff",
+            "tools/remote_tunnel_operator_handoff.ps1",
+            "docs/examples/cloudflared-config.local.example.yml",
+            ".local/remote_service/cloudflare_tunnel_operator_handoff.local.md",
+            "GO_REMOTE2_TUNNEL_ACCESS_READY_NO_GIT_LEAK",
+            "GO_REMOTE_OPS1_LAPTOP_READY",
+            "Cloudflare Access self-hosted applications",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, handoff_doc)
+
+        for pattern in (
+            "Cloudflare Operator Handoff Gate",
+            "REMOTE-OPS1B",
+            "tracked files must contain placeholders only",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-OPS1B - Cloudflare Operator Handoff",
+            "tools/remote_tunnel_operator_handoff.ps1",
+            "docs/examples/cloudflared-config.local.example.yml",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "remote_tunnel_operator_handoff.ps1",
+            "cloudflared-config.local.example.yml",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+                self.assertIn(pattern, ops1)
+
+        for pattern in (
+            "LaunchLogin",
+            "cloudflare_tunnel.local.json",
+            "cloudflare_tunnel_operator_handoff.local.md",
+            "cloudflared-config.local.yml.template",
+            "run_cloudflared_tunnel_login",
+            "externalMutationPerformed",
+            "originCertPresentPrivately",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, handoff_script)
+
+        for pattern in (
+            "hostname: <private-protected-hostname>",
+            "service: http://127.0.0.1:5050",
+            "http_status:404",
+            "<FULL-PATH-TO-TUNNEL-CREDENTIALS-JSON>",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, config_example)
+
+        for pattern in (
+            "CloudflaredPath",
+            "CloudflaredConfig",
+            "TunnelName",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, startup_task)
+
+        self.assertIn("originCertPresentPrivately", preflight)
+
+        combined_public = "\n".join([
+            handoff_doc,
+            handoff_script,
+            config_example,
+            governance,
+            roadmap,
+            architecture,
+            readme,
+            ops1,
+        ])
         for forbidden in (
             "@" + "gmail.com",
             "@" + "hotmail.com",

@@ -1,0 +1,7 @@
+tunnel: <TUNNEL-UUID-OR-NAME>
+credentials-file: <FULL-PATH-TO-TUNNEL-CREDENTIALS-JSON>
+
+ingress:
+  - hostname: <private-protected-hostname>
+    service: http://127.0.0.1:5050
+  - service: http_status:404
