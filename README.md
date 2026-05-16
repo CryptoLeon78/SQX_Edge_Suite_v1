@@ -5,12 +5,12 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 ## Estado Actual
 
 - Estado interno: UX-NAV pasa a optimizacion tab por tab; el tab activo es Workflow y el reordenamiento global queda aplazado hasta completar las optimizaciones individuales.
-- Estado comercial: REMOTE-8F monitoriza la cohorte pequena 3-5 usuarios, con pausa/rollback activos y sin automatizar expansion.
+- Estado comercial: REMOTE-8G convierte la monitorizacion de cohorte pequena en decision humana, sin ejecutar expansion.
 - Estado de despliegue: REMOTE-SUG1 revisa la sugerencia Docker/Ubuntu del tester y mantiene el piloto activo en Windows laptop + API localhost + Cloudflare Tunnel.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Distribucion principal: enlace remoto protegido; el usuario final no descarga ZIP, no ejecuta launchers y no instala Python.
 - Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip` con SHA256 `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`.
-- Siguiente paso recomendado: REMOTE-8G para convertir la monitorizacion en decision humana antes de cualquier siguiente movimiento.
+- Siguiente paso recomendado: REMOTE-8H para preparar el paquete exacto del siguiente movimiento controlado si REMOTE-8G lo selecciono.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## Limpieza Local
@@ -102,6 +102,7 @@ Acceso remoto Pro previsto:
 - REMOTE-8D fija `remote-tiny-cohort-activation-v1`, herramienta `backend/sqx-edge-tool/tools/remote_tiny_cohort_activation.py`, ejemplo `docs/examples/remote8d_tiny_cohort_activation.local.example.json`, evidencia ignorada `.local/remote_service/remote8d_tiny_cohort_activation*` y `Tiny Cohort Activation Package Gate` en `docs/REMOTE_8D_TINY_COHORT_ACTIVATION.md`.
 - REMOTE-8E fija `remote-tiny-cohort-execution-v1`, herramienta `backend/sqx-edge-tool/tools/remote_tiny_cohort_execution.py`, ejemplo `docs/examples/remote8e_tiny_cohort_execution.local.example.json`, evidencia ignorada `.local/remote_service/remote8e_tiny_cohort_execution*` y `Tiny Cohort Manual Execution Record Gate` en `docs/REMOTE_8E_TINY_COHORT_EXECUTION.md`.
 - REMOTE-8F fija `remote-tiny-cohort-monitoring-v1`, herramienta `backend/sqx-edge-tool/tools/remote_tiny_cohort_monitoring.py`, ejemplo `docs/examples/remote8f_tiny_cohort_monitoring.local.example.json`, evidencia ignorada `.local/remote_service/remote8f_tiny_cohort_monitoring*` y `Tiny Cohort Monitoring Gate` en `docs/REMOTE_8F_TINY_COHORT_MONITORING.md`.
+- REMOTE-8G fija `remote-tiny-cohort-decision-review-v1`, herramienta `backend/sqx-edge-tool/tools/remote_tiny_cohort_decision_review.py`, ejemplo `docs/examples/remote8g_tiny_cohort_decision_review.local.example.json`, evidencia ignorada `.local/remote_service/remote8g_tiny_cohort_decision_review*` y `Tiny Cohort Decision Review Gate` en `docs/REMOTE_8G_TINY_COHORT_DECISION_REVIEW.md`.
 - REMOTE-SUG1 incorpora las mejores ideas de hardening de la propuesta tester en `docs/REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md`: zero ingress, Cloudflare Access/Tunnel, persistencia, backup y resiliencia. Docker/Linux queda como ruta futura REMOTE-9, no como requisito actual para testers ni compradores.
 - La comunicacion de seguridad y privacidad vive en `docs/REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md`.
 - El piloto corre en portatil 24/7 mediante dominio propio, Cloudflare Tunnel y Cloudflare Access.

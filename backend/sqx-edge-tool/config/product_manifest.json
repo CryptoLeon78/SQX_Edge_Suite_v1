@@ -363,6 +363,71 @@
     },
     "nextPhase": "REMOTE-8G-tiny-cohort-decision-review"
   },
+  "remoteTinyCohortDecisionReview": {
+    "phase": "REMOTE-8G",
+    "version": "remote-tiny-cohort-decision-review-v1",
+    "tool": "backend/sqx-edge-tool/tools/remote_tiny_cohort_decision_review.py",
+    "doc": "docs/REMOTE_8G_TINY_COHORT_DECISION_REVIEW.md",
+    "example": "docs/examples/remote8g_tiny_cohort_decision_review.local.example.json",
+    "evidenceRoot": ".local/remote_service/remote8g_tiny_cohort_decision_review",
+    "summaryOutput": ".local/remote_service/remote8g_tiny_cohort_decision_review/remote8g_tiny_cohort_decision_review.public.json",
+    "cleanSourceStatus": "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
+    "blockedSourceStatus": "NO_GO_REMOTE8F_TINY_COHORT_MONITORING_BLOCKED",
+    "minCohortSize": 3,
+    "maxCohortSize": 5,
+    "validSelectedDecisions": [
+      "continue_observing",
+      "fix_blockers",
+      "rollback_tiny_cohort",
+      "prepare_next_controlled_movement"
+    ],
+    "validEntitlementKinds": [
+      "paid_subscription",
+      "tester_free",
+      "internal_operator"
+    ],
+    "requiredChecks": [
+      "remote8fMonitoringReviewed",
+      "operatorDecisionRecorded",
+      "decisionRationaleRecorded",
+      "cohortSizeReviewed",
+      "supportOwnerConfirmed",
+      "rollbackPlanReady",
+      "pauseRuleReady",
+      "entitlementBoundaryReviewed",
+      "workspaceIsolationReviewed",
+      "securityReviewCompleted",
+      "noAutomationConfirmed",
+      "privateEvidenceStoredOutsideGit"
+    ],
+    "zeroExecutionMetrics": [
+      "newUsersInvited",
+      "grantsChanged",
+      "checkoutLinksCreated",
+      "emailsSent",
+      "publicUrlsShared",
+      "automationJobsStarted",
+      "trafficExpanded",
+      "paidCampaignStarted"
+    ],
+    "privacy": {
+      "rawEmailsReturned": false,
+      "protectedUrlReturned": false,
+      "localPathsReturned": false,
+      "secretsReturned": false,
+      "sessionTokenReturned": false,
+      "grantKeysReturned": false,
+      "supportLogsReturned": false,
+      "decisionRationaleReturned": false,
+      "privateEvidenceCommitted": false
+    },
+    "decision": {
+      "automationAllowed": false,
+      "executionAllowedNow": false,
+      "requiresSeparateNextPhase": true
+    },
+    "nextPhase": "REMOTE-8H-next-controlled-movement-package"
+  },
   "licensing": {
     "storageKey": "sqx_license_state_v1",
     "licenseFile": "config/license.json",

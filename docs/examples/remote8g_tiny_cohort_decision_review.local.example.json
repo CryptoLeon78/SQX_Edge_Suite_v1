@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "remote-tiny-cohort-decision-review-v1",
+  "decisionId": "remote8g-tiny-cohort-decision-001",
+  "capturedAt": "2026-05-16T20:00:00+00:00",
+  "operatorApproval": true,
+  "selectedDecision": "prepare_next_controlled_movement",
+  "sourceGate": {
+    "remote8fStatus": "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
+    "remote8fMonitoringId": "remote8f-tiny-cohort-monitoring-001"
+  },
+  "environment": {
+    "protectedUrl": "https://private-live.example.invalid/sqx",
+    "localPath": "C:/BOTS/private/live"
+  },
+  "monitoringSummary": {
+    "observationHours": 24,
+    "cohortUserCount": 3,
+    "blockerCount": 0
+  },
+  "reviewedUsers": [
+    {
+      "email": "buyer1@example.invalid",
+      "kind": "paid_subscription",
+      "featureScope": "full",
+      "accessOutcomeReviewed": true,
+      "supportOutcomeReviewed": true,
+      "workspaceOutcomeReviewed": true,
+      "entitlementOutcomeReviewed": true
+    },
+    {
+      "email": "tester2@example.invalid",
+      "kind": "tester_free",
+      "featureScope": "full",
+      "accessOutcomeReviewed": true,
+      "supportOutcomeReviewed": true,
+      "workspaceOutcomeReviewed": true,
+      "entitlementOutcomeReviewed": true
+    },
+    {
+      "email": "buyer3@example.invalid",
+      "kind": "paid_subscription",
+      "featureScope": "full",
+      "accessOutcomeReviewed": true,
+      "supportOutcomeReviewed": true,
+      "workspaceOutcomeReviewed": true,
+      "entitlementOutcomeReviewed": true
+    }
+  ],
+  "checks": {
+    "remote8fMonitoringReviewed": true,
+    "operatorDecisionRecorded": true,
+    "decisionRationaleRecorded": true,
+    "cohortSizeReviewed": true,
+    "supportOwnerConfirmed": true,
+    "rollbackPlanReady": true,
+    "pauseRuleReady": true,
+    "entitlementBoundaryReviewed": true,
+    "workspaceIsolationReviewed": true,
+    "securityReviewCompleted": true,
+    "noAutomationConfirmed": true,
+    "privateEvidenceStoredOutsideGit": true
+  },
+  "executionMetrics": {
+    "newUsersInvited": 0,
+    "grantsChanged": 0,
+    "checkoutLinksCreated": 0,
+    "emailsSent": 0,
+    "publicUrlsShared": 0,
+    "automationJobsStarted": 0,
+    "trafficExpanded": 0,
+    "paidCampaignStarted": 0
+  }
+}
