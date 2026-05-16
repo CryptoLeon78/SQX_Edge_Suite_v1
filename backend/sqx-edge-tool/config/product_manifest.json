@@ -106,6 +106,66 @@
     },
     "nextPhase": "REMOTE-8C-first-user-support-observation"
   },
+  "remoteFirstUserObservation": {
+    "phase": "REMOTE-8C",
+    "version": "remote-first-user-observation-v1",
+    "tool": "backend/sqx-edge-tool/tools/remote_first_user_observation.py",
+    "doc": "docs/REMOTE_8C_FIRST_USER_OBSERVATION.md",
+    "example": "docs/examples/remote8c_first_user_observation.local.example.json",
+    "evidenceRoot": ".local/remote_service/remote8c_first_user_observation",
+    "summaryOutput": ".local/remote_service/remote8c_first_user_observation/remote8c_first_user_observation.public.json",
+    "minimumObservationHours": 24,
+    "validRequestedDecisions": [
+      "stay_one_user",
+      "fix_blockers",
+      "expand_3_5"
+    ],
+    "requiredSignals": [
+      "remote8bEvidenceGo",
+      "firstUserCompletedGuidedFlow",
+      "supportLoopObserved",
+      "tunnelStable",
+      "appSessionStable",
+      "entitlementStable",
+      "workspaceIsolationClean",
+      "artifactGenerated",
+      "exportDownloaded",
+      "revocationRestoreConfidence",
+      "noWorkspaceLeakage",
+      "noSecurityIncidents",
+      "noUnresolvedSupportBlockers",
+      "supportEvidenceRedacted",
+      "privateEvidenceStoredOutsideGit"
+    ],
+    "zeroToleranceMetrics": [
+      "openSupportItems",
+      "unresolvedBlockers",
+      "tunnelDrops",
+      "appSessionFailures",
+      "workspaceLeakEvents",
+      "securityIncidents",
+      "generationFailures",
+      "entitlementErrors",
+      "refundRequests"
+    ],
+    "privacy": {
+      "rawEmailReturned": false,
+      "protectedUrlReturned": false,
+      "localPathsReturned": false,
+      "secretsReturned": false,
+      "sessionTokenReturned": false,
+      "grantKeysReturned": false,
+      "supportLogsReturned": false,
+      "privateEvidenceCommitted": false
+    },
+    "automation": {
+      "invitesAllowed": false,
+      "checkoutAllowed": false,
+      "grantMutationAllowed": false,
+      "emailSendingAllowed": false
+    },
+    "nextPhase": "REMOTE-8D-tiny-cohort-activation-package"
+  },
   "licensing": {
     "storageKey": "sqx_license_state_v1",
     "licenseFile": "config/license.json",

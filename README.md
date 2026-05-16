@@ -5,12 +5,12 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 ## Estado Actual
 
 - Estado interno: UX-NAV pasa a optimizacion tab por tab; el tab activo es Workflow y el reordenamiento global queda aplazado hasta completar las optimizaciones individuales.
-- Estado comercial: REMOTE-8B anade ingesta de evidencia privada del primer smoke live, con resumen redactado y expansion bloqueada hasta decision explicita.
+- Estado comercial: REMOTE-8C anade decision redactada de observacion del primer usuario real antes de preparar una cohorte pequena.
 - Estado de despliegue: REMOTE-SUG1 revisa la sugerencia Docker/Ubuntu del tester y mantiene el piloto activo en Windows laptop + API localhost + Cloudflare Tunnel.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Distribucion principal: enlace remoto protegido; el usuario final no descarga ZIP, no ejecuta launchers y no instala Python.
 - Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip` con SHA256 `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`.
-- Siguiente paso recomendado: REMOTE-8C para observar al primer usuario real, revisar soporte/estabilidad y decidir si se expande a 3-5 usuarios.
+- Siguiente paso recomendado: REMOTE-8D para preparar paquete manual de activacion de cohorte 3-5 usuarios, sin automatizar invitaciones ni grants.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## Limpieza Local
@@ -98,6 +98,7 @@ Acceso remoto Pro previsto:
 - REMOTE-7 fija la oferta web Pro mensual/anual, el onboarding sin instalacion, FAQ, soporte, acceso `tester_free` y portable como fallback interno en `docs/REMOTE_7_MONETIZATION_REWRITE.md`.
 - REMOTE-8 fija `remote-controlled-pilot-v1`, herramienta `backend/sqx-edge-tool/tools/remote_controlled_pilot.py`, evidencia ignorada `.local/remote_service/remote8_controlled_pilot/` y `Controlled Pilot Gate` en `docs/REMOTE_8_CONTROLLED_PILOT.md`.
 - REMOTE-8B fija `remote-live-pilot-evidence-v1`, herramienta `backend/sqx-edge-tool/tools/remote_live_pilot_evidence.py`, ejemplo `docs/examples/remote8b_live_pilot_evidence.local.example.json`, evidencia ignorada `.local/remote_service/remote8b_live_pilot_evidence*` y `Live Pilot Evidence Gate` en `docs/REMOTE_8B_LIVE_PILOT_EVIDENCE.md`.
+- REMOTE-8C fija `remote-first-user-observation-v1`, herramienta `backend/sqx-edge-tool/tools/remote_first_user_observation.py`, ejemplo `docs/examples/remote8c_first_user_observation.local.example.json`, evidencia ignorada `.local/remote_service/remote8c_first_user_observation*` y `First User Observation Gate` en `docs/REMOTE_8C_FIRST_USER_OBSERVATION.md`.
 - REMOTE-SUG1 incorpora las mejores ideas de hardening de la propuesta tester en `docs/REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md`: zero ingress, Cloudflare Access/Tunnel, persistencia, backup y resiliencia. Docker/Linux queda como ruta futura REMOTE-9, no como requisito actual para testers ni compradores.
 - La comunicacion de seguridad y privacidad vive en `docs/REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md`.
 - El piloto corre en portatil 24/7 mediante dominio propio, Cloudflare Tunnel y Cloudflare Access.

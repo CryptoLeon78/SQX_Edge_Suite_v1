@@ -108,6 +108,7 @@ Remote-service invariants:
 - REMOTE-7 makes `remote_service` the commercial offer shape: buyers use `web_pro_monthly` or `web_pro_annual`, approved testers use `tester_free`, support is optional as `support_assist`, and portable ZIP/offline license flows are internal fallback rather than buyer onboarding.
 - REMOTE-8 uses `remote-controlled-pilot-v1` to prove the end-to-end remote chain locally before live cohort expansion: payment webhook, app session, workspace, `.cfx` artifact, export, isolation, revocation and restore.
 - REMOTE-8B uses `remote-live-pilot-evidence-v1` to ingest one private live-pilot smoke as redacted evidence only. Raw email, protected URL, Cloudflare identifiers, payment payloads, support logs and workspace paths remain local/ignored, and expansion beyond one user stays blocked until REMOTE-8C.
+- REMOTE-8C uses `remote-first-user-observation-v1` to decide whether the first real user experience is clean enough to prepare a manual 3-5 user cohort package. It never automates invites, grants, checkout, emails or protected URL sharing.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -181,6 +182,15 @@ REMOTE-8B live pilot evidence ingest:
 - Required proofs cover anonymous Access block, Cloudflare Access pass, app session pass, entitlement active, workspace creation, artifact generation/export, revocation, restore, second-user isolation, no workspace leakage and support redaction.
 - Public summaries never include raw email, private URL, Cloudflare identifiers, session token, grant key, local path or provider secret.
 - REMOTE-8C must observe the first user and decide expansion explicitly; REMOTE-8B alone never expands the cohort.
+
+REMOTE-8C first user observation decision:
+
+- `backend/sqx-edge-tool/core/remote_first_user_observation.py` owns `remote-first-user-observation-v1`.
+- `backend/sqx-edge-tool/tools/remote_first_user_observation.py` reads ignored private observation evidence from `.local/remote_service/remote8c_first_user_observation.local.json`.
+- The redacted output is `.local/remote_service/remote8c_first_user_observation/remote8c_first_user_observation.public.json`.
+- Required signals cover REMOTE-8B GO, guided flow completion, support observation, tunnel/session/entitlement stability, workspace isolation, generation/export, revocation/restore confidence, no incidents and redacted support evidence.
+- Zero-tolerance metrics must remain zero for open support items, unresolved blockers, tunnel drops, session failures, workspace leaks, security incidents, generation failures, entitlement errors and refund requests.
+- Even on GO, `decision.automationAllowed` stays false; REMOTE-8D must prepare only a manual activation package.
 
 REMOTE-SUG1 deployment hardening decision:
 
