@@ -55,6 +55,7 @@ from core.strategy_cleaner import (
     institutional_name, rename_sqx, process_files,
 )
 from core.mtf_evidence import build_mtf_evidence
+from core.remote_access import evaluate_remote_access_from_headers
 from core.support_diagnostics import build_support_diagnostics
 from core.fulfillment_queue import (
     load_request as load_fulfillment_request,
@@ -425,6 +426,12 @@ def api_blocksettings():
 @app.get("/api/license/status")
 def api_license_status():
     return jsonify(license_status())
+
+
+@app.get("/api/remote/access/status")
+def api_remote_access_status():
+    """Public-safe remote-service access status derived from trusted edge/app headers."""
+    return jsonify(evaluate_remote_access_from_headers(request.headers))
 
 
 @app.post("/api/license/check")

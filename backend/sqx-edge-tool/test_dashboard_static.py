@@ -17,7 +17,9 @@ REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVI
 REMOTE_1_LAPTOP_SERVER_BASELINE_DOC = PROJECT_ROOT / "docs" / "REMOTE_1_LAPTOP_SERVER_BASELINE.md"
 REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC = PROJECT_ROOT / "docs" / "REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS.md"
 REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC = PROJECT_ROOT / "docs" / "REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY.md"
+REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_3A_REMOTE_ACCESS_FOUNDATION.md"
 REMOTE_TUNNEL_EXAMPLE_EVIDENCE = PROJECT_ROOT / "docs" / "examples" / "remote_tunnel.local.example.json"
+REMOTE_ENTITLEMENTS_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote_entitlements.local.example.json"
 REMOTE_SERVICE_PREFLIGHT_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_preflight.ps1"
 REMOTE_SERVICE_START_SERVER_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_start_server.ps1"
 REMOTE_SERVICE_WATCHDOG_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_watchdog.ps1"
@@ -344,6 +346,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertTrue(REMOTE_SERVICE_ROADMAP_DOC.is_file())
         self.assertTrue(REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC.is_file())
         self.assertTrue(REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC.is_file())
+        self.assertTrue(REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC.is_file())
 
         for pattern in (
             "REMOTE-0",
@@ -351,6 +354,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-2 - Cloudflare Tunnel And Domain",
             "REMOTE-2B - Tester Grants And Repository Privacy",
             "REMOTE-3 - Paid Auth And Webhook",
+            "REMOTE-3A",
             "REMOTE-4 - Workspace Isolation",
             "REMOTE-8 - Controlled Pilot",
             "Primary channel: `remote_service`",
@@ -359,6 +363,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Cloudflare Tunnel",
             "workspace per user",
             "Fallback Portable Gate",
+            "GET /api/remote/access/status",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, roadmap)
@@ -370,6 +375,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Tester Free Access Gate",
             "Repository Privacy Gate",
             "tester_free",
+            "Remote Access Foundation Gate",
             "server-derived workspace",
             "Cloudflare Tunnel/Access",
             "Remote Ops/SRE",
@@ -390,10 +396,12 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Servicio web Pro",
-            "Estado comercial: REMOTE-0",
+            "Estado comercial: REMOTE-3A",
             "Distribucion principal: enlace remoto protegido",
-            "grants tester-free",
+            "tester-free grants",
             "REMOTE-2B fija acceso completo `tester_free`",
+            "REMOTE-3A fija la base backend `remote-access-v1`",
+            "verificados como privados por GitHub CLI",
             "Los testers aprobados podran usar todas las funcionalidades sin pago",
             "Recomendacion comercial: convertir `SQX_Edge_Suite_v1` y `SQX_Institutional_Core` a repos privados",
             "SQX Edge Pro Mensual: acceso web",
@@ -484,6 +492,99 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, remote_2b)
+
+    def test_remote_3a_remote_access_foundation_is_wired_and_redacted(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_3a = REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC.read_text(encoding="utf-8-sig")
+        entitlements_example = json.loads(REMOTE_ENTITLEMENTS_EXAMPLE.read_text(encoding="utf-8-sig"))
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        remote_access_py = (TOOL_ROOT / "core" / "remote_access.py").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC,
+            REMOTE_ENTITLEMENTS_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_access.py",
+            TOOL_ROOT / "test_remote_access.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-3A - Remote Access Foundation",
+            "CryptoLeon78/SQX_Edge_Suite_v1 -> PRIVATE",
+            "CryptoLeon78/SQX_Institutional_Core -> PRIVATE",
+            "paid_subscription",
+            "tester_free",
+            "internal_operator",
+            ".local/remote_service/remote_entitlements.local.json",
+            "never returns grant keys",
+            "REMOTE-3B must add app sessions",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_3a)
+
+        for pattern in (
+            "Remote Access Foundation Gate",
+            "remote-access-v1",
+            "Current repository privacy state",
+            "verified as PRIVATE through GitHub CLI",
+            "REMOTE-3B - app session and tester grant-key verification",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "docs/REMOTE_3A_REMOTE_ACCESS_FOUNDATION.md",
+            "docs/examples/remote_entitlements.local.example.json",
+            "backend/sqx-edge-tool/core/remote_access.py",
+            "GET /api/remote/access/status",
+            "backend/sqx-edge-tool/test_remote_access.py",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-3A fija la base backend `remote-access-v1`",
+            "Siguiente paso recomendado: REMOTE-3B",
+            "Estado de repos: `SQX_Edge_Suite_v1` e `SQX_Institutional_Core` verificados como privados",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        self.assertEqual(entitlements_example["schemaVersion"], "remote-entitlements-v1")
+        self.assertEqual(entitlements_example["grants"][0]["entitlementKind"], "tester_free")
+        self.assertEqual(entitlements_example["grants"][1]["entitlementKind"], "paid_subscription")
+
+        for pattern in (
+            "REMOTE_ACCESS_VERSION = \"remote-access-v1\"",
+            "ENTITLEMENTS_SCHEMA_VERSION = \"remote-entitlements-v1\"",
+            "VALID_ENTITLEMENT_KINDS",
+            "tester_free",
+            "grant_key_never_returned",
+            "raw_email_returned",
+            "grant_keys_returned",
+            "evaluate_remote_access_from_headers",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_access_py)
+
+        self.assertIn("/api/remote/access/status", server_py)
+        self.assertIn("evaluate_remote_access_from_headers", server_py)
+
+        combined_public = "\n".join([remote_3a, json.dumps(entitlements_example), remote_access_py, server_py, roadmap])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "grant_key=",
+            "tester_password",
+            "CLOUDFLARE_API_TOKEN=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
 
     def test_remote_1_laptop_server_baseline_is_documented_and_local_only(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")

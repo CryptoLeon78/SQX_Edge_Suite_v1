@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "remote-entitlements-v1",
+  "operatorNotes": "Copy to .local/remote_service/remote_entitlements.local.json. Use emailHash and grantKeyHash values generated privately. Do not commit real emails, grant keys, payment IDs or customer names.",
+  "grants": [
+    {
+      "grantId": "tester-free-001",
+      "emailHash": "replace-with-sha256-of-normalized-email",
+      "entitlementKind": "tester_free",
+      "status": "active",
+      "featureScope": "full",
+      "grantKeyHash": "replace-with-private-hash-of-tester-access-key",
+      "source": "operator_grant",
+      "expiresAt": null
+    },
+    {
+      "grantId": "paid-subscription-001",
+      "emailHash": "replace-with-sha256-of-normalized-email",
+      "entitlementKind": "paid_subscription",
+      "status": "active",
+      "featureScope": "full",
+      "provider": "payment_webhook",
+      "providerCustomerRef": "redacted-provider-customer-ref",
+      "source": "checkout_webhook",
+      "expiresAt": null
+    }
+  ]
+}

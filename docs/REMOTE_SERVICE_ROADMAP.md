@@ -61,6 +61,14 @@ Artifacts:
 
 Implement first-party user sessions, tester-free grants and checkout webhook activation. Access requires email validation, active entitlement, non-blocked status and valid session. Entitlements include `paid_subscription`, `tester_free` and `internal_operator`. Webhooks must be signed, audited and idempotent.
 
+Artifacts started in REMOTE-3A:
+
+- `docs/REMOTE_3A_REMOTE_ACCESS_FOUNDATION.md`
+- `docs/examples/remote_entitlements.local.example.json`
+- `backend/sqx-edge-tool/core/remote_access.py`
+- `GET /api/remote/access/status`
+- `backend/sqx-edge-tool/test_remote_access.py`
+
 ### REMOTE-4 - Workspace Isolation
 
 Create server-side workspaces per user. All mutable endpoints must derive `workspace_id` from session, never from client input. Generated `.cfx`, views, uploads, strategy imports, exports, logs and config live in the user's workspace.

@@ -5,11 +5,11 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 ## Estado Actual
 
 - Estado interno: UX-NAV pasa a optimizacion tab por tab; el tab activo es Workflow y el reordenamiento global queda aplazado hasta completar las optimizaciones individuales.
-- Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro con email validado, pago activo, Cloudflare Tunnel y workspace por usuario.
+- Estado comercial: REMOTE-3A inicia la base real de acceso remoto con email validado, entitlement activo, tester-free grants, Cloudflare Tunnel y workspace por usuario.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Distribucion principal: enlace remoto protegido; el usuario final no descarga ZIP, no ejecuta launchers y no instala Python.
 - Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip` con SHA256 `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`.
-- Siguiente paso recomendado: REMOTE-3 para activar autenticacion propia, grants tester-free y webhook de pago una vez el tunel protegido devuelva GO privado.
+- Siguiente paso recomendado: REMOTE-3B para anadir sesion propia y verificacion de clave tester sobre el modelo `remote-access-v1`.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## Limpieza Local
@@ -84,13 +84,16 @@ Nota de seguridad comercial: los documentos de venta interna, buyer logs, gates 
 Acceso remoto Pro previsto:
 
 - REMOTE-0 fija el roadmap de servicio remoto en `docs/REMOTE_SERVICE_ROADMAP.md`.
+- Ancla historica: Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro.
 - REMOTE-1 fija la base de portatil servidor en `docs/REMOTE_1_LAPTOP_SERVER_BASELINE.md`.
 - REMOTE-2 fija el tunel protegido en `docs/REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS.md`.
 - REMOTE-2B fija acceso completo `tester_free` para testers aprobados y recomienda privatizar `origin` e `institutional` antes de venta en `docs/REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY.md`.
+- REMOTE-3A fija la base backend `remote-access-v1`, endpoint `/api/remote/access/status`, ejemplo local de entitlements y privacidad de repos verificada en `docs/REMOTE_3A_REMOTE_ACCESS_FOUNDATION.md`.
 - La comunicacion de seguridad y privacidad vive en `docs/REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md`.
 - El piloto corre en portatil 24/7 mediante dominio propio, Cloudflare Tunnel y Cloudflare Access.
 - Los testers aprobados podran usar todas las funcionalidades sin pago mientras su grant `tester_free` este activo, pero siempre autenticados, auditados y revocables como cualquier usuario.
 - Recomendacion comercial: convertir `SQX_Edge_Suite_v1` y `SQX_Institutional_Core` a repos privados antes de activar ventas, salvo decision explicita de mantener una estrategia public-source.
+- Estado de repos: `SQX_Edge_Suite_v1` e `SQX_Institutional_Core` verificados como privados por GitHub CLI el 2026-05-16.
 - Cada usuario pagado tendra workspace aislado para config, imports, outputs, exports y auditoria.
 - El navegador no selecciona rutas locales de SQX; las rutas SQX, `data.db`, templates y BlockSettings se gestionan en el servidor.
 - La comunicacion al usuario se basa en entorno controlado, auditado y aislado; no se promete riesgo cero.
