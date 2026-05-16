@@ -46,6 +46,31 @@
       "private_urls"
     ]
   },
+  "remoteControlledPilot": {
+    "phase": "REMOTE-8",
+    "version": "remote-controlled-pilot-v1",
+    "tool": "backend/sqx-edge-tool/tools/remote_controlled_pilot.py",
+    "doc": "docs/REMOTE_8_CONTROLLED_PILOT.md",
+    "evidenceRoot": ".local/remote_service/remote8_controlled_pilot",
+    "requiredProofs": [
+      "payment_webhook_activation",
+      "app_session_login",
+      "server_derived_workspace",
+      "cfx_artifact_generation",
+      "export_checksum_verification",
+      "second_user_workspace_isolation",
+      "revocation_blocks_access",
+      "restore_allows_access"
+    ],
+    "privacy": {
+      "rawEmailReturned": false,
+      "sessionTokenReturned": false,
+      "grantKeysReturned": false,
+      "localPathsReturned": false,
+      "protectedUrlCommitted": false
+    },
+    "nextPhase": "REMOTE-8B-private-live-pilot-evidence-ingest"
+  },
   "licensing": {
     "storageKey": "sqx_license_state_v1",
     "licenseFile": "config/license.json",

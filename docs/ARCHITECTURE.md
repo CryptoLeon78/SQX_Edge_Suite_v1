@@ -106,6 +106,7 @@ Remote-service invariants:
 - REMOTE-5 Home UX uses `remote-pro-panel` to render access, session, workspace, server and privacy state without exposing raw local paths or identities.
 - REMOTE-6 security and abuse controls use `remote-security-v1` to apply rate limits, kill switch, session revocation, identity-hash blocking, redacted audit visibility and session watermark without exposing raw emails, policy paths, tokens or local paths.
 - REMOTE-7 makes `remote_service` the commercial offer shape: buyers use `web_pro_monthly` or `web_pro_annual`, approved testers use `tester_free`, support is optional as `support_assist`, and portable ZIP/offline license flows are internal fallback rather than buyer onboarding.
+- REMOTE-8 uses `remote-controlled-pilot-v1` to prove the end-to-end remote chain locally before live cohort expansion: payment webhook, app session, workspace, `.cfx` artifact, export, isolation, revocation and restore.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -162,6 +163,14 @@ REMOTE-7 web Pro monetization rewrite:
 - `docs/PUBLIC_ROADMAP.md` presents remote Pro access as the current public-safe direction.
 - `backend/sqx-edge-tool/config/product_manifest.json` keeps legacy fallback fields for compatibility but adds a remote commercial contract for `web_pro_monthly`, `web_pro_annual`, `support_assist`, `tester_free` and `internal_fallback`.
 - This phase changes commercial contracts and docs only; runtime access remains governed by REMOTE-3 through REMOTE-6 until REMOTE-8 proves the full pilot.
+
+REMOTE-8 controlled pilot drill:
+
+- `backend/sqx-edge-tool/core/remote_pilot.py` owns `remote-controlled-pilot-v1`.
+- `backend/sqx-edge-tool/tools/remote_controlled_pilot.py` runs the local-only drill and writes ignored evidence under `.local/remote_service/remote8_controlled_pilot/`.
+- The drill uses signed payment webhook processing, app session creation, workspace derivation, a generated `.cfx` pilot artifact, export checksum verification, second-user workspace isolation, cancellation/revocation and restore.
+- Public summaries never include raw email, session token, grant key, local path, protected URL or provider secret.
+- REMOTE-8B must ingest only redacted evidence from a private live smoke before any cohort expansion.
 
 REMOTE-SUG1 deployment hardening decision:
 

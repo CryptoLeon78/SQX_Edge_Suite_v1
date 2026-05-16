@@ -192,6 +192,27 @@ Next REMOTE-8 scope:
 
 Run one paid/internal user end to end: payment webhook, login, workspace creation, `.cfx` generation, export/download, revocation and restore. Expand to 3-5 users only after no workspace leakage, no tunnel instability and no entitlement bypass.
 
+Artifacts added in REMOTE-8:
+
+- `docs/REMOTE_8_CONTROLLED_PILOT.md`
+- `backend/sqx-edge-tool/core/remote_pilot.py`
+- `backend/sqx-edge-tool/tools/remote_controlled_pilot.py`
+- `backend/sqx-edge-tool/test_remote_controlled_pilot.py`
+- `remote-controlled-pilot-v1`
+- ignored evidence root `.local/remote_service/remote8_controlled_pilot/`
+- `Controlled Pilot Gate`
+
+Next REMOTE-8B scope:
+
+- run the same flow against the private live tunnel/access environment with one real approved user;
+- ingest only redacted private evidence;
+- verify cancellation/revocation and restore using operator-owned evidence;
+- do not expand to 3-5 users until the private live smoke is GO.
+
+### REMOTE-8B - Live Pilot Evidence Ingest
+
+Future controlled phase. It records one real live-user smoke after explicit operator approval. No checkout link, protected URL, raw email, Cloudflare identifier, payment payload, support log or workspace path may be committed.
+
 ### REMOTE-9 - Containerization / Dedicated Linux Host
 
 Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace isolation, generation paths and backup/restore are proven on the Windows pilot. Do not add a root `Dockerfile`, root `docker-compose.yml` or root `.dockerignore` until SQX resource compatibility, `data.db` access, `.cfx` generation and workspace persistence are verified.
@@ -206,6 +227,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Remote UX Disclosure Gate`: remote dashboard surfaces may show access state, entitlement class, short workspace id and server readiness, but must not render raw SQX paths, `data.db` paths, output folders, workspace roots, session tokens, grant keys, private URLs, Cloudflare identifiers or raw emails.
 - `Remote Security Abuse Gate`: remote endpoints must apply `remote-security-v1` rate limits, kill switch, session revocation, identity-hash blocking, redacted audit visibility and watermark without returning policy paths, raw emails, tokens, local paths or provider secrets.
 - `Remote Monetization Rewrite Gate`: buyer-facing material must present protected web Pro monthly/annual access, optional support, authenticated tester-free grants and no-install onboarding; portable ZIP, launchers and offline licenses stay internal fallback only.
+- `Controlled Pilot Gate`: pilot work must prove entitlement, login, workspace, artifact generation/export, revocation, restore, isolation and redacted evidence before inviting or expanding users.
 - `Deployment Hardening Review Gate`: hosting suggestions must be reviewed against active REMOTE gates before implementation.
 - `Containerization Deferral Gate`: Docker/Linux must remain future hardening until SQX compatibility, workspace isolation and backup/restore are proven.
 - `Repository Privacy Gate`: before active sales, `origin` and `institutional` should be private or the operator must explicitly accept public-source commercial exposure.
