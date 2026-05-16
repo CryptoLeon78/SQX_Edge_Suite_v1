@@ -5,7 +5,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 ## Current State
 
 - Current phase completed: REMOTE-8B - First private live pilot evidence returned `GO_REMOTE8B_LIVE_PILOT_EVIDENCE_SAFE_NO_GIT_LEAK`: Cloudflare Access anonymous block, approved identity dashboard access, app session, active tester-free entitlement, server workspace, `.cfx` artifact/export, revocation/restore, isolation and redacted support evidence are proven in ignored local evidence.
-- Current implementation phase: REMOTE-8C first-user observation - observe the first real user support loop, tunnel stability, workspace behavior, artifact generation/export confidence and usability blockers before any 3-5 tester expansion decision.
+- Current implementation phase: REMOTE-8C first-user observation started - private ignored baseline evidence exists and is intentionally `NO_GO_REMOTE8C_FIRST_USER_OBSERVATION_BLOCKED` until the 24-hour window, guided flow, support loop and stability signals are clean; no 3-5 tester expansion is allowed yet.
 - Historical remote anchor: Current phase completed: REMOTE-8B Session Bridge - the dashboard can create a server app session from a Cloudflare Access identity plus active entitlement, and a local-only tester grant helper can bootstrap `tester_free` access without committing raw emails or grant keys.
 - Historical remote anchor: Current phase completed: REMOTE-OPS1C - Cloudflare tunnel is created/routed and anonymous smoke was hardened to reject backend `local_api_only` false positives.
 - Historical remote anchor: Current implementation phase: REMOTE-OPS1 private Cloudflare Access app/policy evidence - create Access app for the protected hostname, allow approved identities only, then rerun redacted smoke/readiness.

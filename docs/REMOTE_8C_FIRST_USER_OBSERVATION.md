@@ -4,6 +4,12 @@ REMOTE-8C turns the first real user's private support and stability evidence int
 
 The phase exists after REMOTE-8B. REMOTE-8B proves that the private live smoke can be ingested safely. REMOTE-8C asks the next question: did the first real user experience stay clean enough to prepare a tiny controlled cohort?
 
+## Current Observation Baseline
+
+The REMOTE-8C baseline was started locally on 2026-05-17 after REMOTE-8B returned `GO_REMOTE8B_LIVE_PILOT_EVIDENCE_SAFE_NO_GIT_LEAK`. The current private summary is intentionally blocked with `NO_GO_REMOTE8C_FIRST_USER_OBSERVATION_BLOCKED` because the observation window is not yet 24 hours and the guided-flow/support/stability signals are not complete.
+
+This is the correct holding state: the first user remains the only active observation target, expansion stays blocked, and all raw evidence remains under ignored `.local/remote_service/remote8c_first_user_observation*` paths.
+
 ## Local Evidence Rule
 
 Raw observation evidence must live only under ignored local paths:
