@@ -211,7 +211,28 @@ Next REMOTE-8B scope:
 
 ### REMOTE-8B - Live Pilot Evidence Ingest
 
-Future controlled phase. It records one real live-user smoke after explicit operator approval. No checkout link, protected URL, raw email, Cloudflare identifier, payment payload, support log or workspace path may be committed.
+Records one real live-user smoke after explicit operator approval. No checkout link, protected URL, raw email, Cloudflare identifier, payment payload, support log or workspace path may be committed.
+
+Artifacts added in REMOTE-8B:
+
+- `docs/REMOTE_8B_LIVE_PILOT_EVIDENCE.md`
+- `backend/sqx-edge-tool/core/remote_live_pilot.py`
+- `backend/sqx-edge-tool/tools/remote_live_pilot_evidence.py`
+- `backend/sqx-edge-tool/test_remote_live_pilot.py`
+- `docs/examples/remote8b_live_pilot_evidence.local.example.json`
+- `remote-live-pilot-evidence-v1`
+- ignored evidence root `.local/remote_service/remote8b_live_pilot_evidence*`
+- `Live Pilot Evidence Gate`
+
+Next REMOTE-8C scope:
+
+- observe the first real user support loop before inviting more users;
+- review tunnel stability, app session behavior, workspace isolation, artifact generation/export and revocation/restore;
+- decide explicitly whether to stay at one user, fix blockers or expand to 3-5 users.
+
+### REMOTE-8C - First User Support Observation And Expansion Decision
+
+Future controlled phase. It watches the first approved user after REMOTE-8B and turns private support evidence into a GO/NO-GO decision for a tiny cohort expansion. It must not automate invites or payments.
 
 ### REMOTE-9 - Containerization / Dedicated Linux Host
 
@@ -228,6 +249,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Remote Security Abuse Gate`: remote endpoints must apply `remote-security-v1` rate limits, kill switch, session revocation, identity-hash blocking, redacted audit visibility and watermark without returning policy paths, raw emails, tokens, local paths or provider secrets.
 - `Remote Monetization Rewrite Gate`: buyer-facing material must present protected web Pro monthly/annual access, optional support, authenticated tester-free grants and no-install onboarding; portable ZIP, launchers and offline licenses stay internal fallback only.
 - `Controlled Pilot Gate`: pilot work must prove entitlement, login, workspace, artifact generation/export, revocation, restore, isolation and redacted evidence before inviting or expanding users.
+- `Live Pilot Evidence Gate`: private live pilot evidence must pass `remote-live-pilot-evidence-v1`, stay local/ignored, redact identity/URL/path/secrets and keep expansion beyond one user blocked until explicit REMOTE-8C approval.
 - `Deployment Hardening Review Gate`: hosting suggestions must be reviewed against active REMOTE gates before implementation.
 - `Containerization Deferral Gate`: Docker/Linux must remain future hardening until SQX compatibility, workspace isolation and backup/restore are proven.
 - `Repository Privacy Gate`: before active sales, `origin` and `institutional` should be private or the operator must explicitly accept public-source commercial exposure.

@@ -107,6 +107,7 @@ Remote-service invariants:
 - REMOTE-6 security and abuse controls use `remote-security-v1` to apply rate limits, kill switch, session revocation, identity-hash blocking, redacted audit visibility and session watermark without exposing raw emails, policy paths, tokens or local paths.
 - REMOTE-7 makes `remote_service` the commercial offer shape: buyers use `web_pro_monthly` or `web_pro_annual`, approved testers use `tester_free`, support is optional as `support_assist`, and portable ZIP/offline license flows are internal fallback rather than buyer onboarding.
 - REMOTE-8 uses `remote-controlled-pilot-v1` to prove the end-to-end remote chain locally before live cohort expansion: payment webhook, app session, workspace, `.cfx` artifact, export, isolation, revocation and restore.
+- REMOTE-8B uses `remote-live-pilot-evidence-v1` to ingest one private live-pilot smoke as redacted evidence only. Raw email, protected URL, Cloudflare identifiers, payment payloads, support logs and workspace paths remain local/ignored, and expansion beyond one user stays blocked until REMOTE-8C.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -171,6 +172,15 @@ REMOTE-8 controlled pilot drill:
 - The drill uses signed payment webhook processing, app session creation, workspace derivation, a generated `.cfx` pilot artifact, export checksum verification, second-user workspace isolation, cancellation/revocation and restore.
 - Public summaries never include raw email, session token, grant key, local path, protected URL or provider secret.
 - REMOTE-8B must ingest only redacted evidence from a private live smoke before any cohort expansion.
+
+REMOTE-8B live pilot evidence ingest:
+
+- `backend/sqx-edge-tool/core/remote_live_pilot.py` owns `remote-live-pilot-evidence-v1`.
+- `backend/sqx-edge-tool/tools/remote_live_pilot_evidence.py` reads ignored private evidence from `.local/remote_service/remote8b_live_pilot_evidence.local.json`.
+- The redacted output is `.local/remote_service/remote8b_live_pilot_evidence/remote8b_live_pilot_evidence.public.json`.
+- Required proofs cover anonymous Access block, Cloudflare Access pass, app session pass, entitlement active, workspace creation, artifact generation/export, revocation, restore, second-user isolation, no workspace leakage and support redaction.
+- Public summaries never include raw email, private URL, Cloudflare identifiers, session token, grant key, local path or provider secret.
+- REMOTE-8C must observe the first user and decide expansion explicitly; REMOTE-8B alone never expands the cohort.
 
 REMOTE-SUG1 deployment hardening decision:
 

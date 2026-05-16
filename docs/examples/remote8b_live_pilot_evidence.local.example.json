@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "remote-live-pilot-evidence-v1",
+  "evidenceId": "remote8b-private-smoke-001",
+  "capturedAt": "2026-05-16T13:00:00+00:00",
+  "operatorApproval": true,
+  "pilotUser": {
+    "kind": "paid_subscription",
+    "email": "buyer@example.invalid"
+  },
+  "environment": {
+    "provider": "cloudflare_tunnel",
+    "windowsPilot": true,
+    "protectedUrlSharedPrivately": true,
+    "protectedUrl": "https://private.example.invalid/"
+  },
+  "proofs": {
+    "remote8DrillBaselineGo": true,
+    "edgeAccessBlockedAnonymous": true,
+    "cloudflareAccessPassed": true,
+    "appSessionLoginPassed": true,
+    "entitlementActive": true,
+    "workspaceCreated": true,
+    "artifactGenerated": true,
+    "exportDownloaded": true,
+    "revocationBlockedAccess": true,
+    "restoreAllowedAccess": true,
+    "secondUserIsolationChecked": true,
+    "noWorkspaceLeakage": true,
+    "supportEvidenceRedacted": true,
+    "privateEvidenceStoredOutsideGit": true
+  },
+  "artifacts": {
+    "generatedCfxName": "remote8b_live_pilot.cfx",
+    "artifactSha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "workspaceId": "workspace-private-id-123456"
+  },
+  "notes": [
+    "Copy this example to .local/remote_service/remote8b_live_pilot_evidence.local.json and replace values with private operator evidence."
+  ]
+}
