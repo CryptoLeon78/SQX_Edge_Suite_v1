@@ -178,10 +178,15 @@
     const meta = document.querySelector('meta[name="sqx-api-base"]');
     if (meta && meta.content) return meta.content.replace(/\/$/, '');
     const api = ui.api || {};
-    const protocol = location.protocol === 'https:' ? 'https:' : 'http:';
-    const host = location.hostname || api.defaultHost || '127.0.0.1';
-    const port = api.defaultPort || 5050;
     const basePath = api.basePath || '/api';
+    const loc = global.location || {};
+    const protocol = loc.protocol === 'https:' ? 'https:' : 'http:';
+    const host = loc.hostname || api.defaultHost || '127.0.0.1';
+    const isLocalHost = host === 'localhost' || host === '::1' || host.indexOf('127.') === 0;
+    if (protocol === 'https:' && host && !isLocalHost) {
+      return (loc.origin || (protocol + '//' + host)) + basePath;
+    }
+    const port = api.defaultPort || 5050;
     return protocol + '//' + host + ':' + port + basePath;
   }
 

@@ -32,7 +32,7 @@ PROJECT_ROOT = ROOT.parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from flask import Flask, abort, jsonify, make_response, request  # type: ignore
+from flask import Flask, abort, jsonify, make_response, request, send_from_directory  # type: ignore
 
 from core import Mining, all_minings, generate_project, get_mining, normalize_direction
 from core.config_loader import load_manifest
@@ -124,6 +124,10 @@ def _is_local_remote(value: str | None) -> bool:
     return remote in LOCAL_REMOTE_ADDRS or remote.startswith("127.")
 
 
+def _is_authenticated_access_tunnel_request() -> bool:
+    return _is_local_remote(request.remote_addr) and bool(trusted_email_from_headers(request.headers))
+
+
 def _remote_security_action(method: str, path: str) -> str | None:
     if not path.startswith("/api/remote/"):
         return None
@@ -151,7 +155,9 @@ def _remote_security_subject() -> str:
 
 @app.before_request
 def enforce_local_api_boundary():
-    if not _is_local_host(request.host) or not _is_local_remote(request.remote_addr):
+    local_browser_request = _is_local_host(request.host) and _is_local_remote(request.remote_addr)
+    access_tunnel_request = _is_authenticated_access_tunnel_request()
+    if not local_browser_request and not access_tunnel_request:
         return jsonify({
             "ok": False,
             "error": "local_api_only",
@@ -206,6 +212,21 @@ def add_cors_headers(response):
 
 # Flask responde OPTIONS automáticamente para rutas con GET/POST registrados,
 # combinado con el @app.after_request de arriba, eso es suficiente para CORS preflight.
+
+
+@app.get("/")
+def serve_dashboard_entry():
+    return send_from_directory(DASHBOARD_ROOT, "SQX_Dashboard_v6.html")
+
+
+@app.get("/<path:asset_path>")
+def serve_dashboard_asset(asset_path: str):
+    first_segment = asset_path.split("/", 1)[0]
+    if first_segment not in {"assets", "css", "js", "vendor"}:
+        abort(404)
+    if ".." in Path(asset_path).parts:
+        abort(404)
+    return send_from_directory(DASHBOARD_ROOT, asset_path)
 
 
 # ── Config helpers ────────────────────────────────────────────────

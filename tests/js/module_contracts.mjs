@@ -1,4 +1,5 @@
 import './contracts/core_strategy_contracts.mjs';
+import './contracts/app_config_contracts.mjs';
 import './contracts/formatters_domain_contracts.mjs';
 import './contracts/storage_ui_contracts.mjs';
 import './contracts/modal_trace_contracts.mjs';

@@ -318,6 +318,51 @@ class ApiTestCase(unittest.TestCase):
         data = self.get_json(response)
         self.assertEqual(data["error"], "local_api_only")
 
+    def test_api_rejects_public_host_without_access_identity_even_from_local_tunnel(self):
+        response = self.client.get(
+            "/api/health",
+            headers={"Host": "app.example.invalid"},
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.get_json(response)["error"], "local_api_only")
+
+    def test_api_allows_authenticated_cloudflare_access_tunnel_boundary(self):
+        response = self.client.get(
+            "/api/health",
+            headers={
+                "Host": "app.example.invalid",
+                "Cf-Access-Authenticated-User-Email": "tester@example.invalid",
+            },
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(self.get_json(response)["ok"])
+
+    def test_api_rejects_spoofed_access_identity_from_non_local_remote(self):
+        response = self.client.get(
+            "/api/health",
+            headers={
+                "Host": "app.example.invalid",
+                "Cf-Access-Authenticated-User-Email": "tester@example.invalid",
+            },
+            environ_base={"REMOTE_ADDR": "192.168.1.50"},
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(self.get_json(response)["error"], "local_api_only")
+
+    def test_dashboard_is_served_for_authenticated_cloudflare_access_tunnel(self):
+        response = self.client.get(
+            "/",
+            headers={
+                "Host": "app.example.invalid",
+                "Cf-Access-Authenticated-User-Email": "tester@example.invalid",
+            },
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"<title>SQX Edge</title>", response.data)
+
     def test_pro_write_endpoints_are_feature_gated(self):
         denied = {
             "ok": False,
