@@ -116,6 +116,7 @@ Remote-service invariants:
 - REMOTE-8H uses `remote-next-controlled-movement-package-v1` to package one exact next movement after REMOTE-8G. Candidate identities, protected URLs and communication copy stay local/ignored; execution remains blocked until REMOTE-8I.
 - REMOTE-8I uses `remote-next-controlled-movement-execution-approval-v1` to approve, reject or defer the REMOTE-8H package. Decision notes, identities and private URLs stay local/ignored; approval only enables a later manual execution record.
 - REMOTE-8J uses `remote-next-controlled-movement-manual-execution-v1` to record the manual execution approved by REMOTE-8I. Executed-user identities, protected URLs, private messages and grant details stay local/ignored; monitoring is required before any further movement.
+- REMOTE-8K uses `remote-next-controlled-movement-monitoring-v1` to observe the REMOTE-8J execution for a clean 24-hour window. Monitored identities, protected URLs, support notes and local paths stay local/ignored; even a clean window only enables REMOTE-8L decision review.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -266,6 +267,17 @@ REMOTE-8J next controlled movement manual execution:
 - Raw executed-user identities, protected URLs, message bodies, grant details and local paths remain local/ignored.
 - Automation metrics for jobs, checkout links, public URLs, automated emails, automated grants, traffic expansion and paid campaigns must remain zero.
 - Even on GO, `postExecutionGate.furtherExpansionAllowedNow` stays false; REMOTE-8K owns monitoring.
+
+REMOTE-8K next controlled movement post execution monitoring:
+
+- `backend/sqx-edge-tool/core/remote_next_controlled_movement_monitoring.py` owns `remote-next-controlled-movement-monitoring-v1`.
+- `backend/sqx-edge-tool/tools/remote_next_controlled_movement_monitoring.py` reads ignored private monitoring evidence from `.local/remote_service/remote8k_next_controlled_movement_monitoring.local.json`.
+- The redacted output is `.local/remote_service/remote8k_next_controlled_movement_monitoring/remote8k_next_controlled_movement_monitoring.public.json`.
+- The monitor requires REMOTE-8J GO and at least 24 clean observation hours.
+- For `add_1_2_users`, monitored-user count must match the executed-user count recorded by REMOTE-8J.
+- Required signals cover access, Cloudflare Access, app session, entitlement, workspace isolation, artifact generation, exports, support loop, no leakage, no security incidents, rollback readiness and pause readiness.
+- Zero-tolerance metrics cover support blockers, tunnel drops, app session failures, workspace leaks, security incidents, generation/export failures, entitlement errors, refunds, public URL leaks, automation jobs, traffic expansion, paid campaigns, checkout links and automated messages/grants.
+- Even on GO, `decision.furtherExpansionAllowedNow` stays false; REMOTE-8L owns any next human decision.
 
 REMOTE-SUG1 deployment hardening decision:
 

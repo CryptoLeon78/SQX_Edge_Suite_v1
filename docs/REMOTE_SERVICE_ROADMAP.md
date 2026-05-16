@@ -392,15 +392,30 @@ Artifacts added in REMOTE-8J:
 - ignored evidence root `.local/remote_service/remote8j_next_controlled_movement_manual_execution*`
 - `Next Controlled Movement Manual Execution Gate`
 
-Next REMOTE-8K scope:
-
-- monitor the executed movement for clean access, support, workspace and generation behavior;
-- keep further expansion blocked until monitoring is clean;
-- preserve rollback/pause readiness and private evidence boundaries.
-
 ### REMOTE-8K - Post Execution Monitoring
 
-Future controlled phase. It observes the REMOTE-8J manual execution before any further movement or traffic expansion.
+Observes the REMOTE-8J manual execution before any further movement or traffic expansion. It does not invite new users, widen traffic, automate onboarding, send emails, change grants or publish private URLs.
+
+Artifacts added in REMOTE-8K:
+
+- `docs/REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING.md`
+- `backend/sqx-edge-tool/core/remote_next_controlled_movement_monitoring.py`
+- `backend/sqx-edge-tool/tools/remote_next_controlled_movement_monitoring.py`
+- `backend/sqx-edge-tool/test_remote_next_controlled_movement_monitoring.py`
+- `docs/examples/remote8k_next_controlled_movement_monitoring.local.example.json`
+- `remote-next-controlled-movement-monitoring-v1`
+- ignored evidence root `.local/remote_service/remote8k_next_controlled_movement_monitoring*`
+- `Next Controlled Movement Monitoring Gate`
+
+Next REMOTE-8L scope:
+
+- convert REMOTE-8K monitoring into a human decision;
+- keep identities, protected URLs, support notes and local paths private/ignored;
+- keep traffic, checkout, email, grant and campaign automation at zero until a later approved movement.
+
+### REMOTE-8L - Post Monitoring Decision Review
+
+Future controlled phase. It reviews REMOTE-8K evidence and decides whether to continue monitoring, fix blockers, roll back or prepare exactly one next controlled movement.
 
 ### REMOTE-9 - Containerization / Dedicated Linux Host
 
@@ -426,6 +441,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Next Controlled Movement Package Gate`: package evidence must pass `remote-next-controlled-movement-package-v1`, require REMOTE-8G GO with `prepare_next_controlled_movement`, cap user expansion to 1-2 recipients, keep candidates/copy/URLs local and keep execution metrics at zero.
 - `Next Controlled Movement Execution Approval Gate`: approval evidence must pass `remote-next-controlled-movement-execution-approval-v1`, require REMOTE-8H GO, allow only approve/reject/defer, keep decision notes and identities local and keep execution metrics at zero.
 - `Next Controlled Movement Manual Execution Gate`: manual execution evidence must pass `remote-next-controlled-movement-manual-execution-v1`, require REMOTE-8I approval, match manual counts to the approved package and keep automation metrics at zero before monitoring.
+- `Next Controlled Movement Monitoring Gate`: post-execution monitoring evidence must pass `remote-next-controlled-movement-monitoring-v1`, require REMOTE-8J GO, prove at least 24 clean hours, keep private monitoring evidence local and keep support/security/workspace/generation/export incidents at zero before any decision review.
 - `Deployment Hardening Review Gate`: hosting suggestions must be reviewed against active REMOTE gates before implementation.
 - `Containerization Deferral Gate`: Docker/Linux must remain future hardening until SQX compatibility, workspace isolation and backup/restore are proven.
 - `Repository Privacy Gate`: before active sales, `origin` and `institutional` should be private or the operator must explicitly accept public-source commercial exposure.

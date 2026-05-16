@@ -627,6 +627,90 @@
     },
     "nextPhase": "REMOTE-8K-post-execution-monitoring"
   },
+  "remoteNextControlledMovementMonitoring": {
+    "phase": "REMOTE-8K",
+    "version": "remote-next-controlled-movement-monitoring-v1",
+    "tool": "backend/sqx-edge-tool/tools/remote_next_controlled_movement_monitoring.py",
+    "doc": "docs/REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING.md",
+    "example": "docs/examples/remote8k_next_controlled_movement_monitoring.local.example.json",
+    "evidenceRoot": ".local/remote_service/remote8k_next_controlled_movement_monitoring",
+    "summaryOutput": ".local/remote_service/remote8k_next_controlled_movement_monitoring/remote8k_next_controlled_movement_monitoring.public.json",
+    "sourceStatusRequired": "GO_REMOTE8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_RECORDED",
+    "minimumObservationHours": 24,
+    "validRequestedDecisions": [
+      "continue_monitoring",
+      "fix_blockers",
+      "rollback_last_movement",
+      "prepare_next_decision_review"
+    ],
+    "validMovementTypes": [
+      "add_1_2_users",
+      "extend_same_cohort_observation",
+      "prepare_paid_micro_offer",
+      "schedule_demo_batch"
+    ],
+    "maxExecutedUsers": 2,
+    "validEntitlementKinds": [
+      "paid_subscription",
+      "tester_free",
+      "internal_operator"
+    ],
+    "requiredSignals": [
+      "remote8jExecutionGoConfirmed",
+      "manualScopeStillMatches",
+      "accessStable",
+      "cloudflareAccessStable",
+      "appSessionStable",
+      "entitlementStable",
+      "workspaceIsolationClean",
+      "artifactGenerationObserved",
+      "exportsDownloaded",
+      "supportLoopObserved",
+      "noWorkspaceLeakage",
+      "noSecurityIncidents",
+      "noUnresolvedSupportBlockers",
+      "rollbackPlanReady",
+      "pauseRuleReady",
+      "privateEvidenceStoredOutsideGit"
+    ],
+    "zeroToleranceMetrics": [
+      "openSupportItems",
+      "unresolvedBlockers",
+      "tunnelDrops",
+      "appSessionFailures",
+      "workspaceLeakEvents",
+      "securityIncidents",
+      "generationFailures",
+      "exportFailures",
+      "entitlementErrors",
+      "refundRequests",
+      "crossUserDataFindings",
+      "publicUrlLeaks",
+      "automationJobsStarted",
+      "trafficExpanded",
+      "paidCampaignStarted",
+      "checkoutLinksCreated",
+      "automatedEmailsSent",
+      "automatedGrantsCreated"
+    ],
+    "privacy": {
+      "rawEmailsReturned": false,
+      "protectedUrlReturned": false,
+      "localPathsReturned": false,
+      "secretsReturned": false,
+      "sessionTokenReturned": false,
+      "grantKeysReturned": false,
+      "supportLogsReturned": false,
+      "privateNotesReturned": false,
+      "privateEvidenceCommitted": false
+    },
+    "decision": {
+      "automationAllowed": false,
+      "furtherExpansionAllowedNow": false,
+      "requiresOperatorApprovalForNextMovement": true
+    },
+    "nextPhase": "REMOTE-8L-post-monitoring-decision-review"
+  },
   "licensing": {
     "storageKey": "sqx_license_state_v1",
     "licenseFile": "config/license.json",

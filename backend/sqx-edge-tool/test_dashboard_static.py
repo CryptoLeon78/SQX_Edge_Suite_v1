@@ -38,6 +38,9 @@ REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL_DOC = (
 REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_DOC = (
     PROJECT_ROOT / "docs" / "REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION.md"
 )
+REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_DOC = (
+    PROJECT_ROOT / "docs" / "REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING.md"
+)
 REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md"
 REMOTE_8B_LIVE_PILOT_EVIDENCE_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8b_live_pilot_evidence.local.example.json"
 REMOTE_8C_FIRST_USER_OBSERVATION_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8c_first_user_observation.local.example.json"
@@ -51,6 +54,9 @@ REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL_EXAMPLE = (
 )
 REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_EXAMPLE = (
     PROJECT_ROOT / "docs" / "examples" / "remote8j_next_controlled_movement_manual_execution.local.example.json"
+)
+REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_EXAMPLE = (
+    PROJECT_ROOT / "docs" / "examples" / "remote8k_next_controlled_movement_monitoring.local.example.json"
 )
 REMOTE_TUNNEL_EXAMPLE_EVIDENCE = PROJECT_ROOT / "docs" / "examples" / "remote_tunnel.local.example.json"
 REMOTE_ENTITLEMENTS_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote_entitlements.local.example.json"
@@ -451,7 +457,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Servicio web Pro",
-            "Estado comercial: REMOTE-8J",
+            "Estado comercial: REMOTE-8K",
             "Distribucion principal: enlace remoto protegido",
             "clave tester",
             "REMOTE-2B fija acceso completo `tester_free`",
@@ -681,8 +687,8 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "REMOTE-3B app session grant-key gate",
-            "Current phase completed: REMOTE-8J",
-            "Current implementation phase: REMOTE-8K",
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
             "Remote Session Gate",
             "remote-session-v1",
             "__Host-sqx_remote_session",
@@ -706,8 +712,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "REMOTE-3B fija la sesion de app `remote-session-v1`",
             "REMOTE-3C fija el webhook de pago firmado `remote-payment-webhook-v1`",
             "REMOTE-4 fija el workspace aislado `remote-workspace-v1`",
@@ -824,8 +830,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, architecture)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "docs/REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md",
             "endpoint `/api/remote/payment/webhook`",
             "endpoint piloto `/api/remote/protected/write-pilot`",
@@ -944,8 +950,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, architecture)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "docs/REMOTE_4_WORKSPACE_ISOLATION.md",
             "endpoint `/api/remote/workspace/status`",
             "workspace aislado `remote-workspace-v1`",
@@ -1117,8 +1123,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_6)
 
         for pattern in (
-            "Current phase completed: REMOTE-8J",
-            "Current implementation phase: REMOTE-8K",
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
             "Remote Security Abuse Gate",
             "remote-security-v1",
             "redacted audit visibility",
@@ -1150,8 +1156,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, architecture)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "REMOTE-6 fija `remote-security-v1`",
             "endpoint `/api/remote/security/status`",
             "endpoint `/api/remote/security/audit/recent`",
@@ -1256,8 +1262,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_7)
 
         for pattern in (
-            "Current phase completed: REMOTE-8J",
-            "Current implementation phase: REMOTE-8K",
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
             "Remote Monetization Rewrite Gate",
             "web_pro_monthly",
             "web_pro_annual",
@@ -1282,8 +1288,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "REMOTE-7 fija la oferta web Pro",
             "El usuario final no instala Python",
             "acceso web con suscripcion mensual/anual",
@@ -1402,8 +1408,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_8)
 
         for pattern in (
-            "Current phase completed: REMOTE-8J",
-            "Current implementation phase: REMOTE-8K",
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
             "Controlled Pilot Gate",
             "remote-controlled-pilot-v1",
             "ignored `.local/remote_service/remote8_controlled_pilot/` evidence",
@@ -1425,8 +1431,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "REMOTE-8 fija `remote-controlled-pilot-v1`",
             "backend/sqx-edge-tool/tools/remote_controlled_pilot.py",
             "Controlled Pilot Gate",
@@ -1532,8 +1538,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_8b)
 
         for pattern in (
-            "Current phase completed: REMOTE-8J",
-            "Current implementation phase: REMOTE-8K",
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
             "Live Pilot Evidence Gate",
             "remote-live-pilot-evidence-v1",
             "ignored `.local/remote_service/remote8b_live_pilot_evidence*` evidence",
@@ -1554,8 +1560,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "REMOTE-8B fija `remote-live-pilot-evidence-v1`",
             "backend/sqx-edge-tool/tools/remote_live_pilot_evidence.py",
             "Live Pilot Evidence Gate",
@@ -1661,8 +1667,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_8c)
 
         for pattern in (
-            "Current phase completed: REMOTE-8J",
-            "Current implementation phase: REMOTE-8K",
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
             "First User Observation Gate",
             "remote-first-user-observation-v1",
             "ignored `.local/remote_service/remote8c_first_user_observation*` evidence",
@@ -1683,8 +1689,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "REMOTE-8C fija `remote-first-user-observation-v1`",
             "backend/sqx-edge-tool/tools/remote_first_user_observation.py",
             "First User Observation Gate",
@@ -1794,8 +1800,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_8d)
 
         for pattern in (
-            "Current phase completed: REMOTE-8J",
-            "Current implementation phase: REMOTE-8K",
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
             "Tiny Cohort Activation Package Gate",
             "remote-tiny-cohort-activation-v1",
             "ignored `.local/remote_service/remote8d_tiny_cohort_activation*` evidence",
@@ -1816,8 +1822,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "REMOTE-8D fija `remote-tiny-cohort-activation-v1`",
             "backend/sqx-edge-tool/tools/remote_tiny_cohort_activation.py",
             "Tiny Cohort Activation Package Gate",
@@ -1933,8 +1939,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_8e)
 
         for pattern in (
-            "Current phase completed: REMOTE-8J",
-            "Current implementation phase: REMOTE-8K",
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
             "Tiny Cohort Manual Execution Record Gate",
             "remote-tiny-cohort-execution-v1",
             "ignored `.local/remote_service/remote8e_tiny_cohort_execution*` evidence",
@@ -1955,8 +1961,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "REMOTE-8E fija `remote-tiny-cohort-execution-v1`",
             "backend/sqx-edge-tool/tools/remote_tiny_cohort_execution.py",
             "Tiny Cohort Manual Execution Record Gate",
@@ -2074,8 +2080,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_8f)
 
         for pattern in (
-            "Current phase completed: REMOTE-8J",
-            "Current implementation phase: REMOTE-8K",
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
             "Tiny Cohort Monitoring Gate",
             "remote-tiny-cohort-monitoring-v1",
             "ignored `.local/remote_service/remote8f_tiny_cohort_monitoring*` evidence",
@@ -2096,8 +2102,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "REMOTE-8F fija `remote-tiny-cohort-monitoring-v1`",
             "backend/sqx-edge-tool/tools/remote_tiny_cohort_monitoring.py",
             "Tiny Cohort Monitoring Gate",
@@ -2215,8 +2221,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_8g)
 
         for pattern in (
-            "Current phase completed: REMOTE-8J",
-            "Current implementation phase: REMOTE-8K",
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
             "Tiny Cohort Decision Review Gate",
             "remote-tiny-cohort-decision-review-v1",
             "ignored `.local/remote_service/remote8g_tiny_cohort_decision_review*` evidence",
@@ -2237,8 +2243,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "REMOTE-8G fija `remote-tiny-cohort-decision-review-v1`",
             "backend/sqx-edge-tool/tools/remote_tiny_cohort_decision_review.py",
             "Tiny Cohort Decision Review Gate",
@@ -2355,8 +2361,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_8h)
 
         for pattern in (
-            "Current phase completed: REMOTE-8J",
-            "Current implementation phase: REMOTE-8K",
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
             "Next Controlled Movement Package Gate",
             "remote-next-controlled-movement-package-v1",
             "ignored `.local/remote_service/remote8h_next_controlled_movement_package*` evidence",
@@ -2377,8 +2383,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "REMOTE-8H fija `remote-next-controlled-movement-package-v1`",
             "backend/sqx-edge-tool/tools/remote_next_controlled_movement_package.py",
             "Next Controlled Movement Package Gate",
@@ -2502,8 +2508,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_8i)
 
         for pattern in (
-            "Current phase completed: REMOTE-8J",
-            "Current implementation phase: REMOTE-8K",
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
             "Next Controlled Movement Execution Approval Gate",
             "remote-next-controlled-movement-execution-approval-v1",
             "ignored `.local/remote_service/remote8i_next_controlled_movement_execution_approval*` evidence",
@@ -2524,8 +2530,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "REMOTE-8I fija `remote-next-controlled-movement-execution-approval-v1`",
             "backend/sqx-edge-tool/tools/remote_next_controlled_movement_execution_approval.py",
             "Next Controlled Movement Execution Approval Gate",
@@ -2664,8 +2670,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_8j)
 
         for pattern in (
-            "Current phase completed: REMOTE-8J",
-            "Current implementation phase: REMOTE-8K",
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
             "Next Controlled Movement Manual Execution Gate",
             "remote-next-controlled-movement-manual-execution-v1",
             "ignored `.local/remote_service/remote8j_next_controlled_movement_manual_execution*` evidence",
@@ -2686,8 +2692,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-8J",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "REMOTE-8J fija `remote-next-controlled-movement-manual-execution-v1`",
             "backend/sqx-edge-tool/tools/remote_next_controlled_movement_manual_execution.py",
             "Next Controlled Movement Manual Execution Gate",
@@ -2790,6 +2796,168 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, combined_public)
 
+    def test_remote_8k_monitoring_gate_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        remote_8k = REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_DOC.read_text(encoding="utf-8-sig")
+        monitoring_py = (TOOL_ROOT / "core" / "remote_next_controlled_movement_monitoring.py").read_text(
+            encoding="utf-8-sig"
+        )
+        monitoring_tool = (TOOL_ROOT / "tools" / "remote_next_controlled_movement_monitoring.py").read_text(
+            encoding="utf-8-sig"
+        )
+        monitoring_test = (TOOL_ROOT / "test_remote_next_controlled_movement_monitoring.py").read_text(
+            encoding="utf-8-sig"
+        )
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        for path in (
+            REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_DOC,
+            REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_next_controlled_movement_monitoring.py",
+            TOOL_ROOT / "tools" / "remote_next_controlled_movement_monitoring.py",
+            TOOL_ROOT / "test_remote_next_controlled_movement_monitoring.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-8K - Next Controlled Movement Post Execution Monitoring",
+            "remote-next-controlled-movement-monitoring-v1",
+            ".local/remote_service/remote8k_next_controlled_movement_monitoring",
+            "GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_CLEAN",
+            "decision.automationAllowed = false",
+            "decision.furtherExpansionAllowedNow = false",
+            "REMOTE-8L - Post Monitoring Decision Review",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8k)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
+            "Next Controlled Movement Monitoring Gate",
+            "remote-next-controlled-movement-monitoring-v1",
+            "ignored `.local/remote_service/remote8k_next_controlled_movement_monitoring*` evidence",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-8K",
+            "docs/REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING.md",
+            "backend/sqx-edge-tool/core/remote_next_controlled_movement_monitoring.py",
+            "backend/sqx-edge-tool/tools/remote_next_controlled_movement_monitoring.py",
+            "backend/sqx-edge-tool/test_remote_next_controlled_movement_monitoring.py",
+            "REMOTE-8L - Post Monitoring Decision Review",
+            "Next Controlled Movement Monitoring Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
+            "REMOTE-8K fija `remote-next-controlled-movement-monitoring-v1`",
+            "backend/sqx-edge-tool/tools/remote_next_controlled_movement_monitoring.py",
+            "Next Controlled Movement Monitoring Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE-8K next controlled movement post execution monitoring",
+            "remote-next-controlled-movement-monitoring-v1",
+            ".local/remote_service/remote8k_next_controlled_movement_monitoring.local.json",
+            "Even on GO, `decision.furtherExpansionAllowedNow` stays false",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE_NEXT_CONTROLLED_MOVEMENT_MONITORING_VERSION",
+            "\"remote-next-controlled-movement-monitoring-v1\"",
+            "REQUIRED_SOURCE_STATUS = \"GO_REMOTE8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_RECORDED\"",
+            "MIN_OBSERVATION_HOURS = 24",
+            "VALID_REQUESTED_DECISIONS",
+            "REQUIRED_SIGNALS",
+            "ZERO_TOLERANCE_METRICS",
+            "build_remote8k_monitoring_summary",
+            "ingest_remote8k_next_controlled_movement_monitoring",
+            "NO_GO_REMOTE8K_MONITORING_EVIDENCE_MISSING",
+            "NO_GO_REMOTE8K_PUBLIC_SUMMARY_PRIVACY_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, monitoring_py)
+
+        for pattern in (
+            "ingest_remote8k_next_controlled_movement_monitoring",
+            "--evidence",
+            "--out-dir",
+            "REMOTE-8K post execution monitoring",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, monitoring_tool)
+
+        for pattern in (
+            "test_remote8k_clean_monitoring_is_redacted_and_ready_for_decision_review",
+            "test_remote8k_missing_evidence_returns_no_go",
+            "test_remote8k_blockers_prevent_next_decision_review",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, monitoring_test)
+
+        monitoring_manifest = product_manifest["remoteNextControlledMovementMonitoring"]
+        self.assertEqual(monitoring_manifest["phase"], "REMOTE-8K")
+        self.assertEqual(monitoring_manifest["version"], "remote-next-controlled-movement-monitoring-v1")
+        self.assertEqual(
+            monitoring_manifest["tool"],
+            "backend/sqx-edge-tool/tools/remote_next_controlled_movement_monitoring.py",
+        )
+        self.assertEqual(
+            monitoring_manifest["doc"],
+            "docs/REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING.md",
+        )
+        self.assertEqual(
+            monitoring_manifest["example"],
+            "docs/examples/remote8k_next_controlled_movement_monitoring.local.example.json",
+        )
+        self.assertEqual(
+            monitoring_manifest["sourceStatusRequired"],
+            "GO_REMOTE8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_RECORDED",
+        )
+        self.assertEqual(monitoring_manifest["minimumObservationHours"], 24)
+        self.assertIn("prepare_next_decision_review", monitoring_manifest["validRequestedDecisions"])
+        self.assertIn("add_1_2_users", monitoring_manifest["validMovementTypes"])
+        self.assertEqual(monitoring_manifest["maxExecutedUsers"], 2)
+        self.assertIn("tester_free", monitoring_manifest["validEntitlementKinds"])
+        self.assertIn("workspaceIsolationClean", monitoring_manifest["requiredSignals"])
+        self.assertIn("trafficExpanded", monitoring_manifest["zeroToleranceMetrics"])
+        self.assertFalse(monitoring_manifest["privacy"]["rawEmailsReturned"])
+        self.assertFalse(monitoring_manifest["privacy"]["protectedUrlReturned"])
+        self.assertFalse(monitoring_manifest["privacy"]["privateNotesReturned"])
+        self.assertFalse(monitoring_manifest["decision"]["automationAllowed"])
+        self.assertFalse(monitoring_manifest["decision"]["furtherExpansionAllowedNow"])
+        self.assertTrue(monitoring_manifest["decision"]["requiresOperatorApprovalForNextMovement"])
+        self.assertEqual(monitoring_manifest["nextPhase"], "REMOTE-8L-post-monitoring-decision-review")
+
+        combined_public = "\n".join([
+            remote_8k, roadmap, governance, architecture, readme, monitoring_py, monitoring_tool,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
     def test_remote_sug1_deployment_hardening_review_keeps_windows_pilot_active(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
@@ -2824,8 +2992,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Current phase completed: REMOTE-8J",
-            "Current implementation phase: REMOTE-8K",
+            "Current phase completed: REMOTE-8K",
+            "Current implementation phase: REMOTE-8L",
             "Local proposals rule",
             "Deployment Hardening Review Gate",
             "Containerization Deferral Gate",
@@ -3028,7 +3196,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-2 fija el tunel protegido",
             "tools\\remote_tunnel_preflight.ps1 -RequireEvidence",
             "tools\\remote_tunnel_smoke.ps1 -ProtectedUrl",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -13610,7 +13778,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro",
             "Distribucion principal: enlace remoto protegido",
             "Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",
-            "Siguiente paso recomendado: REMOTE-8K",
+            "Siguiente paso recomendado: REMOTE-8L",
             "powershell -ExecutionPolicy Bypass -File tools\\clean_workspace.ps1 -Aggressive",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
