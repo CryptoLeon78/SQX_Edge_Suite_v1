@@ -169,10 +169,10 @@ def test_remote_protected_write_pilot_requires_active_app_session(tmp_path, monk
     }
     store_path = tmp_path / "remote_entitlements.local.json"
     store_path.write_text(json.dumps(store), encoding="utf-8")
-    audit_path = tmp_path / "write_pilot.local.jsonl"
+    workspaces_root = tmp_path / "workspaces"
     monkeypatch.setenv("SQX_REMOTE_ENTITLEMENTS_PATH", str(store_path))
     monkeypatch.setenv("SQX_REMOTE_SESSION_SECRET", "s" * 40)
-    monkeypatch.setattr(server, "REMOTE_WRITE_PILOT_AUDIT_PATH", audit_path)
+    monkeypatch.setenv("SQX_REMOTE_WORKSPACES_ROOT", str(workspaces_root))
 
     client = server.app.test_client()
     denied = client.post("/api/remote/protected/write-pilot", json={"action": "dry_run"})
@@ -191,7 +191,10 @@ def test_remote_protected_write_pilot_requires_active_app_session(tmp_path, monk
     assert data["ok"] is True
     assert data["version"] == "remote-write-pilot-v1"
     assert data["access"]["allowed"] is True
+    assert data["workspace"]["id"].startswith("ws_")
     assert data["privacy"]["session_token_returned"] is False
     assert data["privacy"]["raw_email_returned"] is False
+    assert data["privacy"]["local_paths_returned"] is False
     assert "buyer@example.invalid" not in json.dumps(data)
+    audit_path = workspaces_root / data["workspace"]["id"] / "logs" / "audit.local.jsonl"
     assert "remote_write_pilot" in audit_path.read_text(encoding="utf-8")

@@ -119,6 +119,25 @@ Operational reinforcement for REMOTE-1/2:
 
 Create server-side workspaces per user. All mutable endpoints must derive `workspace_id` from session, never from client input. Generated `.cfx`, views, uploads, strategy imports, exports, logs and config live in the user's workspace.
 
+Artifacts added in REMOTE-4:
+
+- `docs/REMOTE_4_WORKSPACE_ISOLATION.md`
+- `backend/sqx-edge-tool/core/remote_workspaces.py`
+- `remote-workspace-v1`
+- `SQX_REMOTE_WORKSPACES_ROOT`
+- `GET /api/remote/workspace/status`
+- workspace-aware `POST /api/remote/protected/write-pilot`
+- per-workspace layout: `config`, `uploads`, `outputs`, `exports`, `logs`, `tmp`
+- per-workspace `workspace_manifest.local.json`
+- per-workspace `logs/audit.local.jsonl`
+
+Next REMOTE-5 scope:
+
+- surface Pro access state and workspace readiness in the dashboard;
+- show controlled privacy/security copy to the authenticated user;
+- hide raw SQX/server paths from basic users while preserving operational status;
+- prepare migration of `.cfx` generation endpoints behind the workspace gate.
+
 ### REMOTE-5 - Remote UX
 
 Replace install/license screens with Pro access state, server readiness, privacy/security notice and support window. Hide internal SQX paths from basic users while still showing operational readiness and traceability.
@@ -145,6 +164,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Tester Free Access Gate`: approved testers may have complete app access without payment only through an explicit `tester_free` entitlement, authenticated session, audit trail and operator-managed grant.
 - `Remote Session Gate`: app sessions must use `remote-session-v1`, `__Host-sqx_remote_session`, private `SQX_REMOTE_SESSION_SECRET`, secure cookie flags, entitlement revalidation and privacy redaction.
 - `Payment Webhook Entitlement Gate`: payment events must use `remote-payment-webhook-v1`, private `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`, exact-body HMAC verification, idempotent `processedWebhookEvents`, redacted identity and audit-only local logs.
+- `Workspace Isolation Gate`: workspace ids must be derived from the active app session only; browser-supplied workspace ids, paths and local SQX resources are ignored or rejected.
 - `Deployment Hardening Review Gate`: hosting suggestions must be reviewed against active REMOTE gates before implementation.
 - `Containerization Deferral Gate`: Docker/Linux must remain future hardening until SQX compatibility, workspace isolation and backup/restore are proven.
 - `Repository Privacy Gate`: before active sales, `origin` and `institutional` should be private or the operator must explicitly accept public-source commercial exposure.

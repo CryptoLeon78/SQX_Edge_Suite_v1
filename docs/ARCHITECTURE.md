@@ -102,6 +102,7 @@ Remote-service invariants:
 - Browser payloads cannot select arbitrary local paths, user ids or workspace ids.
 - Payment entitlement and validated email are checked before user-facing Pro access.
 - REMOTE-3C payment webhooks use `remote-payment-webhook-v1`, `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`, exact-body HMAC verification and idempotent `processedWebhookEvents` before changing paid access.
+- REMOTE-4 workspaces use `remote-workspace-v1`; the workspace id is derived from the active session identity hash and browser-supplied workspace ids or local paths are ignored.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -126,6 +127,13 @@ REMOTE-3C paid webhook and protected write pilot:
 - `backend/sqx-edge-tool/core/remote_payments.py` owns signed payment event normalization, idempotent paid entitlement upserts and redacted audit records.
 - `POST /api/remote/payment/webhook` accepts only signed raw bodies and writes `paid_subscription` changes to the ignored local entitlement store.
 - `POST /api/remote/protected/write-pilot` proves app-session write enforcement without mutating project state; real workspace writes begin in REMOTE-4.
+
+REMOTE-4 workspace isolation foundation:
+
+- `backend/sqx-edge-tool/core/remote_workspaces.py` owns workspace id derivation, layout creation and per-workspace audit helpers.
+- `GET /api/remote/workspace/status` provisions the server-derived workspace for the active session and returns no local paths.
+- `POST /api/remote/protected/write-pilot` now writes its audit proof inside the derived workspace and ignores browser `workspace_id`, `workspaceId` or `path` fields.
+- Workspace files live under ignored `.local/remote_service/workspaces/` or private `SQX_REMOTE_WORKSPACES_ROOT`.
 
 REMOTE-SUG1 deployment hardening decision:
 

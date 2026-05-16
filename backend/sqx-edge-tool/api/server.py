@@ -62,6 +62,11 @@ from core.remote_access import (
     start_remote_session_from_headers,
 )
 from core.remote_payments import process_payment_webhook
+from core.remote_workspaces import (
+    append_workspace_audit_event,
+    derive_remote_workspace,
+    public_workspace_context,
+)
 from core.support_diagnostics import build_support_diagnostics
 from core.fulfillment_queue import (
     load_request as load_fulfillment_request,
@@ -469,6 +474,28 @@ def api_remote_session_status():
     return jsonify(evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME)))
 
 
+@app.get("/api/remote/workspace/status")
+def api_remote_workspace_status():
+    """Provision and report the server-derived workspace for the active app session."""
+    session_status = evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME))
+    workspace_context = derive_remote_workspace(session_status, create=True)
+    if not workspace_context.get("ok"):
+        return jsonify({
+            "ok": False,
+            "error": workspace_context.get("error") or "remote_workspace_unavailable",
+            "session": session_status.get("session"),
+            "access": session_status.get("access"),
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), int(workspace_context.get("http_status") or 403)
+    return jsonify({
+        "ok": True,
+        "version": workspace_context.get("version"),
+        "workspace": public_workspace_context(workspace_context),
+        "access": session_status.get("access"),
+        "privacy": {"session_token_returned": False, "local_paths_returned": False},
+    })
+
+
 @app.post("/api/remote/session/logout")
 def api_remote_session_logout():
     response = make_response(jsonify({
@@ -510,18 +537,28 @@ def api_remote_protected_write_pilot():
             "access": session_status.get("access"),
             "privacy": {"session_token_returned": False},
         }), 403
+    workspace_context = derive_remote_workspace(session_status, create=True)
+    if not workspace_context.get("ok"):
+        return jsonify({
+            "ok": False,
+            "error": workspace_context.get("error") or "remote_workspace_unavailable",
+            "session": session_status.get("session"),
+            "access": session_status.get("access"),
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), int(workspace_context.get("http_status") or 403)
     data = request.get_json(silent=True) or {}
     action = str(data.get("action") or "remote_write_pilot").strip()[:80]
     event = {
         "type": "remote_write_pilot",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "action": action,
+        "browserWorkspaceIgnored": bool(data.get("workspace_id") or data.get("workspaceId") or data.get("path")),
         "identityHash": (session_status.get("session") or {}).get("email_hash"),
         "emailRef": (session_status.get("session") or {}).get("email_ref"),
         "entitlementKind": (session_status.get("entitlement") or {}).get("kind"),
         "featureScope": session_status.get("access", {}).get("feature_scope"),
     }
-    _append_remote_write_pilot_event(event)
+    audit_result = append_workspace_audit_event(workspace_context, event)
     return jsonify({
         "ok": True,
         "version": "remote-write-pilot-v1",
@@ -530,9 +567,12 @@ def api_remote_protected_write_pilot():
             "action": event["action"],
             "identity_hash": event["identityHash"],
             "email_ref": event["emailRef"],
+            "browser_workspace_ignored": event["browserWorkspaceIgnored"],
         },
+        "workspace": public_workspace_context(workspace_context),
+        "audit": audit_result.get("audit_event"),
         "access": {"allowed": True, "reason": "remote_session_verified"},
-        "privacy": {"session_token_returned": False, "raw_email_returned": False},
+        "privacy": {"session_token_returned": False, "raw_email_returned": False, "local_paths_returned": False},
     })
 
 

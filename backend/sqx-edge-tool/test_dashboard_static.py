@@ -20,6 +20,7 @@ REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC = PROJECT_ROOT / "docs" / "REMOTE_2B_TE
 REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_3A_REMOTE_ACCESS_FOUNDATION.md"
 REMOTE_3B_APP_SESSION_GRANT_KEY_DOC = PROJECT_ROOT / "docs" / "REMOTE_3B_APP_SESSION_GRANT_KEY.md"
 REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE_DOC = PROJECT_ROOT / "docs" / "REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md"
+REMOTE_4_WORKSPACE_ISOLATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_4_WORKSPACE_ISOLATION.md"
 REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md"
 REMOTE_TUNNEL_EXAMPLE_EVIDENCE = PROJECT_ROOT / "docs" / "examples" / "remote_tunnel.local.example.json"
 REMOTE_ENTITLEMENTS_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote_entitlements.local.example.json"
@@ -399,13 +400,14 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Servicio web Pro",
-            "Estado comercial: REMOTE-3C",
+            "Estado comercial: REMOTE-4",
             "Distribucion principal: enlace remoto protegido",
             "clave tester",
             "REMOTE-2B fija acceso completo `tester_free`",
             "REMOTE-3A fija la base backend `remote-access-v1`",
             "REMOTE-3B fija la sesion de app `remote-session-v1`",
             "REMOTE-3C fija el webhook de pago firmado `remote-payment-webhook-v1`",
+            "REMOTE-4 fija el workspace aislado `remote-workspace-v1`",
             "verificados como privados por GitHub CLI",
             "Los testers aprobados podran usar todas las funcionalidades sin pago",
             "Recomendacion comercial: convertir `SQX_Edge_Suite_v1` y `SQX_Institutional_Core` a repos privados",
@@ -625,8 +627,8 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "REMOTE-3B app session grant-key gate",
-            "Current phase completed: REMOTE-3C",
-            "Current implementation phase: REMOTE-4",
+            "Current phase completed: REMOTE-4",
+            "Current implementation phase: REMOTE-5",
             "Remote Session Gate",
             "remote-session-v1",
             "__Host-sqx_remote_session",
@@ -650,10 +652,11 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-3C",
-            "Siguiente paso recomendado: REMOTE-4",
+            "Estado comercial: REMOTE-4",
+            "Siguiente paso recomendado: REMOTE-5",
             "REMOTE-3B fija la sesion de app `remote-session-v1`",
             "REMOTE-3C fija el webhook de pago firmado `remote-payment-webhook-v1`",
+            "REMOTE-4 fija el workspace aislado `remote-workspace-v1`",
             "docs/REMOTE_3B_APP_SESSION_GRANT_KEY.md",
         ):
             with self.subTest(pattern=pattern):
@@ -734,8 +737,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_3c)
 
         for pattern in (
-            "Current phase completed: REMOTE-3C",
-            "Current implementation phase: REMOTE-4",
+            "REMOTE-3C paid webhook protected write gate",
             "Payment Webhook Entitlement Gate",
             "remote-payment-webhook-v1",
             "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET",
@@ -768,8 +770,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, architecture)
 
         for pattern in (
-            "Estado comercial: REMOTE-3C",
-            "Siguiente paso recomendado: REMOTE-4",
+            "Estado comercial: REMOTE-4",
+            "Siguiente paso recomendado: REMOTE-5",
             "docs/REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md",
             "endpoint `/api/remote/payment/webhook`",
             "endpoint piloto `/api/remote/protected/write-pilot`",
@@ -825,6 +827,123 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, combined_public)
 
+    def test_remote_4_workspace_isolation_foundation_is_wired(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        remote_4 = REMOTE_4_WORKSPACE_ISOLATION_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        remote_workspaces_py = (TOOL_ROOT / "core" / "remote_workspaces.py").read_text(encoding="utf-8-sig")
+        remote_workspaces_tests = (TOOL_ROOT / "test_remote_workspaces.py").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_4_WORKSPACE_ISOLATION_DOC,
+            TOOL_ROOT / "core" / "remote_workspaces.py",
+            TOOL_ROOT / "test_remote_workspaces.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-4 - Workspace Isolation Foundation",
+            "remote-workspace-v1",
+            "SQX_REMOTE_WORKSPACES_ROOT",
+            "GET /api/remote/workspace/status",
+            "workspace-aware `POST /api/remote/protected/write-pilot`",
+            "Browser-supplied workspace ids and paths are ignored",
+            "Public API responses never include absolute local paths or raw buyer emails",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_4)
+
+        for pattern in (
+            "Current phase completed: REMOTE-4",
+            "Current implementation phase: REMOTE-5",
+            "Workspace Isolation Gate",
+            "remote-workspace-v1",
+            "SQX_REMOTE_WORKSPACES_ROOT",
+            "GET /api/remote/workspace/status",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-4",
+            "docs/REMOTE_4_WORKSPACE_ISOLATION.md",
+            "backend/sqx-edge-tool/core/remote_workspaces.py",
+            "remote-workspace-v1",
+            "Next REMOTE-5 scope",
+            "Workspace Isolation Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-4 workspaces use `remote-workspace-v1`",
+            "REMOTE-4 workspace isolation foundation",
+            "backend/sqx-edge-tool/core/remote_workspaces.py",
+            "GET /api/remote/workspace/status",
+            "SQX_REMOTE_WORKSPACES_ROOT",
+            "ignores browser `workspace_id`, `workspaceId` or `path` fields",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "Estado comercial: REMOTE-4",
+            "Siguiente paso recomendado: REMOTE-5",
+            "docs/REMOTE_4_WORKSPACE_ISOLATION.md",
+            "endpoint `/api/remote/workspace/status`",
+            "workspace aislado `remote-workspace-v1`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "@app.get(\"/api/remote/workspace/status\")",
+            "derive_remote_workspace",
+            "public_workspace_context",
+            "append_workspace_audit_event",
+            "browserWorkspaceIgnored",
+            "local_paths_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "REMOTE_WORKSPACE_VERSION = \"remote-workspace-v1\"",
+            "WORKSPACE_ROOT_ENV = \"SQX_REMOTE_WORKSPACES_ROOT\"",
+            "workspace_id_from_identity_hash",
+            "derive_remote_workspace",
+            "public_workspace_context",
+            "append_workspace_audit_event",
+            "workspace_path_escape_blocked",
+            "local_paths_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_workspaces_py)
+
+        for pattern in (
+            "test_derive_remote_workspace_creates_layout_without_public_local_paths",
+            "test_workspace_requires_active_remote_session",
+            "test_remote_workspace_status_endpoint_requires_session_and_returns_no_paths",
+            "test_remote_write_pilot_ignores_browser_workspace_and_writes_workspace_audit",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_workspaces_tests)
+
+        combined_public = "\n".join([remote_4, remote_workspaces_py, server_py, roadmap, governance, readme])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "SQX_REMOTE_WORKSPACES_ROOT=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
     def test_remote_sug1_deployment_hardening_review_keeps_windows_pilot_active(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
@@ -859,8 +978,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Current phase completed: REMOTE-3C",
-            "Current implementation phase: REMOTE-4",
+            "Current phase completed: REMOTE-4",
+            "Current implementation phase: REMOTE-5",
             "Local proposals rule",
             "Deployment Hardening Review Gate",
             "Containerization Deferral Gate",
@@ -1063,7 +1182,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-2 fija el tunel protegido",
             "tools\\remote_tunnel_preflight.ps1 -RequireEvidence",
             "tools\\remote_tunnel_smoke.ps1 -ProtectedUrl",
-            "Siguiente paso recomendado: REMOTE-4",
+            "Siguiente paso recomendado: REMOTE-5",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -11645,7 +11764,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro",
             "Distribucion principal: enlace remoto protegido",
             "Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",
-            "Siguiente paso recomendado: REMOTE-4",
+            "Siguiente paso recomendado: REMOTE-5",
             "powershell -ExecutionPolicy Bypass -File tools\\clean_workspace.ps1 -Aggressive",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
