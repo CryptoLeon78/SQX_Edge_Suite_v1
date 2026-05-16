@@ -494,6 +494,66 @@
     },
     "nextPhase": "REMOTE-8I-next-controlled-movement-execution-approval"
   },
+  "remoteNextControlledMovementExecutionApproval": {
+    "phase": "REMOTE-8I",
+    "version": "remote-next-controlled-movement-execution-approval-v1",
+    "tool": "backend/sqx-edge-tool/tools/remote_next_controlled_movement_execution_approval.py",
+    "doc": "docs/REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL.md",
+    "example": "docs/examples/remote8i_next_controlled_movement_execution_approval.local.example.json",
+    "evidenceRoot": ".local/remote_service/remote8i_next_controlled_movement_execution_approval",
+    "summaryOutput": ".local/remote_service/remote8i_next_controlled_movement_execution_approval/remote8i_next_controlled_movement_execution_approval.public.json",
+    "sourceStatusRequired": "GO_REMOTE8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_READY",
+    "validRequestedActions": [
+      "approve_or_reject_next_controlled_movement_execution"
+    ],
+    "validExecutionDecisions": [
+      "approve_execution_record",
+      "reject_execution",
+      "defer_execution"
+    ],
+    "requiredChecks": [
+      "remote8hPackageReviewed",
+      "packageMatchesPrivateEvidence",
+      "operatorDecisionRecorded",
+      "decisionRationaleRecorded",
+      "executionScopeUnchanged",
+      "supportWindowStillReady",
+      "rollbackStillReady",
+      "pauseRuleStillReady",
+      "noAutomationConfirmed",
+      "executionRecordRequired",
+      "privateEvidenceStoredOutsideGit"
+    ],
+    "zeroExecutionMetrics": [
+      "newUsersInvited",
+      "grantsCreated",
+      "checkoutLinksCreated",
+      "emailsSent",
+      "publicUrlsShared",
+      "automationJobsStarted",
+      "trafficExpanded",
+      "paidCampaignStarted"
+    ],
+    "privacy": {
+      "rawEmailsReturned": false,
+      "protectedUrlReturned": false,
+      "localPathsReturned": false,
+      "secretsReturned": false,
+      "sessionTokenReturned": false,
+      "grantKeysReturned": false,
+      "communicationCopyReturned": false,
+      "decisionRationaleReturned": false,
+      "privateEvidenceCommitted": false
+    },
+    "approval": {
+      "automationAllowed": false,
+      "executionPerformedNow": false,
+      "requiresSeparateExecutionRecord": true
+    },
+    "nextPhaseIfApproved": "REMOTE-8J-manual-execution-record",
+    "nextPhaseIfRejected": "REMOTE-8H-or-8G-replan",
+    "nextPhaseIfDeferred": "REMOTE-8I-revisit-execution-approval"
+  },
   "licensing": {
     "storageKey": "sqx_license_state_v1",
     "licenseFile": "config/license.json",

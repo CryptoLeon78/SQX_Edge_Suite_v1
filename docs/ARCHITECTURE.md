@@ -114,6 +114,7 @@ Remote-service invariants:
 - REMOTE-8F uses `remote-tiny-cohort-monitoring-v1` to observe the activated cohort for at least 24 clean hours. Support, tunnel, session, workspace, security, generation, export and entitlement evidence stays local/ignored; the public summary proves zero incidents and keeps expansion blocked until REMOTE-8G.
 - REMOTE-8G uses `remote-tiny-cohort-decision-review-v1` to turn REMOTE-8F monitoring into a human decision. Decision rationale, identities, private URLs and support details stay local/ignored; even a GO only prepares a next package and keeps execution blocked until REMOTE-8H+.
 - REMOTE-8H uses `remote-next-controlled-movement-package-v1` to package one exact next movement after REMOTE-8G. Candidate identities, protected URLs and communication copy stay local/ignored; execution remains blocked until REMOTE-8I.
+- REMOTE-8I uses `remote-next-controlled-movement-execution-approval-v1` to approve, reject or defer the REMOTE-8H package. Decision notes, identities and private URLs stay local/ignored; approval only enables a later manual execution record.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -243,6 +244,16 @@ REMOTE-8H next controlled movement package:
 - User expansion is capped at `add_1_2_users`; candidate identities and handoff copy remain local/ignored.
 - Execution metrics for new invites, grants, checkout links, emails, public URL sharing, automation jobs, traffic expansion and paid campaigns must remain zero.
 - Even on GO, `movementPackage.executionAllowedNow` stays false; REMOTE-8I owns approval before any execution record.
+
+REMOTE-8I next controlled movement execution approval:
+
+- `backend/sqx-edge-tool/core/remote_next_controlled_movement_execution_approval.py` owns `remote-next-controlled-movement-execution-approval-v1`.
+- `backend/sqx-edge-tool/tools/remote_next_controlled_movement_execution_approval.py` reads ignored private approval evidence from `.local/remote_service/remote8i_next_controlled_movement_execution_approval.local.json`.
+- The redacted output is `.local/remote_service/remote8i_next_controlled_movement_execution_approval/remote8i_next_controlled_movement_execution_approval.public.json`.
+- The approval requires REMOTE-8H GO and a decision of `approve_execution_record`, `reject_execution` or `defer_execution`.
+- Raw decision notes, candidate identities, protected URLs, grant details and local paths remain local/ignored.
+- Execution metrics for new invites, grants, checkout links, emails, public URL sharing, automation jobs, traffic expansion and paid campaigns must remain zero.
+- Even on approval, `approval.executionPerformedNow` stays false; REMOTE-8J owns the manual execution record.
 
 REMOTE-SUG1 deployment hardening decision:
 
