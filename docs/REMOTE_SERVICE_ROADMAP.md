@@ -26,6 +26,14 @@ Record the strategic pivot, add the Remote Service Gate, update architecture, RE
 
 Turn the operator laptop into a controlled server: auto-start backend/gateway after reboot, health checks, SQX path validation, `data.db` validation, template validation, output validation and watchdog.
 
+Artifacts:
+
+- `docs/REMOTE_1_LAPTOP_SERVER_BASELINE.md`
+- `tools/remote_service_preflight.ps1`
+- `tools/remote_service_start_server.ps1`
+- `tools/remote_service_watchdog.ps1`
+- `tools/remote_service_install_startup_task.ps1`
+
 ### REMOTE-2 - Cloudflare Tunnel And Domain
 
 Publish the laptop through a custom domain with Cloudflare Tunnel. Do not open router ports. Keep Cloudflare Access in front of the service and prove that unauthenticated requests cannot reach dashboard or API.

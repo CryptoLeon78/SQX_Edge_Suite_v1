@@ -9,7 +9,7 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Distribucion principal: enlace remoto protegido; el usuario final no descarga ZIP, no ejecuta launchers y no instala Python.
 - Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip` con SHA256 `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`.
-- Siguiente paso recomendado: REMOTE-1 para convertir el portatil del operador en servidor controlado con health checks, rutas SQX servidor y watchdog.
+- Siguiente paso recomendado: REMOTE-2 para poner Cloudflare Tunnel y dominio delante del servidor local, manteniendo Access y sin abrir puertos.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## Limpieza Local
@@ -84,11 +84,19 @@ Nota de seguridad comercial: los documentos de venta interna, buyer logs, gates 
 Acceso remoto Pro previsto:
 
 - REMOTE-0 fija el roadmap de servicio remoto en `docs/REMOTE_SERVICE_ROADMAP.md`.
+- REMOTE-1 fija la base de portatil servidor en `docs/REMOTE_1_LAPTOP_SERVER_BASELINE.md`.
 - La comunicacion de seguridad y privacidad vive en `docs/REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md`.
 - El piloto corre en portatil 24/7 mediante dominio propio, Cloudflare Tunnel y Cloudflare Access.
 - Cada usuario pagado tendra workspace aislado para config, imports, outputs, exports y auditoria.
 - El navegador no selecciona rutas locales de SQX; las rutas SQX, `data.db`, templates y BlockSettings se gestionan en el servidor.
 - La comunicacion al usuario se basa en entorno controlado, auditado y aislado; no se promete riesgo cero.
+
+Operativa local REMOTE-1:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_service_preflight.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_service_watchdog.ps1 -Once -NoStart
+```
 
 Portal tester Pro previsto (historico):
 

@@ -4,8 +4,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: UX-NAV sidebar navigation polish inside the Mining Control pass.
-- Current implementation phase: REMOTE-0 - document the strategic pivot from portable/local distribution to `remote_service`: paid validated-email access through a protected link, laptop-hosted pilot via Cloudflare Tunnel, mandatory per-user workspaces and portable ZIP retained only as internal fallback.
+- Current phase completed: REMOTE-0 - documented the strategic pivot from portable/local distribution to `remote_service`.
+- Current implementation phase: REMOTE-1 - laptop server baseline with localhost backend preflight, SQX path readiness checks, watchdog and optional Windows startup task; no public tunnel, domain or Cloudflare exposure yet.
 - Current UX surface decision: Strategy Builder tab and visible CVC handoff are retired from the dashboard shell; existing SB modules/docs remain internal historical contracts until a future renamed workflow is approved.
 - Current scoring surface decision: Template Maker is the active Capa 1 scoring and C2 generation surface, now including certification, structural diversity and mandatory C2 traceability before C2; Capa 2 comparison/relationships belong to Champion vs Challenger, including portfolio relationships.
 - Current product/commercial state: `next_controlled_commercial_movement_from_m98_decision_ready`.
@@ -23,6 +23,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - CFX Resource Compatibility Gate: generated `.cfx` files must keep every patched `<Chart symbol>` aligned with `<Resources><Symbols>` and `InstrumentInfo` from the selected SQX/data.db source. Version-specific broker IDs, postfixes, data symbols and stale template resources must be detected before a project is considered loadable in SQX.
 - Modal Traceability Gate: every active modal must declare owner, source data, destination data, impact, failure modes and user-visible trace before it can mutate local state. Critical reset/delete/import/restore actions must use the unified decision surface or an equivalent traceable modal, not a blind native prompt.
 - Remote Service Gate: every remote-service mutation must require authenticated user, active paid entitlement, server-derived workspace, audit event and rate-limit boundary. Browser payloads must never select arbitrary local paths, workspace ids or SQX internals; Cloudflare Tunnel/Access protects the public edge and the local backend must not be directly internet-reachable.
+- Laptop Server Baseline Gate: REMOTE-1 scripts may start or supervise only a localhost backend, must validate `config.json`, `sqx_path`, `sqx_data_db`, templates and output readiness, and must write operational logs only to ignored local paths such as `.local/remote_service/`.
 - Active UX-NAV tab: `Mining Control`; temporarily paused for MODAL-TRACE modal governance and traceability hardening. Resume Mining Control after this phase unless the operator says `Adelante con el siguiente tab`.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G7 - Backup Retention And Artifact Steward Gate.
@@ -320,6 +321,7 @@ M46 is accepted when these criteria are true:
 - Product/commercial state: `backend/sqx-edge-tool/config/product_manifest.json`.
 - Portable distribution: `package_portable.ps1`, `audit_distribution.ps1`, `release_checklist.ps1`.
 - Remote service roadmap and security copy: `docs/REMOTE_SERVICE_ROADMAP.md` and `docs/REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md`.
+- REMOTE-1 laptop server baseline: `docs/REMOTE_1_LAPTOP_SERVER_BASELINE.md`, `tools/remote_service_preflight.ps1`, `tools/remote_service_start_server.ps1`, `tools/remote_service_watchdog.ps1` and `tools/remote_service_install_startup_task.ps1`.
 - Commercial gates: `backend/sqx-edge-tool/tools/*` and `docs/sales/*`.
 - Internal automation gate: this document, especially G3 risk levels, agent matrix and local tooling notes.
 - Backup retention and artifact cleanup: `docs/maintenance/BACKUP_RETENTION_POLICY.md`, `docs/maintenance/ARTIFACT_CLEANUP_20260514.md` and ignored manifests under `backups/cleanup-*`.

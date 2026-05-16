@@ -102,6 +102,14 @@ Remote-service invariants:
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
+REMOTE-1 laptop server baseline:
+
+- `tools/remote_service_preflight.ps1` validates local server readiness, SQX paths, `data.db`, templates and output without opening a public surface.
+- `tools/remote_service_start_server.ps1` starts `backend/sqx-edge-tool/api/server.py` on `127.0.0.1:5050` only.
+- `tools/remote_service_watchdog.ps1` supervises `/api/health` and logs to ignored `.local/remote_service/`.
+- `tools/remote_service_install_startup_task.ps1` registers the watchdog in Windows Task Scheduler when the operator explicitly runs it.
+- REMOTE-2 is the first phase allowed to add Cloudflare Tunnel/domain exposure; REMOTE-1 remains local-only.
+
 ## Frontend Load Order
 
 The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboard_static.py`.

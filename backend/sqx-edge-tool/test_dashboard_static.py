@@ -14,6 +14,11 @@ ARCHITECTURE_DOC = PROJECT_ROOT / "docs" / "ARCHITECTURE.md"
 PROJECT_GOVERNANCE_DOC = PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md"
 REMOTE_SERVICE_ROADMAP_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_ROADMAP.md"
 REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md"
+REMOTE_1_LAPTOP_SERVER_BASELINE_DOC = PROJECT_ROOT / "docs" / "REMOTE_1_LAPTOP_SERVER_BASELINE.md"
+REMOTE_SERVICE_PREFLIGHT_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_preflight.ps1"
+REMOTE_SERVICE_START_SERVER_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_start_server.ps1"
+REMOTE_SERVICE_WATCHDOG_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_watchdog.ps1"
+REMOTE_SERVICE_INSTALL_STARTUP_TASK_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_install_startup_task.ps1"
 CLEAN_WORKSPACE_SCRIPT = PROJECT_ROOT / "tools" / "clean_workspace.ps1"
 J1_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J1_CHAMPION_CHALLENGER_CONTRACT.md"
 J2_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J2_CHAMPION_CHALLENGER_CORE.md"
@@ -402,6 +407,119 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, privacy_copy)
+
+    def test_remote_1_laptop_server_baseline_is_documented_and_local_only(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_1 = REMOTE_1_LAPTOP_SERVER_BASELINE_DOC.read_text(encoding="utf-8-sig")
+        preflight = REMOTE_SERVICE_PREFLIGHT_SCRIPT.read_text(encoding="utf-8-sig")
+        start_server = REMOTE_SERVICE_START_SERVER_SCRIPT.read_text(encoding="utf-8-sig")
+        watchdog = REMOTE_SERVICE_WATCHDOG_SCRIPT.read_text(encoding="utf-8-sig")
+        startup_task = REMOTE_SERVICE_INSTALL_STARTUP_TASK_SCRIPT.read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_1_LAPTOP_SERVER_BASELINE_DOC,
+            REMOTE_SERVICE_PREFLIGHT_SCRIPT,
+            REMOTE_SERVICE_START_SERVER_SCRIPT,
+            REMOTE_SERVICE_WATCHDOG_SCRIPT,
+            REMOTE_SERVICE_INSTALL_STARTUP_TASK_SCRIPT,
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-1 - Laptop Server Baseline",
+            "No public ports are opened in REMOTE-1",
+            "127.0.0.1:5050",
+            "remote_service_preflight.ps1 -RequireSqxReady",
+            "remote_service_watchdog.ps1 -Once -NoStart",
+            "Cloudflare Tunnel, Access policy and domain wiring are blocked until REMOTE-2",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_1)
+
+        for pattern in (
+            "Laptop Server Baseline Gate",
+            "localhost backend",
+            ".local/remote_service/",
+            "REMOTE-1 - laptop server baseline",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "tools/remote_service_preflight.ps1",
+            "tools/remote_service_start_server.ps1",
+            "tools/remote_service_watchdog.ps1",
+            "tools/remote_service_install_startup_task.ps1",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE-1 fija la base de portatil servidor",
+            "tools\\remote_service_preflight.ps1",
+            "tools\\remote_service_watchdog.ps1 -Once -NoStart",
+            "Siguiente paso recomendado: REMOTE-2",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "RequireSqxReady",
+            "sqx_data_db",
+            "template_capa1",
+            "template_capa2",
+            "output_dir",
+            "Invoke-RestMethod",
+            "/api/health",
+            "Refusing non-local API URL",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, preflight)
+
+        for pattern in (
+            'HostAddress = "127.0.0.1"',
+            "REMOTE-1 only allows localhost API binding",
+            "SQX_REMOTE_SERVICE_MODE",
+            "api\\server.py",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, start_server)
+
+        for pattern in (
+            "Start-Process",
+            "remote_service_start_server.ps1",
+            ".local\\remote_service",
+            "watchdog.log",
+            "REMOTE-1 watchdog only accepts localhost API URLs",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, watchdog)
+
+        for pattern in (
+            "Register-ScheduledTask",
+            "New-ScheduledTaskTrigger -AtLogOn",
+            "New-ScheduledTaskTrigger -AtStartup",
+            "remote_service_watchdog.ps1",
+            "SQX Edge Remote Service Watchdog",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, startup_task)
+
+        combined_scripts = "\n".join([preflight, start_server, watchdog, startup_task])
+        for forbidden in (
+            "0.0.0.0",
+            "ngrok",
+            "cloudflared tunnel run",
+            "CLOUDFLARE_API_TOKEN",
+            "VERCEL_TOKEN",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_scripts)
 
     def test_project_governance_defines_agent_ownership_and_m46_entry(self):
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
@@ -10897,7 +11015,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro",
             "Distribucion principal: enlace remoto protegido",
             "Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",
-            "Siguiente paso recomendado: REMOTE-1",
+            "Siguiente paso recomendado: REMOTE-2",
             "powershell -ExecutionPolicy Bypass -File tools\\clean_workspace.ps1 -Aggressive",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
