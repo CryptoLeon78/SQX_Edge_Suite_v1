@@ -2,6 +2,7 @@
   'use strict';
 
   var SQX = global.SQX = global.SQX || {};
+  var REMOTE_WELCOME_DISMISSED_KEY = 'sqx_remote_welcome_dismissed_v1';
 
   function escapeHtml(value) {
     return String(value == null ? '' : value).replace(/[<>&"']/g, function(ch) {
@@ -98,6 +99,26 @@
     return value.length > 14 ? value.slice(0, 14) + '...' : value;
   }
 
+  function sessionStore() {
+    try {
+      return global.sessionStorage || null;
+    } catch (_err) {
+      return null;
+    }
+  }
+
+  function remoteWelcomeDismissed() {
+    var store = sessionStore();
+    return !!(store && store.getItem(REMOTE_WELCOME_DISMISSED_KEY) === '1');
+  }
+
+  function setRemoteWelcomeDismissed(value) {
+    var store = sessionStore();
+    if (!store) return;
+    if (value) store.setItem(REMOTE_WELCOME_DISMISSED_KEY, '1');
+    else store.removeItem(REMOTE_WELCOME_DISMISSED_KEY);
+  }
+
   function computeRemoteServiceModel(input) {
     var data = input || {};
     var accessPayload = data.access || {};
@@ -151,9 +172,16 @@
     var watermarkText = watermark.enabled
       ? ((watermark.label || 'SQX REMOTE PRO') + ' · ' + (watermark.marker || workspaceStatus || 'session'))
       : '';
+    var isRemoteMode = mode !== 'local_only';
+    var welcomeVisible = !!(isRemoteMode || authenticated || sessionAllowed);
+    var welcomePrimaryAction = state === 'active' ? 'enter' : (canCreateSession ? 'login' : 'refresh');
+    var welcomePrimaryLabel = state === 'active'
+      ? 'Entrar al dashboard'
+      : (canCreateSession ? (grantKeyRequired ? 'Validar tester' : 'Crear sesion remota') : 'Actualizar estado');
 
     return {
       state: state,
+      mode: mode,
       badgeClass: 'is-' + state,
       badge: state === 'active' ? 'Remote Pro' : (state === 'blocked' ? 'Bloqueado' : (mode === 'local_only' ? 'Local' : 'Pendiente')),
       title: state === 'active' ? 'Acceso remoto listo' : (state === 'blocked' ? 'Acceso bloqueado' : 'Preparado para acceso remoto'),
@@ -193,6 +221,17 @@
         enabled: !!watermark.enabled,
         text: watermarkText,
         state: securityBlocked ? 'blocked' : 'active'
+      },
+      welcome: {
+        visible: welcomeVisible,
+        dismissed: remoteWelcomeDismissed(),
+        detail: state === 'active'
+          ? 'Sesion, permiso, workspace y protecciones estan activos. Puedes entrar al dashboard y continuar la metodologia.'
+          : 'Antes de operar, SQX Edge valida identidad, permiso activo, sesion de app y workspace aislado.',
+        primaryAction: welcomePrimaryAction,
+        primaryLabel: welcomePrimaryLabel,
+        trustLabel: 'Ver Trust Center',
+        enterLabel: 'Entrar al dashboard'
       }
     };
   }
@@ -229,6 +268,46 @@
     }
   }
 
+  function setRemoteWelcomeItem(doc, key, item) {
+    var target = doc || global.document;
+    var box = target.getElementById('remote-welcome-' + key + '-item');
+    var status = target.getElementById('remote-welcome-' + key + '-status');
+    var detail = target.getElementById('remote-welcome-' + key + '-detail');
+    item = item || {};
+    if (box) {
+      box.classList.remove('is-ok', 'is-warn', 'is-pending', 'is-blocked');
+      box.classList.add('is-' + (item.state || 'pending'));
+    }
+    if (status) status.textContent = item.status || 'Pendiente';
+    if (detail) detail.textContent = item.detail || '';
+  }
+
+  function applyRemoteWelcomeModel(model, doc) {
+    var target = doc || global.document;
+    if (!target || !model) return;
+    var welcome = model.welcome || {};
+    var gate = target.getElementById('remote-welcome-gate');
+    var primary = target.getElementById('remote-welcome-primary');
+    var enter = target.getElementById('remote-welcome-enter');
+    var trust = target.getElementById('remote-welcome-trust-toggle');
+    var keyWrap = target.getElementById('remote-welcome-key-wrap');
+    var shouldShow = !!(welcome.visible && !welcome.dismissed);
+    if (gate) gate.hidden = !shouldShow;
+    setText(target, 'remote-welcome-detail', welcome.detail || '');
+    setRemoteWelcomeItem(target, 'access', model.items.access);
+    setRemoteWelcomeItem(target, 'workspace', model.items.workspace);
+    setRemoteWelcomeItem(target, 'security', model.items.security);
+    setRemoteWelcomeItem(target, 'privacy', model.items.privacy);
+    if (primary) {
+      primary.textContent = welcome.primaryLabel || 'Actualizar estado';
+      primary.dataset.remoteWelcomeAction = welcome.primaryAction || 'refresh';
+      primary.disabled = model.state === 'blocked';
+    }
+    if (enter) enter.hidden = model.state !== 'active';
+    if (trust) trust.textContent = welcome.trustLabel || 'Ver Trust Center';
+    if (keyWrap) keyWrap.hidden = !(model.sessionLogin && model.sessionLogin.requiresGrantKey);
+  }
+
   function applyRemoteServiceModel(model, doc) {
     var target = doc || global.document;
     if (!target || !model) return;
@@ -250,6 +329,7 @@
     setRemoteItem(target, 'security', model.items.security);
     setRemoteItem(target, 'privacy', model.items.privacy);
     setRemoteSessionLoginState(model, target);
+    applyRemoteWelcomeModel(model, target);
     var watermark = target.getElementById('remote-session-watermark');
     if (watermark) {
       if (model.watermark && model.watermark.enabled && model.watermark.text) {
@@ -303,9 +383,12 @@
     var btn = target && target.getElementById('remote-session-login');
     var detail = target && target.getElementById('remote-session-login-detail');
     var keyInput = target && target.getElementById('remote-session-grant-key');
+    var welcomeKeyInput = target && target.getElementById('remote-welcome-grant-key');
     var body = {};
     if (keyInput && String(keyInput.value || '').trim()) {
       body.grant_key = String(keyInput.value || '').trim();
+    } else if (welcomeKeyInput && String(welcomeKeyInput.value || '').trim()) {
+      body.grant_key = String(welcomeKeyInput.value || '').trim();
     }
     if (btn) btn.disabled = true;
     if (detail) detail.textContent = 'Validando permiso y creando sesion segura...';
@@ -317,6 +400,7 @@
       var access = payload && payload.access ? payload.access : {};
       if (payload && payload.ok && access.allowed) {
         if (keyInput) keyInput.value = '';
+        if (welcomeKeyInput) welcomeKeyInput.value = '';
         if (detail) detail.textContent = 'Sesion remota creada. Preparando workspace aislado...';
         var refresher = typeof refreshFn === 'function' ? refreshFn : refreshRemoteServiceStatus;
         return refresher(target).then(function(model) {
@@ -348,10 +432,55 @@
     return bound;
   }
 
+  function dismissRemoteWelcomeGate(doc) {
+    var target = doc || global.document;
+    setRemoteWelcomeDismissed(true);
+    var gate = target && target.getElementById('remote-welcome-gate');
+    if (gate) gate.hidden = true;
+  }
+
+  function bindRemoteWelcomeGate(doc) {
+    var target = doc || global.document;
+    var primary = target && target.getElementById('remote-welcome-primary');
+    var enter = target && target.getElementById('remote-welcome-enter');
+    var trust = target && target.getElementById('remote-welcome-trust-toggle');
+    var trustPanel = target && target.getElementById('remote-trust-center');
+    var bound = false;
+    if (primary && !primary.dataset.boundRemoteWelcomePrimary) {
+      primary.dataset.boundRemoteWelcomePrimary = '1';
+      primary.addEventListener('click', function() {
+        var action = primary.dataset.remoteWelcomeAction || 'refresh';
+        if (action === 'enter') {
+          dismissRemoteWelcomeGate(target);
+        } else if (action === 'login') {
+          loginRemoteSession(target);
+        } else {
+          refreshRemoteServiceStatus(target);
+        }
+      });
+      bound = true;
+    }
+    if (enter && !enter.dataset.boundRemoteWelcomeEnter) {
+      enter.dataset.boundRemoteWelcomeEnter = '1';
+      enter.addEventListener('click', function() { dismissRemoteWelcomeGate(target); });
+      bound = true;
+    }
+    if (trust && trustPanel && !trust.dataset.boundRemoteWelcomeTrust) {
+      trust.dataset.boundRemoteWelcomeTrust = '1';
+      trust.addEventListener('click', function() {
+        trustPanel.hidden = !trustPanel.hidden;
+        trust.textContent = trustPanel.hidden ? 'Ver Trust Center' : 'Ocultar Trust Center';
+      });
+      bound = true;
+    }
+    return bound;
+  }
+
   function initRemoteServicePanel(doc) {
     var target = doc || global.document;
     if (!target || !target.getElementById('remote-pro-panel')) return null;
     bindRemoteServicePanel(target);
+    bindRemoteWelcomeGate(target);
     return refreshRemoteServiceStatus(target);
   }
 
@@ -490,11 +619,14 @@
     addTrace: addTrace,
     applyHomeModel: applyHomeModel,
     applyRemoteServiceModel: applyRemoteServiceModel,
+    applyRemoteWelcomeModel: applyRemoteWelcomeModel,
     apiBase: apiBase,
     bindRemoteServicePanel: bindRemoteServicePanel,
+    bindRemoteWelcomeGate: bindRemoteWelcomeGate,
     computeRemoteServiceModel: computeRemoteServiceModel,
     computeHomeModel: computeHomeModel,
     createTraceItem: createTraceItem,
+    dismissRemoteWelcomeGate: dismissRemoteWelcomeGate,
     fetchJson: fetchJson,
     initRemoteServicePanel: initRemoteServicePanel,
     loginRemoteSession: loginRemoteSession,

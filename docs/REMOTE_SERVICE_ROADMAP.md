@@ -265,6 +265,24 @@ Next REMOTE-8C scope:
 - review tunnel stability, app session behavior, workspace isolation, artifact generation/export and revocation/restore;
 - decide explicitly whether to stay at one user, fix blockers or expand to 3-5 users.
 
+### WAIT-1 - Welcome + Trust Center During REMOTE-8C
+
+WAIT-1 is allowed while REMOTE-8C runs because it does not expand testers, grants, checkout or permissions. It improves buyer/tester confidence by adding a welcome bridge, a Trust Center and a living value backlog.
+
+Artifacts:
+
+- `docs/REMOTE_VALUE_BACKLOG.md`
+- Welcome / Trust surface in the dashboard shell.
+- `Trust Claims Gate` in governance.
+
+Rules:
+
+- No fictitious auditing company.
+- No fake third-party certificates.
+- No absolute safety claims.
+- External evidence can be referenced only as real scan/audit sources or planned future checks.
+- Planned external evidence candidates are MDN HTTP Observatory for HTTP posture, OWASP ZAP Baseline for passive security scanning and real response-header checks on the protected service.
+
 ### REMOTE-8C - First User Support Observation And Expansion Decision
 
 Watches the first approved user after REMOTE-8B and turns private support evidence into a GO/NO-GO decision for a tiny cohort expansion. It does not automate invites or payments.

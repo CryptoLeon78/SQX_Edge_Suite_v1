@@ -37,7 +37,16 @@ assert.equal(filterB.classList.contains('active'), true);
   'remote-pro-server-item', 'remote-pro-server-status', 'remote-pro-server-detail',
   'remote-pro-security-item', 'remote-pro-security-status', 'remote-pro-security-detail',
   'remote-pro-privacy-item', 'remote-pro-privacy-status', 'remote-pro-privacy-detail',
-  'remote-pro-refresh', 'remote-session-watermark'
+  'remote-pro-refresh', 'remote-session-watermark',
+  'remote-session-actions', 'remote-session-title', 'remote-session-login-detail',
+  'remote-session-key-wrap', 'remote-session-grant-key', 'remote-session-login',
+  'remote-welcome-gate', 'remote-welcome-detail', 'remote-welcome-primary',
+  'remote-welcome-trust-toggle', 'remote-welcome-enter', 'remote-trust-center',
+  'remote-welcome-key-wrap', 'remote-welcome-grant-key',
+  'remote-welcome-access-item', 'remote-welcome-access-status', 'remote-welcome-access-detail',
+  'remote-welcome-workspace-item', 'remote-welcome-workspace-status', 'remote-welcome-workspace-detail',
+  'remote-welcome-security-item', 'remote-welcome-security-status', 'remote-welcome-security-detail',
+  'remote-welcome-privacy-item', 'remote-welcome-privacy-status', 'remote-welcome-privacy-detail'
 ].forEach(id => document.add(new Element(id)));
 
 const model = SQX.home.computeHomeModel({
@@ -73,8 +82,13 @@ assert.equal(document.getElementById('remote-pro-server-status').textContent, 'R
 assert.equal(document.getElementById('remote-pro-security-status').textContent, 'Protecciones activas');
 assert.equal(document.getElementById('remote-session-watermark').hidden, false);
 assert.match(document.getElementById('remote-session-watermark').textContent, /SQX REMOTE PRO/);
+assert.equal(document.getElementById('remote-welcome-gate').hidden, false);
+assert.equal(document.getElementById('remote-welcome-primary').dataset.remoteWelcomeAction, 'enter');
+assert.match(document.getElementById('remote-welcome-detail').textContent, /workspace/);
 assert.equal(SQX.home.bindRemoteServicePanel(document), true);
 assert.equal(SQX.home.bindRemoteServicePanel(document), false);
+assert.equal(SQX.home.bindRemoteWelcomeGate(document), true);
+assert.equal(SQX.home.bindRemoteWelcomeGate(document), false);
 assert.match(SQX.home.remoteReasonLabel('session_missing'), /Sesion/);
 const remoteStatusCalls = [];
 sandbox.fetch = url => {

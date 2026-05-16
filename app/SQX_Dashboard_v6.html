@@ -16,6 +16,58 @@
 </head>
 <body>
 
+<div id="remote-welcome-gate" class="remote-welcome-gate" hidden>
+  <section class="remote-welcome-shell" aria-label="Bienvenida de acceso web Pro">
+    <div class="remote-welcome-copy">
+      <span class="remote-welcome-eyebrow">Acceso web Pro protegido</span>
+      <h2>Bienvenido a SQX Edge</h2>
+      <p id="remote-welcome-detail">Validamos identidad, permiso, sesion de app y workspace aislado antes de operar.</p>
+      <div class="remote-welcome-status-grid">
+        <div class="remote-welcome-status" id="remote-welcome-access-item">
+          <span>Identidad</span>
+          <strong id="remote-welcome-access-status">Comprobando</strong>
+          <small id="remote-welcome-access-detail">Cloudflare Access y permiso activo.</small>
+        </div>
+        <div class="remote-welcome-status" id="remote-welcome-workspace-item">
+          <span>Workspace</span>
+          <strong id="remote-welcome-workspace-status">Pendiente</strong>
+          <small id="remote-welcome-workspace-detail">Se crea desde la sesion validada.</small>
+        </div>
+        <div class="remote-welcome-status" id="remote-welcome-security-item">
+          <span>Seguridad</span>
+          <strong id="remote-welcome-security-status">Pendiente</strong>
+          <small id="remote-welcome-security-detail">Rate limits, revocacion y watermark.</small>
+        </div>
+        <div class="remote-welcome-status is-privacy" id="remote-welcome-privacy-item">
+          <span>Privacidad</span>
+          <strong id="remote-welcome-privacy-status">Sin instalacion</strong>
+          <small id="remote-welcome-privacy-detail">No exponemos rutas internas, tokens ni carpetas servidor.</small>
+        </div>
+      </div>
+      <label class="remote-welcome-key" id="remote-welcome-key-wrap" for="remote-welcome-grant-key" hidden>
+        <span>Clave tester</span>
+        <input id="remote-welcome-grant-key" type="password" autocomplete="one-time-code" placeholder="Clave privada del tester">
+      </label>
+      <div class="remote-welcome-actions">
+        <button class="home-command primary" id="remote-welcome-primary" type="button">Actualizar estado</button>
+        <button class="home-command" id="remote-welcome-trust-toggle" type="button">Ver Trust Center</button>
+        <button class="home-command subtle" id="remote-welcome-enter" type="button">Entrar al dashboard</button>
+      </div>
+    </div>
+    <aside class="remote-trust-center" id="remote-trust-center" hidden>
+      <span class="remote-welcome-eyebrow">Trust Center</span>
+      <h3>Controles verificables, sin certificados ficticios</h3>
+      <p>SQX Edge muestra controles propios, evidencias REMOTE y auditorias externas planificadas. No simulamos terceros ni prometemos seguridad absoluta.</p>
+      <div class="remote-trust-list">
+        <div><strong>SQX Edge Security Self-Assessment</strong><small>Autoevaluacion interna sobre acceso, sesiones, workspace, revocacion y auditoria.</small></div>
+        <div><strong>Privacy & Data Handling Statement</strong><small>Declaracion de datos: sin instalacion local, rutas internas ocultas y evidencias privadas fuera de Git.</small></div>
+        <div><strong>Remote Service Safety Checklist</strong><small>Access, sesion app, workspace aislado, watermark, revocacion y soporte redacted.</small></div>
+        <div><strong>Auditorias externas</strong><small>MDN HTTP Observatory, OWASP ZAP Baseline y revisiones de headers reales cuando el entorno este listo.</small></div>
+      </div>
+    </aside>
+  </section>
+</div>
+
 <div class="header">
   <img class="brand-mark" src="assets/brand/sqx-app-icon-256.png" alt="" aria-hidden="true">
   <div>

@@ -14,6 +14,7 @@ ARCHITECTURE_DOC = PROJECT_ROOT / "docs" / "ARCHITECTURE.md"
 PROJECT_GOVERNANCE_DOC = PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md"
 REMOTE_SERVICE_ROADMAP_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_ROADMAP.md"
 REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md"
+REMOTE_VALUE_BACKLOG_DOC = PROJECT_ROOT / "docs" / "REMOTE_VALUE_BACKLOG.md"
 REMOTE_1_LAPTOP_SERVER_BASELINE_DOC = PROJECT_ROOT / "docs" / "REMOTE_1_LAPTOP_SERVER_BASELINE.md"
 REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC = PROJECT_ROOT / "docs" / "REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS.md"
 REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC = PROJECT_ROOT / "docs" / "REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY.md"
@@ -513,6 +514,98 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, privacy_copy)
+
+    def test_wait_1_welcome_trust_center_is_honest_and_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        backlog = REMOTE_VALUE_BACKLOG_DOC.read_text(encoding="utf-8-sig")
+        html = self.html
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+        home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_VALUE_BACKLOG_DOC.is_file())
+
+        for pattern in (
+            "WAIT-1 - Welcome + Trust Center",
+            "Trust Claims Gate",
+            "No fictitious auditing company",
+            "No fake third-party certificates",
+            "MDN HTTP Observatory",
+            "OWASP ZAP Baseline",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Trust Claims Gate",
+            "must not claim external certification",
+            "fake issuer status",
+            "real external artifact exists",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE VALUE BACKLOG",
+            "WAIT-1 - Welcome + Trust Center",
+            "SQX Edge Security Self-Assessment",
+            "Privacy & Data Handling Statement",
+            "Remote Service Safety Checklist",
+            "No crear empresa auditora ficticia",
+            "No emitir certificados como si fueran externos",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, backlog)
+
+        for pattern in (
+            'id="remote-welcome-gate"',
+            'id="remote-welcome-primary"',
+            'id="remote-welcome-trust-toggle"',
+            'id="remote-trust-center"',
+            "Controles verificables, sin certificados ficticios",
+            "SQX Edge Security Self-Assessment",
+            "Privacy & Data Handling Statement",
+            "Remote Service Safety Checklist",
+            "MDN HTTP Observatory",
+            "OWASP ZAP Baseline",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, html)
+
+        for pattern in (
+            ".remote-welcome-gate",
+            ".remote-welcome-shell",
+            ".remote-trust-center",
+            ".remote-welcome-status-grid",
+            "@media (max-width: 860px)",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, css)
+
+        for pattern in (
+            "REMOTE_WELCOME_DISMISSED_KEY",
+            "applyRemoteWelcomeModel",
+            "bindRemoteWelcomeGate",
+            "dismissRemoteWelcomeGate",
+            "remote-welcome-grant-key",
+            "remote_first_user",
+        ):
+            with self.subTest(pattern=pattern):
+                if pattern == "remote_first_user":
+                    self.assertIn("remote-welcome", home_js)
+                else:
+                    self.assertIn(pattern, home_js)
+
+        combined = "\n".join([governance, roadmap, backlog, html])
+        for forbidden in (
+            "auditor externo certificado",
+            "empresa ficticia",
+            "emitido por auditor externo",
+            "certificado externo emitido",
+            "risk-free guarantee",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined.lower())
 
     def test_remote_2b_tester_grants_and_repo_privacy_are_locked(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")

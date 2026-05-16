@@ -49,6 +49,89 @@ async function run() {
     await desktop.goto(dashboardUrl, { waitUntil: 'load' });
     await desktop.waitForSelector('.tab[data-tab="workflow"].active');
     await desktop.waitForSelector('#workflow-command-center');
+    await desktop.evaluate(() => {
+      const localModel = window.SQX.home.computeRemoteServiceModel({});
+      window.SQX.home.applyRemoteServiceModel(localModel, document);
+    });
+    const welcomeInitiallyHidden = await desktop.locator('#remote-welcome-gate').evaluate(node => node.hidden);
+    if (!welcomeInitiallyHidden) throw new Error('Remote welcome gate should stay hidden in local file mode');
+    const trustCenterCopy = await desktop.locator('#remote-trust-center').textContent();
+    ['SQX Edge Security Self-Assessment', 'Privacy & Data Handling Statement', 'Remote Service Safety Checklist'].forEach(expected => {
+      if (!trustCenterCopy.includes(expected)) throw new Error(`Trust Center should include ${expected}`);
+    });
+    await desktop.evaluate(() => {
+      sessionStorage.removeItem('sqx_remote_welcome_dismissed_v1');
+      const pendingModel = window.SQX.home.computeRemoteServiceModel({
+        access: {
+          mode: 'remote_tunnel_only',
+          authenticated: true,
+          access: { allowed: true, reason: 'access_allowed', feature_scope: 'full' },
+          entitlement: { kind: 'tester_free', status: 'active', feature_scope: 'full', grant_key_required: true },
+        },
+        session: { session: { active: false }, access: { allowed: false, reason: 'session_missing' } },
+        workspace: { ok: false, workspace: {} },
+        security: {
+          ok: true,
+          killSwitch: { active: false },
+          revocation: { currentSessionRevoked: false },
+          blocking: { currentIdentityBlocked: false },
+          watermark: { enabled: true, label: 'SQX REMOTE PRO', marker: 'demo' },
+        },
+        health: {
+          ok: true,
+          sqx_path_set: true,
+          data_db_exists: true,
+          templates_capa1_exists: true,
+          templates_capa2_exists: true,
+        },
+      });
+      window.SQX.home.applyRemoteServiceModel(pendingModel, document);
+      window.SQX.home.bindRemoteWelcomeGate(document);
+    });
+    await desktop.waitForSelector('#remote-welcome-gate:not([hidden])');
+    const pendingWelcomeText = await desktop.locator('#remote-welcome-gate').innerText();
+    ['Validar tester', 'Trust Center', 'workspace aislado', 'Sin instalacion local'].forEach(expected => {
+      if (!pendingWelcomeText.includes(expected)) throw new Error(`Remote welcome gate should explain ${expected}`);
+    });
+    const pendingWelcomeAction = await desktop.locator('#remote-welcome-primary').evaluate(node => node.dataset.remoteWelcomeAction);
+    if (pendingWelcomeAction !== 'login') throw new Error(`Remote welcome primary action should login, got ${pendingWelcomeAction}`);
+    const welcomeKeyVisible = await desktop.locator('#remote-welcome-key-wrap').isVisible();
+    if (!welcomeKeyVisible) throw new Error('Remote welcome should request tester key when entitlement requires it');
+    await desktop.locator('#remote-welcome-trust-toggle').click();
+    await desktop.waitForSelector('#remote-trust-center:not([hidden])');
+    await desktop.evaluate(() => {
+      const activeModel = window.SQX.home.computeRemoteServiceModel({
+        access: {
+          mode: 'remote_tunnel_only',
+          authenticated: true,
+          access: { allowed: true, reason: 'access_allowed', feature_scope: 'full' },
+          entitlement: { kind: 'tester_free', status: 'active', feature_scope: 'full' },
+        },
+        session: {
+          session: { active: true, entitlement_kind: 'tester_free' },
+          access: { allowed: true, reason: 'session_active', feature_scope: 'full' },
+        },
+        workspace: { ok: true, workspace: { id: 'ws_demo_remote_123456' } },
+        security: {
+          ok: true,
+          killSwitch: { active: false },
+          revocation: { currentSessionRevoked: false },
+          blocking: { currentIdentityBlocked: false },
+          watermark: { enabled: true, label: 'SQX REMOTE PRO', marker: 'demo' },
+        },
+        health: {
+          ok: true,
+          sqx_path_set: true,
+          data_db_exists: true,
+          templates_capa1_exists: true,
+          templates_capa2_exists: true,
+        },
+      });
+      window.SQX.home.applyRemoteServiceModel(activeModel, document);
+    });
+    await desktop.waitForFunction(() => document.getElementById('remote-welcome-primary')?.dataset.remoteWelcomeAction === 'enter');
+    await desktop.locator('#remote-welcome-enter').click();
+    await desktop.waitForFunction(() => document.getElementById('remote-welcome-gate')?.hidden === true);
     await desktop.waitForFunction(() => {
       const mark = document.querySelector('.brand-mark');
       return mark && mark.complete && mark.naturalWidth >= 64;
@@ -928,6 +1011,12 @@ async function run() {
     await mobile.goto(dashboardUrl, { waitUntil: 'load' });
     await mobile.waitForSelector('.tab[data-tab="workflow"].active');
     await mobile.waitForSelector('#workflow-command-center');
+    await mobile.evaluate(() => {
+      sessionStorage.setItem('sqx_remote_welcome_dismissed_v1', '1');
+      const localModel = window.SQX.home.computeRemoteServiceModel({});
+      window.SQX.home.applyRemoteServiceModel(localModel, document);
+    });
+    await mobile.waitForFunction(() => document.getElementById('remote-welcome-gate')?.hidden === true);
     await mobile.locator('.tab[data-tab="projectgen"]').click();
     await mobile.waitForSelector('.tab[data-tab="projectgen"].active');
     await mobile.waitForSelector('#tab-projectgen details.pg-step-panel:not([open])');

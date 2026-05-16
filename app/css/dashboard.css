@@ -2031,6 +2031,160 @@
   .home-panel-title { margin-bottom:16px; color:var(--accent2, var(--accent)); }
   .home-focus-row { display:flex; justify-content:space-between; gap:14px; padding:12px 0; border-bottom:1px solid var(--border); }
   .home-focus-row:last-child { border-bottom:none; }
+  .remote-welcome-gate {
+    position:fixed;
+    inset:0;
+    z-index:95;
+    display:grid;
+    place-items:center;
+    padding:24px;
+    background:rgba(2,6,23,.88);
+    backdrop-filter:blur(16px);
+  }
+  .remote-welcome-gate[hidden] { display:none; }
+  .remote-welcome-shell {
+    width:min(1120px, calc(100vw - 48px));
+    max-height:calc(100vh - 48px);
+    overflow:auto;
+    display:grid;
+    grid-template-columns:minmax(0, 1.25fr) minmax(320px, .75fr);
+    gap:18px;
+    padding:22px;
+    border:1px solid rgba(96,165,250,.26);
+    border-radius:14px;
+    background:linear-gradient(145deg, rgba(15,23,42,.96), rgba(7,12,24,.96));
+    box-shadow:0 30px 90px rgba(0,0,0,.42);
+  }
+  .remote-welcome-copy,
+  .remote-trust-center {
+    min-width:0;
+    padding:20px;
+    border:1px solid rgba(148,163,184,.14);
+    border-radius:12px;
+    background:rgba(15,23,42,.58);
+  }
+  .remote-welcome-eyebrow {
+    display:block;
+    margin-bottom:10px;
+    color:var(--accent2, var(--accent));
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.45px;
+    text-transform:uppercase;
+  }
+  .remote-welcome-copy h2,
+  .remote-trust-center h3 {
+    margin:0;
+    color:var(--text);
+    line-height:1.05;
+    letter-spacing:0;
+  }
+  .remote-welcome-copy h2 { font-size:clamp(32px, 5vw, 64px); }
+  .remote-trust-center h3 { font-size:22px; }
+  .remote-welcome-copy p,
+  .remote-trust-center p {
+    margin:14px 0 0;
+    color:var(--text2);
+    line-height:1.55;
+  }
+  .remote-welcome-status-grid {
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:10px;
+    margin-top:18px;
+  }
+  .remote-welcome-status {
+    min-width:0;
+    padding:12px;
+    border:1px solid rgba(148,163,184,.16);
+    border-radius:9px;
+    background:rgba(2,6,23,.42);
+  }
+  .remote-welcome-status span,
+  .remote-welcome-key span {
+    display:block;
+    margin-bottom:5px;
+    color:var(--text2);
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.35px;
+    text-transform:uppercase;
+  }
+  .remote-welcome-status strong { display:block; color:var(--text); font-size:14px; line-height:1.2; }
+  .remote-welcome-status small { display:block; margin-top:5px; color:var(--text2); font-size:11px; line-height:1.35; }
+  .remote-welcome-status.is-ok { border-color:rgba(34,197,94,.28); background:rgba(34,197,94,.06); }
+  .remote-welcome-status.is-warn,
+  .remote-welcome-status.is-pending { border-color:rgba(234,179,8,.26); background:rgba(234,179,8,.055); }
+  .remote-welcome-status.is-blocked { border-color:rgba(239,68,68,.28); background:rgba(239,68,68,.055); }
+  .remote-welcome-status.is-privacy { border-color:rgba(20,184,166,.24); background:rgba(20,184,166,.06); }
+  .remote-welcome-key {
+    display:grid;
+    gap:5px;
+    margin-top:14px;
+  }
+  .remote-welcome-key[hidden] { display:none; }
+  .remote-welcome-key input {
+    width:100%;
+    min-height:40px;
+    padding:9px 11px;
+    border:1px solid rgba(148,163,184,.24);
+    border-radius:8px;
+    background:rgba(2,6,23,.78);
+    color:var(--text);
+    outline:none;
+  }
+  .remote-welcome-key input:focus { border-color:rgba(96,165,250,.68); box-shadow:0 0 0 3px rgba(96,165,250,.12); }
+  .remote-welcome-actions {
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:18px;
+  }
+  .remote-welcome-actions .home-command {
+    min-width:160px;
+    min-height:42px;
+    padding:9px 13px;
+    align-items:center;
+    justify-content:center;
+  }
+  .remote-welcome-actions .home-command.subtle { opacity:.82; }
+  .remote-trust-list {
+    display:grid;
+    gap:10px;
+    margin-top:16px;
+  }
+  .remote-trust-list div {
+    padding:12px;
+    border:1px solid rgba(96,165,250,.16);
+    border-radius:9px;
+    background:rgba(37,99,235,.07);
+  }
+  .remote-trust-list strong {
+    display:block;
+    color:var(--text);
+    font-size:13px;
+    line-height:1.25;
+  }
+  .remote-trust-list small {
+    display:block;
+    margin-top:5px;
+    color:var(--text2);
+    font-size:11px;
+    line-height:1.4;
+  }
+  @media (max-width: 860px) {
+    .remote-welcome-gate { padding:12px; }
+    .remote-welcome-shell {
+      width:calc(100vw - 24px);
+      max-height:calc(100vh - 24px);
+      grid-template-columns:1fr;
+      padding:12px;
+    }
+    .remote-welcome-copy,
+    .remote-trust-center { padding:14px; }
+    .remote-welcome-status-grid { grid-template-columns:1fr; }
+    .remote-welcome-actions .home-command { width:100%; }
+  }
   .remote-pro-panel {
     border-color:rgba(96,165,250,.22);
     background:linear-gradient(180deg, rgba(15,23,42,.88), rgba(10,16,28,.78));
