@@ -38,6 +38,15 @@ Artifacts:
 
 Publish the laptop through a custom domain with Cloudflare Tunnel. Do not open router ports. Keep Cloudflare Access in front of the service and prove that unauthenticated requests cannot reach dashboard or API.
 
+Artifacts:
+
+- `docs/REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS.md`
+- `docs/examples/remote_tunnel.local.example.json`
+- `tools/remote_tunnel_preflight.ps1`
+- `tools/remote_tunnel_run.ps1`
+- `tools/remote_tunnel_smoke.ps1`
+- `tools/remote_tunnel_install_startup_task.ps1`
+
 ### REMOTE-3 - Paid Auth And Webhook
 
 Implement first-party user sessions and checkout webhook activation. Access requires email validation, active paid entitlement, non-blocked status and valid session. Webhooks must be signed, audited and idempotent.

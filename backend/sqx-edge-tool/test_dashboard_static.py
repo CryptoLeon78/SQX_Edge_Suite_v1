@@ -15,10 +15,16 @@ PROJECT_GOVERNANCE_DOC = PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md"
 REMOTE_SERVICE_ROADMAP_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_ROADMAP.md"
 REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md"
 REMOTE_1_LAPTOP_SERVER_BASELINE_DOC = PROJECT_ROOT / "docs" / "REMOTE_1_LAPTOP_SERVER_BASELINE.md"
+REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC = PROJECT_ROOT / "docs" / "REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS.md"
+REMOTE_TUNNEL_EXAMPLE_EVIDENCE = PROJECT_ROOT / "docs" / "examples" / "remote_tunnel.local.example.json"
 REMOTE_SERVICE_PREFLIGHT_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_preflight.ps1"
 REMOTE_SERVICE_START_SERVER_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_start_server.ps1"
 REMOTE_SERVICE_WATCHDOG_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_watchdog.ps1"
 REMOTE_SERVICE_INSTALL_STARTUP_TASK_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_install_startup_task.ps1"
+REMOTE_TUNNEL_PREFLIGHT_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_preflight.ps1"
+REMOTE_TUNNEL_RUN_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_run.ps1"
+REMOTE_TUNNEL_SMOKE_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_smoke.ps1"
+REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_install_startup_task.ps1"
 CLEAN_WORKSPACE_SCRIPT = PROJECT_ROOT / "tools" / "clean_workspace.ps1"
 J1_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J1_CHAMPION_CHALLENGER_CONTRACT.md"
 J2_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J2_CHAMPION_CHALLENGER_CORE.md"
@@ -463,7 +469,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-1 fija la base de portatil servidor",
             "tools\\remote_service_preflight.ps1",
             "tools\\remote_service_watchdog.ps1 -Once -NoStart",
-            "Siguiente paso recomendado: REMOTE-2",
+            "REMOTE-2 fija el tunel protegido",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -520,6 +526,152 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, combined_scripts)
+
+    def test_remote_2_cloudflare_tunnel_access_is_documented_and_secret_safe(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_2 = REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC.read_text(encoding="utf-8-sig")
+        example = json.loads(REMOTE_TUNNEL_EXAMPLE_EVIDENCE.read_text(encoding="utf-8-sig"))
+        preflight = REMOTE_TUNNEL_PREFLIGHT_SCRIPT.read_text(encoding="utf-8-sig")
+        runner = REMOTE_TUNNEL_RUN_SCRIPT.read_text(encoding="utf-8-sig")
+        smoke = REMOTE_TUNNEL_SMOKE_SCRIPT.read_text(encoding="utf-8-sig")
+        startup_task = REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT.read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC,
+            REMOTE_TUNNEL_EXAMPLE_EVIDENCE,
+            REMOTE_TUNNEL_PREFLIGHT_SCRIPT,
+            REMOTE_TUNNEL_RUN_SCRIPT,
+            REMOTE_TUNNEL_SMOKE_SCRIPT,
+            REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT,
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-2 - Cloudflare Tunnel And Access",
+            "No router ports are opened",
+            "GO_REMOTE2_TUNNEL_ACCESS_READY_NO_GIT_LEAK",
+            "NO_GO_REMOTE2_PRIVATE_TUNNEL_ACCESS_EVIDENCE_MISSING",
+            ".local/remote_service/cloudflare_tunnel.local.json",
+            "Cloudflare Access must intercept anonymous users before any SQX Edge body is visible",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_2)
+
+        for pattern in (
+            "Cloudflare Tunnel Access Gate",
+            "backend bound to localhost",
+            "no public URL in Git",
+            "REMOTE-2 - Cloudflare Tunnel and Access gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "tools/remote_tunnel_preflight.ps1",
+            "tools/remote_tunnel_run.ps1",
+            "tools/remote_tunnel_smoke.ps1",
+            "tools/remote_tunnel_install_startup_task.ps1",
+            "docs/examples/remote_tunnel.local.example.json",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE-2 fija el tunel protegido",
+            "tools\\remote_tunnel_preflight.ps1 -RequireEvidence",
+            "tools\\remote_tunnel_smoke.ps1 -ProtectedUrl",
+            "Siguiente paso recomendado: REMOTE-3",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        self.assertEqual(example["phase"], "REMOTE-2")
+        self.assertEqual(example["targetUrl"], "http://127.0.0.1:5050")
+        for key in (
+            "hostnameConfiguredPrivately",
+            "customDomainOwnedPrivately",
+            "cloudflaredAuthenticatedPrivately",
+            "tunnelCreatedPrivately",
+            "tunnelRouteConfiguredPrivately",
+            "cloudflareAccessApplicationCreatedPrivately",
+            "cloudflareAccessPolicyCreatedPrivately",
+            "accessBlocksAnonymous",
+            "accessAllowsApprovedIdentity",
+            "publicRepoContainsHostname",
+            "publicRepoContainsCredentials",
+            "publicRepoContainsProviderIds",
+            "publicRepoContainsAccessPolicyIds",
+        ):
+            with self.subTest(key=key):
+                self.assertIn(key, example)
+                self.assertIs(example[key], False)
+
+        for pattern in (
+            "GO_REMOTE2_TUNNEL_ACCESS_READY_NO_GIT_LEAK",
+            "NO_GO_REMOTE2_PRIVATE_TUNNEL_ACCESS_EVIDENCE_MISSING",
+            "RequireEvidence",
+            "remote_service_preflight.ps1",
+            "targetUrlLocalOnly",
+            "cloudflaredInstalled",
+            "accessBlocksAnonymous",
+            "accessAllowsApprovedIdentity",
+            "publicRepoContainsHostname",
+            "Test-SensitiveEvidenceText",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, preflight)
+
+        for pattern in (
+            "cloudflared",
+            "remote_tunnel_preflight.ps1",
+            "REMOTE-2 preflight did not return GO. Tunnel run blocked.",
+            "tunnel",
+            "--config",
+            "run",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, runner)
+
+        for pattern in (
+            "ProtectedUrl",
+            "REMOTE-2 smoke requires an https protected URL",
+            "cloudflare_access_anonymous_smoke",
+            "Cloudflare Access",
+            "appBodyVisibleToAnonymous",
+            "<protected-hostname>",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, smoke)
+
+        for pattern in (
+            "Register-ScheduledTask",
+            "remote_tunnel_run.ps1",
+            "SQX Edge Cloudflare Tunnel",
+            "New-ScheduledTaskTrigger -AtLogOn",
+            "New-ScheduledTaskTrigger -AtStartup",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, startup_task)
+
+        combined_public = "\n".join([remote_2, json.dumps(example), preflight, runner, smoke, startup_task, roadmap, architecture])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "https://sqx" + "-edge",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+            "-----BEGIN PRIVATE KEY-----",
+            "sk_live_",
+            "pk_live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
 
     def test_project_governance_defines_agent_ownership_and_m46_entry(self):
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
@@ -11015,7 +11167,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro",
             "Distribucion principal: enlace remoto protegido",
             "Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",
-            "Siguiente paso recomendado: REMOTE-2",
+            "Siguiente paso recomendado: REMOTE-3",
             "powershell -ExecutionPolicy Bypass -File tools\\clean_workspace.ps1 -Aggressive",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):

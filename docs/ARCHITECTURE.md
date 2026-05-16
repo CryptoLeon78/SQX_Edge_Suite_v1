@@ -110,6 +110,14 @@ REMOTE-1 laptop server baseline:
 - `tools/remote_service_install_startup_task.ps1` registers the watchdog in Windows Task Scheduler when the operator explicitly runs it.
 - REMOTE-2 is the first phase allowed to add Cloudflare Tunnel/domain exposure; REMOTE-1 remains local-only.
 
+REMOTE-2 Cloudflare Tunnel and Access:
+
+- `tools/remote_tunnel_preflight.ps1` checks Cloudflare Tunnel readiness, private evidence, REMOTE-1 readiness and that the target remains `http://127.0.0.1:5050`.
+- `tools/remote_tunnel_run.ps1` runs `cloudflared` from ignored local config only after preflight GO.
+- `tools/remote_tunnel_smoke.ps1` verifies anonymous traffic is blocked by Cloudflare Access before any SQX Edge body is visible.
+- `tools/remote_tunnel_install_startup_task.ps1` can register the tunnel runner in Windows Task Scheduler.
+- `docs/examples/remote_tunnel.local.example.json` defines the redacted boolean evidence shape copied into ignored `.local/remote_service/cloudflare_tunnel.local.json`.
+
 ## Frontend Load Order
 
 The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboard_static.py`.
