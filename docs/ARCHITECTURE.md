@@ -137,6 +137,15 @@ REMOTE-2 Cloudflare Tunnel and Access:
 - `tools/remote_tunnel_install_startup_task.ps1` can register the tunnel runner in Windows Task Scheduler.
 - `docs/examples/remote_tunnel.local.example.json` defines the redacted boolean evidence shape copied into ignored `.local/remote_service/cloudflare_tunnel.local.json`.
 
+REMOTE-OPS1 laptop production readiness drill:
+
+- `backend/sqx-edge-tool/core/remote_ops1_laptop_readiness.py` owns `remote-ops1-laptop-readiness-v1`.
+- `backend/sqx-edge-tool/tools/remote_ops1_laptop_readiness.py` reads ignored private readiness evidence from `.local/remote_service/remote_ops1_laptop_readiness.local.json`.
+- The redacted output is `.local/remote_service/remote_ops1_laptop_readiness/remote_ops1_laptop_readiness.public.json`.
+- Required proofs cover Windows power/reboot readiness, REMOTE-1 strict preflight, watchdog, localhost-only backend, SQX paths, `data.db`, templates, output, Cloudflare Tunnel/Access, app session, workspace, artifact generation/export, revocation, restore and no Git/private-evidence leakage.
+- REMOTE-OPS1 returns `GO_REMOTE_OPS1_LAPTOP_READY` only when every zero-risk metric is zero; it never creates users, grants, checkout links, emails, public URL sharing or automation jobs.
+- A GO routes back to REMOTE-8H private package evidence; a NO-GO routes to readiness blocker fixes.
+
 REMOTE-3C paid webhook and protected write pilot:
 
 - `backend/sqx-edge-tool/core/remote_payments.py` owns signed payment event normalization, idempotent paid entitlement upserts and redacted audit records.

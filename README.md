@@ -5,12 +5,15 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 ## Estado Actual
 
 - Estado interno: UX-NAV pasa a optimizacion tab por tab; el tab activo es Workflow y el reordenamiento global queda aplazado hasta completar las optimizaciones individuales.
-- Estado comercial: REMOTE-8H cycle bridge conecta la decision REMOTE-8L con el paquete de siguiente movimiento sin ejecutar expansion.
-- Estado de despliegue: REMOTE-SUG1 revisa la sugerencia Docker/Ubuntu del tester y mantiene el piloto activo en Windows laptop + API localhost + Cloudflare Tunnel.
+- Estado comercial: REMOTE-OPS1 valida el portatil como host Pro antes de cualquier siguiente movimiento real con testers o compradores.
+- Estado de despliegue: Windows laptop + API localhost + Cloudflare Tunnel sigue siendo la ruta activa; REMOTE-OPS1 consolida preflight, watchdog, tunel, Access, workspace, generacion, revocacion y restore.
+- Ancla historica: Estado comercial: REMOTE-8H cycle bridge conecta la decision REMOTE-8L con el paquete de siguiente movimiento sin ejecutar expansion.
+- Ancla historica: Estado de despliegue: REMOTE-SUG1 revisa la sugerencia Docker/Ubuntu del tester y mantiene el piloto activo en Windows laptop + API localhost + Cloudflare Tunnel.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Distribucion principal: enlace remoto protegido; el usuario final no descarga ZIP, no ejecuta launchers y no instala Python.
 - Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip` con SHA256 `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`.
-- Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H desde una decision REMOTE-8L `prepare_next_controlled_movement` y pedir aprobacion REMOTE-8I antes de ejecutar nada.
+- Siguiente paso recomendado: rellenar evidencia privada REMOTE-OPS1 en `.local/remote_service/remote_ops1_laptop_readiness.local.json`; si devuelve GO, volver a REMOTE-8H private package evidence.
+- Ancla historica: Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H desde una decision REMOTE-8L `prepare_next_controlled_movement` y pedir aprobacion REMOTE-8I antes de ejecutar nada.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## Limpieza Local
@@ -108,6 +111,7 @@ Acceso remoto Pro previsto:
 - REMOTE-8J fija `remote-next-controlled-movement-manual-execution-v1`, herramienta `backend/sqx-edge-tool/tools/remote_next_controlled_movement_manual_execution.py`, ejemplo `docs/examples/remote8j_next_controlled_movement_manual_execution.local.example.json`, evidencia ignorada `.local/remote_service/remote8j_next_controlled_movement_manual_execution*` y `Next Controlled Movement Manual Execution Gate` en `docs/REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION.md`.
 - REMOTE-8K fija `remote-next-controlled-movement-monitoring-v1`, herramienta `backend/sqx-edge-tool/tools/remote_next_controlled_movement_monitoring.py`, ejemplo `docs/examples/remote8k_next_controlled_movement_monitoring.local.example.json`, evidencia ignorada `.local/remote_service/remote8k_next_controlled_movement_monitoring*` y `Next Controlled Movement Monitoring Gate` en `docs/REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING.md`.
 - REMOTE-8L fija `remote-post-monitoring-decision-review-v1`, herramienta `backend/sqx-edge-tool/tools/remote_post_monitoring_decision_review.py`, ejemplo `docs/examples/remote8l_post_monitoring_decision_review.local.example.json`, evidencia ignorada `.local/remote_service/remote8l_post_monitoring_decision_review*` y `Post Monitoring Decision Review Gate` en `docs/REMOTE_8L_POST_MONITORING_DECISION_REVIEW.md`.
+- REMOTE-OPS1 fija `remote-ops1-laptop-readiness-v1`, herramienta `backend/sqx-edge-tool/tools/remote_ops1_laptop_readiness.py`, ejemplo `docs/examples/remote_ops1_laptop_readiness.local.example.json`, evidencia ignorada `.local/remote_service/remote_ops1_laptop_readiness*` y `Laptop Production Readiness Drill Gate` en `docs/REMOTE_OPS1_LAPTOP_READINESS_DRILL.md`.
 - REMOTE-SUG1 incorpora las mejores ideas de hardening de la propuesta tester en `docs/REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md`: zero ingress, Cloudflare Access/Tunnel, persistencia, backup y resiliencia. Docker/Linux queda como ruta futura REMOTE-9, no como requisito actual para testers ni compradores.
 - La comunicacion de seguridad y privacidad vive en `docs/REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md`.
 - El piloto corre en portatil 24/7 mediante dominio propio, Cloudflare Tunnel y Cloudflare Access.
@@ -131,6 +135,15 @@ Operativa privada REMOTE-2:
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_preflight.ps1 -RequireEvidence
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_smoke.ps1 -ProtectedUrl "<private protected url>"
 ```
+
+Operativa privada REMOTE-OPS1:
+
+```powershell
+Copy-Item docs\examples\remote_ops1_laptop_readiness.local.example.json .local\remote_service\remote_ops1_laptop_readiness.local.json
+python backend\sqx-edge-tool\tools\remote_ops1_laptop_readiness.py --evidence .local\remote_service\remote_ops1_laptop_readiness.local.json
+```
+
+REMOTE-OPS1 no ejecuta expansion, no invita usuarios, no cambia grants, no envia emails y no publica enlaces. Solo valida que el portatil esta preparado para volver a REMOTE-8H con evidencia privada.
 
 Nota de despliegue REMOTE-SUG1: no se debe anadir `Dockerfile`, `docker-compose.yml` ni `.dockerignore` en la raiz del proyecto durante el piloto Windows. La ruta activa sigue siendo portatil Windows con SQX local, backend en `127.0.0.1`, Cloudflare Tunnel y Cloudflare Access. Docker/Linux queda aparcado como hardening futuro cuando la compatibilidad con SQX, workspaces y backups este probada.
 

@@ -45,6 +45,7 @@ REMOTE_8L_POST_MONITORING_DECISION_REVIEW_DOC = (
     PROJECT_ROOT / "docs" / "REMOTE_8L_POST_MONITORING_DECISION_REVIEW.md"
 )
 REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md"
+REMOTE_OPS1_LAPTOP_READINESS_DOC = PROJECT_ROOT / "docs" / "REMOTE_OPS1_LAPTOP_READINESS_DRILL.md"
 REMOTE_8B_LIVE_PILOT_EVIDENCE_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8b_live_pilot_evidence.local.example.json"
 REMOTE_8C_FIRST_USER_OBSERVATION_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8c_first_user_observation.local.example.json"
 REMOTE_8D_TINY_COHORT_ACTIVATION_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8d_tiny_cohort_activation.local.example.json"
@@ -63,6 +64,9 @@ REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_EXAMPLE = (
 )
 REMOTE_8L_POST_MONITORING_DECISION_REVIEW_EXAMPLE = (
     PROJECT_ROOT / "docs" / "examples" / "remote8l_post_monitoring_decision_review.local.example.json"
+)
+REMOTE_OPS1_LAPTOP_READINESS_EXAMPLE = (
+    PROJECT_ROOT / "docs" / "examples" / "remote_ops1_laptop_readiness.local.example.json"
 )
 REMOTE_TUNNEL_EXAMPLE_EVIDENCE = PROJECT_ROOT / "docs" / "examples" / "remote_tunnel.local.example.json"
 REMOTE_ENTITLEMENTS_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote_entitlements.local.example.json"
@@ -3201,6 +3205,135 @@ class DashboardStaticTestCase(unittest.TestCase):
         for root_artifact in ("Dockerfile", "docker-compose.yml", "docker-compose.yaml", ".dockerignore"):
             with self.subTest(root_artifact=root_artifact):
                 self.assertFalse((PROJECT_ROOT / root_artifact).exists(), root_artifact)
+
+    def test_remote_ops1_laptop_readiness_drill_is_gated_and_redacted(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        remote_ops1 = REMOTE_OPS1_LAPTOP_READINESS_DOC.read_text(encoding="utf-8-sig")
+        example = REMOTE_OPS1_LAPTOP_READINESS_EXAMPLE.read_text(encoding="utf-8-sig")
+        core = (TOOL_ROOT / "core" / "remote_ops1_laptop_readiness.py").read_text(encoding="utf-8-sig")
+        tool = (TOOL_ROOT / "tools" / "remote_ops1_laptop_readiness.py").read_text(encoding="utf-8-sig")
+        tests = (TOOL_ROOT / "test_remote_ops1_laptop_readiness.py").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        for artifact in (
+            REMOTE_OPS1_LAPTOP_READINESS_DOC,
+            REMOTE_OPS1_LAPTOP_READINESS_EXAMPLE,
+            TOOL_ROOT / "core" / "remote_ops1_laptop_readiness.py",
+            TOOL_ROOT / "tools" / "remote_ops1_laptop_readiness.py",
+            TOOL_ROOT / "test_remote_ops1_laptop_readiness.py",
+        ):
+            with self.subTest(artifact=str(artifact)):
+                self.assertTrue(artifact.is_file())
+
+        for pattern in (
+            "REMOTE-OPS1 - Laptop Production Readiness Drill",
+            "remote-ops1-laptop-readiness-v1",
+            ".local/remote_service/remote_ops1_laptop_readiness",
+            "GO_REMOTE_OPS1_LAPTOP_READY",
+            "NO_GO_REMOTE_OPS1_LAPTOP_READINESS_BLOCKED",
+            "REMOTE-8H private package evidence",
+            "`readiness.executionAllowedNow = false`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_ops1)
+
+        for pattern in (
+            "Current phase completed: REMOTE-OPS1",
+            "Current implementation phase: REMOTE-OPS1 private laptop readiness evidence",
+            "Historical remote anchor: Current phase completed: REMOTE-8H cycle bridge",
+            "Laptop Production Readiness Drill Gate",
+            "remote-ops1-laptop-readiness-v1",
+            ".local/remote_service/remote_ops1_laptop_readiness",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-OPS1 - Laptop Production Readiness Drill",
+            "Laptop Production Readiness Drill Gate",
+            "GO_REMOTE_OPS1_LAPTOP_READY",
+            "NO_GO_REMOTE_OPS1_LAPTOP_READINESS_BLOCKED",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-OPS1 laptop production readiness drill",
+            "remote_ops1_laptop_readiness.py",
+            "remote_ops1_laptop_readiness.public.json",
+            "GO_REMOTE_OPS1_LAPTOP_READY",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "Estado comercial: REMOTE-OPS1",
+            "Siguiente paso recomendado: rellenar evidencia privada REMOTE-OPS1",
+            "REMOTE-OPS1 fija `remote-ops1-laptop-readiness-v1`",
+            "Operativa privada REMOTE-OPS1",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE_OPS1_LAPTOP_READINESS_VERSION",
+            "REQUIRED_CHECKS",
+            "ZERO_RISK_METRICS",
+            "build_remote_ops1_laptop_readiness_summary",
+            "ingest_remote_ops1_laptop_readiness",
+            "NO_GO_REMOTE_OPS1_LAPTOP_READINESS_EVIDENCE_MISSING",
+            "NO_GO_REMOTE_OPS1_PUBLIC_SUMMARY_PRIVACY_LEAK",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, core)
+
+        for pattern in (
+            "Validate a redacted REMOTE-OPS1 laptop readiness drill.",
+            "ingest_remote_ops1_laptop_readiness",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, tool)
+
+        for pattern in (
+            "test_remote_ops1_clean_readiness_is_redacted_and_non_executing",
+            "test_remote_ops1_missing_evidence_returns_no_go",
+            "test_remote_ops1_blockers_prevent_laptop_ready",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, tests)
+
+        manifest = product_manifest["remoteOps1LaptopReadiness"]
+        self.assertEqual(manifest["phase"], "REMOTE-OPS1")
+        self.assertEqual(manifest["version"], "remote-ops1-laptop-readiness-v1")
+        self.assertEqual(manifest["nextPhaseOnGo"], "REMOTE-8H-private-package-evidence")
+        self.assertFalse(manifest["readiness"]["executionAllowedNow"])
+        self.assertFalse(manifest["readiness"]["userExpansionAllowedNow"])
+        self.assertTrue(manifest["readiness"]["requiresRemote8hEvidenceBeforeMovement"])
+        self.assertFalse(manifest["privacy"]["rawEmailsReturned"])
+        self.assertFalse(manifest["privacy"]["protectedUrlReturned"])
+        self.assertFalse(manifest["privacy"]["cloudflareIdentifiersReturned"])
+        self.assertFalse(manifest["privacy"]["localPathsReturned"])
+        self.assertFalse(manifest["privacy"]["privateEvidenceCommitted"])
+        self.assertIn("noUsersInvited", manifest["requiredChecks"])
+        self.assertIn("publicUrlsShared", manifest["zeroRiskMetrics"])
+
+        combined_public = "\n".join([
+            remote_ops1, example, roadmap, governance, architecture, readme, core, tool, tests,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
 
     def test_remote_1_laptop_server_baseline_is_documented_and_local_only(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")

@@ -49,6 +49,25 @@ Artifacts:
 - `tools/remote_tunnel_smoke.ps1`
 - `tools/remote_tunnel_install_startup_task.ps1`
 
+### REMOTE-OPS1 - Laptop Production Readiness Drill
+
+Before inviting more testers or turning REMOTE-8H into any real movement, validate the laptop as a production-like host without executing expansion. This drill consolidates REMOTE-1 and REMOTE-2 evidence plus app-session, workspace, artifact, revocation and restore smoke into a redacted summary.
+
+Artifacts:
+
+- `docs/REMOTE_OPS1_LAPTOP_READINESS_DRILL.md`
+- `docs/examples/remote_ops1_laptop_readiness.local.example.json`
+- `backend/sqx-edge-tool/core/remote_ops1_laptop_readiness.py`
+- `backend/sqx-edge-tool/tools/remote_ops1_laptop_readiness.py`
+- ignored evidence root `.local/remote_service/remote_ops1_laptop_readiness*`
+- `Laptop Production Readiness Drill Gate`
+
+Next route:
+
+- `GO_REMOTE_OPS1_LAPTOP_READY` routes back to REMOTE-8H private package evidence.
+- `NO_GO_REMOTE_OPS1_LAPTOP_READINESS_BLOCKED` routes to blocker fixes before any tester expansion.
+- REMOTE-OPS1 never creates users, grants, checkout links, emails, public URL sharing or automation jobs.
+
 ### REMOTE-2B - Tester Grants And Repository Privacy
 
 Lock the pre-auth product decisions that REMOTE-3 must respect: approved testers get full `tester_free` access without payment but with the same authentication/audit path as paid users, and the working repositories should become private before active sales.
@@ -465,6 +484,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Post Monitoring Decision Review Gate`: decision evidence must pass `remote-post-monitoring-decision-review-v1`, review REMOTE-8K clean/blocked monitoring, keep rationale and identities local, keep execution metrics at zero and only route to REMOTE-8H when REMOTE-8K is clean, requested decision review and has zero blockers.
 - `Deployment Hardening Review Gate`: hosting suggestions must be reviewed against active REMOTE gates before implementation.
 - `Containerization Deferral Gate`: Docker/Linux must remain future hardening until SQX compatibility, workspace isolation and backup/restore are proven.
+- `Laptop Production Readiness Drill Gate`: REMOTE-OPS1 must prove laptop, backend, SQX resources, Cloudflare Tunnel/Access, app session, workspace, artifact generation, revocation and restore readiness from ignored local evidence before any next controlled movement can proceed.
 - `Repository Privacy Gate`: before active sales, `origin` and `institutional` should be private or the operator must explicitly accept public-source commercial exposure.
 - `Workspace Isolation Gate`: no endpoint accepts arbitrary workspace paths or user ids from browser payloads.
 - `Tunnel Exposure Gate`: local backend must not be reachable directly from the public internet.

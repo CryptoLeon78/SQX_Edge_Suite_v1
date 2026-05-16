@@ -1650,5 +1650,82 @@
       "includeInternalTools": true,
       "defaultPlan": "internal"
     }
+  },
+  "remoteOps1LaptopReadiness": {
+    "phase": "REMOTE-OPS1",
+    "version": "remote-ops1-laptop-readiness-v1",
+    "tool": "backend/sqx-edge-tool/tools/remote_ops1_laptop_readiness.py",
+    "doc": "docs/REMOTE_OPS1_LAPTOP_READINESS_DRILL.md",
+    "example": "docs/examples/remote_ops1_laptop_readiness.local.example.json",
+    "evidenceRoot": ".local/remote_service/remote_ops1_laptop_readiness",
+    "summaryOutput": ".local/remote_service/remote_ops1_laptop_readiness/remote_ops1_laptop_readiness.public.json",
+    "requires": [
+      "REMOTE-1 strict preflight",
+      "REMOTE-2 tunnel/access evidence",
+      "remote session smoke",
+      "workspace smoke",
+      "artifact generation/export smoke",
+      "revocation smoke"
+    ],
+    "requiredChecks": [
+      "powerPlanReviewed",
+      "sleepDisabled",
+      "rebootRecoveryPlanReady",
+      "remoteServicePreflightStrictGo",
+      "watchdogSmokeGo",
+      "backendLocalHealthGo",
+      "backendBoundToLocalhostOnly",
+      "sqxPathsReady",
+      "sqxDataDbReady",
+      "templatesReady",
+      "outputWritable",
+      "workspaceRootReady",
+      "cloudflaredInstalled",
+      "tunnelPreflightGo",
+      "tunnelStartupPlanReady",
+      "accessAnonymousBlocked",
+      "appSessionSmokeReady",
+      "workspaceSmokeReady",
+      "artifactGenerationSmokeReady",
+      "revocationSmokeReady",
+      "restorePlanReady",
+      "logsWrittenToIgnoredLocalPath",
+      "privateEvidenceStoredOutsideGit",
+      "noSecretsInGitConfirmed",
+      "noRouterPortsOpened",
+      "noUsersInvited"
+    ],
+    "zeroRiskMetrics": [
+      "newUsersInvited",
+      "paidUsersActivated",
+      "testerGrantsChanged",
+      "checkoutLinksCreated",
+      "emailsSent",
+      "publicUrlsShared",
+      "routerPortsOpened",
+      "automationJobsStarted",
+      "unresolvedSupportIssues",
+      "workspaceLeakIncidents",
+      "securityIncidents",
+      "tunnelDropsDuringSmoke",
+      "backendHealthFailures",
+      "artifactGenerationFailures",
+      "revocationFailures"
+    ],
+    "readiness": {
+      "executionAllowedNow": false,
+      "userExpansionAllowedNow": false,
+      "requiresRemote8hEvidenceBeforeMovement": true
+    },
+    "privacy": {
+      "rawEmailsReturned": false,
+      "protectedUrlReturned": false,
+      "cloudflareIdentifiersReturned": false,
+      "localPathsReturned": false,
+      "secretsReturned": false,
+      "privateEvidenceCommitted": false
+    },
+    "nextPhaseOnGo": "REMOTE-8H-private-package-evidence",
+    "nextPhaseOnNoGo": "REMOTE-OPS1-fix-readiness-blockers"
   }
 }
