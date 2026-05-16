@@ -428,6 +428,72 @@
     },
     "nextPhase": "REMOTE-8H-next-controlled-movement-package"
   },
+  "remoteNextControlledMovementPackage": {
+    "phase": "REMOTE-8H",
+    "version": "remote-next-controlled-movement-package-v1",
+    "tool": "backend/sqx-edge-tool/tools/remote_next_controlled_movement_package.py",
+    "doc": "docs/REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE.md",
+    "example": "docs/examples/remote8h_next_controlled_movement_package.local.example.json",
+    "evidenceRoot": ".local/remote_service/remote8h_next_controlled_movement_package",
+    "summaryOutput": ".local/remote_service/remote8h_next_controlled_movement_package/remote8h_next_controlled_movement_package.public.json",
+    "sourceStatusRequired": "GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY",
+    "sourceDecisionRequired": "prepare_next_controlled_movement",
+    "validRequestedActions": [
+      "prepare_next_controlled_movement_package"
+    ],
+    "validMovementTypes": [
+      "add_1_2_users",
+      "extend_same_cohort_observation",
+      "prepare_paid_micro_offer",
+      "schedule_demo_batch"
+    ],
+    "maxNewUsers": 2,
+    "validEntitlementKinds": [
+      "paid_subscription",
+      "tester_free",
+      "internal_operator"
+    ],
+    "requiredChecks": [
+      "remote8gDecisionReviewed",
+      "oneMovementOnly",
+      "scopeLimited",
+      "recipientListPrivate",
+      "entitlementBoundaryDefined",
+      "supportOwnerAssigned",
+      "supportWindowReady",
+      "rollbackPlanReady",
+      "pauseRuleReady",
+      "noAutomationConfirmed",
+      "executionRequiresSeparateApproval",
+      "privateEvidenceStoredOutsideGit"
+    ],
+    "zeroExecutionMetrics": [
+      "newUsersInvited",
+      "grantsCreated",
+      "checkoutLinksCreated",
+      "emailsSent",
+      "publicUrlsShared",
+      "automationJobsStarted",
+      "trafficExpanded",
+      "paidCampaignStarted"
+    ],
+    "privacy": {
+      "rawEmailsReturned": false,
+      "protectedUrlReturned": false,
+      "localPathsReturned": false,
+      "secretsReturned": false,
+      "sessionTokenReturned": false,
+      "grantKeysReturned": false,
+      "communicationCopyReturned": false,
+      "privateEvidenceCommitted": false
+    },
+    "movementPackage": {
+      "automationAllowed": false,
+      "executionAllowedNow": false,
+      "requiresSeparateExecutionApproval": true
+    },
+    "nextPhase": "REMOTE-8I-next-controlled-movement-execution-approval"
+  },
   "licensing": {
     "storageKey": "sqx_license_state_v1",
     "licenseFile": "config/license.json",

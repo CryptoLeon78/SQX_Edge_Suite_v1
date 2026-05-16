@@ -337,7 +337,28 @@ Next REMOTE-8H scope:
 
 ### REMOTE-8H - Next Controlled Movement Package
 
-Future controlled phase. It prepares the exact next movement package after REMOTE-8G but must still not execute traffic, checkout, grants, emails, onboarding or public URL sharing automatically.
+Prepares the exact next movement package after REMOTE-8G but still does not execute traffic, checkout, grants, emails, onboarding or public URL sharing automatically.
+
+Artifacts added in REMOTE-8H:
+
+- `docs/REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE.md`
+- `backend/sqx-edge-tool/core/remote_next_controlled_movement_package.py`
+- `backend/sqx-edge-tool/tools/remote_next_controlled_movement_package.py`
+- `backend/sqx-edge-tool/test_remote_next_controlled_movement_package.py`
+- `docs/examples/remote8h_next_controlled_movement_package.local.example.json`
+- `remote-next-controlled-movement-package-v1`
+- ignored evidence root `.local/remote_service/remote8h_next_controlled_movement_package*`
+- `Next Controlled Movement Package Gate`
+
+Next REMOTE-8I scope:
+
+- approve or reject execution of the prepared package;
+- keep execution separate from package preparation;
+- if approved, produce a later execution record rather than mutating access automatically.
+
+### REMOTE-8I - Next Controlled Movement Execution Approval
+
+Future controlled phase. It approves or rejects execution of the REMOTE-8H package and still must not execute automatically without a separate execution record.
 
 ### REMOTE-9 - Containerization / Dedicated Linux Host
 
@@ -360,6 +381,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Tiny Cohort Manual Execution Record Gate`: manual execution records must pass `remote-tiny-cohort-execution-v1`, require REMOTE-8D GO, keep identities/URLs/messages local, match manual counts to 3-5 activated users and keep automation metrics at zero before monitoring.
 - `Tiny Cohort Monitoring Gate`: monitoring evidence must pass `remote-tiny-cohort-monitoring-v1`, require REMOTE-8E GO, prove at least 24 clean hours, 3-5 monitored users, stable access/session/workspace/generation/export/support signals and zero incidents before any next movement review.
 - `Tiny Cohort Decision Review Gate`: decision evidence must pass `remote-tiny-cohort-decision-review-v1`, review REMOTE-8F clean/blocked monitoring, keep rationale and identities local, keep execution metrics at zero and require a separate next phase before anything is executed.
+- `Next Controlled Movement Package Gate`: package evidence must pass `remote-next-controlled-movement-package-v1`, require REMOTE-8G GO with `prepare_next_controlled_movement`, cap user expansion to 1-2 recipients, keep candidates/copy/URLs local and keep execution metrics at zero.
 - `Deployment Hardening Review Gate`: hosting suggestions must be reviewed against active REMOTE gates before implementation.
 - `Containerization Deferral Gate`: Docker/Linux must remain future hardening until SQX compatibility, workspace isolation and backup/restore are proven.
 - `Repository Privacy Gate`: before active sales, `origin` and `institutional` should be private or the operator must explicitly accept public-source commercial exposure.

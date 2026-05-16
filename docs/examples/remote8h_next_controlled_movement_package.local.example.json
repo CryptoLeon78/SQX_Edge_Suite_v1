@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "remote-next-controlled-movement-package-v1",
+  "packageId": "remote8h-next-movement-001",
+  "capturedAt": "2026-05-16T22:00:00+00:00",
+  "operatorApproval": true,
+  "requestedAction": "prepare_next_controlled_movement_package",
+  "sourceGate": {
+    "remote8gStatus": "GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY",
+    "remote8gSelectedDecision": "prepare_next_controlled_movement",
+    "remote8gDecisionId": "remote8g-tiny-cohort-decision-001"
+  },
+  "environment": {
+    "protectedUrl": "https://private-live.example.invalid/sqx",
+    "localPath": "C:/BOTS/private/live"
+  },
+  "movement": {
+    "type": "add_1_2_users",
+    "plannedNewUsers": 1,
+    "supportWindowHours": 24,
+    "maxDurationDays": 7
+  },
+  "candidateUsers": [
+    {
+      "email": "buyer4@example.invalid",
+      "kind": "paid_subscription",
+      "featureScope": "full",
+      "recipientReviewed": true,
+      "entitlementKindReviewed": true,
+      "supportExpectationReviewed": true,
+      "privateHandoffRequired": true
+    }
+  ],
+  "checks": {
+    "remote8gDecisionReviewed": true,
+    "oneMovementOnly": true,
+    "scopeLimited": true,
+    "recipientListPrivate": true,
+    "entitlementBoundaryDefined": true,
+    "supportOwnerAssigned": true,
+    "supportWindowReady": true,
+    "rollbackPlanReady": true,
+    "pauseRuleReady": true,
+    "noAutomationConfirmed": true,
+    "executionRequiresSeparateApproval": true,
+    "privateEvidenceStoredOutsideGit": true
+  },
+  "executionMetrics": {
+    "newUsersInvited": 0,
+    "grantsCreated": 0,
+    "checkoutLinksCreated": 0,
+    "emailsSent": 0,
+    "publicUrlsShared": 0,
+    "automationJobsStarted": 0,
+    "trafficExpanded": 0,
+    "paidCampaignStarted": 0
+  }
+}

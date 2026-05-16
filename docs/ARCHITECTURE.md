@@ -113,6 +113,7 @@ Remote-service invariants:
 - REMOTE-8E uses `remote-tiny-cohort-execution-v1` to record the operator's manual 3-5 user execution after REMOTE-8D GO. Activated identities, protected URLs, private message bodies and local paths stay local/ignored; the public summary proves manual counts, zero automation and monitoring readiness.
 - REMOTE-8F uses `remote-tiny-cohort-monitoring-v1` to observe the activated cohort for at least 24 clean hours. Support, tunnel, session, workspace, security, generation, export and entitlement evidence stays local/ignored; the public summary proves zero incidents and keeps expansion blocked until REMOTE-8G.
 - REMOTE-8G uses `remote-tiny-cohort-decision-review-v1` to turn REMOTE-8F monitoring into a human decision. Decision rationale, identities, private URLs and support details stay local/ignored; even a GO only prepares a next package and keeps execution blocked until REMOTE-8H+.
+- REMOTE-8H uses `remote-next-controlled-movement-package-v1` to package one exact next movement after REMOTE-8G. Candidate identities, protected URLs and communication copy stay local/ignored; execution remains blocked until REMOTE-8I.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -232,6 +233,16 @@ REMOTE-8G tiny cohort decision review:
 - The review accepts clean or blocked REMOTE-8F monitoring, but `prepare_next_controlled_movement` requires a clean REMOTE-8F source and zero monitoring blockers.
 - Execution metrics for new invites, grant changes, checkout links, emails, public URL sharing, automation jobs, traffic expansion and paid campaigns must remain zero.
 - Even on GO, `decision.executionAllowedNow` stays false; REMOTE-8H owns the next package and any future execution needs another gate.
+
+REMOTE-8H next controlled movement package:
+
+- `backend/sqx-edge-tool/core/remote_next_controlled_movement_package.py` owns `remote-next-controlled-movement-package-v1`.
+- `backend/sqx-edge-tool/tools/remote_next_controlled_movement_package.py` reads ignored private package evidence from `.local/remote_service/remote8h_next_controlled_movement_package.local.json`.
+- The redacted output is `.local/remote_service/remote8h_next_controlled_movement_package/remote8h_next_controlled_movement_package.public.json`.
+- The package requires REMOTE-8G GO and selected decision `prepare_next_controlled_movement`.
+- User expansion is capped at `add_1_2_users`; candidate identities and handoff copy remain local/ignored.
+- Execution metrics for new invites, grants, checkout links, emails, public URL sharing, automation jobs, traffic expansion and paid campaigns must remain zero.
+- Even on GO, `movementPackage.executionAllowedNow` stays false; REMOTE-8I owns approval before any execution record.
 
 REMOTE-SUG1 deployment hardening decision:
 
