@@ -45,19 +45,29 @@ function Read-ResponseBody {
 }
 
 try {
-    $response = Invoke-WebRequest -Uri $ProtectedUrl -Method GET -MaximumRedirection 0 -TimeoutSec 10 -ErrorAction Stop
+    $request = [System.Net.WebRequest]::Create($ProtectedUrl)
+    $request.Method = "GET"
+    $request.AllowAutoRedirect = $false
+    $request.Timeout = 10000
+    $request.UserAgent = "sqx-edge-remote-smoke/1.0"
+    $response = $request.GetResponse()
     $statusCode = [int]$response.StatusCode
-    $headers = $response.Headers
-    $bodySnippet = ($response.Content | Out-String)
-} catch {
+    foreach ($key in $response.Headers.AllKeys) {
+        $headers[$key] = $response.Headers[$key]
+    }
+    $bodySnippet = Read-ResponseBody $response
+} catch [System.Net.WebException] {
     $errorText = $_.Exception.Message
     if ($_.Exception.Response) {
-        $statusCode = [int]$_.Exception.Response.StatusCode
-        foreach ($key in $_.Exception.Response.Headers.AllKeys) {
-            $headers[$key] = $_.Exception.Response.Headers[$key]
+        $response = $_.Exception.Response
+        $statusCode = [int]$response.StatusCode
+        foreach ($key in $response.Headers.AllKeys) {
+            $headers[$key] = $response.Headers[$key]
         }
-        $bodySnippet = Read-ResponseBody $_.Exception.Response
+        $bodySnippet = Read-ResponseBody $response
     }
+} catch {
+    $errorText = $_.Exception.Message
 }
 
 $headerText = (($headers.GetEnumerator() | ForEach-Object { "$($_.Key): $($_.Value)" }) -join "`n")
