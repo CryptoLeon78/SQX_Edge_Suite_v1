@@ -554,6 +554,79 @@
     "nextPhaseIfRejected": "REMOTE-8H-or-8G-replan",
     "nextPhaseIfDeferred": "REMOTE-8I-revisit-execution-approval"
   },
+  "remoteNextControlledMovementManualExecution": {
+    "phase": "REMOTE-8J",
+    "version": "remote-next-controlled-movement-manual-execution-v1",
+    "tool": "backend/sqx-edge-tool/tools/remote_next_controlled_movement_manual_execution.py",
+    "doc": "docs/REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION.md",
+    "example": "docs/examples/remote8j_next_controlled_movement_manual_execution.local.example.json",
+    "evidenceRoot": ".local/remote_service/remote8j_next_controlled_movement_manual_execution",
+    "summaryOutput": ".local/remote_service/remote8j_next_controlled_movement_manual_execution/remote8j_next_controlled_movement_manual_execution.public.json",
+    "sourceStatusRequired": "GO_REMOTE8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVED",
+    "sourceDecisionRequired": "approve_execution_record",
+    "validRequestedActions": [
+      "record_next_controlled_movement_manual_execution"
+    ],
+    "validMovementTypes": [
+      "add_1_2_users",
+      "extend_same_cohort_observation",
+      "prepare_paid_micro_offer",
+      "schedule_demo_batch"
+    ],
+    "maxNewUsers": 2,
+    "validEntitlementKinds": [
+      "paid_subscription",
+      "tester_free",
+      "internal_operator"
+    ],
+    "requiredChecks": [
+      "remote8iApprovalConfirmed",
+      "remote8hPackageStillMatches",
+      "operatorFinalApprovalRecorded",
+      "manualExecutionOnly",
+      "noAutomationUsed",
+      "manualActionRecorded",
+      "entitlementsRecordedPrivately",
+      "protectedUrlSharedPrivately",
+      "supportWindowActive",
+      "rollbackPlanStillReady",
+      "pauseRuleStillActive",
+      "monitoringStarted",
+      "privateEvidenceStoredOutsideGit"
+    ],
+    "manualCountMetrics": [
+      "invitesSentManually",
+      "grantsRecordedManually",
+      "privateMessagesSent",
+      "protectedUrlsSharedPrivately"
+    ],
+    "zeroAutomationMetrics": [
+      "automationJobsStarted",
+      "checkoutLinksCreated",
+      "publicUrlsShared",
+      "automatedEmailsSent",
+      "automatedGrantsCreated",
+      "trafficExpanded",
+      "paidCampaignStarted"
+    ],
+    "privacy": {
+      "rawEmailsReturned": false,
+      "protectedUrlReturned": false,
+      "localPathsReturned": false,
+      "secretsReturned": false,
+      "sessionTokenReturned": false,
+      "grantKeysReturned": false,
+      "messageBodyReturned": false,
+      "privateEvidenceCommitted": false
+    },
+    "record": {
+      "automationAllowed": false,
+      "furtherExpansionAllowedNow": false,
+      "monitoringRequired": true,
+      "rollbackAndPauseRemainActive": true
+    },
+    "nextPhase": "REMOTE-8K-post-execution-monitoring"
+  },
   "licensing": {
     "storageKey": "sqx_license_state_v1",
     "licenseFile": "config/license.json",

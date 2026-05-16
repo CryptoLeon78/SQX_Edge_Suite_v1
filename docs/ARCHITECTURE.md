@@ -115,6 +115,7 @@ Remote-service invariants:
 - REMOTE-8G uses `remote-tiny-cohort-decision-review-v1` to turn REMOTE-8F monitoring into a human decision. Decision rationale, identities, private URLs and support details stay local/ignored; even a GO only prepares a next package and keeps execution blocked until REMOTE-8H+.
 - REMOTE-8H uses `remote-next-controlled-movement-package-v1` to package one exact next movement after REMOTE-8G. Candidate identities, protected URLs and communication copy stay local/ignored; execution remains blocked until REMOTE-8I.
 - REMOTE-8I uses `remote-next-controlled-movement-execution-approval-v1` to approve, reject or defer the REMOTE-8H package. Decision notes, identities and private URLs stay local/ignored; approval only enables a later manual execution record.
+- REMOTE-8J uses `remote-next-controlled-movement-manual-execution-v1` to record the manual execution approved by REMOTE-8I. Executed-user identities, protected URLs, private messages and grant details stay local/ignored; monitoring is required before any further movement.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -254,6 +255,17 @@ REMOTE-8I next controlled movement execution approval:
 - Raw decision notes, candidate identities, protected URLs, grant details and local paths remain local/ignored.
 - Execution metrics for new invites, grants, checkout links, emails, public URL sharing, automation jobs, traffic expansion and paid campaigns must remain zero.
 - Even on approval, `approval.executionPerformedNow` stays false; REMOTE-8J owns the manual execution record.
+
+REMOTE-8J next controlled movement manual execution:
+
+- `backend/sqx-edge-tool/core/remote_next_controlled_movement_manual_execution.py` owns `remote-next-controlled-movement-manual-execution-v1`.
+- `backend/sqx-edge-tool/tools/remote_next_controlled_movement_manual_execution.py` reads ignored private execution evidence from `.local/remote_service/remote8j_next_controlled_movement_manual_execution.local.json`.
+- The redacted output is `.local/remote_service/remote8j_next_controlled_movement_manual_execution/remote8j_next_controlled_movement_manual_execution.public.json`.
+- The record requires REMOTE-8I approval and selected decision `approve_execution_record`.
+- Manual counts must match the approved package; executed-user identities and handoff copy remain local/ignored.
+- Raw executed-user identities, protected URLs, message bodies, grant details and local paths remain local/ignored.
+- Automation metrics for jobs, checkout links, public URLs, automated emails, automated grants, traffic expansion and paid campaigns must remain zero.
+- Even on GO, `postExecutionGate.furtherExpansionAllowedNow` stays false; REMOTE-8K owns monitoring.
 
 REMOTE-SUG1 deployment hardening decision:
 

@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "remote-next-controlled-movement-manual-execution-v1",
+  "executionId": "remote8j-manual-execution-001",
+  "capturedAt": "2026-05-17T00:00:00+00:00",
+  "operatorApproval": true,
+  "requestedAction": "record_next_controlled_movement_manual_execution",
+  "sourceGate": {
+    "remote8iStatus": "GO_REMOTE8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVED",
+    "remote8iApprovalId": "remote8i-approval-001",
+    "remote8iSelectedDecision": "approve_execution_record",
+    "remote8hPackageId": "remote8h-next-movement-001",
+    "movementType": "add_1_2_users",
+    "plannedNewUsers": 1,
+    "candidateCount": 1
+  },
+  "environment": {
+    "protectedUrl": "https://private-live.example.invalid/sqx",
+    "localPath": "C:/BOTS/private/live"
+  },
+  "privateExecution": {
+    "messageBody": "Private handoff copy stays local and ignored."
+  },
+  "executedUsers": [
+    {
+      "email": "buyer4@example.invalid",
+      "kind": "paid_subscription",
+      "featureScope": "full",
+      "manualInviteSent": true,
+      "manualGrantRecorded": true,
+      "privateMessageSent": true,
+      "protectedUrlSharedPrivately": true,
+      "supportWindowAcknowledged": true
+    }
+  ],
+  "checks": {
+    "remote8iApprovalConfirmed": true,
+    "remote8hPackageStillMatches": true,
+    "operatorFinalApprovalRecorded": true,
+    "manualExecutionOnly": true,
+    "noAutomationUsed": true,
+    "manualActionRecorded": true,
+    "entitlementsRecordedPrivately": true,
+    "protectedUrlSharedPrivately": true,
+    "supportWindowActive": true,
+    "rollbackPlanStillReady": true,
+    "pauseRuleStillActive": true,
+    "monitoringStarted": true,
+    "privateEvidenceStoredOutsideGit": true
+  },
+  "manualCounts": {
+    "invitesSentManually": 1,
+    "grantsRecordedManually": 1,
+    "privateMessagesSent": 1,
+    "protectedUrlsSharedPrivately": 1
+  },
+  "automationMetrics": {
+    "automationJobsStarted": 0,
+    "checkoutLinksCreated": 0,
+    "publicUrlsShared": 0,
+    "automatedEmailsSent": 0,
+    "automatedGrantsCreated": 0,
+    "trafficExpanded": 0,
+    "paidCampaignStarted": 0
+  }
+}
