@@ -5,9 +5,10 @@
   "operatorApproval": true,
   "requestedAction": "prepare_next_controlled_movement_package",
   "sourceGate": {
-    "remote8gStatus": "GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY",
-    "remote8gSelectedDecision": "prepare_next_controlled_movement",
-    "remote8gDecisionId": "remote8g-tiny-cohort-decision-001"
+    "sourceType": "remote8l_post_monitoring_decision_review",
+    "remote8lStatus": "GO_REMOTE8L_POST_MONITORING_DECISION_REVIEW_READY",
+    "remote8lSelectedDecision": "prepare_next_controlled_movement",
+    "remote8lDecisionId": "remote8l-post-monitoring-decision-001"
   },
   "environment": {
     "protectedUrl": "https://private-live.example.invalid/sqx",
@@ -31,7 +32,7 @@
     }
   ],
   "checks": {
-    "remote8gDecisionReviewed": true,
+    "sourceDecisionReviewed": true,
     "oneMovementOnly": true,
     "scopeLimited": true,
     "recipientListPrivate": true,

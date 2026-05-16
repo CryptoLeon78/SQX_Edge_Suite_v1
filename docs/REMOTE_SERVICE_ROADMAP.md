@@ -337,7 +337,7 @@ Next REMOTE-8H scope:
 
 ### REMOTE-8H - Next Controlled Movement Package
 
-Prepares the exact next movement package after REMOTE-8G but still does not execute traffic, checkout, grants, emails, onboarding or public URL sharing automatically.
+Prepares the exact next movement package after the active decision gate. In the current loop, REMOTE-8L is the source that routes back here with `prepare_next_controlled_movement`; legacy REMOTE-8G evidence is accepted only for older tiny-cohort records. It still does not execute traffic, checkout, grants, emails, onboarding or public URL sharing automatically.
 
 Artifacts added in REMOTE-8H:
 
@@ -349,6 +349,8 @@ Artifacts added in REMOTE-8H:
 - `remote-next-controlled-movement-package-v1`
 - ignored evidence root `.local/remote_service/remote8h_next_controlled_movement_package*`
 - `Next Controlled Movement Package Gate`
+- active source bridge: `GO_REMOTE8L_POST_MONITORING_DECISION_REVIEW_READY` + `prepare_next_controlled_movement`
+- legacy source bridge: `GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY` + `prepare_next_controlled_movement`
 
 Next REMOTE-8I scope:
 

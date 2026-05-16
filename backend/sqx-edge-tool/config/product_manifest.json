@@ -436,7 +436,8 @@
     "example": "docs/examples/remote8h_next_controlled_movement_package.local.example.json",
     "evidenceRoot": ".local/remote_service/remote8h_next_controlled_movement_package",
     "summaryOutput": ".local/remote_service/remote8h_next_controlled_movement_package/remote8h_next_controlled_movement_package.public.json",
-    "sourceStatusRequired": "GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY",
+    "currentSourceStatusRequired": "GO_REMOTE8L_POST_MONITORING_DECISION_REVIEW_READY",
+    "legacySourceStatusAccepted": "GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY",
     "sourceDecisionRequired": "prepare_next_controlled_movement",
     "validRequestedActions": [
       "prepare_next_controlled_movement_package"
@@ -454,7 +455,7 @@
       "internal_operator"
     ],
     "requiredChecks": [
-      "remote8gDecisionReviewed",
+      "sourceDecisionReviewed",
       "oneMovementOnly",
       "scopeLimited",
       "recipientListPrivate",

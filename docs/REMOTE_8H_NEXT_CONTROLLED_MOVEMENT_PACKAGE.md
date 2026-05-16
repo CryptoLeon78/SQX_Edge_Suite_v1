@@ -1,6 +1,6 @@
 # REMOTE-8H - Next Controlled Movement Package
 
-REMOTE-8H prepares the exact next controlled movement package after REMOTE-8G selects `prepare_next_controlled_movement`. It does not execute invites, grants, checkout, emails, traffic expansion, paid campaigns, onboarding or public URL sharing.
+REMOTE-8H prepares the exact next controlled movement package after the current decision gate selects `prepare_next_controlled_movement`. In the active cycle this source is REMOTE-8L; legacy REMOTE-8G evidence is still accepted only for historical compatibility. It does not execute invites, grants, checkout, emails, traffic expansion, paid campaigns, onboarding or public URL sharing.
 
 The purpose is to turn a human decision into a small, reversible and auditable package that can be reviewed again before execution.
 
@@ -24,14 +24,15 @@ Tracked docs may contain only schema examples, validator contracts and public-sa
 
 ## Source Gate
 
-The package requires:
+The active package source requires:
 
-- `sourceGate.remote8gStatus = GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY`
-- `sourceGate.remote8gSelectedDecision = prepare_next_controlled_movement`
+- `sourceGate.sourceType = remote8l_post_monitoring_decision_review`
+- `sourceGate.remote8lStatus = GO_REMOTE8L_POST_MONITORING_DECISION_REVIEW_READY`
+- `sourceGate.remote8lSelectedDecision = prepare_next_controlled_movement`
 - `operatorApproval = true`
 - `requestedAction = prepare_next_controlled_movement_package`
 
-If REMOTE-8G selected another decision, REMOTE-8H is `NO_GO`.
+Legacy `REMOTE-8G` packages remain supported with `GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY`, but new evidence should use REMOTE-8L. If the source selected another decision, REMOTE-8H is `NO_GO`.
 
 ## Movement Types
 
@@ -48,7 +49,7 @@ For `add_1_2_users`, planned new users are capped at 2 and the candidate count m
 
 The private package evidence must confirm:
 
-- `remote8gDecisionReviewed`
+- `sourceDecisionReviewed`
 - `oneMovementOnly`
 - `scopeLimited`
 - `recipientListPrivate`

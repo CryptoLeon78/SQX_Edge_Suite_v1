@@ -243,7 +243,7 @@ REMOTE-8H next controlled movement package:
 - `backend/sqx-edge-tool/core/remote_next_controlled_movement_package.py` owns `remote-next-controlled-movement-package-v1`.
 - `backend/sqx-edge-tool/tools/remote_next_controlled_movement_package.py` reads ignored private package evidence from `.local/remote_service/remote8h_next_controlled_movement_package.local.json`.
 - The redacted output is `.local/remote_service/remote8h_next_controlled_movement_package/remote8h_next_controlled_movement_package.public.json`.
-- The package requires REMOTE-8G GO and selected decision `prepare_next_controlled_movement`.
+- The active package source is REMOTE-8L GO with selected decision `prepare_next_controlled_movement`; REMOTE-8G GO remains accepted only as legacy tiny-cohort compatibility.
 - User expansion is capped at `add_1_2_users`; candidate identities and handoff copy remain local/ignored.
 - Execution metrics for new invites, grants, checkout links, emails, public URL sharing, automation jobs, traffic expansion and paid campaigns must remain zero.
 - Even on GO, `movementPackage.executionAllowedNow` stays false; REMOTE-8I owns approval before any execution record.

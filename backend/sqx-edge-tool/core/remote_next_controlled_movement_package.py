@@ -17,7 +17,9 @@ DEFAULT_REMOTE8H_EVIDENCE_PATH = (
 )
 DEFAULT_REMOTE8H_OUTPUT_ROOT = PROJECT_ROOT / ".local" / "remote_service" / "remote8h_next_controlled_movement_package"
 
-REQUIRED_SOURCE_STATUS = "GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY"
+LEGACY_SOURCE_STATUS = "GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY"
+CURRENT_SOURCE_STATUS = "GO_REMOTE8L_POST_MONITORING_DECISION_REVIEW_READY"
+VALID_SOURCE_STATUSES = {LEGACY_SOURCE_STATUS, CURRENT_SOURCE_STATUS}
 REQUIRED_SOURCE_DECISION = "prepare_next_controlled_movement"
 VALID_REQUESTED_ACTIONS = {"prepare_next_controlled_movement_package"}
 VALID_MOVEMENT_TYPES = {
@@ -30,7 +32,7 @@ VALID_ENTITLEMENT_KINDS = {"paid_subscription", "tester_free", "internal_operato
 MAX_NEW_USERS = 2
 
 REQUIRED_CHECKS = (
-    "remote8gDecisionReviewed",
+    "sourceDecisionReviewed",
     "oneMovementOnly",
     "scopeLimited",
     "recipientListPrivate",
@@ -43,6 +45,14 @@ REQUIRED_CHECKS = (
     "executionRequiresSeparateApproval",
     "privateEvidenceStoredOutsideGit",
 )
+
+CHECK_ALIASES = {
+    "sourceDecisionReviewed": (
+        "sourceDecisionReviewed",
+        "remote8lDecisionReviewed",
+        "remote8gDecisionReviewed",
+    ),
+}
 
 CANDIDATE_REQUIRED_FLAGS = (
     "recipientReviewed",
@@ -105,7 +115,48 @@ def _short(value: Any, size: int = 12) -> str:
 
 def _checks_from_payload(payload: Mapping[str, Any]) -> dict[str, bool]:
     raw = payload.get("checks") if isinstance(payload.get("checks"), Mapping) else {}
-    return {check: bool(raw.get(check)) for check in REQUIRED_CHECKS}
+    checks: dict[str, bool] = {}
+    for check in REQUIRED_CHECKS:
+        aliases = CHECK_ALIASES.get(check, (check,))
+        checks[check] = any(bool(raw.get(alias)) for alias in aliases)
+    return checks
+
+
+def _source_gate_from_payload(payload: Mapping[str, Any]) -> dict[str, str]:
+    raw = payload.get("sourceGate") if isinstance(payload.get("sourceGate"), Mapping) else {}
+    source_type = str(raw.get("sourceType") or "").strip()
+    if not source_type:
+        if raw.get("remote8lStatus") or raw.get("remote8lSelectedDecision"):
+            source_type = "remote8l_post_monitoring_decision_review"
+        else:
+            source_type = "remote8g_tiny_cohort_decision_review"
+
+    if source_type == "remote8l_post_monitoring_decision_review":
+        return {
+            "sourceType": source_type,
+            "status": str(raw.get("remote8lStatus") or raw.get("status") or "").strip(),
+            "selectedDecision": str(raw.get("remote8lSelectedDecision") or raw.get("selectedDecision") or "").strip(),
+            "decisionId": _short(raw.get("remote8lDecisionId") or raw.get("decisionId")),
+        }
+
+    return {
+        "sourceType": "remote8g_tiny_cohort_decision_review",
+        "status": str(raw.get("remote8gStatus") or raw.get("status") or "").strip(),
+        "selectedDecision": str(raw.get("remote8gSelectedDecision") or raw.get("selectedDecision") or "").strip(),
+        "decisionId": _short(raw.get("remote8gDecisionId") or raw.get("decisionId")),
+    }
+
+
+def _source_status_blocker_name(source_type: str) -> str:
+    if source_type == "remote8l_post_monitoring_decision_review":
+        return "remote8l_decision_go_status_missing"
+    return "remote8g_decision_go_status_missing"
+
+
+def _source_decision_blocker_name(source_type: str) -> str:
+    if source_type == "remote8l_post_monitoring_decision_review":
+        return "remote8l_selected_decision_not_next_movement"
+    return "remote8g_selected_decision_not_next_movement"
 
 
 def _execution_metrics_from_payload(payload: Mapping[str, Any]) -> dict[str, int]:
@@ -214,9 +265,10 @@ def build_remote8h_movement_package_summary(payload: Mapping[str, Any]) -> dict[
     schema_version = str(payload.get("schemaVersion") or "").strip()
     requested_action = str(payload.get("requestedAction") or "").strip()
     operator_approval = bool(payload.get("operatorApproval"))
-    source_gate = payload.get("sourceGate") if isinstance(payload.get("sourceGate"), Mapping) else {}
-    source_status = str(source_gate.get("remote8gStatus") or "").strip()
-    source_decision = str(source_gate.get("remote8gSelectedDecision") or "").strip()
+    source_gate = _source_gate_from_payload(payload)
+    source_status = source_gate["status"]
+    source_decision = source_gate["selectedDecision"]
+    source_type = source_gate["sourceType"]
     movement = _movement_from_payload(payload)
     checks = _checks_from_payload(payload)
     missing_checks = [check for check, passed in checks.items() if not passed]
@@ -232,10 +284,10 @@ def build_remote8h_movement_package_summary(payload: Mapping[str, Any]) -> dict[
         blockers.append("requested_action_invalid")
     if not operator_approval:
         blockers.append("operator_approval_missing")
-    if source_status != REQUIRED_SOURCE_STATUS:
-        blockers.append("remote8g_decision_go_status_missing")
+    if source_status not in VALID_SOURCE_STATUSES:
+        blockers.append(_source_status_blocker_name(source_type))
     if source_decision != REQUIRED_SOURCE_DECISION:
-        blockers.append("remote8g_selected_decision_not_next_movement")
+        blockers.append(_source_decision_blocker_name(source_type))
     if movement["type"] not in VALID_MOVEMENT_TYPES:
         blockers.append("movement_type_invalid")
     if movement["plannedNewUsers"] > MAX_NEW_USERS:
@@ -276,9 +328,16 @@ def build_remote8h_movement_package_summary(payload: Mapping[str, Any]) -> dict[
             "candidates": _public_candidates(candidates),
         },
         "sourceGate": {
-            "remote8gStatus": source_status,
-            "remote8gSelectedDecision": source_decision,
-            "remote8gDecisionId": _short(source_gate.get("remote8gDecisionId")),
+            "sourceType": source_type,
+            "status": source_status,
+            "selectedDecision": source_decision,
+            "decisionId": source_gate["decisionId"],
+            "remote8gStatus": source_status if source_type == "remote8g_tiny_cohort_decision_review" else "",
+            "remote8gSelectedDecision": source_decision if source_type == "remote8g_tiny_cohort_decision_review" else "",
+            "remote8gDecisionId": source_gate["decisionId"] if source_type == "remote8g_tiny_cohort_decision_review" else "",
+            "remote8lStatus": source_status if source_type == "remote8l_post_monitoring_decision_review" else "",
+            "remote8lSelectedDecision": source_decision if source_type == "remote8l_post_monitoring_decision_review" else "",
+            "remote8lDecisionId": source_gate["decisionId"] if source_type == "remote8l_post_monitoring_decision_review" else "",
         },
         "checks": checks,
         "missingChecks": missing_checks,

@@ -15,9 +15,10 @@ def _complete_payload() -> dict:
         "operatorApproval": True,
         "requestedAction": "prepare_next_controlled_movement_package",
         "sourceGate": {
-            "remote8gStatus": "GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY",
-            "remote8gSelectedDecision": "prepare_next_controlled_movement",
-            "remote8gDecisionId": "remote8g-tiny-cohort-decision-001",
+            "sourceType": "remote8l_post_monitoring_decision_review",
+            "remote8lStatus": "GO_REMOTE8L_POST_MONITORING_DECISION_REVIEW_READY",
+            "remote8lSelectedDecision": "prepare_next_controlled_movement",
+            "remote8lDecisionId": "remote8l-post-monitoring-decision-001",
         },
         "environment": {
             "protectedUrl": "https://private-live.example.invalid/sqx",
@@ -41,7 +42,7 @@ def _complete_payload() -> dict:
             },
         ],
         "checks": {
-            "remote8gDecisionReviewed": True,
+            "sourceDecisionReviewed": True,
             "oneMovementOnly": True,
             "scopeLimited": True,
             "recipientListPrivate": True,
@@ -79,6 +80,7 @@ def test_remote8h_clean_package_is_redacted_and_requires_execution_approval(tmp_
     assert result["status"] == "GO_REMOTE8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_READY"
     assert result["package"]["movement"]["type"] == "add_1_2_users"
     assert result["package"]["candidateCount"] == 1
+    assert result["sourceGate"]["sourceType"] == "remote8l_post_monitoring_decision_review"
     assert result["movementPackage"]["ready"] is True
     assert result["movementPackage"]["allowedNextAction"] == "request_remote8i_execution_approval"
     assert result["movementPackage"]["automationAllowed"] is False
@@ -111,8 +113,8 @@ def test_remote8h_missing_evidence_returns_no_go(tmp_path):
 
 def test_remote8h_blockers_prevent_package_ready():
     payload = _complete_payload()
-    payload["sourceGate"]["remote8gStatus"] = "NO_GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_BLOCKED"
-    payload["sourceGate"]["remote8gSelectedDecision"] = "continue_observing"
+    payload["sourceGate"]["remote8lStatus"] = "NO_GO_REMOTE8L_POST_MONITORING_DECISION_REVIEW_BLOCKED"
+    payload["sourceGate"]["remote8lSelectedDecision"] = "continue_monitoring"
     payload["movement"]["plannedNewUsers"] = 3
     payload["movement"]["supportWindowHours"] = 4
     payload["candidateUsers"][0]["privateHandoffRequired"] = False
@@ -123,8 +125,8 @@ def test_remote8h_blockers_prevent_package_ready():
 
     assert result["ok"] is False
     assert result["status"] == "NO_GO_REMOTE8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_BLOCKED"
-    assert "remote8g_decision_go_status_missing" in result["blockers"]
-    assert "remote8g_selected_decision_not_next_movement" in result["blockers"]
+    assert "remote8l_decision_go_status_missing" in result["blockers"]
+    assert "remote8l_selected_decision_not_next_movement" in result["blockers"]
     assert "planned_new_users_exceeds_limit" in result["blockers"]
     assert "candidate_count_must_match_planned_new_users" in result["blockers"]
     assert "support_window_too_short" in result["blockers"]
@@ -134,3 +136,20 @@ def test_remote8h_blockers_prevent_package_ready():
     assert result["missingChecks"] == ["pauseRuleReady"]
     assert result["executionBlockers"] == ["emailsSent"]
     assert result["movementPackage"]["ready"] is False
+
+
+def test_remote8h_legacy_remote8g_source_still_supported():
+    payload = _complete_payload()
+    payload["sourceGate"] = {
+        "remote8gStatus": "GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY",
+        "remote8gSelectedDecision": "prepare_next_controlled_movement",
+        "remote8gDecisionId": "remote8g-tiny-cohort-decision-001",
+    }
+    payload["checks"].pop("sourceDecisionReviewed")
+    payload["checks"]["remote8gDecisionReviewed"] = True
+
+    result = build_remote8h_movement_package_summary(payload)
+
+    assert result["ok"] is True
+    assert result["status"] == "GO_REMOTE8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_READY"
+    assert result["sourceGate"]["sourceType"] == "remote8g_tiny_cohort_decision_review"
