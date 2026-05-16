@@ -13,6 +13,39 @@
     "activationMode": "manual_signed_file",
     "allowOfflineUse": true
   },
+  "remoteCommercial": {
+    "phase": "REMOTE-7",
+    "primaryChannel": "remote_service",
+    "buyerAccessModel": "web_pro_subscription",
+    "plans": [
+      "web_pro_monthly",
+      "web_pro_annual"
+    ],
+    "supportAddons": [
+      "support_assist"
+    ],
+    "testerEntitlement": "tester_free",
+    "portableRole": "internal_fallback",
+    "noInstallBuyerPromise": true,
+    "responsibleClaims": [
+      "productivity",
+      "methodology",
+      "traceability",
+      "reduced_operational_error",
+      "no_financial_results_promise",
+      "no_risk_free_claim"
+    ],
+    "privateBoundary": [
+      "checkout_links",
+      "exact_live_prices",
+      "buyer_identities",
+      "tester_identities",
+      "support_logs",
+      "payment_payloads",
+      "grant_keys",
+      "private_urls"
+    ]
+  },
   "licensing": {
     "storageKey": "sqx_license_state_v1",
     "licenseFile": "config/license.json",

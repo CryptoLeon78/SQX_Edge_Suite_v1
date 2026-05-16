@@ -105,6 +105,7 @@ Remote-service invariants:
 - REMOTE-4 workspaces use `remote-workspace-v1`; the workspace id is derived from the active session identity hash and browser-supplied workspace ids or local paths are ignored.
 - REMOTE-5 Home UX uses `remote-pro-panel` to render access, session, workspace, server and privacy state without exposing raw local paths or identities.
 - REMOTE-6 security and abuse controls use `remote-security-v1` to apply rate limits, kill switch, session revocation, identity-hash blocking, redacted audit visibility and session watermark without exposing raw emails, policy paths, tokens or local paths.
+- REMOTE-7 makes `remote_service` the commercial offer shape: buyers use `web_pro_monthly` or `web_pro_annual`, approved testers use `tester_free`, support is optional as `support_assist`, and portable ZIP/offline license flows are internal fallback rather than buyer onboarding.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -153,6 +154,14 @@ REMOTE-6 security and abuse controls:
 - `GET /api/remote/security/audit/recent` returns recent workspace audit events for the active session with identity refs shortened and local paths removed.
 - `backend/sqx-edge-tool/core/remote_access.py` enforces revoked session ids and blocked identity hashes before entitlement access is considered allowed.
 - `app/js/modules/home.js` consumes `/remote/security/status`; `app/SQX_Dashboard_v6.html` renders the Home security item and `remote-session-watermark`.
+
+REMOTE-7 web Pro monetization rewrite:
+
+- `docs/REMOTE_7_MONETIZATION_REWRITE.md` owns the commercial shape of the remote service.
+- `docs/COMMERCIAL_README.md` describes buyer onboarding as protected web access, not installation.
+- `docs/PUBLIC_ROADMAP.md` presents remote Pro access as the current public-safe direction.
+- `backend/sqx-edge-tool/config/product_manifest.json` keeps legacy fallback fields for compatibility but adds a remote commercial contract for `web_pro_monthly`, `web_pro_annual`, `support_assist`, `tester_free` and `internal_fallback`.
+- This phase changes commercial contracts and docs only; runtime access remains governed by REMOTE-3 through REMOTE-6 until REMOTE-8 proves the full pilot.
 
 REMOTE-SUG1 deployment hardening decision:
 

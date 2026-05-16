@@ -173,6 +173,21 @@ Next REMOTE-7 scope:
 
 Update offer, onboarding, FAQ, support copy, sales docs and buyer flow to web Pro monthly/annual access. Keep support add-ons and template packs, but remove install/setup as the core promise.
 
+Artifacts added in REMOTE-7:
+
+- `docs/REMOTE_7_MONETIZATION_REWRITE.md`
+- `docs/COMMERCIAL_README.md`
+- `docs/PUBLIC_ROADMAP.md`
+- `Remote Monetization Rewrite Gate`
+- product manifest remote commercial contract: `web_pro_monthly`, `web_pro_annual`, `support_assist`, `tester_free` and `internal_fallback`
+
+Next REMOTE-8 scope:
+
+- run one paid/internal user through entitlement, login, workspace, artifact generation, export/download and revocation;
+- verify support evidence stays redacted;
+- prove workspace isolation before expanding beyond the first user;
+- keep portable/ZIP as internal fallback only.
+
 ### REMOTE-8 - Controlled Pilot
 
 Run one paid/internal user end to end: payment webhook, login, workspace creation, `.cfx` generation, export/download, revocation and restore. Expand to 3-5 users only after no workspace leakage, no tunnel instability and no entitlement bypass.
@@ -190,6 +205,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Workspace Isolation Gate`: workspace ids must be derived from the active app session only; browser-supplied workspace ids, paths and local SQX resources are ignored or rejected.
 - `Remote UX Disclosure Gate`: remote dashboard surfaces may show access state, entitlement class, short workspace id and server readiness, but must not render raw SQX paths, `data.db` paths, output folders, workspace roots, session tokens, grant keys, private URLs, Cloudflare identifiers or raw emails.
 - `Remote Security Abuse Gate`: remote endpoints must apply `remote-security-v1` rate limits, kill switch, session revocation, identity-hash blocking, redacted audit visibility and watermark without returning policy paths, raw emails, tokens, local paths or provider secrets.
+- `Remote Monetization Rewrite Gate`: buyer-facing material must present protected web Pro monthly/annual access, optional support, authenticated tester-free grants and no-install onboarding; portable ZIP, launchers and offline licenses stay internal fallback only.
 - `Deployment Hardening Review Gate`: hosting suggestions must be reviewed against active REMOTE gates before implementation.
 - `Containerization Deferral Gate`: Docker/Linux must remain future hardening until SQX compatibility, workspace isolation and backup/restore are proven.
 - `Repository Privacy Gate`: before active sales, `origin` and `institutional` should be private or the operator must explicitly accept public-source commercial exposure.

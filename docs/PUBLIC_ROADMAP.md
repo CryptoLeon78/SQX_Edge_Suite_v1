@@ -1,58 +1,35 @@
 # SQX Edge Public Roadmap
 
-Last updated: 2026-05-07.
+Last updated: 2026-05-16.
 
 ## Now
 
-- ZIP portable para Windows con runtime embebido.
-- Dashboard operativo con Inicio, activos, categorias, filtros, prioridad SQX y Pipeline State.
-- Project Generator, Strategy Cleaner y gestion de estrategias con import/export.
-- Arquitectura modular JS y contratos de carga.
-- Panel de licencia Pro offline preparado.
-- Diagnostico local de soporte sin telemetria automatica.
-- Flujo comercial interno con checkout, licencia, fulfillment, release, monitorizacion, hotfix y rollback preparado.
-- Customer success y renovacion Pro preparados con trazabilidad interna.
-- Cockpit interno de customer success preparado con datos redactados.
-- Pack Pro de datos y plantillas preparado para compradores: universo de activos, CSV importable, activacion, soporte y primer valor.
-- Onboarding basico de comprador preparado: arranque, activacion de licencia, FAQ y plantilla de soporte.
-- Template Pack 1 preparado como add-on separado con perfiles, checklist y soporte acotado.
-- Oferta publica draft de Template Pack 1 preparada con FAQ, checkout wiring y macros de entrega/soporte.
-- Gate de publicacion controlada preparado para conectar checkout real del add-on sin placeholders.
-- Purchase drill controlado preparado para validar pedido, entrega separada y soporte inicial.
-- Handoff post-compra preparado para revisar entrega, soporte inicial y decision de escalar o pausar.
-- Registro interno de ventas add-on preparado para revisar comprador, entrega, soporte, refunds y decision de escala con datos redactados.
-- Revision de cohorte de compradores preparada para decidir iteracion, mas trafico, pausa o Template Pack 2 con feedback agregado.
-- Plan accionable preparado para convertir feedback en iteracion de oferta, expansion controlada, pausa/fix o specs de Template Pack 2.
-- Especificacion inicial de Template Pack 2 preparada con alcance, presets, soporte, entrega y claims seguros.
-- Recursos iniciales de Template Pack 2 preparados como add-on separado con perfiles, presets y checklists.
-- Oferta controlada de Template Pack 2 preparada con copy, FAQ, checkout draft y macros.
-- Publicacion controlada de Template Pack 2 preparada con checkout real, soporte, rollback y purchase drill.
-- Purchase drill controlado de Template Pack 2 preparado con evidencia redactada de pago, entrega y soporte.
-- Handoff post-compra de Template Pack 2 preparado con soporte inicial y decision de escala/pausa.
-- Registro interno de ventas de Template Pack 2 preparado para revisar entrega, soporte, refunds y decision de escala.
-- Revision de cohorte temprana de Template Pack 2 preparada con feedback agregado y decision de roadmap.
-- Bucle de mejora post-venta preparado para ajustar onboarding, macros de soporte y copy publico tras la primera venta controlada.
-- Micro-mejoras post-venta aplicadas a onboarding, activacion, soporte y copy publico.
-- Readiness del siguiente comprador controlado preparado antes de compartir otro enlace privado.
-- Candidato ZIP portable verificado con plan de publicacion controlada preparado, sin publicar todavia el GitHub Release.
+- Primary commercial direction: protected remote web Pro access, not user-installed ZIP onboarding.
+- Windows laptop pilot behind Cloudflare Tunnel and Cloudflare Access.
+- Email-validated access plus app session, entitlement checks, workspace isolation, audit trail, rate limits, revocation, kill switch and watermark.
+- Approved testers can use the full app through `tester_free` grants while remaining authenticated, audited and revocable.
+- Dashboard modules remain active: Workflow, Activos, Mining Control, SQX Views, Project Generator, Template Maker, Strategy Control, Champion vs Challenger, BlockSettings Info and Control Panel.
+- Project Generator uses real BlockSettings manifests and traceable timeframe/blocksetting resolution.
+- Template Maker uses CSV/SQX contracts, C2 traceability, diversity clustering and exit policy gates.
+- Commercial offer is being rewritten around `web_pro_monthly`, `web_pro_annual`, optional `support_assist` and future approved template packs.
+- Portable packaging remains an internal fallback for rollback/support diagnostics, not the buyer-facing offer.
 
 ## Next
 
-- Registrar el resultado del siguiente comprador controlado y decidir repetir, pausar o ampliar con cuidado.
-- SQX Edge Free public beta como via de entrada controlada.
-- Ajuste de copy publico, FAQ y macros de soporte segun feedback real.
-- Template Pack 1 y Setup Assist como complementos comerciales.
-- Publicar GitHub Release solo cuando se autorice explicitamente y completar registro post-publicacion con ZIP, SHA256, soporte y rollback.
+- REMOTE-8 controlled pilot with one paid/internal user end to end.
+- Verify payment entitlement, Cloudflare Access, app session, workspace creation, artifact generation, export/download, revocation and restore.
+- Confirm that two users cannot see each other's workspace data before expanding beyond the first pilot.
+- Tighten buyer onboarding copy, FAQ and support macros from real pilot feedback.
+- Keep exact prices, checkout links, buyer identities and support evidence in the private commercial boundary.
 
 ## Later
 
-- Activacion online opcional.
-- Renovacion mas automatizada.
-- Packs premium adicionales.
-- Perfiles de generacion avanzados.
-- Instalador Windows con firma si el producto escala.
-- Automatizacion mas completa de checkout, licencias y entregas.
+- Expand the controlled pilot to 3-5 users only after REMOTE-8 has no workspace leakage, tunnel instability or entitlement bypass.
+- Add more automated buyer onboarding, renewal/cancellation support and operator dashboards.
+- Consider stronger hosting after the Windows pilot is proven.
+- REMOTE-9 can evaluate Docker/Linux or dedicated hosting only after SQX resource compatibility, `data.db`, workspaces and backup/restore are proven.
+- Publish only public-safe marketing assets and docs that preserve safe claims.
 
 ## Responsible Scope
 
-SQX Edge no vende resultados financieros. Vende una herramienta para ordenar y acelerar trabajo tecnico con StrategyQuant X.
+SQX Edge does not sell financial results. It sells a controlled tool for methodology, traceability, productivity and reduced operational error in StrategyQuant X workflows.

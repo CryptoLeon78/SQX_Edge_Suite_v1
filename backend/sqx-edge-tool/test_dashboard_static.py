@@ -23,6 +23,7 @@ REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE_DOC = PROJECT_ROOT / "docs" / "REMOTE_3C_
 REMOTE_4_WORKSPACE_ISOLATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_4_WORKSPACE_ISOLATION.md"
 REMOTE_5_REMOTE_UX_DOC = PROJECT_ROOT / "docs" / "REMOTE_5_REMOTE_UX.md"
 REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC = PROJECT_ROOT / "docs" / "REMOTE_6_SECURITY_ABUSE_CONTROLS.md"
+REMOTE_7_MONETIZATION_REWRITE_DOC = PROJECT_ROOT / "docs" / "REMOTE_7_MONETIZATION_REWRITE.md"
 REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md"
 REMOTE_TUNNEL_EXAMPLE_EVIDENCE = PROJECT_ROOT / "docs" / "examples" / "remote_tunnel.local.example.json"
 REMOTE_ENTITLEMENTS_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote_entitlements.local.example.json"
@@ -355,6 +356,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertTrue(REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC.is_file())
         self.assertTrue(REMOTE_5_REMOTE_UX_DOC.is_file())
         self.assertTrue(REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC.is_file())
+        self.assertTrue(REMOTE_7_MONETIZATION_REWRITE_DOC.is_file())
 
         for pattern in (
             "REMOTE-0",
@@ -379,6 +381,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "remote-pro-panel",
             "Remote UX Disclosure Gate",
             "Remote Security Abuse Gate",
+            "Remote Monetization Rewrite Gate",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, roadmap)
@@ -394,6 +397,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "server-derived workspace",
             "Remote UX Disclosure Gate",
             "Remote Security Abuse Gate",
+            "Remote Monetization Rewrite Gate",
             "remote-pro-panel",
             "raw SQX paths",
             "Cloudflare Tunnel/Access",
@@ -420,7 +424,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Servicio web Pro",
-            "Estado comercial: REMOTE-6",
+            "Estado comercial: REMOTE-7",
             "Distribucion principal: enlace remoto protegido",
             "clave tester",
             "REMOTE-2B fija acceso completo `tester_free`",
@@ -430,6 +434,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-4 fija el workspace aislado `remote-workspace-v1`",
             "REMOTE-5 fija el panel `remote-pro-panel`",
             "REMOTE-6 fija `remote-security-v1`",
+            "REMOTE-7 fija la oferta web Pro",
             "verificados como privados por GitHub CLI",
             "Los testers aprobados podran usar todas las funcionalidades sin pago",
             "Recomendacion comercial: convertir `SQX_Edge_Suite_v1` y `SQX_Institutional_Core` a repos privados",
@@ -649,8 +654,8 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "REMOTE-3B app session grant-key gate",
-            "Current phase completed: REMOTE-6",
-            "Current implementation phase: REMOTE-7",
+            "Current phase completed: REMOTE-7",
+            "Current implementation phase: REMOTE-8",
             "Remote Session Gate",
             "remote-session-v1",
             "__Host-sqx_remote_session",
@@ -674,8 +679,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-6",
-            "Siguiente paso recomendado: REMOTE-7",
+            "Estado comercial: REMOTE-7",
+            "Siguiente paso recomendado: REMOTE-8",
             "REMOTE-3B fija la sesion de app `remote-session-v1`",
             "REMOTE-3C fija el webhook de pago firmado `remote-payment-webhook-v1`",
             "REMOTE-4 fija el workspace aislado `remote-workspace-v1`",
@@ -792,8 +797,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, architecture)
 
         for pattern in (
-            "Estado comercial: REMOTE-6",
-            "Siguiente paso recomendado: REMOTE-7",
+            "Estado comercial: REMOTE-7",
+            "Siguiente paso recomendado: REMOTE-8",
             "docs/REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md",
             "endpoint `/api/remote/payment/webhook`",
             "endpoint piloto `/api/remote/protected/write-pilot`",
@@ -912,8 +917,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, architecture)
 
         for pattern in (
-            "Estado comercial: REMOTE-6",
-            "Siguiente paso recomendado: REMOTE-7",
+            "Estado comercial: REMOTE-7",
+            "Siguiente paso recomendado: REMOTE-8",
             "docs/REMOTE_4_WORKSPACE_ISOLATION.md",
             "endpoint `/api/remote/workspace/status`",
             "workspace aislado `remote-workspace-v1`",
@@ -1085,8 +1090,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_6)
 
         for pattern in (
-            "Current phase completed: REMOTE-6",
-            "Current implementation phase: REMOTE-7",
+            "Current phase completed: REMOTE-7",
+            "Current implementation phase: REMOTE-8",
             "Remote Security Abuse Gate",
             "remote-security-v1",
             "redacted audit visibility",
@@ -1118,8 +1123,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, architecture)
 
         for pattern in (
-            "Estado comercial: REMOTE-6",
-            "Siguiente paso recomendado: REMOTE-7",
+            "Estado comercial: REMOTE-7",
+            "Siguiente paso recomendado: REMOTE-8",
             "REMOTE-6 fija `remote-security-v1`",
             "endpoint `/api/remote/security/status`",
             "endpoint `/api/remote/security/audit/recent`",
@@ -1198,6 +1203,142 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, combined_public)
 
+    def test_remote_7_web_pro_monetization_rewrite_is_wired(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        remote_7 = REMOTE_7_MONETIZATION_REWRITE_DOC.read_text(encoding="utf-8-sig")
+        commercial_readme = (PROJECT_ROOT / "docs" / "COMMERCIAL_README.md").read_text(encoding="utf-8-sig")
+        public_roadmap = (PROJECT_ROOT / "docs" / "PUBLIC_ROADMAP.md").read_text(encoding="utf-8-sig")
+        product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
+
+        self.assertTrue(REMOTE_7_MONETIZATION_REWRITE_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-7 - Web Pro Monetization Rewrite",
+            "web_pro_monthly",
+            "web_pro_annual",
+            "tester_free",
+            "No-Install Buyer Promise",
+            "Support Assist",
+            "Responsible Notice",
+            "Next REMOTE-8 Scope",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_7)
+
+        for pattern in (
+            "Current phase completed: REMOTE-7",
+            "Current implementation phase: REMOTE-8",
+            "Remote Monetization Rewrite Gate",
+            "web_pro_monthly",
+            "web_pro_annual",
+            "support_assist",
+            "tester_free",
+            "portable as internal fallback only",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-7",
+            "docs/REMOTE_7_MONETIZATION_REWRITE.md",
+            "Remote Monetization Rewrite Gate",
+            "Next REMOTE-8 scope",
+            "web_pro_monthly",
+            "web_pro_annual",
+            "support_assist",
+            "tester_free",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Estado comercial: REMOTE-7",
+            "Siguiente paso recomendado: REMOTE-8",
+            "REMOTE-7 fija la oferta web Pro",
+            "El usuario final no instala Python",
+            "acceso web mensual/anual",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "SQX Edge Pro - Commercial README",
+            "protected web access",
+            "web_pro_monthly",
+            "web_pro_annual",
+            "support_assist",
+            "tester_free",
+            "No Python install",
+            "Portable packaging remains an internal rollback/support fallback",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, commercial_readme)
+
+        for forbidden in (
+            "Descargar el ZIP portable",
+            "Hacer doble click",
+            "START_SQX_EDGE.bat",
+            "licencia local firmada",
+            "SQX Edge Free:",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, commercial_readme)
+
+        for pattern in (
+            "Primary commercial direction: protected remote web Pro access",
+            "web_pro_monthly",
+            "web_pro_annual",
+            "support_assist",
+            "tester_free",
+            "REMOTE-8 controlled pilot",
+            "Portable packaging remains an internal fallback",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, public_roadmap)
+
+        self.assertNotIn("ZIP portable para Windows con runtime embebido", public_roadmap)
+
+        for pattern in (
+            "REMOTE-7 web Pro monetization rewrite",
+            "web_pro_monthly",
+            "web_pro_annual",
+            "tester_free",
+            "support_assist",
+            "portable ZIP/offline license flows are internal fallback",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        remote_commercial = product_manifest["remoteCommercial"]
+        self.assertEqual(remote_commercial["phase"], "REMOTE-7")
+        self.assertEqual(remote_commercial["primaryChannel"], "remote_service")
+        self.assertEqual(remote_commercial["buyerAccessModel"], "web_pro_subscription")
+        self.assertEqual(remote_commercial["plans"], ["web_pro_monthly", "web_pro_annual"])
+        self.assertEqual(remote_commercial["supportAddons"], ["support_assist"])
+        self.assertEqual(remote_commercial["testerEntitlement"], "tester_free")
+        self.assertEqual(remote_commercial["portableRole"], "internal_fallback")
+        self.assertTrue(remote_commercial["noInstallBuyerPromise"])
+        self.assertIn("no_financial_results_promise", remote_commercial["responsibleClaims"])
+        self.assertIn("checkout_links", remote_commercial["privateBoundary"])
+
+        combined_public = "\n".join([
+            remote_7, commercial_readme, public_roadmap, roadmap, governance, architecture, readme,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
     def test_remote_sug1_deployment_hardening_review_keeps_windows_pilot_active(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
@@ -1232,8 +1373,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Current phase completed: REMOTE-6",
-            "Current implementation phase: REMOTE-7",
+            "Current phase completed: REMOTE-7",
+            "Current implementation phase: REMOTE-8",
             "Local proposals rule",
             "Deployment Hardening Review Gate",
             "Containerization Deferral Gate",
@@ -1436,7 +1577,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-2 fija el tunel protegido",
             "tools\\remote_tunnel_preflight.ps1 -RequireEvidence",
             "tools\\remote_tunnel_smoke.ps1 -ProtectedUrl",
-            "Siguiente paso recomendado: REMOTE-7",
+            "Siguiente paso recomendado: REMOTE-8",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -12018,7 +12159,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro",
             "Distribucion principal: enlace remoto protegido",
             "Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",
-            "Siguiente paso recomendado: REMOTE-7",
+            "Siguiente paso recomendado: REMOTE-8",
             "powershell -ExecutionPolicy Bypass -File tools\\clean_workspace.ps1 -Aggressive",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):
