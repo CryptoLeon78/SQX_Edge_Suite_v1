@@ -9,6 +9,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Mapping
 import base64
+from core.remote_security import identity_blocked, load_remote_security_policy, session_revoked
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -355,6 +356,25 @@ def evaluate_remote_session(
         }
 
     payload = verified["payload"]
+    security_policy = load_remote_security_policy()
+    if session_revoked(str(payload.get("sid") or ""), security_policy):
+        return {
+            "ok": True,
+            "version": REMOTE_ACCESS_VERSION,
+            "session": _public_session_from_payload(payload, False, "session_revoked"),
+            "access": {"allowed": False, "reason": "session_revoked", "feature_scope": "none"},
+            "security": {"session_revoked": True, "identity_blocked": False},
+            "privacy": {"session_token_returned": False, "grant_keys_returned": False},
+        }
+    if identity_blocked(str(payload.get("email_hash") or ""), security_policy):
+        return {
+            "ok": True,
+            "version": REMOTE_ACCESS_VERSION,
+            "session": _public_session_from_payload(payload, False, "security_identity_blocked"),
+            "access": {"allowed": False, "reason": "security_identity_blocked", "feature_scope": "none"},
+            "security": {"session_revoked": False, "identity_blocked": True},
+            "privacy": {"session_token_returned": False, "grant_keys_returned": False},
+        }
     loaded_store = dict(store) if isinstance(store, Mapping) else load_entitlement_store()
     grant = find_entitlement_for_email_hash(str(payload.get("email_hash") or ""), loaded_store)
     entitlement = normalize_entitlement(grant, today=today)
@@ -372,6 +392,7 @@ def evaluate_remote_session(
             "feature_scope": entitlement["feature_scope"] if allowed else "none",
             "features": ["*"] if allowed and entitlement["feature_scope"] == FULL_FEATURE_SCOPE else [],
         },
+        "security": {"session_revoked": False, "identity_blocked": False},
         "audit_event": {
             "type": "remote_session_evaluated",
             "identity_hash": payload.get("email_hash"),

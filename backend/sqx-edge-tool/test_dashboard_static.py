@@ -22,6 +22,7 @@ REMOTE_3B_APP_SESSION_GRANT_KEY_DOC = PROJECT_ROOT / "docs" / "REMOTE_3B_APP_SES
 REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE_DOC = PROJECT_ROOT / "docs" / "REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md"
 REMOTE_4_WORKSPACE_ISOLATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_4_WORKSPACE_ISOLATION.md"
 REMOTE_5_REMOTE_UX_DOC = PROJECT_ROOT / "docs" / "REMOTE_5_REMOTE_UX.md"
+REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC = PROJECT_ROOT / "docs" / "REMOTE_6_SECURITY_ABUSE_CONTROLS.md"
 REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md"
 REMOTE_TUNNEL_EXAMPLE_EVIDENCE = PROJECT_ROOT / "docs" / "examples" / "remote_tunnel.local.example.json"
 REMOTE_ENTITLEMENTS_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote_entitlements.local.example.json"
@@ -353,6 +354,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertTrue(REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC.is_file())
         self.assertTrue(REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC.is_file())
         self.assertTrue(REMOTE_5_REMOTE_UX_DOC.is_file())
+        self.assertTrue(REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC.is_file())
 
         for pattern in (
             "REMOTE-0",
@@ -363,6 +365,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-3A",
             "REMOTE-4 - Workspace Isolation",
             "REMOTE-5 - Remote UX",
+            "REMOTE-6 - Security And Abuse Controls",
             "REMOTE-8 - Controlled Pilot",
             "Primary channel: `remote_service`",
             "Tester grants: approved testers can receive complete `tester_free` access",
@@ -372,8 +375,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Fallback Portable Gate",
             "GET /api/remote/access/status",
             "docs/REMOTE_5_REMOTE_UX.md",
+            "docs/REMOTE_6_SECURITY_ABUSE_CONTROLS.md",
             "remote-pro-panel",
             "Remote UX Disclosure Gate",
+            "Remote Security Abuse Gate",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, roadmap)
@@ -388,6 +393,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Remote Access Foundation Gate",
             "server-derived workspace",
             "Remote UX Disclosure Gate",
+            "Remote Security Abuse Gate",
             "remote-pro-panel",
             "raw SQX paths",
             "Cloudflare Tunnel/Access",
@@ -403,7 +409,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "workspace per user",
             "remote_tunnel_only",
             "REMOTE-5 remote Pro UX surface",
+            "REMOTE-6 security and abuse controls",
             "remote-pro-panel",
+            "GET /api/remote/security/status",
             "GET /api/remote/workspace/status",
             "Internal Fallback Packaging",
         ):
@@ -412,7 +420,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Servicio web Pro",
-            "Estado comercial: REMOTE-5",
+            "Estado comercial: REMOTE-6",
             "Distribucion principal: enlace remoto protegido",
             "clave tester",
             "REMOTE-2B fija acceso completo `tester_free`",
@@ -421,6 +429,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-3C fija el webhook de pago firmado `remote-payment-webhook-v1`",
             "REMOTE-4 fija el workspace aislado `remote-workspace-v1`",
             "REMOTE-5 fija el panel `remote-pro-panel`",
+            "REMOTE-6 fija `remote-security-v1`",
             "verificados como privados por GitHub CLI",
             "Los testers aprobados podran usar todas las funcionalidades sin pago",
             "Recomendacion comercial: convertir `SQX_Edge_Suite_v1` y `SQX_Institutional_Core` a repos privados",
@@ -640,8 +649,8 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "REMOTE-3B app session grant-key gate",
-            "Current phase completed: REMOTE-5",
-            "Current implementation phase: REMOTE-6",
+            "Current phase completed: REMOTE-6",
+            "Current implementation phase: REMOTE-7",
             "Remote Session Gate",
             "remote-session-v1",
             "__Host-sqx_remote_session",
@@ -665,8 +674,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-5",
-            "Siguiente paso recomendado: REMOTE-6",
+            "Estado comercial: REMOTE-6",
+            "Siguiente paso recomendado: REMOTE-7",
             "REMOTE-3B fija la sesion de app `remote-session-v1`",
             "REMOTE-3C fija el webhook de pago firmado `remote-payment-webhook-v1`",
             "REMOTE-4 fija el workspace aislado `remote-workspace-v1`",
@@ -783,8 +792,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, architecture)
 
         for pattern in (
-            "Estado comercial: REMOTE-5",
-            "Siguiente paso recomendado: REMOTE-6",
+            "Estado comercial: REMOTE-6",
+            "Siguiente paso recomendado: REMOTE-7",
             "docs/REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md",
             "endpoint `/api/remote/payment/webhook`",
             "endpoint piloto `/api/remote/protected/write-pilot`",
@@ -903,8 +912,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, architecture)
 
         for pattern in (
-            "Estado comercial: REMOTE-5",
-            "Siguiente paso recomendado: REMOTE-6",
+            "Estado comercial: REMOTE-6",
+            "Siguiente paso recomendado: REMOTE-7",
             "docs/REMOTE_4_WORKSPACE_ISOLATION.md",
             "endpoint `/api/remote/workspace/status`",
             "workspace aislado `remote-workspace-v1`",
@@ -1021,7 +1030,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Remote UX Disclosure Gate",
             "REMOTE-5 remote Pro UX surface",
             "REMOTE-5 fija el panel `remote-pro-panel`",
-            "Next REMOTE-6 scope",
+            "Artifacts added in REMOTE-6",
         ):
             combined = "\n".join([dashboard_js, css, governance, architecture, readme, roadmap])
             with self.subTest(pattern=pattern):
@@ -1033,6 +1042,155 @@ class DashboardStaticTestCase(unittest.TestCase):
             "@" + "hotmail.com",
             "SQX_REMOTE_SESSION_SECRET=",
             "SQX_REMOTE_WORKSPACES_ROOT=",
+            "CLOUDFLARE_API_TOKEN=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_6_security_abuse_controls_are_wired(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        remote_6 = REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        remote_security_py = (TOOL_ROOT / "core" / "remote_security.py").read_text(encoding="utf-8-sig")
+        remote_access_py = (TOOL_ROOT / "core" / "remote_access.py").read_text(encoding="utf-8-sig")
+        remote_workspaces_py = (TOOL_ROOT / "core" / "remote_workspaces.py").read_text(encoding="utf-8-sig")
+        home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC,
+            TOOL_ROOT / "core" / "remote_security.py",
+            TOOL_ROOT / "test_remote_security.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-6 - Security And Abuse Controls",
+            "remote-security-v1",
+            "SQX_REMOTE_SECURITY_POLICY_PATH",
+            "GET /api/remote/security/status",
+            "GET /api/remote/security/audit/recent",
+            "Kill switch",
+            "Rate limits",
+            "Watermark",
+            "Do not commit the real local policy",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_6)
+
+        for pattern in (
+            "Current phase completed: REMOTE-6",
+            "Current implementation phase: REMOTE-7",
+            "Remote Security Abuse Gate",
+            "remote-security-v1",
+            "redacted audit visibility",
+            "remote-session-watermark",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-6",
+            "docs/REMOTE_6_SECURITY_ABUSE_CONTROLS.md",
+            "backend/sqx-edge-tool/core/remote_security.py",
+            "remote-security-v1",
+            "X-SQX-Remote-Security-Version",
+            "Remote Security Abuse Gate",
+            "Next REMOTE-7 scope",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-6 security and abuse controls",
+            "backend/sqx-edge-tool/core/remote_security.py",
+            "GET /api/remote/security/status",
+            "GET /api/remote/security/audit/recent",
+            "remote-security-v1",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "Estado comercial: REMOTE-6",
+            "Siguiente paso recomendado: REMOTE-7",
+            "REMOTE-6 fija `remote-security-v1`",
+            "endpoint `/api/remote/security/status`",
+            "endpoint `/api/remote/security/audit/recent`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "enforce_remote_security_controls",
+            "@app.get(\"/api/remote/security/status\")",
+            "@app.get(\"/api/remote/security/audit/recent\")",
+            "X-SQX-Remote-Security-Version",
+            "remote_rate_limited",
+            "remote_kill_switch_active",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "REMOTE_SECURITY_VERSION = \"remote-security-v1\"",
+            "SECURITY_POLICY_ENV = \"SQX_REMOTE_SECURITY_POLICY_PATH\"",
+            "check_remote_rate_limit",
+            "public_security_status",
+            "revokedSessionIds",
+            "blockedIdentityHashes",
+            "policy_path_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_security_py)
+
+        for pattern in (
+            "session_revoked",
+            "security_identity_blocked",
+            "identity_blocked",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_access_py)
+
+        for pattern in (
+            "read_recent_workspace_audit_events",
+            "identity_hash_ref",
+            "local_paths_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_workspaces_py)
+
+        for pattern in (
+            'id="remote-pro-security-status"',
+            'id="remote-session-watermark"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, self.html)
+
+        for pattern in (
+            "/remote/security/status",
+            "remote-session-watermark",
+            "watermark",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, home_js)
+
+        self.assertIn(".remote-session-watermark", css)
+
+        combined_public = "\n".join([
+            remote_6, remote_security_py, remote_access_py, remote_workspaces_py,
+            server_py, home_js, self.html, css, roadmap, governance, architecture, readme,
+        ])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "SQX_REMOTE_SECURITY_POLICY_PATH=",
             "CLOUDFLARE_API_TOKEN=",
             "sk_" + "live_",
             "pk_" + "live_",
@@ -1074,8 +1232,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Current phase completed: REMOTE-5",
-            "Current implementation phase: REMOTE-6",
+            "Current phase completed: REMOTE-6",
+            "Current implementation phase: REMOTE-7",
             "Local proposals rule",
             "Deployment Hardening Review Gate",
             "Containerization Deferral Gate",
@@ -1278,7 +1436,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-2 fija el tunel protegido",
             "tools\\remote_tunnel_preflight.ps1 -RequireEvidence",
             "tools\\remote_tunnel_smoke.ps1 -ProtectedUrl",
-            "Siguiente paso recomendado: REMOTE-6",
+            "Siguiente paso recomendado: REMOTE-7",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -11860,7 +12018,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro",
             "Distribucion principal: enlace remoto protegido",
             "Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",
-            "Siguiente paso recomendado: REMOTE-6",
+            "Siguiente paso recomendado: REMOTE-7",
             "powershell -ExecutionPolicy Bypass -File tools\\clean_workspace.ps1 -Aggressive",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):

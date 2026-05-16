@@ -179,3 +179,42 @@ def append_workspace_audit_event(context: Mapping[str, Any], event: Mapping[str,
         },
         "privacy": {"local_path_returned": False},
     }
+
+
+def _redact_audit_event(event: Mapping[str, Any]) -> dict[str, Any]:
+    identity_hash = str(event.get("identityHash") or event.get("identity_hash") or "")
+    return {
+        "type": event.get("type"),
+        "timestamp": event.get("timestamp"),
+        "action": event.get("action"),
+        "workspace_id": event.get("workspaceId") or event.get("workspace_id"),
+        "identity_hash_ref": identity_hash[:12] if identity_hash else None,
+        "email_ref": event.get("emailRef") or event.get("email_ref"),
+        "entitlement_kind": event.get("entitlementKind") or event.get("entitlement_kind"),
+        "feature_scope": event.get("featureScope") or event.get("feature_scope"),
+        "privacy": {"raw_email_returned": False, "local_paths_returned": False},
+    }
+
+
+def read_recent_workspace_audit_events(context: Mapping[str, Any], limit: int = 20) -> list[dict[str, Any]]:
+    if not context.get("ok"):
+        return []
+    paths = context.get("_paths")
+    if not isinstance(paths, Mapping) or not isinstance(paths.get("logs"), Path):
+        return []
+    audit_path = paths["logs"] / "audit.local.jsonl"
+    if not audit_path.is_file():
+        return []
+    try:
+        lines = audit_path.read_text(encoding="utf-8-sig").splitlines()
+    except OSError:
+        return []
+    events: list[dict[str, Any]] = []
+    for line in lines[-max(1, min(int(limit or 20), 100)):]:
+        try:
+            payload = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(payload, Mapping):
+            events.append(_redact_audit_event(payload))
+    return events

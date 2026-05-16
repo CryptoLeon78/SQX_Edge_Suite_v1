@@ -35,8 +35,9 @@ assert.equal(filterB.classList.contains('active'), true);
   'remote-pro-access-item', 'remote-pro-access-status', 'remote-pro-access-detail',
   'remote-pro-workspace-item', 'remote-pro-workspace-status', 'remote-pro-workspace-detail',
   'remote-pro-server-item', 'remote-pro-server-status', 'remote-pro-server-detail',
+  'remote-pro-security-item', 'remote-pro-security-status', 'remote-pro-security-detail',
   'remote-pro-privacy-item', 'remote-pro-privacy-status', 'remote-pro-privacy-detail',
-  'remote-pro-refresh'
+  'remote-pro-refresh', 'remote-session-watermark'
 ].forEach(id => document.add(new Element(id)));
 
 const model = SQX.home.computeHomeModel({
@@ -62,12 +63,16 @@ const remoteModel = SQX.home.computeRemoteServiceModel({
   access: { mode: 'remote_tunnel_only', authenticated: true, access: { allowed: true, reason: 'access_allowed', feature_scope: 'full' }, entitlement: { kind: 'tester_free' } },
   session: { session: { active: true, entitlement_kind: 'tester_free' }, access: { allowed: true, reason: 'session_access_allowed', feature_scope: 'full' } },
   workspace: { ok: true, workspace: { id: 'ws_1234567890abcdef123456', version: 'remote-workspace-v1' } },
+  security: { ok: true, version: 'remote-security-v1', killSwitch: { active: false }, watermark: { enabled: true, label: 'SQX REMOTE PRO', marker: 'te***@example.invalid' } },
   health: { ok: true, version: '142', sqx_path_set: true, data_db_exists: true, templates_capa1_exists: true, templates_capa2_exists: true },
 });
 assert.equal(remoteModel.state, 'active');
 SQX.home.applyRemoteServiceModel(remoteModel, document);
 assert.equal(document.getElementById('remote-pro-badge').textContent, 'Remote Pro');
 assert.equal(document.getElementById('remote-pro-server-status').textContent, 'Recursos listos');
+assert.equal(document.getElementById('remote-pro-security-status').textContent, 'Protecciones activas');
+assert.equal(document.getElementById('remote-session-watermark').hidden, false);
+assert.match(document.getElementById('remote-session-watermark').textContent, /SQX REMOTE PRO/);
 assert.equal(SQX.home.bindRemoteServicePanel(document), true);
 assert.equal(SQX.home.bindRemoteServicePanel(document), false);
 assert.match(SQX.home.remoteReasonLabel('session_missing'), /Sesion/);

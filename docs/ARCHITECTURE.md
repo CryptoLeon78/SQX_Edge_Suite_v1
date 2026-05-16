@@ -104,6 +104,7 @@ Remote-service invariants:
 - REMOTE-3C payment webhooks use `remote-payment-webhook-v1`, `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`, exact-body HMAC verification and idempotent `processedWebhookEvents` before changing paid access.
 - REMOTE-4 workspaces use `remote-workspace-v1`; the workspace id is derived from the active session identity hash and browser-supplied workspace ids or local paths are ignored.
 - REMOTE-5 Home UX uses `remote-pro-panel` to render access, session, workspace, server and privacy state without exposing raw local paths or identities.
+- REMOTE-6 security and abuse controls use `remote-security-v1` to apply rate limits, kill switch, session revocation, identity-hash blocking, redacted audit visibility and session watermark without exposing raw emails, policy paths, tokens or local paths.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -143,6 +144,15 @@ REMOTE-5 remote Pro UX surface:
 - `app/js/modules/home.js` computes and renders the redacted remote status model from `GET /api/remote/access/status`, `GET /api/remote/session/status`, `GET /api/remote/workspace/status` and `GET /api/health`.
 - `app/js/dashboard.js` initializes the panel during dashboard boot.
 - Public copy may show entitlement class, short workspace id and readiness, but never raw SQX paths, workspace roots, `data.db`, output folders, session tokens, grant keys, private URLs, Cloudflare identifiers or raw emails.
+
+REMOTE-6 security and abuse controls:
+
+- `backend/sqx-edge-tool/core/remote_security.py` owns `remote-security-v1`, `SQX_REMOTE_SECURITY_POLICY_PATH`, rate limits, kill switch, revocation/blocking policy and public-safe security status.
+- `backend/sqx-edge-tool/api/server.py` applies remote rate limits before `/api/remote/*` routes, returns `429` with `Retry-After` on abuse and returns `503` for login/protected writes when the kill switch is active.
+- `GET /api/remote/security/status` reports the public-safe security posture and watermark model.
+- `GET /api/remote/security/audit/recent` returns recent workspace audit events for the active session with identity refs shortened and local paths removed.
+- `backend/sqx-edge-tool/core/remote_access.py` enforces revoked session ids and blocked identity hashes before entitlement access is considered allowed.
+- `app/js/modules/home.js` consumes `/remote/security/status`; `app/SQX_Dashboard_v6.html` renders the Home security item and `remote-session-watermark`.
 
 REMOTE-SUG1 deployment hardening decision:
 

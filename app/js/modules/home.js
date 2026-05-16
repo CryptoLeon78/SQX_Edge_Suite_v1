@@ -104,6 +104,7 @@
     var sessionPayload = data.session || {};
     var workspacePayload = data.workspace || {};
     var healthPayload = data.health || {};
+    var securityPayload = data.security || {};
     var access = accessPayload.access || {};
     var sessionAccess = sessionPayload.access || accessPayload.session_access || {};
     var session = sessionPayload.session || accessPayload.session || {};
@@ -132,6 +133,18 @@
     var serverDetail = serverOk
       ? (serverReady ? 'SQX, data.db y templates verificados en servidor.' : 'API responde; completar recursos servidor antes de operar.')
       : 'Sin conexion con la API del gateway remoto o local.';
+    var killSwitch = securityPayload.killSwitch || {};
+    var securityOk = !!securityPayload.ok;
+    var securityBlocked = !!(killSwitch.active || (securityPayload.revocation || {}).currentSessionRevoked || (securityPayload.blocking || {}).currentIdentityBlocked);
+    if (securityBlocked) state = 'blocked';
+    var securityStatus = securityBlocked ? 'Control remoto activo' : (securityOk ? 'Protecciones activas' : 'Pendiente');
+    var securityDetail = securityBlocked
+      ? 'Kill switch, revocacion o bloqueo requieren revision del operador.'
+      : (securityOk ? 'Rate limits, revocacion, bloqueo y watermark preparados.' : 'Esperando politica REMOTE-6 del gateway.');
+    var watermark = securityPayload.watermark || {};
+    var watermarkText = watermark.enabled
+      ? ((watermark.label || 'SQX REMOTE PRO') + ' · ' + (watermark.marker || workspaceStatus || 'session'))
+      : '';
 
     return {
       state: state,
@@ -145,6 +158,7 @@
         access: { state: accessAllowed ? 'ok' : (authenticated ? 'pending' : 'warn'), status: accessStatus, detail: accessDetail },
         workspace: { state: workspaceOk ? 'ok' : 'pending', status: workspaceStatus, detail: workspaceDetail },
         server: { state: serverReady ? 'ok' : (serverOk ? 'pending' : 'warn'), status: serverStatus, detail: serverDetail },
+        security: { state: securityBlocked ? 'blocked' : (securityOk ? 'ok' : 'pending'), status: securityStatus, detail: securityDetail },
         privacy: {
           state: 'ok',
           status: 'Sin instalacion local',
@@ -154,7 +168,13 @@
       raw: {
         accessVersion: accessPayload.version,
         workspaceVersion: workspacePayload.version || workspace.version,
-        serverVersion: healthPayload.version
+        serverVersion: healthPayload.version,
+        securityVersion: securityPayload.version
+      },
+      watermark: {
+        enabled: !!watermark.enabled,
+        text: watermarkText,
+        state: securityBlocked ? 'blocked' : 'active'
       }
     };
   }
@@ -164,6 +184,7 @@
     var box = target.getElementById('remote-pro-' + key + '-item');
     var status = target.getElementById('remote-pro-' + key + '-status');
     var detail = target.getElementById('remote-pro-' + key + '-detail');
+    item = item || {};
     if (box) {
       box.classList.remove('is-ok', 'is-warn', 'is-pending', 'is-blocked');
       box.classList.add('is-' + (item.state || 'pending'));
@@ -190,7 +211,18 @@
     setRemoteItem(target, 'access', model.items.access);
     setRemoteItem(target, 'workspace', model.items.workspace);
     setRemoteItem(target, 'server', model.items.server);
+    setRemoteItem(target, 'security', model.items.security);
     setRemoteItem(target, 'privacy', model.items.privacy);
+    var watermark = target.getElementById('remote-session-watermark');
+    if (watermark) {
+      if (model.watermark && model.watermark.enabled && model.watermark.text) {
+        watermark.hidden = false;
+        watermark.textContent = model.watermark.text;
+        watermark.classList.toggle('is-blocked', model.watermark.state === 'blocked');
+      } else {
+        watermark.hidden = true;
+      }
+    }
   }
 
   function refreshRemoteServiceStatus(doc) {
@@ -200,13 +232,15 @@
       fetchJson('/remote/access/status'),
       fetchJson('/remote/session/status'),
       fetchJson('/remote/workspace/status'),
+      fetchJson('/remote/security/status'),
       fetchJson('/health')
     ]).then(function(results) {
       var model = computeRemoteServiceModel({
         access: results[0],
         session: results[1],
         workspace: results[2],
-        health: results[3]
+        security: results[3],
+        health: results[4]
       });
       applyRemoteServiceModel(model, target);
       return model;

@@ -5,12 +5,12 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 ## Estado Actual
 
 - Estado interno: UX-NAV pasa a optimizacion tab por tab; el tab activo es Workflow y el reordenamiento global queda aplazado hasta completar las optimizaciones individuales.
-- Estado comercial: REMOTE-5 anade panel remoto Pro en el dashboard con estado de acceso, workspace, servidor y privacidad sin mostrar rutas internas.
+- Estado comercial: REMOTE-6 anade seguridad operativa remota: rate limits, revocacion, bloqueo por hash, auditabilidad redaccionada, watermark y kill switch.
 - Estado de despliegue: REMOTE-SUG1 revisa la sugerencia Docker/Ubuntu del tester y mantiene el piloto activo en Windows laptop + API localhost + Cloudflare Tunnel.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
 - Distribucion principal: enlace remoto protegido; el usuario final no descarga ZIP, no ejecuta launchers y no instala Python.
 - Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip` con SHA256 `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`.
-- Siguiente paso recomendado: REMOTE-6 para rate limits, revocacion, auditabilidad visible, watermark remoto, kill switch y respuesta a abuso.
+- Siguiente paso recomendado: REMOTE-7 para reescribir oferta, onboarding, FAQ, soporte y buyer flow alrededor de acceso web Pro mensual/anual.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
 
 ## Limpieza Local
@@ -94,6 +94,7 @@ Acceso remoto Pro previsto:
 - REMOTE-3C fija el webhook de pago firmado `remote-payment-webhook-v1`, secreto privado `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`, endpoint `/api/remote/payment/webhook`, endpoint piloto `/api/remote/protected/write-pilot` y altas/cancelaciones idempotentes en `docs/REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md`.
 - REMOTE-4 fija el workspace aislado `remote-workspace-v1`, endpoint `/api/remote/workspace/status`, `SQX_REMOTE_WORKSPACES_ROOT` privado y el write-pilot auditado dentro del workspace en `docs/REMOTE_4_WORKSPACE_ISOLATION.md`.
 - REMOTE-5 fija el panel `remote-pro-panel` en Home, consumiendo `/api/remote/access/status`, `/api/remote/session/status`, `/api/remote/workspace/status` y `/api/health` para mostrar acceso Pro, readiness remoto, workspace corto y privacidad en `docs/REMOTE_5_REMOTE_UX.md`.
+- REMOTE-6 fija `remote-security-v1`, endpoint `/api/remote/security/status`, endpoint `/api/remote/security/audit/recent`, `SQX_REMOTE_SECURITY_POLICY_PATH`, rate limits, kill switch, revocacion, bloqueo por hash, watermark remoto y auditoria redaccionada en `docs/REMOTE_6_SECURITY_ABUSE_CONTROLS.md`.
 - REMOTE-SUG1 incorpora las mejores ideas de hardening de la propuesta tester en `docs/REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md`: zero ingress, Cloudflare Access/Tunnel, persistencia, backup y resiliencia. Docker/Linux queda como ruta futura REMOTE-9, no como requisito actual para testers ni compradores.
 - La comunicacion de seguridad y privacidad vive en `docs/REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md`.
 - El piloto corre en portatil 24/7 mediante dominio propio, Cloudflare Tunnel y Cloudflare Access.

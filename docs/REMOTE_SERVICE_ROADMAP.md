@@ -144,17 +144,30 @@ Artifacts added in REMOTE-5:
 - status sources: `GET /api/remote/access/status`, `GET /api/remote/session/status`, `GET /api/remote/workspace/status` and `GET /api/health`
 - `Remote UX Disclosure Gate`
 
-Next REMOTE-6 scope:
-
-- add rate limits, revocation checks and blocked-user enforcement around protected actions;
-- make audit visibility useful to the operator without leaking user identities or local paths;
-- add watermark/identity markers suitable for remote sessions;
-- add kill switch, abuse response and incident runbooks for tunnel, payment, webhook and workspace issues;
-- prepare `.cfx` generation endpoints for stricter remote mutation gates.
-
 ### REMOTE-6 - Security And Abuse Controls
 
 Add rate limits, audit logs, visible watermark, kill switch, backup/restore policy, session revocation and blocked-user enforcement. Document incident response for tunnel, payment, webhook and data-isolation issues.
+
+Artifacts added in REMOTE-6:
+
+- `docs/REMOTE_6_SECURITY_ABUSE_CONTROLS.md`
+- `backend/sqx-edge-tool/core/remote_security.py`
+- `remote-security-v1`
+- `SQX_REMOTE_SECURITY_POLICY_PATH`
+- `GET /api/remote/security/status`
+- `GET /api/remote/security/audit/recent`
+- `X-SQX-Remote-Security-Version`
+- `Remote Security Abuse Gate`
+- dashboard Home security item and `remote-session-watermark`
+- session revocation and identity-hash blocking in `backend/sqx-edge-tool/core/remote_access.py`
+- redacted workspace audit reader in `backend/sqx-edge-tool/core/remote_workspaces.py`
+
+Next REMOTE-7 scope:
+
+- rewrite buyer-facing offer around web Pro monthly/annual access;
+- update onboarding, FAQ and support copy for no-install users;
+- align sales docs with authenticated paid access and tester-free grants;
+- keep portable/ZIP as internal fallback only.
 
 ### REMOTE-7 - Monetization Rewrite
 
@@ -176,6 +189,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Payment Webhook Entitlement Gate`: payment events must use `remote-payment-webhook-v1`, private `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`, exact-body HMAC verification, idempotent `processedWebhookEvents`, redacted identity and audit-only local logs.
 - `Workspace Isolation Gate`: workspace ids must be derived from the active app session only; browser-supplied workspace ids, paths and local SQX resources are ignored or rejected.
 - `Remote UX Disclosure Gate`: remote dashboard surfaces may show access state, entitlement class, short workspace id and server readiness, but must not render raw SQX paths, `data.db` paths, output folders, workspace roots, session tokens, grant keys, private URLs, Cloudflare identifiers or raw emails.
+- `Remote Security Abuse Gate`: remote endpoints must apply `remote-security-v1` rate limits, kill switch, session revocation, identity-hash blocking, redacted audit visibility and watermark without returning policy paths, raw emails, tokens, local paths or provider secrets.
 - `Deployment Hardening Review Gate`: hosting suggestions must be reviewed against active REMOTE gates before implementation.
 - `Containerization Deferral Gate`: Docker/Linux must remain future hardening until SQX compatibility, workspace isolation and backup/restore are proven.
 - `Repository Privacy Gate`: before active sales, `origin` and `institutional` should be private or the operator must explicitly accept public-source commercial exposure.

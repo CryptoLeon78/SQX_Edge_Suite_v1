@@ -31,8 +31,9 @@ assert.match(SQX.home.traceHtml([traceItem]), /Title/);
   'remote-pro-access-item', 'remote-pro-access-status', 'remote-pro-access-detail',
   'remote-pro-workspace-item', 'remote-pro-workspace-status', 'remote-pro-workspace-detail',
   'remote-pro-server-item', 'remote-pro-server-status', 'remote-pro-server-detail',
+  'remote-pro-security-item', 'remote-pro-security-status', 'remote-pro-security-detail',
   'remote-pro-privacy-item', 'remote-pro-privacy-status', 'remote-pro-privacy-detail',
-  'remote-pro-refresh'
+  'remote-pro-refresh', 'remote-session-watermark'
 ].forEach(id => document.add(new Element(id)));
 
 const model = SQX.home.computeHomeModel({
@@ -61,12 +62,28 @@ const remotePending = SQX.home.computeRemoteServiceModel({
   access: { mode: 'local_only', authenticated: false, access: { allowed: false, reason: 'identity_missing' } },
   session: { session: { active: false }, access: { allowed: false, reason: 'session_missing' } },
   workspace: { ok: false, error: 'remote_session_required' },
+  security: { ok: true, version: 'remote-security-v1', watermark: { enabled: false }, killSwitch: { active: false } },
   health: { ok: false },
 });
 assert.equal(remotePending.state, 'warn');
 SQX.home.applyRemoteServiceModel(remotePending, document);
 assert.equal(document.getElementById('remote-pro-access-status').textContent, 'Sin sesion remota');
+assert.equal(document.getElementById('remote-pro-security-status').textContent, 'Protecciones activas');
+assert.equal(document.getElementById('remote-session-watermark').hidden, true);
 assert.match(document.getElementById('remote-pro-privacy-detail').textContent, /no se muestran rutas internas/);
+
+const remoteActive = SQX.home.computeRemoteServiceModel({
+  access: { mode: 'remote_tunnel_only', authenticated: true, access: { allowed: true, reason: 'access_allowed', feature_scope: 'full' }, entitlement: { kind: 'tester_free' } },
+  session: { session: { active: true, entitlement_kind: 'tester_free' }, access: { allowed: true, reason: 'session_access_allowed', feature_scope: 'full' } },
+  workspace: { ok: true, workspace: { id: 'ws_1234567890abcdef123456', version: 'remote-workspace-v1' } },
+  security: { ok: true, version: 'remote-security-v1', killSwitch: { active: false }, watermark: { enabled: true, label: 'SQX REMOTE PRO', marker: 'te***@example.invalid' } },
+  health: { ok: true, version: '142', sqx_path_set: true, data_db_exists: true, templates_capa1_exists: true, templates_capa2_exists: true },
+});
+assert.equal(remoteActive.state, 'active');
+SQX.home.applyRemoteServiceModel(remoteActive, document);
+assert.equal(document.getElementById('remote-pro-security-status').textContent, 'Protecciones activas');
+assert.equal(document.getElementById('remote-session-watermark').hidden, false);
+assert.match(document.getElementById('remote-session-watermark').textContent, /SQX REMOTE PRO/);
 
 const tabA = document.add(new Element('wf-main-tab', ['subtab', 'active'], { subtab: 'wf-main' }));
 const tabB = document.add(new Element('wf-rules-tab', ['subtab'], { subtab: 'wf-rules' }));

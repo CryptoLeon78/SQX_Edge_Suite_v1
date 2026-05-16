@@ -57,15 +57,25 @@ from core.strategy_cleaner import (
 from core.mtf_evidence import build_mtf_evidence
 from core.remote_access import (
     SESSION_COOKIE_NAME,
+    email_hash,
     evaluate_remote_request,
     evaluate_remote_session,
     start_remote_session_from_headers,
+    trusted_email_from_headers,
 )
 from core.remote_payments import process_payment_webhook
+from core.remote_security import (
+    REMOTE_SECURITY_VERSION,
+    check_remote_rate_limit,
+    is_kill_switch_active,
+    load_remote_security_policy,
+    public_security_status,
+)
 from core.remote_workspaces import (
     append_workspace_audit_event,
     derive_remote_workspace,
     public_workspace_context,
+    read_recent_workspace_audit_events,
 )
 from core.support_diagnostics import build_support_diagnostics
 from core.fulfillment_queue import (
@@ -114,6 +124,31 @@ def _is_local_remote(value: str | None) -> bool:
     return remote in LOCAL_REMOTE_ADDRS or remote.startswith("127.")
 
 
+def _remote_security_action(method: str, path: str) -> str | None:
+    if not path.startswith("/api/remote/"):
+        return None
+    if path == "/api/remote/session/login" and method == "POST":
+        return "remote_session_login"
+    if path == "/api/remote/session/logout" and method == "POST":
+        return "remote_session_logout"
+    if path == "/api/remote/payment/webhook" and method == "POST":
+        return "remote_payment_webhook"
+    if path.startswith("/api/remote/protected/") and method in {"POST", "PUT", "PATCH", "DELETE"}:
+        return "remote_protected_write"
+    return "remote_status"
+
+
+def _remote_security_subject() -> str:
+    session_status = evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME))
+    session = session_status.get("session") if isinstance(session_status.get("session"), dict) else {}
+    if session.get("email_hash"):
+        return str(session["email_hash"])
+    trusted_email = trusted_email_from_headers(request.headers)
+    if trusted_email:
+        return email_hash(trusted_email)
+    return "local:" + (request.remote_addr or "unknown")
+
+
 @app.before_request
 def enforce_local_api_boundary():
     if not _is_local_host(request.host) or not _is_local_remote(request.remote_addr):
@@ -122,6 +157,35 @@ def enforce_local_api_boundary():
             "error": "local_api_only",
             "message": "SQX Edge API only accepts local browser requests.",
         }), 403
+
+
+@app.before_request
+def enforce_remote_security_controls():
+    action = _remote_security_action(request.method, request.path)
+    if not action:
+        return None
+    policy = load_remote_security_policy()
+    rate = check_remote_rate_limit(_remote_security_subject(), action, policy=policy)
+    if not rate.get("allowed"):
+        response = jsonify({
+            "ok": False,
+            "version": REMOTE_SECURITY_VERSION,
+            "error": "remote_rate_limited",
+            "rateLimit": rate,
+            "privacy": {"subject_returned": False, "local_paths_returned": False},
+        })
+        response.status_code = 429
+        response.headers["Retry-After"] = str(rate.get("retryAfterSeconds") or 0)
+        return response
+    if is_kill_switch_active(policy) and action in {"remote_session_login", "remote_protected_write"}:
+        return jsonify({
+            "ok": False,
+            "version": REMOTE_SECURITY_VERSION,
+            "error": "remote_kill_switch_active",
+            "killSwitch": policy.get("killSwitch"),
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), 503
+    return None
 
 
 @app.after_request
@@ -134,6 +198,8 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Cache-Control"] = "no-store"
+    if request.path.startswith("/api/remote/"):
+        response.headers["X-SQX-Remote-Security-Version"] = REMOTE_SECURITY_VERSION
     return response
 
 
@@ -493,6 +559,48 @@ def api_remote_workspace_status():
         "workspace": public_workspace_context(workspace_context),
         "access": session_status.get("access"),
         "privacy": {"session_token_returned": False, "local_paths_returned": False},
+    })
+
+
+@app.get("/api/remote/security/status")
+def api_remote_security_status():
+    """Public-safe REMOTE-6 security and abuse-control readiness."""
+    session_status = evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME))
+    workspace_context = derive_remote_workspace(session_status, create=False)
+    workspace = public_workspace_context(workspace_context) if workspace_context.get("ok") else {}
+    return jsonify(public_security_status(
+        session_status,
+        workspace_id=workspace.get("id"),
+    ))
+
+
+@app.get("/api/remote/security/audit/recent")
+def api_remote_security_audit_recent():
+    """Return recent redacted workspace audit events for the active remote session."""
+    session_status = evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME))
+    if not session_status.get("access", {}).get("allowed"):
+        return jsonify({
+            "ok": False,
+            "version": REMOTE_SECURITY_VERSION,
+            "error": "remote_session_required",
+            "session": session_status.get("session"),
+            "access": session_status.get("access"),
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), 403
+    workspace_context = derive_remote_workspace(session_status, create=True)
+    if not workspace_context.get("ok"):
+        return jsonify({
+            "ok": False,
+            "version": REMOTE_SECURITY_VERSION,
+            "error": workspace_context.get("error") or "remote_workspace_unavailable",
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), int(workspace_context.get("http_status") or 403)
+    return jsonify({
+        "ok": True,
+        "version": REMOTE_SECURITY_VERSION,
+        "workspace": public_workspace_context(workspace_context),
+        "events": read_recent_workspace_audit_events(workspace_context, limit=20),
+        "privacy": {"raw_email_returned": False, "local_paths_returned": False},
     })
 
 
