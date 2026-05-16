@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "remote-tiny-cohort-execution-v1",
+  "executionId": "remote8e-tiny-cohort-execution-001",
+  "capturedAt": "2026-05-16T16:00:00+00:00",
+  "operatorApproval": true,
+  "requestedAction": "record_manual_activation_execution",
+  "sourceGate": {
+    "remote8dStatus": "GO_REMOTE8D_TINY_COHORT_ACTIVATION_PACKAGE_READY",
+    "remote8dPackageId": "remote8d-tiny-cohort-001"
+  },
+  "environment": {
+    "protectedUrl": "https://private-live.example.invalid/sqx",
+    "localPath": "C:/BOTS/private/live"
+  },
+  "activatedUsers": [
+    {
+      "email": "buyer1@example.invalid",
+      "kind": "paid_subscription",
+      "featureScope": "full",
+      "manualInviteSent": true,
+      "manualGrantRecorded": true,
+      "privateMessageSent": true,
+      "protectedUrlSharedPrivately": true,
+      "supportWindowAcknowledged": true
+    },
+    {
+      "email": "tester2@example.invalid",
+      "kind": "tester_free",
+      "featureScope": "full",
+      "manualInviteSent": true,
+      "manualGrantRecorded": true,
+      "privateMessageSent": true,
+      "protectedUrlSharedPrivately": true,
+      "supportWindowAcknowledged": true
+    },
+    {
+      "email": "buyer3@example.invalid",
+      "kind": "paid_subscription",
+      "featureScope": "full",
+      "manualInviteSent": true,
+      "manualGrantRecorded": true,
+      "privateMessageSent": true,
+      "protectedUrlSharedPrivately": true,
+      "supportWindowAcknowledged": true
+    }
+  ],
+  "checks": {
+    "remote8dPackageGoConfirmed": true,
+    "operatorFinalApprovalRecorded": true,
+    "manualExecutionOnly": true,
+    "noAutomationUsed": true,
+    "privateMessagesSent": true,
+    "entitlementsRecordedPrivately": true,
+    "protectedUrlSharedPrivately": true,
+    "supportWindowActive": true,
+    "rollbackPlanStillReady": true,
+    "pauseRuleStillActive": true,
+    "monitoringStarted": true,
+    "privateEvidenceStoredOutsideGit": true
+  },
+  "manualCounts": {
+    "invitesSentManually": 3,
+    "grantsRecordedManually": 3,
+    "privateMessagesSent": 3,
+    "protectedUrlsSharedPrivately": 3
+  },
+  "automationMetrics": {
+    "automationJobsStarted": 0,
+    "checkoutLinksCreated": 0,
+    "publicUrlsShared": 0,
+    "automatedEmailsSent": 0,
+    "automatedGrantsCreated": 0
+  }
+}
