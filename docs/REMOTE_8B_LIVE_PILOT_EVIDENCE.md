@@ -76,6 +76,8 @@ The only GO status for this phase is:
 
 - `GO_REMOTE8B_LIVE_PILOT_EVIDENCE_SAFE_NO_GIT_LEAK`
 
+Local evidence recorded on 2026-05-17 returned this GO status with all required proofs true. The private source and public-safe summary remain under ignored `.local/remote_service/remote8b_live_pilot_evidence*` paths; no protected URL, raw identity, grant key, session token, Cloudflare identifier or local SQX path is tracked.
+
 Even with GO, expansion remains blocked by design:
 
 - `expansionGate.allowedToExpandBeyondOneUser = false`

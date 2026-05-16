@@ -29,6 +29,8 @@ $toolRoot = Join-Path $repo "backend\sqx-edge-tool"
 $serverPy = Join-Path $toolRoot "api\server.py"
 $python = Resolve-PythonRuntime $toolRoot
 $healthUrl = "http://$HostAddress`:$Port/api/health"
+$localDir = Join-Path $repo ".local\remote_service"
+$sessionSecretPath = Join-Path $localDir "remote_session_secret.local.txt"
 
 if (-not (Test-Path -LiteralPath $serverPy)) {
     throw "Cannot find server.py at $serverPy"
@@ -46,11 +48,22 @@ try {
 
 $env:SQX_REMOTE_SERVICE_MODE = "remote-1-laptop-server-baseline"
 $env:SQX_REMOTE_SERVICE_REPO_ROOT = $repo
+New-Item -ItemType Directory -Force -Path $localDir | Out-Null
+
+if ([string]::IsNullOrWhiteSpace($env:SQX_REMOTE_SESSION_SECRET)) {
+    if (-not (Test-Path -LiteralPath $sessionSecretPath)) {
+        $bytes = New-Object byte[] 48
+        [System.Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
+        [Convert]::ToBase64String($bytes) | Set-Content -LiteralPath $sessionSecretPath -Encoding ASCII
+    }
+    $env:SQX_REMOTE_SESSION_SECRET = (Get-Content -LiteralPath $sessionSecretPath -Raw).Trim()
+}
 
 Write-Host "Starting SQX Edge API for REMOTE-1 laptop server baseline"
 Write-Host "  Repo: $repo"
 Write-Host "  API:  $healthUrl"
 Write-Host "  Bind: $HostAddress only"
+Write-Host "  Remote session secret: local-only ready"
 
 Push-Location $toolRoot
 try {
