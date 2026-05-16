@@ -11,10 +11,12 @@ The first pilot runs on the operator laptop 24/7 behind Cloudflare Tunnel and Cl
 - Primary channel: `remote_service`.
 - Access: paid subscription plus validated email.
 - Provisioning: checkout webhook activates, renews or cancels access automatically.
+- Tester grants: approved testers can receive complete `tester_free` access without payment, but they must authenticate and remain auditable like paid users.
 - User isolation: mandatory workspace per user.
 - Runtime: laptop-hosted gateway and backend during pilot.
 - SQX scope: the remote app prepares `.cfx`, `.vw`, Template Maker outputs, Strategy Control evidence, Champion vs Challenger reviews and exports. It does not expose visual remote control of StrategyQuant X in this phase.
 - Legacy portable: internal fallback and rollback path only; not the user-facing commercial flow.
+- Repository posture: before active sales, `origin` and `institutional` should be private unless the operator explicitly chooses a public-source commercial strategy.
 
 ## Remote Phases
 
@@ -47,9 +49,17 @@ Artifacts:
 - `tools/remote_tunnel_smoke.ps1`
 - `tools/remote_tunnel_install_startup_task.ps1`
 
+### REMOTE-2B - Tester Grants And Repository Privacy
+
+Lock the pre-auth product decisions that REMOTE-3 must respect: approved testers get full `tester_free` access without payment but with the same authentication/audit path as paid users, and the working repositories should become private before active sales.
+
+Artifacts:
+
+- `docs/REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY.md`
+
 ### REMOTE-3 - Paid Auth And Webhook
 
-Implement first-party user sessions and checkout webhook activation. Access requires email validation, active paid entitlement, non-blocked status and valid session. Webhooks must be signed, audited and idempotent.
+Implement first-party user sessions, tester-free grants and checkout webhook activation. Access requires email validation, active entitlement, non-blocked status and valid session. Entitlements include `paid_subscription`, `tester_free` and `internal_operator`. Webhooks must be signed, audited and idempotent.
 
 ### REMOTE-4 - Workspace Isolation
 
@@ -74,6 +84,8 @@ Run one paid/internal user end to end: payment webhook, login, workspace creatio
 ## Required Gates
 
 - `Remote Service Gate`: every remote mutation needs authenticated user, active entitlement, server-derived workspace, audit event and rate-limit boundary.
+- `Tester Free Access Gate`: approved testers may have complete app access without payment only through an explicit `tester_free` entitlement, authenticated session, audit trail and operator-managed grant.
+- `Repository Privacy Gate`: before active sales, `origin` and `institutional` should be private or the operator must explicitly accept public-source commercial exposure.
 - `Workspace Isolation Gate`: no endpoint accepts arbitrary workspace paths or user ids from browser payloads.
 - `Tunnel Exposure Gate`: local backend must not be reachable directly from the public internet.
 - `Webhook Entitlement Gate`: payment events must be signature-verified, idempotent and auditable before access changes.
@@ -83,6 +95,7 @@ Run one paid/internal user end to end: payment webhook, login, workspace creatio
 
 - User can access from browser with no installation.
 - Cloudflare Access and app auth both block anonymous access.
+- Approved tester-free users can access complete features through auth without payment while remaining auditable and revocable.
 - Paid active user can generate and download a `.cfx`.
 - Cancelled or blocked user cannot generate or download.
 - Two users cannot see each other's outputs, imports, logs or config.

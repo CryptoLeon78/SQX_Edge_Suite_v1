@@ -16,6 +16,7 @@ REMOTE_SERVICE_ROADMAP_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_ROADMAP.md"
 REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md"
 REMOTE_1_LAPTOP_SERVER_BASELINE_DOC = PROJECT_ROOT / "docs" / "REMOTE_1_LAPTOP_SERVER_BASELINE.md"
 REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC = PROJECT_ROOT / "docs" / "REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS.md"
+REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC = PROJECT_ROOT / "docs" / "REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY.md"
 REMOTE_TUNNEL_EXAMPLE_EVIDENCE = PROJECT_ROOT / "docs" / "examples" / "remote_tunnel.local.example.json"
 REMOTE_SERVICE_PREFLIGHT_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_preflight.ps1"
 REMOTE_SERVICE_START_SERVER_SCRIPT = PROJECT_ROOT / "tools" / "remote_service_start_server.ps1"
@@ -342,15 +343,19 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         self.assertTrue(REMOTE_SERVICE_ROADMAP_DOC.is_file())
         self.assertTrue(REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC.is_file())
+        self.assertTrue(REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC.is_file())
 
         for pattern in (
             "REMOTE-0",
             "REMOTE-1 - Laptop Server Baseline",
             "REMOTE-2 - Cloudflare Tunnel And Domain",
+            "REMOTE-2B - Tester Grants And Repository Privacy",
             "REMOTE-3 - Paid Auth And Webhook",
             "REMOTE-4 - Workspace Isolation",
             "REMOTE-8 - Controlled Pilot",
             "Primary channel: `remote_service`",
+            "Tester grants: approved testers can receive complete `tester_free` access",
+            "Repository posture: before active sales",
             "Cloudflare Tunnel",
             "workspace per user",
             "Fallback Portable Gate",
@@ -362,6 +367,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Remote Service Gate",
             "authenticated user",
             "active paid entitlement",
+            "Tester Free Access Gate",
+            "Repository Privacy Gate",
+            "tester_free",
             "server-derived workspace",
             "Cloudflare Tunnel/Access",
             "Remote Ops/SRE",
@@ -384,6 +392,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Servicio web Pro",
             "Estado comercial: REMOTE-0",
             "Distribucion principal: enlace remoto protegido",
+            "grants tester-free",
+            "REMOTE-2B fija acceso completo `tester_free`",
+            "Los testers aprobados podran usar todas las funcionalidades sin pago",
+            "Recomendacion comercial: convertir `SQX_Edge_Suite_v1` y `SQX_Institutional_Core` a repos privados",
             "SQX Edge Pro Mensual: acceso web",
             "docs/REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md",
             "Acceso Web Pro",
@@ -413,6 +425,65 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, privacy_copy)
+
+    def test_remote_2b_tester_grants_and_repo_privacy_are_locked(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_2b = REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC.read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "REMOTE-2B - Tester Grants And Repository Privacy",
+            "Approved testers keep complete app access without payment",
+            "entitlement_kind = paid_subscription | tester_free | internal_operator",
+            "a first-class `tester_free` grant path",
+            "Make `CryptoLeon78/SQX_Edge_Suite_v1` private before active sales",
+            "Make `CryptoLeon78/SQX_Institutional_Core` private before active sales",
+            "making a repository private does not erase anything previously cloned or cached",
+            "Codex must not assume the change occurred until verified",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_2b)
+
+        for pattern in (
+            "Tester Free Access Gate",
+            "approved tester cohort",
+            "complete app access without payment",
+            "Repository Privacy Gate",
+            "should be private unless the operator explicitly approves",
+            "active tester-free user allowed",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-2B - Tester Grants And Repository Privacy",
+            "Tester Free Access Gate",
+            "Repository Privacy Gate",
+            "tester_free",
+            "paid_subscription",
+            "internal_operator",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-2B fija acceso completo `tester_free`",
+            "Los testers aprobados podran usar todas las funcionalidades sin pago",
+            "convertir `SQX_Edge_Suite_v1` y `SQX_Institutional_Core` a repos privados",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "grant_key=",
+            "tester_password",
+            "https://sqx" + "-edge",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, remote_2b)
 
     def test_remote_1_laptop_server_baseline_is_documented_and_local_only(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
