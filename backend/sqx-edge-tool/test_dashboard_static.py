@@ -79,6 +79,7 @@ REMOTE_TUNNEL_OPERATOR_HANDOFF_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_
 REMOTE_TUNNEL_RUN_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_run.ps1"
 REMOTE_TUNNEL_SMOKE_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_smoke.ps1"
 REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_install_startup_task.ps1"
+REMOTE_8C_OBSERVATION_STATUS_SCRIPT = PROJECT_ROOT / "tools" / "remote8c_observation_status.ps1"
 REMOTE_CLOUDFLARED_CONFIG_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "cloudflared-config.local.example.yml"
 CLEAN_WORKSPACE_SCRIPT = PROJECT_ROOT / "tools" / "clean_workspace.ps1"
 J1_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J1_CHAMPION_CHALLENGER_CONTRACT.md"
@@ -1654,6 +1655,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         remote_8c = REMOTE_8C_FIRST_USER_OBSERVATION_DOC.read_text(encoding="utf-8-sig")
         observation_py = (TOOL_ROOT / "core" / "remote_first_user_observation.py").read_text(encoding="utf-8-sig")
         observation_tool = (TOOL_ROOT / "tools" / "remote_first_user_observation.py").read_text(encoding="utf-8-sig")
+        observation_status_tool = REMOTE_8C_OBSERVATION_STATUS_SCRIPT.read_text(encoding="utf-8-sig")
         observation_test = (TOOL_ROOT / "test_remote_first_user_observation.py").read_text(encoding="utf-8-sig")
         product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
 
@@ -1662,6 +1664,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             REMOTE_8C_FIRST_USER_OBSERVATION_EXAMPLE,
             TOOL_ROOT / "core" / "remote_first_user_observation.py",
             TOOL_ROOT / "tools" / "remote_first_user_observation.py",
+            REMOTE_8C_OBSERVATION_STATUS_SCRIPT,
             TOOL_ROOT / "test_remote_first_user_observation.py",
         ):
             with self.subTest(path=path):
@@ -1673,6 +1676,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             ".local/remote_service/remote8c_first_user_observation",
             "GO_REMOTE8C_TINY_COHORT_EXPANSION_READY",
             "decision.automationAllowed = false",
+            "Operator Status Helper",
+            "tools\\remote8c_observation_status.ps1",
             "REMOTE-8D - Tiny Cohort Activation Package",
         ):
             with self.subTest(pattern=pattern):
@@ -1683,6 +1688,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Current implementation phase: REMOTE-8H private package evidence",
             "First User Observation Gate",
             "remote-first-user-observation-v1",
+            "tools/remote8c_observation_status.ps1",
             "ignored `.local/remote_service/remote8c_first_user_observation*` evidence",
         ):
             with self.subTest(pattern=pattern):
@@ -1742,6 +1748,18 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, observation_tool)
 
         for pattern in (
+            "remote_first_user_observation.py",
+            "GO_REMOTE8C_TINY_COHORT_EXPANSION_READY",
+            "NO_GO_REMOTE8C_FIRST_USER_OBSERVATION_BLOCKED",
+            "FailOnNoGo",
+            "<local-ignored>",
+            "allowedToExpandToTinyCohort",
+            "manualOperatorStepRequired",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, observation_status_tool)
+
+        for pattern in (
             "test_remote8c_clean_first_user_observation_allows_only_manual_tiny_cohort",
             "test_remote8c_missing_evidence_returns_no_go",
             "test_remote8c_blockers_prevent_expansion",
@@ -1766,6 +1784,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         combined_public = "\n".join([
             remote_8c, roadmap, governance, architecture, readme, observation_py, observation_tool,
+            observation_status_tool,
         ])
         for forbidden in (
             "@" + "gmail.com",

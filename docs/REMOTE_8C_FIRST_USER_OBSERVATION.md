@@ -81,6 +81,16 @@ The output is:
 
 The summary uses `remote-first-user-observation-v1`, redacts the pilot identity and keeps all support evidence private.
 
+## Operator Status Helper
+
+During the 24-hour observation window, use the local status helper for a short redacted summary:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote8c_observation_status.ps1 -Json
+```
+
+The helper wraps the same `remote_first_user_observation.py` ingest tool, writes only the redacted public summary under ignored `.local/remote_service/remote8c_first_user_observation/`, and prints whether REMOTE-8C is still blocked, valid-but-staying-at-one-user, or ready for a manual REMOTE-8D package. It must not print raw emails, protected URLs, grant keys, session tokens, support transcripts or local SQX paths.
+
 ## Possible Decisions
 
 - `GO_REMOTE8C_TINY_COHORT_EXPANSION_READY`: evidence is clean, the operator requested `expand_3_5`, and only a manual next step is allowed.
