@@ -19,6 +19,7 @@ REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC = PROJECT_ROOT / "docs" / "REMOTE_2_CLOUDF
 REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC = PROJECT_ROOT / "docs" / "REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY.md"
 REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_3A_REMOTE_ACCESS_FOUNDATION.md"
 REMOTE_3B_APP_SESSION_GRANT_KEY_DOC = PROJECT_ROOT / "docs" / "REMOTE_3B_APP_SESSION_GRANT_KEY.md"
+REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE_DOC = PROJECT_ROOT / "docs" / "REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md"
 REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md"
 REMOTE_TUNNEL_EXAMPLE_EVIDENCE = PROJECT_ROOT / "docs" / "examples" / "remote_tunnel.local.example.json"
 REMOTE_ENTITLEMENTS_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote_entitlements.local.example.json"
@@ -398,12 +399,13 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Servicio web Pro",
-            "Estado comercial: REMOTE-3B",
+            "Estado comercial: REMOTE-3C",
             "Distribucion principal: enlace remoto protegido",
             "clave tester",
             "REMOTE-2B fija acceso completo `tester_free`",
             "REMOTE-3A fija la base backend `remote-access-v1`",
             "REMOTE-3B fija la sesion de app `remote-session-v1`",
+            "REMOTE-3C fija el webhook de pago firmado `remote-payment-webhook-v1`",
             "verificados como privados por GitHub CLI",
             "Los testers aprobados podran usar todas las funcionalidades sin pago",
             "Recomendacion comercial: convertir `SQX_Edge_Suite_v1` y `SQX_Institutional_Core` a repos privados",
@@ -623,7 +625,8 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "REMOTE-3B app session grant-key gate",
-            "Current implementation phase: REMOTE-3C",
+            "Current phase completed: REMOTE-3C",
+            "Current implementation phase: REMOTE-4",
             "Remote Session Gate",
             "remote-session-v1",
             "__Host-sqx_remote_session",
@@ -641,15 +644,16 @@ class DashboardStaticTestCase(unittest.TestCase):
             "POST /api/remote/session/login",
             "GET /api/remote/session/status",
             "POST /api/remote/session/logout",
-            "Next REMOTE-3C scope",
+            "Artifacts added in REMOTE-3C",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Estado comercial: REMOTE-3B",
-            "Siguiente paso recomendado: REMOTE-3C",
+            "Estado comercial: REMOTE-3C",
+            "Siguiente paso recomendado: REMOTE-4",
             "REMOTE-3B fija la sesion de app `remote-session-v1`",
+            "REMOTE-3C fija el webhook de pago firmado `remote-payment-webhook-v1`",
             "docs/REMOTE_3B_APP_SESSION_GRANT_KEY.md",
         ):
             with self.subTest(pattern=pattern):
@@ -697,6 +701,130 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, combined_public)
 
+    def test_remote_3c_paid_webhook_and_protected_write_gate_is_wired(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        remote_3c = REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        remote_payments_py = (TOOL_ROOT / "core" / "remote_payments.py").read_text(encoding="utf-8-sig")
+        remote_payments_tests = (TOOL_ROOT / "test_remote_payments.py").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE_DOC,
+            TOOL_ROOT / "core" / "remote_payments.py",
+            TOOL_ROOT / "test_remote_payments.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-3C - Paid Webhook And Protected Write Pilot",
+            "remote-payment-webhook-v1",
+            "remote-write-pilot-v1",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET",
+            "POST /api/remote/payment/webhook",
+            "POST /api/remote/protected/write-pilot",
+            "processedWebhookEvents",
+            "No raw buyer email is returned",
+            "Real user workspaces and generated artifacts start in REMOTE-4",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_3c)
+
+        for pattern in (
+            "Current phase completed: REMOTE-3C",
+            "Current implementation phase: REMOTE-4",
+            "Payment Webhook Entitlement Gate",
+            "remote-payment-webhook-v1",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET",
+            "POST /api/remote/payment/webhook",
+            "POST /api/remote/protected/write-pilot",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Artifacts added in REMOTE-3C",
+            "docs/REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md",
+            "backend/sqx-edge-tool/core/remote_payments.py",
+            "remote-payment-webhook-v1",
+            "Next REMOTE-4 scope",
+            "Payment Webhook Entitlement Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-3C payment webhooks use `remote-payment-webhook-v1`",
+            "REMOTE-3C paid webhook and protected write pilot",
+            "backend/sqx-edge-tool/core/remote_payments.py",
+            "POST /api/remote/payment/webhook",
+            "POST /api/remote/protected/write-pilot",
+            "real workspace writes begin in REMOTE-4",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "Estado comercial: REMOTE-3C",
+            "Siguiente paso recomendado: REMOTE-4",
+            "docs/REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md",
+            "endpoint `/api/remote/payment/webhook`",
+            "endpoint piloto `/api/remote/protected/write-pilot`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "@app.post(\"/api/remote/payment/webhook\")",
+            "@app.post(\"/api/remote/protected/write-pilot\")",
+            "X-SQX-Webhook-Signature",
+            "X-Hub-Signature-256",
+            "process_payment_webhook",
+            "evaluate_remote_session",
+            "REMOTE_WRITE_PILOT_AUDIT_PATH",
+            "raw_email_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "REMOTE_PAYMENT_WEBHOOK_VERSION = \"remote-payment-webhook-v1\"",
+            "PAYMENT_WEBHOOK_SECRET_ENV = \"SQX_REMOTE_PAYMENT_WEBHOOK_SECRET\"",
+            "sign_payment_webhook_body",
+            "verify_payment_webhook_signature",
+            "process_payment_webhook",
+            "paid_subscription",
+            "processedWebhookEvents",
+            "raw_email_returned",
+            "webhook_secret_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_payments_py)
+
+        for pattern in (
+            "test_payment_webhook_signature_and_entitlement_activation",
+            "test_payment_webhook_is_idempotent",
+            "test_payment_webhook_cancel_blocks_paid_entitlement",
+            "test_remote_protected_write_pilot_requires_active_app_session",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_payments_tests)
+
+        combined_public = "\n".join([remote_3c, remote_payments_py, server_py, roadmap, governance, readme])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
     def test_remote_sug1_deployment_hardening_review_keeps_windows_pilot_active(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
@@ -731,8 +859,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
-            "Current phase completed: REMOTE-SUG1",
-            "Current implementation phase: REMOTE-3C",
+            "Current phase completed: REMOTE-3C",
+            "Current implementation phase: REMOTE-4",
             "Local proposals rule",
             "Deployment Hardening Review Gate",
             "Containerization Deferral Gate",
@@ -935,7 +1063,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-2 fija el tunel protegido",
             "tools\\remote_tunnel_preflight.ps1 -RequireEvidence",
             "tools\\remote_tunnel_smoke.ps1 -ProtectedUrl",
-            "Siguiente paso recomendado: REMOTE-3",
+            "Siguiente paso recomendado: REMOTE-4",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -11517,7 +11645,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro",
             "Distribucion principal: enlace remoto protegido",
             "Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",
-            "Siguiente paso recomendado: REMOTE-3",
+            "Siguiente paso recomendado: REMOTE-4",
             "powershell -ExecutionPolicy Bypass -File tools\\clean_workspace.ps1 -Aggressive",
             "T10ajl anade `proof:cloudflare-hostname-zone-selection`",
         ):

@@ -4,8 +4,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: REMOTE-SUG1 - deployment hardening review of tester hosting proposal; Windows pilot remains active and Docker/Linux is deferred.
-- Current implementation phase: REMOTE-3C - payment webhook entitlement activation and protected write-endpoint pilot after app sessions.
+- Current phase completed: REMOTE-3C - signed payment webhook entitlement activation and protected write-endpoint pilot after app sessions.
+- Current implementation phase: REMOTE-4 - server-derived workspace isolation for all remote mutable endpoints.
 - Current repository privacy state: `origin` (`SQX_Edge_Suite_v1`) and `institutional` (`SQX_Institutional_Core`) verified as PRIVATE through GitHub CLI on 2026-05-16.
 - Recent remote anchor: REMOTE-1 - laptop server baseline with localhost backend preflight, SQX path readiness checks, watchdog and optional Windows startup task.
 - Recent remote anchor: REMOTE-2 - Cloudflare Tunnel and Access gate for domain-based protected access; no router ports, no public URL in Git and no private provider identifiers committed.
@@ -33,6 +33,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Repository Privacy Gate: before active sales, `origin` (`SQX_Edge_Suite_v1`) and `institutional` (`SQX_Institutional_Core`) should be private unless the operator explicitly approves a public-source commercial strategy. Making a repo private reduces future exposure but does not replace secret scanning, history review or the no-private-evidence-in-Git rule.
 - Remote Access Foundation Gate: REMOTE-3+ access checks must use `remote-access-v1` concepts: trusted identity, `paid_subscription`/`tester_free`/`internal_operator`, active entitlement status, feature scope, audit event and privacy redaction. No runtime auth code may hardcode tester emails, grant keys or paid-user state.
 - Remote Session Gate: REMOTE-3B+ app sessions must use `remote-session-v1`, the `__Host-sqx_remote_session` cookie, a private `SQX_REMOTE_SESSION_SECRET`, `HttpOnly`/`Secure`/`SameSite=Lax` cookie flags, entitlement revalidation on every session check and tester grant-key verification without returning session tokens, grant keys or raw tester emails.
+- Payment Webhook Entitlement Gate: REMOTE-3C+ payment events must use `remote-payment-webhook-v1`, private `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`, exact-body HMAC verification, idempotent `processedWebhookEvents`, redacted identity and audit-only local logs. Webhook responses and entitlement grants must not return or persist raw buyer emails, provider secrets or checkout payloads.
 - Deployment Hardening Review Gate: every hosting/deployment suggestion must be compared against active REMOTE gates before implementation. Adopt zero-ingress, recovery, backup and audit improvements when compatible; do not let infrastructure churn bypass auth, workspace or traceability gates.
 - Containerization Deferral Gate: Docker/Linux is future hardening only until SQX resource compatibility, `data.db` access, generated `.cfx` paths, workspace persistence, backup/restore and protected write endpoints are proven. Do not add a root `Dockerfile`, root `docker-compose.yml` or root `.dockerignore` for the core app during the Windows pilot.
 - Active UX-NAV tab: `Mining Control`; temporarily paused for MODAL-TRACE modal governance and traceability hardening. Resume Mining Control after this phase unless the operator says `Adelante con el siguiente tab`.
@@ -336,6 +337,7 @@ M46 is accepted when these criteria are true:
 - REMOTE-2 Cloudflare Tunnel and Access: `docs/REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS.md`, `docs/examples/remote_tunnel.local.example.json`, `tools/remote_tunnel_preflight.ps1`, `tools/remote_tunnel_run.ps1`, `tools/remote_tunnel_smoke.ps1` and `tools/remote_tunnel_install_startup_task.ps1`.
 - REMOTE-3A remote access foundation: `docs/REMOTE_3A_REMOTE_ACCESS_FOUNDATION.md`, `docs/examples/remote_entitlements.local.example.json`, `backend/sqx-edge-tool/core/remote_access.py`, `GET /api/remote/access/status` and `backend/sqx-edge-tool/test_remote_access.py`.
 - REMOTE-3B app session grant-key gate: `docs/REMOTE_3B_APP_SESSION_GRANT_KEY.md`, `POST /api/remote/session/login`, `GET /api/remote/session/status`, `POST /api/remote/session/logout`, `remote-session-v1`, `__Host-sqx_remote_session`, `SQX_REMOTE_SESSION_SECRET` and `backend/sqx-edge-tool/test_remote_access.py`.
+- REMOTE-3C paid webhook protected write gate: `docs/REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md`, `backend/sqx-edge-tool/core/remote_payments.py`, `POST /api/remote/payment/webhook`, `POST /api/remote/protected/write-pilot`, `remote-payment-webhook-v1`, `remote-write-pilot-v1`, `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET` and `backend/sqx-edge-tool/test_remote_payments.py`.
 - REMOTE-SUG1 deployment hardening review: `docs/REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md`, `Deployment Hardening Review Gate`, `Containerization Deferral Gate`, Windows pilot first and Docker/Linux deferred to REMOTE-9.
 - Commercial gates: `backend/sqx-edge-tool/tools/*` and `docs/sales/*`.
 - Internal automation gate: this document, especially G3 risk levels, agent matrix and local tooling notes.

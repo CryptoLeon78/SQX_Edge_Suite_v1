@@ -101,6 +101,7 @@ Remote-service invariants:
 
 - Browser payloads cannot select arbitrary local paths, user ids or workspace ids.
 - Payment entitlement and validated email are checked before user-facing Pro access.
+- REMOTE-3C payment webhooks use `remote-payment-webhook-v1`, `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`, exact-body HMAC verification and idempotent `processedWebhookEvents` before changing paid access.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -119,6 +120,12 @@ REMOTE-2 Cloudflare Tunnel and Access:
 - `tools/remote_tunnel_smoke.ps1` verifies anonymous traffic is blocked by Cloudflare Access before any SQX Edge body is visible.
 - `tools/remote_tunnel_install_startup_task.ps1` can register the tunnel runner in Windows Task Scheduler.
 - `docs/examples/remote_tunnel.local.example.json` defines the redacted boolean evidence shape copied into ignored `.local/remote_service/cloudflare_tunnel.local.json`.
+
+REMOTE-3C paid webhook and protected write pilot:
+
+- `backend/sqx-edge-tool/core/remote_payments.py` owns signed payment event normalization, idempotent paid entitlement upserts and redacted audit records.
+- `POST /api/remote/payment/webhook` accepts only signed raw bodies and writes `paid_subscription` changes to the ignored local entitlement store.
+- `POST /api/remote/protected/write-pilot` proves app-session write enforcement without mutating project state; real workspace writes begin in REMOTE-4.
 
 REMOTE-SUG1 deployment hardening decision:
 

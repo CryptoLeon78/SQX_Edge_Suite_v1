@@ -81,12 +81,24 @@ Artifacts added in REMOTE-3B:
 - tester-free grant-key verification by `grantKeyHash`
 - entitlement revalidation on every app-session status check
 
-Next REMOTE-3C scope:
+Artifacts added in REMOTE-3C:
 
-- signed payment webhook intake;
-- idempotent activation/cancellation of `paid_subscription` grants;
-- first protected write-endpoint pilot using the app session;
+- `docs/REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md`
+- `backend/sqx-edge-tool/core/remote_payments.py`
+- `remote-payment-webhook-v1`
+- `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`
+- `POST /api/remote/payment/webhook`
+- `POST /api/remote/protected/write-pilot`
+- `remote-write-pilot-v1`
+- idempotent activation/cancellation/expiration/blocking of `paid_subscription` grants;
+- protected write audit proof using the app session;
 - no workspace-wide mutation until REMOTE-4 derives workspace server-side.
+
+Next REMOTE-4 scope:
+
+- derive workspace from the signed session, never from browser payloads;
+- bind uploads, generated `.cfx`, exports, logs and config to that workspace;
+- start migrating mutating endpoints behind the remote session and workspace gates.
 
 ### REMOTE-SUG1 - Deployment Hardening Review
 
@@ -132,6 +144,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Remote Service Gate`: every remote mutation needs authenticated user, active entitlement, server-derived workspace, audit event and rate-limit boundary.
 - `Tester Free Access Gate`: approved testers may have complete app access without payment only through an explicit `tester_free` entitlement, authenticated session, audit trail and operator-managed grant.
 - `Remote Session Gate`: app sessions must use `remote-session-v1`, `__Host-sqx_remote_session`, private `SQX_REMOTE_SESSION_SECRET`, secure cookie flags, entitlement revalidation and privacy redaction.
+- `Payment Webhook Entitlement Gate`: payment events must use `remote-payment-webhook-v1`, private `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`, exact-body HMAC verification, idempotent `processedWebhookEvents`, redacted identity and audit-only local logs.
 - `Deployment Hardening Review Gate`: hosting suggestions must be reviewed against active REMOTE gates before implementation.
 - `Containerization Deferral Gate`: Docker/Linux must remain future hardening until SQX compatibility, workspace isolation and backup/restore are proven.
 - `Repository Privacy Gate`: before active sales, `origin` and `institutional` should be private or the operator must explicitly accept public-source commercial exposure.

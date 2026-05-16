@@ -23,7 +23,7 @@ import os
 import re
 import sys
 import subprocess
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Permitir ejecución directa o vía -m
@@ -61,6 +61,7 @@ from core.remote_access import (
     evaluate_remote_session,
     start_remote_session_from_headers,
 )
+from core.remote_payments import process_payment_webhook
 from core.support_diagnostics import build_support_diagnostics
 from core.fulfillment_queue import (
     load_request as load_fulfillment_request,
@@ -87,6 +88,7 @@ LOCAL_HTTP_ORIGIN_RE = re.compile(API_PROFILE.get("localOriginPattern", r"^https
 LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1"}
 LOCAL_REMOTE_ADDRS = {"127.0.0.1", "::1"}
 SAFE_PROJECT_TOKEN_RE = re.compile(r"[^A-Za-z0-9._-]+")
+REMOTE_WRITE_PILOT_AUDIT_PATH = PROJECT_ROOT / ".local" / "remote_service" / "remote_write_pilot.local.jsonl"
 
 
 # ── CORS manual local-only (zero deps) ────────────────────────────
@@ -476,6 +478,62 @@ def api_remote_session_logout():
     }))
     response.delete_cookie(SESSION_COOKIE_NAME, path="/")
     return response
+
+
+@app.post("/api/remote/payment/webhook")
+def api_remote_payment_webhook():
+    """Signed REMOTE-3C payment webhook that upserts paid entitlements."""
+    signature = (
+        request.headers.get("X-SQX-Webhook-Signature")
+        or request.headers.get("X-Hub-Signature-256")
+        or request.headers.get("X-Signature")
+    )
+    result = process_payment_webhook(request.get_data(), signature)
+    return jsonify(result), int(result.get("http_status") or 200)
+
+
+def _append_remote_write_pilot_event(payload: dict) -> None:
+    REMOTE_WRITE_PILOT_AUDIT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with REMOTE_WRITE_PILOT_AUDIT_PATH.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(payload, sort_keys=True) + "\n")
+
+
+@app.post("/api/remote/protected/write-pilot")
+def api_remote_protected_write_pilot():
+    """First protected REMOTE-3C write pilot using app-session enforcement."""
+    session_status = evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME))
+    if not session_status.get("access", {}).get("allowed"):
+        return jsonify({
+            "ok": False,
+            "error": "remote_session_required",
+            "session": session_status.get("session"),
+            "access": session_status.get("access"),
+            "privacy": {"session_token_returned": False},
+        }), 403
+    data = request.get_json(silent=True) or {}
+    action = str(data.get("action") or "remote_write_pilot").strip()[:80]
+    event = {
+        "type": "remote_write_pilot",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "action": action,
+        "identityHash": (session_status.get("session") or {}).get("email_hash"),
+        "emailRef": (session_status.get("session") or {}).get("email_ref"),
+        "entitlementKind": (session_status.get("entitlement") or {}).get("kind"),
+        "featureScope": session_status.get("access", {}).get("feature_scope"),
+    }
+    _append_remote_write_pilot_event(event)
+    return jsonify({
+        "ok": True,
+        "version": "remote-write-pilot-v1",
+        "event": {
+            "type": event["type"],
+            "action": event["action"],
+            "identity_hash": event["identityHash"],
+            "email_ref": event["emailRef"],
+        },
+        "access": {"allowed": True, "reason": "remote_session_verified"},
+        "privacy": {"session_token_returned": False, "raw_email_returned": False},
+    })
 
 
 @app.post("/api/license/check")
