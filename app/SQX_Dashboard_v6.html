@@ -239,6 +239,17 @@
               <small id="remote-pro-privacy-detail">El trabajo se ejecuta en entorno controlado, auditado y aislado.</small>
             </div>
           </div>
+          <div class="remote-session-actions" id="remote-session-actions" hidden>
+            <div>
+              <strong id="remote-session-title">Crear sesion de app</strong>
+              <small id="remote-session-login-detail">Valida tu permiso antes de crear workspace y generar artefactos.</small>
+            </div>
+            <label class="remote-session-key" id="remote-session-key-wrap" for="remote-session-grant-key" hidden>
+              <span>Clave tester</span>
+              <input id="remote-session-grant-key" type="password" autocomplete="one-time-code" placeholder="Clave privada del tester">
+            </label>
+            <button class="export-btn remote-session-login-btn" id="remote-session-login" type="button">Crear sesion remota</button>
+          </div>
           <button class="export-btn remote-pro-refresh" id="remote-pro-refresh" type="button">Actualizar estado</button>
         </div>
         <div class="home-panel mtf-evidence-panel" id="mtf-evidence-panel">

@@ -1,6 +1,6 @@
 import { assert, Element, createLoadedSandbox } from './harness.mjs';
 
-const { SQX, document } = createLoadedSandbox([
+const { SQX, document, sandbox } = createLoadedSandbox([
   'app/js/modules/home.js',
   'app/js/modules/workflow.js',
 ]);
@@ -33,6 +33,8 @@ assert.match(SQX.home.traceHtml([traceItem]), /Title/);
   'remote-pro-server-item', 'remote-pro-server-status', 'remote-pro-server-detail',
   'remote-pro-security-item', 'remote-pro-security-status', 'remote-pro-security-detail',
   'remote-pro-privacy-item', 'remote-pro-privacy-status', 'remote-pro-privacy-detail',
+  'remote-session-actions', 'remote-session-title', 'remote-session-login-detail',
+  'remote-session-key-wrap', 'remote-session-grant-key', 'remote-session-login',
   'remote-pro-refresh', 'remote-session-watermark'
 ].forEach(id => document.add(new Element(id)));
 
@@ -71,6 +73,43 @@ assert.equal(document.getElementById('remote-pro-access-status').textContent, 'S
 assert.equal(document.getElementById('remote-pro-security-status').textContent, 'Protecciones activas');
 assert.equal(document.getElementById('remote-session-watermark').hidden, true);
 assert.match(document.getElementById('remote-pro-privacy-detail').textContent, /no se muestran rutas internas/);
+
+const remoteNeedsTesterLogin = SQX.home.computeRemoteServiceModel({
+  access: {
+    mode: 'remote_tunnel_only',
+    authenticated: true,
+    access: { allowed: true, reason: 'access_allowed', feature_scope: 'full' },
+    entitlement: { kind: 'tester_free', status: 'active', feature_scope: 'full', grant_key_required: true },
+  },
+  session: { session: { active: false }, access: { allowed: false, reason: 'session_missing' } },
+  workspace: { ok: false, error: 'remote_session_required' },
+  security: { ok: true, version: 'remote-security-v1', watermark: { enabled: false }, killSwitch: { active: false } },
+  health: { ok: true },
+});
+assert.equal(remoteNeedsTesterLogin.sessionLogin.visible, true);
+assert.equal(remoteNeedsTesterLogin.sessionLogin.requiresGrantKey, true);
+SQX.home.applyRemoteServiceModel(remoteNeedsTesterLogin, document);
+assert.equal(document.getElementById('remote-session-actions').hidden, false);
+assert.equal(document.getElementById('remote-session-key-wrap').hidden, false);
+assert.equal(document.getElementById('remote-session-login').textContent, 'Validar tester');
+
+const remoteLoginRequests = [];
+sandbox.fetch = (url, options = {}) => {
+  remoteLoginRequests.push({ url, options });
+  return Promise.resolve({
+    status: 200,
+    ok: true,
+    json: () => Promise.resolve({ ok: true, access: { allowed: true }, privacy: { session_token_returned: false } }),
+  });
+};
+document.getElementById('remote-session-grant-key').value = 'pilot-key';
+const remoteLoginResult = await SQX.home.loginRemoteSession(document, () => Promise.resolve(remoteNeedsTesterLogin));
+assert.equal(remoteLoginResult.ok, true);
+assert.equal(remoteLoginRequests.length, 1);
+assert.match(remoteLoginRequests[0].url, /\/remote\/session\/login$/);
+assert.equal(remoteLoginRequests[0].options.method, 'POST');
+assert.deepEqual(JSON.parse(remoteLoginRequests[0].options.body), { grant_key: 'pilot-key' });
+assert.equal(document.getElementById('remote-session-grant-key').value, '');
 
 const remoteActive = SQX.home.computeRemoteServiceModel({
   access: { mode: 'remote_tunnel_only', authenticated: true, access: { allowed: true, reason: 'access_allowed', feature_scope: 'full' }, entitlement: { kind: 'tester_free' } },

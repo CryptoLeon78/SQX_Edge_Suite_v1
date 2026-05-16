@@ -110,7 +110,8 @@
     var session = sessionPayload.session || accessPayload.session || {};
     var entitlement = sessionPayload.entitlement || accessPayload.entitlement || {};
     var workspace = workspacePayload.workspace || {};
-    var accessAllowed = !!(sessionAccess.allowed || access.allowed);
+    var sessionAllowed = !!(sessionAccess.allowed || session.active);
+    var accessAllowed = !!(sessionAllowed || access.allowed);
     var authenticated = !!(accessPayload.authenticated || session.active || accessAllowed);
     var workspaceOk = !!(workspacePayload.ok && workspace.id);
     var serverOk = !!healthPayload.ok;
@@ -121,9 +122,14 @@
     if (String(reason).indexOf('blocked') >= 0 || String(reason).indexOf('denied') >= 0) state = 'blocked';
     var entitlementKind = entitlement.kind || session.entitlement_kind || '';
     var featureScope = (sessionAccess.feature_scope || access.feature_scope || entitlement.feature_scope || 'none');
-    var accessStatus = accessAllowed ? 'Acceso completo activo' : (authenticated ? 'Identidad detectada' : 'Sin sesion remota');
-    var accessDetail = accessAllowed
+    var grantKeyRequired = !!(entitlement.grant_key_required && entitlementKind === 'tester_free' && !sessionAllowed);
+    var canCreateSession = !!(authenticated && !sessionAllowed && entitlement.status === 'active');
+    var accessStatus = sessionAllowed ? 'Sesion remota activa' : (access.allowed ? 'Permiso detectado' : (authenticated ? 'Identidad detectada' : 'Sin sesion remota'));
+    var accessDetail = sessionAllowed
       ? ((entitlementKind ? entitlementKind + ' · ' : '') + featureScope + ' · ' + remoteReasonLabel(reason))
+      : (access.allowed ? 'Email y permiso validados; falta crear la sesion de app para abrir workspace.' : null);
+    accessDetail = accessDetail
+      ? accessDetail
       : (mode === 'local_only' ? 'Modo local interno; el enlace remoto activara email y permiso.' : remoteReasonLabel(reason));
     var workspaceStatus = workspaceOk ? shortWorkspaceId(workspace.id) : 'Pendiente';
     var workspaceDetail = workspaceOk
@@ -171,6 +177,18 @@
         serverVersion: healthPayload.version,
         securityVersion: securityPayload.version
       },
+      sessionLogin: {
+        visible: canCreateSession,
+        requiresGrantKey: grantKeyRequired,
+        disabled: !canCreateSession,
+        title: grantKeyRequired ? 'Clave tester requerida' : 'Crear sesion de app',
+        detail: grantKeyRequired
+          ? 'Introduce la clave tester privada para activar la sesion de app y crear el workspace aislado.'
+          : (canCreateSession
+            ? 'Tu email esta autorizado. Crea la sesion de app para abrir workspace y operar.'
+            : 'Cuando haya email y permiso activo, aqui aparecera la accion de sesion.'),
+        buttonLabel: grantKeyRequired ? 'Validar tester' : 'Crear sesion remota'
+      },
       watermark: {
         enabled: !!watermark.enabled,
         text: watermarkText,
@@ -193,6 +211,24 @@
     if (detail) detail.textContent = item.detail || '';
   }
 
+  function setRemoteSessionLoginState(model, doc) {
+    var target = doc || global.document;
+    var sessionLogin = (model && model.sessionLogin) || {};
+    var box = target.getElementById('remote-session-actions');
+    var title = target.getElementById('remote-session-title');
+    var detail = target.getElementById('remote-session-login-detail');
+    var keyWrap = target.getElementById('remote-session-key-wrap');
+    var btn = target.getElementById('remote-session-login');
+    if (box) box.hidden = !sessionLogin.visible;
+    if (title) title.textContent = sessionLogin.title || 'Crear sesion de app';
+    if (detail) detail.textContent = sessionLogin.detail || '';
+    if (keyWrap) keyWrap.hidden = !sessionLogin.requiresGrantKey;
+    if (btn) {
+      btn.disabled = !!sessionLogin.disabled;
+      btn.textContent = sessionLogin.buttonLabel || 'Crear sesion remota';
+    }
+  }
+
   function applyRemoteServiceModel(model, doc) {
     var target = doc || global.document;
     if (!target || !model) return;
@@ -213,6 +249,7 @@
     setRemoteItem(target, 'server', model.items.server);
     setRemoteItem(target, 'security', model.items.security);
     setRemoteItem(target, 'privacy', model.items.privacy);
+    setRemoteSessionLoginState(model, target);
     var watermark = target.getElementById('remote-session-watermark');
     if (watermark) {
       if (model.watermark && model.watermark.enabled && model.watermark.text) {
@@ -236,10 +273,9 @@
     ]).then(function(results) {
       var accessPayload = results[0] || {};
       var sessionPayload = results[1] || {};
-      var access = accessPayload.access || {};
       var sessionAccess = sessionPayload.access || {};
       var session = sessionPayload.session || {};
-      var canRequestWorkspace = !!(access.allowed || sessionAccess.allowed || session.active);
+      var canRequestWorkspace = !!(sessionAccess.allowed || session.active);
       var workspacePromise = canRequestWorkspace
         ? fetchJson('/remote/workspace/status')
         : Promise.resolve({
@@ -262,13 +298,54 @@
     });
   }
 
+  function loginRemoteSession(doc, refreshFn) {
+    var target = doc || global.document;
+    var btn = target && target.getElementById('remote-session-login');
+    var detail = target && target.getElementById('remote-session-login-detail');
+    var keyInput = target && target.getElementById('remote-session-grant-key');
+    var body = {};
+    if (keyInput && String(keyInput.value || '').trim()) {
+      body.grant_key = String(keyInput.value || '').trim();
+    }
+    if (btn) btn.disabled = true;
+    if (detail) detail.textContent = 'Validando permiso y creando sesion segura...';
+    return fetchJson('/remote/session/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function(payload) {
+      var access = payload && payload.access ? payload.access : {};
+      if (payload && payload.ok && access.allowed) {
+        if (keyInput) keyInput.value = '';
+        if (detail) detail.textContent = 'Sesion remota creada. Preparando workspace aislado...';
+        var refresher = typeof refreshFn === 'function' ? refreshFn : refreshRemoteServiceStatus;
+        return refresher(target).then(function(model) {
+          return { ok: true, login: payload, model: model };
+        });
+      }
+      var reason = (payload && (payload.error || (payload.access || {}).reason || (payload.entitlement || {}).reason)) || 'session_login_failed';
+      if (detail) detail.textContent = remoteReasonLabel(reason) + '. Revisa permiso, clave tester o sesion Cloudflare.';
+      if (btn) btn.disabled = false;
+      return { ok: false, login: payload, error: reason };
+    });
+  }
+
   function bindRemoteServicePanel(doc) {
     var target = doc || global.document;
     var btn = target && target.getElementById('remote-pro-refresh');
-    if (!btn || btn.dataset.boundRemotePro) return false;
-    btn.dataset.boundRemotePro = '1';
-    btn.addEventListener('click', function() { refreshRemoteServiceStatus(target); });
-    return true;
+    var loginBtn = target && target.getElementById('remote-session-login');
+    var bound = false;
+    if (btn && !btn.dataset.boundRemotePro) {
+      btn.dataset.boundRemotePro = '1';
+      btn.addEventListener('click', function() { refreshRemoteServiceStatus(target); });
+      bound = true;
+    }
+    if (loginBtn && !loginBtn.dataset.boundRemoteLogin) {
+      loginBtn.dataset.boundRemoteLogin = '1';
+      loginBtn.addEventListener('click', function() { loginRemoteSession(target); });
+      bound = true;
+    }
+    return bound;
   }
 
   function initRemoteServicePanel(doc) {
@@ -420,8 +497,10 @@
     createTraceItem: createTraceItem,
     fetchJson: fetchJson,
     initRemoteServicePanel: initRemoteServicePanel,
+    loginRemoteSession: loginRemoteSession,
     refreshRemoteServiceStatus: refreshRemoteServiceStatus,
     remoteReasonLabel: remoteReasonLabel,
+    setRemoteSessionLoginState: setRemoteSessionLoginState,
     shortWorkspaceId: shortWorkspaceId,
     escapeHtml: escapeHtml,
     traceHtml: traceHtml,

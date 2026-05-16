@@ -2,6 +2,8 @@ from datetime import date
 import json
 from unittest.mock import patch
 
+import pytest
+
 from api import server
 from core.remote_access import (
     SESSION_COOKIE_NAME,
@@ -16,6 +18,7 @@ from core.remote_access import (
     start_remote_session_from_headers,
     verify_tester_grant_key,
 )
+from tools.remote_tester_grant import build_tester_grant, upsert_tester_grant
 
 
 def test_email_normalization_redaction_and_hash_are_stable():
@@ -201,6 +204,43 @@ def test_tester_grant_key_hash_is_constant_time_verifiable():
     assert verify_tester_grant_key(grant, "secret-key")["ok"] is True
     assert verify_tester_grant_key(grant, "other")["error"] == "tester_grant_key_invalid"
     assert verify_tester_grant_key({}, "secret-key")["error"] == "tester_grant_key_not_configured"
+
+
+def test_remote_tester_grant_tool_writes_hashes_without_raw_private_values(tmp_path):
+    store_path = tmp_path / "remote_entitlements.local.json"
+
+    result = upsert_tester_grant(store_path, " Pilot@Example.Invalid ", "pilot-key")
+    store = json.loads(store_path.read_text(encoding="utf-8"))
+    grant = store["grants"][0]
+    result_text = json.dumps(result)
+    store_text = json.dumps(store)
+
+    assert result["ok"] is True
+    assert result["status"] == "created"
+    assert result["rawEmailReturned"] is False
+    assert result["grantKeyReturned"] is False
+    assert result["emailHashRef"] == email_hash("pilot@example.invalid")[:12]
+    assert grant["emailHash"] == email_hash("pilot@example.invalid")
+    assert grant["grantKeyHash"] == grant_key_hash("pilot-key")
+    assert "email" not in grant
+    assert "pilot@example.invalid" not in result_text
+    assert "pilot@example.invalid" not in store_text
+    assert "pilot-key" not in result_text
+    assert "pilot-key" not in store_text
+
+    updated = upsert_tester_grant(store_path, "pilot@example.invalid", "new-key")
+    store = json.loads(store_path.read_text(encoding="utf-8"))
+    assert updated["status"] == "updated"
+    assert len(store["grants"]) == 1
+    assert store["grants"][0]["grantKeyHash"] == grant_key_hash("new-key")
+
+
+def test_build_tester_grant_requires_email_and_private_key():
+    assert build_tester_grant("tester@example.invalid", "secret")["grantId"].startswith("tester_")
+    with pytest.raises(ValueError, match="email_required"):
+        build_tester_grant("", "secret")
+    with pytest.raises(ValueError, match="grant_key_required"):
+        build_tester_grant("tester@example.invalid", "")
 
 
 def test_remote_access_status_endpoint_uses_trusted_header_and_redacts_identity():

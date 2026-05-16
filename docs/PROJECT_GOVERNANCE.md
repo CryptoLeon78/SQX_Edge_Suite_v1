@@ -4,8 +4,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: REMOTE-OPS1E - Cloudflare Tunnel + Access is GO: anonymous traffic is intercepted by Access, an approved identity loads the remote dashboard, and the local backend still rejects unauthenticated public-host requests.
-- Current implementation phase: REMOTE-8B private live pilot evidence - record protected dashboard smoke, app session, workspace, generation/export and support-redaction evidence before any tester expansion.
+- Current phase completed: REMOTE-8B Session Bridge - the dashboard can create a server app session from a Cloudflare Access identity plus active entitlement, and a local-only tester grant helper can bootstrap `tester_free` access without committing raw emails or grant keys.
+- Current implementation phase: REMOTE-8B private live pilot evidence - create private ignored tester entitlement/session evidence, then record protected dashboard smoke, workspace, generation/export, revocation/restore and support-redaction evidence before any tester expansion.
 - Historical remote anchor: Current phase completed: REMOTE-OPS1C - Cloudflare tunnel is created/routed and anonymous smoke was hardened to reject backend `local_api_only` false positives.
 - Historical remote anchor: Current implementation phase: REMOTE-OPS1 private Cloudflare Access app/policy evidence - create Access app for the protected hostname, allow approved identities only, then rerun redacted smoke/readiness.
 - Historical remote anchor: Current phase completed: REMOTE-OPS1B - Cloudflare operator handoff added for the remaining private Tunnel/Access blocker without committing provider details.

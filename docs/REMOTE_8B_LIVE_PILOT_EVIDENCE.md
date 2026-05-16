@@ -46,6 +46,16 @@ If any proof is missing or false, REMOTE-8B is `NO_GO` and expansion stays block
 
 ## Tool
 
+Before collecting live evidence, the operator may create a local tester entitlement for the approved identity. This writes only hashes into the ignored entitlement store:
+
+```powershell
+python backend\sqx-edge-tool\tools\remote_tester_grant.py `
+  --email "<approved tester email>" `
+  --grant-key "<private tester grant key>"
+```
+
+The command output must stay local. The raw email and grant key are never committed, and the dashboard asks for the private tester key only when a `tester_free` grant requires it. Paid users and internal operators do not need this tester key.
+
 Use the local-only ingest tool:
 
 ```powershell

@@ -2097,6 +2097,40 @@
   .remote-pro-item.is-pending { border-color:rgba(234,179,8,.26); background:rgba(234,179,8,.055); }
   .remote-pro-item.is-blocked { border-color:rgba(239,68,68,.28); background:rgba(239,68,68,.055); }
   .remote-pro-item.is-privacy { border-color:rgba(20,184,166,.24); background:rgba(20,184,166,.06); }
+  .remote-session-actions {
+    display:grid;
+    gap:10px;
+    margin-top:12px;
+    padding:12px;
+    border:1px solid rgba(96,165,250,.24);
+    border-radius:8px;
+    background:rgba(37,99,235,.08);
+  }
+  .remote-session-actions[hidden] { display:none; }
+  .remote-session-actions strong { display:block; color:var(--text); font-size:13px; }
+  .remote-session-actions small { display:block; margin-top:4px; color:var(--text2); font-size:11px; line-height:1.35; }
+  .remote-session-key { display:grid; gap:5px; }
+  .remote-session-key[hidden] { display:none; }
+  .remote-session-key span {
+    color:var(--text2);
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.35px;
+    text-transform:uppercase;
+  }
+  .remote-session-key input {
+    width:100%;
+    min-height:36px;
+    padding:8px 10px;
+    border:1px solid rgba(148,163,184,.24);
+    border-radius:7px;
+    background:rgba(2,6,23,.72);
+    color:var(--text);
+    outline:none;
+  }
+  .remote-session-key input:focus { border-color:rgba(96,165,250,.68); box-shadow:0 0 0 3px rgba(96,165,250,.12); }
+  .remote-session-login-btn { width:100%; }
+  .remote-session-login-btn:disabled { opacity:.58; cursor:not-allowed; }
   .remote-pro-refresh { width:100%; margin-top:12px; }
   .remote-session-watermark {
     position:fixed;
