@@ -9,7 +9,7 @@
   "darwinex_suffix": "_darwinex",
   "asset_aliases": {
     "_comment": "Aliases asset (plan) -> instrument (DB SQX). Edita según tu broker. Ejemplo Darwinex:",
-    "USTEC": "NDXm",
-    "GER40": "GDAXIm"
+    "USTEC": "NDX_darwinex",
+    "GER40": "GDAXI_darwinex"
   }
 }

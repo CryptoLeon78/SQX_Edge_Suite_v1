@@ -4,8 +4,10 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
-- Current phase completed: REMOTE-OPS1 - laptop production readiness drill contract, redacted and non-executing.
-- Current implementation phase: REMOTE-OPS1 private laptop readiness evidence - the operator runs preflight, watchdog, tunnel and smoke checks into ignored local evidence before returning to REMOTE-8H.
+- Current phase completed: REMOTE-SQX142 Alignment - local backend config aligned to authorized StrategyQuant X 142 with preflight and `.cfx` resource probes passing.
+- Current implementation phase: REMOTE-OPS1 Cloudflare Tunnel/Access private evidence remains blocked until authenticated tunnel, protected hostname and anonymous Access smoke are proven locally.
+- Historical remote anchor: Current phase completed: REMOTE-OPS1 - laptop production readiness drill contract, redacted and non-executing.
+- Historical remote anchor: Current implementation phase: REMOTE-OPS1 private laptop readiness evidence - the operator runs preflight, watchdog, tunnel and smoke checks into ignored local evidence before returning to REMOTE-8H.
 - Historical remote anchor: Current phase completed: REMOTE-8H cycle bridge - package source now accepts REMOTE-8L decisions while preserving legacy REMOTE-8G compatibility.
 - Historical remote anchor: Current implementation phase: REMOTE-8H private package evidence - package exactly one next movement only if REMOTE-8L selects `prepare_next_controlled_movement`.
 - Current repository privacy state: `origin` (`SQX_Edge_Suite_v1`) and `institutional` (`SQX_Institutional_Core`) verified as PRIVATE through GitHub CLI on 2026-05-16.
@@ -27,6 +29,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Timeframe Trace Gate: when an asset card exposes multiple timeframes, the user must confirm one timeframe before the idea enters Plan Mining or Project Generator. The resulting mining/prefill must preserve selected timeframe, available timeframes, source card and resolved BlockSetting trace.
 - Generated CFX Session Gate: Reset Plan Mining defines a new generation session for Project Generator. The `.cfx generados` list must hide outputs older than that reset and clear the in-memory UI/log context, while preserving physical files on disk unless a separate cleanup action explicitly deletes them.
 - CFX Resource Compatibility Gate: generated `.cfx` files must keep every patched `<Chart symbol>` aligned with `<Resources><Symbols>` and `InstrumentInfo` from the selected SQX/data.db source. Version-specific broker IDs, postfixes, data symbols and stale template resources must be detected before a project is considered loadable in SQX.
+- SQX 142 Host Alignment Gate: before testers use the remote host, `backend/sqx-edge-tool/config.json` must point to the authorized SQX 142 installation locally, pass strict REMOTE-1 preflight, validate `data.db` and `projects`, and generate at least one `.cfx` probe with BlockSettings v6, SQX 142 `data.db` costs, aligned `Chart symbol`, matching `Resources/Symbols` and non-empty `InstrumentInfo`.
 - Modal Traceability Gate: every active modal must declare owner, source data, destination data, impact, failure modes and user-visible trace before it can mutate local state. Critical reset/delete/import/restore actions must use the unified decision surface or an equivalent traceable modal, not a blind native prompt.
 - Remote Service Gate: every remote-service mutation must require authenticated user, active paid entitlement, server-derived workspace, audit event and rate-limit boundary. Browser payloads must never select arbitrary local paths, workspace ids or SQX internals; Cloudflare Tunnel/Access protects the public edge and the local backend must not be directly internet-reachable.
 - Laptop Server Baseline Gate: REMOTE-1 scripts may start or supervise only a localhost backend, must validate `config.json`, `sqx_path`, `sqx_data_db`, templates and output readiness, and must write operational logs only to ignored local paths such as `.local/remote_service/`.

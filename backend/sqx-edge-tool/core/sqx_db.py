@@ -249,7 +249,7 @@ class SqxDb:
     def suggest_instruments(self, asset: str, broker_id: Optional[int] = None) -> list[dict]:
         """
         Busca posibles instruments en la DB que correspondan a `asset`.
-        Útil para crear aliases por broker (USTEC -> NDXm/NDX/USTEC100/etc).
+        Útil para crear aliases por broker (USTEC -> NDX_darwinex/NDX/USTEC100/etc).
 
         Returns lista de candidatos con score de relevancia (0-100).
         """

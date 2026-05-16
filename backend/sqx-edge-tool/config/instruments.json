@@ -39,10 +39,10 @@
     }
   },
   "assetAliases": {
-    "USTEC": "NDXm",
+    "USTEC": "NDX_darwinex",
     "US500": "SP500",
     "US30": "WS30(2)",
-    "GER40": "GDAXIm"
+    "GER40": "GDAXI_darwinex"
   },
   "searchHints": {
     "USTEC": [
