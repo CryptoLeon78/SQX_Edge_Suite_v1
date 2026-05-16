@@ -166,6 +166,68 @@
     },
     "nextPhase": "REMOTE-8D-tiny-cohort-activation-package"
   },
+  "remoteTinyCohortActivation": {
+    "phase": "REMOTE-8D",
+    "version": "remote-tiny-cohort-activation-v1",
+    "tool": "backend/sqx-edge-tool/tools/remote_tiny_cohort_activation.py",
+    "doc": "docs/REMOTE_8D_TINY_COHORT_ACTIVATION.md",
+    "example": "docs/examples/remote8d_tiny_cohort_activation.local.example.json",
+    "evidenceRoot": ".local/remote_service/remote8d_tiny_cohort_activation",
+    "summaryOutput": ".local/remote_service/remote8d_tiny_cohort_activation/remote8d_tiny_cohort_activation.public.json",
+    "sourceStatusRequired": "GO_REMOTE8C_TINY_COHORT_EXPANSION_READY",
+    "minCohortSize": 3,
+    "maxCohortSize": 5,
+    "validRequestedActions": [
+      "prepare_manual_activation_package"
+    ],
+    "validEntitlementKinds": [
+      "paid_subscription",
+      "tester_free",
+      "internal_operator"
+    ],
+    "requiredChecks": [
+      "remote8cGoConfirmed",
+      "candidateListReviewed",
+      "cohortSizeWithinLimit",
+      "entitlementBoundariesDefined",
+      "supportOwnerAssigned",
+      "supportWindowReady",
+      "rollbackPlanReady",
+      "pauseRuleReady",
+      "communicationCopyReviewed",
+      "protectedUrlPrivateOnly",
+      "workspaceIsolationReminder",
+      "securityMonitoringReady",
+      "noAutomationConfirmed",
+      "privateEvidenceStoredOutsideGit"
+    ],
+    "zeroAutomationMetrics": [
+      "invitesSent",
+      "grantsCreated",
+      "checkoutLinksCreated",
+      "emailsSent",
+      "publicUrlsShared",
+      "automationJobsStarted"
+    ],
+    "privacy": {
+      "rawEmailsReturned": false,
+      "protectedUrlReturned": false,
+      "localPathsReturned": false,
+      "secretsReturned": false,
+      "sessionTokenReturned": false,
+      "grantKeysReturned": false,
+      "communicationCopyReturned": false,
+      "privateEvidenceCommitted": false
+    },
+    "execution": {
+      "invitesAllowedNow": false,
+      "grantMutationAllowedNow": false,
+      "checkoutAllowedNow": false,
+      "emailSendingAllowedNow": false,
+      "protectedUrlSharingAllowedNow": false
+    },
+    "nextPhase": "REMOTE-8E-tiny-cohort-manual-execution-record"
+  },
   "licensing": {
     "storageKey": "sqx_license_state_v1",
     "licenseFile": "config/license.json",

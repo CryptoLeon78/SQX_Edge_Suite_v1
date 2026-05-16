@@ -109,6 +109,7 @@ Remote-service invariants:
 - REMOTE-8 uses `remote-controlled-pilot-v1` to prove the end-to-end remote chain locally before live cohort expansion: payment webhook, app session, workspace, `.cfx` artifact, export, isolation, revocation and restore.
 - REMOTE-8B uses `remote-live-pilot-evidence-v1` to ingest one private live-pilot smoke as redacted evidence only. Raw email, protected URL, Cloudflare identifiers, payment payloads, support logs and workspace paths remain local/ignored, and expansion beyond one user stays blocked until REMOTE-8C.
 - REMOTE-8C uses `remote-first-user-observation-v1` to decide whether the first real user experience is clean enough to prepare a manual 3-5 user cohort package. It never automates invites, grants, checkout, emails or protected URL sharing.
+- REMOTE-8D uses `remote-tiny-cohort-activation-v1` to prepare the manual 3-5 user activation package after REMOTE-8C GO. Candidate identities, protected URLs and communication copy stay local/ignored; the public summary contains only redacted refs and zero-automation proof.
 - Every mutable action writes an audit event with user, workspace, action, artifact and timestamp.
 - The laptop backend is never published directly; public traffic must enter through Cloudflare Access/Tunnel.
 
@@ -191,6 +192,15 @@ REMOTE-8C first user observation decision:
 - Required signals cover REMOTE-8B GO, guided flow completion, support observation, tunnel/session/entitlement stability, workspace isolation, generation/export, revocation/restore confidence, no incidents and redacted support evidence.
 - Zero-tolerance metrics must remain zero for open support items, unresolved blockers, tunnel drops, session failures, workspace leaks, security incidents, generation failures, entitlement errors and refund requests.
 - Even on GO, `decision.automationAllowed` stays false; REMOTE-8D must prepare only a manual activation package.
+
+REMOTE-8D tiny cohort activation package:
+
+- `backend/sqx-edge-tool/core/remote_tiny_cohort_activation.py` owns `remote-tiny-cohort-activation-v1`.
+- `backend/sqx-edge-tool/tools/remote_tiny_cohort_activation.py` reads ignored private package evidence from `.local/remote_service/remote8d_tiny_cohort_activation.local.json`.
+- The redacted output is `.local/remote_service/remote8d_tiny_cohort_activation/remote8d_tiny_cohort_activation.public.json`.
+- The package requires REMOTE-8C GO, 3-5 candidates, reviewed entitlement boundaries, support owner, support window, rollback plan, pause rule, reviewed communication copy, private protected URL handling and security monitoring.
+- Automation counters for invites, grant creation, checkout links, emails, public URL sharing and jobs started must remain zero.
+- Even on GO, execution gates remain false; REMOTE-8E records only a separate manual execution after operator approval.
 
 REMOTE-SUG1 deployment hardening decision:
 

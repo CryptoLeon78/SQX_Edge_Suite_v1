@@ -253,7 +253,28 @@ Next REMOTE-8D scope:
 
 ### REMOTE-8D - Tiny Cohort Activation Package
 
-Future controlled phase. It prepares the manual package for a 3-5 user cohort after REMOTE-8C, without executing invites, checkout, grants or emails.
+Prepares the manual package for a 3-5 user cohort after REMOTE-8C, without executing invites, checkout, grants or emails.
+
+Artifacts added in REMOTE-8D:
+
+- `docs/REMOTE_8D_TINY_COHORT_ACTIVATION.md`
+- `backend/sqx-edge-tool/core/remote_tiny_cohort_activation.py`
+- `backend/sqx-edge-tool/tools/remote_tiny_cohort_activation.py`
+- `backend/sqx-edge-tool/test_remote_tiny_cohort_activation.py`
+- `docs/examples/remote8d_tiny_cohort_activation.local.example.json`
+- `remote-tiny-cohort-activation-v1`
+- ignored evidence root `.local/remote_service/remote8d_tiny_cohort_activation*`
+- `Tiny Cohort Activation Package Gate`
+
+Next REMOTE-8E scope:
+
+- record the exact manual execution only after the operator approves the REMOTE-8D package;
+- verify who was activated, what entitlement class was used and what private message was sent without committing raw emails or private links;
+- keep rollback and pause rules active before any further expansion.
+
+### REMOTE-8E - Tiny Cohort Manual Execution Record
+
+Future controlled phase. It records what the operator manually executed from the REMOTE-8D package. It should still not automate invites, grants, emails, checkout or protected URL sharing.
 
 ### REMOTE-9 - Containerization / Dedicated Linux Host
 
@@ -272,6 +293,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Controlled Pilot Gate`: pilot work must prove entitlement, login, workspace, artifact generation/export, revocation, restore, isolation and redacted evidence before inviting or expanding users.
 - `Live Pilot Evidence Gate`: private live pilot evidence must pass `remote-live-pilot-evidence-v1`, stay local/ignored, redact identity/URL/path/secrets and keep expansion beyond one user blocked until explicit REMOTE-8C approval.
 - `First User Observation Gate`: first-user support evidence must pass `remote-first-user-observation-v1`, stay local/ignored, prove at least 24 clean hours, zero unresolved support/security/workspace/generation incidents and keep all expansion actions manual.
+- `Tiny Cohort Activation Package Gate`: tiny cohort activation packages must pass `remote-tiny-cohort-activation-v1`, require REMOTE-8C GO, keep identities/URLs local, validate 3-5 candidates and keep invites, grants, emails, checkout and URL sharing at zero.
 - `Deployment Hardening Review Gate`: hosting suggestions must be reviewed against active REMOTE gates before implementation.
 - `Containerization Deferral Gate`: Docker/Linux must remain future hardening until SQX compatibility, workspace isolation and backup/restore are proven.
 - `Repository Privacy Gate`: before active sales, `origin` and `institutional` should be private or the operator must explicitly accept public-source commercial exposure.
