@@ -18,7 +18,7 @@ Stop the remote service from the repository root:
 STOP_SQX_EDGE_REMOTE.bat
 ```
 
-The launchers use `mshta.exe` to open a small visible HTA monitor instead of leaving CMD/PowerShell command windows in front of the operator. Service operations run hidden while the monitor shows Backend and Tunnel status, refreshes automatically and provides guarded `Arrancar`, `Detener`, `Refrescar` and `Cerrar monitor` buttons.
+The launchers use `mshta.exe` to open a small visible HTA monitor instead of leaving CMD/PowerShell command windows in front of the operator. Service operations run hidden while the monitor shows Backend and Tunnel status and provides guarded `Arrancar`, `Detener`, `Refrescar` and `Cerrar monitor` buttons. The monitor does not poll automatically; use `Refrescar` when a manual status check is needed.
 
 Button guard rules:
 

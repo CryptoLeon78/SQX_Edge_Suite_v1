@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
     [string]$RepoRoot = "",
+    [string]$OutFile = "",
     [switch]$Json
 )
 
@@ -63,10 +64,23 @@ $result = [ordered]@{
     ok = [bool]($backend.ok -and $tunnel.ok)
     backend = $backend
     tunnel = $tunnel
+    checkedAt = (Get-Date).ToString("s")
+}
+
+$jsonPayload = $result | ConvertTo-Json -Depth 5 -Compress
+
+if (-not [string]::IsNullOrWhiteSpace($OutFile)) {
+    $outDir = Split-Path -Parent $OutFile
+    if (-not [string]::IsNullOrWhiteSpace($outDir)) {
+        New-Item -ItemType Directory -Force -Path $outDir | Out-Null
+    }
+    $tmp = "$OutFile.tmp"
+    Set-Content -LiteralPath $tmp -Value $jsonPayload -Encoding UTF8
+    Move-Item -LiteralPath $tmp -Destination $OutFile -Force
 }
 
 if ($Json) {
-    $result | ConvertTo-Json -Depth 5 -Compress
+    $jsonPayload
 } else {
     Write-Host "Backend: $($backend.text)"
     Write-Host "Tunnel: $($tunnel.text)"

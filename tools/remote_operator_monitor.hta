@@ -79,7 +79,7 @@
     <div class="actions">
       <button id="startBtn" onclick="startServices()">Arrancar</button>
       <button id="stopBtn" onclick="stopServices()">Detener</button>
-      <button id="refreshBtn" onclick="refreshStatus()">Refrescar</button>
+      <button id="refreshBtn" onclick="manualRefresh()">Refrescar</button>
       <button id="closeBtn" onclick="window.close()">Cerrar monitor</button>
     </div>
   </div>
@@ -93,11 +93,13 @@
     var busy = false;
     var lastAllOk = false;
     var launchMode = "";
+    var statusFile = "";
 
     if (!repo) {
       repo = unescape(location.pathname).replace(/^\/?/, "").replace(/\/tools\/remote_operator_monitor\.hta$/i, "");
     }
     repo = repo.replace(/\//g, "\\").replace(/\\$/, "");
+    statusFile = repo + "\\.local\\remote_service\\remote_operator_probe.latest.json";
     if (!cloudflared) {
       cloudflared = "C:\\Tools\\cloudflared\\cloudflared.exe";
     }
@@ -129,16 +131,13 @@
 
     function tunnelStatus() {
       try {
-        var command = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File ' +
-          quote(repo + "\\tools\\remote_operator_probe.ps1") +
-          ' -RepoRoot ' + quote(repo) +
-          ' -Json';
-        var exec = shell.Exec(command);
-        var started = new Date().getTime();
-        while (exec.Status === 0 && (new Date().getTime() - started) < 4000) {
-          window.setTimeout(function () {}, 50);
+        var fso = new ActiveXObject("Scripting.FileSystemObject");
+        if (!fso.FileExists(statusFile)) {
+          return { ok: false, text: "Comprobando tunel..." };
         }
-        var output = exec.StdOut.ReadAll();
+        var file = fso.OpenTextFile(statusFile, 1, false);
+        var output = file.ReadAll();
+        file.Close();
         if (output.indexOf('"ok":true') >= 0 && output.indexOf('"tunnel":{"ok":true') >= 0) {
           var pidMatch = output.match(/"processId":([0-9]+)/);
           return {
@@ -153,6 +152,15 @@
       } catch (e) {
         return { ok: false, text: "NO-GO - tunel no comprobable" };
       }
+    }
+
+    function requestProbe() {
+      var command = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File ' +
+        quote(repo + "\\tools\\remote_operator_probe.ps1") +
+        ' -RepoRoot ' + quote(repo) +
+        ' -OutFile ' + quote(statusFile) +
+        ' -Json';
+      shell.Run(command, 0, false);
     }
 
     function setButtons(backendOk, tunnelOk) {
@@ -191,6 +199,12 @@
       return { backendOk: backend.ok, tunnelOk: tunnel.ok, allOk: allOk, anyRunning: anyRunning };
     }
 
+    function manualRefresh() {
+      if (busy) return;
+      requestProbe();
+      window.setTimeout(function () { refreshStatus(false); }, 1200);
+    }
+
     function runHidden(command) {
       shell.Run(command, 0, false);
     }
@@ -205,7 +219,7 @@
         quote(repo + "\\tools\\remote_operator_start.ps1") +
         ' -RepoRoot ' + quote(repo) +
         ' -CloudflaredPath ' + quote(cloudflared));
-      window.setTimeout(function () { busy = false; refreshStatus(true); }, 1800);
+      window.setTimeout(function () { busy = false; requestProbe(); window.setTimeout(function () { refreshStatus(true); }, 1200); }, 6500);
     }
 
     function stopServices() {
@@ -217,17 +231,17 @@
       runHidden('powershell.exe -NoProfile -ExecutionPolicy Bypass -File ' +
         quote(repo + "\\tools\\remote_operator_stop.ps1") +
         ' -RepoRoot ' + quote(repo));
-      window.setTimeout(function () { busy = false; refreshStatus(false); }, 1800);
+      window.setTimeout(function () { busy = false; requestProbe(); window.setTimeout(function () { refreshStatus(false); }, 1200); }, 3000);
     }
 
     window.onload = function () {
       window.resizeTo(580, 390);
       var args = String(sqxRemoteMonitor.commandLine || "");
       launchMode = requestedMode || (args.indexOf("--stop") >= 0 ? "stop" : (args.indexOf("--start") >= 0 ? "start" : ""));
+      requestProbe();
       var state = refreshStatus(launchMode !== "stop");
       if (launchMode === "start" && !state.allOk) startServices();
       if (launchMode === "stop" && state.anyRunning) stopServices();
-      window.setInterval(function () { refreshStatus(launchMode !== "stop"); }, 5000);
     };
   </script>
 </body>

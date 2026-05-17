@@ -51,7 +51,7 @@ Artifacts:
 
 ### REMOTE-RUNBOOK1 - Operator Start/Stop
 
-Give the operator a one-click routine for the active Windows laptop host without returning to the old portable mental model. `START_SQX_EDGE_REMOTE.bat` opens a visible HTA monitor, starts the localhost backend and Cloudflare Tunnel with hidden service operations, then shows Backend/Tunnel health. `STOP_SQX_EDGE_REMOTE.bat` opens the same monitor, suppresses startup OK notifications and stops only repo-owned backend/tunnel processes. Monitor actions are guarded so `Arrancar` is disabled when everything is OK and `Detener` is disabled when nothing is running. Legacy `START_SQX_EDGE.bat` and `STOP_SQX_EDGE.bat` must not remain in repository root during the remote pilot.
+Give the operator a one-click routine for the active Windows laptop host without returning to the old portable mental model. `START_SQX_EDGE_REMOTE.bat` opens a visible HTA monitor, starts the localhost backend and Cloudflare Tunnel with hidden service operations, then shows Backend/Tunnel health. `STOP_SQX_EDGE_REMOTE.bat` opens the same monitor, suppresses startup OK notifications and stops only repo-owned backend/tunnel processes. Monitor actions are guarded so `Arrancar` is disabled when everything is OK and `Detener` is disabled when nothing is running. The monitor uses manual `Refrescar` instead of automatic polling to avoid PowerShell flashes or UI freezes. Legacy `START_SQX_EDGE.bat` and `STOP_SQX_EDGE.bat` must not remain in repository root during the remote pilot.
 
 Artifacts:
 
