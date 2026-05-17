@@ -90,9 +90,12 @@ async function run() {
     });
     await desktop.waitForSelector('#remote-welcome-gate:not([hidden])');
     const pendingWelcomeText = await desktop.locator('#remote-welcome-gate').innerText();
-    ['Acceso DASHBOARD', 'OK identidad validada', 'Trust Center', 'workspace aislado', 'Sin instalacion local', 'productividad', 'QXPro'].forEach(expected => {
+    ['Acceso DASHBOARD', 'OK identidad validada', 'Listo al entrar', 'Trust Center', 'workspace aislado', 'Sin instalacion local', 'productividad', 'QXPro'].forEach(expected => {
       if (!pendingWelcomeText.includes(expected)) throw new Error(`Remote welcome gate should explain ${expected}`);
     });
+    if (pendingWelcomeText.includes('OK identidad validada. Pulsa Acceso DASHBOARD')) {
+      throw new Error('Remote welcome should not repeat OK identidad validada in the body copy');
+    }
     const pendingWelcomeAction = await desktop.locator('#remote-welcome-primary').evaluate(node => node.dataset.remoteWelcomeAction);
     if (pendingWelcomeAction !== 'login') throw new Error(`Remote welcome primary action should login, got ${pendingWelcomeAction}`);
     const welcomeKeyCount = await desktop.locator('#remote-welcome-grant-key').count();

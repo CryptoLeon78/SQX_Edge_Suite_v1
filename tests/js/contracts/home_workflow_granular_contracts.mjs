@@ -105,6 +105,9 @@ assert.equal(document.getElementById('remote-session-key-wrap').hidden, true);
 assert.equal(document.getElementById('remote-session-login').textContent, 'Acceso DASHBOARD');
 assert.equal(document.getElementById('remote-welcome-gate').hidden, false);
 assert.equal(document.getElementById('remote-welcome-verdict').textContent, 'OK identidad validada');
+assert.doesNotMatch(document.getElementById('remote-welcome-detail').textContent, /^OK identidad validada/);
+assert.equal(document.getElementById('remote-welcome-workspace-status').textContent, 'Listo al entrar');
+assert.match(document.getElementById('remote-welcome-workspace-detail').textContent, /Acceso DASHBOARD/);
 assert.equal(document.getElementById('remote-welcome-primary').textContent, 'Acceso DASHBOARD');
 
 const remoteLoginRequests = [];

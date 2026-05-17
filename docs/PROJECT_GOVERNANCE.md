@@ -252,7 +252,7 @@ G2 - Governance Lookup Before Work:
 - Declare active ownership, expected touched areas and required checks before implementation when work is more than a direct answer.
 - If specialized agents are available and the user asks for agent consultation, use them for bounded review or execution tasks that match the ownership matrix.
 - If no specialized agent is needed, explicitly use Project Governance as the source of ownership and verification discipline.
-- Status + Next Suggestion Cadence Gate: every working update and final status should include the current state and the next recommended action/suggestion when it adds clarity; keep it concise during implementation and avoid expanding scope without a phase decision.
+- Status + Next Suggestion Cadence Gate: every working update and final status should include the current state and the next recommended action/suggestion when it adds clarity; every final summary must close with the real state after all actions plus Codex's recommended next project movement based on that state. Keep it concise during implementation and avoid expanding scope without a phase decision.
 - Specialist Agent Autonomy Gate: Codex may apply the relevant governance agent perspective whenever the task needs it without waiting for the user to name the agent. The Asset Cards Curator is the exception: any actual asset-card data/rating/timeframe/mapping change requires explicit operator confirmation first.
 
 G3 - Internal Automation and Agent Gate:

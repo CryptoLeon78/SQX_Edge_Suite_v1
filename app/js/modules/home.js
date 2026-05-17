@@ -152,10 +152,12 @@
     accessDetail = accessDetail
       ? accessDetail
       : (mode === 'local_only' ? 'Modo local interno; el enlace remoto activara email y permiso.' : remoteReasonLabel(reason));
-    var workspaceStatus = workspaceOk ? shortWorkspaceId(workspace.id) : 'Pendiente';
+    var workspaceStatus = workspaceOk ? shortWorkspaceId(workspace.id) : (canCreateSession ? 'Listo al entrar' : 'Pendiente');
     var workspaceDetail = workspaceOk
       ? 'Workspace aislado gestionado por servidor; rutas locales no expuestas.'
-      : 'Se crea solo con sesion remota valida y permiso activo.';
+      : (canCreateSession
+        ? 'Se crea automaticamente al pulsar Acceso DASHBOARD.'
+        : 'Se crea solo con sesion remota valida y permiso activo.');
     var serverStatus = serverOk ? (serverReady ? 'Recursos listos' : 'Backend disponible') : 'No conectado';
     var serverDetail = serverOk
       ? (serverReady ? 'SQX, data.db y templates verificados en servidor.' : 'API responde; completar recursos servidor antes de operar.')
@@ -232,7 +234,7 @@
         detail: state === 'active'
           ? 'OK todo validado. Sesion, permiso, workspace y protecciones estan activos. Puedes entrar al dashboard y continuar la metodologia.'
           : (canCreateSession
-            ? 'OK identidad validada. Pulsa Acceso DASHBOARD para crear tu sesion de app y abrir el workspace aislado.'
+            ? 'Pulsa Acceso DASHBOARD para crear tu sesion de app y abrir el workspace aislado.'
             : 'Antes de operar, SQX Edge valida identidad, permiso activo, sesion de app y workspace aislado.'),
         primaryAction: welcomePrimaryAction,
         primaryLabel: welcomePrimaryLabel,
@@ -455,9 +457,12 @@
           dismissRemoteWelcomeGate(target);
         } else if (action === 'login') {
           primary.disabled = true;
-          loginRemoteSession(target).then(function(result) {
+          loginRemoteSession(target, function(refreshTarget) {
+            dismissRemoteWelcomeGate(refreshTarget);
+            return refreshRemoteServiceStatus(refreshTarget);
+          }).then(function(result) {
             var model = result && result.model;
-            if (result && result.ok && model && model.state === 'active') {
+            if (result && result.ok) {
               dismissRemoteWelcomeGate(target);
             } else if (primary) {
               primary.disabled = false;
