@@ -68,11 +68,11 @@
       id: 'state-restore-backdrop',
       tab: 'Control Panel',
       owner: 'state-backup',
-      action: 'restaurar snapshot local',
-      reads: ['backup local API /state/backups'],
-      writes: ['localStorage permitido'],
-      trace: ['snapshot', 'fecha', 'tamano', 'claves permitidas', 'backup previo automatico'],
-      failures: ['API offline', 'snapshot corrupto', 'restore parcial']
+      action: 'restaurar snapshot de estado',
+      reads: ['API /state/backups local o workspace remoto'],
+      writes: ['localStorage permitido', 'workspace remoto si aplica'],
+      trace: ['snapshot', 'fecha', 'tamano', 'scope local/workspace', 'claves permitidas', 'backup previo automatico'],
+      failures: ['API offline', 'snapshot corrupto', 'restore parcial', 'sesion remota ausente']
     },
     {
       id: 'sqx-decision-backdrop',

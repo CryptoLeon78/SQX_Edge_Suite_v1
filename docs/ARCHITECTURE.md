@@ -199,6 +199,14 @@ REMOTE-PERSIST1C Template Maker workspace state:
 - `app/js/modules/template-maker.js` bridges the browser to the workspace through `buildRemoteSnapshot`, `applyRemoteSnapshot`, `bootstrapRemoteState`, `saveRemoteState` and `getRemotePersistenceStatus`.
 - Browser IndexedDB is only a compatibility cache in remote mode; the server-derived workspace snapshot is the source of truth.
 
+REMOTE-PERSIST1D Control Panel workspace backups:
+
+- `/api/state/backup`, `/api/state/backups` and `/api/state/restore/<filename>` keep local operator behavior in local mode.
+- The same endpoints switch to `remote-state-backup-v1` when the request has a remote app session or trusted tunnel identity.
+- Remote snapshots live under `<workspace>/config/state_backups` and public JSON uses `workspace://state-backups`.
+- The backend filters snapshot payloads to the allowed dashboard state keys before writing.
+- `app/js/modules/state-backup.js` includes credentials in state backup calls, labels workspace snapshots and resyncs restored keys through `SQX.remoteState.saveSnapshot(...)`.
+
 REMOTE-5 remote Pro UX surface:
 
 - `docs/REMOTE_5_REMOTE_UX.md` owns the visible UX contract for remote-service status.

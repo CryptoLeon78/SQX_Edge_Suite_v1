@@ -66,7 +66,7 @@ This phase did not yet migrate:
 - Template Maker IndexedDB (`SQXTemplateMakerDB`), later migrated by
   REMOTE-PERSIST1C;
 - SQX Views custom presets;
-- Control Panel backup/restore;
+- Control Panel backup/restore, later migrated by REMOTE-PERSIST1D;
 - browser-side generated-output reset history beyond the existing compatibility cache.
 
 The remaining persistence gaps remain blockers before expanding beyond the

@@ -128,6 +128,20 @@ CONFIG_PATH = ROOT / "config.json"
 DASHBOARD_ROOT = PROJECT_ROOT / "app"
 STATE_BACKUP_DIR = PROJECT_ROOT / "analysis" / "analysis_output"
 STATE_BACKUP_RETENTION = int(os.environ.get("SQX_STATE_BACKUP_RETENTION", "30"))
+REMOTE_STATE_BACKUP_VERSION = "remote-state-backup-v1"
+REMOTE_STATE_BACKUP_DIRNAME = "state_backups"
+STATE_BACKUP_ALLOWED_KEYS = frozenset({
+    "sqx_priority_progress_v1",
+    "sqx_plan_user_v1",
+    "sqx_pipeline_state_v1",
+    "sqx_strategies_user_v1",
+    "sqx_strategies_deleted_v1",
+    "sqx_workflow_checklist_v1",
+    "sqx_view_creator_presets_v1",
+    "sqx_pg_custom_presets_v1",
+    "sqx_home_trace_v1",
+    "sqx_pg_api_base_v1",
+})
 API_PROFILE = (load_manifest("generator_profiles.json").get("api") or {})
 DEFAULT_HOST = API_PROFILE.get("defaultHost", "127.0.0.1")
 DEFAULT_PORT = int(API_PROFILE.get("defaultPort", 5050))
@@ -173,6 +187,10 @@ def _remote_security_action(method: str, path: str) -> str | None:
     if path.startswith("/api/remote/protected/") and method in {"POST", "PUT", "PATCH", "DELETE"}:
         return "remote_protected_write"
     if path.startswith("/api/remote/template-maker/") and method in {"POST", "PUT", "PATCH", "DELETE"}:
+        return "remote_protected_write"
+    if path.startswith("/api/state/") and method == "POST" and (
+        _is_authenticated_access_tunnel_request() or bool(request.cookies.get(SESSION_COOKIE_NAME))
+    ):
         return "remote_protected_write"
     return "remote_status"
 
@@ -1742,25 +1760,79 @@ def open_folder():
 
 
 # ── Dashboard state backups ──────────────────────────────────────
-# Guarda snapshots JSON del estado local del dashboard sin depender de la
-# modularizacion JS. La UI puede consumir estos endpoints ahora o en una fase
-# posterior.
-def _state_backup_path(filename: str) -> Path:
+# Guarda snapshots JSON del estado del dashboard. En local usa el directorio
+# operador historico; en remoto usa el workspace derivado de la sesion.
+def _sanitize_state_backup_data(data: dict) -> dict:
+    return {key: value for key, value in data.items() if key in STATE_BACKUP_ALLOWED_KEYS}
+
+
+def _state_backup_scope() -> tuple[dict, object | None]:
+    remote_like = _is_authenticated_access_tunnel_request() or bool(request.cookies.get(SESSION_COOKIE_NAME))
+    if not remote_like:
+        return {
+            "ok": True,
+            "scope": "local_operator",
+            "root": STATE_BACKUP_DIR,
+            "workspace": None,
+            "version": VERSION,
+        }, None
+    session_status, device_id = _remote_session_status_for_request(purpose="remote_state_backup")
+    if not session_status.get("access", {}).get("allowed"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_STATE_BACKUP_VERSION,
+            "error": "remote_session_required",
+            "session": session_status.get("session"),
+            "access": session_status.get("access"),
+            "accessControl": session_status.get("accessControl"),
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), 403)
+        return {}, _set_remote_device_cookie(response, device_id)
+    workspace_context = derive_remote_workspace(session_status, create=True)
+    if not workspace_context.get("ok"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_STATE_BACKUP_VERSION,
+            "error": workspace_context.get("error") or "remote_workspace_unavailable",
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), int(workspace_context.get("http_status") or 403))
+        return {}, _set_remote_device_cookie(response, device_id)
+    paths = workspace_context.get("_paths") if isinstance(workspace_context.get("_paths"), dict) else {}
+    config_dir = paths.get("config")
+    if not isinstance(config_dir, Path):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_STATE_BACKUP_VERSION,
+            "error": "remote_workspace_config_missing",
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), 500)
+        return {}, _set_remote_device_cookie(response, device_id)
+    return {
+        "ok": True,
+        "scope": "remote_workspace",
+        "root": config_dir / REMOTE_STATE_BACKUP_DIRNAME,
+        "workspace": workspace_context,
+        "device_id": device_id,
+        "version": REMOTE_STATE_BACKUP_VERSION,
+    }, None
+
+
+def _state_backup_path(filename: str, root: Path) -> Path:
     if not filename.startswith("state_backup_") or not filename.endswith(".json"):
         abort(404)
-    path = (STATE_BACKUP_DIR / filename).resolve(strict=False)
+    path = (root / filename).resolve(strict=False)
     try:
-        path.relative_to(STATE_BACKUP_DIR.resolve(strict=False))
+        path.relative_to(root.resolve(strict=False))
     except ValueError:
         abort(403)
     return path
 
 
-def _list_state_backups() -> list[dict]:
-    if not STATE_BACKUP_DIR.exists():
+def _list_state_backups(root: Path, scope: str) -> list[dict]:
+    if not root.exists():
         return []
     files = sorted(
-        STATE_BACKUP_DIR.glob("state_backup_*.json"),
+        root.glob("state_backup_*.json"),
         key=lambda p: p.stat().st_mtime,
         reverse=True,
     )
@@ -1769,15 +1841,17 @@ def _list_state_backups() -> list[dict]:
             "name": p.name,
             "size_kb": round(p.stat().st_size / 1024, 1),
             "mtime": int(p.stat().st_mtime),
+            "scope": scope,
+            "location": "workspace://state-backups" if scope == "remote_workspace" else "local://analysis_output",
         }
         for p in files
         if p.is_file()
     ]
 
 
-def _rotate_state_backups() -> int:
+def _rotate_state_backups(root: Path) -> int:
     files = sorted(
-        STATE_BACKUP_DIR.glob("state_backup_*.json"),
+        root.glob("state_backup_*.json"),
         key=lambda p: p.stat().st_mtime,
         reverse=True,
     )
@@ -1801,45 +1875,102 @@ def api_state_backup():
     if not isinstance(data, dict):
         return jsonify({"ok": False, "error": "body must be a JSON object"}), 400
 
-    STATE_BACKUP_DIR.mkdir(parents=True, exist_ok=True)
-    created_at = datetime.now().isoformat(timespec="seconds")
-    stamp = datetime.now().strftime("%Y-%m-%dT%H-%M-%S")
-    target = STATE_BACKUP_DIR / f"state_backup_{stamp}.json"
+    scope, blocked = _state_backup_scope()
+    if blocked is not None:
+        return blocked
+    root = scope["root"]
+    root.mkdir(parents=True, exist_ok=True)
+    clean_data = _sanitize_state_backup_data(data)
+    created_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
+    stamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H-%M-%S-%fZ")
+    target = root / f"state_backup_{stamp}.json"
     payload = {
         "_meta": {
             "created_at": created_at,
-            "version": VERSION,
-            "keys": sorted(data.keys()),
+            "version": scope["version"],
+            "scope": scope["scope"],
+            "keys": sorted(clean_data.keys()),
+            "filtered_keys": sorted(set(data.keys()) - set(clean_data.keys())),
+            "location": "workspace://state-backups" if scope["scope"] == "remote_workspace" else "local://analysis_output",
         },
-        "data": data,
+        "data": clean_data,
     }
+    if scope["scope"] == "remote_workspace":
+        payload["_meta"]["workspace"] = public_workspace_context(scope["workspace"])
     target.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-    rotated = _rotate_state_backups()
-    return jsonify({
+    rotated = _rotate_state_backups(root)
+    if scope["scope"] == "remote_workspace":
+        append_workspace_audit_event(scope["workspace"], {
+            "type": "remote_state_backup_created",
+            "action": "state_backup",
+            "filename": target.name,
+            "keys": sorted(clean_data.keys()),
+            "version": REMOTE_STATE_BACKUP_VERSION,
+        })
+    response = make_response(jsonify({
         "ok": True,
+        "version": scope["version"],
+        "scope": scope["scope"],
         "filename": target.name,
         "size_kb": round(target.stat().st_size / 1024, 1),
         "rotated": rotated,
-    })
+        "workspace": public_workspace_context(scope["workspace"]) if scope["scope"] == "remote_workspace" else None,
+        "privacy": {"local_paths_returned": False, "raw_email_returned": False},
+    }))
+    if scope["scope"] == "remote_workspace":
+        return _set_remote_device_cookie(response, scope.get("device_id", ""))
+    return response
 
 
 @app.get("/api/state/backups")
 def api_state_backups():
     """Lista backups disponibles, del mas reciente al mas antiguo."""
-    return jsonify({"ok": True, "backups": _list_state_backups()})
+    scope, blocked = _state_backup_scope()
+    if blocked is not None:
+        return blocked
+    response = make_response(jsonify({
+        "ok": True,
+        "version": scope["version"],
+        "scope": scope["scope"],
+        "backups": _list_state_backups(scope["root"], scope["scope"]),
+        "workspace": public_workspace_context(scope["workspace"]) if scope["scope"] == "remote_workspace" else None,
+        "privacy": {"local_paths_returned": False, "raw_email_returned": False},
+    }))
+    if scope["scope"] == "remote_workspace":
+        return _set_remote_device_cookie(response, scope.get("device_id", ""))
+    return response
 
 
 @app.get("/api/state/restore/<path:filename>")
 def api_state_restore(filename: str):
     """Devuelve el contenido de un backup concreto para restaurarlo en UI."""
-    path = _state_backup_path(filename)
+    scope, blocked = _state_backup_scope()
+    if blocked is not None:
+        return blocked
+    path = _state_backup_path(filename, scope["root"])
     if not path.is_file():
         abort(404)
-    return jsonify({
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if scope["scope"] == "remote_workspace":
+        append_workspace_audit_event(scope["workspace"], {
+            "type": "remote_state_backup_restored",
+            "action": "state_restore",
+            "filename": filename,
+            "keys": sorted((payload.get("data") or {}).keys()) if isinstance(payload, dict) else [],
+            "version": REMOTE_STATE_BACKUP_VERSION,
+        })
+    response = make_response(jsonify({
         "ok": True,
+        "version": scope["version"],
+        "scope": scope["scope"],
         "filename": filename,
-        "payload": json.loads(path.read_text(encoding="utf-8")),
-    })
+        "payload": payload,
+        "workspace": public_workspace_context(scope["workspace"]) if scope["scope"] == "remote_workspace" else None,
+        "privacy": {"local_paths_returned": False, "raw_email_returned": False},
+    }))
+    if scope["scope"] == "remote_workspace":
+        return _set_remote_device_cookie(response, scope.get("device_id", ""))
+    return response
 
 
 # ── Entrypoint ────────────────────────────────────────────────────

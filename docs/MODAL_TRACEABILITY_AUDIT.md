@@ -16,7 +16,7 @@ El registro runtime vive en `SQX.modalRegistry` y cubre estas superficies:
 | `strat-import-backdrop` | Strategy Control | Importar CSV | Batch, archivo, columnas, seleccion, duplicados, localStorage destino |
 | `ps-add-mining-backdrop` | Mining Control | Anadir mining | Fase, asset, timeframe, blocksetting, direccion, tag MANUAL |
 | `ps-add-phase-backdrop` | Mining Control | Crear fase | Numero, nombre, descripcion, orden, fase visible aunque este vacia |
-| `state-restore-backdrop` | Control Panel | Restaurar snapshot | Snapshot, fecha, claves permitidas, backup previo automatico |
+| `state-restore-backdrop` | Control Panel | Restaurar snapshot | Snapshot, fecha, scope local/workspace, claves permitidas, backup previo automatico |
 | `sqx-decision-backdrop` | Global | Confirmar decisiones criticas | Origen, impacto, destino, recuperacion |
 
 ## Reglas
@@ -31,7 +31,7 @@ El registro runtime vive en `SQX.modalRegistry` y cubre estas superficies:
 - Usuario cancela una decision critica: no debe escribir estado.
 - Duplicado detectado: no debe crear estado fantasma.
 - CSV invalido: no debe importar registros parciales sin aviso.
-- Restore state: debe crear backup previo antes de aplicar claves permitidas.
+- Restore state: debe crear backup previo antes de aplicar claves permitidas y, en remoto, usar solo snapshots del workspace activo.
 - Template Maker C2: debe avisar si usa `SIN_INDICADOR` o `CL00`, y debe bloquear salidas desconocidas activas hasta que exista decision explicita en la politica `sqx-exit-policy-v1`.
 
 ## Verificacion

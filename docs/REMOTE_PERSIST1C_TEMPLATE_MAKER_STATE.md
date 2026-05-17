@@ -91,10 +91,11 @@ This phase does not migrate:
 
 - raw uploaded CSV/SQX files as separate server files;
 - SQX Views user presets;
-- Control Panel backup/restore;
+- Control Panel backup/restore, later migrated by REMOTE-PERSIST1D;
 - cross-device conflict resolution beyond last accepted snapshot.
 
-Those remain separate persistence decisions before broad multi-user expansion.
+SQX Views/user presets remain a separate persistence decision before broad
+multi-user expansion.
 
 ## Acceptance
 

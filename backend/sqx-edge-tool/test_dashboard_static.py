@@ -28,6 +28,7 @@ REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE_DOC = PROJECT_ROOT / "docs" / "REMOTE_3C_
 REMOTE_4_WORKSPACE_ISOLATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_4_WORKSPACE_ISOLATION.md"
 REMOTE_PERSIST1B_WORKSPACE_OUTPUTS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1B_WORKSPACE_OUTPUTS.md"
 REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE.md"
+REMOTE_PERSIST1D_STATE_BACKUPS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1D_STATE_BACKUPS.md"
 REMOTE_5_REMOTE_UX_DOC = PROJECT_ROOT / "docs" / "REMOTE_5_REMOTE_UX.md"
 REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC = PROJECT_ROOT / "docs" / "REMOTE_6_SECURITY_ABUSE_CONTROLS.md"
 REMOTE_SEC2_CREDENTIAL_SHARING_DOC = PROJECT_ROOT / "docs" / "REMOTE_SEC2_CREDENTIAL_SHARING_CONTROL.md"
@@ -1440,6 +1441,123 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, template_maker_js)
+
+    def test_remote_persist1d_control_panel_backups_are_workspace_scoped(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        persist1d = REMOTE_PERSIST1D_STATE_BACKUPS_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        state_backup_js = (APP_ROOT / "js" / "modules" / "state-backup.js").read_text(encoding="utf-8-sig")
+        modal_registry_js = (APP_ROOT / "js" / "modules" / "modal-registry.js").read_text(encoding="utf-8-sig")
+        state_backup_contracts = (PROJECT_ROOT / "tests" / "js" / "contracts" / "state_backup_contracts.mjs").read_text(encoding="utf-8-sig")
+        remote_state_backup_tests = (TOOL_ROOT / "test_remote_state_backups.py").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_PERSIST1D_STATE_BACKUPS_DOC,
+            TOOL_ROOT / "test_remote_state_backups.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-PERSIST1D - Workspace State Backups And Restore",
+            "remote-state-backup-v1",
+            "`<workspace>/config/state_backups/state_backup_*.json`",
+            "`workspace://state-backups`",
+            "`POST /api/state/backup`",
+            "`GET /api/state/backups`",
+            "`GET /api/state/restore/<filename>`",
+            "filters payload to allowlisted dashboard keys",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, persist1d)
+
+        for pattern in (
+            "Control Panel Workspace Backup Gate",
+            "remote-state-backup-v1",
+            "`<workspace>/config/state_backups`",
+            "SQX Views/user presets",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-PERSIST1D - Workspace State Backups And Restore",
+            "Artifacts added in REMOTE-PERSIST1D",
+            "remote-state-backup-v1",
+            "Control Panel Workspace Backup Gate",
+            "Remote sessions can list and restore only their own workspace snapshots",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-PERSIST1D Control Panel workspace backups",
+            "`remote-state-backup-v1`",
+            "`workspace://state-backups`",
+            "filters snapshot payloads to the allowed dashboard state keys",
+            "SQX.remoteState.saveSnapshot",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE-PERSIST1D",
+            "remote-state-backup-v1",
+            "state_backups",
+            "Control Panel",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "REMOTE_STATE_BACKUP_VERSION = \"remote-state-backup-v1\"",
+            "REMOTE_STATE_BACKUP_DIRNAME = \"state_backups\"",
+            "STATE_BACKUP_ALLOWED_KEYS",
+            "path.startswith(\"/api/state/\")",
+            "def _state_backup_scope",
+            "workspace://state-backups",
+            "remote_state_backup_created",
+            "remote_state_backup_restored",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "credentials: 'include'",
+            "workspace remoto",
+            "SQX.remoteState.saveSnapshot",
+            "state-restore",
+            "localStorage permitido y workspace remoto si aplica",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, state_backup_js)
+
+        for pattern in (
+            "API /state/backups local o workspace remoto",
+            "scope local/workspace",
+            "sesion remota ausente",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, modal_registry_js)
+
+        for pattern in (
+            "workspace remoto",
+            "remote restore should resync restored keys to workspace state",
+            "credentials",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, state_backup_contracts)
+
+        for pattern in (
+            "test_remote_state_backup_requires_session_for_tunnel_request",
+            "test_remote_state_backup_roundtrip_uses_workspace_and_redacts",
+            "test_remote_state_backups_are_separate_per_identity",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_state_backup_tests)
 
     def test_remote_5_remote_ux_surface_is_redacted_and_wired(self):
         remote_5 = REMOTE_5_REMOTE_UX_DOC.read_text(encoding="utf-8-sig")

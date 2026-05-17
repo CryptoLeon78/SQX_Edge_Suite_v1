@@ -278,7 +278,34 @@ Acceptance:
 
 Still blocking multi-user expansion after REMOTE-PERSIST1C:
 
-- Control Panel backup/restore must become workspace-scoped.
+- SQX Views/user presets need a remote persistence decision.
+
+### REMOTE-PERSIST1D - Workspace State Backups And Restore
+
+Control Panel state backup/restore now keeps snapshots inside the active
+server-derived workspace for remote sessions. Local operator backups remain in
+the historical local folder.
+
+Artifacts added in REMOTE-PERSIST1D:
+
+- `docs/REMOTE_PERSIST1D_STATE_BACKUPS.md`
+- `remote-state-backup-v1`
+- per-workspace `config/state_backups/state_backup_*.json`
+- workspace-aware `POST /api/state/backup`
+- workspace-aware `GET /api/state/backups`
+- workspace-aware `GET /api/state/restore/<filename>`
+- `backend/sqx-edge-tool/test_remote_state_backups.py`
+
+Acceptance:
+
+- Remote sessions can list and restore only their own workspace snapshots.
+- Remote requests without app session return `remote_session_required`.
+- Backend filters sensitive/non-allowed state keys before writing snapshots.
+- Restore resyncs allowed keys through the remote state bridge.
+- Local operator backup/restore remains compatible.
+
+Still blocking multi-user expansion after REMOTE-PERSIST1D:
+
 - SQX Views/user presets need a remote persistence decision.
 
 ### REMOTE-5 - Remote UX
@@ -720,6 +747,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Workspace Isolation Gate`: workspace ids must be derived from the active app session only; browser-supplied workspace ids, paths and local SQX resources are ignored or rejected.
 - `Workspace State Persistence Gate`: remote user state must persist in the active workspace, backed by per-workspace storage, with browser storage treated only as cache. Expansion beyond the first controlled user is blocked until Plan Mining, Strategy Control, Project Generator outputs, Template Maker and backup/restore are workspace-scoped or explicitly classified as local-only.
 - `Template Maker Workspace State Gate`: remote Template Maker state must use `remote-template-maker-state-v1` in per-workspace `template_maker.sqlite`; browser IndexedDB is only a compatibility cache and cannot be the multi-user source of truth.
+- `Control Panel Workspace Backup Gate`: remote `/api/state/*` backup/restore must use `remote-state-backup-v1` under the active workspace `state_backups` directory, filter non-allowed keys and return no local paths.
 - `Project Generator Workspace Output Gate`: active remote app sessions must route `/api/generate`, `/api/generate-custom`, `/api/generate-all` and `/api/output` to `remote-workspace-output-v1` in `<workspace>/outputs`; browser-provided remote `output` overrides are blocked; public JSON uses `workspace://outputs` and never returns operator filesystem paths.
 - `Remote UX Disclosure Gate`: remote dashboard surfaces may show access state, entitlement class, short workspace id and server readiness, but must not render raw SQX paths, `data.db` paths, output folders, workspace roots, session tokens, grant keys, private URLs, Cloudflare identifiers or raw emails.
 - `Remote Security Abuse Gate`: remote endpoints must apply `remote-security-v1` rate limits, kill switch, session revocation, identity-hash blocking, redacted audit visibility and watermark without returning policy paths, raw emails, tokens, local paths or provider secrets.
