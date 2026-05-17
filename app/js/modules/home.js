@@ -454,7 +454,18 @@
         if (action === 'enter') {
           dismissRemoteWelcomeGate(target);
         } else if (action === 'login') {
-          loginRemoteSession(target);
+          primary.disabled = true;
+          loginRemoteSession(target).then(function(result) {
+            var model = result && result.model;
+            if (result && result.ok && model && model.state === 'active') {
+              dismissRemoteWelcomeGate(target);
+            } else if (primary) {
+              primary.disabled = false;
+            }
+            return result;
+          }).catch(function() {
+            if (primary) primary.disabled = false;
+          });
         } else {
           refreshRemoteServiceStatus(target);
         }

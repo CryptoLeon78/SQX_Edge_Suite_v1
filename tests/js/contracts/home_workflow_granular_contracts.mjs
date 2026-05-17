@@ -124,6 +124,82 @@ assert.equal(remoteLoginRequests[0].options.method, 'POST');
 assert.deepEqual(JSON.parse(remoteLoginRequests[0].options.body), {});
 assert.equal(document.getElementById('remote-session-grant-key').value, '');
 
+SQX.home.applyRemoteServiceModel(remoteNeedsTesterLogin, document);
+assert.equal(SQX.home.bindRemoteWelcomeGate(document), true);
+const welcomeLoginRequests = [];
+sandbox.fetch = (url, options = {}) => {
+  const path = new URL(url).pathname;
+  welcomeLoginRequests.push({ path, options });
+  if (path === '/api/remote/session/login') {
+    return Promise.resolve({
+      status: 200,
+      ok: true,
+      json: () => Promise.resolve({ ok: true, access: { allowed: true }, privacy: { session_token_returned: false } }),
+    });
+  }
+  if (path === '/api/remote/access/status') {
+    return Promise.resolve({
+      status: 200,
+      ok: true,
+      json: () => Promise.resolve({
+        mode: 'remote_tunnel_only',
+        authenticated: true,
+        access: { allowed: true, reason: 'access_allowed', feature_scope: 'full' },
+        entitlement: { kind: 'tester_free', status: 'active', feature_scope: 'full' },
+      }),
+    });
+  }
+  if (path === '/api/remote/session/status') {
+    return Promise.resolve({
+      status: 200,
+      ok: true,
+      json: () => Promise.resolve({
+        session: { active: true, entitlement_kind: 'tester_free' },
+        access: { allowed: true, reason: 'session_access_allowed', feature_scope: 'full' },
+      }),
+    });
+  }
+  if (path === '/api/remote/security/status') {
+    return Promise.resolve({
+      status: 200,
+      ok: true,
+      json: () => Promise.resolve({
+        ok: true,
+        killSwitch: { active: false },
+        revocation: { currentSessionRevoked: false },
+        blocking: { currentIdentityBlocked: false },
+        watermark: { enabled: true, label: 'SQX REMOTE PRO', marker: 'demo' },
+      }),
+    });
+  }
+  if (path === '/api/remote/workspace/status') {
+    return Promise.resolve({
+      status: 200,
+      ok: true,
+      json: () => Promise.resolve({ ok: true, workspace: { id: 'ws_contract_remote_123456' } }),
+    });
+  }
+  if (path === '/api/health') {
+    return Promise.resolve({
+      status: 200,
+      ok: true,
+      json: () => Promise.resolve({
+        ok: true,
+        sqx_path_set: true,
+        data_db_exists: true,
+        templates_capa1_exists: true,
+        templates_capa2_exists: true,
+      }),
+    });
+  }
+  throw new Error(`Unexpected remote welcome request ${path}`);
+};
+document.getElementById('remote-welcome-primary').click();
+await new Promise(resolve => setTimeout(resolve, 0));
+assert.equal(welcomeLoginRequests[0].path, '/api/remote/session/login');
+assert.equal(document.getElementById('remote-welcome-gate').hidden, true);
+sandbox.localStorage.removeItem('sqx_remote_welcome_dismissed_v1');
+
 const remoteActive = SQX.home.computeRemoteServiceModel({
   access: { mode: 'remote_tunnel_only', authenticated: true, access: { allowed: true, reason: 'access_allowed', feature_scope: 'full' }, entitlement: { kind: 'tester_free' } },
   session: { session: { active: true, entitlement_kind: 'tester_free' }, access: { allowed: true, reason: 'session_access_allowed', feature_scope: 'full' } },
@@ -140,7 +216,6 @@ assert.equal(document.getElementById('remote-welcome-primary').dataset.remoteWel
 assert.equal(document.getElementById('remote-welcome-primary').textContent, 'Acceso DASHBOARD');
 assert.equal(document.getElementById('remote-welcome-verdict').textContent, 'OK todo validado');
 assert.equal(document.getElementById('remote-welcome-enter').hidden, true);
-assert.equal(SQX.home.bindRemoteWelcomeGate(document), true);
 assert.equal(SQX.home.bindRemoteWelcomeGate(document), false);
 document.getElementById('remote-welcome-trust-toggle').click();
 assert.equal(document.getElementById('remote-trust-center').hidden, false);
