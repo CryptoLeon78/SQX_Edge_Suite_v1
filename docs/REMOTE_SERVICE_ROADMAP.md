@@ -295,11 +295,11 @@ Status board:
 | --- | --- | --- |
 | WAIT-1 | Completed | Welcome bridge, honest Trust Center and living value backlog. |
 | WAIT-2 | Completed | Direct tester Welcome access after Cloudflare, status/next-suggestion cadence and new specialist agents. |
-| WAIT-3 | Pending | Trust Evidence Pack: self-assessment evidence, redacted security/privacy summaries and external scan preparation. |
-| WAIT-4 | Pending | Commercial onboarding polish: buyer welcome story, first-session microcopy and early-access demo flow. |
-| WAIT-5 | Pending | Support/readiness pack: tester support scripts, incident copy, rollback explainer and remote status handoff. |
+| WAIT-3 / REMOTE-SUPPORT1 | Completed | Safe Control Panel incident intake, redacted local support cases and operator support summary helper. |
+| WAIT-4 | Pending | Trust Evidence Pack: self-assessment evidence, redacted security/privacy summaries and external scan preparation. |
+| WAIT-5 | Pending | Commercial onboarding polish: buyer welcome story, first-session microcopy and early-access demo flow. |
 
-Count: `2/5` WAIT phases completed after WAIT-2. At the moment WAIT-2 started, `1/5` were complete.
+Count: `3/5` WAIT phases completed after REMOTE-SUPPORT1. At the moment WAIT-2 started, `1/5` were complete.
 
 ### WAIT-1 - Welcome + Trust Center During REMOTE-8C
 
@@ -329,6 +329,27 @@ Additional discipline:
 - I+D / Research Scout, Web & RRSS Creative, Sales & Commercial and Asset Cards Curator are part of the Specialist Agents matrix;
 - Asset Cards Curator changes require explicit operator confirmation before any card data, score, rating, timeframe or mapping is modified;
 - tester direct access does not broaden the cohort and does not publish protected URLs.
+
+### WAIT-3 / REMOTE-SUPPORT1 - Safe Support Intake During REMOTE-8C
+
+REMOTE-SUPPORT1 is allowed while REMOTE-8C runs because it does not change authentication, Cloudflare Access, grants, checkout, protected URLs or cohort size. It adds a support intake surface to `Control Panel`, stores cases only in ignored local evidence and gives the operator a public-safe support summary before any expansion decision.
+
+Artifacts:
+
+- `support-incident-v1`
+- `POST /api/support/incidents`
+- `backend/sqx-edge-tool/core/support_incidents.py`
+- `backend/sqx-edge-tool/tools/remote_support_status.py`
+- `tools/remote_support_status.ps1`
+- ignored evidence root `.local/remote_service/support_cases/`
+- `Support Intake Gate`
+
+Rules:
+
+- The form can attach the existing redacted support diagnostic, but never raw strategy files, local paths, license payloads or browser cookies.
+- Open support items or blocker cases must keep REMOTE-8C expansion blocked until the operator resolves them and updates private evidence manually.
+- Case status changes are operator-only through `tools/remote_support_status.ps1 -SetStatusCase ... -Status resolved|triaged|dismissed`.
+- The intake must not send email, create external tickets, publish GitHub issues or mark `supportLoopObserved` automatically.
 
 ### REMOTE-ACCEPT1 - Real Browser Acceptance Gate
 

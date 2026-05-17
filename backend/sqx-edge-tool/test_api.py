@@ -6,6 +6,13 @@ from pathlib import Path
 from unittest.mock import patch
 
 from api import server
+from core.support_incidents import (
+    append_support_incident,
+    build_support_incident,
+    load_support_incidents,
+    summarize_support_incidents,
+    update_support_incident_status,
+)
 
 
 class ApiTestCase(unittest.TestCase):
@@ -109,6 +116,70 @@ class ApiTestCase(unittest.TestCase):
         self.assertNotIn("Private", raw)
         self.assertNotIn("NDXm", raw)
         self.assertRegex(data["filename"], r"^SQX_support_diagnostic_[a-f0-9]{12}\.json$")
+
+    def test_support_incident_endpoint_redacts_and_records_case(self):
+        captured = []
+
+        def capture(record):
+            captured.append(record)
+            return {"ok": True, "caseId": record["caseId"], "status": record["status"], "stored": True}
+
+        payload = {
+            "category": "generation",
+            "severity": "blocker",
+            "summary": "Falla en https://privado.example/test con user@example.com",
+            "steps": r"Abrir C:\Users\Ivan SQX\Private y pegar Bearer abcdefghijklmnopqrstuvwxyzABCDEFGHIJKL",
+            "expected": "Genera .cfx",
+            "actual": "__Host-sqx_remote_session=secretvalue no descarga",
+            "includeDiagnostic": True,
+        }
+        with patch.object(server, "append_support_incident", side_effect=capture):
+            response = self.client.post("/api/support/incidents", json=payload)
+
+        self.assertEqual(response.status_code, 201)
+        data = self.get_json(response)
+        self.assertTrue(data["ok"])
+        self.assertRegex(data["caseId"], r"^SQX-SUP-\d{14}-[a-f0-9]{10}$")
+        self.assertEqual(data["status"], "open")
+        self.assertFalse(data["privacy"]["rawEmailReturned"])
+        self.assertEqual(len(captured), 1)
+        raw_record = json.dumps(captured[0], ensure_ascii=False)
+        self.assertNotIn("user@example.com", raw_record)
+        self.assertNotIn("https://privado.example", raw_record)
+        self.assertNotIn(r"C:\Users\Ivan SQX", raw_record)
+        self.assertNotIn("__Host-sqx_remote_session=secretvalue", raw_record)
+        self.assertIn("[REDACTED_EMAIL]", raw_record)
+        self.assertIn("[REDACTED_URL]", raw_record)
+        self.assertTrue(captured[0]["diagnostic"]["attached"])
+        self.assertFalse(captured[0]["privacy"]["tokensStored"])
+
+    def test_support_incident_requires_summary(self):
+        response = self.client.post("/api/support/incidents", json={"category": "ui", "severity": "low"})
+        self.assertEqual(response.status_code, 400)
+        data = self.get_json(response)
+        self.assertEqual(data["error"], "support_incident_invalid")
+        self.assertIn("summary_required", data["blockers"])
+
+    def test_support_incident_store_and_summary_are_local_redacted(self):
+        with tempfile.TemporaryDirectory() as temp:
+            cases_path = Path(temp) / "support_cases.local.jsonl"
+            record = build_support_incident({
+                "category": "access",
+                "severity": "high",
+                "summary": "Acceso falla para tester@example.com en http://private.local",
+            })
+            append_support_incident(record, cases_path)
+            update = update_support_incident_status(record["caseId"], "resolved", path=cases_path, note="Resuelto sin datos privados.")
+            loaded = load_support_incidents(cases_path)
+            summary = summarize_support_incidents(cases_path)
+
+        self.assertTrue(update["ok"])
+        self.assertEqual(len(loaded), 1)
+        self.assertEqual(summary["summary"]["openSupportItems"], 0)
+        self.assertFalse(summary["privacy"]["rawEmailReturned"])
+        raw_summary = json.dumps(summary, ensure_ascii=False)
+        self.assertNotIn("tester@example.com", raw_summary)
+        self.assertNotIn("http://private.local", raw_summary)
 
     def test_fulfillment_receiver_requires_secret(self):
         with patch.dict(server.os.environ, {}, clear=True):

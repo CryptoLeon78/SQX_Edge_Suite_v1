@@ -416,7 +416,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/exit-policy.js` | Global SQX exit-method policy for detecting exit params, disabling non-methodological exits and randomizing allowed C2 exits before export. |
 | `modules/home.js` | Inicio tab model, trace and summary helpers. |
 | `modules/mtf-evidence.js` | Read-only MTF evidence panel that consumes `/api/mtf/evidence` and only surfaces A56 GO summaries. |
-| `modules/support.js` | Safe support diagnostics download from the local API. |
+| `modules/support.js` | Safe support diagnostics download and REMOTE-SUPPORT1 incident intake from the local API. |
 | `modules/fulfillment.js` | Internal operator queue cockpit for manual fulfillment states and retries. |
 | `modules/customer-cockpit.js` | Redacted customer success cockpit for Pro renewal, support and expansion state. |
 | `modules/workflow.js` | Workflow tab initialization and subtab behavior. |
@@ -450,6 +450,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `backend/sqx-edge-tool/core/config_loader.py` | Config loading and defaults. |
 | `backend/sqx-edge-tool/core/sqx_db.py` | SQX database verification and access helpers. |
 | `backend/sqx-edge-tool/core/support_diagnostics.py` | Redacted support diagnostics payload builder. |
+| `backend/sqx-edge-tool/core/support_incidents.py` | `support-incident-v1` local-only support case builder, redactor, JSONL persistence and REMOTE-8C summary helper. |
 | `backend/sqx-edge-tool/core/mtf_evidence.py` | Read-only A56 MTF evidence summarizer for dashboard use, redacting full paths and blocking non-GO reports. |
 | `backend/sqx-edge-tool/core/customer_cockpit.py` | Redacted commercial customer cockpit aggregation from local success evidence. |
 | `backend/sqx-edge-tool/core/fulfillment_normalizer.py` | Shared Lemon Squeezy normalization and signature verification. |

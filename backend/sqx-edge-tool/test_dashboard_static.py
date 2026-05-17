@@ -542,7 +542,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "WAIT-1 - Welcome + Trust Center",
             "WAIT-2 - Welcome Direct Tester Access",
-            "Count: `2/5` WAIT phases completed after WAIT-2",
+            "Count: `3/5` WAIT phases completed after REMOTE-SUPPORT1",
             "Trust Claims Gate",
             "No fictitious auditing company",
             "No fake third-party certificates",
@@ -657,7 +657,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "WAIT Workstream During REMOTE-8C",
             "| WAIT-1 | Completed |",
             "| WAIT-2 | Completed |",
-            "WAIT-3 | Pending",
+            "| WAIT-3 / REMOTE-SUPPORT1 | Completed |",
             "WAIT-4 | Pending",
             "WAIT-5 | Pending",
             "default Welcome flow must not ask testers for a second key after Cloudflare validation",
@@ -5135,12 +5135,27 @@ class DashboardStaticTestCase(unittest.TestCase):
         support_js = (APP_ROOT / "js" / "modules" / "support.js").read_text(encoding="utf-8-sig")
         server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
         support_py = (TOOL_ROOT / "core" / "support_diagnostics.py").read_text(encoding="utf-8-sig")
+        incidents_py = (TOOL_ROOT / "core" / "support_incidents.py").read_text(encoding="utf-8-sig")
+        governance = (PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md").read_text(encoding="utf-8-sig")
+        roadmap = (PROJECT_ROOT / "docs" / "REMOTE_SERVICE_ROADMAP.md").read_text(encoding="utf-8-sig")
+        remote8c_doc = (PROJECT_ROOT / "docs" / "REMOTE_8C_FIRST_USER_OBSERVATION.md").read_text(encoding="utf-8-sig")
+        support_tool = TOOL_ROOT / "tools" / "remote_support_status.py"
+        support_ps1 = PROJECT_ROOT / "tools" / "remote_support_status.ps1"
         product_manifest = json.loads((TOOL_ROOT / "config" / "product_manifest.json").read_text(encoding="utf-8-sig"))
 
         expected_ids = [
             "support-panel",
             "support-diagnostic-btn",
             "support-diagnostic-status",
+            "support-incident-category",
+            "support-incident-severity",
+            "support-incident-summary",
+            "support-incident-steps",
+            "support-incident-expected",
+            "support-incident-actual",
+            "support-incident-include-diagnostic",
+            "support-incident-submit",
+            "support-incident-status",
         ]
         for element_id in expected_ids:
             with self.subTest(element_id=element_id):
@@ -5151,6 +5166,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "downloadJson",
             "fetchDiagnostics",
             "generateDiagnostics",
+            "collectIncidentPayload",
+            "submitIncident",
+            "setIncidentStatus",
             "setStatus",
         ]:
             with self.subTest(export=export):
@@ -5159,11 +5177,21 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("js/modules/support.js", self.html)
         self.assertIn("window.SQX.support.init()", main_js)
         self.assertIn("/api/support/diagnostics", server_py)
+        self.assertIn("/api/support/incidents", server_py)
         self.assertIn("build_support_diagnostics", server_py)
+        self.assertIn("build_support_incident", server_py)
+        self.assertIn("support-incident-v1", incidents_py)
+        self.assertTrue(support_tool.is_file())
+        self.assertTrue(support_ps1.is_file())
+        self.assertIn("Support Intake Gate", governance)
+        self.assertIn("WAIT-3 / REMOTE-SUPPORT1", roadmap)
+        self.assertIn(".local/remote_service/support_cases/", remote8c_doc)
         self.assertIn("safe_to_send", support_py)
         self.assertIn("license_payload", support_py)
         self.assertIn("strategy_files", support_py)
         self.assertEqual(product_manifest["support"]["diagnosticsEndpoint"], "/api/support/diagnostics")
+        self.assertEqual(product_manifest["support"]["incidentEndpoint"], "/api/support/incidents")
+        self.assertEqual(product_manifest["support"]["incidentSchemaVersion"], "support-incident-v1")
         self.assertTrue(product_manifest["support"]["safeToSend"])
 
     def test_mtf_evidence_module_and_ui_are_wired(self):

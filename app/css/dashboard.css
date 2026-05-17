@@ -2520,6 +2520,62 @@
   .support-status.is-ok { color:var(--green); }
   .support-status.is-warn { color:var(--yellow); }
   .support-status.is-error { color:var(--red); }
+  .support-incident-box {
+    display:grid;
+    gap:10px;
+    margin-top:4px;
+    padding:12px;
+    border:1px solid rgba(96,165,250,.22);
+    border-radius:8px;
+    background:rgba(15,23,42,.42);
+  }
+  .support-incident-box > strong {
+    color:var(--text);
+    font-size:14px;
+  }
+  .support-incident-grid {
+    display:grid;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:10px;
+  }
+  .support-incident-grid label {
+    display:grid;
+    gap:5px;
+    min-width:0;
+  }
+  .support-incident-grid label span {
+    color:var(--text2);
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+  }
+  .support-incident-grid .search-input {
+    width:100%;
+    min-width:0;
+    box-sizing:border-box;
+  }
+  .support-incident-grid textarea.search-input {
+    min-height:62px;
+    resize:vertical;
+    font-family:inherit;
+  }
+  .support-incident-full {
+    grid-column:1 / -1;
+  }
+  .support-incident-check {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    color:var(--text2);
+    font-size:12px;
+  }
+  .support-incident-actions {
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
   .mtf-evidence-panel {
     display:grid;
     gap:12px;

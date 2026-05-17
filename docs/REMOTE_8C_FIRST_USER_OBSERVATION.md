@@ -53,6 +53,22 @@ The private observation JSON must confirm:
 
 The observation window must be at least 24 hours.
 
+## Support Intake
+
+REMOTE-SUPPORT1 adds an in-app support intake under `Control Panel > Soporte` while preserving the REMOTE-8C one-user boundary. Cases use `support-incident-v1`, stay in ignored `.local/remote_service/support_cases/` evidence and can be summarized with:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_support_status.ps1 -Json
+```
+
+Open cases or blocker cases must keep `openSupportItems` / `unresolvedBlockers` non-zero in private REMOTE-8C evidence until the operator resolves them. The support intake does not automatically flip `supportLoopObserved`, does not send email and does not create external tickets.
+
+Operator-only status updates can be done locally without exposing the case to the tester UI:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_support_status.ps1 -SetStatusCase SQX-SUP-YYYYMMDDHHMMSS-xxxxxxxxxx -Status resolved -Note "Resolved after operator review." -Json
+```
+
 ## Zero Tolerance Metrics
 
 These values must be zero before a tiny cohort expansion can be prepared:

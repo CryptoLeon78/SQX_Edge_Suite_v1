@@ -382,6 +382,57 @@
           <p>Genera un JSON local para soporte sin rutas personales, licencia ni estrategias.</p>
           <button class="export-btn" id="support-diagnostic-btn" type="button">Generar diagnostico</button>
           <small id="support-diagnostic-status" class="support-status">Listo para generar un informe seguro.</small>
+          <div class="support-incident-box" id="support-incident-box">
+            <strong>Reportar incidencia</strong>
+            <p>Registra un caso local seguro para el piloto remoto. No envia emails ni sube datos fuera del servidor.</p>
+            <div class="support-incident-grid">
+              <label>
+                <span>Categoria</span>
+                <select class="search-input" id="support-incident-category">
+                  <option value="access">Acceso</option>
+                  <option value="session">Sesion</option>
+                  <option value="workspace">Workspace</option>
+                  <option value="generation">Generacion</option>
+                  <option value="export">Descarga/export</option>
+                  <option value="ui">UI</option>
+                  <option value="other">Otro</option>
+                </select>
+              </label>
+              <label>
+                <span>Severidad</span>
+                <select class="search-input" id="support-incident-severity">
+                  <option value="medium">Media</option>
+                  <option value="low">Baja</option>
+                  <option value="high">Alta</option>
+                  <option value="blocker">Bloqueante</option>
+                </select>
+              </label>
+              <label class="support-incident-full">
+                <span>Resumen</span>
+                <input class="search-input" id="support-incident-summary" type="text" maxlength="240" placeholder="Ej: no descarga el .cfx despues de generar">
+              </label>
+              <label class="support-incident-full">
+                <span>Pasos para reproducir</span>
+                <textarea class="search-input" id="support-incident-steps" rows="3" placeholder="1. Abrir tab... 2. Pulsar... 3. Sale..."></textarea>
+              </label>
+              <label>
+                <span>Esperado</span>
+                <textarea class="search-input" id="support-incident-expected" rows="2" placeholder="Que deberia pasar"></textarea>
+              </label>
+              <label>
+                <span>Actual</span>
+                <textarea class="search-input" id="support-incident-actual" rows="2" placeholder="Que ha pasado realmente"></textarea>
+              </label>
+            </div>
+            <label class="support-incident-check">
+              <input id="support-incident-include-diagnostic" type="checkbox" checked>
+              Adjuntar diagnostico seguro redacted
+            </label>
+            <div class="support-incident-actions">
+              <button class="export-btn" id="support-incident-submit" type="button">Enviar incidencia</button>
+              <small id="support-incident-status" class="support-status">Sin incidencias registradas en esta sesion.</small>
+            </div>
+          </div>
         </div>
         <div class="home-panel fulfillment-panel" id="fulfillment-panel">
           <div class="fulfillment-head">

@@ -1002,6 +1002,16 @@
   },
   "support": {
     "diagnosticsEndpoint": "/api/support/diagnostics",
+    "incidentEndpoint": "/api/support/incidents",
+    "incidentSchemaVersion": "support-incident-v1",
+    "incidentEvidenceRoot": ".local/remote_service/support_cases",
+    "incidentTool": "backend/sqx-edge-tool/tools/remote_support_status.py",
+    "incidentStatuses": [
+      "open",
+      "triaged",
+      "resolved",
+      "dismissed"
+    ],
     "diagnosticsFilenamePrefix": "SQX_support_diagnostic",
     "privacyMode": "redacted_local_json",
     "safeToSend": true,

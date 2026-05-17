@@ -78,6 +78,12 @@ from core.remote_workspaces import (
     read_recent_workspace_audit_events,
 )
 from core.support_diagnostics import build_support_diagnostics
+from core.support_incidents import (
+    append_support_incident,
+    build_support_incident,
+    support_incident_public_response,
+    validate_support_incident,
+)
 from core.fulfillment_queue import (
     load_request as load_fulfillment_request,
     process_request as process_fulfillment_request,
@@ -738,6 +744,43 @@ def api_support_diagnostics():
         config_exists=CONFIG_PATH.is_file(),
         project_root=PROJECT_ROOT,
     ))
+
+
+@app.post("/api/support/incidents")
+def api_support_incidents():
+    """Registra una incidencia local redacted para soporte remoto sin enviarla fuera."""
+    data = request.get_json(silent=True) or {}
+    session_status = evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME))
+    workspace_context = derive_remote_workspace(session_status, create=False)
+    diagnostic_payload = None
+    if bool(data.get("includeDiagnostic")):
+        diagnostic_payload = build_support_diagnostics(
+            load_config(),
+            app_version=VERSION,
+            config_exists=CONFIG_PATH.is_file(),
+            project_root=PROJECT_ROOT,
+        )
+    record = build_support_incident(
+        data,
+        session_status=session_status,
+        workspace_context=workspace_context,
+        diagnostic_payload=diagnostic_payload,
+    )
+    blockers = validate_support_incident(record)
+    if blockers:
+        return jsonify({
+            "ok": False,
+            "error": "support_incident_invalid",
+            "blockers": blockers,
+            "privacy": {
+                "rawEmailReturned": False,
+                "protectedUrlReturned": False,
+                "localPathsReturned": False,
+                "tokensReturned": False,
+            },
+        }), 400
+    append_support_incident(record)
+    return jsonify(support_incident_public_response(record)), 201
 
 
 @app.get("/api/mtf/evidence")
