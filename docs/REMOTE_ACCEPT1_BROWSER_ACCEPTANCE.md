@@ -51,6 +51,16 @@ Use the tracked template:
 
 `docs/examples/remote_accept1_browser_acceptance.local.example.json`
 
+Validate and redact the private evidence with:
+
+```powershell
+python backend\sqx-edge-tool\tools\remote_accept1_browser_acceptance.py --evidence .local\remote_service\remote_accept1_browser_acceptance.local.json --out-dir .local\remote_service\remote_accept1_browser_acceptance
+```
+
+The command writes only a public-safe local summary to:
+
+`.local/remote_service/remote_accept1_browser_acceptance/remote_accept1_browser_acceptance.public.json`
+
 ## Acceptance
 
 REMOTE-ACCEPT1 is considered acceptable only if:

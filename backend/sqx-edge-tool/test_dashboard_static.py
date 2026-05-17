@@ -16,6 +16,9 @@ REMOTE_SERVICE_ROADMAP_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_ROADMAP.md"
 REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md"
 REMOTE_VALUE_BACKLOG_DOC = PROJECT_ROOT / "docs" / "REMOTE_VALUE_BACKLOG.md"
 REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_DOC = PROJECT_ROOT / "docs" / "REMOTE_ACCEPT1_BROWSER_ACCEPTANCE.md"
+REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_CORE = TOOL_ROOT / "core" / "remote_browser_acceptance.py"
+REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_TOOL = TOOL_ROOT / "tools" / "remote_accept1_browser_acceptance.py"
+REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_TEST = TOOL_ROOT / "test_remote_browser_acceptance.py"
 REMOTE_1_LAPTOP_SERVER_BASELINE_DOC = PROJECT_ROOT / "docs" / "REMOTE_1_LAPTOP_SERVER_BASELINE.md"
 REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC = PROJECT_ROOT / "docs" / "REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS.md"
 REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC = PROJECT_ROOT / "docs" / "REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY.md"
@@ -679,6 +682,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
 
         self.assertTrue(REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_DOC.is_file())
+        self.assertTrue(REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_CORE.is_file())
+        self.assertTrue(REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_TOOL.is_file())
+        self.assertTrue(REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_TEST.is_file())
         self.assertTrue(REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_EXAMPLE.is_file())
         self.assertEqual(example["schemaVersion"], "remote-browser-acceptance-v1")
         self.assertEqual(example["phase"], "REMOTE-ACCEPT1")
@@ -690,6 +696,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-ACCEPT1 - Real Browser Acceptance Gate",
             "remote-browser-acceptance-v1",
             ".local/remote_service/remote_accept1_browser_acceptance",
+            "backend/sqx-edge-tool/core/remote_browser_acceptance.py",
+            "backend/sqx-edge-tool/tools/remote_accept1_browser_acceptance.py",
             "one click on `Acceso DASHBOARD` opens the dashboard without bounce-back",
             "no internal wording like `falta crear la sesion de app` is shown",
         ):
@@ -701,6 +709,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "one-click `Acceso DASHBOARD`",
             "no Welcome bounce-back",
             "no persistent app-session expectation after browser close",
+            "backend/sqx-edge-tool/tools/remote_accept1_browser_acceptance.py",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
@@ -709,6 +718,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "What The Underlined Welcome Text Means",
             "Identidad y permiso validados. Pulsa Acceso DASHBOARD para abrir tu workspace privado.",
             "Manual Acceptance Checklist",
+            "remote_accept1_browser_acceptance.py",
             "The user-facing rule is simple",
         ):
             with self.subTest(pattern=pattern):

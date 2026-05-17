@@ -338,6 +338,9 @@ Artifacts added in REMOTE-ACCEPT1:
 
 - `docs/REMOTE_ACCEPT1_BROWSER_ACCEPTANCE.md`
 - `docs/examples/remote_accept1_browser_acceptance.local.example.json`
+- `backend/sqx-edge-tool/core/remote_browser_acceptance.py`
+- `backend/sqx-edge-tool/tools/remote_accept1_browser_acceptance.py`
+- `backend/sqx-edge-tool/test_remote_browser_acceptance.py`
 - `remote-browser-acceptance-v1`
 - ignored evidence root `.local/remote_service/remote_accept1_browser_acceptance*`
 - `Real Browser Acceptance Gate`
