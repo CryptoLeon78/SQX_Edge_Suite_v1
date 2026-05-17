@@ -205,6 +205,14 @@
       window.setTimeout(function () { refreshStatus(false); }, 1200);
     }
 
+    function finishStartCheck() {
+      requestProbe();
+      window.setTimeout(function () {
+        busy = false;
+        refreshStatus(true);
+      }, 1600);
+    }
+
     function runHidden(command) {
       shell.Run(command, 0, false);
     }
@@ -219,7 +227,11 @@
         quote(repo + "\\tools\\remote_operator_start.ps1") +
         ' -RepoRoot ' + quote(repo) +
         ' -CloudflaredPath ' + quote(cloudflared));
-      window.setTimeout(function () { busy = false; requestProbe(); window.setTimeout(function () { refreshStatus(true); }, 1200); }, 6500);
+      window.setTimeout(function () {
+        document.getElementById("overall").innerText = "Estado: tunel arrancando. Verificando conexion Cloudflare...";
+        requestProbe();
+      }, 6500);
+      window.setTimeout(finishStartCheck, 12500);
     }
 
     function stopServices() {

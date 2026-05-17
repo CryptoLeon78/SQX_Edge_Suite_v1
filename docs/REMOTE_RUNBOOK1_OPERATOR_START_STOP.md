@@ -25,6 +25,7 @@ Button guard rules:
 - `Arrancar` is disabled and shown as `En marcha` when Backend and Tunnel are both OK.
 - `Detener` is disabled and shown as `Detenido` when no service is running.
 - While a start/stop operation is running, action buttons temporarily show `Espere...` to avoid duplicate sessions or accidental double clicks.
+- After `Arrancar`, the monitor waits for Cloudflare Tunnel registration and performs a delayed final check before showing the final state. `Refrescar` remains a manual confirmation button, not part of the normal start requirement.
 - `STOP_SQX_EDGE_REMOTE.bat` suppresses the startup OK notification and ends with `Estado: servicios detenidos. Backend/Tunnel cerrados.` when both services are closed.
 
 The launchers call PowerShell helpers:
