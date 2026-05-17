@@ -28,6 +28,13 @@ REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE_DOC = PROJECT_ROOT / "docs" / "REMOTE_3C_
 REMOTE_4_WORKSPACE_ISOLATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_4_WORKSPACE_ISOLATION.md"
 REMOTE_5_REMOTE_UX_DOC = PROJECT_ROOT / "docs" / "REMOTE_5_REMOTE_UX.md"
 REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC = PROJECT_ROOT / "docs" / "REMOTE_6_SECURITY_ABUSE_CONTROLS.md"
+REMOTE_SEC2_CREDENTIAL_SHARING_DOC = PROJECT_ROOT / "docs" / "REMOTE_SEC2_CREDENTIAL_SHARING_CONTROL.md"
+REMOTE_ACCESS_CONTROL_CORE = TOOL_ROOT / "core" / "remote_access_control.py"
+REMOTE_ACCESS_CONTROL_TEST = TOOL_ROOT / "test_remote_access_control.py"
+REMOTE_ACCESS_CONTROL_STATUS_TOOL = TOOL_ROOT / "tools" / "remote_access_control_status.py"
+REMOTE_ACCESS_CONTROL_ADMIN_TOOL = TOOL_ROOT / "tools" / "remote_access_control_admin.py"
+REMOTE_ACCESS_CONTROL_STATUS_PS1 = PROJECT_ROOT / "tools" / "remote_access_control_status.ps1"
+REMOTE_ACCESS_CONTROL_ADMIN_PS1 = PROJECT_ROOT / "tools" / "remote_access_control_admin.ps1"
 REMOTE_7_MONETIZATION_REWRITE_DOC = PROJECT_ROOT / "docs" / "REMOTE_7_MONETIZATION_REWRITE.md"
 REMOTE_8_CONTROLLED_PILOT_DOC = PROJECT_ROOT / "docs" / "REMOTE_8_CONTROLLED_PILOT.md"
 REMOTE_8B_LIVE_PILOT_EVIDENCE_DOC = PROJECT_ROOT / "docs" / "REMOTE_8B_LIVE_PILOT_EVIDENCE.md"
@@ -1455,6 +1462,98 @@ class DashboardStaticTestCase(unittest.TestCase):
             "@" + "gmail.com",
             "@" + "hotmail.com",
             "SQX_REMOTE_SECURITY_POLICY_PATH=",
+            "CLOUDFLARE_API_TOKEN=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_sec2_credential_sharing_control_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_sec2 = REMOTE_SEC2_CREDENTIAL_SHARING_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        remote_access_py = (TOOL_ROOT / "core" / "remote_access.py").read_text(encoding="utf-8-sig")
+        remote_access_control_py = REMOTE_ACCESS_CONTROL_CORE.read_text(encoding="utf-8-sig")
+        home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_SEC2_CREDENTIAL_SHARING_DOC,
+            REMOTE_ACCESS_CONTROL_CORE,
+            REMOTE_ACCESS_CONTROL_TEST,
+            REMOTE_ACCESS_CONTROL_STATUS_TOOL,
+            REMOTE_ACCESS_CONTROL_ADMIN_TOOL,
+            REMOTE_ACCESS_CONTROL_STATUS_PS1,
+            REMOTE_ACCESS_CONTROL_ADMIN_PS1,
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-SEC2 - Credential Sharing Control",
+            "remote-access-control-v1",
+            "__Host-sqx_device_id",
+            "2 trusted contexts",
+            "copied sessions",
+            "Operator Flow",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_sec2)
+
+        for pattern in (
+            "Credential Sharing Gate",
+            "REMOTE-SEC2 - Credential Sharing Control",
+            "2 trusted contexts per identity",
+            "copied-session mismatch blocking",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "### REMOTE-SEC2 - Credential Sharing Control",
+            "remote-access-control-v1",
+            "GET /api/remote/access-control/status",
+            "POST /api/remote/access-control/request-approval",
+            "tools/remote_access_control_status.ps1",
+            "tools/remote_access_control_admin.ps1",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE_ACCESS_CONTROL_VERSION = \"remote-access-control-v1\"",
+            "ACCESS_CONTROL_COOKIE_NAME = \"__Host-sqx_device_id\"",
+            "maxTrustedContextsPerIdentity",
+            "build_access_context",
+            "evaluate_access_context",
+            "approve_access_context",
+            "revoke_access_context",
+            "raw_ip_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_access_control_py)
+
+        for pattern in (
+            "@app.get(\"/api/remote/access-control/status\")",
+            "@app.post(\"/api/remote/access-control/request-approval\")",
+            "ACCESS_CONTROL_COOKIE_NAME",
+            "record_session_started",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        self.assertIn("access_context_ref", remote_access_py)
+        self.assertIn("/remote/access-control/status", home_js)
+        self.assertIn("requestAccessApproval", home_js)
+        self.assertIn("Solicitar aprobacion", home_js)
+
+        combined_public = "\n".join([remote_sec2, remote_access_control_py, server_py, home_js, governance, roadmap])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CF_Authorization=",
+            "__Host-sqx_remote_session=",
             "CLOUDFLARE_API_TOKEN=",
             "sk_" + "live_",
             "pk_" + "live_",

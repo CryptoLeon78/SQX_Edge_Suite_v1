@@ -105,6 +105,7 @@ Remote-service invariants:
 - REMOTE-4 workspaces use `remote-workspace-v1`; the workspace id is derived from the active session identity hash and browser-supplied workspace ids or local paths are ignored.
 - REMOTE-5 Home UX uses `remote-pro-panel` to render access, session, workspace, server and privacy state without exposing raw local paths or identities.
 - REMOTE-6 security and abuse controls use `remote-security-v1` to apply rate limits, kill switch, session revocation, identity-hash blocking, redacted audit visibility and session watermark without exposing raw emails, policy paths, tokens or local paths.
+- REMOTE-SEC2 credential-sharing control uses `remote-access-control-v1` to bind app sessions to approved hashed device/IP/browser contexts, allow 2 trusted contexts per identity and route extra-context approval through redacted support evidence.
 - REMOTE-7 makes `remote_service` the commercial offer shape: buyers use `web_pro_monthly` or `web_pro_annual`, approved testers use `tester_free`, support is optional as `support_assist`, and portable ZIP/offline license flows are internal fallback rather than buyer onboarding.
 - REMOTE-8 uses `remote-controlled-pilot-v1` to prove the end-to-end remote chain locally before live cohort expansion: payment webhook, app session, workspace, `.cfx` artifact, export, isolation, revocation and restore.
 - REMOTE-8B uses `remote-live-pilot-evidence-v1` to ingest one private live-pilot smoke as redacted evidence only. Raw email, protected URL, Cloudflare identifiers, payment payloads, support logs and workspace paths remain local/ignored, and expansion beyond one user stays blocked until REMOTE-8C.
@@ -187,6 +188,13 @@ REMOTE-6 security and abuse controls:
 - `GET /api/remote/security/audit/recent` returns recent workspace audit events for the active session with identity refs shortened and local paths removed.
 - `backend/sqx-edge-tool/core/remote_access.py` enforces revoked session ids and blocked identity hashes before entitlement access is considered allowed.
 - `app/js/modules/home.js` consumes `/remote/security/status`; `app/SQX_Dashboard_v6.html` renders the Home security item and `remote-session-watermark`.
+
+REMOTE-SEC2 credential-sharing control:
+
+- `backend/sqx-edge-tool/core/remote_access_control.py` owns `remote-access-control-v1`, `__Host-sqx_device_id`, hashed context evaluation, context approval/revocation and redacted context summaries.
+- `GET /api/remote/access-control/status` reports whether the current context is trusted, pending, revoked or blocked without returning raw IP, device id, user agent or email.
+- `POST /api/remote/access-control/request-approval` creates a support incident when a legitimate user needs an extra context reviewed.
+- Remote sessions carry `access_context_ref`; session reuse from another context is rejected before workspace creation.
 
 REMOTE-7 web Pro monetization rewrite:
 

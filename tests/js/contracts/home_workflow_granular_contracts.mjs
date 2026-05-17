@@ -163,6 +163,18 @@ sandbox.fetch = (url, options = {}) => {
       }),
     });
   }
+  if (path === '/api/remote/access-control/status') {
+    return Promise.resolve({
+      status: 200,
+      ok: true,
+      json: () => Promise.resolve({
+        ok: true,
+        version: 'remote-access-control-v1',
+        accessControl: { allowed: true, reason: 'context_trusted', status: 'trusted', contextRef: 'ctxdemo123' },
+        context: { contextRef: 'ctxdemo123', status: 'trusted' },
+      }),
+    });
+  }
   if (path === '/api/remote/security/status') {
     return Promise.resolve({
       status: 200,
@@ -218,6 +230,34 @@ assert.equal(document.getElementById('remote-session-watermark').hidden, false);
 assert.match(document.getElementById('remote-session-watermark').textContent, /SQX REMOTE PRO/);
 assert.equal(document.getElementById('remote-welcome-primary').dataset.remoteWelcomeAction, 'enter');
 assert.equal(document.getElementById('remote-welcome-primary').textContent, 'Acceso DASHBOARD');
+
+const remoteBlockedContext = SQX.home.computeRemoteServiceModel({
+  access: {
+    mode: 'remote_tunnel_only',
+    authenticated: true,
+    access: { allowed: false, reason: 'context_pending', feature_scope: 'none' },
+    entitlement: { kind: 'tester_free', status: 'active', feature_scope: 'full' },
+  },
+  session: { session: { active: false }, access: { allowed: false, reason: 'session_missing' } },
+  accessControl: {
+    ok: true,
+    version: 'remote-access-control-v1',
+    accessControl: { allowed: false, reason: 'context_pending', status: 'pending', contextRef: 'ctxpending1', maxTrustedContextsPerIdentity: 2 },
+  },
+  workspace: { ok: false, error: 'remote_session_required' },
+  security: { ok: true, version: 'remote-security-v1', watermark: { enabled: false }, killSwitch: { active: false } },
+  health: { ok: true },
+});
+assert.equal(remoteBlockedContext.state, 'blocked');
+assert.equal(remoteBlockedContext.welcome.primaryAction, 'requestAccess');
+assert.equal(remoteBlockedContext.welcome.primaryLabel, 'Solicitar aprobacion');
+SQX.home.applyRemoteServiceModel(remoteBlockedContext, document);
+assert.equal(document.getElementById('remote-welcome-primary').disabled, false);
+assert.equal(document.getElementById('remote-welcome-security-status').textContent, 'Validacion pendiente');
+assert.match(document.getElementById('remote-welcome-detail').textContent, /dispositivo o ubicacion/);
+assert.equal(document.getElementById('remote-welcome-verdict').textContent, 'Acceso bloqueado');
+
+SQX.home.applyRemoteServiceModel(remoteActive, document);
 assert.equal(document.getElementById('remote-welcome-verdict').textContent, 'OK todo validado');
 assert.equal(document.getElementById('remote-welcome-enter').hidden, true);
 assert.equal(SQX.home.bindRemoteWelcomeGate(document), false);

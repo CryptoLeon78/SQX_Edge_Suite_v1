@@ -128,6 +128,8 @@ def test_tester_free_session_starts_after_cloudflare_identity_without_default_gr
     store_path.write_text(json.dumps(store), encoding="utf-8")
     monkeypatch.setenv("SQX_REMOTE_ENTITLEMENTS_PATH", str(store_path))
     monkeypatch.setenv("SQX_REMOTE_SESSION_SECRET", "s" * 40)
+    monkeypatch.setenv("SQX_REMOTE_ACCESS_CONTROL_PATH", str(tmp_path / "remote_access_control.local.json"))
+    monkeypatch.setenv("SQX_REMOTE_ACCESS_CONTROL_EVENTS_PATH", str(tmp_path / "remote_access_events.local.jsonl"))
 
     created = start_remote_session_from_headers(
         {"Cf-Access-Authenticated-User-Email": "pilot@example.invalid"},
@@ -316,6 +318,8 @@ def test_remote_session_endpoints_set_and_clear_secure_cookie(tmp_path, monkeypa
     store_path.write_text(json.dumps(store), encoding="utf-8")
     monkeypatch.setenv("SQX_REMOTE_ENTITLEMENTS_PATH", str(store_path))
     monkeypatch.setenv("SQX_REMOTE_SESSION_SECRET", "s" * 40)
+    monkeypatch.setenv("SQX_REMOTE_ACCESS_CONTROL_PATH", str(tmp_path / "remote_access_control.local.json"))
+    monkeypatch.setenv("SQX_REMOTE_ACCESS_CONTROL_EVENTS_PATH", str(tmp_path / "remote_access_events.local.jsonl"))
 
     client = server.app.test_client()
     login = client.post(

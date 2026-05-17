@@ -71,6 +71,7 @@ assert.equal(document.getElementById('home-readiness-bar').style.width, '100%');
 const remoteModel = SQX.home.computeRemoteServiceModel({
   access: { mode: 'remote_tunnel_only', authenticated: true, access: { allowed: true, reason: 'access_allowed', feature_scope: 'full' }, entitlement: { kind: 'tester_free' } },
   session: { session: { active: true, entitlement_kind: 'tester_free' }, access: { allowed: true, reason: 'session_access_allowed', feature_scope: 'full' } },
+  accessControl: { ok: true, accessControl: { allowed: true, reason: 'context_trusted', status: 'trusted', contextRef: 'ctxdemo123' } },
   workspace: { ok: true, workspace: { id: 'ws_1234567890abcdef123456', version: 'remote-workspace-v1' } },
   security: { ok: true, version: 'remote-security-v1', killSwitch: { active: false }, watermark: { enabled: true, label: 'SQX REMOTE PRO', marker: 'te***@example.invalid' } },
   health: { ok: true, version: '142', sqx_path_set: true, data_db_exists: true, templates_capa1_exists: true, templates_capa2_exists: true },
@@ -79,7 +80,7 @@ assert.equal(remoteModel.state, 'active');
 SQX.home.applyRemoteServiceModel(remoteModel, document);
 assert.equal(document.getElementById('remote-pro-badge').textContent, 'Remote Pro');
 assert.equal(document.getElementById('remote-pro-server-status').textContent, 'Recursos listos');
-assert.equal(document.getElementById('remote-pro-security-status').textContent, 'Protecciones activas');
+assert.equal(document.getElementById('remote-pro-security-status').textContent, 'Dispositivo aprobado');
 assert.equal(document.getElementById('remote-session-watermark').hidden, false);
 assert.match(document.getElementById('remote-session-watermark').textContent, /SQX REMOTE PRO/);
 assert.equal(document.getElementById('remote-welcome-gate').hidden, false);
@@ -95,7 +96,9 @@ assert.match(SQX.home.remoteReasonLabel('session_missing'), /Sesion/);
 const remoteStatusCalls = [];
 sandbox.fetch = url => {
   remoteStatusCalls.push(String(url));
-  const payload = String(url).includes('/health')
+  const payload = String(url).includes('/remote/access-control/status')
+    ? { ok: true, accessControl: { allowed: true, reason: 'context_trusted', status: 'trusted', contextRef: 'ctxdemo123' } }
+    : String(url).includes('/health')
     ? { ok: true, sqx_path_set: true, data_db_exists: true, templates_capa1_exists: true, templates_capa2_exists: true }
     : { ok: true, access: { allowed: false }, session: { active: false }, mode: 'local_only' };
   return Promise.resolve({

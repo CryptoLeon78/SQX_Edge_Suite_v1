@@ -63,6 +63,15 @@ from core.remote_access import (
     start_remote_session_from_headers,
     trusted_email_from_headers,
 )
+from core.remote_access_control import (
+    ACCESS_CONTROL_COOKIE_NAME,
+    REMOTE_ACCESS_CONTROL_VERSION,
+    build_access_context,
+    ensure_device_id,
+    evaluate_access_context,
+    record_session_started,
+    summarize_access_control,
+)
 from core.remote_payments import process_payment_webhook
 from core.remote_security import (
     REMOTE_SECURITY_VERSION,
@@ -157,6 +166,104 @@ def _remote_security_subject() -> str:
     if trusted_email:
         return email_hash(trusted_email)
     return "local:" + (request.remote_addr or "unknown")
+
+
+def _remote_device_id() -> tuple[str, bool]:
+    return ensure_device_id(request.cookies)
+
+
+def _set_remote_device_cookie(response, device_id: str):
+    if device_id:
+        response.set_cookie(
+            ACCESS_CONTROL_COOKIE_NAME,
+            device_id,
+            httponly=True,
+            secure=True,
+            samesite="Lax",
+            path="/",
+            max_age=180 * 24 * 60 * 60,
+        )
+    return response
+
+
+def _access_control_context(device_id: str | None = None) -> dict:
+    return build_access_context(
+        request.headers,
+        cookies=request.cookies,
+        remote_addr=request.remote_addr,
+        device_id=device_id,
+    )
+
+
+def _apply_access_control_to_session_status(session_status: dict, context: dict, *, purpose: str = "status") -> dict:
+    session = session_status.get("session") if isinstance(session_status.get("session"), dict) else {}
+    identity_hash = str(session.get("email_hash") or "").strip()
+    if not identity_hash:
+        session_status["accessControl"] = {
+            "ok": True,
+            "schemaVersion": REMOTE_ACCESS_CONTROL_VERSION,
+            "accessControl": {"allowed": False, "reason": "identity_missing", "status": "blocked"},
+            "privacy": {"raw_email_returned": False, "raw_ip_returned": False, "device_id_returned": False},
+        }
+        return session_status
+    if session.get("active") and not str(session.get("access_context_ref") or "").strip():
+        session_status["accessControl"] = {
+            "ok": True,
+            "schemaVersion": REMOTE_ACCESS_CONTROL_VERSION,
+            "accessControl": {
+                "allowed": False,
+                "reason": "session_context_missing",
+                "status": "blocked",
+                "mode": "strict",
+                "contextRef": context.get("contextRef"),
+            },
+            "context": {
+                "contextRef": context.get("contextRef"),
+                "status": "blocked",
+                "deviceHashRef": context.get("deviceHashRef"),
+                "ipHashRef": context.get("ipHashRef"),
+                "userAgentHashRef": context.get("userAgentHashRef"),
+                "country": context.get("country"),
+            },
+            "privacy": {"raw_email_returned": False, "raw_ip_returned": False, "device_id_returned": False},
+        }
+        session_status["access"] = {
+            "allowed": False,
+            "reason": "session_context_missing",
+            "feature_scope": "none",
+            "features": [],
+        }
+        session_status["session"] = {**session, "active": False, "reason": "session_context_missing"}
+        return session_status
+    access_control = evaluate_access_context(
+        identity_hash,
+        context,
+        email_ref=session.get("email_ref"),
+        entitlement_kind=session.get("entitlement_kind"),
+        session_context_ref=session.get("access_context_ref"),
+        purpose=purpose,
+    )
+    session_status["accessControl"] = access_control
+    if not access_control.get("accessControl", {}).get("allowed"):
+        session_status["access"] = {
+            "allowed": False,
+            "reason": access_control.get("accessControl", {}).get("reason") or "access_context_blocked",
+            "feature_scope": "none",
+            "features": [],
+        }
+        session_status["session"] = {
+            **session,
+            "active": False,
+            "reason": access_control.get("accessControl", {}).get("reason") or "access_context_blocked",
+        }
+    return session_status
+
+
+def _remote_session_status_for_request(*, purpose: str = "status", device_id: str | None = None) -> tuple[dict, str]:
+    selected_device_id = device_id or _remote_device_id()[0]
+    context = _access_control_context(selected_device_id)
+    session_status = evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME))
+    return _apply_access_control_to_session_status(session_status, context, purpose=purpose), selected_device_id
 
 
 @app.before_request
@@ -537,18 +644,74 @@ def api_license_status():
 @app.get("/api/remote/access/status")
 def api_remote_access_status():
     """Public-safe remote-service access status derived from trusted edge/app headers."""
-    return jsonify(evaluate_remote_request(request.headers, request.cookies.get(SESSION_COOKIE_NAME)))
+    device_id, _created = _remote_device_id()
+    status = evaluate_remote_request(request.headers, request.cookies.get(SESSION_COOKIE_NAME))
+    identity = status.get("identity") if isinstance(status.get("identity"), dict) else {}
+    entitlement = status.get("entitlement") if isinstance(status.get("entitlement"), dict) else {}
+    session = status.get("session") if isinstance(status.get("session"), dict) else {}
+    identity_hash = str(identity.get("email_hash") or session.get("email_hash") or "").strip()
+    if identity_hash:
+        context = _access_control_context(device_id)
+        access_control = evaluate_access_context(
+            identity_hash,
+            context,
+            email_ref=identity.get("email_ref") or session.get("email_ref"),
+            entitlement_kind=entitlement.get("kind") or session.get("entitlement_kind"),
+            session_context_ref=session.get("access_context_ref") if session.get("active") else None,
+        )
+        status["accessControl"] = access_control
+        if not access_control.get("accessControl", {}).get("allowed"):
+            status["access"] = {
+                "allowed": False,
+                "reason": access_control.get("accessControl", {}).get("reason") or "access_context_blocked",
+                "feature_scope": "none",
+                "features": [],
+            }
+    response = make_response(jsonify(status))
+    return _set_remote_device_cookie(response, device_id)
 
 
 @app.post("/api/remote/session/login")
 def api_remote_session_login():
     """Create a signed app session after trusted edge identity and entitlement checks."""
     data = request.get_json(silent=True) or {}
-    result = start_remote_session_from_headers(request.headers, data)
+    device_id, _created = _remote_device_id()
+    edge_status = evaluate_remote_request(request.headers, request.cookies.get(SESSION_COOKIE_NAME))
+    identity = edge_status.get("identity") if isinstance(edge_status.get("identity"), dict) else {}
+    entitlement = edge_status.get("entitlement") if isinstance(edge_status.get("entitlement"), dict) else {}
+    context = _access_control_context(device_id)
+    access_control = evaluate_access_context(
+        str(identity.get("email_hash") or ""),
+        context,
+        email_ref=identity.get("email_ref"),
+        entitlement_kind=entitlement.get("kind"),
+        purpose="session_login",
+    )
+    if not access_control.get("accessControl", {}).get("allowed"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_ACCESS_CONTROL_VERSION,
+            "error": access_control.get("accessControl", {}).get("reason") or "access_context_blocked",
+            "accessControl": access_control,
+            "privacy": {"session_token_returned": False, "raw_email_returned": False, "raw_ip_returned": False},
+        }), 403)
+        return _set_remote_device_cookie(response, device_id)
+    result = start_remote_session_from_headers(
+        request.headers,
+        data,
+        access_context_ref=access_control.get("accessControl", {}).get("contextRef"),
+    )
     status = int(result.pop("http_status", 200))
     token = result.pop("session_token", None)
+    session_id_for_audit = result.pop("_session_id_for_audit", "")
     response = make_response(jsonify(result), status)
     if token and result.get("ok"):
+        session = result.get("session") if isinstance(result.get("session"), dict) else {}
+        record_session_started(
+            str(session.get("email_hash") or ""),
+            str(session.get("access_context_ref") or ""),
+            str(session_id_for_audit or ""),
+        )
         response.set_cookie(
             SESSION_COOKIE_NAME,
             token,
@@ -557,77 +720,158 @@ def api_remote_session_login():
             samesite="Lax",
             path="/",
         )
-    return response
+    return _set_remote_device_cookie(response, device_id)
 
 
 @app.get("/api/remote/session/status")
 def api_remote_session_status():
     """Validate the signed app session cookie without returning the token."""
-    return jsonify(evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME)))
+    session_status, device_id = _remote_session_status_for_request()
+    response = make_response(jsonify(session_status))
+    return _set_remote_device_cookie(response, device_id)
+
+
+@app.get("/api/remote/access-control/status")
+def api_remote_access_control_status():
+    """Report strict anti-sharing context status without returning raw IP/device data."""
+    device_id, _created = _remote_device_id()
+    edge_status = evaluate_remote_request(request.headers, request.cookies.get(SESSION_COOKIE_NAME))
+    identity = edge_status.get("identity") if isinstance(edge_status.get("identity"), dict) else {}
+    session = edge_status.get("session") if isinstance(edge_status.get("session"), dict) else {}
+    entitlement = edge_status.get("entitlement") if isinstance(edge_status.get("entitlement"), dict) else {}
+    context = _access_control_context(device_id)
+    access_control = evaluate_access_context(
+        str(identity.get("email_hash") or session.get("email_hash") or ""),
+        context,
+        email_ref=identity.get("email_ref") or session.get("email_ref"),
+        entitlement_kind=entitlement.get("kind") or session.get("entitlement_kind"),
+        session_context_ref=session.get("access_context_ref") if session.get("active") else None,
+    )
+    response = make_response(jsonify({
+        "ok": True,
+        "version": REMOTE_ACCESS_CONTROL_VERSION,
+        "accessControl": access_control.get("accessControl"),
+        "context": access_control.get("context"),
+        "summary": summarize_access_control().get("summary"),
+        "privacy": {"raw_email_returned": False, "raw_ip_returned": False, "device_id_returned": False, "store_path_returned": False},
+    }))
+    return _set_remote_device_cookie(response, device_id)
+
+
+@app.post("/api/remote/access-control/request-approval")
+def api_remote_access_control_request_approval():
+    """Create a redacted support case for a blocked/pending access context."""
+    data = request.get_json(silent=True) or {}
+    device_id, _created = _remote_device_id()
+    session_status, _ = _remote_session_status_for_request(device_id=device_id)
+    edge_status = evaluate_remote_request(request.headers, request.cookies.get(SESSION_COOKIE_NAME))
+    identity = edge_status.get("identity") if isinstance(edge_status.get("identity"), dict) else {}
+    session = session_status.get("session") if isinstance(session_status.get("session"), dict) else {}
+    entitlement = edge_status.get("entitlement") if isinstance(edge_status.get("entitlement"), dict) else {}
+    context = _access_control_context(device_id)
+    access_control = evaluate_access_context(
+        str(identity.get("email_hash") or session.get("email_hash") or ""),
+        context,
+        email_ref=identity.get("email_ref") or session.get("email_ref"),
+        entitlement_kind=entitlement.get("kind") or session.get("entitlement_kind"),
+    )
+    workspace_context = derive_remote_workspace(session_status, create=False)
+    reason = access_control.get("accessControl", {}).get("reason") or "access_context_review_requested"
+    record = build_support_incident(
+        {
+            "category": "access",
+            "severity": str(data.get("severity") or "high"),
+            "summary": f"Solicitud de aprobacion de acceso remoto: {reason}",
+            "steps": f"Contexto {access_control.get('accessControl', {}).get('contextRef')} pendiente/bloqueado al abrir SQX Edge Suite.",
+            "expected": "Aprobar este dispositivo/IP si corresponde al usuario legitimo.",
+            "actual": "El control anti-comparticion requiere validacion del operador.",
+            "includeDiagnostic": False,
+        },
+        session_status=session_status,
+        workspace_context=workspace_context,
+        diagnostic_payload=None,
+    )
+    blockers = validate_support_incident(record)
+    if blockers:
+        return jsonify({"ok": False, "error": "support_incident_invalid", "blockers": blockers}), 400
+    append_support_incident(record)
+    response = make_response(jsonify({
+        **support_incident_public_response(record),
+        "accessControl": access_control.get("accessControl"),
+    }), 201)
+    return _set_remote_device_cookie(response, device_id)
 
 
 @app.get("/api/remote/workspace/status")
 def api_remote_workspace_status():
     """Provision and report the server-derived workspace for the active app session."""
-    session_status = evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME))
+    session_status, device_id = _remote_session_status_for_request()
     workspace_context = derive_remote_workspace(session_status, create=True)
     if not workspace_context.get("ok"):
-        return jsonify({
+        response = make_response(jsonify({
             "ok": False,
             "error": workspace_context.get("error") or "remote_workspace_unavailable",
             "session": session_status.get("session"),
             "access": session_status.get("access"),
+            "accessControl": session_status.get("accessControl"),
             "privacy": {"session_token_returned": False, "local_paths_returned": False},
-        }), int(workspace_context.get("http_status") or 403)
-    return jsonify({
+        }), int(workspace_context.get("http_status") or 403))
+        return _set_remote_device_cookie(response, device_id)
+    response = make_response(jsonify({
         "ok": True,
         "version": workspace_context.get("version"),
         "workspace": public_workspace_context(workspace_context),
         "access": session_status.get("access"),
+        "accessControl": session_status.get("accessControl"),
         "privacy": {"session_token_returned": False, "local_paths_returned": False},
-    })
+    }))
+    return _set_remote_device_cookie(response, device_id)
 
 
 @app.get("/api/remote/security/status")
 def api_remote_security_status():
     """Public-safe REMOTE-6 security and abuse-control readiness."""
-    session_status = evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME))
+    session_status, device_id = _remote_session_status_for_request()
     workspace_context = derive_remote_workspace(session_status, create=False)
     workspace = public_workspace_context(workspace_context) if workspace_context.get("ok") else {}
-    return jsonify(public_security_status(
+    response = make_response(jsonify(public_security_status(
         session_status,
         workspace_id=workspace.get("id"),
-    ))
+    )))
+    return _set_remote_device_cookie(response, device_id)
 
 
 @app.get("/api/remote/security/audit/recent")
 def api_remote_security_audit_recent():
     """Return recent redacted workspace audit events for the active remote session."""
-    session_status = evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME))
+    session_status, device_id = _remote_session_status_for_request()
     if not session_status.get("access", {}).get("allowed"):
-        return jsonify({
+        response = make_response(jsonify({
             "ok": False,
             "version": REMOTE_SECURITY_VERSION,
             "error": "remote_session_required",
             "session": session_status.get("session"),
             "access": session_status.get("access"),
             "privacy": {"session_token_returned": False, "local_paths_returned": False},
-        }), 403
+        }), 403)
+        return _set_remote_device_cookie(response, device_id)
     workspace_context = derive_remote_workspace(session_status, create=True)
     if not workspace_context.get("ok"):
-        return jsonify({
+        response = make_response(jsonify({
             "ok": False,
             "version": REMOTE_SECURITY_VERSION,
             "error": workspace_context.get("error") or "remote_workspace_unavailable",
             "privacy": {"session_token_returned": False, "local_paths_returned": False},
-        }), int(workspace_context.get("http_status") or 403)
-    return jsonify({
+        }), int(workspace_context.get("http_status") or 403))
+        return _set_remote_device_cookie(response, device_id)
+    response = make_response(jsonify({
         "ok": True,
         "version": REMOTE_SECURITY_VERSION,
         "workspace": public_workspace_context(workspace_context),
         "events": read_recent_workspace_audit_events(workspace_context, limit=20),
         "privacy": {"raw_email_returned": False, "local_paths_returned": False},
-    })
+    }))
+    return _set_remote_device_cookie(response, device_id)
 
 
 @app.post("/api/remote/session/logout")
@@ -662,24 +906,26 @@ def _append_remote_write_pilot_event(payload: dict) -> None:
 @app.post("/api/remote/protected/write-pilot")
 def api_remote_protected_write_pilot():
     """First protected REMOTE-3C write pilot using app-session enforcement."""
-    session_status = evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME))
+    session_status, device_id = _remote_session_status_for_request(purpose="protected_write")
     if not session_status.get("access", {}).get("allowed"):
-        return jsonify({
+        response = make_response(jsonify({
             "ok": False,
             "error": "remote_session_required",
             "session": session_status.get("session"),
             "access": session_status.get("access"),
             "privacy": {"session_token_returned": False},
-        }), 403
+        }), 403)
+        return _set_remote_device_cookie(response, device_id)
     workspace_context = derive_remote_workspace(session_status, create=True)
     if not workspace_context.get("ok"):
-        return jsonify({
+        response = make_response(jsonify({
             "ok": False,
             "error": workspace_context.get("error") or "remote_workspace_unavailable",
             "session": session_status.get("session"),
             "access": session_status.get("access"),
             "privacy": {"session_token_returned": False, "local_paths_returned": False},
-        }), int(workspace_context.get("http_status") or 403)
+        }), int(workspace_context.get("http_status") or 403))
+        return _set_remote_device_cookie(response, device_id)
     data = request.get_json(silent=True) or {}
     action = str(data.get("action") or "remote_write_pilot").strip()[:80]
     event = {
@@ -693,7 +939,7 @@ def api_remote_protected_write_pilot():
         "featureScope": session_status.get("access", {}).get("feature_scope"),
     }
     audit_result = append_workspace_audit_event(workspace_context, event)
-    return jsonify({
+    response = make_response(jsonify({
         "ok": True,
         "version": "remote-write-pilot-v1",
         "event": {
@@ -707,7 +953,8 @@ def api_remote_protected_write_pilot():
         "audit": audit_result.get("audit_event"),
         "access": {"allowed": True, "reason": "remote_session_verified"},
         "privacy": {"session_token_returned": False, "raw_email_returned": False, "local_paths_returned": False},
-    })
+    }))
+    return _set_remote_device_cookie(response, device_id)
 
 
 @app.post("/api/license/check")
@@ -750,7 +997,7 @@ def api_support_diagnostics():
 def api_support_incidents():
     """Registra una incidencia local redacted para soporte remoto sin enviarla fuera."""
     data = request.get_json(silent=True) or {}
-    session_status = evaluate_remote_session(request.cookies.get(SESSION_COOKIE_NAME))
+    session_status, _device_id = _remote_session_status_for_request()
     workspace_context = derive_remote_workspace(session_status, create=False)
     diagnostic_payload = None
     if bool(data.get("includeDiagnostic")):

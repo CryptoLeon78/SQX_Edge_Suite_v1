@@ -11,6 +11,13 @@ from core.remote_security import (
 )
 
 
+def _context_ref_for_test(client, email: str = "buyer@example.invalid"):
+    headers = {"User-Agent": "pytest-remote", "Cf-Access-Authenticated-User-Email": email}
+    probe = client.get("/api/remote/access-control/status", headers=headers, base_url="https://localhost")
+    assert probe.status_code == 200
+    return probe.get_json()["accessControl"]["contextRef"], headers
+
+
 def _write_entitlements(path, email="buyer@example.invalid"):
     path.write_text(json.dumps({
         "schemaVersion": "remote-entitlements-v1",
@@ -113,15 +120,19 @@ def test_remote_security_status_and_recent_audit_are_redacted(tmp_path, monkeypa
     monkeypatch.setenv("SQX_REMOTE_SECURITY_POLICY_PATH", str(policy_path))
     monkeypatch.setenv("SQX_REMOTE_WORKSPACES_ROOT", str(workspaces_root))
     monkeypatch.setenv("SQX_REMOTE_SESSION_SECRET", "s" * 40)
+    monkeypatch.setenv("SQX_REMOTE_ACCESS_CONTROL_PATH", str(tmp_path / "remote_access_control.local.json"))
+    monkeypatch.setenv("SQX_REMOTE_ACCESS_CONTROL_EVENTS_PATH", str(tmp_path / "remote_access_events.local.jsonl"))
 
+    client = server.app.test_client()
+    context_ref, headers = _context_ref_for_test(client)
     signed = create_signed_session(
         "buyer@example.invalid",
         {"kind": "paid_subscription", "grant_id": "paid-1", "feature_scope": "full"},
+        access_context_ref=context_ref,
     )
-    client = server.app.test_client()
     client.set_cookie(SESSION_COOKIE_NAME, signed["token"])
 
-    status = client.get("/api/remote/security/status")
+    status = client.get("/api/remote/security/status", headers=headers, base_url="https://localhost")
     status_data = status.get_json()
     assert status.status_code == 200
     assert status_data["version"] == REMOTE_SECURITY_VERSION
@@ -132,9 +143,9 @@ def test_remote_security_status_and_recent_audit_are_redacted(tmp_path, monkeypa
     write = client.post("/api/remote/protected/write-pilot", json={
         "action": "dry_run",
         "path": "C:/private/local/path",
-    })
+    }, headers=headers, base_url="https://localhost")
     assert write.status_code == 200
-    recent = client.get("/api/remote/security/audit/recent")
+    recent = client.get("/api/remote/security/audit/recent", headers=headers, base_url="https://localhost")
     recent_data = recent.get_json()
     assert recent.status_code == 200
     assert recent_data["events"][0]["identity_hash_ref"] == email_hash("buyer@example.invalid")[:12]

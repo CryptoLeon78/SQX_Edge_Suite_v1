@@ -217,6 +217,31 @@ Artifacts added in REMOTE-6:
 - session revocation and identity-hash blocking in `backend/sqx-edge-tool/core/remote_access.py`
 - redacted workspace audit reader in `backend/sqx-edge-tool/core/remote_workspaces.py`
 
+### REMOTE-SEC2 - Credential Sharing Control
+
+Add strict anti-sharing above Cloudflare Access and app sessions. The app now binds remote sessions to a trusted context derived from hashed identity, server-issued device cookie, Cloudflare IP signal and browser signal.
+
+Artifacts added in REMOTE-SEC2:
+
+- `docs/REMOTE_SEC2_CREDENTIAL_SHARING_CONTROL.md`
+- `remote-access-control-v1`
+- `__Host-sqx_device_id`
+- `backend/sqx-edge-tool/core/remote_access_control.py`
+- `GET /api/remote/access-control/status`
+- `POST /api/remote/access-control/request-approval`
+- `tools/remote_access_control_status.ps1`
+- `tools/remote_access_control_admin.ps1`
+- local ignored stores `.local/remote_service/remote_access_control.local.json` and `.local/remote_service/remote_access_events.local.jsonl`
+- Welcome gate pending/blocked context messaging and redacted approval request.
+
+Policy:
+
+- strict mode from the start;
+- 2 trusted contexts per identity by default;
+- third or revoked contexts cannot open the dashboard until operator approval;
+- copied sessions used from another context are blocked;
+- raw emails, IPs, device IDs, cookies, tokens, protected URLs and local paths stay out of Git and public JSON.
+
 Next REMOTE-7 scope:
 
 - rewrite buyer-facing offer around web Pro monthly/annual access;

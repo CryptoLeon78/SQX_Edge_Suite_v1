@@ -88,7 +88,17 @@
       tester_grant_key_required: 'Clave tester pendiente',
       session_missing: 'Sesion de app pendiente',
       session_expired: 'Sesion expirada',
-      remote_session_required: 'Sesion remota requerida'
+      remote_session_required: 'Sesion remota requerida',
+      context_trusted: 'Contexto aprobado',
+      context_pending: 'Contexto pendiente',
+      context_revoked: 'Contexto revocado',
+      context_blocked: 'Contexto bloqueado',
+      context_missing: 'Contexto no detectado',
+      context_limit_reached: 'Limite de dispositivos alcanzado',
+      concurrent_context_active: 'Sesion activa en otro contexto',
+      session_context_mismatch: 'Sesion usada fuera de su contexto aprobado',
+      session_context_missing: 'Sesion anterior sin contexto de dispositivo',
+      identity_access_blocked: 'Identidad bloqueada'
     };
     return labels[reason] || String(reason || 'Pendiente');
   }
@@ -126,6 +136,8 @@
     var workspacePayload = data.workspace || {};
     var healthPayload = data.health || {};
     var securityPayload = data.security || {};
+    var accessControlPayload = data.accessControl || {};
+    var accessControl = accessControlPayload.accessControl || {};
     var access = accessPayload.access || {};
     var sessionAccess = sessionPayload.access || accessPayload.session_access || {};
     var session = sessionPayload.session || accessPayload.session || {};
@@ -139,8 +151,12 @@
     var serverReady = !!(serverOk && healthPayload.sqx_path_set && healthPayload.data_db_exists && healthPayload.templates_capa1_exists && healthPayload.templates_capa2_exists);
     var reason = (sessionAccess.reason || access.reason || entitlement.reason || accessPayload.error || sessionPayload.error || 'identity_missing');
     var mode = accessPayload.mode || 'local_only';
-    var state = accessAllowed && workspaceOk && serverOk ? 'active' : (authenticated || serverOk ? 'pending' : 'warn');
+    var accessControlPresent = Object.prototype.hasOwnProperty.call(accessControl, 'allowed');
+    var accessControlAllowed = !accessControlPresent || accessControl.allowed !== false;
+    var accessControlReason = accessControl.reason || '';
+    var state = accessAllowed && accessControlAllowed && workspaceOk && serverOk ? 'active' : (authenticated || serverOk ? 'pending' : 'warn');
     if (String(reason).indexOf('blocked') >= 0 || String(reason).indexOf('denied') >= 0) state = 'blocked';
+    if (accessControlPresent && !accessControlAllowed) state = 'blocked';
     var entitlementKind = entitlement.kind || session.entitlement_kind || '';
     var featureScope = (sessionAccess.feature_scope || access.feature_scope || entitlement.feature_scope || 'none');
     var grantKeyRequired = !!(entitlement.grant_key_required && entitlementKind === 'tester_free' && !sessionAllowed);
@@ -166,23 +182,29 @@
     var securityOk = !!securityPayload.ok;
     var securityBlocked = !!(killSwitch.active || (securityPayload.revocation || {}).currentSessionRevoked || (securityPayload.blocking || {}).currentIdentityBlocked);
     if (securityBlocked) state = 'blocked';
-    var securityStatus = securityBlocked ? 'Control remoto activo' : (securityOk ? 'Protecciones activas' : 'Pendiente');
+    var securityStatus = accessControlPresent && accessControlAllowed
+      ? 'Dispositivo aprobado'
+      : (accessControlPresent && !accessControlAllowed ? 'Validacion pendiente' : (securityBlocked ? 'Control remoto activo' : (securityOk ? 'Protecciones activas' : 'Pendiente')));
     var securityDetail = securityBlocked
       ? 'Kill switch, revocacion o bloqueo requieren revision del operador.'
-      : (securityOk ? 'Rate limits, revocacion, bloqueo y watermark preparados.' : 'Esperando politica REMOTE-6 del gateway.');
+      : (accessControlPresent
+        ? ('Anti-comparticion activo: contexto ' + (accessControl.contextRef || 'sin ref') + ' · ' + remoteReasonLabel(accessControlReason || 'context_trusted') + '.')
+        : (securityOk ? 'Rate limits, revocacion, bloqueo y watermark preparados.' : 'Esperando politica REMOTE-6 del gateway.'));
     var watermark = securityPayload.watermark || {};
     var watermarkText = watermark.enabled
       ? ((watermark.label || 'SQX REMOTE PRO') + ' · ' + (watermark.marker || workspaceStatus || 'session'))
       : '';
     var isRemoteMode = mode !== 'local_only';
     var welcomeVisible = !!(isRemoteMode || authenticated || sessionAllowed);
-    var welcomePrimaryAction = state === 'active' ? 'enter' : (canCreateSession ? 'login' : 'refresh');
+    var welcomePrimaryAction = state === 'blocked' && accessControlPresent && !accessControlAllowed
+      ? 'requestAccess'
+      : (state === 'active' ? 'enter' : (canCreateSession ? 'login' : 'refresh'));
     var welcomePrimaryLabel = state === 'active'
       ? 'Acceso DASHBOARD'
-      : (canCreateSession ? 'Acceso DASHBOARD' : 'Actualizar estado');
-    var welcomeVerdict = state === 'active'
-      ? 'OK todo validado'
-      : (canCreateSession ? 'OK identidad validada' : (state === 'blocked' ? 'Acceso bloqueado' : 'Validando acceso'));
+      : (welcomePrimaryAction === 'requestAccess' ? 'Solicitar aprobacion' : (canCreateSession ? 'Acceso DASHBOARD' : 'Actualizar estado'));
+    var welcomeVerdict = state === 'blocked'
+      ? 'Acceso bloqueado'
+      : (state === 'active' ? 'OK todo validado' : (canCreateSession ? 'OK identidad validada' : 'Validando acceso'));
 
     return {
       state: state,
@@ -197,7 +219,7 @@
         access: { state: accessAllowed ? 'ok' : (authenticated ? 'pending' : 'warn'), status: accessStatus, detail: accessDetail },
         workspace: { state: workspaceOk ? 'ok' : 'pending', status: workspaceStatus, detail: workspaceDetail },
         server: { state: serverReady ? 'ok' : (serverOk ? 'pending' : 'warn'), status: serverStatus, detail: serverDetail },
-        security: { state: securityBlocked ? 'blocked' : (securityOk ? 'ok' : 'pending'), status: securityStatus, detail: securityDetail },
+        security: { state: accessControlPresent && !accessControlAllowed ? 'blocked' : (securityBlocked ? 'blocked' : (securityOk || accessControlAllowed ? 'ok' : 'pending')), status: securityStatus, detail: securityDetail },
         privacy: {
           state: 'ok',
           status: 'Sin instalacion local',
@@ -233,9 +255,11 @@
         verdict: welcomeVerdict,
         detail: state === 'active'
           ? 'OK todo validado. Sesion, permiso, workspace y protecciones estan activos. Puedes entrar al dashboard y continuar la metodologia.'
-          : (canCreateSession
+          : (welcomePrimaryAction === 'requestAccess'
+            ? 'Este dispositivo o ubicacion necesita aprobacion del operador para proteger tu licencia y evitar uso compartido no autorizado.'
+            : (canCreateSession
             ? 'Pulsa Acceso DASHBOARD para abrir tu workspace privado.'
-            : 'Antes de operar, SQX Edge Suite valida identidad, permiso activo, sesion de app y workspace aislado.'),
+            : 'Antes de operar, SQX Edge Suite valida identidad, permiso activo, sesion de app y workspace aislado.')),
         primaryAction: welcomePrimaryAction,
         primaryLabel: welcomePrimaryLabel,
         trustLabel: 'Ver Trust Center',
@@ -309,7 +333,7 @@
     if (primary) {
       primary.textContent = welcome.primaryLabel || 'Actualizar estado';
       primary.dataset.remoteWelcomeAction = welcome.primaryAction || 'refresh';
-      primary.disabled = model.state === 'blocked';
+      primary.disabled = model.state === 'blocked' && welcome.primaryAction !== 'requestAccess';
     }
     if (enter) enter.hidden = true;
     if (trust) trust.textContent = welcome.trustLabel || 'Ver Trust Center';
@@ -355,6 +379,7 @@
     return Promise.all([
       fetchJson('/remote/access/status'),
       fetchJson('/remote/session/status'),
+      fetchJson('/remote/access-control/status'),
       fetchJson('/remote/security/status'),
       fetchJson('/health')
     ]).then(function(results) {
@@ -376,8 +401,9 @@
           access: accessPayload,
           session: sessionPayload,
           workspace: workspacePayload,
-          security: results[2],
-          health: results[3]
+          accessControl: results[2],
+          security: results[3],
+          health: results[4]
         });
         applyRemoteServiceModel(model, target);
         return model;
@@ -414,6 +440,34 @@
       if (detail) detail.textContent = remoteReasonLabel(reason) + '. Revisa permiso, sesion Cloudflare o entitlement activo.';
       if (btn) btn.disabled = false;
       return { ok: false, login: payload, error: reason };
+    });
+  }
+
+  function requestAccessApproval(doc) {
+    var target = doc || global.document;
+    var primary = target && target.getElementById('remote-welcome-primary');
+    var detail = target && target.getElementById('remote-welcome-detail');
+    if (primary) primary.disabled = true;
+    if (detail) detail.textContent = 'Registrando solicitud segura de aprobacion...';
+    return fetchJson('/remote/access-control/request-approval', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ severity: 'high' })
+    }).then(function(payload) {
+      if (payload && payload.ok) {
+        if (detail) detail.textContent = 'Solicitud registrada: ' + payload.caseId + '. El operador validara este dispositivo o ubicacion.';
+        if (global.addHomeTrace) {
+          global.addHomeTrace('Solicitud de acceso', payload.caseId, 'warn');
+        }
+        return payload;
+      }
+      if (detail) detail.textContent = 'No se pudo registrar la solicitud. Usa Control Panel > Soporte.';
+      if (primary) primary.disabled = false;
+      return payload || { ok: false, error: 'access_request_failed' };
+    }).catch(function(err) {
+      if (detail) detail.textContent = 'No se pudo registrar la solicitud. Usa Control Panel > Soporte.';
+      if (primary) primary.disabled = false;
+      return { ok: false, error: err && err.message ? err.message : 'access_request_failed' };
     });
   }
 
@@ -471,6 +525,8 @@
           }).catch(function() {
             if (primary) primary.disabled = false;
           });
+        } else if (action === 'requestAccess') {
+          requestAccessApproval(target);
         } else {
           refreshRemoteServiceStatus(target);
         }
@@ -647,6 +703,7 @@
     fetchJson: fetchJson,
     initRemoteServicePanel: initRemoteServicePanel,
     loginRemoteSession: loginRemoteSession,
+    requestAccessApproval: requestAccessApproval,
     refreshRemoteServiceStatus: refreshRemoteServiceStatus,
     remoteReasonLabel: remoteReasonLabel,
     setRemoteSessionLoginState: setRemoteSessionLoginState,

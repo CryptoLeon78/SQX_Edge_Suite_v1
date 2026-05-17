@@ -25,6 +25,13 @@ def _signature(raw: bytes, secret: str) -> str:
     return "sha256=" + sign_payment_webhook_body(raw, secret)
 
 
+def _context_ref_for_test(client, email: str = "buyer@example.invalid"):
+    headers = {"User-Agent": "pytest-remote", "Cf-Access-Authenticated-User-Email": email}
+    probe = client.get("/api/remote/access-control/status", headers=headers, base_url="https://localhost")
+    assert probe.status_code == 200
+    return probe.get_json()["accessControl"]["contextRef"], headers
+
+
 def test_payment_webhook_signature_and_entitlement_activation(tmp_path, monkeypatch):
     secret = "p" * 40
     store_path = tmp_path / "remote_entitlements.local.json"
@@ -173,18 +180,27 @@ def test_remote_protected_write_pilot_requires_active_app_session(tmp_path, monk
     monkeypatch.setenv("SQX_REMOTE_ENTITLEMENTS_PATH", str(store_path))
     monkeypatch.setenv("SQX_REMOTE_SESSION_SECRET", "s" * 40)
     monkeypatch.setenv("SQX_REMOTE_WORKSPACES_ROOT", str(workspaces_root))
+    monkeypatch.setenv("SQX_REMOTE_ACCESS_CONTROL_PATH", str(tmp_path / "remote_access_control.local.json"))
+    monkeypatch.setenv("SQX_REMOTE_ACCESS_CONTROL_EVENTS_PATH", str(tmp_path / "remote_access_events.local.jsonl"))
 
     client = server.app.test_client()
     denied = client.post("/api/remote/protected/write-pilot", json={"action": "dry_run"})
     assert denied.status_code == 403
     assert denied.get_json()["error"] == "remote_session_required"
 
+    context_ref, headers = _context_ref_for_test(client)
     signed = create_signed_session(
         "buyer@example.invalid",
         {"kind": "paid_subscription", "grant_id": "paid-1", "feature_scope": "full"},
+        access_context_ref=context_ref,
     )
     client.set_cookie(SESSION_COOKIE_NAME, signed["token"])
-    allowed = client.post("/api/remote/protected/write-pilot", json={"action": "dry_run"})
+    allowed = client.post(
+        "/api/remote/protected/write-pilot",
+        json={"action": "dry_run"},
+        headers=headers,
+        base_url="https://localhost",
+    )
 
     data = allowed.get_json()
     assert allowed.status_code == 200

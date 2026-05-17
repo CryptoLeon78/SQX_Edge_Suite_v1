@@ -11,6 +11,13 @@ from core.remote_workspaces import (
 )
 
 
+def _context_ref_for_test(client, email: str = "buyer@example.invalid"):
+    headers = {"User-Agent": "pytest-remote", "Cf-Access-Authenticated-User-Email": email}
+    probe = client.get("/api/remote/access-control/status", headers=headers, base_url="https://localhost")
+    assert probe.status_code == 200
+    return probe.get_json()["accessControl"]["contextRef"], headers
+
+
 def _session_status(email: str = "buyer@example.invalid") -> dict:
     identity_hash = email_hash(email)
     return {
@@ -105,18 +112,22 @@ def test_remote_workspace_status_endpoint_requires_session_and_returns_no_paths(
     monkeypatch.setenv("SQX_REMOTE_ENTITLEMENTS_PATH", str(store_path))
     monkeypatch.setenv("SQX_REMOTE_SESSION_SECRET", "s" * 40)
     monkeypatch.setenv("SQX_REMOTE_WORKSPACES_ROOT", str(workspaces_root))
+    monkeypatch.setenv("SQX_REMOTE_ACCESS_CONTROL_PATH", str(tmp_path / "remote_access_control.local.json"))
+    monkeypatch.setenv("SQX_REMOTE_ACCESS_CONTROL_EVENTS_PATH", str(tmp_path / "remote_access_events.local.jsonl"))
 
     client = server.app.test_client()
     denied = client.get("/api/remote/workspace/status")
     assert denied.status_code == 403
     assert denied.get_json()["privacy"]["local_paths_returned"] is False
 
+    context_ref, headers = _context_ref_for_test(client)
     signed = create_signed_session(
         "buyer@example.invalid",
         {"kind": "paid_subscription", "grant_id": "paid-1", "feature_scope": "full"},
+        access_context_ref=context_ref,
     )
     client.set_cookie(SESSION_COOKIE_NAME, signed["token"])
-    allowed = client.get("/api/remote/workspace/status")
+    allowed = client.get("/api/remote/workspace/status", headers=headers, base_url="https://localhost")
     data = allowed.get_json()
 
     assert allowed.status_code == 200
@@ -144,16 +155,22 @@ def test_remote_write_pilot_ignores_browser_workspace_and_writes_workspace_audit
     monkeypatch.setenv("SQX_REMOTE_ENTITLEMENTS_PATH", str(store_path))
     monkeypatch.setenv("SQX_REMOTE_SESSION_SECRET", "s" * 40)
     monkeypatch.setenv("SQX_REMOTE_WORKSPACES_ROOT", str(workspaces_root))
+    monkeypatch.setenv("SQX_REMOTE_ACCESS_CONTROL_PATH", str(tmp_path / "remote_access_control.local.json"))
+    monkeypatch.setenv("SQX_REMOTE_ACCESS_CONTROL_EVENTS_PATH", str(tmp_path / "remote_access_events.local.jsonl"))
 
+    client = server.app.test_client()
+    context_ref, headers = _context_ref_for_test(client)
     signed = create_signed_session(
         "buyer@example.invalid",
         {"kind": "paid_subscription", "grant_id": "paid-1", "feature_scope": "full"},
+        access_context_ref=context_ref,
     )
-    client = server.app.test_client()
     client.set_cookie(SESSION_COOKIE_NAME, signed["token"])
     response = client.post(
         "/api/remote/protected/write-pilot",
         json={"action": "dry_run", "workspace_id": "../../other-user", "path": "C:/private"},
+        headers=headers,
+        base_url="https://localhost",
     )
     data = response.get_json()
 

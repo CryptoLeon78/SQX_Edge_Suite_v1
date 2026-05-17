@@ -298,6 +298,7 @@ def create_session_payload(
     entitlement: Mapping[str, Any],
     ttl_seconds: int = DEFAULT_SESSION_TTL_SECONDS,
     now: datetime | None = None,
+    access_context_ref: str | None = None,
 ) -> dict[str, Any]:
     current = now or datetime.now(timezone.utc)
     iat = int(current.timestamp())
@@ -311,6 +312,7 @@ def create_session_payload(
         "entitlement_kind": entitlement.get("kind"),
         "grant_id": entitlement.get("grant_id"),
         "feature_scope": entitlement.get("feature_scope"),
+        "access_context_ref": str(access_context_ref or "").strip()[:32],
         "iat": iat,
         "exp": exp,
     }
@@ -322,8 +324,9 @@ def create_signed_session(
     ttl_seconds: int = DEFAULT_SESSION_TTL_SECONDS,
     now: datetime | None = None,
     secret: str | None = None,
+    access_context_ref: str | None = None,
 ) -> dict[str, Any]:
-    payload = create_session_payload(email, entitlement, ttl_seconds=ttl_seconds, now=now)
+    payload = create_session_payload(email, entitlement, ttl_seconds=ttl_seconds, now=now, access_context_ref=access_context_ref)
     token = sign_session_payload(payload, secret=secret)
     return {
         "ok": True,
@@ -349,6 +352,7 @@ def _public_session_from_payload(payload: Mapping[str, Any], active: bool, reaso
         "entitlement_kind": payload.get("entitlement_kind"),
         "grant_id": payload.get("grant_id"),
         "feature_scope": payload.get("feature_scope"),
+        "access_context_ref": payload.get("access_context_ref"),
         "expires_at": expires_at,
     }
 
@@ -419,7 +423,12 @@ def evaluate_remote_session(
     }
 
 
-def start_remote_session_from_headers(headers: Mapping[str, Any], data: Mapping[str, Any] | None = None) -> dict[str, Any]:
+def start_remote_session_from_headers(
+    headers: Mapping[str, Any],
+    data: Mapping[str, Any] | None = None,
+    *,
+    access_context_ref: str | None = None,
+) -> dict[str, Any]:
     if not session_secret_ready():
         return {
             "ok": False,
@@ -453,11 +462,12 @@ def start_remote_session_from_headers(headers: Mapping[str, Any], data: Mapping[
                 "identity": {"email_ref": redact_email(identity), "email_hash": email_hash(identity)},
                 "privacy": {"grant_key_returned": False},
             }
-    session = create_signed_session(identity, entitlement)
+    session = create_signed_session(identity, entitlement, access_context_ref=access_context_ref)
     return {
         "ok": True,
         "http_status": 200,
         "session_token": session["token"],
+        "_session_id_for_audit": session["payload"].get("sid"),
         "cookie_name": SESSION_COOKIE_NAME,
         "session": {
             "active": True,

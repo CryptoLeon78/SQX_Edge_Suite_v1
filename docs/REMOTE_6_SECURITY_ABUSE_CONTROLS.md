@@ -2,6 +2,8 @@
 
 REMOTE-6 adds the first operational security layer around the remote Pro service. It does not expose new commercial features; it makes the existing remote auth, session and workspace gates harder to abuse before the pilot grows.
 
+REMOTE-SEC2 extends this layer with `remote-access-control-v1`: strict anti-sharing by trusted device/IP/browser context, two trusted contexts per identity, context-bound sessions and operator approval for extra contexts.
+
 ## Scope
 
 - Version: `remote-security-v1`.
