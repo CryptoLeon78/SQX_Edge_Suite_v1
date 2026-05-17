@@ -11663,7 +11663,7 @@ window.SQX_MANIFEST = {
   "product": {
     "version": 1,
     "product": {
-      "name": "SQX Edge",
+      "name": "SQX Edge Suite",
       "publicName": "SQX Edge Suite",
       "edition": "Pro",
       "licenseVersion": 1
@@ -11964,7 +11964,7 @@ window.SQX_MANIFEST = {
         ]
       },
       "pro": {
-        "label": "SQX Edge Pro",
+        "label": "SQX Edge Suite Pro",
         "state": "pro_active",
         "features": [
           "dashboard.view",
@@ -11997,7 +11997,7 @@ window.SQX_MANIFEST = {
       }
     },
     "upgrade": {
-      "headline": "SQX Edge Pro",
+      "headline": "SQX Edge Suite Pro",
       "primaryMessage": "Convierte tu flujo SQX en un pipeline guiado, repetible y listo para trabajar.",
       "secondaryMessage": "Activa Pro para usar Project Generator, Strategy Cleaner, workflows premium y export avanzado.",
       "bullets": [

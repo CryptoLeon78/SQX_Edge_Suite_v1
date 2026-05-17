@@ -148,7 +148,7 @@
     var accessStatus = sessionAllowed ? 'Sesion remota activa' : (access.allowed ? 'Permiso detectado' : (authenticated ? 'Identidad detectada' : 'Sin sesion remota'));
     var accessDetail = sessionAllowed
       ? ((entitlementKind ? entitlementKind + ' · ' : '') + featureScope + ' · ' + remoteReasonLabel(reason))
-      : (access.allowed ? 'Email y permiso validados; falta crear la sesion de app para abrir workspace.' : null);
+      : (access.allowed ? 'Identidad y permiso validados. Pulsa Acceso DASHBOARD para abrir tu workspace privado.' : null);
     accessDetail = accessDetail
       ? accessDetail
       : (mode === 'local_only' ? 'Modo local interno; el enlace remoto activara email y permiso.' : remoteReasonLabel(reason));
@@ -218,7 +218,7 @@
         detail: grantKeyRequired
           ? 'Introduce la clave tester privada para activar la sesion de app y crear el workspace aislado.'
           : (canCreateSession
-            ? 'Cloudflare Access y el entitlement estan validados. No necesitas clave tester adicional para abrir la sesion de app.'
+          ? 'Cloudflare Access y el permiso Pro estan validados. No necesitas clave tester adicional para abrir tu workspace privado.'
             : 'Cuando haya email y permiso activo, aqui aparecera la accion de sesion.'),
         buttonLabel: grantKeyRequired ? 'Validar tester' : 'Acceso DASHBOARD'
       },
@@ -234,7 +234,7 @@
         detail: state === 'active'
           ? 'OK todo validado. Sesion, permiso, workspace y protecciones estan activos. Puedes entrar al dashboard y continuar la metodologia.'
           : (canCreateSession
-            ? 'Pulsa Acceso DASHBOARD para crear tu sesion de app y abrir el workspace aislado.'
+            ? 'Pulsa Acceso DASHBOARD para abrir tu workspace privado.'
             : 'Antes de operar, SQX Edge Suite valida identidad, permiso activo, sesion de app y workspace aislado.'),
         primaryAction: welcomePrimaryAction,
         primaryLabel: welcomePrimaryLabel,

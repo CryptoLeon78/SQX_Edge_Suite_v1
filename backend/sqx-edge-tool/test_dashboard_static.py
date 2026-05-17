@@ -15,6 +15,7 @@ PROJECT_GOVERNANCE_DOC = PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md"
 REMOTE_SERVICE_ROADMAP_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_ROADMAP.md"
 REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md"
 REMOTE_VALUE_BACKLOG_DOC = PROJECT_ROOT / "docs" / "REMOTE_VALUE_BACKLOG.md"
+REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_DOC = PROJECT_ROOT / "docs" / "REMOTE_ACCEPT1_BROWSER_ACCEPTANCE.md"
 REMOTE_1_LAPTOP_SERVER_BASELINE_DOC = PROJECT_ROOT / "docs" / "REMOTE_1_LAPTOP_SERVER_BASELINE.md"
 REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC = PROJECT_ROOT / "docs" / "REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS.md"
 REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY_DOC = PROJECT_ROOT / "docs" / "REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY.md"
@@ -49,6 +50,7 @@ REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_SU
 REMOTE_OPS1_LAPTOP_READINESS_DOC = PROJECT_ROOT / "docs" / "REMOTE_OPS1_LAPTOP_READINESS_DRILL.md"
 REMOTE_8B_LIVE_PILOT_EVIDENCE_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8b_live_pilot_evidence.local.example.json"
 REMOTE_8C_FIRST_USER_OBSERVATION_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8c_first_user_observation.local.example.json"
+REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote_accept1_browser_acceptance.local.example.json"
 REMOTE_8D_TINY_COHORT_ACTIVATION_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8d_tiny_cohort_activation.local.example.json"
 REMOTE_8E_TINY_COHORT_EXECUTION_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8e_tiny_cohort_execution.local.example.json"
 REMOTE_8F_TINY_COHORT_MONITORING_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8f_tiny_cohort_monitoring.local.example.json"
@@ -659,6 +661,52 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, backlog)
+
+    def test_remote_accept1_browser_acceptance_gate_is_documented(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        accept_doc = REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_DOC.read_text(encoding="utf-8-sig")
+        example = json.loads(REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_EXAMPLE.read_text(encoding="utf-8-sig"))
+        home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_DOC.is_file())
+        self.assertTrue(REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_EXAMPLE.is_file())
+        self.assertEqual(example["schemaVersion"], "remote-browser-acceptance-v1")
+        self.assertEqual(example["phase"], "REMOTE-ACCEPT1")
+        self.assertTrue(example["checks"]["dashboardButtonClickedOnce"])
+        self.assertEqual(example["metrics"]["dashboardButtonClicksRequired"], 1)
+        self.assertEqual(example["metrics"]["welcomeBounceBacks"], 0)
+
+        for pattern in (
+            "REMOTE-ACCEPT1 - Real Browser Acceptance Gate",
+            "remote-browser-acceptance-v1",
+            ".local/remote_service/remote_accept1_browser_acceptance",
+            "one click on `Acceso DASHBOARD` opens the dashboard without bounce-back",
+            "no internal wording like `falta crear la sesion de app` is shown",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Real Browser Acceptance Gate",
+            "one-click `Acceso DASHBOARD`",
+            "no Welcome bounce-back",
+            "no persistent app-session expectation after browser close",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "What The Underlined Welcome Text Means",
+            "Identidad y permiso validados. Pulsa Acceso DASHBOARD para abrir tu workspace privado.",
+            "Manual Acceptance Checklist",
+            "The user-facing rule is simple",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, accept_doc)
+
+        self.assertIn("workspace privado", home_js)
+        self.assertNotIn("falta crear la sesion de app", home_js)
 
     def test_remote_2b_tester_grants_and_repo_privacy_are_locked(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")

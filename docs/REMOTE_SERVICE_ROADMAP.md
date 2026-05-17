@@ -310,6 +310,28 @@ Additional discipline:
 - Asset Cards Curator changes require explicit operator confirmation before any card data, score, rating, timeframe or mapping is modified;
 - tester direct access does not broaden the cohort and does not publish protected URLs.
 
+### REMOTE-ACCEPT1 - Real Browser Acceptance Gate
+
+REMOTE-ACCEPT1 is the real-browser stabilization gate created after first tester feedback showed the Welcome copy and `Acceso DASHBOARD` behavior could still feel confusing despite automated tests.
+
+Artifacts added in REMOTE-ACCEPT1:
+
+- `docs/REMOTE_ACCEPT1_BROWSER_ACCEPTANCE.md`
+- `docs/examples/remote_accept1_browser_acceptance.local.example.json`
+- `remote-browser-acceptance-v1`
+- ignored evidence root `.local/remote_service/remote_accept1_browser_acceptance*`
+- `Real Browser Acceptance Gate`
+
+Acceptance focus:
+
+- Cloudflare Access passes with the approved tester identity;
+- Welcome title reads `Bienvenido a` / `SQX Edge Suite`;
+- identity copy says the user is validated and can press `Acceso DASHBOARD`;
+- no internal wording like `falta crear la sesion de app` is shown;
+- one click on `Acceso DASHBOARD` opens the dashboard without bounce-back;
+- closing and reopening the browser does not create a persistent app-session expectation;
+- evidence is redacted and local-only.
+
 ### REMOTE-8C - First User Support Observation And Expansion Decision
 
 Watches the first approved user after REMOTE-8B and turns private support evidence into a GO/NO-GO decision for a tiny cohort expansion. It does not automate invites or payments.
@@ -534,6 +556,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Controlled Pilot Gate`: pilot work must prove entitlement, login, workspace, artifact generation/export, revocation, restore, isolation and redacted evidence before inviting or expanding users.
 - `Live Pilot Evidence Gate`: private live pilot evidence must pass `remote-live-pilot-evidence-v1`, stay local/ignored, redact identity/URL/path/secrets and keep expansion beyond one user blocked until explicit REMOTE-8C approval.
 - `First User Observation Gate`: first-user support evidence must pass `remote-first-user-observation-v1`, stay local/ignored, prove at least 24 clean hours, zero unresolved support/security/workspace/generation incidents and keep all expansion actions manual.
+- `Real Browser Acceptance Gate`: real-browser acceptance evidence must pass `remote-browser-acceptance-v1`, stay local/ignored, prove one-click `Acceso DASHBOARD`, no Welcome bounce-back, no persistent app-session expectation after browser close and no raw email, protected URL, cookie, token, Cloudflare id or local path leakage.
 - `Status + Next Suggestion Cadence Gate`: implementation updates should state current status and the next recommended movement without widening scope. Final summaries must include the real state after all actions and Codex's recommended next project movement based on that state.
 - `Specialist Agent Autonomy Gate`: relevant governance agents may be applied as needed; Asset Cards Curator requires explicit operator confirmation before card-data changes.
 - `Tiny Cohort Activation Package Gate`: tiny cohort activation packages must pass `remote-tiny-cohort-activation-v1`, require REMOTE-8C GO, keep identities/URLs local, validate 3-5 candidates and keep invites, grants, emails, checkout and URL sharing at zero.

@@ -90,9 +90,12 @@ async function run() {
     });
     await desktop.waitForSelector('#remote-welcome-gate:not([hidden])');
     const pendingWelcomeText = await desktop.locator('#remote-welcome-gate').innerText();
-    ['Acceso DASHBOARD', 'OK identidad validada', 'Listo al entrar', 'Trust Center', 'workspace aislado', 'Sin instalacion local', 'productividad', 'QXPro'].forEach(expected => {
+    ['Acceso DASHBOARD', 'OK identidad validada', 'workspace privado', 'Listo al entrar', 'Trust Center', 'Sin instalacion local', 'productividad', 'QXPro'].forEach(expected => {
       if (!pendingWelcomeText.includes(expected)) throw new Error(`Remote welcome gate should explain ${expected}`);
     });
+    if (pendingWelcomeText.includes('falta crear la sesion de app')) {
+      throw new Error('Remote welcome should not expose internal app-session wording to testers');
+    }
     if (pendingWelcomeText.includes('OK identidad validada. Pulsa Acceso DASHBOARD')) {
       throw new Error('Remote welcome should not repeat OK identidad validada in the body copy');
     }
