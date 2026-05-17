@@ -13,9 +13,9 @@ UX-NAV now runs as a sequential tab-by-tab optimization track.
 
 ## Current Active Tab
 
-`Workflow` active for UX-WF2 functional pipeline KPI hardening
+No active UX tab after UX-WF2 acceptance.
 
-Project Generator is closed as a guided `.cfx` assistant. Mining Control cleanup remains done, and Workflow has been reopened surgically because the operator asked to turn the remaining static pipeline KPIs into useful operational controls before moving to another tab.
+Project Generator is closed as a guided `.cfx` assistant. Mining Control cleanup remains done, and Workflow has now been accepted after an operator real-browser visual/manual pass on 2026-05-17. Do not open a new UX tab pass until the operator gives the next explicit scope.
 
 Temporary repair/enrichment pause: TM-DIV1 adds a hybrid diversity gate to Template Maker after the TM-FIX2 CSV contract repair. This does not advance the UX-NAV tab order and does not reopen Template Maker as a design pass; it prevents redundant C2 templates by clustering similar `.sqx` logic plus CSV metric behavior before Mining Control resumes.
 
@@ -34,7 +34,7 @@ BlockSettings Info pass: `Help/Filtros Fase 2` is repurposed as a methodological
 This is the working order for individual optimization. It can be adjusted only after the active tab is completed or if the operator explicitly changes priority.
 
 1. `Workflow` - completed as command center.
-2. `Mining Control` - active again for focused cleanup of duplicate informational surfaces.
+2. `Mining Control` - pending only if the operator explicitly reopens it; focused cleanup of duplicate informational surfaces is already complete.
 3. `SQX Views` - completed as guided view assistant.
 4. `Template Maker` - completed as Capa 1 scoring and C2 generation surface.
 5. `Strategy Control` - completed as operational repository.
@@ -75,6 +75,7 @@ Completion criteria for UX-WF2:
 - Each new detail has a checklist or decision signal and at least one relevant internal handoff.
 - Existing Workflow APIs remain unchanged.
 - E2E asserts the new pipeline details and screenshots the updated surface.
+- Status: completed, tested, pushed and accepted by operator real-browser visual/manual pass on 2026-05-17.
 
 ## Estrategias Optimization Scope
 

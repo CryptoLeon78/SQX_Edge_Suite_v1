@@ -6,7 +6,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 - Current phase completed: REMOTE-SEC2 - Credential Sharing Control. Remote access now has strict app-layer anti-sharing with 2 trusted contexts per identity, device/IP/browser context binding, copied-session mismatch blocking, approval requests and operator tools; expansion remains blocked until REMOTE-8C observation is clean.
 - Current implementation phase: REMOTE-8C observation continues after REMOTE-SEC2. The next recommended action is to keep one-user observation running and review access-control/support evidence before any cohort expansion.
-- Active UX micro-phase: UX-WF2 - Functional Pipeline KPIs. While REMOTE-8C observation remains open, Workflow is being hardened as the command map: every pipeline KPI must expose role, action, destination, completion signal and traceability instead of remaining static copy.
+- Recent UX anchor: UX-WF2 - Functional Pipeline KPIs is completed and operator-accepted after a real-browser visual/manual pass on 2026-05-17. Workflow now acts as the command map for the methodology, with each pipeline KPI exposing role, action, destination, completion signal and traceability instead of remaining static copy.
 - Recent remote anchor: REMOTE-ACCEPT1 - Real Browser Acceptance Gate returned `GO_REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_CLEAN` from ignored local evidence. The Welcome/Dashboard browser path is clean, but expansion remains blocked until REMOTE-8C observation is clean.
 - Recent remote support anchor: REMOTE-SUPPORT1 - Support Intake adds a Control Panel incident form, local-only redacted support case storage and an operator summary helper without touching Welcome, grants, Cloudflare Access or tester expansion.
 - Historical remote anchor: REMOTE-RUNBOOK1B - Root launcher cleanup. Root launchers are now remote-only (`START_SQX_EDGE_REMOTE.bat` / `STOP_SQX_EDGE_REMOTE.bat`), the visual monitor opens visibly, and legacy portable launchers remain only under `packaging/` or generated ZIPs.
@@ -310,7 +310,7 @@ G7 - Backup Retention And Artifact Steward Gate:
 UX-NAV Tab Optimization Gate:
 
 - UX-NAV is now a sequential tab-by-tab optimization track documented in `docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md`.
-- Only one active tab can be optimized at a time; the current active tab is `Template Maker` until this polish is accepted.
+- Only one active tab can be optimized at a time; after UX-WF2 acceptance there is no active UX tab until the operator explicitly opens the next tab scope.
 - Treat every operator message during an active tab pass as feedback for that same tab unless the operator explicitly changes the active scope.
 - Do not begin the next tab until the operator says exactly: `Adelante con el siguiente tab`.
 - Defer global tab reordering, tab removal/merging beyond active scope and final navigation flow until all individual tab passes are complete.
