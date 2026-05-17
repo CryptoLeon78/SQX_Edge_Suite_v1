@@ -6,19 +6,19 @@ REMOTE-RUNBOOK1 restores a clear operator workflow for the remote service. The u
 
 ## One-Click Operator Launchers
 
-Start the remote service:
+Start the remote service from the repository root:
 
 ```bat
 START_SQX_EDGE_REMOTE.bat
 ```
 
-Stop the remote service:
+Stop the remote service from the repository root:
 
 ```bat
 STOP_SQX_EDGE_REMOTE.bat
 ```
 
-The launchers open a small visual monitor instead of leaving CMD/PowerShell windows in front of the operator. The monitor shows Backend and Tunnel status, refreshes automatically and provides `Arrancar`, `Detener`, `Refrescar` and `Cerrar monitor` buttons.
+The launchers open a small visible visual monitor in PowerShell STA mode instead of leaving CMD/PowerShell command windows in front of the operator. The service console is minimized while the monitor shows Backend and Tunnel status, refreshes automatically and provides `Arrancar`, `Detener`, `Refrescar` and `Cerrar monitor` buttons.
 
 The launchers call PowerShell helpers:
 
@@ -46,7 +46,7 @@ The launchers call PowerShell helpers:
 - The backend remains bound to `127.0.0.1:5050`.
 - The tunnel uses `.local/remote_service/cloudflared-config.local.yml`, which stays ignored.
 - No protected URL, hostname, Cloudflare account id, tunnel id, Access id, token, email or SQX local path is written to Git.
-- The old `START_SQX_EDGE.bat` remains an internal portable fallback, not the remote commercial flow.
+- Legacy `START_SQX_EDGE.bat` and `STOP_SQX_EDGE.bat` are not allowed at repository root during the remote pilot. They remain only under `packaging/` or inside generated portable fallback ZIPs.
 
 ## Operator Flow Before Testers
 

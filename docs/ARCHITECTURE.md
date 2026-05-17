@@ -141,7 +141,7 @@ REMOTE-2 Cloudflare Tunnel and Access:
 
 REMOTE-RUNBOOK1 operator start/stop:
 
-- `START_SQX_EDGE_REMOTE.bat` opens the visual operator monitor and starts the remote service without leaving service consoles in front of the operator.
+- `START_SQX_EDGE_REMOTE.bat` opens the visible visual operator monitor and starts the remote service without leaving service consoles in front of the operator.
 - `STOP_SQX_EDGE_REMOTE.bat` opens the visual operator monitor and stops only this repo backend plus the tunnel using `cloudflared-config.local.yml`.
 - `tools/remote_operator_status.ps1` is a lightweight Windows Forms monitor with Backend/Tunnel status, auto refresh, balloon notification and `Arrancar`/`Detener` controls.
 - `tools/remote_operator_start.ps1` and `tools/remote_operator_stop.ps1` remain scriptable helpers for QA and operator diagnostics.
@@ -526,8 +526,8 @@ Portable packaging is owned by `backend/sqx-edge-tool/tools/package_portable.ps1
 
 The package includes:
 
-- `START_SQX_EDGE.bat` and `STOP_SQX_EDGE.bat` at package root.
-- `packaging/START_SQX_EDGE.bat` and `packaging/STOP_SQX_EDGE.bat` as source launchers.
+- `START_SQX_EDGE_REMOTE.bat` and `STOP_SQX_EDGE_REMOTE.bat` at repository root for the operator remote flow.
+- `packaging/START_SQX_EDGE.bat` and `packaging/STOP_SQX_EDGE.bat` remain source launchers for generated portable fallback packages only.
 - `app/` dashboard assets.
 - `backend/sqx-edge-tool/` API, core code, templates, config templates and embedded runtime.
 - `backend/sqx-edge-tool/runtime/python/python.exe`.

@@ -10,8 +10,10 @@
   },
   "requiredFiles": [
     "README.md",
-    "START_SQX_EDGE.bat",
-    "STOP_SQX_EDGE.bat",
+    "START_SQX_EDGE_REMOTE.bat",
+    "STOP_SQX_EDGE_REMOTE.bat",
+    "packaging/START_SQX_EDGE.bat",
+    "packaging/STOP_SQX_EDGE.bat",
     "backend/sqx-edge-tool/config/template_pack_2_feedback_cohort.json",
     "backend/sqx-edge-tool/tools/template_pack_2_feedback_cohort.py",
     "docs/sales/TEMPLATE_PACK_2_FEEDBACK_COHORT.md",
@@ -41,7 +43,7 @@
   ],
   "minimumBuyerSteps": 5,
   "privacyPolicy": "store_redacted_checkout_release_support_and_delivery_readiness_only",
-  "releasePolicy": "confirm_basic_user_download_unzip_double_click_license_support_and_rollback_before_controlled_sales",
+  "releasePolicy": "confirm_remote_web_access_operator_runbook_support_and_rollback_before_controlled_sales",
   "decisionRules": [
     "open_controlled_sales requires a GO feedback cohort, buyer ZIP review, start launcher verification, license delivery, support path, safe claims and rollback.",
     "keep_private_pilot is valid when the buyer path is ready but traffic should remain controlled.",

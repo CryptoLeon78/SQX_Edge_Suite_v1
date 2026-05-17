@@ -147,7 +147,7 @@ START_SQX_EDGE_REMOTE.bat
 STOP_SQX_EDGE_REMOTE.bat
 ```
 
-`START_SQX_EDGE_REMOTE.bat` abre un monitor visual de Backend/Tunnel, arranca los servicios en segundo plano y muestra `OK todo en marcha` cuando el portatil esta listo para el enlace protegido. `STOP_SQX_EDGE_REMOTE.bat` detiene solo el backend/tunel de este proyecto.
+`START_SQX_EDGE_REMOTE.bat` abre un monitor visual visible de Backend/Tunnel, arranca los servicios en segundo plano y muestra `OK todo en marcha` cuando el portatil esta listo para el enlace protegido. `STOP_SQX_EDGE_REMOTE.bat` abre el mismo monitor y detiene solo el backend/tunel de este proyecto.
 
 Operativa privada REMOTE-OPS1:
 
@@ -349,10 +349,10 @@ Antes de activar a un comprador:
 
 El portable queda como herramienta interna de rollback, soporte o diagnostico. No es el flujo comercial principal.
 
-Launcher interno:
+Launcher interno desde la carpeta `packaging/` o desde el ZIP portable generado:
 
 ```bat
-START_SQX_EDGE.bat
+packaging\START_SQX_EDGE.bat
 ```
 
 Ese launcher arranca la API local con Python embebido, espera a `http://127.0.0.1:5050/api/health` y abre `app\SQX_Dashboard_v6.html`.
@@ -360,7 +360,7 @@ Ese launcher arranca la API local con Python embebido, espera a `http://127.0.0.
 Para cerrar la API local:
 
 ```bat
-STOP_SQX_EDGE.bat
+packaging\STOP_SQX_EDGE.bat
 ```
 
 ## Tests y CI
@@ -398,8 +398,8 @@ GitHub Actions ejecuta el baseline en cada push/PR a `main`: compilacion Python,
 ├── data/                         Datasets base versionados
 ├── docs/                         Documentacion y conceptos visuales
 ├── packaging/                    Launchers internos y empaquetado
-├── START_SQX_EDGE.bat            Launcher interno/fallback
-└── STOP_SQX_EDGE.bat
+├── START_SQX_EDGE_REMOTE.bat     Launcher operador remoto
+└── STOP_SQX_EDGE_REMOTE.bat
 ```
 
 ## Manifiestos Dinamicos

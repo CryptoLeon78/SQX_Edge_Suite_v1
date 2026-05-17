@@ -499,7 +499,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Cloudflare Access y la autenticacion propia validan su sesion",
             "El usuario final no instala Python, no descomprime ZIPs, no ejecuta `START_SQX_EDGE.bat`",
             "El portable queda como herramienta interna de rollback, soporte o diagnostico. No es el flujo comercial principal.",
-            "Launcher interno/fallback",
+            "Launcher interno desde la carpeta `packaging/`",
+            "packaging\\START_SQX_EDGE.bat",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -3860,7 +3861,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "START_SQX_EDGE_REMOTE.bat",
             "STOP_SQX_EDGE_REMOTE.bat",
             "tools/remote_operator_status.ps1",
-            "hide service consoles",
+            "visual monitor opens visibly",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
@@ -3876,7 +3877,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "REMOTE-RUNBOOK1 operator start/stop",
-            "Windows Forms monitor",
+            "visible visual operator monitor",
             "Arrancar",
             "Detener",
             "protected Cloudflare URL",
@@ -3888,7 +3889,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Arranque operador REMOTE-RUNBOOK1",
             "START_SQX_EDGE_REMOTE.bat",
             "STOP_SQX_EDGE_REMOTE.bat",
-            "monitor visual de Backend/Tunnel",
+            "monitor visual visible de Backend/Tunnel",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, readme)
@@ -3898,14 +3899,14 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "remote_operator_status.ps1",
-            "-WindowStyle Hidden",
+            "-Sta",
             "-StartOnOpen",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, start_bat)
         for pattern in (
             "remote_operator_status.ps1",
-            "-WindowStyle Hidden",
+            "-Sta",
             "-StopOnOpen",
         ):
             with self.subTest(pattern=pattern):
@@ -3930,6 +3931,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, stop_ps1)
+
+        for forbidden in (
+            "-WindowStyle Hidden -File \"%ROOT%tools\\remote_operator_status.ps1\"",
+            "START_SQX_EDGE.bat            Launcher interno/fallback",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, "\n".join([start_bat, stop_bat, readme]))
 
         for pattern in (
             "System.Windows.Forms",
