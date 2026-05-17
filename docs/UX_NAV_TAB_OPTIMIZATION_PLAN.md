@@ -13,9 +13,9 @@ UX-NAV now runs as a sequential tab-by-tab optimization track.
 
 ## Current Active Tab
 
-`Mining Control` paused for TM-TRACE1
+`Workflow` active for UX-WF2 functional pipeline KPI hardening
 
-Project Generator is closed as a guided `.cfx` assistant. Mining Control is reopened as the active pass for a focused operational cleanup.
+Project Generator is closed as a guided `.cfx` assistant. Mining Control cleanup remains done, and Workflow has been reopened surgically because the operator asked to turn the remaining static pipeline KPIs into useful operational controls before moving to another tab.
 
 Temporary repair/enrichment pause: TM-DIV1 adds a hybrid diversity gate to Template Maker after the TM-FIX2 CSV contract repair. This does not advance the UX-NAV tab order and does not reopen Template Maker as a design pass; it prevents redundant C2 templates by clustering similar `.sqx` logic plus CSV metric behavior before Mining Control resumes.
 
@@ -44,6 +44,37 @@ This is the working order for individual optimization. It can be adjusted only a
 9. `BlockSettings Info` - completed as methodological BlockSettings showcase.
 10. `Inicio`
 11. Final navigation reordering and complete methodology flow.
+
+## UX-WF2 - Functional Pipeline KPIs
+
+Goal: make the `Filosofía y flujo completo del pipeline` block behave as a real command map. Static KPIs are not enough at this product stage; each stage must tell the user what it controls, what to verify, where to go next and what traceability must survive.
+
+Design direction: `Pipeline Command Map`.
+
+- Cards stay compact and methodological.
+- Only one detail opens at a time, using the existing Workflow detail system.
+- Each KPI declares its role: `obligatorio`, `control`, `validación`, `decisión` or `salida`.
+- Each KPI answers: what do I do here, what proves I can move on, and which tab/subtab helps me execute it.
+- Workflow remains a guide, not an encyclopedia; long operational detail stays in the owning tab.
+
+Functional map:
+
+- Step 0 `Vista SQX obligatoria`: handoff/control to SQX Views; already functional.
+- Step 1 `Mining Capa 1`: technical control; already functional.
+- Step 2 `Extracción de Templates ganadores`: selection gate with Template Maker and Strategy Control access, requiring `.sqx`, BlockSetting, indicator base and duplicate review.
+- Step 3 `Mining 2 / Capa 2`: technical control; already functional.
+- Step 4 `Filtros estrictos + Retest C2`: validation gate with C2 semáforo, Risk view handoff and Capa 2 checklist access.
+- Step 5 `Robustez supervivientes`: robustness queue for MC, MC2, Sequential, Synthetic, SPP and WFM, with SQX Views Robustez handoff.
+- Step 6 `Correlación intra-template`: diversity decision, one winner per template, tied to Template Maker clusters and Strategy Control cleanup.
+- Step 7 `Correlación cross-todo`: portfolio gate for cross-template, cross-BlockSetting, cross-timeframe and cross-asset checks before Champion vs Challenger.
+- Step 8 `Portfolio Master + MT5`: controlled output stage for demo, gradual real deployment, evidence and support.
+
+Completion criteria for UX-WF2:
+
+- Steps 2, 4, 5, 6, 7 and 8 are expandable and use the same behavior as steps 0, 1 and 3.
+- Each new detail has a checklist or decision signal and at least one relevant internal handoff.
+- Existing Workflow APIs remain unchanged.
+- E2E asserts the new pipeline details and screenshots the updated surface.
 
 ## Estrategias Optimization Scope
 

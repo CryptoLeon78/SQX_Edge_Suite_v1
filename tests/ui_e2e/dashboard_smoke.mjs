@@ -388,6 +388,8 @@ async function run() {
     if (initiallyExpandedDetails !== 0) throw new Error('Open pipeline should show only main KPI cards by default');
     const viewsRequiredTrigger = await desktop.locator('[data-wf-detail-target="wf-sqx-views-required-detail"] .step-num', { hasText: '0' }).count();
     if (viewsRequiredTrigger !== 1) throw new Error('Mandatory SQX Views should be KPI 0 in the workflow pipeline');
+    const workflowPipelineTriggers = await desktop.locator('#wf-pipeline-flow-details [data-wf-detail-target]').count();
+    if (workflowPipelineTriggers < 9) throw new Error(`Workflow pipeline should expose all functional KPI details, got ${workflowPipelineTriggers}`);
     await desktop.locator('[data-wf-detail-target="wf-sqx-views-required-detail"]').click();
     await desktop.waitForSelector('#wf-sqx-views-required-detail:not([hidden])');
     const viewsCopy = await desktop.locator('#workflow-views-handoff .views-handoff-copy').innerText();
@@ -458,7 +460,27 @@ async function run() {
       if (!capa2TreeText.includes(expected)) throw new Error(`Mining 2 tree should preserve Capa 2 config: ${expected}`);
     });
     await saveShot(desktop, 'e2e-workflow-mining2-desktop.png');
-    await desktop.locator('[data-workflow-subtab-target="wf-capa2"]').click();
+    const functionalWorkflowDetails = [
+      ['wf-template-extraction-detail', ['Gate de selección', 'BlockSetting real trazado', 'Abrir Template Maker', 'Abrir Strategy Control']],
+      ['wf-capa2-validation-gate-detail', ['Gate de validación', 'PF >= 1.5', 'Abrir SQX Views Risk', 'Abrir Checklist C2']],
+      ['wf-robustness-queue-detail', ['Cola de tests', 'MC2', 'Synthetic', 'WFM', 'Abrir SQX Views Robustez']],
+      ['wf-intra-template-correlation-detail', ['Decisión de diversidad', '1 ganadora por template', 'Abrir Template Maker', 'Abrir Strategy Control']],
+      ['wf-cross-correlation-detail', ['Portfolio gate', 'Cross-BlockSetting', 'Threshold', '0.5', 'Abrir Champion vs Challenger']],
+      ['wf-portfolio-deployment-detail', ['Salida controlada', 'Demo primero', 'Real progresivo', 'Abrir Despliegue MT5', 'Abrir Control Panel']],
+    ];
+    for (const [detailId, expectedTexts] of functionalWorkflowDetails) {
+      await desktop.locator(`[data-wf-detail-target="${detailId}"]`).click();
+      await desktop.waitForSelector(`#${detailId}:not([hidden])`);
+      const detailText = await desktop.locator(`#${detailId}`).innerText();
+      const detailTextLower = detailText.toLowerCase();
+      expectedTexts.forEach(expected => {
+        if (!detailTextLower.includes(expected.toLowerCase())) throw new Error(`Workflow detail ${detailId} should include: ${expected}`);
+      });
+      const visibleWorkflowDetails = await desktop.locator('#wf-pipeline-flow-details .workflow-step-detail:not([hidden])').count();
+      if (visibleWorkflowDetails !== 1) throw new Error('Workflow pipeline should keep only one operational detail open at a time');
+    }
+    await saveShot(desktop, 'e2e-workflow-functional-pipeline-desktop.png');
+    await desktop.locator('.subtab[data-subtab="wf-capa2"]').click();
     await desktop.waitForSelector('#wf-capa2.active');
     const capa2TabText = await desktop.locator('#wf-capa2').innerText();
     if (!capa2TabText.includes('Checklist operativo Capa 2')) {

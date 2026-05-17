@@ -2440,11 +2440,43 @@ Ret/DD &gt; 0.5</pre>
       </div>
       <div class="pipeline-arrow">↓</div>
 
-      <div class="pipeline-step l1">
+      <div class="pipeline-step l1 workflow-step-trigger" role="button" tabindex="0" data-wf-detail-target="wf-template-extraction-detail" aria-controls="wf-template-extraction-detail" aria-expanded="false">
         <div class="step-num">2</div>
         <div class="step-content">
           <div class="step-title">Extracción de Templates ganadores</div>
           <div class="step-desc">Identificar 4-6 edges distintos. Exportar como .sqx para usar de base en Capa 2.</div>
+        </div>
+        <span class="step-action">Desplegar</span>
+      </div>
+      <div class="workflow-step-detail" id="wf-template-extraction-detail" hidden>
+        <div class="workflow-tree">
+          <div class="workflow-tree-branch">
+            <div class="pipeline-step l1 compact workflow-config-node">
+              <div class="step-num">2A</div>
+              <div class="step-content">
+                <div class="step-title">Gate de selección</div>
+                <div class="step-desc">Convierte los supervivientes de Capa 1 en templates trazables antes de invertir tiempo en Capa 2.</div>
+                <div class="workflow-tree-config">
+                  <div class="workflow-config-card">
+                    <h5>Qué validar</h5>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step2-exported-sqx"> .sqx exportado desde SQX</label>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step2-template-named"> Nombre del template registrado</label>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step2-blocksetting-traced"> BlockSetting real trazado</label>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step2-indicator-registered"> Indicador base identificado</label>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step2-duplicates-reviewed"> Duplicados estructurales revisados</label>
+                  </div>
+                  <div class="workflow-config-card emphasis">
+                    <h5>Salida esperada</h5>
+                    <p>Una lista corta de templates distintos, con asset, timeframe, direccion, BlockSetting, indicador base y origen. Si no puedes explicar de dónde sale, no pasa a Capa 2.</p>
+                  </div>
+                </div>
+                <div class="views-handoff-actions">
+                  <button class="filter-btn" type="button" data-home-tab="templatemaker">Abrir Template Maker</button>
+                  <button class="filter-btn" type="button" data-home-tab="estrategias">Abrir Strategy Control</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="pipeline-arrow">↓</div>
@@ -2632,47 +2664,216 @@ Ret/DD &gt; 1.0</pre>
       </div>
       <div class="pipeline-arrow">↓</div>
 
-      <div class="pipeline-step val">
+      <div class="pipeline-step val workflow-step-trigger" role="button" tabindex="0" data-wf-detail-target="wf-capa2-validation-gate-detail" aria-controls="wf-capa2-validation-gate-detail" aria-expanded="false">
         <div class="step-num">4</div>
         <div class="step-content">
           <div class="step-title">Filtros estrictos + Retest OOS + Forward Capa 2</div>
           <div class="step-desc">PF≥1.5, Ret/DD≥5, R Exp≥0.30, Stagnation<25%. Después retest pasivos.</div>
         </div>
+        <span class="step-action">Desplegar</span>
+      </div>
+      <div class="workflow-step-detail" id="wf-capa2-validation-gate-detail" hidden>
+        <div class="workflow-tree">
+          <div class="workflow-tree-branch">
+            <div class="pipeline-step val compact workflow-config-node">
+              <div class="step-num">4A</div>
+              <div class="step-content">
+                <div class="step-title">Gate de validación</div>
+                <div class="step-desc">La estrategia ya es operable; aquí se decide si merece robustez pesada o queda en reserva.</div>
+                <div class="workflow-tree-config">
+                  <div class="workflow-config-card">
+                    <h5>Semáforo C2</h5>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step4-pf"> PF &gt;= 1.5</label>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step4-retdd"> Ret/DD Ratio &gt;= 5</label>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step4-rexpectancy"> R Expectancy &gt;= 0.30</label>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step4-stagnation"> Stagnation &lt; 25%</label>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step4-trades"> # trades &gt; 150</label>
+                  </div>
+                  <div class="workflow-config-card">
+                    <h5>Retests pasivos</h5>
+                    <pre>RETEST 0: periodo completo
+RETEST 1: OOS hacia atras
+Forward: datos intocados
+Re-optimize: NO</pre>
+                  </div>
+                  <div class="workflow-config-card emphasis">
+                    <h5>Decisión</h5>
+                    <p>Si falla aquí, no se gasta MC/WFM. Si pasa, entra en cola de robustez con la view correcta y evidencia exportable.</p>
+                  </div>
+                </div>
+                <div class="views-handoff-actions">
+                  <button class="filter-btn" type="button" data-vc-handoff="risk" data-vc-name="SQX Risk Review" data-vc-years="5">Abrir SQX Views Risk</button>
+                  <button class="filter-btn" type="button" data-workflow-subtab-target="wf-capa2">Abrir Checklist C2</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="pipeline-arrow">↓</div>
 
-      <div class="pipeline-step l2">
+      <div class="pipeline-step l2 workflow-step-trigger" role="button" tabindex="0" data-wf-detail-target="wf-robustness-queue-detail" aria-controls="wf-robustness-queue-detail" aria-expanded="false">
         <div class="step-num">5</div>
         <div class="step-content">
           <div class="step-title">Tests de Robustez sobre supervivientes</div>
           <div class="step-desc">Sequential, MC, WFM solo a las que pasaron OOS+Forward. Eficiencia computacional.</div>
         </div>
+        <span class="step-action">Desplegar</span>
+      </div>
+      <div class="workflow-step-detail" id="wf-robustness-queue-detail" hidden>
+        <div class="workflow-tree">
+          <div class="workflow-tree-branch">
+            <div class="pipeline-step l2 compact workflow-config-node">
+              <div class="step-num">5A</div>
+              <div class="step-content">
+                <div class="step-title">Cola de tests</div>
+                <div class="step-desc">Ejecuta robustez en orden y sólo sobre candidatas que ya superaron filtros y retests.</div>
+                <div class="workflow-robustness-grid">
+                  <div class="workflow-config-card"><h5>MC</h5><p>Reordena y omite trades para medir dependencia del orden.</p><label class="workflow-tree-check"><input type="checkbox" data-check="step5-mc"> Ejecutado</label></div>
+                  <div class="workflow-config-card"><h5>MC2</h5><p>Simula perturbaciones de mercado: spread, slippage e histórico.</p><label class="workflow-tree-check"><input type="checkbox" data-check="step5-mc2"> Ejecutado</label></div>
+                  <div class="workflow-config-card"><h5>Sequential</h5><p>Comprueba estabilidad de niveles y salidas sin aplicar parámetros optimizados.</p><label class="workflow-tree-check"><input type="checkbox" data-check="step5-sequential"> Ejecutado</label></div>
+                  <div class="workflow-config-card"><h5>Synthetic</h5><p>Confirma que el edge no depende del orden exacto del histórico.</p><label class="workflow-tree-check"><input type="checkbox" data-check="step5-synthetic"> Ejecutado</label></div>
+                  <div class="workflow-config-card"><h5>SPP</h5><p>Valida sensibilidad de parámetros propios de entrada/salida.</p><label class="workflow-tree-check"><input type="checkbox" data-check="step5-spp"> Ejecutado</label></div>
+                  <div class="workflow-config-card emphasis"><h5>WFM</h5><p>Último filtro operativo antes de correlación y portfolio.</p><label class="workflow-tree-check"><input type="checkbox" data-check="step5-wfm"> Ejecutado</label></div>
+                </div>
+                <div class="views-handoff-actions">
+                  <button class="filter-btn" type="button" data-vc-handoff="robustness" data-vc-name="SQX Robustez" data-vc-years="9">Abrir SQX Views Robustez</button>
+                  <button class="filter-btn" type="button" data-workflow-subtab-target="wf-capa2">Ver detalle Capa 2</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="pipeline-arrow">↓</div>
 
-      <div class="pipeline-step l2">
+      <div class="pipeline-step l2 workflow-step-trigger" role="button" tabindex="0" data-wf-detail-target="wf-intra-template-correlation-detail" aria-controls="wf-intra-template-correlation-detail" aria-expanded="false">
         <div class="step-num">6</div>
         <div class="step-content">
           <div class="step-title">Análisis correlación intra-template</div>
           <div class="step-desc">Quedarse con 1 ganadora por template. Repetir para cada template.</div>
         </div>
+        <span class="step-action">Desplegar</span>
+      </div>
+      <div class="workflow-step-detail" id="wf-intra-template-correlation-detail" hidden>
+        <div class="workflow-tree">
+          <div class="workflow-tree-branch">
+            <div class="pipeline-step l2 compact workflow-config-node">
+              <div class="step-num">6A</div>
+              <div class="step-content">
+                <div class="step-title">Decisión de diversidad</div>
+                <div class="step-desc">Evita que Capa 2 genere variantes casi iguales del mismo edge.</div>
+                <div class="workflow-tree-config">
+                  <div class="workflow-config-card">
+                    <h5>Regla práctica</h5>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step6-one-winner"> 1 ganadora por template</label>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step6-cluster-checked"> Cluster/indicadores revisados</label>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step6-strategy-control-clean"> Strategy Control limpio</label>
+                  </div>
+                  <div class="workflow-config-card emphasis">
+                    <h5>Resultado</h5>
+                    <p>Una ganadora representativa por familia lógica. Las demás quedan documentadas, pero no entran al portfolio por redundancia.</p>
+                  </div>
+                </div>
+                <div class="views-handoff-actions">
+                  <button class="filter-btn" type="button" data-home-tab="templatemaker">Abrir Template Maker</button>
+                  <button class="filter-btn" type="button" data-home-tab="estrategias">Abrir Strategy Control</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="pipeline-arrow">↓</div>
 
-      <div class="pipeline-step val">
+      <div class="pipeline-step val workflow-step-trigger" role="button" tabindex="0" data-wf-detail-target="wf-cross-correlation-detail" aria-controls="wf-cross-correlation-detail" aria-expanded="false">
         <div class="step-num">7</div>
         <div class="step-content">
           <div class="step-title">Análisis correlación cross-todo</div>
           <div class="step-desc">Cross-templates → cross-blocksetting → cross-TF → cross-activos. Threshold 0.5.</div>
         </div>
+        <span class="step-action">Desplegar</span>
+      </div>
+      <div class="workflow-step-detail" id="wf-cross-correlation-detail" hidden>
+        <div class="workflow-tree">
+          <div class="workflow-tree-branch">
+            <div class="pipeline-step val compact workflow-config-node">
+              <div class="step-num">7A</div>
+              <div class="step-content">
+                <div class="step-title">Portfolio gate</div>
+                <div class="step-desc">Comprueba que el stock final no repite el mismo comportamiento desde otra puerta de entrada.</div>
+                <div class="workflow-tree-config">
+                  <div class="workflow-config-card">
+                    <h5>Checklist cross</h5>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step7-cross-template"> Cross-template</label>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step7-cross-bs"> Cross-BlockSetting</label>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step7-cross-tf"> Cross-timeframe</label>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step7-cross-assets"> Cross-activos</label>
+                  </div>
+                  <div class="workflow-config-card">
+                    <h5>Threshold</h5>
+                    <pre>Referencia: 0.5
+Objetivo: diversidad real
+Salida: 8-12 finalistas</pre>
+                  </div>
+                  <div class="workflow-config-card emphasis">
+                    <h5>Decisión final</h5>
+                    <p>Champion vs Challenger compara finalistas; Workflow sólo exige que lleguen con diversidad suficiente y trazabilidad completa.</p>
+                  </div>
+                </div>
+                <div class="views-handoff-actions">
+                  <button class="filter-btn" type="button" data-home-tab="cvc">Abrir Champion vs Challenger</button>
+                  <button class="filter-btn" type="button" data-workflow-subtab-target="wf-portfolio">Abrir Portfolio</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="pipeline-arrow">↓</div>
 
-      <div class="pipeline-step dep">
+      <div class="pipeline-step dep workflow-step-trigger" role="button" tabindex="0" data-wf-detail-target="wf-portfolio-deployment-detail" aria-controls="wf-portfolio-deployment-detail" aria-expanded="false">
         <div class="step-num">8</div>
         <div class="step-content">
           <div class="step-title">Portfolio Master + Despliegue gradual MT5</div>
           <div class="step-desc">Selección 8-12 estrategias. Demo primero, luego real progresivo.</div>
+        </div>
+        <span class="step-action">Desplegar</span>
+      </div>
+      <div class="workflow-step-detail" id="wf-portfolio-deployment-detail" hidden>
+        <div class="workflow-tree">
+          <div class="workflow-tree-branch">
+            <div class="pipeline-step dep compact workflow-config-node">
+              <div class="step-num">8A</div>
+              <div class="step-content">
+                <div class="step-title">Salida controlada</div>
+                <div class="step-desc">El final del pipeline no promete resultados; prepara despliegue gradual, auditoría y soporte.</div>
+                <div class="workflow-tree-config">
+                  <div class="workflow-config-card">
+                    <h5>Antes de MT5</h5>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step8-demo-ready"> Demo primero</label>
+                    <label class="workflow-tree-check"><input type="checkbox" data-check="step8-mt5-gradual"> Real progresivo aprobado</label>
+                  </div>
+                  <div class="workflow-config-card">
+                    <h5>Control</h5>
+                    <pre>Portfolio: 8-12 estrategias
+Riesgo: 0.2% base
+Evidencia: exportable
+Soporte: incidencias trazables</pre>
+                  </div>
+                  <div class="workflow-config-card emphasis">
+                    <h5>Cierre</h5>
+                    <p>Si falta trazabilidad de asset, BlockSetting, timeframe, indicador, cluster o origen, se vuelve al paso correspondiente antes de operar.</p>
+                  </div>
+                </div>
+                <div class="views-handoff-actions">
+                  <button class="filter-btn" type="button" data-workflow-subtab-target="wf-portfolio">Abrir Portfolio</button>
+                  <button class="filter-btn" type="button" data-workflow-subtab-target="wf-deploy">Abrir Despliegue MT5</button>
+                  <button class="filter-btn" type="button" data-home-tab="inicio">Abrir Control Panel</button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       </div>
