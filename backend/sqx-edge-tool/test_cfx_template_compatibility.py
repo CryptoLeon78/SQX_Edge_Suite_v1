@@ -2,7 +2,12 @@ import zipfile
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
-from core.xml_patcher import patch_embedded_strategy_metadata, patch_no_session, patch_symbol_resources
+from core.xml_patcher import (
+    patch_backtest_precision,
+    patch_embedded_strategy_metadata,
+    patch_no_session,
+    patch_symbol_resources,
+)
 
 
 TOOL_ROOT = Path(__file__).resolve().parent
@@ -33,6 +38,9 @@ def _resource_issues(cfx_path: Path) -> list[str]:
         for param in root.findall(".//BuildTradingOptions/Params/Param[@key='MarketOpenSession']"):
             if (param.text or "") != "No Session":
                 issues.append(f"{name}: stale MarketOpenSession {param.text!r}")
+        for setup in root.findall(".//Setup"):
+            if setup.get("testPrecision") != "2":
+                issues.append(f"{name}: non-tick testPrecision {setup.get('testPrecision')!r}")
         xml_text = ET.tostring(root, encoding="unicode")
         if "Futures_Commodities1" in xml_text:
             issues.append(f"{name}: unresolved SQX 142 session Futures_Commodities1 remains")
@@ -49,6 +57,10 @@ def _resource_issues(cfx_path: Path) -> list[str]:
             info = node.find("InstrumentInfo")
             if (node.get("name") or "").startswith("[["):
                 issues.append(f"{name}: unresolved placeholder symbol {node.get('name')}")
+            if node.get("precision") != "TICK":
+                issues.append(f"{name}: non-tick symbol precision {node.get('precision')!r} for {node.get('name')}")
+            if node.get("timezone") != "EETUS":
+                issues.append(f"{name}: non-Darwinex timezone {node.get('timezone')!r} for {node.get('name')}")
             if node.get("broker") not in brokers:
                 issues.append(f"{name}: symbol broker {node.get('broker')} missing for {node.get('name')}")
             if info is None:
@@ -120,13 +132,55 @@ def test_patch_symbol_resources_rebuilds_empty_brokers_for_sqx142():
 
     assert patched == 1
     assert root.find(".//Resources/Brokers/Broker").get("id") == "4"
+    assert [broker.get("id") for broker in root.findall(".//Resources/Brokers/Broker")] == ["4"]
     symbol = root.find(".//Resources/Symbols/Symbol")
     info = symbol.find("InstrumentInfo")
     assert symbol.get("name") == "USDJPY_darwinex"
     assert symbol.get("broker") == "4"
+    assert symbol.get("precision") == "TICK"
+    assert symbol.get("timezone") == "EETUS"
     assert info.get("instrument") == "USDJPY_darwinex"
     assert info.get("broker") == "4"
+    assert root.find(".//Resources/Sessions").text is None
     assert root.findall(".//Resources/Sessions/Session") == []
+
+
+def test_patch_symbol_resources_uses_available_data_range_when_task_is_older_than_sqx_data():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Setup dateFrom="2010.01.01" dateTo="2016.12.31">
+            <Chart symbol="AUDCAD_darwinex" timeframe="H4" />
+          </Setup>
+          <Resources><Symbols /><Brokers /><Sessions /></Resources>
+        </Task>
+        """
+    )
+
+    patch_symbol_resources(root, {
+        "asset": "AUDCAD",
+        "symbol": "AUDCAD_darwinex",
+        "instrument": "AUDCAD_darwinex",
+        "broker_id": 4,
+        "broker_name": "[[Darwinex]]",
+        "broker_description": "Darwinex CFDs",
+        "broker_timezone": "EETUS",
+        "broker_postfix": "_darwinex",
+        "tick_size": 0.0001,
+        "tick_step": 0.00001,
+        "point_value": 72157.360772,
+        "data_type": 3,
+        "description": "Currency",
+        "sector": "Currency",
+        "date_from_ms": "1506902400000",
+        "date_to_ms": "1775617199907",
+        "u_symbol": "AUDCAD",
+        "u_symbol_name": "AUDCAD",
+    })
+
+    symbol = root.find(".//Resources/Symbols/Symbol")
+    assert symbol.get("dateFrom") == "1506902400000"
+    assert symbol.get("dateTo") == "1775617199907"
 
 
 def test_patch_no_session_clears_stale_market_open_session():
@@ -181,3 +235,20 @@ def test_patch_embedded_strategy_metadata_tracks_generated_symbol():
     assert root.find(".//BackupStrategyTemplate//symbol").text == "USDJPY_darwinex"
     assert root.find(".//BackupStrategyTemplate//StrategyName").text == "SQXEDGE_TEMPLATE_USDJPY_H4"
     assert root.find(".//BackupStrategyTemplate//StrategyClassName").text == "SQXEDGE_TEMPLATE_USDJPY_H4"
+
+
+def test_patch_backtest_precision_sets_tick_precision_for_sqx142():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Setup testPrecision="1" />
+          <Setup testPrecision="2" />
+          <Setup />
+        </Task>
+        """
+    )
+
+    patched = patch_backtest_precision(root)
+
+    assert patched == 2
+    assert [setup.get("testPrecision") for setup in root.findall(".//Setup")] == ["2", "2", "2"]

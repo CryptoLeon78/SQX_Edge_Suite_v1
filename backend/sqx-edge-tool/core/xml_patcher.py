@@ -7,6 +7,7 @@ para que el .cfx sea coherente extremo a extremo.
 """
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Optional
 from xml.etree import ElementTree as ET
 
@@ -59,6 +60,68 @@ def _decimal_count(tick_size) -> str:
     return "0"
 
 
+def _max_decimal_count(*values) -> str:
+    counts: list[int] = []
+    for value in values:
+        try:
+            counts.append(int(_decimal_count(value)))
+        except Exception:
+            counts.append(0)
+    return str(max(counts or [0]))
+
+
+def _date_to_epoch_ms(date_text: Optional[str]) -> Optional[str]:
+    if not date_text:
+        return None
+    try:
+        dt = datetime.strptime(str(date_text), "%Y.%m.%d").replace(tzinfo=timezone.utc)
+        return str(int(dt.timestamp() * 1000))
+    except Exception:
+        return None
+
+
+def _setup_period_ms(root: ET.Element) -> tuple[Optional[str], Optional[str]]:
+    for setup in _all_setups(root):
+        date_from = _date_to_epoch_ms(setup.get("dateFrom"))
+        date_to = _date_to_epoch_ms(setup.get("dateTo"))
+        if date_from and date_to:
+            return date_from, date_to
+    return None, None
+
+
+def _bounded_resource_period_ms(
+    task_date_from: Optional[str],
+    task_date_to: Optional[str],
+    resource_date_from,
+    resource_date_to,
+) -> tuple[Optional[str], Optional[str]]:
+    """Return a resource date window SQX can resolve against local DATA rows.
+
+    SQX's task setup may intentionally request historical validation periods
+    such as 2010-2016. If the local Data Manager only has a symbol from 2017,
+    copying the task period into `<Resources><Symbols>` triggers "Missing N
+    days" and the SQX 142 resource resolver. Keep the methodological setup
+    dates intact, but clamp/fallback the resource window to locally available
+    data when needed.
+    """
+    data_from = _format_attr(resource_date_from, "") or None
+    data_to = _format_attr(resource_date_to, "") or None
+    if not data_from or not data_to:
+        return task_date_from, task_date_to
+    if not task_date_from or not task_date_to:
+        return data_from, data_to
+    try:
+        task_from_i = int(task_date_from)
+        task_to_i = int(task_date_to)
+        data_from_i = int(data_from)
+        data_to_i = int(data_to)
+    except Exception:
+        return data_from, data_to
+    if task_to_i < data_from_i or task_from_i > data_to_i:
+        return data_from, data_to
+    return str(max(task_from_i, data_from_i)), str(min(task_to_i, data_to_i))
+
+
 def _ensure_resource_broker(resources: ET.Element, resource: dict, broker_id) -> None:
     broker_id_text = _format_attr(broker_id, "")
     if not broker_id_text or broker_id_text in ("-1", "None"):
@@ -81,6 +144,9 @@ def _ensure_resource_broker(resources: ET.Element, resource: dict, broker_id) ->
     broker.set("postfix", _format_attr(postfix, ""))
     broker.set("mtUse", "true")
     broker.set("spUse", "false")
+    for candidate in list(brokers.findall("Broker")):
+        if candidate.get("id") != broker_id_text:
+            brokers.remove(candidate)
 
 
 def _clear_resource_sessions(resources: ET.Element) -> None:
@@ -92,10 +158,12 @@ def _clear_resource_sessions(resources: ET.Element) -> None:
     """
     sessions = resources.find("Sessions")
     if sessions is None:
-        ET.SubElement(resources, "Sessions")
+        sessions = ET.SubElement(resources, "Sessions")
+        sessions.text = None
         return
     for node in list(sessions.findall("Session")):
         sessions.remove(node)
+    sessions.text = None
 
 
 def patch_no_session(root: ET.Element) -> int:
@@ -119,6 +187,22 @@ def patch_no_session(root: ET.Element) -> int:
         before = len(resources.findall("./Sessions/Session"))
         _clear_resource_sessions(resources)
         patched += before
+    return patched
+
+
+def patch_backtest_precision(root: ET.Element, precision: str = "2") -> int:
+    """Set SQX backtest precision to Tick precision.
+
+    In SQX 142 the project resource resolver reports `testPrecision="1"` as
+    M1 precision. Our server data is tick-based and the local Data Manager
+    exposes the same symbols as TICK, so generated projects must use the tick
+    precision code to avoid symbol "Differences" prompts.
+    """
+    patched = 0
+    for setup in _all_setups(root):
+        if setup.get("testPrecision") != precision:
+            setup.set("testPrecision", precision)
+            patched += 1
     return patched
 
 
@@ -176,6 +260,7 @@ def patch_symbol_resources(root: ET.Element, resource: Optional[dict]) -> int:
     if not resource or not resource.get("symbol"):
         return 0
     patched = 0
+    task_date_from, task_date_to = _setup_period_ms(root)
     for resources in root.findall(".//Resources"):
         _clear_resource_sessions(resources)
         symbols = resources.find("Symbols")
@@ -194,13 +279,17 @@ def patch_symbol_resources(root: ET.Element, resource: Optional[dict]) -> int:
             broker_id = base_attrs.get("broker") or 4
         source = broker_id if str(broker_id) not in ("", "-1", "None") else base_attrs.get("source", "4")
         _ensure_resource_broker(resources, resource, broker_id)
-        date_from = resource.get("date_from_ms")
-        date_to = resource.get("date_to_ms")
+        date_from, date_to = _bounded_resource_period_ms(
+            task_date_from,
+            task_date_to,
+            resource.get("date_from_ms"),
+            resource.get("date_to_ms"),
+        )
         if date_from is None:
             date_from = "0"
         if date_to is None:
             date_to = "0"
-        timezone = resource.get("broker_timezone") or base_attrs.get("timezone") or "EETUS"
+        timezone = resource.get("broker_timezone") or "EETUS"
         u_symbol = resource.get("u_symbol") or resource.get("asset") or resource.get("instrument") or resource.get("symbol")
         u_symbol_name = resource.get("u_symbol_name") or u_symbol
 
@@ -209,7 +298,7 @@ def patch_symbol_resources(root: ET.Element, resource: Optional[dict]) -> int:
             "name": _format_attr(resource.get("symbol")),
             "source": _format_attr(source, "4"),
             "barType": base_attrs.get("barType", "1"),
-            "precision": base_attrs.get("precision", "TICK"),
+            "precision": _format_attr(resource.get("precision"), "TICK"),
             "timezone": _format_attr(timezone, "EETUS"),
             "dateFrom": _format_attr(date_from, "0"),
             "dateTo": _format_attr(date_to, "0"),
@@ -230,12 +319,13 @@ def patch_symbol_resources(root: ET.Element, resource: Optional[dict]) -> int:
             "tickStep": _format_attr(tick_step, info_attrs.get("tickStep", "")),
             "minDistance": _format_attr(resource.get("min_distance"), info_attrs.get("minDistance", "0.0")),
             "tickValueInMoney": info_attrs.get("tickValueInMoney", "0.0"),
-            "dateFrom": _format_attr(date_from, info_attrs.get("dateFrom", "0")),
-            "dateTo": _format_attr(date_to, info_attrs.get("dateTo", "0")),
-            "rows": _format_attr(resource.get("rows"), info_attrs.get("rows", "0")),
+            "dateFrom": "0",
+            "dateTo": "0",
+            "rows": "0",
+            "totalDays": "0",
             "defaultSpread": _format_attr(resource.get("spread"), info_attrs.get("defaultSpread", "")),
             "defaultSlippage": _format_attr(resource.get("slippage"), info_attrs.get("defaultSlippage", "0.0")),
-            "decimals": info_attrs.get("decimals") or _decimal_count(tick_size),
+            "decimals": _max_decimal_count(tick_size, tick_step),
             "pointValue": _format_attr(resource.get("point_value"), info_attrs.get("pointValue", "")),
             "dataType": _format_attr(resource.get("data_type"), info_attrs.get("dataType", "3")),
             "recognizedFromOrders": info_attrs.get("recognizedFromOrders", "false"),
@@ -361,6 +451,7 @@ def apply_mining_to_xml(
     """Aplica el set completo de patches por mining a un XML root."""
     stats = {
         "sessions": patch_no_session(root),
+        "precision": patch_backtest_precision(root),
         "charts": patch_symbol_tf_spread(root, symbol, timeframe, spread),
         "embedded_strategy": patch_embedded_strategy_metadata(root, symbol, timeframe),
         "swaps": patch_swap(root, swap_long, swap_short, swap_type),

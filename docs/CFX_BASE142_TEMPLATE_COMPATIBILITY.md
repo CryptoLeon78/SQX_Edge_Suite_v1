@@ -23,6 +23,11 @@ The base templates still contained old resource shapes:
   charts.
 - Stale SQX session resources and `MarketOpenSession` values such as
   `Futures_Commodities1`, even while the task setup showed `No Session`.
+- Backtest precision stored as M1 (`testPrecision="1"`) while the SQX 142
+  Data Manager resolves the same Darwinex symbols as TICK.
+- Resource metadata copied too literally from `data.db` (`rows`, full data
+  range and stale decimal precision), which made SQX 142 show "Differences"
+  for symbols that already existed locally.
 - Stale absolute `StrategyType` paths from the machine where the original
   templates were created.
 
@@ -42,6 +47,25 @@ around `BrokerDto.getName()`.
 - Forced the session contract to `No Session` consistently by clearing
   `<Resources><Sessions>` and stale `BuildTradingOptions/MarketOpenSession`
   values.
+- Forced `testPrecision="2"` so SQX 142 reads the generated/base projects as
+  tick-precision projects.
+- Rebuilt symbol resources in the same shape as SQX 142 native projects:
+  task-level date range on `<Symbol>`, `InstrumentInfo` date/rows as `0` and
+  decimals derived from `tickSize`/`tickStep`.
+- Bounded `<Symbol dateFrom/dateTo>` to available SQX `DATA` rows when a task
+  asks for a methodology period older than the local data. This prevents SQX
+  142 from raising "Missing N days" for cases such as AUDCAD OOS 2010-2016
+  when Data Manager only contains AUDCAD from 2017 onward.
+- Normalized every task resource to `precision="TICK"` and `timezone="EETUS"`.
+  SQX showed "Symbol differences" when even one internal retest resource kept
+  stale template values such as `M1`, `D1` or `Etc/UCT`.
+- Pruned unused broker entries and serialized empty `<Sessions />` nodes without
+  inherited whitespace so SQX 142 does not inspect stale broker/session debris
+  from the original seed project.
+- Validated against a native SQX 142 AUDCAD project that `source="4"`,
+  `broker="4"` and `InstrumentInfo dataType="3"` are compatible Darwinex
+  resource values. The `DATA.DATATYPE=1` row in `data.db` represents the loaded
+  tick data series and must not be blindly copied over `InstrumentInfo`.
 - Removed stale absolute paths from task-level `StrategyType` nodes.
 - Labeled the templates as:
   - `Capa1_Long_SQX142_Base`
@@ -62,9 +86,23 @@ the base templates:
 - include a broker entry for every symbol and `InstrumentInfo` broker;
 - do not keep stale resource sessions or non-`No Session`
   `MarketOpenSession` values;
+- use tick backtest precision (`testPrecision="2"`);
 - do not contain placeholder symbols;
 - do not keep absolute `StrategyType` paths;
 - remain clearly labeled as SQX 142 base templates.
+
+## SQX UI Probe
+
+The 2026-05-17 probe
+`CODEx_TEST_AUDCAD_H4_LS_BS_Volatilidad_SQX142_Capa1.cfx` loaded successfully
+in the operator's SQX 142 UI after resource dates were bounded to local `DATA`
+availability.
+
+The failing pre-fix symptom was `Missing 2831 days` on `AUDCAD_darwinex`
+because a resource requested `2010.01.01-2016.12.31` while local SQX 142 had
+AUDCAD data only from `2017.10.02`. The task's methodological dates may still
+target the old OOS period, but the resource resolver must see a symbol date
+window that exists in Data Manager.
 
 ## Operator Flow
 

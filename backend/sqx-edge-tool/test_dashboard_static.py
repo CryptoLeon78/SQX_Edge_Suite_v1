@@ -1689,6 +1689,8 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Base CFX SQX142 Compatibility Gate",
+            "Local SQX 142 intelligence rule",
+            "SQX 142 Local Intelligence",
             "CFX-BASE142 repairs",
         ):
             with self.subTest(pattern=pattern):
@@ -1699,6 +1701,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             "AUDCAD_darwinex",
             "neutral seed must not leak into generated projects",
             "rewrites embedded `BackupStrategyTemplate` symbols",
+            "forces tick backtest precision",
+            'precision="TICK"',
+            'timezone="EETUS"',
+            'InstrumentInfo dataType="3"',
+            "bounded to the local SQX `DATA` availability",
+            "Missing 2831 days",
             "forces the project session contract to `No Session`",
         ):
             with self.subTest(pattern=pattern):
@@ -1714,6 +1722,8 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "def _ensure_resource_broker",
+            "def _bounded_resource_period_ms",
+            "def patch_backtest_precision",
             "def patch_embedded_strategy_metadata",
             "def patch_no_session",
             "broker_description",
@@ -1726,6 +1736,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "test_base_cfx_templates_have_sqx142_resolvable_resources",
             "test_patch_symbol_resources_rebuilds_empty_brokers_for_sqx142",
+            "test_patch_symbol_resources_uses_available_data_range_when_task_is_older_than_sqx_data",
+            "test_patch_backtest_precision_sets_tick_precision_for_sqx142",
             "test_patch_no_session_clears_stale_market_open_session",
             "test_patch_embedded_strategy_metadata_tracks_generated_symbol",
             "Capa2_Base_SQX142_Base",

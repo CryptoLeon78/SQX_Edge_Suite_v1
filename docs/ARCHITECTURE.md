@@ -164,7 +164,10 @@ CFX-BASE142 base template compatibility:
 - `backend/sqx-edge-tool/templates/Capa1_Long.cfx` and `backend/sqx-edge-tool/templates/Capa2_Base.cfx` are the seed projects used by Project Generator.
 - They are kept loadable in the authorized SQX 142 host with a neutral safe default `AUDCAD_darwinex` H1 resource from `data.db`; this seed is only for opening/editing the base templates.
 - Generated customs still repatch asset, timeframe, direction, costs, dates, BlockSettings and embedded Capa 2 strategy metadata from the user's Plan Mining or Custom manual selection, so the neutral seed must not leak into generated projects.
-- `backend/sqx-edge-tool/core/xml_patcher.py` rebuilds `<Resources><Symbols>`, ensures the matching `<Resources><Brokers>` broker entry exists, rewrites embedded `BackupStrategyTemplate` symbols and forces the project session contract to `No Session` by clearing stale `<Resources><Sessions>` plus `MarketOpenSession` values.
+- `backend/sqx-edge-tool/core/xml_patcher.py` rebuilds `<Resources><Symbols>` in SQX 142 native shape, ensures only the matching `<Resources><Brokers>` broker entry remains, normalizes symbol resources to `precision="TICK"` / `timezone="EETUS"`, rewrites embedded `BackupStrategyTemplate` symbols, forces tick backtest precision (`testPrecision="2"`) and forces the project session contract to `No Session` by clearing stale `<Resources><Sessions>` plus `MarketOpenSession` values.
+- Symbol resource date ranges are bounded to the local SQX `DATA` availability when a task asks for an older validation period, avoiding SQX 142 "Missing N days" resolver failures while keeping the task's methodological setup dates intact.
+- The 2026-05-17 AUDCAD H4 probe reproduced the resolver symptom as `Missing 2831 days`; the same probe loaded after bounding the resource window to local data availability.
+- SQX 142 native AUDCAD evidence keeps `InstrumentInfo dataType="3"` with Darwinex `source="4"` / `broker="4"` while the DATA row stores tick-series type separately, so generation preserves the instrument metadata from `INSTRUMENTS` instead of forcing DATA.DATATYPE onto `InstrumentInfo`.
 
 REMOTE-3C paid webhook and protected write pilot:
 
