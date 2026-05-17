@@ -86,8 +86,9 @@ workspace folder. It also does not migrate SQX Views user presets into a
 first-class backend database beyond including the current localStorage key in
 the snapshot payload.
 
-SQX Views/user presets still need a final remote persistence decision before
-large cohort expansion.
+SQX Views/user presets were later persisted as workspace-owned state in
+REMOTE-PERSIST1E through `remote-workspace-state-v1`; they remain included in
+snapshot payloads for restore compatibility.
 
 ## Acceptance
 

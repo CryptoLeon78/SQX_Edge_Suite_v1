@@ -90,12 +90,13 @@ When remote bootstrap succeeds:
 This phase does not migrate:
 
 - raw uploaded CSV/SQX files as separate server files;
-- SQX Views user presets;
+- SQX Views user presets, later migrated by REMOTE-PERSIST1E;
 - Control Panel backup/restore, later migrated by REMOTE-PERSIST1D;
 - cross-device conflict resolution beyond last accepted snapshot.
 
-SQX Views/user presets remain a separate persistence decision before broad
-multi-user expansion.
+SQX Views/user presets were later accepted into `remote-workspace-state-v1` by
+REMOTE-PERSIST1E; broad multi-user expansion still depends on REMOTE-8C and
+support/security gates.
 
 ## Acceptance
 

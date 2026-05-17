@@ -69,15 +69,17 @@ def test_workspace_state_persists_allowed_keys_in_workspace_sqlite(tmp_path):
     result = write_workspace_state(context, {
         "sqx_plan_user_v1": {"minings": [{"num": 77, "asset": "XAUUSD"}], "phases": {}},
         "sqx_strategies_user_v1": [{"id": "S1"}],
+        "sqx_view_creator_presets_v1": [{"id": "egt-core", "name": "EGT Core", "config": {"viewName": "EGT Core"}}],
         "sqx_license_state_v1": {"must": "not persist"},
     }, source="pytest")
     state = read_workspace_state(context)
 
     assert result["ok"] is True
     assert result["version"] == REMOTE_WORKSPACE_STATE_VERSION
-    assert result["savedKeys"] == ["sqx_plan_user_v1", "sqx_strategies_user_v1"]
+    assert result["savedKeys"] == ["sqx_plan_user_v1", "sqx_strategies_user_v1", "sqx_view_creator_presets_v1"]
     assert state["sqx_plan_user_v1"]["minings"][0]["num"] == 77
     assert state["sqx_strategies_user_v1"][0]["id"] == "S1"
+    assert state["sqx_view_creator_presets_v1"][0]["id"] == "egt-core"
     assert "sqx_license_state_v1" not in state
     assert (context["_paths"]["config"] / REMOTE_WORKSPACE_STATE_DB).is_file()
 
@@ -96,6 +98,7 @@ def test_remote_state_endpoints_require_session_and_return_no_local_paths(tmp_pa
             "state": {
                 "sqx_plan_user_v1": {"minings": [{"num": 12, "asset": "EURUSD"}], "phases": {"1": {"name": "User"}}},
                 "sqx_strategies_deleted_v1": ["base-1"],
+                "sqx_view_creator_presets_v1": [{"id": "risk", "name": "Risk", "config": {"viewName": "Risk"}}],
                 "sqx_license_state_v1": {"must": "not persist"},
             },
         },
@@ -104,7 +107,7 @@ def test_remote_state_endpoints_require_session_and_return_no_local_paths(tmp_pa
     )
     saved_data = saved.get_json()
     assert saved.status_code == 200
-    assert saved_data["savedKeys"] == ["sqx_plan_user_v1", "sqx_strategies_deleted_v1"]
+    assert saved_data["savedKeys"] == ["sqx_plan_user_v1", "sqx_strategies_deleted_v1", "sqx_view_creator_presets_v1"]
     assert saved_data["privacy"]["local_paths_returned"] is False
     assert "buyer@example.invalid" not in json.dumps(saved_data)
 
@@ -114,6 +117,7 @@ def test_remote_state_endpoints_require_session_and_return_no_local_paths(tmp_pa
     assert boot_data["version"] == REMOTE_WORKSPACE_STATE_VERSION
     assert boot_data["state"]["sqx_plan_user_v1"]["minings"][0]["asset"] == "EURUSD"
     assert boot_data["state"]["sqx_strategies_deleted_v1"] == ["base-1"]
+    assert boot_data["state"]["sqx_view_creator_presets_v1"][0]["id"] == "risk"
     assert "sqx_license_state_v1" not in boot_data["state"]
     assert boot_data["privacy"]["local_paths_returned"] is False
     assert "buyer@example.invalid" not in json.dumps(boot_data)

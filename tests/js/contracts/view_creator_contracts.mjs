@@ -92,9 +92,21 @@ assert.equal(savedConfig.viewName, 'Risk View');
 assert.equal(savedConfig.metrics.length, 3);
 assert.equal(savedConfig.groupMode, 'by_metric');
 assert.equal(viewCreator.storageKey, 'sqx_view_creator_presets_v1');
+let remotePresetPayload = null;
+SQX.remoteState = {
+  bootstrap: () => Promise.resolve({ ok: true }),
+  saveNow: (payload, source) => {
+    remotePresetPayload = { payload, source };
+    return Promise.resolve({ ok: true });
+  },
+};
 viewCreator.setSavedPresets([{ id: 'risk-view', name: 'Risk View', config: savedConfig }]);
+await Promise.resolve();
+await Promise.resolve();
 assert.equal(viewCreator.getSavedPresets().length, 1);
 assert.equal(viewCreator.getSavedPresets()[0].config.yearCount, 5);
+assert.equal(remotePresetPayload.source, 'sqx-views-presets');
+assert.equal(remotePresetPayload.payload.sqx_view_creator_presets_v1[0].id, 'risk-view');
 assert.equal(viewCreator.packageType, 'sqx-edge.view-presets');
 assert.equal(viewCreator.packageVersion, 1);
 

@@ -209,13 +209,16 @@ Current scope:
 - `sqx_pipeline_state_v1`
 - `sqx_strategies_user_v1`
 - `sqx_strategies_deleted_v1`
+- `sqx_view_creator_presets_v1` (added by REMOTE-PERSIST1E)
 
 Still blocking multi-user expansion after REMOTE-PERSIST1A:
 
 - Template Maker IndexedDB must move to workspace persistence. Completed later
   by REMOTE-PERSIST1C.
-- Control Panel backup/restore must become workspace-scoped.
-- SQX Views/user presets need a remote persistence decision.
+- Control Panel backup/restore must become workspace-scoped. Completed later by
+  REMOTE-PERSIST1D.
+- SQX Views/user presets need a remote persistence decision. Completed later by
+  REMOTE-PERSIST1E.
 
 ### REMOTE-PERSIST1B - Workspace Outputs For Project Generator
 
@@ -245,8 +248,10 @@ Acceptance:
 
 Still blocking multi-user expansion after REMOTE-PERSIST1B:
 
-- Control Panel backup/restore must become workspace-scoped.
-- SQX Views/user presets need a remote persistence decision.
+- Control Panel backup/restore must become workspace-scoped. Completed later by
+  REMOTE-PERSIST1D.
+- SQX Views/user presets need a remote persistence decision. Completed later by
+  REMOTE-PERSIST1E.
 
 ### REMOTE-PERSIST1C - Template Maker Workspace State
 
@@ -278,7 +283,8 @@ Acceptance:
 
 Still blocking multi-user expansion after REMOTE-PERSIST1C:
 
-- SQX Views/user presets need a remote persistence decision.
+- SQX Views/user presets need a remote persistence decision. Completed later by
+  REMOTE-PERSIST1E.
 
 ### REMOTE-PERSIST1D - Workspace State Backups And Restore
 
@@ -304,9 +310,39 @@ Acceptance:
 - Restore resyncs allowed keys through the remote state bridge.
 - Local operator backup/restore remains compatible.
 
-Still blocking multi-user expansion after REMOTE-PERSIST1D:
+Former blocker after REMOTE-PERSIST1D:
 
-- SQX Views/user presets need a remote persistence decision.
+- SQX Views/user presets needed a remote persistence decision. Completed by
+  REMOTE-PERSIST1E.
+
+### REMOTE-PERSIST1E - SQX Views Workspace Presets
+
+SQX Views user presets now use the active server-derived workspace as source of
+truth. The browser keeps `localStorage` only as a compatibility cache.
+
+Artifacts added in REMOTE-PERSIST1E:
+
+- `docs/REMOTE_PERSIST1E_SQX_VIEWS_PRESETS.md`
+- `sqx_view_creator_presets_v1`
+- `remote-workspace-state-v1`
+- workspace-scoped SQX Views presets in `config/workspace_state.sqlite`
+- `app/js/modules/view-creator.js` remote save bridge with source
+  `sqx-views-presets`
+
+Acceptance:
+
+- Remote bootstrap restores SQX Views presets into the browser compatibility
+  cache.
+- Saving, importing or deleting SQX Views presets persists them to the active
+  workspace.
+- Backend ignores non-allowlisted state keys and does not return local paths or
+  raw identities.
+- Two remote identities cannot see each other's SQX Views presets.
+
+Remaining multi-user expansion blockers after REMOTE-PERSIST1E:
+
+- REMOTE-8C first-user observation/support evidence must still return GO.
+- Credential-sharing, support-intake and operator rollback gates remain active.
 
 ### REMOTE-5 - Remote UX
 

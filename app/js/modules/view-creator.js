@@ -349,9 +349,33 @@
     }) : [];
   }
 
+  function syncSavedPresetsToRemote(presets) {
+    var remoteState = SQX.remoteState;
+    if (!remoteState) return;
+    var payload = {};
+    payload[presetsStorageKey] = presets || [];
+    function save() {
+      if (remoteState.saveNow) {
+        return remoteState.saveNow(payload, 'sqx-views-presets');
+      }
+      if (remoteState.queueSave) {
+        return remoteState.queueSave(presetsStorageKey, presets || []);
+      }
+      return Promise.resolve({ ok: false, skipped: true });
+    }
+    try {
+      if (remoteState.bootstrap) {
+        remoteState.bootstrap().then(save).catch(function() {});
+        return;
+      }
+      save();
+    } catch (_err) {}
+  }
+
   function setSavedPresets(presets) {
     var clean = (presets || []).map(normalizePreset).filter(Boolean).slice(0, 30);
     global.localStorage.setItem(presetsStorageKey, JSON.stringify(clean));
+    syncSavedPresetsToRemote(clean);
     return getSavedPresets();
   }
 
@@ -1283,6 +1307,13 @@
 
   function init() {
     if (!byId('vc-metric-list')) return;
+    if (global.addEventListener && !SQX.viewCreatorRemotePresetListenerBound) {
+      global.addEventListener('sqx:remote-state-loaded', function(event) {
+        var keys = event && event.detail && event.detail.keys;
+        if (Array.isArray(keys) && keys.indexOf(presetsStorageKey) >= 0) renderSavedPresets();
+      });
+      SQX.viewCreatorRemotePresetListenerBound = true;
+    }
     renderMetrics();
     bindControls();
     renderBuyerReadyTemplates();

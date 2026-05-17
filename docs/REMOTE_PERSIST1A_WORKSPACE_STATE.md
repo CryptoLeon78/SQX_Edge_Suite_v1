@@ -56,19 +56,19 @@ This phase does not yet migrate:
 
 - Template Maker IndexedDB (`SQXTemplateMakerDB`) was later migrated by
   REMOTE-PERSIST1C;
-- SQX Views custom presets;
+- SQX Views custom presets, later migrated by REMOTE-PERSIST1E;
 - Control Panel state backups, later migrated by REMOTE-PERSIST1D;
 - full per-workspace disaster-recovery archive UI.
 
 REMOTE-PERSIST1B later moved Project Generator generated `.cfx` output paths to
 workspace outputs. REMOTE-PERSIST1C later moved Template Maker state to
 per-workspace `template_maker.sqlite`. REMOTE-PERSIST1D later moved Control
-Panel snapshots to per-workspace `state_backups`. The remaining items are still
-required before expanding beyond the current controlled pilot.
+Panel snapshots to per-workspace `state_backups`. REMOTE-PERSIST1E later moved
+SQX Views custom presets into `remote-workspace-state-v1`.
 
 ## Acceptance
 
 - Two identities must receive different workspace ids and different SQLite files.
 - A second identity must not see the first identity's Plan Mining or Strategy Control state.
 - Remote responses must not include local paths or raw emails.
-- Multi-user expansion remains blocked until SQX Views/user presets receive a final remote persistence decision.
+- The former SQX Views/user presets blocker is closed by REMOTE-PERSIST1E; multi-user expansion still requires REMOTE-8C observation/support GO.

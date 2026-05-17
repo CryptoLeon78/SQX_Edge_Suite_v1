@@ -178,7 +178,7 @@ REMOTE-PERSIST1A workspace state persistence:
 - `GET /api/remote/state/bootstrap` loads allowed dashboard state for the active workspace.
 - `POST /api/remote/state/save` persists only allowed keys inside the active workspace and writes a workspace audit event.
 - `GET /api/remote/state/status` reports public-safe state persistence readiness without returning local paths.
-- `app/js/modules/remote-state.js` bridges browser cache to workspace state for Plan Mining and Strategy Control: `sqx_plan_user_v1`, `sqx_pipeline_state_v1`, `sqx_strategies_user_v1` and `sqx_strategies_deleted_v1`.
+- `app/js/modules/remote-state.js` bridges browser cache to workspace state for Plan Mining, Pipeline State, Strategy Control and SQX Views presets: `sqx_plan_user_v1`, `sqx_pipeline_state_v1`, `sqx_strategies_user_v1`, `sqx_strategies_deleted_v1` and `sqx_view_creator_presets_v1`.
 - Browser `localStorage` remains a compatibility cache in remote mode; it is not the multi-user source of truth.
 
 REMOTE-PERSIST1B workspace outputs:
@@ -206,6 +206,13 @@ REMOTE-PERSIST1D Control Panel workspace backups:
 - Remote snapshots live under `<workspace>/config/state_backups` and public JSON uses `workspace://state-backups`.
 - The backend filters snapshot payloads to the allowed dashboard state keys before writing.
 - `app/js/modules/state-backup.js` includes credentials in state backup calls, labels workspace snapshots and resyncs restored keys through `SQX.remoteState.saveSnapshot(...)`.
+
+REMOTE-PERSIST1E SQX Views workspace presets:
+
+- `docs/REMOTE_PERSIST1E_SQX_VIEWS_PRESETS.md` owns the persistence contract for SQX Views user presets.
+- `sqx_view_creator_presets_v1` is now an allowed `remote-workspace-state-v1` key in `backend/sqx-edge-tool/core/remote_workspace_state.py`.
+- `app/js/modules/view-creator.js` keeps its existing synchronous local cache API, then triggers a remote save with source `sqx-views-presets` whenever presets are saved, imported or deleted.
+- Remote bootstrap restores SQX Views presets into `localStorage` before the tab renders; `localStorage` remains a cache, not the multi-user source of truth.
 
 REMOTE-5 remote Pro UX surface:
 

@@ -7,7 +7,8 @@
     planUser: 'sqx_plan_user_v1',
     pipelineState: 'sqx_pipeline_state_v1',
     strategiesUser: 'sqx_strategies_user_v1',
-    strategiesDeleted: 'sqx_strategies_deleted_v1'
+    strategiesDeleted: 'sqx_strategies_deleted_v1',
+    viewCreatorPresets: 'sqx_view_creator_presets_v1'
   };
   var _enabled = false;
   var _ready = false;
@@ -30,7 +31,8 @@
       planUser: keys.planUser || FALLBACK_KEYS.planUser,
       pipelineState: keys.pipelineState || FALLBACK_KEYS.pipelineState,
       strategiesUser: keys.strategiesUser || FALLBACK_KEYS.strategiesUser,
-      strategiesDeleted: keys.strategiesDeleted || FALLBACK_KEYS.strategiesDeleted
+      strategiesDeleted: keys.strategiesDeleted || FALLBACK_KEYS.strategiesDeleted,
+      viewCreatorPresets: keys.viewCreatorPresets || FALLBACK_KEYS.viewCreatorPresets
     };
   }
 

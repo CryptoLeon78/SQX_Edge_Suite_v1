@@ -29,6 +29,7 @@ REMOTE_4_WORKSPACE_ISOLATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_4_WORKSPACE_I
 REMOTE_PERSIST1B_WORKSPACE_OUTPUTS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1B_WORKSPACE_OUTPUTS.md"
 REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE.md"
 REMOTE_PERSIST1D_STATE_BACKUPS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1D_STATE_BACKUPS.md"
+REMOTE_PERSIST1E_SQX_VIEWS_PRESETS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1E_SQX_VIEWS_PRESETS.md"
 REMOTE_5_REMOTE_UX_DOC = PROJECT_ROOT / "docs" / "REMOTE_5_REMOTE_UX.md"
 REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC = PROJECT_ROOT / "docs" / "REMOTE_6_SECURITY_ABUSE_CONTROLS.md"
 REMOTE_SEC2_CREDENTIAL_SHARING_DOC = PROJECT_ROOT / "docs" / "REMOTE_SEC2_CREDENTIAL_SHARING_CONTROL.md"
@@ -1558,6 +1559,109 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, remote_state_backup_tests)
+
+    def test_remote_persist1e_sqx_views_presets_are_workspace_scoped(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        persist1e = REMOTE_PERSIST1E_SQX_VIEWS_PRESETS_DOC.read_text(encoding="utf-8-sig")
+        remote_workspace_state_py = (TOOL_ROOT / "core" / "remote_workspace_state.py").read_text(encoding="utf-8-sig")
+        remote_state_js = (APP_ROOT / "js" / "modules" / "remote-state.js").read_text(encoding="utf-8-sig")
+        view_creator_js = (APP_ROOT / "js" / "modules" / "view-creator.js").read_text(encoding="utf-8-sig")
+        remote_state_contracts = (PROJECT_ROOT / "tests" / "js" / "contracts" / "remote_state_contracts.mjs").read_text(encoding="utf-8-sig")
+        view_creator_contracts = (PROJECT_ROOT / "tests" / "js" / "contracts" / "view_creator_contracts.mjs").read_text(encoding="utf-8-sig")
+        remote_workspace_state_tests = (TOOL_ROOT / "test_remote_workspace_state.py").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_PERSIST1E_SQX_VIEWS_PRESETS_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-PERSIST1E - SQX Views Workspace Presets",
+            "`sqx_view_creator_presets_v1`",
+            "`remote-workspace-state-v1`",
+            "`<workspace>/config/workspace_state.sqlite`",
+            "`sqx-views-presets`",
+            "Two remote identities keep separate SQX Views preset lists",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, persist1e)
+
+        for pattern in (
+            "SQX Views Workspace Preset Gate",
+            "REMOTE-PERSIST1E - SQX Views Workspace Presets",
+            "The former SQX Views/user presets persistence blocker is closed",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "### REMOTE-PERSIST1E - SQX Views Workspace Presets",
+            "`sqx_view_creator_presets_v1`",
+            "`sqx-views-presets`",
+            "Remaining multi-user expansion blockers after REMOTE-PERSIST1E",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-PERSIST1E SQX Views workspace presets",
+            "`sqx_view_creator_presets_v1`",
+            "`sqx-views-presets`",
+            "source of truth",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE-PERSIST1E",
+            "sqx_view_creator_presets_v1",
+            "workspace_state.sqlite",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            '"viewCreatorPresets": "sqx_view_creator_presets_v1"',
+            "ALLOWED_REMOTE_STATE_KEYS",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_workspace_state_py)
+
+        for pattern in (
+            "viewCreatorPresets: 'sqx_view_creator_presets_v1'",
+            "allowedKeys",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_state_js)
+
+        for pattern in (
+            "syncSavedPresetsToRemote",
+            "sqx-views-presets",
+            "sqx:remote-state-loaded",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, view_creator_js)
+
+        for pattern in (
+            "sqx_view_creator_presets_v1",
+            "remote-view",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_state_contracts)
+
+        for pattern in (
+            "remotePresetPayload",
+            "sqx-views-presets",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, view_creator_contracts)
+
+        for pattern in (
+            "sqx_view_creator_presets_v1",
+            "egt-core",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_workspace_state_tests)
 
     def test_remote_5_remote_ux_surface_is_redacted_and_wired(self):
         remote_5 = REMOTE_5_REMOTE_UX_DOC.read_text(encoding="utf-8-sig")
