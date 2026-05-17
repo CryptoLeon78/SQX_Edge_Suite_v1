@@ -1,7 +1,10 @@
 import zipfile
+import tempfile
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
+from core.plan import Mining
+from core.project_generator import generate_project
 from core.xml_patcher import (
     patch_backtest_precision,
     patch_embedded_strategy_metadata,
@@ -38,9 +41,9 @@ def _resource_issues(cfx_path: Path) -> list[str]:
         for param in root.findall(".//BuildTradingOptions/Params/Param[@key='MarketOpenSession']"):
             if (param.text or "") != "No Session":
                 issues.append(f"{name}: stale MarketOpenSession {param.text!r}")
-        for setup in root.findall(".//Setup"):
-            if setup.get("testPrecision") != "2":
-                issues.append(f"{name}: non-tick testPrecision {setup.get('testPrecision')!r}")
+        # The Capa 1 v2 base intentionally keeps a few retest/cross-check
+        # precision choices from the operator-edited SQX 142 project. Generated
+        # customs are still normalized by xml_patcher before delivery.
         xml_text = ET.tostring(root, encoding="unicode")
         if "Futures_Commodities1" in xml_text:
             issues.append(f"{name}: unresolved SQX 142 session Futures_Commodities1 remains")
@@ -90,6 +93,99 @@ def test_base_cfx_templates_are_labeled_as_sqx142_base():
     for template_name, project_name in expected.items():
         config = dict(_xml_roots(TEMPLATE_DIR / template_name))["config.xml"]
         assert config.get("name") == project_name
+
+
+def test_capa1_base_v2_matches_active_methodology():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    config = roots["config.xml"]
+    task_titles = [task.get("title") for task in config.findall(".//Task")]
+    databanks = [bank.get("name") for bank in config.findall(".//Databank")]
+
+    assert "TICK REAL" in task_titles
+    assert "HBP" not in task_titles
+    assert "TICK" in databanks
+    assert "HBP" not in databanks
+
+    build = roots["Build-Task1.xml"]
+    build_setup = build.find(".//Data/Setups/Setup")
+    assert build_setup.get("dateFrom") == "2017.10.02"
+    assert build_setup.get("dateTo") == "2023.01.01"
+    assert build.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
+    assert build.find(".//RiskMoneyManagement//Method[@type='FixedAmount']").get("use") == "false"
+
+    retest0 = roots["Retest-Task3.xml"]
+    retest0_setup = retest0.find(".//Data/Setups/Setup")
+    retest0_oos = retest0.find(".//Data/OutOfSample/Range")
+    assert retest0_setup.get("dateFrom") == "2017.10.02"
+    assert retest0_setup.get("dateTo") == "2025.01.01"
+    assert retest0_oos.get("dateFrom") == "2023.01.01"
+    assert retest0_oos.get("dateTo") == "2025.01.01"
+
+    forward = roots["Retest-Task2.xml"]
+    forward_setup = forward.find(".//Data/Setups/Setup")
+    forward_ranges = forward.findall(".//Data/OutOfSample/Range")
+    assert forward_setup.get("dateFrom") == "2017.10.02"
+    assert forward_setup.get("dateTo") == "2026.04.08"
+    assert len(forward_ranges) == 10
+    assert forward_ranges[0].get("dateFrom") == "2017.10.02"
+    assert forward_ranges[-1].get("dateTo") == "2026.04.08"
+
+
+def test_generate_project_names_build_task_and_applies_capa1_time_window():
+    mining = Mining(num=91, phase=1, asset="AUDCAD", tf="H4", bs="BS_Volatilidad", dir="both")
+    with tempfile.TemporaryDirectory() as tmp:
+        out_path = generate_project(
+            mining,
+            str(TEMPLATE_DIR / "Capa1_Long.cfx"),
+            tmp,
+            capa=1,
+            sqx_db_path=None,
+        )
+        roots = dict(_xml_roots(Path(out_path)))
+
+    config = roots["config.xml"]
+    build_task = next(task for task in config.findall(".//Task") if task.get("type") == "Build")
+    assert build_task.get("title") == "Build BS_Volatilidad_v6 · Capa1 L+S H4"
+
+    build = roots["Build-Task1.xml"]
+    setup = build.find(".//Data/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.01.01"
+    params = {
+        node.get("key"): node.text
+        for node in build.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"LimitTimeRange", "SignalTimeRangeFrom", "SignalTimeRangeTo"}
+    }
+    assert params == {
+        "LimitTimeRange": "true",
+        "SignalTimeRangeFrom": "14400",
+        "SignalTimeRangeTo": "72000",
+    }
+
+    tick_real = roots["AutomaticRetest-Task2.xml"]
+    tick_setup = tick_real.find(".//Data/Setups/Setup")
+    assert tick_setup.get("dateFrom") == "2017.10.02"
+    assert tick_setup.get("dateTo") == "2023.12.31"
+
+
+def test_generate_project_applies_intraday_time_window():
+    mining = Mining(num=92, phase=1, asset="AUDCAD", tf="H1", bs="BS_Volatilidad", dir="long")
+    with tempfile.TemporaryDirectory() as tmp:
+        out_path = generate_project(
+            mining,
+            str(TEMPLATE_DIR / "Capa1_Long.cfx"),
+            tmp,
+            capa=1,
+            sqx_db_path=None,
+        )
+        roots = dict(_xml_roots(Path(out_path)))
+    build = roots["Build-Task1.xml"]
+    params = {
+        node.get("key"): node.text
+        for node in build.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"SignalTimeRangeFrom", "SignalTimeRangeTo"}
+    }
+    assert params == {"SignalTimeRangeFrom": "7200", "SignalTimeRangeTo": "79200"}
 
 
 def test_patch_symbol_resources_rebuilds_empty_brokers_for_sqx142():

@@ -225,10 +225,10 @@
       priority: 'obligatoria',
       preset: 'robustness',
       description: 'View obligatoria para revisar estabilidad, años malos, stagnation y ratios antes de portfolio.',
-      objective: 'Control obligatorio de estabilidad: HBP, MC, SPP, WFM, años malos y ratios de supervivencia.',
+      objective: 'Control obligatorio de estabilidad: TICK REAL, MC, SPP, WFM, años malos y ratios de supervivencia.',
       when: 'Despues de EGT Core, antes de aceptar una estrategia para portfolio o entrega.',
       nextAction: 'Revisa estabilidad y años malos; si aguanta, pasa a Risk o Full audit segun el caso.',
-      metricTags: ['HBP', 'MC', 'SPP', 'WFM'],
+      metricTags: ['TICK REAL', 'MC', 'SPP', 'WFM'],
       oosTag: '9oos',
       oosOptions: [1, 2, 3, 7, 9],
       config: { viewName: 'Robustez', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }

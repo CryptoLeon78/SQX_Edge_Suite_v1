@@ -413,14 +413,16 @@ async function run() {
     if (capa1TreeNodes < 7) throw new Error('Capa 1 inline detail should render as a compact tree of KPI-style nodes');
     const capa1TreeText = await desktop.locator('#wf-capa1-tree-detail').innerText();
     [
-      'Period: 2017.10 - 2026.04',
+      'Period: 2017.10 - 2025.01',
+      'OOS1: 2023.01 - 2025.01',
       'Re-optimize: NO (retest pasivo)',
+      'TICK REAL',
       'Randomly skip trades 10%: OFF',
       'Apply optimized parameters to strategy: OFF',
-      'Synthetic Bootstrap V2: ON',
+      'Synthetic Bootstrap V3: ON',
       'Walk-Forward type: Simulated IS, Simulated OOS (fastest)',
-      'Period: 2024.01 - 2026.04',
-      'Ret/DD > 0.5',
+      'FOWARD 2017-2026',
+      'OOS10: 2026.01 - 2026.04',
     ].forEach(expected => {
       if (!capa1TreeText.includes(expected)) throw new Error(`Capa 1 tree should preserve retest config: ${expected}`);
     });
@@ -649,7 +651,7 @@ async function run() {
     }
     await desktop.waitForFunction(() => document.getElementById('vc-active-guide')?.textContent.includes('Robustez'));
     const robustnessGuide = await desktop.locator('#vc-active-guide').innerText();
-    ['HBP', 'WFM', 'Siguiente paso'].forEach(expected => {
+    ['TICK REAL', 'WFM', 'Siguiente paso'].forEach(expected => {
       if (!robustnessGuide.includes(expected)) throw new Error(`SQX Views Robustez guide should include ${expected}`);
     });
     if (await desktop.locator('#vc-download-btn').count() !== 1) throw new Error('SQX Views should keep one primary .vw download button');
@@ -667,7 +669,7 @@ async function run() {
     const templateListText = await desktop.locator('#vc-template-list').innerText();
     const templateListTextUpper = templateListText.toUpperCase();
     const templateListTextLower = templateListText.toLowerCase();
-    ['PF', 'Trades', 'Ret/DD', 'HBP', 'MC', 'VaR', 'CVaR', 'CAGR/DD', 'CSV Cert', 'Arquetipo', 'Volatilidad'].forEach(expected => {
+    ['PF', 'Trades', 'Ret/DD', 'TICK REAL', 'MC', 'VaR', 'CVaR', 'CAGR/DD', 'CSV Cert', 'Arquetipo', 'Volatilidad'].forEach(expected => {
       if (!templateListTextUpper.includes(expected.toUpperCase())) throw new Error(`SQX Views template tags should include ${expected}`);
     });
     if (/\bfree\b|\bpro\b/i.test(templateListText)) {

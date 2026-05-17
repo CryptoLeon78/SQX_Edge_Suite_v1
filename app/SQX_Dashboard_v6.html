@@ -2140,7 +2140,7 @@
   <details class="workflow-accordion workflow-method-accordion" id="wf-pipeline-flow-details" open>
     <summary>
       <span>Filosofía y flujo completo del pipeline</span>
-      <small>Metodologia guiada: vistas, Capa 1, retests pasivos, Capa 2, filtros, robustez y despliegue</small>
+      <small>Metodologia guiada: vistas, Capa 1 SQX142 v2, retests pasivos, Capa 2, filtros, robustez y despliegue</small>
     </summary>
     <div class="workflow-accordion-body">
       <div class="workflow-method-brief">
@@ -2148,7 +2148,7 @@
           <span class="badge info">Metodo SQX</span>
           <h3>Primero demostrar edge, despues hacerlo operable</h3>
           <p>
-            La metodologia separa descubrimiento y ejecucion. <strong>Capa 1</strong> mina edge puro en IS 2017-2023 sin SL/TP/Trailing para comprobar si la entrada predice movimiento. Despues se aplican retests pasivos, OOS hacia atras 2010-2017 y Forward 2024-2026 sin reoptimizar. <strong>Capa 2</strong> mantiene fijo el template ganador y solo convierte el edge en estrategia operable con filtros adicionales, SL, TP y trailing.
+            La metodologia separa descubrimiento y ejecucion. <strong>Capa 1</strong> usa la base SQX142 v2 para minar edge puro en IS 2017.10-2023.01 sin SL/TP/Trailing, con horarios controlados por timeframe y money management fijo. Despues se aplican Retest 0 con OOS1 2023-2025, Retest 1 de consistencia y un Forward 2017-2026 dividido en OOS1-OOS10. <strong>Capa 2</strong> queda pendiente de su base v2 y mantiene fijo el template ganador para hacerlo operable con filtros adicionales, SL, TP y trailing.
           </p>
         </div>
         <div class="workflow-method-goals">
@@ -2160,16 +2160,16 @@
       <h4 style="margin:16px 0 8px; color:var(--text2); font-size:12px; text-transform:uppercase; letter-spacing:.5px;">Periodos cronológicos</h4>
       <div class="periods-bar workflow-periods-inline">
         <div class="period-seg period-oos">
-          <div class="yr">2010-2017</div>
-          <div>OOS hacia atras</div>
+          <div class="yr">2017.10-2023.01</div>
+          <div>IS Mining</div>
         </div>
         <div class="period-seg period-is">
-          <div class="yr">2017-2023</div>
-          <div>IS (Mining)</div>
+          <div class="yr">2023-2025</div>
+          <div>OOS1 Retest 0</div>
         </div>
         <div class="period-seg period-fwd">
-          <div class="yr">2024-2026</div>
-          <div>Forward intocado</div>
+          <div class="yr">2017-2026</div>
+          <div>Forward OOS1-OOS10</div>
         </div>
       </div>
       <div class="pipeline">
@@ -2214,8 +2214,8 @@
       <div class="pipeline-step l1 workflow-step-trigger" role="button" tabindex="0" data-wf-detail-target="wf-capa1-tree-detail" aria-controls="wf-capa1-tree-detail" aria-expanded="false">
         <div class="step-num">1</div>
         <div class="step-content">
-          <div class="step-title">Mining Capa 1 IS 2017-2023</div>
-          <div class="step-desc">Generar estrategias con 1-2 indicadores, ExitAfterBars=20 fijo, sin SL/TP/Trailing. Buscar edge puro.</div>
+          <div class="step-title">Mining Capa 1 IS 2017.10-2023.01</div>
+          <div class="step-desc">Generar estrategias con BlockSetting real, horario por timeframe, Fixed size 1, sin SL/TP/Trailing. Buscar edge puro.</div>
         </div>
         <span class="step-action">Desplegar</span>
       </div>
@@ -2225,8 +2225,8 @@
             <div class="pipeline-step l1 compact">
               <div class="step-num">1.0</div>
               <div class="step-content">
-                <div class="step-title">Setup base Builder</div>
-                <div class="step-desc">Long-only para oro/indices, L+S para Forex. ExitAfterBars=20 fijo, SL/TP/Trailing apagados, R Expectancy como fitness.</div>
+                <div class="step-title">Setup base Builder SQX142 v2</div>
+                <div class="step-desc">Build {BlockSetting} · Capa1 {Dirección} {TF}. Fixed size 1, horarios 02-22 en M5/M15/M30/H1 y 04-20 en H4.</div>
               </div>
             </div>
             <div class="workflow-tree-children">
@@ -2238,14 +2238,16 @@
                   <div class="workflow-tree-config">
                     <div class="workflow-config-card">
                       <h5>Settings</h5>
-                      <pre>Period: 2017.10 - 2026.04 (rango completo, incluye Forward)
+                      <pre>Period: 2017.10 - 2025.01
+OOS1: 2023.01 - 2025.01
 Re-optimize: NO (retest pasivo)</pre>
                     </div>
                     <div class="workflow-config-card">
                       <h5>Filtering</h5>
-                      <pre>PF &gt; 1.0
-# trades &gt; 100
-Ret/DD &gt; 1.0</pre>
+                      <pre>PF (OOS) &gt;= 1.20
+# trades (OOS) &gt;= 80
+Sharpe Ratio (OOS) &gt;= 0.50
+Ret/DD Ratio (OOS) &gt;= 1.20</pre>
                     </div>
                     <div class="workflow-config-card emphasis">
                       <h5>Decision</h5>
@@ -2257,23 +2259,23 @@ Ret/DD &gt; 1.0</pre>
               <div class="pipeline-step val compact workflow-config-node">
                 <div class="step-num">1.2</div>
                 <div class="step-content">
-                  <div class="step-title">RETEST 1 - OOS hacia atras</div>
-                  <div class="step-desc">Periodo anterior al IS, sin tocar parametros. Confirma que el edge sobrevivio fuera del tramo de busqueda.</div>
+                  <div class="step-title">RETEST 1 - Consistencia sin reoptimizar</div>
+                  <div class="step-desc">Retest pasivo sobre 2017.10-2025.01. Confirma que el edge mantiene volumen, expectativa y beneficio neto.</div>
                   <div class="workflow-tree-config">
                     <div class="workflow-config-card">
                       <h5>Settings</h5>
-                      <pre>Period: 2010.01 - 2016.12
+                      <pre>Period: 2017.10 - 2025.01
 Re-optimize: NO (retest pasivo)</pre>
                     </div>
                     <div class="workflow-config-card">
                       <h5>Filtering</h5>
-                      <pre>PF &gt; 1.0
-# trades &gt; 50
-Ret/DD &gt; 1.0</pre>
+                      <pre># trades &gt;= 100
+R Expectancy &gt; 0.05
+Net profit &gt;= 0</pre>
                     </div>
                     <div class="workflow-config-card emphasis">
                       <h5>Decision</h5>
-                      <p>Si falla aqui, el edge probablemente nacio del IS. No debe avanzar al embudo caro.</p>
+                      <p>Si falla aqui, el edge no conserva una base minima para invertir tiempo en robustez pesada.</p>
                     </div>
                   </div>
                 </div>
@@ -2282,15 +2284,17 @@ Ret/DD &gt; 1.0</pre>
                 <div class="step-num">1.3</div>
                 <div class="step-content">
                   <div class="step-title">Robustez progresiva</div>
-                  <div class="step-desc">Ejecutar HBP, MC, MC2, Sequential, Monkey, Synthetic, SPP y WFM solo cuando Retest 0 y OOS conservan sentido.</div>
+                  <div class="step-desc">Ejecutar TICK REAL, MC, MC2, Sequential, Monkey, Synthetic, SPP y WFM solo cuando Retest 0 y Retest 1 conservan sentido.</div>
                   <div class="workflow-robustness-grid">
                     <div class="workflow-config-card">
-                      <h5>HBP</h5>
-                      <pre>Number of simulations: 100
-Use Full sample: ON
+                      <h5>TICK REAL</h5>
+                      <pre>Periodo: 2017.10 - 2023.12
+Precision: 1 minute data tick simulation
 
-Net profit (HBP, Conf. 80%) &gt; 0
-Max DD % (HBP, Conf. 80%) &lt;= 200% of Max DD %</pre>
+# trades &gt;= 200
+Profit factor &gt;= 1.30
+Winning Percent &gt;= 50%
+Ret/DD Ratio &gt;= 4</pre>
                     </div>
                     <div class="workflow-config-card">
                       <h5>MC Trades</h5>
@@ -2341,9 +2345,10 @@ Net profit (Monkey, Conf. 80%) &gt; 0
 Alternative: Z-score &gt;= 2</pre>
                     </div>
                     <div class="workflow-config-card">
-                      <h5>Synthetic Bootstrap V2</h5>
+                      <h5>Synthetic Bootstrap V3</h5>
                       <pre>Number of simulations: 100
-Synthetic Bootstrap V2: ON
+Synthetic Bootstrap V3: ON
+Block size: 20
 Warmup: 200
 Preserve: 85%
 
@@ -2390,20 +2395,22 @@ At least 7 results with robustness score &gt;= 60%</pre>
               <div class="pipeline-step dep compact workflow-config-node">
                 <div class="step-num">1.4</div>
                 <div class="step-content">
-                  <div class="step-title">Forward 2024-2026</div>
-                  <div class="step-desc">Datos intocados al final. Si falla aqui, no debe pasar a Capa 2.</div>
+                  <div class="step-title">FOWARD 2017-2026 · OOS1-OOS10</div>
+                  <div class="step-desc">Validacion cronologica completa por 10 tramos OOS. Si falla aqui, no debe pasar a Capa 2.</div>
                   <div class="workflow-tree-config">
                     <div class="workflow-config-card">
                       <h5>Settings</h5>
-                      <pre>Period: 2024.01 - 2026.04 (~2.5 años)
-Re-optimize: NO (retest pasivo)
-Direction: igual al mining</pre>
+                      <pre>Period: 2017.10 - 2026.04
+OOS1: 2017.10 - 2018.01
+OOS2-OOS9: años completos 2018-2026
+OOS10: 2026.01 - 2026.04
+Re-optimize: NO (retest pasivo)</pre>
                     </div>
                     <div class="workflow-config-card">
                       <h5>Filtering</h5>
-                      <pre>PF &gt; 1.0
-# trades &gt; 30
-Ret/DD &gt; 0.5</pre>
+                      <pre>Lectura por tramos OOS
+Confirmar que no hay dependencia de un único año
+Bloquear Capa 2 si la curva no conserva sentido</pre>
                     </div>
                     <div class="workflow-config-card emphasis">
                       <h5>Decision</h5>
@@ -2420,7 +2427,7 @@ Ret/DD &gt; 0.5</pre>
               <div class="step-num">A</div>
               <div class="step-content">
                 <div class="step-title">Orden operativo Capa 1</div>
-                <div class="step-desc">Mining IS -> Retest completo -> OOS -> HBP -> MC -> MC2 -> Sequential -> Monkey -> Synthetic -> SPP -> WFM -> Forward.</div>
+                <div class="step-desc">Build IS -> Retest 0 OOS1 -> Retest 1 -> TICK REAL -> MC -> MC2 -> Sequential -> Monkey -> Synthetic -> SPP -> WFM -> FOWARD OOS1-OOS10.</div>
               </div>
             </div>
           </div>
@@ -2431,7 +2438,7 @@ Ret/DD &gt; 0.5</pre>
               <div class="step-content">
                 <div class="step-title">Checklist minimo antes de lanzar</div>
                 <div class="step-desc">Marca solo lo realmente ejecutado. El estado se conserva en localStorage y se comparte con el detalle tecnico de Capa 1.</div>
-                <label class="workflow-tree-check"><input type="checkbox" data-check="capa1-pre-mm"> Money Management configurado ($200, max lots)</label>
+                <label class="workflow-tree-check"><input type="checkbox" data-check="capa1-pre-mm"> Money Management: Fixed size, order size 1</label>
               </div>
               <button class="filter-btn" type="button" data-checklist-clear="capa1">Resetear Capa 1</button>
             </div>
@@ -2911,9 +2918,10 @@ Exit Methods:
 
 Money Management:
    Capital: $100,000
-   Method: Fixed amount
-   RiskedMoney: $200 (0.2%)
-   Max lots: 3 (oro) / 5 (Forex Major) / 2 (índices)
+   Method: Fixed size
+   Order size: 1
+   Max trades per day: 1
+   Horario: 02:00-22:00 (M5/M15/M30/H1) | 04:00-20:00 (H4)
 
 Fitness: R Expectancy (Van Tharp)</pre>
     <h4 class="test-section-title">Filtering Global</h4>
@@ -2921,7 +2929,7 @@ Fitness: R Expectancy (Van Tharp)</pre>
 # trades > 100
 R Expectancy > 0.05</pre>
     <h4 class="test-section-title">Explicación</h4>
-    <p class="test-explanation">Capa 1 busca <strong>edge puro</strong>. Sin SL/TP, las métricas operativas (Sharpe, DD%) se distorsionan. R Expectancy mide ganancia por unidad de riesgo, ideal aquí. Filtros permisivos para no descartar edges válidos.</p>
+    <p class="test-explanation">Capa 1 busca <strong>edge puro</strong> con la base SQX142 v2. El tamaño fijo elimina ruido de money management y el horario por timeframe evita minar tramos poco operables.</p>
   </div>
 
   <!-- TEST 1 -->
@@ -2931,12 +2939,14 @@ R Expectancy > 0.05</pre>
       <span class="badge validation">Validación temporal</span>
     </div>
     <h4 class="test-section-title">Settings</h4>
-    <pre class="code-block">Period: 2017.10 — 2026.04 (rango completo, incluye Forward)
+    <pre class="code-block">Period: 2017.10 — 2025.01
+OOS1: 2023.01 — 2025.01
 Re-optimize: NO (retest pasivo)</pre>
     <h4 class="test-section-title">Filtering</h4>
-    <pre class="code-block">PF > 1.0
-# trades > 100
-Ret/DD > 1.0</pre>
+    <pre class="code-block">PF (OOS) >= 1.20
+# trades (OOS) >= 80
+Sharpe Ratio (OOS) >= 0.50
+Ret/DD Ratio (OOS) >= 1.20</pre>
     <h4 class="test-section-title">Explicación</h4>
     <p class="test-explanation">Backtest sobre <strong>TODA la historia disponible</strong>. Filtros más permisivos que mining (PF&gt;1.0 vs ≥1.10) porque validamos supervivencia.</p>
   </div>
@@ -2944,16 +2954,16 @@ Ret/DD > 1.0</pre>
   <!-- TEST 2 -->
   <div class="card test-card">
     <div class="card-header">
-      <h2><span class="test-num l1">2</span>RETEST 1 — OOS hacia atrás 2010-2017</h2>
-      <span class="badge validation">Validación retroactiva</span>
+      <h2><span class="test-num l1">2</span>RETEST 1 — Consistencia sin reoptimizar</h2>
+      <span class="badge validation">Validación pasiva</span>
     </div>
     <h4 class="test-section-title">Settings</h4>
-    <pre class="code-block">Period: 2010.01 — 2016.12
+    <pre class="code-block">Period: 2017.10 — 2025.01
 Re-optimize: NO (retest pasivo)</pre>
     <h4 class="test-section-title">Filtering</h4>
-    <pre class="code-block">PF > 1.0
-# trades > 50    ← bajamos por periodo más corto
-Ret/DD > 1.0</pre>
+    <pre class="code-block"># trades >= 100
+R Expectancy > 0.05
+Net profit >= 0</pre>
     <h4 class="test-section-title">Explicación</h4>
     <p class="test-explanation">Periodo nunca visto durante mining. Si sigue rentable en 7 años antes de IS, el edge es real. Filtros proporcionalmente bajados.</p>
   </div>
@@ -2961,15 +2971,17 @@ Ret/DD > 1.0</pre>
   <!-- TEST 3 -->
   <div class="card test-card">
     <div class="card-header">
-      <h2><span class="test-num l1">3</span>HBP — History Bootstrap Performance</h2>
-      <span class="badge info">Test rápido</span>
+      <h2><span class="test-num l1">3</span>TICK REAL — Retest a tick</h2>
+      <span class="badge info">Validación de precisión</span>
     </div>
     <h4 class="test-section-title">Settings</h4>
-    <pre class="code-block">Number of simulations: 100
-Use Full sample: ON</pre>
+    <pre class="code-block">Period: 2017.10 — 2023.12
+Precision: 1 minute data tick simulation</pre>
     <h4 class="test-section-title">Filtering</h4>
-    <pre class="code-block">☑ Net profit (HBP, Conf. 80%) > 0
-☑ Max DD % (HBP, Conf. 80%) <= 200% of Max DD %</pre>
+    <pre class="code-block"># trades >= 200
+Profit factor >= 1.30
+Winning Percent >= 50 %
+Ret/DD Ratio >= 4</pre>
     <h4 class="test-section-title">Explicación</h4>
     <p class="test-explanation">Re-muestrea bloques de barras manteniendo dependencias temporales. Verifica que el edge no depende de patrones secuenciales muy específicos. Test rápido.</p>
   </div>
@@ -3107,12 +3119,13 @@ Confidence level: 80%</pre>
   <!-- TEST 8 -->
   <div class="card test-card">
     <div class="card-header">
-      <h2><span class="test-num l1">8</span>SYNTHETIC BOOTSTRAP V2</h2>
+      <h2><span class="test-num l1">8</span>SYNTHETIC BOOTSTRAP V3</h2>
       <span class="badge info">Histórico sintético</span>
     </div>
     <h4 class="test-section-title">Settings</h4>
     <pre class="code-block">Number of simulations: 100
-Synthetic Bootstrap V2: ON
+Synthetic Bootstrap V3: ON
+Block size: 20
 Warmup: 200
 Preserve: 85%</pre>
     <h4 class="test-section-title">Filtering</h4>
@@ -3237,17 +3250,19 @@ Robustness conditions (6 activas):
   <!-- TEST 11 -->
   <div class="card test-card">
     <div class="card-header">
-      <h2><span class="test-num l1">11</span>FOWARD — Forward 2024-2026</h2>
+      <h2><span class="test-num l1">11</span>FOWARD — Forward OOS1-OOS10</h2>
       <span class="badge danger">CRÍTICO último</span>
     </div>
     <h4 class="test-section-title">Settings</h4>
-    <pre class="code-block">Period: 2024.01 — 2026.04 (~2.5 años)
-Re-optimize: NO (retest pasivo)
-Direction: igual al mining</pre>
+    <pre class="code-block">Period: 2017.10 — 2026.04
+OOS1: 2017.10 — 2018.01
+OOS2-OOS9: años completos 2018-2026
+OOS10: 2026.01 — 2026.04
+Re-optimize: NO (retest pasivo)</pre>
     <h4 class="test-section-title">Filtering</h4>
-    <pre class="code-block">PF > 1.0
-# trades > 30      ← más bajo por periodo corto
-Ret/DD > 0.5       ← muy permisivo (Forward es validación)</pre>
+    <pre class="code-block">Lectura por tramos OOS
+Confirmar que no hay dependencia de un único año
+Bloquear Capa 2 si la curva no conserva sentido</pre>
     <h4 class="test-section-title">Explicación</h4>
     <p class="test-explanation">Datos completamente <strong>intocados</strong> durante mining. Última prueba antes de Capa 2.<br><br>
     <strong># trades &gt; 30 (no 100):</strong> proporcional al periodo (~2.5 años).<br>
@@ -3270,8 +3285,8 @@ Ret/DD > 0.5       ← muy permisivo (Forward es validación)</pre>
     <div class="alert info">
       <div class="alert-icon">ℹ</div>
       <div class="alert-content">
-        <strong>Higher backtest precision (1-min tick) — OPCIONAL</strong>
-        Más precisa pero MUY lenta. Reservar para Capa 2 sobre finalistas.
+        <strong>Higher backtest precision legacy — RETIRADO</strong>
+        La base Capa 1 SQX142 v2 usa TICK REAL como retest dedicado. No lo dupliques como cross-check adicional.
       </div>
     </div>
     <div class="alert warning">
@@ -3289,13 +3304,13 @@ Ret/DD > 0.5       ← muy permisivo (Forward es validación)</pre>
       <h2>🔢 Orden de ejecución Capa 1</h2>
     </div>
     <div class="pipeline">
-      <div class="pipeline-step l1"><div class="step-num">1</div><div class="step-content"><div class="step-title">Mining IS 2017-2023</div><div class="step-desc">Con cross-checks activos</div></div></div>
+      <div class="pipeline-step l1"><div class="step-num">1</div><div class="step-content"><div class="step-title">Mining IS 2017.10-2023.01</div><div class="step-desc">Base SQX142 v2</div></div></div>
       <div class="pipeline-arrow">↓</div>
       <div class="pipeline-step val"><div class="step-num">2</div><div class="step-content"><div class="step-title">RETEST 0 período completo</div><div class="step-desc">Validación temporal</div></div></div>
       <div class="pipeline-arrow">↓</div>
-      <div class="pipeline-step val"><div class="step-num">3</div><div class="step-content"><div class="step-title">RETEST 1 OOS 2010-2017</div><div class="step-desc">Validación retroactiva</div></div></div>
+      <div class="pipeline-step val"><div class="step-num">3</div><div class="step-content"><div class="step-title">RETEST 1 consistencia</div><div class="step-desc">Sin reoptimizar</div></div></div>
       <div class="pipeline-arrow">↓</div>
-      <div class="pipeline-step l2"><div class="step-num">4</div><div class="step-content"><div class="step-title">HBP</div><div class="step-desc">Test rápido bootstrap</div></div></div>
+      <div class="pipeline-step l2"><div class="step-num">4</div><div class="step-content"><div class="step-title">TICK REAL</div><div class="step-desc">Retest a tick</div></div></div>
       <div class="pipeline-arrow">↓</div>
       <div class="pipeline-step l2"><div class="step-num">5</div><div class="step-content"><div class="step-title">MC</div><div class="step-desc">Resampling, sin Skip</div></div></div>
       <div class="pipeline-arrow">↓</div>
@@ -3305,13 +3320,13 @@ Ret/DD > 0.5       ← muy permisivo (Forward es validación)</pre>
       <div class="pipeline-arrow">↓</div>
       <div class="pipeline-step l2"><div class="step-num">8</div><div class="step-content"><div class="step-title">Monkey Test</div><div class="step-desc">Vs random</div></div></div>
       <div class="pipeline-arrow">↓</div>
-      <div class="pipeline-step l2"><div class="step-num">9</div><div class="step-content"><div class="step-title">Synthetic Bootstrap V2</div><div class="step-desc">Preserve 85%</div></div></div>
+      <div class="pipeline-step l2"><div class="step-num">9</div><div class="step-content"><div class="step-title">Synthetic Bootstrap V3</div><div class="step-desc">Block 20 · Preserve 85%</div></div></div>
       <div class="pipeline-arrow">↓</div>
       <div class="pipeline-step l2"><div class="step-num">10</div><div class="step-content"><div class="step-title">SPP</div><div class="step-desc">Your own settings, Net 40%</div></div></div>
       <div class="pipeline-arrow">↓</div>
       <div class="pipeline-step l2"><div class="step-num">11</div><div class="step-content"><div class="step-title">WFM</div><div class="step-desc">Simulated, robustness 60%</div></div></div>
       <div class="pipeline-arrow">↓</div>
-      <div class="pipeline-step dep"><div class="step-num">12</div><div class="step-content"><div class="step-title">FOWARD 2024-2026</div><div class="step-desc">CRÍTICO último</div></div></div>
+      <div class="pipeline-step dep"><div class="step-num">12</div><div class="step-content"><div class="step-title">FOWARD OOS1-OOS10</div><div class="step-desc">CRÍTICO último</div></div></div>
     </div>
   </div>
 
@@ -3325,7 +3340,7 @@ Ret/DD > 0.5       ← muy permisivo (Forward es validación)</pre>
       <div class="ps-funnel-step"><div class="pf-name">Mining IS</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:100%"></div></div><div class="pf-count">~700-1000</div><div class="pf-survival">100%</div></div>
       <div class="ps-funnel-step"><div class="pf-name">RETEST 0</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:35%"></div></div><div class="pf-count">~250-400</div><div class="pf-survival">~32%</div></div>
       <div class="ps-funnel-step"><div class="pf-name">RETEST 1 OOS</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:8%"></div></div><div class="pf-count">~30-100</div><div class="pf-survival">~6%</div></div>
-      <div class="ps-funnel-step"><div class="pf-name">HBP</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:6%"></div></div><div class="pf-count">~25-80</div><div class="pf-survival">~5%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">TICK REAL</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:6%"></div></div><div class="pf-count">~25-80</div><div class="pf-survival">~5%</div></div>
       <div class="ps-funnel-step"><div class="pf-name">MC</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:3%"></div></div><div class="pf-count">~10-50</div><div class="pf-survival">~3%</div></div>
       <div class="ps-funnel-step"><div class="pf-name">MC2 (si activo)</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:2%"></div></div><div class="pf-count">~8-30</div><div class="pf-survival">~2%</div></div>
       <div class="ps-funnel-step"><div class="pf-name">Sequential</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:1.5%"></div></div><div class="pf-count">~5-20</div><div class="pf-survival">~1.2%</div></div>
@@ -3347,11 +3362,11 @@ Ret/DD > 0.5       ← muy permisivo (Forward es validación)</pre>
     </div>
     <div class="checklist-section">
       <h4>Antes de lanzar el mining</h4>
-      <label class="check-row"><input type="checkbox" data-check="capa1-pre-mm"><span>Money Management configurado ($200, max lots)</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-pre-mm"><span>Money Management: Fixed size, order size 1</span></label>
       <label class="check-row"><input type="checkbox" data-check="capa1-pre-fitness"><span>Fitness: R Expectancy</span></label>
       <label class="check-row"><input type="checkbox" data-check="capa1-pre-filtros"><span>Filtros mining: PF≥1.10, #trades&gt;100, R Exp&gt;0.05</span></label>
       <label class="check-row"><input type="checkbox" data-check="capa1-pre-exit"><span>ExitAfterBars=20, sin SL/TP/Trailing</span></label>
-      <label class="check-row"><input type="checkbox" data-check="capa1-pre-cc"><span>Cross-checks activos: HBP, MC, Sequential, Synthetic, SPP, WFM, FOWARD</span></label>
+      <label class="check-row"><input type="checkbox" data-check="capa1-pre-cc"><span>Cross-checks activos: TICK REAL, MC, Sequential, Synthetic, SPP, WFM, FOWARD</span></label>
       <label class="check-row"><input type="checkbox" data-check="capa1-pre-mc"><span>MC sin Skip trades</span></label>
       <label class="check-row"><input type="checkbox" data-check="capa1-pre-mc2"><span>MC2: opcional, si lo activas con config conservadora</span></label>
       <label class="check-row"><input type="checkbox" data-check="capa1-pre-seq"><span>Sequential: Periods + Constants + Exit params, Apply OFF</span></label>

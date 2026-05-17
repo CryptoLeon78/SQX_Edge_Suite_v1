@@ -11,6 +11,38 @@ Affected templates:
 - `backend/sqx-edge-tool/templates/Capa1_Long.cfx`
 - `backend/sqx-edge-tool/templates/Capa2_Base.cfx`
 
+## CFX-METHOD1 Active Capa 1 Baseline
+
+On 2026-05-17, CFX-METHOD1 promoted the operator-validated
+`Capa1_Long_SQX142_Base_v2.cfx` to the active repository Capa 1 template:
+
+- Active file: `backend/sqx-edge-tool/templates/Capa1_Long.cfx`
+- SHA-256: `D1BBD9298A311C173E3BB759D3F61C8F76FD94CE7F763717CA1E8335F846C53A`
+- Capa 2 status: `Capa2_Base.cfx` remains on the previous SQX 142-compatible
+  base until the operator provides the edited Capa 2 v2 template.
+
+The active Capa 1 methodology now uses:
+
+- Build Capa 1: `2017.10.02 -> 2023.01.01`
+- Retest 0: `2017.10.02 -> 2025.01.01`, with OOS1
+  `2023.01.01 -> 2025.01.01`
+- Retest 1: `2017.10.02 -> 2025.01.01`
+- Robustness: `2017.10.02 -> 2023.12.31`
+- Forward: `2017.10.02 -> 2026.04.08`, split into OOS1-OOS10
+- `TICK REAL` replaces the previous active HBP naming in Capa 1
+- Money management: Fixed size, order size `1`
+- Trading windows: `M5/M15/M30/H1` use `02:00 -> 22:00`; `H4` uses
+  `04:00 -> 20:00`
+
+Project Generator patches generated Capa 1 projects with a traceable build
+task title:
+
+`Build {BlockSettingReal} · Capa1 {Direction} {TF}`
+
+Example:
+
+`Build BS_Volatilidad_v6 · Capa1 L+S H4`
+
 ## Problem Found
 
 The base templates still contained old resource shapes:
@@ -47,8 +79,11 @@ around `BrokerDto.getName()`.
 - Forced the session contract to `No Session` consistently by clearing
   `<Resources><Sessions>` and stale `BuildTradingOptions/MarketOpenSession`
   values.
-- Forced `testPrecision="2"` so SQX 142 reads the generated/base projects as
-  tick-precision projects.
+- Earlier CFX-BASE142 repairs forced `testPrecision="2"` for the first repaired
+  neutral base pass. CFX-METHOD1 intentionally preserves the operator-edited
+  Capa 1 v2 retest and cross-check precision choices while generated customs
+  still normalize resource symbols and SQX 142 compatibility through Project
+  Generator patching.
 - Rebuilt symbol resources in the same shape as SQX 142 native projects:
   task-level date range on `<Symbol>`, `InstrumentInfo` date/rows as `0` and
   decimals derived from `tickSize`/`tickStep`.
@@ -86,7 +121,8 @@ the base templates:
 - include a broker entry for every symbol and `InstrumentInfo` broker;
 - do not keep stale resource sessions or non-`No Session`
   `MarketOpenSession` values;
-- use tick backtest precision (`testPrecision="2"`);
+- preserve the active Capa 1 v2 methodology labels, periods, `TICK REAL`
+  databank and Forward OOS1-OOS10;
 - do not contain placeholder symbols;
 - do not keep absolute `StrategyType` paths;
 - remain clearly labeled as SQX 142 base templates.

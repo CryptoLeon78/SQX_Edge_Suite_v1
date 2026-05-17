@@ -307,7 +307,7 @@ assert.ok(!renderedTemplates.includes('Guardar como preset'));
 assert.ok(renderedTemplates.includes('9oos'));
 assert.ok(renderedTemplates.includes('7oos'));
 assert.ok(renderedTemplates.includes('VaR'));
-assert.ok(renderedTemplates.includes('HBP'));
+assert.ok(renderedTemplates.includes('TICK REAL'));
 assert.ok(!renderedTemplates.includes('>free<'));
 assert.ok(!renderedTemplates.includes('>pro<'));
 assert.ok(!renderedTemplates.includes('s21..'));

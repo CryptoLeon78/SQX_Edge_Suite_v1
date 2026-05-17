@@ -80,6 +80,14 @@ def _date_to_epoch_ms(date_text: Optional[str]) -> Optional[str]:
         return None
 
 
+def _hhmm_to_seconds(value: str) -> Optional[str]:
+    try:
+        hours, minutes = str(value).split(":", 1)
+        return str((int(hours) * 3600) + (int(minutes) * 60))
+    except Exception:
+        return None
+
+
 def _setup_period_ms(root: ET.Element) -> tuple[Optional[str], Optional[str]]:
     for setup in _all_setups(root):
         date_from = _date_to_epoch_ms(setup.get("dateFrom"))
@@ -203,6 +211,28 @@ def patch_backtest_precision(root: ET.Element, precision: str = "2") -> int:
         if setup.get("testPrecision") != precision:
             setup.set("testPrecision", precision)
             patched += 1
+    return patched
+
+
+def patch_trading_time_range(root: ET.Element, window: Optional[tuple[str, str]]) -> int:
+    """Apply the active methodology trading window to SQX Trading options."""
+    if not window:
+        return 0
+    start = _hhmm_to_seconds(window[0])
+    end = _hhmm_to_seconds(window[1])
+    if start is None or end is None:
+        return 0
+    patched = 0
+    wanted = {
+        "LimitTimeRange": "true",
+        "SignalTimeRangeFrom": start,
+        "SignalTimeRangeTo": end,
+    }
+    for key, value in wanted.items():
+        for param in root.findall(f".//BuildTradingOptions/Params/Param[@key='{key}']"):
+            if (param.text or "") != value:
+                param.text = value
+                patched += 1
     return patched
 
 
@@ -340,6 +370,14 @@ def patch_symbol_resources(root: ET.Element, resource: Optional[dict]) -> int:
             instrument_info.set("commissions", resource["commissions_xml"])
         if resource.get("swap_xml"):
             instrument_info.set("swap", resource["swap_xml"])
+
+        instruments = resources.find("Instruments")
+        if instruments is not None:
+            for node in list(instruments):
+                instruments.remove(node)
+            resource_instrument = ET.SubElement(instruments, "InstrumentInfo")
+            resource_instrument.attrib.update(instrument_info.attrib)
+            patched += 1
         patched += 1
     return patched
 
@@ -446,6 +484,7 @@ def apply_mining_to_xml(
     commission_value: Optional[float] = None,
     resource: Optional[dict] = None,
     period: tuple[str, str] = RETEST_PERIODS["BUILD"],
+    trading_window: Optional[tuple[str, str]] = None,
     clean_paths: bool = True,
 ) -> dict:
     """Aplica el set completo de patches por mining a un XML root."""
@@ -457,6 +496,7 @@ def apply_mining_to_xml(
         "swaps": patch_swap(root, swap_long, swap_short, swap_type),
         "sides": patch_direction(root, direction),
         "dates": patch_dates(root, period[0], period[1]),
+        "trading_window": patch_trading_time_range(root, trading_window),
         "resources": patch_symbol_resources(root, resource),
         "paths_cleaned": clean_external_paths(root) if clean_paths else 0,
         "commissions": 0,

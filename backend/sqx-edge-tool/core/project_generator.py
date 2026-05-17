@@ -26,6 +26,7 @@ CAPA_TASK_MAPS = {
     int(capa): task_map
     for capa, task_map in (_GENERATOR_PROFILE.get("taskPeriodMaps") or {}).items()
 }
+TRADING_TIME_RANGES = _GENERATOR_PROFILE.get("tradingTimeRanges") or {}
 ASSET_DEFAULTS = _INSTRUMENTS_PROFILE.get("assetDefaults") or {}
 DEFAULT_BROKER_POSTFIX = (
     _INSTRUMENTS_PROFILE.get("defaultBrokerPostfix")
@@ -37,6 +38,23 @@ DEFAULT_BROKER_POSTFIX = (
 def _symbol_for_sqx(asset: str, postfix: str = DEFAULT_BROKER_POSTFIX) -> str:
     """Convierte 'XAUUSD' a 'XAUUSD_darwinex' (o el postfix del broker en uso)."""
     return f"{asset}{postfix}"
+
+
+def _direction_label(direction: str) -> str:
+    return {"long": "LONG", "short": "SHORT", "both": "L+S"}.get(direction, (direction or "").upper())
+
+
+def _trading_window_for(capa: int, timeframe: str) -> Optional[tuple[str, str]]:
+    layer = (TRADING_TIME_RANGES.get(f"capa{capa}") or {})
+    value = layer.get((timeframe or "").upper())
+    if not value or len(value) != 2:
+        return None
+    return str(value[0]), str(value[1])
+
+
+def _build_task_title(blocksetting_id: str, capa: int, direction: str, timeframe: str) -> str:
+    tf = (timeframe or "TF").upper()
+    return f"Build {blocksetting_id} · Capa{capa} {_direction_label(direction)} {tf}"
 
 
 def _fallback_market_shape(asset: str) -> dict:
@@ -210,6 +228,7 @@ def generate_project(
     )
     resolved_bs = str(blocksetting_entry.get("canonicalId") or mining.bs)
     base_project_name = project_name or f"Mining{mining.num:02d}_{mining.asset}_{mining.tf}_{resolved_bs}"
+    trading_window = _trading_window_for(capa, mining.tf)
 
     # Resolver costos: data.db → fallback. Override manual con sqx_data si pasa.
     costs = resolve_costs(mining, sqx_db_path, broker_postfix, alias_override=alias_override)
@@ -219,7 +238,7 @@ def generate_project(
     # Aplicar patches a todos los XMLs internos del .cfx
     total_stats = {"files_patched": 0, "charts": 0, "swaps": 0, "sides": 0,
                    "dates": 0, "resources": 0, "paths_cleaned": 0, "commissions": 0,
-                   "blocksettings": 0, "costs_source": costs["source"], "symbol": costs["symbol"],
+                   "trading_window": 0, "blocksettings": 0, "costs_source": costs["source"], "symbol": costs["symbol"],
                    "blocksetting": blocksetting_trace(blocksetting_entry)}
     for filename, tree in editor.iter_xml_files():
         if filename == "config.xml":
@@ -242,19 +261,25 @@ def generate_project(
             commission_value=costs.get("commission_value"),
             resource={**costs, "asset": mining.asset},
             period=period,
+            trading_window=trading_window,
             clean_paths=True,
         )
         if apply_blocksetting_to_xml(root, blocksetting_entry):
             total_stats["blocksettings"] += 1
         editor.update_xml(filename, tree)
         total_stats["files_patched"] += 1
-        for k in ("charts", "swaps", "sides", "dates", "resources", "paths_cleaned", "commissions"):
+        for k in ("charts", "swaps", "sides", "dates", "resources", "paths_cleaned", "commissions", "trading_window"):
             total_stats[k] += stats[k]
 
     # Renombrar el proyecto en config.xml (incluye capa en el nombre)
     if editor.has("config.xml"):
         config_tree = editor.parse_xml("config.xml")
-        config_tree.getroot().set("name", f"{base_project_name}_Capa{capa}")
+        config_root = config_tree.getroot()
+        config_root.set("name", f"{base_project_name}_Capa{capa}")
+        build_title = _build_task_title(resolved_bs, capa, mining.dir, mining.tf)
+        for task in config_root.findall(".//Task"):
+            if task.get("type") == "Build":
+                task.set("title", build_title)
         editor.update_xml("config.xml", config_tree)
 
     # Guardar el .cfx

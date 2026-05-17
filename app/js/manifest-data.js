@@ -1002,7 +1002,7 @@ window.SQX_MANIFEST = {
         },
         {
           "id": "hbp",
-          "name": "HBP",
+          "name": "TICK REAL",
           "terminal": false
         },
         {

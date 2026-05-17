@@ -6,25 +6,78 @@
       "2017.10.02",
       "2023.12.31"
     ],
+    "BUILD_C1": [
+      "2017.10.02",
+      "2023.01.01"
+    ],
+    "ROBUSTNESS_C1": [
+      "2017.10.02",
+      "2023.12.31"
+    ],
     "RETEST_0": [
       "2017.10.02",
       "2026.04.30"
+    ],
+    "RETEST_0_C1": [
+      "2017.10.02",
+      "2025.01.01"
     ],
     "RETEST_1": [
       "2010.01.01",
       "2016.12.31"
     ],
+    "RETEST_1_C1": [
+      "2017.10.02",
+      "2025.01.01"
+    ],
     "FOWARD": [
       "2024.01.01",
       "2026.04.30"
+    ],
+    "FOWARD_C1": [
+      "2017.10.02",
+      "2026.04.08"
     ]
+  },
+  "tradingTimeRanges": {
+    "capa1": {
+      "M5": [
+        "02:00",
+        "22:00"
+      ],
+      "M15": [
+        "02:00",
+        "22:00"
+      ],
+      "M30": [
+        "02:00",
+        "22:00"
+      ],
+      "H1": [
+        "02:00",
+        "22:00"
+      ],
+      "H4": [
+        "04:00",
+        "20:00"
+      ]
+    },
+    "capa2": {}
   },
   "taskPeriodMaps": {
     "1": {
-      "Build-Task1.xml": "BUILD",
-      "Retest-Task3.xml": "RETEST_0",
-      "Retest-Task1.xml": "RETEST_1",
-      "Retest-Task2.xml": "FOWARD"
+      "Build-Task1.xml": "BUILD_C1",
+      "Retest-Task3.xml": "RETEST_0_C1",
+      "Retest-Task1.xml": "RETEST_1_C1",
+      "AutomaticRetest-Task2.xml": "ROBUSTNESS_C1",
+      "AutomaticRetest-Task1.xml": "ROBUSTNESS_C1",
+      "AutomaticRetest-Task8.xml": "ROBUSTNESS_C1",
+      "AutomaticRetest-Task3.xml": "ROBUSTNESS_C1",
+      "AutomaticRetest-Task6.xml": "ROBUSTNESS_C1",
+      "AutomaticRetest-Task5.xml": "ROBUSTNESS_C1",
+      "AutomaticRetest-Task7.xml": "ROBUSTNESS_C1",
+      "AutomaticRetest-Task4.xml": "ROBUSTNESS_C1",
+      "Retest-Task2.xml": "FOWARD_C1"
     },
     "2": {
       "Build-Task1.xml": "BUILD",
