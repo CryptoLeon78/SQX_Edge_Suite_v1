@@ -10,6 +10,8 @@ The REMOTE-8C baseline was started locally on 2026-05-17 after REMOTE-8B returne
 
 This is the correct holding state: the first user remains the only active observation target, expansion stays blocked, and all raw evidence remains under ignored `.local/remote_service/remote8c_first_user_observation*` paths.
 
+After REMOTE-ACCEPT1 returned `GO_REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_CLEAN`, the local observation evidence may mark the guided Welcome/Dashboard flow, app-session/entitlement path and tunnel stability as observed. That does not complete REMOTE-8C by itself: the 24-hour observation window and support-loop review still decide whether the phase can move to a manual REMOTE-8D package.
+
 ## Local Evidence Rule
 
 Raw observation evidence must live only under ignored local paths:

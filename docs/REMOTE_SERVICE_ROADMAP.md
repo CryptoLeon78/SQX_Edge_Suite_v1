@@ -361,6 +361,8 @@ Acceptance focus:
 
 Watches the first approved user after REMOTE-8B and turns private support evidence into a GO/NO-GO decision for a tiny cohort expansion. It does not automate invites or payments.
 
+Current public-safe status after REMOTE-ACCEPT1: observation has resumed with clean Welcome/Dashboard, app-session/entitlement and tunnel stability signals recorded in ignored local evidence. Expansion remains blocked until the full 24-hour window and support-loop review are complete.
+
 Artifacts added in REMOTE-8C:
 
 - `docs/REMOTE_8C_FIRST_USER_OBSERVATION.md`
