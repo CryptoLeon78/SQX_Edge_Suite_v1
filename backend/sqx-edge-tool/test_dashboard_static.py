@@ -48,6 +48,7 @@ REMOTE_8L_POST_MONITORING_DECISION_REVIEW_DOC = (
 )
 REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_SUG1_DEPLOYMENT_HARDENING_REVIEW.md"
 REMOTE_OPS1_LAPTOP_READINESS_DOC = PROJECT_ROOT / "docs" / "REMOTE_OPS1_LAPTOP_READINESS_DRILL.md"
+REMOTE_RUNBOOK1_OPERATOR_START_STOP_DOC = PROJECT_ROOT / "docs" / "REMOTE_RUNBOOK1_OPERATOR_START_STOP.md"
 REMOTE_8B_LIVE_PILOT_EVIDENCE_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8b_live_pilot_evidence.local.example.json"
 REMOTE_8C_FIRST_USER_OBSERVATION_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote8c_first_user_observation.local.example.json"
 REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "remote_accept1_browser_acceptance.local.example.json"
@@ -82,8 +83,13 @@ REMOTE_TUNNEL_OPERATOR_HANDOFF_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_
 REMOTE_TUNNEL_RUN_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_run.ps1"
 REMOTE_TUNNEL_SMOKE_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_smoke.ps1"
 REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_install_startup_task.ps1"
+REMOTE_OPERATOR_START_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_start.ps1"
+REMOTE_OPERATOR_STOP_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_stop.ps1"
+REMOTE_OPERATOR_STATUS_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_status.ps1"
 REMOTE_8C_OBSERVATION_STATUS_SCRIPT = PROJECT_ROOT / "tools" / "remote8c_observation_status.ps1"
 REMOTE_CLOUDFLARED_CONFIG_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "cloudflared-config.local.example.yml"
+REMOTE_START_BAT = PROJECT_ROOT / "START_SQX_EDGE_REMOTE.bat"
+REMOTE_STOP_BAT = PROJECT_ROOT / "STOP_SQX_EDGE_REMOTE.bat"
 CLEAN_WORKSPACE_SCRIPT = PROJECT_ROOT / "tools" / "clean_workspace.ps1"
 J1_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J1_CHAMPION_CHALLENGER_CONTRACT.md"
 J2_CHAMPION_CHALLENGER_DOC = PROJECT_ROOT / "docs" / "J2_CHAMPION_CHALLENGER_CORE.md"
@@ -3797,6 +3803,147 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, startup_task)
 
         combined_public = "\n".join([remote_2, json.dumps(example), preflight, runner, smoke, startup_task, roadmap, architecture])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "https://sqx" + "-edge",
+            "CLOUDFLARE_API_TOKEN=",
+            "CLOUDFLARE_ACCOUNT_ID=",
+            "CLOUDFLARE_ZONE_ID=",
+            "-----BEGIN PRIVATE KEY-----",
+            "sk_live_",
+            "pk_live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_runbook1_operator_start_stop_is_visual_and_secret_safe(self):
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_1 = REMOTE_1_LAPTOP_SERVER_BASELINE_DOC.read_text(encoding="utf-8-sig")
+        remote_2 = REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS_DOC.read_text(encoding="utf-8-sig")
+        runbook = REMOTE_RUNBOOK1_OPERATOR_START_STOP_DOC.read_text(encoding="utf-8-sig")
+        start_ps1 = REMOTE_OPERATOR_START_SCRIPT.read_text(encoding="utf-8-sig")
+        stop_ps1 = REMOTE_OPERATOR_STOP_SCRIPT.read_text(encoding="utf-8-sig")
+        status_ps1 = REMOTE_OPERATOR_STATUS_SCRIPT.read_text(encoding="utf-8-sig")
+        start_bat = REMOTE_START_BAT.read_text(encoding="utf-8-sig")
+        stop_bat = REMOTE_STOP_BAT.read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_RUNBOOK1_OPERATOR_START_STOP_DOC,
+            REMOTE_OPERATOR_START_SCRIPT,
+            REMOTE_OPERATOR_STOP_SCRIPT,
+            REMOTE_OPERATOR_STATUS_SCRIPT,
+            REMOTE_START_BAT,
+            REMOTE_STOP_BAT,
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-RUNBOOK1 - Operator Start/Stop",
+            "START_SQX_EDGE_REMOTE.bat",
+            "STOP_SQX_EDGE_REMOTE.bat",
+            "visual monitor",
+            "Backend and Tunnel status",
+            "OK todo en marcha",
+            ".local/remote_service/",
+            "REMOTE-ACCEPT1",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, runbook)
+
+        for pattern in (
+            "Remote Operator Runbook Gate",
+            "START_SQX_EDGE_REMOTE.bat",
+            "STOP_SQX_EDGE_REMOTE.bat",
+            "tools/remote_operator_status.ps1",
+            "hide service consoles",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-RUNBOOK1 - Operator Start/Stop",
+            "tools/remote_operator_start.ps1",
+            "tools/remote_operator_stop.ps1",
+            "tools/remote_operator_status.ps1",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-RUNBOOK1 operator start/stop",
+            "Windows Forms monitor",
+            "Arrancar",
+            "Detener",
+            "protected Cloudflare URL",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "Arranque operador REMOTE-RUNBOOK1",
+            "START_SQX_EDGE_REMOTE.bat",
+            "STOP_SQX_EDGE_REMOTE.bat",
+            "monitor visual de Backend/Tunnel",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        self.assertIn("START_SQX_EDGE_REMOTE.bat", remote_1)
+        self.assertIn("START_SQX_EDGE_REMOTE.bat", remote_2)
+
+        for pattern in (
+            "remote_operator_status.ps1",
+            "-WindowStyle Hidden",
+            "-StartOnOpen",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, start_bat)
+        for pattern in (
+            "remote_operator_status.ps1",
+            "-WindowStyle Hidden",
+            "-StopOnOpen",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, stop_bat)
+
+        for pattern in (
+            "127.0.0.1:5050",
+            "remote_service_start_server.ps1",
+            "remote_tunnel_run.ps1",
+            "cloudflared-config.local.yml",
+            ".local\\remote_service",
+            "WindowStyle Hidden",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, start_ps1)
+
+        for pattern in (
+            "api\\server.py",
+            "cloudflared-config.local.yml",
+            "Stop-Process",
+            "127.0.0.1:5050",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, stop_ps1)
+
+        for pattern in (
+            "System.Windows.Forms",
+            "NotifyIcon",
+            "Timer",
+            "Arrancar",
+            "Detener",
+            "OK todo en marcha",
+            "Backend/Tunnel",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, status_ps1)
+
+        combined_public = "\n".join([runbook, start_ps1, stop_ps1, status_ps1, start_bat, stop_bat, readme, roadmap, architecture])
         for forbidden in (
             "@" + "gmail.com",
             "@" + "hotmail.com",

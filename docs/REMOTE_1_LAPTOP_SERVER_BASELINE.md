@@ -53,6 +53,12 @@ Start the local backend under REMOTE-1 constraints:
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_service_start_server.ps1
 ```
 
+Operator-friendly remote start, including visual Backend/Tunnel monitor, is owned by REMOTE-RUNBOOK1:
+
+```bat
+START_SQX_EDGE_REMOTE.bat
+```
+
 Register the watchdog for the current user at logon:
 
 ```powershell

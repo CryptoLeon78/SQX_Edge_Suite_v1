@@ -87,6 +87,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_smoke.ps
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_run.ps1
 ```
 
+For day-to-day operator use after REMOTE-RUNBOOK1, prefer:
+
+```bat
+START_SQX_EDGE_REMOTE.bat
+```
+
+It starts the localhost backend and tunnel with hidden service consoles and shows a visual Backend/Tunnel monitor.
+
 ## GO / NO-GO
 
 GO status:

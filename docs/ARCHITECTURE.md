@@ -139,6 +139,14 @@ REMOTE-2 Cloudflare Tunnel and Access:
 - `docs/examples/remote_tunnel.local.example.json` defines the redacted boolean evidence shape copied into ignored `.local/remote_service/cloudflare_tunnel.local.json`.
 - `docs/examples/cloudflared-config.local.example.yml` documents the safe placeholder shape for the ignored real tunnel config.
 
+REMOTE-RUNBOOK1 operator start/stop:
+
+- `START_SQX_EDGE_REMOTE.bat` opens the visual operator monitor and starts the remote service without leaving service consoles in front of the operator.
+- `STOP_SQX_EDGE_REMOTE.bat` opens the visual operator monitor and stops only this repo backend plus the tunnel using `cloudflared-config.local.yml`.
+- `tools/remote_operator_status.ps1` is a lightweight Windows Forms monitor with Backend/Tunnel status, auto refresh, balloon notification and `Arrancar`/`Detener` controls.
+- `tools/remote_operator_start.ps1` and `tools/remote_operator_stop.ps1` remain scriptable helpers for QA and operator diagnostics.
+- The visual runbook is operator-only; users and testers still enter only through the protected Cloudflare URL.
+
 REMOTE-OPS1 laptop production readiness drill:
 
 - `backend/sqx-edge-tool/core/remote_ops1_laptop_readiness.py` owns `remote-ops1-laptop-readiness-v1`.

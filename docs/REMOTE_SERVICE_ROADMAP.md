@@ -49,6 +49,24 @@ Artifacts:
 - `tools/remote_tunnel_smoke.ps1`
 - `tools/remote_tunnel_install_startup_task.ps1`
 
+### REMOTE-RUNBOOK1 - Operator Start/Stop
+
+Give the operator a one-click routine for the active Windows laptop host without returning to the old portable mental model. `START_SQX_EDGE_REMOTE.bat` opens a visual monitor, starts the localhost backend and Cloudflare Tunnel with hidden service consoles, then shows Backend/Tunnel health. `STOP_SQX_EDGE_REMOTE.bat` opens the same monitor and stops only repo-owned backend/tunnel processes.
+
+Artifacts:
+
+- `docs/REMOTE_RUNBOOK1_OPERATOR_START_STOP.md`
+- `START_SQX_EDGE_REMOTE.bat`
+- `STOP_SQX_EDGE_REMOTE.bat`
+- `tools/remote_operator_start.ps1`
+- `tools/remote_operator_stop.ps1`
+- `tools/remote_operator_status.ps1`
+
+Next route:
+
+- Use this runbook before REMOTE-ACCEPT1 browser evidence.
+- If either Backend or Tunnel is not green, do not invite testers or continue acceptance evidence.
+
 ### REMOTE-OPS1 - Laptop Production Readiness Drill
 
 Before inviting more testers or turning REMOTE-8H into any real movement, validate the laptop as a production-like host without executing expansion. This drill consolidates REMOTE-1 and REMOTE-2 evidence plus app-session, workspace, artifact, revocation and restore smoke into a redacted summary.

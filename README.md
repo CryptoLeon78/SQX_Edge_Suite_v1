@@ -140,6 +140,15 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_prefligh
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_tunnel_smoke.ps1 -ProtectedUrl "<private protected url>"
 ```
 
+Arranque operador REMOTE-RUNBOOK1:
+
+```bat
+START_SQX_EDGE_REMOTE.bat
+STOP_SQX_EDGE_REMOTE.bat
+```
+
+`START_SQX_EDGE_REMOTE.bat` abre un monitor visual de Backend/Tunnel, arranca los servicios en segundo plano y muestra `OK todo en marcha` cuando el portatil esta listo para el enlace protegido. `STOP_SQX_EDGE_REMOTE.bat` detiene solo el backend/tunel de este proyecto.
+
 Operativa privada REMOTE-OPS1:
 
 ```powershell
