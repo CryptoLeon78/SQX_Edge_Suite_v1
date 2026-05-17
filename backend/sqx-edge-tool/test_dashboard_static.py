@@ -30,6 +30,7 @@ REMOTE_PERSIST1B_WORKSPACE_OUTPUTS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST
 REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE.md"
 REMOTE_PERSIST1D_STATE_BACKUPS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1D_STATE_BACKUPS.md"
 REMOTE_PERSIST1E_SQX_VIEWS_PRESETS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1E_SQX_VIEWS_PRESETS.md"
+CFX_BASE142_TEMPLATE_COMPATIBILITY_DOC = PROJECT_ROOT / "docs" / "CFX_BASE142_TEMPLATE_COMPATIBILITY.md"
 REMOTE_5_REMOTE_UX_DOC = PROJECT_ROOT / "docs" / "REMOTE_5_REMOTE_UX.md"
 REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC = PROJECT_ROOT / "docs" / "REMOTE_6_SECURITY_ABUSE_CONTROLS.md"
 REMOTE_SEC2_CREDENTIAL_SHARING_DOC = PROJECT_ROOT / "docs" / "REMOTE_SEC2_CREDENTIAL_SHARING_CONTROL.md"
@@ -1662,6 +1663,75 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, remote_workspace_state_tests)
+
+    def test_cfx_base142_template_compatibility_is_documented_and_guarded(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        doc = CFX_BASE142_TEMPLATE_COMPATIBILITY_DOC.read_text(encoding="utf-8-sig")
+        xml_patcher = (TOOL_ROOT / "core" / "xml_patcher.py").read_text(encoding="utf-8-sig")
+        test_cfx = (TOOL_ROOT / "test_cfx_template_compatibility.py").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(CFX_BASE142_TEMPLATE_COMPATIBILITY_DOC.is_file())
+
+        for pattern in (
+            "CFX-BASE142 - Base Template Compatibility",
+            "`backend/sqx-edge-tool/templates/Capa1_Long.cfx`",
+            "`backend/sqx-edge-tool/templates/Capa2_Base.cfx`",
+            "Capa1_Long_SQX142_Base",
+            "Capa2_Base_SQX142_Base",
+            "BrokerDto.getName()",
+            "Futures_Commodities1",
+            "MarketOpenSession",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, doc)
+
+        for pattern in (
+            "Base CFX SQX142 Compatibility Gate",
+            "CFX-BASE142 repairs",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "CFX-BASE142 base template compatibility",
+            "AUDCAD_darwinex",
+            "neutral seed must not leak into generated projects",
+            "rewrites embedded `BackupStrategyTemplate` symbols",
+            "forces the project session contract to `No Session`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "CFX-BASE142",
+            "Capa1_Long.cfx",
+            "Capa2_Base.cfx",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "def _ensure_resource_broker",
+            "def patch_embedded_strategy_metadata",
+            "def patch_no_session",
+            "broker_description",
+            "Brokers",
+            "MarketOpenSession",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, xml_patcher)
+
+        for pattern in (
+            "test_base_cfx_templates_have_sqx142_resolvable_resources",
+            "test_patch_symbol_resources_rebuilds_empty_brokers_for_sqx142",
+            "test_patch_no_session_clears_stale_market_open_session",
+            "test_patch_embedded_strategy_metadata_tracks_generated_symbol",
+            "Capa2_Base_SQX142_Base",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, test_cfx)
 
     def test_remote_5_remote_ux_surface_is_redacted_and_wired(self):
         remote_5 = REMOTE_5_REMOTE_UX_DOC.read_text(encoding="utf-8-sig")

@@ -91,6 +91,24 @@ class BlockSettingsSourceTestCase(unittest.TestCase):
         self.assertNotIn("XAUUSD_darwinex", ET.tostring(xml, encoding="unicode"))
         self.assertNotIn("AUDCAD_darwinex", ET.tostring(xml, encoding="unicode"))
 
+    def test_generate_project_rewrites_capa2_embedded_strategy_symbol_for_generated_asset(self):
+        mining = Mining(num=79, phase=2, asset="USDJPY", tf="H4", bs="BS_Volatilidad", dir="both")
+        template = ROOT / "templates" / "Capa2_Base.cfx"
+        with tempfile.TemporaryDirectory() as tmp:
+            out_path = Path(generate_project(mining, str(template), tmp, capa=2, sqx_db_path=None))
+            with zipfile.ZipFile(out_path) as zf:
+                xml = ET.fromstring(zf.read("Build-Task1.xml"))
+
+        charts = {chart.get("symbol") for chart in xml.findall(".//Setup/Chart")}
+        self.assertEqual(charts, {"USDJPY_darwinex"})
+        embedded_symbols = [node.text for node in xml.findall(".//BackupStrategyTemplate//symbol")]
+        self.assertTrue(embedded_symbols)
+        self.assertEqual(set(embedded_symbols), {"USDJPY_darwinex"})
+        xml_text = ET.tostring(xml, encoding="unicode")
+        self.assertIn("SQXEDGE_TEMPLATE_USDJPY_H4", xml_text)
+        self.assertNotIn("AUDCAD_darwinex", xml_text)
+        self.assertNotIn("XAUUSD_darwinex", xml_text)
+
 
 if __name__ == "__main__":
     unittest.main()

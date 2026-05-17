@@ -159,6 +159,13 @@ REMOTE-OPS1 laptop production readiness drill:
 - REMOTE-OPS1 returns `GO_REMOTE_OPS1_LAPTOP_READY` only when every zero-risk metric is zero; it never creates users, grants, checkout links, emails, public URL sharing or automation jobs.
 - A GO routes back to REMOTE-8H private package evidence; a NO-GO routes to readiness blocker fixes.
 
+CFX-BASE142 base template compatibility:
+
+- `backend/sqx-edge-tool/templates/Capa1_Long.cfx` and `backend/sqx-edge-tool/templates/Capa2_Base.cfx` are the seed projects used by Project Generator.
+- They are kept loadable in the authorized SQX 142 host with a neutral safe default `AUDCAD_darwinex` H1 resource from `data.db`; this seed is only for opening/editing the base templates.
+- Generated customs still repatch asset, timeframe, direction, costs, dates, BlockSettings and embedded Capa 2 strategy metadata from the user's Plan Mining or Custom manual selection, so the neutral seed must not leak into generated projects.
+- `backend/sqx-edge-tool/core/xml_patcher.py` rebuilds `<Resources><Symbols>`, ensures the matching `<Resources><Brokers>` broker entry exists, rewrites embedded `BackupStrategyTemplate` symbols and forces the project session contract to `No Session` by clearing stale `<Resources><Sessions>` plus `MarketOpenSession` values.
+
 REMOTE-3C paid webhook and protected write pilot:
 
 - `backend/sqx-edge-tool/core/remote_payments.py` owns signed payment event normalization, idempotent paid entitlement upserts and redacted audit records.

@@ -172,6 +172,7 @@ class SqxDb:
         broker = self.broker_by_id(info.get("broker_id"))
         if broker:
             info["broker_name"] = broker.get("NAME")
+            info["broker_description"] = broker.get("DESC")
             info["broker_timezone"] = broker.get("MT_TIMEZONE")
         data_symbol = self.best_data_symbol(
             asset=asset,

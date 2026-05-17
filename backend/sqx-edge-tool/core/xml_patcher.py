@@ -59,6 +59,69 @@ def _decimal_count(tick_size) -> str:
     return "0"
 
 
+def _ensure_resource_broker(resources: ET.Element, resource: dict, broker_id) -> None:
+    broker_id_text = _format_attr(broker_id, "")
+    if not broker_id_text or broker_id_text in ("-1", "None"):
+        return
+    brokers = resources.find("Brokers")
+    if brokers is None:
+        brokers = ET.SubElement(resources, "Brokers")
+    broker = None
+    for candidate in brokers.findall("Broker"):
+        if candidate.get("id") == broker_id_text:
+            broker = candidate
+            break
+    if broker is None:
+        broker = ET.SubElement(brokers, "Broker")
+    postfix = resource.get("broker_postfix") or "_darwinex"
+    broker.set("id", broker_id_text)
+    broker.set("name", _format_attr(resource.get("broker_name"), "Darwinex"))
+    broker.set("description", _format_attr(resource.get("broker_description"), "Darwinex CFDs" if postfix == "_darwinex" else ""))
+    broker.set("timezone", _format_attr(resource.get("broker_timezone"), "EETUS"))
+    broker.set("postfix", _format_attr(postfix, ""))
+    broker.set("mtUse", "true")
+    broker.set("spUse", "false")
+
+
+def _clear_resource_sessions(resources: ET.Element) -> None:
+    """Drop stale session resources inherited from seed projects.
+
+    Generated SQX Edge projects explicitly use "No Session" in every Setup.
+    Leaving old Resources/Sessions entries in the .cfx makes SQX 142 prompt for
+    missing sessions such as Futures_Commodities1 even though no setup uses them.
+    """
+    sessions = resources.find("Sessions")
+    if sessions is None:
+        ET.SubElement(resources, "Sessions")
+        return
+    for node in list(sessions.findall("Session")):
+        sessions.remove(node)
+
+
+def patch_no_session(root: ET.Element) -> int:
+    """Force SQX projects to use No Session consistently.
+
+    SQX stores session intent in multiple places. Some seed projects keep a
+    stale BuildTradingOptions/MarketOpenSession even when Setup already says
+    "No Session", which triggers the SQX 142 resource resolver. Keep the
+    generated project explicit and internally consistent.
+    """
+    patched = 0
+    for setup in _all_setups(root):
+        if setup.get("session") != "No Session":
+            setup.set("session", "No Session")
+            patched += 1
+    for param in root.findall(".//BuildTradingOptions/Params/Param[@key='MarketOpenSession']"):
+        if (param.text or "") != "No Session":
+            param.text = "No Session"
+            patched += 1
+    for resources in root.findall(".//Resources"):
+        before = len(resources.findall("./Sessions/Session"))
+        _clear_resource_sessions(resources)
+        patched += before
+    return patched
+
+
 # ── Patches por concepto ──────────────────────────────────────────
 def patch_symbol_tf_spread(
     root: ET.Element,
@@ -77,12 +140,47 @@ def patch_symbol_tf_spread(
     return n
 
 
+def _asset_from_symbol(symbol: str) -> str:
+    return (symbol or "").split("_", 1)[0] or "ASSET"
+
+
+def patch_embedded_strategy_metadata(root: ET.Element, symbol: str, timeframe: str) -> int:
+    """Patch symbols stored inside embedded StrategyFile templates.
+
+    Capa 2 seeds can carry a BackupStrategyTemplate with its own Strategy XML.
+    SQX may inspect that embedded strategy during project load, so it must not
+    keep an old symbol while the visible charts/resources point elsewhere.
+    """
+    patched = 0
+    asset = _asset_from_symbol(symbol)
+    safe_tf = (timeframe or "TF").upper()
+    strategy_name = f"SQXEDGE_TEMPLATE_{asset}_{safe_tf}"
+    strategy_class = "".join(ch if ch.isalnum() else "_" for ch in strategy_name)
+    for node in root.findall(".//BackupStrategyTemplate//symbol"):
+        if (node.text or "") != symbol:
+            node.text = symbol
+            patched += 1
+    for node in root.findall(".//BackupStrategyTemplate//StrategyName"):
+        if (node.text or "") != strategy_name:
+            node.text = strategy_name
+            patched += 1
+    for node in root.findall(".//BackupStrategyTemplate//StrategyClassName"):
+        if (node.text or "") != strategy_class:
+            node.text = strategy_class
+            patched += 1
+    return patched
+
+
 def patch_symbol_resources(root: ET.Element, resource: Optional[dict]) -> int:
     """Rebuilds <Resources><Symbols> so SQX can resolve the generated chart symbol."""
     if not resource or not resource.get("symbol"):
         return 0
     patched = 0
-    for symbols in root.findall(".//Resources/Symbols"):
+    for resources in root.findall(".//Resources"):
+        _clear_resource_sessions(resources)
+        symbols = resources.find("Symbols")
+        if symbols is None:
+            symbols = ET.SubElement(resources, "Symbols")
         existing = list(symbols.findall("Symbol"))
         template_symbol = existing[0] if existing else None
         template_info = template_symbol.find("InstrumentInfo") if template_symbol is not None else None
@@ -95,6 +193,7 @@ def patch_symbol_resources(root: ET.Element, resource: Optional[dict]) -> int:
         if broker_id is None or str(broker_id) in ("", "-1"):
             broker_id = base_attrs.get("broker") or 4
         source = broker_id if str(broker_id) not in ("", "-1", "None") else base_attrs.get("source", "4")
+        _ensure_resource_broker(resources, resource, broker_id)
         date_from = resource.get("date_from_ms")
         date_to = resource.get("date_to_ms")
         if date_from is None:
@@ -261,7 +360,9 @@ def apply_mining_to_xml(
 ) -> dict:
     """Aplica el set completo de patches por mining a un XML root."""
     stats = {
+        "sessions": patch_no_session(root),
         "charts": patch_symbol_tf_spread(root, symbol, timeframe, spread),
+        "embedded_strategy": patch_embedded_strategy_metadata(root, symbol, timeframe),
         "swaps": patch_swap(root, swap_long, swap_short, swap_type),
         "sides": patch_direction(root, direction),
         "dates": patch_dates(root, period[0], period[1]),

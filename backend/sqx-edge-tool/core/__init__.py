@@ -8,6 +8,8 @@ from .xml_patcher import (
     clean_external_paths,
     patch_dates,
     patch_direction,
+    patch_embedded_strategy_metadata,
+    patch_no_session,
     patch_swap,
     patch_symbol_tf_spread,
 )
@@ -26,5 +28,7 @@ __all__ = [
     "patch_swap",
     "patch_direction",
     "patch_dates",
+    "patch_embedded_strategy_metadata",
+    "patch_no_session",
     "clean_external_paths",
 ]
