@@ -4,6 +4,7 @@ import './contracts/formatters_domain_contracts.mjs';
 import './contracts/storage_ui_contracts.mjs';
 import './contracts/modal_trace_contracts.mjs';
 import './contracts/state_backup_contracts.mjs';
+import './contracts/remote_state_contracts.mjs';
 import './contracts/license_contracts.mjs';
 import './contracts/fulfillment_contracts.mjs';
 import './contracts/customer_cockpit_contracts.mjs';

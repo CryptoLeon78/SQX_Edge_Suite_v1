@@ -172,6 +172,15 @@ REMOTE-4 workspace isolation foundation:
 - `POST /api/remote/protected/write-pilot` now writes its audit proof inside the derived workspace and ignores browser `workspace_id`, `workspaceId` or `path` fields.
 - Workspace files live under ignored `.local/remote_service/workspaces/` or private `SQX_REMOTE_WORKSPACES_ROOT`.
 
+REMOTE-PERSIST1A workspace state persistence:
+
+- `backend/sqx-edge-tool/core/remote_workspace_state.py` owns `remote-workspace-state-v1` and creates a private SQLite store at `<workspace>/config/workspace_state.sqlite`.
+- `GET /api/remote/state/bootstrap` loads allowed dashboard state for the active workspace.
+- `POST /api/remote/state/save` persists only allowed keys inside the active workspace and writes a workspace audit event.
+- `GET /api/remote/state/status` reports public-safe state persistence readiness without returning local paths.
+- `app/js/modules/remote-state.js` bridges browser cache to workspace state for Plan Mining and Strategy Control: `sqx_plan_user_v1`, `sqx_pipeline_state_v1`, `sqx_strategies_user_v1` and `sqx_strategies_deleted_v1`.
+- Browser `localStorage` remains a compatibility cache in remote mode; it is not the multi-user source of truth.
+
 REMOTE-5 remote Pro UX surface:
 
 - `docs/REMOTE_5_REMOTE_UX.md` owns the visible UX contract for remote-service status.
@@ -345,43 +354,44 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 7. `js/modules/storage.js`
 8. `js/modules/modal-registry.js`
 9. `js/modules/state-backup.js`
-10. `js/modules/license.js`
-11. `js/modules/ui.js`
-12. `js/modules/formatters.js`
-13. `js/modules/champion-challenger-core.js`
-14. `js/modules/domain.js`
-15. `js/modules/datasets.js`
-16. `js/modules/champion-challenger-regime.js`
-17. `js/modules/champion-challenger.js`
-18. `js/modules/strategy-builder-core.js`
-19. `js/modules/strategy-builder.js`
-20. `js/modules/renderers.js`
-21. `js/modules/charts.js`
-22. `js/modules/strategies.js`
-23. `vendor/jszip.min.js`
-24. `js/modules/exit-policy.js`
-25. `js/modules/template-maker.js`
-26. `js/modules/template-maker-ui.js`
-27. `js/modules/home.js`
-28. `js/modules/mtf-evidence.js`
-29. `js/modules/support.js`
-30. `js/modules/fulfillment.js`
-31. `js/modules/customer-cockpit.js`
-32. `js/modules/workflow.js`
-33. `js/modules/view-creator.js`
-34. `js/modules/project-generator-core.js`
-35. `js/modules/project-generator-config.js`
-36. `js/modules/project-generator-dom.js`
-37. `js/modules/project-generator-bindings.js`
-38. `js/modules/project-generator-renderers.js`
-39. `js/modules/project-generator-status.js`
-40. `js/modules/project-generator-cleaner.js`
-41. `js/modules/project-generator.js`
-42. `js/modules/index.js`
-43. `js/data.js`
-44. `js/dashboard.js`
-45. `js/main.js`
-46. `js/project-generator-main.js`
+10. `js/modules/remote-state.js`
+11. `js/modules/license.js`
+12. `js/modules/ui.js`
+13. `js/modules/formatters.js`
+14. `js/modules/champion-challenger-core.js`
+15. `js/modules/domain.js`
+16. `js/modules/datasets.js`
+17. `js/modules/champion-challenger-regime.js`
+18. `js/modules/champion-challenger.js`
+19. `js/modules/strategy-builder-core.js`
+20. `js/modules/strategy-builder.js`
+21. `js/modules/renderers.js`
+22. `js/modules/charts.js`
+23. `js/modules/strategies.js`
+24. `vendor/jszip.min.js`
+25. `js/modules/exit-policy.js`
+26. `js/modules/template-maker.js`
+27. `js/modules/template-maker-ui.js`
+28. `js/modules/home.js`
+29. `js/modules/mtf-evidence.js`
+30. `js/modules/support.js`
+31. `js/modules/fulfillment.js`
+32. `js/modules/customer-cockpit.js`
+33. `js/modules/workflow.js`
+34. `js/modules/view-creator.js`
+35. `js/modules/project-generator-core.js`
+36. `js/modules/project-generator-config.js`
+37. `js/modules/project-generator-dom.js`
+38. `js/modules/project-generator-bindings.js`
+39. `js/modules/project-generator-renderers.js`
+40. `js/modules/project-generator-status.js`
+41. `js/modules/project-generator-cleaner.js`
+42. `js/modules/project-generator.js`
+43. `js/modules/index.js`
+44. `js/data.js`
+45. `js/dashboard.js`
+46. `js/main.js`
+47. `js/project-generator-main.js`
 
 ## Why This Order Matters
 
@@ -390,6 +400,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 - `modules/core.js` creates `window.SQX`, module registration, and ready callbacks.
 - Focused modules attach stable contracts under `window.SQX`.
 - `modal-registry.js` loads before state backup and dashboard actions so critical decisions can use a traceable shared modal instead of blind native prompts.
+- `remote-state.js` loads after storage/state backup and before dashboard so remote workspaces can bootstrap Plan Mining and Strategy Control state while local mode continues to use browser storage.
 - `champion-challenger-regime.js` loads after `datasets.js` because it adapts first-party historical and score evidence.
 - `strategy-builder-core.js` and `strategy-builder.js` load after Champion vs Challenger so the Builder can consume the reduced J6 handoff shape without coupling to raw CSV; SQX Views handoff is resolved at click time through the later `view-creator.js` runtime contract.
 - `vendor/jszip.min.js` loads before Template Maker because local/offline `.sqx` parsing and C2 export cannot depend on a CDN.

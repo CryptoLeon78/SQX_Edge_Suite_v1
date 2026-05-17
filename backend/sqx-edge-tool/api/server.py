@@ -86,6 +86,12 @@ from core.remote_workspaces import (
     public_workspace_context,
     read_recent_workspace_audit_events,
 )
+from core.remote_workspace_state import (
+    REMOTE_WORKSPACE_STATE_VERSION,
+    read_workspace_state,
+    workspace_state_public_status,
+    write_workspace_state,
+)
 from core.support_diagnostics import build_support_diagnostics
 from core.support_incidents import (
     append_support_incident,
@@ -825,6 +831,98 @@ def api_remote_workspace_status():
         "accessControl": session_status.get("accessControl"),
         "privacy": {"session_token_returned": False, "local_paths_returned": False},
     }))
+    return _set_remote_device_cookie(response, device_id)
+
+
+@app.get("/api/remote/state/bootstrap")
+def api_remote_state_bootstrap():
+    """Load workspace-scoped dashboard state for the active remote session."""
+    session_status, device_id = _remote_session_status_for_request(purpose="remote_state_bootstrap")
+    if not session_status.get("access", {}).get("allowed"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_WORKSPACE_STATE_VERSION,
+            "error": "remote_session_required",
+            "session": session_status.get("session"),
+            "access": session_status.get("access"),
+            "accessControl": session_status.get("accessControl"),
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), 403)
+        return _set_remote_device_cookie(response, device_id)
+    workspace_context = derive_remote_workspace(session_status, create=True)
+    if not workspace_context.get("ok"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_WORKSPACE_STATE_VERSION,
+            "error": workspace_context.get("error") or "remote_workspace_unavailable",
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), int(workspace_context.get("http_status") or 403))
+        return _set_remote_device_cookie(response, device_id)
+    state = read_workspace_state(workspace_context, audit=True)
+    response = make_response(jsonify({
+        "ok": True,
+        "version": REMOTE_WORKSPACE_STATE_VERSION,
+        "workspace": public_workspace_context(workspace_context),
+        "state": state,
+        "stateKeys": sorted(state.keys()),
+        "privacy": {"session_token_returned": False, "local_paths_returned": False, "raw_email_returned": False},
+    }))
+    return _set_remote_device_cookie(response, device_id)
+
+
+@app.post("/api/remote/state/save")
+def api_remote_state_save():
+    """Persist allowed dashboard state keys inside the active remote workspace."""
+    session_status, device_id = _remote_session_status_for_request(purpose="remote_state_save")
+    if not session_status.get("access", {}).get("allowed"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_WORKSPACE_STATE_VERSION,
+            "error": "remote_session_required",
+            "session": session_status.get("session"),
+            "access": session_status.get("access"),
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), 403)
+        return _set_remote_device_cookie(response, device_id)
+    workspace_context = derive_remote_workspace(session_status, create=True)
+    if not workspace_context.get("ok"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_WORKSPACE_STATE_VERSION,
+            "error": workspace_context.get("error") or "remote_workspace_unavailable",
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), int(workspace_context.get("http_status") or 403))
+        return _set_remote_device_cookie(response, device_id)
+    data = request.get_json(silent=True) or {}
+    payload = data.get("state") if isinstance(data.get("state"), dict) else data
+    result = write_workspace_state(workspace_context, payload, source=str(data.get("source") or "dashboard"))
+    status = 200 if result.get("ok") else 400
+    response = make_response(jsonify(result), status)
+    return _set_remote_device_cookie(response, device_id)
+
+
+@app.get("/api/remote/state/status")
+def api_remote_state_status():
+    """Report public-safe workspace persistence status for the active remote session."""
+    session_status, device_id = _remote_session_status_for_request(purpose="remote_state_status")
+    if not session_status.get("access", {}).get("allowed"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_WORKSPACE_STATE_VERSION,
+            "error": "remote_session_required",
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), 403)
+        return _set_remote_device_cookie(response, device_id)
+    workspace_context = derive_remote_workspace(session_status, create=True)
+    if not workspace_context.get("ok"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_WORKSPACE_STATE_VERSION,
+            "error": workspace_context.get("error") or "remote_workspace_unavailable",
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), int(workspace_context.get("http_status") or 403))
+        return _set_remote_device_cookie(response, device_id)
+    response = make_response(jsonify(workspace_state_public_status(workspace_context)))
     return _set_remote_device_cookie(response, device_id)
 
 

@@ -2739,6 +2739,48 @@ if (!Array.isArray(STRATEGIES_DELETED)) STRATEGIES_DELETED = [];
 function saveStrategiesUser() { SQX_STORAGE.setJson(STRAT_USER_KEY, STRATEGIES_USER); }
 function saveStrategiesDeleted() { SQX_STORAGE.setJson(STRAT_DELETED_KEY, STRATEGIES_DELETED); }
 
+function applyRemoteWorkspaceState(state) {
+  if (!state || typeof state !== 'object') return;
+  let changed = false;
+  if (state[PLAN_USER_KEY]) {
+    PLAN_USER = Object.assign({ minings:[], phases:{}, baseDisabled:false, hiddenBaseMinings:[] }, state[PLAN_USER_KEY]);
+    normalizePlanUserState();
+    refreshPlanAll();
+    changed = true;
+  }
+  if (state[PIPELINE_STATE_KEY]) {
+    const remotePipeline = state[PIPELINE_STATE_KEY] || {};
+    PIPELINE_STATE = {
+      overrides: remotePipeline.overrides || remotePipeline.miningStatus || {},
+      funnels: remotePipeline.funnels || {},
+      nextAction: remotePipeline.nextAction || sqxConfigValue('pipeline.defaultNextAction', 'Filter-by-correlation entre las estrategias PASSED del WFM.')
+    };
+    if (!PIPELINE_STATE.funnels['1|LINEAR']) PIPELINE_STATE.funnels['1|LINEAR'] = {...FUNNEL_PRELOAD['1|LINEAR']};
+    changed = true;
+  }
+  if (Array.isArray(state[STRAT_USER_KEY])) {
+    STRATEGIES_USER = state[STRAT_USER_KEY];
+    changed = true;
+  }
+  if (Array.isArray(state[STRAT_DELETED_KEY])) {
+    STRATEGIES_DELETED = state[STRAT_DELETED_KEY];
+    changed = true;
+  }
+  if (!changed) return;
+  notifyPlanMiningChanged();
+  if (typeof renderPriority === 'function') renderPriority();
+  if (typeof renderStrategies === 'function') renderStrategies();
+  if (typeof renderPipelineState === 'function') renderPipelineState();
+  if (typeof renderHome === 'function') renderHome();
+}
+
+window.addEventListener('sqx:remote-state-loaded', function(event) {
+  applyRemoteWorkspaceState(event.detail && event.detail.state);
+});
+if (window.SQX && window.SQX.remoteState && Object.keys(window.SQX.remoteState.lastState()).length) {
+  applyRemoteWorkspaceState(window.SQX.remoteState.lastState());
+}
+
 function resetProjectWorkingData() {
   resetPlanMiningUserState();
 
