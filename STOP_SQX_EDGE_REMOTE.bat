@@ -2,6 +2,8 @@
 setlocal
 
 for %%I in ("%~dp0.") do set "ROOT=%%~fI"
+set "SQX_REMOTE_ROOT=%ROOT%"
+set "SQX_REMOTE_MODE=stop"
 
-start "SQX Edge Remote Monitor" /min powershell -NoProfile -Sta -ExecutionPolicy Bypass -File "%ROOT%\tools\remote_operator_status.ps1" -RepoRoot "%ROOT%" -StopOnOpen
+start "" mshta.exe "%ROOT%\tools\remote_operator_monitor.hta" --stop
 exit /b 0

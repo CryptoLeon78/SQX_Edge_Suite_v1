@@ -37,7 +37,7 @@ if (-not (Test-Path -LiteralPath $CloudflaredConfig)) {
     throw "Missing local cloudflared config: $CloudflaredConfig"
 }
 if (-not $SkipPreflight) {
-    & powershell -NoProfile -ExecutionPolicy Bypass -File $preflight -RepoRoot $repo -RequireEvidence
+    & powershell -NoProfile -ExecutionPolicy Bypass -File $preflight -RepoRoot $repo -CloudflaredPath $cloudflared -RequireEvidence
     if ($LASTEXITCODE -ne 0) {
         throw "REMOTE-2 preflight did not return GO. Tunnel run blocked."
     }

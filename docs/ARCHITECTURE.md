@@ -141,9 +141,10 @@ REMOTE-2 Cloudflare Tunnel and Access:
 
 REMOTE-RUNBOOK1 operator start/stop:
 
-- `START_SQX_EDGE_REMOTE.bat` opens the visible visual operator monitor and starts the remote service without leaving service consoles in front of the operator.
+- `START_SQX_EDGE_REMOTE.bat` opens the visible HTA operator monitor and starts the remote service without leaving service consoles in front of the operator.
 - `STOP_SQX_EDGE_REMOTE.bat` opens the visual operator monitor and stops only this repo backend plus the tunnel using `cloudflared-config.local.yml`.
-- `tools/remote_operator_status.ps1` is a lightweight Windows Forms monitor with Backend/Tunnel status, auto refresh, balloon notification and `Arrancar`/`Detener` controls.
+- `tools/remote_operator_monitor.hta` is the visible operator monitor with Backend/Tunnel status, auto refresh, guarded `Arrancar`/`Detener` buttons and stop-mode messaging.
+- `tools/remote_operator_status.ps1` remains as a diagnostic Windows Forms monitor fallback.
 - `tools/remote_operator_start.ps1` and `tools/remote_operator_stop.ps1` remain scriptable helpers for QA and operator diagnostics.
 - The visual runbook is operator-only; users and testers still enter only through the protected Cloudflare URL.
 

@@ -1,0 +1,223 @@
+<!doctype html>
+<html>
+<head>
+  <meta http-equiv="x-ua-compatible" content="IE=edge">
+  <title>SQX Edge Suite - Remote Status</title>
+  <hta:application
+    id="sqxRemoteMonitor"
+    applicationname="SQX Edge Suite Remote Status"
+    border="thin"
+    caption="yes"
+    maximizebutton="no"
+    minimizebutton="yes"
+    scroll="no"
+    singleinstance="no"
+    sysmenu="yes"
+    windowstate="normal"
+  />
+  <style>
+    html, body {
+      margin: 0;
+      width: 560px;
+      height: 360px;
+      overflow: hidden;
+      background: #08111f;
+      color: #eef5ff;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+    .wrap { padding: 28px; }
+    h1 { margin: 0 0 8px; font-size: 30px; line-height: 1.1; }
+    .sub { margin: 0 0 24px; color: #b9c7d9; font-size: 13px; }
+    .panel {
+      padding: 16px;
+      margin-bottom: 12px;
+      border: 1px solid #263a5a;
+      background: #132039;
+      color: #dbe8ff;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .ok {
+      border-color: #1e7f55;
+      background: #114d37;
+      color: #9dffca;
+    }
+    .bad {
+      border-color: #8b343c;
+      background: #4c2228;
+      color: #ffc0c0;
+    }
+    #overall {
+      margin: 14px 0 18px;
+      color: #ffda4d;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    .actions { display: flex; gap: 12px; }
+    button {
+      width: 112px;
+      height: 34px;
+      background: #0e1728;
+      border: 1px solid #335786;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: .45;
+      cursor: default;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>SQX Edge Suite</h1>
+    <p class="sub">Control remoto Backend/Tunnel para el portatil operador</p>
+    <div id="backend" class="panel">Comprobando backend...</div>
+    <div id="tunnel" class="panel">Comprobando tunel...</div>
+    <div id="overall">Estado: iniciando comprobacion...</div>
+    <div class="actions">
+      <button id="startBtn" onclick="startServices()">Arrancar</button>
+      <button id="stopBtn" onclick="stopServices()">Detener</button>
+      <button id="refreshBtn" onclick="refreshStatus()">Refrescar</button>
+      <button id="closeBtn" onclick="window.close()">Cerrar monitor</button>
+    </div>
+  </div>
+
+  <script language="javascript">
+    var shell = new ActiveXObject("WScript.Shell");
+    var env = shell.Environment("PROCESS");
+    var repo = env("SQX_REMOTE_ROOT");
+    var cloudflared = env("SQX_CLOUDFLARED_PATH");
+    var requestedMode = String(env("SQX_REMOTE_MODE") || "").toLowerCase();
+    var busy = false;
+    var lastAllOk = false;
+    var launchMode = "";
+
+    if (!repo) {
+      repo = unescape(location.pathname).replace(/^\/?/, "").replace(/\/tools\/remote_operator_monitor\.hta$/i, "");
+    }
+    repo = repo.replace(/\//g, "\\").replace(/\\$/, "");
+    if (!cloudflared) {
+      cloudflared = "C:\\Tools\\cloudflared\\cloudflared.exe";
+    }
+
+    function quote(value) {
+      return '"' + String(value).replace(/"/g, '\\"') + '"';
+    }
+
+    function setPanel(id, ok, text) {
+      var el = document.getElementById(id);
+      el.className = "panel " + (ok ? "ok" : "bad");
+      el.innerText = text;
+    }
+
+    function backendStatus() {
+      try {
+        var xhr = new ActiveXObject("MSXML2.XMLHTTP");
+        xhr.open("GET", "http://127.0.0.1:5050/api/health", false);
+        xhr.send();
+        var ok = xhr.status === 200 && xhr.responseText.indexOf('"ok":true') >= 0;
+        return {
+          ok: ok,
+          text: ok ? "OK - backend activo en 127.0.0.1:5050" : "NO-GO - backend responde sin OK"
+        };
+      } catch (e) {
+        return { ok: false, text: "NO-GO - backend no responde" };
+      }
+    }
+
+    function tunnelStatus() {
+      try {
+        var svc = GetObject("winmgmts:root\\cimv2");
+        var items = new Enumerator(svc.ExecQuery("Select ProcessId, CommandLine from Win32_Process where Name='cloudflared.exe'"));
+        for (; !items.atEnd(); items.moveNext()) {
+          var proc = items.item();
+          var cmd = String(proc.CommandLine || "");
+          if (cmd.indexOf("cloudflared-config.local.yml") >= 0) {
+            return { ok: true, text: "OK - tunel Cloudflare activo (PID " + proc.ProcessId + ")" };
+          }
+        }
+        return { ok: false, text: "NO-GO - tunel no detectado" };
+      } catch (e) {
+        return { ok: false, text: "NO-GO - tunel no comprobable" };
+      }
+    }
+
+    function setButtons(backendOk, tunnelOk) {
+      var anyRunning = backendOk || tunnelOk;
+      var allOk = backendOk && tunnelOk;
+      document.getElementById("startBtn").disabled = busy || allOk;
+      document.getElementById("stopBtn").disabled = busy || !anyRunning;
+      document.getElementById("refreshBtn").disabled = busy;
+      document.getElementById("closeBtn").disabled = busy;
+      document.getElementById("startBtn").innerText = busy ? "Espere..." : (allOk ? "En marcha" : "Arrancar");
+      document.getElementById("stopBtn").innerText = busy ? "Espere..." : (anyRunning ? "Detener" : "Detenido");
+    }
+
+    function refreshStatus(showOkPopup) {
+      var backend = backendStatus();
+      var tunnel = tunnelStatus();
+      var allOk = backend.ok && tunnel.ok;
+      var anyRunning = backend.ok || tunnel.ok;
+      setPanel("backend", backend.ok, backend.text);
+      setPanel("tunnel", tunnel.ok, tunnel.text);
+      if (allOk) {
+        document.getElementById("overall").style.color = "#9dffca";
+        document.getElementById("overall").innerText = "Estado: OK todo en marcha. Puedes abrir el enlace protegido.";
+      } else if (!anyRunning) {
+        document.getElementById("overall").style.color = "#9dffca";
+        document.getElementById("overall").innerText = "Estado: servicios detenidos. Backend/Tunnel cerrados.";
+      } else {
+        document.getElementById("overall").style.color = "#ffda4d";
+        document.getElementById("overall").innerText = "Estado: parcial. Usa Arrancar/Detener o revisa logs locales.";
+      }
+      if (showOkPopup && allOk && !lastAllOk) {
+        try { shell.Popup("Backend y Tunnel estan OK.", 2, "SQX Edge Suite", 64); } catch (e) {}
+      }
+      lastAllOk = allOk;
+      setButtons(backend.ok, tunnel.ok);
+      return { backendOk: backend.ok, tunnelOk: tunnel.ok, allOk: allOk, anyRunning: anyRunning };
+    }
+
+    function runHidden(command) {
+      shell.Run(command, 0, false);
+    }
+
+    function startServices() {
+      if (busy) return;
+      busy = true;
+      setButtons(false, false);
+      document.getElementById("overall").style.color = "#ffda4d";
+      document.getElementById("overall").innerText = "Estado: arrancando backend y tunel...";
+      runHidden('powershell.exe -NoProfile -ExecutionPolicy Bypass -File ' +
+        quote(repo + "\\tools\\remote_operator_start.ps1") +
+        ' -RepoRoot ' + quote(repo) +
+        ' -CloudflaredPath ' + quote(cloudflared));
+      window.setTimeout(function () { busy = false; refreshStatus(true); }, 1800);
+    }
+
+    function stopServices() {
+      if (busy) return;
+      busy = true;
+      setButtons(false, false);
+      document.getElementById("overall").style.color = "#ffda4d";
+      document.getElementById("overall").innerText = "Estado: deteniendo servicios...";
+      runHidden('powershell.exe -NoProfile -ExecutionPolicy Bypass -File ' +
+        quote(repo + "\\tools\\remote_operator_stop.ps1") +
+        ' -RepoRoot ' + quote(repo));
+      window.setTimeout(function () { busy = false; refreshStatus(false); }, 1800);
+    }
+
+    window.onload = function () {
+      window.resizeTo(580, 390);
+      var args = String(sqxRemoteMonitor.commandLine || "");
+      launchMode = requestedMode || (args.indexOf("--stop") >= 0 ? "stop" : (args.indexOf("--start") >= 0 ? "start" : ""));
+      var state = refreshStatus(launchMode !== "stop");
+      if (launchMode === "start" && !state.allOk) startServices();
+      if (launchMode === "stop" && state.anyRunning) stopServices();
+      window.setInterval(function () { refreshStatus(launchMode !== "stop"); }, 5000);
+    };
+  </script>
+</body>
+</html>

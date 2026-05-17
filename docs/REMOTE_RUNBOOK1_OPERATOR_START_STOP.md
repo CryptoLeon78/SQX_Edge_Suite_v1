@@ -18,11 +18,19 @@ Stop the remote service from the repository root:
 STOP_SQX_EDGE_REMOTE.bat
 ```
 
-The launchers open a small visible visual monitor in PowerShell STA mode instead of leaving CMD/PowerShell command windows in front of the operator. The service console is minimized while the monitor shows Backend and Tunnel status, refreshes automatically and provides `Arrancar`, `Detener`, `Refrescar` and `Cerrar monitor` buttons.
+The launchers use `mshta.exe` to open a small visible HTA monitor instead of leaving CMD/PowerShell command windows in front of the operator. Service operations run hidden while the monitor shows Backend and Tunnel status, refreshes automatically and provides guarded `Arrancar`, `Detener`, `Refrescar` and `Cerrar monitor` buttons.
+
+Button guard rules:
+
+- `Arrancar` is disabled and shown as `En marcha` when Backend and Tunnel are both OK.
+- `Detener` is disabled and shown as `Detenido` when no service is running.
+- While a start/stop operation is running, action buttons temporarily show `Espere...` to avoid duplicate sessions or accidental double clicks.
+- `STOP_SQX_EDGE_REMOTE.bat` suppresses the startup OK notification and ends with `Estado: servicios detenidos. Backend/Tunnel cerrados.` when both services are closed.
 
 The launchers call PowerShell helpers:
 
 - `tools/remote_operator_status.ps1`
+- `tools/remote_operator_monitor.hta`
 - `tools/remote_operator_start.ps1`
 - `tools/remote_operator_stop.ps1`
 

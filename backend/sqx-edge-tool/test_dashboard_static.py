@@ -86,6 +86,7 @@ REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT = PROJECT_ROOT / "tools" / "remote_tun
 REMOTE_OPERATOR_START_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_start.ps1"
 REMOTE_OPERATOR_STOP_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_stop.ps1"
 REMOTE_OPERATOR_STATUS_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_status.ps1"
+REMOTE_OPERATOR_MONITOR_HTA = PROJECT_ROOT / "tools" / "remote_operator_monitor.hta"
 REMOTE_8C_OBSERVATION_STATUS_SCRIPT = PROJECT_ROOT / "tools" / "remote8c_observation_status.ps1"
 REMOTE_CLOUDFLARED_CONFIG_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "cloudflared-config.local.example.yml"
 REMOTE_START_BAT = PROJECT_ROOT / "START_SQX_EDGE_REMOTE.bat"
@@ -3772,6 +3773,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "cloudflared",
             "remote_tunnel_preflight.ps1",
+            "-CloudflaredPath",
             "REMOTE-2 preflight did not return GO. Tunnel run blocked.",
             "tunnel",
             "--config",
@@ -3837,6 +3839,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             REMOTE_OPERATOR_START_SCRIPT,
             REMOTE_OPERATOR_STOP_SCRIPT,
             REMOTE_OPERATOR_STATUS_SCRIPT,
+            REMOTE_OPERATOR_MONITOR_HTA,
             REMOTE_START_BAT,
             REMOTE_STOP_BAT,
         ):
@@ -3849,6 +3852,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "STOP_SQX_EDGE_REMOTE.bat",
             "visual monitor",
             "Backend and Tunnel status",
+            "STOP_SQX_EDGE_REMOTE.bat",
+            "servicios detenidos",
             "OK todo en marcha",
             ".local/remote_service/",
             "REMOTE-ACCEPT1",
@@ -3861,6 +3866,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "START_SQX_EDGE_REMOTE.bat",
             "STOP_SQX_EDGE_REMOTE.bat",
             "tools/remote_operator_status.ps1",
+            "tools/remote_operator_monitor.hta",
             "visual monitor opens visibly",
         ):
             with self.subTest(pattern=pattern):
@@ -3871,13 +3877,14 @@ class DashboardStaticTestCase(unittest.TestCase):
             "tools/remote_operator_start.ps1",
             "tools/remote_operator_stop.ps1",
             "tools/remote_operator_status.ps1",
+            "tools/remote_operator_monitor.hta",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
             "REMOTE-RUNBOOK1 operator start/stop",
-            "visible visual operator monitor",
+            "visible HTA operator monitor",
             "Arrancar",
             "Detener",
             "protected Cloudflare URL",
@@ -3898,16 +3905,18 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("START_SQX_EDGE_REMOTE.bat", remote_2)
 
         for pattern in (
-            "remote_operator_status.ps1",
-            "-Sta",
-            "-StartOnOpen",
+            "mshta.exe",
+            "remote_operator_monitor.hta",
+            "SQX_REMOTE_MODE=start",
+            "--start",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, start_bat)
         for pattern in (
-            "remote_operator_status.ps1",
-            "-Sta",
-            "-StopOnOpen",
+            "mshta.exe",
+            "remote_operator_monitor.hta",
+            "SQX_REMOTE_MODE=stop",
+            "--stop",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, stop_bat)
@@ -3939,19 +3948,42 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, "\n".join([start_bat, stop_bat, readme]))
 
+        hta = REMOTE_OPERATOR_MONITOR_HTA.read_text(encoding="utf-8-sig")
+        for pattern in (
+            "mshta",
+            "remote_operator_start.ps1",
+            "remote_operator_stop.ps1",
+            "servicios detenidos",
+            "suppresses the startup OK notification",
+            "Arrancar",
+            "Detener",
+            "En marcha",
+            "Detenido",
+            "Espere...",
+            "--stop",
+            "--start",
+            "SQX_REMOTE_MODE",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, "\n".join([hta, runbook]))
+
         for pattern in (
             "System.Windows.Forms",
             "NotifyIcon",
             "Timer",
             "Arrancar",
             "Detener",
+            "En marcha",
+            "Detenido",
+            "Espere...",
+            "Set-ButtonsForState",
             "OK todo en marcha",
             "Backend/Tunnel",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, status_ps1)
 
-        combined_public = "\n".join([runbook, start_ps1, stop_ps1, status_ps1, start_bat, stop_bat, readme, roadmap, architecture])
+        combined_public = "\n".join([runbook, start_ps1, stop_ps1, status_ps1, hta, start_bat, stop_bat, readme, roadmap, architecture])
         for forbidden in (
             "@" + "gmail.com",
             "@" + "hotmail.com",

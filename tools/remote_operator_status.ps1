@@ -167,12 +167,37 @@ $notify.Icon = [System.Drawing.SystemIcons]::Information
 $notify.Visible = $true
 $notify.Text = "SQX Edge Suite Remote"
 $script:lastOk = $false
+$script:isBusy = $false
+
+function Set-ButtonsForState {
+    param(
+        [bool]$BackendOk,
+        [bool]$TunnelOk,
+        [bool]$Busy
+    )
+    $anyRunning = $BackendOk -or $TunnelOk
+    $allOk = $BackendOk -and $TunnelOk
+
+    $startButton.Enabled = -not $Busy -and -not $allOk
+    $stopButton.Enabled = -not $Busy -and $anyRunning
+    $refreshButton.Enabled = -not $Busy
+    $closeButton.Enabled = -not $Busy
+
+    if ($Busy) {
+        $startButton.Text = "Espere..."
+        $stopButton.Text = "Espere..."
+    } else {
+        $startButton.Text = if ($allOk) { "En marcha" } else { "Arrancar" }
+        $stopButton.Text = if ($anyRunning) { "Detener" } else { "Detenido" }
+    }
+}
 
 function Update-Status {
     $backend = Get-BackendStatus
     $tunnel = Get-TunnelStatus
     Set-PanelState -Label $backendLabel -Panel $backendPanel -Ok $backend.ok -Text $backend.text
     Set-PanelState -Label $tunnelLabel -Panel $tunnelPanel -Ok $tunnel.ok -Text $tunnel.text
+    Set-ButtonsForState -BackendOk $backend.ok -TunnelOk $tunnel.ok -Busy $script:isBusy
 
     if ($backend.ok -and $tunnel.ok) {
         $overall.Text = "Estado: OK todo en marcha. Puedes abrir el enlace protegido."
@@ -188,20 +213,36 @@ function Update-Status {
     }
 }
 
+function Invoke-RemoteOperation {
+    param(
+        [string]$Message,
+        [scriptblock]$Operation
+    )
+    if ($script:isBusy) { return }
+    $script:isBusy = $true
+    Set-ButtonsForState -BackendOk $false -TunnelOk $false -Busy $true
+    $overall.Text = $Message
+    $overall.ForeColor = [System.Drawing.Color]::FromArgb(255, 218, 77)
+    & $Operation
+    Start-Sleep -Milliseconds 900
+    $script:isBusy = $false
+    Update-Status
+}
+
 $timer = New-Object System.Windows.Forms.Timer
 $timer.Interval = 5000
 $timer.Add_Tick({ Update-Status })
 
 $startButton.Add_Click({
-    $overall.Text = "Estado: arrancando backend y tunel..."
-    $overall.ForeColor = [System.Drawing.Color]::FromArgb(255, 218, 77)
-    Start-HiddenPowerShell -ScriptPath $startScript -ExtraArgs @("-CloudflaredPath", "`"$CloudflaredPath`"")
+    Invoke-RemoteOperation -Message "Estado: arrancando backend y tunel..." -Operation {
+        Start-HiddenPowerShell -ScriptPath $startScript -ExtraArgs @("-CloudflaredPath", "`"$CloudflaredPath`"")
+    }
 })
 
 $stopButton.Add_Click({
-    $overall.Text = "Estado: deteniendo servicios..."
-    $overall.ForeColor = [System.Drawing.Color]::FromArgb(255, 218, 77)
-    Start-HiddenPowerShell -ScriptPath $stopScript
+    Invoke-RemoteOperation -Message "Estado: deteniendo servicios..." -Operation {
+        Start-HiddenPowerShell -ScriptPath $stopScript
+    }
 })
 
 $refreshButton.Add_Click({ Update-Status })
