@@ -92,6 +92,12 @@ from core.remote_workspace_outputs import (
     record_workspace_output_generated,
     workspace_outputs_dir,
 )
+from core.remote_template_maker_state import (
+    REMOTE_TEMPLATE_MAKER_STATE_VERSION,
+    read_template_maker_state,
+    template_maker_state_public_status,
+    write_template_maker_state,
+)
 from core.remote_workspace_state import (
     REMOTE_WORKSPACE_STATE_VERSION,
     read_workspace_state,
@@ -165,6 +171,8 @@ def _remote_security_action(method: str, path: str) -> str | None:
     if path == "/api/remote/payment/webhook" and method == "POST":
         return "remote_payment_webhook"
     if path.startswith("/api/remote/protected/") and method in {"POST", "PUT", "PATCH", "DELETE"}:
+        return "remote_protected_write"
+    if path.startswith("/api/remote/template-maker/") and method in {"POST", "PUT", "PATCH", "DELETE"}:
         return "remote_protected_write"
     return "remote_status"
 
@@ -976,6 +984,97 @@ def api_remote_state_status():
         }), int(workspace_context.get("http_status") or 403))
         return _set_remote_device_cookie(response, device_id)
     response = make_response(jsonify(workspace_state_public_status(workspace_context)))
+    return _set_remote_device_cookie(response, device_id)
+
+
+@app.get("/api/remote/template-maker/bootstrap")
+def api_remote_template_maker_bootstrap():
+    """Load workspace-scoped Template Maker snapshot for the active remote session."""
+    session_status, device_id = _remote_session_status_for_request(purpose="remote_template_maker_bootstrap")
+    if not session_status.get("access", {}).get("allowed"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_TEMPLATE_MAKER_STATE_VERSION,
+            "error": "remote_session_required",
+            "session": session_status.get("session"),
+            "access": session_status.get("access"),
+            "accessControl": session_status.get("accessControl"),
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), 403)
+        return _set_remote_device_cookie(response, device_id)
+    workspace_context = derive_remote_workspace(session_status, create=True)
+    if not workspace_context.get("ok"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_TEMPLATE_MAKER_STATE_VERSION,
+            "error": workspace_context.get("error") or "remote_workspace_unavailable",
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), int(workspace_context.get("http_status") or 403))
+        return _set_remote_device_cookie(response, device_id)
+    snapshot = read_template_maker_state(workspace_context, audit=True)
+    response = make_response(jsonify({
+        "ok": True,
+        "version": REMOTE_TEMPLATE_MAKER_STATE_VERSION,
+        "workspace": public_workspace_context(workspace_context),
+        "state": snapshot,
+        "recordCount": len(snapshot.get("strategies") or []),
+        "privacy": {"session_token_returned": False, "local_paths_returned": False, "raw_email_returned": False},
+    }))
+    return _set_remote_device_cookie(response, device_id)
+
+
+@app.post("/api/remote/template-maker/save")
+def api_remote_template_maker_save():
+    """Persist Template Maker snapshot inside the active remote workspace."""
+    session_status, device_id = _remote_session_status_for_request(purpose="remote_template_maker_save")
+    if not session_status.get("access", {}).get("allowed"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_TEMPLATE_MAKER_STATE_VERSION,
+            "error": "remote_session_required",
+            "session": session_status.get("session"),
+            "access": session_status.get("access"),
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), 403)
+        return _set_remote_device_cookie(response, device_id)
+    workspace_context = derive_remote_workspace(session_status, create=True)
+    if not workspace_context.get("ok"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_TEMPLATE_MAKER_STATE_VERSION,
+            "error": workspace_context.get("error") or "remote_workspace_unavailable",
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), int(workspace_context.get("http_status") or 403))
+        return _set_remote_device_cookie(response, device_id)
+    data = request.get_json(silent=True) or {}
+    snapshot = data.get("state") if isinstance(data.get("state"), dict) else data
+    result = write_template_maker_state(workspace_context, snapshot, source=str(data.get("source") or "dashboard"))
+    response = make_response(jsonify(result), 200 if result.get("ok") else 400)
+    return _set_remote_device_cookie(response, device_id)
+
+
+@app.get("/api/remote/template-maker/status")
+def api_remote_template_maker_status():
+    """Report public-safe Template Maker persistence status for the active remote session."""
+    session_status, device_id = _remote_session_status_for_request(purpose="remote_template_maker_status")
+    if not session_status.get("access", {}).get("allowed"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_TEMPLATE_MAKER_STATE_VERSION,
+            "error": "remote_session_required",
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), 403)
+        return _set_remote_device_cookie(response, device_id)
+    workspace_context = derive_remote_workspace(session_status, create=True)
+    if not workspace_context.get("ok"):
+        response = make_response(jsonify({
+            "ok": False,
+            "version": REMOTE_TEMPLATE_MAKER_STATE_VERSION,
+            "error": workspace_context.get("error") or "remote_workspace_unavailable",
+            "privacy": {"session_token_returned": False, "local_paths_returned": False},
+        }), int(workspace_context.get("http_status") or 403))
+        return _set_remote_device_cookie(response, device_id)
+    response = make_response(jsonify(template_maker_state_public_status(workspace_context)))
     return _set_remote_device_cookie(response, device_id)
 
 

@@ -61,14 +61,16 @@ Remote responses must not include:
 
 ## Explicit Non-Scope
 
-This phase does not yet migrate:
+This phase did not yet migrate:
 
-- Template Maker IndexedDB (`SQXTemplateMakerDB`);
+- Template Maker IndexedDB (`SQXTemplateMakerDB`), later migrated by
+  REMOTE-PERSIST1C;
 - SQX Views custom presets;
 - Control Panel backup/restore;
 - browser-side generated-output reset history beyond the existing compatibility cache.
 
-Those remain blockers before expanding beyond the current controlled pilot.
+The remaining persistence gaps remain blockers before expanding beyond the
+current controlled pilot.
 
 ## Acceptance
 

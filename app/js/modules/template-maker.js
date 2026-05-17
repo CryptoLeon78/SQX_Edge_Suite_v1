@@ -273,6 +273,16 @@
   var _thresholds = clone(PRESETS.Generic);
   var _diversitySettings = clone(DEFAULT_DIVERSITY_SETTINGS);
   var _nextId = 1;
+  var _remotePersistence = {
+    version: 'remote-template-maker-state-v1',
+    enabled: false,
+    ready: false,
+    saving: false,
+    workspace: null,
+    lastError: '',
+    bootstrapped: false
+  };
+  var _remoteSaveSuppressed = false;
 
   function clone(value) {
     return JSON.parse(JSON.stringify(value));
@@ -381,6 +391,115 @@
     return fallbackHash(stripRuntimeFields(row || {}));
   }
 
+  function apiBase() {
+    var raw = (SQX.config && SQX.config.raw) || global.SQX_CONFIG || {};
+    var base = raw.apiBase ? raw.apiBase() : '/api';
+    return String(base || '/api').replace(/\/$/, '');
+  }
+
+  function fetchRemoteJson(path, options) {
+    if (!global.fetch) return Promise.reject(new Error('fetch_unavailable'));
+    return global.fetch(apiBase() + path, Object.assign({ credentials: 'include' }, options || {}))
+      .then(function(response) {
+        return response.json().catch(function() { return {}; }).then(function(json) {
+          if (!response.ok || json.ok === false) {
+            var error = new Error(json.error || ('HTTP ' + response.status));
+            error.response = json;
+            throw error;
+          }
+          return json;
+        });
+      });
+  }
+
+  function buildRemoteSnapshot() {
+    return {
+      schemaVersion: _remotePersistence.version,
+      templateMakerSchemaVersion: TM_SCHEMA_VERSION,
+      strategies: _strategies.map(stripRuntimeFields),
+      config: {
+        currentCapa: _currentCapa,
+        currentPreset: _currentPreset,
+        thresholds: clone(_thresholds),
+        diversitySettings: clone(_diversitySettings)
+      },
+      metadata: {
+        source: 'dashboard',
+        recordCount: _strategies.length,
+        updatedAt: new Date().toISOString()
+      }
+    };
+  }
+
+  function applyRemoteSnapshot(snapshot) {
+    var data = snapshot || {};
+    resetRuntimeConfig();
+    applyStoredConfig(data.config || {});
+    _strategies = Array.isArray(data.strategies) ? data.strategies.map(normalizeStrategy) : [];
+    syncNextId();
+    return _strategies.slice();
+  }
+
+  function saveRemoteState(source) {
+    if (_remoteSaveSuppressed || !_remotePersistence.enabled || !global.fetch) {
+      return Promise.resolve({ ok: false, skipped: true });
+    }
+    _remotePersistence.saving = true;
+    return fetchRemoteJson('/remote/template-maker/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: source || 'template-maker-autosave', state: buildRemoteSnapshot() })
+    }).then(function(result) {
+      _remotePersistence.saving = false;
+      _remotePersistence.lastError = '';
+      _remotePersistence.workspace = result.workspace || _remotePersistence.workspace;
+      return result;
+    }).catch(function(err) {
+      _remotePersistence.saving = false;
+      _remotePersistence.lastError = err.message || 'remote_template_maker_save_failed';
+      return { ok: false, error: _remotePersistence.lastError };
+    });
+  }
+
+  function persistLocalSnapshotAfterRemoteBootstrap() {
+    _remoteSaveSuppressed = true;
+    return saveStrategiesToDB()
+      .then(function() { return saveConfigToDB('currentCapa', _currentCapa); })
+      .then(function() { return saveConfigToDB('currentPreset', _currentPreset); })
+      .then(function() { return saveConfigToDB('thresholds', _thresholds); })
+      .then(function() { return saveConfigToDB('diversitySettings', _diversitySettings); })
+      .then(function() { _remoteSaveSuppressed = false; })
+      .catch(function(err) {
+        _remoteSaveSuppressed = false;
+        throw err;
+      });
+  }
+
+  function bootstrapRemoteState() {
+    if (!global.fetch) {
+      _remotePersistence.ready = true;
+      _remotePersistence.enabled = false;
+      return Promise.resolve({ ok: false, localOnly: true });
+    }
+    return fetchRemoteJson('/remote/template-maker/bootstrap')
+      .then(function(result) {
+        _remotePersistence.ready = true;
+        _remotePersistence.enabled = true;
+        _remotePersistence.bootstrapped = true;
+        _remotePersistence.workspace = result.workspace || null;
+        applyRemoteSnapshot(result.state || {});
+        return persistLocalSnapshotAfterRemoteBootstrap().then(function() {
+          return result;
+        });
+      })
+      .catch(function(err) {
+        _remotePersistence.ready = true;
+        _remotePersistence.enabled = false;
+        _remotePersistence.lastError = err.message || 'remote_template_maker_unavailable';
+        return { ok: false, error: _remotePersistence.lastError };
+      });
+  }
+
   function inferViewName(headers) {
     var names = headers || [];
     var required = getRequiredContractColumns();
@@ -397,7 +516,11 @@
   }
 
   function init() {
-    return dbInit().then(ensureSchemaVersion).then(loadConfigFromDB).then(loadStrategiesFromDB).catch(function() {
+    return dbInit().then(ensureSchemaVersion).then(loadConfigFromDB).then(loadStrategiesFromDB).then(function() {
+      return bootstrapRemoteState().then(function() {
+        return _strategies.slice();
+      });
+    }).catch(function() {
       return _strategies.slice();
     });
   }
@@ -1903,9 +2026,9 @@
   }
 
   function saveStrategiesToDB() {
-    if (!global.indexedDB) return Promise.resolve();
+    if (!global.indexedDB) return saveRemoteState('template-maker-strategies');
     if (!_db) return dbInit().then(saveStrategiesToDB);
-    if (!_db) return Promise.resolve();
+    if (!_db) return saveRemoteState('template-maker-strategies');
     return new Promise(function(resolve, reject) {
       var tx = _db.transaction([TM_STORE_STRATEGIES], 'readwrite');
       var store = tx.objectStore(TM_STORE_STRATEGIES);
@@ -1916,6 +2039,8 @@
       });
       tx.oncomplete = resolve;
       tx.onerror = function(event) { reject(event.target.error); };
+    }).then(function() {
+      return saveRemoteState('template-maker-strategies');
     });
   }
 
@@ -1936,14 +2061,16 @@
   }
 
   function saveConfigToDB(key, value) {
-    if (!global.indexedDB) return Promise.resolve();
+    if (!global.indexedDB) return saveRemoteState('template-maker-config');
     if (!_db) return dbInit().then(function() { return saveConfigToDB(key, value); });
-    if (!_db) return Promise.resolve();
+    if (!_db) return saveRemoteState('template-maker-config');
     return new Promise(function(resolve, reject) {
       var tx = _db.transaction([TM_STORE_CONFIG], 'readwrite');
       tx.objectStore(TM_STORE_CONFIG).put(value, key);
       tx.oncomplete = resolve;
       tx.onerror = function(event) { reject(event.target.error); };
+    }).then(function() {
+      return saveRemoteState('template-maker-config');
     });
   }
 
@@ -2009,15 +2136,17 @@
   }
 
   function clearDB() {
-    if (!global.indexedDB) return Promise.resolve();
+    if (!global.indexedDB) return saveRemoteState('template-maker-clear');
     if (!_db) return dbInit().then(clearDB);
-    if (!_db) return Promise.resolve();
+    if (!_db) return saveRemoteState('template-maker-clear');
     return new Promise(function(resolve, reject) {
       var tx = _db.transaction([TM_STORE_STRATEGIES, TM_STORE_CONFIG], 'readwrite');
       tx.objectStore(TM_STORE_STRATEGIES).clear();
       tx.objectStore(TM_STORE_CONFIG).clear();
       tx.oncomplete = resolve;
       tx.onerror = function(event) { reject(event.target.error); };
+    }).then(function() {
+      return saveRemoteState('template-maker-clear');
     });
   }
 
@@ -2068,6 +2197,11 @@
     buildC2TemplateName: buildC2TemplateName,
     generateC2Template: generateC2Template,
     exportTemplateZip: exportTemplateZip,
+    buildRemoteSnapshot: buildRemoteSnapshot,
+    applyRemoteSnapshot: applyRemoteSnapshot,
+    bootstrapRemoteState: bootstrapRemoteState,
+    saveRemoteState: saveRemoteState,
+    getRemotePersistenceStatus: function() { return Object.assign({}, _remotePersistence); },
     dbInit: dbInit,
     saveStrategies: saveStrategiesToDB,
     loadStrategies: loadStrategiesFromDB,

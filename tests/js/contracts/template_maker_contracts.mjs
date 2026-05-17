@@ -6,7 +6,7 @@ const html = fs.readFileSync(path.join(repoRoot, 'app/SQX_Dashboard_v6.html'), '
 const mainJs = fs.readFileSync(path.join(repoRoot, 'app/js/main.js'), 'utf8');
 const uiManifest = JSON.parse(fs.readFileSync(path.join(repoRoot, 'backend/sqx-edge-tool/config/ui_manifest.json'), 'utf8'));
 
-const { SQX } = createLoadedSandbox([
+const { SQX, sandbox } = createLoadedSandbox([
   'app/js/modules/storage.js',
   'app/js/modules/exit-policy.js',
   'app/js/modules/template-maker.js',
@@ -60,6 +60,11 @@ const requiredApi = [
   'buildC2TemplateName',
   'generateC2Template',
   'exportTemplateZip',
+  'buildRemoteSnapshot',
+  'applyRemoteSnapshot',
+  'bootstrapRemoteState',
+  'saveRemoteState',
+  'getRemotePersistenceStatus',
   'dbInit',
   'saveStrategies',
   'loadStrategies',
@@ -351,6 +356,65 @@ assert.equal(tm.getStrategies().length, 0, 'reset should clear strategies');
 await tm.loadFromCSV('Strategy Name;Symbol;TimeFrame;Net profit\nBroken;EURUSD;H1;100');
 assert.equal(tm.validateMetricsContract(tm.getStrategies()[0]).status, 'Métricas no compatibles', 'missing required columns should be reported');
 assert.equal(tm.getStrategyStatus(tm.getStrategies()[0]), 'Métricas no compatibles', 'incompatible CSV should expose user-facing status');
+await tm.reset();
+
+tm.applyRemoteSnapshot({
+  templateMakerSchemaVersion: 'template-maker-cert-v2',
+  strategies: [{
+    _id: 701,
+    'Strategy Name': 'Remote TM',
+    Symbol: 'XAUUSD',
+    TimeFrame: 'H1',
+    Fitness: '0.9',
+    'Net profit': 1000,
+    '# of trades': 250,
+    'Profit factor': 1.4,
+    'Max DD %': 10,
+    'Sharpe Ratio': 0.8,
+    Stability: 0.7,
+    'CAGR/Max DD %': 1.2,
+    'Winning Percent': 55,
+    SQN: 2,
+    'Recovery Factor': 3,
+    'Calmar Ratio': 0.9,
+    'Sortino Ratio': 1.1,
+    '% Profitable Months': 60
+  }],
+  config: { currentCapa: 1, currentPreset: 'Commodities' }
+});
+assert.equal(tm.getStrategies()[0].Symbol, 'XAUUSD', 'remote snapshot should hydrate strategies');
+assert.equal(tm.getCurrentPreset(), 'Commodities', 'remote snapshot should hydrate config');
+const remoteSnapshot = tm.buildRemoteSnapshot();
+assert.equal(remoteSnapshot.schemaVersion, 'remote-template-maker-state-v1', 'remote snapshot should expose schema');
+assert.equal(remoteSnapshot.strategies.length, 1, 'remote snapshot should include strategies');
+assert.equal(remoteSnapshot.config.currentPreset, 'Commodities', 'remote snapshot should include config');
+
+let remoteSavePath = '';
+let remoteSavePayload = null;
+sandbox.fetch = async (url, options = {}) => {
+  remoteSavePath = String(url);
+  assert.equal(options.credentials, 'include', 'remote Template Maker request should include credentials');
+  if (remoteSavePath.endsWith('/remote/template-maker/bootstrap')) {
+    return {
+      ok: true,
+      json: async () => ({ ok: true, workspace: { id: 'ws_test' }, state: remoteSnapshot, recordCount: 1 })
+    };
+  }
+  remoteSavePayload = JSON.parse(options.body || '{}');
+  return {
+    ok: true,
+    json: async () => ({ ok: true, workspace: { id: 'ws_test' }, recordCount: 1 })
+  };
+};
+const bootstrapResult = await tm.bootstrapRemoteState();
+assert.ok(bootstrapResult.ok, 'remote bootstrap should resolve ok');
+assert.equal(tm.getRemotePersistenceStatus().enabled, true, 'remote persistence should enable after bootstrap');
+assert.equal(tm.getRemotePersistenceStatus().workspace.id, 'ws_test', 'remote persistence should remember workspace after bootstrap');
+const saveResult = await tm.saveRemoteState('contract-test');
+assert.ok(saveResult.ok, 'remote save should resolve ok');
+assert.ok(remoteSavePath.endsWith('/remote/template-maker/save'), 'remote save should use Template Maker endpoint');
+assert.equal(remoteSavePayload.source, 'contract-test', 'remote save should include source trace');
+assert.equal(tm.getRemotePersistenceStatus().workspace.id, 'ws_test', 'remote persistence should remember workspace');
 await tm.reset();
 
 console.log('template maker contracts ok');

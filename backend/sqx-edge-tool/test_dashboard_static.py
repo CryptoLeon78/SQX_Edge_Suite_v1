@@ -27,6 +27,7 @@ REMOTE_3B_APP_SESSION_GRANT_KEY_DOC = PROJECT_ROOT / "docs" / "REMOTE_3B_APP_SES
 REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE_DOC = PROJECT_ROOT / "docs" / "REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md"
 REMOTE_4_WORKSPACE_ISOLATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_4_WORKSPACE_ISOLATION.md"
 REMOTE_PERSIST1B_WORKSPACE_OUTPUTS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1B_WORKSPACE_OUTPUTS.md"
+REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE.md"
 REMOTE_5_REMOTE_UX_DOC = PROJECT_ROOT / "docs" / "REMOTE_5_REMOTE_UX.md"
 REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC = PROJECT_ROOT / "docs" / "REMOTE_6_SECURITY_ABUSE_CONTROLS.md"
 REMOTE_SEC2_CREDENTIAL_SHARING_DOC = PROJECT_ROOT / "docs" / "REMOTE_SEC2_CREDENTIAL_SHARING_CONTROL.md"
@@ -1326,6 +1327,119 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, outputs_tests)
+
+    def test_remote_persist1c_template_maker_state_is_workspace_scoped(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
+        persist1c = REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        state_py = (TOOL_ROOT / "core" / "remote_template_maker_state.py").read_text(encoding="utf-8-sig")
+        state_tests = (TOOL_ROOT / "test_remote_template_maker_state.py").read_text(encoding="utf-8-sig")
+        template_maker_js = (APP_ROOT / "js" / "modules" / "template-maker.js").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE_DOC,
+            TOOL_ROOT / "core" / "remote_template_maker_state.py",
+            TOOL_ROOT / "test_remote_template_maker_state.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-PERSIST1C - Template Maker Workspace State",
+            "remote-template-maker-state-v1",
+            "`<workspace>/config/template_maker.sqlite`",
+            "`GET /api/remote/template-maker/bootstrap`",
+            "`POST /api/remote/template-maker/save`",
+            "browser keeps IndexedDB only as a compatibility cache",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, persist1c)
+
+        for pattern in (
+            "Template Maker Workspace State Gate",
+            "remote-template-maker-state-v1",
+            "`template_maker.sqlite`",
+            "Template Maker browser IndexedDB is only a compatibility cache",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-PERSIST1C - Template Maker Workspace State",
+            "Artifacts added in REMOTE-PERSIST1C",
+            "remote-template-maker-state-v1",
+            "Template Maker Workspace State Gate",
+            "Two remote identities must keep separate Template Maker records",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-PERSIST1C Template Maker workspace state",
+            "backend/sqx-edge-tool/core/remote_template_maker_state.py",
+            "`GET /api/remote/template-maker/bootstrap`",
+            "`POST /api/remote/template-maker/save`",
+            "IndexedDB is only a compatibility cache",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "REMOTE-PERSIST1C",
+            "remote-template-maker-state-v1",
+            "Template Maker",
+            "workspace-scoped",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, readme)
+
+        for pattern in (
+            "from core.remote_template_maker_state import",
+            "read_template_maker_state",
+            "write_template_maker_state",
+            "template_maker_state_public_status",
+            "/api/remote/template-maker/bootstrap",
+            "/api/remote/template-maker/save",
+            "/api/remote/template-maker/status",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "REMOTE_TEMPLATE_MAKER_STATE_VERSION = \"remote-template-maker-state-v1\"",
+            "REMOTE_TEMPLATE_MAKER_DB = \"template_maker.sqlite\"",
+            "def read_template_maker_state",
+            "def write_template_maker_state",
+            "def template_maker_state_public_status",
+            "remote_template_maker_state_write",
+            "local_paths_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, state_py)
+
+        for pattern in (
+            "test_template_maker_state_persists_snapshot_in_workspace_sqlite",
+            "test_template_maker_endpoints_require_session_and_return_no_local_paths",
+            "test_template_maker_state_is_separate_per_identity",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, state_tests)
+
+        for pattern in (
+            "remote-template-maker-state-v1",
+            "buildRemoteSnapshot",
+            "applyRemoteSnapshot",
+            "bootstrapRemoteState",
+            "saveRemoteState",
+            "getRemotePersistenceStatus",
+            "/remote/template-maker/bootstrap",
+            "/remote/template-maker/save",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, template_maker_js)
 
     def test_remote_5_remote_ux_surface_is_redacted_and_wired(self):
         remote_5 = REMOTE_5_REMOTE_UX_DOC.read_text(encoding="utf-8-sig")

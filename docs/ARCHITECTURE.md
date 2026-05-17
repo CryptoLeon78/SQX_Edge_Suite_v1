@@ -190,6 +190,15 @@ REMOTE-PERSIST1B workspace outputs:
 - Remote output JSON uses `workspace://outputs` URIs and `privacy.local_paths_returned=false`; absolute operator paths stay server-local.
 - `POST /api/open-folder` remains local-only and is blocked for remote sessions.
 
+REMOTE-PERSIST1C Template Maker workspace state:
+
+- `backend/sqx-edge-tool/core/remote_template_maker_state.py` owns `remote-template-maker-state-v1` and stores Template Maker snapshots in `<workspace>/config/template_maker.sqlite`.
+- `GET /api/remote/template-maker/bootstrap` loads strategies/config for the active workspace and returns no local paths.
+- `POST /api/remote/template-maker/save` persists the normalized snapshot and writes a workspace audit event.
+- `GET /api/remote/template-maker/status` reports public-safe storage readiness.
+- `app/js/modules/template-maker.js` bridges the browser to the workspace through `buildRemoteSnapshot`, `applyRemoteSnapshot`, `bootstrapRemoteState`, `saveRemoteState` and `getRemotePersistenceStatus`.
+- Browser IndexedDB is only a compatibility cache in remote mode; the server-derived workspace snapshot is the source of truth.
+
 REMOTE-5 remote Pro UX surface:
 
 - `docs/REMOTE_5_REMOTE_UX.md` owns the visible UX contract for remote-service status.

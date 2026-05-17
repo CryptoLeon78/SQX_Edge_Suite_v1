@@ -210,9 +210,10 @@ Current scope:
 - `sqx_strategies_user_v1`
 - `sqx_strategies_deleted_v1`
 
-Still blocking multi-user expansion:
+Still blocking multi-user expansion after REMOTE-PERSIST1A:
 
-- Template Maker IndexedDB must move to workspace persistence.
+- Template Maker IndexedDB must move to workspace persistence. Completed later
+  by REMOTE-PERSIST1C.
 - Control Panel backup/restore must become workspace-scoped.
 - SQX Views/user presets need a remote persistence decision.
 
@@ -244,7 +245,39 @@ Acceptance:
 
 Still blocking multi-user expansion after REMOTE-PERSIST1B:
 
-- Template Maker IndexedDB must move to workspace persistence.
+- Control Panel backup/restore must become workspace-scoped.
+- SQX Views/user presets need a remote persistence decision.
+
+### REMOTE-PERSIST1C - Template Maker Workspace State
+
+Template Maker strategies, certification state and settings now use the active
+server-derived workspace as remote source of truth. Browser IndexedDB remains
+only a compatibility cache for local/offline operation.
+
+Artifacts added in REMOTE-PERSIST1C:
+
+- `docs/REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE.md`
+- `backend/sqx-edge-tool/core/remote_template_maker_state.py`
+- `backend/sqx-edge-tool/test_remote_template_maker_state.py`
+- `remote-template-maker-state-v1`
+- per-workspace `config/template_maker.sqlite`
+- `GET /api/remote/template-maker/bootstrap`
+- `POST /api/remote/template-maker/save`
+- `GET /api/remote/template-maker/status`
+- Template Maker bridge methods: `buildRemoteSnapshot`, `applyRemoteSnapshot`,
+  `bootstrapRemoteState`, `saveRemoteState` and
+  `getRemotePersistenceStatus`
+
+Acceptance:
+
+- Two remote identities must keep separate Template Maker records.
+- Remote bootstrap must hydrate Template Maker from the workspace snapshot.
+- An empty workspace snapshot must clear stale browser cache.
+- Remote responses must not expose Windows paths or raw identities.
+- Local/offline Template Maker remains compatible without a remote session.
+
+Still blocking multi-user expansion after REMOTE-PERSIST1C:
+
 - Control Panel backup/restore must become workspace-scoped.
 - SQX Views/user presets need a remote persistence decision.
 
@@ -686,6 +719,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Payment Webhook Entitlement Gate`: payment events must use `remote-payment-webhook-v1`, private `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`, exact-body HMAC verification, idempotent `processedWebhookEvents`, redacted identity and audit-only local logs.
 - `Workspace Isolation Gate`: workspace ids must be derived from the active app session only; browser-supplied workspace ids, paths and local SQX resources are ignored or rejected.
 - `Workspace State Persistence Gate`: remote user state must persist in the active workspace, backed by per-workspace storage, with browser storage treated only as cache. Expansion beyond the first controlled user is blocked until Plan Mining, Strategy Control, Project Generator outputs, Template Maker and backup/restore are workspace-scoped or explicitly classified as local-only.
+- `Template Maker Workspace State Gate`: remote Template Maker state must use `remote-template-maker-state-v1` in per-workspace `template_maker.sqlite`; browser IndexedDB is only a compatibility cache and cannot be the multi-user source of truth.
 - `Project Generator Workspace Output Gate`: active remote app sessions must route `/api/generate`, `/api/generate-custom`, `/api/generate-all` and `/api/output` to `remote-workspace-output-v1` in `<workspace>/outputs`; browser-provided remote `output` overrides are blocked; public JSON uses `workspace://outputs` and never returns operator filesystem paths.
 - `Remote UX Disclosure Gate`: remote dashboard surfaces may show access state, entitlement class, short workspace id and server readiness, but must not render raw SQX paths, `data.db` paths, output folders, workspace roots, session tokens, grant keys, private URLs, Cloudflare identifiers or raw emails.
 - `Remote Security Abuse Gate`: remote endpoints must apply `remote-security-v1` rate limits, kill switch, session revocation, identity-hash blocking, redacted audit visibility and watermark without returning policy paths, raw emails, tokens, local paths or provider secrets.
