@@ -334,6 +334,8 @@ Additional discipline:
 
 REMOTE-ACCEPT1 is the real-browser stabilization gate created after first tester feedback showed the Welcome copy and `Acceso DASHBOARD` behavior could still feel confusing despite automated tests.
 
+Current public-safe status: ignored local evidence returned `GO_REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_CLEAN`. This validates the real browser Welcome/Dashboard path, but does not allow tester expansion without REMOTE-8C observation.
+
 Artifacts added in REMOTE-ACCEPT1:
 
 - `docs/REMOTE_ACCEPT1_BROWSER_ACCEPTANCE.md`
