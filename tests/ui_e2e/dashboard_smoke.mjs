@@ -56,7 +56,7 @@ async function run() {
     const welcomeInitiallyHidden = await desktop.locator('#remote-welcome-gate').evaluate(node => node.hidden);
     if (!welcomeInitiallyHidden) throw new Error('Remote welcome gate should stay hidden in local file mode');
     const trustCenterCopy = await desktop.locator('#remote-trust-center').textContent();
-    ['SQX Edge Security Self-Assessment', 'Privacy & Data Handling Statement', 'Remote Service Safety Checklist'].forEach(expected => {
+    ['SQX Edge Suite Security Self-Assessment', 'Privacy & Data Handling Statement', 'Remote Service Safety Checklist'].forEach(expected => {
       if (!trustCenterCopy.includes(expected)) throw new Error(`Trust Center should include ${expected}`);
     });
     await desktop.evaluate(() => {

@@ -468,6 +468,7 @@ def start_remote_session_from_headers(headers: Mapping[str, Any], data: Mapping[
             "feature_scope": entitlement["feature_scope"],
             "expires_at": session["expires_at"],
             "max_age": session["max_age"],
+            "cookie_persistence": "browser_session",
         },
         "entitlement": entitlement,
         "access": {"allowed": True, "reason": "session_created", "feature_scope": entitlement["feature_scope"], "features": ["*"]},

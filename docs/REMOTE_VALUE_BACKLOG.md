@@ -21,7 +21,7 @@ Decisiones fijadas:
 
 Artefactos previstos:
 
-- SQX Edge Security Self-Assessment.
+- SQX Edge Suite Security Self-Assessment.
 - Privacy & Data Handling Statement.
 - Remote Service Safety Checklist.
 - Evidencias REMOTE redacted.

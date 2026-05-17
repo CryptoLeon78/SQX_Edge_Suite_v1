@@ -334,6 +334,9 @@ def test_remote_session_endpoints_set_and_clear_secure_cookie(tmp_path, monkeypa
     assert "HttpOnly" in cookie_header
     assert "Secure" in cookie_header
     assert "SameSite=Lax" in cookie_header
+    assert "Max-Age" not in cookie_header
+    assert "Expires" not in cookie_header
+    assert data["session"]["cookie_persistence"] == "browser_session"
 
     logout = client.post("/api/remote/session/logout")
     assert logout.status_code == 200

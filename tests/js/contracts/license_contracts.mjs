@@ -28,7 +28,7 @@ assert.equal(productManifest.licensing.signatureAlgorithm, 'RS256');
 assert.ok(productManifest.licensing.publicKey.n.length > 100);
 assert.equal(productManifest.licensing.keyManagement.publicKeyReplacementRequiredBeforePublicSale, true);
 assert.ok(productManifest.licensing.publicKey.kid.startsWith('sqx-tester-'));
-assert.equal(productManifest.upgrade.headline, 'SQX Edge Pro');
+assert.equal(productManifest.upgrade.headline, 'SQX Edge Suite Pro');
 assert.equal(productManifest.upgrade.checkout.primaryProvider, 'Lemon Squeezy');
 assert.equal(productManifest.upgrade.checkout.fallbackProvider, 'Gumroad');
 assert.equal(productManifest.upgrade.checkout.fulfillmentMode, 'manual_signed_license');

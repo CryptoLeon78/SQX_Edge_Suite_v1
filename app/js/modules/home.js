@@ -235,7 +235,7 @@
           ? 'OK todo validado. Sesion, permiso, workspace y protecciones estan activos. Puedes entrar al dashboard y continuar la metodologia.'
           : (canCreateSession
             ? 'Pulsa Acceso DASHBOARD para crear tu sesion de app y abrir el workspace aislado.'
-            : 'Antes de operar, SQX Edge valida identidad, permiso activo, sesion de app y workspace aislado.'),
+            : 'Antes de operar, SQX Edge Suite valida identidad, permiso activo, sesion de app y workspace aislado.'),
         primaryAction: welcomePrimaryAction,
         primaryLabel: welcomePrimaryLabel,
         trustLabel: 'Ver Trust Center',

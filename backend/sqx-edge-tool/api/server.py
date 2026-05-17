@@ -543,11 +543,9 @@ def api_remote_session_login():
     token = result.pop("session_token", None)
     response = make_response(jsonify(result), status)
     if token and result.get("ok"):
-        max_age = int((result.get("session") or {}).get("max_age") or 0)
         response.set_cookie(
             SESSION_COOKIE_NAME,
             token,
-            max_age=max_age,
             httponly=True,
             secure=True,
             samesite="Lax",

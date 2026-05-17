@@ -361,7 +361,7 @@ class ApiTestCase(unittest.TestCase):
             environ_base={"REMOTE_ADDR": "127.0.0.1"},
         )
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"<title>SQX Edge</title>", response.data)
+        self.assertIn(b"<title>SQX Edge Suite</title>", response.data)
 
     def test_pro_write_endpoints_are_feature_gated(self):
         denied = {

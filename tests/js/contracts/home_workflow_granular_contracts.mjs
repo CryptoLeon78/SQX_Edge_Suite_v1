@@ -179,7 +179,7 @@ sandbox.fetch = (url, options = {}) => {
     return Promise.resolve({
       status: 200,
       ok: true,
-      json: () => Promise.resolve({ ok: true, workspace: { id: 'ws_contract_remote_123456' } }),
+      json: () => Promise.resolve({ ok: false, error: 'workspace_starting' }),
     });
   }
   if (path === '/api/health') {

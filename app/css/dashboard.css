@@ -2079,7 +2079,14 @@
     line-height:1.05;
     letter-spacing:0;
   }
-  .remote-welcome-copy h2 { font-size:clamp(32px, 5vw, 64px); }
+  .remote-welcome-copy h2 { font-size:clamp(30px, 4.2vw, 54px); }
+  .remote-welcome-copy h2 span {
+    display:inline-block;
+    margin-top:4px;
+    color:var(--accent2, var(--accent));
+    font-size:clamp(38px, 5.8vw, 72px);
+    white-space:nowrap;
+  }
   .remote-trust-center h3 { font-size:22px; }
   .remote-welcome-verdict {
     display:inline-flex;
@@ -6491,7 +6498,7 @@
   }
 
   .tabs::before {
-    content:'SQX Edge';
+    content:'SQX Edge Suite';
     min-height:24px;
     display:flex;
     align-items:center;

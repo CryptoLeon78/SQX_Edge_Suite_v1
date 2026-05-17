@@ -551,7 +551,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE VALUE BACKLOG",
             "WAIT-1 - Welcome + Trust Center",
             "WAIT-2 - Welcome Direct Tester Access",
-            "SQX Edge Security Self-Assessment",
+            "SQX Edge Suite Security Self-Assessment",
             "Privacy & Data Handling Statement",
             "Remote Service Safety Checklist",
             "No crear empresa auditora ficticia",
@@ -567,7 +567,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             'id="remote-welcome-trust-toggle"',
             'id="remote-trust-center"',
             "Controles verificables, sin certificados ficticios",
-            "SQX Edge Security Self-Assessment",
+            "SQX Edge Suite Security Self-Assessment",
             "Privacy & Data Handling Statement",
             "Remote Service Safety Checklist",
             "SQX Edge Suite ofrece productividad, estructura, trazabilidad y reducción de errores operativos.",
@@ -6377,7 +6377,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("project_generator.generate", product_manifest["features"])
         self.assertIn("strategy_cleaner.apply", product_manifest["features"])
         self.assertIn("*", product_manifest["accessLevels"]["internal"]["features"])
-        self.assertEqual(product_manifest["upgrade"]["headline"], "SQX Edge Pro")
+        self.assertEqual(product_manifest["upgrade"]["headline"], "SQX Edge Suite Pro")
         self.assertIn("24 EUR/mes", json.dumps(product_manifest["upgrade"], ensure_ascii=False))
         self.assertEqual(product_manifest["upgrade"]["checkout"]["primaryProvider"], "Lemon Squeezy")
         self.assertEqual(product_manifest["upgrade"]["checkout"]["fallbackProvider"], "Gumroad")
