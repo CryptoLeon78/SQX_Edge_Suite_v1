@@ -129,16 +129,27 @@
 
     function tunnelStatus() {
       try {
-        var svc = GetObject("winmgmts:root\\cimv2");
-        var items = new Enumerator(svc.ExecQuery("Select ProcessId, CommandLine from Win32_Process where Name='cloudflared.exe'"));
-        for (; !items.atEnd(); items.moveNext()) {
-          var proc = items.item();
-          var cmd = String(proc.CommandLine || "");
-          if (cmd.indexOf("cloudflared-config.local.yml") >= 0) {
-            return { ok: true, text: "OK - tunel Cloudflare activo (PID " + proc.ProcessId + ")" };
-          }
+        var command = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File ' +
+          quote(repo + "\\tools\\remote_operator_probe.ps1") +
+          ' -RepoRoot ' + quote(repo) +
+          ' -Json';
+        var exec = shell.Exec(command);
+        var started = new Date().getTime();
+        while (exec.Status === 0 && (new Date().getTime() - started) < 4000) {
+          window.setTimeout(function () {}, 50);
         }
-        return { ok: false, text: "NO-GO - tunel no detectado" };
+        var output = exec.StdOut.ReadAll();
+        if (output.indexOf('"ok":true') >= 0 && output.indexOf('"tunnel":{"ok":true') >= 0) {
+          var pidMatch = output.match(/"processId":([0-9]+)/);
+          return {
+            ok: true,
+            text: "OK - tunel Cloudflare activo" + (pidMatch ? " (PID " + pidMatch[1] + ")" : "")
+          };
+        }
+        if (output.indexOf('"tunel no detectado"') >= 0) {
+          return { ok: false, text: "NO-GO - tunel no detectado" };
+        }
+        return { ok: false, text: "NO-GO - tunel no comprobable" };
       } catch (e) {
         return { ok: false, text: "NO-GO - tunel no comprobable" };
       }

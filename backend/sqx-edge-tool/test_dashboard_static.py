@@ -87,6 +87,7 @@ REMOTE_OPERATOR_START_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_start.p
 REMOTE_OPERATOR_STOP_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_stop.ps1"
 REMOTE_OPERATOR_STATUS_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_status.ps1"
 REMOTE_OPERATOR_MONITOR_HTA = PROJECT_ROOT / "tools" / "remote_operator_monitor.hta"
+REMOTE_OPERATOR_PROBE_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_probe.ps1"
 REMOTE_8C_OBSERVATION_STATUS_SCRIPT = PROJECT_ROOT / "tools" / "remote8c_observation_status.ps1"
 REMOTE_CLOUDFLARED_CONFIG_EXAMPLE = PROJECT_ROOT / "docs" / "examples" / "cloudflared-config.local.example.yml"
 REMOTE_START_BAT = PROJECT_ROOT / "START_SQX_EDGE_REMOTE.bat"
@@ -3840,6 +3841,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             REMOTE_OPERATOR_STOP_SCRIPT,
             REMOTE_OPERATOR_STATUS_SCRIPT,
             REMOTE_OPERATOR_MONITOR_HTA,
+            REMOTE_OPERATOR_PROBE_SCRIPT,
             REMOTE_START_BAT,
             REMOTE_STOP_BAT,
         ):
@@ -3867,6 +3869,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "STOP_SQX_EDGE_REMOTE.bat",
             "tools/remote_operator_status.ps1",
             "tools/remote_operator_monitor.hta",
+            "tools/remote_operator_probe.ps1",
             "visual monitor opens visibly",
         ):
             with self.subTest(pattern=pattern):
@@ -3878,6 +3881,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "tools/remote_operator_stop.ps1",
             "tools/remote_operator_status.ps1",
             "tools/remote_operator_monitor.hta",
+            "tools/remote_operator_probe.ps1",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, roadmap)
@@ -3953,6 +3957,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "mshta",
             "remote_operator_start.ps1",
             "remote_operator_stop.ps1",
+            "remote_operator_probe.ps1",
             "servicios detenidos",
             "suppresses the startup OK notification",
             "Arrancar",

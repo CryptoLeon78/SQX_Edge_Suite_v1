@@ -31,6 +31,7 @@ The launchers call PowerShell helpers:
 
 - `tools/remote_operator_status.ps1`
 - `tools/remote_operator_monitor.hta`
+- `tools/remote_operator_probe.ps1`
 - `tools/remote_operator_start.ps1`
 - `tools/remote_operator_stop.ps1`
 
