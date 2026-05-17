@@ -213,7 +213,38 @@ Current scope:
 Still blocking multi-user expansion:
 
 - Template Maker IndexedDB must move to workspace persistence.
-- Project Generator outputs must be workspace-scoped.
+- Control Panel backup/restore must become workspace-scoped.
+- SQX Views/user presets need a remote persistence decision.
+
+### REMOTE-PERSIST1B - Workspace Outputs For Project Generator
+
+Project Generator `.cfx` artifacts now use the active server-derived workspace
+when a remote app session exists. Remote generation can no longer write to the
+shared configured `output_dir` or accept browser-supplied `output` overrides.
+
+Artifacts added in REMOTE-PERSIST1B:
+
+- `docs/REMOTE_PERSIST1B_WORKSPACE_OUTPUTS.md`
+- `backend/sqx-edge-tool/core/remote_workspace_outputs.py`
+- `remote-workspace-output-v1`
+- per-workspace `outputs/*.cfx`
+- workspace-scoped behavior for `GET /api/output`
+- workspace-scoped behavior for `POST /api/generate`
+- workspace-scoped behavior for `POST /api/generate-custom`
+- workspace-scoped behavior for `POST /api/generate-all`
+- remote block for `POST /api/open-folder`
+
+Acceptance:
+
+- Local Project Generator output behavior remains compatible.
+- Remote sessions write only to `<workspace>/outputs`.
+- Remote responses expose `workspace://outputs`, not Windows paths.
+- Remote `output` overrides return `remote_output_override_blocked`.
+- Two identities cannot see each other's generated `.cfx` files.
+
+Still blocking multi-user expansion after REMOTE-PERSIST1B:
+
+- Template Maker IndexedDB must move to workspace persistence.
 - Control Panel backup/restore must become workspace-scoped.
 - SQX Views/user presets need a remote persistence decision.
 
@@ -654,7 +685,8 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Remote Session Gate`: app sessions must use `remote-session-v1`, `__Host-sqx_remote_session` as a browser-session cookie, private `SQX_REMOTE_SESSION_SECRET`, secure cookie flags, no persistent `Max-Age`/`Expires`, entitlement revalidation and privacy redaction.
 - `Payment Webhook Entitlement Gate`: payment events must use `remote-payment-webhook-v1`, private `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`, exact-body HMAC verification, idempotent `processedWebhookEvents`, redacted identity and audit-only local logs.
 - `Workspace Isolation Gate`: workspace ids must be derived from the active app session only; browser-supplied workspace ids, paths and local SQX resources are ignored or rejected.
-- `Workspace State Persistence Gate`: remote user state must persist in the active workspace, backed by per-workspace storage, with browser storage treated only as cache. Expansion beyond the first controlled user is blocked until Plan Mining, Strategy Control, Template Maker, generated outputs and backup/restore are workspace-scoped or explicitly classified as local-only.
+- `Workspace State Persistence Gate`: remote user state must persist in the active workspace, backed by per-workspace storage, with browser storage treated only as cache. Expansion beyond the first controlled user is blocked until Plan Mining, Strategy Control, Project Generator outputs, Template Maker and backup/restore are workspace-scoped or explicitly classified as local-only.
+- `Project Generator Workspace Output Gate`: active remote app sessions must route `/api/generate`, `/api/generate-custom`, `/api/generate-all` and `/api/output` to `remote-workspace-output-v1` in `<workspace>/outputs`; browser-provided remote `output` overrides are blocked; public JSON uses `workspace://outputs` and never returns operator filesystem paths.
 - `Remote UX Disclosure Gate`: remote dashboard surfaces may show access state, entitlement class, short workspace id and server readiness, but must not render raw SQX paths, `data.db` paths, output folders, workspace roots, session tokens, grant keys, private URLs, Cloudflare identifiers or raw emails.
 - `Remote Security Abuse Gate`: remote endpoints must apply `remote-security-v1` rate limits, kill switch, session revocation, identity-hash blocking, redacted audit visibility and watermark without returning policy paths, raw emails, tokens, local paths or provider secrets.
 - `Remote Monetization Rewrite Gate`: buyer-facing material must present protected web Pro monthly/annual access, optional support, authenticated tester-free grants and no-install onboarding; portable ZIP, launchers and offline licenses stay internal fallback only.

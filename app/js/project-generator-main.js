@@ -785,6 +785,12 @@ async function pgOpenOutputFolder() {
   }
   try {
     const outputDir = PG_STATE.outputDir || (await pgFetch('/output')).output_dir;
+    if (String(outputDir || '').indexOf('workspace://outputs') === 0) {
+      const status = SQX_PG_MODULE.openOutputRemoteWorkspaceStatus(outputDir);
+      pgLog(status.logText, status.logLevel);
+      pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
+      return;
+    }
     await pgFetch('/open-folder', { method:'POST', body: { path: outputDir } });
     const status = SQX_PG_MODULE.openOutputSuccessStatus(outputDir);
     pgLog(status.logText, status.logLevel);

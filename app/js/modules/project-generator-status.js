@@ -18,6 +18,16 @@ function openOutputSuccessStatus(outputDir) {
     };
   }
 
+function openOutputRemoteWorkspaceStatus(outputDir) {
+    return {
+      logText: 'Output remoto gestionado por workspace; usa la lista de .cfx generados.',
+      logLevel: 'warn',
+      traceTitle: 'Output remoto',
+      traceDetail: outputDir || 'workspace://outputs',
+      traceLevel: 'warn'
+    };
+  }
+
 function openOutputErrorStatus(message) {
     return {
       logText: 'Error abrir carpeta: ' + message,
@@ -169,6 +179,7 @@ function generateAllResultLines(results) {
     generateOneStartMessage: generateOneStartMessage,
     openOutputDisconnectedStatus: openOutputDisconnectedStatus,
     openOutputErrorStatus: openOutputErrorStatus,
+    openOutputRemoteWorkspaceStatus: openOutputRemoteWorkspaceStatus,
     openOutputSuccessStatus: openOutputSuccessStatus
   });
 })(window);

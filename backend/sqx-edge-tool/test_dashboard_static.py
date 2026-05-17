@@ -26,6 +26,7 @@ REMOTE_3A_REMOTE_ACCESS_FOUNDATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_3A_REMO
 REMOTE_3B_APP_SESSION_GRANT_KEY_DOC = PROJECT_ROOT / "docs" / "REMOTE_3B_APP_SESSION_GRANT_KEY.md"
 REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE_DOC = PROJECT_ROOT / "docs" / "REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md"
 REMOTE_4_WORKSPACE_ISOLATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_4_WORKSPACE_ISOLATION.md"
+REMOTE_PERSIST1B_WORKSPACE_OUTPUTS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1B_WORKSPACE_OUTPUTS.md"
 REMOTE_5_REMOTE_UX_DOC = PROJECT_ROOT / "docs" / "REMOTE_5_REMOTE_UX.md"
 REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC = PROJECT_ROOT / "docs" / "REMOTE_6_SECURITY_ABUSE_CONTROLS.md"
 REMOTE_SEC2_CREDENTIAL_SHARING_DOC = PROJECT_ROOT / "docs" / "REMOTE_SEC2_CREDENTIAL_SHARING_CONTROL.md"
@@ -1236,6 +1237,95 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_persist1b_project_generator_outputs_are_workspace_scoped(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        persist1b = REMOTE_PERSIST1B_WORKSPACE_OUTPUTS_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        outputs_py = (TOOL_ROOT / "core" / "remote_workspace_outputs.py").read_text(encoding="utf-8-sig")
+        outputs_tests = (TOOL_ROOT / "test_remote_workspace_outputs.py").read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_PERSIST1B_WORKSPACE_OUTPUTS_DOC,
+            TOOL_ROOT / "core" / "remote_workspace_outputs.py",
+            TOOL_ROOT / "test_remote_workspace_outputs.py",
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-PERSIST1B - Workspace Outputs For Project Generator",
+            "remote-workspace-output-v1",
+            "`<workspace>/outputs/*.cfx`",
+            "`workspace://outputs`",
+            "`remote_output_override_blocked`",
+            "`POST /api/open-folder`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, persist1b)
+
+        for pattern in (
+            "Project Generator Workspace Output Gate",
+            "remote-workspace-output-v1",
+            "`workspace://outputs`",
+            "browser-supplied remote `output` overrides",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-PERSIST1B - Workspace Outputs For Project Generator",
+            "Artifacts added in REMOTE-PERSIST1B",
+            "remote-workspace-output-v1",
+            "Two identities cannot see each other's generated `.cfx` files",
+            "Project Generator Workspace Output Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-PERSIST1B workspace outputs",
+            "backend/sqx-edge-tool/core/remote_workspace_outputs.py",
+            "Browser-provided remote `output` overrides are rejected",
+            "`POST /api/open-folder` remains local-only",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "from core.remote_workspace_outputs import",
+            "list_workspace_outputs",
+            "workspace_outputs_dir",
+            "output_response_fields",
+            "remote_output_override_blocked",
+            "remote_open_folder_blocked",
+            "_resolve_generation_output",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "REMOTE_WORKSPACE_OUTPUT_VERSION = \"remote-workspace-output-v1\"",
+            "def workspace_outputs_dir",
+            "def list_workspace_outputs",
+            "def output_response_fields",
+            "workspace://outputs",
+            "local_paths_returned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, outputs_py)
+
+        for pattern in (
+            "test_remote_generate_custom_writes_to_workspace_outputs_and_redacts_local_paths",
+            "test_remote_output_lists_workspace_outputs_not_global_output",
+            "test_remote_output_override_is_blocked",
+            "test_remote_project_generator_requires_app_session_before_output_access",
+            "test_remote_workspace_outputs_are_separate_per_identity",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, outputs_tests)
 
     def test_remote_5_remote_ux_surface_is_redacted_and_wired(self):
         remote_5 = REMOTE_5_REMOTE_UX_DOC.read_text(encoding="utf-8-sig")

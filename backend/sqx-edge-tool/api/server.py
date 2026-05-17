@@ -86,6 +86,12 @@ from core.remote_workspaces import (
     public_workspace_context,
     read_recent_workspace_audit_events,
 )
+from core.remote_workspace_outputs import (
+    list_workspace_outputs,
+    output_response_fields,
+    record_workspace_output_generated,
+    workspace_outputs_dir,
+)
 from core.remote_workspace_state import (
     REMOTE_WORKSPACE_STATE_VERSION,
     read_workspace_state,
@@ -376,6 +382,53 @@ def resolve_output_dir(cfg: dict) -> str:
         val = str(ROOT / val)
     os.makedirs(val, exist_ok=True)
     return val
+
+
+def _active_remote_workspace_for_request(*, purpose: str, create: bool = True) -> tuple[dict | None, tuple | None]:
+    """Return the active remote workspace, or a Flask error tuple when remote access lacks app session."""
+    session_status, _device_id = _remote_session_status_for_request(purpose=purpose)
+    session = session_status.get("session") if isinstance(session_status.get("session"), dict) else {}
+    access = session_status.get("access") if isinstance(session_status.get("access"), dict) else {}
+    active = bool(session.get("active") and access.get("allowed"))
+    if active:
+        workspace_context = derive_remote_workspace(session_status, create=create)
+        if workspace_context.get("ok"):
+            return workspace_context, None
+        return None, (jsonify({
+            "ok": False,
+            "error": workspace_context.get("error") or "remote_workspace_unavailable",
+            "workspace": public_workspace_context(workspace_context) if workspace_context.get("workspace") else None,
+            "privacy": {"local_paths_returned": False},
+        }), int(workspace_context.get("http_status") or 403))
+    if _is_authenticated_access_tunnel_request():
+        return None, (jsonify({
+            "ok": False,
+            "error": "remote_session_required",
+            "message": "Create a valid SQX Edge Suite app session before using Project Generator remotely.",
+            "privacy": {"local_paths_returned": False, "session_token_returned": False},
+        }), 403)
+    return None, None
+
+
+def _resolve_generation_output(data: dict, cfg: dict, *, purpose: str) -> tuple[str | None, dict | None, tuple | None]:
+    workspace_context, remote_error = _active_remote_workspace_for_request(purpose=purpose, create=True)
+    if remote_error:
+        return None, None, remote_error
+    if workspace_context:
+        if data.get("output"):
+            return None, workspace_context, (jsonify({
+                "ok": False,
+                "error": "remote_output_override_blocked",
+                "message": "Remote Project Generator always writes to the active user workspace outputs.",
+                "output": {
+                    "scope": "remote_workspace",
+                    "output_dir": "workspace://outputs",
+                    "workspace": public_workspace_context(workspace_context),
+                },
+                "privacy": {"local_paths_returned": False},
+            }), 403)
+        return str(workspace_outputs_dir(workspace_context)), workspace_context, None
+    return data.get("output") or resolve_output_dir(cfg), None, None
 
 
 def _resolve_path(value: str) -> Path:
@@ -1286,6 +1339,11 @@ def templates():
 @app.get("/api/output")
 def list_output():
     cfg = load_config()
+    workspace_context, remote_error = _active_remote_workspace_for_request(purpose="project_generator_output_list", create=True)
+    if remote_error:
+        return remote_error
+    if workspace_context:
+        return jsonify(list_workspace_outputs(workspace_context, audit=True))
     out_dir = Path(resolve_output_dir(cfg))
     items = []
     for f in sorted(out_dir.glob("*.cfx"), key=lambda p: p.stat().st_mtime, reverse=True):
@@ -1312,7 +1370,9 @@ def generate_one():
 
     cfg = load_config()
     template = data.get("template") or resolve_template(cfg, capa)
-    output = data.get("output") or resolve_output_dir(cfg)
+    output, workspace_context, remote_error = _resolve_generation_output(data, cfg, purpose="project_generator_generate")
+    if remote_error:
+        return remote_error
     blocksetting_capa2 = data.get("blocksetting_capa2") or data.get("capa2_blocksetting")
 
     try:
@@ -1335,14 +1395,24 @@ def generate_one():
         # Mostrar al cliente qué fuente de costos se usó
         costs = resolve_costs(mining, db_path, postfix, alias_override=aliases)
         bs_entry = resolve_blocksetting_entry(mining.bs, timeframe=mining.tf, capa=capa, blocksetting_capa2=blocksetting_capa2)
-        return jsonify({
+        payload = {
             "ok": True, "mining": mining.num, "capa": capa,
             "output_path": out_path, "filename": os.path.basename(out_path),
             "costs_source": costs["source"], "symbol": costs["symbol"],
             "spread": costs["spread"], "swap_long": costs["swap_long"], "swap_short": costs["swap_short"],
             "data_available": costs.get("data_available"), "data_rows": costs.get("data_rows"),
             "blocksetting": blocksetting_trace(bs_entry),
-        })
+        }
+        if workspace_context:
+            record_workspace_output_generated(
+                workspace_context,
+                endpoint="generate",
+                filename=os.path.basename(out_path),
+                capa=capa,
+                mining=mining.num,
+            )
+            payload.update(output_response_fields(workspace_context, out_path))
+        return jsonify(payload)
     except Exception as e:
         return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
 
@@ -1361,7 +1431,9 @@ def generate_custom():
 
     cfg = load_config()
     template = data.get("template") or resolve_template(cfg, capa)
-    output = data.get("output") or resolve_output_dir(cfg)
+    output, workspace_context, remote_error = _resolve_generation_output(data, cfg, purpose="project_generator_generate_custom")
+    if remote_error:
+        return remote_error
     blocksetting_capa2 = data.get("blocksetting_capa2") or data.get("capa2_blocksetting")
     if not os.path.isfile(template):
         return jsonify({"ok": False, "error": f"template not found: {template}"}), 404
@@ -1378,7 +1450,7 @@ def generate_custom():
         )
         costs = resolve_costs(mining, db_path, postfix, alias_override=aliases)
         bs_entry = resolve_blocksetting_entry(mining.bs, timeframe=mining.tf, capa=capa, blocksetting_capa2=blocksetting_capa2)
-        return jsonify({
+        payload = {
             "ok": True, "custom": True, "project_name": project_name,
             "asset": mining.asset, "tf": mining.tf, "bs": mining.bs, "dir": mining.dir,
             "capa": capa, "output_path": out_path, "filename": os.path.basename(out_path),
@@ -1386,7 +1458,17 @@ def generate_custom():
             "spread": costs["spread"], "swap_long": costs["swap_long"], "swap_short": costs["swap_short"],
             "data_available": costs.get("data_available"), "data_rows": costs.get("data_rows"),
             "blocksetting": blocksetting_trace(bs_entry),
-        })
+        }
+        if workspace_context:
+            record_workspace_output_generated(
+                workspace_context,
+                endpoint="generate-custom",
+                filename=os.path.basename(out_path),
+                capa=capa,
+                mining=0,
+            )
+            payload.update(output_response_fields(workspace_context, out_path))
+        return jsonify(payload)
     except Exception as e:
         return jsonify({"ok": False, "error": f"{type(e).__name__}: {e}"}), 500
 
@@ -1403,7 +1485,9 @@ def generate_all():
 
     cfg = load_config()
     template = data.get("template") or resolve_template(cfg, capa)
-    output = data.get("output") or resolve_output_dir(cfg)
+    output, workspace_context, remote_error = _resolve_generation_output(data, cfg, purpose="project_generator_generate_all")
+    if remote_error:
+        return remote_error
     blocksetting_capa2 = data.get("blocksetting_capa2") or data.get("capa2_blocksetting")
 
     if not os.path.isfile(template):
@@ -1422,12 +1506,22 @@ def generate_all():
             )
             costs = resolve_costs(m, db_path, postfix, alias_override=aliases)
             bs_entry = resolve_blocksetting_entry(m.bs, timeframe=m.tf, capa=capa, blocksetting_capa2=blocksetting_capa2)
-            results.append({
+            result_item = {
                 "mining": m.num, "ok": True,
                 "filename": os.path.basename(out_path),
                 "costs_source": costs["source"],
                 "blocksetting": blocksetting_trace(bs_entry),
-            })
+            }
+            if workspace_context:
+                record_workspace_output_generated(
+                    workspace_context,
+                    endpoint="generate-all",
+                    filename=os.path.basename(out_path),
+                    capa=capa,
+                    mining=m.num,
+                )
+                result_item.update(output_response_fields(workspace_context, out_path))
+            results.append(result_item)
         except Exception as e:
             results.append({"mining": m.num, "ok": False, "error": str(e)})
 
@@ -1521,6 +1615,17 @@ def open_folder():
     """Abre una carpeta en Windows Explorer."""
     data = request.get_json(silent=True) or {}
     cfg = load_config()
+    workspace_context, remote_error = _active_remote_workspace_for_request(purpose="project_generator_open_output", create=False)
+    if remote_error:
+        return remote_error
+    if workspace_context:
+        return jsonify({
+            "ok": False,
+            "error": "remote_open_folder_blocked",
+            "message": "Remote users cannot open server folders. Use the generated file list/download flow instead.",
+            "workspace": public_workspace_context(workspace_context),
+            "privacy": {"local_paths_returned": False},
+        }), 403
     path = data.get("path", "")
     if not path or not os.path.isdir(path):
         return jsonify({"ok": False, "error": "invalid path"}), 400

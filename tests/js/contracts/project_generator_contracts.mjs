@@ -316,6 +316,7 @@ assert.doesNotMatch(resetOutputState.html, /OLD\.cfx/);
 assert.match(resetOutputState.html, /NEW\.cfx/);
 assert.equal(PG.openOutputDisconnectedStatus().logText, 'Backend desconectado');
 assert.equal(PG.openOutputSuccessStatus('C:/out').traceDetail, 'C:/out');
+assert.equal(PG.openOutputRemoteWorkspaceStatus('workspace://outputs').traceDetail, 'workspace://outputs');
 assert.equal(PG.openOutputErrorStatus('denied').logText, 'Error abrir carpeta: denied');
 assert.match(PG.messageHtml('Error <x>', 'error'), /&lt;x&gt;/);
 

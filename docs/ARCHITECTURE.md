@@ -181,6 +181,15 @@ REMOTE-PERSIST1A workspace state persistence:
 - `app/js/modules/remote-state.js` bridges browser cache to workspace state for Plan Mining and Strategy Control: `sqx_plan_user_v1`, `sqx_pipeline_state_v1`, `sqx_strategies_user_v1` and `sqx_strategies_deleted_v1`.
 - Browser `localStorage` remains a compatibility cache in remote mode; it is not the multi-user source of truth.
 
+REMOTE-PERSIST1B workspace outputs:
+
+- `backend/sqx-edge-tool/core/remote_workspace_outputs.py` owns `remote-workspace-output-v1` and maps Project Generator artifacts to `<workspace>/outputs`.
+- `GET /api/output` lists configured local output in local mode, but lists only active workspace `.cfx` files in remote mode.
+- `POST /api/generate`, `POST /api/generate-custom` and `POST /api/generate-all` keep local behavior unchanged, but active remote app sessions always write to workspace outputs.
+- Browser-provided remote `output` overrides are rejected with `remote_output_override_blocked`.
+- Remote output JSON uses `workspace://outputs` URIs and `privacy.local_paths_returned=false`; absolute operator paths stay server-local.
+- `POST /api/open-folder` remains local-only and is blocked for remote sessions.
+
 REMOTE-5 remote Pro UX surface:
 
 - `docs/REMOTE_5_REMOTE_UX.md` owns the visible UX contract for remote-service status.

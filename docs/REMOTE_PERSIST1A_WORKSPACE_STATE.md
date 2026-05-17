@@ -55,16 +55,17 @@ tokens, cookies or provider identifiers.
 This phase does not yet migrate:
 
 - Template Maker IndexedDB (`SQXTemplateMakerDB`);
-- Project Generator generated `.cfx` output paths;
 - SQX Views custom presets;
 - Control Panel state backups;
 - full per-workspace backup/restore UI.
 
-Those remain required before expanding beyond the current controlled pilot.
+REMOTE-PERSIST1B later moved Project Generator generated `.cfx` output paths to
+workspace outputs. The remaining items are still required before expanding
+beyond the current controlled pilot.
 
 ## Acceptance
 
 - Two identities must receive different workspace ids and different SQLite files.
 - A second identity must not see the first identity's Plan Mining or Strategy Control state.
 - Remote responses must not include local paths or raw emails.
-- Multi-user expansion remains blocked until generation outputs and Template Maker persistence are also workspace-scoped.
+- Multi-user expansion remains blocked until Template Maker persistence and backup/restore are also workspace-scoped.
