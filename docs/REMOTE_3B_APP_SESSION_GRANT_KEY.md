@@ -22,7 +22,8 @@ The secret and entitlement store are private local/server configuration. They mu
 - `POST /api/remote/session/login`
   - Reads trusted identity from Cloudflare Access/app gateway headers.
   - Validates active entitlement.
-  - For `tester_free`, requires a matching operator-managed `grant_key`.
+  - For `tester_free`, creates the app session directly after Cloudflare identity plus active entitlement unless the operator explicitly marks the grant as `requireGrantKey`.
+  - Legacy/enforced tester keys still verify against `grantKeyHash` when that flag is enabled.
   - Sets `__Host-sqx_remote_session`.
   - Never returns the signed token or grant key in JSON.
 
@@ -45,9 +46,8 @@ Approved testers can use full functionality without payment only when all condit
 
 1. Cloudflare Access or the app gateway provides a trusted email identity.
 2. The entitlement store contains an active `tester_free` grant for that identity.
-3. The operator has issued a private tester grant key.
-4. The submitted key hashes to the stored `grantKeyHash`.
-5. A valid `remote-session-v1` cookie is issued.
+3. A valid `remote-session-v1` cookie is issued.
+4. If and only if the grant explicitly sets `requireGrantKey`, the submitted key must hash to the stored `grantKeyHash`.
 
 The response exposes `grant_key_returned: false` and `session_token_returned: false` so tests can verify privacy expectations.
 

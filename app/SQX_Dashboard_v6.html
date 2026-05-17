@@ -21,7 +21,13 @@
     <div class="remote-welcome-copy">
       <span class="remote-welcome-eyebrow">Acceso web Pro protegido</span>
       <h2>Bienvenido a SQX Edge</h2>
+      <div class="remote-welcome-verdict" id="remote-welcome-verdict">Validando acceso</div>
       <p id="remote-welcome-detail">Validamos identidad, permiso, sesion de app y workspace aislado antes de operar.</p>
+      <div class="remote-welcome-value-copy" aria-label="Declaracion de valor SQX Edge">
+        <strong>SQX Edge Suite ofrece productividad, estructura, trazabilidad y reducción de errores operativos.</strong>
+        <span>No promete rentabilidad ni sustituye la responsabilidad del usuario al validar estrategias ni garantiza rendimientos futuros.</span>
+        <span>Herramienta creada por QXPro pensando en las necesidades propias de los SQX traders.</span>
+      </div>
       <div class="remote-welcome-status-grid">
         <div class="remote-welcome-status" id="remote-welcome-access-item">
           <span>Identidad</span>
@@ -44,14 +50,10 @@
           <small id="remote-welcome-privacy-detail">No exponemos rutas internas, tokens ni carpetas servidor.</small>
         </div>
       </div>
-      <label class="remote-welcome-key" id="remote-welcome-key-wrap" for="remote-welcome-grant-key" hidden>
-        <span>Clave tester</span>
-        <input id="remote-welcome-grant-key" type="password" autocomplete="one-time-code" placeholder="Clave privada del tester">
-      </label>
       <div class="remote-welcome-actions">
-        <button class="home-command primary" id="remote-welcome-primary" type="button">Actualizar estado</button>
+        <button class="home-command primary" id="remote-welcome-primary" type="button">Acceso DASHBOARD</button>
         <button class="home-command" id="remote-welcome-trust-toggle" type="button">Ver Trust Center</button>
-        <button class="home-command subtle" id="remote-welcome-enter" type="button">Entrar al dashboard</button>
+        <button class="home-command subtle" id="remote-welcome-enter" type="button" hidden>Acceso DASHBOARD</button>
       </div>
     </div>
     <aside class="remote-trust-center" id="remote-trust-center" hidden>

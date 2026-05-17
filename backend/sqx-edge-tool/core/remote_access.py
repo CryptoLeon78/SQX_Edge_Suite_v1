@@ -155,6 +155,17 @@ def find_entitlement_for_email_hash(identity_hash: str, store: Mapping[str, Any]
     return None
 
 
+def tester_grant_key_is_enforced(grant: Mapping[str, Any] | None) -> bool:
+    if not grant:
+        return False
+    return bool(
+        grant.get("requireGrantKey")
+        or grant.get("require_grant_key")
+        or grant.get("enforceGrantKey")
+        or grant.get("enforce_grant_key")
+    )
+
+
 def normalize_entitlement(grant: Mapping[str, Any] | None, today: date | None = None) -> dict[str, Any]:
     current = _today(today)
     if not grant:
@@ -189,6 +200,9 @@ def normalize_entitlement(grant: Mapping[str, Any] | None, today: date | None = 
     if active and kind in {"paid_subscription", "tester_free", "internal_operator"}:
         feature_scope = FULL_FEATURE_SCOPE if feature_scope != RESTRICTED_FEATURE_SCOPE else feature_scope
 
+    grant_key_configured = bool(grant.get("grantKeyHash") or grant.get("grant_key_hash"))
+    grant_key_required = bool(kind == "tester_free" and grant_key_configured and tester_grant_key_is_enforced(grant))
+
     return {
         "kind": kind if kind in VALID_ENTITLEMENT_KINDS else None,
         "status": status,
@@ -196,7 +210,8 @@ def normalize_entitlement(grant: Mapping[str, Any] | None, today: date | None = 
         "active": active,
         "reason": reason,
         "grant_id": grant.get("grantId") or grant.get("grant_id"),
-        "grant_key_required": bool(grant.get("grantKeyHash") or grant.get("grant_key_hash")),
+        "grant_key_configured": grant_key_configured,
+        "grant_key_required": grant_key_required,
         "source": grant.get("source") or ("operator_grant" if kind == "tester_free" else "entitlement_store"),
         "expires_at": expires_at.isoformat() if expires_at else None,
     }
@@ -427,7 +442,7 @@ def start_remote_session_from_headers(headers: Mapping[str, Any], data: Mapping[
             "entitlement": entitlement,
             "identity": {"email_ref": redact_email(identity), "email_hash": email_hash(identity)},
         }
-    if entitlement["kind"] == "tester_free":
+    if entitlement["kind"] == "tester_free" and entitlement.get("grant_key_required"):
         grant_key_result = verify_tester_grant_key(grant or {}, str(payload.get("grant_key") or ""))
         if not grant_key_result["ok"]:
             return {

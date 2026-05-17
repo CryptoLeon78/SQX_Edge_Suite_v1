@@ -38,7 +38,7 @@ assert.match(SQX.home.traceHtml([traceItem]), /Title/);
   'remote-pro-refresh', 'remote-session-watermark',
   'remote-welcome-gate', 'remote-welcome-detail', 'remote-welcome-primary',
   'remote-welcome-trust-toggle', 'remote-welcome-enter', 'remote-trust-center',
-  'remote-welcome-key-wrap', 'remote-welcome-grant-key',
+  'remote-welcome-verdict',
   'remote-welcome-access-item', 'remote-welcome-access-status', 'remote-welcome-access-detail',
   'remote-welcome-workspace-item', 'remote-welcome-workspace-status', 'remote-welcome-workspace-detail',
   'remote-welcome-security-item', 'remote-welcome-security-status', 'remote-welcome-security-detail',
@@ -87,7 +87,7 @@ const remoteNeedsTesterLogin = SQX.home.computeRemoteServiceModel({
     mode: 'remote_tunnel_only',
     authenticated: true,
     access: { allowed: true, reason: 'access_allowed', feature_scope: 'full' },
-    entitlement: { kind: 'tester_free', status: 'active', feature_scope: 'full', grant_key_required: true },
+    entitlement: { kind: 'tester_free', status: 'active', feature_scope: 'full', grant_key_configured: true, grant_key_required: false },
   },
   session: { session: { active: false }, access: { allowed: false, reason: 'session_missing' } },
   workspace: { ok: false, error: 'remote_session_required' },
@@ -95,16 +95,17 @@ const remoteNeedsTesterLogin = SQX.home.computeRemoteServiceModel({
   health: { ok: true },
 });
 assert.equal(remoteNeedsTesterLogin.sessionLogin.visible, true);
-assert.equal(remoteNeedsTesterLogin.sessionLogin.requiresGrantKey, true);
+assert.equal(remoteNeedsTesterLogin.sessionLogin.requiresGrantKey, false);
 assert.equal(remoteNeedsTesterLogin.welcome.visible, true);
 assert.equal(remoteNeedsTesterLogin.welcome.primaryAction, 'login');
+assert.equal(remoteNeedsTesterLogin.welcome.primaryLabel, 'Acceso DASHBOARD');
 SQX.home.applyRemoteServiceModel(remoteNeedsTesterLogin, document);
 assert.equal(document.getElementById('remote-session-actions').hidden, false);
-assert.equal(document.getElementById('remote-session-key-wrap').hidden, false);
-assert.equal(document.getElementById('remote-session-login').textContent, 'Validar tester');
+assert.equal(document.getElementById('remote-session-key-wrap').hidden, true);
+assert.equal(document.getElementById('remote-session-login').textContent, 'Acceso DASHBOARD');
 assert.equal(document.getElementById('remote-welcome-gate').hidden, false);
-assert.equal(document.getElementById('remote-welcome-key-wrap').hidden, false);
-assert.equal(document.getElementById('remote-welcome-primary').textContent, 'Validar tester');
+assert.equal(document.getElementById('remote-welcome-verdict').textContent, 'OK identidad validada');
+assert.equal(document.getElementById('remote-welcome-primary').textContent, 'Acceso DASHBOARD');
 
 const remoteLoginRequests = [];
 sandbox.fetch = (url, options = {}) => {
@@ -115,15 +116,13 @@ sandbox.fetch = (url, options = {}) => {
     json: () => Promise.resolve({ ok: true, access: { allowed: true }, privacy: { session_token_returned: false } }),
   });
 };
-document.getElementById('remote-welcome-grant-key').value = 'pilot-key';
 const remoteLoginResult = await SQX.home.loginRemoteSession(document, () => Promise.resolve(remoteNeedsTesterLogin));
 assert.equal(remoteLoginResult.ok, true);
 assert.equal(remoteLoginRequests.length, 1);
 assert.match(remoteLoginRequests[0].url, /\/remote\/session\/login$/);
 assert.equal(remoteLoginRequests[0].options.method, 'POST');
-assert.deepEqual(JSON.parse(remoteLoginRequests[0].options.body), { grant_key: 'pilot-key' });
+assert.deepEqual(JSON.parse(remoteLoginRequests[0].options.body), {});
 assert.equal(document.getElementById('remote-session-grant-key').value, '');
-assert.equal(document.getElementById('remote-welcome-grant-key').value, '');
 
 const remoteActive = SQX.home.computeRemoteServiceModel({
   access: { mode: 'remote_tunnel_only', authenticated: true, access: { allowed: true, reason: 'access_allowed', feature_scope: 'full' }, entitlement: { kind: 'tester_free' } },
@@ -138,12 +137,14 @@ assert.equal(document.getElementById('remote-pro-security-status').textContent, 
 assert.equal(document.getElementById('remote-session-watermark').hidden, false);
 assert.match(document.getElementById('remote-session-watermark').textContent, /SQX REMOTE PRO/);
 assert.equal(document.getElementById('remote-welcome-primary').dataset.remoteWelcomeAction, 'enter');
-assert.equal(document.getElementById('remote-welcome-enter').hidden, false);
+assert.equal(document.getElementById('remote-welcome-primary').textContent, 'Acceso DASHBOARD');
+assert.equal(document.getElementById('remote-welcome-verdict').textContent, 'OK todo validado');
+assert.equal(document.getElementById('remote-welcome-enter').hidden, true);
 assert.equal(SQX.home.bindRemoteWelcomeGate(document), true);
 assert.equal(SQX.home.bindRemoteWelcomeGate(document), false);
 document.getElementById('remote-welcome-trust-toggle').click();
 assert.equal(document.getElementById('remote-trust-center').hidden, false);
-document.getElementById('remote-welcome-enter').click();
+document.getElementById('remote-welcome-primary').click();
 assert.equal(document.getElementById('remote-welcome-gate').hidden, true);
 
 const tabA = document.add(new Element('wf-main-tab', ['subtab', 'active'], { subtab: 'wf-main' }));

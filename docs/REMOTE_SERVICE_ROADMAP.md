@@ -113,7 +113,7 @@ Artifacts added in REMOTE-3B:
 - `POST /api/remote/session/login`
 - `GET /api/remote/session/status`
 - `POST /api/remote/session/logout`
-- tester-free grant-key verification by `grantKeyHash`
+- tester-free direct app-session creation after Cloudflare Access when entitlement is active; `grantKeyHash` remains a legacy/enforced fallback only when a grant explicitly requires it
 - entitlement revalidation on every app-session status check
 
 Artifacts added in REMOTE-3C:
@@ -265,6 +265,22 @@ Next REMOTE-8C scope:
 - review tunnel stability, app session behavior, workspace isolation, artifact generation/export and revocation/restore;
 - decide explicitly whether to stay at one user, fix blockers or expand to 3-5 users.
 
+## WAIT Workstream During REMOTE-8C
+
+WAIT phases are value work allowed while the 24-hour REMOTE-8C observation window runs. They must not expand testers, publish checkout, create grants, send emails or bypass pilot gates.
+
+Status board:
+
+| WAIT | Status | Scope |
+| --- | --- | --- |
+| WAIT-1 | Completed | Welcome bridge, honest Trust Center and living value backlog. |
+| WAIT-2 | Completed | Direct tester Welcome access after Cloudflare, status/next-suggestion cadence and new specialist agents. |
+| WAIT-3 | Pending | Trust Evidence Pack: self-assessment evidence, redacted security/privacy summaries and external scan preparation. |
+| WAIT-4 | Pending | Commercial onboarding polish: buyer welcome story, first-session microcopy and early-access demo flow. |
+| WAIT-5 | Pending | Support/readiness pack: tester support scripts, incident copy, rollback explainer and remote status handoff. |
+
+Count: `2/5` WAIT phases completed after WAIT-2. At the moment WAIT-2 started, `1/5` were complete.
+
 ### WAIT-1 - Welcome + Trust Center During REMOTE-8C
 
 WAIT-1 is allowed while REMOTE-8C runs because it does not expand testers, grants, checkout or permissions. It improves buyer/tester confidence by adding a welcome bridge, a Trust Center and a living value backlog.
@@ -282,6 +298,17 @@ Rules:
 - No absolute safety claims.
 - External evidence can be referenced only as real scan/audit sources or planned future checks.
 - Planned external evidence candidates are MDN HTTP Observatory for HTTP posture, OWASP ZAP Baseline for passive security scanning and real response-header checks on the protected service.
+
+### WAIT-2 - Welcome Direct Tester Access + Operational Cadence
+
+WAIT-2 keeps the same REMOTE-8C safety boundary but removes the duplicated tester-key step from the Welcome flow. Approved `tester_free` users still need Cloudflare Access plus an active entitlement and revocable app session, but the Welcome screen should say `OK todo validado` and offer a protagonist `Acceso DASHBOARD` button instead of asking for another key.
+
+Additional discipline:
+
+- every update should include current state and the next recommended movement when useful;
+- I+D / Research Scout, Web & RRSS Creative, Sales & Commercial and Asset Cards Curator are part of the Specialist Agents matrix;
+- Asset Cards Curator changes require explicit operator confirmation before any card data, score, rating, timeframe or mapping is modified;
+- tester direct access does not broaden the cohort and does not publish protected URLs.
 
 ### REMOTE-8C - First User Support Observation And Expansion Decision
 
@@ -497,7 +524,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 ## Required Gates
 
 - `Remote Service Gate`: every remote mutation needs authenticated user, active entitlement, server-derived workspace, audit event and rate-limit boundary.
-- `Tester Free Access Gate`: approved testers may have complete app access without payment only through an explicit `tester_free` entitlement, authenticated session, audit trail and operator-managed grant.
+- `Tester Free Access Gate`: approved testers may have complete app access without payment only through Cloudflare-authenticated identity, explicit `tester_free` entitlement, authenticated app session, audit trail and operator-managed grant. A private grant key can remain configured as a legacy/enforced fallback, but the default Welcome flow must not ask testers for a second key after Cloudflare validation.
 - `Remote Session Gate`: app sessions must use `remote-session-v1`, `__Host-sqx_remote_session`, private `SQX_REMOTE_SESSION_SECRET`, secure cookie flags, entitlement revalidation and privacy redaction.
 - `Payment Webhook Entitlement Gate`: payment events must use `remote-payment-webhook-v1`, private `SQX_REMOTE_PAYMENT_WEBHOOK_SECRET`, exact-body HMAC verification, idempotent `processedWebhookEvents`, redacted identity and audit-only local logs.
 - `Workspace Isolation Gate`: workspace ids must be derived from the active app session only; browser-supplied workspace ids, paths and local SQX resources are ignored or rejected.
@@ -507,6 +534,8 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Controlled Pilot Gate`: pilot work must prove entitlement, login, workspace, artifact generation/export, revocation, restore, isolation and redacted evidence before inviting or expanding users.
 - `Live Pilot Evidence Gate`: private live pilot evidence must pass `remote-live-pilot-evidence-v1`, stay local/ignored, redact identity/URL/path/secrets and keep expansion beyond one user blocked until explicit REMOTE-8C approval.
 - `First User Observation Gate`: first-user support evidence must pass `remote-first-user-observation-v1`, stay local/ignored, prove at least 24 clean hours, zero unresolved support/security/workspace/generation incidents and keep all expansion actions manual.
+- `Status + Next Suggestion Cadence Gate`: implementation updates should state current status and the next recommended movement without widening scope.
+- `Specialist Agent Autonomy Gate`: relevant governance agents may be applied as needed; Asset Cards Curator requires explicit operator confirmation before card-data changes.
 - `Tiny Cohort Activation Package Gate`: tiny cohort activation packages must pass `remote-tiny-cohort-activation-v1`, require REMOTE-8C GO, keep identities/URLs local, validate 3-5 candidates and keep invites, grants, emails, checkout and URL sharing at zero.
 - `Tiny Cohort Manual Execution Record Gate`: manual execution records must pass `remote-tiny-cohort-execution-v1`, require REMOTE-8D GO, keep identities/URLs/messages local, match manual counts to 3-5 activated users and keep automation metrics at zero before monitoring.
 - `Tiny Cohort Monitoring Gate`: monitoring evidence must pass `remote-tiny-cohort-monitoring-v1`, require REMOTE-8E GO, prove at least 24 clean hours, 3-5 monitored users, stable access/session/workspace/generation/export/support signals and zero incidents before any next movement review.

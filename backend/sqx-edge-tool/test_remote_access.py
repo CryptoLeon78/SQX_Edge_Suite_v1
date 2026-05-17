@@ -46,7 +46,8 @@ def test_tester_free_grant_allows_full_access_without_payment():
     assert result["access"]["feature_scope"] == "full"
     assert result["entitlement"]["kind"] == "tester_free"
     assert result["entitlement"]["source"] == "operator_grant"
-    assert result["entitlement"]["grant_key_required"] is True
+    assert result["entitlement"]["grant_key_configured"] is True
+    assert result["entitlement"]["grant_key_required"] is False
     assert result["auth_layers"]["app_session_required"] is True
     assert result["auth_layers"]["grant_key_never_returned"] is True
     assert result["identity"]["email_ref"] == "pi***@example.invalid"
@@ -111,7 +112,7 @@ def test_find_entitlement_accepts_hash_or_local_email_without_returning_raw_keys
     assert find_entitlement_for_email("local@example.invalid", store)["entitlementKind"] == "paid_subscription"
 
 
-def test_tester_free_session_requires_matching_grant_key_and_revalidates_entitlement(tmp_path, monkeypatch):
+def test_tester_free_session_starts_after_cloudflare_identity_without_default_grant_key(tmp_path, monkeypatch):
     store = {
         "schemaVersion": "remote-entitlements-v1",
         "grants": [{
@@ -120,6 +121,39 @@ def test_tester_free_session_requires_matching_grant_key_and_revalidates_entitle
             "status": "active",
             "featureScope": "full",
             "grantKeyHash": grant_key_hash("pilot-key"),
+            "source": "operator_grant",
+        }],
+    }
+    store_path = tmp_path / "remote_entitlements.local.json"
+    store_path.write_text(json.dumps(store), encoding="utf-8")
+    monkeypatch.setenv("SQX_REMOTE_ENTITLEMENTS_PATH", str(store_path))
+    monkeypatch.setenv("SQX_REMOTE_SESSION_SECRET", "s" * 40)
+
+    created = start_remote_session_from_headers(
+        {"Cf-Access-Authenticated-User-Email": "pilot@example.invalid"},
+        {},
+    )
+
+    assert created["ok"] is True
+    assert created["cookie_name"] == SESSION_COOKIE_NAME
+    assert created["entitlement"]["kind"] == "tester_free"
+    assert created["entitlement"]["grant_key_configured"] is True
+    assert created["entitlement"]["grant_key_required"] is False
+    assert created["privacy"]["session_token_returned"] is False
+    assert created["privacy"]["grant_key_returned"] is False
+    assert evaluate_remote_session(created["session_token"])["access"]["allowed"] is True
+
+
+def test_tester_free_session_can_enforce_legacy_matching_grant_key_and_revalidate_entitlement(tmp_path, monkeypatch):
+    store = {
+        "schemaVersion": "remote-entitlements-v1",
+        "grants": [{
+            "emailHash": email_hash("pilot@example.invalid"),
+            "entitlementKind": "tester_free",
+            "status": "active",
+            "featureScope": "full",
+            "grantKeyHash": grant_key_hash("pilot-key"),
+            "requireGrantKey": True,
             "source": "operator_grant",
         }],
     }

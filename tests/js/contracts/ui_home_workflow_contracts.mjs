@@ -42,7 +42,7 @@ assert.equal(filterB.classList.contains('active'), true);
   'remote-session-key-wrap', 'remote-session-grant-key', 'remote-session-login',
   'remote-welcome-gate', 'remote-welcome-detail', 'remote-welcome-primary',
   'remote-welcome-trust-toggle', 'remote-welcome-enter', 'remote-trust-center',
-  'remote-welcome-key-wrap', 'remote-welcome-grant-key',
+  'remote-welcome-verdict',
   'remote-welcome-access-item', 'remote-welcome-access-status', 'remote-welcome-access-detail',
   'remote-welcome-workspace-item', 'remote-welcome-workspace-status', 'remote-welcome-workspace-detail',
   'remote-welcome-security-item', 'remote-welcome-security-status', 'remote-welcome-security-detail',
@@ -85,6 +85,8 @@ assert.match(document.getElementById('remote-session-watermark').textContent, /S
 assert.equal(document.getElementById('remote-welcome-gate').hidden, false);
 assert.equal(document.getElementById('remote-welcome-primary').dataset.remoteWelcomeAction, 'enter');
 assert.match(document.getElementById('remote-welcome-detail').textContent, /workspace/);
+assert.equal(document.getElementById('remote-welcome-primary').textContent, 'Acceso DASHBOARD');
+assert.equal(document.getElementById('remote-welcome-verdict').textContent, 'OK todo validado');
 assert.equal(SQX.home.bindRemoteServicePanel(document), true);
 assert.equal(SQX.home.bindRemoteServicePanel(document), false);
 assert.equal(SQX.home.bindRemoteWelcomeGate(document), true);

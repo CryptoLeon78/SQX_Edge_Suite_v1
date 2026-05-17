@@ -176,8 +176,11 @@
     var welcomeVisible = !!(isRemoteMode || authenticated || sessionAllowed);
     var welcomePrimaryAction = state === 'active' ? 'enter' : (canCreateSession ? 'login' : 'refresh');
     var welcomePrimaryLabel = state === 'active'
-      ? 'Entrar al dashboard'
-      : (canCreateSession ? (grantKeyRequired ? 'Validar tester' : 'Crear sesion remota') : 'Actualizar estado');
+      ? 'Acceso DASHBOARD'
+      : (canCreateSession ? 'Acceso DASHBOARD' : 'Actualizar estado');
+    var welcomeVerdict = state === 'active'
+      ? 'OK todo validado'
+      : (canCreateSession ? 'OK identidad validada' : (state === 'blocked' ? 'Acceso bloqueado' : 'Validando acceso'));
 
     return {
       state: state,
@@ -209,13 +212,13 @@
         visible: canCreateSession,
         requiresGrantKey: grantKeyRequired,
         disabled: !canCreateSession,
-        title: grantKeyRequired ? 'Clave tester requerida' : 'Crear sesion de app',
+        title: grantKeyRequired ? 'Clave tester requerida' : 'OK identidad validada',
         detail: grantKeyRequired
           ? 'Introduce la clave tester privada para activar la sesion de app y crear el workspace aislado.'
           : (canCreateSession
-            ? 'Tu email esta autorizado. Crea la sesion de app para abrir workspace y operar.'
+            ? 'Cloudflare Access y el entitlement estan validados. No necesitas clave tester adicional para abrir la sesion de app.'
             : 'Cuando haya email y permiso activo, aqui aparecera la accion de sesion.'),
-        buttonLabel: grantKeyRequired ? 'Validar tester' : 'Crear sesion remota'
+        buttonLabel: grantKeyRequired ? 'Validar tester' : 'Acceso DASHBOARD'
       },
       watermark: {
         enabled: !!watermark.enabled,
@@ -225,13 +228,16 @@
       welcome: {
         visible: welcomeVisible,
         dismissed: remoteWelcomeDismissed(),
+        verdict: welcomeVerdict,
         detail: state === 'active'
-          ? 'Sesion, permiso, workspace y protecciones estan activos. Puedes entrar al dashboard y continuar la metodologia.'
-          : 'Antes de operar, SQX Edge valida identidad, permiso activo, sesion de app y workspace aislado.',
+          ? 'OK todo validado. Sesion, permiso, workspace y protecciones estan activos. Puedes entrar al dashboard y continuar la metodologia.'
+          : (canCreateSession
+            ? 'OK identidad validada. Pulsa Acceso DASHBOARD para crear tu sesion de app y abrir el workspace aislado.'
+            : 'Antes de operar, SQX Edge valida identidad, permiso activo, sesion de app y workspace aislado.'),
         primaryAction: welcomePrimaryAction,
         primaryLabel: welcomePrimaryLabel,
         trustLabel: 'Ver Trust Center',
-        enterLabel: 'Entrar al dashboard'
+        enterLabel: 'Acceso DASHBOARD'
       }
     };
   }
@@ -290,9 +296,9 @@
     var primary = target.getElementById('remote-welcome-primary');
     var enter = target.getElementById('remote-welcome-enter');
     var trust = target.getElementById('remote-welcome-trust-toggle');
-    var keyWrap = target.getElementById('remote-welcome-key-wrap');
     var shouldShow = !!(welcome.visible && !welcome.dismissed);
     if (gate) gate.hidden = !shouldShow;
+    setText(target, 'remote-welcome-verdict', welcome.verdict || '');
     setText(target, 'remote-welcome-detail', welcome.detail || '');
     setRemoteWelcomeItem(target, 'access', model.items.access);
     setRemoteWelcomeItem(target, 'workspace', model.items.workspace);
@@ -303,9 +309,8 @@
       primary.dataset.remoteWelcomeAction = welcome.primaryAction || 'refresh';
       primary.disabled = model.state === 'blocked';
     }
-    if (enter) enter.hidden = model.state !== 'active';
+    if (enter) enter.hidden = true;
     if (trust) trust.textContent = welcome.trustLabel || 'Ver Trust Center';
-    if (keyWrap) keyWrap.hidden = !(model.sessionLogin && model.sessionLogin.requiresGrantKey);
   }
 
   function applyRemoteServiceModel(model, doc) {
@@ -383,12 +388,9 @@
     var btn = target && target.getElementById('remote-session-login');
     var detail = target && target.getElementById('remote-session-login-detail');
     var keyInput = target && target.getElementById('remote-session-grant-key');
-    var welcomeKeyInput = target && target.getElementById('remote-welcome-grant-key');
     var body = {};
     if (keyInput && String(keyInput.value || '').trim()) {
       body.grant_key = String(keyInput.value || '').trim();
-    } else if (welcomeKeyInput && String(welcomeKeyInput.value || '').trim()) {
-      body.grant_key = String(welcomeKeyInput.value || '').trim();
     }
     if (btn) btn.disabled = true;
     if (detail) detail.textContent = 'Validando permiso y creando sesion segura...';
@@ -400,7 +402,6 @@
       var access = payload && payload.access ? payload.access : {};
       if (payload && payload.ok && access.allowed) {
         if (keyInput) keyInput.value = '';
-        if (welcomeKeyInput) welcomeKeyInput.value = '';
         if (detail) detail.textContent = 'Sesion remota creada. Preparando workspace aislado...';
         var refresher = typeof refreshFn === 'function' ? refreshFn : refreshRemoteServiceStatus;
         return refresher(target).then(function(model) {
@@ -408,7 +409,7 @@
         });
       }
       var reason = (payload && (payload.error || (payload.access || {}).reason || (payload.entitlement || {}).reason)) || 'session_login_failed';
-      if (detail) detail.textContent = remoteReasonLabel(reason) + '. Revisa permiso, clave tester o sesion Cloudflare.';
+      if (detail) detail.textContent = remoteReasonLabel(reason) + '. Revisa permiso, sesion Cloudflare o entitlement activo.';
       if (btn) btn.disabled = false;
       return { ok: false, login: payload, error: reason };
     });

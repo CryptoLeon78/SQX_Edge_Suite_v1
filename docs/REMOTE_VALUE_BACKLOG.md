@@ -4,7 +4,7 @@ Este backlog memoriza ideas de valor que pueden avanzar mientras REMOTE-8C obser
 
 ## WAIT-1 - Welcome + Trust Center
 
-Estado: activo.
+Estado: completado en WAIT-1.
 
 Objetivo:
 
@@ -26,6 +26,25 @@ Artefactos previstos:
 - Remote Service Safety Checklist.
 - Evidencias REMOTE redacted.
 - Futuras comprobaciones: MDN HTTP Observatory, OWASP ZAP Baseline y revisiones de headers reales.
+
+## WAIT-2 - Welcome Direct Tester Access + Operational Cadence
+
+Estado: completado en WAIT-2.
+
+Objetivo:
+
+- Hacer que el tester aprobado pase de Cloudflare Access a la app sin introducir una segunda clave tester en la pantalla de bienvenida.
+- Mostrar `OK todo validado` y un CTA protagonista `Acceso DASHBOARD`.
+- Añadir copy de valor: productividad, estructura, trazabilidad y reduccion de errores operativos, sin prometer rentabilidad.
+- Formalizar que cada mensaje operativo incluya estado y siguiente sugerencia cuando aporte claridad.
+- Registrar nuevos agentes: I+D / Research Scout, Web & RRSS Creative, Sales & Commercial y Asset Cards Curator.
+
+Limites:
+
+- No ampliar testers.
+- No crear nuevos grants.
+- No publicar checkout ni URLs nuevas.
+- No cambiar tarjetas de activos sin confirmacion explicita del operador.
 
 ## Ideas Pendientes
 

@@ -66,7 +66,7 @@ async function run() {
           mode: 'remote_tunnel_only',
           authenticated: true,
           access: { allowed: true, reason: 'access_allowed', feature_scope: 'full' },
-          entitlement: { kind: 'tester_free', status: 'active', feature_scope: 'full', grant_key_required: true },
+          entitlement: { kind: 'tester_free', status: 'active', feature_scope: 'full', grant_key_configured: true, grant_key_required: false },
         },
         session: { session: { active: false }, access: { allowed: false, reason: 'session_missing' } },
         workspace: { ok: false, workspace: {} },
@@ -90,13 +90,13 @@ async function run() {
     });
     await desktop.waitForSelector('#remote-welcome-gate:not([hidden])');
     const pendingWelcomeText = await desktop.locator('#remote-welcome-gate').innerText();
-    ['Validar tester', 'Trust Center', 'workspace aislado', 'Sin instalacion local'].forEach(expected => {
+    ['Acceso DASHBOARD', 'OK identidad validada', 'Trust Center', 'workspace aislado', 'Sin instalacion local', 'productividad', 'QXPro'].forEach(expected => {
       if (!pendingWelcomeText.includes(expected)) throw new Error(`Remote welcome gate should explain ${expected}`);
     });
     const pendingWelcomeAction = await desktop.locator('#remote-welcome-primary').evaluate(node => node.dataset.remoteWelcomeAction);
     if (pendingWelcomeAction !== 'login') throw new Error(`Remote welcome primary action should login, got ${pendingWelcomeAction}`);
-    const welcomeKeyVisible = await desktop.locator('#remote-welcome-key-wrap').isVisible();
-    if (!welcomeKeyVisible) throw new Error('Remote welcome should request tester key when entitlement requires it');
+    const welcomeKeyCount = await desktop.locator('#remote-welcome-grant-key').count();
+    if (welcomeKeyCount !== 0) throw new Error('Remote welcome should not ask approved testers for a second key');
     await desktop.locator('#remote-welcome-trust-toggle').click();
     await desktop.waitForSelector('#remote-trust-center:not([hidden])');
     await desktop.evaluate(() => {
@@ -130,7 +130,9 @@ async function run() {
       window.SQX.home.applyRemoteServiceModel(activeModel, document);
     });
     await desktop.waitForFunction(() => document.getElementById('remote-welcome-primary')?.dataset.remoteWelcomeAction === 'enter');
-    await desktop.locator('#remote-welcome-enter').click();
+    const activeWelcomeText = await desktop.locator('#remote-welcome-gate').innerText();
+    if (!activeWelcomeText.includes('OK todo validado')) throw new Error('Remote welcome should confirm OK todo validado before dashboard access');
+    await desktop.locator('#remote-welcome-primary').click();
     await desktop.waitForFunction(() => document.getElementById('remote-welcome-gate')?.hidden === true);
     await desktop.waitForFunction(() => {
       const mark = document.querySelector('.brand-mark');

@@ -527,6 +527,8 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "WAIT-1 - Welcome + Trust Center",
+            "WAIT-2 - Welcome Direct Tester Access",
+            "Count: `2/5` WAIT phases completed after WAIT-2",
             "Trust Claims Gate",
             "No fictitious auditing company",
             "No fake third-party certificates",
@@ -548,6 +550,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "REMOTE VALUE BACKLOG",
             "WAIT-1 - Welcome + Trust Center",
+            "WAIT-2 - Welcome Direct Tester Access",
             "SQX Edge Security Self-Assessment",
             "Privacy & Data Handling Statement",
             "Remote Service Safety Checklist",
@@ -560,12 +563,17 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             'id="remote-welcome-gate"',
             'id="remote-welcome-primary"',
+            'id="remote-welcome-verdict"',
             'id="remote-welcome-trust-toggle"',
             'id="remote-trust-center"',
             "Controles verificables, sin certificados ficticios",
             "SQX Edge Security Self-Assessment",
             "Privacy & Data Handling Statement",
             "Remote Service Safety Checklist",
+            "SQX Edge Suite ofrece productividad, estructura, trazabilidad y reducción de errores operativos.",
+            "No promete rentabilidad",
+            "Herramienta creada por QXPro",
+            "Acceso DASHBOARD",
             "MDN HTTP Observatory",
             "OWASP ZAP Baseline",
         ):
@@ -576,6 +584,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             ".remote-welcome-gate",
             ".remote-welcome-shell",
             ".remote-trust-center",
+            ".remote-welcome-verdict",
+            ".remote-welcome-value-copy",
             ".remote-welcome-status-grid",
             "@media (max-width: 860px)",
         ):
@@ -587,7 +597,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "applyRemoteWelcomeModel",
             "bindRemoteWelcomeGate",
             "dismissRemoteWelcomeGate",
-            "remote-welcome-grant-key",
+            "OK todo validado",
+            "Acceso DASHBOARD",
             "remote_first_user",
         ):
             with self.subTest(pattern=pattern):
@@ -595,6 +606,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                     self.assertIn("remote-welcome", home_js)
                 else:
                     self.assertIn(pattern, home_js)
+
+        self.assertNotIn('id="remote-welcome-grant-key"', html)
 
         combined = "\n".join([governance, roadmap, backlog, html])
         for forbidden in (
@@ -606,6 +619,46 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, combined.lower())
+
+    def test_wait_2_operational_cadence_and_agents_are_governed(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        backlog = REMOTE_VALUE_BACKLOG_DOC.read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "WAIT workstream state",
+            "WAIT-2 - Welcome Direct Tester Access + Operational Cadence",
+            "Status + Next Suggestion Cadence Gate",
+            "Specialist Agent Autonomy Gate",
+            "I+D / Research Scout",
+            "Web & RRSS Creative",
+            "Sales & Commercial",
+            "Asset Cards Curator",
+            "Requires explicit operator confirmation before changing asset-card data",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "WAIT Workstream During REMOTE-8C",
+            "| WAIT-1 | Completed |",
+            "| WAIT-2 | Completed |",
+            "WAIT-3 | Pending",
+            "WAIT-4 | Pending",
+            "WAIT-5 | Pending",
+            "default Welcome flow must not ask testers for a second key after Cloudflare validation",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "WAIT-2 - Welcome Direct Tester Access + Operational Cadence",
+            "OK todo validado",
+            "Acceso DASHBOARD",
+            "No cambiar tarjetas de activos sin confirmacion explicita",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, backlog)
 
     def test_remote_2b_tester_grants_and_repo_privacy_are_locked(self):
         readme = (PROJECT_ROOT / "README.md").read_text(encoding="utf-8-sig")
