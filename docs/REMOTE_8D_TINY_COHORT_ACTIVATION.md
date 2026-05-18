@@ -4,6 +4,26 @@ REMOTE-8D prepares a manual activation package for 3-5 users after a clean REMOT
 
 The purpose is to make the next human step exact, reversible and auditable before any cohort expansion happens.
 
+## Current Package Status
+
+On 2026-05-18, after the operator explicitly changed REMOTE-8C to `expand_3_5`, ignored local evidence returned `GO_REMOTE8D_TINY_COHORT_ACTIVATION_PACKAGE_READY`.
+
+Public-safe package summary:
+
+- Candidate count: `3`
+- Target cohort size: `3`
+- Candidate kind: `tester_free`
+- Feature scope: `full`
+- Missing checks: `0`
+- Automation blockers: `0`
+- Invites sent: `0`
+- Grants created: `0`
+- Checkout links created: `0`
+- Emails sent: `0`
+- Public URLs shared: `0`
+
+This is only a manual package. REMOTE-8E is still required before recording any real activation, and operator final confirmation is still mandatory.
+
 ## Local Evidence Rule
 
 Raw package evidence must live only under ignored local paths:

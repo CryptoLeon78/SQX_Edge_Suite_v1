@@ -6,21 +6,22 @@ The phase exists after REMOTE-8B. REMOTE-8B proves that the private live smoke c
 
 ## Current Observation Baseline
 
-The REMOTE-8C baseline was started locally on 2026-05-17 after REMOTE-8B returned `GO_REMOTE8B_LIVE_PILOT_EVIDENCE_SAFE_NO_GIT_LEAK`. On 2026-05-18, ignored local evidence returned `GO_REMOTE8C_STAY_ONE_USER_DECISION_RECORDED` with more than 24 clean observation hours, all required signals present, zero open support items and zero unresolved blockers.
+The REMOTE-8C baseline was started locally on 2026-05-17 after REMOTE-8B returned `GO_REMOTE8B_LIVE_PILOT_EVIDENCE_SAFE_NO_GIT_LEAK`. On 2026-05-18, ignored local evidence first returned `GO_REMOTE8C_STAY_ONE_USER_DECISION_RECORDED` with more than 24 clean observation hours, all required signals present, zero open support items and zero unresolved blockers.
 
-This is a valid REMOTE-8C decision, but it is not an expansion approval. The first user remains the only active observation target until the operator explicitly requests `expand_3_5` and prepares REMOTE-8D. All raw evidence remains under ignored `.local/remote_service/remote8c_first_user_observation*` paths.
+The operator then explicitly changed the private decision to `expand_3_5` only to prepare REMOTE-8D. The rerun returned `GO_REMOTE8C_TINY_COHORT_EXPANSION_READY`. This does not invite users, create grants, send emails, publish checkout or share protected URLs; it only permits a manual REMOTE-8D package.
 
 After REMOTE-ACCEPT1 returned `GO_REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_CLEAN`, the local observation evidence marked the guided Welcome/Dashboard flow, app-session/entitlement path and tunnel stability as observed. The support loop was later confirmed through Control Panel support intake; the output-folder case was resolved as safe remote behavior because local server folders are intentionally not exposed to remote users.
 
-Public-safe result:
+Public-safe expansion-prep result:
 
-- Status: `GO_REMOTE8C_STAY_ONE_USER_DECISION_RECORDED`
+- Status: `GO_REMOTE8C_TINY_COHORT_EXPANSION_READY`
 - Observation window: `38.0` hours in ignored local evidence at the rerun time
+- Requested decision: `expand_3_5`
 - Missing signals: `0`
 - Metric blockers: `0`
 - Open support items: `0`
 - Unresolved blockers: `0`
-- Expansion allowed: `false`
+- Expansion package allowed: `true`
 - Automation allowed: `false`
 
 ## Local Evidence Rule

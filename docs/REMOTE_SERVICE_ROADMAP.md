@@ -618,7 +618,7 @@ Watches the first approved user after REMOTE-8B and turns private support eviden
 
 Current public-safe status after REMOTE-ACCEPT1: observation has resumed with clean Welcome/Dashboard, app-session/entitlement and tunnel stability signals recorded in ignored local evidence. Expansion remains blocked until the full 24-hour window and support-loop review are complete.
 
-Current public-safe decision on 2026-05-18: ignored local evidence returned `GO_REMOTE8C_STAY_ONE_USER_DECISION_RECORDED` after 38.0 clean observation hours, support-loop review, zero missing signals, zero open support items and zero unresolved blockers. This closes REMOTE-8C as a valid stay-one-user decision. It does not authorize cohort expansion because the recorded decision is not `expand_3_5`.
+Current public-safe decision on 2026-05-18: ignored local evidence first returned `GO_REMOTE8C_STAY_ONE_USER_DECISION_RECORDED` after 38.0 clean observation hours, support-loop review, zero missing signals, zero open support items and zero unresolved blockers. The operator then explicitly changed the private decision to `expand_3_5`; the rerun returned `GO_REMOTE8C_TINY_COHORT_EXPANSION_READY` only to prepare REMOTE-8D. It did not invite users, create grants, send emails, publish checkout or share protected URLs.
 
 Artifacts added in REMOTE-8C:
 
@@ -633,13 +633,15 @@ Artifacts added in REMOTE-8C:
 
 Next REMOTE-8D scope:
 
-- prepare a manual tiny cohort activation package for 3-5 users only after an explicit future REMOTE-8C/decision rerun with `expand_3_5`;
+- prepare a manual tiny cohort activation package for 3-5 users only after an explicit REMOTE-8C/decision rerun with `expand_3_5`;
 - define exact communication, entitlement, support, rollback and pause-rule steps;
 - do not create users, send links or change grants automatically.
 
 ### REMOTE-8D - Tiny Cohort Activation Package
 
 Prepares the manual package for a 3-5 user cohort after REMOTE-8C, without executing invites, checkout, grants or emails.
+
+Current public-safe status on 2026-05-18: ignored local evidence returned `GO_REMOTE8D_TINY_COHORT_ACTIVATION_PACKAGE_READY` with 3 `tester_free` candidates, full feature scope, all checks present, zero automation blockers and zero invites/grants/checkout links/emails/public URLs created.
 
 Artifacts added in REMOTE-8D:
 
