@@ -707,6 +707,12 @@ Next REMOTE-8F scope:
 
 Watches the 3-5 user cohort after REMOTE-8E and converts private monitoring evidence into a public-safe readiness summary. It must not expand traffic, automate onboarding or widen sales until monitoring evidence is clean and explicitly approved in a later decision phase.
 
+Current status on 2026-05-18: REMOTE-8F monitoring is started but not clean.
+Ignored local evidence returns `NO_GO_REMOTE8F_TINY_COHORT_MONITORING_BLOCKED`
+because the 24h observation window is not complete and workspace isolation,
+artifact generation and export/download signals are still pending. This is a
+controlled hold state, not a failure requiring rollback.
+
 Artifacts added in REMOTE-8F:
 
 - `docs/REMOTE_8F_TINY_COHORT_MONITORING.md`

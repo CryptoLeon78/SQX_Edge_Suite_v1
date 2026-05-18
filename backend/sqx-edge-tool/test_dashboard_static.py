@@ -2945,7 +2945,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-8E - Tiny Cohort Manual Execution Record",
             "GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED",
             "REMOTE-8F tiny cohort monitoring",
-            "further expansion remains blocked",
+            "Further expansion remains blocked",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
@@ -3162,6 +3162,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-8F - Tiny Cohort Monitoring And Pause/Rollback Watch",
             "remote-tiny-cohort-monitoring-v1",
             ".local/remote_service/remote8f_tiny_cohort_monitoring",
+            "NO_GO_REMOTE8F_TINY_COHORT_MONITORING_BLOCKED",
+            "workspace isolation checks",
+            "No further expansion",
             "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
             "decision.automationAllowed = false",
             "REMOTE-8G - Tiny Cohort Decision Review",
@@ -3170,6 +3173,9 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_8f)
 
         for pattern in (
+            "REMOTE-8F tiny cohort monitoring started",
+            "NO_GO_REMOTE8F_TINY_COHORT_MONITORING_BLOCKED",
+            "Further expansion remains blocked",
             "Current phase completed: REMOTE-8H cycle bridge",
             "Current implementation phase: REMOTE-8H private package evidence",
             "Tiny Cohort Monitoring Gate",
@@ -3180,6 +3186,9 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
+            "REMOTE-8F monitoring is started but not clean",
+            "NO_GO_REMOTE8F_TINY_COHORT_MONITORING_BLOCKED",
+            "controlled hold state",
             "Artifacts added in REMOTE-8F",
             "docs/REMOTE_8F_TINY_COHORT_MONITORING.md",
             "backend/sqx-edge-tool/core/remote_tiny_cohort_monitoring.py",
