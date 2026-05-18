@@ -15,6 +15,7 @@ PROJECT_GOVERNANCE_DOC = PROJECT_ROOT / "docs" / "PROJECT_GOVERNANCE.md"
 REMOTE_SERVICE_ROADMAP_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_ROADMAP.md"
 REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md"
 REMOTE_VALUE_BACKLOG_DOC = PROJECT_ROOT / "docs" / "REMOTE_VALUE_BACKLOG.md"
+WAIT4_TRUST_EVIDENCE_PACK_DOC = PROJECT_ROOT / "docs" / "WAIT4_TRUST_EVIDENCE_PACK.md"
 REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_DOC = PROJECT_ROOT / "docs" / "REMOTE_ACCEPT1_BROWSER_ACCEPTANCE.md"
 REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_CORE = TOOL_ROOT / "core" / "remote_browser_acceptance.py"
 REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_TOOL = TOOL_ROOT / "tools" / "remote_accept1_browser_acceptance.py"
@@ -554,11 +555,13 @@ class DashboardStaticTestCase(unittest.TestCase):
         home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
 
         self.assertTrue(REMOTE_VALUE_BACKLOG_DOC.is_file())
+        self.assertTrue(WAIT4_TRUST_EVIDENCE_PACK_DOC.is_file())
 
         for pattern in (
             "WAIT-1 - Welcome + Trust Center",
             "WAIT-2 - Welcome Direct Tester Access",
-            "Count: `3/5` WAIT phases completed after REMOTE-SUPPORT1",
+            "WAIT-4 - Trust Evidence Pack",
+            "Count: `4/5` WAIT phases completed after WAIT-4",
             "Trust Claims Gate",
             "No fictitious auditing company",
             "No fake third-party certificates",
@@ -570,6 +573,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Trust Claims Gate",
+            "Trust Evidence Pack Gate",
             "must not claim external certification",
             "fake issuer status",
             "real external artifact exists",
@@ -581,6 +585,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE VALUE BACKLOG",
             "WAIT-1 - Welcome + Trust Center",
             "WAIT-2 - Welcome Direct Tester Access",
+            "WAIT-4 - Trust Evidence Pack",
             "SQX Edge Suite Security Self-Assessment",
             "Privacy & Data Handling Statement",
             "Remote Service Safety Checklist",
@@ -600,6 +605,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             "SQX Edge Suite Security Self-Assessment",
             "Privacy & Data Handling Statement",
             "Remote Service Safety Checklist",
+            "Evidence Pack",
+            "Última revisión: 2026-05-18",
+            "Self-assessment",
+            "Privacy statement",
+            "Safety checklist",
+            "External scans planned",
             "SQX Edge Suite ofrece productividad, estructura, trazabilidad y reducción de errores operativos.",
             "No promete rentabilidad",
             "Herramienta creada por QXPro",
@@ -617,6 +628,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             ".remote-welcome-verdict",
             ".remote-welcome-value-copy",
             ".remote-welcome-status-grid",
+            ".remote-trust-evidence-pack",
+            ".remote-trust-chip",
             "@media (max-width: 860px)",
         ):
             with self.subTest(pattern=pattern):
@@ -639,7 +652,21 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         self.assertNotIn('id="remote-welcome-grant-key"', html)
 
-        combined = "\n".join([governance, roadmap, backlog, html])
+        wait4 = WAIT4_TRUST_EVIDENCE_PACK_DOC.read_text(encoding="utf-8-sig")
+        for pattern in (
+            "WAIT-4 - Trust Evidence Pack",
+            "Customer-facing canonical link: `https://sqxedgesuite.org/`",
+            "SQX Edge Suite Security Self-Assessment",
+            "Privacy & Data Handling Statement",
+            "Remote Service Safety Checklist",
+            "External Evidence Preparation",
+            "No fake external certificate",
+            "WAIT-5",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, wait4)
+
+        combined = "\n".join([governance, roadmap, backlog, html, wait4])
         for forbidden in (
             "auditor externo certificado",
             "empresa ficticia",
@@ -674,7 +701,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "| WAIT-1 | Completed |",
             "| WAIT-2 | Completed |",
             "| WAIT-3 / REMOTE-SUPPORT1 | Completed |",
-            "WAIT-4 | Pending",
+            "WAIT-4 | Completed",
             "WAIT-5 | Pending",
             "default Welcome flow must not ask testers for a second key after Cloudflare validation",
         ):

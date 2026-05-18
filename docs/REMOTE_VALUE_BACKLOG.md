@@ -48,7 +48,24 @@ Limites:
 
 ## Ideas Pendientes
 
-- Crear una pagina Trust Center completa con historial de controles y fecha de ultima revision.
+## WAIT-4 - Trust Evidence Pack
+
+Estado: completado en WAIT-4.
+
+Objetivo:
+
+- Convertir el Trust Center en un paquete de evidencias claro para comprador Pro y tester.
+- Mostrar self-assessment, privacy statement, safety checklist y escaneos externos planificados.
+- Separar lo implementado de lo pendiente sin fingir certificaciones externas.
+
+Artefactos:
+
+- `docs/WAIT4_TRUST_EVIDENCE_PACK.md`.
+- Bloque `Evidence Pack` en la pantalla Welcome / Trust.
+- Contratos estaticos para impedir claims falsos.
+
+## Ideas Pendientes
+
 - Generar PDFs internos de autoevaluacion para compradores Pro sin fingir emisor tercero.
 - Crear una vista de soporte para copiar un resumen redacted del estado remoto.
 - Mejorar mensajes de error de sesion, entitlement, workspace y revocacion.

@@ -492,10 +492,10 @@ Status board:
 | WAIT-1 | Completed | Welcome bridge, honest Trust Center and living value backlog. |
 | WAIT-2 | Completed | Direct tester Welcome access after Cloudflare, status/next-suggestion cadence and new specialist agents. |
 | WAIT-3 / REMOTE-SUPPORT1 | Completed | Safe Control Panel incident intake, redacted local support cases and operator support summary helper. |
-| WAIT-4 | Pending | Trust Evidence Pack: self-assessment evidence, redacted security/privacy summaries and external scan preparation. |
+| WAIT-4 | Completed | Trust Evidence Pack: self-assessment evidence, redacted security/privacy summaries and external scan preparation. |
 | WAIT-5 | Pending | Commercial onboarding polish: buyer welcome story, first-session microcopy and early-access demo flow. |
 
-Count: `3/5` WAIT phases completed after REMOTE-SUPPORT1. At the moment WAIT-2 started, `1/5` were complete.
+Count: `4/5` WAIT phases completed after WAIT-4. At the moment WAIT-2 started, `1/5` were complete.
 
 ### WAIT-1 - Welcome + Trust Center During REMOTE-8C
 
@@ -546,6 +546,26 @@ Rules:
 - Open support items or blocker cases must keep REMOTE-8C expansion blocked until the operator resolves them and updates private evidence manually.
 - Case status changes are operator-only through `tools/remote_support_status.ps1 -SetStatusCase ... -Status resolved|triaged|dismissed`.
 - The intake must not send email, create external tickets, publish GitHub issues or mark `supportLoopObserved` automatically.
+
+### WAIT-4 - Trust Evidence Pack
+
+WAIT-4 is allowed while REMOTE-8C runs because it does not change authentication,
+Cloudflare Access, grants, checkout, protected URLs or cohort size. It turns the
+Trust Center into a buyer/tester-readable evidence pack with self-assessment,
+privacy statement, safety checklist and external scan preparation.
+
+Artifacts:
+
+- `docs/WAIT4_TRUST_EVIDENCE_PACK.md`
+- Trust Center `Evidence Pack` cards in the Welcome surface.
+- Static contracts requiring `WAIT-4 | Completed` and safe claims.
+
+Rules:
+
+- Evidence shown to users must be public-safe and redacted.
+- External scans remain `planned` until real results exist.
+- No fake external certificate, fake auditing company or risk-free language.
+- WAIT-4 does not satisfy REMOTE-8C by itself and does not allow expansion.
 
 ### REMOTE-ACCEPT1 - Real Browser Acceptance Gate
 
