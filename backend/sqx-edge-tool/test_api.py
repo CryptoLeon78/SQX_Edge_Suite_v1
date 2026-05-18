@@ -608,6 +608,41 @@ class ApiTestCase(unittest.TestCase):
         self.assertEqual(mining.bs, "BS_Tendencia_v6")
         self.assertEqual(gen.call_args.kwargs["project_name"], "Custom_EURUSD_H1")
 
+    def test_generate_custom_ignores_template_family_label(self):
+        cfg = {
+            "template_capa1": "templates/Capa1_Long.cfx",
+            "output_dir": "output",
+            "sqx_data_db": "",
+            "darwinex_suffix": "_darwinex",
+            "asset_aliases": {},
+        }
+        fake_path = str(server.ROOT / "output" / "Custom_USDJPY_H4_Capa1.cfx")
+        with patch.object(server, "load_config", return_value=cfg), \
+                patch.object(server.os.path, "isfile", return_value=True), \
+                patch.object(server, "generate_project", return_value=fake_path) as gen, \
+                patch.object(server, "resolve_costs", return_value={
+                    "source": "fallback",
+                    "symbol": "USDJPY_darwinex",
+                    "spread": 1,
+                    "swap_long": -1,
+                    "swap_short": 0,
+                }):
+            response = self.client.post("/api/generate-custom", json={
+                "name": "Project_USDJPY_H4_BS_Volatilidad_v6_volatilidad",
+                "asset": "usdjpy",
+                "tf": "h4",
+                "bs": "BS_Volatilidad_v6",
+                "dir": "long",
+                "capa": 1,
+                "template": "VOLATILIDAD",
+            })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            gen.call_args.kwargs["template_path"],
+            str(server.ROOT / "templates" / "Capa1_Long.cfx"),
+        )
+
     def test_generate_custom_requires_asset_and_timeframe(self):
         response = self.client.post("/api/generate-custom", json={"asset": "EURUSD", "capa": 1})
         self.assertEqual(response.status_code, 400)

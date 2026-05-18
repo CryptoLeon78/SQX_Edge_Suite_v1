@@ -97,6 +97,7 @@ REMOTE_TUNNEL_PREFLIGHT_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_preflig
 REMOTE_TUNNEL_OPERATOR_HANDOFF_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_operator_handoff.ps1"
 REMOTE_TUNNEL_RUN_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_run.ps1"
 REMOTE_TUNNEL_SMOKE_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_smoke.ps1"
+REMOTE_LINK_PREVIEW_SMOKE_SCRIPT = PROJECT_ROOT / "tools" / "remote_link_preview_smoke.ps1"
 REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT = PROJECT_ROOT / "tools" / "remote_tunnel_install_startup_task.ps1"
 REMOTE_OPERATOR_START_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_start.ps1"
 REMOTE_OPERATOR_STOP_SCRIPT = PROJECT_ROOT / "tools" / "remote_operator_stop.ps1"
@@ -4300,6 +4301,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         preflight = REMOTE_TUNNEL_PREFLIGHT_SCRIPT.read_text(encoding="utf-8-sig")
         runner = REMOTE_TUNNEL_RUN_SCRIPT.read_text(encoding="utf-8-sig")
         smoke = REMOTE_TUNNEL_SMOKE_SCRIPT.read_text(encoding="utf-8-sig")
+        preview_smoke = REMOTE_LINK_PREVIEW_SMOKE_SCRIPT.read_text(encoding="utf-8-sig")
         startup_task = REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT.read_text(encoding="utf-8-sig")
 
         for path in (
@@ -4308,6 +4310,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             REMOTE_TUNNEL_PREFLIGHT_SCRIPT,
             REMOTE_TUNNEL_RUN_SCRIPT,
             REMOTE_TUNNEL_SMOKE_SCRIPT,
+            REMOTE_LINK_PREVIEW_SMOKE_SCRIPT,
             REMOTE_TUNNEL_INSTALL_STARTUP_TASK_SCRIPT,
         ):
             with self.subTest(path=path):
@@ -4320,6 +4323,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "NO_GO_REMOTE2_PRIVATE_TUNNEL_ACCESS_EVIDENCE_MISSING",
             ".local/remote_service/cloudflare_tunnel.local.json",
             "Cloudflare Access must intercept anonymous users before any SQX Edge body is visible",
+            "tools\\remote_link_preview_smoke.ps1 -ProtectedUrl",
+            "Application paths",
+            "Access policies",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, remote_2)
@@ -4337,6 +4343,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "tools/remote_tunnel_preflight.ps1",
             "tools/remote_tunnel_run.ps1",
             "tools/remote_tunnel_smoke.ps1",
+            "tools/remote_link_preview_smoke.ps1",
             "tools/remote_tunnel_install_startup_task.ps1",
             "docs/examples/remote_tunnel.local.example.json",
         ):
@@ -4415,6 +4422,20 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, smoke)
 
         for pattern in (
+            "LINKPREVIEW2",
+            "ProtectedUrl",
+            "remote_link_preview_smoke",
+            "link-preview",
+            "sqx-social-preview.png",
+            "rootProtected",
+            "previewPublic",
+            "previewLeaksAppOrPrivateState",
+            "<protected-hostname>",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, preview_smoke)
+
+        for pattern in (
             "Register-ScheduledTask",
             "remote_tunnel_run.ps1",
             "SQX Edge Cloudflare Tunnel",
@@ -4424,7 +4445,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, startup_task)
 
-        combined_public = "\n".join([remote_2, json.dumps(example), preflight, runner, smoke, startup_task, roadmap, architecture])
+        combined_public = "\n".join([remote_2, json.dumps(example), preflight, runner, smoke, preview_smoke, startup_task, roadmap, architecture])
         for forbidden in (
             "@" + "gmail.com",
             "@" + "hotmail.com",

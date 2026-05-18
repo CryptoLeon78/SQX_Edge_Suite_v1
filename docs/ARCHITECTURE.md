@@ -136,6 +136,7 @@ REMOTE-2 Cloudflare Tunnel and Access:
 - `tools/remote_tunnel_operator_handoff.ps1` creates local-only operator instructions and an ignored `cloudflared` config template so Cloudflare login, route and Access evidence can be completed without leaking provider details.
 - `tools/remote_tunnel_run.ps1` runs `cloudflared` from ignored local config only after preflight GO.
 - `tools/remote_tunnel_smoke.ps1` verifies anonymous traffic is blocked by Cloudflare Access before any SQX Edge body is visible.
+- `tools/remote_link_preview_smoke.ps1` verifies the social preview boundary: root remains Access-protected while `/link-preview` and the required brand assets are public-safe.
 - `tools/remote_tunnel_install_startup_task.ps1` can register the tunnel runner in Windows Task Scheduler.
 - `docs/examples/remote_tunnel.local.example.json` defines the redacted boolean evidence shape copied into ignored `.local/remote_service/cloudflare_tunnel.local.json`.
 - `docs/examples/cloudflared-config.local.example.yml` documents the safe placeholder shape for the ignored real tunnel config.

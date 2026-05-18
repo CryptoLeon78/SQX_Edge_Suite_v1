@@ -517,6 +517,33 @@ def resolve_template(cfg: dict, capa: int) -> str:
     return val
 
 
+def looks_like_cfx_template_path(value: str) -> bool:
+    raw = str(value or "").strip()
+    if not raw:
+        return False
+    if raw.lower().endswith(".cfx"):
+        return True
+    if "/" in raw or "\\" in raw:
+        return True
+    return bool(re.match(r"^[A-Za-z]:", raw))
+
+
+def resolve_request_template(data: dict, cfg: dict, capa: int) -> str:
+    raw = str((data or {}).get("template") or "").strip()
+    if not raw or not looks_like_cfx_template_path(raw):
+        return resolve_template(cfg, capa)
+
+    template_path = Path(raw)
+    if template_path.is_absolute():
+        return str(template_path)
+
+    root_candidate = ROOT / template_path
+    templates_candidate = ROOT / "templates" / template_path
+    if root_candidate.is_file() or template_path.parent != Path("."):
+        return str(root_candidate)
+    return str(templates_candidate)
+
+
 def resolve_output_dir(cfg: dict) -> str:
     val = cfg.get("output_dir") or "output"
     if not os.path.isabs(val):
@@ -1601,7 +1628,7 @@ def generate_one():
         return jsonify({"ok": False, "error": "capa must be 1 or 2"}), 400
 
     cfg = load_config()
-    template = data.get("template") or resolve_template(cfg, capa)
+    template = resolve_request_template(data, cfg, capa)
     output, workspace_context, remote_error = _resolve_generation_output(data, cfg, purpose="project_generator_generate")
     if remote_error:
         return remote_error
@@ -1662,7 +1689,7 @@ def generate_custom():
         return jsonify({"ok": False, "error": str(e)}), 400
 
     cfg = load_config()
-    template = data.get("template") or resolve_template(cfg, capa)
+    template = resolve_request_template(data, cfg, capa)
     output, workspace_context, remote_error = _resolve_generation_output(data, cfg, purpose="project_generator_generate_custom")
     if remote_error:
         return remote_error
@@ -1716,7 +1743,7 @@ def generate_all():
         return jsonify({"ok": False, "error": "capa must be 1 or 2"}), 400
 
     cfg = load_config()
-    template = data.get("template") or resolve_template(cfg, capa)
+    template = resolve_request_template(data, cfg, capa)
     output, workspace_context, remote_error = _resolve_generation_output(data, cfg, purpose="project_generator_generate_all")
     if remote_error:
         return remote_error

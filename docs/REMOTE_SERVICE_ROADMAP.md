@@ -97,6 +97,7 @@ Artifacts:
 - `docs/REMOTE_OPS1B_CLOUDFLARE_OPERATOR_HANDOFF.md`
 - `docs/examples/cloudflared-config.local.example.yml`
 - `tools/remote_tunnel_operator_handoff.ps1`
+- `tools/remote_link_preview_smoke.ps1`
 - generated ignored files under `.local/remote_service/`
 
 Next route:

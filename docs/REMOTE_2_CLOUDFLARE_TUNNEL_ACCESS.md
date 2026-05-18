@@ -141,6 +141,33 @@ The preview page must never expose tester emails, protected URLs, Cloudflare
 identifiers, workspace state, local paths, generated strategies, tokens or SQX
 internal resources.
 
+Operator Cloudflare setup:
+
+1. Keep the main self-hosted Access application protecting the root hostname
+   with the approved-user policy. Do not bypass `/`.
+2. Add a more specific Access application path or policy for `/link-preview`
+   with action `Bypass` and selector `Everyone`.
+3. Add equivalent bypass only for the brand assets required by the preview:
+   `/assets/brand/sqx-social-preview.png`,
+   `/assets/brand/sqx-favicon.png` and
+   `/assets/brand/sqx-app-icon-256.png`.
+4. Keep every `/api/*`, `/js/*`, `/css/*`, dashboard root and workspace route
+   behind the authenticated Access application.
+5. Run the boundary smoke after changing Cloudflare:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_link_preview_smoke.ps1 -ProtectedUrl "https://<private-protected-hostname>" -Json
+```
+
+Acceptance: root remains protected, `/link-preview` is public, the social image
+is public, and the preview does not expose app state or private data.
+
+Reference: Cloudflare Access supports application paths for different rules on
+parts of the same hostname and Access policies include a `Bypass` action.
+See Cloudflare's official docs for
+[Application paths](https://developers.cloudflare.com/cloudflare-one/policies/access/app-paths/)
+and [Access policies](https://developers.cloudflare.com/cloudflare-one/policies/access/).
+
 ## Handoff To REMOTE-3
 
 REMOTE-3 can begin when:
