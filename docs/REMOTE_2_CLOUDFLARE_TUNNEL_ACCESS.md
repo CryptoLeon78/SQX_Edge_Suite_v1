@@ -126,7 +126,17 @@ Chat and social preview crawlers usually cannot authenticate through Cloudflare
 Access. A protected dashboard URL can therefore look empty when pasted into a
 chat even if the dashboard itself is working.
 
-ROOT-PREVIEW1 splits the public commercial link from the protected tool:
+CANONICAL-LINK1 sets the external communication rule:
+
+- The only customer/tester-facing link is `https://sqxedgesuite.org/`.
+- That root domain is a public-safe Cloudflare Worker preview with social
+  metadata and a CTA into the app.
+- `app.sqxedgesuite.org/dashboard` is the protected app target behind
+  Cloudflare Access and must not be presented as a second client link.
+- `go.sqxedgesuite.org` may remain as a technical preview alias/fallback, but
+  it is not the commercial URL.
+
+ROOT-PREVIEW1 splits the public commercial surface from the protected tool:
 
 - `/` is a public-safe preview/landing page with Open Graph/Twitter metadata.
 - `/link-preview` remains a legacy alias to the same public-safe preview.
@@ -145,8 +155,8 @@ internal resources.
 
 Operator Cloudflare setup:
 
-1. The public root `/` must not show the dashboard. It may show only the
-   preview/landing page.
+1. The public root `https://sqxedgesuite.org/` must not show the dashboard. It
+   may show only the preview/landing page.
 2. Configure the authenticated Access application for `/dashboard*`, `/api/*`,
    `/js/*`, `/css/*`, `/vendor/*` and non-public `/assets/*`.
 3. Configure `Bypass` + `Everyone` only for `/`, `/link-preview` and the brand
@@ -163,6 +173,10 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_link_preview_sm
 Acceptance: root preview is public, `/dashboard` remains protected,
 `/link-preview` is public, the social image is public, and no preview route
 exposes app state or private data.
+
+Commercial acceptance: sales, tester instructions and support messages must use
+only `https://sqxedgesuite.org/`. Internal hostnames can appear in config,
+smoke tests and CTA targets, but not as customer-facing instructions.
 
 Reference: Cloudflare Access supports application paths for different rules on
 parts of the same hostname and Access policies include a `Bypass` action.

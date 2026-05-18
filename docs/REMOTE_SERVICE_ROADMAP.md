@@ -97,6 +97,13 @@ commercial preview, `/dashboard` is the protected app entry, and
 `tools/remote_link_preview_smoke.ps1` verifies that split before links are
 shared with testers or buyers.
 
+CANONICAL-LINK1 fixes the buyer/tester-facing link policy: the only URL to
+communicate externally is `https://sqxedgesuite.org/`. That root URL is served
+by the public-safe Cloudflare Worker preview and contains the CTA into the
+protected dashboard. `app.sqxedgesuite.org/dashboard` is infrastructure behind
+Cloudflare Access, and `go.sqxedgesuite.org` is only a technical alias/fallback
+for preview diagnostics, not a second commercial link.
+
 Artifacts:
 
 - `docs/REMOTE_OPS1B_CLOUDFLARE_OPERATOR_HANDOFF.md`

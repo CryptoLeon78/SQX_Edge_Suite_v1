@@ -5,15 +5,16 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 ## Estado Actual
 
 - Estado interno: UX-NAV pasa a optimizacion tab por tab; el tab activo es Workflow y el reordenamiento global queda aplazado hasta completar las optimizaciones individuales.
-- Estado comercial: REMOTE-OPS1B convierte el bloqueo Cloudflare en handoff local privado; REMOTE-OPS1 sigue siendo el GO obligatorio antes de testers.
-- Estado de despliegue: Windows laptop + API localhost + Cloudflare Tunnel sigue siendo la ruta activa; falta completar Tunnel + Access con evidencia privada y smoke anonimo.
+- Estado comercial: CANONICAL-LINK1 fija `https://sqxedgesuite.org/` como unico enlace externo; REMOTE-8C sigue siendo el GO obligatorio antes de ampliar testers.
+- Estado de despliegue: Windows laptop + API localhost + Cloudflare Tunnel sigue siendo la ruta activa; el dashboard protegido queda como destino interno detras del CTA del dominio raiz.
 - Ancla historica: Estado comercial: REMOTE-OPS1 valida el portatil como host Pro antes de cualquier siguiente movimiento real con testers o compradores.
 - Ancla historica: Estado comercial: REMOTE-8H cycle bridge conecta la decision REMOTE-8L con el paquete de siguiente movimiento sin ejecutar expansion.
 - Ancla historica: Estado de despliegue: REMOTE-SUG1 revisa la sugerencia Docker/Ubuntu del tester y mantiene el piloto activo en Windows laptop + API localhost + Cloudflare Tunnel.
 - Ultimo commit base verificado antes de S5/M-pre: `d7c0757`.
-- Distribucion principal: enlace remoto protegido; el usuario final no descarga ZIP, no ejecuta launchers y no instala Python.
+- Distribucion principal: enlace unico comercial `https://sqxedgesuite.org/`; el usuario final no descarga ZIP, no ejecuta launchers y no instala Python.
+- URL de acceso comunicable: `https://sqxedgesuite.org/`. El dashboard protegido bajo Cloudflare Access es infraestructura interna y no se presenta como segundo enlace al cliente.
 - Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip` con SHA256 `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`.
-- Siguiente paso recomendado: ejecutar `tools\remote_tunnel_operator_handoff.ps1`, completar Cloudflare Tunnel + Access en privado, correr smoke anonimo y despues rerellenar evidencia privada REMOTE-OPS1 en `.local/remote_service/remote_ops1_laptop_readiness.local.json`; si devuelve GO, volver a REMOTE-8H private package evidence.
+- Siguiente paso recomendado: validar el preview de `https://sqxedgesuite.org/` en Telegram/Discord/X, mantener `app.sqxedgesuite.org` como infraestructura interna y continuar REMOTE-8C hasta cerrar la ventana limpia antes de ampliar testers.
 - Ancla historica: Siguiente paso recomendado: rellenar evidencia privada REMOTE-OPS1 en `.local/remote_service/remote_ops1_laptop_readiness.local.json`; si devuelve GO, volver a REMOTE-8H private package evidence.
 - Ancla historica: Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H desde una decision REMOTE-8L `prepare_next_controlled_movement` y pedir aprobacion REMOTE-8I antes de ejecutar nada.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
@@ -93,6 +94,7 @@ Acceso remoto Pro previsto:
 - Ancla historica: Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro.
 - REMOTE-1 fija la base de portatil servidor en `docs/REMOTE_1_LAPTOP_SERVER_BASELINE.md`.
 - REMOTE-2 fija el tunel protegido en `docs/REMOTE_2_CLOUDFLARE_TUNNEL_ACCESS.md`.
+- CANONICAL-LINK1 fija `https://sqxedgesuite.org/` como unico enlace comercial y de soporte; los subdominios de app/preview quedan como infraestructura interna o fallback tecnico.
 - REMOTE-2B fija acceso completo `tester_free` para testers aprobados y recomienda privatizar `origin` e `institutional` antes de venta en `docs/REMOTE_2B_TESTER_GRANTS_REPO_PRIVACY.md`.
 - REMOTE-3A fija la base backend `remote-access-v1`, endpoint `/api/remote/access/status`, ejemplo local de entitlements y privacidad de repos verificada en `docs/REMOTE_3A_REMOTE_ACCESS_FOUNDATION.md`.
 - REMOTE-3B fija la sesion de app `remote-session-v1`, cookie `__Host-sqx_remote_session`, endpoints `/api/remote/session/login`, `/api/remote/session/status`, `/api/remote/session/logout` y verificacion de clave tester en `docs/REMOTE_3B_APP_SESSION_GRANT_KEY.md`.
