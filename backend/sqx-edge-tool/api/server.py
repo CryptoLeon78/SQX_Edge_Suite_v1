@@ -367,7 +367,11 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     response.headers["Access-Control-Allow-Headers"] = "Content-Type"
     response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["Cache-Control"] = "no-store"
+    if _is_public_link_preview_path(request.path):
+        response.headers["Cache-Control"] = "public, max-age=3600, s-maxage=3600"
+        response.headers["X-Robots-Tag"] = "index, follow"
+    else:
+        response.headers["Cache-Control"] = "no-store"
     if request.path.startswith("/api/remote/"):
         response.headers["X-SQX-Remote-Security-Version"] = REMOTE_SECURITY_VERSION
     return response

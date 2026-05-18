@@ -456,6 +456,9 @@ class ApiTestCase(unittest.TestCase):
         self.assertIn("https://app.example.invalid/assets/brand/sqx-social-preview.png", body)
         self.assertIn('href="https://app.example.invalid/dashboard"', body)
         self.assertIn("Acceso DASHBOARD", body)
+        self.assertIn("public", response.headers.get("Cache-Control", ""))
+        self.assertIn("max-age=3600", response.headers.get("Cache-Control", ""))
+        self.assertEqual(response.headers.get("X-Robots-Tag"), "index, follow")
         self.assertNotIn("remote-welcome-gate", body)
         self.assertNotIn("Cf-Access-Authenticated-User-Email", body)
 
@@ -475,6 +478,9 @@ class ApiTestCase(unittest.TestCase):
         self.assertIn("https://app.example.invalid/assets/brand/sqx-social-preview.png", body)
         self.assertIn('href="https://app.example.invalid/dashboard"', body)
         self.assertIn("Acceso DASHBOARD", body)
+        self.assertIn("public", response.headers.get("Cache-Control", ""))
+        self.assertIn("max-age=3600", response.headers.get("Cache-Control", ""))
+        self.assertEqual(response.headers.get("X-Robots-Tag"), "index, follow")
         self.assertNotIn("remote-welcome-gate", body)
         self.assertNotIn("Cf-Access-Authenticated-User-Email", body)
 
@@ -500,6 +506,8 @@ class ApiTestCase(unittest.TestCase):
         )
         self.assertEqual(image.status_code, 200)
         self.assertIn("image/png", image.headers.get("Content-Type", ""))
+        self.assertIn("public", image.headers.get("Cache-Control", ""))
+        self.assertEqual(image.headers.get("X-Robots-Tag"), "index, follow")
 
     def test_pro_write_endpoints_are_feature_gated(self):
         denied = {

@@ -152,9 +152,18 @@ if ($image.headers.ContainsKey("Content-Type")) {
     $imageContentType = [string]$image.headers["Content-Type"]
 }
 $imageOk = ($image.statusCode -eq 200) -and ($imageContentType -match '(?i)image/png')
+$rootCacheControl = ""
+if ($root.headers.ContainsKey("Cache-Control")) { $rootCacheControl = [string]$root.headers["Cache-Control"] }
+$previewCacheControl = ""
+if ($preview.headers.ContainsKey("Cache-Control")) { $previewCacheControl = [string]$preview.headers["Cache-Control"] }
+$imageCacheControl = ""
+if ($image.headers.ContainsKey("Cache-Control")) { $imageCacheControl = [string]$image.headers["Cache-Control"] }
+$rootCacheable = $rootCacheControl -match '(?i)public' -and $rootCacheControl -notmatch '(?i)no-store'
+$previewCacheable = $previewCacheControl -match '(?i)public' -and $previewCacheControl -notmatch '(?i)no-store'
+$imageCacheable = $imageCacheControl -match '(?i)public' -and $imageCacheControl -notmatch '(?i)no-store'
 
 $result = [ordered]@{
-    ok = ([bool]$rootHasMeta -and -not [bool]$rootAccessSignal -and -not [bool]$rootAppBodyVisible -and [bool]$dashboardAccessSignal -and -not [bool]$dashboardAppBodyVisible -and [bool]$previewHasMeta -and -not [bool]$previewLeaksApp -and [bool]$imageOk)
+    ok = ([bool]$rootHasMeta -and [bool]$rootCacheable -and -not [bool]$rootAccessSignal -and -not [bool]$rootAppBodyVisible -and [bool]$dashboardAccessSignal -and -not [bool]$dashboardAppBodyVisible -and [bool]$previewHasMeta -and [bool]$previewCacheable -and -not [bool]$previewLeaksApp -and [bool]$imageOk -and [bool]$imageCacheable)
     phase = "ROOT-PREVIEW1"
     mode = "cloudflare_root_preview_dashboard_boundary_smoke"
     rootUrl = Redact-Url $rootUrl
@@ -162,13 +171,16 @@ $result = [ordered]@{
     dashboardUrl = Redact-Url $dashboardUrl
     imageUrl = Redact-Url $imageUrl
     rootPreviewPublic = [bool]$rootHasMeta
+    rootPreviewCacheable = [bool]$rootCacheable
     rootAccessSignalDetected = [bool]$rootAccessSignal
     rootAppBodyVisibleToAnonymous = [bool]$rootAppBodyVisible
     dashboardProtected = [bool]$dashboardAccessSignal
     dashboardAppBodyVisibleToAnonymous = [bool]$dashboardAppBodyVisible
     previewPublic = [bool]$previewHasMeta
+    previewCacheable = [bool]$previewCacheable
     previewLeaksAppOrPrivateState = [bool]$previewLeaksApp
     imagePublic = [bool]$imageOk
+    imageCacheable = [bool]$imageCacheable
     statusCodes = [ordered]@{
         root = $root.statusCode
         preview = $preview.statusCode
@@ -188,13 +200,16 @@ if ($Json) {
 } else {
     Write-Host "ROOT-PREVIEW1 Cloudflare root preview/dashboard boundary smoke"
     Write-Host "  Root preview public: $($result.rootPreviewPublic)"
+    Write-Host "  Root preview cacheable: $($result.rootPreviewCacheable)"
     Write-Host "  Root Access signal: $($result.rootAccessSignalDetected)"
     Write-Host "  Root app body visible: $($result.rootAppBodyVisibleToAnonymous)"
     Write-Host "  Dashboard protected: $($result.dashboardProtected)"
     Write-Host "  Dashboard app body visible: $($result.dashboardAppBodyVisibleToAnonymous)"
     Write-Host "  Preview public: $($result.previewPublic)"
+    Write-Host "  Preview cacheable: $($result.previewCacheable)"
     Write-Host "  Preview leaks app/private state: $($result.previewLeaksAppOrPrivateState)"
     Write-Host "  Social image public: $($result.imagePublic)"
+    Write-Host "  Social image cacheable: $($result.imageCacheable)"
     Write-Host "  OK: $($result.ok)"
 }
 

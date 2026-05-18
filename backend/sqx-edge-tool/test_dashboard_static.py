@@ -4429,8 +4429,11 @@ class DashboardStaticTestCase(unittest.TestCase):
             "/dashboard",
             "sqx-social-preview.png",
             "rootPreviewPublic",
+            "rootPreviewCacheable",
             "dashboardProtected",
             "previewPublic",
+            "previewCacheable",
+            "imageCacheable",
             "previewLeaksAppOrPrivateState",
             "<protected-hostname>",
         ):
