@@ -1420,6 +1420,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "remote-workspace-output-v1",
             "`workspace://outputs`",
             "browser-supplied remote `output` overrides",
+            "Browser Output Delivery Gate",
+            "configured Downloads folder",
+            "Any user-facing file export",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
@@ -1430,6 +1433,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "remote-workspace-output-v1",
             "Two identities cannot see each other's generated `.cfx` files",
             "Project Generator Workspace Output Gate",
+            "every user-facing export must be a browser download",
+            "configured Downloads folder",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, roadmap)
@@ -1448,6 +1453,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "list_workspace_outputs",
             "workspace_outputs_dir",
             "output_response_fields",
+            "/api/output/download/",
+            "/api/output/download-selected",
+            "/api/output/delete",
             "remote_output_override_blocked",
             "remote_open_folder_blocked",
             "_resolve_generation_output",
@@ -1469,6 +1477,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "test_remote_generate_custom_writes_to_workspace_outputs_and_redacts_local_paths",
             "test_remote_output_lists_workspace_outputs_not_global_output",
+            "test_remote_output_downloads_workspace_file_without_local_path",
+            "test_remote_output_download_selected_returns_zip_for_multiple_files",
+            "test_remote_output_delete_selected_removes_only_workspace_files",
+            "test_remote_output_rejects_path_traversal",
             "test_remote_output_override_is_blocked",
             "test_remote_project_generator_requires_app_session_before_output_access",
             "test_remote_workspace_outputs_are_separate_per_identity",
@@ -7315,7 +7327,10 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX_PG_MODULE.validateSqxShouldApply", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.enrichMiningsWithSymbolInfo", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.outputState", project_generator_main_js)
-        self.assertIn("SQX_PG_MODULE.openOutputSuccessStatus", project_generator_main_js)
+        self.assertIn("function pgDownloadOutputBundle(names)", project_generator_main_js)
+        self.assertIn("function pgDownloadAllOutput()", project_generator_main_js)
+        self.assertIn("function pgDeleteSelectedOutputFiles()", project_generator_main_js)
+        self.assertIn("function pgDeleteSelectedMinings()", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.cleanerNoSelectionStatus", project_generator_main_js)
         self.assertIn("SQX_PG_MODULE.cleanerResultTrace", project_generator_main_js)
         self.assertIn("const SQX_PG_DOM = SQX_PG_MODULE.dom", project_generator_main_js)
@@ -7390,6 +7405,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertNotIn("info.textContent = '🔍 Escaneando...'", project_generator_main_js)
         self.assertNotIn("'Procesando ' + CLN_SELECTED.size", project_generator_main_js)
         self.assertIn("openOutputFolder: pgOpenOutputFolder", project_generator_main_js)
+        self.assertIn("downloadSelectedOutputFiles: pgDownloadSelectedOutputFiles", project_generator_main_js)
+        self.assertIn("deleteSelectedOutputFiles: pgDeleteSelectedOutputFiles", project_generator_main_js)
+        self.assertIn("deleteSelectedMinings: pgDeleteSelectedMinings", project_generator_main_js)
         self.assertNotIn("document.getElementById('pg-open-output').addEventListener('click', async function", project_generator_main_js)
         self.assertNotIn("pgLog('📁 Abierta carpeta output'", project_generator_main_js)
         self.assertNotIn("pg-output-empty", project_generator_main_js)

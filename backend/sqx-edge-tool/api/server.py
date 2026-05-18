@@ -14,6 +14,8 @@ Endpoints:
   POST /api/generate-custom   -> body: {asset, tf, dir, capa, name?, bs?} -> genera 1 .cfx fuera del plan
   POST /api/generate-all      -> body: {capa: 1|2} -> genera los 14
   GET  /api/output            -> lista de .cfx en output_dir
+  GET  /api/output/download/* -> descarga .cfx generado
+  POST /api/output/delete     -> borra .cfx generados seleccionados
   POST /api/open-folder       -> body: {path} -> abre carpeta en Explorer
 """
 from __future__ import annotations
@@ -23,7 +25,9 @@ import os
 import re
 import sys
 import subprocess
+import zipfile
 from datetime import datetime, timezone
+from io import BytesIO
 from pathlib import Path
 
 # Permitir ejecución directa o vía -m
@@ -32,7 +36,7 @@ PROJECT_ROOT = ROOT.parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from flask import Flask, abort, jsonify, make_response, request, send_from_directory  # type: ignore
+from flask import Flask, abort, jsonify, make_response, request, send_file, send_from_directory  # type: ignore
 
 from core import Mining, all_minings, generate_project, get_mining, normalize_direction
 from core.config_loader import load_manifest
@@ -1677,6 +1681,192 @@ def list_output():
             "mtime": f.stat().st_mtime,
         })
     return jsonify({"output_dir": str(out_dir), "files": items})
+
+
+def _output_dir_for_request(*, purpose: str, create: bool = True) -> tuple[Path | None, dict | None, tuple | None]:
+    cfg = load_config()
+    workspace_context, remote_error = _active_remote_workspace_for_request(purpose=purpose, create=create)
+    if remote_error:
+        return None, None, remote_error
+    if workspace_context:
+        return workspace_outputs_dir(workspace_context), workspace_context, None
+    return Path(resolve_output_dir(cfg)), None, None
+
+
+def _safe_output_filename(raw_name: str) -> str:
+    name = Path(str(raw_name or "")).name.strip()
+    if not name or name != str(raw_name or "").strip():
+        raise ValueError("invalid output filename")
+    if not name.lower().endswith(".cfx"):
+        raise ValueError("only .cfx output files can be accessed")
+    return name
+
+
+def _output_file_path(output_dir: Path, raw_name: str) -> Path:
+    name = _safe_output_filename(raw_name)
+    path = (output_dir / name).resolve(strict=False)
+    output_root = output_dir.resolve(strict=False)
+    try:
+        path.relative_to(output_root)
+    except ValueError as exc:
+        raise ValueError("output file outside output directory") from exc
+    return path
+
+
+@app.get("/api/output/download/<path:filename>")
+def download_output_file(filename: str):
+    output_dir, workspace_context, remote_error = _output_dir_for_request(
+        purpose="project_generator_output_download",
+        create=False,
+    )
+    if remote_error:
+        return remote_error
+    try:
+        path = _output_file_path(output_dir or Path(), filename)
+    except ValueError as exc:
+        return jsonify({"ok": False, "error": str(exc)}), 400
+    if not path.is_file():
+        return jsonify({"ok": False, "error": "output file not found"}), 404
+    if workspace_context:
+        append_workspace_audit_event(workspace_context, {
+            "type": "remote_workspace_output_downloaded",
+            "action": "project_generator_output_download",
+            "filename": path.name,
+            "version": "remote-workspace-output-download-v1",
+        })
+    return send_file(path, as_attachment=True, download_name=path.name, mimetype="application/octet-stream")
+
+
+@app.get("/api/output/download-all")
+def download_all_outputs():
+    output_dir, workspace_context, remote_error = _output_dir_for_request(
+        purpose="project_generator_output_download_all",
+        create=False,
+    )
+    if remote_error:
+        return remote_error
+    output_dir = output_dir or Path()
+    files = sorted(output_dir.glob("*.cfx"), key=lambda item: item.stat().st_mtime, reverse=True)
+    buffer = BytesIO()
+    with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in files:
+            archive.write(path, arcname=path.name)
+    buffer.seek(0)
+    if workspace_context:
+        append_workspace_audit_event(workspace_context, {
+            "type": "remote_workspace_outputs_downloaded",
+            "action": "project_generator_output_download_all",
+            "fileCount": len(files),
+            "version": "remote-workspace-output-download-v1",
+        })
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name=f"sqx-edge-suite-cfx-output-{stamp}.zip",
+        mimetype="application/zip",
+    )
+
+
+@app.post("/api/output/download-selected")
+def download_selected_outputs():
+    data = request.get_json(silent=True) or {}
+    raw_files = data.get("files") or []
+    if not isinstance(raw_files, list) or not raw_files:
+        return jsonify({"ok": False, "error": "no output files selected"}), 400
+    output_dir, workspace_context, remote_error = _output_dir_for_request(
+        purpose="project_generator_output_download_selected",
+        create=False,
+    )
+    if remote_error:
+        return remote_error
+    selected_paths: list[Path] = []
+    for raw_name in raw_files:
+        try:
+            path = _output_file_path(output_dir or Path(), str(raw_name))
+        except ValueError as exc:
+            return jsonify({"ok": False, "error": str(exc), "filename": str(raw_name)}), 400
+        if not path.is_file():
+            return jsonify({"ok": False, "error": "output file not found", "filename": path.name}), 404
+        selected_paths.append(path)
+    if len(selected_paths) == 1:
+        path = selected_paths[0]
+        if workspace_context:
+            append_workspace_audit_event(workspace_context, {
+                "type": "remote_workspace_output_downloaded",
+                "action": "project_generator_output_download_selected",
+                "filename": path.name,
+                "version": "remote-workspace-output-download-v1",
+            })
+        return send_file(path, as_attachment=True, download_name=path.name, mimetype="application/octet-stream")
+    buffer = BytesIO()
+    with zipfile.ZipFile(buffer, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        for path in selected_paths:
+            archive.write(path, arcname=path.name)
+    buffer.seek(0)
+    if workspace_context:
+        append_workspace_audit_event(workspace_context, {
+            "type": "remote_workspace_outputs_downloaded",
+            "action": "project_generator_output_download_selected",
+            "fileCount": len(selected_paths),
+            "version": "remote-workspace-output-download-v1",
+        })
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%d-%H%M%S")
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name=f"sqx-edge-suite-cfx-selected-{stamp}.zip",
+        mimetype="application/zip",
+    )
+
+
+@app.post("/api/output/delete")
+def delete_output_files():
+    data = request.get_json(silent=True) or {}
+    raw_files = data.get("files") or []
+    if not isinstance(raw_files, list) or not raw_files:
+        return jsonify({"ok": False, "error": "no output files selected"}), 400
+    output_dir, workspace_context, remote_error = _output_dir_for_request(
+        purpose="project_generator_output_delete",
+        create=False,
+    )
+    if remote_error:
+        return remote_error
+    deleted: list[str] = []
+    missing: list[str] = []
+    errors: list[dict[str, str]] = []
+    for raw_name in raw_files:
+        try:
+            path = _output_file_path(output_dir or Path(), str(raw_name))
+        except ValueError as exc:
+            errors.append({"name": str(raw_name), "error": str(exc)})
+            continue
+        if not path.is_file():
+            missing.append(path.name)
+            continue
+        try:
+            path.unlink()
+            deleted.append(path.name)
+        except OSError as exc:
+            errors.append({"name": path.name, "error": str(exc)})
+    if workspace_context:
+        append_workspace_audit_event(workspace_context, {
+            "type": "remote_workspace_outputs_deleted",
+            "action": "project_generator_output_delete",
+            "deletedCount": len(deleted),
+            "missingCount": len(missing),
+            "errorCount": len(errors),
+            "filenames": deleted,
+            "version": "remote-workspace-output-delete-v1",
+        })
+    return jsonify({
+        "ok": not errors,
+        "deleted": deleted,
+        "missing": missing,
+        "errors": errors,
+        "scope": "remote_workspace" if workspace_context else "local_operator",
+        "privacy": {"local_paths_returned": False} if workspace_context else {"local_paths_returned": True},
+    })
 
 
 @app.post("/api/generate")

@@ -40,10 +40,13 @@
     bind(doc, 'pg-mode-manual', 'click', function() { if (h.setGenerationMode) h.setGenerationMode('manual'); });
     bind(doc, 'pg-select-all-minings', 'click', h.selectAllMinings);
     bind(doc, 'pg-clear-selected-minings', 'click', h.clearSelectedMinings);
+    bind(doc, 'pg-delete-selected-minings', 'click', h.deleteSelectedMinings);
     bind(doc, 'pg-generate-selected-c1', 'click', function() { h.generateSelected(1); });
     bind(doc, 'pg-generate-selected-c2', 'click', function() { h.generateSelected(2); });
     bind(doc, 'pg-output-refresh', 'click', h.loadOutput);
     bind(doc, 'pg-open-output', 'click', h.openOutputFolder);
+    bind(doc, 'pg-output-download-selected', 'click', h.downloadSelectedOutputFiles);
+    bind(doc, 'pg-output-delete-selected', 'click', h.deleteSelectedOutputFiles);
     bind(doc, 'pg-log-clear', 'click', function() {
       var log = byId(doc, 'pg-log');
       if (log) log.textContent = '[esperando primera acción…]';

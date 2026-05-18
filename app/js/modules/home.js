@@ -167,17 +167,17 @@
       : (access.allowed ? 'Identidad y permiso validados. Pulsa Acceso DASHBOARD para abrir tu workspace privado.' : null);
     accessDetail = accessDetail
       ? accessDetail
-      : (mode === 'local_only' ? 'Modo local interno; el enlace remoto activara email y permiso.' : remoteReasonLabel(reason));
+      : (mode === 'local_only' ? 'Modo operador interno; el enlace remoto activara email y permiso.' : remoteReasonLabel(reason));
     var workspaceStatus = workspaceOk ? shortWorkspaceId(workspace.id) : (canCreateSession ? 'Listo al entrar' : 'Pendiente');
     var workspaceDetail = workspaceOk
-      ? 'Workspace aislado gestionado por servidor; rutas locales no expuestas.'
+      ? 'Workspace aislado gestionado por servidor; rutas internas no expuestas.'
       : (canCreateSession
         ? 'Se crea automaticamente al pulsar Acceso DASHBOARD.'
         : 'Se crea solo con sesion remota valida y permiso activo.');
     var serverStatus = serverOk ? (serverReady ? 'Recursos listos' : 'Backend disponible') : 'No conectado';
     var serverDetail = serverOk
       ? (serverReady ? 'SQX, data.db y templates verificados en servidor.' : 'API responde; completar recursos servidor antes de operar.')
-      : 'Sin conexion con la API del gateway remoto o local.';
+      : 'Sin conexion con la API del gateway del servicio.';
     var killSwitch = securityPayload.killSwitch || {};
     var securityOk = !!securityPayload.ok;
     var securityBlocked = !!(killSwitch.active || (securityPayload.revocation || {}).currentSessionRevoked || (securityPayload.blocking || {}).currentIdentityBlocked);
@@ -603,7 +603,7 @@
       readiness: readiness,
       heroStatus: backendOk
         ? (sqxPathOk ? 'API conectada. Plan, manifiestos y generador listos para operar.' : 'API conectada. Falta completar la ruta SQX para generar con seguridad.')
-        : 'Manifest activo. Arranca la API local para habilitar generacion, validacion de rutas y limpieza SQX.',
+        : 'Manifest activo. La API SQX Edge debe estar activa para habilitar generacion, validacion de rutas y limpieza SQX.',
       auditScore: auditItems.filter(Boolean).length + '/' + auditItems.length,
       checks: {
         manifest: manifestOk,
@@ -621,7 +621,7 @@
         backend: { ok: backendOk, detail: backendOk ? 'API v' + (backendMeta.version || '?') : 'API no conectada' },
         templates: { ok: templatesOk, detail: backendOk ? (templatesOk ? 'Capa 1 + Capa 2 OK' : 'revisar templates') : 'requiere API' },
         sqx: { ok: sqxPathOk, detail: backendOk ? (sqxPathOk ? 'ruta configurada' : 'ruta pendiente') : 'requiere API' },
-        output: { ok: outputOk, detail: backendOk ? (outputOk ? 'carpeta accesible' : 'output pendiente') : 'requiere API' }
+        output: { ok: outputOk, detail: backendOk ? (outputOk ? 'workspace de descargas listo' : 'output pendiente') : 'requiere API' }
       }
     };
   }

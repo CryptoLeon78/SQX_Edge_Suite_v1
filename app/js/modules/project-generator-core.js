@@ -34,9 +34,9 @@ function computeOnboardingState(input) {
     var steps = [
       {
         id: 'api',
-        label: 'API local',
+        label: 'API SQX Edge',
         done: connected,
-        detail: connected ? ('Backend listo en ' + apiBase) : 'Sin conexion con el backend local.'
+        detail: connected ? ('Backend listo en ' + apiBase) : 'Sin conexion con el servicio.'
       },
       {
         id: 'sqx',
@@ -51,7 +51,7 @@ function computeOnboardingState(input) {
         label: 'Templates y output',
         done: connected && templateReady,
         detail: templateReady
-          ? ('C1, C2 y output listos en ' + (health.output_dir || outputDir || 'output'))
+          ? 'C1, C2 y workspace de descargas listos'
           : [
               health.templates_capa1_exists ? null : 'falta Capa 1',
               health.templates_capa2_exists ? null : 'falta Capa 2',
@@ -74,11 +74,11 @@ function computeOnboardingState(input) {
       completed: completed,
       current: current,
       checks: [
-        { label: 'API local responde', ok: connected },
+        { label: 'API SQX Edge responde', ok: connected },
         { label: hasDbInput ? 'data.db localizado' : 'data.db pendiente', ok: !!health.data_db_exists },
         { label: 'Templates C1 y C2 listos', ok: !!health.templates_capa1_exists && !!health.templates_capa2_exists },
         { label: hasMinings ? (minings.length + ' minings cargados') : 'Plan de minings pendiente', ok: hasMinings },
-        { label: outputReady ? 'Output accesible' : 'Output pendiente', ok: outputReady },
+        { label: outputReady ? 'Descargas preparadas' : 'Descargas pendientes', ok: outputReady },
         { label: outputFiles.length ? 'Primer .cfx generado' : 'Primer .cfx pendiente', ok: outputFiles.length > 0 }
       ],
       primaryLabel: 'Comprobar API',
@@ -90,28 +90,28 @@ function computeOnboardingState(input) {
       title: 'Preparando flujo guiado',
       desc: 'Conecta la API y deja la configuracion lista para generar tu primer .cfx.',
       assistantNext: 'Comprobar API',
-      assistantHint: 'Primero necesitamos confirmar que el backend local responde.'
+      assistantHint: 'Primero necesitamos confirmar que el servicio responde.'
     };
 
     if (!current) {
       state.title = 'Todo listo para producir';
-      state.desc = 'Ya tienes la base configurada. Puedes abrir output o seguir afinando paths y templates.';
-      state.primaryLabel = 'Abrir output';
+      state.desc = 'Ya tienes la base configurada. Puedes descargar output o seguir afinando paths y templates.';
+      state.primaryLabel = 'Descargar output';
       state.secondaryLabel = 'Abrir configuracion';
       state.tertiaryLabel = 'Actualizar estado';
       state.tertiaryAction = 'refresh';
       state.assistantNext = 'Produccion lista';
-      state.assistantHint = 'La base esta preparada. Puedes generar mas proyectos o abrir la carpeta output.';
+      state.assistantHint = 'La base esta preparada. Puedes generar mas proyectos o descargar los .cfx del output.';
       return state;
     }
 
     if (current.id === 'api') {
-      state.title = '1. Comprueba la API local';
-      state.desc = 'El dashboard necesita el backend activo para leer config, minings, output y generar proyectos.';
+      state.title = '1. Comprueba la API SQX Edge';
+      state.desc = 'El dashboard necesita el servicio activo para leer config, minings, output y generar proyectos.';
       state.primaryLabel = 'Comprobar API';
       state.tertiaryVisible = false;
-      state.assistantNext = 'Arrancar o comprobar backend';
-      state.assistantHint = 'Si no conecta, usa START_SQX_EDGE.bat y vuelve a pulsar Comprobar API.';
+      state.assistantNext = 'Comprobar servicio';
+      state.assistantHint = 'Si no conecta, pulsa Reintentar o registra incidencia desde Control Panel.';
       return state;
     }
 
@@ -131,13 +131,13 @@ function computeOnboardingState(input) {
 
     if (current.id === 'templates') {
       state.title = '3. Deja templates y output listos';
-      state.desc = 'Revisa que existan las dos plantillas .cfx y que la carpeta output apunte al destino correcto.';
+      state.desc = 'Revisa que existan las dos plantillas .cfx y que el output apunte al workspace correcto.';
       state.primaryLabel = 'Revisar configuracion';
       state.secondaryLabel = 'Reintentar estado';
       state.tertiaryLabel = 'Guardar config';
       state.tertiaryAction = 'save';
       state.assistantNext = 'Completar templates y output';
-      state.assistantHint = 'Cuando Capa 1, Capa 2 y output existan, el ultimo paso sera generar el primer .cfx.';
+      state.assistantHint = 'Cuando Capa 1, Capa 2 y output existan, el ultimo paso sera generar el primer .cfx y descargarlo desde el navegador.';
       return state;
     }
 

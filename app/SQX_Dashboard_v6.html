@@ -125,7 +125,7 @@
       <div class="home-hero-copy">
         <span class="home-eyebrow">Estado operativo</span>
         <h2>Panel de estado</h2>
-        <p id="home-hero-status">Manifest activo. API local pendiente de comprobar.</p>
+        <p id="home-hero-status">Manifest activo. API SQX Edge pendiente de comprobar.</p>
       </div>
       <div class="home-hero-actions">
         <button class="home-command primary" data-home-tab="workflow">
@@ -548,7 +548,7 @@
             <input id="fulfillment-zip-path" class="search-input fulfillment-input" type="text" placeholder="Ruta ZIP portable final">
             <input id="fulfillment-support-email" class="search-input fulfillment-input" type="text" placeholder="Email soporte (opcional)">
           </div>
-          <small id="fulfillment-queue-status" class="support-status">Esperando conexion con la API local.</small>
+          <small id="fulfillment-queue-status" class="support-status">Esperando conexion con la API del servicio.</small>
           <div id="fulfillment-request-list" class="fulfillment-request-list"></div>
           <div id="fulfillment-empty" class="home-history-empty">No hay requests pendientes en la cola.</div>
         </div>
@@ -755,16 +755,16 @@
         <span id="ps-overrides-info" style="display:none; padding:3px 10px; background:rgba(249,115,22,.12); color:var(--orange); border:1px solid rgba(249,115,22,.3); border-radius:4px; font-size:11px; font-weight:700;"></span>
       </div>
       <div class="ps-plan-actions">
-        <span class="state-backup-badge is-unknown" id="state-backup-indicator" title="Estado del backup local del dashboard">Backup sin comprobar</span>
-        <button class="export-btn" id="state-backup-now" title="Guarda un snapshot local de tracking, plan, estrategias importadas, vistas y API base">Backup estado</button>
-        <button class="export-btn" id="state-backup-restore" title="Abre la lista de snapshots locales para restaurar estado">Restaurar</button>
-        <button class="export-btn" id="ps-add-mining-btn" style="border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08);" title="Añade un asset/timeframe/dirección a una fase del plan mining local">+ Mining</button>
+        <span class="state-backup-badge is-unknown" id="state-backup-indicator" title="Estado del backup del dashboard">Backup sin comprobar</span>
+        <button class="export-btn" id="state-backup-now" title="Guarda un snapshot de tracking, plan, estrategias importadas, vistas y API base">Backup estado</button>
+        <button class="export-btn" id="state-backup-restore" title="Abre la lista de snapshots para restaurar estado">Restaurar</button>
+        <button class="export-btn" id="ps-add-mining-btn" style="border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08);" title="Añade un asset/timeframe/dirección a una fase del plan mining">+ Mining</button>
         <button class="export-btn" id="ps-add-phase-btn" style="border-color:var(--pink); color:var(--pink); background:rgba(236,72,153,.08);" title="Crea una fase adicional para agrupar nuevos minings">+ Fase</button>
         <button class="export-btn" id="ps-consolidate-plan" title="Exporta el plan mining actual para consolidarlo como configuración estable">Consolidar</button>
         <button class="export-btn" id="ps-restore-auto" style="display:none; border-color:var(--purple); color:var(--purple);">Restaurar estados auto</button>
         <button class="export-btn" id="ps-plan-reset">Reset estados</button>
         <button class="export-btn" id="ps-plan-reset-plan" style="border-color:var(--red); color:var(--red); background:rgba(239,68,68,.08);" title="Borra todos los minings, incluido el plan base, para empezar desde cero">Reset plan mining</button>
-        <button class="export-btn" id="ps-project-zero-state" style="border-color:var(--yellow); color:var(--yellow); background:rgba(234,179,8,.08);" title="Pone a cero el estado operativo local: plan, prioridad, embudos, estrategias visibles, checklist y presets de trabajo. No toca licencia ni API.">Proyecto limpio</button>
+        <button class="export-btn" id="ps-project-zero-state" style="border-color:var(--yellow); color:var(--yellow); background:rgba(234,179,8,.08);" title="Pone a cero el estado operativo: plan, prioridad, embudos, estrategias visibles, checklist y presets de trabajo. No toca licencia ni API.">Proyecto limpio</button>
       </div>
       <div style="color:var(--text2);font-size:12px;margin-bottom:12px;">
         Este bloque controla el plan real de trabajo: fases, assets/timeframes, dirección, estado y supervivientes por mining.
@@ -782,12 +782,12 @@
       </div>
       <div id="ps-funnel"></div>
       <div style="margin-top:12px;color:var(--text2);font-size:11px;">
-        Click en cualquier valor para editar. Los datos se guardan en localStorage por mining+template.
+        Click en cualquier valor para editar. Los datos se guardan por mining y template dentro del estado de trabajo.
       </div>
     </div>
   </div>
 
-  <!-- TAB: PROJECT GENERATOR — genera Custom Projects .cfx para SQX vía API local -->
+  <!-- TAB: PROJECT GENERATOR — genera Custom Projects .cfx para SQX vía API SQX Edge -->
   <div id="tab-projectgen" class="tab-content" style="display:none">
     <div class="pg-shell">
       <section class="pg-hero">
@@ -799,12 +799,12 @@
         <div class="pg-hero-cards">
           <div><span>Entrada</span><strong>Plan Mining</strong><small>Capa 1 y Capa 2 del plan activo.</small></div>
           <div><span>Salida</span><strong>.cfx</strong><small>Custom Projects listos para SQX.</small></div>
-          <div><span>API</span><strong id="pg-api-base-inline">API local</strong><small>Backend Python en tu equipo.</small></div>
+          <div><span>API</span><strong id="pg-api-base-inline">API SQX Edge</strong><small>Backend del servicio.</small></div>
         </div>
       </section>
 
       <ol class="pg-guide-flow" aria-label="Flujo Project Generator">
-        <li><span>1</span><strong>API local</strong><small>Comprueba que el backend responde.</small></li>
+        <li><span>1</span><strong>API SQX Edge</strong><small>Comprueba que el servicio responde.</small></li>
         <li><span>2</span><strong>Configura SQX</strong><small>Rutas, templates, output y aliases.</small></li>
         <li><span>3</span><strong>Elige generación</strong><small>Plan Mining o custom libre.</small></li>
         <li><span>4</span><strong>Genera y revisa</strong><small>Acciones Capa 1/2, minings y output.</small></li>
@@ -815,18 +815,18 @@
         <summary class="views-panel-head pg-step-summary">
           <div>
             <span>PASO 1</span>
-            <strong>API local</strong>
+            <strong>API SQX Edge</strong>
           </div>
           <small>Necesaria para leer config, minings, output y generar proyectos.</small>
           <span class="pg-disclosure-indicator" aria-hidden="true"></span>
         </summary>
         <div class="pg-step-body">
-          <p class="views-step-copy">Si el backend no responde, arranca <code>START_SQX_EDGE.bat</code> y pulsa Reintentar. No se genera nada hasta que la API local esté disponible.</p>
+          <p class="views-step-copy">Si el servicio no responde, pulsa Reintentar o contacta soporte desde Control Panel. No se genera nada hasta que la API esté disponible.</p>
           <div id="pg-status-banner" class="pg-status-banner pg-status-down">
             <div class="pg-status-icon">●</div>
             <div class="pg-status-content">
               <div class="pg-status-title" id="pg-status-title">Conectando…</div>
-              <div class="pg-status-desc" id="pg-status-desc">Comprobando backend local</div>
+              <div class="pg-status-desc" id="pg-status-desc">Comprobando backend del servicio</div>
             </div>
             <button class="export-btn" id="pg-status-refresh">Reintentar</button>
           </div>
@@ -845,7 +845,7 @@
               <div class="pg-assistant-now">
                 <span class="pg-assistant-label">Ahora toca</span>
                 <strong id="pg-assistant-next">Comprobar API</strong>
-                <p id="pg-assistant-hint">El asistente te dirá el siguiente paso en cuanto lea el estado local.</p>
+                <p id="pg-assistant-hint">El asistente te dirá el siguiente paso en cuanto lea el estado del servicio.</p>
               </div>
               <div class="pg-assistant-checks" id="pg-assistant-checks"></div>
             </div>
@@ -869,7 +869,7 @@
           <span class="pg-disclosure-indicator" aria-hidden="true"></span>
         </summary>
         <div class="pg-step-body" id="pg-settings-body">
-          <p class="views-step-copy">Esta configuración se guarda localmente. Rellena la ruta de StrategyQuant X, los templates base y la carpeta donde quieres dejar los <code>.cfx</code> generados.</p>
+          <p class="views-step-copy">Esta configuración pertenece al entorno del servicio. StrategyQuant X, templates base y outputs se gestionan en el servidor para que el usuario no tenga que instalar nada.</p>
           <div>
             <div class="strat-form-grid pg-settings-grid">
               <label class="full">SQX install path <span class="hint">(donde está StrategyQuantX.exe)</span>
@@ -881,7 +881,7 @@
               <label class="full">SQX projects dir <span class="hint">(donde quieres copiar los .cfx generados)</span>
                 <input type="text" id="pg-sqx-projects" placeholder=".../user/projects">
               </label>
-              <label class="full">Output dir <span class="hint">(carpeta local donde se guardan los .cfx generados)</span>
+              <label class="full">Output dir <span class="hint">(workspace privado donde se guardan los .cfx generados)</span>
                 <input type="text" id="pg-output-dir" placeholder="output">
               </label>
               <label>Template Capa 1 <input type="text" id="pg-tpl-c1" placeholder="templates/Capa1_Long.cfx"></label>
@@ -941,11 +941,11 @@
             <span>PASO 4</span>
             <strong>Genera y revisa</strong>
           </div>
-          <small>Minings del plan, custom libre y salida `.cfx`.</small>
+          <small>Minings del plan, custom libre y descargas `.cfx`.</small>
           <span class="pg-disclosure-indicator" aria-hidden="true"></span>
         </summary>
         <div class="pg-step-body">
-          <p class="views-step-copy">Genera Capa 1 o Capa 2 cuando el plan y los templates estén revisados. Si entras desde un activo concreto, el modo manual se abre con los campos ya preparados.</p>
+          <p class="views-step-copy">Genera Capa 1 o Capa 2 cuando el plan y los templates estén revisados. Los `.cfx` quedan en tu workspace privado y se descargan desde el navegador.</p>
           <div class="pg-generation-toolbar">
             <span id="pg-generation-mode-status">Elige un modo en el Paso 3 para mostrar su panel de trabajo.</span>
             <label class="pg-capa2-select-label">BlockSetting Capa 2
@@ -953,7 +953,7 @@
                 <option value="">Auto recomendado por timeframe</option>
               </select>
             </label>
-            <button class="export-btn" id="pg-open-output" title="Abrir carpeta output en Explorer">Abrir output</button>
+            <button class="export-btn" id="pg-open-output" title="Descargar todos los .cfx generados">Descargar output</button>
           </div>
 
           <div class="pg-mode-placeholder" id="pg-mode-placeholder">
@@ -972,6 +972,7 @@
                 <span id="pg-selected-count">0 seleccionados</span>
                 <button class="export-btn" id="pg-select-all-minings">Seleccionar todos</button>
                 <button class="export-btn" id="pg-clear-selected-minings">Limpiar selección</button>
+                <button class="export-btn danger" id="pg-delete-selected-minings">Borrar selección</button>
                 <span class="pg-action-spacer"></span>
                 <button class="export-btn pg-accent-soft" id="pg-generate-selected-c1">Generar selección · Capa 1</button>
                 <button class="export-btn pg-purple-soft" id="pg-generate-selected-c2">Generar selección · Capa 2</button>
@@ -1049,6 +1050,9 @@
               <h2>.cfx generados</h2>
               <span class="badge info" id="pg-output-count">— archivos</span>
               <span style="flex:1"></span>
+              <span class="pg-output-selected-count" id="pg-output-selected-count">0 .cfx seleccionados</span>
+              <button class="export-btn pg-accent-soft" id="pg-output-download-selected">Descargar seleccionados</button>
+              <button class="export-btn danger" id="pg-output-delete-selected">Borrar seleccionados</button>
               <button class="export-btn" id="pg-output-refresh">Refrescar</button>
             </div>
             <div id="pg-output-list"></div>
@@ -1062,7 +1066,7 @@
             <span>PASO 5</span>
             <strong>Resultado</strong>
           </div>
-          <small>Log operativo y trazabilidad local.</small>
+        <small>Log operativo y trazabilidad de sesión.</small>
           <span class="pg-disclosure-indicator" aria-hidden="true"></span>
         </summary>
         <div class="pg-step-body">
@@ -1312,7 +1316,7 @@
               <span>Paso 2</span>
               <strong>Carga de datos</strong>
             </div>
-            <small>Manual, local y sin persistencia.</small>
+            <small>Manual y sin persistencia.</small>
           </div>
           <p class="views-step-copy">Pega los CSV exportados desde StrategyQuant X. Usa SQX Views &gt; CVC Decision Cert para incluir duración media, frecuencia, indicadores y bloques OOS; así CVC puede detectar short-only, arquetipo y coherencia con volatilidad.</p>
 
@@ -1635,8 +1639,8 @@
       <div class="strat-summary" id="strat-summary"></div>
       <div id="strat-user-info" class="strat-user-info" style="display:none;">
         <div>
-          <strong>Estado local</strong>
-          <span><span id="strat-user-count">0</span> importadas guardadas en este navegador.</span>
+          <strong>Estado de usuario</strong>
+          <span><span id="strat-user-count">0</span> importadas guardadas en tu sesión.</span>
           <span id="strat-hidden-wrap" style="display:none;">
             <span id="strat-hidden-count">0</span> estrategias base ocultas.
           </span>
@@ -1698,7 +1702,7 @@
           <span class="strat-step-eyebrow">Paso 3</span>
           <h3>Repositorio</h3>
         </div>
-        <p>Cada tarjeta muestra estado, origen, metrica clave y acciones. Eliminar una base solo la oculta; una importada se borra de localStorage.</p>
+        <p>Cada tarjeta muestra estado, origen, metrica clave y acciones. Eliminar una base solo la oculta; una importada se borra del estado de usuario.</p>
       </div>
       <div class="strat-grid" id="strat-grid"></div>
     </section>
@@ -1709,7 +1713,7 @@
           <span class="strat-step-eyebrow">Paso 4</span>
           <h3>Acciones</h3>
         </div>
-        <p>Añade candidatas, importa Databank CSV, exporta el listado o consolida el JSON para convertir datos locales en fuente estable.</p>
+        <p>Añade candidatas, importa Databank CSV, exporta el listado o consolida el JSON para convertir datos de usuario en fuente estable.</p>
       </div>
       <div class="strat-action-grid">
         <button class="export-btn strat-action-main" id="strat-import-btn" type="button">Importar CSV de SQX</button>
@@ -1968,7 +1972,7 @@
             <strong>Batch de importacion trazable</strong>
             <div class="modal-trace-items" id="csv-import-trace">
               <span>Origen: CSV Databank Export</span>
-              <span>Destino: localStorage sqx_strategies_user_v1</span>
+              <span>Destino: estrategias de usuario</span>
               <span>Revision: seleccion, duplicados y meta comun antes de importar</span>
             </div>
           </div>
@@ -1983,7 +1987,7 @@
             <div class="alert-icon">⚠</div>
             <div class="alert-content">
               <strong>Persistencia</strong>
-              Las estrategias se guardan en <code>localStorage</code> de tu navegador (clave <code>sqx_strategies_user_v1</code>). Para consolidarlas permanentemente al HTML, usa el botón <strong>"Consolidar JSON"</strong> del tab Estrategias y pega el snippet dentro del array <code>STRATEGIES</code>.
+              Las estrategias se guardan en el estado de usuario de la sesión. Para convertirlas en fuente estable del producto, usa <strong>"Consolidar JSON"</strong> cuando el operador lo decida.
             </div>
           </div>
         </div>
@@ -2014,7 +2018,7 @@
           <div class="modal-trace-items">
             <span>Origen: + Mining manual</span>
             <span>Destino: Plan Mining unificado</span>
-            <span>Persistencia: localStorage sqx_plan_user_v1</span>
+            <span>Persistencia: Plan Mining de usuario</span>
             <span>Tag visible: MANUAL</span>
           </div>
         </div>
@@ -2058,7 +2062,7 @@
           <div class="modal-trace-items">
             <span>Origen: + Fase manual</span>
             <span>Destino: Plan Mining unificado</span>
-            <span>Persistencia: localStorage sqx_plan_user_v1</span>
+            <span>Persistencia: Plan Mining de usuario</span>
             <span>Uso: agrupar minings futuros sin perder orden metodologico</span>
           </div>
         </div>
@@ -2077,7 +2081,7 @@
     </div>
   </div>
 
-  <!-- MODAL: backups de estado local -->
+  <!-- MODAL: backups de estado -->
   <div class="strat-modal-backdrop" id="state-restore-backdrop" style="display:none;">
     <div class="strat-modal" style="max-width:720px;">
       <div class="strat-modal-header">
@@ -2091,8 +2095,8 @@
         <div class="modal-trace-panel">
           <strong>Restore con backup previo automatico</strong>
           <div class="modal-trace-items">
-            <span>Origen: snapshot local del backend</span>
-            <span>Destino: claves permitidas de localStorage</span>
+            <span>Origen: snapshot del backend</span>
+            <span>Destino: claves permitidas del estado de trabajo</span>
             <span>Antes de restaurar: se crea otro backup</span>
             <span>Excluye: licencias, fulfillment, claves y material privado</span>
           </div>
@@ -2520,7 +2524,7 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
               <div class="step-num">B</div>
               <div class="step-content">
                 <div class="step-title">Checklist minimo antes de lanzar</div>
-                <div class="step-desc">Marca solo lo realmente ejecutado. El estado se conserva en localStorage y se comparte con el detalle tecnico de Capa 1.</div>
+                <div class="step-desc">Marca solo lo realmente ejecutado. El estado se conserva en tu sesión y se comparte con el detalle tecnico de Capa 1.</div>
                 <label class="workflow-tree-check"><input type="checkbox" data-check="capa1-pre-mm"> Money Management: Fixed size, order size 1</label>
               </div>
               <button class="filter-btn" type="button" data-checklist-clear="capa1">Resetear Capa 1</button>
@@ -3439,7 +3443,7 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
   <div class="card">
     <div class="card-header">
       <h2>✅ Checklist de aplicación Capa 1</h2>
-      <span class="badge info">Persistente en localStorage</span>
+      <span class="badge info">Persistente en sesión</span>
       <span style="flex:1"></span>
       <button class="export-btn" data-checklist-clear="capa1">Resetear checklist</button>
     </div>
@@ -3509,7 +3513,7 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
   <div class="card">
     <div class="card-header">
       <h2>✅ Checklist de aplicación Capa 2</h2>
-      <span class="badge info">Persistente en localStorage</span>
+      <span class="badge info">Persistente en sesión</span>
       <span style="flex:1"></span>
       <button class="export-btn" data-checklist-clear="capa2">Resetear checklist</button>
     </div>

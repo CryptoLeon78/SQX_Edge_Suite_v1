@@ -72,11 +72,11 @@
       downloadJson(payload, diagnosticsFilename(payload));
       setStatus('Diagnostico descargado. No incluye rutas ni licencia.', 'ok');
       if (global.addHomeTrace) {
-        global.addHomeTrace('Diagnostico de soporte', 'JSON local seguro generado', 'ok');
+        global.addHomeTrace('Diagnostico de soporte', 'JSON seguro descargado', 'ok');
       }
       return payload;
     } catch (err) {
-      setStatus('No se pudo conectar con la API local.', 'error');
+      setStatus('No se pudo conectar con la API del servicio.', 'error');
       if (global.addHomeTrace) {
         global.addHomeTrace('Diagnostico no disponible', err.message, 'err');
       }
@@ -129,7 +129,7 @@
       }
       return result;
     } catch (err) {
-      setIncidentStatus('No se pudo registrar la incidencia. Revisa la API local.', 'error');
+      setIncidentStatus('No se pudo registrar la incidencia. Revisa la API del servicio.', 'error');
       if (global.addHomeTrace) {
         global.addHomeTrace('Incidencia no registrada', err.message, 'err');
       }

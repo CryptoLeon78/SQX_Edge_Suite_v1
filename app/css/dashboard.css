@@ -5848,6 +5848,24 @@
       width:100%;
       justify-content:center;
     }
+    .pg-output-row {
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+    .pg-output-row .pgo-name {
+      flex:1 1 calc(100% - 44px);
+    }
+    .pg-output-row .pgo-size,
+    .pg-output-row .pgo-time {
+      min-width:0;
+      text-align:left;
+    }
+    .pg-output-row .pgo-actions {
+      flex:1 1 100%;
+      min-width:0;
+      display:grid;
+      grid-template-columns:1fr 1fr;
+    }
     .pg-alias-head {
       align-items:flex-start;
       flex-direction:column;
@@ -5931,6 +5949,19 @@
   .pg-output-row .pgo-name { font-family:'Consolas',monospace; flex:1; word-break:break-all; }
   .pg-output-row .pgo-size { color:var(--text2); font-size:11px; min-width:60px; text-align:right; }
   .pg-output-row .pgo-time { color:var(--text2); font-size:11px; min-width:130px; text-align:right; }
+  .pg-output-row .pgo-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; min-width:190px; }
+  .pg-output-row .pgo-actions .export-btn { min-height:30px; padding:6px 10px; font-size:11px; }
+  .pg-output-selected-count { color:var(--text2); font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.35px; }
+  .export-btn.danger {
+    border-color:rgba(239,68,68,.45);
+    color:var(--red);
+    background:rgba(239,68,68,.08);
+  }
+  .export-btn.danger:hover {
+    border-color:rgba(239,68,68,.72);
+    background:rgba(239,68,68,.14);
+    color:#fff;
+  }
   .pg-output-empty { padding:20px;text-align:center;color:var(--text2);font-size:13px; }
 
   #pg-log { color:#9eb1d3; }

@@ -10,9 +10,9 @@ function openOutputDisconnectedStatus() {
 
 function openOutputSuccessStatus(outputDir) {
     return {
-      logText: 'Carpeta output abierta',
+      logText: 'Descarga output solicitada',
       logLevel: 'info',
-      traceTitle: 'Carpeta output abierta',
+      traceTitle: 'Descarga output solicitada',
       traceDetail: outputDir || '',
       traceLevel: 'info'
     };
@@ -20,9 +20,9 @@ function openOutputSuccessStatus(outputDir) {
 
 function openOutputRemoteWorkspaceStatus(outputDir) {
     return {
-      logText: 'Output remoto gestionado por workspace; usa la lista de .cfx generados.',
+      logText: 'Output gestionado por workspace; descarga los .cfx desde el navegador.',
       logLevel: 'warn',
-      traceTitle: 'Output remoto',
+      traceTitle: 'Output de workspace',
       traceDetail: outputDir || 'workspace://outputs',
       traceLevel: 'warn'
     };
@@ -30,9 +30,9 @@ function openOutputRemoteWorkspaceStatus(outputDir) {
 
 function openOutputErrorStatus(message) {
     return {
-      logText: 'Error abrir carpeta: ' + message,
+      logText: 'Error preparando descarga: ' + message,
       logLevel: 'err',
-      traceTitle: 'Error abriendo output',
+      traceTitle: 'Error preparando descarga',
       traceDetail: message,
       traceLevel: 'err'
     };

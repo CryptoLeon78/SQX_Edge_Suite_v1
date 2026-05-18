@@ -1,4 +1,6 @@
 import json
+import zipfile
+from io import BytesIO
 from pathlib import Path
 from unittest.mock import patch
 
@@ -135,6 +137,130 @@ def test_remote_output_lists_workspace_outputs_not_global_output(tmp_path, monke
     assert [item["name"] for item in data["files"]] == ["Workspace_Only.cfx"]
     assert "Global_Old.cfx" not in json.dumps(data)
     assert str(cfg["output_dir"]) not in json.dumps(data)
+
+
+def test_remote_output_downloads_workspace_file_without_local_path(tmp_path, monkeypatch):
+    client, headers, _workspaces_root = _authorized_client(tmp_path, monkeypatch)
+    cfg = _cfg(tmp_path)
+
+    def fake_generate(_mining, *, output_dir, **_kwargs):
+        target = Path(output_dir) / "Download_Me.cfx"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("remote-download", encoding="utf-8")
+        return str(target)
+
+    with patch.object(server, "load_config", return_value=cfg), \
+            patch.object(server, "generate_project", side_effect=fake_generate), \
+            patch.object(server, "resolve_costs", return_value=_costs()):
+        client.post(
+            "/api/generate-custom",
+            json={"asset": "EURUSD", "tf": "H1", "capa": 1},
+            headers=headers,
+            base_url="https://localhost",
+        )
+        downloaded = client.get(
+            "/api/output/download/Download_Me.cfx",
+            headers=headers,
+            base_url="https://localhost",
+        )
+
+    assert downloaded.status_code == 200
+    assert downloaded.data == b"remote-download"
+    assert "attachment" in downloaded.headers["Content-Disposition"]
+    assert str(cfg["output_dir"]) not in downloaded.headers["Content-Disposition"]
+
+
+def test_remote_output_download_selected_returns_zip_for_multiple_files(tmp_path, monkeypatch):
+    client, headers, _workspaces_root = _authorized_client(tmp_path, monkeypatch)
+    cfg = _cfg(tmp_path)
+
+    def fake_generate(mining, *, output_dir, **_kwargs):
+        target = Path(output_dir) / f"{mining.asset}_{mining.tf}.cfx"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(target.name, encoding="utf-8")
+        return str(target)
+
+    with patch.object(server, "load_config", return_value=cfg), \
+            patch.object(server, "generate_project", side_effect=fake_generate), \
+            patch.object(server, "resolve_costs", return_value=_costs()):
+        client.post(
+            "/api/generate-custom",
+            json={"asset": "EURUSD", "tf": "H1", "capa": 1},
+            headers=headers,
+            base_url="https://localhost",
+        )
+        client.post(
+            "/api/generate-custom",
+            json={"asset": "GBPUSD", "tf": "M30", "capa": 1},
+            headers=headers,
+            base_url="https://localhost",
+        )
+        bundle = client.post(
+            "/api/output/download-selected",
+            json={"files": ["EURUSD_H1.cfx", "GBPUSD_M30.cfx"]},
+            headers=headers,
+            base_url="https://localhost",
+        )
+
+    assert bundle.status_code == 200
+    with zipfile.ZipFile(BytesIO(bundle.data)) as archive:
+        assert sorted(archive.namelist()) == ["EURUSD_H1.cfx", "GBPUSD_M30.cfx"]
+
+
+def test_remote_output_delete_selected_removes_only_workspace_files(tmp_path, monkeypatch):
+    client, headers, _workspaces_root = _authorized_client(tmp_path, monkeypatch)
+    cfg = _cfg(tmp_path)
+
+    def fake_generate(_mining, *, output_dir, **_kwargs):
+        target = Path(output_dir) / "Delete_Me.cfx"
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("delete", encoding="utf-8")
+        return str(target)
+
+    with patch.object(server, "load_config", return_value=cfg), \
+            patch.object(server, "generate_project", side_effect=fake_generate), \
+            patch.object(server, "resolve_costs", return_value=_costs()):
+        client.post(
+            "/api/generate-custom",
+            json={"asset": "EURUSD", "tf": "H1", "capa": 1},
+            headers=headers,
+            base_url="https://localhost",
+        )
+        deleted = client.post(
+            "/api/output/delete",
+            json={"files": ["Delete_Me.cfx"]},
+            headers=headers,
+            base_url="https://localhost",
+        )
+        listed = client.get("/api/output", headers=headers, base_url="https://localhost")
+
+    assert deleted.status_code == 200
+    assert deleted.get_json()["deleted"] == ["Delete_Me.cfx"]
+    assert listed.get_json()["files"] == []
+    assert (Path(cfg["output_dir"]) / "Global_Old.cfx").is_file()
+
+
+def test_remote_output_rejects_path_traversal(tmp_path, monkeypatch):
+    client, headers, _workspaces_root = _authorized_client(tmp_path, monkeypatch)
+    cfg = _cfg(tmp_path)
+
+    with patch.object(server, "load_config", return_value=cfg):
+        downloaded = client.get(
+            "/api/output/download/../Global_Old.cfx",
+            headers=headers,
+            base_url="https://localhost",
+        )
+        deleted = client.post(
+            "/api/output/delete",
+            json={"files": ["../Global_Old.cfx"]},
+            headers=headers,
+            base_url="https://localhost",
+        )
+
+    assert downloaded.status_code == 400
+    assert deleted.status_code == 200
+    assert deleted.get_json()["errors"][0]["error"] == "invalid output filename"
+    assert (Path(cfg["output_dir"]) / "Global_Old.cfx").is_file()
 
 
 def test_remote_output_override_is_blocked(tmp_path, monkeypatch):

@@ -1260,7 +1260,7 @@ function generateStratJSON() {
 // ============================================================
 // EVENTS
 // ============================================================
-var HOME_BACKEND_STATE = { state: 'loading', title: 'Comprobando', desc: 'API local pendiente de comprobar.', meta: {} };
+var HOME_BACKEND_STATE = { state: 'loading', title: 'Comprobando', desc: 'API SQX Edge pendiente de comprobar.', meta: {} };
 var HOME_TRACE_KEY = (window.SQX_CONFIG && window.SQX_CONFIG.storageKeys && window.SQX_CONFIG.storageKeys.homeTrace) || 'sqx_home_trace_v1';
 var HOME_TRACE = [];
 HOME_TRACE = SQX_STORAGE.getJson(HOME_TRACE_KEY, []);
@@ -1388,7 +1388,7 @@ function renderHome() {
       backendTitle: HOME_BACKEND_STATE.title,
       dataStatus: manifestOk ? 'Manifest v' + ((SQX_MANIFEST && SQX_MANIFEST.version) || 1) : 'Manifest incompleto',
       readiness: readiness,
-      heroStatus: backendOk ? (sqxPathOk ? 'API conectada. Plan, manifiestos y generador listos para operar.' : 'API conectada. Falta completar la ruta SQX para generar con seguridad.') : 'Manifest activo. Arranca la API local para habilitar generacion, validacion de rutas y limpieza SQX.',
+      heroStatus: backendOk ? (sqxPathOk ? 'API conectada. Plan, manifiestos y generador listos para operar.' : 'API conectada. Falta completar la ruta SQX para generar con seguridad.') : 'Manifest activo. La API SQX Edge debe estar activa para generar, validar rutas y limpiar SQX.',
       auditScore: auditItems.filter(Boolean).length + '/' + auditItems.length,
       checks: { manifest: manifestOk, plan: planOk, strategies: strategiesOk, backend: backendOk },
       states: { backend: backendOk ? 'ok' : 'warn', data: manifestOk ? 'ok' : 'warn' },
@@ -1398,7 +1398,7 @@ function renderHome() {
         backend: { ok: backendOk, detail: backendOk ? 'API v' + (backendMeta.version || '?') : 'API no conectada' },
         templates: { ok: templatesOk, detail: backendOk ? (templatesOk ? 'Capa 1 + Capa 2 OK' : 'revisar templates') : 'requiere API' },
         sqx: { ok: sqxPathOk, detail: backendOk ? (sqxPathOk ? 'ruta configurada' : 'ruta pendiente') : 'requiere API' },
-        output: { ok: outputOk, detail: backendOk ? (outputOk ? 'carpeta accesible' : 'output pendiente') : 'requiere API' }
+        output: { ok: outputOk, detail: backendOk ? (outputOk ? 'workspace de descargas listo' : 'output pendiente') : 'requiere API' }
       }
     };
   }
@@ -1440,7 +1440,7 @@ function renderHome() {
 window.updateHomeBackendStatus = function(state, title, desc, meta) {
   HOME_BACKEND_STATE = {
     state: state || 'loading',
-    title: title || 'API local',
+    title: title || 'API SQX Edge',
     desc: desc || '',
     meta: meta || {}
   };
@@ -1973,6 +1973,29 @@ function removeUserMining(num) {
   savePlanUser();
   notifyPlanMiningChanged();
 }
+function removePlanMiningsByNums(nums) {
+  const requested = (Array.isArray(nums) ? nums : []).map(function(num) { return parseInt(num, 10); }).filter(Boolean);
+  if (!requested.length) return { removed: 0, userRemoved: 0, baseHidden: 0 };
+  const selected = new Set(requested);
+  const beforeUser = PLAN_USER.minings.length;
+  PLAN_USER.minings = PLAN_USER.minings.filter(function(m) { return !selected.has(parseInt(m.num, 10)); });
+  const baseNums = PLAN_MININGS.map(function(m) { return parseInt(m.num, 10); }).filter(function(num) { return selected.has(num); });
+  const hidden = new Set(PLAN_USER.hiddenBaseMinings || []);
+  const beforeHidden = hidden.size;
+  baseNums.forEach(function(num) { hidden.add(num); });
+  PLAN_USER.hiddenBaseMinings = Array.from(hidden);
+  Object.keys(PIPELINE_STATE.overrides || {}).forEach(function(num) {
+    if (selected.has(parseInt(num, 10))) delete PIPELINE_STATE.overrides[num];
+  });
+  savePlanUser();
+  savePipelineState();
+  notifyPlanMiningChanged();
+  return {
+    removed: (beforeUser - PLAN_USER.minings.length) + (hidden.size - beforeHidden),
+    userRemoved: beforeUser - PLAN_USER.minings.length,
+    baseHidden: hidden.size - beforeHidden
+  };
+}
 function removeUserPhase(num) {
   // No eliminar fase si tiene minings asignados
   const used = getPlanMinings().some(m => m.phase === num);
@@ -2049,6 +2072,7 @@ window.getPlanMinings = getPlanMinings;
 window.setPhaseMetaUser = setPhaseMetaUser;
 window.addMiningUser = addMiningUser;
 window.addPlanMiningFromCandidate = addPlanMiningFromCandidate;
+window.removePlanMiningsByNums = removePlanMiningsByNums;
 window.resetPlanMiningUserState = resetPlanMiningUserState;
 window.clearPlanUser = clearPlanUser;
 
@@ -2309,12 +2333,12 @@ function renderPsPlan() {
     const isBasePhase = !!PHASE_META[p];
     const isCustomPhase = isUserPhase && !isBasePhase;
     const phaseUserBadge = isCustomPhase
-      ? '<span class="ps-user-badge" title="Fase creada en localStorage">USER</span>'
-      : (isUserPhase ? '<span class="ps-user-badge" title="Texto editado en localStorage">EDIT</span>' : '');
+      ? '<span class="ps-user-badge" title="Fase creada por usuario">USER</span>'
+      : (isUserPhase ? '<span class="ps-user-badge" title="Texto editado por usuario">EDIT</span>' : '');
     const phaseEdit = '<button class="ps-phase-edit-btn" title="Editar nombre y descripcion de esta fase" onclick="editPlanPhaseClick('+p+')">Editar fase</button>';
     const phaseClear = '<button class="ps-phase-reset-btn" title="Quitar todos los minings de esta fase" onclick="resetPlanPhaseClick('+p+')">Reset fase</button>';
     const phaseReset = isCustomPhase
-      ? '<button class="ps-remove-btn" title="Eliminar fase local" onclick="removeUserPhaseClick('+p+')">✕</button>'
+      ? '<button class="ps-remove-btn" title="Eliminar fase de usuario" onclick="removeUserPhaseClick('+p+')">✕</button>'
       : (isUserPhase ? '<button class="ps-remove-btn" title="Revertir texto base de la fase" onclick="revertPlanPhaseClick('+p+')">↻</button>' : '');
     return '<div class="ps-phase">' +
       '<div class="ps-phase-head '+phaseCls+'">' +
@@ -2515,7 +2539,7 @@ document.getElementById('ps-plan-reset-plan').addEventListener('click', function
     confirmLabel: 'Reset plan mining',
     trace: [
       'Destino: sqx_plan_user_v1 y sqx_pipeline_state_v1',
-      'Borra: minings locales, fases locales, overrides y embudos',
+      'Borra: minings de usuario, fases de usuario, overrides y embudos',
       'Oculta: plan base para proyecto limpio',
       'Reinicia: lista/log de .cfx generados de Project Generator',
       'Recuperacion: Backup estado o restore manual'
@@ -2591,7 +2615,7 @@ function saveAddMining() {
     bs:     document.getElementById('psm-bs').value,
     dir:    document.getElementById('psm-dir').value,
   };
-  if (!m.num || !m.phase || !m.asset) { decisionAlert({ title: 'Mining incompleto', message: 'Faltan campos obligatorios: mining, fase y asset.', trace: ['No se escribe localStorage', 'Completa la traza antes de guardar'] }); return; }
+  if (!m.num || !m.phase || !m.asset) { decisionAlert({ title: 'Mining incompleto', message: 'Faltan campos obligatorios: mining, fase y asset.', trace: ['No se escribe estado de trabajo', 'Completa la traza antes de guardar'] }); return; }
   if (!addMiningUser(m)) { decisionAlert({ title: 'Mining duplicado o invalido', message: 'Mining #'+m.num+' ya existe en el plan o coincide con otro asset/timeframe/blocksetting/direccion visible.', trace: ['Validacion contra Plan Mining completo', 'No se crea estado fantasma'] }); return; }
   closeAddMiningModal();
   renderPipelineState();
@@ -2601,7 +2625,7 @@ function saveAddPhase() {
   const num  = parseInt(document.getElementById('psp-num').value, 10);
   const name = (document.getElementById('psp-name').value || '').trim();
   const desc = (document.getElementById('psp-desc').value || '').trim();
-  if (!num || !name) { decisionAlert({ title: 'Fase incompleta', message: 'Numero y nombre son obligatorios.', trace: ['No se escribe localStorage', 'La fase debe tener identificador visible'] }); return; }
+  if (!num || !name) { decisionAlert({ title: 'Fase incompleta', message: 'Numero y nombre son obligatorios.', trace: ['No se escribe estado de trabajo', 'La fase debe tener identificador visible'] }); return; }
   if (!addPhaseUser(num, name, desc)) { decisionAlert({ title: 'Fase duplicada', message: 'Fase '+num+' ya existe.', trace: ['Validacion contra fases actuales', 'No se sobrescribe metodologia existente'] }); return; }
   closeAddPhaseModal();
   renderPipelineState();
@@ -2609,7 +2633,7 @@ function saveAddPhase() {
 
 window.removeUserMiningClick = function(num) {
   decisionConfirm({
-    title: 'Eliminar mining local',
+    title: 'Eliminar mining de usuario',
     message: 'Eliminar mining #' + num + ' del plan USER.',
     confirmLabel: 'Eliminar mining',
     trace: ['Destino: sqx_plan_user_v1', 'Impacto: desaparece de Plan Mining y Project Generator', 'Recuperacion: Backup estado o volver a anadir + Mining']
@@ -2617,7 +2641,7 @@ window.removeUserMiningClick = function(num) {
 };
 window.removeUserPhaseClick = function(num) {
   decisionConfirm({
-    title: 'Eliminar fase local',
+    title: 'Eliminar fase de usuario',
     message: 'Eliminar fase ' + num + ' del plan USER.',
     confirmLabel: 'Eliminar fase',
     trace: ['Destino: sqx_plan_user_v1', 'Bloqueo: no se elimina si contiene minings', 'Impacto: cambia orden metodologico visible']
@@ -2667,7 +2691,7 @@ window.resetPlanPhaseClick = function(num) {
     title: 'Resetear fase ' + p,
     message: 'Se quitan del Plan Mining los minings base y añadidos de esta fase.',
     confirmLabel: 'Reset fase',
-    trace: ['Destino: sqx_plan_user_v1 y sqx_pipeline_state_v1', 'La fase queda visible si existe como fase local', 'Recuperacion: Backup estado o restaurar plan base']
+    trace: ['Destino: Plan Mining y Pipeline State', 'La fase queda visible si existe como fase de usuario', 'Recuperacion: Backup estado o restaurar plan base']
   }, function() {
     if (resetPlanPhaseMinings(p)) renderPipelineState();
   });
@@ -2697,7 +2721,7 @@ document.getElementById('ps-project-zero-state').addEventListener('click', funct
     title: 'Poner a cero proyecto operativo',
     message: 'Se borran plan, prioridad, embudos, estrategias visibles, checklist y presets de trabajo. No se toca licencia ni API.',
     confirmLabel: 'Activar proyecto limpio',
-    trace: ['Destino: multiples claves localStorage de trabajo', 'Excluye: licencia y API', 'Recuperacion: backup local previo si existe']
+    trace: ['Destino: multiples claves de estado de trabajo', 'Excluye: licencia y API', 'Recuperacion: backup previo si existe']
   }, function() {
     resetProjectWorkingData();
     decisionAlert({ title: 'Proyecto limpio activado', message: 'Ya puedes validar el flujo desde datos nuevos.', trace: ['Plan Mining vacio', 'Estrategias base ocultas', 'Checklist y presets de trabajo limpios'] });

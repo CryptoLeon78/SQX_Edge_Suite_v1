@@ -18,6 +18,7 @@ const PG_STATE = {
   planCount: 0,
   generationMode: '',
   selectedMiningNums: new Set(),
+  selectedOutputNames: new Set(),
 };
 const PG_ALIAS_MIN_SCORE = (window.SQX_CONFIG && window.SQX_CONFIG.value('projectGenerator.aliasSuggestMinScore', 80)) || 80;
 const pgApiInline = document.getElementById('pg-api-base-inline');
@@ -209,6 +210,26 @@ function pgSelectedMiningMap() {
   return map;
 }
 
+function pgSelectedOutputMap() {
+  const map = {};
+  PG_STATE.selectedOutputNames.forEach(name => { map[name] = true; });
+  return map;
+}
+
+function pgUpdateSelectedOutputCount() {
+  pgSetText('pg-output-selected-count', SQX_PG_MODULE.selectedOutputCountLabel
+    ? SQX_PG_MODULE.selectedOutputCountLabel(PG_STATE.selectedOutputNames.size)
+    : (PG_STATE.selectedOutputNames.size + ' seleccionados'));
+}
+
+function pgSyncSelectedOutputs() {
+  const valid = new Set((PG_STATE.outputFiles || []).map(file => String(file.name || '')));
+  Array.from(PG_STATE.selectedOutputNames).forEach(name => {
+    if (!valid.has(name)) PG_STATE.selectedOutputNames.delete(name);
+  });
+  pgUpdateSelectedOutputCount();
+}
+
 function pgUpdateSelectedMiningCount() {
   pgSetText('pg-selected-count', SQX_PG_MODULE.selectedMiningCountLabel(PG_STATE.selectedMiningNums.size));
 }
@@ -236,8 +257,29 @@ function pgRenderMiningsList(infos) {
 }
 
 function pgRenderOutputState(output) {
+  PG_STATE.outputFiles = output.files || PG_STATE.outputFiles || [];
+  pgSyncSelectedOutputs();
+  if (SQX_PG_MODULE.outputState && output && output.files) {
+    output.html = SQX_PG_MODULE.outputListHtml(output.files, pgSelectedOutputMap());
+  }
   pgSetText('pg-output-count', output.countLabel);
   pgSetHtml('pg-output-list', output.html);
+  pgSetText('pg-open-output', 'Descargar output');
+  document.querySelectorAll('input[data-pg-output-check]').forEach(input => {
+    input.addEventListener('change', () => {
+      const name = input.dataset.pgOutputCheck || '';
+      if (input.checked) PG_STATE.selectedOutputNames.add(name);
+      else PG_STATE.selectedOutputNames.delete(name);
+      pgUpdateSelectedOutputCount();
+    });
+  });
+  document.querySelectorAll('button[data-pg-output-download]').forEach(btn => {
+    btn.addEventListener('click', () => pgDownloadOutputFile(btn.dataset.pgOutputDownload));
+  });
+  document.querySelectorAll('button[data-pg-output-delete]').forEach(btn => {
+    btn.addEventListener('click', () => pgDeleteOutputFiles([btn.dataset.pgOutputDelete]));
+  });
+  pgUpdateSelectedOutputCount();
 }
 
 function pgResetGeneratedCfxSession(detail) {
@@ -245,6 +287,7 @@ function pgResetGeneratedCfxSession(detail) {
     ? detail.resetState
     : SQX_PG_MODULE.markGeneratedOutputReset(PG_STATE.outputFiles || [], { reason: 'plan-mining-reset' });
   PG_STATE.outputFiles = [];
+  PG_STATE.selectedOutputNames.clear();
   pgRenderOutputState(SQX_PG_MODULE.outputState({ output_dir: PG_STATE.outputDir, files: [] }, resetState));
   const log = pgDom('pg-log');
   if (log) log.textContent = '[Plan Mining reiniciado: .cfx generados vacíos para la nueva sesión.]';
@@ -285,7 +328,7 @@ function pgSetStatus(state, title, desc, meta) {
     PG_STATE.lastTraceState = state;
     pgTrace(
       state === 'up' ? 'Backend conectado' : 'Backend desconectado',
-      state === 'up' ? ((meta && meta.sqx_path) || 'API local operativa') : desc,
+      state === 'up' ? ((meta && meta.sqx_path) || 'API SQX Edge operativa') : desc,
       state === 'up' ? 'ok' : 'err'
     );
   }
@@ -308,7 +351,7 @@ async function pgCheckHealth() {
     PG_STATE.connected = false;
     pgSetStatus('down',
       '🔴 Backend desconectado',
-      'Lanza "backend/sqx-edge-tool/run-web.bat" para arrancar la API local (' + PG_API + '). Detalle: ' + e.message,
+      'El servicio no responde en ' + PG_API + '. Reintenta o registra incidencia desde Control Panel. Detalle: ' + e.message,
       { error: e.message });
     await pgLoadMinings();
   }
@@ -720,6 +763,24 @@ function pgClearSelectedMinings() {
   pgRenderMiningsList(PG_STATE.minings);
 }
 
+function pgDeleteSelectedMinings() {
+  const selected = Array.from(PG_STATE.selectedMiningNums).filter(Boolean).sort((a, b) => a - b);
+  if (!selected.length) {
+    pgLog('Selecciona al menos un mining del plan antes de borrar.', 'err');
+    return;
+  }
+  if (typeof window.removePlanMiningsByNums !== 'function') {
+    pgLog('Borrado de selección no disponible en este contexto.', 'err');
+    return;
+  }
+  if (!confirm('Borrar ' + selected.length + ' mining(s) seleccionados del Plan Mining? Esta acción afecta al plan activo del workspace.')) return;
+  const summary = window.removePlanMiningsByNums(selected) || {};
+  PG_STATE.selectedMiningNums.clear();
+  pgLoadMinings();
+  pgRenderAliases();
+  pgLog('Plan Mining actualizado: ' + (summary.removed || 0) + ' mining(s) borrados de la selección.', summary.removed ? 'ok' : 'err');
+}
+
 async function pgSaveConfig() {
   const body = SQX_PG_MODULE.configSaveBody(pgReadConfigInputs());
   pgSetSettingsMessage({ message: 'Guardando…' });
@@ -777,29 +838,119 @@ async function pgValidateSqxPath() {
   }
 }
 
+function pgOutputDownloadUrl(path) {
+  return (PG_API || '') + path;
+}
+
+function pgStartBrowserDownload(url) {
+  const link = document.createElement('a');
+  link.href = url;
+  link.rel = 'noopener';
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+}
+
+function pgFilenameFromDisposition(headerValue, fallback) {
+  const header = String(headerValue || '');
+  const utf = header.match(/filename\*=UTF-8''([^;]+)/i);
+  if (utf && utf[1]) return decodeURIComponent(utf[1].replace(/"/g, ''));
+  const plain = header.match(/filename="?([^";]+)"?/i);
+  return plain && plain[1] ? plain[1] : fallback;
+}
+
+async function pgDownloadOutputBundle(names) {
+  const selected = (names || []).map(name => String(name || '').trim()).filter(Boolean);
+  if (!selected.length) {
+    pgLog('No hay .cfx seleccionados para descargar.', 'err');
+    return;
+  }
+  try {
+    const response = await fetch(pgOutputDownloadUrl('/output/download-selected'), {
+      method: 'POST',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ files: selected })
+    });
+    if (!response.ok) {
+      let message = 'HTTP ' + response.status;
+      try {
+        const data = await response.json();
+        message = data.error || message;
+      } catch (_err) {}
+      throw new Error(message);
+    }
+    const blob = await response.blob();
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = pgFilenameFromDisposition(response.headers.get('Content-Disposition'), selected.length === 1 ? selected[0] : 'sqx-edge-suite-cfx-selected.zip');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    pgLog('Descarga solicitada: ' + selected.length + ' .cfx. El navegador la guardará en Descargas.', 'ok');
+  } catch(e) {
+    pgLog('Error descargando .cfx seleccionado(s): ' + e.message, 'err');
+  }
+}
+
+function pgDownloadOutputFile(name) {
+  const clean = String(name || '').trim();
+  if (!clean) {
+    pgLog('No hay archivo .cfx seleccionado para descargar.', 'err');
+    return;
+  }
+  pgStartBrowserDownload(pgOutputDownloadUrl('/output/download/' + encodeURIComponent(clean)));
+  pgLog('Descarga solicitada: ' + clean + '. El navegador la guardará en su carpeta Descargas configurada.', 'ok');
+}
+
+function pgDownloadAllOutput() {
+  if (!(PG_STATE.outputFiles || []).length) {
+    pgLog('No hay .cfx generados para descargar.', 'err');
+    return;
+  }
+  pgStartBrowserDownload(pgOutputDownloadUrl('/output/download-all'));
+  pgLog('Descarga ZIP solicitada. El navegador la guardará en su carpeta Descargas configurada.', 'ok');
+}
+
+function pgDownloadSelectedOutputFiles() {
+  const selected = Array.from(PG_STATE.selectedOutputNames).filter(Boolean);
+  if (!selected.length) {
+    pgDownloadAllOutput();
+    return;
+  }
+  pgDownloadOutputBundle(selected);
+}
+
+async function pgDeleteOutputFiles(names) {
+  const selected = (names || []).map(name => String(name || '').trim()).filter(Boolean);
+  if (!selected.length) {
+    pgLog('Selecciona al menos un .cfx generado antes de borrar.', 'err');
+    return;
+  }
+  if (!confirm('Borrar ' + selected.length + ' archivo(s) .cfx generado(s) del output activo?')) return;
+  try {
+    const result = await pgFetch('/output/delete', { method:'POST', body: { files: selected } });
+    selected.forEach(name => PG_STATE.selectedOutputNames.delete(name));
+    pgLog('Output actualizado: ' + (result.deleted || []).length + ' .cfx borrado(s).', result.ok ? 'ok' : 'err');
+    await pgLoadOutput();
+  } catch(e) {
+    pgLog('Error borrando .cfx generado(s): ' + e.message, 'err');
+  }
+}
+
+function pgDeleteSelectedOutputFiles() {
+  pgDeleteOutputFiles(Array.from(PG_STATE.selectedOutputNames));
+}
+
 async function pgOpenOutputFolder() {
   if (!PG_STATE.connected) {
     const status = SQX_PG_MODULE.openOutputDisconnectedStatus();
     pgLog(status.logText, status.logLevel);
     return;
   }
-  try {
-    const outputDir = PG_STATE.outputDir || (await pgFetch('/output')).output_dir;
-    if (String(outputDir || '').indexOf('workspace://outputs') === 0) {
-      const status = SQX_PG_MODULE.openOutputRemoteWorkspaceStatus(outputDir);
-      pgLog(status.logText, status.logLevel);
-      pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
-      return;
-    }
-    await pgFetch('/open-folder', { method:'POST', body: { path: outputDir } });
-    const status = SQX_PG_MODULE.openOutputSuccessStatus(outputDir);
-    pgLog(status.logText, status.logLevel);
-    pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
-  } catch(e) {
-    const status = SQX_PG_MODULE.openOutputErrorStatus(e.message);
-    pgLog(status.logText, status.logLevel);
-    pgTrace(status.traceTitle, status.traceDetail, status.traceLevel);
-  }
+  pgDownloadAllOutput();
 }
 
 async function pgRunOnboardingAction() {
@@ -973,6 +1124,9 @@ async function pgRunOnboardingTertiaryAction() {
     autodetectSqx: pgAutodetectSqx,
     checkHealth: pgCheckHealth,
     deleteCustomPreset: pgDeleteCustomPreset,
+    deleteSelectedMinings: pgDeleteSelectedMinings,
+    deleteSelectedOutputFiles: pgDeleteSelectedOutputFiles,
+    downloadSelectedOutputFiles: pgDownloadSelectedOutputFiles,
     exportCustomPresets: pgExportCustomPresets,
     clearSelectedMinings: pgClearSelectedMinings,
     generateCustom: pgGenerateCustom,

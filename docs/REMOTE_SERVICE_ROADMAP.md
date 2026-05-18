@@ -273,6 +273,38 @@ Acceptance:
 - Remote `output` overrides return `remote_output_override_blocked`.
 - Two identities cannot see each other's generated `.cfx` files.
 
+### REMOTE-OUTPUT1 - Browser Output Delivery
+
+Project Generator generated files are now a web delivery flow, not a local
+folder flow. In remote usage, `.cfx` files remain in the authenticated workspace
+until the user explicitly downloads them from the browser. This also establishes
+the wider product rule: every user-facing export must be a browser download,
+not a server-side write into a visible user path.
+
+Artifacts added in REMOTE-OUTPUT1:
+
+- `GET /api/output/download/<filename>` for one `.cfx`.
+- `GET /api/output/download-all` for a ZIP of the active output.
+- `POST /api/output/download-selected` for selected `.cfx` files.
+- `POST /api/output/delete` for controlled output cleanup.
+- Project Generator output list with selection, download and delete actions.
+- Plan Mining selected-mining deletion from Project Generator.
+- `Browser Output Delivery Gate` in governance.
+
+Acceptance:
+
+- Downloaded files use browser attachment delivery so the user's browser saves
+  them to its configured Downloads folder.
+- Other dashboard exports (`.vw`, `.sqx`, `.zip`, `.json`, `.csv` and reports)
+  must keep using browser download mechanics; browsers may still ask for a
+  location if the user has enabled that setting.
+- Remote responses keep returning `workspace://outputs` and do not reveal server
+  paths.
+- Output endpoints validate basename-only `.cfx` filenames and reject traversal.
+- Remote output delete/download events are auditable in the workspace log.
+- The normal Project Generator UI no longer presents `Abrir output` as a local
+  Explorer action.
+
 Still blocking multi-user expansion after REMOTE-PERSIST1B:
 
 - Control Panel backup/restore must become workspace-scoped. Completed later by

@@ -518,7 +518,7 @@ async function run() {
     await desktop.waitForSelector('#pg-step-api');
     const pgGuidedText = await desktop.locator('#tab-projectgen').innerText();
     const pgGuidedTextLower = pgGuidedText.toLowerCase();
-    ['api local', 'configura sqx', 'elige generación', 'genera y revisa', 'resultado'].forEach(expected => {
+    ['api sqx edge', 'configura sqx', 'elige generación', 'genera y revisa', 'resultado'].forEach(expected => {
       if (!pgGuidedTextLower.includes(expected)) throw new Error(`Project Generator should expose guided section: ${expected}`);
     });
     const pgGuideSteps = await desktop.locator('#tab-projectgen .pg-guide-flow li').count();

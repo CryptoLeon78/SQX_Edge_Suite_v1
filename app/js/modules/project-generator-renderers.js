@@ -91,16 +91,24 @@ function miningRowsHtml(minings, selectedMap) {
     }).join('');
   }
 
-function outputListHtml(files) {
+function outputListHtml(files, selectedMap) {
     if (!files || !files.length) {
       return '<div class="pg-output-empty">No hay .cfx generados todav&iacute;a. Elige un modo, selecciona minings o completa Custom libre y genera Capa 1 o Capa 2.</div>';
     }
+    var selected = selectedMap || {};
     return files.map(function(file) {
+      var name = String(file.name || '');
+      var checked = selected[name] ? ' checked' : '';
       return ''
-        + '<div class="pg-output-row">'
-        +   '<div class="pgo-name">' + escapeHtml(file.name) + '</div>'
+        + '<div class="pg-output-row" data-pg-output-row="' + escapeHtml(name) + '">'
+        +   '<label class="pgm-check pgo-check" title="Seleccionar .cfx generado"><input type="checkbox" data-pg-output-check="' + escapeHtml(name) + '"' + checked + '><span></span></label>'
+        +   '<div class="pgo-name">' + escapeHtml(name) + '</div>'
         +   '<div class="pgo-size">' + escapeHtml(file.size_kb) + ' KB</div>'
         +   '<div class="pgo-time">' + new Date(file.mtime * 1000).toLocaleString() + '</div>'
+        +   '<div class="pgo-actions">'
+        +     '<button class="export-btn pg-output-download-btn" data-pg-output-download="' + escapeHtml(name) + '">Descargar</button>'
+        +     '<button class="export-btn pg-output-delete-btn" data-pg-output-delete="' + escapeHtml(name) + '">Borrar</button>'
+        +   '</div>'
         + '</div>';
     }).join('');
   }
@@ -184,6 +192,11 @@ function selectedMiningCountLabel(count) {
     return value + ' seleccionado' + (value === 1 ? '' : 's');
   }
 
+function selectedOutputCountLabel(count) {
+    var value = count || 0;
+    return value + ' .cfx seleccionado' + (value === 1 ? '' : 's');
+  }
+
 function bulkGenerateLabel(count) {
     return miningsCountLabel(count) + ' · Capa 1 + Capa 2';
   }
@@ -204,14 +217,14 @@ function outputCountLabel(files) {
     return ((files || []).length) + ' archivos';
   }
 
-function outputState(result, resetState) {
+function outputState(result, resetState, selectedMap) {
     var data = result || {};
     var files = filterOutputFilesSinceReset(data.files || [], resetState);
     return {
       outputDir: data.output_dir || '',
       files: files,
       countLabel: outputCountLabel(files),
-      html: outputListHtml(files)
+      html: outputListHtml(files, selectedMap)
     };
   }
 
@@ -225,6 +238,7 @@ function outputState(result, resetState) {
     normalizeDirection: normalizeDirection,
     miningsCountLabel: miningsCountLabel,
     outputCountLabel: outputCountLabel,
+    outputListHtml: outputListHtml,
     outputFileSignature: outputFileSignature,
     outputFileTimestampMs: outputFileTimestampMs,
     filterOutputFilesSinceReset: filterOutputFilesSinceReset,
@@ -233,6 +247,7 @@ function outputState(result, resetState) {
     outputResetStorageKey: OUTPUT_RESET_STORAGE_KEY,
     outputState: outputState,
     readGeneratedOutputReset: readGeneratedOutputReset,
-    selectedMiningCountLabel: selectedMiningCountLabel
+    selectedMiningCountLabel: selectedMiningCountLabel,
+    selectedOutputCountLabel: selectedOutputCountLabel
   });
 })(window);

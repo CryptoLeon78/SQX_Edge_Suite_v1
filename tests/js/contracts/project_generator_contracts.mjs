@@ -7,7 +7,7 @@ const dashboardCss = fs.readFileSync(path.join(repoRoot, 'app/css/dashboard.css'
 
 assert.ok(html.includes('id="tab-projectgen"'), 'Project Generator tab panel should render');
 assert.ok(html.includes('pg-guide-flow'), 'Project Generator should expose guided step flow');
-assert.ok(html.includes('API local'), 'Project Generator should explain API local step');
+assert.ok(html.includes('API SQX Edge'), 'Project Generator should explain service API step');
 assert.ok(html.includes('Configura SQX'), 'Project Generator should expose SQX configuration step');
 assert.ok(html.includes('Elige generación'), 'Project Generator should expose generation choice step');
 assert.ok(html.includes('Genera y revisa'), 'Project Generator should expose generation review step');
@@ -315,9 +315,10 @@ assert.equal(resetOutputState.countLabel, '1 archivos');
 assert.doesNotMatch(resetOutputState.html, /OLD\.cfx/);
 assert.match(resetOutputState.html, /NEW\.cfx/);
 assert.equal(PG.openOutputDisconnectedStatus().logText, 'Backend desconectado');
+assert.equal(PG.openOutputSuccessStatus('C:/out').logText, 'Descarga output solicitada');
 assert.equal(PG.openOutputSuccessStatus('C:/out').traceDetail, 'C:/out');
 assert.equal(PG.openOutputRemoteWorkspaceStatus('workspace://outputs').traceDetail, 'workspace://outputs');
-assert.equal(PG.openOutputErrorStatus('denied').logText, 'Error abrir carpeta: denied');
+assert.equal(PG.openOutputErrorStatus('denied').logText, 'Error preparando descarga: denied');
 assert.match(PG.messageHtml('Error <x>', 'error'), /&lt;x&gt;/);
 
 assert.equal(PG.generateOneStartMessage(3, 2), 'Generando Mining 3 · Capa 2…');

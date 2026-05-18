@@ -203,8 +203,8 @@
     }
     if (detail) {
       detail.textContent = summary.userMiningCount
-        ? summary.userMiningCount + ' minings locales extendidos desde Pipeline. Workflow queda alineado con el plan operativo real.'
-        : 'Workflow alineado con el plan base operativo. Las extensiones locales apareceran aqui al anadir minings desde Pipeline.';
+        ? summary.userMiningCount + ' minings de usuario extendidos desde Pipeline. Workflow queda alineado con el plan operativo real.'
+        : 'Workflow alineado con el plan base operativo. Las extensiones de usuario apareceran aqui al anadir minings desde Pipeline.';
     }
     return summary;
   }
