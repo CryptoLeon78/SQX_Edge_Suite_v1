@@ -422,6 +422,20 @@ def _with_absolute_link_preview_meta(html: str, canonical_path: str = "/") -> st
     )
 
 
+def _with_dashboard_asset_prefix(html: str) -> str:
+    """Keep protected dashboard assets under the same /dashboard Access surface."""
+    replacements = {
+        'href="css/': 'href="/dashboard/css/',
+        'href="assets/': 'href="/dashboard/assets/',
+        'src="assets/': 'src="/dashboard/assets/',
+        'src="js/': 'src="/dashboard/js/',
+        'src="vendor/': 'src="/dashboard/vendor/',
+    }
+    for needle, replacement in replacements.items():
+        html = html.replace(needle, replacement)
+    return html
+
+
 def _link_preview_html() -> str:
     image_url = _absolute_public_url(LINK_PREVIEW_IMAGE_PATH)
     canonical_url = _absolute_public_url("/")
@@ -488,7 +502,8 @@ def serve_public_link_preview_entry():
 @app.get("/dashboard")
 def serve_dashboard_entry():
     html = (DASHBOARD_ROOT / "SQX_Dashboard_v6.html").read_text(encoding="utf-8-sig")
-    response = make_response(_with_absolute_link_preview_meta(html, "/dashboard"))
+    html = _with_dashboard_asset_prefix(_with_absolute_link_preview_meta(html, "/dashboard"))
+    response = make_response(html)
     response.headers["Content-Type"] = "text/html; charset=utf-8"
     return response
 
@@ -525,14 +540,23 @@ def serve_public_touch_icon():
     return send_from_directory(DASHBOARD_ROOT / "assets" / "brand", "sqx-app-icon-256.png", mimetype="image/png")
 
 
-@app.get("/<path:asset_path>")
-def serve_dashboard_asset(asset_path: str):
+def _send_dashboard_asset(asset_path: str):
     first_segment = asset_path.split("/", 1)[0]
     if first_segment not in {"assets", "css", "js", "vendor"}:
         abort(404)
     if ".." in Path(asset_path).parts:
         abort(404)
     return send_from_directory(DASHBOARD_ROOT, asset_path)
+
+
+@app.get("/dashboard/<path:asset_path>")
+def serve_protected_dashboard_asset(asset_path: str):
+    return _send_dashboard_asset(asset_path)
+
+
+@app.get("/<path:asset_path>")
+def serve_dashboard_asset(asset_path: str):
+    return _send_dashboard_asset(asset_path)
 
 
 # ── Config helpers ────────────────────────────────────────────────

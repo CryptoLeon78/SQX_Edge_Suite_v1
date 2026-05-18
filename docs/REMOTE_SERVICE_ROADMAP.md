@@ -104,6 +104,13 @@ protected dashboard. `app.sqxedgesuite.org/dashboard` is infrastructure behind
 Cloudflare Access, and `go.sqxedgesuite.org` is only a technical alias/fallback
 for preview diagnostics, not a second commercial link.
 
+REMOTE-ASSET1 fixes the clean-session dashboard asset boundary: the protected
+dashboard HTML now points CSS/JS/vendor/non-public assets to `/dashboard/...`
+and the backend serves those prefixed paths from the same dashboard surface.
+This prevents authenticated `/dashboard` HTML from rendering without CSS/JS in
+incognito/tester browsers when root asset paths have a different Access context
+or no app session cache.
+
 Artifacts:
 
 - `docs/REMOTE_OPS1B_CLOUDFLARE_OPERATOR_HANDOFF.md`

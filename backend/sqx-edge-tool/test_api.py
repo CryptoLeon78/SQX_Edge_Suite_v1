@@ -439,6 +439,21 @@ class ApiTestCase(unittest.TestCase):
             response.data,
         )
         self.assertIn(b'<meta property="og:url" content="https://app.example.invalid/dashboard">', response.data)
+        self.assertIn(b'href="/dashboard/css/dashboard.css"', response.data)
+        self.assertIn(b'src="/dashboard/js/main.js"', response.data)
+        self.assertIn(b'src="/dashboard/vendor/jszip.min.js"', response.data)
+
+        css = self.client.get(
+            "/dashboard/css/dashboard.css",
+            headers={
+                "Host": "app.example.invalid",
+                "X-Forwarded-Proto": "https",
+                "Cf-Access-Authenticated-User-Email": "tester@example.invalid",
+            },
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+        self.assertEqual(css.status_code, 200)
+        self.assertIn("text/css", css.headers.get("Content-Type", ""))
 
     def test_root_page_exposes_public_safe_social_metadata(self):
         response = self.client.get(
@@ -498,6 +513,13 @@ class ApiTestCase(unittest.TestCase):
             environ_base={"REMOTE_ADDR": "127.0.0.1"},
         )
         self.assertEqual(dashboard.status_code, 403)
+
+        dashboard_css = self.client.get(
+            "/dashboard/css/dashboard.css",
+            headers={"Host": "app.example.invalid", "X-Forwarded-Proto": "https"},
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+        self.assertEqual(dashboard_css.status_code, 403)
 
         image = self.client.get(
             "/assets/brand/sqx-social-preview.png",
