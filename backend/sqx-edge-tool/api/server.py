@@ -180,6 +180,9 @@ def _is_public_link_preview_path(path: str) -> bool:
         "/assets/brand/sqx-social-preview.png",
         "/assets/brand/sqx-favicon.png",
         "/assets/brand/sqx-app-icon-256.png",
+        "/favicon.ico",
+        "/apple-touch-icon.png",
+        "/robots.txt",
     }
     return path in {"/", "/link-preview"} or path in public_brand_assets
 
@@ -495,6 +498,31 @@ def serve_link_preview():
     response = make_response(_link_preview_html())
     response.headers["Content-Type"] = "text/html; charset=utf-8"
     return response
+
+
+@app.get("/robots.txt")
+def serve_public_robots():
+    response = make_response(
+        "User-agent: *\n"
+        "Allow: /\n"
+        "Disallow: /dashboard\n"
+        "Disallow: /api/\n"
+        "Disallow: /js/\n"
+        "Disallow: /css/\n"
+        "Disallow: /vendor/\n"
+    )
+    response.headers["Content-Type"] = "text/plain; charset=utf-8"
+    return response
+
+
+@app.get("/favicon.ico")
+def serve_public_favicon():
+    return send_from_directory(DASHBOARD_ROOT / "assets" / "brand", "sqx-favicon.png", mimetype="image/png")
+
+
+@app.get("/apple-touch-icon.png")
+def serve_public_touch_icon():
+    return send_from_directory(DASHBOARD_ROOT / "assets" / "brand", "sqx-app-icon-256.png", mimetype="image/png")
 
 
 @app.get("/<path:asset_path>")

@@ -509,6 +509,32 @@ class ApiTestCase(unittest.TestCase):
         self.assertIn("public", image.headers.get("Cache-Control", ""))
         self.assertEqual(image.headers.get("X-Robots-Tag"), "index, follow")
 
+    def test_social_discovery_files_are_public_safe(self):
+        for path, expected_content_type in (
+            ("/robots.txt", "text/plain"),
+            ("/favicon.ico", "image/png"),
+            ("/apple-touch-icon.png", "image/png"),
+        ):
+            with self.subTest(path=path):
+                response = self.client.get(
+                    path,
+                    headers={"Host": "app.example.invalid", "X-Forwarded-Proto": "https"},
+                    environ_base={"REMOTE_ADDR": "127.0.0.1"},
+                )
+                self.assertEqual(response.status_code, 200)
+                self.assertIn(expected_content_type, response.headers.get("Content-Type", ""))
+                self.assertIn("public", response.headers.get("Cache-Control", ""))
+                self.assertEqual(response.headers.get("X-Robots-Tag"), "index, follow")
+                self.assertNotIn(b"Cf-Access-Authenticated-User-Email", response.data)
+                self.assertNotIn(b"remote-welcome-gate", response.data)
+        robots = self.client.get(
+            "/robots.txt",
+            headers={"Host": "app.example.invalid", "X-Forwarded-Proto": "https"},
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+        self.assertIn(b"Allow: /", robots.data)
+        self.assertIn(b"Disallow: /dashboard", robots.data)
+
     def test_pro_write_endpoints_are_feature_gated(self):
         denied = {
             "ok": False,

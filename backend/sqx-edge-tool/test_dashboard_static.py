@@ -4434,6 +4434,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "previewPublic",
             "previewCacheable",
             "imageCacheable",
+            "robotsPublic",
+            "faviconPublic",
             "previewLeaksAppOrPrivateState",
             "<protected-hostname>",
         ):

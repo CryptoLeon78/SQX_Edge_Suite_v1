@@ -6,6 +6,8 @@ param(
     [string]$PreviewPath = "/link-preview",
     [string]$DashboardPath = "/dashboard",
     [string]$ImagePath = "/assets/brand/sqx-social-preview.png",
+    [string]$RobotsPath = "/robots.txt",
+    [string]$FaviconPath = "/favicon.ico",
     [switch]$Json
 )
 
@@ -106,11 +108,15 @@ $rootUrl = Join-UrlPath $origin "/"
 $previewUrl = Join-UrlPath $origin $PreviewPath
 $dashboardUrl = Join-UrlPath $origin $DashboardPath
 $imageUrl = Join-UrlPath $origin $ImagePath
+$robotsUrl = Join-UrlPath $origin $RobotsPath
+$faviconUrl = Join-UrlPath $origin $FaviconPath
 
 $root = Invoke-SmokeRequest $rootUrl
 $preview = Invoke-SmokeRequest $previewUrl
 $dashboard = Invoke-SmokeRequest $dashboardUrl
 $image = Invoke-SmokeRequest $imageUrl
+$robots = Invoke-SmokeRequest $robotsUrl
+$favicon = Invoke-SmokeRequest $faviconUrl
 
 function Test-AccessSignal {
     param([object]$Response)
@@ -152,24 +158,38 @@ if ($image.headers.ContainsKey("Content-Type")) {
     $imageContentType = [string]$image.headers["Content-Type"]
 }
 $imageOk = ($image.statusCode -eq 200) -and ($imageContentType -match '(?i)image/png')
+$robotsContentType = ""
+if ($robots.headers.ContainsKey("Content-Type")) { $robotsContentType = [string]$robots.headers["Content-Type"] }
+$robotsOk = ($robots.statusCode -eq 200) -and ($robotsContentType -match '(?i)text/plain') -and ($robots.body -match 'Allow:\s*/') -and ($robots.body -match 'Disallow:\s*/dashboard')
+$faviconContentType = ""
+if ($favicon.headers.ContainsKey("Content-Type")) { $faviconContentType = [string]$favicon.headers["Content-Type"] }
+$faviconOk = ($favicon.statusCode -eq 200) -and ($faviconContentType -match '(?i)image/(png|x-icon|vnd.microsoft.icon)')
 $rootCacheControl = ""
 if ($root.headers.ContainsKey("Cache-Control")) { $rootCacheControl = [string]$root.headers["Cache-Control"] }
 $previewCacheControl = ""
 if ($preview.headers.ContainsKey("Cache-Control")) { $previewCacheControl = [string]$preview.headers["Cache-Control"] }
 $imageCacheControl = ""
 if ($image.headers.ContainsKey("Cache-Control")) { $imageCacheControl = [string]$image.headers["Cache-Control"] }
+$robotsCacheControl = ""
+if ($robots.headers.ContainsKey("Cache-Control")) { $robotsCacheControl = [string]$robots.headers["Cache-Control"] }
+$faviconCacheControl = ""
+if ($favicon.headers.ContainsKey("Cache-Control")) { $faviconCacheControl = [string]$favicon.headers["Cache-Control"] }
 $rootCacheable = $rootCacheControl -match '(?i)public' -and $rootCacheControl -notmatch '(?i)no-store'
 $previewCacheable = $previewCacheControl -match '(?i)public' -and $previewCacheControl -notmatch '(?i)no-store'
 $imageCacheable = $imageCacheControl -match '(?i)public' -and $imageCacheControl -notmatch '(?i)no-store'
+$robotsCacheable = $robotsCacheControl -match '(?i)public' -and $robotsCacheControl -notmatch '(?i)no-store'
+$faviconCacheable = $faviconCacheControl -match '(?i)public' -and $faviconCacheControl -notmatch '(?i)no-store'
 
 $result = [ordered]@{
-    ok = ([bool]$rootHasMeta -and [bool]$rootCacheable -and -not [bool]$rootAccessSignal -and -not [bool]$rootAppBodyVisible -and [bool]$dashboardAccessSignal -and -not [bool]$dashboardAppBodyVisible -and [bool]$previewHasMeta -and [bool]$previewCacheable -and -not [bool]$previewLeaksApp -and [bool]$imageOk -and [bool]$imageCacheable)
+    ok = ([bool]$rootHasMeta -and [bool]$rootCacheable -and -not [bool]$rootAccessSignal -and -not [bool]$rootAppBodyVisible -and [bool]$dashboardAccessSignal -and -not [bool]$dashboardAppBodyVisible -and [bool]$previewHasMeta -and [bool]$previewCacheable -and -not [bool]$previewLeaksApp -and [bool]$imageOk -and [bool]$imageCacheable -and [bool]$robotsOk -and [bool]$robotsCacheable -and [bool]$faviconOk -and [bool]$faviconCacheable)
     phase = "ROOT-PREVIEW1"
     mode = "cloudflare_root_preview_dashboard_boundary_smoke"
     rootUrl = Redact-Url $rootUrl
     previewUrl = Redact-Url $previewUrl
     dashboardUrl = Redact-Url $dashboardUrl
     imageUrl = Redact-Url $imageUrl
+    robotsUrl = Redact-Url $robotsUrl
+    faviconUrl = Redact-Url $faviconUrl
     rootPreviewPublic = [bool]$rootHasMeta
     rootPreviewCacheable = [bool]$rootCacheable
     rootAccessSignalDetected = [bool]$rootAccessSignal
@@ -181,17 +201,25 @@ $result = [ordered]@{
     previewLeaksAppOrPrivateState = [bool]$previewLeaksApp
     imagePublic = [bool]$imageOk
     imageCacheable = [bool]$imageCacheable
+    robotsPublic = [bool]$robotsOk
+    robotsCacheable = [bool]$robotsCacheable
+    faviconPublic = [bool]$faviconOk
+    faviconCacheable = [bool]$faviconCacheable
     statusCodes = [ordered]@{
         root = $root.statusCode
         preview = $preview.statusCode
         dashboard = $dashboard.statusCode
         image = $image.statusCode
+        robots = $robots.statusCode
+        favicon = $favicon.statusCode
     }
     errors = [ordered]@{
         root = $root.error
         preview = $preview.error
         dashboard = $dashboard.error
         image = $image.error
+        robots = $robots.error
+        favicon = $favicon.error
     }
 }
 
@@ -210,6 +238,8 @@ if ($Json) {
     Write-Host "  Preview leaks app/private state: $($result.previewLeaksAppOrPrivateState)"
     Write-Host "  Social image public: $($result.imagePublic)"
     Write-Host "  Social image cacheable: $($result.imageCacheable)"
+    Write-Host "  Robots public: $($result.robotsPublic)"
+    Write-Host "  Favicon public: $($result.faviconPublic)"
     Write-Host "  OK: $($result.ok)"
 }
 
