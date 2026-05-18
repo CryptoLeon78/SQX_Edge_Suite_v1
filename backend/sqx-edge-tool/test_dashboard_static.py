@@ -2632,6 +2632,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "remote-first-user-observation-v1",
             ".local/remote_service/remote8c_first_user_observation",
             "GO_REMOTE8C_TINY_COHORT_EXPANSION_READY",
+            "GO_REMOTE8C_STAY_ONE_USER_DECISION_RECORDED",
+            "38.0",
+            "Expansion allowed: `false`",
             "decision.automationAllowed = false",
             "Operator Status Helper",
             "tools\\remote8c_observation_status.ps1",
@@ -2643,6 +2646,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "Current phase completed: REMOTE-8H cycle bridge",
             "Current implementation phase: REMOTE-8H private package evidence",
+            "Current phase completed: REMOTE-8C - First User Support Observation",
+            "GO_REMOTE8C_STAY_ONE_USER_DECISION_RECORDED",
             "First User Observation Gate",
             "remote-first-user-observation-v1",
             "tools/remote8c_observation_status.ps1",
@@ -2653,6 +2658,10 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "Artifacts added in REMOTE-8C",
+            "Current public-safe decision on 2026-05-18",
+            "GO_REMOTE8C_STAY_ONE_USER_DECISION_RECORDED",
+            "zero open support items",
+            "not authorize cohort expansion",
             "docs/REMOTE_8C_FIRST_USER_OBSERVATION.md",
             "backend/sqx-edge-tool/core/remote_first_user_observation.py",
             "backend/sqx-edge-tool/tools/remote_first_user_observation.py",

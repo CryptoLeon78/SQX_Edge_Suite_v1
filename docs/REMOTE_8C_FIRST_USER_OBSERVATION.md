@@ -6,11 +6,22 @@ The phase exists after REMOTE-8B. REMOTE-8B proves that the private live smoke c
 
 ## Current Observation Baseline
 
-The REMOTE-8C baseline was started locally on 2026-05-17 after REMOTE-8B returned `GO_REMOTE8B_LIVE_PILOT_EVIDENCE_SAFE_NO_GIT_LEAK`. The current private summary is intentionally blocked with `NO_GO_REMOTE8C_FIRST_USER_OBSERVATION_BLOCKED` because the observation window is not yet 24 hours and the guided-flow/support/stability signals are not complete.
+The REMOTE-8C baseline was started locally on 2026-05-17 after REMOTE-8B returned `GO_REMOTE8B_LIVE_PILOT_EVIDENCE_SAFE_NO_GIT_LEAK`. On 2026-05-18, ignored local evidence returned `GO_REMOTE8C_STAY_ONE_USER_DECISION_RECORDED` with more than 24 clean observation hours, all required signals present, zero open support items and zero unresolved blockers.
 
-This is the correct holding state: the first user remains the only active observation target, expansion stays blocked, and all raw evidence remains under ignored `.local/remote_service/remote8c_first_user_observation*` paths.
+This is a valid REMOTE-8C decision, but it is not an expansion approval. The first user remains the only active observation target until the operator explicitly requests `expand_3_5` and prepares REMOTE-8D. All raw evidence remains under ignored `.local/remote_service/remote8c_first_user_observation*` paths.
 
-After REMOTE-ACCEPT1 returned `GO_REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_CLEAN`, the local observation evidence may mark the guided Welcome/Dashboard flow, app-session/entitlement path and tunnel stability as observed. That does not complete REMOTE-8C by itself: the 24-hour observation window and support-loop review still decide whether the phase can move to a manual REMOTE-8D package.
+After REMOTE-ACCEPT1 returned `GO_REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_CLEAN`, the local observation evidence marked the guided Welcome/Dashboard flow, app-session/entitlement path and tunnel stability as observed. The support loop was later confirmed through Control Panel support intake; the output-folder case was resolved as safe remote behavior because local server folders are intentionally not exposed to remote users.
+
+Public-safe result:
+
+- Status: `GO_REMOTE8C_STAY_ONE_USER_DECISION_RECORDED`
+- Observation window: `38.0` hours in ignored local evidence at the rerun time
+- Missing signals: `0`
+- Metric blockers: `0`
+- Open support items: `0`
+- Unresolved blockers: `0`
+- Expansion allowed: `false`
+- Automation allowed: `false`
 
 ## Local Evidence Rule
 

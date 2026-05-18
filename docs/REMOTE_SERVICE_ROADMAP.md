@@ -618,6 +618,8 @@ Watches the first approved user after REMOTE-8B and turns private support eviden
 
 Current public-safe status after REMOTE-ACCEPT1: observation has resumed with clean Welcome/Dashboard, app-session/entitlement and tunnel stability signals recorded in ignored local evidence. Expansion remains blocked until the full 24-hour window and support-loop review are complete.
 
+Current public-safe decision on 2026-05-18: ignored local evidence returned `GO_REMOTE8C_STAY_ONE_USER_DECISION_RECORDED` after 38.0 clean observation hours, support-loop review, zero missing signals, zero open support items and zero unresolved blockers. This closes REMOTE-8C as a valid stay-one-user decision. It does not authorize cohort expansion because the recorded decision is not `expand_3_5`.
+
 Artifacts added in REMOTE-8C:
 
 - `docs/REMOTE_8C_FIRST_USER_OBSERVATION.md`
@@ -631,7 +633,7 @@ Artifacts added in REMOTE-8C:
 
 Next REMOTE-8D scope:
 
-- prepare a manual tiny cohort activation package for 3-5 users only after REMOTE-8C GO;
+- prepare a manual tiny cohort activation package for 3-5 users only after an explicit future REMOTE-8C/decision rerun with `expand_3_5`;
 - define exact communication, entitlement, support, rollback and pause-rule steps;
 - do not create users, send links or change grants automatically.
 
