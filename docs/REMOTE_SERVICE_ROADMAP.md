@@ -493,9 +493,9 @@ Status board:
 | WAIT-2 | Completed | Direct tester Welcome access after Cloudflare, status/next-suggestion cadence and new specialist agents. |
 | WAIT-3 / REMOTE-SUPPORT1 | Completed | Safe Control Panel incident intake, redacted local support cases and operator support summary helper. |
 | WAIT-4 | Completed | Trust Evidence Pack: self-assessment evidence, redacted security/privacy summaries and external scan preparation. |
-| WAIT-5 | Pending | Commercial onboarding polish: buyer welcome story, first-session microcopy and early-access demo flow. |
+| WAIT-5 | Completed | Commercial onboarding polish: stronger buyer welcome story, first-session dashboard guide and early-access Pro copy. |
 
-Count: `4/5` WAIT phases completed after WAIT-4. At the moment WAIT-2 started, `1/5` were complete.
+Count: `5/5` WAIT phases completed after WAIT-5. At the moment WAIT-2 started, `1/5` were complete.
 
 ### WAIT-1 - Welcome + Trust Center During REMOTE-8C
 
@@ -566,6 +566,24 @@ Rules:
 - External scans remain `planned` until real results exist.
 - No fake external certificate, fake auditing company or risk-free language.
 - WAIT-4 does not satisfy REMOTE-8C by itself and does not allow expansion.
+
+### WAIT-5 - Commercial Onboarding Polish
+
+WAIT-5 closes the WAIT workstream while REMOTE-8C remains the active expansion gate. It strengthens the buyer/tester first impression without changing Cloudflare Access, grants, checkout, sessions, workspaces or tester cohort size.
+
+Artifacts:
+
+- `docs/WAIT5_ONBOARDING_POLISH.md`
+- Welcome commercial story with `Primera sesión Pro`.
+- Dashboard `Primeros 10 minutos` guide.
+- `Commercial Onboarding Claims Gate` in governance.
+
+Rules:
+
+- The customer-facing entry remains the single canonical link `https://sqxedgesuite.org/`.
+- Copy can be commercially stronger, but only around productivity, structure, traceability and reduced operational error.
+- No profitability promises, fake external certifications, fake auditors, risk-free claims, automated checkout, new grants or tester expansion.
+- The dashboard guide may route users to existing tabs only; it must not create new permissions or bypass REMOTE-8C.
 
 ### REMOTE-ACCEPT1 - Real Browser Acceptance Gate
 

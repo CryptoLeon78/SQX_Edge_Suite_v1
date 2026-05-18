@@ -46,8 +46,6 @@ Limites:
 - No publicar checkout ni URLs nuevas.
 - No cambiar tarjetas de activos sin confirmacion explicita del operador.
 
-## Ideas Pendientes
-
 ## WAIT-4 - Trust Evidence Pack
 
 Estado: completado en WAIT-4.
@@ -63,6 +61,31 @@ Artefactos:
 - `docs/WAIT4_TRUST_EVIDENCE_PACK.md`.
 - Bloque `Evidence Pack` en la pantalla Welcome / Trust.
 - Contratos estaticos para impedir claims falsos.
+
+## WAIT-5 - Onboarding Comercial Y Primera Sesion Pro
+
+Estado: completado en WAIT-5.
+
+Objetivo:
+
+- Hacer que el primer impacto del usuario aprobado se sienta Pro, claro y comercial sin tocar permisos ni cohortes.
+- Explicar SQX Edge Suite como plataforma para ordenar el flujo StrategyQuant X: Workflow, Mining Control, SQX Views, Project Generator, Template Maker, Strategy Control y Champion vs Challenger.
+- Añadir una guia `Primeros 10 minutos` dentro del dashboard para orientar al comprador/tester sin crear nuevos tabs.
+- Mantener REMOTE-8C como gate de observacion antes de ampliar usuarios.
+
+Decisiones fijadas:
+
+- Tono comercial fuerte, pero honesto.
+- Superficie: Welcome + Dashboard.
+- CTA principal: `Acceso DASHBOARD`.
+- Early Access Pro no crea checkout, no crea grants y no amplia testers.
+
+Artefactos:
+
+- `docs/WAIT5_ONBOARDING_POLISH.md`.
+- Bloque `Primera sesión Pro` en Welcome.
+- Panel `Primeros 10 minutos` en Control Panel / Inicio.
+- `Commercial Onboarding Claims Gate` en gobernanza.
 
 ## Ideas Pendientes
 

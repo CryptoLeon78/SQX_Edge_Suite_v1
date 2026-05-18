@@ -16,6 +16,7 @@ REMOTE_SERVICE_ROADMAP_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_ROADMAP.md"
 REMOTE_SERVICE_SECURITY_PRIVACY_COPY_DOC = PROJECT_ROOT / "docs" / "REMOTE_SERVICE_SECURITY_PRIVACY_COPY.md"
 REMOTE_VALUE_BACKLOG_DOC = PROJECT_ROOT / "docs" / "REMOTE_VALUE_BACKLOG.md"
 WAIT4_TRUST_EVIDENCE_PACK_DOC = PROJECT_ROOT / "docs" / "WAIT4_TRUST_EVIDENCE_PACK.md"
+WAIT5_ONBOARDING_POLISH_DOC = PROJECT_ROOT / "docs" / "WAIT5_ONBOARDING_POLISH.md"
 REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_DOC = PROJECT_ROOT / "docs" / "REMOTE_ACCEPT1_BROWSER_ACCEPTANCE.md"
 REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_CORE = TOOL_ROOT / "core" / "remote_browser_acceptance.py"
 REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_TOOL = TOOL_ROOT / "tools" / "remote_accept1_browser_acceptance.py"
@@ -556,13 +557,16 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         self.assertTrue(REMOTE_VALUE_BACKLOG_DOC.is_file())
         self.assertTrue(WAIT4_TRUST_EVIDENCE_PACK_DOC.is_file())
+        self.assertTrue(WAIT5_ONBOARDING_POLISH_DOC.is_file())
 
         for pattern in (
             "WAIT-1 - Welcome + Trust Center",
             "WAIT-2 - Welcome Direct Tester Access",
             "WAIT-4 - Trust Evidence Pack",
-            "Count: `4/5` WAIT phases completed after WAIT-4",
+            "WAIT-5 - Commercial Onboarding Polish",
+            "Count: `5/5` WAIT phases completed after WAIT-5",
             "Trust Claims Gate",
+            "Commercial Onboarding Claims Gate",
             "No fictitious auditing company",
             "No fake third-party certificates",
             "MDN HTTP Observatory",
@@ -574,6 +578,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "Trust Claims Gate",
             "Trust Evidence Pack Gate",
+            "Commercial Onboarding Claims Gate",
             "must not claim external certification",
             "fake issuer status",
             "real external artifact exists",
@@ -586,6 +591,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "WAIT-1 - Welcome + Trust Center",
             "WAIT-2 - Welcome Direct Tester Access",
             "WAIT-4 - Trust Evidence Pack",
+            "WAIT-5 - Onboarding Comercial Y Primera Sesion Pro",
             "SQX Edge Suite Security Self-Assessment",
             "Privacy & Data Handling Statement",
             "Remote Service Safety Checklist",
@@ -614,6 +620,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             "SQX Edge Suite ofrece productividad, estructura, trazabilidad y reducción de errores operativos.",
             "No promete rentabilidad",
             "Herramienta creada por QXPro",
+            "Una plataforma Pro para ordenar todo tu flujo StrategyQuant X.",
+            "Primera sesión Pro",
+            "Empieza por Workflow",
+            "Genera o certifica",
+            "Primeros 10 minutos",
+            "Early Access Pro",
             "Acceso DASHBOARD",
             "MDN HTTP Observatory",
             "OWASP ZAP Baseline",
@@ -626,10 +638,14 @@ class DashboardStaticTestCase(unittest.TestCase):
             ".remote-welcome-shell",
             ".remote-trust-center",
             ".remote-welcome-verdict",
+            ".remote-welcome-sales",
             ".remote-welcome-value-copy",
+            ".remote-first-session",
             ".remote-welcome-status-grid",
             ".remote-trust-evidence-pack",
             ".remote-trust-chip",
+            ".home-first-session",
+            ".home-first-step",
             "@media (max-width: 860px)",
         ):
             with self.subTest(pattern=pattern):
@@ -702,7 +718,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "| WAIT-2 | Completed |",
             "| WAIT-3 / REMOTE-SUPPORT1 | Completed |",
             "WAIT-4 | Completed",
-            "WAIT-5 | Pending",
+            "WAIT-5 | Completed",
+            "Count: `5/5` WAIT phases completed after WAIT-5",
             "default Welcome flow must not ask testers for a second key after Cloudflare validation",
         ):
             with self.subTest(pattern=pattern):
@@ -716,6 +733,95 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, backlog)
+
+    def test_wait_5_commercial_onboarding_is_completed_and_safe(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        backlog = REMOTE_VALUE_BACKLOG_DOC.read_text(encoding="utf-8-sig")
+        wait5 = WAIT5_ONBOARDING_POLISH_DOC.read_text(encoding="utf-8-sig")
+        html = self.html
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            "WAIT-5 - Commercial Onboarding Polish",
+            "| WAIT-5 | Completed | Commercial onboarding polish",
+            "Count: `5/5` WAIT phases completed after WAIT-5",
+            "`https://sqxedgesuite.org/`",
+            "does not allow expansion",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "Commercial Onboarding Claims Gate",
+            "WAIT workstream state: WAIT-1, WAIT-2, WAIT-3/REMOTE-SUPPORT1, WAIT-4 and WAIT-5 are completed",
+            "5 of 5 WAIT phases are complete",
+            "productivity, structure, traceability and reduced operational error",
+            "must not imply external certification",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "WAIT-5 - Onboarding Comercial Y Primera Sesion Pro",
+            "Estado: completado en WAIT-5",
+            "Tono comercial fuerte, pero honesto",
+            "`Primeros 10 minutos`",
+            "Early Access Pro no crea checkout",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, backlog)
+
+        for pattern in (
+            "WAIT-5 - Onboarding Comercial Y Primera Sesion Pro",
+            "WAIT workstream: `5/5` completado",
+            "Expansion de testers: bloqueada hasta REMOTE-8C GO explicito",
+            "Checkout: no activado",
+            "No se promete rentabilidad",
+            "No se simulan certificados",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, wait5)
+
+        for pattern in (
+            "Una plataforma Pro para ordenar todo tu flujo StrategyQuant X.",
+            "Primera sesión Pro",
+            "Primeros 10 minutos",
+            "Early Access Pro",
+            "REMOTE-8C sigue como gate de observacion",
+            "Workflow",
+            "Mining Control",
+            "SQX Views",
+            "Project Generator",
+            "Template Maker",
+            "Strategy Control",
+            "Champion vs Challenger",
+            "No promete rentabilidad",
+            "Acceso DASHBOARD",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, html)
+
+        for pattern in (
+            ".remote-welcome-sales",
+            ".remote-first-session",
+            ".home-first-session",
+            ".home-first-session-grid",
+            ".home-first-step",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, css)
+
+        combined = "\n".join([governance, roadmap, backlog, wait5, html])
+        for forbidden in (
+            "rentabilidad asegurada",
+            "riesgo cero",
+            "auditor externo certificado",
+            "empresa ficticia",
+            "certificado externo emitido",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined.lower())
 
     def test_remote_accept1_browser_acceptance_gate_is_documented(self):
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
