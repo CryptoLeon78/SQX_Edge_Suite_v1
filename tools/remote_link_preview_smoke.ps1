@@ -4,6 +4,7 @@ param(
     [Parameter(Mandatory = $true)]
     [string]$ProtectedUrl,
     [string]$PreviewPath = "/link-preview",
+    [string]$DashboardPath = "/dashboard",
     [string]$ImagePath = "/assets/brand/sqx-social-preview.png",
     [switch]$Json
 )
@@ -97,25 +98,46 @@ function Invoke-SmokeRequest {
 }
 
 if (-not (Test-HttpsUrl $ProtectedUrl)) {
-    throw "LINKPREVIEW2 smoke requires the protected Cloudflare https URL."
+    throw "ROOT-PREVIEW1 smoke requires the protected Cloudflare https URL."
 }
 
 $origin = Get-Origin $ProtectedUrl
 $rootUrl = Join-UrlPath $origin "/"
 $previewUrl = Join-UrlPath $origin $PreviewPath
+$dashboardUrl = Join-UrlPath $origin $DashboardPath
 $imageUrl = Join-UrlPath $origin $ImagePath
 
 $root = Invoke-SmokeRequest $rootUrl
 $preview = Invoke-SmokeRequest $previewUrl
+$dashboard = Invoke-SmokeRequest $dashboardUrl
 $image = Invoke-SmokeRequest $imageUrl
 
-$rootHeaderText = (($root.headers.GetEnumerator() | ForEach-Object { "$($_.Key): $($_.Value)" }) -join "`n")
-$rootAccessSignal = (
-    ($rootHeaderText -match '(?i)cf-access-authenticated-user-email|cf-access-jwt-assertion|cf-access-domain|cf-access') -or
-    ($rootHeaderText -match '(?i)location:.*cloudflareaccess') -or
-    ($root.body -match '(?i)cloudflare access|access denied|sign in to.*cloudflare|checking your browser')
+function Test-AccessSignal {
+    param([object]$Response)
+    $headerText = (($Response.headers.GetEnumerator() | ForEach-Object { "$($_.Key): $($_.Value)" }) -join "`n")
+    return (
+        ($headerText -match '(?i)cf-access-authenticated-user-email|cf-access-jwt-assertion|cf-access-domain|cf-access') -or
+        ($headerText -match '(?i)location:.*cloudflareaccess') -or
+        ($Response.body -match '(?i)cloudflare access|access denied|sign in to.*cloudflare|checking your browser')
+    )
+}
+
+function Test-AppBodyVisible {
+    param([object]$Response)
+    return $Response.body -match '(?i)remote-welcome-gate|Project Generator|Template Maker|Mining Control|SQX Edge API|local_api_only'
+}
+
+$rootHasMeta = (
+    ($root.statusCode -eq 200) -and
+    ($root.body -match 'SQX Edge Suite \| Plataforma Pro para SQX Traders') -and
+    ($root.body -match 'property="og:image"') -and
+    ($root.body -match [regex]::Escape($ImagePath)) -and
+    ($root.body -match [regex]::Escape($DashboardPath))
 )
-$rootAppBodyVisible = $root.body -match '(?i)remote-welcome-gate|Project Generator|Template Maker|Mining Control|SQX Edge API|local_api_only'
+$rootAccessSignal = Test-AccessSignal $root
+$rootAppBodyVisible = Test-AppBodyVisible $root
+$dashboardAccessSignal = Test-AccessSignal $dashboard
+$dashboardAppBodyVisible = Test-AppBodyVisible $dashboard
 
 $previewHasMeta = (
     ($preview.statusCode -eq 200) -and
@@ -132,25 +154,31 @@ if ($image.headers.ContainsKey("Content-Type")) {
 $imageOk = ($image.statusCode -eq 200) -and ($imageContentType -match '(?i)image/png')
 
 $result = [ordered]@{
-    ok = ([bool]$rootAccessSignal -and -not [bool]$rootAppBodyVisible -and [bool]$previewHasMeta -and -not [bool]$previewLeaksApp -and [bool]$imageOk)
-    phase = "LINKPREVIEW2"
-    mode = "cloudflare_link_preview_boundary_smoke"
+    ok = ([bool]$rootHasMeta -and -not [bool]$rootAccessSignal -and -not [bool]$rootAppBodyVisible -and [bool]$dashboardAccessSignal -and -not [bool]$dashboardAppBodyVisible -and [bool]$previewHasMeta -and -not [bool]$previewLeaksApp -and [bool]$imageOk)
+    phase = "ROOT-PREVIEW1"
+    mode = "cloudflare_root_preview_dashboard_boundary_smoke"
     rootUrl = Redact-Url $rootUrl
     previewUrl = Redact-Url $previewUrl
+    dashboardUrl = Redact-Url $dashboardUrl
     imageUrl = Redact-Url $imageUrl
-    rootProtected = [bool]$rootAccessSignal
+    rootPreviewPublic = [bool]$rootHasMeta
+    rootAccessSignalDetected = [bool]$rootAccessSignal
     rootAppBodyVisibleToAnonymous = [bool]$rootAppBodyVisible
+    dashboardProtected = [bool]$dashboardAccessSignal
+    dashboardAppBodyVisibleToAnonymous = [bool]$dashboardAppBodyVisible
     previewPublic = [bool]$previewHasMeta
     previewLeaksAppOrPrivateState = [bool]$previewLeaksApp
     imagePublic = [bool]$imageOk
     statusCodes = [ordered]@{
         root = $root.statusCode
         preview = $preview.statusCode
+        dashboard = $dashboard.statusCode
         image = $image.statusCode
     }
     errors = [ordered]@{
         root = $root.error
         preview = $preview.error
+        dashboard = $dashboard.error
         image = $image.error
     }
 }
@@ -158,9 +186,12 @@ $result = [ordered]@{
 if ($Json) {
     $result | ConvertTo-Json -Depth 6
 } else {
-    Write-Host "LINKPREVIEW2 Cloudflare public preview smoke"
-    Write-Host "  Root protected: $($result.rootProtected)"
+    Write-Host "ROOT-PREVIEW1 Cloudflare root preview/dashboard boundary smoke"
+    Write-Host "  Root preview public: $($result.rootPreviewPublic)"
+    Write-Host "  Root Access signal: $($result.rootAccessSignalDetected)"
     Write-Host "  Root app body visible: $($result.rootAppBodyVisibleToAnonymous)"
+    Write-Host "  Dashboard protected: $($result.dashboardProtected)"
+    Write-Host "  Dashboard app body visible: $($result.dashboardAppBodyVisibleToAnonymous)"
     Write-Host "  Preview public: $($result.previewPublic)"
     Write-Host "  Preview leaks app/private state: $($result.previewLeaksAppOrPrivateState)"
     Write-Host "  Social image public: $($result.imagePublic)"

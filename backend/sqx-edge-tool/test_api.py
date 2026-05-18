@@ -424,7 +424,7 @@ class ApiTestCase(unittest.TestCase):
 
     def test_dashboard_is_served_for_authenticated_cloudflare_access_tunnel(self):
         response = self.client.get(
-            "/",
+            "/dashboard",
             headers={
                 "Host": "app.example.invalid",
                 "X-Forwarded-Proto": "https",
@@ -438,9 +438,28 @@ class ApiTestCase(unittest.TestCase):
             b'https://app.example.invalid/assets/brand/sqx-social-preview.png',
             response.data,
         )
-        self.assertIn(b'<meta property="og:url" content="https://app.example.invalid/">', response.data)
+        self.assertIn(b'<meta property="og:url" content="https://app.example.invalid/dashboard">', response.data)
 
-    def test_link_preview_page_exposes_public_safe_social_metadata(self):
+    def test_root_page_exposes_public_safe_social_metadata(self):
+        response = self.client.get(
+            "/",
+            headers={
+                "Host": "app.example.invalid",
+                "X-Forwarded-Proto": "https",
+            },
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+        body = response.data.decode("utf-8")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("SQX Edge Suite | Plataforma Pro para SQX Traders", body)
+        self.assertIn('property="og:image"', body)
+        self.assertIn("https://app.example.invalid/assets/brand/sqx-social-preview.png", body)
+        self.assertIn('href="https://app.example.invalid/dashboard"', body)
+        self.assertIn("Acceso DASHBOARD", body)
+        self.assertNotIn("remote-welcome-gate", body)
+        self.assertNotIn("Cf-Access-Authenticated-User-Email", body)
+
+    def test_link_preview_alias_exposes_public_safe_social_metadata(self):
         response = self.client.get(
             "/link-preview",
             headers={
@@ -454,13 +473,21 @@ class ApiTestCase(unittest.TestCase):
         self.assertIn("SQX Edge Suite | Plataforma Pro para SQX Traders", body)
         self.assertIn('property="og:image"', body)
         self.assertIn("https://app.example.invalid/assets/brand/sqx-social-preview.png", body)
+        self.assertIn('href="https://app.example.invalid/dashboard"', body)
         self.assertIn("Acceso DASHBOARD", body)
         self.assertNotIn("remote-welcome-gate", body)
         self.assertNotIn("Cf-Access-Authenticated-User-Email", body)
 
     def test_only_public_link_preview_paths_bypass_access_header_requirement(self):
-        dashboard = self.client.get(
+        root = self.client.get(
             "/",
+            headers={"Host": "app.example.invalid", "X-Forwarded-Proto": "https"},
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+        self.assertEqual(root.status_code, 200)
+
+        dashboard = self.client.get(
+            "/dashboard",
             headers={"Host": "app.example.invalid", "X-Forwarded-Proto": "https"},
             environ_base={"REMOTE_ADDR": "127.0.0.1"},
         )

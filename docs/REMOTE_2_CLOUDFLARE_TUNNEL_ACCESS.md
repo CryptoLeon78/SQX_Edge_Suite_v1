@@ -126,14 +126,16 @@ Chat and social preview crawlers usually cannot authenticate through Cloudflare
 Access. A protected dashboard URL can therefore look empty when pasted into a
 chat even if the dashboard itself is working.
 
-The backend now rewrites dashboard Open Graph/Twitter image URLs to the current
-public host and exposes `/link-preview` as a public-safe preview surface. If a
-professional preview is required in chats, the operator may configure
-Cloudflare so only `/link-preview` and the required brand image assets are
-public/bypassed, while `/` and all dashboard/API routes remain protected.
+ROOT-PREVIEW1 splits the public commercial link from the protected tool:
 
-Backend local-only protection allows only this preview allowlist without an
-authenticated Access identity: `/link-preview`,
+- `/` is a public-safe preview/landing page with Open Graph/Twitter metadata.
+- `/link-preview` remains a legacy alias to the same public-safe preview.
+- `/dashboard` is the authenticated dashboard entry.
+- `/api/*`, `/js/*`, `/css/*`, `/vendor/*` and non-public assets remain behind
+  Cloudflare Access.
+
+Backend local-only protection allows only this preview surface without an
+authenticated Access identity: `/`, `/link-preview`,
 `/assets/brand/sqx-social-preview.png`, `/assets/brand/sqx-favicon.png` and
 `/assets/brand/sqx-app-icon-256.png`.
 
@@ -143,24 +145,24 @@ internal resources.
 
 Operator Cloudflare setup:
 
-1. Keep the main self-hosted Access application protecting the root hostname
-   with the approved-user policy. Do not bypass `/`.
-2. Add a more specific Access application path or policy for `/link-preview`
-   with action `Bypass` and selector `Everyone`.
-3. Add equivalent bypass only for the brand assets required by the preview:
+1. The public root `/` must not show the dashboard. It may show only the
+   preview/landing page.
+2. Configure the authenticated Access application for `/dashboard*`, `/api/*`,
+   `/js/*`, `/css/*`, `/vendor/*` and non-public `/assets/*`.
+3. Configure `Bypass` + `Everyone` only for `/`, `/link-preview` and the brand
+   assets required by the preview:
    `/assets/brand/sqx-social-preview.png`,
    `/assets/brand/sqx-favicon.png` and
    `/assets/brand/sqx-app-icon-256.png`.
-4. Keep every `/api/*`, `/js/*`, `/css/*`, dashboard root and workspace route
-   behind the authenticated Access application.
-5. Run the boundary smoke after changing Cloudflare:
+4. Run the boundary smoke after changing Cloudflare:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File tools\remote_link_preview_smoke.ps1 -ProtectedUrl "https://<private-protected-hostname>" -Json
 ```
 
-Acceptance: root remains protected, `/link-preview` is public, the social image
-is public, and the preview does not expose app state or private data.
+Acceptance: root preview is public, `/dashboard` remains protected,
+`/link-preview` is public, the social image is public, and no preview route
+exposes app state or private data.
 
 Reference: Cloudflare Access supports application paths for different rules on
 parts of the same hostname and Access policies include a `Bypass` action.

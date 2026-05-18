@@ -4422,12 +4422,14 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, smoke)
 
         for pattern in (
-            "LINKPREVIEW2",
+            "ROOT-PREVIEW1",
             "ProtectedUrl",
             "remote_link_preview_smoke",
             "link-preview",
+            "/dashboard",
             "sqx-social-preview.png",
-            "rootProtected",
+            "rootPreviewPublic",
+            "dashboardProtected",
             "previewPublic",
             "previewLeaksAppOrPrivateState",
             "<protected-hostname>",

@@ -181,7 +181,7 @@ def _is_public_link_preview_path(path: str) -> bool:
         "/assets/brand/sqx-favicon.png",
         "/assets/brand/sqx-app-icon-256.png",
     }
-    return path == "/link-preview" or path in public_brand_assets
+    return path in {"/", "/link-preview"} or path in public_brand_assets
 
 
 def _remote_security_action(method: str, path: str) -> str | None:
@@ -405,9 +405,9 @@ def _absolute_public_url(path: str) -> str:
     return f"{_public_base_url()}/{path.lstrip('/')}"
 
 
-def _with_absolute_link_preview_meta(html: str) -> str:
+def _with_absolute_link_preview_meta(html: str, canonical_path: str = "/") -> str:
     image_url = _absolute_public_url(LINK_PREVIEW_IMAGE_PATH)
-    canonical_url = _absolute_public_url("/")
+    canonical_url = _absolute_public_url(canonical_path)
     return (
         html.replace('content="assets/brand/sqx-social-preview.png"', f'content="{image_url}"')
         .replace('href="/"', f'href="{canonical_url}"')
@@ -418,6 +418,7 @@ def _with_absolute_link_preview_meta(html: str) -> str:
 def _link_preview_html() -> str:
     image_url = _absolute_public_url(LINK_PREVIEW_IMAGE_PATH)
     canonical_url = _absolute_public_url("/")
+    dashboard_url = _absolute_public_url("/dashboard")
     return f"""<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -462,7 +463,7 @@ small{{display:block;margin-top:18px;color:#8da2ba;}}
     <h1>SQX Edge Suite</h1>
     <p>{LINK_PREVIEW_DESCRIPTION}</p>
     <img src="{image_url}" alt="SQX Edge Suite">
-    <a href="{canonical_url}">Acceso DASHBOARD</a>
+    <a href="{dashboard_url}">Acceso DASHBOARD</a>
     <small>No promete rentabilidad ni sustituye la responsabilidad del usuario al validar estrategias.</small>
   </section>
 </main>
@@ -471,9 +472,16 @@ small{{display:block;margin-top:18px;color:#8da2ba;}}
 
 
 @app.get("/")
+def serve_public_link_preview_entry():
+    response = make_response(_link_preview_html())
+    response.headers["Content-Type"] = "text/html; charset=utf-8"
+    return response
+
+
+@app.get("/dashboard")
 def serve_dashboard_entry():
     html = (DASHBOARD_ROOT / "SQX_Dashboard_v6.html").read_text(encoding="utf-8-sig")
-    response = make_response(_with_absolute_link_preview_meta(html))
+    response = make_response(_with_absolute_link_preview_meta(html, "/dashboard"))
     response.headers["Content-Type"] = "text/html; charset=utf-8"
     return response
 

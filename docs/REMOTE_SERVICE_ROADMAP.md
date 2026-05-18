@@ -92,6 +92,11 @@ Next route:
 
 Turns the remaining Cloudflare blocker into a local-only operator handoff. It creates ignored handoff/config templates, verifies `cloudflared` status, keeps placeholders in Git and tells the operator exactly how to finish Tunnel + Access privately.
 
+ROOT-PREVIEW1 adds the production sharing boundary: `/` is a public-safe
+commercial preview, `/dashboard` is the protected app entry, and
+`tools/remote_link_preview_smoke.ps1` verifies that split before links are
+shared with testers or buyers.
+
 Artifacts:
 
 - `docs/REMOTE_OPS1B_CLOUDFLARE_OPERATOR_HANDOFF.md`
