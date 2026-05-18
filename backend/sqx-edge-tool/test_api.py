@@ -427,12 +427,52 @@ class ApiTestCase(unittest.TestCase):
             "/",
             headers={
                 "Host": "app.example.invalid",
+                "X-Forwarded-Proto": "https",
                 "Cf-Access-Authenticated-User-Email": "tester@example.invalid",
             },
             environ_base={"REMOTE_ADDR": "127.0.0.1"},
         )
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"<title>SQX Edge Suite</title>", response.data)
+        self.assertIn(
+            b'https://app.example.invalid/assets/brand/sqx-social-preview.png',
+            response.data,
+        )
+        self.assertIn(b'<meta property="og:url" content="https://app.example.invalid/">', response.data)
+
+    def test_link_preview_page_exposes_public_safe_social_metadata(self):
+        response = self.client.get(
+            "/link-preview",
+            headers={
+                "Host": "app.example.invalid",
+                "X-Forwarded-Proto": "https",
+            },
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+        body = response.data.decode("utf-8")
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("SQX Edge Suite | Plataforma Pro para SQX Traders", body)
+        self.assertIn('property="og:image"', body)
+        self.assertIn("https://app.example.invalid/assets/brand/sqx-social-preview.png", body)
+        self.assertIn("Acceso DASHBOARD", body)
+        self.assertNotIn("remote-welcome-gate", body)
+        self.assertNotIn("Cf-Access-Authenticated-User-Email", body)
+
+    def test_only_public_link_preview_paths_bypass_access_header_requirement(self):
+        dashboard = self.client.get(
+            "/",
+            headers={"Host": "app.example.invalid", "X-Forwarded-Proto": "https"},
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+        self.assertEqual(dashboard.status_code, 403)
+
+        image = self.client.get(
+            "/assets/brand/sqx-social-preview.png",
+            headers={"Host": "app.example.invalid", "X-Forwarded-Proto": "https"},
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+        self.assertEqual(image.status_code, 200)
+        self.assertIn("image/png", image.headers.get("Content-Type", ""))
 
     def test_pro_write_endpoints_are_feature_gated(self):
         denied = {

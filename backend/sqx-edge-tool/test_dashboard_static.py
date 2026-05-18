@@ -6602,6 +6602,11 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertGreater(path.stat().st_size, 1000, f"brand asset {asset} should not be empty")
 
         self.assertIn('class="brand-mark"', self.html)
+        self.assertIn('property="og:type" content="website"', self.html)
+        self.assertIn('property="og:site_name" content="SQX Edge Suite"', self.html)
+        self.assertIn('property="og:image:width" content="1200"', self.html)
+        self.assertIn('property="og:image:height" content="630"', self.html)
+        self.assertIn('name="twitter:title" content="SQX Edge Suite | Plataforma Pro para SQX Traders"', self.html)
         self.assertIn("assets/brand/sqx-favicon.png", self.html)
         self.assertIn("assets/brand/sqx-app-icon-256.png", self.html)
         self.assertIn("assets/brand/sqx-social-preview.png", self.html)
@@ -6610,6 +6615,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("../assets/brand/sqx-tab-watermark.png", css)
         self.assertIn("material de diagnostico/imagenes_prompts/", governance)
         self.assertIn("app/assets/brand/", governance)
+        self.assertIn("Link Preview Trust Gate", governance)
 
     def test_workflow_shell_delegates_to_workflow_module(self):
         main_js = (APP_ROOT / "js" / "main.js").read_text(encoding="utf-8-sig")

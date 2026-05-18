@@ -476,10 +476,11 @@
   }
 
   function bootstrapRemoteState() {
-    if (!global.fetch) {
+    var isLocalFileMode = !!(global.location && global.location.protocol === 'file:');
+    if (!global.fetch || isLocalFileMode) {
       _remotePersistence.ready = true;
       _remotePersistence.enabled = false;
-      return Promise.resolve({ ok: false, localOnly: true });
+      return Promise.resolve({ ok: false, localOnly: true, skipped: isLocalFileMode ? 'file_mode' : 'fetch_unavailable' });
     }
     return fetchRemoteJson('/remote/template-maker/bootstrap')
       .then(function(result) {

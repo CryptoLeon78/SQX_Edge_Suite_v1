@@ -120,6 +120,27 @@ NO-GO is expected until the operator has private Cloudflare domain/tunnel/Access
 - The app-level auth/session layer remains required after Access in REMOTE-3+.
 - The public repository must not contain hostnames, tunnel IDs, Access IDs, account IDs, tokens, emails or private screenshots.
 
+## Link Preview Boundary
+
+Chat and social preview crawlers usually cannot authenticate through Cloudflare
+Access. A protected dashboard URL can therefore look empty when pasted into a
+chat even if the dashboard itself is working.
+
+The backend now rewrites dashboard Open Graph/Twitter image URLs to the current
+public host and exposes `/link-preview` as a public-safe preview surface. If a
+professional preview is required in chats, the operator may configure
+Cloudflare so only `/link-preview` and the required brand image assets are
+public/bypassed, while `/` and all dashboard/API routes remain protected.
+
+Backend local-only protection allows only this preview allowlist without an
+authenticated Access identity: `/link-preview`,
+`/assets/brand/sqx-social-preview.png`, `/assets/brand/sqx-favicon.png` and
+`/assets/brand/sqx-app-icon-256.png`.
+
+The preview page must never expose tester emails, protected URLs, Cloudflare
+identifiers, workspace state, local paths, generated strategies, tokens or SQX
+internal resources.
+
 ## Handoff To REMOTE-3
 
 REMOTE-3 can begin when:

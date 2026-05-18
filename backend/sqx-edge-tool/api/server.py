@@ -175,6 +175,15 @@ def _is_authenticated_access_tunnel_request() -> bool:
     return _is_local_remote(request.remote_addr) and bool(trusted_email_from_headers(request.headers))
 
 
+def _is_public_link_preview_path(path: str) -> bool:
+    public_brand_assets = {
+        "/assets/brand/sqx-social-preview.png",
+        "/assets/brand/sqx-favicon.png",
+        "/assets/brand/sqx-app-icon-256.png",
+    }
+    return path == "/link-preview" or path in public_brand_assets
+
+
 def _remote_security_action(method: str, path: str) -> str | None:
     if not path.startswith("/api/remote/"):
         return None
@@ -308,6 +317,9 @@ def _remote_session_status_for_request(*, purpose: str = "status", device_id: st
 def enforce_local_api_boundary():
     local_browser_request = _is_local_host(request.host) and _is_local_remote(request.remote_addr)
     access_tunnel_request = _is_authenticated_access_tunnel_request()
+    public_preview_request = _is_public_link_preview_path(request.path) and _is_local_remote(request.remote_addr)
+    if public_preview_request:
+        return None
     if not local_browser_request and not access_tunnel_request:
         return jsonify({
             "ok": False,
@@ -364,10 +376,113 @@ def add_cors_headers(response):
 # Flask responde OPTIONS automáticamente para rutas con GET/POST registrados,
 # combinado con el @app.after_request de arriba, eso es suficiente para CORS preflight.
 
+LINK_PREVIEW_TITLE = "SQX Edge Suite | Plataforma Pro para SQX Traders"
+LINK_PREVIEW_DESCRIPTION = (
+    "Productividad, estructura y trazabilidad para investigar, certificar y "
+    "entregar estrategias SQX con menos errores operativos."
+)
+LINK_PREVIEW_IMAGE_PATH = "/assets/brand/sqx-social-preview.png"
+
+
+def _public_base_url() -> str:
+    scheme = request.headers.get("X-Forwarded-Proto")
+    if not scheme:
+        try:
+            cf_visitor = json.loads(request.headers.get("Cf-Visitor") or "{}")
+            scheme = cf_visitor.get("scheme")
+        except Exception:
+            scheme = None
+    scheme = scheme if scheme in {"http", "https"} else request.scheme
+    host = request.headers.get("Host") or "127.0.0.1:5050"
+    if not re.match(r"^[A-Za-z0-9.\-:\[\]]+$", host):
+        host = "127.0.0.1:5050"
+    return f"{scheme}://{host}".rstrip("/")
+
+
+def _absolute_public_url(path: str) -> str:
+    if path.startswith("http://") or path.startswith("https://"):
+        return path
+    return f"{_public_base_url()}/{path.lstrip('/')}"
+
+
+def _with_absolute_link_preview_meta(html: str) -> str:
+    image_url = _absolute_public_url(LINK_PREVIEW_IMAGE_PATH)
+    canonical_url = _absolute_public_url("/")
+    return (
+        html.replace('content="assets/brand/sqx-social-preview.png"', f'content="{image_url}"')
+        .replace('href="/"', f'href="{canonical_url}"')
+        .replace('content="/"', f'content="{canonical_url}"')
+    )
+
+
+def _link_preview_html() -> str:
+    image_url = _absolute_public_url(LINK_PREVIEW_IMAGE_PATH)
+    canonical_url = _absolute_public_url("/")
+    return f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{LINK_PREVIEW_TITLE}</title>
+<meta name="description" content="{LINK_PREVIEW_DESCRIPTION}">
+<link rel="canonical" href="{canonical_url}">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SQX Edge Suite">
+<meta property="og:locale" content="es_ES">
+<meta property="og:title" content="{LINK_PREVIEW_TITLE}">
+<meta property="og:description" content="{LINK_PREVIEW_DESCRIPTION}">
+<meta property="og:url" content="{canonical_url}">
+<meta property="og:image" content="{image_url}">
+<meta property="og:image:secure_url" content="{image_url}">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SQX Edge Suite, plataforma Pro para flujo SQX trazable.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{LINK_PREVIEW_TITLE}">
+<meta name="twitter:description" content="{LINK_PREVIEW_DESCRIPTION}">
+<meta name="twitter:image" content="{image_url}">
+<meta name="twitter:image:alt" content="SQX Edge Suite, plataforma Pro para flujo SQX trazable.">
+<style>
+body{{margin:0;background:#07111f;color:#f8fbff;font-family:Segoe UI,Arial,sans-serif;}}
+main{{min-height:100vh;display:grid;place-items:center;padding:32px;}}
+.card{{max-width:920px;border:1px solid #24405f;border-radius:18px;background:#101d2d;padding:32px;box-shadow:0 24px 80px rgba(0,0,0,.32);}}
+img{{width:100%;border-radius:14px;border:1px solid #2d4a6b;display:block;margin-bottom:24px;}}
+.eyebrow{{color:#62a8ff;text-transform:uppercase;font-weight:800;letter-spacing:.08em;font-size:12px;}}
+h1{{font-size:42px;margin:10px 0 12px;}}
+p{{color:#bdd0e6;font-size:17px;line-height:1.55;}}
+a{{display:inline-flex;margin-top:14px;padding:13px 18px;border-radius:10px;background:#2b65f6;color:#fff;text-decoration:none;font-weight:800;}}
+small{{display:block;margin-top:18px;color:#8da2ba;}}
+</style>
+</head>
+<body>
+<main>
+  <section class="card">
+    <span class="eyebrow">Acceso web Pro protegido</span>
+    <h1>SQX Edge Suite</h1>
+    <p>{LINK_PREVIEW_DESCRIPTION}</p>
+    <img src="{image_url}" alt="SQX Edge Suite">
+    <a href="{canonical_url}">Acceso DASHBOARD</a>
+    <small>No promete rentabilidad ni sustituye la responsabilidad del usuario al validar estrategias.</small>
+  </section>
+</main>
+</body>
+</html>"""
+
 
 @app.get("/")
 def serve_dashboard_entry():
-    return send_from_directory(DASHBOARD_ROOT, "SQX_Dashboard_v6.html")
+    html = (DASHBOARD_ROOT / "SQX_Dashboard_v6.html").read_text(encoding="utf-8-sig")
+    response = make_response(_with_absolute_link_preview_meta(html))
+    response.headers["Content-Type"] = "text/html; charset=utf-8"
+    return response
+
+
+@app.get("/link-preview")
+def serve_link_preview():
+    response = make_response(_link_preview_html())
+    response.headers["Content-Type"] = "text/html; charset=utf-8"
+    return response
 
 
 @app.get("/<path:asset_path>")

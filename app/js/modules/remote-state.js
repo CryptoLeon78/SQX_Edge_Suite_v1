@@ -25,6 +25,10 @@
     return String(base || '/api').replace(/\/$/, '');
   }
 
+  function isLocalFileMode() {
+    return !!(global.location && global.location.protocol === 'file:');
+  }
+
   function storageKeys() {
     var keys = SQX.config && SQX.config.storageKeys ? SQX.config.storageKeys() : ((global.SQX_CONFIG && global.SQX_CONFIG.storageKeys) || {});
     return {
@@ -105,10 +109,10 @@
 
   function bootstrap() {
     if (_bootstrapPromise) return _bootstrapPromise;
-    if (!global.fetch) {
+    if (!global.fetch || isLocalFileMode()) {
       _ready = true;
       _enabled = false;
-      return Promise.resolve({ ok: false, localOnly: true });
+      return Promise.resolve({ ok: false, localOnly: true, skipped: isLocalFileMode() ? 'file_mode' : 'fetch_unavailable' });
     }
     _bootstrapPromise = fetchJson('/remote/state/bootstrap')
       .then(function(result) {
