@@ -760,7 +760,7 @@
         <button class="export-btn" id="state-backup-restore" title="Abre la lista de snapshots para restaurar estado">Restaurar</button>
         <button class="export-btn" id="ps-add-mining-btn" style="border-color:var(--accent); color:var(--accent); background:rgba(59,130,246,.08);" title="Añade un asset/timeframe/dirección a una fase del plan mining">+ Mining</button>
         <button class="export-btn" id="ps-add-phase-btn" style="border-color:var(--pink); color:var(--pink); background:rgba(236,72,153,.08);" title="Crea una fase adicional para agrupar nuevos minings">+ Fase</button>
-        <button class="export-btn" id="ps-consolidate-plan" title="Exporta el plan mining actual para consolidarlo como configuración estable">Consolidar</button>
+        <button class="export-btn" id="ps-consolidate-plan" title="Descarga el plan mining actual como JSON consolidado">Descargar JSON</button>
         <button class="export-btn" id="ps-restore-auto" style="display:none; border-color:var(--purple); color:var(--purple);">Restaurar estados auto</button>
         <button class="export-btn" id="ps-plan-reset">Reset estados</button>
         <button class="export-btn" id="ps-plan-reset-plan" style="border-color:var(--red); color:var(--red); background:rgba(239,68,68,.08);" title="Borra todos los minings, incluido el plan base, para empezar desde cero">Reset plan mining</button>
@@ -1718,7 +1718,7 @@
       <div class="strat-action-grid">
         <button class="export-btn strat-action-main" id="strat-import-btn" type="button">Importar CSV de SQX</button>
         <button class="export-btn strat-action-blue" id="strat-add-btn" type="button">Añadir estrategia</button>
-        <button class="export-btn" id="strat-consolidate-btn" title="Exporta JSON con todas las estrategias (DEFAULT + importadas)" type="button">Consolidar JSON</button>
+        <button class="export-btn" id="strat-consolidate-btn" title="Descarga JSON con todas las estrategias visibles" type="button">Descargar JSON</button>
         <button class="export-btn" id="strat-export-btn" type="button">Exportar CSV</button>
         <input type="file" id="strat-import-file" accept=".csv,.txt" style="display:none">
       </div>
@@ -1987,7 +1987,7 @@
             <div class="alert-icon">⚠</div>
             <div class="alert-content">
               <strong>Persistencia</strong>
-              Las estrategias se guardan en el estado de usuario de la sesión. Para convertirlas en fuente estable del producto, usa <strong>"Consolidar JSON"</strong> cuando el operador lo decida.
+              Las estrategias se guardan en el estado de usuario de la sesión. Para convertirlas en fuente estable del producto, usa <strong>"Descargar JSON"</strong> cuando el operador lo decida.
             </div>
           </div>
         </div>

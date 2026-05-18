@@ -753,12 +753,25 @@ function renderPriority() {
 // ============================================================
 // CSV EXPORT
 // ============================================================
+function downloadBrowserFile(filename, content, mime) {
+  const blob = content instanceof Blob ? content : new Blob([content], { type: mime || 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+function downloadJsonFile(filename, payload) {
+  downloadBrowserFile(filename, JSON.stringify(payload, null, 2), 'application/json;charset=utf-8;');
+}
+
 function doExport(data,filename) {
   const csv=data.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  Object.assign(document.createElement('a'),{href:url,download:filename}).click();
-  URL.revokeObjectURL(url);
+  downloadBrowserFile(filename, '\uFEFF' + csv, 'text/csv;charset=utf-8;');
 }
 function exportCatCSV() {
   const rows=[['Activo','Tipo','Categoria','Direccion','Timeframes','Rating','Por que']];
@@ -2731,22 +2744,15 @@ document.getElementById('ps-project-zero-state').addEventListener('click', funct
 document.getElementById('ps-consolidate-plan').addEventListener('click', function(){
   const all = getPlanMinings().map(m => { const c = {...m}; delete c._user; return c; });
   const phases = getPlanPhases();
-  const minJson = JSON.stringify(all, null, 2);
-  const phJson  = JSON.stringify(phases, null, 2);
-  const wrapper = JSON.stringify({ version: 1, minings: all, phases: phases }, null, 2);
-  const w = window.open('', '_blank', 'width=900,height=700');
-  if (w) {
-    w.document.write('<html><head><title>SQX Plan — Consolidado</title><style>body{background:#0f1117;color:#e4e4e7;font-family:Segoe UI,sans-serif;padding:20px;}h1{font-size:16px;margin-bottom:10px;}p{color:#9ca3af;font-size:12px;margin-bottom:14px;}pre{background:#0a0c12;border:1px solid #2e3348;border-radius:8px;padding:14px;font-family:Consolas,monospace;font-size:12px;color:#9eb1d3;line-height:1.5;overflow:auto;max-height:80vh;white-space:pre-wrap;}button{margin-bottom:10px;padding:8px 16px;background:#22c55e;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;}</style></head><body>');
-    w.document.write('<h1>Consolidado: '+all.length+' minings · '+Object.keys(phases).length+' fases</h1>');
-    w.document.write('<p>JSON compatible con <code>backend/sqx-edge-tool/config/plan.json</code>.</p>');
-    w.document.write('<button onclick="navigator.clipboard.writeText(document.getElementById(\'cn\').textContent).then(()=>this.textContent=\'Copiado\')">Copiar al portapapeles</button>');
-    w.document.write('<pre id="cn">'+wrapper.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+'</pre>');
-    w.document.write('</body></html>');
-    w.document.close();
-  } else {
-    navigator.clipboard.writeText(wrapper);
-    alert('Popup bloqueado. He copiado el snippet al portapapeles ('+all.length+' minings · '+Object.keys(phases).length+' fases).');
-  }
+  const wrapper = { version: 1, minings: all, phases: phases };
+  const day = new Date().toISOString().slice(0, 10);
+  downloadJsonFile('sqx-plan-consolidado-' + day + '.json', wrapper);
+  if (window.addHomeTrace) window.addHomeTrace('Plan Mining consolidado', all.length + ' minings · ' + Object.keys(phases).length + ' fases', 'ok');
+  decisionAlert({
+    title: 'Plan Mining descargado',
+    message: 'Se ha preparado un JSON consolidado para revisar o versionar como configuración estable.',
+    trace: ['Origen: Mining Control', 'Entrega: descarga del navegador', 'Minings: ' + all.length, 'Fases: ' + Object.keys(phases).length]
+  });
 });
 
 // ============================================================
@@ -3182,21 +3188,14 @@ function consolidateStrategiesJSON() {
   const wrapper = SQX_STRATEGIES.consolidateJson
     ? SQX_STRATEGIES.consolidateJson(all)
     : JSON.stringify({ version: 1, strategies: all }, null, 2);
-  const w = window.open('', '_blank', 'width=900,height=700');
-  if (w) {
-    const html = SQX_STRATEGIES.consolidatedPopupHtml
-      ? SQX_STRATEGIES.consolidatedPopupHtml(wrapper, all.length)
-      : '<pre>'+wrapper.replace(/[<>&]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]))+'</pre>';
-    w.document.write(html);
-    w.document.close();
-  } else {
-    navigator.clipboard.writeText(wrapper);
-    decisionAlert({
-      title: 'Popup bloqueado',
-      message: 'He copiado el JSON al portapapeles ('+all.length+' estrategias).',
-      trace: ['Origen: Strategy Control', 'Destino alternativo: portapapeles', 'No se pierde el consolidado']
-    });
-  }
+  const day = new Date().toISOString().slice(0, 10);
+  downloadBrowserFile('sqx-strategies-consolidated-' + day + '.json', wrapper, 'application/json;charset=utf-8;');
+  if (window.addHomeTrace) window.addHomeTrace('Strategy Control consolidado', all.length + ' estrategias', 'ok');
+  decisionAlert({
+    title: 'Strategy Control descargado',
+    message: 'Se ha preparado un JSON consolidado con todas las estrategias visibles.',
+    trace: ['Origen: Strategy Control', 'Entrega: descarga del navegador', 'Estrategias: ' + all.length]
+  });
 }
 
 // ── listeners CSV import ──

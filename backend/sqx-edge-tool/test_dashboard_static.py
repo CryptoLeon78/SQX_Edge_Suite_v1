@@ -29,6 +29,7 @@ REMOTE_3B_APP_SESSION_GRANT_KEY_DOC = PROJECT_ROOT / "docs" / "REMOTE_3B_APP_SES
 REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE_DOC = PROJECT_ROOT / "docs" / "REMOTE_3C_PAID_WEBHOOK_PROTECTED_WRITE.md"
 REMOTE_4_WORKSPACE_ISOLATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_4_WORKSPACE_ISOLATION.md"
 REMOTE_PERSIST1B_WORKSPACE_OUTPUTS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1B_WORKSPACE_OUTPUTS.md"
+REMOTE_DOWNLOADS2_BROWSER_DOWNLOADS_DOC = PROJECT_ROOT / "docs" / "REMOTE_DOWNLOADS2_BROWSER_DOWNLOADS.md"
 REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE.md"
 REMOTE_PERSIST1D_STATE_BACKUPS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1D_STATE_BACKUPS.md"
 REMOTE_PERSIST1E_SQX_VIEWS_PRESETS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1E_SQX_VIEWS_PRESETS.md"
@@ -1487,6 +1488,77 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, outputs_tests)
+
+    def test_remote_downloads2_user_exports_are_browser_downloads(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        downloads2 = REMOTE_DOWNLOADS2_BROWSER_DOWNLOADS_DOC.read_text(encoding="utf-8-sig")
+        dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")
+        view_creator_js = (APP_ROOT / "js" / "modules" / "view-creator.js").read_text(encoding="utf-8-sig")
+        template_maker_ui_js = (APP_ROOT / "js" / "modules" / "template-maker-ui.js").read_text(encoding="utf-8-sig")
+        cvc_js = (APP_ROOT / "js" / "modules" / "champion-challenger.js").read_text(encoding="utf-8-sig")
+        support_js = (APP_ROOT / "js" / "modules" / "support.js").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_DOWNLOADS2_BROWSER_DOWNLOADS_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-DOWNLOADS2 - Universal Browser Downloads",
+            "every user-facing export must be a browser download",
+            "SQX Views",
+            "Template Maker",
+            "Strategy Control",
+            "Champion vs Challenger",
+            "Control Panel support",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, downloads2)
+
+        for pattern in (
+            "REMOTE-DOWNLOADS2 - Universal Browser Downloads",
+            "Universal Browser Download Gate",
+            "configured Downloads folder",
+            "popup-window export previews",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-DOWNLOADS2 - Universal Browser Downloads",
+            "Mining Control consolidated plan JSON downloads directly",
+            "Strategy Control consolidated strategies JSON downloads directly",
+            "No normal user-facing export opens a popup preview window",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for forbidden in (
+            "Abrir carpeta",
+            "abrir carpeta",
+            "carpeta local",
+            "ruta local",
+            "rutas locales",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, self.html)
+
+        self.assertNotIn("window.open", dashboard_js)
+        for pattern in (
+            "function downloadBrowserFile",
+            "downloadJsonFile('sqx-plan-consolidado-",
+            "downloadBrowserFile('sqx-strategies-consolidated-",
+            "Entrega: descarga del navegador",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, dashboard_js)
+
+        for label, source in (
+            ("SQX Views", view_creator_js),
+            ("Template Maker", template_maker_ui_js),
+            ("Champion vs Challenger", cvc_js),
+            ("Support", support_js),
+        ):
+            with self.subTest(label=label):
+                self.assertRegex(source, r"\.download\s*=")
 
     def test_remote_persist1c_template_maker_state_is_workspace_scoped(self):
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
@@ -6000,7 +6072,6 @@ class DashboardStaticTestCase(unittest.TestCase):
             "exportCsvRows",
             "dedupeImportedStrategies",
             "consolidateJson",
-            "consolidatedPopupHtml",
             "manualStrategyFromValues",
             "autoDetectTemplate",
             "parseCSV",
@@ -6014,6 +6085,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(export=export):
                 self.assertIn(export, strategies_js)
                 self.assertIn(f"SQX_STRATEGIES.{export}", dashboard_js)
+        self.assertIn("consolidatedPopupHtml", strategies_js)
+        self.assertNotIn("SQX_STRATEGIES.consolidatedPopupHtml", dashboard_js)
 
     def test_dashboard_home_logic_delegates_to_home_module(self):
         dashboard_js = (APP_ROOT / "js" / "dashboard.js").read_text(encoding="utf-8-sig")

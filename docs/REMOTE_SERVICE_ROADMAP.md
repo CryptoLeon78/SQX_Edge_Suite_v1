@@ -312,6 +312,30 @@ Still blocking multi-user expansion after REMOTE-PERSIST1B:
 - SQX Views/user presets need a remote persistence decision. Completed later by
   REMOTE-PERSIST1E.
 
+### REMOTE-DOWNLOADS2 - Universal Browser Downloads
+
+REMOTE-DOWNLOADS2 extends REMOTE-OUTPUT1 from Project Generator to every
+user-facing export surface.
+
+Artifacts added in REMOTE-DOWNLOADS2:
+
+- `docs/REMOTE_DOWNLOADS2_BROWSER_DOWNLOADS.md`.
+- Mining Control consolidated plan JSON downloads directly.
+- Strategy Control consolidated strategies JSON downloads directly.
+- Static guardrails for SQX Views, Template Maker, Strategy Control, Champion vs
+  Challenger, support and Mining Control export surfaces.
+- `Universal Browser Download Gate` in governance.
+
+Acceptance:
+
+- `.vw`, `.sqx`, `.json`, `.csv`, `.zip` and report exports use browser
+  download semantics.
+- No normal user-facing export opens a popup preview window.
+- User UI does not ask users to open server folders or handle server-local
+  paths.
+- Browser settings remain the source of truth for the final physical
+  destination; by default Chrome/Edge save to `Downloads`.
+
 ### REMOTE-PERSIST1C - Template Maker Workspace State
 
 Template Maker strategies, certification state and settings now use the active
