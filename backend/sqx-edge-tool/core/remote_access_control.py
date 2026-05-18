@@ -125,15 +125,23 @@ def save_access_control_store(store: Mapping[str, Any], path: str | Path | None 
         existing_contexts = [item for item in existing_record.get("contexts", []) if isinstance(item, Mapping)] if isinstance(existing_record, Mapping) else []
         incoming_contexts = [item for item in incoming_record.get("contexts", []) if isinstance(item, Mapping)]
         contexts_by_hash: dict[str, dict[str, Any]] = {}
-        for item in existing_contexts:
-            key = str(item.get("contextHash") or item.get("contextRef") or "")
-            if key:
-                contexts_by_hash[key] = dict(item)
-        for item in incoming_contexts:
-            key = str(item.get("contextHash") or item.get("contextRef") or "")
+        def upsert_context(item: Mapping[str, Any]) -> None:
+            context_hash = str(item.get("contextHash") or "").strip()
+            context_ref = str(item.get("contextRef") or "").strip()
+            key = context_hash or context_ref
             if not key:
-                continue
-            previous = contexts_by_hash.get(key, {})
+                return
+            previous_key = ""
+            if context_hash and context_hash in contexts_by_hash:
+                previous_key = context_hash
+            elif context_ref:
+                for candidate_key, candidate in contexts_by_hash.items():
+                    if str(candidate.get("contextRef") or "") == context_ref:
+                        previous_key = candidate_key
+                        break
+            previous = contexts_by_hash.get(previous_key or key, {})
+            if previous_key and previous_key != key:
+                contexts_by_hash.pop(previous_key, None)
             merged_context = dict(previous)
             merged_context.update(dict(item))
             if previous.get("status") in {"trusted", "revoked"} and item.get("status") == "pending":
@@ -146,6 +154,10 @@ def save_access_control_store(store: Mapping[str, Any], path: str | Path | None 
                 if previous.get("approvedAt"):
                     merged_context["approvedAt"] = previous.get("approvedAt")
             contexts_by_hash[key] = merged_context
+        for item in existing_contexts:
+            upsert_context(item)
+        for item in incoming_contexts:
+            upsert_context(item)
         merged_record["contexts"] = list(contexts_by_hash.values())
         merged_identities[identity_key] = merged_record
     payload = {
@@ -389,6 +401,11 @@ def evaluate_access_context(
         record["contexts"] = contexts
         created = True
     else:
+        item["contextHash"] = item.get("contextHash") or context_hash
+        item["contextRef"] = item.get("contextRef") or context_ref
+        item["deviceHashRef"] = item.get("deviceHashRef") or context.get("deviceHashRef")
+        item["ipHashRef"] = item.get("ipHashRef") or context.get("ipHashRef")
+        item["userAgentHashRef"] = item.get("userAgentHashRef") or context.get("userAgentHashRef")
         item["lastSeen"] = _utc_now(current)
         item["country"] = context.get("country") or item.get("country") or "XX"
 

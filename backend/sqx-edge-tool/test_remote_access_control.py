@@ -190,3 +190,35 @@ def test_store_save_preserves_operator_approval_when_stale_pending_context_is_sa
     saved_context = payload["identities"][identity]["contexts"][0]
     assert saved_context["status"] == "trusted"
     assert saved_context["approval"] == "operator_approved"
+
+
+def test_evaluate_backfills_context_hash_for_operator_restored_context_ref(tmp_path):
+    store = tmp_path / "remote_access_control.local.json"
+    events = tmp_path / "events.local.jsonl"
+    identity = email_hash("pilot@example.invalid")
+    context = _context("device-a")
+    payload = {
+        "policy": {},
+        "identities": {
+            identity: {
+                "identityHashRef": identity[:12],
+                "emailRef": "pi***@example.invalid",
+                "status": "active",
+                "contexts": [{
+                    "contextRef": context["contextRef"],
+                    "status": "trusted",
+                    "approval": "operator_approved",
+                }],
+            }
+        },
+    }
+    save_access_control_store(payload, path=store)
+
+    result = evaluate_access_context(identity, context, store_path=store, events_path=events)
+    saved = load_access_control_store(store)
+    contexts = saved["identities"][identity]["contexts"]
+
+    assert result["accessControl"]["allowed"] is True
+    assert len(contexts) == 1
+    assert contexts[0]["contextHash"] == context["contextHash"]
+    assert contexts[0]["approval"] == "operator_approved"
