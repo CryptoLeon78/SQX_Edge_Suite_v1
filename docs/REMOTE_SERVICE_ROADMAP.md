@@ -769,6 +769,12 @@ because the 24h observation window is not complete and workspace isolation,
 artifact generation and export/download signals are still pending. This is a
 controlled hold state, not a failure requiring rollback.
 
+Mini-evidence on 2026-05-18: REMOTE-COHORT-EVIDENCE1 records `cohort download
+smoke passed` with 5 alias-only participants: `CREATOR-IVAN`, `TESTER-DRP`,
+`TESTER-RILIS`, `TESTER-BIBI` and `TESTER-JL`. Public-safe result: 5/5 access
+OK and 5/5 browser download smoke OK. No raw emails, IPs, protected URLs,
+cookies, tokens, Cloudflare identifiers or local paths are stored in Git.
+
 Artifacts added in REMOTE-8F:
 
 - `docs/REMOTE_8F_TINY_COHORT_MONITORING.md`
@@ -779,6 +785,12 @@ Artifacts added in REMOTE-8F:
 - `remote-tiny-cohort-monitoring-v1`
 - ignored evidence root `.local/remote_service/remote8f_tiny_cohort_monitoring*`
 - `Tiny Cohort Monitoring Gate`
+
+Mini-evidence added in REMOTE-COHORT-EVIDENCE1:
+
+- `docs/REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE.md`
+- ignored evidence root `.local/remote_service/remote_cohort_evidence1/`
+- `Cohort Evidence Gate`
 
 Next REMOTE-8G scope:
 

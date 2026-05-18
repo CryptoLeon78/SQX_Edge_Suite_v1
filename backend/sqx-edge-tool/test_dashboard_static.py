@@ -51,6 +51,9 @@ REMOTE_8D_TINY_COHORT_ACTIVATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_8D_TINY_C
 REMOTE_8E_TINY_COHORT_EXECUTION_DOC = PROJECT_ROOT / "docs" / "REMOTE_8E_TINY_COHORT_EXECUTION.md"
 REMOTE_ASSET1_INCIDENT_DOC = PROJECT_ROOT / "docs" / "REMOTE_ASSET1_PROTECTED_DASHBOARD_ASSET_INCIDENT.md"
 REMOTE_8F_TINY_COHORT_MONITORING_DOC = PROJECT_ROOT / "docs" / "REMOTE_8F_TINY_COHORT_MONITORING.md"
+REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE_DOC = (
+    PROJECT_ROOT / "docs" / "REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE.md"
+)
 REMOTE_8G_TINY_COHORT_DECISION_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_8G_TINY_COHORT_DECISION_REVIEW.md"
 REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_DOC = PROJECT_ROOT / "docs" / "REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE.md"
 REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL_DOC = (
@@ -3373,6 +3376,66 @@ class DashboardStaticTestCase(unittest.TestCase):
             "CLOUDFLARE_API_TOKEN=",
             "SQX_REMOTE_SESSION_SECRET=",
             "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_cohort_evidence1_download_smoke_is_public_safe(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        cohort_doc = REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE_DOC.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-COHORT-EVIDENCE1 - Cohort Download Smoke Passed",
+            "cohort download smoke passed",
+            "CREATOR-IVAN",
+            "TESTER-DRP",
+            "TESTER-RILIS",
+            "TESTER-BIBI",
+            "TESTER-JL",
+            "Access OK: 5 of 5",
+            "Browser download smoke OK: 5 of 5",
+            "does not by itself",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, cohort_doc)
+
+        for pattern in (
+            "Current phase completed: REMOTE-COHORT-EVIDENCE1",
+            "Cohort Evidence Gate",
+            "cohort download smoke passed",
+            "5/5 access OK",
+            "5/5 browser download smoke OK",
+            "ignored `.local/remote_service/remote_cohort_evidence1/`",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-COHORT-EVIDENCE1 records `cohort download",
+            "smoke passed`",
+            "5/5 access",
+            "5/5 browser download smoke OK",
+            "docs/REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE.md",
+            "Cohort Evidence Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        combined_public = cohort_doc
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "CF_Authorization",
+            "__Host-sqx_remote_session",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "C:\\BOTS\\",
             "sk_" + "live_",
             "pk_" + "live_",
         ):
