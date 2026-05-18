@@ -10,10 +10,15 @@ On 2026-05-18, REMOTE-ASSET1 was verified by the operator in incognito and by
 an external tester redacted as `tester-ref-asset1`. The previous
 `/dashboard HTML OK but assets not OK` blocker is closed.
 
-REMOTE-8E is still not recorded as GO. This phase requires private local
-evidence that 3-5 users were manually activated, with matching manual counts
-and zero automation. A single tester verification of the asset fix is not
-enough to satisfy REMOTE-8E.
+Later on 2026-05-18, the operator confirmed 5 users were manually added to
+Cloudflare Access, privately guided through first access and observed without
+problems. Ignored local evidence returned
+`GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED` with 5 redacted
+`tester_free` users, matching manual counts, zero automation and no public
+leak of raw emails, protected URLs or private handoff text.
+
+Next gate: REMOTE-8F must monitor this 5-user cohort before any further
+expansion, traffic increase, automated onboarding or sales push.
 
 ## Local Evidence Rule
 

@@ -679,10 +679,12 @@ Next REMOTE-8E scope:
 Records the exact manual 3-5 user execution after the operator approves the REMOTE-8D package. It validates activated users, entitlement class, private handoff, manual counts and zero automation without committing identities, private URLs, message bodies or local paths.
 
 Current status on 2026-05-18: REMOTE-ASSET1 is resolved and no longer blocks
-REMOTE-8E readiness, but REMOTE-8E is not recorded as GO yet because private
-evidence of a completed 3-5 user manual activation has not been provided. The
-next valid REMOTE-8E action is to collect ignored local execution evidence only
-after the operator explicitly performs/approves the activation.
+REMOTE-8E. The operator confirmed 5 users were manually added to Cloudflare
+Access, privately guided through first access and observed without problems.
+Ignored local evidence returned
+`GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED` with 5 redacted
+`tester_free` users, matching manual counts and zero automation. No raw emails,
+protected URLs or private handoff text are committed.
 
 Artifacts added in REMOTE-8E:
 

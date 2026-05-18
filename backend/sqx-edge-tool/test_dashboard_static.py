@@ -2932,7 +2932,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "/dashboard/css/dashboard.css",
             "/dashboard/js/main.js",
             "tester-ref-asset1",
-            "REMOTE-8E is still not recorded as GO",
+            "does not by itself authorize",
+            "separate REMOTE-8E private evidence was recorded",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, incident)
@@ -2941,8 +2942,10 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Current phase completed: REMOTE-ASSET1",
             "Protected Dashboard Asset Gate",
             "tester-ref-asset1",
-            "REMOTE-8E readiness review",
-            "must not be recorded as GO",
+            "REMOTE-8E - Tiny Cohort Manual Execution Record",
+            "GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED",
+            "REMOTE-8F tiny cohort monitoring",
+            "further expansion remains blocked",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
@@ -2950,15 +2953,17 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "REMOTE-ASSET1 fixes the clean-session dashboard asset boundary",
             "docs/REMOTE_ASSET1_PROTECTED_DASHBOARD_ASSET_INCIDENT.md",
-            "REMOTE-8E is not recorded as GO yet",
+            "GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED",
+            "5 redacted",
+            "zero automation",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, roadmap)
 
         for pattern in (
             "REMOTE-ASSET1 was verified",
-            "A single tester verification of the asset fix is not",
-            "enough to satisfy REMOTE-8E",
+            "GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED",
+            "Next gate: REMOTE-8F",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, remote_8e)

@@ -69,6 +69,10 @@ following as a required smoke pattern:
 ## REMOTE-8E Impact
 
 This incident is closed before REMOTE-8E. It does not by itself authorize
-REMOTE-8E execution. REMOTE-8E is still not recorded as GO. REMOTE-8E still
-requires explicit operator approval and private evidence that 3-5 users were
-activated manually with matching manual counts and zero automation.
+REMOTE-8E execution. At closure time, REMOTE-8E still required explicit
+operator approval and private evidence that 3-5 users were activated manually
+with matching manual counts and zero automation.
+
+Later on 2026-05-18, that separate REMOTE-8E private evidence was recorded
+successfully. The asset incident remains a regression guard, not the evidence
+source for cohort expansion.
