@@ -4,6 +4,17 @@ REMOTE-8E records the exact manual execution of a 3-5 user tiny cohort only afte
 
 The purpose is to prove who was activated, which entitlement class was used and whether the private handoff was completed, without committing raw emails, protected URLs, message bodies or local paths.
 
+## Current Status
+
+On 2026-05-18, REMOTE-ASSET1 was verified by the operator in incognito and by
+an external tester redacted as `tester-ref-asset1`. The previous
+`/dashboard HTML OK but assets not OK` blocker is closed.
+
+REMOTE-8E is still not recorded as GO. This phase requires private local
+evidence that 3-5 users were manually activated, with matching manual counts
+and zero automation. A single tester verification of the asset fix is not
+enough to satisfy REMOTE-8E.
+
 ## Local Evidence Rule
 
 Raw execution evidence must live only under ignored local paths:

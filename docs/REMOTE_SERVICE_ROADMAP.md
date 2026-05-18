@@ -111,9 +111,16 @@ This prevents authenticated `/dashboard` HTML from rendering without CSS/JS in
 incognito/tester browsers when root asset paths have a different Access context
 or no app session cache.
 
+Current verification: on 2026-05-18 the operator verified the fix in an
+incognito browser and an external tester redacted as `tester-ref-asset1`
+reported that the dashboard renders correctly and works after Cloudflare
+Access. The incident is documented in
+`docs/REMOTE_ASSET1_PROTECTED_DASHBOARD_ASSET_INCIDENT.md`.
+
 Artifacts:
 
 - `docs/REMOTE_OPS1B_CLOUDFLARE_OPERATOR_HANDOFF.md`
+- `docs/REMOTE_ASSET1_PROTECTED_DASHBOARD_ASSET_INCIDENT.md`
 - `docs/examples/cloudflared-config.local.example.yml`
 - `tools/remote_tunnel_operator_handoff.ps1`
 - `tools/remote_link_preview_smoke.ps1`
@@ -670,6 +677,12 @@ Next REMOTE-8E scope:
 ### REMOTE-8E - Tiny Cohort Manual Execution Record
 
 Records the exact manual 3-5 user execution after the operator approves the REMOTE-8D package. It validates activated users, entitlement class, private handoff, manual counts and zero automation without committing identities, private URLs, message bodies or local paths.
+
+Current status on 2026-05-18: REMOTE-ASSET1 is resolved and no longer blocks
+REMOTE-8E readiness, but REMOTE-8E is not recorded as GO yet because private
+evidence of a completed 3-5 user manual activation has not been provided. The
+next valid REMOTE-8E action is to collect ignored local execution evidence only
+after the operator explicitly performs/approves the activation.
 
 Artifacts added in REMOTE-8E:
 

@@ -48,6 +48,7 @@ REMOTE_8B_LIVE_PILOT_EVIDENCE_DOC = PROJECT_ROOT / "docs" / "REMOTE_8B_LIVE_PILO
 REMOTE_8C_FIRST_USER_OBSERVATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_8C_FIRST_USER_OBSERVATION.md"
 REMOTE_8D_TINY_COHORT_ACTIVATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_8D_TINY_COHORT_ACTIVATION.md"
 REMOTE_8E_TINY_COHORT_EXECUTION_DOC = PROJECT_ROOT / "docs" / "REMOTE_8E_TINY_COHORT_EXECUTION.md"
+REMOTE_ASSET1_INCIDENT_DOC = PROJECT_ROOT / "docs" / "REMOTE_ASSET1_PROTECTED_DASHBOARD_ASSET_INCIDENT.md"
 REMOTE_8F_TINY_COHORT_MONITORING_DOC = PROJECT_ROOT / "docs" / "REMOTE_8F_TINY_COHORT_MONITORING.md"
 REMOTE_8G_TINY_COHORT_DECISION_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_8G_TINY_COHORT_DECISION_REVIEW.md"
 REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_DOC = PROJECT_ROOT / "docs" / "REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE.md"
@@ -2906,6 +2907,81 @@ class DashboardStaticTestCase(unittest.TestCase):
         for forbidden in (
             "@" + "gmail.com",
             "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_asset1_incident_is_tracked_and_verified(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        remote_8e = REMOTE_8E_TINY_COHORT_EXECUTION_DOC.read_text(encoding="utf-8-sig")
+        incident = REMOTE_ASSET1_INCIDENT_DOC.read_text(encoding="utf-8-sig")
+        server_py = (TOOL_ROOT / "api" / "server.py").read_text(encoding="utf-8-sig")
+        test_api = (TOOL_ROOT / "test_api.py").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_ASSET1_INCIDENT_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-ASSET1 - Protected Dashboard Asset Incident",
+            "/dashboard HTML OK",
+            "/dashboard/css/dashboard.css",
+            "/dashboard/js/main.js",
+            "tester-ref-asset1",
+            "REMOTE-8E is still not recorded as GO",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, incident)
+
+        for pattern in (
+            "Current phase completed: REMOTE-ASSET1",
+            "Protected Dashboard Asset Gate",
+            "tester-ref-asset1",
+            "REMOTE-8E readiness review",
+            "must not be recorded as GO",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-ASSET1 fixes the clean-session dashboard asset boundary",
+            "docs/REMOTE_ASSET1_PROTECTED_DASHBOARD_ASSET_INCIDENT.md",
+            "REMOTE-8E is not recorded as GO yet",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE-ASSET1 was verified",
+            "A single tester verification of the asset fix is not",
+            "enough to satisfy REMOTE-8E",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, remote_8e)
+
+        for pattern in (
+            "_with_dashboard_asset_prefix",
+            "'href=\"css/': 'href=\"/dashboard/css/'",
+            "@app.get(\"/dashboard/<path:asset_path>\")",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, server_py)
+
+        for pattern in (
+            "href=\"/dashboard/css/dashboard.css\"",
+            "src=\"/dashboard/js/main.js\"",
+            "/dashboard/css/dashboard.css",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, test_api)
+
+        combined_public = "\n".join([incident, governance, roadmap, remote_8e, server_py, test_api])
+        self.assertNotIn("@", incident)
+        for forbidden in (
             "CLOUDFLARE_API_TOKEN=",
             "SQX_REMOTE_SESSION_SECRET=",
             "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
