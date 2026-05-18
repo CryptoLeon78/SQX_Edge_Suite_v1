@@ -12,6 +12,7 @@ from core.remote_access_control import (
     load_access_control_store,
     record_session_started,
     revoke_access_context,
+    save_access_control_store,
     summarize_access_control,
 )
 
@@ -99,3 +100,93 @@ def test_operator_can_approve_pending_context_without_raw_identity(tmp_path):
     store_payload = load_access_control_store(store)
     assert "pilot@example.invalid" not in json.dumps(store_payload)
     assert ACCESS_CONTROL_COOKIE_NAME == "__Host-sqx_device_id"
+
+
+def test_store_save_merges_identities_from_stale_writers(tmp_path):
+    store = tmp_path / "remote_access_control.local.json"
+    identity_a = email_hash("first@example.invalid")
+    identity_b = email_hash("second@example.invalid")
+    context_a = _context("device-a")
+    context_b = _context("device-b", ip="203.0.113.22")
+
+    save_access_control_store({
+        "policy": {},
+        "identities": {
+            identity_a: {
+                "identityHashRef": identity_a[:12],
+                "emailRef": "fi***@example.invalid",
+                "status": "active",
+                "contexts": [{
+                    "contextHash": context_a["contextHash"],
+                    "contextRef": context_a["contextRef"],
+                    "status": "trusted",
+                    "approval": "operator_approved",
+                }],
+            }
+        },
+    }, path=store)
+    save_access_control_store({
+        "policy": {},
+        "identities": {
+            identity_b: {
+                "identityHashRef": identity_b[:12],
+                "emailRef": "se***@example.invalid",
+                "status": "active",
+                "contexts": [{
+                    "contextHash": context_b["contextHash"],
+                    "contextRef": context_b["contextRef"],
+                    "status": "trusted",
+                    "approval": "auto_within_limit",
+                }],
+            }
+        },
+    }, path=store)
+
+    summary = summarize_access_control(store)["summary"]
+    assert summary["identityCount"] == 2
+    assert summary["trustedContexts"] == 2
+
+
+def test_store_save_preserves_operator_approval_when_stale_pending_context_is_saved(tmp_path):
+    store = tmp_path / "remote_access_control.local.json"
+    identity = email_hash("pilot@example.invalid")
+    context = _context("device-a")
+
+    save_access_control_store({
+        "policy": {},
+        "identities": {
+            identity: {
+                "identityHashRef": identity[:12],
+                "emailRef": "pi***@example.invalid",
+                "status": "active",
+                "contexts": [{
+                    "contextHash": context["contextHash"],
+                    "contextRef": context["contextRef"],
+                    "status": "trusted",
+                    "approval": "operator_approved",
+                    "operatorNote": "approved for smoke",
+                }],
+            }
+        },
+    }, path=store)
+    save_access_control_store({
+        "policy": {},
+        "identities": {
+            identity: {
+                "identityHashRef": identity[:12],
+                "emailRef": "pi***@example.invalid",
+                "status": "active",
+                "contexts": [{
+                    "contextHash": context["contextHash"],
+                    "contextRef": context["contextRef"],
+                    "status": "pending",
+                    "approval": "operator_required",
+                }],
+            }
+        },
+    }, path=store)
+
+    payload = load_access_control_store(store)
+    saved_context = payload["identities"][identity]["contexts"][0]
+    assert saved_context["status"] == "trusted"
+    assert saved_context["approval"] == "operator_approved"

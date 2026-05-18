@@ -104,10 +104,54 @@ def load_access_control_store(path: str | Path | None = None) -> dict[str, Any]:
 def save_access_control_store(store: Mapping[str, Any], path: str | Path | None = None) -> None:
     target = Path(path) if path else access_control_path()
     target.parent.mkdir(parents=True, exist_ok=True)
+    existing_identities: dict[str, Any] = {}
+    if target.is_file():
+        try:
+            existing_payload = json.loads(target.read_text(encoding="utf-8-sig"))
+            existing = existing_payload.get("identities") if isinstance(existing_payload, Mapping) else {}
+            if isinstance(existing, Mapping):
+                existing_identities = {str(key): value for key, value in existing.items() if isinstance(value, Mapping)}
+        except (OSError, json.JSONDecodeError):
+            existing_identities = {}
+    incoming_identities = store.get("identities") if isinstance(store.get("identities"), Mapping) else {}
+    merged_identities: dict[str, Any] = {key: dict(value) for key, value in existing_identities.items()}
+    for identity_hash, incoming_record in incoming_identities.items():
+        if not isinstance(incoming_record, Mapping):
+            continue
+        identity_key = str(identity_hash)
+        existing_record = merged_identities.get(identity_key) if isinstance(merged_identities.get(identity_key), Mapping) else {}
+        merged_record = dict(existing_record)
+        merged_record.update(dict(incoming_record))
+        existing_contexts = [item for item in existing_record.get("contexts", []) if isinstance(item, Mapping)] if isinstance(existing_record, Mapping) else []
+        incoming_contexts = [item for item in incoming_record.get("contexts", []) if isinstance(item, Mapping)]
+        contexts_by_hash: dict[str, dict[str, Any]] = {}
+        for item in existing_contexts:
+            key = str(item.get("contextHash") or item.get("contextRef") or "")
+            if key:
+                contexts_by_hash[key] = dict(item)
+        for item in incoming_contexts:
+            key = str(item.get("contextHash") or item.get("contextRef") or "")
+            if not key:
+                continue
+            previous = contexts_by_hash.get(key, {})
+            merged_context = dict(previous)
+            merged_context.update(dict(item))
+            if previous.get("status") in {"trusted", "revoked"} and item.get("status") == "pending":
+                merged_context["status"] = previous.get("status")
+                merged_context["approval"] = previous.get("approval")
+            if previous.get("approval") == "operator_approved" and item.get("approval") != "operator_approved":
+                merged_context["approval"] = "operator_approved"
+                if previous.get("operatorNote"):
+                    merged_context["operatorNote"] = previous.get("operatorNote")
+                if previous.get("approvedAt"):
+                    merged_context["approvedAt"] = previous.get("approvedAt")
+            contexts_by_hash[key] = merged_context
+        merged_record["contexts"] = list(contexts_by_hash.values())
+        merged_identities[identity_key] = merged_record
     payload = {
         "schemaVersion": REMOTE_ACCESS_CONTROL_VERSION,
         "policy": store.get("policy") if isinstance(store.get("policy"), Mapping) else dict(DEFAULT_POLICY),
-        "identities": store.get("identities") if isinstance(store.get("identities"), Mapping) else {},
+        "identities": merged_identities,
         "updatedAt": _utc_now(),
     }
     target.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
@@ -320,7 +364,10 @@ def evaluate_access_context(
         return finish(False, "identity_access_blocked", str(record.get("status") or "blocked"))
 
     contexts = [item for item in record.get("contexts") or [] if isinstance(item, dict)]
-    item = next((entry for entry in contexts if entry.get("contextHash") == context_hash), None)
+    item = next((
+        entry for entry in contexts
+        if entry.get("contextHash") == context_hash or str(entry.get("contextRef") or "") == context_ref
+    ), None)
     trusted_count = len([entry for entry in contexts if entry.get("status") == "trusted"])
     created = False
     if item is None:
