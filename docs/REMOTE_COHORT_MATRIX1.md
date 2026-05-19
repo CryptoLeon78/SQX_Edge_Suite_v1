@@ -16,6 +16,8 @@ The matrix answers, per alias:
 - `Downloads OK`: the latest browser-download smoke confirmed downloads for
   that alias.
 - `Incidencias abiertas`: open or triaged support cases matched to the alias.
+- `Monitoring scope`: whether the alias belongs to the current active cohort,
+  is standby for a future/manual pass, or is excluded from the current monitor.
 
 ## Local Sources
 
@@ -26,6 +28,7 @@ The live matrix is generated from ignored local evidence only:
 - `.local/remote_service/remote_access_control.local.json`
 - `.local/remote_service/support_cases/support_cases.local.jsonl`
 - `.local/remote_service/remote_cohort_evidence1/remote_cohort_download_smoke.local.json`
+- `.local/remote_service/remote_cohort_matrix/remote_cohort_scope.local.json`
 
 The generated live output is also ignored:
 
@@ -58,3 +61,10 @@ create users, send invites, approve new grants, widen Cloudflare Access, modify
 checkout or authorize the next cohort movement.
 
 The next controlled decision remains REMOTE-8F / REMOTE-8G review.
+
+## REMOTE-COHORT-FIX1 Scope Rule
+
+`REMOTE-COHORT-FIX1` separates the alias registry from the active monitoring
+cohort. Standby aliases remain visible but do not count as active blockers.
+Active aliases still block the active cohort if Access, grant, anti-sharing,
+downloads or open-incident signals are missing.

@@ -781,6 +781,12 @@ Access OK, Grant OK, anti-sharing context OK, downloads OK and open incidents.
 It is visibility only; it does not create users, grants, Cloudflare changes,
 checkout, emails or expansion.
 
+Scope reconciliation on 2026-05-19: REMOTE-COHORT-FIX1 separates the alias
+registry from the active monitored cohort. Known aliases can be `standby`
+without blocking the active REMOTE-8F cohort. Active aliases still require a
+trusted anti-sharing context, Access OK, grant OK, download smoke and zero open
+incidents before the cohort can be considered clean.
+
 Artifacts added in REMOTE-8F:
 
 - `docs/REMOTE_8F_TINY_COHORT_MONITORING.md`
@@ -808,6 +814,13 @@ Operator matrix added in REMOTE-COHORT-MATRIX1:
 - ignored evidence root `.local/remote_service/remote_cohort_matrix/`
 - `remote-cohort-matrix-v1`
 - `Cohort Matrix Gate`
+
+Scope reconciliation added in REMOTE-COHORT-FIX1:
+
+- `docs/REMOTE_COHORT_FIX1_SCOPE_RECONCILIATION.md`
+- optional ignored scope file `.local/remote_service/remote_cohort_matrix/remote_cohort_scope.local.json`
+- `activeAliasCount`, `standbyAliasCount`, `activeReadyCount` and `activeNeedsAttentionCount`
+- `Cohort Scope Gate`
 
 Next REMOTE-8G scope:
 
@@ -967,6 +980,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Tiny Cohort Monitoring Gate`: monitoring evidence must pass `remote-tiny-cohort-monitoring-v1`, require REMOTE-8E GO, prove at least 24 clean hours, 3-5 monitored users, stable access/session/workspace/generation/export/support signals and zero incidents before any next movement review.
 - `Tiny Cohort Decision Review Gate`: decision evidence must pass `remote-tiny-cohort-decision-review-v1`, review REMOTE-8F clean/blocked monitoring, keep rationale and identities local, keep execution metrics at zero and require a separate next phase before anything is executed.
 - `Cohort Matrix Gate`: live cohort status must be alias-only, generated from ignored local sources and limited to Access OK, Grant OK, Anti-sharing OK, Downloads OK, open incidents and status flags. It informs monitoring/decision review but never performs access changes or expansion.
+- `Cohort Scope Gate`: alias registry and active monitored cohort are separate. Standby aliases do not count as active blockers; active aliases keep blocking status until Access, grant, anti-sharing, download and incident signals are clean or a later decision gate explicitly documents the exception.
 - `Next Controlled Movement Package Gate`: package evidence must pass `remote-next-controlled-movement-package-v1`, require REMOTE-8G GO with `prepare_next_controlled_movement`, cap user expansion to 1-2 recipients, keep candidates/copy/URLs local and keep execution metrics at zero.
 - `Next Controlled Movement Execution Approval Gate`: approval evidence must pass `remote-next-controlled-movement-execution-approval-v1`, require REMOTE-8H GO, allow only approve/reject/defer, keep decision notes and identities local and keep execution metrics at zero.
 - `Next Controlled Movement Manual Execution Gate`: manual execution evidence must pass `remote-next-controlled-movement-manual-execution-v1`, require REMOTE-8I approval, match manual counts to the approved package and keep automation metrics at zero before monitoring.

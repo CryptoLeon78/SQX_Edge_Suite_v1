@@ -23,6 +23,13 @@ DEFAULT_DOWNLOAD_SMOKE_PATH = (
     / "remote_cohort_evidence1"
     / "remote_cohort_download_smoke.local.json"
 )
+DEFAULT_SCOPE_PATH = (
+    PROJECT_ROOT
+    / ".local"
+    / "remote_service"
+    / "remote_cohort_matrix"
+    / "remote_cohort_scope.local.json"
+)
 DEFAULT_OUTPUT_PATH = (
     PROJECT_ROOT / ".local" / "remote_service" / "remote_cohort_matrix" / "remote_cohort_matrix.local.json"
 )
@@ -153,6 +160,26 @@ def _download_index(path: Path) -> dict[str, dict[str, bool]]:
     return index
 
 
+def _scope_index(path: Path) -> dict[str, dict[str, str]]:
+    payload = _read_json(path)
+    items = payload.get("aliases") if isinstance(payload.get("aliases"), list) else []
+    index: dict[str, dict[str, str]] = {}
+    for item in items:
+        if not isinstance(item, Mapping):
+            continue
+        alias = str(item.get("alias") or "").strip()
+        if not alias:
+            continue
+        scope = str(item.get("monitoringScope") or "active").strip().lower()
+        if scope not in {"active", "standby", "excluded"}:
+            scope = "active"
+        index[alias] = {
+            "monitoringScope": scope,
+            "scopeReason": str(item.get("reason") or "").strip()[:160],
+        }
+    return index
+
+
 def _iter_jsonl(path: Path) -> list[dict[str, Any]]:
     if not path.is_file():
         return []
@@ -189,6 +216,11 @@ def _support_index(path: Path) -> tuple[dict[str, int], int]:
 
 
 def _row_status(row: Mapping[str, Any]) -> tuple[str, list[str]]:
+    if row.get("monitoringScope") == "standby":
+        return "standby", ["standby_not_in_current_monitoring_scope"]
+    if row.get("monitoringScope") == "excluded":
+        return "excluded", ["excluded_from_current_monitoring_scope"]
+
     blockers: list[str] = []
     for key, blocker in (
         ("accessOk", "access_not_confirmed"),
@@ -210,6 +242,7 @@ def build_remote_cohort_matrix(
     access_control_path: str | Path | None = DEFAULT_ACCESS_CONTROL_PATH,
     support_cases_path: str | Path | None = DEFAULT_SUPPORT_CASES_PATH,
     download_smoke_path: str | Path | None = DEFAULT_DOWNLOAD_SMOKE_PATH,
+    scope_path: str | Path | None = DEFAULT_SCOPE_PATH,
 ) -> dict[str, Any]:
     """Build an alias-only REMOTE cohort matrix from ignored local stores."""
 
@@ -217,6 +250,7 @@ def build_remote_cohort_matrix(
     grants = _grant_index(Path(entitlements_path or DEFAULT_ENTITLEMENTS_PATH))
     access = _access_index(Path(access_control_path or DEFAULT_ACCESS_CONTROL_PATH))
     downloads = _download_index(Path(download_smoke_path or DEFAULT_DOWNLOAD_SMOKE_PATH))
+    scopes = _scope_index(Path(scope_path or DEFAULT_SCOPE_PATH))
     support, unassigned_open = _support_index(Path(support_cases_path or DEFAULT_SUPPORT_CASES_PATH))
 
     rows: list[dict[str, Any]] = []
@@ -225,6 +259,7 @@ def build_remote_cohort_matrix(
         grant = grants.get(identity_ref, {})
         access_record = access.get(identity_ref, {})
         download = downloads.get(alias["alias"], {})
+        scope = scopes.get(alias["alias"], {"monitoringScope": "active", "scopeReason": ""})
 
         grant_ok = grant.get("status") == "active"
         trusted_contexts = int(access_record.get("trustedContexts") or 0)
@@ -237,6 +272,8 @@ def build_remote_cohort_matrix(
             "alias": alias["alias"],
             "role": alias["role"],
             "identityHashRef": identity_ref,
+            "monitoringScope": scope["monitoringScope"],
+            "scopeReason": scope["scopeReason"],
             "accessOk": bool(download.get("accessOk")),
             "grantOk": grant_ok,
             "grantKind": grant.get("entitlementKind") or "",
@@ -255,20 +292,32 @@ def build_remote_cohort_matrix(
         row["blockers"] = blockers
         rows.append(row)
 
-    ready_count = sum(1 for row in rows if row["status"] == "ready")
-    needs_attention = len(rows) - ready_count
+    active_rows = [row for row in rows if row["monitoringScope"] == "active"]
+    standby_rows = [row for row in rows if row["monitoringScope"] == "standby"]
+    excluded_rows = [row for row in rows if row["monitoringScope"] == "excluded"]
+    ready_count = sum(1 for row in active_rows if row["status"] == "ready")
+    needs_attention = sum(1 for row in active_rows if row["status"] == "needs_attention")
     payload = {
         "schemaVersion": REMOTE_COHORT_MATRIX_VERSION,
         "generatedAt": _utc_now(),
-        "phase": "REMOTE-COHORT-MATRIX1",
+        "phase": "REMOTE-COHORT-FIX1",
         "summary": {
             "aliasCount": len(rows),
+            "activeAliasCount": len(active_rows),
+            "standbyAliasCount": len(standby_rows),
+            "excludedAliasCount": len(excluded_rows),
             "readyCount": ready_count,
             "needsAttentionCount": needs_attention,
             "accessOkCount": sum(1 for row in rows if row["accessOk"]),
             "grantOkCount": sum(1 for row in rows if row["grantOk"]),
             "antiSharingOkCount": sum(1 for row in rows if row["antiSharingOk"]),
             "downloadsOkCount": sum(1 for row in rows if row["downloadsOk"]),
+            "activeReadyCount": ready_count,
+            "activeNeedsAttentionCount": needs_attention,
+            "activeAccessOkCount": sum(1 for row in active_rows if row["accessOk"]),
+            "activeGrantOkCount": sum(1 for row in active_rows if row["grantOk"]),
+            "activeAntiSharingOkCount": sum(1 for row in active_rows if row["antiSharingOk"]),
+            "activeDownloadsOkCount": sum(1 for row in active_rows if row["downloadsOk"]),
             "openIncidents": sum(int(row["openIncidents"]) for row in rows),
             "unassignedOpenIncidents": unassigned_open,
         },

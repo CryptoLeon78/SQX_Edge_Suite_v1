@@ -27,6 +27,7 @@ def main() -> int:
     parser.add_argument("--access-control", default="", help="Optional remote_access_control.local.json path.")
     parser.add_argument("--support-cases", default="", help="Optional support_cases.local.jsonl path.")
     parser.add_argument("--download-smoke", default="", help="Optional cohort download smoke evidence path.")
+    parser.add_argument("--scope", default="", help="Optional cohort monitoring scope evidence path.")
     parser.add_argument("--out", default="", help="Optional output path for the local matrix JSON.")
     parser.add_argument("--json", action="store_true", help="Emit JSON only.")
     args = parser.parse_args()
@@ -37,6 +38,7 @@ def main() -> int:
         access_control_path=args.access_control or None,
         support_cases_path=args.support_cases or None,
         download_smoke_path=args.download_smoke or None,
+        scope_path=args.scope or None,
     )
     output_path = write_remote_cohort_matrix(payload, args.out or None)
 
@@ -48,8 +50,13 @@ def main() -> int:
     print("SQX Edge Suite REMOTE cohort matrix")
     print(f"Schema: {payload['schemaVersion']}")
     print(f"Aliases: {summary['aliasCount']}")
-    print(f"Ready: {summary['readyCount']}")
-    print(f"Needs attention: {summary['needsAttentionCount']}")
+    print(
+        f"Active: {summary['activeAliasCount']} | "
+        f"Standby: {summary['standbyAliasCount']} | "
+        f"Excluded: {summary['excludedAliasCount']}"
+    )
+    print(f"Ready active: {summary['activeReadyCount']}")
+    print(f"Needs attention active: {summary['activeNeedsAttentionCount']}")
     print(f"Access OK: {summary['accessOkCount']}")
     print(f"Grants OK: {summary['grantOkCount']}")
     print(f"Anti-sharing OK: {summary['antiSharingOkCount']}")

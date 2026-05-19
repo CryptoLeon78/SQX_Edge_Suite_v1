@@ -5,6 +5,7 @@ param(
     [string]$AccessControl = "",
     [string]$SupportCases = "",
     [string]$DownloadSmoke = "",
+    [string]$Scope = "",
     [string]$Out = ""
 )
 
@@ -21,6 +22,7 @@ if ($Entitlements) { $argsList += @("--entitlements", $Entitlements) }
 if ($AccessControl) { $argsList += @("--access-control", $AccessControl) }
 if ($SupportCases) { $argsList += @("--support-cases", $SupportCases) }
 if ($DownloadSmoke) { $argsList += @("--download-smoke", $DownloadSmoke) }
+if ($Scope) { $argsList += @("--scope", $Scope) }
 if ($Out) { $argsList += @("--out", $Out) }
 if ($Json) { $argsList += "--json" }
 

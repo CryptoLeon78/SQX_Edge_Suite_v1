@@ -55,6 +55,7 @@ REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE_DOC = (
     PROJECT_ROOT / "docs" / "REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE.md"
 )
 REMOTE_COHORT_MATRIX1_DOC = PROJECT_ROOT / "docs" / "REMOTE_COHORT_MATRIX1.md"
+REMOTE_COHORT_FIX1_DOC = PROJECT_ROOT / "docs" / "REMOTE_COHORT_FIX1_SCOPE_RECONCILIATION.md"
 REMOTE_COHORT_MATRIX_CORE = TOOL_ROOT / "core" / "remote_cohort_matrix.py"
 REMOTE_COHORT_MATRIX_TOOL = TOOL_ROOT / "tools" / "remote_cohort_matrix.py"
 REMOTE_COHORT_MATRIX_TEST = TOOL_ROOT / "test_remote_cohort_matrix.py"
@@ -3451,6 +3452,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
         roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         matrix_doc = REMOTE_COHORT_MATRIX1_DOC.read_text(encoding="utf-8-sig")
+        fix_doc = REMOTE_COHORT_FIX1_DOC.read_text(encoding="utf-8-sig")
         matrix_core = REMOTE_COHORT_MATRIX_CORE.read_text(encoding="utf-8-sig")
         matrix_tool = REMOTE_COHORT_MATRIX_TOOL.read_text(encoding="utf-8-sig")
         matrix_test = REMOTE_COHORT_MATRIX_TEST.read_text(encoding="utf-8-sig")
@@ -3458,6 +3460,7 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for path in (
             REMOTE_COHORT_MATRIX1_DOC,
+            REMOTE_COHORT_FIX1_DOC,
             REMOTE_COHORT_MATRIX_CORE,
             REMOTE_COHORT_MATRIX_TOOL,
             REMOTE_COHORT_MATRIX_TEST,
@@ -3473,15 +3476,31 @@ class DashboardStaticTestCase(unittest.TestCase):
             "Anti-sharing OK",
             "Downloads OK",
             "Incidencias abiertas",
+            "Monitoring scope",
             "remote_cohort_matrix.local.json",
+            "REMOTE-COHORT-FIX1",
             "does not",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, matrix_doc)
 
         for pattern in (
+            "REMOTE-COHORT-FIX1 - Cohort Scope Reconciliation",
+            "active",
+            "standby",
+            "excluded",
+            "TESTER-RILIS",
+            "TESTER-ESTHER",
+            "must not force it green",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, fix_doc)
+
+        for pattern in (
+            "Current phase completed: REMOTE-COHORT-FIX1",
             "Current phase completed: REMOTE-COHORT-MATRIX1",
             "Cohort Matrix Gate",
+            "Cohort Scope Gate",
             "Access OK",
             "grant OK",
             "anti-sharing context OK",
@@ -3493,11 +3512,14 @@ class DashboardStaticTestCase(unittest.TestCase):
 
         for pattern in (
             "REMOTE-COHORT-MATRIX1 adds a live alias",
+            "REMOTE-COHORT-FIX1 separates the alias",
+            "docs/REMOTE_COHORT_FIX1_SCOPE_RECONCILIATION.md",
             "docs/REMOTE_COHORT_MATRIX1.md",
             "backend/sqx-edge-tool/core/remote_cohort_matrix.py",
             "tools/remote_cohort_matrix.ps1",
             "remote-cohort-matrix-v1",
             "Cohort Matrix Gate",
+            "Cohort Scope Gate",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, roadmap)
@@ -3509,9 +3531,12 @@ class DashboardStaticTestCase(unittest.TestCase):
             "DEFAULT_ACCESS_CONTROL_PATH",
             "DEFAULT_SUPPORT_CASES_PATH",
             "DEFAULT_DOWNLOAD_SMOKE_PATH",
+            "DEFAULT_SCOPE_PATH",
             "build_remote_cohort_matrix",
             "write_remote_cohort_matrix",
             "rawEmailsReturned",
+            "monitoringScope",
+            "activeAliasCount",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, matrix_core)
@@ -3519,6 +3544,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "build_remote_cohort_matrix",
             "write_remote_cohort_matrix",
+            "--scope",
             "--json",
             "SQX Edge Suite REMOTE cohort matrix",
         ):
@@ -3529,6 +3555,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "remote_cohort_matrix.py",
             "[switch]$Json",
             "--download-smoke",
+            "--scope",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, matrix_ps1)
@@ -3536,13 +3563,15 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "test_remote_cohort_matrix_builds_alias_only_status",
             "test_remote_cohort_matrix_redacts_private_values_and_writes_local_output",
+            "test_remote_cohort_matrix_separates_standby_aliases_from_active_blockers",
             "download_smoke_not_confirmed",
             "anti_sharing_context_not_ready",
+            "standby_not_in_current_monitoring_scope",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, matrix_test)
 
-        combined_public = "\n".join([matrix_doc, matrix_core, matrix_tool, matrix_test, matrix_ps1])
+        combined_public = "\n".join([matrix_doc, fix_doc, matrix_core, matrix_tool, matrix_test, matrix_ps1])
         for forbidden in (
             "@" + "gmail.com",
             "@" + "hotmail.com",
