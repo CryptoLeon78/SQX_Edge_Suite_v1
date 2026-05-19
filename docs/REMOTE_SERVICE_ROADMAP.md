@@ -775,6 +775,12 @@ smoke passed` with 5 alias-only participants: `CREATOR-IVAN`, `TESTER-DRP`,
 OK and 5/5 browser download smoke OK. No raw emails, IPs, protected URLs,
 cookies, tokens, Cloudflare identifiers or local paths are stored in Git.
 
+Operational matrix on 2026-05-19: REMOTE-COHORT-MATRIX1 adds a live alias
+matrix for the operator. It reads ignored local sources and reports per alias:
+Access OK, Grant OK, anti-sharing context OK, downloads OK and open incidents.
+It is visibility only; it does not create users, grants, Cloudflare changes,
+checkout, emails or expansion.
+
 Artifacts added in REMOTE-8F:
 
 - `docs/REMOTE_8F_TINY_COHORT_MONITORING.md`
@@ -791,6 +797,17 @@ Mini-evidence added in REMOTE-COHORT-EVIDENCE1:
 - `docs/REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE.md`
 - ignored evidence root `.local/remote_service/remote_cohort_evidence1/`
 - `Cohort Evidence Gate`
+
+Operator matrix added in REMOTE-COHORT-MATRIX1:
+
+- `docs/REMOTE_COHORT_MATRIX1.md`
+- `backend/sqx-edge-tool/core/remote_cohort_matrix.py`
+- `backend/sqx-edge-tool/tools/remote_cohort_matrix.py`
+- `backend/sqx-edge-tool/test_remote_cohort_matrix.py`
+- `tools/remote_cohort_matrix.ps1`
+- ignored evidence root `.local/remote_service/remote_cohort_matrix/`
+- `remote-cohort-matrix-v1`
+- `Cohort Matrix Gate`
 
 Next REMOTE-8G scope:
 
@@ -949,6 +966,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Tiny Cohort Manual Execution Record Gate`: manual execution records must pass `remote-tiny-cohort-execution-v1`, require REMOTE-8D GO, keep identities/URLs/messages local, match manual counts to 3-5 activated users and keep automation metrics at zero before monitoring.
 - `Tiny Cohort Monitoring Gate`: monitoring evidence must pass `remote-tiny-cohort-monitoring-v1`, require REMOTE-8E GO, prove at least 24 clean hours, 3-5 monitored users, stable access/session/workspace/generation/export/support signals and zero incidents before any next movement review.
 - `Tiny Cohort Decision Review Gate`: decision evidence must pass `remote-tiny-cohort-decision-review-v1`, review REMOTE-8F clean/blocked monitoring, keep rationale and identities local, keep execution metrics at zero and require a separate next phase before anything is executed.
+- `Cohort Matrix Gate`: live cohort status must be alias-only, generated from ignored local sources and limited to Access OK, Grant OK, Anti-sharing OK, Downloads OK, open incidents and status flags. It informs monitoring/decision review but never performs access changes or expansion.
 - `Next Controlled Movement Package Gate`: package evidence must pass `remote-next-controlled-movement-package-v1`, require REMOTE-8G GO with `prepare_next_controlled_movement`, cap user expansion to 1-2 recipients, keep candidates/copy/URLs local and keep execution metrics at zero.
 - `Next Controlled Movement Execution Approval Gate`: approval evidence must pass `remote-next-controlled-movement-execution-approval-v1`, require REMOTE-8H GO, allow only approve/reject/defer, keep decision notes and identities local and keep execution metrics at zero.
 - `Next Controlled Movement Manual Execution Gate`: manual execution evidence must pass `remote-next-controlled-movement-manual-execution-v1`, require REMOTE-8I approval, match manual counts to the approved package and keep automation metrics at zero before monitoring.

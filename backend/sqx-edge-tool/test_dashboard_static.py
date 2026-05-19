@@ -54,6 +54,11 @@ REMOTE_8F_TINY_COHORT_MONITORING_DOC = PROJECT_ROOT / "docs" / "REMOTE_8F_TINY_C
 REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE_DOC = (
     PROJECT_ROOT / "docs" / "REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE.md"
 )
+REMOTE_COHORT_MATRIX1_DOC = PROJECT_ROOT / "docs" / "REMOTE_COHORT_MATRIX1.md"
+REMOTE_COHORT_MATRIX_CORE = TOOL_ROOT / "core" / "remote_cohort_matrix.py"
+REMOTE_COHORT_MATRIX_TOOL = TOOL_ROOT / "tools" / "remote_cohort_matrix.py"
+REMOTE_COHORT_MATRIX_TEST = TOOL_ROOT / "test_remote_cohort_matrix.py"
+REMOTE_COHORT_MATRIX_PS1 = PROJECT_ROOT / "tools" / "remote_cohort_matrix.ps1"
 REMOTE_8G_TINY_COHORT_DECISION_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_8G_TINY_COHORT_DECISION_REVIEW.md"
 REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_DOC = PROJECT_ROOT / "docs" / "REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE.md"
 REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL_DOC = (
@@ -3435,6 +3440,118 @@ class DashboardStaticTestCase(unittest.TestCase):
             "__Host-sqx_remote_session",
             "SQX_REMOTE_SESSION_SECRET=",
             "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "C:\\BOTS\\",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_cohort_matrix1_operator_matrix_is_wired(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        matrix_doc = REMOTE_COHORT_MATRIX1_DOC.read_text(encoding="utf-8-sig")
+        matrix_core = REMOTE_COHORT_MATRIX_CORE.read_text(encoding="utf-8-sig")
+        matrix_tool = REMOTE_COHORT_MATRIX_TOOL.read_text(encoding="utf-8-sig")
+        matrix_test = REMOTE_COHORT_MATRIX_TEST.read_text(encoding="utf-8-sig")
+        matrix_ps1 = REMOTE_COHORT_MATRIX_PS1.read_text(encoding="utf-8-sig")
+
+        for path in (
+            REMOTE_COHORT_MATRIX1_DOC,
+            REMOTE_COHORT_MATRIX_CORE,
+            REMOTE_COHORT_MATRIX_TOOL,
+            REMOTE_COHORT_MATRIX_TEST,
+            REMOTE_COHORT_MATRIX_PS1,
+        ):
+            with self.subTest(path=path):
+                self.assertTrue(path.is_file(), path)
+
+        for pattern in (
+            "REMOTE-COHORT-MATRIX1 - Live Alias Cohort Matrix",
+            "Access OK",
+            "Grant OK",
+            "Anti-sharing OK",
+            "Downloads OK",
+            "Incidencias abiertas",
+            "remote_cohort_matrix.local.json",
+            "does not",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, matrix_doc)
+
+        for pattern in (
+            "Current phase completed: REMOTE-COHORT-MATRIX1",
+            "Cohort Matrix Gate",
+            "Access OK",
+            "grant OK",
+            "anti-sharing context OK",
+            "downloads OK",
+            "open incidents",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "REMOTE-COHORT-MATRIX1 adds a live alias",
+            "docs/REMOTE_COHORT_MATRIX1.md",
+            "backend/sqx-edge-tool/core/remote_cohort_matrix.py",
+            "tools/remote_cohort_matrix.ps1",
+            "remote-cohort-matrix-v1",
+            "Cohort Matrix Gate",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "REMOTE_COHORT_MATRIX_VERSION = \"remote-cohort-matrix-v1\"",
+            "DEFAULT_ALIAS_PATH",
+            "DEFAULT_ENTITLEMENTS_PATH",
+            "DEFAULT_ACCESS_CONTROL_PATH",
+            "DEFAULT_SUPPORT_CASES_PATH",
+            "DEFAULT_DOWNLOAD_SMOKE_PATH",
+            "build_remote_cohort_matrix",
+            "write_remote_cohort_matrix",
+            "rawEmailsReturned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, matrix_core)
+
+        for pattern in (
+            "build_remote_cohort_matrix",
+            "write_remote_cohort_matrix",
+            "--json",
+            "SQX Edge Suite REMOTE cohort matrix",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, matrix_tool)
+
+        for pattern in (
+            "remote_cohort_matrix.py",
+            "[switch]$Json",
+            "--download-smoke",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, matrix_ps1)
+
+        for pattern in (
+            "test_remote_cohort_matrix_builds_alias_only_status",
+            "test_remote_cohort_matrix_redacts_private_values_and_writes_local_output",
+            "download_smoke_not_confirmed",
+            "anti_sharing_context_not_ready",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, matrix_test)
+
+        combined_public = "\n".join([matrix_doc, matrix_core, matrix_tool, matrix_test, matrix_ps1])
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "CF_Authorization",
+            "__Host-sqx_remote_session",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "app.sqxedgesuite.org",
             "C:\\BOTS\\",
             "sk_" + "live_",
             "pk_" + "live_",
