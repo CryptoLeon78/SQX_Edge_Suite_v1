@@ -763,11 +763,12 @@ Next REMOTE-8F scope:
 
 Watches the 3-5 user cohort after REMOTE-8E and converts private monitoring evidence into a public-safe readiness summary. It must not expand traffic, automate onboarding or widen sales until monitoring evidence is clean and explicitly approved in a later decision phase.
 
-Current status on 2026-05-18: REMOTE-8F monitoring is started but not clean.
-Ignored local evidence returns `NO_GO_REMOTE8F_TINY_COHORT_MONITORING_BLOCKED`
-because the 24h observation window is not complete and workspace isolation,
-artifact generation and export/download signals are still pending. This is a
-controlled hold state, not a failure requiring rollback.
+Current status on 2026-05-19: REMOTE-8F-CLOSE is clean for the active monitored
+cohort. Ignored local evidence returns
+`GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN`; the active cohort is `4/4 ready`,
+with zero active blockers, zero open incidents and zero context recapture
+actions. This does not authorize expansion by itself; it only unlocks REMOTE-8G
+decision review.
 
 Mini-evidence on 2026-05-18: REMOTE-COHORT-EVIDENCE1 records `cohort download
 smoke passed` with 5 alias-only participants: `CREATOR-IVAN`, `TESTER-DRP`,
@@ -788,11 +789,17 @@ trusted anti-sharing context, Access OK, grant OK, download smoke and zero open
 incidents before the cohort can be considered clean.
 
 Context recapture on 2026-05-19: REMOTE-COHORT-FIX2 adds an alias-only
-anti-sharing reconciliation plan. It currently reports 5 active aliases, 4
-ready and 1 recapture required for `TESTER-RILIS`: access/download smoke is OK,
-but the anti-sharing context must be recaptured through the normal browser path
-or reviewed with the admin tool if it appears pending. The phase does not force
-trusted context state, create grants, change Cloudflare or approve expansion.
+anti-sharing reconciliation plan. After the operator could not contact
+`TESTER-RILIS`, the ignored scope file moved that alias to `standby`. The active
+cohort now reports 4 active aliases, 4 ready and 0 recapture actions. Standby
+aliases remain visible but do not block REMOTE-8F-CLOSE.
+
+Close on 2026-05-19: REMOTE-8F-CLOSE records the active cohort as clean:
+`CREATOR-IVAN`, `TESTER-DRP`, `TESTER-BIBI` and `TESTER-JL` are active and ready;
+`TESTER-RILIS` and `TESTER-ESTHER` are standby. Public-safe result:
+`GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN`. No grants, Cloudflare changes,
+checkout, emails, protected URLs, automation jobs or tester expansion were
+performed.
 
 Artifacts added in REMOTE-8F:
 
@@ -839,6 +846,15 @@ Context recapture added in REMOTE-COHORT-FIX2:
 - ignored output `.local/remote_service/remote_cohort_matrix/remote_cohort_context_reconcile.local.json`
 - `remote-cohort-context-reconcile-v1`
 - `Cohort Context Recapture Gate`
+
+Close evidence added in REMOTE-8F-CLOSE:
+
+- `docs/REMOTE_8F_CLOSE_ACTIVE_COHORT.md`
+- ignored evidence `.local/remote_service/remote8f_tiny_cohort_monitoring.local.json`
+- ignored output `.local/remote_service/remote8f_tiny_cohort_monitoring/remote8f_tiny_cohort_monitoring.public.json`
+- active cohort `4/4 ready`
+- standby aliases: `TESTER-RILIS`, `TESTER-ESTHER`
+- `GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN`
 
 Next REMOTE-8G scope:
 

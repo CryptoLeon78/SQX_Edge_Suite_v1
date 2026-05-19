@@ -51,6 +51,7 @@ REMOTE_8D_TINY_COHORT_ACTIVATION_DOC = PROJECT_ROOT / "docs" / "REMOTE_8D_TINY_C
 REMOTE_8E_TINY_COHORT_EXECUTION_DOC = PROJECT_ROOT / "docs" / "REMOTE_8E_TINY_COHORT_EXECUTION.md"
 REMOTE_ASSET1_INCIDENT_DOC = PROJECT_ROOT / "docs" / "REMOTE_ASSET1_PROTECTED_DASHBOARD_ASSET_INCIDENT.md"
 REMOTE_8F_TINY_COHORT_MONITORING_DOC = PROJECT_ROOT / "docs" / "REMOTE_8F_TINY_COHORT_MONITORING.md"
+REMOTE_8F_CLOSE_ACTIVE_COHORT_DOC = PROJECT_ROOT / "docs" / "REMOTE_8F_CLOSE_ACTIVE_COHORT.md"
 REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE_DOC = (
     PROJECT_ROOT / "docs" / "REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE.md"
 )
@@ -3279,9 +3280,10 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, remote_8f)
 
         for pattern in (
-            "REMOTE-8F tiny cohort monitoring started",
-            "NO_GO_REMOTE8F_TINY_COHORT_MONITORING_BLOCKED",
-            "Further expansion remains blocked",
+            "REMOTE-8F-CLOSE - active tiny cohort monitoring clean",
+            "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
+            "active cohort is `4/4 ready`",
+            "Current implementation phase: REMOTE-8G tiny cohort decision review",
             "Current phase completed: REMOTE-8H cycle bridge",
             "Current implementation phase: REMOTE-8H private package evidence",
             "Tiny Cohort Monitoring Gate",
@@ -3292,9 +3294,9 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, governance)
 
         for pattern in (
-            "REMOTE-8F monitoring is started but not clean",
-            "NO_GO_REMOTE8F_TINY_COHORT_MONITORING_BLOCKED",
-            "controlled hold state",
+            "REMOTE-8F-CLOSE is clean",
+            "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
+            "active cohort is `4/4 ready`",
             "Artifacts added in REMOTE-8F",
             "docs/REMOTE_8F_TINY_COHORT_MONITORING.md",
             "backend/sqx-edge-tool/core/remote_tiny_cohort_monitoring.py",
@@ -3302,6 +3304,9 @@ class DashboardStaticTestCase(unittest.TestCase):
             "backend/sqx-edge-tool/test_remote_tiny_cohort_monitoring.py",
             "REMOTE-8G - Tiny Cohort Decision Review",
             "Tiny Cohort Monitoring Gate",
+            "Close evidence added in REMOTE-8F-CLOSE",
+            "docs/REMOTE_8F_CLOSE_ACTIVE_COHORT.md",
+            "standby aliases: `TESTER-RILIS`, `TESTER-ESTHER`",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, roadmap)
@@ -3384,6 +3389,64 @@ class DashboardStaticTestCase(unittest.TestCase):
         for forbidden in (
             "@" + "gmail.com",
             "@" + "hotmail.com",
+            "CLOUDFLARE_API_TOKEN=",
+            "SQX_REMOTE_SESSION_SECRET=",
+            "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
+            "sk_" + "live_",
+            "pk_" + "live_",
+        ):
+            with self.subTest(forbidden=forbidden):
+                self.assertNotIn(forbidden, combined_public)
+
+    def test_remote_8f_close_active_cohort_is_public_safe(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        close_doc = REMOTE_8F_CLOSE_ACTIVE_COHORT_DOC.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(REMOTE_8F_CLOSE_ACTIVE_COHORT_DOC.is_file())
+
+        for pattern in (
+            "REMOTE-8F-CLOSE - Active Cohort Monitoring Clean",
+            "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
+            "Active aliases: `4`",
+            "Ready active aliases: `4`",
+            "`CREATOR-IVAN`",
+            "`TESTER-DRP`",
+            "`TESTER-BIBI`",
+            "`TESTER-JL`",
+            "`TESTER-RILIS` - standby",
+            "`TESTER-ESTHER` - standby",
+            "move to REMOTE-8G decision review",
+            "does not allow:",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, close_doc)
+
+        for pattern in (
+            "Current phase completed: REMOTE-8F-CLOSE",
+            "active tiny cohort monitoring clean",
+            "active cohort is `4/4 ready`",
+            "TESTER-RILIS` and `TESTER-ESTHER` remain standby",
+            "No grants, Cloudflare changes, emails, checkout links, protected URLs or expansion were performed",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "Close on 2026-05-19: REMOTE-8F-CLOSE",
+            "docs/REMOTE_8F_CLOSE_ACTIVE_COHORT.md",
+            "active cohort `4/4 ready`",
+            "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        combined_public = close_doc
+        for forbidden in (
+            "@" + "gmail.com",
+            "@" + "hotmail.com",
+            "example.invalid",
+            "__Host-sqx_remote_session",
             "CLOUDFLARE_API_TOKEN=",
             "SQX_REMOTE_SESSION_SECRET=",
             "SQX_REMOTE_PAYMENT_WEBHOOK_SECRET=",
