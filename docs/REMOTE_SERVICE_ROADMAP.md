@@ -787,6 +787,13 @@ without blocking the active REMOTE-8F cohort. Active aliases still require a
 trusted anti-sharing context, Access OK, grant OK, download smoke and zero open
 incidents before the cohort can be considered clean.
 
+Context recapture on 2026-05-19: REMOTE-COHORT-FIX2 adds an alias-only
+anti-sharing reconciliation plan. It currently reports 5 active aliases, 4
+ready and 1 recapture required for `TESTER-RILIS`: access/download smoke is OK,
+but the anti-sharing context must be recaptured through the normal browser path
+or reviewed with the admin tool if it appears pending. The phase does not force
+trusted context state, create grants, change Cloudflare or approve expansion.
+
 Artifacts added in REMOTE-8F:
 
 - `docs/REMOTE_8F_TINY_COHORT_MONITORING.md`
@@ -821,6 +828,17 @@ Scope reconciliation added in REMOTE-COHORT-FIX1:
 - optional ignored scope file `.local/remote_service/remote_cohort_matrix/remote_cohort_scope.local.json`
 - `activeAliasCount`, `standbyAliasCount`, `activeReadyCount` and `activeNeedsAttentionCount`
 - `Cohort Scope Gate`
+
+Context recapture added in REMOTE-COHORT-FIX2:
+
+- `docs/REMOTE_COHORT_FIX2_CONTEXT_RECAPTURE.md`
+- `backend/sqx-edge-tool/core/remote_cohort_context_reconcile.py`
+- `backend/sqx-edge-tool/tools/remote_cohort_context_reconcile.py`
+- `backend/sqx-edge-tool/test_remote_cohort_context_reconcile.py`
+- `tools/remote_cohort_context_reconcile.ps1`
+- ignored output `.local/remote_service/remote_cohort_matrix/remote_cohort_context_reconcile.local.json`
+- `remote-cohort-context-reconcile-v1`
+- `Cohort Context Recapture Gate`
 
 Next REMOTE-8G scope:
 
@@ -981,6 +999,7 @@ Future hardening route only. Consider Ubuntu Server/Docker after auth, workspace
 - `Tiny Cohort Decision Review Gate`: decision evidence must pass `remote-tiny-cohort-decision-review-v1`, review REMOTE-8F clean/blocked monitoring, keep rationale and identities local, keep execution metrics at zero and require a separate next phase before anything is executed.
 - `Cohort Matrix Gate`: live cohort status must be alias-only, generated from ignored local sources and limited to Access OK, Grant OK, Anti-sharing OK, Downloads OK, open incidents and status flags. It informs monitoring/decision review but never performs access changes or expansion.
 - `Cohort Scope Gate`: alias registry and active monitored cohort are separate. Standby aliases do not count as active blockers; active aliases keep blocking status until Access, grant, anti-sharing, download and incident signals are clean or a later decision gate explicitly documents the exception.
+- `Cohort Context Recapture Gate`: active aliases with access/download smoke OK but no anti-sharing context must be recaptured through the real browser path or reviewed with the admin tool if a pending context appears. Never force a trusted context solely from human smoke notes.
 - `Next Controlled Movement Package Gate`: package evidence must pass `remote-next-controlled-movement-package-v1`, require REMOTE-8G GO with `prepare_next_controlled_movement`, cap user expansion to 1-2 recipients, keep candidates/copy/URLs local and keep execution metrics at zero.
 - `Next Controlled Movement Execution Approval Gate`: approval evidence must pass `remote-next-controlled-movement-execution-approval-v1`, require REMOTE-8H GO, allow only approve/reject/defer, keep decision notes and identities local and keep execution metrics at zero.
 - `Next Controlled Movement Manual Execution Gate`: manual execution evidence must pass `remote-next-controlled-movement-manual-execution-v1`, require REMOTE-8I approval, match manual counts to the approved package and keep automation metrics at zero before monitoring.

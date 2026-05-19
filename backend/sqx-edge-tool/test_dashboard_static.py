@@ -56,10 +56,15 @@ REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE_DOC = (
 )
 REMOTE_COHORT_MATRIX1_DOC = PROJECT_ROOT / "docs" / "REMOTE_COHORT_MATRIX1.md"
 REMOTE_COHORT_FIX1_DOC = PROJECT_ROOT / "docs" / "REMOTE_COHORT_FIX1_SCOPE_RECONCILIATION.md"
+REMOTE_COHORT_FIX2_DOC = PROJECT_ROOT / "docs" / "REMOTE_COHORT_FIX2_CONTEXT_RECAPTURE.md"
 REMOTE_COHORT_MATRIX_CORE = TOOL_ROOT / "core" / "remote_cohort_matrix.py"
 REMOTE_COHORT_MATRIX_TOOL = TOOL_ROOT / "tools" / "remote_cohort_matrix.py"
 REMOTE_COHORT_MATRIX_TEST = TOOL_ROOT / "test_remote_cohort_matrix.py"
 REMOTE_COHORT_MATRIX_PS1 = PROJECT_ROOT / "tools" / "remote_cohort_matrix.ps1"
+REMOTE_COHORT_CONTEXT_RECONCILE_CORE = TOOL_ROOT / "core" / "remote_cohort_context_reconcile.py"
+REMOTE_COHORT_CONTEXT_RECONCILE_TOOL = TOOL_ROOT / "tools" / "remote_cohort_context_reconcile.py"
+REMOTE_COHORT_CONTEXT_RECONCILE_TEST = TOOL_ROOT / "test_remote_cohort_context_reconcile.py"
+REMOTE_COHORT_CONTEXT_RECONCILE_PS1 = PROJECT_ROOT / "tools" / "remote_cohort_context_reconcile.ps1"
 REMOTE_8G_TINY_COHORT_DECISION_REVIEW_DOC = PROJECT_ROOT / "docs" / "REMOTE_8G_TINY_COHORT_DECISION_REVIEW.md"
 REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_DOC = PROJECT_ROOT / "docs" / "REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE.md"
 REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL_DOC = (
@@ -3453,18 +3458,28 @@ class DashboardStaticTestCase(unittest.TestCase):
         roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
         matrix_doc = REMOTE_COHORT_MATRIX1_DOC.read_text(encoding="utf-8-sig")
         fix_doc = REMOTE_COHORT_FIX1_DOC.read_text(encoding="utf-8-sig")
+        fix2_doc = REMOTE_COHORT_FIX2_DOC.read_text(encoding="utf-8-sig")
         matrix_core = REMOTE_COHORT_MATRIX_CORE.read_text(encoding="utf-8-sig")
         matrix_tool = REMOTE_COHORT_MATRIX_TOOL.read_text(encoding="utf-8-sig")
         matrix_test = REMOTE_COHORT_MATRIX_TEST.read_text(encoding="utf-8-sig")
         matrix_ps1 = REMOTE_COHORT_MATRIX_PS1.read_text(encoding="utf-8-sig")
+        reconcile_core = REMOTE_COHORT_CONTEXT_RECONCILE_CORE.read_text(encoding="utf-8-sig")
+        reconcile_tool = REMOTE_COHORT_CONTEXT_RECONCILE_TOOL.read_text(encoding="utf-8-sig")
+        reconcile_test = REMOTE_COHORT_CONTEXT_RECONCILE_TEST.read_text(encoding="utf-8-sig")
+        reconcile_ps1 = REMOTE_COHORT_CONTEXT_RECONCILE_PS1.read_text(encoding="utf-8-sig")
 
         for path in (
             REMOTE_COHORT_MATRIX1_DOC,
             REMOTE_COHORT_FIX1_DOC,
+            REMOTE_COHORT_FIX2_DOC,
             REMOTE_COHORT_MATRIX_CORE,
             REMOTE_COHORT_MATRIX_TOOL,
             REMOTE_COHORT_MATRIX_TEST,
             REMOTE_COHORT_MATRIX_PS1,
+            REMOTE_COHORT_CONTEXT_RECONCILE_CORE,
+            REMOTE_COHORT_CONTEXT_RECONCILE_TOOL,
+            REMOTE_COHORT_CONTEXT_RECONCILE_TEST,
+            REMOTE_COHORT_CONTEXT_RECONCILE_PS1,
         ):
             with self.subTest(path=path):
                 self.assertTrue(path.is_file(), path)
@@ -3497,10 +3512,22 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, fix_doc)
 
         for pattern in (
+            "REMOTE-COHORT-FIX2 - Anti-Sharing Context Recapture",
+            "TESTER-RILIS",
+            "Recapture required",
+            "remote_cohort_context_reconcile.ps1",
+            "must not force",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, fix2_doc)
+
+        for pattern in (
+            "Current phase completed: REMOTE-COHORT-FIX2",
             "Current phase completed: REMOTE-COHORT-FIX1",
             "Current phase completed: REMOTE-COHORT-MATRIX1",
             "Cohort Matrix Gate",
             "Cohort Scope Gate",
+            "Cohort Context Recapture Gate",
             "Access OK",
             "grant OK",
             "anti-sharing context OK",
@@ -3513,13 +3540,16 @@ class DashboardStaticTestCase(unittest.TestCase):
         for pattern in (
             "REMOTE-COHORT-MATRIX1 adds a live alias",
             "REMOTE-COHORT-FIX1 separates the alias",
+            "REMOTE-COHORT-FIX2 adds an alias-only",
             "docs/REMOTE_COHORT_FIX1_SCOPE_RECONCILIATION.md",
+            "docs/REMOTE_COHORT_FIX2_CONTEXT_RECAPTURE.md",
             "docs/REMOTE_COHORT_MATRIX1.md",
             "backend/sqx-edge-tool/core/remote_cohort_matrix.py",
             "tools/remote_cohort_matrix.ps1",
             "remote-cohort-matrix-v1",
             "Cohort Matrix Gate",
             "Cohort Scope Gate",
+            "Cohort Context Recapture Gate",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, roadmap)
@@ -3571,7 +3601,56 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, matrix_test)
 
-        combined_public = "\n".join([matrix_doc, fix_doc, matrix_core, matrix_tool, matrix_test, matrix_ps1])
+        for pattern in (
+            "REMOTE_COHORT_CONTEXT_RECONCILE_VERSION = \"remote-cohort-context-reconcile-v1\"",
+            "build_remote_cohort_context_reconcile",
+            "write_remote_cohort_context_reconcile",
+            "recapture_context",
+            "human_smoke_ok_but_anti_sharing_context_missing",
+            "rawEmailsReturned",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, reconcile_core)
+
+        for pattern in (
+            "build_remote_cohort_context_reconcile",
+            "write_remote_cohort_context_reconcile",
+            "--json",
+            "SQX Edge Suite REMOTE cohort anti-sharing reconciliation",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, reconcile_tool)
+
+        for pattern in (
+            "remote_cohort_context_reconcile.py",
+            "[switch]$Json",
+            "--scope",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, reconcile_ps1)
+
+        for pattern in (
+            "test_context_reconcile_flags_active_alias_that_needs_recapture",
+            "test_context_reconcile_detects_pending_context_operator_review_and_redacts",
+            "TESTER-RILIS",
+            "recapture_context",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, reconcile_test)
+
+        combined_public = "\n".join([
+            matrix_doc,
+            fix_doc,
+            fix2_doc,
+            matrix_core,
+            matrix_tool,
+            matrix_test,
+            matrix_ps1,
+            reconcile_core,
+            reconcile_tool,
+            reconcile_test,
+            reconcile_ps1,
+        ])
         for forbidden in (
             "@" + "gmail.com",
             "@" + "hotmail.com",
