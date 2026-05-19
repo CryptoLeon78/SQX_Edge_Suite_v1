@@ -992,7 +992,7 @@ window.SQX_MANIFEST = {
         },
         {
           "id": "retest_oos",
-          "name": "Retest 1 (OOS 2010-2017)",
+          "name": "Retest 1 / OOS2 Dukascopy",
           "terminal": false
         },
         {

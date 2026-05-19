@@ -37,7 +37,7 @@ Operational rule:
 
 - Remote-service generation remains targeted to the server SQX 142 host.
 - Local-user `.cfx` delivery must not be called universally compatible until a target-host profile is known and the file passes `cfx-compatibility-audit-v1`.
-- A future `CFX-TARGET1` phase should add a target profile/remap flow before broader buyer usage.
+- `CFX-TARGET1` is completed: Project Generator now includes a target SQX profile/remap flow for the primary project resources, while Retest 1/OOS2 remains a protected Dukascopy cross-broker validation.
 
 ## Remote Phases
 

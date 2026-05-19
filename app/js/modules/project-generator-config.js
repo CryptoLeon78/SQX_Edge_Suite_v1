@@ -301,6 +301,8 @@ function configSaveBody(input) {
       output_dir: data.outputDir || '',
       template_capa1: data.templateCapa1 || '',
       template_capa2: data.templateCapa2 || '',
+      target_profile: data.targetProfile || 'sqxedge_darwinex',
+      target_profile_custom: data.targetProfileCustom || {},
       asset_aliases: data.assetAliases || {}
     };
   }

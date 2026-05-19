@@ -27,12 +27,19 @@ CAPA_TASK_MAPS = {
     for capa, task_map in (_GENERATOR_PROFILE.get("taskPeriodMaps") or {}).items()
 }
 TRADING_TIME_RANGES = _GENERATOR_PROFILE.get("tradingTimeRanges") or {}
+CROSS_BROKER_RETESTS = {
+    int(capa): value
+    for capa, value in (_GENERATOR_PROFILE.get("crossBrokerRetests") or {}).items()
+}
+BROKER_PROFILES = _GENERATOR_PROFILE.get("brokerProfiles") or {}
+TARGET_PROFILES = _GENERATOR_PROFILE.get("targetProfiles") or {}
 ASSET_DEFAULTS = _INSTRUMENTS_PROFILE.get("assetDefaults") or {}
 DEFAULT_BROKER_POSTFIX = (
     _INSTRUMENTS_PROFILE.get("defaultBrokerPostfix")
     or _GENERATOR_PROFILE.get("defaultBrokerPostfix")
     or "_darwinex"
 )
+DEFAULT_TARGET_PROFILE_ID = "sqxedge_darwinex"
 
 
 def _symbol_for_sqx(asset: str, postfix: str = DEFAULT_BROKER_POSTFIX) -> str:
@@ -57,6 +64,141 @@ def _build_task_title(blocksetting_id: str, capa: int, direction: str, timeframe
     return f"Build {blocksetting_id} · Capa{capa} {_direction_label(direction)} {tf}"
 
 
+def _clean_profile_value(value, default=None):
+    if value is None:
+        return default
+    text = str(value).strip()
+    return text if text else default
+
+
+def _int_profile_value(value, default=None):
+    if value is None or value == "":
+        return default
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _profile_from_broker(profile_id: str | None) -> dict:
+    raw = BROKER_PROFILES.get(profile_id or "") or {}
+    return {
+        "brokerProfile": raw.get("id") or profile_id or "",
+        "brokerPostfix": raw.get("brokerPostfix"),
+        "brokerId": raw.get("brokerId"),
+        "sourceId": raw.get("sourceId"),
+        "brokerName": raw.get("brokerName"),
+        "brokerDescription": raw.get("brokerDescription"),
+        "timezone": raw.get("timezone"),
+        "precision": raw.get("precision") or "TICK",
+        "label": raw.get("label") or profile_id or "",
+    }
+
+
+def normalize_target_profile(target_profile=None, broker_postfix: str = DEFAULT_BROKER_POSTFIX) -> dict:
+    """Resolve a generation target profile into the fields used by XML patching.
+
+    The public UI can send either a profile id or `{id, custom}`. Custom mode is
+    intentionally conservative: it remaps symbols only with explicit broker
+    fields supplied by the operator/user; otherwise it falls back to the SQX Edge
+    Darwinex server profile.
+    """
+    raw = target_profile or DEFAULT_TARGET_PROFILE_ID
+    if isinstance(raw, str):
+        profile_id = raw or DEFAULT_TARGET_PROFILE_ID
+        custom = {}
+    elif isinstance(raw, dict):
+        profile_id = str(raw.get("id") or raw.get("profile") or DEFAULT_TARGET_PROFILE_ID)
+        custom = raw.get("custom") if isinstance(raw.get("custom"), dict) else raw
+        if profile_id not in TARGET_PROFILES and (
+            raw.get("brokerProfile") or raw.get("brokerPostfix") or raw.get("brokerId") or raw.get("sourceId")
+        ):
+            broker_profile_id = str(raw.get("brokerProfile") or raw.get("id") or "")
+            direct = _profile_from_broker(broker_profile_id)
+            direct.update({
+                "id": profile_id,
+                "label": raw.get("label") or direct.get("label") or profile_id,
+                "mode": raw.get("mode") or "direct_profile",
+                "warning": raw.get("warning") or "",
+            })
+            for key in ("brokerPostfix", "brokerId", "sourceId", "brokerName", "brokerDescription", "timezone", "precision", "symbol"):
+                if raw.get(key) is not None:
+                    direct[key] = raw.get(key)
+            if raw.get("brokerName") and not raw.get("brokerDescription"):
+                direct["brokerDescription"] = _clean_profile_value(raw.get("brokerName"), "User broker")
+            if not direct.get("timezone"):
+                direct["timezone"] = "EETUS"
+            if not direct.get("precision"):
+                direct["precision"] = "TICK"
+            return direct
+    else:
+        profile_id = DEFAULT_TARGET_PROFILE_ID
+        custom = {}
+
+    profile = dict(TARGET_PROFILES.get(profile_id) or TARGET_PROFILES.get(DEFAULT_TARGET_PROFILE_ID) or {})
+    broker_profile_id = str(profile.get("brokerProfile") or "darwinex")
+    resolved = _profile_from_broker(broker_profile_id)
+    resolved.update({
+        "id": profile.get("id") or profile_id,
+        "label": profile.get("label") or resolved.get("label") or profile_id,
+        "mode": profile.get("mode") or "server_default",
+        "warning": profile.get("warning") or "",
+    })
+
+    if resolved["id"] == "custom_user_broker":
+        custom_postfix = _clean_profile_value(custom.get("brokerPostfix") or custom.get("postfix"))
+        custom_symbol = _clean_profile_value(custom.get("symbol"))
+        if custom_postfix is not None:
+            resolved["brokerPostfix"] = custom_postfix
+        if custom_symbol is not None:
+            resolved["symbol"] = custom_symbol
+        for key, source_key in (("brokerId", "brokerId"), ("sourceId", "sourceId")):
+            value = _int_profile_value(custom.get(source_key))
+            if value is not None:
+                resolved[key] = value
+        for key, source_key in (
+            ("brokerName", "brokerName"),
+            ("brokerDescription", "brokerDescription"),
+            ("timezone", "timezone"),
+            ("precision", "precision"),
+        ):
+            value = _clean_profile_value(custom.get(source_key))
+            if value is not None:
+                resolved[key] = value
+        if custom.get("brokerName") and not custom.get("brokerDescription"):
+            resolved["brokerDescription"] = _clean_profile_value(custom.get("brokerName"), "User broker")
+
+    if resolved.get("brokerPostfix") is None:
+        resolved["brokerPostfix"] = broker_postfix
+    if not resolved.get("brokerPostfix") and not resolved.get("symbol"):
+        resolved["brokerPostfix"] = broker_postfix
+    if not resolved.get("timezone"):
+        resolved["timezone"] = "EETUS"
+    if not resolved.get("precision"):
+        resolved["precision"] = "TICK"
+    return resolved
+
+
+def public_target_profile(profile: dict) -> dict:
+    data = profile or {}
+    return {
+        "id": data.get("id"),
+        "label": data.get("label"),
+        "mode": data.get("mode"),
+        "brokerPostfix": data.get("brokerPostfix"),
+        "brokerId": data.get("brokerId"),
+        "sourceId": data.get("sourceId"),
+        "symbol": data.get("symbol"),
+        "warning": data.get("warning"),
+    }
+
+
+def _cross_broker_retest(capa: int, filename: str) -> Optional[dict]:
+    layer = CROSS_BROKER_RETESTS.get(capa) or {}
+    value = layer.get(filename)
+    return value if isinstance(value, dict) else None
+
+
 def _fallback_market_shape(asset: str) -> dict:
     token = (asset or "").upper()
     if token.startswith("XAU"):
@@ -73,8 +215,13 @@ def _fallback_market_shape(asset: str) -> dict:
     return {"tick_size": 0.01, "tick_step": 0.01, "point_value": 1.0, "sector": "", "data_type": 3}
 
 
-def resolve_costs(mining: Mining, sqx_db_path: Optional[str], postfix: str = DEFAULT_BROKER_POSTFIX,
-                  alias_override: Optional[dict] = None) -> dict:
+def resolve_costs(
+    mining: Mining,
+    sqx_db_path: Optional[str],
+    postfix: str = DEFAULT_BROKER_POSTFIX,
+    alias_override: Optional[dict] = None,
+    target_profile: Optional[dict] = None,
+) -> dict:
     """
     Resuelve costos REALES por mining: lee data.db si está disponible, si no usa
     ASSET_DEFAULTS.
@@ -88,6 +235,13 @@ def resolve_costs(mining: Mining, sqx_db_path: Optional[str], postfix: str = DEF
     Devuelve dict con: source, spread, swap_long, swap_short, swap_type,
     commission_type, commission_value, instrument, symbol.
     """
+    profile = normalize_target_profile(target_profile, postfix) if target_profile else normalize_target_profile(
+        DEFAULT_TARGET_PROFILE_ID,
+        postfix,
+    )
+    postfix = profile.get("brokerPostfix") or postfix or ""
+    explicit_symbol = profile.get("symbol")
+
     # 1) Intentar data.db
     if sqx_db_path and os.path.isfile(sqx_db_path):
         try:
@@ -100,10 +254,15 @@ def resolve_costs(mining: Mining, sqx_db_path: Optional[str], postfix: str = DEF
                 )
                 if info.get("source") == "db":
                     pf = info.get("broker_postfix") or postfix or ""
+                    broker_id = profile.get("brokerId") if profile.get("id") == "custom_user_broker" and profile.get("brokerId") is not None else info.get("broker_id")
+                    source_id = profile.get("sourceId")
+                    broker_name = profile.get("brokerName") or info.get("broker_name")
+                    broker_description = profile.get("brokerDescription") or info.get("broker_description")
+                    broker_timezone = profile.get("timezone") or info.get("broker_timezone") or "EETUS"
                     return {
                         "source": "db",
                         "instrument": info["instrument"],
-                        "symbol": info.get("data_symbol") or (_symbol_for_sqx(info["instrument"], pf) if pf else info["instrument"]),
+                        "symbol": explicit_symbol or info.get("data_symbol") or (_symbol_for_sqx(info["instrument"], pf) if pf else info["instrument"]),
                         "spread": info.get("spread"),
                         "slippage": info.get("slippage"),
                         "swap_long": info.get("swap_long") if info.get("swap_long") is not None else 0.0,
@@ -112,10 +271,12 @@ def resolve_costs(mining: Mining, sqx_db_path: Optional[str], postfix: str = DEF
                         "commission_type": info.get("commission_type"),
                         "commission_value": info.get("commission_value"),
                         "broker_postfix": pf,
-                        "broker_id": info.get("broker_id"),
-                        "broker_name": info.get("broker_name"),
-                        "broker_description": info.get("broker_description"),
-                        "broker_timezone": info.get("broker_timezone"),
+                        "broker_id": broker_id,
+                        "source_id": source_id,
+                        "broker_name": broker_name,
+                        "broker_description": broker_description,
+                        "broker_timezone": broker_timezone,
+                        "target_profile": public_target_profile(profile),
                         "data_type": info.get("data_type"),
                         "tick_size": info.get("tick_size"),
                         "tick_step": info.get("tick_step"),
@@ -145,10 +306,11 @@ def resolve_costs(mining: Mining, sqx_db_path: Optional[str], postfix: str = DEF
     # 2) Fallback a ASSET_DEFAULTS
     d = ASSET_DEFAULTS.get(mining.asset, {"spread": 10, "swap_long": -1.0, "swap_short": -1.0})
     shape = _fallback_market_shape(mining.asset)
+    fallback_symbol = explicit_symbol or (_symbol_for_sqx(mining.asset, postfix) if postfix else mining.asset)
     return {
         "source": "fallback",
         "instrument": mining.asset,
-        "symbol": _symbol_for_sqx(mining.asset, postfix),
+        "symbol": fallback_symbol,
         "spread": d["spread"],
         "slippage": 0,
         "swap_long": d["swap_long"],
@@ -157,10 +319,12 @@ def resolve_costs(mining: Mining, sqx_db_path: Optional[str], postfix: str = DEF
         "commission_type": None,
         "commission_value": None,
         "broker_postfix": postfix,
-        "broker_id": 4 if postfix == "_darwinex" else None,
-        "broker_name": "Darwinex" if postfix == "_darwinex" else None,
-        "broker_description": "Darwinex CFDs" if postfix == "_darwinex" else None,
-        "broker_timezone": "EETUS" if postfix == "_darwinex" else None,
+        "broker_id": profile.get("brokerId"),
+        "source_id": profile.get("sourceId"),
+        "broker_name": profile.get("brokerName"),
+        "broker_description": profile.get("brokerDescription"),
+        "broker_timezone": profile.get("timezone"),
+        "target_profile": public_target_profile(profile),
         "data_type": shape["data_type"],
         "tick_size": shape["tick_size"],
         "tick_step": shape["tick_step"],
@@ -197,6 +361,7 @@ def generate_project(
     overwrite: bool = True,
     project_name: Optional[str] = None,
     blocksetting_capa2: Optional[str] = None,
+    target_profile: Optional[dict] = None,
 ) -> str:
     """
     Genera un .cfx para el mining especificado.
@@ -229,9 +394,16 @@ def generate_project(
     resolved_bs = str(blocksetting_entry.get("canonicalId") or mining.bs)
     base_project_name = project_name or f"Mining{mining.num:02d}_{mining.asset}_{mining.tf}_{resolved_bs}"
     trading_window = _trading_window_for(capa, mining.tf)
+    resolved_target_profile = normalize_target_profile(target_profile, broker_postfix)
 
     # Resolver costos: data.db → fallback. Override manual con sqx_data si pasa.
-    costs = resolve_costs(mining, sqx_db_path, broker_postfix, alias_override=alias_override)
+    costs = resolve_costs(
+        mining,
+        sqx_db_path,
+        broker_postfix,
+        alias_override=alias_override,
+        target_profile=resolved_target_profile,
+    )
     if sqx_data:
         costs.update(sqx_data)
 
@@ -247,19 +419,38 @@ def generate_project(
         # Determinar el período correcto para este task XML según capa
         period_key = task_map.get(filename, "BUILD")
         period = RETEST_PERIODS[period_key]
+        active_costs = costs
+        cross_retest = _cross_broker_retest(capa, filename)
+        if cross_retest:
+            broker_profile_id = str(cross_retest.get("brokerProfile") or "")
+            cross_profile = _profile_from_broker(broker_profile_id)
+            cross_profile.update({
+                "id": broker_profile_id,
+                "mode": "methodology_cross_broker",
+                "warning": cross_retest.get("label") or "",
+            })
+            active_costs = resolve_costs(
+                mining,
+                sqx_db_path,
+                str(cross_profile.get("brokerPostfix") or broker_postfix),
+                alias_override=alias_override,
+                target_profile=cross_profile,
+            )
+            cross_period_key = str(cross_retest.get("period") or period_key)
+            period = RETEST_PERIODS.get(cross_period_key, period)
 
         stats = apply_mining_to_xml(
             root,
-            symbol=costs["symbol"],
+            symbol=active_costs["symbol"],
             timeframe=mining.tf,
             direction=mining.dir,
-            swap_long=costs["swap_long"],
-            swap_short=costs["swap_short"],
-            spread=costs["spread"],
-            swap_type=costs.get("swap_type"),
-            commission_type=costs.get("commission_type"),
-            commission_value=costs.get("commission_value"),
-            resource={**costs, "asset": mining.asset},
+            swap_long=active_costs["swap_long"],
+            swap_short=active_costs["swap_short"],
+            spread=active_costs["spread"],
+            swap_type=active_costs.get("swap_type"),
+            commission_type=active_costs.get("commission_type"),
+            commission_value=active_costs.get("commission_value"),
+            resource={**active_costs, "asset": mining.asset},
             period=period,
             trading_window=trading_window,
             clean_paths=True,

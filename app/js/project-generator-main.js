@@ -159,6 +159,39 @@ function pgApplyCapa2Selection(payload, capa) {
   return data;
 }
 
+function pgReadTargetProfile() {
+  const id = pgInputValue('pg-target-profile') || 'sqxedge_darwinex';
+  const custom = {
+    brokerPostfix: pgTrimmedInputValue('pg-target-postfix'),
+    symbol: pgTrimmedInputValue('pg-target-symbol'),
+    brokerId: pgTrimmedInputValue('pg-target-broker-id'),
+    sourceId: pgTrimmedInputValue('pg-target-source-id'),
+    brokerName: pgTrimmedInputValue('pg-target-broker-name'),
+    timezone: pgTrimmedInputValue('pg-target-timezone'),
+  };
+  const payload = { id };
+  if (id === 'custom_user_broker') {
+    payload.custom = custom;
+  }
+  return payload;
+}
+
+function pgApplyTargetProfile(payload) {
+  const data = payload || {};
+  data.target_profile = pgReadTargetProfile();
+  return data;
+}
+
+function pgUpdateTargetProfileUi() {
+  const id = pgInputValue('pg-target-profile') || 'sqxedge_darwinex';
+  const custom = pgDom('pg-target-custom-fields');
+  if (custom) custom.hidden = id !== 'custom_user_broker';
+  const warning = id === 'custom_user_broker'
+    ? 'Modo remapeo: usa símbolo exacto o sufijo, Broker ID y Source ID del Data Manager del usuario destino. Si no los conoces, genera con SQX Edge / Darwinex y el usuario verá el diálogo de recursos en SQX.'
+    : 'Perfil recomendado para el servidor SQX Edge Suite. Si el usuario abrirá el .cfx en otro SQX sin Darwinex/data compatible, selecciona Broker del usuario y remapea el símbolo principal.';
+  pgSetText('pg-target-profile-warning', warning);
+}
+
 function pgSetCustomStatus(text, level) {
   if (SQX_PG_DOM.setCustomProjectStatus) {
     SQX_PG_DOM.setCustomProjectStatus(document, { text, level });
@@ -407,6 +440,7 @@ async function pgLoadConfig() {
     const c = await pgFetch('/config');
     PG_STATE.config = c || {};
     pgWriteConfigInputs(c);
+    pgUpdateTargetProfileUi();
     PG_STATE.aliases = c.asset_aliases || {};
     pgRenderAliases();
     pgRenderOnboarding();
@@ -525,14 +559,14 @@ function pgProjectNameFromMining(mining) {
 }
 
 function pgCustomPayloadFromMining(mining, capa) {
-  return pgApplyCapa2Selection({
+  return pgApplyTargetProfile(pgApplyCapa2Selection({
     name: mining.name || pgProjectNameFromMining(mining),
     asset: mining.asset,
     tf: mining.tf,
     bs: mining.bs,
     dir: mining.dir,
     capa,
-  }, capa);
+  }, capa));
 }
 
 async function pgGenerateMiningRequest(mining, capa) {
@@ -540,7 +574,7 @@ async function pgGenerateMiningRequest(mining, capa) {
     const customResult = await pgFetch('/generate-custom', { method:'POST', body: pgCustomPayloadFromMining(mining, capa) });
     return Object.assign({}, customResult, { mining: mining.num });
   }
-  return await pgFetch('/generate', { method:'POST', body: pgApplyCapa2Selection({ mining: mining.num, capa }, capa) });
+  return await pgFetch('/generate', { method:'POST', body: pgApplyTargetProfile(pgApplyCapa2Selection({ mining: mining.num, capa }, capa)) });
 }
 
 async function pgLoadOutput() {
@@ -571,7 +605,7 @@ async function pgGenerateOne(mining, capa) {
 }
 
 async function pgGenerateCustom() {
-  const body = pgApplyCapa2Selection(pgReadCustomInputs());
+  const body = pgApplyTargetProfile(pgApplyCapa2Selection(pgReadCustomInputs()));
   if (!body.asset || !body.tf) {
     const status = SQX_PG_MODULE.generateCustomMissingStatus();
     pgSetCustomStatus(status.text, status.level);
@@ -1012,6 +1046,11 @@ async function pgRunOnboardingTertiaryAction() {
   if (!refresh) return; // tab no está en el HTML
   pgRenderCustomPresets();
   pgSetGenerationMode('');
+  pgUpdateTargetProfileUi();
+  ['pg-target-profile', 'pg-target-postfix', 'pg-target-symbol', 'pg-target-broker-id', 'pg-target-source-id', 'pg-target-broker-name', 'pg-target-timezone'].forEach(id => {
+    const el = pgDom(id);
+    if (el) el.addEventListener(id === 'pg-target-profile' ? 'change' : 'input', pgUpdateTargetProfileUi);
+  });
   pgLoadMinings();
 
   // ── Strategy Cleaner ──

@@ -47,7 +47,12 @@ from core.license_manager import (
     license_status,
     load_product_manifest,
 )
-from core.project_generator import DEFAULT_BROKER_POSTFIX, resolve_costs
+from core.project_generator import (
+    DEFAULT_BROKER_POSTFIX,
+    normalize_target_profile,
+    public_target_profile,
+    resolve_costs,
+)
 from core.blocksettings import (
     blocksetting_trace,
     load_blocksettings_manifest,
@@ -618,6 +623,38 @@ def resolve_output_dir(cfg: dict) -> str:
         val = str(ROOT / val)
     os.makedirs(val, exist_ok=True)
     return val
+
+
+def _target_profile_payload(data: dict, cfg: dict) -> dict:
+    """Build the target SQX profile sent to the CFX generator.
+
+    The target profile controls the primary broker/symbol resources used in
+    generated projects. Methodological cross-broker retests, such as Retest 1
+    OOS2 Dukascopy, are still enforced inside the generator and are not
+    overridden by this profile.
+    """
+    raw = (
+        (data or {}).get("target_profile")
+        or (data or {}).get("targetProfile")
+        or cfg.get("target_profile")
+        or "sqxedge_darwinex"
+    )
+    custom = (
+        (data or {}).get("target_profile_custom")
+        or (data or {}).get("targetProfileCustom")
+        or cfg.get("target_profile_custom")
+        or {}
+    )
+    if isinstance(raw, dict):
+        payload = dict(raw)
+        if custom and not payload.get("custom"):
+            payload["custom"] = custom
+        return payload
+    profile_id = str(raw or "sqxedge_darwinex")
+    payload = {"id": profile_id}
+    if profile_id == "custom_user_broker":
+        payload["custom"] = custom if isinstance(custom, dict) else {}
+    return payload
 
 
 def _active_remote_workspace_for_request(*, purpose: str, create: bool = True) -> tuple[dict | None, tuple | None]:
@@ -1629,7 +1666,7 @@ def update_config():
     # whitelist de claves editables
     allowed = {"sqx_path", "sqx_data_db", "sqx_projects_dir",
                "template_capa1", "template_capa2", "output_dir", "darwinex_suffix",
-               "asset_aliases"}
+               "asset_aliases", "target_profile", "target_profile_custom"}
     changes = {k: v for k, v in data.items() if k in allowed}
     cfg.update(changes)
     save_config(cfg)
@@ -1899,14 +1936,17 @@ def generate_one():
     db_path = cfg.get("sqx_data_db") or None
     postfix = cfg.get("darwinex_suffix") or DEFAULT_BROKER_POSTFIX
     aliases = cfg.get("asset_aliases") or {}
+    target_profile = _target_profile_payload(data, cfg)
+    resolved_target = normalize_target_profile(target_profile, postfix)
     try:
         out_path = generate_project(
             mining, template_path=template, output_dir=output, capa=capa,
             sqx_db_path=db_path, broker_postfix=postfix, alias_override=aliases,
             blocksetting_capa2=blocksetting_capa2,
+            target_profile=target_profile,
         )
         # Mostrar al cliente qué fuente de costos se usó
-        costs = resolve_costs(mining, db_path, postfix, alias_override=aliases)
+        costs = resolve_costs(mining, db_path, postfix, alias_override=aliases, target_profile=resolved_target)
         bs_entry = resolve_blocksetting_entry(mining.bs, timeframe=mining.tf, capa=capa, blocksetting_capa2=blocksetting_capa2)
         payload = {
             "ok": True, "mining": mining.num, "capa": capa,
@@ -1915,6 +1955,7 @@ def generate_one():
             "spread": costs["spread"], "swap_long": costs["swap_long"], "swap_short": costs["swap_short"],
             "data_available": costs.get("data_available"), "data_rows": costs.get("data_rows"),
             "blocksetting": blocksetting_trace(bs_entry),
+            "target_profile": public_target_profile(resolved_target),
         }
         if workspace_context:
             record_workspace_output_generated(
@@ -1954,14 +1995,17 @@ def generate_custom():
     db_path = cfg.get("sqx_data_db") or None
     postfix = cfg.get("darwinex_suffix") or DEFAULT_BROKER_POSTFIX
     aliases = cfg.get("asset_aliases") or {}
+    target_profile = _target_profile_payload(data, cfg)
+    resolved_target = normalize_target_profile(target_profile, postfix)
     try:
         out_path = generate_project(
             mining, template_path=template, output_dir=output, capa=capa,
             sqx_db_path=db_path, broker_postfix=postfix, alias_override=aliases,
             project_name=project_name,
             blocksetting_capa2=blocksetting_capa2,
+            target_profile=target_profile,
         )
-        costs = resolve_costs(mining, db_path, postfix, alias_override=aliases)
+        costs = resolve_costs(mining, db_path, postfix, alias_override=aliases, target_profile=resolved_target)
         bs_entry = resolve_blocksetting_entry(mining.bs, timeframe=mining.tf, capa=capa, blocksetting_capa2=blocksetting_capa2)
         payload = {
             "ok": True, "custom": True, "project_name": project_name,
@@ -1971,6 +2015,7 @@ def generate_custom():
             "spread": costs["spread"], "swap_long": costs["swap_long"], "swap_short": costs["swap_short"],
             "data_available": costs.get("data_available"), "data_rows": costs.get("data_rows"),
             "blocksetting": blocksetting_trace(bs_entry),
+            "target_profile": public_target_profile(resolved_target),
         }
         if workspace_context:
             record_workspace_output_generated(
@@ -2009,6 +2054,8 @@ def generate_all():
     db_path = cfg.get("sqx_data_db") or None
     postfix = cfg.get("darwinex_suffix") or DEFAULT_BROKER_POSTFIX
     aliases = cfg.get("asset_aliases") or {}
+    target_profile = _target_profile_payload(data, cfg)
+    resolved_target = normalize_target_profile(target_profile, postfix)
     results = []
     for m in all_minings():
         try:
@@ -2016,14 +2063,16 @@ def generate_all():
                 m, template_path=template, output_dir=output, capa=capa,
                 sqx_db_path=db_path, broker_postfix=postfix, alias_override=aliases,
                 blocksetting_capa2=blocksetting_capa2,
+                target_profile=target_profile,
             )
-            costs = resolve_costs(m, db_path, postfix, alias_override=aliases)
+            costs = resolve_costs(m, db_path, postfix, alias_override=aliases, target_profile=resolved_target)
             bs_entry = resolve_blocksetting_entry(m.bs, timeframe=m.tf, capa=capa, blocksetting_capa2=blocksetting_capa2)
             result_item = {
                 "mining": m.num, "ok": True,
                 "filename": os.path.basename(out_path),
                 "costs_source": costs["source"],
                 "blocksetting": blocksetting_trace(bs_entry),
+                "target_profile": public_target_profile(resolved_target),
             }
             if workspace_context:
                 record_workspace_output_generated(

@@ -948,12 +948,33 @@
           <p class="views-step-copy">Genera Capa 1 o Capa 2 cuando el plan y los templates estén revisados. Los `.cfx` quedan en tu workspace privado y se descargan desde el navegador.</p>
           <div class="pg-generation-toolbar">
             <span id="pg-generation-mode-status">Elige un modo en el Paso 3 para mostrar su panel de trabajo.</span>
+            <label class="pg-target-select-label">Perfil SQX destino
+              <select id="pg-target-profile">
+                <option value="sqxedge_darwinex">SQX Edge / Darwinex</option>
+                <option value="custom_user_broker">Broker del usuario</option>
+              </select>
+            </label>
             <label class="pg-capa2-select-label">BlockSetting Capa 2
               <select id="pg-capa2-bs">
                 <option value="">Auto recomendado por timeframe</option>
               </select>
             </label>
             <button class="export-btn" id="pg-open-output" title="Descargar todos los .cfx generados">Descargar output</button>
+          </div>
+          <div class="pg-target-profile-panel" id="pg-target-profile-panel">
+            <div>
+              <strong>Compatibilidad del SQX destino</strong>
+              <p id="pg-target-profile-warning">Perfil recomendado para el servidor SQX Edge Suite. Si el usuario abrirá el .cfx en otro SQX sin Darwinex/data compatible, selecciona Broker del usuario y remapea el símbolo principal.</p>
+            </div>
+            <div class="pg-target-custom-fields" id="pg-target-custom-fields" hidden>
+              <label>Sufijo broker <input type="text" id="pg-target-postfix" placeholder="_darwinex, _dukascopy, _broker"></label>
+              <label>Símbolo exacto opcional <input type="text" id="pg-target-symbol" placeholder="EURUSD, EURUSD_broker, GER40.cash"></label>
+              <label>Broker ID <input type="number" id="pg-target-broker-id" placeholder="4"></label>
+              <label>Source ID <input type="number" id="pg-target-source-id" placeholder="4"></label>
+              <label>Nombre broker <input type="text" id="pg-target-broker-name" placeholder="[[Broker]]"></label>
+              <label>Timezone <input type="text" id="pg-target-timezone" placeholder="EETUS"></label>
+            </div>
+            <small>Nota metodológica: Retest 1/OOS2 siempre se genera con Dukascopy 2010.01.01-2017.10.02 para validar supervivencia cross-broker; este selector remapea el resto del proyecto al SQX destino del usuario.</small>
           </div>
 
           <div class="pg-mode-placeholder" id="pg-mode-placeholder">
@@ -2235,7 +2256,7 @@
           <span class="badge info">Metodo SQX</span>
           <h3>Primero demostrar edge, despues hacerlo operable</h3>
           <p>
-            La metodologia separa descubrimiento y ejecucion. <strong>Capa 1</strong> usa la base SQX142 v2 para minar edge puro en IS 2017.10-2023.01 sin SL/TP/Trailing, con horarios controlados por timeframe y money management fijo. Despues se aplican Retest 0 con OOS1 2023-2025, Retest 1 de consistencia y un Forward 2017-2026 dividido en OOS1-OOS10. <strong>Capa 2</strong> queda pendiente de su base v2 y mantiene fijo el template ganador para hacerlo operable con filtros adicionales, SL, TP y trailing.
+            La metodologia separa descubrimiento y ejecucion. <strong>Capa 1</strong> usa la base SQX142 v2 para minar edge puro en IS 2017.10-2023.01 sin SL/TP/Trailing, con horarios controlados por timeframe y money management fijo. Antes de validar el IS contra su propio futuro, Retest 1/OOS2 prueba supervivencia cross-broker en Dukascopy 2010.01-2017.10. Despues se aplican Retest 0 con OOS1 2023-2025, robustez progresiva y un Forward 2017-2026 dividido en OOS1-OOS10. <strong>Capa 2</strong> queda pendiente de su base v2 y mantiene fijo el template ganador para hacerlo operable con filtros adicionales, SL, TP y trailing.
           </p>
         </div>
         <div class="workflow-method-goals">
@@ -2246,6 +2267,10 @@
       </div>
       <h4 style="margin:16px 0 8px; color:var(--text2); font-size:12px; text-transform:uppercase; letter-spacing:.5px;">Periodos cronológicos</h4>
       <div class="periods-bar workflow-periods-inline">
+        <div class="period-seg period-val">
+          <div class="yr">2010.01-2017.10</div>
+          <div>OOS2 Dukascopy</div>
+        </div>
         <div class="period-seg period-oos">
           <div class="yr">2017.10-2023.01</div>
           <div>IS Mining</div>
@@ -2346,12 +2371,13 @@ Ret/DD Ratio (OOS) &gt;= 1.20</pre>
               <div class="pipeline-step val compact workflow-config-node">
                 <div class="step-num">1.2</div>
                 <div class="step-content">
-                  <div class="step-title">RETEST 1 - Consistencia sin reoptimizar</div>
-                  <div class="step-desc">Retest pasivo sobre 2017.10-2025.01. Confirma que el edge mantiene volumen, expectativa y beneficio neto.</div>
+                  <div class="step-title">RETEST 1 - OOS2 Dukascopy cross-broker</div>
+                  <div class="step-desc">Retest pasivo sobre data Dukascopy anterior al IS. Confirma que el edge sobrevive a otro broker antes de consumir robustez pesada.</div>
                   <div class="workflow-tree-config">
                     <div class="workflow-config-card">
                       <h5>Settings</h5>
-                      <pre>Period: 2017.10 - 2025.01
+                      <pre>Broker/data: Dukascopy
+Period: 2010.01 - 2017.10
 Re-optimize: NO (retest pasivo)</pre>
                     </div>
                     <div class="workflow-config-card">
@@ -2362,7 +2388,7 @@ Net profit &gt;= 0</pre>
                     </div>
                     <div class="workflow-config-card emphasis">
                       <h5>Decision</h5>
-                      <p>Si falla aqui, el edge no conserva una base minima para invertir tiempo en robustez pesada.</p>
+                      <p>Si falla aqui, el edge no conserva una base minima fuera de Darwinex/SQX Edge para invertir tiempo en robustez pesada.</p>
                     </div>
                   </div>
                 </div>
@@ -2514,7 +2540,7 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
               <div class="step-num">A</div>
               <div class="step-content">
                 <div class="step-title">Orden operativo Capa 1</div>
-                <div class="step-desc">Build IS -> Retest 0 OOS1 -> Retest 1 -> TICK REAL -> MC -> MC2 -> Sequential -> Monkey -> Synthetic -> SPP -> WFM -> FOWARD OOS1-OOS10.</div>
+                <div class="step-desc">Retest 1/OOS2 Dukascopy -> Build IS -> Retest 0 OOS1 -> TICK REAL -> MC -> MC2 -> Sequential -> Monkey -> Synthetic -> SPP -> WFM -> FOWARD OOS1-OOS10.</div>
               </div>
             </div>
           </div>
@@ -3041,18 +3067,19 @@ Ret/DD Ratio (OOS) >= 1.20</pre>
   <!-- TEST 2 -->
   <div class="card test-card">
     <div class="card-header">
-      <h2><span class="test-num l1">2</span>RETEST 1 — Consistencia sin reoptimizar</h2>
-      <span class="badge validation">Validación pasiva</span>
+      <h2><span class="test-num l1">2</span>RETEST 1 — OOS2 Dukascopy cross-broker</h2>
+      <span class="badge validation">Validación pasiva externa</span>
     </div>
     <h4 class="test-section-title">Settings</h4>
-    <pre class="code-block">Period: 2017.10 — 2025.01
+    <pre class="code-block">Broker/data: Dukascopy
+Period: 2010.01 — 2017.10
 Re-optimize: NO (retest pasivo)</pre>
     <h4 class="test-section-title">Filtering</h4>
     <pre class="code-block"># trades >= 100
 R Expectancy > 0.05
 Net profit >= 0</pre>
     <h4 class="test-section-title">Explicación</h4>
-    <p class="test-explanation">Periodo nunca visto durante mining. Si sigue rentable en 7 años antes de IS, el edge es real. Filtros proporcionalmente bajados.</p>
+    <p class="test-explanation">Periodo anterior al IS y con data de otro broker. Si el edge sobrevive en Dukascopy antes de 2017.10, reducimos el riesgo de que el descubrimiento dependa del feed Darwinex/SQX Edge.</p>
   </div>
 
   <!-- TEST 3 -->
@@ -3391,11 +3418,11 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
       <h2>🔢 Orden de ejecución Capa 1</h2>
     </div>
     <div class="pipeline">
-      <div class="pipeline-step l1"><div class="step-num">1</div><div class="step-content"><div class="step-title">Mining IS 2017.10-2023.01</div><div class="step-desc">Base SQX142 v2</div></div></div>
+      <div class="pipeline-step val"><div class="step-num">1</div><div class="step-content"><div class="step-title">RETEST 1/OOS2 Dukascopy</div><div class="step-desc">2010.01-2017.10 cross-broker</div></div></div>
       <div class="pipeline-arrow">↓</div>
-      <div class="pipeline-step val"><div class="step-num">2</div><div class="step-content"><div class="step-title">RETEST 0 período completo</div><div class="step-desc">Validación temporal</div></div></div>
+      <div class="pipeline-step l1"><div class="step-num">2</div><div class="step-content"><div class="step-title">Mining IS 2017.10-2023.01</div><div class="step-desc">Base SQX142 v2</div></div></div>
       <div class="pipeline-arrow">↓</div>
-      <div class="pipeline-step val"><div class="step-num">3</div><div class="step-content"><div class="step-title">RETEST 1 consistencia</div><div class="step-desc">Sin reoptimizar</div></div></div>
+      <div class="pipeline-step val"><div class="step-num">3</div><div class="step-content"><div class="step-title">RETEST 0 período completo</div><div class="step-desc">OOS1 2023-2025</div></div></div>
       <div class="pipeline-arrow">↓</div>
       <div class="pipeline-step l2"><div class="step-num">4</div><div class="step-content"><div class="step-title">TICK REAL</div><div class="step-desc">Retest a tick</div></div></div>
       <div class="pipeline-arrow">↓</div>
@@ -3426,7 +3453,7 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
     <div class="ps-funnel">
       <div class="ps-funnel-step"><div class="pf-name">Mining IS</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:100%"></div></div><div class="pf-count">~700-1000</div><div class="pf-survival">100%</div></div>
       <div class="ps-funnel-step"><div class="pf-name">RETEST 0</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:35%"></div></div><div class="pf-count">~250-400</div><div class="pf-survival">~32%</div></div>
-      <div class="ps-funnel-step"><div class="pf-name">RETEST 1 OOS</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:8%"></div></div><div class="pf-count">~30-100</div><div class="pf-survival">~6%</div></div>
+      <div class="ps-funnel-step"><div class="pf-name">RETEST 1 OOS2 Dukascopy</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:8%"></div></div><div class="pf-count">~30-100</div><div class="pf-survival">~6%</div></div>
       <div class="ps-funnel-step"><div class="pf-name">TICK REAL</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:6%"></div></div><div class="pf-count">~25-80</div><div class="pf-survival">~5%</div></div>
       <div class="ps-funnel-step"><div class="pf-name">MC</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:3%"></div></div><div class="pf-count">~10-50</div><div class="pf-survival">~3%</div></div>
       <div class="ps-funnel-step"><div class="pf-name">MC2 (si activo)</div><div class="pf-bar-wrap"><div class="pf-bar" style="width:2%"></div></div><div class="pf-count">~8-30</div><div class="pf-survival">~2%</div></div>

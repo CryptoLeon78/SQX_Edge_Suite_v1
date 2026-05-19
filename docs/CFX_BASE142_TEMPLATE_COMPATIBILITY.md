@@ -26,7 +26,8 @@ The active Capa 1 methodology now uses:
 - Build Capa 1: `2017.10.02 -> 2023.01.01`
 - Retest 0: `2017.10.02 -> 2025.01.01`, with OOS1
   `2023.01.01 -> 2025.01.01`
-- Retest 1: `2017.10.02 -> 2025.01.01`
+- Retest 1/OOS2: Dukascopy cross-broker validation
+  `2010.01.01 -> 2017.10.02`
 - Robustness: `2017.10.02 -> 2023.12.31`
 - Forward: `2017.10.02 -> 2026.04.08`, split into OOS1-OOS10
 - `TICK REAL` replaces the previous active HBP naming in Capa 1
@@ -42,6 +43,12 @@ task title:
 Example:
 
 `Build BS_Volatilidad_v6 · Capa1 L+S H4`
+
+CFX-TARGET1 adds a target SQX profile selector for the recipient host. The
+primary project resources can remain on the SQX Edge/Darwinex profile or be
+remapped to the user's own broker/source identifiers, but Retest 1/OOS2 stays
+on coherent Dukascopy resources by design so the edge is checked against a
+second broker/feed before IS Mining is trusted.
 
 ## Problem Found
 

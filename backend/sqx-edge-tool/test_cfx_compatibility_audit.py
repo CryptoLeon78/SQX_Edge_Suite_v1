@@ -27,9 +27,11 @@ def test_generated_cfx_passes_host_compatibility_audit():
         report = audit_cfx_compatibility(out_path)
 
     assert report["version"] == "cfx-compatibility-audit-v1"
-    assert report["verdict"] == "pass"
-    assert report["hostProfile"] == "sqx142_darwinex"
+    codes = {issue["code"] for issue in report["issues"]}
+    assert report["verdict"] == "warn"
+    assert report["hostProfile"] == "sqx_edge_cross_broker_oos2"
     assert report["failCount"] == 0
+    assert "dukascopy_dependency" in codes
 
 
 def test_external_sq_equity_profile_is_blocked_for_cross_host_delivery(tmp_path):

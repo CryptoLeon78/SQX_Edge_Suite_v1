@@ -1,6 +1,55 @@
 {
-  "version": 1,
+  "version": 2,
   "defaultBrokerPostfix": "_darwinex",
+  "brokerProfiles": {
+    "darwinex": {
+      "id": "darwinex",
+      "label": "Darwinex / SQX Edge",
+      "brokerPostfix": "_darwinex",
+      "brokerId": 4,
+      "sourceId": 4,
+      "brokerName": "[[Darwinex]]",
+      "brokerDescription": "Darwinex CFDs",
+      "timezone": "EETUS",
+      "precision": "TICK"
+    },
+    "dukascopy_oos2": {
+      "id": "dukascopy_oos2",
+      "label": "Dukascopy OOS2",
+      "brokerPostfix": "_dukascopy",
+      "brokerId": 3,
+      "sourceId": 2,
+      "brokerName": "[[Dukascopy]]",
+      "brokerDescription": "Dukascopy",
+      "timezone": "EETUS",
+      "precision": "TICK"
+    }
+  },
+  "targetProfiles": {
+    "sqxedge_darwinex": {
+      "id": "sqxedge_darwinex",
+      "label": "SQX Edge Suite / Darwinex",
+      "brokerProfile": "darwinex",
+      "mode": "server_default",
+      "warning": "Perfil recomendado para el servidor SQX Edge Suite. Si el SQX destino del usuario no tiene Darwinex/data compatible, usa remapeo personalizado."
+    },
+    "custom_user_broker": {
+      "id": "custom_user_broker",
+      "label": "Broker del usuario / remapeo manual",
+      "brokerProfile": "darwinex",
+      "mode": "custom_override",
+      "warning": "Usa este modo cuando el usuario abrirá el .cfx en un SQX con otro broker. Requiere sufijo o símbolo compatible con su Data Manager."
+    }
+  },
+  "crossBrokerRetests": {
+    "1": {
+      "Retest-Task1.xml": {
+        "brokerProfile": "dukascopy_oos2",
+        "period": "RETEST_1_C1",
+        "label": "Retest 1 / OOS2 Dukascopy 2010.01.01-2017.10.02"
+      }
+    }
+  },
   "retestPeriods": {
     "BUILD": [
       "2017.10.02",
@@ -27,8 +76,8 @@
       "2016.12.31"
     ],
     "RETEST_1_C1": [
-      "2017.10.02",
-      "2025.01.01"
+      "2010.01.01",
+      "2017.10.02"
     ],
     "FOWARD": [
       "2024.01.01",

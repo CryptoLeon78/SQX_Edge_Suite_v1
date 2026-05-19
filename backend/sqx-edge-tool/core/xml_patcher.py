@@ -307,7 +307,9 @@ def patch_symbol_resources(root: ET.Element, resource: Optional[dict]) -> int:
         broker_id = resource.get("broker_id")
         if broker_id is None or str(broker_id) in ("", "-1"):
             broker_id = base_attrs.get("broker") or 4
-        source = broker_id if str(broker_id) not in ("", "-1", "None") else base_attrs.get("source", "4")
+        source = resource.get("source_id") or resource.get("data_source_id")
+        if source is None or str(source) in ("", "-1", "None"):
+            source = broker_id if str(broker_id) not in ("", "-1", "None") else base_attrs.get("source", "4")
         _ensure_resource_broker(resources, resource, broker_id)
         date_from, date_to = _bounded_resource_period_ms(
             task_date_from,

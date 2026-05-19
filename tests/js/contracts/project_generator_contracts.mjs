@@ -31,6 +31,10 @@ assert.doesNotMatch(html, /Generación masiva/, 'Project Generator should remove
 assert.ok(html.includes('id="pg-generate-selected-c1"'), 'Project Generator should generate selected Plan Mining rows in Capa 1');
 assert.ok(html.includes('id="pg-generate-selected-c2"'), 'Project Generator should generate selected Plan Mining rows in Capa 2');
 assert.ok(html.includes('id="pg-capa2-bs"'), 'Project Generator should expose the real Capa 2 BlockSetting selector');
+assert.ok(html.includes('id="pg-target-profile"'), 'Project Generator should expose target SQX profile selector');
+assert.ok(html.includes('id="pg-target-custom-fields"'), 'Project Generator should expose user-broker remap fields');
+assert.ok(html.includes('id="pg-target-symbol"'), 'Project Generator should allow exact target symbol remap for arbitrary brokers');
+assert.ok(html.includes('Retest 1/OOS2 siempre se genera con Dukascopy'), 'Project Generator should explain protected Dukascopy OOS2 retest');
 assert.ok(html.includes('id="pg-select-all-minings"'), 'Project Generator should allow selecting all Plan Mining rows');
 assert.ok(html.includes('id="pg-custom-save-preset"'), 'Project Generator should keep custom preset save action');
 assert.ok(html.includes('id="pg-custom-import-presets-file"'), 'Project Generator should keep preset pack import input');
@@ -49,6 +53,7 @@ assert.equal(PG.escapeHtml('<x>'), '&lt;x&gt;');
 assert.equal(PG.dom.escapeHtml('<x>'), '&lt;x&gt;');
 [
   'pg-sqx-path', 'pg-sqx-db', 'pg-sqx-projects', 'pg-output-dir', 'pg-tpl-c1', 'pg-tpl-c2',
+  'pg-target-profile', 'pg-target-postfix', 'pg-target-symbol', 'pg-target-broker-id', 'pg-target-source-id', 'pg-target-broker-name', 'pg-target-timezone',
   'pg-custom-name', 'pg-custom-asset', 'pg-custom-tf', 'pg-custom-bs',
   'pg-custom-dir', 'pg-custom-capa', 'pg-custom-template', 'pg-custom-status'
 ].forEach(id => {
@@ -60,12 +65,28 @@ document.getElementById('pg-sqx-projects').value = ' C:/SQX/projects ';
 document.getElementById('pg-output-dir').value = ' C:/out ';
 document.getElementById('pg-tpl-c1').value = ' C1.cfx ';
 document.getElementById('pg-tpl-c2').value = ' C2.cfx ';
+document.getElementById('pg-target-profile').value = 'custom_user_broker';
+document.getElementById('pg-target-postfix').value = ' _custom ';
+document.getElementById('pg-target-symbol').value = ' EURUSD_custom ';
+document.getElementById('pg-target-broker-id').value = ' 42 ';
+document.getElementById('pg-target-source-id').value = ' 43 ';
+document.getElementById('pg-target-broker-name').value = ' [[CustomBroker]] ';
+document.getElementById('pg-target-timezone').value = ' EETUS ';
 const domConfig = PG.dom.readConfigInputs(document, { EURUSD: 'EURUSD_M1' });
 assert.equal(domConfig.sqxPath, 'C:/SQX');
+assert.equal(domConfig.targetProfile, 'custom_user_broker');
+assert.equal(domConfig.targetProfileCustom.brokerPostfix, '_custom');
+assert.equal(domConfig.targetProfileCustom.symbol, 'EURUSD_custom');
+assert.equal(domConfig.targetProfileCustom.brokerId, '42');
+assert.equal(domConfig.targetProfileCustom.sourceId, '43');
 assert.equal(domConfig.assetAliases.EURUSD, 'EURUSD_M1');
-PG.dom.writeConfigInputs(document, { sqx_path: 'D:/SQX', output_dir: 'D:/out' });
+PG.dom.writeConfigInputs(document, { sqx_path: 'D:/SQX', output_dir: 'D:/out', target_profile: 'custom_user_broker', target_profile_custom: { brokerPostfix: '_user', symbol: 'EURUSD_user', brokerId: 7, sourceId: 8, brokerName: '[[UserBroker]]', timezone: 'EETUS' } });
 assert.equal(document.getElementById('pg-sqx-path').value, 'D:/SQX');
 assert.equal(document.getElementById('pg-output-dir').value, 'D:/out');
+assert.equal(document.getElementById('pg-target-profile').value, 'custom_user_broker');
+assert.equal(document.getElementById('pg-target-postfix').value, '_user');
+assert.equal(document.getElementById('pg-target-symbol').value, 'EURUSD_user');
+assert.equal(String(document.getElementById('pg-target-broker-id').value), '7');
 PG.dom.applySqxFields(document, { sqxPath: 'E:/SQX', dataDb: 'E:/db', projectsDir: 'E:/projects' });
 assert.equal(document.getElementById('pg-sqx-db').value, 'E:/db');
 document.getElementById('pg-custom-name').value = ' Custom EURUSD H1 ';
@@ -354,10 +375,15 @@ const configBody = PG.configSaveBody({
   outputDir: 'C:/out',
   templateCapa1: 'C1.cfx',
   templateCapa2: 'C2.cfx',
+  targetProfile: 'custom_user_broker',
+  targetProfileCustom: { brokerPostfix: '_user', brokerId: '7', sourceId: '8' },
   assetAliases: { EURUSD: 'EURUSD_M1' },
 });
 assert.equal(configBody.sqx_path, 'C:/SQX');
 assert.equal(configBody.sqx_data_db, 'C:/SQX/data.db');
+assert.equal(configBody.target_profile, 'custom_user_broker');
+assert.equal(configBody.target_profile_custom.brokerPostfix, '_user');
+assert.equal(configBody.target_profile_custom.sourceId, '8');
 assert.equal(configBody.asset_aliases.EURUSD, 'EURUSD_M1');
 const configStatus = PG.configSaveStatus({ updated_keys: ['sqx_path', 'output_dir'] });
 assert.equal(configStatus.message, '✓ Guardado: sqx_path, output_dir');

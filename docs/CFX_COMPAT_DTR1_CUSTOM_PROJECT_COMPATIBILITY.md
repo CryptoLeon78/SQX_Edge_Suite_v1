@@ -13,8 +13,8 @@ The raw files live only in `material de diagnostico/customs_varios_daniel/` and 
 Sanitized comparison:
 
 - Tester project profile: `sq_equity_data_subscription_bound`.
-- SQX Edge generated sample profile: older generated artifact with Darwinex profile plus a stale/mixed retest resource in one task.
-- Fresh SQX Edge generation from current code: `sqx142_darwinex`, no stale resource sessions, no non-`No Session` `MarketOpenSession`, no mixed chart/resource symbols and no unresolved placeholders.
+- SQX Edge generated sample profile: older generated artifact with Darwinex profile plus a malformed Dukascopy retest resource in one task.
+- Fresh SQX Edge generation from current code: `sqx_edge_cross_broker_oos2`, no stale resource sessions, no non-`No Session` `MarketOpenSession`, no mixed chart/resource symbols and no unresolved placeholders.
 
 ## Findings
 
@@ -33,9 +33,9 @@ Sanitized indicators:
 
 ### SQX Edge generated diagnostic sample
 
-The diagnostic sample in the local folder is not representative of the current generator output. It still showed one task with mixed resource shape: chart/source/session state from a different provider while most tasks were Darwinex/TICK/EETUS.
+The diagnostic sample in the local folder is not representative of the current generator output. It still showed one task with mixed resource shape: the Retest 1 chart wanted Dukascopy, but resource metadata inherited Darwinex broker/source values.
 
-Freshly generated `.cfx` files now pass the full internal compatibility audit.
+Freshly generated `.cfx` files now pass without fail-level issues. They intentionally carry a Dukascopy warning because Retest 1/OOS2 is a methodology requirement, not a stale dependency.
 
 ## Decision
 
@@ -45,7 +45,7 @@ The audit does not mutate files. It classifies:
 
 - unresolved placeholder symbols;
 - SQ Equity Data subscription dependencies;
-- Dukascopy or other legacy source dependencies;
+- intended Dukascopy OOS2 dependencies versus unintended legacy source dependencies;
 - broker/resource mismatches;
 - stale sessions;
 - non-`No Session` `MarketOpenSession`;
@@ -72,15 +72,10 @@ The exit code is `0` when all audited files pass, `1` when at least one file has
 
 ## Product Implication
 
-For the remote service model, generation must continue to target the server SQX host unless a future phase explicitly introduces a user-target compatibility profile.
+For the remote service model, generation continues to target the server SQX host by default, but CFX-TARGET1 introduces an explicit target SQX profile selector for recipients whose local SQX does not use Darwinex-compatible symbols.
 
-For downloaded `.cfx` files opened in a user's own SQX, a future phase should collect the target host profile or warn that local symbols/data subscriptions may differ. A single hardcoded `.cfx` cannot be universally loadable across different SQX installations when their Data Manager resources differ.
+For downloaded `.cfx` files opened in a user's own SQX, the target profile must match the recipient's Data Manager where possible. Retest 1/OOS2 still remains Dukascopy 2010.01.01-2017.10.02 by design, because it validates cross-broker survival before IS Mining.
 
 ## Next Recommendation
 
-Implement a future `CFX-TARGET1` phase before broader buyer usage:
-
-- expose an operator-only compatibility profile selector;
-- record target source/broker/timezone/precision assumptions;
-- run `cfx-compatibility-audit-v1` before download;
-- optionally add a repair/remap flow for external `.cfx` imports when the target host profile is known.
+After CFX-TARGET1, the next step is to collect one target profile from a non-Darwinex tester and validate that primary project resources remap while Retest 1/OOS2 remains coherent on Dukascopy.

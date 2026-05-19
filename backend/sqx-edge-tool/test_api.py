@@ -649,6 +649,56 @@ class ApiTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(gen.call_args.kwargs["alias_override"], {"USTEC": "NDXm"})
+        self.assertEqual(gen.call_args.kwargs["target_profile"], {"id": "sqxedge_darwinex"})
+        self.assertEqual(self.get_json(response)["target_profile"]["id"], "sqxedge_darwinex")
+
+    def test_generate_custom_accepts_target_profile_remap(self):
+        cfg = {
+            "template_capa1": "templates/Capa1_Long.cfx",
+            "output_dir": "output",
+            "sqx_data_db": "",
+            "darwinex_suffix": "_darwinex",
+            "asset_aliases": {},
+        }
+        fake_path = str(server.ROOT / "output" / "Custom_EURUSD_H1_Capa1.cfx")
+        custom_profile = {
+            "id": "custom_user_broker",
+            "custom": {
+                "brokerPostfix": "_user",
+                "symbol": "EURUSD_user",
+                "brokerId": "7",
+                "sourceId": "8",
+                "brokerName": "[[UserBroker]]",
+            },
+        }
+        with patch.object(server, "load_config", return_value=cfg), \
+                patch.object(server.os.path, "isfile", return_value=True), \
+                patch.object(server, "generate_project", return_value=fake_path) as gen, \
+                patch.object(server, "resolve_costs", return_value={
+                    "source": "fallback",
+                    "symbol": "EURUSD_user",
+                    "spread": 1,
+                    "swap_long": -1,
+                    "swap_short": 0,
+                }):
+            response = self.client.post("/api/generate-custom", json={
+                "name": "Custom EURUSD H1",
+                "asset": "eurusd",
+                "tf": "h1",
+                "bs": "BS_Tendencia_v6",
+                "dir": "both",
+                "capa": 1,
+                "target_profile": custom_profile,
+            })
+
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertEqual(gen.call_args.kwargs["target_profile"], custom_profile)
+        self.assertEqual(data["target_profile"]["id"], "custom_user_broker")
+        self.assertEqual(data["target_profile"]["brokerPostfix"], "_user")
+        self.assertEqual(data["target_profile"]["symbol"], "EURUSD_user")
+        self.assertEqual(data["target_profile"]["brokerId"], 7)
+        self.assertEqual(data["target_profile"]["sourceId"], 8)
 
     def test_generate_custom_accepts_project_outside_plan(self):
         cfg = {

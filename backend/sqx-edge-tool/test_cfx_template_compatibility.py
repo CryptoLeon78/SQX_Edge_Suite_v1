@@ -167,6 +167,17 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     assert tick_setup.get("dateFrom") == "2017.10.02"
     assert tick_setup.get("dateTo") == "2023.12.31"
 
+    retest1 = roots["Retest-Task1.xml"]
+    retest1_setup = retest1.find(".//Data/Setups/Setup")
+    assert retest1_setup.get("dateFrom") == "2010.01.01"
+    assert retest1_setup.get("dateTo") == "2017.10.02"
+    retest1_symbols = retest1.findall(".//Resources/Symbols/Symbol")
+    assert {node.get("name") for node in retest1_symbols} == {"AUDCAD_dukascopy"}
+    assert {node.get("source") for node in retest1_symbols} == {"2"}
+    assert {node.get("broker") for node in retest1_symbols} == {"3"}
+    assert {node.find("InstrumentInfo").get("broker") for node in retest1_symbols} == {"3"}
+    assert [broker.get("id") for broker in retest1.findall(".//Resources/Brokers/Broker")] == ["3"]
+
 
 def test_generate_project_applies_intraday_time_window():
     mining = Mining(num=92, phase=1, asset="AUDCAD", tf="H1", bs="BS_Volatilidad", dir="long")
@@ -239,6 +250,46 @@ def test_patch_symbol_resources_rebuilds_empty_brokers_for_sqx142():
     assert info.get("broker") == "4"
     assert root.find(".//Resources/Sessions").text is None
     assert root.findall(".//Resources/Sessions/Session") == []
+
+
+def test_patch_symbol_resources_keeps_source_id_separate_from_broker_id():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Setup><Chart symbol="AUDCAD_dukascopy" timeframe="H4" /></Setup>
+          <Resources><Symbols /><Brokers /><Sessions /></Resources>
+        </Task>
+        """
+    )
+    patch_symbol_resources(root, {
+        "asset": "AUDCAD",
+        "symbol": "AUDCAD_dukascopy",
+        "instrument": "AUDCAD_dukascopy",
+        "source_id": 2,
+        "broker_id": 3,
+        "broker_name": "[[Dukascopy]]",
+        "broker_description": "Dukascopy",
+        "broker_postfix": "_dukascopy",
+        "broker_timezone": "EETUS",
+        "tick_size": 0.0001,
+        "tick_step": 0.00001,
+        "spread": 1.4,
+        "slippage": 0.0,
+        "point_value": 100000.0,
+        "data_type": 3,
+        "u_symbol": "AUDCAD",
+        "u_symbol_name": "AUDCAD",
+    })
+
+    symbol = root.find(".//Resources/Symbols/Symbol")
+    info = symbol.find("InstrumentInfo")
+    broker = root.find(".//Resources/Brokers/Broker")
+    assert symbol.get("name") == "AUDCAD_dukascopy"
+    assert symbol.get("source") == "2"
+    assert symbol.get("broker") == "3"
+    assert info.get("instrument") == "AUDCAD_dukascopy"
+    assert info.get("broker") == "3"
+    assert broker.get("id") == "3"
 
 
 def test_patch_symbol_resources_uses_available_data_range_when_task_is_older_than_sqx_data():
