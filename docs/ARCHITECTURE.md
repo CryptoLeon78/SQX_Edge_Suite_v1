@@ -169,6 +169,8 @@ CFX-BASE142 base template compatibility:
 - Symbol resource date ranges are bounded to the local SQX `DATA` availability when a task asks for an older validation period, avoiding SQX 142 "Missing N days" resolver failures while keeping the task's methodological setup dates intact.
 - The 2026-05-17 AUDCAD H4 probe reproduced the resolver symptom as `Missing 2831 days`; the same probe loaded after bounding the resource window to local data availability.
 - SQX 142 native AUDCAD evidence keeps `InstrumentInfo dataType="3"` with Darwinex `source="4"` / `broker="4"` while the DATA row stores tick-series type separately, so generation preserves the instrument metadata from `INSTRUMENTS` instead of forcing DATA.DATATYPE onto `InstrumentInfo`.
+- `backend/sqx-edge-tool/core/cfx_compatibility.py` owns `cfx-compatibility-audit-v1`, a non-mutating cross-host audit for external or downloaded `.cfx` files. It detects SQ Equity Data subscription dependencies, placeholder symbols, unbound brokers, stale sessions, non-`No Session` `MarketOpenSession`, chart/resource mismatches, embedded strategy drift, non-SQX Edge precision/timezone and source-machine paths before a file is treated as portable across SQX hosts.
+- `backend/sqx-edge-tool/tools/cfx_compatibility_audit.py` is the operator CLI for local diagnostic inbox files. It must report sanitized compatibility facts only; raw files in `material de diagnostico/` remain ignored and must not be copied into Git.
 
 REMOTE-3C paid webhook and protected write pilot:
 

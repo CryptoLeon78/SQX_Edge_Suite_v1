@@ -18,6 +18,27 @@ The first pilot runs on the operator laptop 24/7 behind Cloudflare Tunnel and Cl
 - Legacy portable: internal fallback and rollback path only; not the user-facing commercial flow.
 - Repository posture: before active sales, `origin` and `institutional` should be private unless the operator explicitly chooses a public-source commercial strategy.
 
+## SQX Compatibility Workstream
+
+### CFX-COMPAT-DTR1 - Custom Project Compatibility Review
+
+Status: completed on 2026-05-19.
+
+Before expanding the tester cohort, a tester-supplied custom project and a SQX Edge generated diagnostic sample were compared. The key lesson is that `.cfx` files are not neutral documents: they carry host-specific SQX assumptions such as data source, broker id, symbol postfix, Data Manager availability, session resources, precision, timezone and source-machine paths.
+
+Artifacts:
+
+- `docs/CFX_COMPAT_DTR1_CUSTOM_PROJECT_COMPATIBILITY.md`
+- `backend/sqx-edge-tool/core/cfx_compatibility.py`
+- `backend/sqx-edge-tool/tools/cfx_compatibility_audit.py`
+- `backend/sqx-edge-tool/test_cfx_compatibility_audit.py`
+
+Operational rule:
+
+- Remote-service generation remains targeted to the server SQX 142 host.
+- Local-user `.cfx` delivery must not be called universally compatible until a target-host profile is known and the file passes `cfx-compatibility-audit-v1`.
+- A future `CFX-TARGET1` phase should add a target profile/remap flow before broader buyer usage.
+
 ## Remote Phases
 
 ### REMOTE-0 - Documentation And Governance

@@ -34,6 +34,7 @@ REMOTE_PERSIST1C_TEMPLATE_MAKER_STATE_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERS
 REMOTE_PERSIST1D_STATE_BACKUPS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1D_STATE_BACKUPS.md"
 REMOTE_PERSIST1E_SQX_VIEWS_PRESETS_DOC = PROJECT_ROOT / "docs" / "REMOTE_PERSIST1E_SQX_VIEWS_PRESETS.md"
 CFX_BASE142_TEMPLATE_COMPATIBILITY_DOC = PROJECT_ROOT / "docs" / "CFX_BASE142_TEMPLATE_COMPATIBILITY.md"
+CFX_COMPAT_DTR1_DOC = PROJECT_ROOT / "docs" / "CFX_COMPAT_DTR1_CUSTOM_PROJECT_COMPATIBILITY.md"
 REMOTE_5_REMOTE_UX_DOC = PROJECT_ROOT / "docs" / "REMOTE_5_REMOTE_UX.md"
 REMOTE_6_SECURITY_ABUSE_CONTROLS_DOC = PROJECT_ROOT / "docs" / "REMOTE_6_SECURITY_ABUSE_CONTROLS.md"
 REMOTE_SEC2_CREDENTIAL_SHARING_DOC = PROJECT_ROOT / "docs" / "REMOTE_SEC2_CREDENTIAL_SHARING_CONTROL.md"
@@ -1988,6 +1989,73 @@ class DashboardStaticTestCase(unittest.TestCase):
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, test_cfx)
+
+    def test_cfx_cross_host_compatibility_audit_is_documented_and_guarded(self):
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
+        architecture = ARCHITECTURE_DOC.read_text(encoding="utf-8-sig")
+        doc = CFX_COMPAT_DTR1_DOC.read_text(encoding="utf-8-sig")
+        core = (TOOL_ROOT / "core" / "cfx_compatibility.py").read_text(encoding="utf-8-sig")
+        cli = (TOOL_ROOT / "tools" / "cfx_compatibility_audit.py").read_text(encoding="utf-8-sig")
+        tests = (TOOL_ROOT / "test_cfx_compatibility_audit.py").read_text(encoding="utf-8-sig")
+
+        self.assertTrue(CFX_COMPAT_DTR1_DOC.is_file())
+
+        for pattern in (
+            "CFX-COMPAT-DTR1 - Custom Project Compatibility Review",
+            "sq_equity_data_subscription_bound",
+            "cfx-compatibility-audit-v1",
+            "placeholder symbol",
+            "source-machine paths",
+            "CFX-TARGET1",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, doc)
+
+        for pattern in (
+            "CFX-COMPAT-DTR1 - custom project compatibility review",
+            "CFX Cross-Host Compatibility Gate",
+            "cfx-compatibility-audit-v1",
+            "SQ Equity Data subscription dependencies",
+            "backend/sqx-edge-tool/tools/cfx_compatibility_audit.py",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
+        for pattern in (
+            "CFX-COMPAT-DTR1 - Custom Project Compatibility Review",
+            "cfx-compatibility-audit-v1",
+            "target-host profile",
+            "backend/sqx-edge-tool/tools/cfx_compatibility_audit.py",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, roadmap)
+
+        for pattern in (
+            "cfx-compatibility-audit-v1",
+            "SQ Equity Data subscription dependencies",
+            "source-machine paths",
+            "backend/sqx-edge-tool/core/cfx_compatibility.py",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, architecture)
+
+        for pattern in (
+            "CFX_COMPATIBILITY_AUDIT_VERSION",
+            "sq_equity_data_subscription_bound",
+            "placeholder_symbol",
+            "stale_market_open_session",
+            "chart_missing_resource_symbol",
+            "absolute_strategytype_path",
+            "render_markdown",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, core)
+
+        self.assertIn("audit_many", cli)
+        self.assertIn("test_generated_cfx_passes_host_compatibility_audit", tests)
+        self.assertIn("test_external_sq_equity_profile_is_blocked_for_cross_host_delivery", tests)
+        self.assertIn("test_mixed_symbol_and_session_profile_is_failed", tests)
 
     def test_remote_5_remote_ux_surface_is_redacted_and_wired(self):
         remote_5 = REMOTE_5_REMOTE_UX_DOC.read_text(encoding="utf-8-sig")
