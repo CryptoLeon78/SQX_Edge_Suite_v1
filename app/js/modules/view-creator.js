@@ -240,13 +240,13 @@
       priority: 'obligatoria',
       preset: 'template-maker-cert',
       description: 'View obligatoria para exportar el Databank CSV que certifica KPIs en Template Maker.',
-      objective: 'Contrato oficial de métricas: Template Maker usa este CSV para certificar Capa 1 y habilitar C2. Ret/DD se deriva desde CAGR/Max DD % si SQX no lo exporta como columna propia.',
-      when: 'Antes de certificar estrategias en Template Maker. Primero importa esta .vw en SQX y exporta el Databank CSV.',
-      nextAction: 'Exporta el Databank CSV con esta view antes de certificar estrategias en Template Maker.',
-      metricTags: ['CSV Cert', 'KPIs C1', 'Ret/DD derivado', 'PASSED', 'C2'],
-      oosTag: '9oos',
-      oosOptions: [1, 2, 3, 7, 9],
-      config: { viewName: 'Template Maker Cert', yearCount: 9, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
+      objective: 'Contrato oficial de métricas: Template Maker usa este CSV para certificar las estrategias que sobreviven al Forward 2025-Actualidad y habilitar C2. Ret/DD se deriva desde CAGR/Max DD % si SQX no lo exporta como columna propia.',
+      when: 'Al terminar Forward, guarda los .sqx supervivientes y exporta el Databank CSV con esta view. El default actual son 2 OOS: 2025 y actualidad.',
+      nextAction: 'Exporta el Databank CSV de Forward con esta view y cargalo junto a los .sqx en Template Maker.',
+      metricTags: ['Forward CSV', '2 OOS', 'KPIs C1', 'Ret/DD derivado', 'C2'],
+      oosTag: '2oos',
+      oosOptions: [1, 2],
+      config: { viewName: 'Template Maker Cert', yearCount: 2, sampleStart: 21, includeTotal: true, groupMode: 'by_metric' }
     },
     {
       id: 'cvc-decision-cert',
@@ -670,7 +670,7 @@
     var template = findBuyerReadyTemplate('template-maker-cert');
     return buildViewXml(template ? template.config : configFromPresetName('template-maker-cert', {
       viewName: 'Template Maker Cert',
-      yearCount: 9,
+      yearCount: 2,
       sampleStart: 21,
       includeTotal: true,
       groupMode: 'by_metric'

@@ -124,10 +124,12 @@ def test_capa1_base_v2_matches_active_methodology():
     forward = roots["Retest-Task2.xml"]
     forward_setup = forward.find(".//Data/Setups/Setup")
     forward_ranges = forward.findall(".//Data/OutOfSample/Range")
-    assert forward_setup.get("dateFrom") == "2017.10.02"
+    assert forward_setup.get("dateFrom") == "2025.01.01"
     assert forward_setup.get("dateTo") == "2026.04.08"
-    assert len(forward_ranges) == 10
-    assert forward_ranges[0].get("dateFrom") == "2017.10.02"
+    assert len(forward_ranges) == 2
+    assert forward_ranges[0].get("dateFrom") == "2025.01.01"
+    assert forward_ranges[0].get("dateTo") == "2026.01.01"
+    assert forward_ranges[1].get("dateFrom") == "2026.01.01"
     assert forward_ranges[-1].get("dateTo") == "2026.04.08"
 
 

@@ -1427,7 +1427,7 @@
         <div>
           <span class="views-eyebrow">Template Maker</span>
           <h2>Template Maker</h2>
-          <p>Certifica estrategias con dos fuentes claras: el .sqx aporta logica y generacion C2; el CSV exportado con Template Maker Cert aporta metricas oficiales.</p>
+          <p>Certifica estrategias con dos fuentes claras: el .sqx superviviente de Forward aporta logica y generacion C2; el DatabankExport CSV exportado con Template Maker Cert aporta metricas oficiales.</p>
         </div>
         <div class="tm-stats">
           <div><span id="tm-stat-total">0</span><small>Total</small></div>
@@ -1445,11 +1445,11 @@
           </div>
           <small>SQX Views &gt; Template Maker Cert</small>
         </div>
-        <p class="views-step-copy">Primero crea la view `Template Maker Cert` en SQX Views, importala en StrategyQuant X y exporta el Databank CSV. Ese CSV es la fuente oficial de metricas.</p>
+        <p class="views-step-copy">Primero crea la view `Template Maker Cert` en SQX Views, importala en StrategyQuant X y exporta el Databank CSV desde Forward 2025-Actualidad. Ese CSV, junto a los `.sqx` supervivientes, es la fuente oficial para analizar C2.</p>
         <div class="tm-method-grid">
-          <div><strong>CSV</strong><span>Metricas, scoring y certificacion.</span></div>
-          <div><strong>.sqx</strong><span>Logica original y generacion C2.</span></div>
-          <div><strong>CSV + .sqx</strong><span>Estrategia completa lista para decidir.</span></div>
+          <div><strong>CSV Forward</strong><span>DatabankExport con 2 OOS actuales y metricas oficiales.</span></div>
+          <div><strong>.sqx Forward</strong><span>Logica superviviente, trazabilidad y generacion C2.</span></div>
+          <div><strong>CSV + .sqx</strong><span>Estrategia completa lista para certificar y descorrelacionar.</span></div>
         </div>
         <button class="export-btn tm-step-cta" id="tm-open-cert-view" type="button">Abrir SQX Views</button>
       </section>
@@ -1462,11 +1462,11 @@
           </div>
           <small>CSV, SQX o ZIP en lote</small>
         </div>
-        <p class="views-step-copy">Arrastra el CSV `Template Maker Cert` y los `.sqx` originales. La app reconciliara estrategias por nombre, simbolo, timeframe y hash.</p>
+        <p class="views-step-copy">Arrastra el CSV `Template Maker Cert` exportado desde Forward y los `.sqx` supervivientes. La app reconciliara estrategias por nombre, simbolo, timeframe y hash.</p>
         <div class="tm-upload-grid tm-upload-grid-primary">
           <button class="tm-upload-zone tm-upload-zone-primary" id="tm-unified-zone" type="button">
             <strong>Cargar archivos</strong>
-            <span>CSV Template Maker Cert + .sqx/.zip. Puedes cargar todo junto.</span>
+            <span>DatabankExport Forward + .sqx/.zip. Puedes cargar todo junto.</span>
             <input type="file" id="tm-files-input" accept=".csv,.sqx,.zip" multiple>
           </button>
         </div>
@@ -1475,7 +1475,7 @@
           <div class="tm-upload-grid">
             <button class="tm-upload-zone" id="tm-csv-zone" type="button">
               <strong>Importar CSV</strong>
-              <span>Databank exportado desde SQX con la view obligatoria Template Maker Cert.</span>
+              <span>DatabankExport de Forward exportado desde SQX con la view obligatoria Template Maker Cert.</span>
               <input type="file" id="tm-csv-input" accept=".csv">
             </button>
             <button class="tm-upload-zone" id="tm-sqx-zone" type="button">
@@ -1955,7 +1955,7 @@
                 <option value="Mining inicial">Mining inicial</option>
                 <option value="Retest 0 (período completo)">Retest 0 (período completo)</option>
                 <option value="Retest 1 (OOS 2010-2017)">Retest 1 (OOS 2010-2017)</option>
-                <option value="Retest 2 (Forward 2024-2026)">Retest 2 (Forward 2024-2026)</option>
+                <option value="Forward 2025-Actualidad">Forward 2025-Actualidad</option>
                 <option value="HBP">HBP</option>
                 <option value="MC Trades">MC Trades</option>
                 <option value="MC2 Historical">MC2 Historical</option>
@@ -2256,7 +2256,7 @@
           <span class="badge info">Metodo SQX</span>
           <h3>Primero demostrar edge, despues hacerlo operable</h3>
           <p>
-            La metodologia separa descubrimiento y ejecucion. <strong>Capa 1</strong> usa la base SQX142 v2 para minar edge puro en IS 2017.10-2023.01 sin SL/TP/Trailing, con horarios controlados por timeframe y money management fijo. Antes de validar el IS contra su propio futuro, Retest 1/OOS2 prueba supervivencia cross-broker en Dukascopy 2010.01-2017.10. Despues se aplican Retest 0 con OOS1 2023-2025, robustez progresiva y un Forward 2017-2026 dividido en OOS1-OOS10. <strong>Capa 2</strong> queda pendiente de su base v2 y mantiene fijo el template ganador para hacerlo operable con filtros adicionales, SL, TP y trailing.
+            La metodologia separa descubrimiento y ejecucion. <strong>Capa 1</strong> usa la base SQX142 v2 para minar edge puro en IS 2017.10-2023.01 sin SL/TP/Trailing, con horarios controlados por timeframe y money management fijo. Antes de validar el IS contra su propio futuro, Retest 1/OOS2 prueba supervivencia cross-broker en Dukascopy 2010.01-2017.10. Despues se aplican Retest 0 con OOS1 2023-2025, robustez progresiva y un Forward final desde 2025.01 hasta la actualidad. <strong>Capa 2</strong> queda pendiente de su base v2 y mantiene fijo el template ganador para hacerlo operable con filtros adicionales, SL, TP y trailing.
           </p>
         </div>
         <div class="workflow-method-goals">
@@ -2280,8 +2280,8 @@
           <div>OOS1 Retest 0</div>
         </div>
         <div class="period-seg period-fwd">
-          <div class="yr">2017-2026</div>
-          <div>Forward OOS1-OOS10</div>
+          <div class="yr">2025-Actualidad</div>
+          <div>Forward final</div>
         </div>
       </div>
       <div class="pipeline">
@@ -2508,15 +2508,14 @@ At least 7 results with robustness score &gt;= 60%</pre>
               <div class="pipeline-step dep compact workflow-config-node">
                 <div class="step-num">1.4</div>
                 <div class="step-content">
-                  <div class="step-title">FOWARD 2017-2026 · OOS1-OOS10</div>
-                  <div class="step-desc">Validacion cronologica completa por 10 tramos OOS. Si falla aqui, no debe pasar a Capa 2.</div>
+                  <div class="step-title">FOWARD 2025-Actualidad</div>
+                  <div class="step-desc">Validacion cronologica final con datos intocados desde 2025. Si falla aqui, no debe pasar a Capa 2.</div>
                   <div class="workflow-tree-config">
                     <div class="workflow-config-card">
                       <h5>Settings</h5>
-                      <pre>Period: 2017.10 - 2026.04
-OOS1: 2017.10 - 2018.01
-OOS2-OOS9: años completos 2018-2026
-OOS10: 2026.01 - 2026.04
+                      <pre>Period: 2025.01 - Actualidad
+OOS1: 2025.01 - 2026.01
+OOS2: 2026.01 - Actualidad
 Re-optimize: NO (retest pasivo)</pre>
                     </div>
                     <div class="workflow-config-card">
@@ -2540,7 +2539,7 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
               <div class="step-num">A</div>
               <div class="step-content">
                 <div class="step-title">Orden operativo Capa 1</div>
-                <div class="step-desc">Retest 1/OOS2 Dukascopy -> Build IS -> Retest 0 OOS1 -> TICK REAL -> MC -> MC2 -> Sequential -> Monkey -> Synthetic -> SPP -> WFM -> FOWARD OOS1-OOS10.</div>
+                <div class="step-desc">Retest 1/OOS2 Dukascopy -> Build IS -> Retest 0 OOS1 -> TICK REAL -> MC -> MC2 -> Sequential -> Monkey -> Synthetic -> SPP -> WFM -> FOWARD 2025-Actualidad.</div>
               </div>
             </div>
           </div>
@@ -3364,14 +3363,13 @@ Robustness conditions (6 activas):
   <!-- TEST 11 -->
   <div class="card test-card">
     <div class="card-header">
-      <h2><span class="test-num l1">11</span>FOWARD — Forward OOS1-OOS10</h2>
+      <h2><span class="test-num l1">11</span>FOWARD — Forward 2025-Actualidad</h2>
       <span class="badge danger">CRÍTICO último</span>
     </div>
     <h4 class="test-section-title">Settings</h4>
-    <pre class="code-block">Period: 2017.10 — 2026.04
-OOS1: 2017.10 — 2018.01
-OOS2-OOS9: años completos 2018-2026
-OOS10: 2026.01 — 2026.04
+    <pre class="code-block">Period: 2025.01 — Actualidad
+OOS1: 2025.01 — 2026.01
+OOS2: 2026.01 — Actualidad
 Re-optimize: NO (retest pasivo)</pre>
     <h4 class="test-section-title">Filtering</h4>
     <pre class="code-block">Lectura por tramos OOS
@@ -3440,7 +3438,7 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
       <div class="pipeline-arrow">↓</div>
       <div class="pipeline-step l2"><div class="step-num">11</div><div class="step-content"><div class="step-title">WFM</div><div class="step-desc">Simulated, robustness 60%</div></div></div>
       <div class="pipeline-arrow">↓</div>
-      <div class="pipeline-step dep"><div class="step-num">12</div><div class="step-content"><div class="step-title">FOWARD OOS1-OOS10</div><div class="step-desc">CRÍTICO último</div></div></div>
+      <div class="pipeline-step dep"><div class="step-num">12</div><div class="step-content"><div class="step-title">FOWARD 2025-Actualidad</div><div class="step-desc">CRÍTICO último</div></div></div>
     </div>
   </div>
 
@@ -3811,7 +3809,7 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
       </div>
 
       <div class="config-box">
-        <h4><span class="icon">→</span>Forward 2024-2026</h4>
+        <h4><span class="icon">→</span>Forward 2025-Actualidad</h4>
         <ul class="config-list">
           <li><span class="key">PF mínimo:</span><span class="value">> 1.0</span></li>
           <li><span class="key"># trades min:</span><span class="value">> 30</span></li>
@@ -4100,7 +4098,7 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
     </div>
 
     <div class="cheat-box">
-      <h4>→ Retest Forward 2024-26</h4>
+      <h4>→ Retest Forward 2025-Actualidad</h4>
       <table class="cheat-table">
         <tr><td>PF</td><td>> 1.0</td></tr>
         <tr><td># trades</td><td>> 30</td></tr>

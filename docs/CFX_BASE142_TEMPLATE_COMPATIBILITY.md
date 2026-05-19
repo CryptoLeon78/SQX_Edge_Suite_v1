@@ -29,7 +29,9 @@ The active Capa 1 methodology now uses:
 - Retest 1/OOS2: Dukascopy cross-broker validation
   `2010.01.01 -> 2017.10.02`
 - Robustness: `2017.10.02 -> 2023.12.31`
-- Forward: `2017.10.02 -> 2026.04.08`, split into OOS1-OOS10
+- Forward: `2025.01.01 -> latest available data`, currently
+  `2026.04.08`, split into active Forward blocks only (`OOS1` 2025 and
+  `OOS2` current year in the SQX 142 base)
 - `TICK REAL` replaces the previous active HBP naming in Capa 1
 - Money management: Fixed size, order size `1`
 - Trading windows: `M5/M15/M30/H1` use `02:00 -> 22:00`; `H4` uses
@@ -129,7 +131,7 @@ the base templates:
 - do not keep stale resource sessions or non-`No Session`
   `MarketOpenSession` values;
 - preserve the active Capa 1 v2 methodology labels, periods, `TICK REAL`
-  databank and Forward OOS1-OOS10;
+  databank and Forward 2025-current OOS blocks;
 - do not contain placeholder symbols;
 - do not keep absolute `StrategyType` paths;
 - remain clearly labeled as SQX 142 base templates.

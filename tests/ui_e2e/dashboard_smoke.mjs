@@ -421,8 +421,8 @@ async function run() {
       'Apply optimized parameters to strategy: OFF',
       'Synthetic Bootstrap V3: ON',
       'Walk-Forward type: Simulated IS, Simulated OOS (fastest)',
-      'FOWARD 2017-2026',
-      'OOS10: 2026.01 - 2026.04',
+      'FOWARD 2025-Actualidad',
+      'OOS2: 2026.01 - Actualidad',
     ].forEach(expected => {
       if (!capa1TreeText.includes(expected)) throw new Error(`Capa 1 tree should preserve retest config: ${expected}`);
     });
@@ -669,7 +669,7 @@ async function run() {
     const templateListText = await desktop.locator('#vc-template-list').innerText();
     const templateListTextUpper = templateListText.toUpperCase();
     const templateListTextLower = templateListText.toLowerCase();
-    ['PF', 'Trades', 'Ret/DD', 'TICK REAL', 'MC', 'VaR', 'CVaR', 'CAGR/DD', 'CSV Cert', 'Arquetipo', 'Volatilidad'].forEach(expected => {
+    ['PF', 'Trades', 'Ret/DD', 'TICK REAL', 'MC', 'VaR', 'CVaR', 'CAGR/DD', 'Forward CSV', '2 OOS', 'Arquetipo', 'Volatilidad'].forEach(expected => {
       if (!templateListTextUpper.includes(expected.toUpperCase())) throw new Error(`SQX Views template tags should include ${expected}`);
     });
     if (/\bfree\b|\bpro\b/i.test(templateListText)) {

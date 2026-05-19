@@ -997,7 +997,7 @@ window.SQX_MANIFEST = {
         },
         {
           "id": "retest_fwd",
-          "name": "Retest 2 (Forward 2024-26)",
+          "name": "Forward 2025-Actualidad",
           "terminal": false
         },
         {
