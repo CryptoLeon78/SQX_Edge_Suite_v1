@@ -22,7 +22,7 @@ const PG_STATE = {
 };
 const PG_ALIAS_MIN_SCORE = (window.SQX_CONFIG && window.SQX_CONFIG.value('projectGenerator.aliasSuggestMinScore', 80)) || 80;
 const pgApiInline = document.getElementById('pg-api-base-inline');
-if (pgApiInline && PG_API) pgApiInline.textContent = PG_API;
+if (pgApiInline) pgApiInline.textContent = 'Servicio preparado';
 
 function pgEsc(value) {
   return SQX_PG_DOM.escapeHtml ? SQX_PG_DOM.escapeHtml(value) : SQX_PG_MODULE.escapeHtml(value);
@@ -361,7 +361,7 @@ function pgSetStatus(state, title, desc, meta) {
     PG_STATE.lastTraceState = state;
     pgTrace(
       state === 'up' ? 'Backend conectado' : 'Backend desconectado',
-      state === 'up' ? ((meta && meta.sqx_path) || 'API SQX Edge operativa') : desc,
+      state === 'up' ? 'Conexiones internas OK' : desc,
       state === 'up' ? 'ok' : 'err'
     );
   }
@@ -370,21 +370,21 @@ function pgSetStatus(state, title, desc, meta) {
 }
 
 async function pgCheckHealth() {
-  pgSetStatus('loading', 'Comprobando…', 'GET ' + PG_API + '/health');
+  pgSetStatus('loading', 'Comprobando…', 'Validando conexiones internas del servicio');
   try {
     const h = await pgFetch('/health');
     PG_STATE.connected = true;
     const tplOk = h.templates_capa1_exists && h.templates_capa2_exists;
     pgSetStatus('up',
-      '🟢 Backend conectado · v' + h.version,
-      'SQX path: ' + (h.sqx_path || '(no set)') + ' · Templates: ' + (tplOk ? 'C1+C2 OK' : '⚠ alguno falta'),
+      'Servicio conectado · v' + h.version,
+      'Conexiones internas: ' + (tplOk ? 'SQX, templates y workspace OK' : 'revisión requerida en templates'),
       h);
     await pgLoadAll();
   } catch(e) {
     PG_STATE.connected = false;
     pgSetStatus('down',
-      '🔴 Backend desconectado',
-      'El servicio no responde en ' + PG_API + '. Reintenta o registra incidencia desde Control Panel. Detalle: ' + e.message,
+      'Servicio desconectado',
+      'El servicio no responde. Reintenta o registra incidencia desde Control Panel. Detalle: ' + e.message,
       { error: e.message });
     await pgLoadMinings();
   }

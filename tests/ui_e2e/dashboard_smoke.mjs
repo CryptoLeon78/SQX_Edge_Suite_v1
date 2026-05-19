@@ -518,9 +518,15 @@ async function run() {
     await desktop.waitForSelector('#pg-step-api');
     const pgGuidedText = await desktop.locator('#tab-projectgen').innerText();
     const pgGuidedTextLower = pgGuidedText.toLowerCase();
-    ['api sqx edge', 'configura sqx', 'elige generación', 'genera y revisa', 'resultado'].forEach(expected => {
+    ['conexión', 'entorno sqx', 'elige generación', 'genera y revisa', 'resultado'].forEach(expected => {
       if (!pgGuidedTextLower.includes(expected)) throw new Error(`Project Generator should expose guided section: ${expected}`);
     });
+    ['paths sqx', 'sqx path:', 'http://127.0.0.1', 'localhost', 'ruta de instalacion'].forEach(forbidden => {
+      if (pgGuidedTextLower.includes(forbidden)) throw new Error(`Project Generator should not expose internal service detail: ${forbidden}`);
+    });
+    if (await desktop.locator('#tab-projectgen .pg-service-readiness-grid').count() !== 1) {
+      throw new Error('Project Generator should show a route-free service readiness grid');
+    }
     const pgGuideSteps = await desktop.locator('#tab-projectgen .pg-guide-flow li').count();
     if (pgGuideSteps !== 5) throw new Error(`Project Generator should render 5 guided steps, got ${pgGuideSteps}`);
     if (!pgGuidedTextLower.includes('plan mining') || !pgGuidedTextLower.includes('custom libre')) throw new Error('Project Generator should clarify Plan Mining and Custom libre paths');

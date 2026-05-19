@@ -7,13 +7,16 @@ const dashboardCss = fs.readFileSync(path.join(repoRoot, 'app/css/dashboard.css'
 
 assert.ok(html.includes('id="tab-projectgen"'), 'Project Generator tab panel should render');
 assert.ok(html.includes('pg-guide-flow'), 'Project Generator should expose guided step flow');
-assert.ok(html.includes('API SQX Edge'), 'Project Generator should explain service API step');
-assert.ok(html.includes('Configura SQX'), 'Project Generator should expose SQX configuration step');
+assert.ok(html.includes('Conexión del servicio'), 'Project Generator should explain service connection step');
+assert.ok(html.includes('Entorno SQX'), 'Project Generator should expose remote-safe SQX environment step');
 assert.ok(html.includes('Elige generación'), 'Project Generator should expose generation choice step');
 assert.ok(html.includes('Genera y revisa'), 'Project Generator should expose generation review step');
 assert.ok(html.includes('PASO 5'), 'Project Generator should expose result/log step');
 assert.ok(html.includes('Plan Mining'), 'Project Generator should clarify Plan Mining path');
 assert.ok(html.includes('Custom libre'), 'Project Generator should preserve custom generation path');
+assert.ok(html.includes('pg-service-readiness-grid'), 'Project Generator should show a route-free service readiness summary');
+assert.ok(html.includes('class="pg-operator-config" hidden'), 'Project Generator should hide operator path configuration from user-facing UI');
+assert.ok(!html.includes('id="pg-api-base-inline"'), 'Project Generator should not render raw API base in the user-facing hero');
 assert.equal((html.match(/<details class="pg-step-panel/g) || []).length, 5, 'Project Generator should render 5 collapsible step panels');
 assert.ok(html.includes('pg-step-summary'), 'Project Generator steps should use summary headers');
 assert.doesNotMatch(html, /<details class="pg-step-panel[^>]*\sopen\b/, 'Project Generator steps should start closed by default');
@@ -22,7 +25,7 @@ assert.ok(html.includes('id="pg-mode-manual"'), 'Project Generator should expose
 assert.ok(html.includes('id="pg-mode-methodological-panel"'), 'Project Generator should render methodological workspace');
 assert.ok(html.includes('id="pg-mode-manual-panel"'), 'Project Generator should render manual workspace');
 assert.ok(html.includes('id="pg-mode-placeholder"'), 'Project Generator should render an empty mode placeholder');
-assert.ok(html.includes('id="pg-open-output"'), 'Project Generator should keep output folder action inside generation step');
+assert.ok(html.includes('id="pg-open-output"'), 'Project Generator should keep output download action inside generation step');
 assert.ok(html.includes('id="pg-custom-generate"'), 'Project Generator should keep custom generate action');
 assert.ok(html.indexOf('id="pg-custom-generate"') > html.indexOf('id="pg-mode-manual-panel"'), 'Custom libre should live inside the manual generation workspace');
 assert.ok(!html.includes('id="pg-gen-all-c1"'), 'Project Generator should remove Capa 1 bulk-all action');
@@ -205,6 +208,8 @@ const pgReadyState = PG.computeOnboardingState({
 assert.equal(pgReadyState.completed, 4);
 assert.equal(pgReadyState.current, null);
 assert.equal(pgReadyState.tertiaryAction, 'refresh');
+assert.equal(pgReadyState.steps[0].detail, 'Servicio preparado');
+assert.ok(!JSON.stringify(pgReadyState).includes('C:/SQX'), 'Project Generator onboarding state should not expose local SQX paths');
 
 [
   'pg-onboarding-progress', 'pg-onboarding-title', 'pg-onboarding-desc',

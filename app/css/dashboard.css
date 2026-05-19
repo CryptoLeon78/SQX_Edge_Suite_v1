@@ -4542,6 +4542,41 @@
     overflow-wrap:anywhere;
   }
   .pg-hero-cards small { display:block; margin-top:6px; color:var(--text2); font-size:11px; line-height:1.35; }
+  .pg-service-readiness-grid {
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:10px;
+  }
+  .pg-service-readiness-grid div {
+    min-height:88px;
+    padding:13px;
+    border:1px solid rgba(34,197,94,.22);
+    border-radius:8px;
+    background:linear-gradient(135deg, rgba(16,185,129,.10), rgba(15,23,42,.70));
+  }
+  .pg-service-readiness-grid span {
+    display:block;
+    color:#86efac;
+    font-size:10px;
+    font-weight:900;
+    letter-spacing:.35px;
+    text-transform:uppercase;
+  }
+  .pg-service-readiness-grid strong {
+    display:block;
+    margin-top:7px;
+    color:var(--text);
+    font-size:14px;
+    line-height:1.2;
+  }
+  .pg-service-readiness-grid small {
+    display:block;
+    margin-top:6px;
+    color:var(--text2);
+    font-size:11px;
+    line-height:1.35;
+  }
+  .pg-operator-config[hidden] { display:none !important; }
   .pg-guide-flow {
     display:grid;
     grid-template-columns:repeat(5, minmax(0, 1fr));
@@ -5810,7 +5845,8 @@
       flex-direction:column;
     }
 
-    .pg-hero-cards {
+    .pg-hero-cards,
+    .pg-service-readiness-grid {
       width:100%;
       min-width:0;
     }
@@ -5851,6 +5887,7 @@
   }
   @media (max-width: 640px) {
     .pg-hero-cards,
+    .pg-service-readiness-grid,
     .pg-guide-flow {
       grid-template-columns:1fr;
     }
@@ -7362,6 +7399,9 @@
     .cvc-guide-flow {
       grid-template-columns:repeat(2, minmax(0, 1fr));
     }
+    .pg-service-readiness-grid {
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+    }
     .cvc-fields,
     .cvc-method-grid,
     .cvc-validation-grid {
@@ -7394,6 +7434,7 @@
 
     .views-hero-stats,
     .pg-hero-cards,
+    .pg-service-readiness-grid,
     .cvc-hero-stats,
     .sb-hero-stats {
       width:100%;
@@ -7493,6 +7534,7 @@
     .views-guide-flow,
     .pg-guide-flow,
     .pg-hero-cards,
+    .pg-service-readiness-grid,
     .pg-choice-grid,
     .cvc-guide-flow,
     .cvc-hero-stats,

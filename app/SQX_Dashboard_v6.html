@@ -794,18 +794,18 @@
         <div>
           <span class="views-eyebrow">Asistente de generación</span>
           <h2>Project Generator</h2>
-          <p>Genera proyectos <code>.cfx</code> para StrategyQuant X desde el plan de minings o desde un custom libre. Primero verifica API, rutas y templates; después genera y revisa el resultado.</p>
+          <p>Genera proyectos <code>.cfx</code> para StrategyQuant X desde el plan de minings o desde un custom libre. El entorno SQX vive en el servicio; tú eliges qué generar, revisas el resultado y descargas los archivos desde el navegador.</p>
         </div>
         <div class="pg-hero-cards">
-          <div><span>Entrada</span><strong>Plan Mining</strong><small>Capa 1 y Capa 2 del plan activo.</small></div>
-          <div><span>Salida</span><strong>.cfx</strong><small>Custom Projects listos para SQX.</small></div>
-          <div><span>API</span><strong id="pg-api-base-inline">API SQX Edge</strong><small>Backend del servicio.</small></div>
+          <div><span>Conexión</span><strong>Servicio preparado</strong><small>Backend, SQX y workspace se validan desde el servidor.</small></div>
+          <div><span>Metodología</span><strong>Plan Mining</strong><small>Capa 1 y Capa 2 se generan desde el plan activo.</small></div>
+          <div><span>Entrega</span><strong>.cfx por descarga</strong><small>Los archivos llegan al navegador del usuario.</small></div>
         </div>
       </section>
 
       <ol class="pg-guide-flow" aria-label="Flujo Project Generator">
-        <li><span>1</span><strong>API SQX Edge</strong><small>Comprueba que el servicio responde.</small></li>
-        <li><span>2</span><strong>Configura SQX</strong><small>Rutas, templates, output y aliases.</small></li>
+        <li><span>1</span><strong>Conexión</strong><small>Confirma que el servicio responde.</small></li>
+        <li><span>2</span><strong>Entorno SQX</strong><small>Comprueba conexiones internas.</small></li>
         <li><span>3</span><strong>Elige generación</strong><small>Plan Mining o custom libre.</small></li>
         <li><span>4</span><strong>Genera y revisa</strong><small>Acciones Capa 1/2, minings y output.</small></li>
         <li><span>5</span><strong>Resultado</strong><small>Log y siguiente acción.</small></li>
@@ -815,18 +815,18 @@
         <summary class="views-panel-head pg-step-summary">
           <div>
             <span>PASO 1</span>
-            <strong>API SQX Edge</strong>
+            <strong>Conexión del servicio</strong>
           </div>
-          <small>Necesaria para leer config, minings, output y generar proyectos.</small>
+          <small>Valida que la plataforma está lista para generar.</small>
           <span class="pg-disclosure-indicator" aria-hidden="true"></span>
         </summary>
         <div class="pg-step-body">
-          <p class="views-step-copy">Si el servicio no responde, pulsa Reintentar o contacta soporte desde Control Panel. No se genera nada hasta que la API esté disponible.</p>
+          <p class="views-step-copy">Si el servicio no responde, pulsa Reintentar o contacta soporte desde Control Panel. No se genera nada hasta que las conexiones internas estén disponibles.</p>
           <div id="pg-status-banner" class="pg-status-banner pg-status-down">
             <div class="pg-status-icon">●</div>
             <div class="pg-status-content">
               <div class="pg-status-title" id="pg-status-title">Conectando…</div>
-              <div class="pg-status-desc" id="pg-status-desc">Comprobando backend del servicio</div>
+              <div class="pg-status-desc" id="pg-status-desc">Comprobando conexiones internas</div>
             </div>
             <button class="export-btn" id="pg-status-refresh">Reintentar</button>
           </div>
@@ -838,7 +838,7 @@
             </div>
             <div class="pg-onboarding-copy">
               <strong id="pg-onboarding-title">Preparando flujo guiado</strong>
-              <p id="pg-onboarding-desc">Conecta la API y deja la configuración lista para generar tu primer .cfx.</p>
+              <p id="pg-onboarding-desc">Confirma conexiones internas y deja la sesión lista para generar tu primer .cfx.</p>
             </div>
             <div class="pg-onboarding-track"><div id="pg-onboarding-bar"></div></div>
             <div class="pg-assistant-panel" id="pg-assistant-panel">
@@ -851,9 +851,9 @@
             </div>
             <div class="pg-onboarding-steps" id="pg-onboarding-steps"></div>
             <div class="pg-onboarding-actions">
-              <button class="export-btn" id="pg-onboarding-action">Comprobar API</button>
-              <button class="export-btn pg-ghost-btn" id="pg-onboarding-secondary">Abrir configuración</button>
-              <button class="export-btn pg-ghost-btn" id="pg-onboarding-tertiary">Guardar config</button>
+              <button class="export-btn" id="pg-onboarding-action">Comprobar conexión</button>
+              <button class="export-btn pg-ghost-btn" id="pg-onboarding-secondary">Ver entorno</button>
+              <button class="export-btn pg-ghost-btn" id="pg-onboarding-tertiary">Actualizar estado</button>
             </div>
           </div>
         </div>
@@ -863,14 +863,20 @@
         <summary class="views-panel-head pg-step-summary" id="pg-settings-toggle">
           <div>
             <span>PASO 2</span>
-            <strong>Configura SQX</strong>
+            <strong>Entorno SQX</strong>
           </div>
-          <small>Paths SQX, templates Capa 1/2, output y aliases.</small>
+          <small>Conexiones internas: SQX, datos, templates y descargas.</small>
           <span class="pg-disclosure-indicator" aria-hidden="true"></span>
         </summary>
         <div class="pg-step-body" id="pg-settings-body">
-          <p class="views-step-copy">Esta configuración pertenece al entorno del servicio. StrategyQuant X, templates base y outputs se gestionan en el servidor para que el usuario no tenga que instalar nada.</p>
-          <div>
+          <p class="views-step-copy">El usuario no necesita ver rutas ni instalar nada. El servicio usa el SQX local del servidor, valida sus conexiones internas y entrega los <code>.cfx</code> mediante descarga web.</p>
+          <div class="pg-service-readiness-grid" aria-label="Resumen del entorno SQX">
+            <div><span>Servicio</span><strong>Conexión OK</strong><small>Backend y sesión de trabajo disponibles.</small></div>
+            <div><span>SQX local</span><strong>Base servidor</strong><small>StrategyQuant X se ejecuta en el entorno controlado.</small></div>
+            <div><span>Templates</span><strong>Capa 1 / Capa 2</strong><small>Plantillas base validadas antes de generar.</small></div>
+            <div><span>Descargas</span><strong>Navegador</strong><small>Los archivos se entregan sin mostrar carpetas internas.</small></div>
+          </div>
+          <div class="pg-operator-config" hidden aria-hidden="true">
             <div class="strat-form-grid pg-settings-grid">
               <label class="full">SQX install path <span class="hint">(donde está StrategyQuantX.exe)</span>
                 <input type="text" id="pg-sqx-path" placeholder="Ruta de instalacion de StrategyQuantX">

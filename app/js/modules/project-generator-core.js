@@ -21,7 +21,6 @@ function computeOnboardingState(input) {
     var health = data.healthMeta || {};
     var minings = data.minings || [];
     var outputFiles = data.outputFiles || [];
-    var outputDir = data.outputDir || '';
     var hasSqxInput = !!String(data.sqxPathInput || data.configState && data.configState.sqx_path || '').trim();
     var hasDbInput = !!String(data.dbInput || data.configState && data.configState.sqx_data_db || '').trim();
     var hasMinings = minings.length > 0;
@@ -30,32 +29,31 @@ function computeOnboardingState(input) {
     var sqxReady = !!health.sqx_path_set && !!health.data_db_exists;
     var hasUnsavedSqxCandidate = hasSqxInput && (!health.sqx_path_set || !health.data_db_exists);
     var connected = !!data.connected;
-    var apiBase = data.apiBase || '';
     var steps = [
       {
         id: 'api',
-        label: 'API SQX Edge',
+        label: 'Conexión del servicio',
         done: connected,
-        detail: connected ? ('Backend listo en ' + apiBase) : 'Sin conexion con el servicio.'
+        detail: connected ? 'Servicio preparado' : 'Sin conexion con el servicio.'
       },
       {
         id: 'sqx',
-        label: 'Ruta SQX',
+        label: 'Entorno SQX',
         done: connected && sqxReady,
         detail: sqxReady
-          ? ((health.sqx_path || 'Ruta SQX') + ' listo')
-          : (hasSqxInput ? 'Hay una ruta configurada pendiente de validar.' : 'Detecta o pega la carpeta de StrategyQuant X.')
+          ? 'Conexiones internas OK'
+          : (hasSqxInput ? 'Entorno pendiente de validar.' : 'Entorno SQX pendiente.')
       },
       {
         id: 'templates',
-        label: 'Templates y output',
+        label: 'Base y descargas',
         done: connected && templateReady,
         detail: templateReady
-          ? 'C1, C2 y workspace de descargas listos'
+          ? 'Templates y descargas web listos'
           : [
               health.templates_capa1_exists ? null : 'falta Capa 1',
               health.templates_capa2_exists ? null : 'falta Capa 2',
-              outputReady ? null : 'revisa output'
+              outputReady ? null : 'revisa descargas'
             ].filter(Boolean).join(' · ')
       },
       {
@@ -74,30 +72,30 @@ function computeOnboardingState(input) {
       completed: completed,
       current: current,
       checks: [
-        { label: 'API SQX Edge responde', ok: connected },
-        { label: hasDbInput ? 'data.db localizado' : 'data.db pendiente', ok: !!health.data_db_exists },
+        { label: 'Servicio responde', ok: connected },
+        { label: hasDbInput ? 'Datos SQX disponibles' : 'Datos SQX pendientes', ok: !!health.data_db_exists },
         { label: 'Templates C1 y C2 listos', ok: !!health.templates_capa1_exists && !!health.templates_capa2_exists },
         { label: hasMinings ? (minings.length + ' minings cargados') : 'Plan de minings pendiente', ok: hasMinings },
         { label: outputReady ? 'Descargas preparadas' : 'Descargas pendientes', ok: outputReady },
         { label: outputFiles.length ? 'Primer .cfx generado' : 'Primer .cfx pendiente', ok: outputFiles.length > 0 }
       ],
-      primaryLabel: 'Comprobar API',
-      secondaryLabel: 'Abrir configuracion',
-      tertiaryLabel: 'Guardar config',
+      primaryLabel: 'Comprobar conexión',
+      secondaryLabel: 'Ver entorno',
+      tertiaryLabel: 'Actualizar estado',
       tertiaryAction: 'save',
       tertiaryVisible: true,
       primaryDisabled: false,
       title: 'Preparando flujo guiado',
-      desc: 'Conecta la API y deja la configuracion lista para generar tu primer .cfx.',
-      assistantNext: 'Comprobar API',
+      desc: 'Confirma conexiones internas y deja la sesion lista para generar tu primer .cfx.',
+      assistantNext: 'Comprobar conexión',
       assistantHint: 'Primero necesitamos confirmar que el servicio responde.'
     };
 
     if (!current) {
       state.title = 'Todo listo para producir';
-      state.desc = 'Ya tienes la base configurada. Puedes descargar output o seguir afinando paths y templates.';
+      state.desc = 'El servicio tiene conexiones internas OK. Puedes generar mas proyectos o descargar los .cfx.';
       state.primaryLabel = 'Descargar output';
-      state.secondaryLabel = 'Abrir configuracion';
+      state.secondaryLabel = 'Ver entorno';
       state.tertiaryLabel = 'Actualizar estado';
       state.tertiaryAction = 'refresh';
       state.assistantNext = 'Produccion lista';
@@ -106,9 +104,9 @@ function computeOnboardingState(input) {
     }
 
     if (current.id === 'api') {
-      state.title = '1. Comprueba la API SQX Edge';
-      state.desc = 'El dashboard necesita el servicio activo para leer config, minings, output y generar proyectos.';
-      state.primaryLabel = 'Comprobar API';
+      state.title = '1. Comprueba la conexión';
+      state.desc = 'El dashboard necesita el servicio activo para leer el plan, generar proyectos y preparar descargas.';
+      state.primaryLabel = 'Comprobar conexión';
       state.tertiaryVisible = false;
       state.assistantNext = 'Comprobar servicio';
       state.assistantHint = 'Si no conecta, pulsa Reintentar o registra incidencia desde Control Panel.';
@@ -116,28 +114,28 @@ function computeOnboardingState(input) {
     }
 
     if (current.id === 'sqx') {
-      state.title = hasSqxInput ? '2. Valida la ruta de SQX' : '2. Detecta tu instalacion de SQX';
+      state.title = '2. Valida el entorno SQX';
       state.desc = hasSqxInput
-        ? 'Valida la ruta actual para rellenar data.db y projects sin tener que tocar nada mas.'
-        : 'Busca StrategyQuant X automaticamente o pega la ruta manualmente en configuracion.';
-      state.primaryLabel = hasSqxInput ? 'Validar ruta SQX' : 'Auto-detectar SQX';
+        ? 'Confirma que el entorno del servicio puede leer datos y recursos sin mostrar rutas al usuario.'
+        : 'El entorno SQX del servidor esta pendiente de validacion.';
+      state.primaryLabel = hasSqxInput ? 'Validar entorno' : 'Comprobar entorno';
       state.tertiaryVisible = hasUnsavedSqxCandidate;
-      state.assistantNext = hasSqxInput ? 'Validar y guardar ruta SQX' : 'Detectar instalacion SQX';
+      state.assistantNext = hasSqxInput ? 'Validar entorno SQX' : 'Comprobar entorno SQX';
       state.assistantHint = hasSqxInput
-        ? 'Si la validacion sale bien, guarda la configuracion para que el asistente avance.'
-        : 'El asistente puede buscar instalaciones habituales de SQX y rellenar los campos por ti.';
+        ? 'Si la validacion sale bien, el asistente avanzara sin exponer rutas internas.'
+        : 'Si no valida, registra incidencia desde Control Panel para que el operador revise el servidor.';
       return state;
     }
 
     if (current.id === 'templates') {
-      state.title = '3. Deja templates y output listos';
-      state.desc = 'Revisa que existan las dos plantillas .cfx y que el output apunte al workspace correcto.';
-      state.primaryLabel = 'Revisar configuracion';
+      state.title = '3. Deja base y descargas listas';
+      state.desc = 'Revisa que las plantillas Capa 1/Capa 2 y la entrega web de .cfx esten disponibles.';
+      state.primaryLabel = 'Revisar entorno';
       state.secondaryLabel = 'Reintentar estado';
-      state.tertiaryLabel = 'Guardar config';
+      state.tertiaryLabel = 'Actualizar estado';
       state.tertiaryAction = 'save';
-      state.assistantNext = 'Completar templates y output';
-      state.assistantHint = 'Cuando Capa 1, Capa 2 y output existan, el ultimo paso sera generar el primer .cfx y descargarlo desde el navegador.';
+      state.assistantNext = 'Completar base y descargas';
+      state.assistantHint = 'Cuando Capa 1, Capa 2 y descargas esten listas, el ultimo paso sera generar el primer .cfx.';
       return state;
     }
 
