@@ -210,9 +210,19 @@ sandbox.fetch = (url, options = {}) => {
   }
   throw new Error(`Unexpected remote welcome request ${path}`);
 };
+sandbox.URL = URL;
+let replacedLoginUrl = '';
+sandbox.location = { href: 'https://app.sqxedgesuite.org/dashboard?session=required' };
+sandbox.history = {
+  replaceState(_state, _title, url) {
+    replacedLoginUrl = String(url);
+    sandbox.location.href = 'https://app.sqxedgesuite.org' + replacedLoginUrl;
+  }
+};
 document.getElementById('remote-welcome-primary').click();
 await new Promise(resolve => setTimeout(resolve, 0));
 assert.equal(welcomeLoginRequests[0].path, '/api/remote/session/login');
+assert.equal(replacedLoginUrl, '/dashboard');
 assert.equal(document.getElementById('remote-welcome-gate').hidden, false);
 assert.equal(document.getElementById('remote-welcome-primary').dataset.remoteWelcomeAction, 'refresh');
 assert.equal(document.getElementById('remote-welcome-workspace-status').textContent, 'Pendiente');
@@ -285,7 +295,6 @@ assert.equal(document.getElementById('remote-welcome-enter').hidden, true);
 assert.equal(SQX.home.bindRemoteWelcomeGate(document), false);
 document.getElementById('remote-welcome-trust-toggle').click();
 assert.equal(document.getElementById('remote-trust-center').hidden, false);
-sandbox.URL = URL;
 let replacedWelcomeUrl = '';
 sandbox.location = { href: 'https://app.sqxedgesuite.org/dashboard?session=required' };
 sandbox.history = {

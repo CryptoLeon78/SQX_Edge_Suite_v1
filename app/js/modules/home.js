@@ -529,6 +529,9 @@
       primary.dataset.boundRemoteWelcomePrimary = '1';
       primary.addEventListener('click', function() {
         var action = primary.dataset.remoteWelcomeAction || 'refresh';
+        if (action === 'enter' || action === 'login') {
+          clearRemoteSessionRequiredQuery();
+        }
         if (action === 'enter') {
           dismissRemoteWelcomeGate(target);
         } else if (action === 'login') {
