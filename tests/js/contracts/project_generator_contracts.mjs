@@ -4,6 +4,7 @@ import { assert, Element, createLoadedSandbox, repoRoot } from './harness.mjs';
 
 const html = fs.readFileSync(path.join(repoRoot, 'app/SQX_Dashboard_v6.html'), 'utf8');
 const dashboardCss = fs.readFileSync(path.join(repoRoot, 'app/css/dashboard.css'), 'utf8');
+const projectGeneratorMain = fs.readFileSync(path.join(repoRoot, 'app/js/project-generator-main.js'), 'utf8');
 
 assert.ok(html.includes('id="tab-projectgen"'), 'Project Generator tab panel should render');
 assert.ok(html.includes('pg-guide-flow'), 'Project Generator should expose guided step flow');
@@ -48,6 +49,9 @@ assert.ok(!html.includes('id="pg-custom-family-list"'), 'retired objective famil
 assert.ok(!html.includes('id="pg-buyer-handoff-card"'), 'retired buyer handoff card must not return');
 assert.ok(!dashboardCss.includes('export-btn::before'), 'Export buttons must not render decorative pseudo-symbols');
 assert.doesNotMatch(html, /↻|📂|📦/, 'Project Generator controls should avoid decorative symbols in button text');
+assert.ok(projectGeneratorMain.includes('pgDownloadGeneratedResults([r])'), 'Project Generator should auto-download single generated .cfx files');
+assert.ok(projectGeneratorMain.includes('pgDownloadGeneratedResults(results)'), 'Project Generator should auto-download selected generated .cfx files');
+assert.ok(projectGeneratorMain.includes('Descarga automática preparada'), 'Project Generator should tell the user generated .cfx files are sent to browser downloads');
 
 const { SQX, document, sandbox } = createLoadedSandbox();
 const PG = SQX.projectGenerator;

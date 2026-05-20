@@ -596,7 +596,10 @@ async function pgGenerateOne(mining, capa) {
     const result = SQX_PG_MODULE.generateOneResult(r, planMining.num, capa);
     pgLog(result.logText, result.logLevel);
     pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
-    if (r.ok) await pgLoadOutput();
+    if (r.ok) {
+      await pgLoadOutput();
+      await pgDownloadGeneratedResults([r]);
+    }
   } catch(e) {
     const result = SQX_PG_MODULE.generateErrorResult(e.message, 'Error generando proyecto');
     pgLog(result.logText, result.logLevel);
@@ -620,7 +623,10 @@ async function pgGenerateCustom() {
     pgSetCustomStatus(result.text, result.level);
     pgLog(result.logText, result.logLevel);
     pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
-    if (r.ok) await pgLoadOutput();
+    if (r.ok) {
+      await pgLoadOutput();
+      await pgDownloadGeneratedResults([r]);
+    }
   } catch(e) {
     const result = SQX_PG_MODULE.generateCustomResult({ ok:false, error:e.message }, body);
     pgSetCustomStatus(result.text, result.level);
@@ -758,6 +764,7 @@ async function pgGenerateAll(capa) {
     pgLog(line.text, line.level);
   });
   await pgLoadOutput();
+  await pgDownloadGeneratedResults(results);
 }
 
 async function pgGenerateSelected(capa) {
@@ -785,6 +792,7 @@ async function pgGenerateSelected(capa) {
     pgLog(line.text, line.level);
   });
   await pgLoadOutput();
+  await pgDownloadGeneratedResults(results);
 }
 
 function pgSelectAllMinings() {
@@ -891,6 +899,32 @@ function pgFilenameFromDisposition(headerValue, fallback) {
   if (utf && utf[1]) return decodeURIComponent(utf[1].replace(/"/g, ''));
   const plain = header.match(/filename="?([^";]+)"?/i);
   return plain && plain[1] ? plain[1] : fallback;
+}
+
+function pgGeneratedFilenames(results) {
+  const seen = new Set();
+  return (results || []).map(result => {
+    if (!result || !result.ok) return '';
+    const filename = String(result.filename || result.output_file || '').trim();
+    if (filename) return filename;
+    const outputPath = String(result.output_path || '').trim();
+    if (!outputPath) return '';
+    return outputPath.split(/[\\/]/).pop().replace(/^workspace:\/\/outputs\//, '');
+  }).filter(name => {
+    if (!name || seen.has(name)) return false;
+    seen.add(name);
+    return true;
+  });
+}
+
+async function pgDownloadGeneratedResults(results) {
+  const names = pgGeneratedFilenames(results);
+  if (!names.length) return;
+  pgLog(
+    'Descarga automática preparada: ' + names.length + ' archivo' + (names.length === 1 ? '' : 's') + ' .cfx. Revisa la carpeta Descargas del navegador.',
+    'info'
+  );
+  await pgDownloadOutputBundle(names);
 }
 
 async function pgDownloadOutputBundle(names) {
