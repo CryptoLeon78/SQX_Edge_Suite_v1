@@ -2472,7 +2472,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "web_pro_annual",
             "support_assist",
             "tester_free",
-            "REMOTE-8 controlled pilot",
+            "REMOTE-RILIS-STANDBY",
             "Portable packaging remains an internal fallback",
         ):
             with self.subTest(pattern=pattern):
@@ -3120,7 +3120,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-8E - Tiny Cohort Manual Execution Record",
             "GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED",
             "REMOTE-8F tiny cohort monitoring",
-            "Further expansion remains blocked",
+            "further movement is blocked until the standby tester retest closes",
         ):
             with self.subTest(pattern=pattern):
                 self.assertIn(pattern, governance)
@@ -3351,7 +3351,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "REMOTE-8F-CLOSE - active tiny cohort monitoring clean",
             "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
             "active cohort is `4/4 ready`",
-            "Current implementation phase: REMOTE-8G tiny cohort decision review",
+            "Current implementation phase: REMOTE-RILIS-STANDBY",
+            "TESTER-RILIS cannot retest until tomorrow",
             "Current phase completed: REMOTE-8H cycle bridge",
             "Current implementation phase: REMOTE-8H private package evidence",
             "Tiny Cohort Monitoring Gate",
@@ -16053,9 +16054,11 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: UX-NAV pasa a optimizacion tab por tab; el tab activo es Workflow",
-            "reordenamiento global queda aplazado hasta completar las optimizaciones individuales",
+            "Estado interno: UX-NAV esta sin tab activo tras UX-WF2",
+            "no se abre otro pase hasta que el operador defina el siguiente scope explicito",
             "Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro",
+            "REMOTE-PG-SESSION-FIX esta aplicado",
+            "TESTER-RILIS pendiente de retest",
             "Distribucion principal: enlace unico comercial `https://sqxedgesuite.org/`",
             "URL de acceso comunicable: `https://sqxedgesuite.org/`",
             "Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip`",

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-20 - Current Docs State Sync
+
+- Synchronizes README, public roadmap, project governance and UX-NAV plan with the current REMOTE-RILIS-STANDBY state.
+- Records the Project Generator remote-session redirect fix as applied and keeps TESTER-RILIS retest pending before any REMOTE-8G decision review resumes.
+- Aligns UX-NAV docs around no active tab after UX-WF2 acceptance until the operator defines the next scope.
+- Adds a persistent state consistency manifest and pytest guard to catch future stale phase, next-action, roadmap-date or UX active-scope drift across docs.
+
 ## 2026-05-12 - TL1d Worker Entry Rescue Shell
 
 - Adds a Cloudflare Worker entry wrapper that serves the tester login, portal, logout, health and feature-check flow before the unstable Next/OpenNext runtime path.

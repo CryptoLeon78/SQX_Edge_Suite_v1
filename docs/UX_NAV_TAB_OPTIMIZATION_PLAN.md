@@ -17,9 +17,9 @@ No active UX tab after UX-WF2 acceptance.
 
 Project Generator is closed as a guided `.cfx` assistant. Mining Control cleanup remains done, and Workflow has now been accepted after an operator real-browser visual/manual pass on 2026-05-17. Do not open a new UX tab pass until the operator gives the next explicit scope.
 
-Temporary repair/enrichment pause: TM-DIV1 adds a hybrid diversity gate to Template Maker after the TM-FIX2 CSV contract repair. This does not advance the UX-NAV tab order and does not reopen Template Maker as a design pass; it prevents redundant C2 templates by clustering similar `.sqx` logic plus CSV metric behavior before Mining Control resumes.
+Historical repair/enrichment pause: TM-DIV1 added a hybrid diversity gate to Template Maker after the TM-FIX2 CSV contract repair. This did not advance the UX-NAV tab order and does not reopen Template Maker as a design pass; it prevents redundant C2 templates by clustering similar `.sqx` logic plus CSV metric behavior.
 
-Traceability hardening pause: TM-TRACE1 makes Template Maker C2 generation carry asset, BlockSetting, base indicator, NumCluster, direction, timeframe and source strategy in the generated filename and internal `StrategyName`. This is a product invariant before returning to Mining Control because C2 templates must be traceable from source to output.
+Historical traceability hardening pause: TM-TRACE1 makes Template Maker C2 generation carry asset, BlockSetting, base indicator, NumCluster, direction, timeframe and source strategy in the generated filename and internal `StrategyName`. This is now a product invariant because C2 templates must be traceable from source to output.
 
 Active correction: `Foco operativo` and `Precarga desde Por Activo` are retired completely from the visible UI. `Plan mining` remains the single source of truth, and rows added from asset cards are identified in-table with the source tag `TARJETA`, alongside manual rows tagged as `MANUAL`.
 

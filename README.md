@@ -4,8 +4,8 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 
 ## Estado Actual
 
-- Estado interno: UX-NAV pasa a optimizacion tab por tab; el tab activo es Workflow y el reordenamiento global queda aplazado hasta completar las optimizaciones individuales.
-- Estado comercial: CANONICAL-LINK1 fija `https://sqxedgesuite.org/` como unico enlace externo; REMOTE-8C sigue siendo el GO obligatorio antes de ampliar testers.
+- Estado interno: UX-NAV esta sin tab activo tras UX-WF2; no se abre otro pase hasta que el operador defina el siguiente scope explicito.
+- Estado comercial: CANONICAL-LINK1 fija `https://sqxedgesuite.org/` como unico enlace externo; REMOTE-RILIS-STANDBY queda activo con REMOTE-PG-SESSION-FIX esta aplicado, CREATOR-IVAN funcionando correctamente y TESTER-RILIS pendiente de retest.
 - Estado de despliegue: Windows laptop + API localhost + Cloudflare Tunnel sigue siendo la ruta activa; el dashboard protegido queda como destino interno detras del CTA del dominio raiz.
 - Ancla historica: Estado comercial: REMOTE-OPS1 valida el portatil como host Pro antes de cualquier siguiente movimiento real con testers o compradores.
 - Ancla historica: Estado comercial: REMOTE-8H cycle bridge conecta la decision REMOTE-8L con el paquete de siguiente movimiento sin ejecutar expansion.
@@ -14,7 +14,7 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 - Distribucion principal: enlace unico comercial `https://sqxedgesuite.org/`; el usuario final no descarga ZIP, no ejecuta launchers y no instala Python.
 - URL de acceso comunicable: `https://sqxedgesuite.org/`. El dashboard protegido bajo Cloudflare Access es infraestructura interna y no se presenta como segundo enlace al cliente.
 - Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip` con SHA256 `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`.
-- Siguiente paso recomendado: validar el preview de `https://sqxedgesuite.org/` en Telegram/Discord/X, mantener `app.sqxedgesuite.org` como infraestructura interna y continuar REMOTE-8C hasta cerrar la ventana limpia antes de ampliar testers.
+- Siguiente paso recomendado: esperar el retest de TESTER-RILIS; si confirma OK, registrar la incidencia como resuelta y reabrir REMOTE-8G decision review. Cualquier expansion, grant, email, checkout, URL o onboarding nuevo sigue bloqueado hasta una fase posterior aprobada.
 - Ancla historica: Siguiente paso recomendado: rellenar evidencia privada REMOTE-OPS1 en `.local/remote_service/remote_ops1_laptop_readiness.local.json`; si devuelve GO, volver a REMOTE-8H private package evidence.
 - Ancla historica: Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H desde una decision REMOTE-8L `prepare_next_controlled_movement` y pedir aprobacion REMOTE-8I antes de ejecutar nada.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.
@@ -52,6 +52,7 @@ Documentos comerciales:
 - `docs/MONETIZATION_ROADMAP.md`
 - `docs/PUBLIC_ROADMAP.md`
 - `docs/PROJECT_GOVERNANCE.md` consulta obligatoria antes de fases/mensajes de trabajo; incluye G4 para tratar `SQX_Institutional_Core` como repo original/first-class mediante el remoto `institutional`, sin `force push` ni espejo destructivo.
+- `docs/STATE_CONSISTENCY_GUARD.md` y `docs/state_consistency_manifest.json` mantienen alineados README, roadmap, governance y UX-NAV con un test pytest contra frases obligatorias/obsoletas.
 - `DISCIPLINA_OPERATIVA.md` estandar de sincronizacion y calidad para el equipo institucional.
 - `resources/pro-buyer-pack/README.md`
 - `resources/pro-buyer-pack/onboarding/START_HERE.md`

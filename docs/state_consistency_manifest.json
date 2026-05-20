@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "updated": "2026-05-20",
+  "purpose": "Canonical public-safe state markers used by automated docs consistency tests.",
+  "coreFiles": [
+    "README.md",
+    "docs/PUBLIC_ROADMAP.md",
+    "docs/PROJECT_GOVERNANCE.md",
+    "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md"
+  ],
+  "rules": [
+    {
+      "id": "remote_current_gate",
+      "description": "REMOTE docs must agree that REMOTE-RILIS-STANDBY is active after REMOTE-PG-SESSION-FIX, with REMOTE-8G deferred until the standby retest closes.",
+      "required": {
+        "README.md": [
+          "REMOTE-RILIS-STANDBY queda activo",
+          "REMOTE-PG-SESSION-FIX esta aplicado",
+          "TESTER-RILIS pendiente de retest",
+          "Siguiente paso recomendado: esperar el retest de TESTER-RILIS"
+        ],
+        "docs/PUBLIC_ROADMAP.md": [
+          "REMOTE-RILIS-STANDBY keeps a post-fix browser retest pending",
+          "a post-fix browser retest is in standby",
+          "Close the standby browser retest after the Project Generator remote-session redirect fix",
+          "Resume REMOTE-8G decision review only after the standby retest is confirmed"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: REMOTE-PG-SESSION-FIX",
+          "Current implementation phase: REMOTE-RILIS-STANDBY",
+          "TESTER-RILIS cannot retest until tomorrow",
+          "current blocker is TESTER-RILIS standby retest"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "REMOTE-8C sigue siendo el GO obligatorio",
+          "continuar REMOTE-8C hasta cerrar la ventana limpia",
+          "REMOTE-8G es la decision obligatoria"
+        ],
+        "docs/PUBLIC_ROADMAP.md": [
+          "REMOTE-8 controlled pilot with one paid/internal user end to end",
+          "Expand the controlled pilot to 3-5 users only after REMOTE-8",
+          "REMOTE-8G decision review for the clean tiny cohort closeout"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "expansion remains blocked until REMOTE-8C observation is clean",
+          "multi-user expansion remains blocked by REMOTE-8C observation/support gates",
+          "Current implementation phase: REMOTE-8G tiny cohort decision review"
+        ]
+      }
+    },
+    {
+      "id": "ux_nav_current_scope",
+      "description": "UX-NAV docs must agree that no UX tab is active after UX-WF2 acceptance until the operator defines the next scope.",
+      "required": {
+        "README.md": [
+          "UX-NAV esta sin tab activo tras UX-WF2"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Active UX-NAV tab: none"
+        ],
+        "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md": [
+          "No active UX tab after UX-WF2 acceptance",
+          "Do not open a new UX tab pass until the operator gives the next explicit scope"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "tab activo es Workflow"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Active UX-NAV tab: `Mining Control`"
+        ],
+        "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md": [
+          "before Mining Control resumes",
+          "before returning to Mining Control"
+        ]
+      }
+    },
+    {
+      "id": "roadmap_freshness",
+      "description": "The public roadmap date must not lag the current sync anchor.",
+      "required": {
+        "docs/PUBLIC_ROADMAP.md": [
+          "Last updated: 2026-05-20."
+        ],
+        "CHANGELOG.md": [
+          "2026-05-20 - Current Docs State Sync"
+        ]
+      },
+      "forbidden": {
+        "docs/PUBLIC_ROADMAP.md": [
+          "Last updated: 2026-05-16.",
+          "Last updated: 2026-05-19."
+        ]
+      }
+    }
+  ]
+}
