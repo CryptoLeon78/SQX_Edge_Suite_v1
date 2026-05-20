@@ -23,7 +23,6 @@ const PG_STATE = {
 const PG_ALIAS_MIN_SCORE = (window.SQX_CONFIG && window.SQX_CONFIG.value('projectGenerator.aliasSuggestMinScore', 80)) || 80;
 const pgApiInline = document.getElementById('pg-api-base-inline');
 if (pgApiInline) pgApiInline.textContent = 'Servicio preparado';
-let PG_REMOTE_SESSION_REDIRECTING = false;
 
 function pgApiBase() {
   return (window.SQX_CONFIG && window.SQX_CONFIG.apiBase && window.SQX_CONFIG.apiBase()) || PG_API_INITIAL || '';
@@ -376,28 +375,12 @@ function pgIsRemoteSessionRequired(error) {
     : String((error && error.message) || '').toLowerCase().includes('remote_session_required');
 }
 
-function pgRemoteSessionUrl() {
-  return window.location && window.location.origin
-    ? (window.location.origin + '/dashboard?session=required')
-    : '/dashboard?session=required';
-}
-
 function pgHandleRemoteSessionRequired(error) {
-  const message = 'Sesión SQX Edge Suite pendiente o caducada. Vuelve a Bienvenida y pulsa Acceso DASHBOARD para crear la sesión de app y el workspace antes de generar o descargar .cfx.';
+  const message = 'Sesión SQX Edge Suite pendiente o caducada. Pulsa Acceso DASHBOARD en Bienvenida para crear la sesión de app y el workspace antes de generar o descargar .cfx.';
   pgLog(message, 'err');
-  pgSetStatus('down', 'Sesión de app requerida', 'Acceso Cloudflare OK, pero falta activar la sesión interna de SQX Edge Suite. Redirigiendo a Bienvenida…', {
+  pgSetStatus('down', 'Sesión de app requerida', 'Acceso Cloudflare OK, pero falta activar la sesión interna de SQX Edge Suite. No se fuerza navegación desde Project Generator para evitar bucles de bienvenida.', {
     error: (error && (error.code || error.message)) || 'remote_session_required'
   });
-  if (PG_REMOTE_SESSION_REDIRECTING) return true;
-  PG_REMOTE_SESSION_REDIRECTING = true;
-  try {
-    window.sessionStorage && window.sessionStorage.removeItem('sqx_remote_welcome_dismissed_v1');
-  } catch (_err) {}
-  window.setTimeout(() => {
-    if (window.location && typeof window.location.assign === 'function') {
-      window.location.assign(pgRemoteSessionUrl());
-    }
-  }, 900);
   return true;
 }
 

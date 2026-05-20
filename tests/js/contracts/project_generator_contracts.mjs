@@ -269,8 +269,17 @@ await assert.rejects(
 assert.equal(PG.isRemoteSessionRequiredError(new Error('remote_session_required')), true);
 assert.match(projectGeneratorMain, /pgHandleRemoteSessionRequired/);
 assert.match(projectGeneratorMain, /Sesión SQX Edge Suite pendiente o caducada/);
-assert.match(projectGeneratorMain, /\/dashboard\?session=required/);
-assert.match(projectGeneratorMain, /sqx_remote_welcome_dismissed_v1/);
+assert.match(projectGeneratorMain, /No se fuerza navegación desde Project Generator/);
+assert.doesNotMatch(
+  projectGeneratorMain,
+  /window\.location\.assign\(pgRemoteSessionUrl\(\)\)/,
+  'Project Generator passive polling must not force Welcome redirects before the app session exists'
+);
+assert.doesNotMatch(
+  projectGeneratorMain,
+  /sqx_remote_welcome_dismissed_v1/,
+  'Project Generator must not clear the Welcome dismissal flag; Welcome owns remote session navigation'
+);
 
 document.add(new Element('pg-status-banner', ['pg-status-loading']));
 document.add(new Element('pg-status-title'));
