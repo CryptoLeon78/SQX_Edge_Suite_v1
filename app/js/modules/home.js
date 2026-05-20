@@ -133,6 +133,22 @@
     else store.removeItem(REMOTE_WELCOME_DISMISSED_KEY);
   }
 
+  function clearRemoteSessionRequiredQuery() {
+    try {
+      if (!global.location || !global.location.href || !global.history || !global.history.replaceState) return false;
+      var url = new URL(global.location.href);
+      var hadSessionFlag = url.searchParams.has('session') || url.searchParams.has('session_required');
+      if (!hadSessionFlag) return false;
+      url.searchParams.delete('session');
+      url.searchParams.delete('session_required');
+      var nextUrl = url.pathname + (url.search ? url.search : '') + (url.hash || '');
+      global.history.replaceState({}, '', nextUrl);
+      return true;
+    } catch (_err) {
+      return false;
+    }
+  }
+
   function computeRemoteServiceModel(input) {
     var data = input || {};
     var accessPayload = data.access || {};
@@ -496,6 +512,7 @@
 
   function dismissRemoteWelcomeGate(doc) {
     var target = doc || global.document;
+    clearRemoteSessionRequiredQuery();
     setRemoteWelcomeDismissed(true);
     var gate = target && target.getElementById('remote-welcome-gate');
     if (gate) gate.hidden = true;
@@ -702,6 +719,7 @@
     computeRemoteServiceModel: computeRemoteServiceModel,
     computeHomeModel: computeHomeModel,
     createTraceItem: createTraceItem,
+    clearRemoteSessionRequiredQuery: clearRemoteSessionRequiredQuery,
     dismissRemoteWelcomeGate: dismissRemoteWelcomeGate,
     fetchJson: fetchJson,
     initRemoteServicePanel: initRemoteServicePanel,

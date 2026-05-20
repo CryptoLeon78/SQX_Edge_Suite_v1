@@ -285,8 +285,19 @@ assert.equal(document.getElementById('remote-welcome-enter').hidden, true);
 assert.equal(SQX.home.bindRemoteWelcomeGate(document), false);
 document.getElementById('remote-welcome-trust-toggle').click();
 assert.equal(document.getElementById('remote-trust-center').hidden, false);
+sandbox.URL = URL;
+let replacedWelcomeUrl = '';
+sandbox.location = { href: 'https://app.sqxedgesuite.org/dashboard?session=required' };
+sandbox.history = {
+  replaceState(_state, _title, url) {
+    replacedWelcomeUrl = String(url);
+    sandbox.location.href = 'https://app.sqxedgesuite.org' + replacedWelcomeUrl;
+  }
+};
 document.getElementById('remote-welcome-primary').click();
 assert.equal(document.getElementById('remote-welcome-gate').hidden, true);
+assert.equal(replacedWelcomeUrl, '/dashboard');
+assert.equal(SQX.home.clearRemoteSessionRequiredQuery(), false);
 
 const tabA = document.add(new Element('wf-main-tab', ['subtab', 'active'], { subtab: 'wf-main' }));
 const tabB = document.add(new Element('wf-rules-tab', ['subtab'], { subtab: 'wf-rules' }));
