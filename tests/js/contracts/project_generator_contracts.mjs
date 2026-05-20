@@ -53,6 +53,10 @@ assert.ok(html.includes('Descargar todo ZIP'), 'Project Generator output CTA sho
 assert.ok(projectGeneratorMain.includes('window.location.assign(url)'), 'Project Generator GET downloads should use native browser navigation');
 assert.ok(projectGeneratorMain.includes('Archivo listo en .cfx generados'), 'Project Generator should explain generated files must be downloaded from the output list');
 assert.ok(!projectGeneratorMain.includes('pgDownloadGeneratedResults'), 'Project Generator should not attempt automatic downloads after async generation');
+assert.ok(projectGeneratorMain.includes('function pgApiBase()'), 'Project Generator should resolve API base dynamically');
+assert.ok(projectGeneratorMain.includes('function pgConnectionDiagnostic'), 'Project Generator should expose safe connection diagnostics on fetch failures');
+assert.ok(projectGeneratorMain.includes('Diagnóstico seguro: API'), 'Project Generator error copy should include safe diagnostics for remote support');
+assert.ok(!projectGeneratorMain.includes('const PG_API ='), 'Project Generator should not freeze the API base at script load');
 
 const { SQX, document, sandbox } = createLoadedSandbox();
 const PG = SQX.projectGenerator;

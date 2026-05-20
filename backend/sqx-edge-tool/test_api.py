@@ -34,6 +34,36 @@ class ApiTestCase(unittest.TestCase):
         self.assertIn("output_dir", data)
         self.assertIn("output_dir_exists", data)
 
+    def test_remote_health_endpoint_redacts_local_paths(self):
+        response = self.client.get(
+            "/api/health",
+            base_url="https://app.sqxedgesuite.org",
+            headers={"Cf-Access-Authenticated-User-Email": "tester@example.invalid"},
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertTrue(data["ok"])
+        self.assertIn("sqx_path_set", data)
+        self.assertIn("output_dir_exists", data)
+        self.assertNotIn("sqx_path", data)
+        self.assertNotIn("output_dir", data)
+        self.assertEqual(data["privacy"]["local_paths_returned"], False)
+
+    def test_dashboard_api_alias_uses_api_handlers(self):
+        response = self.client.get(
+            "/dashboard/api/health",
+            base_url="https://app.sqxedgesuite.org",
+            headers={"Cf-Access-Authenticated-User-Email": "tester@example.invalid"},
+            environ_base={"REMOTE_ADDR": "127.0.0.1"},
+        )
+        self.assertEqual(response.status_code, 200)
+        data = self.get_json(response)
+        self.assertTrue(data["ok"])
+        self.assertEqual(data["version"], server.VERSION)
+        self.assertNotIn("sqx_path", data)
+        self.assertEqual(data["privacy"]["local_paths_returned"], False)
+
     def test_manifest_endpoint_exposes_shared_config(self):
         response = self.client.get("/api/manifest")
         self.assertEqual(response.status_code, 200)

@@ -3,6 +3,7 @@
 // ============================================================
 
 (function initSqxAppConfig(global) {
+  const CONFIG_VERSION = 'remote-api-same-origin-v2';
   const manifest = global.SQX_MANIFEST || {};
   const ui = manifest.ui || {};
   const product = manifest.product || {};
@@ -173,45 +174,62 @@
     if (configured) return configured.replace(/\/$/, '');
     const api = ui.api || {};
     const basePath = api.basePath || '/api';
+    const remoteBasePath = api.remoteBasePath || '/dashboard/api';
     const loc = global.location || {};
     const protocol = loc.protocol === 'https:' ? 'https:' : 'http:';
     const host = loc.hostname || api.defaultHost || '127.0.0.1';
     const isLocalHost = host === 'localhost' || host === '::1' || host.indexOf('127.') === 0;
     const isRemoteHost = protocol === 'https:' && host && !isLocalHost;
+    const currentOrigin = loc.origin || (protocol + '//' + host);
+    function safeRemoteApiBase(value) {
+      const normalized = String(value || '').replace(/\/$/, '');
+      if (!normalized) return '';
+      if (!isRemoteHost) return normalized;
+      let parsedProtocol = '';
+      let parsedHost = '';
+      let parsedOrigin = '';
+      let parsedPathname = '';
+      if (typeof URL !== 'undefined') {
+        const parsed = new URL(normalized, currentOrigin);
+        parsedProtocol = parsed.protocol || '';
+        parsedHost = parsed.hostname || '';
+        parsedOrigin = parsed.origin || '';
+        parsedPathname = parsed.pathname || '';
+      }
+      const isLocal = parsedHost
+        ? parsedHost === 'localhost' || parsedHost === '::1' || parsedHost.indexOf('127.') === 0
+        : /^https?:\/\/(?:localhost|127\.|\[?::1\]?)/i.test(normalized);
+      const isInsecure = parsedProtocol ? parsedProtocol !== 'https:' : /^http:\/\//i.test(normalized);
+      const sameOrigin = parsedOrigin
+        ? parsedOrigin === currentOrigin
+        : (
+            normalized.indexOf(currentOrigin + remoteBasePath) === 0
+            || normalized.indexOf(remoteBasePath) === 0
+            || normalized.indexOf(currentOrigin + basePath) === 0
+            || normalized.indexOf(basePath) === 0
+          );
+      const remotePathOk = parsedPathname
+        ? parsedPathname.indexOf(remoteBasePath) === 0
+        : (normalized.indexOf(currentOrigin + remoteBasePath) === 0 || normalized.indexOf(remoteBasePath) === 0);
+      return !isLocal && !isInsecure && sameOrigin && remotePathOk ? normalized : '';
+    }
     const meta = document.querySelector('meta[name="sqx-api-base"]');
-    if (meta && meta.content) return meta.content.replace(/\/$/, '');
+    if (meta && meta.content) {
+      const safeMeta = safeRemoteApiBase(meta.content);
+      if (safeMeta) return safeMeta;
+    }
     try {
       const stored = localStorage.getItem(storageKeys.apiBase || 'sqx_pg_api_base_v1');
       if (stored) {
-        const normalizedStored = stored.replace(/\/$/, '');
-        let storedProtocol = '';
-        let storedHost = '';
-        let storedOrigin = '';
-        if (typeof URL !== 'undefined') {
-          const parsed = new URL(normalizedStored, loc.origin || (protocol + '//' + host));
-          storedProtocol = parsed.protocol || '';
-          storedHost = parsed.hostname || '';
-          storedOrigin = parsed.origin || '';
-        }
-        const storedIsLocal = storedHost
-          ? storedHost === 'localhost' || storedHost === '::1' || storedHost.indexOf('127.') === 0
-          : /^https?:\/\/(?:localhost|127\.|\[?::1\]?)/i.test(normalizedStored);
-        const storedIsInsecure = storedProtocol
-          ? storedProtocol !== 'https:'
-          : /^http:\/\//i.test(normalizedStored);
-        const currentOrigin = loc.origin || (protocol + '//' + host);
-        const storedSameOrigin = storedOrigin
-          ? storedOrigin === currentOrigin
-          : (normalizedStored.indexOf(currentOrigin + basePath) === 0 || normalizedStored.indexOf(basePath) === 0);
-        const storedIsSafeForRemote = !storedIsLocal && !storedIsInsecure && storedSameOrigin;
-        if (!isRemoteHost || storedIsSafeForRemote) return normalizedStored;
+        const safeStored = safeRemoteApiBase(stored);
+        if (safeStored) return safeStored;
         try {
           localStorage.removeItem(storageKeys.apiBase || 'sqx_pg_api_base_v1');
         } catch (cleanupErr) {}
       }
     } catch (e) {}
     if (isRemoteHost) {
-      return (loc.origin || (protocol + '//' + host)) + basePath;
+      return currentOrigin + remoteBasePath;
     }
     const port = api.defaultPort || 5050;
     return protocol + '//' + host + ':' + port + basePath;
@@ -227,12 +245,31 @@
     return cur;
   }
 
+  function diagnostics() {
+    const loc = global.location || {};
+    const base = defaultApiBase();
+    let apiOrigin = '';
+    try {
+      apiOrigin = (new URL(base, loc.origin || 'http://127.0.0.1')).origin;
+    } catch (_err) {}
+    return {
+      configVersion: CONFIG_VERSION,
+      apiBase: base,
+      apiOrigin,
+      pageOrigin: loc.origin || '',
+      host: loc.host || loc.hostname || '',
+      protocol: loc.protocol || '',
+    };
+  }
+
   global.SQX_CONFIG = {
+    version: CONFIG_VERSION,
     manifest,
     ui,
     product,
     storageKeys,
     apiBase: defaultApiBase,
+    diagnostics,
     value: configValue,
     fillSelect,
   };

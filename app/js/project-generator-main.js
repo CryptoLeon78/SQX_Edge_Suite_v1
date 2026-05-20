@@ -4,7 +4,7 @@
 const SQX_PG_MODULE = (window.SQX && window.SQX.projectGenerator) || {};
 const SQX_PG_DOM = SQX_PG_MODULE.dom || {};
 const SQX_PG_BINDINGS = SQX_PG_MODULE.bindings || {};
-const PG_API = (window.SQX_CONFIG && window.SQX_CONFIG.apiBase()) || '';
+const PG_API_INITIAL = (window.SQX_CONFIG && window.SQX_CONFIG.apiBase()) || '';
 const PG_STATE = {
   aliases: {},
   config: {},
@@ -24,6 +24,24 @@ const PG_ALIAS_MIN_SCORE = (window.SQX_CONFIG && window.SQX_CONFIG.value('projec
 const pgApiInline = document.getElementById('pg-api-base-inline');
 if (pgApiInline) pgApiInline.textContent = 'Servicio preparado';
 let PG_REMOTE_SESSION_REDIRECTING = false;
+
+function pgApiBase() {
+  return (window.SQX_CONFIG && window.SQX_CONFIG.apiBase && window.SQX_CONFIG.apiBase()) || PG_API_INITIAL || '';
+}
+
+function pgConnectionDiagnostic(error) {
+  const diag = window.SQX_CONFIG && window.SQX_CONFIG.diagnostics ? window.SQX_CONFIG.diagnostics() : {};
+  const origin = (window.location && window.location.origin) || '';
+  const apiBase = String(diag.apiBase || pgApiBase() || '');
+  const apiLabel = origin && apiBase.indexOf(origin) === 0 ? apiBase.replace(origin, 'mismo-origen') : (apiBase || 'sin-api');
+  const online = typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean' ? (navigator.onLine ? 'online' : 'offline') : 'online-desconocido';
+  const errorName = error && error.name ? String(error.name) : 'Error';
+  return 'Diagnóstico seguro: API ' + apiLabel
+    + ' · config ' + (diag.configVersion || (window.SQX_CONFIG && window.SQX_CONFIG.version) || 'sin-version')
+    + ' · pagina ' + ((diag.host || (window.location && window.location.host)) || 'sin-host')
+    + ' · red ' + online
+    + ' · error ' + errorName + '.';
+}
 
 function pgEsc(value) {
   return SQX_PG_DOM.escapeHtml ? SQX_PG_DOM.escapeHtml(value) : SQX_PG_MODULE.escapeHtml(value);
@@ -331,7 +349,7 @@ function pgResetGeneratedCfxSession(detail) {
 
 function pgGetOnboardingState() {
   return SQX_PG_MODULE.computeOnboardingState({
-    apiBase: PG_API,
+    apiBase: pgApiBase(),
     connected: PG_STATE.connected,
     configState: PG_STATE.config,
     dbInput: pgInputValue('pg-sqx-db'),
@@ -349,7 +367,7 @@ function pgRenderOnboarding() {
 }
 
 async function pgFetch(path, options) {
-  return SQX_PG_MODULE.fetchJson(PG_API, path, options);
+  return SQX_PG_MODULE.fetchJson(pgApiBase(), path, options);
 }
 
 function pgIsRemoteSessionRequired(error) {
@@ -428,9 +446,10 @@ async function pgCheckHealth() {
       return;
     }
     PG_STATE.connected = false;
+    const diagnostic = pgConnectionDiagnostic(e);
     pgSetStatus('down',
       'Servicio desconectado',
-      'El servicio no responde. Reintenta o registra incidencia desde Control Panel. Detalle: ' + e.message,
+      'El servicio no responde. Reintenta o registra incidencia desde Control Panel. Detalle: ' + e.message + '. ' + diagnostic,
       { error: e.message });
     await pgLoadMinings();
   }
@@ -935,7 +954,7 @@ async function pgValidateSqxPath() {
 }
 
 function pgOutputDownloadUrl(path) {
-  return (PG_API || '') + path;
+  return (pgApiBase() || '') + path;
 }
 
 function pgStartBrowserDownload(url) {

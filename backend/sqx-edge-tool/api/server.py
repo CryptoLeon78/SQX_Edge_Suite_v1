@@ -132,6 +132,30 @@ from core.customer_cockpit import cockpit_overview as customer_cockpit_overview
 
 app = Flask(__name__)
 
+
+class DashboardApiAliasMiddleware:
+    """Route /dashboard/api/* through the normal /api/* handlers.
+
+    Cloudflare Access deployments can scope the dashboard policy to /dashboard.
+    Keeping browser API calls under that path makes the dashboard and API share
+    the same Access cookie/policy surface while preserving the existing backend
+    route implementations.
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    def __call__(self, environ, start_response):
+        path_info = environ.get("PATH_INFO") or ""
+        if path_info == "/dashboard/api":
+            environ["PATH_INFO"] = "/api"
+        elif path_info.startswith("/dashboard/api/"):
+            environ["PATH_INFO"] = "/api/" + path_info[len("/dashboard/api/"):]
+        return self.app(environ, start_response)
+
+
+app.wsgi_app = DashboardApiAliasMiddleware(app.wsgi_app)
+
 VERSION = "0.2.0"
 CONFIG_PATH = ROOT / "config.json"
 DASHBOARD_ROOT = PROJECT_ROOT / "app"
@@ -810,7 +834,7 @@ def health():
     db_path = cfg.get("sqx_data_db", "")
     output_dir = Path(resolve_output_dir(cfg))
     current_license = license_status()
-    return jsonify({
+    payload = {
         "ok": True,
         "version": VERSION,
         "license": {
@@ -828,7 +852,12 @@ def health():
         "output_dir_exists": output_dir.is_dir(),
         "templates_capa1_exists": os.path.isfile(resolve_template(cfg, 1)),
         "templates_capa2_exists": os.path.isfile(resolve_template(cfg, 2)),
-    })
+    }
+    if _is_authenticated_access_tunnel_request():
+        payload.pop("sqx_path", None)
+        payload.pop("output_dir", None)
+        payload["privacy"] = {"local_paths_returned": False}
+    return jsonify(payload)
 
 
 @app.get("/api/symbol-info/<asset>")
