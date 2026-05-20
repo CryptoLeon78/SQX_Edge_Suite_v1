@@ -49,9 +49,10 @@ assert.ok(!html.includes('id="pg-custom-family-list"'), 'retired objective famil
 assert.ok(!html.includes('id="pg-buyer-handoff-card"'), 'retired buyer handoff card must not return');
 assert.ok(!dashboardCss.includes('export-btn::before'), 'Export buttons must not render decorative pseudo-symbols');
 assert.doesNotMatch(html, /↻|📂|📦/, 'Project Generator controls should avoid decorative symbols in button text');
-assert.ok(projectGeneratorMain.includes('pgDownloadGeneratedResults([r])'), 'Project Generator should auto-download single generated .cfx files');
-assert.ok(projectGeneratorMain.includes('pgDownloadGeneratedResults(results)'), 'Project Generator should auto-download selected generated .cfx files');
-assert.ok(projectGeneratorMain.includes('Descarga automática preparada'), 'Project Generator should tell the user generated .cfx files are sent to browser downloads');
+assert.ok(html.includes('Descargar todo ZIP'), 'Project Generator output CTA should clearly download all files as ZIP');
+assert.ok(projectGeneratorMain.includes('window.location.assign(url)'), 'Project Generator GET downloads should use native browser navigation');
+assert.ok(projectGeneratorMain.includes('Archivo listo en .cfx generados'), 'Project Generator should explain generated files must be downloaded from the output list');
+assert.ok(!projectGeneratorMain.includes('pgDownloadGeneratedResults'), 'Project Generator should not attempt automatic downloads after async generation');
 
 const { SQX, document, sandbox } = createLoadedSandbox();
 const PG = SQX.projectGenerator;
