@@ -247,6 +247,23 @@ await assert.rejects(
   () => PG.fetchJson('', '/bad', {}, async () => ({ ok: false, status: 500, text: async () => 'boom' })),
   /boom/
 );
+await assert.rejects(
+  () => PG.fetchJson('', '/remote-only', {}, async () => ({
+    ok: false,
+    status: 403,
+    text: async () => '{"ok":false,"error":"remote_session_required","message":"Create a valid SQX Edge Suite app session before using Project Generator remotely."}'
+  })),
+  error => {
+    assert.equal(error.status, 403);
+    assert.equal(error.code, 'remote_session_required');
+    assert.equal(PG.isRemoteSessionRequiredError(error), true);
+    return /valid SQX Edge Suite app session/.test(error.message);
+  }
+);
+assert.equal(PG.isRemoteSessionRequiredError(new Error('remote_session_required')), true);
+assert.match(projectGeneratorMain, /pgHandleRemoteSessionRequired/);
+assert.match(projectGeneratorMain, /Sesión SQX Edge Suite pendiente o caducada/);
+assert.match(projectGeneratorMain, /session=required/);
 
 document.add(new Element('pg-status-banner', ['pg-status-loading']));
 document.add(new Element('pg-status-title'));

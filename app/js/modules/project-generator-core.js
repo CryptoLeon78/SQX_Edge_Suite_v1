@@ -180,8 +180,23 @@ async function fetchJson(apiBase, apiPath, options, fetchImpl) {
     } catch (_err) {
       data = { ok: false, error: text || ('HTTP ' + response.status) };
     }
-    if (!response.ok || data.ok === false) throw new Error(data.error || ('HTTP ' + response.status));
+    if (!response.ok || data.ok === false) {
+      var err = new Error(data.message || data.error || ('HTTP ' + response.status));
+      err.status = response.status;
+      err.code = data.error || '';
+      err.payload = data;
+      throw err;
+    }
     return data;
+  }
+
+function isRemoteSessionRequiredError(error) {
+    if (!error) return false;
+    var code = String(error.code || error.error || '').toLowerCase();
+    var message = String(error.message || '').toLowerCase();
+    return code === 'remote_session_required'
+      || message.indexOf('remote_session_required') !== -1
+      || message.indexOf('valid sqx edge suite app session') !== -1;
   }
 
 function applyStatusBanner(status, doc) {
@@ -254,6 +269,7 @@ function applyOnboardingState(state, doc) {
     computeOnboardingState: computeOnboardingState,
     escapeHtml: escapeHtml,
     fetchJson: fetchJson,
+    isRemoteSessionRequiredError: isRemoteSessionRequiredError,
     prepareRequestOptions: prepareRequestOptions
   });
 })(window);

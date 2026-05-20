@@ -23,6 +23,7 @@ const PG_STATE = {
 const PG_ALIAS_MIN_SCORE = (window.SQX_CONFIG && window.SQX_CONFIG.value('projectGenerator.aliasSuggestMinScore', 80)) || 80;
 const pgApiInline = document.getElementById('pg-api-base-inline');
 if (pgApiInline) pgApiInline.textContent = 'Servicio preparado';
+let PG_REMOTE_SESSION_REDIRECTING = false;
 
 function pgEsc(value) {
   return SQX_PG_DOM.escapeHtml ? SQX_PG_DOM.escapeHtml(value) : SQX_PG_MODULE.escapeHtml(value);
@@ -351,6 +352,44 @@ async function pgFetch(path, options) {
   return SQX_PG_MODULE.fetchJson(PG_API, path, options);
 }
 
+function pgIsRemoteSessionRequired(error) {
+  return SQX_PG_MODULE.isRemoteSessionRequiredError
+    ? SQX_PG_MODULE.isRemoteSessionRequiredError(error)
+    : String((error && error.message) || '').toLowerCase().includes('remote_session_required');
+}
+
+function pgRemoteSessionUrl() {
+  return window.location && window.location.origin
+    ? (window.location.origin + '/?session=required')
+    : '/?session=required';
+}
+
+function pgHandleRemoteSessionRequired(error) {
+  const message = 'Sesión SQX Edge Suite pendiente o caducada. Vuelve a Bienvenida y pulsa Acceso DASHBOARD para crear la sesión de app y el workspace antes de generar o descargar .cfx.';
+  pgLog(message, 'err');
+  pgSetStatus('down', 'Sesión de app requerida', 'Acceso Cloudflare OK, pero falta activar la sesión interna de SQX Edge Suite. Redirigiendo a Bienvenida…', {
+    error: (error && (error.code || error.message)) || 'remote_session_required'
+  });
+  if (PG_REMOTE_SESSION_REDIRECTING) return true;
+  PG_REMOTE_SESSION_REDIRECTING = true;
+  window.setTimeout(() => {
+    if (window.location && typeof window.location.assign === 'function') {
+      window.location.assign(pgRemoteSessionUrl());
+    }
+  }, 900);
+  return true;
+}
+
+function pgHandleFetchError(error, title, traceTitle) {
+  if (pgIsRemoteSessionRequired(error)) {
+    pgHandleRemoteSessionRequired(error);
+    return true;
+  }
+  if (title) pgLog(title + ': ' + error.message, 'err');
+  if (traceTitle) pgTrace(traceTitle, error.message, 'err');
+  return false;
+}
+
 function pgSetStatus(state, title, desc, meta) {
   if (meta && Object.keys(meta).length) PG_STATE.healthMeta = meta;
   else if (state === 'down') PG_STATE.healthMeta = {};
@@ -381,6 +420,10 @@ async function pgCheckHealth() {
       h);
     await pgLoadAll();
   } catch(e) {
+    if (pgIsRemoteSessionRequired(e)) {
+      pgHandleRemoteSessionRequired(e);
+      return;
+    }
     PG_STATE.connected = false;
     pgSetStatus('down',
       'Servicio desconectado',
@@ -444,7 +487,9 @@ async function pgLoadConfig() {
     PG_STATE.aliases = c.asset_aliases || {};
     pgRenderAliases();
     pgRenderOnboarding();
-  } catch(e) { pgLog('Error cargando config: ' + e.message, 'err'); }
+  } catch(e) {
+    if (pgHandleFetchError(e, 'Error cargando config')) return;
+  }
 }
 
 function pgRenderAliases() {
@@ -585,7 +630,9 @@ async function pgLoadOutput() {
     PG_STATE.outputFiles = output.files;
     pgRenderOutputState(output);
     pgRenderOnboarding();
-  } catch(e) { pgLog('Error cargando output: ' + e.message, 'err'); }
+  } catch(e) {
+    if (pgHandleFetchError(e, 'Error cargando output')) return;
+  }
 }
 
 async function pgGenerateOne(mining, capa) {
@@ -601,6 +648,7 @@ async function pgGenerateOne(mining, capa) {
       pgLog('Archivo listo en .cfx generados: pulsa Descargar en la fila o Descargar todo ZIP.', 'info');
     }
   } catch(e) {
+    if (pgHandleFetchError(e)) return;
     const result = SQX_PG_MODULE.generateErrorResult(e.message, 'Error generando proyecto');
     pgLog(result.logText, result.logLevel);
     pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
@@ -628,6 +676,7 @@ async function pgGenerateCustom() {
       pgLog('Archivo listo en .cfx generados: pulsa Descargar en la fila o Descargar todo ZIP.', 'info');
     }
   } catch(e) {
+    if (pgHandleFetchError(e)) return;
     const result = SQX_PG_MODULE.generateCustomResult({ ok:false, error:e.message }, body);
     pgSetCustomStatus(result.text, result.level);
     pgLog(result.logText, result.logLevel);
@@ -751,6 +800,7 @@ async function pgGenerateAll(capa) {
       const r = await pgGenerateMiningRequest(mining, capa);
       results.push(Object.assign({}, r, { mining: mining.num }));
     } catch(e) {
+      if (pgHandleFetchError(e)) return;
       results.push({ ok:false, mining:mining.num, error:e.message });
     }
   }
@@ -782,6 +832,7 @@ async function pgGenerateSelected(capa) {
       const r = await pgGenerateMiningRequest(mining, capa);
       results.push(Object.assign({}, r, { mining: mining.num }));
     } catch(e) {
+      if (pgHandleFetchError(e)) return;
       results.push({ ok:false, mining:mining.num, error:e.message });
     }
   }
@@ -911,11 +962,16 @@ async function pgDownloadOutputBundle(names) {
     });
     if (!response.ok) {
       let message = 'HTTP ' + response.status;
+      let code = '';
       try {
         const data = await response.json();
-        message = data.error || message;
+        code = data.error || '';
+        message = data.message || data.error || message;
       } catch (_err) {}
-      throw new Error(message);
+      const error = new Error(message);
+      error.status = response.status;
+      error.code = code;
+      throw error;
     }
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
@@ -928,6 +984,7 @@ async function pgDownloadOutputBundle(names) {
     URL.revokeObjectURL(url);
     pgLog('Descarga solicitada: ' + selected.length + ' .cfx. El navegador la guardará en Descargas.', 'ok');
   } catch(e) {
+    if (pgHandleFetchError(e)) return;
     pgLog('Error descargando .cfx seleccionado(s): ' + e.message, 'err');
   }
 }
@@ -973,6 +1030,7 @@ async function pgDeleteOutputFiles(names) {
     pgLog('Output actualizado: ' + (result.deleted || []).length + ' .cfx borrado(s).', result.ok ? 'ok' : 'err');
     await pgLoadOutput();
   } catch(e) {
+    if (pgHandleFetchError(e)) return;
     pgLog('Error borrando .cfx generado(s): ' + e.message, 'err');
   }
 }
