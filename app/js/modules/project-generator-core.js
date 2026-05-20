@@ -162,6 +162,9 @@ function setText(doc, id, value) {
 
 function prepareRequestOptions(options) {
     var opts = Object.assign({}, options || {});
+    if (!Object.prototype.hasOwnProperty.call(opts, 'credentials')) {
+      opts.credentials = 'include';
+    }
     if (opts.body && typeof opts.body !== 'string') {
       opts.body = JSON.stringify(opts.body);
       opts.headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {});

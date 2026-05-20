@@ -232,6 +232,7 @@ const prepared = PG.prepareRequestOptions({ body: { alpha: 1 }, headers: { Accep
 assert.equal(prepared.body, '{"alpha":1}');
 assert.equal(prepared.headers['Content-Type'], 'application/json');
 assert.equal(prepared.headers.Accept, 'application/json');
+assert.equal(prepared.credentials, 'include', 'Project Generator API requests should include remote session cookies');
 
 let fetchUrl = '';
 let fetchOptions = null;
@@ -242,6 +243,7 @@ const jsonResult = await PG.fetchJson('http://api.local', '/health', { method: '
 });
 assert.equal(fetchUrl, 'http://api.local/health');
 assert.equal(fetchOptions.body, '{"ok":true}');
+assert.equal(fetchOptions.credentials, 'include');
 assert.equal(jsonResult.version, '20');
 await assert.rejects(
   () => PG.fetchJson('', '/bad', {}, async () => ({ ok: false, status: 500, text: async () => 'boom' })),

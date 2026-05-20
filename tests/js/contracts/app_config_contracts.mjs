@@ -47,8 +47,15 @@ assert.equal(
 );
 
 assert.equal(
+  loadApiBase({ protocol: 'https:', hostname: 'app.sqxedgesuite.org', origin: 'https://app.sqxedgesuite.org' }, 'https://app.sqxedgesuite.org/api-v2'),
+  'https://app.sqxedgesuite.org/api-v2',
+  'remote app may keep an explicit same-origin API base',
+);
+
+assert.equal(
   loadApiBase({ protocol: 'https:', hostname: 'app.sqxedgesuite.org', origin: 'https://app.sqxedgesuite.org' }, 'https://custom.example.invalid/api'),
-  'https://custom.example.invalid/api',
+  'https://app.sqxedgesuite.org/api',
+  'remote app must ignore cross-origin API bases from old tester storage',
 );
 
 assert.equal(

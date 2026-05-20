@@ -186,10 +186,12 @@
         const normalizedStored = stored.replace(/\/$/, '');
         let storedProtocol = '';
         let storedHost = '';
+        let storedOrigin = '';
         if (typeof URL !== 'undefined') {
           const parsed = new URL(normalizedStored, loc.origin || (protocol + '//' + host));
           storedProtocol = parsed.protocol || '';
           storedHost = parsed.hostname || '';
+          storedOrigin = parsed.origin || '';
         }
         const storedIsLocal = storedHost
           ? storedHost === 'localhost' || storedHost === '::1' || storedHost.indexOf('127.') === 0
@@ -197,7 +199,11 @@
         const storedIsInsecure = storedProtocol
           ? storedProtocol !== 'https:'
           : /^http:\/\//i.test(normalizedStored);
-        const storedIsSafeForRemote = !storedIsLocal && !storedIsInsecure;
+        const currentOrigin = loc.origin || (protocol + '//' + host);
+        const storedSameOrigin = storedOrigin
+          ? storedOrigin === currentOrigin
+          : (normalizedStored.indexOf(currentOrigin + basePath) === 0 || normalizedStored.indexOf(basePath) === 0);
+        const storedIsSafeForRemote = !storedIsLocal && !storedIsInsecure && storedSameOrigin;
         if (!isRemoteHost || storedIsSafeForRemote) return normalizedStored;
         try {
           localStorage.removeItem(storageKeys.apiBase || 'sqx_pg_api_base_v1');
