@@ -213,7 +213,9 @@ sandbox.fetch = (url, options = {}) => {
 document.getElementById('remote-welcome-primary').click();
 await new Promise(resolve => setTimeout(resolve, 0));
 assert.equal(welcomeLoginRequests[0].path, '/api/remote/session/login');
-assert.equal(document.getElementById('remote-welcome-gate').hidden, true);
+assert.equal(document.getElementById('remote-welcome-gate').hidden, false);
+assert.equal(document.getElementById('remote-welcome-primary').dataset.remoteWelcomeAction, 'refresh');
+assert.equal(document.getElementById('remote-welcome-workspace-status').textContent, 'Pendiente');
 sandbox.localStorage.removeItem('sqx_remote_welcome_dismissed_v1');
 
 const remoteActive = SQX.home.computeRemoteServiceModel({
@@ -230,6 +232,26 @@ assert.equal(document.getElementById('remote-session-watermark').hidden, false);
 assert.match(document.getElementById('remote-session-watermark').textContent, /SQX REMOTE PRO/);
 assert.equal(document.getElementById('remote-welcome-primary').dataset.remoteWelcomeAction, 'enter');
 assert.equal(document.getElementById('remote-welcome-primary').textContent, 'Acceso DASHBOARD');
+
+const dismissedPending = SQX.home.computeRemoteServiceModel({
+  access: { mode: 'remote_tunnel_only', authenticated: true, access: { allowed: true, reason: 'access_allowed', feature_scope: 'full' }, entitlement: { kind: 'tester_free', status: 'active', feature_scope: 'full' } },
+  session: { session: { active: false }, access: { allowed: false, reason: 'session_missing' } },
+  workspace: { ok: false, error: 'remote_session_required' },
+  security: { ok: true, version: 'remote-security-v1', watermark: { enabled: false }, killSwitch: { active: false } },
+  health: { ok: true },
+});
+assert.equal(dismissedPending.welcome.dismissed, false);
+
+const remoteTunnelWithoutIdentity = SQX.home.computeRemoteServiceModel({
+  access: { mode: 'remote_tunnel_only', authenticated: false, access: { allowed: false, reason: 'identity_missing', feature_scope: 'none' } },
+  session: { session: { active: false }, access: { allowed: false, reason: 'session_missing' } },
+  accessControl: { ok: true, accessControl: { allowed: false, reason: 'context_missing', status: 'pending', contextRef: 'ctxnone' } },
+  workspace: { ok: false, error: 'remote_session_required' },
+  security: { ok: true, version: 'remote-security-v1', watermark: { enabled: false }, killSwitch: { active: false } },
+  health: { ok: true },
+});
+assert.equal(remoteTunnelWithoutIdentity.welcome.visible, false);
+assert.notEqual(remoteTunnelWithoutIdentity.state, 'blocked');
 
 const remoteBlockedContext = SQX.home.computeRemoteServiceModel({
   access: {

@@ -360,8 +360,8 @@ function pgIsRemoteSessionRequired(error) {
 
 function pgRemoteSessionUrl() {
   return window.location && window.location.origin
-    ? (window.location.origin + '/?session=required')
-    : '/?session=required';
+    ? (window.location.origin + '/dashboard?session=required')
+    : '/dashboard?session=required';
 }
 
 function pgHandleRemoteSessionRequired(error) {
@@ -372,6 +372,9 @@ function pgHandleRemoteSessionRequired(error) {
   });
   if (PG_REMOTE_SESSION_REDIRECTING) return true;
   PG_REMOTE_SESSION_REDIRECTING = true;
+  try {
+    window.sessionStorage && window.sessionStorage.removeItem('sqx_remote_welcome_dismissed_v1');
+  } catch (_err) {}
   window.setTimeout(() => {
     if (window.location && typeof window.location.assign === 'function') {
       window.location.assign(pgRemoteSessionUrl());

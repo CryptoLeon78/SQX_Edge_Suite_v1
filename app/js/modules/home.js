@@ -118,6 +118,10 @@
   }
 
   function remoteWelcomeDismissed() {
+    try {
+      var params = new URL(global.location && global.location.href ? global.location.href : '').searchParams;
+      if (params.has('session') || params.has('session_required')) return false;
+    } catch (_err) {}
     var store = sessionStore();
     return !!(store && store.getItem(REMOTE_WELCOME_DISMISSED_KEY) === '1');
   }
@@ -154,9 +158,10 @@
     var accessControlPresent = Object.prototype.hasOwnProperty.call(accessControl, 'allowed');
     var accessControlAllowed = !accessControlPresent || accessControl.allowed !== false;
     var accessControlReason = accessControl.reason || '';
+    var accessContextApplies = !!(accessControlPresent && (authenticated || accessAllowed || sessionAllowed));
     var state = accessAllowed && accessControlAllowed && workspaceOk && serverOk ? 'active' : (authenticated || serverOk ? 'pending' : 'warn');
     if (String(reason).indexOf('blocked') >= 0 || String(reason).indexOf('denied') >= 0) state = 'blocked';
-    if (accessControlPresent && !accessControlAllowed) state = 'blocked';
+    if (accessContextApplies && !accessControlAllowed) state = 'blocked';
     var entitlementKind = entitlement.kind || session.entitlement_kind || '';
     var featureScope = (sessionAccess.feature_scope || access.feature_scope || entitlement.feature_scope || 'none');
     var grantKeyRequired = !!(entitlement.grant_key_required && entitlementKind === 'tester_free' && !sessionAllowed);
@@ -182,12 +187,12 @@
     var securityOk = !!securityPayload.ok;
     var securityBlocked = !!(killSwitch.active || (securityPayload.revocation || {}).currentSessionRevoked || (securityPayload.blocking || {}).currentIdentityBlocked);
     if (securityBlocked) state = 'blocked';
-    var securityStatus = accessControlPresent && accessControlAllowed
+    var securityStatus = accessContextApplies && accessControlAllowed
       ? 'Dispositivo aprobado'
-      : (accessControlPresent && !accessControlAllowed ? 'Validacion pendiente' : (securityBlocked ? 'Control remoto activo' : (securityOk ? 'Protecciones activas' : 'Pendiente')));
+      : (accessContextApplies && !accessControlAllowed ? 'Validacion pendiente' : (securityBlocked ? 'Control remoto activo' : (securityOk ? 'Protecciones activas' : 'Pendiente')));
     var securityDetail = securityBlocked
       ? 'Kill switch, revocacion o bloqueo requieren revision del operador.'
-      : (accessControlPresent
+      : (accessContextApplies
         ? ('Anti-comparticion activo: contexto ' + (accessControl.contextRef || 'sin ref') + ' · ' + remoteReasonLabel(accessControlReason || 'context_trusted') + '.')
         : (securityOk ? 'Rate limits, revocacion, bloqueo y watermark preparados.' : 'Esperando politica REMOTE-6 del gateway.'));
     var watermark = securityPayload.watermark || {};
@@ -195,7 +200,7 @@
       ? ((watermark.label || 'SQX REMOTE PRO') + ' · ' + (watermark.marker || workspaceStatus || 'session'))
       : '';
     var isRemoteMode = mode !== 'local_only';
-    var welcomeVisible = !!(isRemoteMode || authenticated || sessionAllowed);
+    var welcomeVisible = !!(authenticated || accessAllowed || sessionAllowed || (state === 'blocked' && accessContextApplies));
     var welcomePrimaryAction = state === 'blocked' && accessControlPresent && !accessControlAllowed
       ? 'requestAccess'
       : (state === 'active' ? 'enter' : (canCreateSession ? 'login' : 'refresh'));
@@ -219,7 +224,7 @@
         access: { state: accessAllowed ? 'ok' : (authenticated ? 'pending' : 'warn'), status: accessStatus, detail: accessDetail },
         workspace: { state: workspaceOk ? 'ok' : 'pending', status: workspaceStatus, detail: workspaceDetail },
         server: { state: serverReady ? 'ok' : (serverOk ? 'pending' : 'warn'), status: serverStatus, detail: serverDetail },
-        security: { state: accessControlPresent && !accessControlAllowed ? 'blocked' : (securityBlocked ? 'blocked' : (securityOk || accessControlAllowed ? 'ok' : 'pending')), status: securityStatus, detail: securityDetail },
+        security: { state: accessContextApplies && !accessControlAllowed ? 'blocked' : (securityBlocked ? 'blocked' : (securityOk || accessControlAllowed ? 'ok' : 'pending')), status: securityStatus, detail: securityDetail },
         privacy: {
           state: 'ok',
           status: 'Sin instalacion local',
@@ -251,7 +256,7 @@
       },
       welcome: {
         visible: welcomeVisible,
-        dismissed: remoteWelcomeDismissed(),
+        dismissed: state === 'active' ? remoteWelcomeDismissed() : false,
         verdict: welcomeVerdict,
         detail: state === 'active'
           ? 'OK todo validado. Sesion, permiso, workspace y protecciones estan activos. Puedes entrar al dashboard y continuar la metodologia.'
@@ -511,12 +516,10 @@
           dismissRemoteWelcomeGate(target);
         } else if (action === 'login') {
           primary.disabled = true;
-          loginRemoteSession(target, function(refreshTarget) {
-            dismissRemoteWelcomeGate(refreshTarget);
-            return refreshRemoteServiceStatus(refreshTarget);
-          }).then(function(result) {
+          setRemoteWelcomeDismissed(false);
+          loginRemoteSession(target, refreshRemoteServiceStatus).then(function(result) {
             var model = result && result.model;
-            if (result && result.ok) {
+            if (result && result.ok && model && model.state === 'active') {
               dismissRemoteWelcomeGate(target);
             } else if (primary) {
               primary.disabled = false;

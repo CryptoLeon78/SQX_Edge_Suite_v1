@@ -263,7 +263,8 @@ await assert.rejects(
 assert.equal(PG.isRemoteSessionRequiredError(new Error('remote_session_required')), true);
 assert.match(projectGeneratorMain, /pgHandleRemoteSessionRequired/);
 assert.match(projectGeneratorMain, /Sesión SQX Edge Suite pendiente o caducada/);
-assert.match(projectGeneratorMain, /session=required/);
+assert.match(projectGeneratorMain, /\/dashboard\?session=required/);
+assert.match(projectGeneratorMain, /sqx_remote_welcome_dismissed_v1/);
 
 document.add(new Element('pg-status-banner', ['pg-status-loading']));
 document.add(new Element('pg-status-title'));
