@@ -273,6 +273,7 @@
   var _thresholds = clone(PRESETS.Generic);
   var _diversitySettings = clone(DEFAULT_DIVERSITY_SETTINGS);
   var _nextId = 1;
+  var _diversityReportCache = { signature: '', report: null };
   var _remotePersistence = {
     version: 'remote-template-maker-state-v1',
     enabled: false,
@@ -293,6 +294,34 @@
     _currentPreset = 'Generic';
     _thresholds = clone(PRESETS.Generic);
     _diversitySettings = clone(DEFAULT_DIVERSITY_SETTINGS);
+    invalidateDiversityReportCache();
+  }
+
+  function invalidateDiversityReportCache() {
+    _diversityReportCache = { signature: '', report: null };
+  }
+
+  function diversityCacheSignature(strategies) {
+    var list = (strategies || _strategies).slice();
+    return [
+      DIVERSITY_VERSION,
+      _currentCapa,
+      stableStringify(_thresholds[_currentCapa] || {}),
+      stableStringify(_diversitySettings || {}),
+      list.map(function(strategy) {
+        return [
+          strategy && strategy._id,
+          strategy && strategy.Symbol,
+          strategy && strategy.TimeFrame,
+          strategy && strategy._source,
+          strategy && strategy.sources && strategy.sources.csv && strategy.sources.csv.fingerprint,
+          strategy && strategy.sources && strategy.sources.sqx && strategy.sources.sqx.hash,
+          strategy && strategy.provenance && strategy.provenance.csvFingerprint,
+          strategy && strategy.provenance && strategy.provenance.sqxHash,
+          strategy && strategy.logic && strategy.logic.features && stableStringify(strategy.logic.features)
+        ].join('~');
+      }).join('|')
+    ].join('::');
   }
 
   function createBaseRecord(source) {
@@ -455,6 +484,7 @@
     applyStoredConfig(data.config || {});
     _strategies = Array.isArray(data.strategies) ? data.strategies.map(normalizeStrategy) : [];
     syncNextId();
+    invalidateDiversityReportCache();
     return _strategies.slice();
   }
 
@@ -548,6 +578,7 @@
     _strategies = [];
     _nextId = 1;
     resetRuntimeConfig();
+    invalidateDiversityReportCache();
     return clearDB().then(persistSchemaVersion);
   }
 
@@ -555,6 +586,7 @@
     var removed = _strategies.length;
     _strategies = [];
     _nextId = 1;
+    invalidateDiversityReportCache();
     return saveStrategiesToDB().then(function() {
       return {
         removed: removed,
@@ -573,6 +605,7 @@
       return !ids[String(strategy._id)];
     });
     syncNextId();
+    invalidateDiversityReportCache();
     return saveStrategiesToDB().then(function() {
       return {
         removed: before - _strategies.length,
@@ -1062,7 +1095,7 @@
     normalized.Asset = normalized.Asset || detectAssetClass(normalized.Symbol || normalized._symbol || '');
     normalized.metrics = Object.assign({}, normalized.metrics, pickMetrics(normalized));
     normalized.certification = validateMetricsContract(normalized);
-    normalized.certification.status = getStrategyStatus(normalized, scoreStrategy(normalized));
+    normalized.certification.status = getStrategyStatus(normalized, scoreStrategy(normalized), { skipDiversity: true });
     return normalized;
   }
 
@@ -1099,13 +1132,14 @@
         existing.provenance.events = [].concat(existing.provenance.events || [], next.provenance.events || []);
         enforceCurrentProvenance(existing.provenance);
         existing.certification = validateMetricsContract(existing);
-        existing.certification.status = getStrategyStatus(existing, scoreStrategy(existing));
+        existing.certification.status = getStrategyStatus(existing, scoreStrategy(existing), { skipDiversity: true });
       } else {
         addEvent(next, 'certified', next.certification && next.certification.valid ? 'metrics' : 'pending');
         _strategies.push(next);
       }
     });
     syncNextId();
+    invalidateDiversityReportCache();
     return saveStrategiesToDB().then(function() {
       return _strategies.slice();
     });
@@ -1151,6 +1185,7 @@
 
   function setCapa(capa) {
     _currentCapa = Number(capa) === 2 ? 2 : 1;
+    invalidateDiversityReportCache();
     return saveConfigToDB('currentCapa', _currentCapa);
   }
 
@@ -1158,6 +1193,7 @@
     if (!PRESETS[name]) return Promise.resolve(_currentPreset);
     _currentPreset = name;
     _thresholds = clone(PRESETS[name]);
+    invalidateDiversityReportCache();
     return saveConfigToDB('currentPreset', _currentPreset).then(function() {
       return saveConfigToDB('thresholds', _thresholds);
     }).then(function() {
@@ -1320,6 +1356,7 @@
     var numeric = Number(value);
     if (Number.isNaN(numeric)) return Promise.resolve(getDiversitySettings());
     _diversitySettings[key] = Math.max(0, Math.min(1, numeric));
+    invalidateDiversityReportCache();
     return saveConfigToDB('diversitySettings', _diversitySettings).then(getDiversitySettings);
   }
 
@@ -1539,7 +1576,15 @@
   }
 
   function getDiversityReport() {
-    return buildDiversityClusters(_strategies);
+    var signature = diversityCacheSignature(_strategies);
+    if (_diversityReportCache.report && _diversityReportCache.signature === signature) {
+      return _diversityReportCache.report;
+    }
+    _diversityReportCache = {
+      signature: signature,
+      report: buildDiversityClusters(_strategies)
+    };
+    return _diversityReportCache.report;
   }
 
   function getDiversityStatus(strategy) {
@@ -1555,12 +1600,13 @@
     return !!(strategy && (strategy._fileData || strategy.sources && strategy.sources.sqx));
   }
 
-  function getStrategyStatus(strategy, score) {
+  function getStrategyStatus(strategy, score, options) {
     var contract = validateMetricsContract(strategy);
     if (!contract.valid) return contract.status;
     if (!hasSQX(strategy)) return 'Falta SQX';
     var resolvedScore = score || scoreStrategy(strategy);
     if (resolvedScore.classification === 'PASSED') {
+      if (options && options.skipDiversity) return 'Completa';
       var diversity = getDiversityStatus(strategy);
       if (diversity.status === 'Similar descartada') return 'Similar descartada';
       return 'Lista para C2';
@@ -1756,12 +1802,16 @@
   }
 
   function getIncompleteRecords() {
-    return scoreAll().filter(function(item) {
-      return getStrategyStatus(item.strategy, item.score) !== 'Lista para C2';
-    }).map(function(item) {
+    return scoreAll().map(function(item) {
+      var status = getStrategyStatus(item.strategy, item.score);
+      return { item: item, status: status };
+    }).filter(function(entry) {
+      return entry.status !== 'Lista para C2';
+    }).map(function(entry) {
+      var item = entry.item;
       return Object.assign({}, item.strategy, {
         certification: Object.assign({}, item.strategy.certification || {}, {
-          status: getStrategyStatus(item.strategy, item.score)
+          status: entry.status
         })
       });
     });
@@ -1812,7 +1862,7 @@
       target.provenance.events = [].concat(target.provenance.events || [], next.provenance.events || []);
       enforceCurrentProvenance(target.provenance);
       target.certification = validateMetricsContract(target);
-      target.certification.status = getStrategyStatus(target, scoreStrategy(target));
+      target.certification.status = getStrategyStatus(target, scoreStrategy(target), { skipDiversity: true });
     });
     return merged;
   }
@@ -1835,6 +1885,7 @@
     }).then(function() {
       _strategies = reconcileStrategySources(_strategies);
       syncNextId();
+      invalidateDiversityReportCache();
       return saveStrategiesToDB();
     }).then(function() {
       return _strategies.slice();
@@ -1847,6 +1898,7 @@
       return Promise.resolve(false);
     }
     _thresholds[selectedCapa][kpi][field] = field === 'val' ? Number(value) : value;
+    invalidateDiversityReportCache();
     return saveConfigToDB('thresholds', _thresholds).then(function() {
       return true;
     });
@@ -2084,6 +2136,7 @@
       request.onsuccess = function() {
         _strategies = (request.result || []).map(normalizeStrategy);
         syncNextId();
+        invalidateDiversityReportCache();
         resolve(_strategies.slice());
       };
       request.onerror = function(event) { reject(event.target.error); };
@@ -2163,6 +2216,7 @@
       _diversitySettings = Object.assign({}, clone(DEFAULT_DIVERSITY_SETTINGS), payload.diversitySettings);
       _diversitySettings.metrics = DIVERSITY_METRICS.slice();
     }
+    invalidateDiversityReportCache();
   }
 
   function clearDB() {

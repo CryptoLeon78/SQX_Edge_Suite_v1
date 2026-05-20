@@ -113,6 +113,8 @@ assert.ok(html.includes('js/modules/template-maker.js'), 'missing template-maker
 assert.ok(html.includes('js/modules/template-maker-ui.js'), 'missing template-maker-ui script');
 assert.ok(templateMakerJs.includes('function yieldToBrowser()'), 'Template Maker core should yield between heavy file parsing work');
 assert.ok(!templateMakerJs.includes('Promise.all(files.map(parseSQX))'), 'SQX batch parsing should not run the whole batch on the UI thread at once');
+assert.ok(templateMakerJs.includes('function diversityCacheSignature'), 'Template Maker should cache diversity report signatures for large batches');
+assert.ok(templateMakerJs.includes('invalidateDiversityReportCache'), 'Template Maker should invalidate cached diversity after state changes');
 assert.ok(templateMakerUiJs.includes('function afterPaint()'), 'Template Maker UI should paint progress before heavy ingestion starts');
 assert.ok(!html.includes('id="tab-analyzer"'), 'old analyzer tab should not remain active');
 assert.ok(!html.includes('href="css/analyzer.css"'), 'old analyzer stylesheet should not be active');
@@ -306,6 +308,11 @@ strategyCopy.push({ _id: 'mutated' });
 assert.equal(tm.getStrategies().length, 1, 'getStrategies should return a copy');
 assert.ok(tm.getPassingStrategies().length >= 1, 'loaded sample should pass current thresholds');
 assert.equal(tm.getAuditReport().total, 1, 'audit should report loaded strategies');
+const diversityReportCachedA = tm.getDiversityReport();
+const diversityReportCachedB = tm.getDiversityReport();
+assert.equal(diversityReportCachedA, diversityReportCachedB, 'diversity report should be cached between unchanged reads');
+await tm.setDiversitySetting('hybridThreshold', 0.77);
+assert.notEqual(tm.getDiversityReport(), diversityReportCachedA, 'diversity settings should invalidate cached report');
 const sqxLike = {
   _id: 99,
   _source: 'sqx',

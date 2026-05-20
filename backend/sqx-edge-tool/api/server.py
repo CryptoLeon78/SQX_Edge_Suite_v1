@@ -431,6 +431,15 @@ def _with_absolute_link_preview_meta(html: str, canonical_path: str = "/") -> st
     )
 
 
+def _dashboard_asset_version() -> str:
+    watched_roots = [DASHBOARD_ROOT / "js", DASHBOARD_ROOT / "css", DASHBOARD_ROOT / "vendor"]
+    mtimes: list[float] = []
+    for root in watched_roots:
+        if root.exists():
+            mtimes.extend(path.stat().st_mtime for path in root.rglob("*") if path.is_file())
+    return str(int(max(mtimes or [datetime.now(timezone.utc).timestamp()])))
+
+
 def _with_dashboard_asset_prefix(html: str) -> str:
     """Keep protected dashboard assets under the same /dashboard Access surface."""
     replacements = {
@@ -442,6 +451,8 @@ def _with_dashboard_asset_prefix(html: str) -> str:
     }
     for needle, replacement in replacements.items():
         html = html.replace(needle, replacement)
+    version = _dashboard_asset_version()
+    html = re.sub(r'(href|src)="(/dashboard/(?:css|js|vendor)/[^"#?]+)"', rf'\1="\2?v={version}"', html)
     return html
 
 

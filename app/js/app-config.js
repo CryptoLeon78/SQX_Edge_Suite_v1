@@ -184,15 +184,24 @@
       const stored = localStorage.getItem(storageKeys.apiBase || 'sqx_pg_api_base_v1');
       if (stored) {
         const normalizedStored = stored.replace(/\/$/, '');
+        let storedProtocol = '';
         let storedHost = '';
         if (typeof URL !== 'undefined') {
           const parsed = new URL(normalizedStored, loc.origin || (protocol + '//' + host));
+          storedProtocol = parsed.protocol || '';
           storedHost = parsed.hostname || '';
         }
         const storedIsLocal = storedHost
           ? storedHost === 'localhost' || storedHost === '::1' || storedHost.indexOf('127.') === 0
           : /^https?:\/\/(?:localhost|127\.|\[?::1\]?)/i.test(normalizedStored);
-        if (!isRemoteHost || !storedIsLocal) return normalizedStored;
+        const storedIsInsecure = storedProtocol
+          ? storedProtocol !== 'https:'
+          : /^http:\/\//i.test(normalizedStored);
+        const storedIsSafeForRemote = !storedIsLocal && !storedIsInsecure;
+        if (!isRemoteHost || storedIsSafeForRemote) return normalizedStored;
+        try {
+          localStorage.removeItem(storageKeys.apiBase || 'sqx_pg_api_base_v1');
+        } catch (cleanupErr) {}
       }
     } catch (e) {}
     if (isRemoteHost) {

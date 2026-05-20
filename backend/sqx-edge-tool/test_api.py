@@ -439,9 +439,11 @@ class ApiTestCase(unittest.TestCase):
             response.data,
         )
         self.assertIn(b'<meta property="og:url" content="https://app.example.invalid/dashboard">', response.data)
-        self.assertIn(b'href="/dashboard/css/dashboard.css"', response.data)
-        self.assertIn(b'src="/dashboard/js/main.js"', response.data)
-        self.assertIn(b'src="/dashboard/vendor/jszip.min.js"', response.data)
+        body = response.get_data(as_text=True)
+        # Cache-busted protected assets keep the same base paths: href="/dashboard/css/dashboard.css", src="/dashboard/js/main.js".
+        self.assertRegex(body, r'href="/dashboard/css/dashboard\.css\?v=\d+"')
+        self.assertRegex(body, r'src="/dashboard/js/main\.js\?v=\d+"')
+        self.assertRegex(body, r'src="/dashboard/vendor/jszip\.min\.js\?v=\d+"')
 
         css = self.client.get(
             "/dashboard/css/dashboard.css",

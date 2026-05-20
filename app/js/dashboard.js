@@ -1321,6 +1321,14 @@ window.addHomeTrace = function(title, detail, level) {
     timeLabel: new Date().toLocaleString(),
     ts: Date.now()
   };
+  var previous = HOME_TRACE[0];
+  if (previous && previous.title === item.title && previous.detail === item.detail && previous.level === item.level && item.ts - previous.ts < 120000) {
+    previous.ts = item.ts;
+    previous.timeLabel = item.timeLabel;
+    saveHomeTrace();
+    renderHomeTrace();
+    return;
+  }
   HOME_TRACE = SQX_HOME.addTrace ? SQX_HOME.addTrace(HOME_TRACE, item, 12) : [item].concat(HOME_TRACE).slice(0, 12);
   saveHomeTrace();
   renderHomeTrace();
