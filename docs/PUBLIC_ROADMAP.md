@@ -9,7 +9,8 @@ Last updated: 2026-05-20.
 - Email-validated access plus app session, entitlement checks, workspace isolation, audit trail, rate limits, revocation, kill switch and watermark.
 - Approved testers can use the full app through `tester_free` grants while remaining authenticated, audited and revocable.
 - The first tiny cohort monitoring closeout is clean; REMOTE-RILIS-STANDBY keeps a post-fix browser retest pending before the next operator decision review, so a post-fix browser retest is in standby.
-- Dashboard modules remain active: Workflow, Activos, Mining Control, SQX Views, Project Generator, Template Maker, Strategy Control, Champion vs Challenger, BlockSettings Info and Control Panel.
+- Edge Factory is becoming the main desktop buyer/tester experience: one guided methodology shell over the existing engines, with technical tabs available from advanced tools instead of primary navigation.
+- Dashboard engines remain active behind Edge Factory: Activos, Mining Control, SQX Views, Project Generator, Template Maker, Strategy Control, Champion vs Challenger, BlockSettings Info and Control Panel.
 - Project Generator uses real BlockSettings manifests and traceable timeframe/blocksetting resolution.
 - Template Maker uses CSV/SQX contracts, C2 traceability, diversity clustering and exit policy gates.
 - Commercial offer is being rewritten around `web_pro_monthly`, `web_pro_annual`, optional `support_assist` and future approved template packs.
@@ -17,6 +18,7 @@ Last updated: 2026-05-20.
 
 ## Next
 
+- Continue WFCO-2 Methodology Handoffs so Edge Factory can drive the existing engines without forcing users through technical tabs.
 - Close the standby browser retest after the Project Generator remote-session redirect fix.
 - Resume REMOTE-8G decision review only after the standby retest is confirmed.
 - If the operator later approves a next movement, prepare the later package/approval/execution/monitoring gates without automating grants, emails, checkout, URLs or onboarding.

@@ -7,49 +7,57 @@
   "tabs": [
     {
       "id": "workflow",
-      "label": "Workflow",
-      "icon": "W",
+      "label": "Edge Factory",
+      "icon": "EF",
       "active": true
     },
     {
       "id": "activos",
       "label": "Activos",
-      "icon": "A"
+      "icon": "A",
+      "hiddenInPrimary": true
     },
     {
       "id": "pipeline",
       "label": "Mining Control",
-      "icon": "M"
+      "icon": "M",
+      "hiddenInPrimary": true
     },
     {
       "id": "views",
       "label": "SQX Views",
-      "icon": "V"
+      "icon": "V",
+      "hiddenInPrimary": true
     },
     {
       "id": "projectgen",
       "label": "Project Generator",
-      "icon": "P"
+      "icon": "P",
+      "hiddenInPrimary": true
     },
     {
       "id": "templatemaker",
       "label": "Template Maker",
-      "icon": "T"
+      "icon": "T",
+      "hiddenInPrimary": true
     },
     {
       "id": "estrategias",
       "label": "Strategy Control",
-      "icon": "S"
+      "icon": "S",
+      "hiddenInPrimary": true
     },
     {
       "id": "cvc",
       "label": "Champion vs Challenger",
-      "icon": "CvC"
+      "icon": "CvC",
+      "hiddenInPrimary": true
     },
     {
       "id": "filtros",
       "label": "BlockSettings Info",
-      "icon": "B"
+      "icon": "B",
+      "hiddenInPrimary": true
     },
     {
       "id": "inicio",
@@ -959,10 +967,11 @@
     "priorityProgress": "sqx_priority_progress_v1",
     "planUser": "sqx_plan_user_v1",
     "pipelineState": "sqx_pipeline_state_v1",
-    "strategiesUser": "sqx_strategies_user_v1",
-    "strategiesDeleted": "sqx_strategies_deleted_v1",
-    "workflowChecklist": "sqx_workflow_checklist_v1",
-    "viewCreatorPresets": "sqx_view_creator_presets_v1",
+      "strategiesUser": "sqx_strategies_user_v1",
+      "strategiesDeleted": "sqx_strategies_deleted_v1",
+      "workflowChecklist": "sqx_workflow_checklist_v1",
+      "edgeFactoryState": "sqx_edge_factory_state_v1",
+      "viewCreatorPresets": "sqx_view_creator_presets_v1",
     "navCollapsed": "sqx_nav_collapsed_v1",
     "apiBase": "sqx_pg_api_base_v1"
   },

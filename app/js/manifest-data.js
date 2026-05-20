@@ -9,49 +9,57 @@ window.SQX_MANIFEST = {
     "tabs": [
       {
         "id": "workflow",
-        "label": "Workflow",
-        "icon": "W",
+        "label": "Edge Factory",
+        "icon": "EF",
         "active": true
       },
       {
         "id": "activos",
         "label": "Activos",
-        "icon": "A"
+        "icon": "A",
+        "hiddenInPrimary": true
       },
       {
         "id": "pipeline",
         "label": "Mining Control",
-        "icon": "M"
+        "icon": "M",
+        "hiddenInPrimary": true
       },
       {
         "id": "views",
         "label": "SQX Views",
-        "icon": "V"
+        "icon": "V",
+        "hiddenInPrimary": true
       },
       {
         "id": "projectgen",
         "label": "Project Generator",
-        "icon": "P"
+        "icon": "P",
+        "hiddenInPrimary": true
       },
       {
         "id": "templatemaker",
         "label": "Template Maker",
-        "icon": "T"
+        "icon": "T",
+        "hiddenInPrimary": true
       },
       {
         "id": "estrategias",
         "label": "Strategy Control",
-        "icon": "S"
+        "icon": "S",
+        "hiddenInPrimary": true
       },
       {
         "id": "cvc",
         "label": "Champion vs Challenger",
-        "icon": "CvC"
+        "icon": "CvC",
+        "hiddenInPrimary": true
       },
       {
         "id": "filtros",
         "label": "BlockSettings Info",
-        "icon": "B"
+        "icon": "B",
+        "hiddenInPrimary": true
       },
       {
         "id": "inicio",
@@ -964,6 +972,7 @@ window.SQX_MANIFEST = {
       "strategiesUser": "sqx_strategies_user_v1",
       "strategiesDeleted": "sqx_strategies_deleted_v1",
       "workflowChecklist": "sqx_workflow_checklist_v1",
+      "edgeFactoryState": "sqx_edge_factory_state_v1",
       "viewCreatorPresets": "sqx_view_creator_presets_v1",
       "navCollapsed": "sqx_nav_collapsed_v1",
       "apiBase": "sqx_pg_api_base_v1"
@@ -11675,6 +11684,788 @@ window.SQX_MANIFEST = {
       "activationMode": "manual_signed_file",
       "allowOfflineUse": true
     },
+    "remoteCommercial": {
+      "phase": "REMOTE-7",
+      "primaryChannel": "remote_service",
+      "buyerAccessModel": "web_pro_subscription",
+      "plans": [
+        "web_pro_monthly",
+        "web_pro_annual"
+      ],
+      "supportAddons": [
+        "support_assist"
+      ],
+      "testerEntitlement": "tester_free",
+      "portableRole": "internal_fallback",
+      "noInstallBuyerPromise": true,
+      "responsibleClaims": [
+        "productivity",
+        "methodology",
+        "traceability",
+        "reduced_operational_error",
+        "no_financial_results_promise",
+        "no_risk_free_claim"
+      ],
+      "privateBoundary": [
+        "checkout_links",
+        "exact_live_prices",
+        "buyer_identities",
+        "tester_identities",
+        "support_logs",
+        "payment_payloads",
+        "grant_keys",
+        "private_urls"
+      ]
+    },
+    "remoteControlledPilot": {
+      "phase": "REMOTE-8",
+      "version": "remote-controlled-pilot-v1",
+      "tool": "backend/sqx-edge-tool/tools/remote_controlled_pilot.py",
+      "doc": "docs/REMOTE_8_CONTROLLED_PILOT.md",
+      "evidenceRoot": ".local/remote_service/remote8_controlled_pilot",
+      "requiredProofs": [
+        "payment_webhook_activation",
+        "app_session_login",
+        "server_derived_workspace",
+        "cfx_artifact_generation",
+        "export_checksum_verification",
+        "second_user_workspace_isolation",
+        "revocation_blocks_access",
+        "restore_allows_access"
+      ],
+      "privacy": {
+        "rawEmailReturned": false,
+        "sessionTokenReturned": false,
+        "grantKeysReturned": false,
+        "localPathsReturned": false,
+        "protectedUrlCommitted": false
+      },
+      "nextPhase": "REMOTE-8B-private-live-pilot-evidence-ingest"
+    },
+    "remoteLivePilotEvidence": {
+      "phase": "REMOTE-8B",
+      "version": "remote-live-pilot-evidence-v1",
+      "tool": "backend/sqx-edge-tool/tools/remote_live_pilot_evidence.py",
+      "doc": "docs/REMOTE_8B_LIVE_PILOT_EVIDENCE.md",
+      "example": "docs/examples/remote8b_live_pilot_evidence.local.example.json",
+      "evidenceRoot": ".local/remote_service/remote8b_live_pilot_evidence",
+      "summaryOutput": ".local/remote_service/remote8b_live_pilot_evidence/remote8b_live_pilot_evidence.public.json",
+      "requiredProofs": [
+        "remote8DrillBaselineGo",
+        "edgeAccessBlockedAnonymous",
+        "cloudflareAccessPassed",
+        "appSessionLoginPassed",
+        "entitlementActive",
+        "workspaceCreated",
+        "artifactGenerated",
+        "exportDownloaded",
+        "revocationBlockedAccess",
+        "restoreAllowedAccess",
+        "secondUserIsolationChecked",
+        "noWorkspaceLeakage",
+        "supportEvidenceRedacted",
+        "privateEvidenceStoredOutsideGit"
+      ],
+      "privacy": {
+        "rawEmailReturned": false,
+        "protectedUrlReturned": false,
+        "localPathsReturned": false,
+        "secretsReturned": false,
+        "sessionTokenReturned": false,
+        "grantKeysReturned": false,
+        "privateEvidenceCommitted": false
+      },
+      "nextPhase": "REMOTE-8C-first-user-support-observation"
+    },
+    "remoteFirstUserObservation": {
+      "phase": "REMOTE-8C",
+      "version": "remote-first-user-observation-v1",
+      "tool": "backend/sqx-edge-tool/tools/remote_first_user_observation.py",
+      "doc": "docs/REMOTE_8C_FIRST_USER_OBSERVATION.md",
+      "example": "docs/examples/remote8c_first_user_observation.local.example.json",
+      "evidenceRoot": ".local/remote_service/remote8c_first_user_observation",
+      "summaryOutput": ".local/remote_service/remote8c_first_user_observation/remote8c_first_user_observation.public.json",
+      "minimumObservationHours": 24,
+      "validRequestedDecisions": [
+        "stay_one_user",
+        "fix_blockers",
+        "expand_3_5"
+      ],
+      "requiredSignals": [
+        "remote8bEvidenceGo",
+        "firstUserCompletedGuidedFlow",
+        "supportLoopObserved",
+        "tunnelStable",
+        "appSessionStable",
+        "entitlementStable",
+        "workspaceIsolationClean",
+        "artifactGenerated",
+        "exportDownloaded",
+        "revocationRestoreConfidence",
+        "noWorkspaceLeakage",
+        "noSecurityIncidents",
+        "noUnresolvedSupportBlockers",
+        "supportEvidenceRedacted",
+        "privateEvidenceStoredOutsideGit"
+      ],
+      "zeroToleranceMetrics": [
+        "openSupportItems",
+        "unresolvedBlockers",
+        "tunnelDrops",
+        "appSessionFailures",
+        "workspaceLeakEvents",
+        "securityIncidents",
+        "generationFailures",
+        "entitlementErrors",
+        "refundRequests"
+      ],
+      "privacy": {
+        "rawEmailReturned": false,
+        "protectedUrlReturned": false,
+        "localPathsReturned": false,
+        "secretsReturned": false,
+        "sessionTokenReturned": false,
+        "grantKeysReturned": false,
+        "supportLogsReturned": false,
+        "privateEvidenceCommitted": false
+      },
+      "automation": {
+        "invitesAllowed": false,
+        "checkoutAllowed": false,
+        "grantMutationAllowed": false,
+        "emailSendingAllowed": false
+      },
+      "nextPhase": "REMOTE-8D-tiny-cohort-activation-package"
+    },
+    "remoteTinyCohortActivation": {
+      "phase": "REMOTE-8D",
+      "version": "remote-tiny-cohort-activation-v1",
+      "tool": "backend/sqx-edge-tool/tools/remote_tiny_cohort_activation.py",
+      "doc": "docs/REMOTE_8D_TINY_COHORT_ACTIVATION.md",
+      "example": "docs/examples/remote8d_tiny_cohort_activation.local.example.json",
+      "evidenceRoot": ".local/remote_service/remote8d_tiny_cohort_activation",
+      "summaryOutput": ".local/remote_service/remote8d_tiny_cohort_activation/remote8d_tiny_cohort_activation.public.json",
+      "sourceStatusRequired": "GO_REMOTE8C_TINY_COHORT_EXPANSION_READY",
+      "minCohortSize": 3,
+      "maxCohortSize": 5,
+      "validRequestedActions": [
+        "prepare_manual_activation_package"
+      ],
+      "validEntitlementKinds": [
+        "paid_subscription",
+        "tester_free",
+        "internal_operator"
+      ],
+      "requiredChecks": [
+        "remote8cGoConfirmed",
+        "candidateListReviewed",
+        "cohortSizeWithinLimit",
+        "entitlementBoundariesDefined",
+        "supportOwnerAssigned",
+        "supportWindowReady",
+        "rollbackPlanReady",
+        "pauseRuleReady",
+        "communicationCopyReviewed",
+        "protectedUrlPrivateOnly",
+        "workspaceIsolationReminder",
+        "securityMonitoringReady",
+        "noAutomationConfirmed",
+        "privateEvidenceStoredOutsideGit"
+      ],
+      "zeroAutomationMetrics": [
+        "invitesSent",
+        "grantsCreated",
+        "checkoutLinksCreated",
+        "emailsSent",
+        "publicUrlsShared",
+        "automationJobsStarted"
+      ],
+      "privacy": {
+        "rawEmailsReturned": false,
+        "protectedUrlReturned": false,
+        "localPathsReturned": false,
+        "secretsReturned": false,
+        "sessionTokenReturned": false,
+        "grantKeysReturned": false,
+        "communicationCopyReturned": false,
+        "privateEvidenceCommitted": false
+      },
+      "execution": {
+        "invitesAllowedNow": false,
+        "grantMutationAllowedNow": false,
+        "checkoutAllowedNow": false,
+        "emailSendingAllowedNow": false,
+        "protectedUrlSharingAllowedNow": false
+      },
+      "nextPhase": "REMOTE-8E-tiny-cohort-manual-execution-record"
+    },
+    "remoteTinyCohortExecution": {
+      "phase": "REMOTE-8E",
+      "version": "remote-tiny-cohort-execution-v1",
+      "tool": "backend/sqx-edge-tool/tools/remote_tiny_cohort_execution.py",
+      "doc": "docs/REMOTE_8E_TINY_COHORT_EXECUTION.md",
+      "example": "docs/examples/remote8e_tiny_cohort_execution.local.example.json",
+      "evidenceRoot": ".local/remote_service/remote8e_tiny_cohort_execution",
+      "summaryOutput": ".local/remote_service/remote8e_tiny_cohort_execution/remote8e_tiny_cohort_execution.public.json",
+      "sourceStatusRequired": "GO_REMOTE8D_TINY_COHORT_ACTIVATION_PACKAGE_READY",
+      "minCohortSize": 3,
+      "maxCohortSize": 5,
+      "validRequestedActions": [
+        "record_manual_activation_execution"
+      ],
+      "validEntitlementKinds": [
+        "paid_subscription",
+        "tester_free",
+        "internal_operator"
+      ],
+      "requiredChecks": [
+        "remote8dPackageGoConfirmed",
+        "operatorFinalApprovalRecorded",
+        "manualExecutionOnly",
+        "noAutomationUsed",
+        "privateMessagesSent",
+        "entitlementsRecordedPrivately",
+        "protectedUrlSharedPrivately",
+        "supportWindowActive",
+        "rollbackPlanStillReady",
+        "pauseRuleStillActive",
+        "monitoringStarted",
+        "privateEvidenceStoredOutsideGit"
+      ],
+      "manualCountMetrics": [
+        "invitesSentManually",
+        "grantsRecordedManually",
+        "privateMessagesSent",
+        "protectedUrlsSharedPrivately"
+      ],
+      "zeroAutomationMetrics": [
+        "automationJobsStarted",
+        "checkoutLinksCreated",
+        "publicUrlsShared",
+        "automatedEmailsSent",
+        "automatedGrantsCreated"
+      ],
+      "privacy": {
+        "rawEmailsReturned": false,
+        "protectedUrlReturned": false,
+        "localPathsReturned": false,
+        "secretsReturned": false,
+        "sessionTokenReturned": false,
+        "grantKeysReturned": false,
+        "messageBodyReturned": false,
+        "privateEvidenceCommitted": false
+      },
+      "execution": {
+        "automationAllowed": false,
+        "manualExecutionOnly": true,
+        "furtherExpansionAllowedNow": false,
+        "monitoringRequired": true
+      },
+      "nextPhase": "REMOTE-8F-tiny-cohort-monitoring"
+    },
+    "remoteTinyCohortMonitoring": {
+      "phase": "REMOTE-8F",
+      "version": "remote-tiny-cohort-monitoring-v1",
+      "tool": "backend/sqx-edge-tool/tools/remote_tiny_cohort_monitoring.py",
+      "doc": "docs/REMOTE_8F_TINY_COHORT_MONITORING.md",
+      "example": "docs/examples/remote8f_tiny_cohort_monitoring.local.example.json",
+      "evidenceRoot": ".local/remote_service/remote8f_tiny_cohort_monitoring",
+      "summaryOutput": ".local/remote_service/remote8f_tiny_cohort_monitoring/remote8f_tiny_cohort_monitoring.public.json",
+      "sourceStatusRequired": "GO_REMOTE8E_TINY_COHORT_MANUAL_EXECUTION_RECORDED",
+      "minCohortSize": 3,
+      "maxCohortSize": 5,
+      "minimumObservationHours": 24,
+      "validRequestedDecisions": [
+        "stay_tiny_cohort",
+        "fix_blockers",
+        "rollback_tiny_cohort",
+        "prepare_next_controlled_movement"
+      ],
+      "validEntitlementKinds": [
+        "paid_subscription",
+        "tester_free",
+        "internal_operator"
+      ],
+      "requiredSignals": [
+        "remote8eExecutionGoConfirmed",
+        "cohortAccessStable",
+        "cloudflareAccessStable",
+        "appSessionStable",
+        "entitlementStable",
+        "workspaceIsolationClean",
+        "artifactGenerationObserved",
+        "exportsDownloaded",
+        "supportLoopObserved",
+        "noWorkspaceLeakage",
+        "noSecurityIncidents",
+        "noUnresolvedSupportBlockers",
+        "rollbackPlanReady",
+        "pauseRuleReady",
+        "privateEvidenceStoredOutsideGit"
+      ],
+      "zeroToleranceMetrics": [
+        "openSupportItems",
+        "unresolvedBlockers",
+        "tunnelDrops",
+        "appSessionFailures",
+        "workspaceLeakEvents",
+        "securityIncidents",
+        "generationFailures",
+        "entitlementErrors",
+        "refundRequests",
+        "crossUserDataFindings",
+        "publicUrlLeaks",
+        "automationJobsStarted"
+      ],
+      "privacy": {
+        "rawEmailsReturned": false,
+        "protectedUrlReturned": false,
+        "localPathsReturned": false,
+        "secretsReturned": false,
+        "sessionTokenReturned": false,
+        "grantKeysReturned": false,
+        "supportLogsReturned": false,
+        "privateEvidenceCommitted": false
+      },
+      "decision": {
+        "automationAllowed": false,
+        "furtherExpansionAllowedNow": false,
+        "requiresOperatorApprovalForNextMovement": true
+      },
+      "nextPhase": "REMOTE-8G-tiny-cohort-decision-review"
+    },
+    "remoteTinyCohortDecisionReview": {
+      "phase": "REMOTE-8G",
+      "version": "remote-tiny-cohort-decision-review-v1",
+      "tool": "backend/sqx-edge-tool/tools/remote_tiny_cohort_decision_review.py",
+      "doc": "docs/REMOTE_8G_TINY_COHORT_DECISION_REVIEW.md",
+      "example": "docs/examples/remote8g_tiny_cohort_decision_review.local.example.json",
+      "evidenceRoot": ".local/remote_service/remote8g_tiny_cohort_decision_review",
+      "summaryOutput": ".local/remote_service/remote8g_tiny_cohort_decision_review/remote8g_tiny_cohort_decision_review.public.json",
+      "cleanSourceStatus": "GO_REMOTE8F_TINY_COHORT_MONITORING_CLEAN",
+      "blockedSourceStatus": "NO_GO_REMOTE8F_TINY_COHORT_MONITORING_BLOCKED",
+      "minCohortSize": 3,
+      "maxCohortSize": 5,
+      "validSelectedDecisions": [
+        "continue_observing",
+        "fix_blockers",
+        "rollback_tiny_cohort",
+        "prepare_next_controlled_movement"
+      ],
+      "validEntitlementKinds": [
+        "paid_subscription",
+        "tester_free",
+        "internal_operator"
+      ],
+      "requiredChecks": [
+        "remote8fMonitoringReviewed",
+        "operatorDecisionRecorded",
+        "decisionRationaleRecorded",
+        "cohortSizeReviewed",
+        "supportOwnerConfirmed",
+        "rollbackPlanReady",
+        "pauseRuleReady",
+        "entitlementBoundaryReviewed",
+        "workspaceIsolationReviewed",
+        "securityReviewCompleted",
+        "noAutomationConfirmed",
+        "privateEvidenceStoredOutsideGit"
+      ],
+      "zeroExecutionMetrics": [
+        "newUsersInvited",
+        "grantsChanged",
+        "checkoutLinksCreated",
+        "emailsSent",
+        "publicUrlsShared",
+        "automationJobsStarted",
+        "trafficExpanded",
+        "paidCampaignStarted"
+      ],
+      "privacy": {
+        "rawEmailsReturned": false,
+        "protectedUrlReturned": false,
+        "localPathsReturned": false,
+        "secretsReturned": false,
+        "sessionTokenReturned": false,
+        "grantKeysReturned": false,
+        "supportLogsReturned": false,
+        "decisionRationaleReturned": false,
+        "privateEvidenceCommitted": false
+      },
+      "decision": {
+        "automationAllowed": false,
+        "executionAllowedNow": false,
+        "requiresSeparateNextPhase": true
+      },
+      "nextPhase": "REMOTE-8H-next-controlled-movement-package"
+    },
+    "remoteNextControlledMovementPackage": {
+      "phase": "REMOTE-8H",
+      "version": "remote-next-controlled-movement-package-v1",
+      "tool": "backend/sqx-edge-tool/tools/remote_next_controlled_movement_package.py",
+      "doc": "docs/REMOTE_8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE.md",
+      "example": "docs/examples/remote8h_next_controlled_movement_package.local.example.json",
+      "evidenceRoot": ".local/remote_service/remote8h_next_controlled_movement_package",
+      "summaryOutput": ".local/remote_service/remote8h_next_controlled_movement_package/remote8h_next_controlled_movement_package.public.json",
+      "currentSourceStatusRequired": "GO_REMOTE8L_POST_MONITORING_DECISION_REVIEW_READY",
+      "legacySourceStatusAccepted": "GO_REMOTE8G_TINY_COHORT_DECISION_REVIEW_READY",
+      "sourceDecisionRequired": "prepare_next_controlled_movement",
+      "validRequestedActions": [
+        "prepare_next_controlled_movement_package"
+      ],
+      "validMovementTypes": [
+        "add_1_2_users",
+        "extend_same_cohort_observation",
+        "prepare_paid_micro_offer",
+        "schedule_demo_batch"
+      ],
+      "maxNewUsers": 2,
+      "validEntitlementKinds": [
+        "paid_subscription",
+        "tester_free",
+        "internal_operator"
+      ],
+      "requiredChecks": [
+        "sourceDecisionReviewed",
+        "oneMovementOnly",
+        "scopeLimited",
+        "recipientListPrivate",
+        "entitlementBoundaryDefined",
+        "supportOwnerAssigned",
+        "supportWindowReady",
+        "rollbackPlanReady",
+        "pauseRuleReady",
+        "noAutomationConfirmed",
+        "executionRequiresSeparateApproval",
+        "privateEvidenceStoredOutsideGit"
+      ],
+      "zeroExecutionMetrics": [
+        "newUsersInvited",
+        "grantsCreated",
+        "checkoutLinksCreated",
+        "emailsSent",
+        "publicUrlsShared",
+        "automationJobsStarted",
+        "trafficExpanded",
+        "paidCampaignStarted"
+      ],
+      "privacy": {
+        "rawEmailsReturned": false,
+        "protectedUrlReturned": false,
+        "localPathsReturned": false,
+        "secretsReturned": false,
+        "sessionTokenReturned": false,
+        "grantKeysReturned": false,
+        "communicationCopyReturned": false,
+        "privateEvidenceCommitted": false
+      },
+      "movementPackage": {
+        "automationAllowed": false,
+        "executionAllowedNow": false,
+        "requiresSeparateExecutionApproval": true
+      },
+      "nextPhase": "REMOTE-8I-next-controlled-movement-execution-approval"
+    },
+    "remoteNextControlledMovementExecutionApproval": {
+      "phase": "REMOTE-8I",
+      "version": "remote-next-controlled-movement-execution-approval-v1",
+      "tool": "backend/sqx-edge-tool/tools/remote_next_controlled_movement_execution_approval.py",
+      "doc": "docs/REMOTE_8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVAL.md",
+      "example": "docs/examples/remote8i_next_controlled_movement_execution_approval.local.example.json",
+      "evidenceRoot": ".local/remote_service/remote8i_next_controlled_movement_execution_approval",
+      "summaryOutput": ".local/remote_service/remote8i_next_controlled_movement_execution_approval/remote8i_next_controlled_movement_execution_approval.public.json",
+      "sourceStatusRequired": "GO_REMOTE8H_NEXT_CONTROLLED_MOVEMENT_PACKAGE_READY",
+      "validRequestedActions": [
+        "approve_or_reject_next_controlled_movement_execution"
+      ],
+      "validExecutionDecisions": [
+        "approve_execution_record",
+        "reject_execution",
+        "defer_execution"
+      ],
+      "requiredChecks": [
+        "remote8hPackageReviewed",
+        "packageMatchesPrivateEvidence",
+        "operatorDecisionRecorded",
+        "decisionRationaleRecorded",
+        "executionScopeUnchanged",
+        "supportWindowStillReady",
+        "rollbackStillReady",
+        "pauseRuleStillReady",
+        "noAutomationConfirmed",
+        "executionRecordRequired",
+        "privateEvidenceStoredOutsideGit"
+      ],
+      "zeroExecutionMetrics": [
+        "newUsersInvited",
+        "grantsCreated",
+        "checkoutLinksCreated",
+        "emailsSent",
+        "publicUrlsShared",
+        "automationJobsStarted",
+        "trafficExpanded",
+        "paidCampaignStarted"
+      ],
+      "privacy": {
+        "rawEmailsReturned": false,
+        "protectedUrlReturned": false,
+        "localPathsReturned": false,
+        "secretsReturned": false,
+        "sessionTokenReturned": false,
+        "grantKeysReturned": false,
+        "communicationCopyReturned": false,
+        "decisionRationaleReturned": false,
+        "privateEvidenceCommitted": false
+      },
+      "approval": {
+        "automationAllowed": false,
+        "executionPerformedNow": false,
+        "requiresSeparateExecutionRecord": true
+      },
+      "nextPhaseIfApproved": "REMOTE-8J-manual-execution-record",
+      "nextPhaseIfRejected": "REMOTE-8H-or-8G-replan",
+      "nextPhaseIfDeferred": "REMOTE-8I-revisit-execution-approval"
+    },
+    "remoteNextControlledMovementManualExecution": {
+      "phase": "REMOTE-8J",
+      "version": "remote-next-controlled-movement-manual-execution-v1",
+      "tool": "backend/sqx-edge-tool/tools/remote_next_controlled_movement_manual_execution.py",
+      "doc": "docs/REMOTE_8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION.md",
+      "example": "docs/examples/remote8j_next_controlled_movement_manual_execution.local.example.json",
+      "evidenceRoot": ".local/remote_service/remote8j_next_controlled_movement_manual_execution",
+      "summaryOutput": ".local/remote_service/remote8j_next_controlled_movement_manual_execution/remote8j_next_controlled_movement_manual_execution.public.json",
+      "sourceStatusRequired": "GO_REMOTE8I_NEXT_CONTROLLED_MOVEMENT_EXECUTION_APPROVED",
+      "sourceDecisionRequired": "approve_execution_record",
+      "validRequestedActions": [
+        "record_next_controlled_movement_manual_execution"
+      ],
+      "validMovementTypes": [
+        "add_1_2_users",
+        "extend_same_cohort_observation",
+        "prepare_paid_micro_offer",
+        "schedule_demo_batch"
+      ],
+      "maxNewUsers": 2,
+      "validEntitlementKinds": [
+        "paid_subscription",
+        "tester_free",
+        "internal_operator"
+      ],
+      "requiredChecks": [
+        "remote8iApprovalConfirmed",
+        "remote8hPackageStillMatches",
+        "operatorFinalApprovalRecorded",
+        "manualExecutionOnly",
+        "noAutomationUsed",
+        "manualActionRecorded",
+        "entitlementsRecordedPrivately",
+        "protectedUrlSharedPrivately",
+        "supportWindowActive",
+        "rollbackPlanStillReady",
+        "pauseRuleStillActive",
+        "monitoringStarted",
+        "privateEvidenceStoredOutsideGit"
+      ],
+      "manualCountMetrics": [
+        "invitesSentManually",
+        "grantsRecordedManually",
+        "privateMessagesSent",
+        "protectedUrlsSharedPrivately"
+      ],
+      "zeroAutomationMetrics": [
+        "automationJobsStarted",
+        "checkoutLinksCreated",
+        "publicUrlsShared",
+        "automatedEmailsSent",
+        "automatedGrantsCreated",
+        "trafficExpanded",
+        "paidCampaignStarted"
+      ],
+      "privacy": {
+        "rawEmailsReturned": false,
+        "protectedUrlReturned": false,
+        "localPathsReturned": false,
+        "secretsReturned": false,
+        "sessionTokenReturned": false,
+        "grantKeysReturned": false,
+        "messageBodyReturned": false,
+        "privateEvidenceCommitted": false
+      },
+      "record": {
+        "automationAllowed": false,
+        "furtherExpansionAllowedNow": false,
+        "monitoringRequired": true,
+        "rollbackAndPauseRemainActive": true
+      },
+      "nextPhase": "REMOTE-8K-post-execution-monitoring"
+    },
+    "remoteNextControlledMovementMonitoring": {
+      "phase": "REMOTE-8K",
+      "version": "remote-next-controlled-movement-monitoring-v1",
+      "tool": "backend/sqx-edge-tool/tools/remote_next_controlled_movement_monitoring.py",
+      "doc": "docs/REMOTE_8K_NEXT_CONTROLLED_MOVEMENT_MONITORING.md",
+      "example": "docs/examples/remote8k_next_controlled_movement_monitoring.local.example.json",
+      "evidenceRoot": ".local/remote_service/remote8k_next_controlled_movement_monitoring",
+      "summaryOutput": ".local/remote_service/remote8k_next_controlled_movement_monitoring/remote8k_next_controlled_movement_monitoring.public.json",
+      "sourceStatusRequired": "GO_REMOTE8J_NEXT_CONTROLLED_MOVEMENT_MANUAL_EXECUTION_RECORDED",
+      "minimumObservationHours": 24,
+      "validRequestedDecisions": [
+        "continue_monitoring",
+        "fix_blockers",
+        "rollback_last_movement",
+        "prepare_next_decision_review"
+      ],
+      "validMovementTypes": [
+        "add_1_2_users",
+        "extend_same_cohort_observation",
+        "prepare_paid_micro_offer",
+        "schedule_demo_batch"
+      ],
+      "maxExecutedUsers": 2,
+      "validEntitlementKinds": [
+        "paid_subscription",
+        "tester_free",
+        "internal_operator"
+      ],
+      "requiredSignals": [
+        "remote8jExecutionGoConfirmed",
+        "manualScopeStillMatches",
+        "accessStable",
+        "cloudflareAccessStable",
+        "appSessionStable",
+        "entitlementStable",
+        "workspaceIsolationClean",
+        "artifactGenerationObserved",
+        "exportsDownloaded",
+        "supportLoopObserved",
+        "noWorkspaceLeakage",
+        "noSecurityIncidents",
+        "noUnresolvedSupportBlockers",
+        "rollbackPlanReady",
+        "pauseRuleReady",
+        "privateEvidenceStoredOutsideGit"
+      ],
+      "zeroToleranceMetrics": [
+        "openSupportItems",
+        "unresolvedBlockers",
+        "tunnelDrops",
+        "appSessionFailures",
+        "workspaceLeakEvents",
+        "securityIncidents",
+        "generationFailures",
+        "exportFailures",
+        "entitlementErrors",
+        "refundRequests",
+        "crossUserDataFindings",
+        "publicUrlLeaks",
+        "automationJobsStarted",
+        "trafficExpanded",
+        "paidCampaignStarted",
+        "checkoutLinksCreated",
+        "automatedEmailsSent",
+        "automatedGrantsCreated"
+      ],
+      "privacy": {
+        "rawEmailsReturned": false,
+        "protectedUrlReturned": false,
+        "localPathsReturned": false,
+        "secretsReturned": false,
+        "sessionTokenReturned": false,
+        "grantKeysReturned": false,
+        "supportLogsReturned": false,
+        "privateNotesReturned": false,
+        "privateEvidenceCommitted": false
+      },
+      "decision": {
+        "automationAllowed": false,
+        "furtherExpansionAllowedNow": false,
+        "requiresOperatorApprovalForNextMovement": true
+      },
+      "nextPhase": "REMOTE-8L-post-monitoring-decision-review"
+    },
+    "remotePostMonitoringDecisionReview": {
+      "phase": "REMOTE-8L",
+      "version": "remote-post-monitoring-decision-review-v1",
+      "tool": "backend/sqx-edge-tool/tools/remote_post_monitoring_decision_review.py",
+      "doc": "docs/REMOTE_8L_POST_MONITORING_DECISION_REVIEW.md",
+      "example": "docs/examples/remote8l_post_monitoring_decision_review.local.example.json",
+      "evidenceRoot": ".local/remote_service/remote8l_post_monitoring_decision_review",
+      "summaryOutput": ".local/remote_service/remote8l_post_monitoring_decision_review/remote8l_post_monitoring_decision_review.public.json",
+      "cleanSourceStatus": "GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_CLEAN",
+      "blockedSourceStatus": "NO_GO_REMOTE8K_NEXT_CONTROLLED_MOVEMENT_MONITORING_BLOCKED",
+      "requiredSourceRequestedDecisionForNextMovement": "prepare_next_decision_review",
+      "minimumObservationHours": 24,
+      "validSelectedDecisions": [
+        "continue_monitoring",
+        "fix_blockers",
+        "rollback_last_movement",
+        "prepare_next_controlled_movement"
+      ],
+      "validMovementTypes": [
+        "add_1_2_users",
+        "extend_same_cohort_observation",
+        "prepare_paid_micro_offer",
+        "schedule_demo_batch"
+      ],
+      "maxReviewedUsers": 2,
+      "validEntitlementKinds": [
+        "paid_subscription",
+        "tester_free",
+        "internal_operator"
+      ],
+      "requiredChecks": [
+        "remote8kMonitoringReviewed",
+        "operatorDecisionRecorded",
+        "decisionRationaleRecorded",
+        "sourceStatusReviewed",
+        "monitoringWindowReviewed",
+        "supportOutcomeReviewed",
+        "workspaceIsolationReviewed",
+        "securityOutcomeReviewed",
+        "entitlementOutcomeReviewed",
+        "generationExportOutcomeReviewed",
+        "rollbackPlanReady",
+        "pauseRuleReady",
+        "noAutomationConfirmed",
+        "privateEvidenceStoredOutsideGit"
+      ],
+      "zeroExecutionMetrics": [
+        "newUsersInvited",
+        "grantsChanged",
+        "checkoutLinksCreated",
+        "emailsSent",
+        "publicUrlsShared",
+        "protectedUrlsShared",
+        "automationJobsStarted",
+        "trafficExpanded",
+        "paidCampaignStarted",
+        "automatedEmailsSent",
+        "automatedGrantsCreated",
+        "entitlementsChanged"
+      ],
+      "privacy": {
+        "rawEmailsReturned": false,
+        "protectedUrlReturned": false,
+        "localPathsReturned": false,
+        "secretsReturned": false,
+        "sessionTokenReturned": false,
+        "grantKeysReturned": false,
+        "supportLogsReturned": false,
+        "decisionRationaleReturned": false,
+        "privateNotesReturned": false,
+        "privateEvidenceCommitted": false
+      },
+      "decision": {
+        "automationAllowed": false,
+        "executionAllowedNow": false,
+        "furtherExpansionAllowedNow": false,
+        "requiresSeparateNextPhase": true
+      },
+      "nextPhaseOnPrepareNextMovement": "REMOTE-8H-next-controlled-movement-package",
+      "nextPhaseOnContinueMonitoring": "REMOTE-8K-post-execution-monitoring",
+      "nextPhaseOnFixBlockers": "REMOTE-8L-blocker-fix-plan",
+      "nextPhaseOnRollback": "REMOTE-8L-manual-rollback-package"
+    },
     "licensing": {
       "storageKey": "sqx_license_state_v1",
       "licenseFile": "config/license.json",
@@ -11882,6 +12673,16 @@ window.SQX_MANIFEST = {
     },
     "support": {
       "diagnosticsEndpoint": "/api/support/diagnostics",
+      "incidentEndpoint": "/api/support/incidents",
+      "incidentSchemaVersion": "support-incident-v1",
+      "incidentEvidenceRoot": ".local/remote_service/support_cases",
+      "incidentTool": "backend/sqx-edge-tool/tools/remote_support_status.py",
+      "incidentStatuses": [
+        "open",
+        "triaged",
+        "resolved",
+        "dismissed"
+      ],
       "diagnosticsFilenamePrefix": "SQX_support_diagnostic",
       "privacyMode": "redacted_local_json",
       "safeToSend": true,
@@ -12530,6 +13331,83 @@ window.SQX_MANIFEST = {
         "includeInternalTools": true,
         "defaultPlan": "internal"
       }
+    },
+    "remoteOps1LaptopReadiness": {
+      "phase": "REMOTE-OPS1",
+      "version": "remote-ops1-laptop-readiness-v1",
+      "tool": "backend/sqx-edge-tool/tools/remote_ops1_laptop_readiness.py",
+      "doc": "docs/REMOTE_OPS1_LAPTOP_READINESS_DRILL.md",
+      "example": "docs/examples/remote_ops1_laptop_readiness.local.example.json",
+      "evidenceRoot": ".local/remote_service/remote_ops1_laptop_readiness",
+      "summaryOutput": ".local/remote_service/remote_ops1_laptop_readiness/remote_ops1_laptop_readiness.public.json",
+      "requires": [
+        "REMOTE-1 strict preflight",
+        "REMOTE-2 tunnel/access evidence",
+        "remote session smoke",
+        "workspace smoke",
+        "artifact generation/export smoke",
+        "revocation smoke"
+      ],
+      "requiredChecks": [
+        "powerPlanReviewed",
+        "sleepDisabled",
+        "rebootRecoveryPlanReady",
+        "remoteServicePreflightStrictGo",
+        "watchdogSmokeGo",
+        "backendLocalHealthGo",
+        "backendBoundToLocalhostOnly",
+        "sqxPathsReady",
+        "sqxDataDbReady",
+        "templatesReady",
+        "outputWritable",
+        "workspaceRootReady",
+        "cloudflaredInstalled",
+        "tunnelPreflightGo",
+        "tunnelStartupPlanReady",
+        "accessAnonymousBlocked",
+        "appSessionSmokeReady",
+        "workspaceSmokeReady",
+        "artifactGenerationSmokeReady",
+        "revocationSmokeReady",
+        "restorePlanReady",
+        "logsWrittenToIgnoredLocalPath",
+        "privateEvidenceStoredOutsideGit",
+        "noSecretsInGitConfirmed",
+        "noRouterPortsOpened",
+        "noUsersInvited"
+      ],
+      "zeroRiskMetrics": [
+        "newUsersInvited",
+        "paidUsersActivated",
+        "testerGrantsChanged",
+        "checkoutLinksCreated",
+        "emailsSent",
+        "publicUrlsShared",
+        "routerPortsOpened",
+        "automationJobsStarted",
+        "unresolvedSupportIssues",
+        "workspaceLeakIncidents",
+        "securityIncidents",
+        "tunnelDropsDuringSmoke",
+        "backendHealthFailures",
+        "artifactGenerationFailures",
+        "revocationFailures"
+      ],
+      "readiness": {
+        "executionAllowedNow": false,
+        "userExpansionAllowedNow": false,
+        "requiresRemote8hEvidenceBeforeMovement": true
+      },
+      "privacy": {
+        "rawEmailsReturned": false,
+        "protectedUrlReturned": false,
+        "cloudflareIdentifiersReturned": false,
+        "localPathsReturned": false,
+        "secretsReturned": false,
+        "privateEvidenceCommitted": false
+      },
+      "nextPhaseOnGo": "REMOTE-8H-private-package-evidence",
+      "nextPhaseOnNoGo": "REMOTE-OPS1-fix-readiness-blockers"
     }
   },
   "plan": {

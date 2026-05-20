@@ -52,6 +52,10 @@ if (window.SQX && window.SQX.workflow) {
   window.SQX.workflow.init();
 }
 
+if (window.SQX && window.SQX.edgeFactoryUI) {
+  window.SQX.edgeFactoryUI.init();
+}
+
 if (window.SQX && window.SQX.viewCreator) {
   window.SQX.viewCreator.init();
 }

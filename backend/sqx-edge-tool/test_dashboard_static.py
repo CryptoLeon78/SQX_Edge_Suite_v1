@@ -59,6 +59,7 @@ REMOTE_COHORT_EVIDENCE1_DOWNLOAD_SMOKE_DOC = (
 REMOTE_COHORT_MATRIX1_DOC = PROJECT_ROOT / "docs" / "REMOTE_COHORT_MATRIX1.md"
 REMOTE_COHORT_FIX1_DOC = PROJECT_ROOT / "docs" / "REMOTE_COHORT_FIX1_SCOPE_RECONCILIATION.md"
 REMOTE_COHORT_FIX2_DOC = PROJECT_ROOT / "docs" / "REMOTE_COHORT_FIX2_CONTEXT_RECAPTURE.md"
+WFCO_EDGE_FACTORY_DOC = PROJECT_ROOT / "docs" / "WFCO_EDGE_FACTORY_FACELIFT.md"
 REMOTE_COHORT_MATRIX_CORE = TOOL_ROOT / "core" / "remote_cohort_matrix.py"
 REMOTE_COHORT_MATRIX_TOOL = TOOL_ROOT / "tools" / "remote_cohort_matrix.py"
 REMOTE_COHORT_MATRIX_TEST = TOOL_ROOT / "test_remote_cohort_matrix.py"
@@ -405,6 +406,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/fulfillment.js",
                 "js/modules/customer-cockpit.js",
                 "js/modules/workflow.js",
+                "js/modules/edge-factory.js",
+                "js/modules/edge-factory-ui.js",
                 "js/modules/view-creator.js",
                 "js/modules/project-generator-core.js",
                 "js/modules/project-generator-config.js",
@@ -6188,6 +6191,8 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/fulfillment.js",
             "js/modules/customer-cockpit.js",
             "js/modules/workflow.js",
+            "js/modules/edge-factory.js",
+            "js/modules/edge-factory-ui.js",
             "js/modules/view-creator.js",
             "js/modules/project-generator-core.js",
             "js/modules/project-generator-config.js",
@@ -6231,6 +6236,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         fulfillment_js = (APP_ROOT / "js" / "modules" / "fulfillment.js").read_text(encoding="utf-8-sig")
         customer_cockpit_js = (APP_ROOT / "js" / "modules" / "customer-cockpit.js").read_text(encoding="utf-8-sig")
         workflow_js = (APP_ROOT / "js" / "modules" / "workflow.js").read_text(encoding="utf-8-sig")
+        edge_factory_js = (APP_ROOT / "js" / "modules" / "edge-factory.js").read_text(encoding="utf-8-sig")
+        edge_factory_ui_js = (APP_ROOT / "js" / "modules" / "edge-factory-ui.js").read_text(encoding="utf-8-sig")
         view_creator_js = (APP_ROOT / "js" / "modules" / "view-creator.js").read_text(encoding="utf-8-sig")
         project_generator_core_js = (APP_ROOT / "js" / "modules" / "project-generator-core.js").read_text(encoding="utf-8-sig")
         project_generator_config_js = (APP_ROOT / "js" / "modules" / "project-generator-config.js").read_text(encoding="utf-8-sig")
@@ -6383,6 +6390,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("SQX.fulfillment", fulfillment_js)
         self.assertIn("SQX.customerCockpit", customer_cockpit_js)
         self.assertIn("SQX.workflow", workflow_js)
+        self.assertIn("SQX.edgeFactory", edge_factory_js)
+        self.assertIn("SQX.edgeFactoryUI", edge_factory_ui_js)
+        self.assertIn("sqx_edge_factory_state_v1", edge_factory_js)
         self.assertIn("SQX.viewCreator", view_creator_js)
         self.assertIn("buildViewXml", view_creator_js)
         self.assertIn("BUYER_READY_TEMPLATE_DEFINITIONS", view_creator_js)
@@ -7411,6 +7421,15 @@ class DashboardStaticTestCase(unittest.TestCase):
         css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
         ui_manifest = json.loads((TOOL_ROOT / "config" / "ui_manifest.json").read_text(encoding="utf-8-sig"))
         manifest_js = (APP_ROOT / "js" / "manifest-data.js").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+        ux_nav = (PROJECT_ROOT / "docs" / "UX_NAV_TAB_OPTIMIZATION_PLAN.md").read_text(encoding="utf-8-sig")
+        wfco_doc = WFCO_EDGE_FACTORY_DOC.read_text(encoding="utf-8-sig")
+
+        self.assertTrue(WFCO_EDGE_FACTORY_DOC.is_file())
+        self.assertIn("Current phase completed: WFCO-1 - Edge Factory Shell", governance)
+        self.assertIn("Edge Factory Experience Gate", governance)
+        self.assertIn("Active experience track: `WFCO - Edge Factory`", ux_nav)
+        self.assertIn("Desktop PC browser is the product target", wfco_doc)
 
         expected_exports = [
             "activateWorkflowPanel",
@@ -7430,6 +7449,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         tabs = ui_manifest["tabs"]
         self.assertEqual(tabs[0]["id"], "workflow")
         self.assertTrue(tabs[0]["active"])
+        self.assertEqual(tabs[0]["label"], "Edge Factory")
+        self.assertEqual(tabs[0].get("icon"), "EF")
         self.assertEqual(
             [tab["id"] for tab in tabs],
             [
@@ -7448,7 +7469,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(
             {tab["id"]: tab["label"] for tab in tabs},
             {
-                "workflow": "Workflow",
+                "workflow": "Edge Factory",
                 "activos": "Activos",
                 "pipeline": "Mining Control",
                 "views": "SQX Views",
@@ -7463,7 +7484,7 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(
             {tab["id"]: tab.get("icon") for tab in tabs},
             {
-                "workflow": "W",
+                "workflow": "EF",
                 "activos": "A",
                 "pipeline": "M",
                 "views": "V",
@@ -7475,6 +7496,12 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "inicio": "C",
             },
         )
+        self.assertFalse(tabs[0].get("hiddenInPrimary", False))
+        self.assertFalse(tabs[-1].get("hiddenInPrimary", False))
+        for tab in tabs[1:-1]:
+            with self.subTest(hidden_primary=tab["id"]):
+                self.assertTrue(tab.get("hiddenInPrimary"), tab)
+        self.assertEqual(ui_manifest["storageKeys"]["edgeFactoryState"], "sqx_edge_factory_state_v1")
         blocksettings = ui_manifest["blockSettingsInfo"]
         self.assertEqual(blocksettings["title"], "BlockSettings Info")
         self.assertEqual(len(blocksettings["capa1"]), 7)
@@ -7496,6 +7523,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertEqual(ui_manifest["capa2Recommendations"]["recommendations"]["H1"], "BS_Filtros_v6")
         self.assertEqual(ui_manifest["capa2Recommendations"]["recommendations"]["D1"], "BS_Filtros_v6_D1")
         self.assertIn("blockSettingsInfo", manifest_js)
+        self.assertIn('"label": "Edge Factory"', manifest_js)
+        self.assertIn('"hiddenInPrimary": true', manifest_js)
         self.assertIn('"label": "BlockSettings Info"', manifest_js)
         self.assertIn('"icon": "B"', manifest_js)
         self.assertIn('id="tab-filtros" class="tab-content" style="display:none"', self.html)
@@ -7520,6 +7549,18 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn('data-home-tab="workflow"', self.html)
         self.assertNotIn("SQX Edge Control Center", self.html)
         self.assertIn('id="tab-workflow" class="tab-content"', self.html)
+        self.assertIn('id="edge-factory-shell"', self.html)
+        self.assertIn('id="edge-tool-drawer"', self.html)
+        self.assertIn('id="edge-portfolio-lab"', self.html)
+        self.assertIn("Edge Factory", self.html)
+        self.assertIn("De una hipótesis a un portfolio descorrelacionado", self.html)
+        self.assertIn("Custom libre avanzado", self.html)
+        self.assertIn('data-edge-tool="projectgen"', self.html)
+        self.assertIn('data-edge-stage="portfolio"', self.html)
+        self.assertEqual(self.html.count('class="edge-stage-card" data-edge-stage='), 8)
+        self.assertIn("edgeFactoryUI.init", main_js)
+        self.assertIn("edge-factory", (APP_ROOT / "js" / "modules" / "index.js").read_text(encoding="utf-8-sig"))
+        self.assertIn("sqx_edge_factory_state_v1", (APP_ROOT / "js" / "modules" / "remote-state.js").read_text(encoding="utf-8-sig"))
         pipeline_tab = self.html.split('id="tab-pipeline"', 1)[1].split('id="tab-projectgen"', 1)[0]
         workflow_overview = self.html.split('id="wf-overview"', 1)[1].split('id="wf-capa1"', 1)[0]
         workflow_pipeline = self.html.split('id="wf-pipeline-flow-details"', 1)[1].split('</details>', 1)[0]
@@ -16054,8 +16095,8 @@ class DashboardStaticTestCase(unittest.TestCase):
                 self.assertIn(pattern, next_steps)
 
         for pattern in (
-            "Estado interno: UX-NAV esta sin tab activo tras UX-WF2",
-            "no se abre otro pase hasta que el operador defina el siguiente scope explicito",
+            "Estado interno: WFCO-1 Edge Factory Shell esta aplicado",
+            "Siguiente paso recomendado: esperar el retest de TESTER-RILIS",
             "Estado comercial: REMOTE-0 inicia el giro oficial a acceso web Pro",
             "REMOTE-PG-SESSION-FIX esta aplicado",
             "TESTER-RILIS pendiente de retest",

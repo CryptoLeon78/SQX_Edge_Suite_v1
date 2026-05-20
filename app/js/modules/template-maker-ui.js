@@ -338,8 +338,12 @@
   }
 
   function openCertView() {
-    var tab = global.document.querySelector('.tab[data-tab="views"]');
-    if (tab && typeof tab.click === 'function') tab.click();
+    if (SQX.ui && SQX.ui.activateTabById) {
+      SQX.ui.activateTabById('views', global.document);
+    } else {
+      var tab = global.document.querySelector('.tab[data-tab="views"]');
+      if (tab && typeof tab.click === 'function') tab.click();
+    }
     if (SQX.viewCreator && SQX.viewCreator.loadBuyerReadyTemplate) {
       SQX.viewCreator.loadBuyerReadyTemplate('template-maker-cert');
     }

@@ -3850,6 +3850,164 @@
     .workflow-command-step { min-height:0; }
   }
 
+  .edge-factory-shell {
+    position:relative;
+    overflow:hidden;
+    border-color:rgba(96,165,250,.28);
+    background:
+      linear-gradient(145deg, rgba(8,13,24,.98), rgba(12,23,41,.96) 48%, rgba(5,20,22,.96)),
+      radial-gradient(circle at 88% 8%, rgba(45,212,191,.14), transparent 34%);
+  }
+  .edge-factory-shell::after {
+    content:'';
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    background:linear-gradient(90deg, rgba(96,165,250,.16), transparent 18%, transparent 82%, rgba(45,212,191,.12));
+    opacity:.45;
+  }
+  .edge-factory-shell > * { position:relative; z-index:1; }
+  .edge-factory-hero { display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:18px; align-items:stretch; margin-bottom:16px; }
+  .edge-factory-hero-copy h2 { font-size:clamp(30px, 4vw, 58px); line-height:1.02; margin:0 0 12px; max-width:980px; }
+  .edge-factory-hero-copy p { max-width:900px; color:#c7d2fe; font-size:15px; line-height:1.65; }
+  .edge-factory-eyebrow { display:inline-flex; align-items:center; gap:8px; color:#60a5fa; }
+  .edge-factory-eyebrow::before {
+    content:'';
+    width:18px;
+    height:18px;
+    border-radius:6px;
+    background:url('../assets/brand/sqx-internal-pipeline-icon.png') center/cover no-repeat;
+    box-shadow:0 0 18px rgba(96,165,250,.35);
+  }
+  .edge-factory-claim {
+    display:inline-flex;
+    max-width:880px;
+    border:1px solid rgba(250,204,21,.42);
+    background:rgba(250,204,21,.08);
+    color:#fde68a;
+    border-radius:8px;
+    padding:10px 12px;
+    font-weight:800;
+    line-height:1.45;
+  }
+  .edge-factory-status {
+    border:1px solid rgba(96,165,250,.22);
+    background:rgba(15,23,42,.78);
+    border-radius:8px;
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    justify-content:center;
+  }
+  .edge-factory-status span { color:#93c5fd; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
+  .edge-factory-status strong { color:#f8fafc; font-size:17px; }
+  .edge-factory-primary { margin-top:4px; justify-content:center; }
+  .edge-factory-toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:10px 0 16px; }
+  .edge-tool-drawer {
+    border:1px solid rgba(148,163,184,.22);
+    background:rgba(2,6,23,.54);
+    border-radius:8px;
+    padding:14px;
+    margin-bottom:16px;
+  }
+  .edge-tool-drawer-head { display:flex; gap:12px; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .edge-tool-drawer-head p { margin:0; color:#cbd5e1; font-size:13px; }
+  .edge-tool-grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px; }
+  .edge-tool-card {
+    text-align:left;
+    color:#e5f0ff;
+    border:1px solid rgba(96,165,250,.22);
+    background:linear-gradient(180deg, rgba(15,23,42,.88), rgba(9,14,26,.92));
+    border-radius:8px;
+    padding:12px;
+    cursor:pointer;
+  }
+  .edge-tool-card:hover { border-color:rgba(45,212,191,.5); transform:translateY(-1px); }
+  .edge-tool-card strong { display:block; margin-bottom:6px; }
+  .edge-tool-card span { color:#a7b7cc; font-size:12px; line-height:1.45; }
+  .edge-stage-grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:12px; }
+  .edge-stage-card {
+    border:1px solid rgba(96,165,250,.2);
+    background:linear-gradient(180deg, rgba(15,23,42,.92), rgba(8,13,24,.94));
+    border-radius:8px;
+    padding:14px;
+    min-height:260px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .edge-stage-card.is-current { border-color:rgba(250,204,21,.75); box-shadow:0 0 0 1px rgba(250,204,21,.16), 0 18px 32px rgba(0,0,0,.22); }
+  .edge-stage-card.is-complete { border-color:rgba(52,211,153,.55); background:linear-gradient(180deg, rgba(6,78,59,.34), rgba(8,13,24,.94)); }
+  .edge-stage-top { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .edge-stage-top span { display:inline-flex; width:34px; height:34px; align-items:center; justify-content:center; border-radius:8px; background:rgba(37,99,235,.26); color:#93c5fd; font-weight:900; }
+  .edge-stage-top small { color:#facc15; font-weight:900; text-transform:uppercase; letter-spacing:.06em; }
+  .edge-stage-card h3 { margin:0; font-size:18px; color:#f8fafc; }
+  .edge-stage-card p { margin:0; color:#cbd5e1; line-height:1.55; font-size:13px; }
+  .edge-stage-card ul { margin:0; padding-left:18px; color:#9fb0c7; font-size:12px; line-height:1.55; }
+  .edge-stage-actions { margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .edge-stage-actions label { display:inline-flex; align-items:center; gap:6px; color:#cbd5e1; font-size:12px; font-weight:800; }
+  .edge-advanced-custom {
+    margin-top:14px;
+    border:1px solid rgba(148,163,184,.22);
+    background:rgba(15,23,42,.62);
+    border-radius:8px;
+    padding:12px 14px;
+  }
+  .edge-advanced-custom summary { cursor:pointer; color:#facc15; font-weight:900; }
+  .edge-advanced-custom p { color:#cbd5e1; line-height:1.55; }
+  .edge-portfolio-lab {
+    margin-top:14px;
+    border:1px solid rgba(45,212,191,.22);
+    background:linear-gradient(180deg, rgba(8,47,73,.46), rgba(8,13,24,.94));
+    border-radius:8px;
+    padding:16px;
+  }
+  .edge-portfolio-lab h3 { margin:8px 0 8px; color:#f8fafc; }
+  .edge-portfolio-lab p { color:#cbd5e1; line-height:1.55; max-width:920px; }
+  .edge-portfolio-grid { display:grid; grid-template-columns:minmax(0,1fr) 220px; gap:12px; align-items:start; }
+  .edge-portfolio-grid textarea {
+    width:100%;
+    resize:vertical;
+    min-height:132px;
+    color:#e5e7eb;
+    background:rgba(2,6,23,.72);
+    border:1px solid rgba(148,163,184,.22);
+    border-radius:8px;
+    padding:10px;
+  }
+  .edge-portfolio-actions { display:grid; gap:8px; }
+  .edge-portfolio-results {
+    margin-top:12px;
+    border:1px solid rgba(148,163,184,.18);
+    background:rgba(2,6,23,.46);
+    border-radius:8px;
+    padding:12px;
+    color:#cbd5e1;
+    overflow:auto;
+  }
+  .edge-portfolio-results table { width:100%; border-collapse:collapse; min-width:680px; }
+  .edge-portfolio-results th,
+  .edge-portfolio-results td { padding:8px; border-bottom:1px solid rgba(148,163,184,.14); text-align:left; font-size:12px; }
+  .edge-portfolio-results th { color:#93c5fd; text-transform:uppercase; letter-spacing:.06em; }
+  .edge-factory-shell ~ #workflow-command-center,
+  .edge-factory-shell ~ .subtabs,
+  .edge-factory-shell ~ .subtab-host {
+    display:none;
+  }
+  @media (max-width: 1180px) {
+    .edge-factory-hero,
+    .edge-portfolio-grid { grid-template-columns:1fr; }
+    .edge-stage-grid,
+    .edge-tool-grid { grid-template-columns:repeat(2, minmax(0,1fr)); }
+  }
+  @media (max-width: 700px) {
+    .edge-stage-grid,
+    .edge-tool-grid { grid-template-columns:1fr; }
+    .edge-stage-card { min-height:auto; }
+    .edge-factory-claim { display:block; }
+  }
+
   /* Ajuste container dentro del tab Workflow para que respete el ancho del wrapper principal */
   #tab-workflow .container { max-width:100%; padding:0; margin:0; }
 

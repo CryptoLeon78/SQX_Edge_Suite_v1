@@ -18,6 +18,7 @@ REMOTE_STATE_KEYS: dict[str, str] = {
     "strategiesUser": "sqx_strategies_user_v1",
     "strategiesDeleted": "sqx_strategies_deleted_v1",
     "viewCreatorPresets": "sqx_view_creator_presets_v1",
+    "edgeFactoryState": "sqx_edge_factory_state_v1",
 }
 
 ALLOWED_REMOTE_STATE_KEYS = frozenset(REMOTE_STATE_KEYS.values())

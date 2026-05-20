@@ -8,7 +8,8 @@
     pipelineState: 'sqx_pipeline_state_v1',
     strategiesUser: 'sqx_strategies_user_v1',
     strategiesDeleted: 'sqx_strategies_deleted_v1',
-    viewCreatorPresets: 'sqx_view_creator_presets_v1'
+    viewCreatorPresets: 'sqx_view_creator_presets_v1',
+    edgeFactoryState: 'sqx_edge_factory_state_v1'
   };
   var _enabled = false;
   var _ready = false;
@@ -36,7 +37,8 @@
       pipelineState: keys.pipelineState || FALLBACK_KEYS.pipelineState,
       strategiesUser: keys.strategiesUser || FALLBACK_KEYS.strategiesUser,
       strategiesDeleted: keys.strategiesDeleted || FALLBACK_KEYS.strategiesDeleted,
-      viewCreatorPresets: keys.viewCreatorPresets || FALLBACK_KEYS.viewCreatorPresets
+      viewCreatorPresets: keys.viewCreatorPresets || FALLBACK_KEYS.viewCreatorPresets,
+      edgeFactoryState: keys.edgeFactoryState || FALLBACK_KEYS.edgeFactoryState
     };
   }
 

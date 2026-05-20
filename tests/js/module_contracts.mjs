@@ -18,6 +18,7 @@ import './contracts/renderers_charts_contracts.mjs';
 import './contracts/strategies_granular_contracts.mjs';
 import './contracts/ui_home_workflow_contracts.mjs';
 import './contracts/home_workflow_granular_contracts.mjs';
+import './contracts/edge_factory_contracts.mjs';
 import './contracts/view_creator_contracts.mjs';
 import './contracts/exit_policy_contracts.mjs';
 import './contracts/template_maker_contracts.mjs';

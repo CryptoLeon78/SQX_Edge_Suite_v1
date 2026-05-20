@@ -4,7 +4,7 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 
 ## Estado Actual
 
-- Estado interno: UX-NAV esta sin tab activo tras UX-WF2; no se abre otro pase hasta que el operador defina el siguiente scope explicito.
+- Estado interno: WFCO-1 Edge Factory Shell esta aplicado; la experiencia principal pasa a Edge Factory desktop-first, con herramientas tecnicas ocultas en drawer avanzado y Portfolio Lab como destino de Capa 2/portfolio.
 - Estado comercial: CANONICAL-LINK1 fija `https://sqxedgesuite.org/` como unico enlace externo; REMOTE-RILIS-STANDBY queda activo con REMOTE-PG-SESSION-FIX esta aplicado, CREATOR-IVAN funcionando correctamente y TESTER-RILIS pendiente de retest.
 - Estado de despliegue: Windows laptop + API localhost + Cloudflare Tunnel sigue siendo la ruta activa; el dashboard protegido queda como destino interno detras del CTA del dominio raiz.
 - Ancla historica: Estado comercial: REMOTE-OPS1 valida el portatil como host Pro antes de cualquier siguiente movimiento real con testers o compradores.
@@ -14,7 +14,7 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 - Distribucion principal: enlace unico comercial `https://sqxedgesuite.org/`; el usuario final no descarga ZIP, no ejecuta launchers y no instala Python.
 - URL de acceso comunicable: `https://sqxedgesuite.org/`. El dashboard protegido bajo Cloudflare Access es infraestructura interna y no se presenta como segundo enlace al cliente.
 - Fallback interno conservado: `dist/SQX_Edge_Tool_Portable_Tester_20260512_184709.zip` con SHA256 `247797085555789B3CE07E7BC7E72AC7F08B0AB7FFF8C552DB9719964EFA4CE3`.
-- Siguiente paso recomendado: esperar el retest de TESTER-RILIS; si confirma OK, registrar la incidencia como resuelta y reabrir REMOTE-8G decision review. Cualquier expansion, grant, email, checkout, URL o onboarding nuevo sigue bloqueado hasta una fase posterior aprobada.
+- Siguiente paso recomendado: esperar el retest de TESTER-RILIS para REMOTE; en paralelo, continuar con WFCO-2 Methodology Handoffs. Si TESTER-RILIS confirma OK, registrar la incidencia como resuelta y reabrir REMOTE-8G decision review. Cualquier expansion, grant, email, checkout, URL o onboarding nuevo sigue bloqueado hasta una fase posterior aprobada.
 - Ancla historica: Siguiente paso recomendado: rellenar evidencia privada REMOTE-OPS1 en `.local/remote_service/remote_ops1_laptop_readiness.local.json`; si devuelve GO, volver a REMOTE-8H private package evidence.
 - Ancla historica: Siguiente paso recomendado: rellenar evidencia privada REMOTE-8H desde una decision REMOTE-8L `prepare_next_controlled_movement` y pedir aprobacion REMOTE-8I antes de ejecutar nada.
 - Ultima mejora funcional: `dukas_mt5_ohlc_download.py --recent-bars` descarga 33 activos x 4 timeframes desde MT5; A56 devuelve GO con A55/A53/A54 en verde.

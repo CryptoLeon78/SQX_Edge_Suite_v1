@@ -37,7 +37,7 @@ flowchart TD
   DATA --> CFG["app-config.js"]
 
   MOD --> CORE["core.js"]
-  MOD --> FEAT["domain/renderers/charts/strategies/home/state backup/MTF evidence/Champion vs Challenger/Strategy Builder/support/fulfillment/customer cockpit/workflow/view creator"]
+  MOD --> FEAT["domain/renderers/charts/strategies/home/state backup/MTF evidence/Champion vs Challenger/Strategy Builder/support/fulfillment/customer cockpit/workflow/Edge Factory/view creator"]
   MOD --> PG["project-generator-* modules"]
   MOD --> IDX["index.js boot"]
 
@@ -424,20 +424,22 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 31. `js/modules/fulfillment.js`
 32. `js/modules/customer-cockpit.js`
 33. `js/modules/workflow.js`
-34. `js/modules/view-creator.js`
-35. `js/modules/project-generator-core.js`
-36. `js/modules/project-generator-config.js`
-37. `js/modules/project-generator-dom.js`
-38. `js/modules/project-generator-bindings.js`
-39. `js/modules/project-generator-renderers.js`
-40. `js/modules/project-generator-status.js`
-41. `js/modules/project-generator-cleaner.js`
-42. `js/modules/project-generator.js`
-43. `js/modules/index.js`
-44. `js/data.js`
-45. `js/dashboard.js`
-46. `js/main.js`
-47. `js/project-generator-main.js`
+34. `js/modules/edge-factory.js`
+35. `js/modules/edge-factory-ui.js`
+36. `js/modules/view-creator.js`
+37. `js/modules/project-generator-core.js`
+38. `js/modules/project-generator-config.js`
+39. `js/modules/project-generator-dom.js`
+40. `js/modules/project-generator-bindings.js`
+41. `js/modules/project-generator-renderers.js`
+42. `js/modules/project-generator-status.js`
+43. `js/modules/project-generator-cleaner.js`
+44. `js/modules/project-generator.js`
+45. `js/modules/index.js`
+46. `js/data.js`
+47. `js/dashboard.js`
+48. `js/main.js`
+49. `js/project-generator-main.js`
 
 ## Why This Order Matters
 
@@ -452,6 +454,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 - `vendor/jszip.min.js` loads before Template Maker because local/offline `.sqx` parsing and C2 export cannot depend on a CDN.
 - `exit-policy.js` loads before Template Maker so C2 generation can detect, disable or randomize SQX exit methods through one global policy.
 - `template-maker.js` and `template-maker-ui.js` replace the old active analyzer surface with a native SQX module for Capa 1/2 scoring and C2 generation.
+- `edge-factory.js` and `edge-factory-ui.js` load after Workflow because Edge Factory is the new desktop-first command shell over the existing methodology engines, while Workflow keeps the legacy detail system available as an internal surface.
 - `modules/index.js` marks the module layer as booted and flushes ready callbacks.
 - `data.js` and `dashboard.js` preserve existing global render functions and dashboard behavior.
 - `main.js` runs shell-level initial rendering and workflow initialization.
@@ -485,6 +488,8 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/fulfillment.js` | Internal operator queue cockpit for manual fulfillment states and retries. |
 | `modules/customer-cockpit.js` | Redacted customer success cockpit for Pro renewal, support and expansion state. |
 | `modules/workflow.js` | Workflow tab initialization and subtab behavior. |
+| `modules/edge-factory.js` | Desktop-first Edge Factory state model, 8-stage methodology contract, workspace-scoped persistence key and Portfolio Lab MVP ranking/diversity helpers. |
+| `modules/edge-factory-ui.js` | Edge Factory UI shell, advanced tools drawer, stage completion wiring, handoffs to hidden tools and Portfolio Lab browser export. |
 | `modules/view-creator.js` | Native SQX `.vw` generator for annual Databank views, EGT/Robustez/Template Maker/CVC Decision Cert presets, saved local presets, JSON preset packs with import preview, workflow handoffs and XML downloads. This is the maintained replacement for the archived Tkinter staging prototype. |
 | `modules/project-generator-core.js` | Project Generator shared helpers and API primitives. |
 | `modules/project-generator-config.js` | Project Generator config read/write helpers, enriched starter custom profiles, profile-family packs, local custom preset persistence, import preview and portable custom preset JSON packs. |

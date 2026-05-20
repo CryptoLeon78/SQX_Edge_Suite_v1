@@ -13,9 +13,20 @@ UX-NAV now runs as a sequential tab-by-tab optimization track.
 
 ## Current Active Tab
 
-No active UX tab after UX-WF2 acceptance.
+Active experience track: `WFCO - Edge Factory`.
 
-Project Generator is closed as a guided `.cfx` assistant. Mining Control cleanup remains done, and Workflow has now been accepted after an operator real-browser visual/manual pass on 2026-05-17. Do not open a new UX tab pass until the operator gives the next explicit scope.
+The operator explicitly opened Website Facelift + Content Overhaul to simplify the full workflow into one main desktop experience. Workflow is being transformed into `Edge Factory`, a methodology-first shell over the existing engines. Project Generator, Template Maker, Strategy Control, CVC, SQX Views, Mining Control, Activos and BlockSettings stay available as advanced/internal tools, not as the primary navigation for the buyer/tester.
+
+Desktop priority: the experience is optimized for PC browser. Mobile should not break catastrophically, but the product will not trade away desktop clarity or column density for phone-first behavior.
+
+Current WFCO status:
+
+- `WFCO-0 · Governance And Contract`: completed.
+- `WFCO-1 · Edge Factory Shell`: completed.
+- `WFCO-2 · Methodology Handoffs`: next recommended phase.
+- `WFCO-3 · Content Overhaul`: pending.
+- `WFCO-4 · Portfolio Lab MVP`: pending beyond the initial shell MVP.
+- `WFCO-5 · Visual Polish And Desktop QA`: pending.
 
 Historical repair/enrichment pause: TM-DIV1 added a hybrid diversity gate to Template Maker after the TM-FIX2 CSV contract repair. This did not advance the UX-NAV tab order and does not reopen Template Maker as a design pass; it prevents redundant C2 templates by clustering similar `.sqx` logic plus CSV metric behavior.
 
@@ -31,7 +42,7 @@ BlockSettings Info pass: `Help/Filtros Fase 2` is repurposed as a methodological
 
 ## Tab Pass Order
 
-This is the working order for individual optimization. It can be adjusted only after the active tab is completed or if the operator explicitly changes priority.
+This historical order remains traceability for completed individual optimizations. WFCO now sits above the tab order as the user-facing shell; technical tabs remain accessible from the advanced drawer.
 
 1. `Workflow` - completed as command center.
 2. `Mining Control` - pending only if the operator explicitly reopens it; focused cleanup of duplicate informational surfaces is already complete.
@@ -44,6 +55,30 @@ This is the working order for individual optimization. It can be adjusted only a
 9. `BlockSettings Info` - completed as methodological BlockSettings showcase.
 10. `Inicio`
 11. Final navigation reordering and complete methodology flow.
+
+## WFCO - Website Facelift + Content Overhaul
+
+Goal: convert the app into `Edge Factory`, a near all-in-one guided methodology that reduces tab-hopping and shows the user only what to do next.
+
+Primary flow:
+
+1. `Preparar sesión`: identity, workspace, service, downloads and remote readiness.
+2. `Elegir tarjeta`: asset hypothesis, timeframe, direction and real BlockSetting.
+3. `Minar Capa 1`: generate methodological `.cfx`.
+4. `Analizar Capa 1`: Template Maker with CSV/SQX contract, clusters and winners.
+5. `Generar Template C2`: traceable C2 modal with indicators, cluster and Exit Policy.
+6. `Minar Capa 2`: generate `.cfx` Capa 2 from the validated template.
+7. `Analizar Capa 2`: Portfolio Lab, not Template Maker.
+8. `Portfolio descorrelacionado`: shortlist, diversity, export and next action.
+
+Design rules:
+
+- Visible primary navigation: `Edge Factory` and `Control Panel`.
+- Existing tools are hidden behind `Herramientas avanzadas` and internal handoffs.
+- Custom libre stays advanced and warns about partial traceability.
+- Strategy Builder remains retired.
+- No routes, server paths, private URLs or raw technical backend details are shown to normal users.
+- No profitability claims.
 
 ## UX-WF2 - Functional Pipeline KPIs
 

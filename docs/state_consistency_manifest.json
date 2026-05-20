@@ -52,29 +52,33 @@
     },
     {
       "id": "ux_nav_current_scope",
-      "description": "UX-NAV docs must agree that no UX tab is active after UX-WF2 acceptance until the operator defines the next scope.",
+      "description": "UX-NAV docs must agree that WFCO Edge Factory is the active experience track after the operator opened the website facelift.",
       "required": {
         "README.md": [
-          "UX-NAV esta sin tab activo tras UX-WF2"
+          "WFCO-1 Edge Factory Shell esta aplicado"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
-          "Active UX-NAV tab: none"
+          "Current phase completed: WFCO-1 - Edge Factory Shell",
+          "Edge Factory Experience Gate"
         ],
         "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md": [
-          "No active UX tab after UX-WF2 acceptance",
-          "Do not open a new UX tab pass until the operator gives the next explicit scope"
+          "Active experience track: `WFCO - Edge Factory`",
+          "`WFCO-1 · Edge Factory Shell`: completed"
         ]
       },
       "forbidden": {
         "README.md": [
-          "tab activo es Workflow"
+          "tab activo es Workflow",
+          "UX-NAV esta sin tab activo tras UX-WF2"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
-          "Active UX-NAV tab: `Mining Control`"
+          "Active UX-NAV tab: `Mining Control`",
+          "Active UX-NAV tab: none"
         ],
         "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md": [
           "before Mining Control resumes",
-          "before returning to Mining Control"
+          "before returning to Mining Control",
+          "No active UX tab after UX-WF2 acceptance"
         ]
       }
     },

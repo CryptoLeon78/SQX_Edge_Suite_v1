@@ -15,6 +15,7 @@ sandbox.SQX_CONFIG = {
     strategiesUser: 'sqx_strategies_user_v1',
     strategiesDeleted: 'sqx_strategies_deleted_v1',
     viewCreatorPresets: 'sqx_view_creator_presets_v1',
+    edgeFactoryState: 'sqx_edge_factory_state_v1',
   },
   apiBase: () => 'https://sqx.example.invalid/api',
 };
@@ -30,9 +31,10 @@ sandbox.fetch = (url, options = {}) => {
           sqx_plan_user_v1: { minings: [{ num: 31, asset: 'XAUUSD' }], phases: {} },
           sqx_strategies_user_v1: [{ id: 'remote-strategy' }],
           sqx_view_creator_presets_v1: [{ id: 'remote-view', name: 'Remote View', config: { viewName: 'Remote View' } }],
+          sqx_edge_factory_state_v1: { version: 'edge-factory-state-v1', activeStep: 'asset', completedSteps: ['session'] },
           sqx_license_state_v1: { ignored: true },
         },
-        stateKeys: ['sqx_plan_user_v1', 'sqx_strategies_user_v1', 'sqx_view_creator_presets_v1'],
+        stateKeys: ['sqx_plan_user_v1', 'sqx_strategies_user_v1', 'sqx_view_creator_presets_v1', 'sqx_edge_factory_state_v1'],
       }),
     });
   }
@@ -57,10 +59,12 @@ assert.equal(SQX.remoteState.version, 'remote-workspace-state-v1');
 assert.equal(SQX.remoteState.isEnabled(), true);
 assert.equal(SQX.remoteState.allowedKeys().includes('sqx_plan_user_v1'), true);
 assert.equal(SQX.remoteState.allowedKeys().includes('sqx_view_creator_presets_v1'), true);
+assert.equal(SQX.remoteState.allowedKeys().includes('sqx_edge_factory_state_v1'), true);
 assert.equal(SQX.remoteState.allowedKeys().includes('sqx_license_state_v1'), false);
 assert.equal(JSON.parse(sandbox.localStorage.getItem('sqx_plan_user_v1')).minings[0].num, 31);
 assert.equal(JSON.parse(sandbox.localStorage.getItem('sqx_strategies_user_v1'))[0].id, 'remote-strategy');
 assert.equal(JSON.parse(sandbox.localStorage.getItem('sqx_view_creator_presets_v1'))[0].id, 'remote-view');
+assert.equal(JSON.parse(sandbox.localStorage.getItem('sqx_edge_factory_state_v1')).activeStep, 'asset');
 assert.equal(sandbox.localStorage.getItem('sqx_license_state_v1'), null);
 
 SQX.storage.setJson('sqx_plan_user_v1', { minings: [{ num: 32 }], phases: {} });

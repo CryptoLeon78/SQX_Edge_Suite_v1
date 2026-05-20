@@ -196,6 +196,8 @@ function createLoadedSandbox(modules = [
   'app/js/modules/strategies.js',
   'app/js/modules/home.js',
   'app/js/modules/workflow.js',
+  'app/js/modules/edge-factory.js',
+  'app/js/modules/edge-factory-ui.js',
   'app/js/modules/project-generator-core.js',
   'app/js/modules/project-generator-config.js',
   'app/js/modules/project-generator-dom.js',

@@ -39,6 +39,20 @@ async function acceptDecision(page) {
   if (visible) await page.locator('#sqx-decision-confirm').click();
 }
 
+async function openTab(page, tabId) {
+  const visibleTab = page.locator(`.tab[data-tab="${tabId}"]`);
+  if (await visibleTab.count()) {
+    await visibleTab.click();
+  } else {
+    const ok = await page.evaluate(id => window.SQX?.ui?.activateTabById(id), tabId);
+    if (!ok) throw new Error(`Could not activate tab ${tabId}`);
+  }
+  await page.waitForFunction(id => {
+    const panel = document.getElementById(`tab-${id}`);
+    return panel && getComputedStyle(panel).display !== 'none';
+  }, tabId);
+}
+
 async function run() {
   const browser = await chromium.launch({ headless: true });
   try {
@@ -48,7 +62,7 @@ async function run() {
     desktop.on('dialog', dialog => dialog.accept());
     await desktop.goto(dashboardUrl, { waitUntil: 'load' });
     await desktop.waitForSelector('.tab[data-tab="workflow"].active');
-    await desktop.waitForSelector('#workflow-command-center');
+    await desktop.waitForSelector('#edge-factory-shell');
     await desktop.evaluate(() => {
       const localModel = window.SQX.home.computeRemoteServiceModel({});
       window.SQX.home.applyRemoteServiceModel(localModel, document);
@@ -148,16 +162,16 @@ async function run() {
     if (!sidebarBrandImage.includes('sqx-favicon.png')) throw new Error('Sidebar brand should use the SQX favicon asset');
     const workflowWatermark = await desktop.locator('#tab-workflow').evaluate(node => getComputedStyle(node, '::before').backgroundImage);
     if (!workflowWatermark.includes('sqx-tab-watermark.png')) throw new Error('Tabs should render the SQX watermark asset');
-    const workflowMethodIcon = await desktop.locator('.workflow-command-eyebrow').evaluate(node => getComputedStyle(node, '::before').backgroundImage);
+    const workflowMethodIcon = await desktop.locator('#edge-factory-shell .workflow-command-eyebrow').evaluate(node => getComputedStyle(node, '::before').backgroundImage);
     if (!workflowMethodIcon.includes('sqx-internal-pipeline-icon.png')) throw new Error('Workflow should render the internal SQX pipeline icon');
     const categoryTabCount = await desktop.locator('.tab[data-tab="categorias"]').count();
     if (categoryTabCount !== 0) throw new Error('Por Categoria should not be a primary tab');
     const priorityTabCount = await desktop.locator('.tab[data-tab="priority"]').count();
     if (priorityTabCount !== 0) throw new Error('Priority should not be a primary navigation section');
     const sidebarOrder = await desktop.locator('#main-tabs .tab').evaluateAll(nodes => nodes.map(node => node.dataset.tab));
-    const expectedSidebarOrder = ['workflow', 'activos', 'pipeline', 'views', 'projectgen', 'templatemaker', 'estrategias', 'cvc', 'filtros', 'inicio'];
+    const expectedSidebarOrder = ['workflow', 'inicio'];
     if (sidebarOrder.join('|') !== expectedSidebarOrder.join('|')) {
-      throw new Error(`Navigation should follow Workflow methodology order: ${sidebarOrder.join('|')}`);
+      throw new Error(`Primary navigation should show only Edge Factory and Control Panel: ${sidebarOrder.join('|')}`);
     }
     const sidebarModel = await desktop.locator('#main-tabs .tab').evaluateAll(nodes => nodes.map(node => ({
       id: node.dataset.tab,
@@ -165,15 +179,7 @@ async function run() {
       icon: node.querySelector('.tab-icon')?.textContent.trim(),
     })));
     const expectedSidebarModel = {
-      workflow: ['Workflow', 'W'],
-      activos: ['Activos', 'A'],
-      pipeline: ['Mining Control', 'M'],
-      views: ['SQX Views', 'V'],
-      projectgen: ['Project Generator', 'P'],
-      templatemaker: ['Template Maker', 'T'],
-      estrategias: ['Strategy Control', 'S'],
-      cvc: ['Champion vs Challenger', 'CvC'],
-      filtros: ['BlockSettings Info', 'B'],
+      workflow: ['Edge Factory', 'EF'],
       inicio: ['Control Panel', 'C'],
     };
     sidebarModel.forEach(item => {
@@ -189,8 +195,7 @@ async function run() {
     await saveShot(desktop, 'e2e-navigation-collapsed-desktop.png');
     await desktop.locator('#tabs-collapse-toggle').click();
     await desktop.waitForFunction(() => !document.body.classList.contains('nav-collapsed'));
-    await desktop.locator('.tab[data-tab="filtros"]').click();
-    await desktop.waitForSelector('.tab[data-tab="filtros"].active');
+    await openTab(desktop, 'filtros');
     await desktop.waitForSelector('#filtros-view .bs-card');
     const blockSettingsText = await desktop.locator('#tab-filtros').innerText();
     [
@@ -212,17 +217,15 @@ async function run() {
       throw new Error('BlockSettings Info should not render the old generic Help copy');
     }
     await saveShot(desktop, 'e2e-blocksettings-info-desktop.png');
-    await desktop.locator('.tab[data-tab="workflow"]').click();
-    await desktop.waitForSelector('.tab[data-tab="workflow"].active');
+    await openTab(desktop, 'workflow');
     const strategyBuilderTabCount = await desktop.locator('.tab[data-tab="strategybuilder"]').count();
     if (strategyBuilderTabCount !== 0) throw new Error('Strategy Builder should not be a primary navigation section');
-    const commandCenterText = await desktop.locator('#workflow-command-center').innerText();
-    if (commandCenterText.includes('Strategy Builder')) throw new Error('Workflow command center should not expose Strategy Builder');
-    ['Estrategias', 'Champion vs Challenger'].forEach(expected => {
-      if (!commandCenterText.includes(expected)) throw new Error(`Workflow command center should expose ${expected}`);
+    const edgeFactoryPrimaryText = await desktop.locator('#edge-factory-shell').evaluate(node => node.textContent || '');
+    if (edgeFactoryPrimaryText.includes('Strategy Builder')) throw new Error('Edge Factory should not expose Strategy Builder');
+    ['Strategy Control', 'Champion vs Challenger'].forEach(expected => {
+      if (!edgeFactoryPrimaryText.includes(expected)) throw new Error(`Edge Factory should expose ${expected} as guided/advanced access`);
     });
-    await desktop.locator('#workflow-command-center [data-home-tab="pipeline"]').click();
-    await desktop.waitForSelector('.tab[data-tab="pipeline"].active');
+    await openTab(desktop, 'pipeline');
     const retiredMiningInfoCards = await desktop.locator('#ps-current-pipeline-status, #ps-orphans-card, #ps-plan-user-info').count();
     if (retiredMiningInfoCards !== 0) throw new Error('Mining Control should not render retired focus/preload info cards');
     await desktop.waitForSelector('#ps-command-strip');
@@ -325,8 +328,7 @@ async function run() {
     });
     await desktop.reload({ waitUntil: 'load' });
     await desktop.waitForSelector('.tab[data-tab="workflow"].active');
-    await desktop.locator('.tab[data-tab="pipeline"]').click();
-    await desktop.waitForSelector('.tab[data-tab="pipeline"].active');
+    await openTab(desktop, 'pipeline');
     await desktop.waitForFunction(() => !document.getElementById('ps-plan-table')?.innerText.includes('Plan mining vacío'));
     const miningControlText = await desktop.locator('#tab-pipeline').innerText();
     const miningControlTextUpper = miningControlText.toUpperCase();
@@ -340,13 +342,10 @@ async function run() {
       throw new Error('Mining Control should not render the old hardcoded pipeline chronicle');
     }
     await saveShot(desktop, 'e2e-mining-control-status-desktop.png');
-    await desktop.locator('.tab[data-tab="workflow"]').click();
-    await desktop.waitForSelector('.tab[data-tab="workflow"].active');
-    await desktop.locator('#wf-command-steps input[data-check="command-center-diagnostico"]').check();
-    await desktop.waitForSelector('#wf-command-steps .workflow-command-step.is-done');
-    await desktop.waitForFunction(() => document.getElementById('wf-command-progress-label')?.textContent.includes('1 de 7'));
-    await desktop.locator('.tab[data-tab="inicio"]').click();
-    await desktop.waitForSelector('.tab[data-tab="inicio"].active');
+    await openTab(desktop, 'workflow');
+    await desktop.locator('input[data-edge-complete="session"]').check();
+    await desktop.waitForFunction(() => document.getElementById('edge-factory-progress-label')?.textContent.includes('1 de 8'));
+    await openTab(desktop, 'inicio');
     await desktop.waitForSelector('#home-readiness-score');
     const panelTitle = await desktop.locator('#tab-inicio .home-hero h2').innerText();
     if (panelTitle.trim() !== 'Panel de estado') throw new Error(`Panel tab should be a status surface, got: ${panelTitle}`);
@@ -359,162 +358,49 @@ async function run() {
     const homeBuilderLinks = await desktop.locator('#tab-inicio [data-home-tab="strategybuilder"]').count();
     if (homeBuilderLinks !== 0) throw new Error('Panel should not expose retired Strategy Builder links');
     await saveShot(desktop, 'e2e-panel-desktop.png');
-    await desktop.locator('[data-home-tab="pipeline"]').first().click();
-    await desktop.waitForSelector('.tab[data-tab="pipeline"].active');
-    await desktop.locator('.tab[data-tab="activos"]').click();
-    await desktop.waitForSelector('.tab[data-tab="activos"].active');
+    await openTab(desktop, 'pipeline');
+    await openTab(desktop, 'activos');
     await desktop.locator('[data-filter-type="forex"]').click();
     await desktop.waitForSelector('[data-filter-type="forex"].active');
     await desktop.fill('#search-asset', 'EUR');
     await desktop.waitForSelector('#asset-grid .asset-card');
     await desktop.evaluate(() => navToAsset('EURUSD'));
     await desktop.waitForSelector('#detail-panel.visible');
-    await desktop.locator('.tab[data-tab="workflow"]').click();
-    await desktop.waitForSelector('.tab[data-tab="workflow"].active');
-    await desktop.evaluate(() => localStorage.removeItem('sqx_workflow_checklist_v1'));
-    const capa1Subtab = await desktop.locator('.subtab[data-subtab="wf-capa1"]').count();
-    if (capa1Subtab !== 0) throw new Error('Capa 1 should live inside the pipeline step, not as a top workflow subtab');
-    const setupGlobalKpi = await desktop.locator('#wf-setup-global-details').count();
-    if (setupGlobalKpi !== 0) throw new Error('Setup Global KPI should be removed from Workflow overview');
-    const planSummaryKpi = await desktop.locator('#wf-plan-v2-summary').count();
-    if (planSummaryKpi !== 0) throw new Error('Plan operativo actual KPI should be removed from Workflow');
-    const recommendedViewsText = await desktop.locator('#wf-overview', { hasText: 'Vista SQX recomendada' }).count();
-    if (recommendedViewsText !== 0) throw new Error('SQX Views KPI should be mandatory, not recommended');
-    const initialPipelineOpen = await desktop.locator('#wf-pipeline-flow-details[open]').count();
-    if (initialPipelineOpen !== 1) throw new Error('Pipeline flow accordion should be open by default');
-    const unifiedMethodTitle = await desktop.locator('#wf-pipeline-flow-details summary', { hasText: 'Filosofía y flujo completo del pipeline' }).count();
-    if (unifiedMethodTitle !== 1) throw new Error('Workflow philosophy and pipeline flow should be unified in one accordion');
-    const initiallyExpandedDetails = await desktop.locator('#wf-pipeline-flow-details .workflow-step-detail:not([hidden])').count();
-    if (initiallyExpandedDetails !== 0) throw new Error('Open pipeline should show only main KPI cards by default');
-    const viewsRequiredTrigger = await desktop.locator('[data-wf-detail-target="wf-sqx-views-required-detail"] .step-num', { hasText: '0' }).count();
-    if (viewsRequiredTrigger !== 1) throw new Error('Mandatory SQX Views should be KPI 0 in the workflow pipeline');
-    const workflowPipelineTriggers = await desktop.locator('#wf-pipeline-flow-details [data-wf-detail-target]').count();
-    if (workflowPipelineTriggers < 9) throw new Error(`Workflow pipeline should expose all functional KPI details, got ${workflowPipelineTriggers}`);
-    await desktop.locator('[data-wf-detail-target="wf-sqx-views-required-detail"]').click();
-    await desktop.waitForSelector('#wf-sqx-views-required-detail:not([hidden])');
-    const viewsCopy = await desktop.locator('#workflow-views-handoff .views-handoff-copy').innerText();
-    if (!viewsCopy.includes('descarga el .vw') || !viewsCopy.includes('importalo en StrategyQuant X')) {
-      throw new Error('Workflow SQX Views handoff should explain where and how to create views');
-    }
-    await saveShot(desktop, 'e2e-workflow-views-required-desktop.png');
-    const removedOosKpi = await desktop.locator('#wf-pipeline-flow-details .step-title', { hasText: 'Validación OOS 2010-2017' }).count();
-    if (removedOosKpi !== 0) throw new Error('OOS validation KPI should be removed from the full pipeline');
-    const removedForwardKpi = await desktop.locator('#wf-pipeline-flow-details .step-title', { hasText: 'Validación Forward 2024-2026' }).count();
-    if (removedForwardKpi !== 0) throw new Error('Forward validation KPI should be removed from the full pipeline');
-    await desktop.locator('[data-wf-detail-target="wf-capa1-tree-detail"]').click();
-    await desktop.waitForSelector('#wf-capa1-tree-detail:not([hidden])');
-    const overviewStillActive = await desktop.locator('#wf-overview.active').count();
-    if (overviewStillActive !== 1) throw new Error('Capa 1 detail should expand inline without leaving Vista General');
-    const capa1PanelInactive = await desktop.locator('#wf-capa1.active').count();
-    if (capa1PanelInactive !== 0) throw new Error('Capa 1 detail should not open the old standalone panel');
-    const capa1TriggerExpanded = await desktop.locator('[data-wf-detail-target="wf-capa1-tree-detail"][aria-expanded="true"]').count();
-    if (capa1TriggerExpanded !== 1) throw new Error('Capa 1 pipeline trigger should expand the inline tree detail');
-    const capa1TreeNodes = await desktop.locator('#wf-capa1-tree-detail .pipeline-step.compact').count();
-    if (capa1TreeNodes < 7) throw new Error('Capa 1 inline detail should render as a compact tree of KPI-style nodes');
-    const capa1TreeText = await desktop.locator('#wf-capa1-tree-detail').innerText();
+    await openTab(desktop, 'workflow');
+    await desktop.waitForSelector('#edge-factory-shell');
+    const edgeFactoryText = await desktop.locator('#edge-factory-shell').evaluate(node => node.textContent || '');
     [
-      'Period: 2017.10 - 2025.01',
-      'OOS1: 2023.01 - 2025.01',
-      'Re-optimize: NO (retest pasivo)',
-      'TICK REAL',
-      'Randomly skip trades 10%: OFF',
-      'Apply optimized parameters to strategy: OFF',
-      'Synthetic Bootstrap V3: ON',
-      'Walk-Forward type: Simulated IS, Simulated OOS (fastest)',
-      'FOWARD 2025-Actualidad',
-      'OOS2: 2026.01 - Actualidad',
+      'Preparar sesión',
+      'Elegir tarjeta',
+      'Minar Capa 1',
+      'Analizar Capa 1',
+      'Generar Template C2',
+      'Minar Capa 2',
+      'Analizar Capa 2',
+      'Portfolio descorrelacionado',
+      'Custom libre avanzado',
     ].forEach(expected => {
-      if (!capa1TreeText.includes(expected)) throw new Error(`Capa 1 tree should preserve retest config: ${expected}`);
+      if (!edgeFactoryText.includes(expected)) throw new Error(`Edge Factory should expose stage: ${expected}`);
     });
-    await desktop.locator('#wf-capa1-tree-detail input[data-check="capa1-pre-mm"]').check();
-    await desktop.waitForFunction(() => JSON.parse(localStorage.getItem('sqx_workflow_checklist_v1') || '{}')['capa1-pre-mm'] === true);
-    await desktop.locator('#wf-capa1-tree-detail button[data-checklist-clear="capa1"]').click();
-    await desktop.waitForFunction(() => !JSON.parse(localStorage.getItem('sqx_workflow_checklist_v1') || '{}')['capa1-pre-mm']);
-    const workflowChecked = await desktop.locator('#wf-capa1-tree-detail input[data-check="capa1-pre-mm"]').isChecked();
-    if (workflowChecked) throw new Error('Workflow checklist clear should uncheck capa1 items');
-    await saveShot(desktop, 'e2e-workflow-desktop.png');
-    await desktop.locator('.subtab[data-subtab="wf-overview"]').click();
-    await desktop.waitForSelector('#wf-overview.active');
-    const workflowOverviewText = await desktop.locator('#wf-overview').innerText();
-    if (workflowOverviewText.includes('Estado actual del pipeline') || workflowOverviewText.includes('TEMPLATE LINEAR cerrada')) {
-      throw new Error('Workflow overview should not render the current pipeline status section');
-    }
-    const removedWorkflowStats = await desktop.locator('#wf-overview .stats-row .stat-card').count();
-    if (removedWorkflowStats !== 0) throw new Error('Workflow overview KPI cards should be removed');
-    const setupSubtab = await desktop.locator('.subtab[data-subtab="wf-setup"]').count();
-    if (setupSubtab !== 0) throw new Error('Setup Global should be integrated inside Vista General, not exposed as a subtab');
-    await saveShot(desktop, 'e2e-workflow-handoff-desktop.png');
-    await desktop.locator('[data-wf-detail-target="wf-pipeline-mining2-tree-detail"]').click();
-    await desktop.waitForSelector('#wf-pipeline-mining2-tree-detail:not([hidden])');
-    const capa2TriggerExpanded = await desktop.locator('[data-wf-detail-target="wf-pipeline-mining2-tree-detail"][aria-expanded="true"]').count();
-    if (capa2TriggerExpanded !== 1) throw new Error('Mining 2 KPI should expand from the main workflow pipeline');
-    const capa2TreeText = await desktop.locator('#wf-pipeline-mining2-tree-detail').innerText();
-    [
-      'Edge: NO RANDOM (template fijo)',
-      'PF >= 1.20',
-      'Randomly skip trades 10%: ON',
-      'Randomize slippage: ON',
-      'Entry levels: ON',
-      'WF Ret/DD Ratio >= 5',
-      'Ret/DD > 1.0',
-      'Material operativo extendido',
-    ].forEach(expected => {
-      if (!capa2TreeText.includes(expected)) throw new Error(`Mining 2 tree should preserve Capa 2 config: ${expected}`);
-    });
-    await saveShot(desktop, 'e2e-workflow-mining2-desktop.png');
-    const functionalWorkflowDetails = [
-      ['wf-template-extraction-detail', ['Gate de selección', 'BlockSetting real trazado', 'Abrir Template Maker', 'Abrir Strategy Control']],
-      ['wf-capa2-validation-gate-detail', ['Gate de validación', 'PF >= 1.5', 'Abrir SQX Views Risk', 'Abrir Checklist C2']],
-      ['wf-robustness-queue-detail', ['Cola de tests', 'MC2', 'Synthetic', 'WFM', 'Abrir SQX Views Robustez']],
-      ['wf-intra-template-correlation-detail', ['Decisión de diversidad', '1 ganadora por template', 'Abrir Template Maker', 'Abrir Strategy Control']],
-      ['wf-cross-correlation-detail', ['Portfolio gate', 'Cross-BlockSetting', 'Threshold', '0.5', 'Abrir Champion vs Challenger']],
-      ['wf-portfolio-deployment-detail', ['Salida controlada', 'Demo primero', 'Real progresivo', 'Abrir Despliegue MT5', 'Abrir Control Panel']],
-    ];
-    for (const [detailId, expectedTexts] of functionalWorkflowDetails) {
-      await desktop.locator(`[data-wf-detail-target="${detailId}"]`).click();
-      await desktop.waitForSelector(`#${detailId}:not([hidden])`);
-      const detailText = await desktop.locator(`#${detailId}`).innerText();
-      const detailTextLower = detailText.toLowerCase();
-      expectedTexts.forEach(expected => {
-        if (!detailTextLower.includes(expected.toLowerCase())) throw new Error(`Workflow detail ${detailId} should include: ${expected}`);
-      });
-      const visibleWorkflowDetails = await desktop.locator('#wf-pipeline-flow-details .workflow-step-detail:not([hidden])').count();
-      if (visibleWorkflowDetails !== 1) throw new Error('Workflow pipeline should keep only one operational detail open at a time');
-    }
-    await saveShot(desktop, 'e2e-workflow-functional-pipeline-desktop.png');
-    await desktop.locator('.subtab[data-subtab="wf-capa2"]').click();
-    await desktop.waitForSelector('#wf-capa2.active');
-    const capa2TabText = await desktop.locator('#wf-capa2').innerText();
-    if (!capa2TabText.includes('Checklist operativo Capa 2')) {
-      throw new Error('Workflow Capa 2 tab should keep the extended operational content');
-    }
-    ['Checklist de aplicación Capa 2', 'Embudo esperado Capa 2', 'Configuraciones opcionales según objetivo'].forEach(expected => {
-      if (!capa2TabText.includes(expected)) throw new Error(`Workflow Capa 2 tab should preserve: ${expected}`);
-    });
-    ['Orden de ejecución Capa 2', 'Reglas de oro Capa 2', 'wf-capa2-mining2-tree-detail', 'Capa 2 — Cheatsheet operativo', 'Config Base Builder Capa 2'].forEach(removedText => {
-      if (capa2TabText.includes(removedText)) throw new Error(`Workflow Capa 2 tab should not include: ${removedText}`);
-    });
-    if (capa2TabText.indexOf('Checklist de aplicación Capa 2') > capa2TabText.indexOf('Embudo esperado Capa 2')) {
-      throw new Error('Workflow Capa 2 checklist should appear before the expected funnel');
-    }
-    await saveShot(desktop, 'e2e-workflow-capa2-operational-desktop.png');
-    await desktop.locator('.subtab[data-subtab="wf-rules"]').click();
-    await desktop.waitForSelector('#wf-rules.active');
-    const rulesTabText = await desktop.locator('#wf-rules').innerText();
-    ['Reglas de Oro del Pipeline', 'Reglas de oro Capa 2', 'Apply optimized parameters: SIEMPRE OFF'].forEach(expected => {
-      if (!rulesTabText.includes(expected)) throw new Error(`Workflow rules tab should preserve: ${expected}`);
-    });
-    await saveShot(desktop, 'e2e-workflow-rules-capa2-desktop.png');
-    await desktop.locator('.subtab[data-subtab="wf-overview"]').click();
-    await desktop.waitForSelector('#wf-overview.active');
-    await desktop.locator('[data-wf-detail-target="wf-sqx-views-required-detail"]').click();
-    await desktop.waitForSelector('#wf-sqx-views-required-detail:not([hidden])');
-    await desktop.locator('#workflow-views-handoff [data-vc-handoff="robustness"]').click();
-    await desktop.waitForSelector('.tab[data-tab="views"].active');
-    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'SQX Robustez');
+    const hiddenLegacyWorkflow = await desktop.locator('#workflow-command-center').evaluate(node => getComputedStyle(node).display === 'none');
+    if (!hiddenLegacyWorkflow) throw new Error('Legacy Workflow command center should be hidden behind Edge Factory');
+    const edgeStageCount = await desktop.locator('#edge-factory-stages .edge-stage-card').count();
+    if (edgeStageCount !== 8) throw new Error(`Edge Factory should render 8 stages, got ${edgeStageCount}`);
+    await desktop.locator('input[data-edge-complete="asset"]').check();
+    await desktop.waitForFunction(() => (JSON.parse(localStorage.getItem('sqx_edge_factory_state_v1') || '{}').completedSteps || []).includes('asset'));
+    await desktop.locator('#edge-tools-toggle').click();
+    await desktop.waitForSelector('#edge-tool-drawer:not([hidden])');
+    const drawerToolCount = await desktop.locator('#edge-tool-drawer .edge-tool-card').count();
+    if (drawerToolCount !== 8) throw new Error(`Edge Factory advanced drawer should expose 8 tools, got ${drawerToolCount}`);
+    await desktop.locator('#edge-portfolio-sample').click();
+    await desktop.locator('#edge-portfolio-run').click();
+    await desktop.waitForFunction(() => document.getElementById('edge-portfolio-results')?.innerText.includes('ganadores diversos'));
+    await saveShot(desktop, 'e2e-edge-factory-desktop.png');
+    await openTab(desktop, 'views');
+    await desktop.evaluate(() => window.SQX.viewCreator.loadBuyerReadyTemplate('robustness-pack-screen'));
+    await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Robustez');
     await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 104);
-    await desktop.locator('.tab[data-tab="projectgen"]').click();
-    await desktop.waitForSelector('.tab[data-tab="projectgen"].active');
+    await openTab(desktop, 'projectgen');
     await desktop.waitForSelector('#pg-step-api');
     const pgGuidedText = await desktop.locator('#tab-projectgen').innerText();
     const pgGuidedTextLower = pgGuidedText.toLowerCase();
@@ -622,8 +508,7 @@ async function run() {
     await desktop.locator('#pg-custom-load-preset').click();
     await desktop.waitForFunction(() => document.getElementById('pg-custom-asset')?.value === 'EURUSD');
     await saveShot(desktop, 'e2e-projectgen-desktop.png');
-    await desktop.locator('.tab[data-tab="views"]').click();
-    await desktop.waitForSelector('.tab[data-tab="views"].active');
+    await openTab(desktop, 'views');
     const guidedHeadings = ['Elige la view que necesitas', 'Revisa la configuración', 'Comprueba la vista', 'Exporta e importa en SQX'];
     const guidedText = await desktop.locator('#tab-views').innerText();
     const guidedTextLower = guidedText.toLowerCase();
@@ -732,8 +617,7 @@ async function run() {
     await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
     await saveShot(desktop, 'e2e-view-creator-desktop.png');
 
-    await desktop.locator('.tab[data-tab="templatemaker"]').click();
-    await desktop.waitForSelector('.tab[data-tab="templatemaker"].active');
+    await openTab(desktop, 'templatemaker');
     await desktop.waitForSelector('#tm-csv-input', { state: 'attached' });
     const templateMakerText = await desktop.locator('#tab-templatemaker').innerText();
     ['Template Maker', 'Template Maker Cert', 'Genera la view obligatoria', 'Carga tus fuentes', 'Resuelve el contrato', 'Evalua Perfil Capa 1', 'Resultados y C2', 'Cargar archivos', 'Reset resultados', 'Umbrales KPI editables'].forEach(expected => {
@@ -767,10 +651,9 @@ async function run() {
     });
     await desktop.locator('.tm-secondary-loads > summary').click();
     await desktop.locator('#tm-open-cert-view').click();
-    await desktop.waitForSelector('.tab[data-tab="views"].active');
+    await desktop.waitForFunction(() => getComputedStyle(document.getElementById('tab-views')).display !== 'none');
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'Template Maker Cert');
-    await desktop.locator('.tab[data-tab="templatemaker"]').click();
-    await desktop.waitForSelector('.tab[data-tab="templatemaker"].active');
+    await openTab(desktop, 'templatemaker');
     const csvSamplePath = path.join(repoRoot, 'resources', 'template-maker-tool', 'template_maker_cert_v2_sample.csv');
     const sqxSamplePaths = [
       path.join(repoRoot, 'resources', 'template-maker-tool', 'Strategy TM.01.sqx'),
@@ -919,8 +802,7 @@ async function run() {
     await desktop.waitForFunction(() => window.SQX.templateMaker.getStrategies().length === 0);
     await saveShot(desktop, 'e2e-template-maker-desktop.png');
 
-    await desktop.locator('.tab[data-tab="cvc"]').click();
-    await desktop.waitForSelector('.tab[data-tab="cvc"].active');
+    await openTab(desktop, 'cvc');
     await desktop.waitForSelector('#cvc-run-btn');
     const cvcGuidedText = await desktop.locator('#tab-cvc').innerText();
     ['contexto de decisión', 'carga de datos', 'validación rápida', 'ranking operativo', 'entrega y siguiente acción'].forEach(expected => {
@@ -964,7 +846,7 @@ async function run() {
     const strategyBuilderPanelCount = await desktop.locator('#tab-strategybuilder').count();
     if (strategyBuilderPanelCount !== 0) throw new Error('Strategy Builder tab panel should be removed from the dashboard shell');
     await saveShot(desktop, 'e2e-champion-challenger-desktop.png');
-    await desktop.locator('.tab[data-tab="estrategias"]').click();
+    await openTab(desktop, 'estrategias');
     await desktop.waitForSelector('#tab-estrategias .strat-card');
     const estrategiasText = await desktop.locator('#tab-estrategias').innerText();
     const estrategiasTextLower = estrategiasText.toLowerCase();
@@ -1033,73 +915,50 @@ async function run() {
 
     await saveShot(desktop, 'e2e-strategies-desktop.png');
     await desktop.locator('#strat-open-cvc-btn').click();
-    await desktop.waitForSelector('.tab[data-tab="cvc"].active');
-    await desktop.locator('.tab[data-tab="estrategias"]').click();
-    await desktop.waitForSelector('.tab[data-tab="estrategias"].active');
+    await desktop.waitForFunction(() => getComputedStyle(document.getElementById('tab-cvc')).display !== 'none');
+    await openTab(desktop, 'estrategias');
     await desktop.locator('#strat-views-handoff [data-vc-handoff="risk"]').click();
-    await desktop.waitForSelector('.tab[data-tab="views"].active');
+    await desktop.waitForFunction(() => getComputedStyle(document.getElementById('tab-views')).display !== 'none');
     await desktop.waitForFunction(() => document.getElementById('vc-view-name')?.value === 'SQX Risk Review');
     await desktop.waitForFunction(() => Number(document.getElementById('vc-column-count')?.textContent.trim() || 0) > 64);
     assertNoBrowserErrors(desktopErrors, 'desktop');
     await desktop.close();
 
-    const mobile = await browser.newPage({ viewport: { width: 390, height: 920 } });
-    const mobileErrors = [];
-    collectBrowserErrors(mobile, mobileErrors);
-    await mobile.goto(dashboardUrl, { waitUntil: 'load' });
-    await mobile.waitForSelector('.tab[data-tab="workflow"].active');
-    await mobile.waitForSelector('#workflow-command-center');
-    await mobile.evaluate(() => {
+    const compact = await browser.newPage({ viewport: { width: 1280, height: 820 } });
+    const compactErrors = [];
+    collectBrowserErrors(compact, compactErrors);
+    await compact.goto(dashboardUrl, { waitUntil: 'load' });
+    await compact.waitForSelector('.tab[data-tab="workflow"].active');
+    await compact.waitForSelector('#edge-factory-shell');
+    await compact.evaluate(() => {
       sessionStorage.setItem('sqx_remote_welcome_dismissed_v1', '1');
       const localModel = window.SQX.home.computeRemoteServiceModel({});
       window.SQX.home.applyRemoteServiceModel(localModel, document);
     });
-    await mobile.waitForFunction(() => document.getElementById('remote-welcome-gate')?.hidden === true);
-    await mobile.locator('.tab[data-tab="projectgen"]').click();
-    await mobile.waitForSelector('.tab[data-tab="projectgen"].active');
-    await mobile.waitForSelector('#tab-projectgen details.pg-step-panel:not([open])');
-    await mobile.locator('#pg-step-choice > summary').click();
-    await mobile.locator('#pg-mode-manual').click();
-    await mobile.waitForSelector('#pg-mode-manual-panel:not([hidden]) #pg-custom-generate');
-    const mobilePgGuideSteps = await mobile.locator('#tab-projectgen .pg-guide-flow li').count();
-    if (mobilePgGuideSteps !== 5) throw new Error('Mobile Project Generator guided flow should render 5 steps');
-    await assertNoMobileOverflow(mobile);
-    await saveShot(mobile, 'e2e-projectgen-mobile.png');
-    await mobile.locator('.tab[data-tab="views"]').click();
-    await mobile.waitForSelector('#vc-preview');
-    await assertNoMobileOverflow(mobile);
-    await saveShot(mobile, 'e2e-view-creator-mobile.png');
-    await mobile.locator('.tab[data-tab="cvc"]').click();
-    await mobile.waitForSelector('#cvc-run-btn');
-    await mobile.locator('#cvc-sample-btn').click();
-    await mobile.waitForSelector('#cvc-ranking .cvc-result-row');
-    await mobile.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('Health fresh'));
-    await mobile.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('EGT v2 STRONG'));
-    await mobile.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('Dir short_only'));
-    await mobile.waitForFunction(() => document.getElementById('cvc-ranking')?.textContent.includes('Arquetipo MEAN_REVERT'));
-    await mobile.waitForFunction(() => document.getElementById('cvc-regime-ready-count')?.textContent.trim() === '3');
-    const mobileHandoff = await mobile.evaluate(() => window.SQX.championChallenger.buildStrategyBuilderHandoff(window.SQX.championChallenger.buildReviewExport(window.SQX.championChallenger.evaluate())));
-    if (mobileHandoff.type !== 'sqx-edge.strategy-builder-handoff') throw new Error('Mobile CVC handoff contract failed');
-    await assertNoMobileOverflow(mobile);
-    const mobileStrategyBuilderTabCount = await mobile.locator('.tab[data-tab="strategybuilder"]').count();
-    if (mobileStrategyBuilderTabCount !== 0) throw new Error('Mobile navigation should not expose Strategy Builder');
-    await saveShot(mobile, 'e2e-champion-challenger-mobile.png');
-    await mobile.locator('.tab[data-tab="estrategias"]').click();
-    await mobile.waitForSelector('#tab-estrategias .strat-card');
-    const activeTabBox = await mobile.locator('.tab.active').boundingBox();
-    const tabsBox = await mobile.locator('.tabs').boundingBox();
-    if (activeTabBox && activeTabBox.height > 80) throw new Error('Mobile active tab is too tall');
-    if (tabsBox && tabsBox.height > 90) throw new Error('Mobile tabs bar is too tall');
-    await assertNoMobileOverflow(mobile);
-    await saveShot(mobile, 'e2e-strategies-mobile.png');
-    await mobile.locator('.tab[data-tab="filtros"]').click();
-    await mobile.waitForSelector('#filtros-view .bs-card');
-    const mobileBlockSettingsCards = await mobile.locator('#filtros-view .bs-card').count();
-    if (mobileBlockSettingsCards !== 7) throw new Error('Mobile BlockSettings Info should render 7 Capa 1 cards');
-    await assertNoMobileOverflow(mobile);
-    await saveShot(mobile, 'e2e-blocksettings-info-mobile.png');
-    assertNoBrowserErrors(mobileErrors, 'mobile');
-    await mobile.close();
+    await compact.waitForFunction(() => document.getElementById('remote-welcome-gate')?.hidden === true);
+    await compact.locator('#edge-tools-toggle').click();
+    await compact.waitForSelector('#edge-tool-drawer:not([hidden])');
+    await openTab(compact, 'projectgen');
+    await compact.waitForSelector('#tab-projectgen details.pg-step-panel:not([open])');
+    await compact.locator('#pg-step-choice > summary').click();
+    await compact.locator('#pg-mode-manual').click();
+    await compact.waitForSelector('#pg-mode-manual-panel:not([hidden]) #pg-custom-generate');
+    await saveShot(compact, 'e2e-projectgen-compact-pc.png');
+    await openTab(compact, 'views');
+    await compact.waitForSelector('#vc-preview');
+    await openTab(compact, 'cvc');
+    await compact.waitForSelector('#cvc-run-btn');
+    await compact.locator('#cvc-sample-btn').click();
+    await compact.waitForSelector('#cvc-ranking .cvc-result-row');
+    await openTab(compact, 'estrategias');
+    await compact.waitForSelector('#tab-estrategias .strat-card');
+    await openTab(compact, 'filtros');
+    await compact.waitForSelector('#filtros-view .bs-card');
+    const compactBlockSettingsCards = await compact.locator('#filtros-view .bs-card').count();
+    if (compactBlockSettingsCards !== 7) throw new Error('Compact PC BlockSettings Info should render 7 Capa 1 cards');
+    await saveShot(compact, 'e2e-blocksettings-info-compact-pc.png');
+    assertNoBrowserErrors(compactErrors, 'compact pc');
+    await compact.close();
   } finally {
     await browser.close();
   }

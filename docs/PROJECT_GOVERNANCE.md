@@ -4,6 +4,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 
 ## Current State
 
+- Current phase completed: WFCO-1 - Edge Factory Shell. Workflow is now the desktop-first `Edge Factory` command shell: visible navigation is reduced to Edge Factory plus Control Panel, advanced tools stay available through the internal drawer, state persists as `sqx_edge_factory_state_v1` per remote workspace, and Portfolio Lab MVP is introduced as the future Capa 2 / portfolio surface without rewriting the existing engines.
+- Current phase completed: WFCO-0 - Edge Factory governance and contract. Website Facelift + Content Overhaul is documented as the new UX direction: methodology-first, desktop browser priority, advanced override available, no Strategy Builder resurrection and no profitability claims.
 - Current phase completed: CFX-FORWARD1 - Forward 2025 and Template Maker Cert alignment. Capa 1 Forward is now the final live validation window from 2025.01.01 to current data, with active OOS blocks only; Template Maker Cert follows that Forward shape with 2 OOS + Total so the saved `.sqx` survivors and `DatabankExport.csv` used for C2 analysis cannot drift from the active methodology.
 - Current phase completed: CFX-TARGET1 - target SQX profile selector and OOS2 correction. Project Generator now carries a target SQX profile for primary generated resources, allowing Darwinex/default or user-broker remap fields for hosts with different broker/data availability, while Retest 1 remains an intentional Dukascopy OOS2 cross-broker validation from 2010.01.01 to 2017.10.02 before IS Mining. Generated Capa 1 customs must keep Retest 1 on Dukascopy and use the selected target profile for the rest of the project.
 - Current phase completed: CFX-COMPAT-DTR1 - custom project compatibility review. A tester-supplied `.cfx` and a SQX Edge generated diagnostic sample were compared through sanitized local diagnostics. The root issue is host/resource binding: SQ Equity Data placeholders, unbound brokers, source/broker profiles, stale sessions, symbol/resource mismatches and source-machine paths can make a project load on one SQX installation and fail on another. `cfx-compatibility-audit-v1` now provides a reusable non-mutating audit for `.cfx` files before external diagnostics or delivery decisions.
@@ -30,7 +32,8 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Recent SQX compatibility anchor: CFX-BASE142 repairs `Capa1_Long.cfx` and `Capa2_Base.cfx` so the base templates open in SQX 142 with resolvable broker/resources and no stale `Futures_Commodities1` session references before the operator edits default methodology parameters.
 - Recent SQX compatibility anchor: CFX-BASE142 data-range fix validated by a real SQX 142 UI load on 2026-05-17. Generated resources now keep Darwinex `precision="TICK"` / `timezone="EETUS"` / `InstrumentInfo dataType="3"` but bound `<Symbol dateFrom/dateTo>` to local `DATA` availability when methodology retests request older ranges than the installed history.
 - Recent remote persistence anchors: REMOTE-PERSIST1A - Workspace State Persistence adds `remote-workspace-state-v1`, per-workspace `workspace_state.sqlite`, `/api/remote/state/bootstrap`, `/api/remote/state/save` and the frontend `remote-state` bridge for Plan Mining and Strategy Control state. REMOTE-PERSIST1B - Workspace Outputs adds `remote-workspace-output-v1` so Project Generator writes `.cfx` files to `<workspace>/outputs` in remote sessions and blocks browser-supplied remote `output` overrides. REMOTE-PERSIST1C - Template Maker Workspace State adds `remote-template-maker-state-v1`, per-workspace `template_maker.sqlite`, `/api/remote/template-maker/bootstrap`, `/api/remote/template-maker/save` and a Template Maker remote snapshot bridge. REMOTE-PERSIST1D - Workspace State Backups adds `remote-state-backup-v1` so Control Panel `/api/state/*` snapshots are scoped to `<workspace>/config/state_backups` in remote sessions. REMOTE-PERSIST1E - SQX Views Workspace Presets adds `sqx_view_creator_presets_v1` to `remote-workspace-state-v1`, so user-created SQX Views presets are restored from the authenticated workspace instead of remaining browser-only.
-- Recent UX anchor: UX-WF2 - Functional Pipeline KPIs is completed and operator-accepted after a real-browser visual/manual pass on 2026-05-17. Workflow now acts as the command map for the methodology, with each pipeline KPI exposing role, action, destination, completion signal and traceability instead of remaining static copy.
+- Recent UX anchor: WFCO-1 - Edge Factory Shell supersedes the old Workflow command center as the main buyer/tester experience. The old Workflow detail system remains internal, but the visible route is now Edge Factory: elegir tarjeta, minar Capa 1, analizar, generar C2, minar Capa 2 and route to Portfolio Lab.
+- Historical UX anchor: UX-WF2 - Functional Pipeline KPIs is completed and operator-accepted after a real-browser visual/manual pass on 2026-05-17. Workflow acted as the command map before the WFCO shell.
 - Recent remote anchor: REMOTE-ACCEPT1 - Real Browser Acceptance Gate returned `GO_REMOTE_ACCEPT1_BROWSER_ACCEPTANCE_CLEAN` from ignored local evidence. The Welcome/Dashboard browser path is clean for CREATOR-IVAN after REMOTE-PG-SESSION-FIX; REMOTE-8C and REMOTE-8F-CLOSE are clean, but the current blocker is TESTER-RILIS standby retest before REMOTE-8G resumes.
 - Recent remote support anchor: REMOTE-SUPPORT1 - Support Intake adds a Control Panel incident form, local-only redacted support case storage and an operator summary helper without touching Welcome, grants, Cloudflare Access or tester expansion.
 - Recent wait anchor: WAIT-4 - Trust Evidence Pack completed. The Welcome Trust Center now distinguishes self-assessment, privacy statement, safety checklist and planned external scans; no fake certificates, fake auditors or risk-free claims are allowed.
@@ -135,7 +138,7 @@ Documento vivo para coordinar agentes especializados, ownership por area y regla
 - Deployment Hardening Review Gate: every hosting/deployment suggestion must be compared against active REMOTE gates before implementation. Adopt zero-ingress, recovery, backup and audit improvements when compatible; do not let infrastructure churn bypass auth, workspace or traceability gates.
 - Containerization Deferral Gate: Docker/Linux is future hardening only until SQX resource compatibility, `data.db` access, generated `.cfx` paths, workspace persistence, backup/restore and protected write endpoints are proven. Do not add a root `Dockerfile`, root `docker-compose.yml` or root `.dockerignore` for the core app during the Windows pilot.
 - State Consistency Guard: any current phase, next action, UX active tab, commercial/distribution state or public roadmap date that appears in more than one tracked doc must have required/forbidden markers in `docs/state_consistency_manifest.json`. The pytest guard must fail when a stale blocker, old phase, old date or contradictory active scope remains in the core docs.
-- Active UX-NAV tab: none. UX-WF2 is accepted, Mining Control cleanup is already done unless explicitly reopened, and the next UX tab/pass waits for an operator scope.
+- Active UX/WFCO scope: Edge Factory. UX-WF2 remains accepted historically, but the current product-facing UX pass is WFCO after the operator opened Website Facelift + Content Overhaul.
 - Parallel commercial option remains parked: M100 - execute exactly the M99-approved controlled commercial movement, only after explicit operator decision.
 - Governance baseline: G7 - Backup Retention And Artifact Steward Gate.
 - Previous governance baseline: G6 - Institutional Dashboard Quick Actions Gate.
@@ -362,10 +365,19 @@ G7 - Backup Retention And Artifact Steward Gate:
 UX-NAV Tab Optimization Gate:
 
 - UX-NAV is now a sequential tab-by-tab optimization track documented in `docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md`.
-- Only one active tab can be optimized at a time; after UX-WF2 acceptance there is no active UX tab until the operator explicitly opens the next tab scope.
+- Only one active UX/workflow scope can be optimized at a time. WFCO is the current active experience track and supersedes the previous "no active tab" pause.
 - Treat every operator message during an active tab pass as feedback for that same tab unless the operator explicitly changes the active scope.
 - Do not begin the next tab until the operator says exactly: `Adelante con el siguiente tab`.
 - Defer global tab reordering, tab removal/merging beyond active scope and final navigation flow until all individual tab passes are complete.
+
+Edge Factory Experience Gate:
+
+- The main user-facing experience is desktop browser first. Mobile may remain serviceable, but no product decision should compromise the PC workflow to optimize phone layout.
+- Edge Factory is the visible command surface; technical tabs are hidden from primary navigation and opened only from handoffs or the advanced tools drawer.
+- The methodology order is: preparar sesión, elegir tarjeta, generar Capa 1, analizar Capa 1, generar Template C2, generar Capa 2, analizar Capa 2 in Portfolio Lab and construir portfolio descorrelacionado.
+- Custom libre remains available as an advanced override and must disclose partial traceability if it bypasses the methodology.
+- Portfolio Lab is the planned Capa 2 / portfolio analysis surface. Template Maker remains focused on Capa 1 certification and C2 generation.
+- Copy must preserve Trust Claims Gate: productivity, structure, traceability and operational-error reduction are allowed; profitability guarantees, fake certifications and "risk zero" claims are forbidden.
 
 ## Internal Automation Risk Levels
 

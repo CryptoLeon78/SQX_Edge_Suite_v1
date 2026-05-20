@@ -97,7 +97,8 @@
         '<span class="tabs-toggle-icon" aria-hidden="true"></span>' +
         '<span class="tabs-toggle-label">Ocultar</span>' +
       '</button>';
-    tabs.innerHTML = toggleHtml + ui.tabs.map(tab => {
+    const primaryTabs = ui.tabs.filter(tab => !tab.hiddenInPrimary);
+    tabs.innerHTML = toggleHtml + primaryTabs.map(tab => {
       const cls = tab.active ? 'tab active' : 'tab';
       const icon = tab.icon || fallbackTabIcon(tab);
       return '<div class="' + cls + '" data-tab="' + esc(tab.id) + '" title="' + esc(tab.label) + '">' +

@@ -52,9 +52,9 @@
     var target = doc || global.document;
     var tab = target.querySelector('.tab[data-tab="' + id + '"]');
     var panel = target.getElementById('tab-' + id);
-    if (!tab || !panel) return false;
+    if (!panel) return false;
     all('.tab', target).forEach(function(node) { node.classList.remove('active'); });
-    tab.classList.add('active');
+    if (tab) tab.classList.add('active');
     all('.tab-content', target).forEach(function(content) { content.style.display = 'none'; });
     panel.style.display = 'block';
     return true;

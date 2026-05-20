@@ -44,6 +44,11 @@ document.addTab('workflow', false);
 assert.equal(SQX.ui.activateTabById('workflow', document), true);
 assert.equal(document.getElementById('tab-workflow').style.display, 'block');
 assert.equal(document.getElementById('tab-inicio').style.display, 'none');
+const hiddenToolPanel = document.add(new Element('tab-projectgen', ['tab-content']));
+document.panels.push(hiddenToolPanel);
+assert.equal(SQX.ui.activateTabById('projectgen', document), true);
+assert.equal(hiddenToolPanel.style.display, 'block');
+assert.equal(document.querySelector('.tab[data-tab="projectgen"]'), null);
 assert.equal(SQX.ui.activateTabById('missing', document), false);
 
 const homeBtn = document.add(new Element('home-shortcut', [], { homeTab: 'inicio' }));
