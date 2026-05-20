@@ -4,6 +4,8 @@ import { assert, createLoadedSandbox, repoRoot } from './harness.mjs';
 
 const html = fs.readFileSync(path.join(repoRoot, 'app/SQX_Dashboard_v6.html'), 'utf8');
 const mainJs = fs.readFileSync(path.join(repoRoot, 'app/js/main.js'), 'utf8');
+const templateMakerJs = fs.readFileSync(path.join(repoRoot, 'app/js/modules/template-maker.js'), 'utf8');
+const templateMakerUiJs = fs.readFileSync(path.join(repoRoot, 'app/js/modules/template-maker-ui.js'), 'utf8');
 const uiManifest = JSON.parse(fs.readFileSync(path.join(repoRoot, 'backend/sqx-edge-tool/config/ui_manifest.json'), 'utf8'));
 
 const { SQX, sandbox } = createLoadedSandbox([
@@ -109,6 +111,9 @@ assert.ok(html.includes('vendor/jszip.min.js'), 'missing local JSZip script');
 assert.ok(html.includes('js/modules/exit-policy.js'), 'missing global exit policy script');
 assert.ok(html.includes('js/modules/template-maker.js'), 'missing template-maker script');
 assert.ok(html.includes('js/modules/template-maker-ui.js'), 'missing template-maker-ui script');
+assert.ok(templateMakerJs.includes('function yieldToBrowser()'), 'Template Maker core should yield between heavy file parsing work');
+assert.ok(!templateMakerJs.includes('Promise.all(files.map(parseSQX))'), 'SQX batch parsing should not run the whole batch on the UI thread at once');
+assert.ok(templateMakerUiJs.includes('function afterPaint()'), 'Template Maker UI should paint progress before heavy ingestion starts');
 assert.ok(!html.includes('id="tab-analyzer"'), 'old analyzer tab should not remain active');
 assert.ok(!html.includes('href="css/analyzer.css"'), 'old analyzer stylesheet should not be active');
 assert.ok(!mainJs.includes('window.SQX.analyzer.init()'), 'old analyzer init should be retired');

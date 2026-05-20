@@ -51,4 +51,16 @@ assert.equal(
   'https://custom.example.invalid/api',
 );
 
+assert.equal(
+  loadApiBase({ protocol: 'https:', hostname: 'app.sqxedgesuite.org', origin: 'https://app.sqxedgesuite.org' }, 'http://127.0.0.1:5050/api'),
+  'https://app.sqxedgesuite.org/api',
+  'remote app must ignore stale local API base from tester browser storage',
+);
+
+assert.equal(
+  loadApiBase({ protocol: 'http:', hostname: 'localhost', origin: 'http://localhost:8080' }, 'http://127.0.0.1:5050/api'),
+  'http://127.0.0.1:5050/api',
+  'local operator mode should still allow local API base',
+);
+
 console.log('app config contracts ok');

@@ -171,19 +171,31 @@
   function defaultApiBase() {
     const configured = global.SQX_APP_CONFIG && global.SQX_APP_CONFIG.apiBase;
     if (configured) return configured.replace(/\/$/, '');
-    try {
-      const stored = localStorage.getItem(storageKeys.apiBase || 'sqx_pg_api_base_v1');
-      if (stored) return stored.replace(/\/$/, '');
-    } catch (e) {}
-    const meta = document.querySelector('meta[name="sqx-api-base"]');
-    if (meta && meta.content) return meta.content.replace(/\/$/, '');
     const api = ui.api || {};
     const basePath = api.basePath || '/api';
     const loc = global.location || {};
     const protocol = loc.protocol === 'https:' ? 'https:' : 'http:';
     const host = loc.hostname || api.defaultHost || '127.0.0.1';
     const isLocalHost = host === 'localhost' || host === '::1' || host.indexOf('127.') === 0;
-    if (protocol === 'https:' && host && !isLocalHost) {
+    const isRemoteHost = protocol === 'https:' && host && !isLocalHost;
+    const meta = document.querySelector('meta[name="sqx-api-base"]');
+    if (meta && meta.content) return meta.content.replace(/\/$/, '');
+    try {
+      const stored = localStorage.getItem(storageKeys.apiBase || 'sqx_pg_api_base_v1');
+      if (stored) {
+        const normalizedStored = stored.replace(/\/$/, '');
+        let storedHost = '';
+        if (typeof URL !== 'undefined') {
+          const parsed = new URL(normalizedStored, loc.origin || (protocol + '//' + host));
+          storedHost = parsed.hostname || '';
+        }
+        const storedIsLocal = storedHost
+          ? storedHost === 'localhost' || storedHost === '::1' || storedHost.indexOf('127.') === 0
+          : /^https?:\/\/(?:localhost|127\.|\[?::1\]?)/i.test(normalizedStored);
+        if (!isRemoteHost || !storedIsLocal) return normalizedStored;
+      }
+    } catch (e) {}
+    if (isRemoteHost) {
       return (loc.origin || (protocol + '//' + host)) + basePath;
     }
     const port = api.defaultPort || 5050;

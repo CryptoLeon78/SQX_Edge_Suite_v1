@@ -192,6 +192,16 @@
     if (input) input.value = '';
   }
 
+  function afterPaint() {
+    return new Promise(function(resolve) {
+      if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
+        window.requestAnimationFrame(function() { resolve(); });
+        return;
+      }
+      setTimeout(resolve, 0);
+    });
+  }
+
   function handleCSVFiles(files) {
     var file = files && files[0];
     if (!file) return;
@@ -209,9 +219,11 @@
     var list = Array.prototype.slice.call(files || []);
     if (!list.length) return;
     setStatus('Procesando ' + list.length + ' archivos CSV/SQX...');
-    SQX.templateMaker.ingestFiles(list).then(function(rows) {
+    afterPaint().then(function() {
+      return SQX.templateMaker.ingestFiles(list);
+    }).then(function(rows) {
       setStatus(rows.length + ' estrategias reconciliadas con contrato Template Maker Cert.');
-      renderAll();
+      return afterPaint().then(renderAll);
     }).catch(function(err) {
       setStatus('Error de carga: ' + (err && err.message ? err.message : err), true);
     });
@@ -223,9 +235,11 @@
     });
     if (!list.length) return;
     setStatus('Procesando ' + list.length + ' archivos .sqx...');
-    SQX.templateMaker.loadFromSQX(list).then(function(rows) {
+    afterPaint().then(function() {
+      return SQX.templateMaker.loadFromSQX(list);
+    }).then(function(rows) {
       setStatus(rows.length + ' estrategias disponibles.');
-      renderAll();
+      return afterPaint().then(renderAll);
     }).catch(function(err) {
       setStatus('Error SQX: ' + (err && err.message ? err.message : err), true);
     });

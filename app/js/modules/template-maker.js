@@ -387,6 +387,24 @@
     return Promise.resolve(fallbackHash(fileOrValue || ''));
   }
 
+  function yieldToBrowser() {
+    return new Promise(function(resolve) {
+      if (typeof global.requestIdleCallback === 'function') {
+        global.requestIdleCallback(function() { resolve(); }, { timeout: 60 });
+        return;
+      }
+      if (typeof global.requestAnimationFrame === 'function') {
+        global.requestAnimationFrame(function() { resolve(); });
+        return;
+      }
+      if (typeof global.setTimeout === 'function') {
+        global.setTimeout(function() { resolve(); }, 0);
+        return;
+      }
+      resolve();
+    });
+  }
+
   function computeRowFingerprint(row) {
     return fallbackHash(stripRuntimeFields(row || {}));
   }
@@ -658,7 +676,16 @@
   function loadFromSQX(fileOrFiles) {
     var files = Array.isArray(fileOrFiles) ? fileOrFiles : Array.prototype.slice.call(fileOrFiles || []);
     if (!files.length && fileOrFiles) files = [fileOrFiles];
-    return Promise.all(files.map(parseSQX)).then(addStrategies);
+    return files.reduce(function(chain, file) {
+      return chain.then(function(parsed) {
+        return yieldToBrowser().then(function() {
+          return parseSQX(file);
+        }).then(function(record) {
+          parsed.push(record);
+          return parsed;
+        });
+      });
+    }, Promise.resolve([])).then(addStrategies);
   }
 
   function parseSQX(file) {
@@ -1797,8 +1824,10 @@
     var sqxFiles = list.filter(function(file) { return /\.(sqx|zip)$/i.test(file.name || ''); });
     return csvFiles.reduce(function(chain, file) {
       return chain.then(function() {
-        return file.text().then(function(text) {
-          return loadFromCSV(text, { fileName: file.name || '' });
+        return yieldToBrowser().then(function() {
+          return file.text().then(function(text) {
+            return loadFromCSV(text, { fileName: file.name || '' });
+          });
         });
       });
     }, Promise.resolve(_strategies.slice())).then(function() {
