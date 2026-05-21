@@ -72,6 +72,19 @@ Each stage must answer four questions without forcing the user to know the old t
 
 The visible rhythm is `Haz` plus `Sale`, followed by a short context strip. Advanced tool names may appear in the drawer and buttons, but the primary route is methodology-first and user-action-first.
 
+## WFCO-4 Portfolio Lab Contract
+
+Portfolio Lab is the Capa 2 decision surface. It is intentionally not Template Maker:
+
+- Input: Capa 2 candidate CSV pasted into the Lab or loaded from the browser.
+- Supported columns: strategy/name, asset/symbol, timeframe, Profit factor, Ret/DD Ratio or CAGR/Max DD %, Max DD %, # of trades, Stability, Winning Percent, SQN, BlockSetting, Indicator and Cluster when available.
+- Decision states: `portfolio`, `similar` and `review`.
+- Similarity uses asset, timeframe, BlockSetting, indicator and metric proximity.
+- User-tunable defaults: similarity threshold, max winners and max winners per asset.
+- Output: browser-downloaded shortlist CSV and public-safe JSON report.
+
+Rows not selected for the portfolio must expose a reason such as similarity, limit, missing metrics, low PF, low trade count or high drawdown.
+
 ## Phase Status
 
 | Phase | Status | Scope |
@@ -80,8 +93,8 @@ The visible rhythm is `Haz` plus `Sale`, followed by a short context strip. Adva
 | WFCO-1 | Completed | Edge Factory shell, advanced drawer and Portfolio Lab MVP surface. |
 | WFCO-2 | Completed | Real methodology handoffs from existing engines into Edge Factory state/context strips. |
 | WFCO-3 | Completed | Copy/content overhaul across the main experience. |
-| WFCO-4 | Next | Portfolio Lab MVP beyond the shell. |
-| WFCO-5 | Pending | Visual polish and desktop QA. |
+| WFCO-4 | Completed | Portfolio Lab MVP beyond the shell. |
+| WFCO-5 | Next | Visual polish and desktop QA. |
 
 ## Safety Rules
 

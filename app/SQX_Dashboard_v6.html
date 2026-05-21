@@ -2301,20 +2301,45 @@
       </details>
 
       <section class="edge-portfolio-lab" id="edge-portfolio-lab">
-        <div>
-          <span class="badge info">Portfolio Lab MVP</span>
-          <h3>Ranking Capa 2 y shortlist diversa</h3>
-          <p>Pega un lote Capa 2 o usa la muestra. El Lab puntúa candidatos, marca similitud y propone ganadores diversos sin mezclarlo con Template Maker.</p>
-        </div>
-        <div class="edge-portfolio-grid">
-          <textarea id="edge-portfolio-input" rows="6" placeholder="strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting,indicator"></textarea>
-          <div class="edge-portfolio-actions">
-            <button class="filter-btn" type="button" id="edge-portfolio-sample">Cargar muestra</button>
-            <button class="filter-btn active" type="button" id="edge-portfolio-run">Calcular shortlist</button>
-            <button class="filter-btn" type="button" id="edge-portfolio-export">Descargar resumen</button>
+        <div class="edge-portfolio-head">
+          <div>
+            <span class="badge info">Portfolio Lab MVP</span>
+            <h3>Ranking Capa 2 y shortlist diversa</h3>
+            <p>Importa un lote de supervivientes Capa 2, ajusta diversidad y deja una shortlist accionable: portfolio, similar o revisar.</p>
+          </div>
+          <div class="edge-portfolio-contract">
+            <strong>Contrato</strong>
+            <span>CSV Capa 2 · métricas + origen</span>
           </div>
         </div>
-        <div class="edge-portfolio-results" id="edge-portfolio-results">Sin lote Capa 2 cargado todavía.</div>
+        <div class="edge-portfolio-workbench">
+          <div class="edge-portfolio-input-panel">
+            <div class="edge-portfolio-panel-title">
+              <strong>Entrada Capa 2</strong>
+              <span>Pega CSV o carga archivo local desde el navegador.</span>
+            </div>
+            <textarea id="edge-portfolio-input" rows="7" placeholder="strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting,indicator"></textarea>
+          </div>
+          <div class="edge-portfolio-controls" aria-label="Ajustes Portfolio Lab">
+            <label>Umbral similitud<input id="edge-portfolio-threshold" type="number" min="0.50" max="0.95" step="0.01" value="0.78"></label>
+            <label>Máx. ganadores<input id="edge-portfolio-max-winners" type="number" min="1" max="50" step="1" value="8"></label>
+            <label>Máx. por asset<input id="edge-portfolio-max-asset" type="number" min="1" max="10" step="1" value="2"></label>
+          </div>
+          <div class="edge-portfolio-actions">
+            <label class="filter-btn edge-portfolio-file">Cargar CSV<input id="edge-portfolio-file" type="file" accept=".csv,.txt,text/csv" hidden></label>
+            <button class="filter-btn" type="button" id="edge-portfolio-sample">Cargar muestra</button>
+            <button class="filter-btn active" type="button" id="edge-portfolio-run">Calcular shortlist</button>
+            <button class="filter-btn" type="button" id="edge-portfolio-export-csv">Descargar shortlist CSV</button>
+            <button class="filter-btn" type="button" id="edge-portfolio-export">Descargar resumen</button>
+            <button class="filter-btn danger" type="button" id="edge-portfolio-reset">Limpiar Lab</button>
+          </div>
+        </div>
+        <div class="edge-portfolio-results" id="edge-portfolio-results">
+          <div class="edge-portfolio-empty">
+            <strong>Sin lote Capa 2 cargado.</strong>
+            <span>Carga CSV, pega datos o usa la muestra para calcular ranking y diversidad.</span>
+          </div>
+        </div>
       </section>
     </section>
     <section class="workflow-command-center" id="workflow-command-center">

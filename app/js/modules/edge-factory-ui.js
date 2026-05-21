@@ -99,33 +99,64 @@
 
   function portfolioSample() {
     return [
-      'strategy,asset,timeframe,profitFactor,retDd,maxDd,trades,blockSetting,indicator',
-      'AUDCAD_H4_LINEAR_CL01,AUDCAD,H4,1.68,6.2,18,245,BS_Volatilidad_v6,LinearRegression',
-      'AUDCAD_H4_LINEAR_CL02,AUDCAD,H4,1.63,5.9,19,231,BS_Volatilidad_v6,LinearRegression',
-      'XAUUSD_H1_KER_CL01,XAUUSD,H1,1.51,4.8,22,318,BS_Tendencia_v6,KER',
-      'US500_M15_ATR_CL01,US500,M15,1.42,4.1,24,420,BS_Volumen_v6_intraday_v6,ATR'
+      'Strategy Name;Symbol;TimeFrame;Profit factor;Ret/DD Ratio;Max DD %;# of trades;Stability;Winning Percent;SQN;BlockSetting;Indicator;Cluster',
+      'AUDCAD_H4_LINEAR_CL01;AUDCAD;H4;1,68;6,2;18;245;0,72;51;2,1;BS_Volatilidad_v6;LinearRegression;CL01',
+      'AUDCAD_H4_LINEAR_CL02;AUDCAD;H4;1,63;5,9;19;231;0,69;50;2,0;BS_Volatilidad_v6;LinearRegression;CL01',
+      'XAUUSD_H1_KER_CL01;XAUUSD;H1;1,51;4,8;22;318;0,64;48;1,8;BS_Tendencia_v6;KER;CL02',
+      'US500_M15_ATR_CL01;US500;M15;1,42;4,1;24;420;0,61;46;1,6;BS_Volumen_v6_intraday_v6;ATR;CL03',
+      'US500_M15_ATR_CL02;US500;M15;1,35;3,9;25;390;0,58;45;1,5;BS_Volumen_v6_intraday_v6;ATR;CL03'
     ].join('\n');
+  }
+
+  function statusLabel(status) {
+    return status === 'portfolio' ? 'Portfolio' : (status === 'similar' ? 'Similar' : 'Revisar');
+  }
+
+  function readPortfolioSettings() {
+    function numberFrom(id, fallback) {
+      var node = byId(id);
+      var value = node ? Number(String(node.value || '').replace(',', '.')) : NaN;
+      return Number.isFinite(value) ? value : fallback;
+    }
+    return {
+      similarityThreshold: numberFrom('edge-portfolio-threshold', 0.78),
+      maxWinners: numberFrom('edge-portfolio-max-winners', 8),
+      maxPerAsset: numberFrom('edge-portfolio-max-asset', 2)
+    };
   }
 
   function renderPortfolioReport(report) {
     var output = byId('edge-portfolio-results');
     if (!output || !report) return;
     if (!report.rows || !report.rows.length) {
-      output.textContent = 'No hay candidatos Capa 2 para analizar.';
+      output.innerHTML = '<div class="edge-portfolio-empty"><strong>No hay candidatos Capa 2 para analizar.</strong><span>Carga CSV, pega datos o usa la muestra.</span></div>';
       return;
     }
     output.innerHTML =
-      '<div class="edge-portfolio-summary">' + report.total + ' candidatos · ' + report.winners + ' ganadores diversos</div>' +
-      '<table><thead><tr><th>Estrategia</th><th>Asset</th><th>TF</th><th>Score</th><th>Diversidad</th><th>Cluster</th><th>Similitud</th></tr></thead><tbody>' +
+      '<div class="edge-portfolio-summary">' +
+        '<div class="edge-portfolio-stat"><span>Total</span><strong>' + escapeHtml(report.total) + '</strong></div>' +
+        '<div class="edge-portfolio-stat portfolio"><span>Portfolio</span><strong>' + escapeHtml(report.winners) + '</strong></div>' +
+        '<div class="edge-portfolio-stat similar"><span>Similares</span><strong>' + escapeHtml(report.similar || 0) + '</strong></div>' +
+        '<div class="edge-portfolio-stat review"><span>Revisar</span><strong>' + escapeHtml(report.review || 0) + '</strong></div>' +
+        '<div class="edge-portfolio-stat"><span>Assets</span><strong>' + escapeHtml(report.uniqueAssets || 0) + '</strong></div>' +
+        '<div class="edge-portfolio-stat"><span>Umbral</span><strong>' + escapeHtml(report.settings && report.settings.similarityThreshold) + '</strong></div>' +
+      '</div>' +
+      '<table><thead><tr><th>Estado</th><th>Estrategia</th><th>Asset</th><th>TF</th><th>BlockSetting</th><th>Indicador</th><th>PF</th><th>Ret/DD</th><th>DD</th><th>Trades</th><th>Score</th><th>Cluster</th><th>Motivo</th></tr></thead><tbody>' +
       report.rows.map(function(row) {
-        return '<tr>' +
+        return '<tr data-status="' + escapeHtml(row.diversityStatus) + '">' +
+          '<td><span class="edge-portfolio-badge ' + escapeHtml(row.diversityStatus) + '">' + escapeHtml(statusLabel(row.diversityStatus)) + '</span></td>' +
           '<td>' + escapeHtml(row.strategy) + '</td>' +
           '<td>' + escapeHtml(row.asset) + '</td>' +
           '<td>' + escapeHtml(row.timeframe) + '</td>' +
+          '<td>' + escapeHtml(row.blockSetting) + '</td>' +
+          '<td>' + escapeHtml(row.indicator) + '</td>' +
+          '<td>' + escapeHtml(row.profitFactor) + '</td>' +
+          '<td>' + escapeHtml(row.retDd) + '</td>' +
+          '<td>' + escapeHtml(row.maxDd) + '%</td>' +
+          '<td>' + escapeHtml(row.trades) + '</td>' +
           '<td>' + escapeHtml(row.score) + '</td>' +
-          '<td>' + escapeHtml(row.diversityStatus) + '</td>' +
           '<td>' + escapeHtml(row.clusterRef) + '</td>' +
-          '<td>' + escapeHtml(row.similarity) + '</td>' +
+          '<td class="edge-portfolio-reason">' + escapeHtml(row.reason || '') + (row.closestStrategy ? ' · ' + escapeHtml(row.closestStrategy) : '') + '</td>' +
         '</tr>';
       }).join('') +
       '</tbody></table>';
@@ -140,7 +171,7 @@
   function runPortfolioLab() {
     if (!SQX.edgeFactory) return null;
     var input = byId('edge-portfolio-input');
-    var report = SQX.edgeFactory.buildPortfolioShortlist(input ? input.value : '');
+    var report = SQX.edgeFactory.buildPortfolioShortlist(input ? input.value : '', readPortfolioSettings());
     if (SQX.edgeFactory.recordPortfolioLab) {
       SQX.edgeFactory.recordPortfolioLab(report);
     } else {
@@ -173,10 +204,62 @@
     }
   }
 
+  function downloadPortfolioCsv() {
+    if (!SQX.edgeFactory) return;
+    var state = SQX.edgeFactory.getState();
+    var report = state.portfolioLab || runPortfolioLab();
+    if (!report || !report.rows) return;
+    var rows = ['decision,strategy,asset,timeframe,blockSetting,indicator,cluster,score,reason'];
+    report.rows.filter(function(row) { return row.diversityStatus === 'portfolio'; }).forEach(function(row) {
+      rows.push([
+        row.decision,
+        row.strategy,
+        row.asset,
+        row.timeframe,
+        row.blockSetting,
+        row.indicator,
+        row.clusterRef,
+        row.score,
+        row.reason
+      ].map(function(value) {
+        return '"' + String(value == null ? '' : value).replace(/"/g, '""') + '"';
+      }).join(','));
+    });
+    var filename = 'sqx-edge-portfolio-shortlist.csv';
+    try {
+      var blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8' });
+      var link = global.document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      if (SQX.edgeFactory.recordDownloadRequest) {
+        SQX.edgeFactory.recordDownloadRequest({ kind: 'portfolio-shortlist-csv', files: [filename] });
+      }
+    } catch (_err) {
+      var output = byId('edge-portfolio-results');
+      if (output) output.textContent = rows.join('\n');
+    }
+  }
+
+  function resetPortfolioLab() {
+    var input = byId('edge-portfolio-input');
+    var output = byId('edge-portfolio-results');
+    var file = byId('edge-portfolio-file');
+    if (input) input.value = '';
+    if (file) file.value = '';
+    if (output) output.innerHTML = '<div class="edge-portfolio-empty"><strong>Sin lote Capa 2 cargado.</strong><span>Carga CSV, pega datos o usa la muestra para calcular ranking y diversidad.</span></div>';
+    if (SQX.edgeFactory) SQX.edgeFactory.savePatch({ portfolioLab: null }, 'portfolio-lab-reset');
+    renderState();
+  }
+
   function bindPortfolioLab() {
     var sample = byId('edge-portfolio-sample');
     var run = byId('edge-portfolio-run');
     var exportBtn = byId('edge-portfolio-export');
+    var exportCsv = byId('edge-portfolio-export-csv');
+    var reset = byId('edge-portfolio-reset');
+    var file = byId('edge-portfolio-file');
     var input = byId('edge-portfolio-input');
     if (sample && !sample.__edgePortfolioBound) {
       sample.__edgePortfolioBound = true;
@@ -192,6 +275,27 @@
     if (exportBtn && !exportBtn.__edgePortfolioBound) {
       exportBtn.__edgePortfolioBound = true;
       exportBtn.addEventListener('click', downloadPortfolioReport);
+    }
+    if (exportCsv && !exportCsv.__edgePortfolioBound) {
+      exportCsv.__edgePortfolioBound = true;
+      exportCsv.addEventListener('click', downloadPortfolioCsv);
+    }
+    if (reset && !reset.__edgePortfolioBound) {
+      reset.__edgePortfolioBound = true;
+      reset.addEventListener('click', resetPortfolioLab);
+    }
+    if (file && !file.__edgePortfolioBound) {
+      file.__edgePortfolioBound = true;
+      file.addEventListener('change', function() {
+        var selected = file.files && file.files[0];
+        if (!selected || !input) return;
+        var reader = new FileReader();
+        reader.onload = function() {
+          input.value = String(reader.result || '');
+          runPortfolioLab();
+        };
+        reader.readAsText(selected);
+      });
     }
   }
 

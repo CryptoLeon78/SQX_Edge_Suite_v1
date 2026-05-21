@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-21 - WFCO4 Portfolio Lab MVP
+
+- Completes WFCO-4: Portfolio Lab now imports/pastes Capa 2 CSV, supports common SQX column aliases and decimal comma/punto, scores candidates and classifies them as `portfolio`, `similar` or `review`.
+- Adds tunable similarity, max winners and max-per-asset settings, plus browser downloads for shortlist CSV and full JSON report.
+- Adds the Portfolio Lab Decision Gate and moves the next UX recommendation to WFCO-5 Visual Polish And Desktop QA, while REMOTE-RILIS-STANDBY remains independent.
+
 ## 2026-05-21 - WFCO3 Content Overhaul
 
 - Completes WFCO-3: Edge Factory copy now guides by action, output and pending state instead of presenting the user with tab-heavy technical wording.

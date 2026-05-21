@@ -382,73 +382,197 @@
     return Number.isFinite(number) ? number : (fallback == null ? 0 : fallback);
   }
 
+  function normalizeKey(value) {
+    return String(value == null ? '' : value)
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '');
+  }
+
+  function splitDelimitedLine(line, delimiter) {
+    var out = [];
+    var current = '';
+    var quoted = false;
+    var chars = String(line || '').split('');
+    for (var index = 0; index < chars.length; index += 1) {
+      var ch = chars[index];
+      if (ch === '"') {
+        if (quoted && chars[index + 1] === '"') {
+          current += '"';
+          index += 1;
+        } else {
+          quoted = !quoted;
+        }
+        continue;
+      }
+      if (ch === delimiter && !quoted) {
+        out.push(current.trim());
+        current = '';
+        continue;
+      }
+      current += ch;
+    }
+    out.push(current.trim());
+    return out.map(function(value) { return value.replace(/^"|"$/g, '').replace(/""/g, '"'); });
+  }
+
+  function detectDelimiter(headerLine) {
+    var header = String(headerLine || '');
+    var semicolons = (header.match(/;/g) || []).length;
+    var commas = (header.match(/,/g) || []).length;
+    return semicolons > commas ? ';' : ',';
+  }
+
+  function valueByAliases(row, aliases) {
+    var normalized = row && row.__normalized ? row.__normalized : {};
+    for (var i = 0; i < aliases.length; i += 1) {
+      var value = normalized[normalizeKey(aliases[i])];
+      if (value != null && value !== '') return value;
+    }
+    return '';
+  }
+
+  function inferTokenFromStrategy(row, pattern, fallback) {
+    var source = String((row && (row.strategy || row['Strategy Name'] || row.name)) || '');
+    var match = source.match(pattern);
+    return match && match[1] ? match[1] : fallback;
+  }
+
   function parsePortfolioRows(text) {
     var lines = String(text || '').split(/\r?\n/).map(function(line) { return line.trim(); }).filter(Boolean);
     if (!lines.length) return [];
-    var header = lines[0].split(/[;,]/).map(function(item) { return item.trim(); });
+    var delimiter = detectDelimiter(lines[0]);
+    var header = splitDelimitedLine(lines[0], delimiter).map(function(item) { return item.trim(); });
     return lines.slice(1).map(function(line, index) {
-      var values = line.split(/[;,]/).map(function(item) { return item.trim(); });
-      var row = { id: 'portfolio-' + (index + 1), importIndex: index };
+      var values = splitDelimitedLine(line, delimiter);
+      var row = { id: 'portfolio-' + (index + 1), importIndex: index, sourceDelimiter: delimiter };
+      var normalized = {};
       header.forEach(function(name, columnIndex) {
-        row[name] = values[columnIndex] == null ? '' : values[columnIndex];
+        var value = values[columnIndex] == null ? '' : values[columnIndex];
+        row[name] = value;
+        normalized[normalizeKey(name)] = value;
       });
-      row.strategy = row.strategy || row.name || row['Strategy Name'] || row.id;
-      row.asset = row.asset || row.symbol || row.Symbol || 'GENERIC';
-      row.timeframe = row.timeframe || row.tf || row.TimeFrame || 'H1';
-      row.blockSetting = row.blockSetting || row.bs || row.BlockSetting || 'BS_Custom';
-      row.indicator = row.indicator || row.indicatorBase || row.Indicator || 'SIN_INDICADOR';
-      row.profitFactor = numeric(row.profitFactor || row['Profit factor'], 1);
-      row.retDd = numeric(row.retDd || row['Ret/DD Ratio'] || row['CAGR/Max DD %'], 0);
-      row.maxDd = numeric(row.maxDd || row['Max DD %'], 100);
-      row.trades = numeric(row.trades || row['# of trades'], 0);
-      row.stability = numeric(row.stability || row.Stability, 0);
+      row.__normalized = normalized;
+      row.strategy = valueByAliases(row, ['strategy', 'name', 'Strategy Name', 'Strategy']) || row.id;
+      row.asset = upper(valueByAliases(row, ['asset', 'symbol', 'Symbol', 'Market']) || inferTokenFromStrategy(row, /^([A-Z0-9]+)[_\-\s]/i, 'GENERIC'), 'GENERIC');
+      row.timeframe = upper(valueByAliases(row, ['timeframe', 'tf', 'TimeFrame', 'Time frame']) || inferTokenFromStrategy(row, /[_\-\s](M1|M5|M15|M30|H1|H4|D1|W1)[_\-\s]/i, 'H1'), 'H1');
+      row.blockSetting = valueByAliases(row, ['blockSetting', 'BlockSetting', 'bs', 'Block Setting', 'Building Block', 'Building Blocks']) || inferTokenFromStrategy(row, /(BS_[A-Za-z0-9_]+)/, 'BS_Custom');
+      row.indicator = valueByAliases(row, ['indicator', 'indicatorBase', 'Indicator', 'Indicador', 'Base Indicator']) || inferTokenFromStrategy(row, /_(ATR|KER|LINEAR|MACD|SUPER|ICHIMOKU|RSI|ADX|HURST|CHOPPINESS)_?/i, 'SIN_INDICADOR');
+      row.clusterId = valueByAliases(row, ['cluster', 'clusterId', 'NumCluster', 'Cluster']) || inferTokenFromStrategy(row, /(CL\d+)/i, '');
+      row.profitFactor = numeric(valueByAliases(row, ['profitFactor', 'Profit factor', 'Profit Factor', 'PF']), 0);
+      row.retDd = numeric(valueByAliases(row, ['retDd', 'Ret/DD Ratio', 'Return / Drawdown ratio', 'CAGR/Max DD %']), 0);
+      row.maxDd = numeric(valueByAliases(row, ['maxDd', 'Max DD %', 'Drawdown %', 'Max Drawdown %']), 100);
+      row.trades = numeric(valueByAliases(row, ['trades', '# of trades', 'Number of trades', 'Trades']), 0);
+      row.stability = numeric(valueByAliases(row, ['stability', 'Stability']), 0);
+      row.winningPercent = numeric(valueByAliases(row, ['winningPercent', 'Winning Percent', 'Win %']), 0);
+      row.sqn = numeric(valueByAliases(row, ['SQN', 'sqn']), 0);
+      row.netProfit = numeric(valueByAliases(row, ['Net profit', 'Net Profit', 'netProfit']), 0);
+      row.hasCoreMetrics = row.profitFactor > 0 && row.trades > 0 && row.maxDd < 100;
+      delete row.__normalized;
       return row;
     });
   }
 
   function scoreCandidate(row) {
+    var pf = Math.min(2.4, Math.max(0, numeric(row.profitFactor, 0)));
+    var retDd = Math.min(10, Math.max(0, numeric(row.retDd, 0)));
+    var drawdown = Math.max(0, 100 - Math.min(100, numeric(row.maxDd, 100)));
+    var trades = Math.min(500, Math.max(0, numeric(row.trades, 0)));
+    var stability = Math.min(1, Math.max(0, numeric(row.stability, 0)));
+    var win = Math.min(100, Math.max(0, numeric(row.winningPercent, 0)));
+    var sqn = Math.min(5, Math.max(0, numeric(row.sqn, 0)));
     return Math.round((
-      (numeric(row.profitFactor, 1) * 24) +
-      (numeric(row.retDd, 0) * 8) +
-      (Math.max(0, 100 - numeric(row.maxDd, 100)) * 0.32) +
-      (Math.min(400, numeric(row.trades, 0)) * 0.06) +
-      (numeric(row.stability, 0) * 18)
+      (pf * 22) +
+      (retDd * 7) +
+      (drawdown * 0.26) +
+      (trades * 0.045) +
+      (stability * 16) +
+      (win * 0.12) +
+      (sqn * 3)
     ) * 100) / 100;
   }
 
   function similarity(a, b) {
     if (!a || !b) return 0;
     var score = 0;
-    if (String(a.asset).toLowerCase() === String(b.asset).toLowerCase()) score += 0.25;
-    if (String(a.timeframe).toLowerCase() === String(b.timeframe).toLowerCase()) score += 0.2;
-    if (String(a.blockSetting).toLowerCase() === String(b.blockSetting).toLowerCase()) score += 0.25;
-    if (String(a.indicator).toLowerCase() === String(b.indicator).toLowerCase()) score += 0.2;
+    if (normalizeKey(a.asset) === normalizeKey(b.asset)) score += 0.22;
+    if (normalizeKey(a.timeframe) === normalizeKey(b.timeframe)) score += 0.18;
+    if (normalizeKey(a.blockSetting) === normalizeKey(b.blockSetting)) score += 0.22;
+    if (normalizeKey(a.indicator) === normalizeKey(b.indicator)) score += 0.18;
     var pfGap = Math.abs(numeric(a.profitFactor, 1) - numeric(b.profitFactor, 1));
-    if (pfGap < 0.15) score += 0.1;
+    var retGap = Math.abs(numeric(a.retDd, 0) - numeric(b.retDd, 0));
+    var ddGap = Math.abs(numeric(a.maxDd, 100) - numeric(b.maxDd, 100));
+    if (pfGap < 0.15) score += 0.08;
+    if (retGap < 0.8) score += 0.06;
+    if (ddGap < 4) score += 0.06;
     return Math.min(1, score);
   }
 
-  function buildPortfolioShortlist(inputRows) {
+  function buildPortfolioShortlist(inputRows, options) {
+    var settings = Object.assign({
+      similarityThreshold: 0.78,
+      maxWinners: 8,
+      maxPerAsset: 2,
+      minProfitFactor: 1.2,
+      minTrades: 80,
+      maxDrawdown: 45
+    }, options || {});
     var rows = (Array.isArray(inputRows) ? inputRows : parsePortfolioRows(inputRows)).map(function(row) {
       return Object.assign({}, row, { score: scoreCandidate(row) });
     }).sort(function(a, b) {
       return b.score - a.score || a.importIndex - b.importIndex;
     });
     var winners = [];
+    var perAsset = {};
     rows.forEach(function(row) {
       var closest = winners.reduce(function(best, winner) {
         var sim = similarity(row, winner);
         return sim > best.value ? { value: sim, winner: winner } : best;
       }, { value: 0, winner: null });
       row.similarity = Math.round(closest.value * 100) / 100;
-      row.diversityStatus = closest.value >= 0.78 ? 'similar' : 'winner';
-      row.clusterRef = closest.winner ? closest.winner.strategy : 'CL' + String(winners.length + 1).padStart(2, '0');
-      if (row.diversityStatus === 'winner') winners.push(row);
+      row.closestStrategy = closest.winner ? closest.winner.strategy : '';
+      row.clusterRef = closest.winner ? closest.winner.clusterRef : (row.clusterId || 'CL' + String(winners.length + 1).padStart(2, '0'));
+      var assetKey = normalizeKey(row.asset);
+      var assetCount = perAsset[assetKey] || 0;
+      var reasons = [];
+      if (!row.hasCoreMetrics) reasons.push('faltan métricas núcleo');
+      if (row.profitFactor < settings.minProfitFactor) reasons.push('PF bajo');
+      if (row.trades < settings.minTrades) reasons.push('pocos trades');
+      if (row.maxDd > settings.maxDrawdown) reasons.push('DD alto');
+      if (assetCount >= settings.maxPerAsset) reasons.push('límite por asset');
+      if (winners.length >= settings.maxWinners) reasons.push('límite de portfolio');
+      if (!reasons.length && closest.value >= settings.similarityThreshold) reasons.push('similar a ' + closest.winner.strategy);
+      if (!reasons.length) {
+        row.diversityStatus = 'portfolio';
+        row.decision = 'Portfolio';
+        row.reason = 'ganador diverso';
+        winners.push(row);
+        perAsset[assetKey] = assetCount + 1;
+      } else if (reasons[0].indexOf('similar a') === 0 || reasons[0] === 'límite por asset' || reasons[0] === 'límite de portfolio') {
+        row.diversityStatus = 'similar';
+        row.decision = 'Similar';
+        row.reason = reasons.join(' · ');
+      } else {
+        row.diversityStatus = 'review';
+        row.decision = 'Revisar';
+        row.reason = reasons.join(' · ');
+      }
     });
+    var statusCounts = rows.reduce(function(acc, row) {
+      acc[row.diversityStatus] = (acc[row.diversityStatus] || 0) + 1;
+      return acc;
+    }, {});
+    var uniqueAssets = {};
+    rows.forEach(function(row) { uniqueAssets[normalizeKey(row.asset)] = true; });
     return {
-      version: 'portfolio-lab-mvp-v1',
+      version: 'portfolio-lab-mvp-v2',
       total: rows.length,
       winners: winners.length,
+      similar: statusCounts.similar || 0,
+      review: statusCounts.review || 0,
+      uniqueAssets: Object.keys(uniqueAssets).filter(Boolean).length,
+      settings: settings,
       rows: rows
     };
   }

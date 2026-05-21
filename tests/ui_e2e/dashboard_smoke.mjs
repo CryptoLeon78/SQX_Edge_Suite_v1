@@ -417,11 +417,13 @@ async function run() {
     if (drawerToolCount !== 8) throw new Error(`Edge Factory advanced drawer should expose 8 tools, got ${drawerToolCount}`);
     await desktop.locator('#edge-portfolio-sample').click();
     await desktop.locator('#edge-portfolio-run').click();
-    await desktop.waitForFunction(() => document.getElementById('edge-portfolio-results')?.innerText.includes('ganadores diversos'));
+    await desktop.waitForFunction(() => document.getElementById('edge-portfolio-results')?.innerText.toUpperCase().includes('PORTFOLIO'));
+    await desktop.waitForFunction(() => document.getElementById('edge-portfolio-results')?.innerText.toUpperCase().includes('SIMILAR'));
     await desktop.waitForFunction(() => {
       const state = JSON.parse(localStorage.getItem('sqx_edge_factory_state_v1') || '{}');
       return state.portfolioLab && state.portfolioLab.winners > 0 && (state.completedSteps || []).includes('portfolio');
     });
+    await desktop.locator('#edge-portfolio-export-csv').click();
     await saveShot(desktop, 'e2e-edge-factory-desktop.png');
     await openTab(desktop, 'views');
     await desktop.evaluate(() => window.SQX.viewCreator.loadBuyerReadyTemplate('robustness-pack-screen'));

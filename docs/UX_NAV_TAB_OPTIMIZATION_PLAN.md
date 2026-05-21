@@ -25,8 +25,8 @@ Current WFCO status:
 - `WFCO-1 · Edge Factory Shell`: completed.
 - `WFCO-2 · Methodology Handoffs`: completed.
 - `WFCO-3 · Content Overhaul`: completed.
-- `WFCO-4 · Portfolio Lab MVP`: next recommended phase.
-- `WFCO-5 · Visual Polish And Desktop QA`: pending.
+- `WFCO-4 · Portfolio Lab MVP`: completed.
+- `WFCO-5 · Visual Polish And Desktop QA`: next recommended phase.
 
 Historical repair/enrichment pause: TM-DIV1 added a hybrid diversity gate to Template Maker after the TM-FIX2 CSV contract repair. This did not advance the UX-NAV tab order and does not reopen Template Maker as a design pass; it prevents redundant C2 templates by clustering similar `.sqx` logic plus CSV metric behavior.
 
@@ -93,6 +93,13 @@ WFCO-3 applied content rule:
 - Edge Factory stages now speak in action/output terms: `Haz`, `Sale`, pending context and one primary action per stage.
 - The main shell says `Del asset al portfolio, sin perder el hilo` and removes tab-heavy wording from the primary route.
 - Advanced tools remain available in the drawer, but user-facing guidance is methodology-first rather than module-first.
+
+WFCO-4 applied Portfolio Lab rule:
+
+- Capa 2 candidates are analyzed in Portfolio Lab, not Template Maker.
+- The Lab accepts pasted CSV or browser file load, supports semicolon/comma CSV and decimal comma/punto, and resolves common SQX columns.
+- Output states are `portfolio`, `similar` and `review`; every non-portfolio row must show why it was not selected.
+- The shortlist can be exported as browser CSV and the full report as browser JSON.
 
 ## UX-WF2 - Functional Pipeline KPIs
 
