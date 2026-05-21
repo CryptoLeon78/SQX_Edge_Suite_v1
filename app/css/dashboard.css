@@ -2038,6 +2038,7 @@
     display:grid;
     place-items:center;
     padding:24px;
+    overflow:hidden;
     background:rgba(2,6,23,.88);
     backdrop-filter:blur(16px);
   }
@@ -2046,6 +2047,7 @@
     width:min(1120px, calc(100vw - 48px));
     max-height:calc(100vh - 48px);
     overflow:auto;
+    overflow-x:hidden;
     display:grid;
     grid-template-columns:minmax(0, 1.25fr) minmax(320px, .75fr);
     gap:18px;
@@ -2086,6 +2088,7 @@
     color:var(--accent2, var(--accent));
     font-size:clamp(38px, 5.8vw, 72px);
     white-space:nowrap;
+    max-width:100%;
   }
   .remote-trust-center h3 { font-size:22px; }
   .remote-welcome-verdict {
@@ -2323,18 +2326,54 @@
     line-height:1.4;
   }
   @media (max-width: 860px) {
-    .remote-welcome-gate { padding:12px; }
+    .remote-welcome-gate {
+      place-items:start center;
+      padding:10px;
+      overflow:auto;
+    }
     .remote-welcome-shell {
-      width:calc(100vw - 24px);
-      max-height:calc(100vh - 24px);
+      width:100%;
+      max-width:100%;
+      max-height:calc(100dvh - 20px);
       grid-template-columns:1fr;
-      padding:12px;
+      padding:10px;
+      border-radius:10px;
     }
     .remote-welcome-copy,
     .remote-trust-center { padding:14px; }
+    .remote-welcome-copy h2 { font-size:clamp(28px, 10vw, 42px); }
+    .remote-welcome-copy h2 span {
+      display:block;
+      font-size:clamp(34px, 13vw, 52px);
+      line-height:1;
+      white-space:normal;
+      overflow-wrap:anywhere;
+      word-break:normal;
+    }
+    .remote-welcome-sales,
+    .remote-welcome-value-copy,
+    .remote-first-session div,
+    .remote-welcome-status,
+    .remote-trust-list div { overflow-wrap:anywhere; }
     .remote-welcome-status-grid { grid-template-columns:1fr; }
     .remote-first-session { grid-template-columns:1fr; }
     .remote-welcome-actions .home-command { width:100%; }
+  }
+  @media (max-width: 480px) {
+    .remote-welcome-gate { padding:6px; }
+    .remote-welcome-shell {
+      max-height:calc(100dvh - 12px);
+      padding:8px;
+      gap:10px;
+    }
+    .remote-welcome-copy,
+    .remote-trust-center { padding:12px; }
+    .remote-welcome-eyebrow { font-size:10px; }
+    .remote-welcome-copy p,
+    .remote-trust-center p { font-size:12px; line-height:1.45; }
+    .remote-welcome-sales,
+    .remote-welcome-value-copy { padding:12px; }
+    .remote-first-session { gap:8px; }
   }
   .remote-pro-panel {
     border-color:rgba(96,165,250,.22);

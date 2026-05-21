@@ -2948,6 +2948,42 @@ class DashboardStaticTestCase(unittest.TestCase):
             with self.subTest(forbidden=forbidden):
                 self.assertNotIn(forbidden, combined_public)
 
+    def test_remote_welcome_is_mobile_safe_for_rilis_standby(self):
+        html = (APP_ROOT / "SQX_Dashboard_v6.html").read_text(encoding="utf-8-sig")
+        css = (APP_ROOT / "css" / "dashboard.css").read_text(encoding="utf-8-sig")
+        governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
+
+        for pattern in (
+            'id="remote-welcome-gate"',
+            'id="remote-welcome-verdict"',
+            'id="remote-welcome-primary"',
+            'id="remote-trust-center"',
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, html)
+
+        for pattern in (
+            ".remote-welcome-gate",
+            "overflow:hidden",
+            "overflow-x:hidden",
+            "@media (max-width: 860px)",
+            "place-items:start center",
+            "max-height:calc(100dvh - 20px)",
+            "white-space:normal",
+            "overflow-wrap:anywhere",
+            "@media (max-width: 480px)",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, css)
+
+        for pattern in (
+            "REMOTE-RILIS-STANDBY",
+            "anti-sharing still pending",
+            "narrow/mobile viewport crop",
+        ):
+            with self.subTest(pattern=pattern):
+                self.assertIn(pattern, governance)
+
     def test_remote_8d_tiny_cohort_activation_package_gate_is_wired(self):
         governance = PROJECT_GOVERNANCE_DOC.read_text(encoding="utf-8-sig")
         roadmap = REMOTE_SERVICE_ROADMAP_DOC.read_text(encoding="utf-8-sig")
