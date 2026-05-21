@@ -35,6 +35,7 @@ Default path is guided methodology. `Custom libre avanzado` remains available, b
 `sqx_edge_factory_state_v1` stores:
 
 - `activeStep`
+- `experienceMode`
 - `completedSteps`
 - `selectedCard`
 - `selectedMining`
@@ -95,6 +96,17 @@ Edge Factory now reads as a desktop command surface, not a passive overview.
 - Stage cards keep one dominant action path and use visual state for current/completed stages without adding decorative noise.
 - Browser PC is the product target. Mobile must remain serviceable, but desktop density and traceability remain the priority.
 
+## WFCO-ACCEPT1 Basic / Advanced Acceptance Contract
+
+Edge Factory now has two explicit experience modes:
+
+- `Modo básico`: default route for testers and buyers. It hides the advanced tools drawer, manual completion checks and `Custom libre avanzado`, leaving one primary action per stage plus public-safe context.
+- `Modo avanzado`: operator/power-user route. It exposes the internal drawer, manual checks and override surfaces without changing generation, certification, Portfolio Lab or remote security engines.
+
+The mode is persisted in `sqx_edge_factory_state_v1` as `experienceMode`. Switching modes is a UI disclosure choice only; it must not alter `.cfx` formats, Template Maker scoring, C2 generation, downloads, grants, workspace persistence or Cloudflare/remote gates.
+
+The shell also makes the new delivery model explicit: Capa 1 and Capa 2 produce browser-download `.cfx` files, and Project Generator works with SQX target profiles such as `SQ default / configurable`.
+
 ## Phase Status
 
 | Phase | Status | Scope |
@@ -105,6 +117,7 @@ Edge Factory now reads as a desktop command surface, not a passive overview.
 | WFCO-3 | Completed | Copy/content overhaul across the main experience. |
 | WFCO-4 | Completed | Portfolio Lab MVP beyond the shell. |
 | WFCO-5 | Completed | Desktop polish, command strip, status stack and visual QA contract. |
+| WFCO-ACCEPT1 | Completed | Basic/advanced experience mode and `.cfx` download/target-profile acceptance polish. |
 
 ## Safety Rules
 

@@ -361,6 +361,12 @@ async function run() {
     }
     await saveShot(desktop, 'e2e-mining-control-status-desktop.png');
     await openTab(desktop, 'workflow');
+    await desktop.waitForSelector('[data-edge-mode="basic"].active');
+    if (await desktop.locator('#edge-tools-toggle:visible').count() !== 0) {
+      throw new Error('Edge Factory basic mode should hide the advanced tools toggle');
+    }
+    await desktop.locator('[data-edge-mode="advanced"]').click();
+    await desktop.waitForSelector('[data-edge-mode="advanced"].active');
     await desktop.locator('input[data-edge-complete="session"]').check();
     await desktop.waitForFunction(() => {
       const state = JSON.parse(localStorage.getItem('sqx_edge_factory_state_v1') || '{}');
@@ -409,6 +415,7 @@ async function run() {
     if (edgeStageCount !== 8) throw new Error(`Edge Factory should render 8 stages, got ${edgeStageCount}`);
     const edgeContextCount = await desktop.locator('#edge-factory-stages [data-edge-context]').count();
     if (edgeContextCount !== 8) throw new Error(`Edge Factory should render 8 handoff context strips, got ${edgeContextCount}`);
+    await desktop.locator('[data-edge-mode="advanced"]').click();
     await desktop.locator('input[data-edge-complete="asset"]').check();
     await desktop.waitForFunction(() => (JSON.parse(localStorage.getItem('sqx_edge_factory_state_v1') || '{}').completedSteps || []).includes('asset'));
     await desktop.locator('#edge-tools-toggle').click();
@@ -965,6 +972,8 @@ async function run() {
       window.SQX.home.applyRemoteServiceModel(localModel, document);
     });
     await compact.waitForFunction(() => document.getElementById('remote-welcome-gate')?.hidden === true);
+    await compact.locator('[data-edge-mode="advanced"]').click();
+    await compact.waitForSelector('[data-edge-mode="advanced"].active');
     await compact.locator('#edge-tools-toggle').click();
     await compact.waitForSelector('#edge-tool-drawer:not([hidden])');
     await openTab(compact, 'projectgen');

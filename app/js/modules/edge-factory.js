@@ -29,6 +29,7 @@
       handoffVersion: 'edge-factory-handoffs-v1',
       activeStep: 'session',
       mode: 'methodology',
+      experienceMode: 'basic',
       selectedCard: null,
       selectedMining: null,
       projectPrefill: null,
@@ -79,6 +80,11 @@
   function setActiveStep(stepId) {
     if (!STEPS.some(function(step) { return step.id === stepId; })) return readState();
     return savePatch({ activeStep: stepId }, 'edge-factory-active-step');
+  }
+
+  function setExperienceMode(mode) {
+    var normalized = String(mode || '').toLowerCase() === 'advanced' ? 'advanced' : 'basic';
+    return savePatch({ experienceMode: normalized }, 'edge-factory-experience-mode');
   }
 
   function completeStep(stepId, done) {
@@ -355,8 +361,8 @@
         ? 'Hipótesis activa: ' + [state.selectedCard.asset, state.selectedCard.timeframe, state.selectedCard.direction, state.selectedCard.blockSetting].filter(Boolean).join(' · ')
         : 'Pendiente: elige una tarjeta con asset, TF, dirección y BlockSetting.',
       'capa1-generate': c1
-        ? 'C1 lista: ' + (c1.results ? c1.results.ok + '/' + c1.results.total + ' OK' : 'generada') + (filesC1 ? ' · ' + filesC1 + ' descarga(s)' : '')
-        : (state.selectedMining ? 'Preparado para C1: ' + miningLabel(state.selectedMining) : 'Pendiente: añade o selecciona un mining trazable.'),
+        ? 'C1 lista: ' + (c1.results ? c1.results.ok + '/' + c1.results.total + ' OK' : 'generada') + (filesC1 ? ' · ' + filesC1 + ' archivo(s) descargables' : '')
+        : (state.selectedMining ? 'Preparado para C1 descargable: ' + miningLabel(state.selectedMining) : 'Pendiente: añade o selecciona un mining trazable.'),
       'capa1-analyze': state.capa1Analysis
         ? 'C1 certificada: ' + state.capa1Analysis.total + ' estrategias · ' + state.capa1Analysis.passed + ' PASSED · ' + state.capa1Analysis.winners + ' ganadores C2.'
         : 'Pendiente: carga Databank CSV + .sqx en Template Maker.',
@@ -364,8 +370,8 @@
         ? 'Template C2 listo: ' + state.c2Template.name + ' · ' + state.c2Template.indicatorBase + ' · ' + state.c2Template.clusterId
         : 'Pendiente: crea Template C2 desde un ganador diverso.',
       'capa2-generate': c2
-        ? 'C2 lista: ' + (c2.results ? c2.results.ok + '/' + c2.results.total + ' OK' : 'generada') + (filesC2 ? ' · ' + filesC2 + ' descarga(s)' : '')
-        : (state.c2Template ? 'Preparado para C2: ' + state.c2Template.name + '.' : 'Pendiente: falta Template C2 trazable.'),
+        ? 'C2 lista: ' + (c2.results ? c2.results.ok + '/' + c2.results.total + ' OK' : 'generada') + (filesC2 ? ' · ' + filesC2 + ' archivo(s) descargables' : '')
+        : (state.c2Template ? 'Preparado para C2 descargable: ' + state.c2Template.name + '.' : 'Pendiente: falta Template C2 trazable.'),
       'capa2-analyze': c2
         ? 'Listo para Portfolio Lab: importa resultados Capa 2.'
         : 'Pendiente: genera Capa 2 antes del análisis.',
@@ -584,6 +590,7 @@
     getState: readState,
     savePatch: savePatch,
     setActiveStep: setActiveStep,
+    setExperienceMode: setExperienceMode,
     completeStep: completeStep,
     steps: function() { return STEPS.slice(); },
     recordCardSelection: recordCardSelection,

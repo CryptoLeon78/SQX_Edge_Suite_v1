@@ -27,6 +27,7 @@ Current WFCO status:
 - `WFCO-3 · Content Overhaul`: completed.
 - `WFCO-4 · Portfolio Lab MVP`: completed.
 - `WFCO-5 · Visual Polish And Desktop QA`: completed.
+- `WFCO-ACCEPT1 · Basic/Advanced Acceptance Polish`: completed.
 
 Historical repair/enrichment pause: TM-DIV1 added a hybrid diversity gate to Template Maker after the TM-FIX2 CSV contract repair. This did not advance the UX-NAV tab order and does not reopen Template Maker as a design pass; it prevents redundant C2 templates by clustering similar `.sqx` logic plus CSV metric behavior.
 
@@ -107,6 +108,12 @@ WFCO-5 applied desktop polish rule:
 - The hero status stack shows guided mode, browser-download output and advanced override state without exposing internal routes or local paths.
 - Stage cards emphasize current/completed state through restrained desktop visuals, keeping the PC browser workflow dense and readable.
 - Mobile must remain serviceable, but desktop clarity and traceability are the priority.
+
+WFCO-ACCEPT1 applied mode rule:
+
+- `Modo básico` is the default buyer/tester route: one primary action per stage, context visible, technical drawers and manual checks hidden.
+- `Modo avanzado` explicitly unlocks internal tools, manual completion checks and custom libre without changing engines or security gates.
+- The primary copy now reinforces `.cfx` browser downloads and SQX target profiles so the user understands that generated files arrive through the browser, not through server folders.
 
 ## UX-WF2 - Functional Pipeline KPIs
 

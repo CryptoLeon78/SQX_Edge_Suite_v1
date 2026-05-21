@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-21 - WFCO-ACCEPT1 Edge Factory Basic/Advanced Polish
+
+- Adds `Modo básico` / `Modo avanzado` to Edge Factory. Basic is now the default buyer/tester route with one primary action per stage; Advanced explicitly unlocks internal tools, manual checks and custom libre.
+- Persists the experience mode in `sqx_edge_factory_state_v1` without touching Project Generator, Template Maker, Portfolio Lab, downloads, workspace persistence or remote gates.
+- Clarifies the primary shell copy around browser-download `.cfx` files and SQX target profiles (`SQ default / configurable`).
+
 ## 2026-05-21 - CFX-RILIS-TARGET1 SQ Default Exact-Symbol Target
 
 - Changes Project Generator's default user-download target profile to `SQ default / símbolo exacto`, generating primary `.cfx` resources as `{asset}` without the Darwinex suffix for testers whose SQX Data Manager uses `Broker profile = SQ default`.

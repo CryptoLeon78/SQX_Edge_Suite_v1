@@ -4,6 +4,7 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 
 ## Estado Actual
 
+- Estado interno: WFCO-ACCEPT1 esta aplicado; Edge Factory tiene `Modo básico` por defecto para compradores/testers y `Modo avanzado` para abrir herramientas internas, checks manuales y custom libre sin cambiar motores sensibles.
 - Estado interno: WFCO-5 Visual Polish And Desktop QA esta aplicado; Edge Factory ya funciona como superficie Command Premium de escritorio con command strip vivo, stack de estado y Portfolio Lab Capa 2 para importar CSV, ajustar diversidad, clasificar candidatos como portfolio/similar/revisar y exportar shortlist/resumen desde navegador.
 - Estado interno: TM-PERF2 esta aplicado; Template Maker delega parsing CSV, apertura ZIP `.sqx`, hash, extraccion XML y precalculo de diversidad a un Web Worker local cuando el navegador lo permite, mostrando progreso por archivo y conservando fallback compatible.
 - Estado interno: CFX-RILIS-TARGET1 esta aplicado; Project Generator genera por defecto `.cfx` de descarga con perfil `SQ default / simbolo exacto` para usuarios con Broker profile `SQ default`, manteniendo Dukascopy solo en Retest 1/OOS2.

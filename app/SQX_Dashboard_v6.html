@@ -2187,12 +2187,12 @@
 
   <!-- TAB: WORKFLOW (metodología completa - integrado de SQX_Workflow_Dashboard) -->
   <div id="tab-workflow" class="tab-content">
-    <section class="edge-factory-shell workflow-command-center" id="edge-factory-shell" aria-label="Edge Factory">
+    <section class="edge-factory-shell edge-mode-basic workflow-command-center" id="edge-factory-shell" aria-label="Edge Factory">
       <div class="edge-factory-hero">
         <div class="edge-factory-hero-copy">
           <span class="workflow-command-eyebrow edge-factory-eyebrow">Edge Factory</span>
           <h2>Del asset al portfolio, sin perder el hilo</h2>
-          <p>Trabaja por decisiones: eliges la hipótesis, generas Capa 1, certificas supervivientes, creas el template C2, generas Capa 2 y cierras una shortlist diversa. Las herramientas siguen ahí, pero Edge Factory lleva el orden.</p>
+          <p>Trabaja por decisiones: eliges la hipótesis, generas .cfx Capa 1 descargable, certificas supervivientes, creas el template C2, generas .cfx Capa 2 y cierras una shortlist diversa. El modo básico guía el flujo; el avanzado abre el taller interno cuando haga falta.</p>
           <div class="edge-factory-claim">
             Productividad, estructura, trazabilidad y reducción de errores operativos. No promete rentabilidad ni sustituye la validación del usuario.
           </div>
@@ -2202,17 +2202,25 @@
           <strong id="edge-factory-next">Siguiente: Punto de partida</strong>
           <div class="workflow-command-meter edge-factory-meter"><span id="edge-factory-meter-bar"></span></div>
           <button class="export-btn edge-factory-primary" type="button" data-edge-tool="inicio">Comprobar punto de partida</button>
+          <div class="edge-factory-mode-panel" aria-label="Modo de experiencia Edge Factory">
+            <div class="edge-mode-switch" role="group" aria-label="Cambiar modo Edge Factory">
+              <button class="edge-mode-btn active" type="button" data-edge-mode="basic" aria-pressed="true">Modo básico</button>
+              <button class="edge-mode-btn" type="button" data-edge-mode="advanced" aria-pressed="false">Modo avanzado</button>
+            </div>
+            <strong id="edge-factory-mode-label">Modo básico</strong>
+            <span id="edge-factory-mode-copy">Ruta guiada: una accion principal por etapa y controles tecnicos ocultos.</span>
+          </div>
           <div class="edge-factory-status-stack" aria-label="Lectura rapida">
-            <div><span>Modo</span><strong>Metodologia guiada</strong></div>
-            <div><span>Salida</span><strong>Descarga web</strong></div>
-            <div><span>Override</span><strong>Drawer avanzado</strong></div>
+            <div><span>Salida</span><strong>Descargas navegador</strong></div>
+            <div><span>SQX destino</span><strong>SQ default / configurable</strong></div>
+            <div><span>Override</span><strong>Modo avanzado</strong></div>
           </div>
         </div>
       </div>
 
       <div class="edge-factory-toolbar">
         <button class="filter-btn active" type="button" data-edge-step-open="session">Ruta principal</button>
-        <button class="filter-btn" type="button" id="edge-tools-toggle" aria-expanded="false" aria-controls="edge-tool-drawer">Herramientas avanzadas</button>
+        <button class="filter-btn" type="button" id="edge-tools-toggle" aria-expanded="false" aria-controls="edge-tool-drawer" data-edge-advanced-only>Herramientas avanzadas</button>
         <button class="filter-btn" type="button" data-edge-tool="inicio">Control Panel</button>
       </div>
 
@@ -2223,7 +2231,7 @@
         <article data-edge-signal="portfolio"><span>Portfolio</span><strong>Pendiente</strong><small>Shortlist diversa Capa 2</small></article>
       </div>
 
-      <div class="edge-tool-drawer" id="edge-tool-drawer" hidden>
+      <div class="edge-tool-drawer" id="edge-tool-drawer" hidden data-edge-advanced-only>
         <div class="edge-tool-drawer-head">
           <span class="badge info">Override avanzado</span>
           <p>Motores internos para revisar o corregir. El flujo principal sigue siendo Edge Factory; este drawer es el taller de precisión.</p>
@@ -2247,7 +2255,7 @@
           <p>Comprueba que tu acceso, workspace, servicio y descargas están listos antes de producir archivos.</p>
           <ul><li>Haz: valida estado remoto.</li><li>Sale: sesión operativa.</li></ul>
           <div class="edge-stage-context" data-edge-context="session">Pendiente: valida acceso, workspace, servicio y descargas.</div>
-          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="inicio">Ver estado</button><label><input type="checkbox" data-edge-complete="session"> Sesión OK</label></div>
+          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="inicio">Ver estado</button><label class="edge-manual-check" data-edge-advanced-only><input type="checkbox" data-edge-complete="session"> Sesión OK</label></div>
         </article>
         <article class="edge-stage-card" data-edge-stage="asset">
           <div class="edge-stage-top"><span>02</span><small>Elegir edge</small></div>
@@ -2255,15 +2263,15 @@
           <p>Elige el asset, timeframe, dirección y BlockSetting real. Esa hipótesis será la referencia de todo el flujo.</p>
           <ul><li>Haz: manda una tarjeta al plan.</li><li>Sale: mining trazable.</li></ul>
           <div class="edge-stage-context" data-edge-context="asset">Pendiente: elige una tarjeta con asset, TF, dirección y BlockSetting.</div>
-          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="activos">Elegir asset</button><label><input type="checkbox" data-edge-complete="asset"> Hipótesis lista</label></div>
+          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="activos">Elegir asset</button><label class="edge-manual-check" data-edge-advanced-only><input type="checkbox" data-edge-complete="asset"> Hipótesis lista</label></div>
         </article>
         <article class="edge-stage-card" data-edge-stage="capa1-generate">
           <div class="edge-stage-top"><span>03</span><small>Generar Capa 1</small></div>
           <h3>Crea el primer custom project</h3>
-          <p>Genera el .cfx Capa 1 desde el mining elegido, manteniendo timeframe, dirección y BlockSetting resueltos.</p>
-          <ul><li>Haz: descarga el .cfx C1.</li><li>Sale: proyecto listo para SQX.</li></ul>
+          <p>Genera el .cfx Capa 1 desde el mining elegido, con perfil SQX destino, timeframe, dirección y BlockSetting resueltos.</p>
+          <ul><li>Haz: descarga el .cfx C1 en el navegador.</li><li>Sale: proyecto listo para el SQX del usuario.</li></ul>
           <div class="edge-stage-context" data-edge-context="capa1-generate">Pendiente: añade o selecciona un mining trazable.</div>
-          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="projectgen">Crear .cfx C1</button><label><input type="checkbox" data-edge-complete="capa1-generate"> C1 descargado</label></div>
+          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="projectgen">Crear .cfx C1</button><label class="edge-manual-check" data-edge-advanced-only><input type="checkbox" data-edge-complete="capa1-generate"> C1 descargado</label></div>
         </article>
         <article class="edge-stage-card" data-edge-stage="capa1-analyze">
           <div class="edge-stage-top"><span>04</span><small>Certificar Capa 1</small></div>
@@ -2271,7 +2279,7 @@
           <p>Carga CSV y .sqx; Template Maker valida métricas, detecta indicadores y separa estrategias similares.</p>
           <ul><li>Haz: carga export + .sqx.</li><li>Sale: ganadores diversos.</li></ul>
           <div class="edge-stage-context" data-edge-context="capa1-analyze">Pendiente: carga Databank CSV + .sqx en Template Maker.</div>
-          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="templatemaker">Certificar C1</button><label><input type="checkbox" data-edge-complete="capa1-analyze"> Ganadores OK</label></div>
+          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="templatemaker">Certificar C1</button><label class="edge-manual-check" data-edge-advanced-only><input type="checkbox" data-edge-complete="capa1-analyze"> Ganadores OK</label></div>
         </article>
         <article class="edge-stage-card" data-edge-stage="c2-template">
           <div class="edge-stage-top"><span>05</span><small>Crear Template C2</small></div>
@@ -2279,15 +2287,15 @@
           <p>Genera el template desde un ganador, con indicador, cluster, bloque, dirección, timeframe y política de salidas.</p>
           <ul><li>Haz: genera el template.</li><li>Sale: C2 trazable.</li></ul>
           <div class="edge-stage-context" data-edge-context="c2-template">Pendiente: crea Template C2 desde un ganador diverso.</div>
-          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="templatemaker">Generar template</button><label><input type="checkbox" data-edge-complete="c2-template"> Template OK</label></div>
+          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="templatemaker">Generar template</button><label class="edge-manual-check" data-edge-advanced-only><input type="checkbox" data-edge-complete="c2-template"> Template OK</label></div>
         </article>
         <article class="edge-stage-card" data-edge-stage="capa2-generate">
           <div class="edge-stage-top"><span>06</span><small>Generar Capa 2</small></div>
           <h3>Especializa el edge operable</h3>
-          <p>Crea el .cfx Capa 2 desde el template validado para añadir filtros, salidas y control operativo.</p>
-          <ul><li>Haz: descarga el .cfx C2.</li><li>Sale: mining C2 listo.</li></ul>
+          <p>Crea el .cfx Capa 2 descargable desde el template validado para añadir filtros, salidas y control operativo.</p>
+          <ul><li>Haz: descarga el .cfx C2 en el navegador.</li><li>Sale: mining C2 listo para SQX.</li></ul>
           <div class="edge-stage-context" data-edge-context="capa2-generate">Pendiente: falta Template C2 trazable.</div>
-          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="projectgen">Crear .cfx C2</button><label><input type="checkbox" data-edge-complete="capa2-generate"> C2 descargado</label></div>
+          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="projectgen">Crear .cfx C2</button><label class="edge-manual-check" data-edge-advanced-only><input type="checkbox" data-edge-complete="capa2-generate"> C2 descargado</label></div>
         </article>
         <article class="edge-stage-card" data-edge-stage="capa2-analyze">
           <div class="edge-stage-top"><span>07</span><small>Revisar Capa 2</small></div>
@@ -2295,7 +2303,7 @@
           <p>Lleva los resultados Capa 2 a Portfolio Lab para ranking, similitud operativa y primera selección.</p>
           <ul><li>Haz: calcula shortlist.</li><li>Sale: candidatos portfolio.</li></ul>
           <div class="edge-stage-context" data-edge-context="capa2-analyze">Pendiente: genera Capa 2 antes del análisis.</div>
-          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-step-open="portfolio">Abrir Lab</button><label><input type="checkbox" data-edge-complete="capa2-analyze"> Candidatos OK</label></div>
+          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-step-open="portfolio">Abrir Lab</button><label class="edge-manual-check" data-edge-advanced-only><input type="checkbox" data-edge-complete="capa2-analyze"> Candidatos OK</label></div>
         </article>
         <article class="edge-stage-card" data-edge-stage="portfolio">
           <div class="edge-stage-top"><span>08</span><small>Portfolio</small></div>
@@ -2303,11 +2311,11 @@
           <p>Elimina redundancia, compara finalistas y deja una decisión exportable para revisión o entrega.</p>
           <ul><li>Haz: compara finalistas.</li><li>Sale: shortlist final.</li></ul>
           <div class="edge-stage-context" data-edge-context="portfolio">Pendiente: calcula shortlist en Portfolio Lab.</div>
-          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="cvc">Comparar</button><label><input type="checkbox" data-edge-complete="portfolio"> Portfolio OK</label></div>
+          <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="cvc">Comparar</button><label class="edge-manual-check" data-edge-advanced-only><input type="checkbox" data-edge-complete="portfolio"> Portfolio OK</label></div>
         </article>
       </div>
 
-      <details class="edge-advanced-custom">
+      <details class="edge-advanced-custom" data-edge-advanced-only>
         <summary>Custom libre avanzado</summary>
         <p>Úsalo sólo para casos fuera de metodología. Edge Factory marcará trazabilidad parcial hasta que conectes el resultado con CSV/SQX válido.</p>
         <button class="filter-btn" type="button" data-edge-tool="projectgen">Abrir custom libre</button>

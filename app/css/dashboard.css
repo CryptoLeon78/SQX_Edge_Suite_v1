@@ -3943,6 +3943,37 @@
   .edge-factory-status span { color:#93c5fd; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:.08em; }
   .edge-factory-status strong { color:#f8fafc; font-size:17px; }
   .edge-factory-primary { margin-top:4px; justify-content:center; }
+  .edge-factory-mode-panel {
+    border:1px solid rgba(96,165,250,.18);
+    background:rgba(2,6,23,.32);
+    border-radius:8px;
+    padding:9px;
+    display:grid;
+    gap:7px;
+  }
+  .edge-mode-switch {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+  }
+  .edge-mode-btn {
+    min-height:34px;
+    border:1px solid rgba(148,163,184,.18);
+    border-radius:7px;
+    background:rgba(15,23,42,.68);
+    color:#cbd5e1;
+    font-weight:900;
+    cursor:pointer;
+  }
+  .edge-mode-btn:hover { border-color:rgba(96,165,250,.42); color:#f8fafc; }
+  .edge-mode-btn.active {
+    border-color:rgba(45,212,191,.58);
+    background:linear-gradient(180deg, rgba(20,184,166,.24), rgba(37,99,235,.18));
+    color:#ccfbf1;
+    box-shadow:0 0 0 1px rgba(45,212,191,.12);
+  }
+  .edge-factory-mode-panel > strong { color:#facc15; font-size:13px; }
+  .edge-factory-mode-panel > span { color:#a7b7cc; font-size:12px; line-height:1.35; text-transform:none; letter-spacing:0; }
   .edge-factory-status-stack {
     display:grid;
     gap:7px;
@@ -3960,6 +3991,19 @@
   .edge-factory-status-stack span { color:#94a3b8; font-size:10px; }
   .edge-factory-status-stack strong { color:#dbeafe; font-size:12px; text-align:right; }
   .edge-factory-toolbar { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin:10px 0 16px; }
+  .edge-factory-shell.edge-mode-basic [data-edge-advanced-only] { display:none !important; }
+  .edge-factory-shell.edge-mode-basic .edge-stage-actions { justify-content:flex-start; }
+  .edge-factory-shell.edge-mode-basic .edge-stage-card {
+    min-height:236px;
+    background:linear-gradient(180deg, rgba(15,23,42,.94), rgba(8,13,24,.96));
+  }
+  .edge-factory-shell.edge-mode-basic .edge-stage-actions .filter-btn {
+    min-width:150px;
+    justify-content:center;
+  }
+  .edge-factory-shell.edge-mode-advanced .edge-factory-status {
+    border-color:rgba(250,204,21,.28);
+  }
   .edge-factory-command-strip {
     display:grid;
     grid-template-columns:repeat(4, minmax(0, 1fr));

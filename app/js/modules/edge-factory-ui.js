@@ -34,6 +34,7 @@
     var next = steps.find(function(step) { return completed.indexOf(step.id) === -1; }) || steps[steps.length - 1];
     var activeStep = state.activeStep || (next && next.id);
     var contexts = SQX.edgeFactory.contextSummary ? SQX.edgeFactory.contextSummary(state) : {};
+    renderExperienceMode(state);
     all('[data-edge-stage]').forEach(function(card) {
       var id = card.dataset.edgeStage;
       card.classList.toggle('is-complete', completed.indexOf(id) !== -1);
@@ -55,7 +56,37 @@
   }
 
   function latest(list) {
-    return Array.isArray(list) && list.length ? list[list.length - 1] : null;
+    return Array.isArray(list) && list.length ? list[0] : null;
+  }
+
+  function renderExperienceMode(state) {
+    var mode = state && state.experienceMode === 'advanced' ? 'advanced' : 'basic';
+    var shell = byId('edge-factory-shell');
+    if (shell) {
+      shell.classList.toggle('edge-mode-basic', mode === 'basic');
+      shell.classList.toggle('edge-mode-advanced', mode === 'advanced');
+    }
+    all('[data-edge-mode]').forEach(function(button) {
+      var active = button.dataset.edgeMode === mode;
+      button.classList.toggle('active', active);
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    setText('edge-factory-mode-label', mode === 'advanced' ? 'Modo avanzado' : 'Modo básico');
+    setText(
+      'edge-factory-mode-copy',
+      mode === 'advanced'
+        ? 'Herramientas internas, checks manuales y custom libre visibles.'
+        : 'Ruta guiada: una accion principal por etapa y controles tecnicos ocultos.'
+    );
+    var drawer = byId('edge-tool-drawer');
+    var toggle = byId('edge-tools-toggle');
+    if (mode === 'basic' && drawer && !drawer.hidden) {
+      drawer.hidden = true;
+      if (toggle) {
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.classList.remove('active');
+      }
+    }
   }
 
   function setSignal(id, title, detail, ready) {
@@ -121,6 +152,19 @@
       drawer.hidden = !open;
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
       toggle.classList.toggle('active', open);
+    });
+  }
+
+  function bindExperienceMode() {
+    all('[data-edge-mode]').forEach(function(button) {
+      if (button.__edgeModeBound) return;
+      button.__edgeModeBound = true;
+      button.addEventListener('click', function() {
+        if (SQX.edgeFactory && SQX.edgeFactory.setExperienceMode) {
+          SQX.edgeFactory.setExperienceMode(button.dataset.edgeMode);
+        }
+        renderState();
+      });
     });
   }
 
@@ -351,6 +395,7 @@
     if (!byId('edge-factory-shell')) return false;
     bindTools();
     bindDrawer();
+    bindExperienceMode();
     bindStepControls();
     bindPortfolioLab();
     renderState();
