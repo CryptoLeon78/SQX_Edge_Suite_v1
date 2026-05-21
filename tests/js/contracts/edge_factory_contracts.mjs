@@ -104,6 +104,9 @@ const indexJs = fs.readFileSync(path.join(repoRoot, 'app/js/modules/index.js'), 
 
 assert.equal(html.includes('id="edge-factory-shell"'), true);
 assert.equal(html.includes('id="edge-tool-drawer"'), true);
+assert.equal(html.includes('class="edge-factory-command-strip"'), true);
+assert.equal(html.includes('data-edge-signal="asset"'), true);
+assert.equal(html.includes('data-edge-signal="portfolio"'), true);
 assert.equal(html.includes('id="edge-portfolio-lab"'), true);
 assert.equal(html.includes('id="edge-portfolio-threshold"'), true);
 assert.equal(html.includes('id="edge-portfolio-export-csv"'), true);

@@ -55,22 +55,23 @@
       "description": "UX-NAV docs must agree that WFCO Edge Factory is the active experience track after the operator opened the website facelift.",
       "required": {
         "README.md": [
-          "WFCO-4 Portfolio Lab MVP esta aplicado",
-          "continuar con WFCO-5 Visual Polish And Desktop QA"
+          "WFCO-5 Visual Polish And Desktop QA esta aplicado",
+          "command strip vivo"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
-          "Current phase completed: WFCO-4 - Portfolio Lab MVP",
+          "Current phase completed: WFCO-5 - Visual Polish And Desktop QA",
           "Edge Factory Experience Gate",
           "Edge Factory Handoff Gate",
           "Edge Factory Content Gate",
-          "Portfolio Lab Decision Gate"
+          "Portfolio Lab Decision Gate",
+          "Edge Factory Desktop QA Gate"
         ],
         "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md": [
           "Active experience track: `WFCO - Edge Factory`",
           "`WFCO-2 · Methodology Handoffs`: completed",
           "`WFCO-3 · Content Overhaul`: completed",
           "`WFCO-4 · Portfolio Lab MVP`: completed",
-          "`WFCO-5 · Visual Polish And Desktop QA`: next recommended phase"
+          "`WFCO-5 · Visual Polish And Desktop QA`: completed"
         ]
       },
       "forbidden": {
@@ -78,7 +79,8 @@
           "tab activo es Workflow",
           "UX-NAV esta sin tab activo tras UX-WF2",
           "continuar con WFCO-3 Content Overhaul",
-          "continuar con WFCO-4 Portfolio Lab MVP"
+          "continuar con WFCO-4 Portfolio Lab MVP",
+          "continuar con WFCO-5 Visual Polish And Desktop QA"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
           "Active UX-NAV tab: `Mining Control`",
@@ -99,6 +101,7 @@
           "Last updated: 2026-05-21."
         ],
         "CHANGELOG.md": [
+          "2026-05-21 - WFCO5 Visual Polish And Desktop QA",
           "2026-05-21 - WFCO4 Portfolio Lab MVP",
           "2026-05-21 - WFCO3 Content Overhaul",
           "2026-05-21 - WFCO2 Methodology Handoffs"

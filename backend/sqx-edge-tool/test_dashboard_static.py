@@ -7438,12 +7438,15 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("Edge Factory Experience Gate", governance)
         self.assertIn("Current phase completed: WFCO-3 - Content Overhaul", governance)
         self.assertIn("Current phase completed: WFCO-4 - Portfolio Lab MVP", governance)
+        self.assertIn("Current phase completed: WFCO-5 - Visual Polish And Desktop QA", governance)
         self.assertIn("Edge Factory Content Gate", governance)
         self.assertIn("Portfolio Lab Decision Gate", governance)
+        self.assertIn("Edge Factory Desktop QA Gate", governance)
         self.assertIn("Active experience track: `WFCO - Edge Factory`", ux_nav)
         self.assertIn("Desktop PC browser is the product target", wfco_doc)
         self.assertIn("| WFCO-3 | Completed |", wfco_doc)
         self.assertIn("| WFCO-4 | Completed |", wfco_doc)
+        self.assertIn("| WFCO-5 | Completed |", wfco_doc)
 
         expected_exports = [
             "activateWorkflowPanel",
@@ -7565,6 +7568,9 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn('id="tab-workflow" class="tab-content"', self.html)
         self.assertIn('id="edge-factory-shell"', self.html)
         self.assertIn('id="edge-tool-drawer"', self.html)
+        self.assertIn('class="edge-factory-command-strip"', self.html)
+        self.assertIn('data-edge-signal="asset"', self.html)
+        self.assertIn('data-edge-signal="portfolio"', self.html)
         self.assertIn('id="edge-portfolio-lab"', self.html)
         self.assertIn('id="edge-portfolio-threshold"', self.html)
         self.assertIn('id="edge-portfolio-export-csv"', self.html)

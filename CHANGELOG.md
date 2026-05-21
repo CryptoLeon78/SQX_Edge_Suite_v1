@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-21 - WFCO5 Visual Polish And Desktop QA
+
+- Completes WFCO-5: Edge Factory now has a desktop command strip for Hipotesis, Capa 1, Template C2 and Portfolio plus a compact status stack for guided mode, browser downloads and advanced override.
+- Tightens the visual hierarchy of the main PC workflow with clearer current/completed stage states and denser public-safe traceability signals.
+- Adds the Edge Factory Desktop QA Gate and moves the parallel UX recommendation to a short acceptance pass or CFX-METHOD2 when the Capa 2 base v2 arrives, while REMOTE-RILIS-STANDBY remains independent.
+
 ## 2026-05-21 - WFCO4 Portfolio Lab MVP
 
 - Completes WFCO-4: Portfolio Lab now imports/pastes Capa 2 CSV, supports common SQX column aliases and decimal comma/punto, scores candidates and classifies them as `portfolio`, `similar` or `review`.

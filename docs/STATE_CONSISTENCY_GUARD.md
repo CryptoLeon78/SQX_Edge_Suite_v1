@@ -20,7 +20,7 @@ Current guarded state:
 - Remote gate: REMOTE-RILIS-STANDBY is active.
 - Clean anchors: REMOTE-8C and REMOTE-8F-CLOSE, with REMOTE-PG-SESSION-FIX applied.
 - Next remote action: wait for TESTER-RILIS retest before reopening REMOTE-8G.
-- UX/WFCO: WFCO-4 Portfolio Lab MVP is completed; Edge Factory is the active desktop-first experience track and WFCO-5 Visual Polish And Desktop QA is the next parallel UX recommendation.
+- UX/WFCO: WFCO-5 Visual Polish And Desktop QA is completed; Edge Factory is the active desktop-first experience track with command strip, status stack and Portfolio Lab MVP.
 
 Run the guard with:
 

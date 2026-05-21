@@ -26,7 +26,7 @@ Current WFCO status:
 - `WFCO-2 · Methodology Handoffs`: completed.
 - `WFCO-3 · Content Overhaul`: completed.
 - `WFCO-4 · Portfolio Lab MVP`: completed.
-- `WFCO-5 · Visual Polish And Desktop QA`: next recommended phase.
+- `WFCO-5 · Visual Polish And Desktop QA`: completed.
 
 Historical repair/enrichment pause: TM-DIV1 added a hybrid diversity gate to Template Maker after the TM-FIX2 CSV contract repair. This did not advance the UX-NAV tab order and does not reopen Template Maker as a design pass; it prevents redundant C2 templates by clustering similar `.sqx` logic plus CSV metric behavior.
 
@@ -100,6 +100,13 @@ WFCO-4 applied Portfolio Lab rule:
 - The Lab accepts pasted CSV or browser file load, supports semicolon/comma CSV and decimal comma/punto, and resolves common SQX columns.
 - Output states are `portfolio`, `similar` and `review`; every non-portfolio row must show why it was not selected.
 - The shortlist can be exported as browser CSV and the full report as browser JSON.
+
+WFCO-5 applied desktop polish rule:
+
+- Edge Factory uses a live command strip for Hipotesis, Capa 1, Template C2 and Portfolio.
+- The hero status stack shows guided mode, browser-download output and advanced override state without exposing internal routes or local paths.
+- Stage cards emphasize current/completed state through restrained desktop visuals, keeping the PC browser workflow dense and readable.
+- Mobile must remain serviceable, but desktop clarity and traceability are the priority.
 
 ## UX-WF2 - Functional Pipeline KPIs
 

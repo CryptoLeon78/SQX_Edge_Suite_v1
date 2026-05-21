@@ -85,6 +85,16 @@ Portfolio Lab is the Capa 2 decision surface. It is intentionally not Template M
 
 Rows not selected for the portfolio must expose a reason such as similarity, limit, missing metrics, low PF, low trade count or high drawdown.
 
+## WFCO-5 Desktop Polish Contract
+
+Edge Factory now reads as a desktop command surface, not a passive overview.
+
+- The hero includes a compact status stack for mode, output and override state.
+- The command strip exposes four live traceability signals: Hipotesis, Capa 1, Template C2 and Portfolio.
+- Each signal must summarize public-safe context only: no local paths, protected URLs, raw emails, tokens, Cloudflare identifiers or server internals.
+- Stage cards keep one dominant action path and use visual state for current/completed stages without adding decorative noise.
+- Browser PC is the product target. Mobile must remain serviceable, but desktop density and traceability remain the priority.
+
 ## Phase Status
 
 | Phase | Status | Scope |
@@ -94,7 +104,7 @@ Rows not selected for the portfolio must expose a reason such as similarity, lim
 | WFCO-2 | Completed | Real methodology handoffs from existing engines into Edge Factory state/context strips. |
 | WFCO-3 | Completed | Copy/content overhaul across the main experience. |
 | WFCO-4 | Completed | Portfolio Lab MVP beyond the shell. |
-| WFCO-5 | Next | Visual polish and desktop QA. |
+| WFCO-5 | Completed | Desktop polish, command strip, status stack and visual QA contract. |
 
 ## Safety Rules
 

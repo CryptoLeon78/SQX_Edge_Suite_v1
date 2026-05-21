@@ -50,7 +50,55 @@
     setText('edge-factory-next', completed.length === steps.length ? 'Listo para portfolio o nueva iteración' : 'Siguiente: ' + (next ? next.label : 'Punto de partida'));
     var meter = byId('edge-factory-meter-bar');
     if (meter) meter.style.width = Math.round((completed.length / steps.length) * 100) + '%';
+    renderSignals(state);
     return state;
+  }
+
+  function latest(list) {
+    return Array.isArray(list) && list.length ? list[list.length - 1] : null;
+  }
+
+  function setSignal(id, title, detail, ready) {
+    var node = global.document.querySelector('[data-edge-signal="' + id + '"]');
+    if (!node) return;
+    var strong = node.querySelector('strong');
+    var small = node.querySelector('small');
+    if (strong) strong.textContent = title || 'Pendiente';
+    if (small) small.textContent = detail || '';
+    node.classList.toggle('is-ready', !!ready);
+    node.classList.toggle('is-waiting', !ready);
+  }
+
+  function renderSignals(state) {
+    state = state || {};
+    var card = state.selectedCard || {};
+    var c1 = latest(state.capa1Outputs);
+    var c2Template = state.c2Template || null;
+    var portfolio = state.portfolioLab || null;
+    setSignal(
+      'asset',
+      state.selectedCard ? [card.asset, card.timeframe, card.direction].filter(Boolean).join(' · ') : 'Sin tarjeta',
+      state.selectedCard ? (card.blockSetting || 'BlockSetting trazable') : 'Asset · TF · direccion · BlockSetting',
+      !!state.selectedCard
+    );
+    setSignal(
+      'capa1',
+      c1 ? ((c1.results ? ((c1.results.ok || 0) + '/' + (c1.results.total || 0) + ' OK') : 'Generada')) : 'Pendiente',
+      c1 && c1.files && c1.files.length ? c1.files.length + ' archivo(s) listos para descarga' : '.cfx y descarga del navegador',
+      !!c1
+    );
+    setSignal(
+      'template',
+      c2Template ? (c2Template.name || 'Template C2 listo') : 'Pendiente',
+      c2Template ? [c2Template.indicatorBase, c2Template.clusterId].filter(Boolean).join(' · ') : 'Indicador · cluster · exit policy',
+      !!c2Template
+    );
+    setSignal(
+      'portfolio',
+      portfolio && portfolio.total ? (portfolio.winners || 0) + ' ganadores diversos' : 'Pendiente',
+      portfolio && portfolio.total ? portfolio.total + ' candidatos · ' + (portfolio.similar || 0) + ' similares' : 'Shortlist diversa Capa 2',
+      !!(portfolio && portfolio.total)
+    );
   }
 
   function bindTools() {
