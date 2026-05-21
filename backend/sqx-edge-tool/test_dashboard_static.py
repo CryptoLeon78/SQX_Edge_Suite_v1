@@ -398,6 +398,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/strategies.js",
                 "vendor/jszip.min.js",
                 "js/modules/exit-policy.js",
+                "js/modules/template-maker-worker-client.js",
                 "js/modules/template-maker.js",
                 "js/modules/template-maker-ui.js",
                 "js/modules/home.js",
@@ -6219,6 +6220,7 @@ class DashboardStaticTestCase(unittest.TestCase):
             "js/modules/strategies.js",
             "vendor/jszip.min.js",
             "js/modules/exit-policy.js",
+            "js/modules/template-maker-worker-client.js",
             "js/modules/template-maker.js",
             "js/modules/template-maker-ui.js",
             "js/modules/home.js",
@@ -6264,6 +6266,8 @@ class DashboardStaticTestCase(unittest.TestCase):
         charts_js = (APP_ROOT / "js" / "modules" / "charts.js").read_text(encoding="utf-8-sig")
         strategies_js = (APP_ROOT / "js" / "modules" / "strategies.js").read_text(encoding="utf-8-sig")
         exit_policy_js = (APP_ROOT / "js" / "modules" / "exit-policy.js").read_text(encoding="utf-8-sig")
+        template_maker_worker_client_js = (APP_ROOT / "js" / "modules" / "template-maker-worker-client.js").read_text(encoding="utf-8-sig")
+        template_maker_worker_js = (APP_ROOT / "js" / "workers" / "template-maker-worker.js").read_text(encoding="utf-8-sig")
         template_maker_js = (APP_ROOT / "js" / "modules" / "template-maker.js").read_text(encoding="utf-8-sig")
         template_maker_ui_js = (APP_ROOT / "js" / "modules" / "template-maker-ui.js").read_text(encoding="utf-8-sig")
         home_js = (APP_ROOT / "js" / "modules" / "home.js").read_text(encoding="utf-8-sig")
@@ -6312,6 +6316,15 @@ class DashboardStaticTestCase(unittest.TestCase):
         self.assertIn("sqx-exit-policy-v1", exit_policy_js)
         self.assertIn("exit_after_trading_days", exit_policy_js)
         self.assertIn("SQX.templateMaker", template_maker_js)
+        self.assertIn("SQX.templateMakerWorker", template_maker_worker_client_js)
+        self.assertIn("template-maker-worker.js", template_maker_worker_client_js)
+        self.assertIn("parseCSV", template_maker_worker_js)
+        self.assertIn("parseSQX", template_maker_worker_js)
+        self.assertIn("buildDiversityClusters", template_maker_worker_js)
+        self.assertIn("../../vendor/jszip.min.js", template_maker_worker_js)
+        self.assertIn("SQX.templateMakerWorker.parseSQX", template_maker_js)
+        self.assertIn("SQX.templateMakerWorker.buildDiversityClusters", template_maker_js)
+        self.assertIn("setProgressHandler", template_maker_js)
         self.assertIn("SQX.registerModule('template-maker'", template_maker_js)
         self.assertIn("SQX.templateMakerUI", template_maker_ui_js)
         self.assertIn("SQX.registerModule('template-maker-ui'", template_maker_ui_js)

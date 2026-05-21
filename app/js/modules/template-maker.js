@@ -274,6 +274,7 @@
   var _diversitySettings = clone(DEFAULT_DIVERSITY_SETTINGS);
   var _nextId = 1;
   var _diversityReportCache = { signature: '', report: null };
+  var _progressHandler = null;
   var _remotePersistence = {
     version: 'remote-template-maker-state-v1',
     enabled: false,
@@ -432,6 +433,21 @@
       }
       resolve();
     });
+  }
+
+  function setProgressHandler(handler) {
+    _progressHandler = typeof handler === 'function' ? handler : null;
+    return true;
+  }
+
+  function reportProgress(event) {
+    if (!_progressHandler) return;
+    try {
+      _progressHandler(Object.assign({
+        source: 'template-maker',
+        at: new Date().toISOString()
+      }, event || {}));
+    } catch (_err) {}
   }
 
   function computeRowFingerprint(row) {
@@ -689,14 +705,29 @@
   }
 
   function loadFromCSV(input, options) {
+    var opts = options || {};
+    if (!Array.isArray(input) && !opts.skipWorker && SQX.templateMakerWorker && SQX.templateMakerWorker.canUseWorker && SQX.templateMakerWorker.canUseWorker()) {
+      return SQX.templateMakerWorker.parseCSV(String(input || ''), opts, function(progress) {
+        reportProgress(Object.assign({ mode: 'csv' }, progress || {}));
+      }).then(function(result) {
+        return loadFromCSV(result.rows || [], Object.assign({}, opts, {
+          skipWorker: true,
+          workerHeaders: result.headers || [],
+          workerSeparator: result.separator || ''
+        }));
+      }).catch(function() {
+        reportProgress({ mode: 'csv', stage: 'worker_fallback', fileName: opts.fileName || '' });
+        return loadFromCSV(input, Object.assign({}, opts, { skipWorker: true }));
+      });
+    }
     var rows = Array.isArray(input) ? input.map(function(row) {
       var next = createBaseRecord(row || {});
       next.sources.csv = next.sources.csv || {
-        fileName: options && options.fileName || '',
+        fileName: opts.fileName || '',
         fingerprint: computeRowFingerprint(row),
         importedAt: new Date().toISOString(),
-        viewName: TM_CERT_VIEW_NAME,
-        columns: Object.keys(row || {})
+        viewName: opts.workerHeaders && opts.workerHeaders.length ? inferViewName(opts.workerHeaders) : TM_CERT_VIEW_NAME,
+        columns: opts.workerHeaders && opts.workerHeaders.length ? opts.workerHeaders.slice() : Object.keys(row || {})
       };
       next.provenance.csvFingerprint = next.sources.csv.fingerprint;
       next.provenance.viewName = next.sources.csv.viewName;
@@ -722,6 +753,20 @@
   }
 
   function parseSQX(file) {
+    if (SQX.templateMakerWorker && SQX.templateMakerWorker.canUseWorker && SQX.templateMakerWorker.canUseWorker()) {
+      return SQX.templateMakerWorker.parseSQX(file, {}, function(progress) {
+        reportProgress(Object.assign({ mode: 'sqx' }, progress || {}));
+      }).then(function(payload) {
+        return createSQXRecordFromWorkerPayload(file, payload);
+      }).catch(function() {
+        reportProgress({ mode: 'sqx', stage: 'worker_fallback', fileName: file && file.name || '' });
+        return parseSQXMainThread(file);
+      });
+    }
+    return parseSQXMainThread(file);
+  }
+
+  function parseSQXMainThread(file) {
     if (!global.JSZip) return Promise.reject(new Error('JSZip no esta cargado'));
     return computeFileHash(file).then(function(hash) {
       return global.JSZip.loadAsync(file).then(function(zip) {
@@ -756,6 +801,35 @@
         });
       });
     });
+  }
+
+  function createSQXRecordFromWorkerPayload(file, payload) {
+    var data = payload || {};
+    var result = createBaseRecord({
+      _id: _nextId++,
+      _source: 'sqx',
+      'Strategy Name': String(data.fileName || file && file.name || 'strategy').replace(/\.sqx$/i, ''),
+      _fileData: file
+    });
+    result.sources.sqx = {
+      fileName: data.fileName || file && file.name || 'strategy.sqx',
+      hash: data.hash || fallbackHash(data.fileName || ''),
+      importedAt: new Date().toISOString()
+    };
+    result.provenance.sqxHash = result.sources.sqx.hash;
+    result.provenance.importedAt = result.sources.sqx.importedAt;
+    addEvent(result, 'imported', 'sqx');
+    if (data.strategyXml) {
+      result.logic.strategyXmlPresent = true;
+      result.logic.features = extractLogicFeaturesFromXml(data.strategyXml);
+      mergeStrategyXml(result, data.strategyXml);
+    }
+    if (data.settingsXml) {
+      result.logic.settingsXmlPresent = true;
+      mergeSettingsXml(result, data.settingsXml);
+    }
+    addEvent(result, 'parsed', 'sqx');
+    return normalizeStrategy(result);
   }
 
   function mergeStrategyXml(result, xml) {
@@ -1140,7 +1214,7 @@
     });
     syncNextId();
     invalidateDiversityReportCache();
-    return saveStrategiesToDB().then(function() {
+    return prepareDiversityReportAsync().then(saveStrategiesToDB).then(function() {
       return _strategies.slice();
     });
   }
@@ -1585,6 +1659,34 @@
       report: buildDiversityClusters(_strategies)
     };
     return _diversityReportCache.report;
+  }
+
+  function prepareDiversityReportAsync() {
+    if (!SQX.templateMakerWorker || !SQX.templateMakerWorker.canUseWorker || !SQX.templateMakerWorker.canUseWorker() || !SQX.templateMakerWorker.buildDiversityClusters) {
+      return Promise.resolve(null);
+    }
+    var signature = diversityCacheSignature(_strategies);
+    var workerStrategies = _strategies.map(function(strategy, index) {
+      var copy = stripRuntimeFields(strategy);
+      var score = scoreStrategy(strategy);
+      copy.__tmPerfOrder = index;
+      copy.__tmPerfContractValid = validateMetricsContract(strategy).valid;
+      copy.__tmPerfHasSQX = hasSQX(strategy);
+      copy.__tmPerfScorePct = score.pct;
+      copy.__tmPerfScoreClassification = score.classification;
+      return copy;
+    });
+    return SQX.templateMakerWorker.buildDiversityClusters(workerStrategies, getDiversitySettings(), function(progress) {
+      reportProgress(Object.assign({ mode: 'diversity' }, progress || {}));
+    }).then(function(report) {
+      if (report && report.version === DIVERSITY_VERSION) {
+        _diversityReportCache = { signature: signature, report: report };
+      }
+      return report;
+    }).catch(function() {
+      reportProgress({ mode: 'diversity', stage: 'worker_fallback' });
+      return null;
+    });
   }
 
   function getDiversityStatus(strategy) {
@@ -2241,6 +2343,7 @@
     deleteResultStrategies: deleteResultStrategies,
     clearCSVStrategies: clearCSVStrategies,
     ingestFiles: ingestFiles,
+    setProgressHandler: setProgressHandler,
     computeFileHash: computeFileHash,
     loadFromCSV: loadFromCSV,
     loadFromSQX: loadFromSQX,

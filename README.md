@@ -5,6 +5,7 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 ## Estado Actual
 
 - Estado interno: WFCO-5 Visual Polish And Desktop QA esta aplicado; Edge Factory ya funciona como superficie Command Premium de escritorio con command strip vivo, stack de estado y Portfolio Lab Capa 2 para importar CSV, ajustar diversidad, clasificar candidatos como portfolio/similar/revisar y exportar shortlist/resumen desde navegador.
+- Estado interno: TM-PERF2 esta aplicado; Template Maker delega parsing CSV, apertura ZIP `.sqx`, hash, extraccion XML y precalculo de diversidad a un Web Worker local cuando el navegador lo permite, mostrando progreso por archivo y conservando fallback compatible.
 - Estado comercial: CANONICAL-LINK1 fija `https://sqxedgesuite.org/` como unico enlace externo; REMOTE-RILIS-STANDBY queda activo con REMOTE-PG-SESSION-FIX esta aplicado, CREATOR-IVAN funcionando correctamente y TESTER-RILIS pendiente de retest.
 - Estado de despliegue: Windows laptop + API localhost + Cloudflare Tunnel sigue siendo la ruta activa; el dashboard protegido queda como destino interno detras del CTA del dominio raiz.
 - Ancla historica: Estado interno: WFCO-3 Content Overhaul esta aplicado; Edge Factory usa copy de decision accionable para guiar del asset al portfolio, explicando en cada etapa que hacer, que sale y que queda pendiente sin devolver al usuario a una lista tecnica de tabs.

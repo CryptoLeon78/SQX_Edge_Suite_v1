@@ -416,30 +416,31 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 23. `js/modules/strategies.js`
 24. `vendor/jszip.min.js`
 25. `js/modules/exit-policy.js`
-26. `js/modules/template-maker.js`
-27. `js/modules/template-maker-ui.js`
-28. `js/modules/home.js`
-29. `js/modules/mtf-evidence.js`
-30. `js/modules/support.js`
-31. `js/modules/fulfillment.js`
-32. `js/modules/customer-cockpit.js`
-33. `js/modules/workflow.js`
-34. `js/modules/edge-factory.js`
-35. `js/modules/edge-factory-ui.js`
-36. `js/modules/view-creator.js`
-37. `js/modules/project-generator-core.js`
-38. `js/modules/project-generator-config.js`
-39. `js/modules/project-generator-dom.js`
-40. `js/modules/project-generator-bindings.js`
-41. `js/modules/project-generator-renderers.js`
-42. `js/modules/project-generator-status.js`
-43. `js/modules/project-generator-cleaner.js`
-44. `js/modules/project-generator.js`
-45. `js/modules/index.js`
-46. `js/data.js`
-47. `js/dashboard.js`
-48. `js/main.js`
-49. `js/project-generator-main.js`
+26. `js/modules/template-maker-worker-client.js`
+27. `js/modules/template-maker.js`
+28. `js/modules/template-maker-ui.js`
+29. `js/modules/home.js`
+30. `js/modules/mtf-evidence.js`
+31. `js/modules/support.js`
+32. `js/modules/fulfillment.js`
+33. `js/modules/customer-cockpit.js`
+34. `js/modules/workflow.js`
+35. `js/modules/edge-factory.js`
+36. `js/modules/edge-factory-ui.js`
+37. `js/modules/view-creator.js`
+38. `js/modules/project-generator-core.js`
+39. `js/modules/project-generator-config.js`
+40. `js/modules/project-generator-dom.js`
+41. `js/modules/project-generator-bindings.js`
+42. `js/modules/project-generator-renderers.js`
+43. `js/modules/project-generator-status.js`
+44. `js/modules/project-generator-cleaner.js`
+45. `js/modules/project-generator.js`
+46. `js/modules/index.js`
+47. `js/data.js`
+48. `js/dashboard.js`
+49. `js/main.js`
+50. `js/project-generator-main.js`
 
 ## Why This Order Matters
 
@@ -453,7 +454,8 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 - `strategy-builder-core.js` and `strategy-builder.js` load after Champion vs Challenger so the Builder can consume the reduced J6 handoff shape without coupling to raw CSV; SQX Views handoff is resolved at click time through the later `view-creator.js` runtime contract.
 - `vendor/jszip.min.js` loads before Template Maker because local/offline `.sqx` parsing and C2 export cannot depend on a CDN.
 - `exit-policy.js` loads before Template Maker so C2 generation can detect, disable or randomize SQX exit methods through one global policy.
-- `template-maker.js` and `template-maker-ui.js` replace the old active analyzer surface with a native SQX module for Capa 1/2 scoring and C2 generation.
+- `template-maker-worker-client.js` loads before Template Maker so the core can delegate CSV parsing, `.sqx` ZIP/hash/XML extraction and diversity cache warmup to `app/js/workers/template-maker-worker.js` when a browser Worker is available, while falling back to the main thread in file mode or unsupported browsers.
+- `template-maker.js` and `template-maker-ui.js` replace the old active analyzer surface with a native SQX module for Capa 1 scoring and C2 generation.
 - `edge-factory.js` and `edge-factory-ui.js` load after Workflow because Edge Factory is the new desktop-first command shell over the existing methodology engines, while Workflow keeps the legacy detail system available as an internal surface.
 - `modules/index.js` marks the module layer as booted and flushes ready callbacks.
 - `data.js` and `dashboard.js` preserve existing global render functions and dashboard behavior.
@@ -482,6 +484,8 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/charts.js` | Chart and visual summary helpers. |
 | `modules/strategies.js` | Strategy UI contracts, deletion/import state, strategy metadata. |
 | `modules/exit-policy.js` | Global SQX exit-method policy for detecting exit params, disabling non-methodological exits and randomizing allowed C2 exits before export. |
+| `modules/template-maker-worker-client.js` | Browser Worker facade for Template Maker heavy ingestion. It owns job/progress messaging and safe fallback; the main Template Maker core still owns certification, public diversity accessors, C2, persistence and public API compatibility. |
+| `workers/template-maker-worker.js` | Dedicated Worker for Template Maker CSV parsing, `.sqx` ZIP unpacking, SHA-256 hashing, XML extraction and diversity clustering cache warmup using local JSZip only. |
 | `modules/home.js` | Inicio tab model, trace and summary helpers. |
 | `modules/mtf-evidence.js` | Read-only MTF evidence panel that consumes `/api/mtf/evidence` and only surfaces A56 GO summaries. |
 | `modules/support.js` | Safe support diagnostics download and REMOTE-SUPPORT1 incident intake from the local API. |

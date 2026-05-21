@@ -22,6 +22,7 @@
   function init() {
     var tm = SQX.templateMaker;
     if (!tm) return;
+    if (tm.setProgressHandler) tm.setProgressHandler(renderWorkerProgress);
     bindOnce();
     return tm.init().then(function() {
       return tm.setCapa(1);
@@ -250,6 +251,23 @@
     }).catch(function(err) {
       setStatus('Error de carga: ' + (err && err.message ? err.message : err), true);
     });
+  }
+
+  function renderWorkerProgress(progress) {
+    if (!progress || !progress.stage) return;
+    var labels = {
+      parsing_csv: 'Leyendo CSV',
+      hashing: 'Calculando hash',
+      unzipping: 'Abriendo SQX',
+      parsing_sqx: 'Extrayendo XML',
+      diversity: 'Calculando diversidad',
+      done: 'Archivo procesado',
+      worker_fallback: 'Usando modo compatible'
+    };
+    var label = labels[progress.stage] || progress.stage;
+    var fileName = progress.fileName ? ' · ' + progress.fileName : '';
+    var count = progress.total ? ' (' + (progress.current || 0) + '/' + progress.total + ')' : '';
+    setStatus(label + fileName + count);
   }
 
   function handleSQXFiles(files) {

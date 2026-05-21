@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-21 - TM-PERF2 Template Maker Worker Ingestion
+
+- Adds a local Template Maker Web Worker path for CSV parsing, `.sqx` ZIP unpacking, SHA-256 hashing, XML extraction and diversity clustering cache warmup, with safe fallback when Worker execution is unavailable.
+- Keeps `SQX.templateMaker` as the public API owner for certification, final diversity accessors, C2 generation, Exit Policy, traceability and remote workspace persistence.
+- Adds visible per-file progress during Template Maker ingestion so large batches no longer feel frozen while parsing starts.
+
 ## 2026-05-21 - WFCO5 Visual Polish And Desktop QA
 
 - Completes WFCO-5: Edge Factory now has a desktop command strip for Hipotesis, Capa 1, Template C2 and Portfolio plus a compact status stack for guided mode, browser downloads and advanced override.
