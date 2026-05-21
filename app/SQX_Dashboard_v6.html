@@ -2233,6 +2233,7 @@
           <h3>Identidad, workspace y servicio listos</h3>
           <p>Antes de producir nada, confirma que la sesión remota, el workspace, las descargas y el servicio responden.</p>
           <ul><li>Necesita: acceso validado y workspace.</li><li>Genera: contexto seguro de trabajo.</li></ul>
+          <div class="edge-stage-context" data-edge-context="session">Pendiente de validar sesión, workspace y servicio desde Control Panel.</div>
           <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="inicio">Abrir Control Panel</button><label><input type="checkbox" data-edge-complete="session"> Validado</label></div>
         </article>
         <article class="edge-stage-card" data-edge-stage="asset">
@@ -2240,6 +2241,7 @@
           <h3>Hipótesis de edge con trazabilidad</h3>
           <p>Selecciona asset, timeframe, dirección y BlockSetting real desde la tarjeta. Esa decisión acompaña todo el pipeline.</p>
           <ul><li>Necesita: tarjeta elegida.</li><li>Genera: mining trazable en Plan Mining.</li></ul>
+          <div class="edge-stage-context" data-edge-context="asset">Sin tarjeta elegida. Elige asset, timeframe, dirección y BlockSetting real.</div>
           <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="activos">Elegir tarjeta</button><label><input type="checkbox" data-edge-complete="asset"> Tarjeta lista</label></div>
         </article>
         <article class="edge-stage-card" data-edge-stage="capa1-generate">
@@ -2247,6 +2249,7 @@
           <h3>Generar .cfx metodológico</h3>
           <p>Project Generator crea el custom Capa 1 con timeframe, BlockSetting y ventanas SQX142 actuales.</p>
           <ul><li>Necesita: Plan Mining.</li><li>Genera: descarga .cfx Capa 1.</li></ul>
+          <div class="edge-stage-context" data-edge-context="capa1-generate">Necesita un mining trazable del Plan Mining.</div>
           <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="projectgen">Generar Capa 1</button><label><input type="checkbox" data-edge-complete="capa1-generate"> .cfx descargado</label></div>
         </article>
         <article class="edge-stage-card" data-edge-stage="capa1-analyze">
@@ -2254,6 +2257,7 @@
           <h3>CSV + SQX + diversidad</h3>
           <p>Template Maker certifica métricas, reconcilia .sqx, detecta indicadores y agrupa clusters para elegir ganadores C2.</p>
           <ul><li>Necesita: Template Maker Cert y .sqx.</li><li>Genera: ganadores diversos.</li></ul>
+          <div class="edge-stage-context" data-edge-context="capa1-analyze">Pendiente de cargar CSV/SQX en Template Maker y certificar Capa 1.</div>
           <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="templatemaker">Analizar Capa 1</button><label><input type="checkbox" data-edge-complete="capa1-analyze"> Ganadores definidos</label></div>
         </article>
         <article class="edge-stage-card" data-edge-stage="c2-template">
@@ -2261,6 +2265,7 @@
           <h3>Template con indicador, cluster y Exit Policy</h3>
           <p>El modal C2 debe salir prellenado con asset, BlockSetting, indicador base, NumCluster, dirección y timeframe.</p>
           <ul><li>Necesita: ganador cluster.</li><li>Genera: template C2 trazable.</li></ul>
+          <div class="edge-stage-context" data-edge-context="c2-template">Pendiente de generar Template C2 desde un ganador diverso.</div>
           <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="templatemaker">Crear Template C2</button><label><input type="checkbox" data-edge-complete="c2-template"> Template listo</label></div>
         </article>
         <article class="edge-stage-card" data-edge-stage="capa2-generate">
@@ -2268,6 +2273,7 @@
           <h3>Convertir edge en estrategia operable</h3>
           <p>Genera Capa 2 desde el template ganador, conservando el origen y aplicando filtros operativos.</p>
           <ul><li>Necesita: template C2 validado.</li><li>Genera: .cfx Capa 2.</li></ul>
+          <div class="edge-stage-context" data-edge-context="capa2-generate">Necesita Template C2 trazable.</div>
           <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="projectgen">Generar Capa 2</button><label><input type="checkbox" data-edge-complete="capa2-generate"> Capa 2 descargada</label></div>
         </article>
         <article class="edge-stage-card" data-edge-stage="capa2-analyze">
@@ -2275,6 +2281,7 @@
           <h3>Portfolio Lab para ranking y shortlist</h3>
           <p>Capa 2 se analiza aquí: ranking, estados, similitud operativa y shortlist. Template Maker queda reservado para Capa 1/C2 template.</p>
           <ul><li>Necesita: resultados Capa 2.</li><li>Genera: candidatos portfolio.</li></ul>
+          <div class="edge-stage-context" data-edge-context="capa2-analyze">Sin lote Capa 2 generado todavía.</div>
           <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-step-open="portfolio">Abrir Portfolio Lab</button><label><input type="checkbox" data-edge-complete="capa2-analyze"> Candidatos revisados</label></div>
         </article>
         <article class="edge-stage-card" data-edge-stage="portfolio">
@@ -2282,6 +2289,7 @@
           <h3>Decisión final con diversidad</h3>
           <p>Construye un shortlist sin estrategias redundantes y exporta un resumen seguro para revisión o decisión final.</p>
           <ul><li>Necesita: candidatos Capa 2.</li><li>Genera: portfolio shortlist.</li></ul>
+          <div class="edge-stage-context" data-edge-context="portfolio">Sin shortlist portfolio. Ejecuta Portfolio Lab cuando tengas candidatos Capa 2.</div>
           <div class="edge-stage-actions"><button class="filter-btn" type="button" data-edge-tool="cvc">Comparar finalistas</button><label><input type="checkbox" data-edge-complete="portfolio"> Portfolio listo</label></div>
         </article>
       </div>

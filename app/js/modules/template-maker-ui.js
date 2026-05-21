@@ -192,6 +192,25 @@
     if (input) input.value = '';
   }
 
+  function recordEdgeFactoryAnalysis(source) {
+    try {
+      if (!SQX.edgeFactory || typeof SQX.edgeFactory.recordTemplateMakerAnalysis !== 'function') return;
+      var strategies = SQX.templateMaker.getStrategies ? SQX.templateMaker.getStrategies() : [];
+      var readyForC2 = SQX.templateMaker.canGenerateC2
+        ? strategies.filter(function(strategy) { return SQX.templateMaker.canGenerateC2(strategy); }).length
+        : 0;
+      SQX.edgeFactory.recordTemplateMakerAnalysis({
+        source: source || 'template-maker',
+        report: SQX.templateMaker.getAuditReport ? SQX.templateMaker.getAuditReport() : {},
+        diversity: SQX.templateMaker.getDiversityReport ? SQX.templateMaker.getDiversityReport() : null,
+        readyForC2: readyForC2
+      });
+      if (SQX.edgeFactoryUI && typeof SQX.edgeFactoryUI.renderState === 'function') SQX.edgeFactoryUI.renderState();
+    } catch(e) {
+      console.warn('Edge Factory Template Maker handoff skipped:', e && e.message ? e.message : e);
+    }
+  }
+
   function afterPaint() {
     return new Promise(function(resolve) {
       if (typeof window !== 'undefined' && typeof window.requestAnimationFrame === 'function') {
@@ -210,6 +229,7 @@
     }).then(function(rows) {
       setStatus(rows.length + ' estrategias cargadas desde CSV.');
       renderAll();
+      recordEdgeFactoryAnalysis('template-maker-csv');
     }).catch(function(err) {
       setStatus('Error CSV: ' + (err && err.message ? err.message : err), true);
     });
@@ -223,7 +243,10 @@
       return SQX.templateMaker.ingestFiles(list);
     }).then(function(rows) {
       setStatus(rows.length + ' estrategias reconciliadas con contrato Template Maker Cert.');
-      return afterPaint().then(renderAll);
+      return afterPaint().then(function() {
+        renderAll();
+        recordEdgeFactoryAnalysis('template-maker-unified');
+      });
     }).catch(function(err) {
       setStatus('Error de carga: ' + (err && err.message ? err.message : err), true);
     });
@@ -239,7 +262,10 @@
       return SQX.templateMaker.loadFromSQX(list);
     }).then(function(rows) {
       setStatus(rows.length + ' estrategias disponibles.');
-      return afterPaint().then(renderAll);
+      return afterPaint().then(function() {
+        renderAll();
+        recordEdgeFactoryAnalysis('template-maker-sqx');
+      });
     }).catch(function(err) {
       setStatus('Error SQX: ' + (err && err.message ? err.message : err), true);
     });
@@ -765,6 +791,10 @@
     var trace = SQX.templateMaker.resolveC2Trace(strategy, options);
     SQX.templateMaker.generateC2Template(strategy, options).then(function(blob) {
       downloadBlob(blob, trace.name + '.sqx');
+      if (SQX.edgeFactory && typeof SQX.edgeFactory.recordC2Template === 'function') {
+        SQX.edgeFactory.recordC2Template(trace);
+        if (SQX.edgeFactoryUI && typeof SQX.edgeFactoryUI.renderState === 'function') SQX.edgeFactoryUI.renderState();
+      }
       setStatus('Template C2 generado: ' + trace.name + ' · ' + trace.blockSetting + ' · ' + trace.indicatorBase + ' · ' + trace.clusterId);
       closeC2();
     }).catch(function(err) {

@@ -1636,6 +1636,19 @@ function shouldAskTimeframe(tfList) {
   return Array.isArray(tfList) && tfList.length > 1;
 }
 
+function edgeFactoryRecord(method, payload) {
+  try {
+    if (window.SQX && window.SQX.edgeFactory && typeof window.SQX.edgeFactory[method] === 'function') {
+      window.SQX.edgeFactory[method](payload || {});
+      if (window.SQX.edgeFactoryUI && typeof window.SQX.edgeFactoryUI.renderState === 'function') {
+        window.SQX.edgeFactoryUI.renderState();
+      }
+    }
+  } catch(e) {
+    console.warn('Edge Factory handoff skipped:', e && e.message ? e.message : e);
+  }
+}
+
 window.quickAddToPlan = function(asset, cat, tf, dir) {
   const catBase = String(cat || '').replace(/_S$/, '');
   const tfList = parseCardTimeframes(tf);
@@ -1683,6 +1696,14 @@ function performQuickToProjectGen(asset, catBase, tf, dir, trace) {
     capa: 1,
     template: cleanCat.toUpperCase()
   };
+
+  edgeFactoryRecord('recordProjectPrefill', Object.assign({}, config, {
+    source: 'asset-card',
+    category: catBase,
+    selectedTimeframe: firstTf,
+    blocksettingTrace: trace && trace.blocksettingTrace,
+    trace: trace && trace.trace
+  }));
 
   if (window.SQX && window.SQX.projectGenerator && window.SQX.projectGenerator.dom) {
     window.SQX.projectGenerator.dom.writeCustomProjectInputs(document, config);
@@ -1916,6 +1937,7 @@ function addMiningUser(m) {
   PLAN_USER.minings.push(mining);
   savePlanUser();
   notifyPlanMiningChanged();
+  edgeFactoryRecord('recordPlanMining', mining);
   return true;
 }
 function resolvePlanPhaseForMining(asset) {
@@ -2045,6 +2067,15 @@ function resetPlanMiningUserState() {
   PIPELINE_STATE.nextAction = '';
   savePipelineState();
   notifyPlanMiningChanged();
+  edgeFactoryRecord('savePatch', {
+    selectedCard: null,
+    selectedMining: null,
+    projectPrefill: null,
+    capa1Outputs: [],
+    capa2Outputs: [],
+    activeStep: 'asset',
+    completedSteps: []
+  });
 }
 function resetProjectGeneratorGeneratedCfxState() {
   var PG = window.SQX && window.SQX.projectGenerator;

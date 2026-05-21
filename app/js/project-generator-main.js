@@ -640,6 +640,38 @@ async function pgLoadOutput() {
   }
 }
 
+function pgRecordEdgeFactoryGeneration(capa, mode, minings, results, extra) {
+  try {
+    if (!window.SQX || !window.SQX.edgeFactory || typeof window.SQX.edgeFactory.recordProjectGeneration !== 'function') return;
+    window.SQX.edgeFactory.recordProjectGeneration(Object.assign({
+      capa: parseInt(capa, 10) || 1,
+      mode: mode || 'methodology',
+      minings: Array.isArray(minings) ? minings : [],
+      results: Array.isArray(results) ? results : [],
+      outputFiles: PG_STATE.outputFiles || [],
+      generatedAt: new Date().toISOString()
+    }, extra || {}));
+    if (window.SQX.edgeFactoryUI && typeof window.SQX.edgeFactoryUI.renderState === 'function') {
+      window.SQX.edgeFactoryUI.renderState();
+    }
+  } catch(e) {
+    console.warn('Edge Factory generation handoff skipped:', e && e.message ? e.message : e);
+  }
+}
+
+function pgRecordEdgeFactoryDownload(kind, files, capa) {
+  try {
+    if (!window.SQX || !window.SQX.edgeFactory || typeof window.SQX.edgeFactory.recordDownloadRequest !== 'function') return;
+    window.SQX.edgeFactory.recordDownloadRequest({
+      kind: kind || 'cfx',
+      capa: capa == null ? null : capa,
+      files: files || []
+    });
+  } catch(e) {
+    console.warn('Edge Factory download handoff skipped:', e && e.message ? e.message : e);
+  }
+}
+
 async function pgGenerateOne(mining, capa) {
   const planMining = pgFindMining(mining) || pgNormalizePlanMining({ num: mining, asset: '', tf: '', bs: '', dir: 'long' });
   pgLog(SQX_PG_MODULE.generateOneStartMessage(planMining.num, capa), 'info');
@@ -650,6 +682,7 @@ async function pgGenerateOne(mining, capa) {
     pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
     if (r.ok) {
       await pgLoadOutput();
+      pgRecordEdgeFactoryGeneration(capa, 'methodology-one', [planMining], [Object.assign({}, r, { mining: planMining.num })]);
       pgLog('Archivo listo en .cfx generados: pulsa Descargar en la fila o Descargar todo ZIP.', 'info');
     }
   } catch(e) {
@@ -678,6 +711,7 @@ async function pgGenerateCustom() {
     pgTrace(result.traceTitle, result.traceDetail, result.traceLevel);
     if (r.ok) {
       await pgLoadOutput();
+      pgRecordEdgeFactoryGeneration(body.capa || 1, 'manual', [], [r], { custom: body });
       pgLog('Archivo listo en .cfx generados: pulsa Descargar en la fila o Descargar todo ZIP.', 'info');
     }
   } catch(e) {
@@ -819,6 +853,7 @@ async function pgGenerateAll(capa) {
     pgLog(line.text, line.level);
   });
   await pgLoadOutput();
+  pgRecordEdgeFactoryGeneration(capa, 'methodology-all', minings, results);
   pgLog('Generación terminada. Descarga desde .cfx generados con Descargar, Descargar seleccionados o Descargar todo ZIP.', 'info');
 }
 
@@ -848,6 +883,7 @@ async function pgGenerateSelected(capa) {
     pgLog(line.text, line.level);
   });
   await pgLoadOutput();
+  pgRecordEdgeFactoryGeneration(capa, 'methodology-selected', selected, results);
   pgLog('Generación terminada. Descarga desde .cfx generados con Descargar, Descargar seleccionados o Descargar todo ZIP.', 'info');
 }
 
@@ -987,6 +1023,7 @@ async function pgDownloadOutputBundle(names) {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
+    pgRecordEdgeFactoryDownload(selected.length === 1 ? 'cfx' : 'cfx-zip', selected);
     pgLog('Descarga solicitada: ' + selected.length + ' .cfx. El navegador la guardará en Descargas.', 'ok');
   } catch(e) {
     if (pgHandleFetchError(e)) return;
@@ -1001,6 +1038,7 @@ function pgDownloadOutputFile(name) {
     return;
   }
   pgStartBrowserDownload(pgOutputDownloadUrl('/output/download/' + encodeURIComponent(clean)));
+  pgRecordEdgeFactoryDownload('cfx', [clean]);
   pgLog('Descarga solicitada: ' + clean + '. El navegador la guardará en su carpeta Descargas configurada.', 'ok');
 }
 
@@ -1010,6 +1048,7 @@ function pgDownloadAllOutput() {
     return;
   }
   pgStartBrowserDownload(pgOutputDownloadUrl('/output/download-all'));
+  pgRecordEdgeFactoryDownload('cfx-zip', PG_STATE.outputFiles || []);
   pgLog('Descarga ZIP solicitada. El navegador la guardará en su carpeta Descargas configurada.', 'ok');
 }
 

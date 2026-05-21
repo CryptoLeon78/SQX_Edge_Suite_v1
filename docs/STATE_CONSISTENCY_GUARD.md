@@ -20,7 +20,7 @@ Current guarded state:
 - Remote gate: REMOTE-RILIS-STANDBY is active.
 - Clean anchors: REMOTE-8C and REMOTE-8F-CLOSE, with REMOTE-PG-SESSION-FIX applied.
 - Next remote action: wait for TESTER-RILIS retest before reopening REMOTE-8G.
-- UX/WFCO: Edge Factory is the active desktop-first experience track after the operator opened the website facelift.
+- UX/WFCO: WFCO-2 Methodology Handoffs is completed; Edge Factory is the active desktop-first experience track and WFCO-3 Content Overhaul is the next parallel UX recommendation.
 
 Run the guard with:
 

@@ -3945,6 +3945,22 @@
   .edge-stage-card h3 { margin:0; font-size:18px; color:#f8fafc; }
   .edge-stage-card p { margin:0; color:#cbd5e1; line-height:1.55; font-size:13px; }
   .edge-stage-card ul { margin:0; padding-left:18px; color:#9fb0c7; font-size:12px; line-height:1.55; }
+  .edge-stage-context {
+    border:1px solid rgba(45,212,191,.2);
+    background:rgba(8,47,73,.38);
+    border-radius:8px;
+    padding:9px 10px;
+    color:#dbeafe;
+    font-size:12px;
+    line-height:1.45;
+    font-weight:800;
+    min-height:48px;
+  }
+  .edge-stage-context.is-empty {
+    border-color:rgba(148,163,184,.18);
+    background:rgba(15,23,42,.54);
+    color:#94a3b8;
+  }
   .edge-stage-actions { margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
   .edge-stage-actions label { display:inline-flex; align-items:center; gap:6px; color:#cbd5e1; font-size:12px; font-weight:800; }
   .edge-advanced-custom {

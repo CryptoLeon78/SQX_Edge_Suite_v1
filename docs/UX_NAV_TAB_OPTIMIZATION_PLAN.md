@@ -23,8 +23,8 @@ Current WFCO status:
 
 - `WFCO-0 · Governance And Contract`: completed.
 - `WFCO-1 · Edge Factory Shell`: completed.
-- `WFCO-2 · Methodology Handoffs`: next recommended phase.
-- `WFCO-3 · Content Overhaul`: pending.
+- `WFCO-2 · Methodology Handoffs`: completed.
+- `WFCO-3 · Content Overhaul`: next recommended phase.
 - `WFCO-4 · Portfolio Lab MVP`: pending beyond the initial shell MVP.
 - `WFCO-5 · Visual Polish And Desktop QA`: pending.
 
@@ -79,6 +79,14 @@ Design rules:
 - Strategy Builder remains retired.
 - No routes, server paths, private URLs or raw technical backend details are shown to normal users.
 - No profitability claims.
+
+WFCO-2 applied handoff rule:
+
+- Activos and Mining Control register selected card/mining context in Edge Factory.
+- Project Generator registers Capa 1/Capa 2 generation events, selected minings, result counts and output file summaries.
+- Template Maker registers Capa 1 analysis state and generated Template C2 trace.
+- Portfolio Lab registers shortlist/diversity output.
+- Each stage has a compact context strip so the user sees what was selected, generated, analyzed or still missing without reopening every advanced tool.
 
 ## UX-WF2 - Functional Pipeline KPIs
 

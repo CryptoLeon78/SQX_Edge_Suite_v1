@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-21 - WFCO2 Methodology Handoffs
+
+- Records WFCO-2 as completed: Edge Factory now receives public-safe handoff context from Activos, Plan Mining, Project Generator, Template Maker and Portfolio Lab.
+- Adds stage context strips so the user can see selected card/mining, Capa 1 output, Capa 1 analysis, C2 template, Capa 2 output and portfolio shortlist status from the main pipeline.
+- Keeps REMOTE-RILIS-STANDBY as the active remote blocker and moves the parallel UX recommendation to WFCO-3 Content Overhaul.
+
 ## 2026-05-20 - Current Docs State Sync
 
 - Synchronizes README, public roadmap, project governance and UX-NAV plan with the current REMOTE-RILIS-STANDBY state.

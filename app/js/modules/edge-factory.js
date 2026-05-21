@@ -26,14 +26,19 @@
   function defaultState() {
     return {
       version: VERSION,
+      handoffVersion: 'edge-factory-handoffs-v1',
       activeStep: 'session',
       mode: 'methodology',
       selectedCard: null,
+      selectedMining: null,
+      projectPrefill: null,
       capa1Outputs: [],
       capa1Analysis: null,
       c2Template: null,
       capa2Outputs: [],
       portfolioLab: null,
+      downloads: [],
+      lastEvent: null,
       completedSteps: []
     };
   }
@@ -87,6 +92,287 @@
       completedSteps: completed,
       activeStep: next ? next.id : 'portfolio'
     }, 'edge-factory-complete-step');
+  }
+
+  function safeString(value, fallback) {
+    var out = value == null ? '' : String(value).trim();
+    return out || (fallback || '');
+  }
+
+  function upper(value, fallback) {
+    return safeString(value, fallback).toUpperCase();
+  }
+
+  function uniqueSteps(list) {
+    var allowed = STEPS.map(function(step) { return step.id; });
+    return (Array.isArray(list) ? list : []).filter(function(id, index, arr) {
+      return allowed.indexOf(id) !== -1 && arr.indexOf(id) === index;
+    });
+  }
+
+  function withCompleted(state, ids) {
+    var completed = uniqueSteps(state.completedSteps || []);
+    (Array.isArray(ids) ? ids : [ids]).forEach(function(id) {
+      if (STEPS.some(function(step) { return step.id === id; }) && completed.indexOf(id) === -1) {
+        completed.push(id);
+      }
+    });
+    return completed;
+  }
+
+  function pushRecent(items, item, limit) {
+    var next = (Array.isArray(items) ? items.slice() : []);
+    next.unshift(item);
+    return next.slice(0, limit || 12);
+  }
+
+  function normalizeBlockTrace(input) {
+    var trace = input && (input.blocksettingTrace || input.blockSettingTrace);
+    if (!trace && input && input.trace && input.trace.blocksettingTrace) trace = input.trace.blocksettingTrace;
+    if (!trace) return null;
+    return {
+      canonicalId: safeString(trace.canonicalId || trace.blockSetting || trace.id),
+      filename: safeString(trace.filename),
+      sha256Short: safeString(trace.sha256Short || trace.hash || trace.sha),
+      family: safeString(trace.family),
+      layer: safeString(trace.layer),
+      variant: safeString(trace.variant)
+    };
+  }
+
+  function normalizeCard(input) {
+    input = input || {};
+    var blockTrace = normalizeBlockTrace(input);
+    var blockSetting = safeString(
+      input.blockSetting || input.blocksetting || input.bs || (blockTrace && blockTrace.canonicalId),
+      'BS_Custom'
+    );
+    return {
+      asset: upper(input.asset || input.symbol, 'ASSET'),
+      timeframe: upper(input.timeframe || input.tf || input.selectedTimeframe, 'TF'),
+      direction: upper(input.direction || input.dir, 'L+S'),
+      family: safeString(input.family || input.category || input.cat || (blockTrace && blockTrace.family), 'custom'),
+      blockSetting: blockSetting,
+      blocksettingTrace: blockTrace,
+      source: safeString(input.source || 'asset-card'),
+      selectedAt: input.selectedAt || new Date().toISOString()
+    };
+  }
+
+  function normalizeMining(input) {
+    input = input || {};
+    var blockTrace = normalizeBlockTrace(input);
+    return {
+      num: input.num == null ? null : parseInt(input.num, 10),
+      phase: input.phase == null ? null : parseInt(input.phase, 10),
+      asset: upper(input.asset || input.symbol, 'ASSET'),
+      timeframe: upper(input.timeframe || input.tf || input.selectedTimeframe, 'TF'),
+      direction: upper(input.direction || input.dir, 'L+S'),
+      blockSetting: safeString(input.blockSetting || input.blocksetting || input.bs || (blockTrace && blockTrace.canonicalId), 'BS_Custom'),
+      blocksettingTrace: blockTrace,
+      source: safeString(input.source || 'manual'),
+      recordedAt: input.recordedAt || new Date().toISOString()
+    };
+  }
+
+  function normalizeFiles(files) {
+    return (Array.isArray(files) ? files : []).map(function(file) {
+      if (typeof file === 'string') return { name: file };
+      return {
+        name: safeString(file && (file.name || file.filename || file.file)),
+        size: file && file.size,
+        modified: safeString(file && (file.modified || file.mtime || file.updated_at || file.updatedAt))
+      };
+    }).filter(function(file) { return file.name; });
+  }
+
+  function summarizeResults(results) {
+    var list = Array.isArray(results) ? results : [];
+    var ok = list.filter(function(item) { return !!(item && item.ok); }).length;
+    return {
+      total: list.length,
+      ok: ok,
+      failed: Math.max(0, list.length - ok)
+    };
+  }
+
+  function saveEvent(patch, completedIds, activeStep, source) {
+    var state = readState();
+    var next = Object.assign({}, state, patch || {});
+    if (completedIds) next.completedSteps = withCompleted(state, completedIds);
+    if (activeStep) next.activeStep = activeStep;
+    next.lastEvent = {
+      type: source || 'edge-factory-handoff',
+      at: new Date().toISOString()
+    };
+    return writeState(next, source || 'edge-factory-handoff');
+  }
+
+  function recordCardSelection(input) {
+    var card = normalizeCard(input || {});
+    return saveEvent({ selectedCard: card }, ['asset'], 'capa1-generate', 'edge-factory-card-selection');
+  }
+
+  function recordPlanMining(input) {
+    var mining = normalizeMining(input || {});
+    var card = normalizeCard(Object.assign({}, input || {}, {
+      asset: mining.asset,
+      tf: mining.timeframe,
+      dir: mining.direction,
+      bs: mining.blockSetting,
+      source: mining.source
+    }));
+    return saveEvent({
+      selectedCard: card,
+      selectedMining: mining
+    }, ['asset'], 'capa1-generate', 'edge-factory-plan-mining');
+  }
+
+  function recordProjectPrefill(input) {
+    var card = normalizeCard(input || {});
+    return saveEvent({
+      selectedCard: card,
+      projectPrefill: {
+        name: safeString(input && input.name),
+        capa: numeric(input && input.capa, 1),
+        asset: card.asset,
+        timeframe: card.timeframe,
+        direction: card.direction,
+        blockSetting: card.blockSetting,
+        preparedAt: new Date().toISOString()
+      }
+    }, ['asset'], 'capa1-generate', 'edge-factory-project-prefill');
+  }
+
+  function recordProjectGeneration(payload) {
+    payload = payload || {};
+    var capa = numeric(payload.capa, 1);
+    var event = {
+      capa: capa,
+      mode: safeString(payload.mode || 'methodology'),
+      generatedAt: payload.generatedAt || new Date().toISOString(),
+      minings: (Array.isArray(payload.minings) ? payload.minings : []).map(normalizeMining),
+      custom: payload.custom ? normalizeCard(payload.custom) : null,
+      results: summarizeResults(payload.results || []),
+      files: normalizeFiles(payload.outputFiles || payload.files || [])
+    };
+    if (capa === 2) {
+      return saveEvent({
+        capa2Outputs: pushRecent(readState().capa2Outputs, event, 8)
+      }, ['capa2-generate'], 'capa2-analyze', 'edge-factory-capa2-generation');
+    }
+    return saveEvent({
+      capa1Outputs: pushRecent(readState().capa1Outputs, event, 8)
+    }, ['capa1-generate'], 'capa1-analyze', 'edge-factory-capa1-generation');
+  }
+
+  function recordTemplateMakerAnalysis(payload) {
+    payload = payload || {};
+    var report = payload.report || {};
+    var diversity = payload.diversity || report.diversity || {};
+    var analysis = {
+      analyzedAt: payload.analyzedAt || new Date().toISOString(),
+      source: safeString(payload.source || 'template-maker'),
+      contract: safeString(report.contractVersion || report.schemaVersion || payload.contractVersion || 'Template Maker Cert'),
+      total: numeric(report.total || payload.total, 0),
+      passed: numeric(report.passed || payload.passed, 0),
+      review: numeric(report.review || payload.review, 0),
+      failed: numeric(report.failed || payload.failed, 0),
+      certified: numeric(report.certified || payload.certified, 0),
+      clusters: numeric(diversity.clusters || payload.clusters, 0),
+      winners: numeric(diversity.winners || payload.winners || payload.readyForC2, 0),
+      readyForC2: numeric(payload.readyForC2 || diversity.winners, 0)
+    };
+    var complete = analysis.passed > 0 || analysis.winners > 0 || analysis.readyForC2 > 0;
+    return saveEvent({ capa1Analysis: analysis }, complete ? ['capa1-analyze'] : [], complete ? 'c2-template' : 'capa1-analyze', 'edge-factory-capa1-analysis');
+  }
+
+  function recordC2Template(trace) {
+    trace = trace || {};
+    var template = {
+      name: safeString(trace.name || trace.templateName || 'Template_C2'),
+      asset: upper(trace.asset, 'ASSET'),
+      timeframe: upper(trace.timeframe, 'TF'),
+      direction: upper(trace.direction, 'BOTH'),
+      blockSetting: safeString(trace.blockSetting || trace.blocksetting, 'BS_Custom'),
+      indicatorBase: safeString(trace.indicatorBase || trace.indicator || 'SIN_INDICADOR'),
+      clusterId: safeString(trace.clusterId || trace.cluster || 'CL00'),
+      sourceStrategyName: safeString(trace.sourceStrategyName || trace.strategyName || trace.source),
+      generatedAt: trace.generatedAt || new Date().toISOString()
+    };
+    return saveEvent({ c2Template: template }, ['c2-template'], 'capa2-generate', 'edge-factory-c2-template');
+  }
+
+  function recordPortfolioLab(report) {
+    var clean = Object.assign({
+      version: 'portfolio-lab-mvp-v1',
+      total: 0,
+      winners: 0,
+      rows: []
+    }, report || {}, { analyzedAt: new Date().toISOString() });
+    return saveEvent({ portfolioLab: clean }, clean.total ? ['capa2-analyze', 'portfolio'] : [], 'portfolio', 'edge-factory-portfolio-lab');
+  }
+
+  function recordDownloadRequest(payload) {
+    payload = payload || {};
+    var download = {
+      kind: safeString(payload.kind || 'artifact'),
+      capa: payload.capa == null ? null : numeric(payload.capa, null),
+      files: normalizeFiles(payload.files || payload.outputFiles),
+      requestedAt: new Date().toISOString()
+    };
+    return saveEvent({
+      downloads: pushRecent(readState().downloads, download, 10)
+    }, [], null, 'edge-factory-download-request');
+  }
+
+  function latest(list) {
+    return Array.isArray(list) && list.length ? list[0] : null;
+  }
+
+  function miningLabel(mining) {
+    if (!mining) return '';
+    return [
+      mining.num ? 'M' + String(mining.num).padStart(2, '0') : '',
+      mining.asset,
+      mining.timeframe,
+      mining.direction,
+      mining.blockSetting
+    ].filter(Boolean).join(' · ');
+  }
+
+  function contextSummary(state) {
+    state = Object.assign(defaultState(), state || readState());
+    var c1 = latest(state.capa1Outputs);
+    var c2 = latest(state.capa2Outputs);
+    var filesC1 = c1 && c1.files ? c1.files.length : 0;
+    var filesC2 = c2 && c2.files ? c2.files.length : 0;
+    return {
+      session: state.completedSteps.indexOf('session') !== -1
+        ? 'Sesión validada. Workspace y descargas listos para operar.'
+        : 'Pendiente de validar sesión, workspace y servicio desde Control Panel.',
+      asset: state.selectedCard
+        ? [state.selectedCard.asset, state.selectedCard.timeframe, state.selectedCard.direction, state.selectedCard.blockSetting].filter(Boolean).join(' · ')
+        : 'Sin tarjeta elegida. Elige asset, timeframe, dirección y BlockSetting real.',
+      'capa1-generate': c1
+        ? 'Capa 1 generada: ' + (c1.results ? c1.results.ok + '/' + c1.results.total + ' OK' : 'lista') + (filesC1 ? ' · ' + filesC1 + ' archivo(s)' : '')
+        : (state.selectedMining ? 'Listo para generar: ' + miningLabel(state.selectedMining) : 'Necesita un mining trazable del Plan Mining.'),
+      'capa1-analyze': state.capa1Analysis
+        ? 'Analizadas ' + state.capa1Analysis.total + ' estrategias · PASSED ' + state.capa1Analysis.passed + ' · ganadores C2 ' + state.capa1Analysis.winners + '.'
+        : 'Pendiente de cargar CSV/SQX en Template Maker y certificar Capa 1.',
+      'c2-template': state.c2Template
+        ? state.c2Template.name + ' · ' + state.c2Template.indicatorBase + ' · ' + state.c2Template.clusterId
+        : 'Pendiente de generar Template C2 desde un ganador diverso.',
+      'capa2-generate': c2
+        ? 'Capa 2 generada: ' + (c2.results ? c2.results.ok + '/' + c2.results.total + ' OK' : 'lista') + (filesC2 ? ' · ' + filesC2 + ' archivo(s)' : '')
+        : (state.c2Template ? 'Listo para generar Capa 2 desde ' + state.c2Template.name + '.' : 'Necesita Template C2 trazable.'),
+      'capa2-analyze': c2
+        ? 'Pendiente de importar resultados Capa 2 en Portfolio Lab.'
+        : 'Sin lote Capa 2 generado todavía.',
+      portfolio: state.portfolioLab && state.portfolioLab.total
+        ? state.portfolioLab.total + ' candidatos · ' + state.portfolioLab.winners + ' ganadores diversos.'
+        : 'Sin shortlist portfolio. Ejecuta Portfolio Lab cuando tengas candidatos Capa 2.'
+    };
   }
 
   function numeric(value, fallback) {
@@ -176,6 +462,15 @@
     setActiveStep: setActiveStep,
     completeStep: completeStep,
     steps: function() { return STEPS.slice(); },
+    recordCardSelection: recordCardSelection,
+    recordPlanMining: recordPlanMining,
+    recordProjectPrefill: recordProjectPrefill,
+    recordProjectGeneration: recordProjectGeneration,
+    recordTemplateMakerAnalysis: recordTemplateMakerAnalysis,
+    recordC2Template: recordC2Template,
+    recordPortfolioLab: recordPortfolioLab,
+    recordDownloadRequest: recordDownloadRequest,
+    contextSummary: contextSummary,
     parsePortfolioRows: parsePortfolioRows,
     scoreCandidate: scoreCandidate,
     computeSimilarity: similarity,

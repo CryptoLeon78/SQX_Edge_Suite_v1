@@ -37,13 +37,27 @@ Default path is guided methodology. `Custom libre avanzado` remains available, b
 - `activeStep`
 - `completedSteps`
 - `selectedCard`
+- `selectedMining`
+- `projectPrefill`
 - `capa1Outputs`
 - `capa1Analysis`
 - `c2Template`
 - `capa2Outputs`
 - `portfolioLab`
+- `downloads`
 
 In remote mode this key is persisted through the authenticated workspace state bridge. Browser `localStorage` remains a compatibility cache.
+
+## WFCO-2 Handoff Contract
+
+Edge Factory now receives public-safe handoff context from the existing engines:
+
+- Activos / Mining Control: selected asset, timeframe, direction, BlockSetting real and mining row.
+- Project Generator: Capa 1/Capa 2 generation mode, selected minings, result counts and generated output summaries.
+- Template Maker: Capa 1 CSV/SQX analysis totals, PASSED count, clusters, winners and generated C2 template trace.
+- Portfolio Lab: Capa 2 shortlist totals, diversity status and winners.
+
+The UI shows this as one compact context strip per stage. It is intentionally a summary, not a raw log: no local paths, protected URLs, emails, tokens, Cloudflare identifiers or server internals are allowed in these stage strips.
 
 ## Phase Status
 
@@ -51,8 +65,8 @@ In remote mode this key is persisted through the authenticated workspace state b
 | --- | --- | --- |
 | WFCO-0 | Completed | Governance, roadmap and contract. |
 | WFCO-1 | Completed | Edge Factory shell, advanced drawer and Portfolio Lab MVP surface. |
-| WFCO-2 | Next | Handoffs from each stage into existing engines. |
-| WFCO-3 | Pending | Copy/content overhaul across the main experience. |
+| WFCO-2 | Completed | Real methodology handoffs from existing engines into Edge Factory state/context strips. |
+| WFCO-3 | Next | Copy/content overhaul across the main experience. |
 | WFCO-4 | Pending | Portfolio Lab MVP beyond the shell. |
 | WFCO-5 | Pending | Visual polish and desktop QA. |
 

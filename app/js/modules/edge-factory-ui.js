@@ -33,12 +33,18 @@
     var completed = Array.isArray(state.completedSteps) ? state.completedSteps : [];
     var next = steps.find(function(step) { return completed.indexOf(step.id) === -1; }) || steps[steps.length - 1];
     var activeStep = state.activeStep || (next && next.id);
+    var contexts = SQX.edgeFactory.contextSummary ? SQX.edgeFactory.contextSummary(state) : {};
     all('[data-edge-stage]').forEach(function(card) {
       var id = card.dataset.edgeStage;
       card.classList.toggle('is-complete', completed.indexOf(id) !== -1);
       card.classList.toggle('is-current', id === activeStep);
       var box = card.querySelector('input[data-edge-complete]');
       if (box) box.checked = completed.indexOf(id) !== -1;
+      var context = card.querySelector('[data-edge-context]');
+      if (context) {
+        context.textContent = contexts[id] || 'Sin contexto registrado todavía.';
+        context.classList.toggle('is-empty', !contexts[id]);
+      }
     });
     setText('edge-factory-progress-label', completed.length + ' de ' + steps.length + ' etapas');
     setText('edge-factory-next', completed.length === steps.length ? 'Listo para portfolio o nueva iteración' : 'Siguiente: ' + (next ? next.label : 'Preparar sesión'));
@@ -135,7 +141,11 @@
     if (!SQX.edgeFactory) return null;
     var input = byId('edge-portfolio-input');
     var report = SQX.edgeFactory.buildPortfolioShortlist(input ? input.value : '');
-    SQX.edgeFactory.savePatch({ portfolioLab: report, activeStep: 'portfolio' }, 'portfolio-lab-run');
+    if (SQX.edgeFactory.recordPortfolioLab) {
+      SQX.edgeFactory.recordPortfolioLab(report);
+    } else {
+      SQX.edgeFactory.savePatch({ portfolioLab: report, activeStep: 'portfolio' }, 'portfolio-lab-run');
+    }
     renderPortfolioReport(report);
     renderState();
     return report;
@@ -154,6 +164,9 @@
       link.download = filename;
       link.click();
       URL.revokeObjectURL(link.href);
+      if (SQX.edgeFactory.recordDownloadRequest) {
+        SQX.edgeFactory.recordDownloadRequest({ kind: 'portfolio-summary', files: [filename] });
+      }
     } catch (_err) {
       var output = byId('edge-portfolio-results');
       if (output) output.textContent = JSON.stringify(report, null, 2);

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-05-20",
+  "updated": "2026-05-21",
   "purpose": "Canonical public-safe state markers used by automated docs consistency tests.",
   "coreFiles": [
     "README.md",
@@ -55,15 +55,18 @@
       "description": "UX-NAV docs must agree that WFCO Edge Factory is the active experience track after the operator opened the website facelift.",
       "required": {
         "README.md": [
-          "WFCO-1 Edge Factory Shell esta aplicado"
+          "WFCO-2 Methodology Handoffs esta aplicado",
+          "continuar con WFCO-3 Content Overhaul"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
-          "Current phase completed: WFCO-1 - Edge Factory Shell",
-          "Edge Factory Experience Gate"
+          "Current phase completed: WFCO-2 - Methodology Handoffs",
+          "Edge Factory Experience Gate",
+          "Edge Factory Handoff Gate"
         ],
         "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md": [
           "Active experience track: `WFCO - Edge Factory`",
-          "`WFCO-1 · Edge Factory Shell`: completed"
+          "`WFCO-2 · Methodology Handoffs`: completed",
+          "`WFCO-3 · Content Overhaul`: next recommended phase"
         ]
       },
       "forbidden": {
@@ -87,14 +90,15 @@
       "description": "The public roadmap date must not lag the current sync anchor.",
       "required": {
         "docs/PUBLIC_ROADMAP.md": [
-          "Last updated: 2026-05-20."
+          "Last updated: 2026-05-21."
         ],
         "CHANGELOG.md": [
-          "2026-05-20 - Current Docs State Sync"
+          "2026-05-21 - WFCO2 Methodology Handoffs"
         ]
       },
       "forbidden": {
         "docs/PUBLIC_ROADMAP.md": [
+          "Last updated: 2026-05-20.",
           "Last updated: 2026-05-16.",
           "Last updated: 2026-05-19."
         ]

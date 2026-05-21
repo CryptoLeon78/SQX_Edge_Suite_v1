@@ -277,6 +277,24 @@ async function run() {
     if (!tfTraceState || tfTraceState.selectedTimeframe !== 'M30' || tfTraceState.timeframeSource !== 'card-selection' || !tfTraceState.blocksetting) {
       throw new Error('Asset-card mining should persist selected timeframe trace and real BlockSetting trace');
     }
+    const edgeFactoryCardState = await desktop.evaluate(() => {
+      const state = JSON.parse(localStorage.getItem('sqx_edge_factory_state_v1') || '{}');
+      return {
+        card: state.selectedCard,
+        mining: state.selectedMining,
+        activeStep: state.activeStep,
+        completedSteps: state.completedSteps || []
+      };
+    });
+    if (!edgeFactoryCardState.card || edgeFactoryCardState.card.asset !== 'EURUSD' || edgeFactoryCardState.card.timeframe !== 'M30') {
+      throw new Error('Edge Factory should inherit selected card context from Activos -> Plan Mining');
+    }
+    if (!edgeFactoryCardState.mining || edgeFactoryCardState.mining.asset !== 'EURUSD' || edgeFactoryCardState.mining.timeframe !== 'M30') {
+      throw new Error('Edge Factory should persist the selected mining handoff');
+    }
+    if (!edgeFactoryCardState.completedSteps.includes('asset') || edgeFactoryCardState.activeStep !== 'capa1-generate') {
+      throw new Error('Edge Factory should advance from card selection to Capa 1 generation');
+    }
     if (unifiedPlanText.includes('Plan extendido') || unifiedPlanText.includes('Precarga desde Por Activo')) {
       throw new Error('Mining Control should not keep retired plan preload showcase copy');
     }
@@ -344,7 +362,10 @@ async function run() {
     await saveShot(desktop, 'e2e-mining-control-status-desktop.png');
     await openTab(desktop, 'workflow');
     await desktop.locator('input[data-edge-complete="session"]').check();
-    await desktop.waitForFunction(() => document.getElementById('edge-factory-progress-label')?.textContent.includes('1 de 8'));
+    await desktop.waitForFunction(() => {
+      const state = JSON.parse(localStorage.getItem('sqx_edge_factory_state_v1') || '{}');
+      return (state.completedSteps || []).includes('session') && document.getElementById('edge-factory-progress-label')?.textContent.includes('de 8');
+    });
     await openTab(desktop, 'inicio');
     await desktop.waitForSelector('#home-readiness-score');
     const panelTitle = await desktop.locator('#tab-inicio .home-hero h2').innerText();
@@ -386,6 +407,8 @@ async function run() {
     if (!hiddenLegacyWorkflow) throw new Error('Legacy Workflow command center should be hidden behind Edge Factory');
     const edgeStageCount = await desktop.locator('#edge-factory-stages .edge-stage-card').count();
     if (edgeStageCount !== 8) throw new Error(`Edge Factory should render 8 stages, got ${edgeStageCount}`);
+    const edgeContextCount = await desktop.locator('#edge-factory-stages [data-edge-context]').count();
+    if (edgeContextCount !== 8) throw new Error(`Edge Factory should render 8 handoff context strips, got ${edgeContextCount}`);
     await desktop.locator('input[data-edge-complete="asset"]').check();
     await desktop.waitForFunction(() => (JSON.parse(localStorage.getItem('sqx_edge_factory_state_v1') || '{}').completedSteps || []).includes('asset'));
     await desktop.locator('#edge-tools-toggle').click();
@@ -395,6 +418,10 @@ async function run() {
     await desktop.locator('#edge-portfolio-sample').click();
     await desktop.locator('#edge-portfolio-run').click();
     await desktop.waitForFunction(() => document.getElementById('edge-portfolio-results')?.innerText.includes('ganadores diversos'));
+    await desktop.waitForFunction(() => {
+      const state = JSON.parse(localStorage.getItem('sqx_edge_factory_state_v1') || '{}');
+      return state.portfolioLab && state.portfolioLab.winners > 0 && (state.completedSteps || []).includes('portfolio');
+    });
     await saveShot(desktop, 'e2e-edge-factory-desktop.png');
     await openTab(desktop, 'views');
     await desktop.evaluate(() => window.SQX.viewCreator.loadBuyerReadyTemplate('robustness-pack-screen'));
