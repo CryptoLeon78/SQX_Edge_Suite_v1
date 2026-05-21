@@ -4,6 +4,7 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 
 from core.plan import Mining
+from core.cfx_compatibility import audit_cfx_compatibility
 from core.project_generator import generate_project
 from core.xml_patcher import (
     patch_backtest_precision,
@@ -199,6 +200,38 @@ def test_generate_project_applies_intraday_time_window():
         if node.get("key") in {"SignalTimeRangeFrom", "SignalTimeRangeTo"}
     }
     assert params == {"SignalTimeRangeFrom": "7200", "SignalTimeRangeTo": "79200"}
+
+
+def test_generate_project_defaults_to_sq_default_exact_symbol_for_user_downloads():
+    mining = Mining(num=93, phase=1, asset="GBPJPY", tf="H1", bs="BS_Tendencia", dir="both")
+    with tempfile.TemporaryDirectory() as tmp:
+        out_path = generate_project(
+            mining,
+            str(TEMPLATE_DIR / "Capa1_Long.cfx"),
+            tmp,
+            capa=1,
+            sqx_db_path=None,
+        )
+        roots = dict(_xml_roots(Path(out_path)))
+        report = audit_cfx_compatibility(out_path)
+
+    build = roots["Build-Task1.xml"]
+    build_symbols = build.findall(".//Resources/Symbols/Symbol")
+    assert {node.get("name") for node in build_symbols} == {"GBPJPY"}
+    assert {node.get("source") for node in build_symbols} == {"0"}
+    assert {node.get("broker") for node in build_symbols} == {"0"}
+    assert {node.find("InstrumentInfo").get("instrument") for node in build_symbols} == {"GBPJPY"}
+    assert {node.find("InstrumentInfo").get("broker") for node in build_symbols} == {"0"}
+    assert {node.find("InstrumentInfo").get("dataType") for node in build_symbols} == {"1"}
+    assert [broker.get("name") for broker in build.findall(".//Resources/Brokers/Broker")] == ["SQ default"]
+
+    retest1 = roots["Retest-Task1.xml"]
+    retest1_symbols = retest1.findall(".//Resources/Symbols/Symbol")
+    assert {node.get("name") for node in retest1_symbols} == {"GBPJPY_dukascopy"}
+    assert {node.get("source") for node in retest1_symbols} == {"2"}
+    assert {node.get("broker") for node in retest1_symbols} == {"3"}
+    assert report["hostProfile"] == "sq_default_cross_broker_oos2"
+    assert report["failCount"] == 0
 
 
 def test_patch_symbol_resources_rebuilds_empty_brokers_for_sqx142():

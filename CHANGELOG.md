@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-21 - CFX-RILIS-TARGET1 SQ Default Exact-Symbol Target
+
+- Changes Project Generator's default user-download target profile to `SQ default / símbolo exacto`, generating primary `.cfx` resources as `{asset}` without the Darwinex suffix for testers whose SQX Data Manager uses `Broker profile = SQ default`.
+- Keeps `SQX Edge / Darwinex` available as a server/operator profile, and keeps `Broker del usuario` for explicit broker/source remaps when a recipient has a custom local SQX profile.
+- Preserves Retest 1/OOS2 on Dukascopy 2010.01.01-2017.10.02 as a methodology rule, separate from the recipient's primary broker profile.
+
 ## 2026-05-21 - TM-PERF2 Template Maker Worker Ingestion
 
 - Adds a local Template Maker Web Worker path for CSV parsing, `.sqx` ZIP unpacking, SHA-256 hashing, XML extraction and diversity clustering cache warmup, with safe fallback when Worker execution is unavailable.

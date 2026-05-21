@@ -39,7 +39,7 @@ DEFAULT_BROKER_POSTFIX = (
     or _GENERATOR_PROFILE.get("defaultBrokerPostfix")
     or "_darwinex"
 )
-DEFAULT_TARGET_PROFILE_ID = "sqxedge_darwinex"
+DEFAULT_TARGET_PROFILE_ID = "sq_default_exact"
 
 
 def _symbol_for_sqx(asset: str, postfix: str = DEFAULT_BROKER_POSTFIX) -> str:
@@ -95,6 +95,15 @@ def _profile_from_broker(profile_id: str | None) -> dict:
     }
 
 
+def _format_symbol_template(template: str | None, asset: str) -> str | None:
+    if not template:
+        return None
+    try:
+        return str(template).format(asset=asset, assetUpper=(asset or "").upper(), assetLower=(asset or "").lower())
+    except Exception:
+        return str(template)
+
+
 def normalize_target_profile(target_profile=None, broker_postfix: str = DEFAULT_BROKER_POSTFIX) -> dict:
     """Resolve a generation target profile into the fields used by XML patching.
 
@@ -121,7 +130,7 @@ def normalize_target_profile(target_profile=None, broker_postfix: str = DEFAULT_
                 "mode": raw.get("mode") or "direct_profile",
                 "warning": raw.get("warning") or "",
             })
-            for key in ("brokerPostfix", "brokerId", "sourceId", "brokerName", "brokerDescription", "timezone", "precision", "symbol"):
+            for key in ("brokerPostfix", "brokerId", "sourceId", "brokerName", "brokerDescription", "timezone", "precision", "symbol", "dataType"):
                 if raw.get(key) is not None:
                     direct[key] = raw.get(key)
             if raw.get("brokerName") and not raw.get("brokerDescription"):
@@ -144,6 +153,21 @@ def normalize_target_profile(target_profile=None, broker_postfix: str = DEFAULT_
         "mode": profile.get("mode") or "server_default",
         "warning": profile.get("warning") or "",
     })
+    for key in (
+        "brokerPostfix",
+        "brokerId",
+        "sourceId",
+        "brokerName",
+        "brokerDescription",
+        "timezone",
+        "precision",
+        "dataType",
+        "symbol",
+        "symbolTemplate",
+        "forceExactSymbol",
+    ):
+        if profile.get(key) is not None:
+            resolved[key] = profile.get(key)
 
     if resolved["id"] == "custom_user_broker":
         custom_postfix = _clean_profile_value(custom.get("brokerPostfix") or custom.get("postfix"))
@@ -189,6 +213,9 @@ def public_target_profile(profile: dict) -> dict:
         "brokerId": data.get("brokerId"),
         "sourceId": data.get("sourceId"),
         "symbol": data.get("symbol"),
+        "symbolTemplate": data.get("symbolTemplate"),
+        "forceExactSymbol": bool(data.get("forceExactSymbol")),
+        "dataType": data.get("dataType"),
         "warning": data.get("warning"),
     }
 
@@ -239,8 +266,10 @@ def resolve_costs(
         DEFAULT_TARGET_PROFILE_ID,
         postfix,
     )
-    postfix = profile.get("brokerPostfix") or postfix or ""
-    explicit_symbol = profile.get("symbol")
+    force_exact_symbol = bool(profile.get("forceExactSymbol"))
+    profile_postfix = profile.get("brokerPostfix")
+    postfix = "" if force_exact_symbol and profile_postfix == "" else (profile_postfix if profile_postfix is not None else (postfix or ""))
+    explicit_symbol = profile.get("symbol") or _format_symbol_template(profile.get("symbolTemplate"), mining.asset)
 
     # 1) Intentar data.db
     if sqx_db_path and os.path.isfile(sqx_db_path):
@@ -253,16 +282,19 @@ def resolve_costs(
                     preferred_postfix=postfix,
                 )
                 if info.get("source") == "db":
-                    pf = info.get("broker_postfix") or postfix or ""
-                    broker_id = profile.get("brokerId") if profile.get("id") == "custom_user_broker" and profile.get("brokerId") is not None else info.get("broker_id")
+                    pf = postfix if force_exact_symbol else (info.get("broker_postfix") or postfix or "")
+                    broker_id = profile.get("brokerId") if (force_exact_symbol or (profile.get("id") == "custom_user_broker" and profile.get("brokerId") is not None)) else info.get("broker_id")
                     source_id = profile.get("sourceId")
                     broker_name = profile.get("brokerName") or info.get("broker_name")
                     broker_description = profile.get("brokerDescription") or info.get("broker_description")
                     broker_timezone = profile.get("timezone") or info.get("broker_timezone") or "EETUS"
+                    resolved_symbol = explicit_symbol or info.get("data_symbol") or (_symbol_for_sqx(info["instrument"], pf) if pf else info["instrument"])
+                    resolved_instrument = resolved_symbol if force_exact_symbol else info["instrument"]
+                    profile_data_type = profile.get("dataType")
                     return {
                         "source": "db",
-                        "instrument": info["instrument"],
-                        "symbol": explicit_symbol or info.get("data_symbol") or (_symbol_for_sqx(info["instrument"], pf) if pf else info["instrument"]),
+                        "instrument": resolved_instrument,
+                        "symbol": resolved_symbol,
                         "spread": info.get("spread"),
                         "slippage": info.get("slippage"),
                         "swap_long": info.get("swap_long") if info.get("swap_long") is not None else 0.0,
@@ -277,7 +309,7 @@ def resolve_costs(
                         "broker_description": broker_description,
                         "broker_timezone": broker_timezone,
                         "target_profile": public_target_profile(profile),
-                        "data_type": info.get("data_type"),
+                        "data_type": profile_data_type if profile_data_type is not None else info.get("data_type"),
                         "tick_size": info.get("tick_size"),
                         "tick_step": info.get("tick_step"),
                         "point_value": info.get("point_value"),
@@ -309,7 +341,7 @@ def resolve_costs(
     fallback_symbol = explicit_symbol or (_symbol_for_sqx(mining.asset, postfix) if postfix else mining.asset)
     return {
         "source": "fallback",
-        "instrument": mining.asset,
+        "instrument": fallback_symbol if force_exact_symbol else mining.asset,
         "symbol": fallback_symbol,
         "spread": d["spread"],
         "slippage": 0,
@@ -325,7 +357,7 @@ def resolve_costs(
         "broker_description": profile.get("brokerDescription"),
         "broker_timezone": profile.get("timezone"),
         "target_profile": public_target_profile(profile),
-        "data_type": shape["data_type"],
+        "data_type": profile.get("dataType") if profile.get("dataType") is not None else shape["data_type"],
         "tick_size": shape["tick_size"],
         "tick_step": shape["tick_step"],
         "point_value": shape["point_value"],

@@ -14,6 +14,7 @@ CFX_COMPATIBILITY_AUDIT_VERSION = "cfx-compatibility-audit-v1"
 
 SOURCE_LABELS = {
     "-1": "unbound",
+    "0": "sq_default",
     "2": "dukascopy",
     "4": "darwinex",
     "5": "sq_equity_data",
@@ -21,6 +22,7 @@ SOURCE_LABELS = {
 
 BROKER_LABELS = {
     "-1": "unbound",
+    "0": "sq_default",
     "3": "dukascopy",
     "4": "darwinex",
 }
@@ -156,7 +158,7 @@ def _inspect_summary(summary: CfxXmlSummary, issues: list[CfxCompatibilityIssue]
             _issue(issues, "sq_equity_data_dependency", "fail", file, "uses SQ Equity data; other hosts may need SQ Data subscription")
         elif source == "2":
             _issue(issues, "dukascopy_dependency", "warn", file, "uses Dukascopy data source for cross-broker OOS validation")
-        elif source not in {"4"}:
+        elif source not in {"0", "4"}:
             _issue(issues, "unknown_data_source", "warn", file, f"uses source id {source}")
     for broker in sorted(summary.brokers):
         if broker == "-1":
@@ -192,6 +194,8 @@ def _host_profile(summaries: list[CfxXmlSummary]) -> str:
     resource_symbols = {symbol for summary in summaries for symbol in summary.resource_symbols}
     if sources == {"4"} and brokers == {"4"} and all(symbol.endswith("_darwinex") for symbol in resource_symbols if symbol):
         return "sqx142_darwinex"
+    if "2" in sources and sources.issubset({"0", "2"}) and brokers.issubset({"0", "3"}):
+        return "sq_default_cross_broker_oos2"
     if "2" in sources and sources.issubset({"2", "4"}) and brokers.issubset({"3", "4"}):
         return "sqx_edge_cross_broker_oos2"
     if "5" in sources or any(symbol.startswith("[[") for symbol in resource_symbols):

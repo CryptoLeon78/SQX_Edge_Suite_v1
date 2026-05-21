@@ -26,6 +26,23 @@
     }
   },
   "targetProfiles": {
+    "sq_default_exact": {
+      "id": "sq_default_exact",
+      "label": "SQ default / símbolo exacto",
+      "brokerProfile": "darwinex",
+      "mode": "sq_default_exact_symbol",
+      "brokerPostfix": "",
+      "brokerId": 0,
+      "sourceId": 0,
+      "brokerName": "SQ default",
+      "brokerDescription": "SQ default",
+      "timezone": "EETUS",
+      "precision": "TICK",
+      "dataType": 1,
+      "symbolTemplate": "{asset}",
+      "forceExactSymbol": true,
+      "warning": "Perfil recomendado para usuarios que abren el .cfx en su SQX local con símbolos sin sufijo y Broker profile SQ default. Retest 1/OOS2 sigue usando Dukascopy por metodología."
+    },
     "sqxedge_darwinex": {
       "id": "sqxedge_darwinex",
       "label": "SQX Edge Suite / Darwinex",

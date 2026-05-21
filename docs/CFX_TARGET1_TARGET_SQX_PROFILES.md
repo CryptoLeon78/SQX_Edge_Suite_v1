@@ -16,13 +16,26 @@ Dukascopy retest.
 
 ## Target Profiles
 
-Default profile:
+Default user-download profile:
+
+- `sq_default_exact`
+- broker postfix empty
+- broker id `0`
+- source id `0`
+- Forex `InstrumentInfo` data type `1`, so SQX 142 does not resolve the
+  generated symbol as a futures-style resource.
+- symbol template `{asset}`; for example `GBPJPY`, not `GBPJPY_darwinex`
+- intended for testers/users whose SQX Data Manager shows symbols without
+  suffix and broker profile `SQ default`, such as the RILIS compatibility case.
+
+Server/operator profile:
 
 - `sqxedge_darwinex`
 - broker postfix `_darwinex`
 - broker id `4`
 - source id `4`
 - intended for the SQX Edge Suite server and the current operator SQX 142 host.
+  Use it only when the recipient SQX also has Darwinex-compatible symbols/data.
 
 Manual user-broker profile:
 
@@ -50,10 +63,18 @@ uses a primary user broker and Retest 1 uses Dukascopy, that is expected.
 ## Compatibility Warning
 
 A user may still see SQX's resource resolver if their local SQX does not contain
-the selected broker symbols or the required historical data. This is not a
-security issue; it means the recipient's Data Manager does not match the
-profile chosen at generation time.
+the selected broker symbols, broker profile or the required historical data.
+This is not a security issue; it means the recipient's Data Manager does not
+match the profile chosen at generation time.
 
 When this happens, use the manual profile with the exact symbol and
 broker/source identifiers from the user's SQX Data Manager, or ask the user to
 map the project resource to an existing symbol inside SQX.
+
+RILIS compatibility note:
+
+- If the user's Data Manager shows `Broker profile = SQ default` and symbols
+  like `GBPJPY`, choose `SQ default / símbolo exacto`.
+- If their Data Manager shows a custom broker name or suffixed symbols, choose
+  `Broker del usuario` and enter the exact symbol plus broker/source ids from
+  that SQX.

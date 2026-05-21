@@ -681,8 +681,8 @@ class ApiTestCase(unittest.TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(gen.call_args.kwargs["alias_override"], {"USTEC": "NDXm"})
-        self.assertEqual(gen.call_args.kwargs["target_profile"], {"id": "sqxedge_darwinex"})
-        self.assertEqual(self.get_json(response)["target_profile"]["id"], "sqxedge_darwinex")
+        self.assertEqual(gen.call_args.kwargs["target_profile"], {"id": "sq_default_exact"})
+        self.assertEqual(self.get_json(response)["target_profile"]["id"], "sq_default_exact")
 
     def test_generate_custom_accepts_target_profile_remap(self):
         cfg = {

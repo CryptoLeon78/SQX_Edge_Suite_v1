@@ -956,6 +956,7 @@
             <span id="pg-generation-mode-status">Elige un modo en el Paso 3 para mostrar su panel de trabajo.</span>
             <label class="pg-target-select-label">Perfil SQX destino
               <select id="pg-target-profile">
+                <option value="sq_default_exact">SQ default / símbolo exacto</option>
                 <option value="sqxedge_darwinex">SQX Edge / Darwinex</option>
                 <option value="custom_user_broker">Broker del usuario</option>
               </select>
@@ -970,7 +971,7 @@
           <div class="pg-target-profile-panel" id="pg-target-profile-panel">
             <div>
               <strong>Compatibilidad del SQX destino</strong>
-              <p id="pg-target-profile-warning">Perfil recomendado para el servidor SQX Edge Suite. Si el usuario abrirá el .cfx en otro SQX sin Darwinex/data compatible, selecciona Broker del usuario y remapea el símbolo principal.</p>
+              <p id="pg-target-profile-warning">Perfil recomendado para usuarios que abrirán el .cfx en SQX local con símbolos sin sufijo y Broker profile SQ default. Retest 1/OOS2 conserva Dukascopy por metodología.</p>
             </div>
             <div class="pg-target-custom-fields" id="pg-target-custom-fields" hidden>
               <label>Sufijo broker <input type="text" id="pg-target-postfix" placeholder="_darwinex, _dukascopy, _broker"></label>

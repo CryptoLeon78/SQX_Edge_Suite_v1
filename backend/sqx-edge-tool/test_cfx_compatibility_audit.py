@@ -29,7 +29,7 @@ def test_generated_cfx_passes_host_compatibility_audit():
     assert report["version"] == "cfx-compatibility-audit-v1"
     codes = {issue["code"] for issue in report["issues"]}
     assert report["verdict"] == "warn"
-    assert report["hostProfile"] == "sqx_edge_cross_broker_oos2"
+    assert report["hostProfile"] == "sq_default_cross_broker_oos2"
     assert report["failCount"] == 0
     assert "dukascopy_dependency" in codes
 

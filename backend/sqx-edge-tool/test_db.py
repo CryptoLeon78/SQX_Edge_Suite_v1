@@ -24,6 +24,7 @@ class DbCostResolutionTestCase(unittest.TestCase):
             db_path,
             cfg.get("darwinex_suffix") or DEFAULT_BROKER_POSTFIX,
             alias_override=aliases,
+            target_profile="sqxedge_darwinex",
         )
 
         self.assertIn("symbol", costs)
@@ -45,7 +46,7 @@ class DbCostResolutionTestCase(unittest.TestCase):
             self.skipTest("SQX 142 local diagnostic data.db no disponible")
 
         mining = Mining(num=2, phase=1, asset="USDJPY", tf="H4", bs="BS_Volatilidad", dir="both")
-        costs = resolve_costs(mining, str(db_path), DEFAULT_BROKER_POSTFIX)
+        costs = resolve_costs(mining, str(db_path), DEFAULT_BROKER_POSTFIX, target_profile="sqxedge_darwinex")
 
         self.assertEqual(costs["source"], "db")
         self.assertEqual(costs["instrument"], "USDJPY_darwinex")

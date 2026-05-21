@@ -178,7 +178,7 @@ function pgApplyCapa2Selection(payload, capa) {
 }
 
 function pgReadTargetProfile() {
-  const id = pgInputValue('pg-target-profile') || 'sqxedge_darwinex';
+  const id = pgInputValue('pg-target-profile') || 'sq_default_exact';
   const custom = {
     brokerPostfix: pgTrimmedInputValue('pg-target-postfix'),
     symbol: pgTrimmedInputValue('pg-target-symbol'),
@@ -201,12 +201,14 @@ function pgApplyTargetProfile(payload) {
 }
 
 function pgUpdateTargetProfileUi() {
-  const id = pgInputValue('pg-target-profile') || 'sqxedge_darwinex';
+  const id = pgInputValue('pg-target-profile') || 'sq_default_exact';
   const custom = pgDom('pg-target-custom-fields');
   if (custom) custom.hidden = id !== 'custom_user_broker';
   const warning = id === 'custom_user_broker'
-    ? 'Modo remapeo: usa símbolo exacto o sufijo, Broker ID y Source ID del Data Manager del usuario destino. Si no los conoces, genera con SQX Edge / Darwinex y el usuario verá el diálogo de recursos en SQX.'
-    : 'Perfil recomendado para el servidor SQX Edge Suite. Si el usuario abrirá el .cfx en otro SQX sin Darwinex/data compatible, selecciona Broker del usuario y remapea el símbolo principal.';
+    ? 'Modo remapeo: usa símbolo exacto o sufijo, Broker ID y Source ID del Data Manager del usuario destino. Úsalo cuando el SQX del usuario tenga nombres de broker propios.'
+    : (id === 'sqxedge_darwinex'
+      ? 'Perfil del servidor SQX Edge Suite. Úsalo sólo si el SQX destino tiene Darwinex/data compatible; si no, el usuario verá el diálogo de recursos.'
+      : 'Perfil recomendado para usuarios como RILIS: símbolo exacto sin sufijo y Broker profile SQ default. Retest 1/OOS2 mantiene Dukascopy por metodología.');
   pgSetText('pg-target-profile-warning', warning);
 }
 

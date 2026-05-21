@@ -672,7 +672,7 @@ def _target_profile_payload(data: dict, cfg: dict) -> dict:
         (data or {}).get("target_profile")
         or (data or {}).get("targetProfile")
         or cfg.get("target_profile")
-        or "sqxedge_darwinex"
+        or "sq_default_exact"
     )
     custom = (
         (data or {}).get("target_profile_custom")
@@ -685,7 +685,7 @@ def _target_profile_payload(data: dict, cfg: dict) -> dict:
         if custom and not payload.get("custom"):
             payload["custom"] = custom
         return payload
-    profile_id = str(raw or "sqxedge_darwinex")
+    profile_id = str(raw or "sq_default_exact")
     payload = {"id": profile_id}
     if profile_id == "custom_user_broker":
         payload["custom"] = custom if isinstance(custom, dict) else {}

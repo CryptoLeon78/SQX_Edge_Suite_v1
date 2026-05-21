@@ -52,7 +52,7 @@
       outputDir: trimmedInputValue(doc, 'pg-output-dir'),
       templateCapa1: trimmedInputValue(doc, 'pg-tpl-c1'),
       templateCapa2: trimmedInputValue(doc, 'pg-tpl-c2'),
-      targetProfile: inputValue(doc, 'pg-target-profile') || 'sqxedge_darwinex',
+      targetProfile: inputValue(doc, 'pg-target-profile') || 'sq_default_exact',
       targetProfileCustom: {
         brokerPostfix: trimmedInputValue(doc, 'pg-target-postfix'),
         symbol: trimmedInputValue(doc, 'pg-target-symbol'),
@@ -108,7 +108,7 @@
     setInputValue(doc, 'pg-output-dir', c.output_dir);
     setInputValue(doc, 'pg-tpl-c1', c.template_capa1);
     setInputValue(doc, 'pg-tpl-c2', c.template_capa2);
-    setInputValue(doc, 'pg-target-profile', c.target_profile || 'sqxedge_darwinex');
+    setInputValue(doc, 'pg-target-profile', c.target_profile || 'sq_default_exact');
     var custom = c.target_profile_custom || {};
     setInputValue(doc, 'pg-target-postfix', custom.brokerPostfix || custom.broker_postfix || custom.postfix);
     setInputValue(doc, 'pg-target-symbol', custom.symbol);
