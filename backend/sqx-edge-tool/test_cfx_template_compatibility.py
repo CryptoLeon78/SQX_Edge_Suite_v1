@@ -219,11 +219,11 @@ def test_generate_project_defaults_to_sq_default_exact_symbol_for_user_downloads
     build_symbols = build.findall(".//Resources/Symbols/Symbol")
     assert {node.get("name") for node in build_symbols} == {"GBPJPY"}
     assert {node.get("source") for node in build_symbols} == {"0"}
-    assert {node.get("broker") for node in build_symbols} == {"0"}
+    assert {node.get("broker") for node in build_symbols} == {"-1"}
     assert {node.find("InstrumentInfo").get("instrument") for node in build_symbols} == {"GBPJPY"}
-    assert {node.find("InstrumentInfo").get("broker") for node in build_symbols} == {"0"}
+    assert {node.find("InstrumentInfo").get("broker") for node in build_symbols} == {"-1"}
     assert {node.find("InstrumentInfo").get("dataType") for node in build_symbols} == {"1"}
-    assert [broker.get("name") for broker in build.findall(".//Resources/Brokers/Broker")] == ["SQ default"]
+    assert build.findall(".//Resources/Brokers/Broker") == []
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_symbols = retest1.findall(".//Resources/Symbols/Symbol")

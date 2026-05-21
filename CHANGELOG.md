@@ -5,6 +5,7 @@
 - Changes Project Generator's default user-download target profile to `SQ default / símbolo exacto`, generating primary `.cfx` resources as `{asset}` without the Darwinex suffix for testers whose SQX Data Manager uses `Broker profile = SQ default`.
 - Keeps `SQX Edge / Darwinex` available as a server/operator profile, and keeps `Broker del usuario` for explicit broker/source remaps when a recipient has a custom local SQX profile.
 - Preserves Retest 1/OOS2 on Dukascopy 2010.01.01-2017.10.02 as a methodology rule, separate from the recipient's primary broker profile.
+- Aligns `SQ default` with SQX 142's no-broker/default shape (`broker=-1`) instead of a real broker row `0`, avoiding `BrokerDto.getName()` null errors on recipient machines.
 
 ## 2026-05-21 - TM-PERF2 Template Maker Worker Ingestion
 

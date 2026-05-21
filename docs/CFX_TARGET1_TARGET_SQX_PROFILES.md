@@ -20,7 +20,9 @@ Default user-download profile:
 
 - `sq_default_exact`
 - broker postfix empty
-- broker id `0`
+- broker id `-1` (SQX internal no-broker/default profile; avoids `BrokerDto`
+  null errors on recipient machines that do not have a real broker row for
+  `SQ default`)
 - source id `0`
 - Forex `InstrumentInfo` data type `1`, so SQX 142 does not resolve the
   generated symbol as a futures-style resource.

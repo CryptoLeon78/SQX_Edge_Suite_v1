@@ -21,8 +21,7 @@ SOURCE_LABELS = {
 }
 
 BROKER_LABELS = {
-    "-1": "unbound",
-    "0": "sq_default",
+    "-1": "sq_default_no_broker",
     "3": "dukascopy",
     "4": "darwinex",
 }
@@ -162,7 +161,9 @@ def _inspect_summary(summary: CfxXmlSummary, issues: list[CfxCompatibilityIssue]
             _issue(issues, "unknown_data_source", "warn", file, f"uses source id {source}")
     for broker in sorted(summary.brokers):
         if broker == "-1":
-            _issue(issues, "unbound_broker", "fail", file, "symbol broker is unbound (-1)")
+            has_placeholder = any(symbol.startswith("[[") and symbol.endswith("]]") for symbol in summary.resource_symbols)
+            if "0" not in summary.sources or has_placeholder:
+                _issue(issues, "unbound_broker", "fail", file, "symbol broker is unbound (-1)")
         elif broker not in summary.broker_table:
             _issue(issues, "missing_broker_entry", "fail", file, f"symbol broker {broker} is not declared in Resources/Brokers")
     if summary.resource_sessions:
@@ -194,7 +195,7 @@ def _host_profile(summaries: list[CfxXmlSummary]) -> str:
     resource_symbols = {symbol for summary in summaries for symbol in summary.resource_symbols}
     if sources == {"4"} and brokers == {"4"} and all(symbol.endswith("_darwinex") for symbol in resource_symbols if symbol):
         return "sqx142_darwinex"
-    if "2" in sources and sources.issubset({"0", "2"}) and brokers.issubset({"0", "3"}):
+    if "2" in sources and sources.issubset({"0", "2"}) and brokers.issubset({"-1", "3"}):
         return "sq_default_cross_broker_oos2"
     if "2" in sources and sources.issubset({"2", "4"}) and brokers.issubset({"3", "4"}):
         return "sqx_edge_cross_broker_oos2"

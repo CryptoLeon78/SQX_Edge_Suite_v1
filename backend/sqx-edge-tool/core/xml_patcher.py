@@ -133,6 +133,10 @@ def _bounded_resource_period_ms(
 def _ensure_resource_broker(resources: ET.Element, resource: dict, broker_id) -> None:
     broker_id_text = _format_attr(broker_id, "")
     if not broker_id_text or broker_id_text in ("-1", "None"):
+        brokers = resources.find("Brokers")
+        if brokers is not None:
+            for candidate in list(brokers.findall("Broker")):
+                brokers.remove(candidate)
         return
     brokers = resources.find("Brokers")
     if brokers is None:
@@ -305,9 +309,11 @@ def patch_symbol_resources(root: ET.Element, resource: Optional[dict]) -> int:
             symbols.remove(node)
 
         broker_id = resource.get("broker_id")
-        if broker_id is None or str(broker_id) in ("", "-1"):
+        if broker_id is None or str(broker_id) in ("", "None"):
             broker_id = base_attrs.get("broker") or 4
-        source = resource.get("source_id") or resource.get("data_source_id")
+        source = resource.get("source_id")
+        if source is None:
+            source = resource.get("data_source_id")
         if source is None or str(source) in ("", "-1", "None"):
             source = broker_id if str(broker_id) not in ("", "-1", "None") else base_attrs.get("source", "4")
         _ensure_resource_broker(resources, resource, broker_id)
