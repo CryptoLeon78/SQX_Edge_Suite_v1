@@ -24,8 +24,8 @@ Current WFCO status:
 - `WFCO-0 · Governance And Contract`: completed.
 - `WFCO-1 · Edge Factory Shell`: completed.
 - `WFCO-2 · Methodology Handoffs`: completed.
-- `WFCO-3 · Content Overhaul`: next recommended phase.
-- `WFCO-4 · Portfolio Lab MVP`: pending beyond the initial shell MVP.
+- `WFCO-3 · Content Overhaul`: completed.
+- `WFCO-4 · Portfolio Lab MVP`: next recommended phase.
 - `WFCO-5 · Visual Polish And Desktop QA`: pending.
 
 Historical repair/enrichment pause: TM-DIV1 added a hybrid diversity gate to Template Maker after the TM-FIX2 CSV contract repair. This did not advance the UX-NAV tab order and does not reopen Template Maker as a design pass; it prevents redundant C2 templates by clustering similar `.sqx` logic plus CSV metric behavior.
@@ -62,14 +62,14 @@ Goal: convert the app into `Edge Factory`, a near all-in-one guided methodology 
 
 Primary flow:
 
-1. `Preparar sesión`: identity, workspace, service, downloads and remote readiness.
-2. `Elegir tarjeta`: asset hypothesis, timeframe, direction and real BlockSetting.
-3. `Minar Capa 1`: generate methodological `.cfx`.
-4. `Analizar Capa 1`: Template Maker with CSV/SQX contract, clusters and winners.
-5. `Generar Template C2`: traceable C2 modal with indicators, cluster and Exit Policy.
-6. `Minar Capa 2`: generate `.cfx` Capa 2 from the validated template.
-7. `Analizar Capa 2`: Portfolio Lab, not Template Maker.
-8. `Portfolio descorrelacionado`: shortlist, diversity, export and next action.
+1. `Punto de partida`: confirm access, workspace, service, downloads and remote readiness.
+2. `Elegir edge`: select asset hypothesis, timeframe, direction and real BlockSetting.
+3. `Generar Capa 1`: generate the methodological `.cfx`.
+4. `Certificar Capa 1`: Template Maker with CSV/SQX contract, clusters and winners.
+5. `Crear Template C2`: traceable C2 modal with indicators, cluster and Exit Policy.
+6. `Generar Capa 2`: generate `.cfx` Capa 2 from the validated template.
+7. `Revisar Capa 2`: Portfolio Lab, not Template Maker.
+8. `Portfolio`: shortlist, diversity, export and next action.
 
 Design rules:
 
@@ -87,6 +87,12 @@ WFCO-2 applied handoff rule:
 - Template Maker registers Capa 1 analysis state and generated Template C2 trace.
 - Portfolio Lab registers shortlist/diversity output.
 - Each stage has a compact context strip so the user sees what was selected, generated, analyzed or still missing without reopening every advanced tool.
+
+WFCO-3 applied content rule:
+
+- Edge Factory stages now speak in action/output terms: `Haz`, `Sale`, pending context and one primary action per stage.
+- The main shell says `Del asset al portfolio, sin perder el hilo` and removes tab-heavy wording from the primary route.
+- Advanced tools remain available in the drawer, but user-facing guidance is methodology-first rather than module-first.
 
 ## UX-WF2 - Functional Pipeline KPIs
 

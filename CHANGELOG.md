@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-21 - WFCO3 Content Overhaul
+
+- Completes WFCO-3: Edge Factory copy now guides by action, output and pending state instead of presenting the user with tab-heavy technical wording.
+- Updates the main route labels to `Punto de partida`, `Elegir edge`, `Generar Capa 1`, `Certificar Capa 1`, `Crear Template C2`, `Generar Capa 2`, `Revisar Capa 2` and `Portfolio`.
+- Adds the Edge Factory Content Gate to governance and moves the parallel UX recommendation to WFCO-4 Portfolio Lab MVP, while REMOTE-RILIS-STANDBY remains the independent remote blocker.
+
 ## 2026-05-21 - WFCO2 Methodology Handoffs
 
 - Records WFCO-2 as completed: Edge Factory now receives public-safe handoff context from Activos, Plan Mining, Project Generator, Template Maker and Portfolio Lab.

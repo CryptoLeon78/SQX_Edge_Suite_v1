@@ -10,14 +10,14 @@ The first implementation is a shell, not a rewrite. Existing engines remain inta
 
 Primary user flow:
 
-1. Preparar sesión.
-2. Elegir tarjeta.
-3. Minar Capa 1.
-4. Analizar Capa 1.
-5. Generar Template C2.
-6. Minar Capa 2.
-7. Analizar Capa 2.
-8. Portfolio descorrelacionado.
+1. Punto de partida.
+2. Elegir edge.
+3. Generar Capa 1.
+4. Certificar Capa 1.
+5. Crear Template C2.
+6. Generar Capa 2.
+7. Revisar Capa 2.
+8. Portfolio.
 
 Default path is guided methodology. `Custom libre avanzado` remains available, but it is secondary and carries a partial-traceability warning.
 
@@ -59,6 +59,19 @@ Edge Factory now receives public-safe handoff context from the existing engines:
 
 The UI shows this as one compact context strip per stage. It is intentionally a summary, not a raw log: no local paths, protected URLs, emails, tokens, Cloudflare identifiers or server internals are allowed in these stage strips.
 
+## WFCO-3 Content Contract
+
+The main shell now uses the headline `Del asset al portfolio, sin perder el hilo` and treats every stage as a compact decision card.
+
+Each stage must answer four questions without forcing the user to know the old tab layout:
+
+- What do I do now?
+- What input do I need?
+- What output should I get?
+- What is still pending?
+
+The visible rhythm is `Haz` plus `Sale`, followed by a short context strip. Advanced tool names may appear in the drawer and buttons, but the primary route is methodology-first and user-action-first.
+
 ## Phase Status
 
 | Phase | Status | Scope |
@@ -66,8 +79,8 @@ The UI shows this as one compact context strip per stage. It is intentionally a 
 | WFCO-0 | Completed | Governance, roadmap and contract. |
 | WFCO-1 | Completed | Edge Factory shell, advanced drawer and Portfolio Lab MVP surface. |
 | WFCO-2 | Completed | Real methodology handoffs from existing engines into Edge Factory state/context strips. |
-| WFCO-3 | Next | Copy/content overhaul across the main experience. |
-| WFCO-4 | Pending | Portfolio Lab MVP beyond the shell. |
+| WFCO-3 | Completed | Copy/content overhaul across the main experience. |
+| WFCO-4 | Next | Portfolio Lab MVP beyond the shell. |
 | WFCO-5 | Pending | Visual polish and desktop QA. |
 
 ## Safety Rules

@@ -391,14 +391,14 @@ async function run() {
     await desktop.waitForSelector('#edge-factory-shell');
     const edgeFactoryText = await desktop.locator('#edge-factory-shell').evaluate(node => node.textContent || '');
     [
-      'Preparar sesión',
-      'Elegir tarjeta',
-      'Minar Capa 1',
-      'Analizar Capa 1',
-      'Generar Template C2',
-      'Minar Capa 2',
-      'Analizar Capa 2',
-      'Portfolio descorrelacionado',
+      'Punto de partida',
+      'Elegir edge',
+      'Generar Capa 1',
+      'Certificar Capa 1',
+      'Crear Template C2',
+      'Generar Capa 2',
+      'Revisar Capa 2',
+      'Portfolio',
       'Custom libre avanzado',
     ].forEach(expected => {
       if (!edgeFactoryText.includes(expected)) throw new Error(`Edge Factory should expose stage: ${expected}`);

@@ -6,14 +6,14 @@
   var FALLBACK_KEY = 'sqx_edge_factory_state_v1';
 
   var STEPS = [
-    { id: 'session', label: 'Preparar sesión' },
-    { id: 'asset', label: 'Elegir tarjeta' },
-    { id: 'capa1-generate', label: 'Minar Capa 1' },
-    { id: 'capa1-analyze', label: 'Analizar Capa 1' },
-    { id: 'c2-template', label: 'Generar Template C2' },
-    { id: 'capa2-generate', label: 'Minar Capa 2' },
-    { id: 'capa2-analyze', label: 'Analizar Capa 2' },
-    { id: 'portfolio', label: 'Portfolio descorrelacionado' }
+    { id: 'session', label: 'Punto de partida' },
+    { id: 'asset', label: 'Elegir edge' },
+    { id: 'capa1-generate', label: 'Generar Capa 1' },
+    { id: 'capa1-analyze', label: 'Certificar Capa 1' },
+    { id: 'c2-template', label: 'Crear Template C2' },
+    { id: 'capa2-generate', label: 'Generar Capa 2' },
+    { id: 'capa2-analyze', label: 'Revisar Capa 2' },
+    { id: 'portfolio', label: 'Portfolio' }
   ];
 
   function storageKey() {
@@ -349,29 +349,29 @@
     var filesC2 = c2 && c2.files ? c2.files.length : 0;
     return {
       session: state.completedSteps.indexOf('session') !== -1
-        ? 'Sesión validada. Workspace y descargas listos para operar.'
-        : 'Pendiente de validar sesión, workspace y servicio desde Control Panel.',
+        ? 'OK: acceso, workspace, servicio y descargas preparados.'
+        : 'Pendiente: valida acceso, workspace, servicio y descargas.',
       asset: state.selectedCard
-        ? [state.selectedCard.asset, state.selectedCard.timeframe, state.selectedCard.direction, state.selectedCard.blockSetting].filter(Boolean).join(' · ')
-        : 'Sin tarjeta elegida. Elige asset, timeframe, dirección y BlockSetting real.',
+        ? 'Hipótesis activa: ' + [state.selectedCard.asset, state.selectedCard.timeframe, state.selectedCard.direction, state.selectedCard.blockSetting].filter(Boolean).join(' · ')
+        : 'Pendiente: elige una tarjeta con asset, TF, dirección y BlockSetting.',
       'capa1-generate': c1
-        ? 'Capa 1 generada: ' + (c1.results ? c1.results.ok + '/' + c1.results.total + ' OK' : 'lista') + (filesC1 ? ' · ' + filesC1 + ' archivo(s)' : '')
-        : (state.selectedMining ? 'Listo para generar: ' + miningLabel(state.selectedMining) : 'Necesita un mining trazable del Plan Mining.'),
+        ? 'C1 lista: ' + (c1.results ? c1.results.ok + '/' + c1.results.total + ' OK' : 'generada') + (filesC1 ? ' · ' + filesC1 + ' descarga(s)' : '')
+        : (state.selectedMining ? 'Preparado para C1: ' + miningLabel(state.selectedMining) : 'Pendiente: añade o selecciona un mining trazable.'),
       'capa1-analyze': state.capa1Analysis
-        ? 'Analizadas ' + state.capa1Analysis.total + ' estrategias · PASSED ' + state.capa1Analysis.passed + ' · ganadores C2 ' + state.capa1Analysis.winners + '.'
-        : 'Pendiente de cargar CSV/SQX en Template Maker y certificar Capa 1.',
+        ? 'C1 certificada: ' + state.capa1Analysis.total + ' estrategias · ' + state.capa1Analysis.passed + ' PASSED · ' + state.capa1Analysis.winners + ' ganadores C2.'
+        : 'Pendiente: carga Databank CSV + .sqx en Template Maker.',
       'c2-template': state.c2Template
-        ? state.c2Template.name + ' · ' + state.c2Template.indicatorBase + ' · ' + state.c2Template.clusterId
-        : 'Pendiente de generar Template C2 desde un ganador diverso.',
+        ? 'Template C2 listo: ' + state.c2Template.name + ' · ' + state.c2Template.indicatorBase + ' · ' + state.c2Template.clusterId
+        : 'Pendiente: crea Template C2 desde un ganador diverso.',
       'capa2-generate': c2
-        ? 'Capa 2 generada: ' + (c2.results ? c2.results.ok + '/' + c2.results.total + ' OK' : 'lista') + (filesC2 ? ' · ' + filesC2 + ' archivo(s)' : '')
-        : (state.c2Template ? 'Listo para generar Capa 2 desde ' + state.c2Template.name + '.' : 'Necesita Template C2 trazable.'),
+        ? 'C2 lista: ' + (c2.results ? c2.results.ok + '/' + c2.results.total + ' OK' : 'generada') + (filesC2 ? ' · ' + filesC2 + ' descarga(s)' : '')
+        : (state.c2Template ? 'Preparado para C2: ' + state.c2Template.name + '.' : 'Pendiente: falta Template C2 trazable.'),
       'capa2-analyze': c2
-        ? 'Pendiente de importar resultados Capa 2 en Portfolio Lab.'
-        : 'Sin lote Capa 2 generado todavía.',
+        ? 'Listo para Portfolio Lab: importa resultados Capa 2.'
+        : 'Pendiente: genera Capa 2 antes del análisis.',
       portfolio: state.portfolioLab && state.portfolioLab.total
-        ? state.portfolioLab.total + ' candidatos · ' + state.portfolioLab.winners + ' ganadores diversos.'
-        : 'Sin shortlist portfolio. Ejecuta Portfolio Lab cuando tengas candidatos Capa 2.'
+        ? 'Portfolio Lab: ' + state.portfolioLab.total + ' candidatos · ' + state.portfolioLab.winners + ' ganadores diversos.'
+        : 'Pendiente: calcula shortlist en Portfolio Lab.'
     };
   }
 

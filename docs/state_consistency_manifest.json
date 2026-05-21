@@ -55,24 +55,27 @@
       "description": "UX-NAV docs must agree that WFCO Edge Factory is the active experience track after the operator opened the website facelift.",
       "required": {
         "README.md": [
-          "WFCO-2 Methodology Handoffs esta aplicado",
-          "continuar con WFCO-3 Content Overhaul"
+          "WFCO-3 Content Overhaul esta aplicado",
+          "continuar con WFCO-4 Portfolio Lab MVP"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
-          "Current phase completed: WFCO-2 - Methodology Handoffs",
+          "Current phase completed: WFCO-3 - Content Overhaul",
           "Edge Factory Experience Gate",
-          "Edge Factory Handoff Gate"
+          "Edge Factory Handoff Gate",
+          "Edge Factory Content Gate"
         ],
         "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md": [
           "Active experience track: `WFCO - Edge Factory`",
           "`WFCO-2 · Methodology Handoffs`: completed",
-          "`WFCO-3 · Content Overhaul`: next recommended phase"
+          "`WFCO-3 · Content Overhaul`: completed",
+          "`WFCO-4 · Portfolio Lab MVP`: next recommended phase"
         ]
       },
       "forbidden": {
         "README.md": [
           "tab activo es Workflow",
-          "UX-NAV esta sin tab activo tras UX-WF2"
+          "UX-NAV esta sin tab activo tras UX-WF2",
+          "continuar con WFCO-3 Content Overhaul"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
           "Active UX-NAV tab: `Mining Control`",
@@ -93,6 +96,7 @@
           "Last updated: 2026-05-21."
         ],
         "CHANGELOG.md": [
+          "2026-05-21 - WFCO3 Content Overhaul",
           "2026-05-21 - WFCO2 Methodology Handoffs"
         ]
       },

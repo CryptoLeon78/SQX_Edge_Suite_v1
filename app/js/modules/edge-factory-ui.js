@@ -47,7 +47,7 @@
       }
     });
     setText('edge-factory-progress-label', completed.length + ' de ' + steps.length + ' etapas');
-    setText('edge-factory-next', completed.length === steps.length ? 'Listo para portfolio o nueva iteración' : 'Siguiente: ' + (next ? next.label : 'Preparar sesión'));
+    setText('edge-factory-next', completed.length === steps.length ? 'Listo para portfolio o nueva iteración' : 'Siguiente: ' + (next ? next.label : 'Punto de partida'));
     var meter = byId('edge-factory-meter-bar');
     if (meter) meter.style.width = Math.round((completed.length / steps.length) * 100) + '%';
     return state;

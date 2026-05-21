@@ -9,7 +9,7 @@ Last updated: 2026-05-21.
 - Email-validated access plus app session, entitlement checks, workspace isolation, audit trail, rate limits, revocation, kill switch and watermark.
 - Approved testers can use the full app through `tester_free` grants while remaining authenticated, audited and revocable.
 - The first tiny cohort monitoring closeout is clean; REMOTE-RILIS-STANDBY keeps a post-fix browser retest pending before the next operator decision review, so a post-fix browser retest is in standby.
-- Edge Factory is becoming the main desktop buyer/tester experience: one guided methodology shell over the existing engines, with technical tabs available from advanced tools instead of primary navigation and WFCO-2 handoffs carrying selected card, mining, generation, analysis, C2 and portfolio context.
+- Edge Factory is becoming the main desktop buyer/tester experience: one guided methodology shell over the existing engines, with technical tabs available from advanced tools instead of primary navigation, WFCO-2 handoffs carrying selected card/mining/generation/analysis/C2/portfolio context and WFCO-3 copy focused on action, output and pending state.
 - Dashboard engines remain active behind Edge Factory: Activos, Mining Control, SQX Views, Project Generator, Template Maker, Strategy Control, Champion vs Challenger, BlockSettings Info and Control Panel.
 - Project Generator uses real BlockSettings manifests and traceable timeframe/blocksetting resolution.
 - Template Maker uses CSV/SQX contracts, C2 traceability, diversity clustering and exit policy gates.
@@ -18,7 +18,7 @@ Last updated: 2026-05-21.
 
 ## Next
 
-- Continue WFCO-3 Content Overhaul so Edge Factory copy becomes even clearer while preserving the WFCO-2 handoff context.
+- Continue WFCO-4 Portfolio Lab MVP so Capa 2 ranking, diversity and shortlist stop being only a shell surface.
 - Close the standby browser retest after the Project Generator remote-session redirect fix.
 - Resume REMOTE-8G decision review only after the standby retest is confirmed.
 - If the operator later approves a next movement, prepare the later package/approval/execution/monitoring gates without automating grants, emails, checkout, URLs or onboarding.

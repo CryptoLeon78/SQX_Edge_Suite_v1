@@ -16,7 +16,9 @@ assert.equal(SQX.edgeFactory.version, 'edge-factory-state-v1');
 assert.equal(SQX.edgeFactory.storageKey(), 'sqx_edge_factory_state_v1');
 assert.equal(SQX.edgeFactory.steps().length, 8);
 assert.equal(SQX.edgeFactory.steps()[0].id, 'session');
+assert.equal(SQX.edgeFactory.steps()[0].label, 'Punto de partida');
 assert.equal(SQX.edgeFactory.steps()[7].id, 'portfolio');
+assert.equal(SQX.edgeFactory.steps()[7].label, 'Portfolio');
 
 SQX.edgeFactory.completeStep('session', true);
 assert.equal(JSON.parse(sandbox.localStorage.getItem('sqx_edge_factory_state_v1')).completedSteps[0], 'session');
@@ -89,6 +91,7 @@ edgeState = JSON.parse(sandbox.localStorage.getItem('sqx_edge_factory_state_v1')
 assert.equal(edgeState.portfolioLab.winners, 2);
 assert.equal(edgeState.completedSteps.includes('portfolio'), true);
 assert.equal(SQX.edgeFactory.contextSummary(edgeState).portfolio.includes('ganadores diversos'), true);
+assert.equal(SQX.edgeFactory.contextSummary({}).session.includes('Pendiente:'), true);
 
 const html = fs.readFileSync(path.join(repoRoot, 'app/SQX_Dashboard_v6.html'), 'utf8');
 const appConfig = fs.readFileSync(path.join(repoRoot, 'app/js/app-config.js'), 'utf8');
@@ -97,6 +100,8 @@ const indexJs = fs.readFileSync(path.join(repoRoot, 'app/js/modules/index.js'), 
 assert.equal(html.includes('id="edge-factory-shell"'), true);
 assert.equal(html.includes('id="edge-tool-drawer"'), true);
 assert.equal(html.includes('id="edge-portfolio-lab"'), true);
+assert.equal(html.includes('Del asset al portfolio, sin perder el hilo'), true);
+assert.equal(html.includes('Haz: valida estado remoto.'), true);
 assert.equal(html.includes('data-edge-context="asset"'), true);
 assert.equal(html.includes('data-edge-context="c2-template"'), true);
 assert.equal(html.includes('Custom libre avanzado'), true);
