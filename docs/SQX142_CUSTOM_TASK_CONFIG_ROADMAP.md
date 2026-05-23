@@ -1,9 +1,9 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 en Fase 1 aplicada el 2026-05-23. Fase 0 dejo
-preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
-promociono las views ligeras/especializadas desde Mining15 a la base local y al
-template repo.
+Estado: C1-CONFIG1 en Fase 2 iniciada el 2026-05-23. Fase 0 dejo preflight,
+snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1 promociono
+las views ligeras/especializadas desde Mining15 a la base local y al template
+repo; Fase 2 genero los cuestionarios completos de Build Capa1.
 
 Este documento gobierna la configuracion interactiva de parametros del custom
 base Capa 1. La fuente inicial es el custom mas actualizado:
@@ -45,6 +45,7 @@ tools\sqx142_task_config_gate.ps1 preflight --apply
 tools\sqx142_task_config_gate.ps1 phases
 tools\sqx142_task_config_gate.ps1 promote-views --target both
 tools\sqx142_task_config_gate.ps1 promote-views --target both --apply
+tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write --full-output
 tools\sqx142_task_config_gate.ps1 record-answer --task-title "MC 2" --tab "CrossChecks" --question-id "<id>" --answer "<answer>"
@@ -54,11 +55,13 @@ tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summar
 `preflight --apply` escribe solo evidencia local ignorada por Git: snapshots de
 donor/base/template, diff semantico y `session_state.json`.
 
-`questionnaire` detecta y guarda todas las entradas de la pestaña por defecto.
-`--max-values` queda solo como throttle diagnostico temporal y no debe usarse
-para cerrar una fase. Cuando se usa `--write`, la consola devuelve resumen para
-no inundar el terminal; el JSON completo se guarda en `.local`. `--full-output`
-imprime todas las preguntas si hace falta inspeccionarlo directamente.
+`questionnaire` y `task-questionnaires` detectan y guardan todas las entradas
+por defecto, incluyendo entradas XML repetidas con indice estable para que no se
+colapsen. `--max-values` queda solo como throttle diagnostico temporal y no debe
+usarse para cerrar una fase. Cuando se usa `--write`, la consola devuelve
+resumen para no inundar el terminal; el JSON completo se guarda en `.local`.
+`--full-output` imprime todas las preguntas si hace falta inspeccionarlo
+directamente.
 
 ## Fases
 
@@ -118,6 +121,25 @@ Views promocionadas:
 
 No se tocaron simbolos, timeframe, fechas, filtros, active flags, resultados ni
 databanks fisicos.
+
+## Estado Fase 2
+
+Cuestionarios Build Capa1 generados en:
+
+`.local/sqx142_task_config/questionnaires/capa1/Build_BS_Volatilidad_v6_Capa1_L_S_H4/`
+
+Resumen:
+
+- `13` pestañas.
+- `18.327` entradas/preguntas auditadas.
+- `1.375` diferencias base vs donor.
+- `Blocks` ya no colapsa rutas repetidas: guarda `17.621` preguntas y `1.363`
+  diferencias.
+- La consola muestra resumen; el contenido completo vive en `.local`.
+
+Orden recomendado de preguntas: pestañas sin diferencias primero para cerrar
+bloques rápidos, después `Data`, `Resources`, `WhatToBuild`, `CrossChecks` y al
+final `Blocks` por volumen.
 
 ## Disciplina Operativa
 

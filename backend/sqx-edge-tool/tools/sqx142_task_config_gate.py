@@ -417,6 +417,11 @@ def collect_section_values(root: ET.Element | None, tab: str, max_values: int) -
         return {"exists": False, "section": SECTION_ALIASES.get(tab.casefold(), tab), "values": []}
     values: list[dict[str, Any]] = []
     limited = max_values > 0
+    seen_paths: dict[str, int] = {}
+
+    def unique_xml_path(raw_path: str) -> str:
+        seen_paths[raw_path] = seen_paths.get(raw_path, 0) + 1
+        return f"{raw_path}#{seen_paths[raw_path]}"
 
     def walk(node: ET.Element, parts: list[str]) -> None:
         if limited and len(values) >= max_values:
@@ -425,8 +430,10 @@ def collect_section_values(root: ET.Element | None, tab: str, max_values: int) -
             return
         interesting = bool(node.attrib) or bool((node.text or "").strip())
         if interesting:
+            raw_path = node_path(parts, node)
             values.append({
-                "xmlPath": node_path(parts, node),
+                "xmlPath": unique_xml_path(raw_path),
+                "xmlPathBase": raw_path,
                 "tag": node.tag,
                 "value": value_for_node(node),
             })
@@ -516,6 +523,67 @@ def build_questionnaire(
             / "capa1"
             / slug(task_title_wanted)
             / f"{slug(tab)}_{stamp()}.json"
+        )
+        write_json(target, payload)
+        payload["written"] = str(target)
+    return payload
+
+
+def build_task_questionnaires(
+    root142: Path,
+    project_root: Path,
+    task_title_wanted: str,
+    max_values: int,
+    write: bool,
+) -> dict[str, Any]:
+    donor_cfx = cfx_for_project(root142, DEFAULT_DONOR_PROJECT)
+    base_cfx = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    donor_file, donor_root = load_task_root(donor_cfx, task_title_wanted)
+    base_file, base_root = load_task_root(base_cfx, task_title_wanted)
+    tabs = sorted(set(direct_sections(donor_root)) | set(direct_sections(base_root)))
+    results = []
+    for tab in tabs:
+        questionnaire = build_questionnaire(
+            root142,
+            project_root,
+            task_title_wanted=task_title_wanted,
+            tab=tab,
+            max_values=max_values,
+            write=write,
+        )
+        results.append({
+            "tab": tab,
+            "ok": questionnaire.get("ok", False),
+            "questionCount": questionnaire.get("questionCount", 0),
+            "changedQuestionCount": questionnaire.get("changedQuestionCount", 0),
+            "baseValueCount": len(((questionnaire.get("baseSection") or {}).get("values") or [])),
+            "donorValueCount": len(((questionnaire.get("donorSection") or {}).get("values") or [])),
+            "baseTruncated": (questionnaire.get("baseSection") or {}).get("truncated", False),
+            "donorTruncated": (questionnaire.get("donorSection") or {}).get("truncated", False),
+            "written": questionnaire.get("written", ""),
+        })
+    payload = {
+        "ok": bool(donor_root is not None or base_root is not None),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "scope": "capa1",
+        "taskTitle": task_title_wanted,
+        "donorTaskXml": donor_file,
+        "baseTaskXml": base_file,
+        "tabCount": len(tabs),
+        "tabs": results,
+        "totalQuestionCount": sum(int(item.get("questionCount") or 0) for item in results),
+        "totalChangedQuestionCount": sum(int(item.get("changedQuestionCount") or 0) for item in results),
+        "write": write,
+        "maxValues": max_values if max_values > 0 else "unlimited",
+    }
+    if write:
+        target = (
+            ledger_root(project_root)
+            / "questionnaires"
+            / "capa1"
+            / slug(task_title_wanted)
+            / f"_task_summary_{stamp()}.json"
         )
         write_json(target, payload)
         payload["written"] = str(target)
@@ -800,11 +868,12 @@ def preflight(root142: Path, project_root: Path, apply: bool) -> dict[str, Any]:
         write_json(base_path, base)
         write_json(template_path, template)
         write_json(diff_path, diff)
+        next_phase = str(diff.get("nextPhase", "phase1"))
         state = {
             "version": VERSION,
             "updatedAt": now_iso(),
-            "currentPhase": "phase0",
-            "nextPhase": "phase1",
+            "currentPhase": "phase1" if next_phase == "phase2" else "phase0",
+            "nextPhase": next_phase,
             "scope": "capa1",
             "donorProject": DEFAULT_DONOR_PROJECT,
             "baseProject": DEFAULT_BASE_PROJECT,
@@ -918,6 +987,11 @@ def build_parser() -> argparse.ArgumentParser:
     questionnaire.add_argument("--write", action="store_true")
     questionnaire.add_argument("--full-output", action="store_true")
 
+    task_questionnaires = sub.add_parser("task-questionnaires")
+    task_questionnaires.add_argument("--task-title", required=True)
+    task_questionnaires.add_argument("--max-values", type=int, default=0)
+    task_questionnaires.add_argument("--write", action="store_true")
+
     answer = sub.add_parser("record-answer")
     answer.add_argument("--task-title", required=True)
     answer.add_argument("--tab", required=True)
@@ -961,6 +1035,15 @@ def main(argv: list[str] | None = None) -> int:
         if args.write and not args.full_output:
             payload = compact_questionnaire_payload(payload)
         json_print(payload)
+        return 0
+    if args.command == "task-questionnaires":
+        json_print(build_task_questionnaires(
+            root142,
+            project_root,
+            task_title_wanted=args.task_title,
+            max_values=args.max_values,
+            write=args.write,
+        ))
         return 0
     if args.command == "record-answer":
         json_print(record_answer(
