@@ -6,6 +6,7 @@ from tools.sqx142_task_config_gate import (
     apply_mc_crosschecks_to_root,
     apply_mc_passive_generation_to_root,
     apply_mc_static_tabs_to_root,
+    apply_mc2_crosschecks_to_root,
     apply_retest1_passive_generation_to_root,
     apply_retest1_data_resources_to_root,
     apply_retest1_options_databanks_rankings_to_root,
@@ -22,6 +23,7 @@ from tools.sqx142_task_config_gate import (
     enforce_mc_crosschecks_guard,
     enforce_mc_passive_generation_guard,
     enforce_mc_static_tabs_guard,
+    enforce_mc2_crosschecks_guard,
     enforce_tick_real_data_databanks_resources_guard,
     enforce_tick_real_options_rankings_guard,
     enforce_tick_real_passive_generation_guard,
@@ -1400,3 +1402,96 @@ def test_mc_closeout_operation_issues_require_green_idempotent_dry_run():
     assert any("dry-run is not idempotent" in issue for issue in issues)
     assert any("changedActionCount" in issue for issue in issues)
     assert any("MC Rankings drifted" in issue for issue in issues)
+
+
+def test_mc2_crosschecks_apply_adaptive_base_spread_x2_x5_and_clean_inactive_methods():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <CustomData>
+            <Setups>
+              <Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session">
+                <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" />
+              </Setup>
+            </Setups>
+          </CustomData>
+          <CrossChecks use="true" evaluateAll="true">
+            <MonteCarloManipulation use="false">
+              <Settings><Methods><Method type="RandomizeTradesOrder" use="true" /><Method type="RandomlySkipTrades" use="true" /></Methods></Settings>
+            </MonteCarloManipulation>
+            <MonteCarloRetest use="true">
+              <Settings>
+                <Methods>
+                  <Method type="RandomizeHistoryData" use="true" />
+                  <Method type="RandomizeHistoryDataFixedRange" use="true" />
+                  <Method type="RandomizeSpread" use="true"><Params><Param key="Min" type="Double">30</Param><Param key="Max" type="Double">50</Param></Params></Method>
+                  <Method type="RandomizeSlippage" use="true" />
+                </Methods>
+                <NumberOfSimulations>50</NumberOfSimulations>
+                <MCUseFullSample>false</MCUseFullSample>
+              </Settings>
+              <AcceptanceSettings>
+                <Conditions>
+                  <Condition use="true"><Left-Side valueType="column"><Column-Value column="AnnualPctReturnDDRatio" resultType="MonteCarloRetest" confidenceLevel="100" /></Left-Side><Comparator value="&gt;=" /><Right-Side valueType="numeric"><Numeric-Value value="0" /></Right-Side></Condition>
+                  <Condition use="true"><Left-Side valueType="column"><Column-Value column="AnnualPctReturnDDRatio" resultType="MonteCarloRetest" confidenceLevel="95" /></Left-Side><Comparator value="&gt;=" /><Right-Side valueType="column"><Column-Value column="AnnualPctReturnDDRatio" resultType="main" pctRatio="30" /></Right-Side></Condition>
+                </Conditions>
+              </AcceptanceSettings>
+            </MonteCarloRetest>
+          </CrossChecks>
+        </Settings>
+        """
+    )
+
+    actions = apply_mc2_crosschecks_to_root(root)
+
+    assert any(item["field"].endswith("RandomizeSpread/Min") and item["changed"] for item in actions)
+    assert enforce_mc2_crosschecks_guard(root) == []
+    methods = {
+        method.get("type"): method.get("use")
+        for method in root.findall(".//CrossChecks/MonteCarloRetest/Settings/Methods/Method")
+    }
+    assert methods["RandomizeHistoryData"] == "true"
+    assert methods["RandomizeSpread"] == "true"
+    assert methods["RandomizeHistoryDataFixedRange"] == "false"
+    assert methods["RandomizeSlippage"] == "false"
+    assert root.find(".//MonteCarloManipulation/Settings/Methods/Method[@type='RandomizeTradesOrder']").get("use") == "false"
+    assert root.find(".//MonteCarloRetest/Settings/NumberOfSimulations").text == "100"
+    assert root.find(".//MonteCarloRetest/Settings/MCUseFullSample").text == "true"
+    params = {
+        param.get("key"): param.text
+        for param in root.findall(".//MonteCarloRetest/Settings/Methods/Method[@type='RandomizeSpread']/Params/Param")
+    }
+    assert params == {"Min": "4", "Max": "10"}
+
+
+def test_mc2_crosschecks_guard_rejects_extreme_spread_stress():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <CustomData><Setups><Setup><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /></Setup></Setups></CustomData>
+          <CrossChecks use="true" evaluateAll="true">
+            <MonteCarloRetest use="true">
+              <Settings>
+                <Methods>
+                  <Method type="RandomizeHistoryData" use="true" />
+                  <Method type="RandomizeSpread" use="true"><Params><Param key="Min" type="Double">30</Param><Param key="Max" type="Double">50</Param></Params></Method>
+                </Methods>
+                <NumberOfSimulations>100</NumberOfSimulations>
+                <MCUseFullSample>true</MCUseFullSample>
+              </Settings>
+              <AcceptanceSettings>
+                <Conditions>
+                  <Condition use="true"><Left-Side valueType="column"><Column-Value column="AnnualPctReturnDDRatio" resultType="MonteCarloRetest" confidenceLevel="100" /></Left-Side><Comparator value="&gt;=" /><Right-Side valueType="numeric"><Numeric-Value value="0" /></Right-Side></Condition>
+                  <Condition use="true"><Left-Side valueType="column"><Column-Value column="AnnualPctReturnDDRatio" resultType="MonteCarloRetest" confidenceLevel="95" /></Left-Side><Comparator value="&gt;=" /><Right-Side valueType="column"><Column-Value column="AnnualPctReturnDDRatio" resultType="main" pctRatio="30" /></Right-Side></Condition>
+                </Conditions>
+              </AcceptanceSettings>
+            </MonteCarloRetest>
+          </CrossChecks>
+        </Settings>
+        """
+    )
+
+    issues = enforce_mc2_crosschecks_guard(root)
+
+    assert any("RandomizeSpread range" in issue for issue in issues)
+    assert any("extreme" in issue for issue in issues)

@@ -153,6 +153,16 @@
       "Optimize-Task1.xml": "BUILD"
     }
   },
+  "adaptiveSpreadStress": {
+    "1": {
+      "AutomaticRetest-Task8.xml": {
+        "label": "MC 2 adaptive spread stress",
+        "method": "RandomizeSpread",
+        "minMultiplier": 2,
+        "maxMultiplier": 5
+      }
+    }
+  },
   "autodetect": {
     "roots": [
       "C:/StrategyQuantX",

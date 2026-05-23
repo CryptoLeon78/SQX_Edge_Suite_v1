@@ -31,6 +31,10 @@ CROSS_BROKER_RETESTS = {
     int(capa): value
     for capa, value in (_GENERATOR_PROFILE.get("crossBrokerRetests") or {}).items()
 }
+ADAPTIVE_SPREAD_STRESS = {
+    int(capa): value
+    for capa, value in (_GENERATOR_PROFILE.get("adaptiveSpreadStress") or {}).items()
+}
 BROKER_PROFILES = _GENERATOR_PROFILE.get("brokerProfiles") or {}
 TARGET_PROFILES = _GENERATOR_PROFILE.get("targetProfiles") or {}
 ASSET_DEFAULTS = _INSTRUMENTS_PROFILE.get("assetDefaults") or {}
@@ -57,6 +61,21 @@ def _trading_window_for(capa: int, timeframe: str) -> Optional[tuple[str, str]]:
     if not value or len(value) != 2:
         return None
     return str(value[0]), str(value[1])
+
+
+def _spread_stress_for(capa: int, filename: str) -> Optional[tuple[float, float]]:
+    layer = ADAPTIVE_SPREAD_STRESS.get(capa) or {}
+    value = layer.get(filename)
+    if not isinstance(value, dict):
+        return None
+    try:
+        min_multiplier = float(value.get("minMultiplier"))
+        max_multiplier = float(value.get("maxMultiplier"))
+    except (TypeError, ValueError):
+        return None
+    if min_multiplier <= 0 or max_multiplier <= 0 or min_multiplier > max_multiplier:
+        return None
+    return min_multiplier, max_multiplier
 
 
 def _build_task_title(blocksetting_id: str, capa: int, direction: str, timeframe: str) -> str:
@@ -441,7 +460,7 @@ def generate_project(
 
     # Aplicar patches a todos los XMLs internos del .cfx
     total_stats = {"files_patched": 0, "charts": 0, "swaps": 0, "sides": 0,
-                   "dates": 0, "resources": 0, "paths_cleaned": 0, "commissions": 0,
+                   "dates": 0, "resources": 0, "paths_cleaned": 0, "commissions": 0, "spread_stress": 0,
                    "trading_window": 0, "blocksettings": 0, "costs_source": costs["source"], "symbol": costs["symbol"],
                    "blocksetting": blocksetting_trace(blocksetting_entry)}
     for filename, tree in editor.iter_xml_files():
@@ -485,13 +504,14 @@ def generate_project(
             resource={**active_costs, "asset": mining.asset},
             period=period,
             trading_window=trading_window,
+            spread_stress_multipliers=_spread_stress_for(capa, filename),
             clean_paths=True,
         )
         if apply_blocksetting_to_xml(root, blocksetting_entry):
             total_stats["blocksettings"] += 1
         editor.update_xml(filename, tree)
         total_stats["files_patched"] += 1
-        for k in ("charts", "swaps", "sides", "dates", "resources", "paths_cleaned", "commissions", "trading_window"):
+        for k in ("charts", "swaps", "sides", "dates", "resources", "paths_cleaned", "commissions", "trading_window", "spread_stress"):
             total_stats[k] += stats[k]
 
     # Renombrar el proyecto en config.xml (incluye capa en el nombre)

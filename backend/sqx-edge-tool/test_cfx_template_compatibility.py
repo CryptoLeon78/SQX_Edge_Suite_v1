@@ -159,6 +159,16 @@ def _assert_tick_real_static_crosschecks_contract(tick_real: ET.Element) -> None
         assert setup.get("session") == "No Session"
 
 
+def _randomize_spread_params(task: ET.Element) -> dict[str, str]:
+    method = task.find(".//CrossChecks/MonteCarloRetest/Settings/Methods/Method[@type='RandomizeSpread']")
+    assert method is not None
+    return {
+        param.get("key"): param.text
+        for param in method.findall("./Params/Param")
+        if param.get("key")
+    }
+
+
 def _assert_tick_real_data_databanks_resources_contract(tick_real: ET.Element, expected_symbol: str | None = None, expected_timeframe: str | None = None) -> None:
     setup = tick_real.find(".//Data/Setups/Setup")
     assert setup is not None
@@ -527,6 +537,33 @@ def test_capa1_base_uses_phase1_review_views():
     assert views["Syntetic"] == "MC SYNTHETIC RETEST"
 
 
+def test_capa1_mc2_crosschecks_use_adaptive_seed_spread_range():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    mc2 = roots["AutomaticRetest-Task8.xml"]
+    crosschecks = mc2.find(".//CrossChecks")
+    assert crosschecks is not None
+    assert crosschecks.get("use") == "true"
+    assert crosschecks.get("evaluateAll") == "true"
+
+    check_states = {
+        check.tag: check.get("use")
+        for check in list(crosschecks)
+        if isinstance(check.tag, str) and check.get("use") is not None
+    }
+    assert [name for name, state in check_states.items() if state == "true"] == ["MonteCarloRetest"]
+
+    monte_carlo_retest = crosschecks.find("MonteCarloRetest")
+    assert monte_carlo_retest.findtext("./Settings/NumberOfSimulations") == "100"
+    assert monte_carlo_retest.findtext("./Settings/MCUseFullSample") == "true"
+    method_states = {
+        method.get("type"): method.get("use")
+        for method in monte_carlo_retest.findall("./Settings/Methods/Method")
+        if method.get("type")
+    }
+    assert {name for name, state in method_states.items() if state == "true"} == {"RandomizeHistoryData", "RandomizeSpread"}
+    assert _randomize_spread_params(mc2) == {"Min": "4", "Max": "10"}
+
+
 def test_capa1_base_uses_confirmed_build_ranking_volume():
     roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
     build = roots["Build-Task1.xml"]
@@ -684,6 +721,10 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     _assert_tick_real_options_rankings_contract(tick_real, expected_window=("14400", "72000"))
     _assert_tick_real_passive_generation_contract(tick_real)
     _assert_tick_real_static_crosschecks_contract(tick_real)
+
+    mc2 = roots["AutomaticRetest-Task8.xml"]
+    assert {chart.get("spread") for chart in mc2.findall(".//Chart")} == {"10"}
+    assert _randomize_spread_params(mc2) == {"Min": "20", "Max": "50"}
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")

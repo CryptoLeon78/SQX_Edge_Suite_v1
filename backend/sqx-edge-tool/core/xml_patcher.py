@@ -258,6 +258,48 @@ def patch_symbol_tf_spread(
     return n
 
 
+def _format_decimal(value: float) -> str:
+    return f"{value:.10f}".rstrip("0").rstrip(".")
+
+
+def patch_randomize_spread_stress(
+    root: ET.Element,
+    base_spread: Optional[float],
+    min_multiplier: float = 2.0,
+    max_multiplier: float = 5.0,
+) -> int:
+    """Set active RandomizeSpread params from the generated asset spread.
+
+    This is intentionally called only by task-specific generator policy. It
+    keeps the template generic while letting MC2 inherit the active asset's
+    transaction-cost scale.
+    """
+    if base_spread is None or base_spread <= 0:
+        return 0
+    patched = 0
+    target_values = {
+        "Min": _format_decimal(round(float(base_spread) * float(min_multiplier), 2)),
+        "Max": _format_decimal(round(float(base_spread) * float(max_multiplier), 2)),
+    }
+    for method in root.findall(".//CrossChecks/*/Settings/Methods/Method[@type='RandomizeSpread'][@use='true']"):
+        params = method.find("Params")
+        if params is None:
+            params = ET.SubElement(method, "Params")
+        for key, value in target_values.items():
+            param = params.find(f"Param[@key='{key}']")
+            if param is None:
+                param = ET.SubElement(params, "Param", {"key": key, "type": "Double"})
+                before = None
+            else:
+                before = param.text
+            param.set("key", key)
+            param.set("type", "Double")
+            if before != value:
+                param.text = value
+                patched += 1
+    return patched
+
+
 def _asset_from_symbol(symbol: str) -> str:
     return (symbol or "").split("_", 1)[0] or "ASSET"
 
@@ -493,9 +535,18 @@ def apply_mining_to_xml(
     resource: Optional[dict] = None,
     period: tuple[str, str] = RETEST_PERIODS["BUILD"],
     trading_window: Optional[tuple[str, str]] = None,
+    spread_stress_multipliers: Optional[tuple[float, float]] = None,
     clean_paths: bool = True,
 ) -> dict:
     """Aplica el set completo de patches por mining a un XML root."""
+    spread_stress_patched = 0
+    if spread_stress_multipliers:
+        spread_stress_patched = patch_randomize_spread_stress(
+            root,
+            spread,
+            min_multiplier=spread_stress_multipliers[0],
+            max_multiplier=spread_stress_multipliers[1],
+        )
     stats = {
         "sessions": patch_no_session(root),
         "precision": patch_backtest_precision(root),
@@ -507,6 +558,7 @@ def apply_mining_to_xml(
         "trading_window": patch_trading_time_range(root, trading_window),
         "resources": patch_symbol_resources(root, resource),
         "paths_cleaned": clean_external_paths(root) if clean_paths else 0,
+        "spread_stress": spread_stress_patched,
         "commissions": 0,
     }
     if commission_type and commission_value is not None:

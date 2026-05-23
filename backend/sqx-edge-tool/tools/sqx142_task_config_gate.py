@@ -492,6 +492,13 @@ MC_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET = {
     "timeframe": "true",
 }
 MC_CUSTOM_DATA_COMMISSION_TARGET = "0.0"
+MC2_TASK_TITLE = "MC 2"
+MC2_SPREAD_MIN_MULTIPLIER = 2.0
+MC2_SPREAD_MAX_MULTIPLIER = 5.0
+MC2_ACTIVE_CHECK = "MonteCarloRetest"
+MC2_ACTIVE_METHODS = {"RandomizeHistoryData", "RandomizeSpread"}
+MC2_NUMBER_OF_SIMULATIONS = "100"
+MC2_USE_FULL_SAMPLE = "true"
 
 
 def stamp() -> str:
@@ -5838,6 +5845,335 @@ def mc_closeout_report(root142: Path, project_root: Path, target: str, write: bo
     return payload
 
 
+def positive_chart_spreads(root: ET.Element | None) -> list[float]:
+    if root is None:
+        return []
+    spreads: list[float] = []
+    for chart in root.findall(".//Chart"):
+        try:
+            value = float(chart.get("spread", ""))
+        except (TypeError, ValueError):
+            continue
+        if value > 0:
+            spreads.append(value)
+    return spreads
+
+
+def mc2_base_spread(root: ET.Element | None) -> float:
+    spreads = positive_chart_spreads(root)
+    return min(spreads) if spreads else 0.0
+
+
+def mc2_spread_target(root: ET.Element | None) -> dict[str, Any]:
+    base = mc2_base_spread(root)
+    spread_min = round(base * MC2_SPREAD_MIN_MULTIPLIER, 2) if base else 0.0
+    spread_max = round(base * MC2_SPREAD_MAX_MULTIPLIER, 2) if base else 0.0
+    return {
+        "baseSpread": base,
+        "minMultiplier": MC2_SPREAD_MIN_MULTIPLIER,
+        "maxMultiplier": MC2_SPREAD_MAX_MULTIPLIER,
+        "min": _format_decimal(spread_min, "0"),
+        "max": _format_decimal(spread_max, "0"),
+        "ratioMinToBase": round(spread_min / base, 2) if base else None,
+        "ratioMaxToBase": round(spread_max / base, 2) if base else None,
+    }
+
+
+def method_params(method: ET.Element | None) -> dict[str, str]:
+    if method is None:
+        return {}
+    return {
+        param.get("key", ""): (param.text or "")
+        for param in method.findall("./Params/Param")
+        if param.get("key")
+    }
+
+
+def mc2_crosschecks_summary(root: ET.Element) -> dict[str, Any]:
+    parent = find_section(root, "CrossChecks")
+    target = mc2_spread_target(root)
+    checks: list[dict[str, Any]] = []
+    if parent is not None:
+        for check in list(parent):
+            if not isinstance(check.tag, str) or check.get("use") is None:
+                continue
+            methods = []
+            for method in check.findall("./Settings/Methods/Method"):
+                params = method_params(method)
+                row: dict[str, Any] = {
+                    "type": method.get("type", ""),
+                    "use": method.get("use", ""),
+                    "params": params,
+                }
+                if method.get("type") == "RandomizeSpread":
+                    try:
+                        spread_min = float(params.get("Min") or 0)
+                        spread_max = float(params.get("Max") or 0)
+                    except (TypeError, ValueError):
+                        spread_min = 0.0
+                        spread_max = 0.0
+                    base = float(target.get("baseSpread") or 0)
+                    row.update({
+                        "ratioMinToBase": round(spread_min / base, 2) if base else None,
+                        "ratioMaxToBase": round(spread_max / base, 2) if base else None,
+                    })
+                methods.append(row)
+            checks.append({
+                "id": check.tag,
+                "use": check.get("use", ""),
+                "numberOfSimulations": check.findtext("./Settings/NumberOfSimulations") or "",
+                "mcUseFullSample": check.findtext("./Settings/MCUseFullSample") or "",
+                "methods": methods,
+                "activeMethodTypes": [
+                    method.get("type", "")
+                    for method in check.findall("./Settings/Methods/Method")
+                    if method.get("use") == "true"
+                ],
+                "activeAcceptanceConditionCount": len([
+                    condition
+                    for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
+                    if condition.get("use", "true") != "false"
+                ]),
+            })
+    return {
+        "crossChecks": {
+            "exists": parent is not None,
+            "attrs": dict(parent.attrib) if parent is not None else {},
+            "active": [item["id"] for item in checks if item.get("use") == "true"],
+            "checks": checks,
+            "sha256": section_sha256(root, "CrossChecks"),
+        },
+        "spreadTarget": target,
+        "chartSpreads": positive_chart_spreads(root),
+    }
+
+
+def apply_mc2_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    parent = find_section(root, "CrossChecks")
+    if parent is None:
+        parent = ET.SubElement(root, "CrossChecks")
+        actions.append({"field": "CrossChecks", "from": None, "to": dict(parent.attrib), "changed": True})
+    set_attrs_on_node(parent, {"use": "true", "evaluateAll": "true"}, actions, "CrossChecks:attrs")
+
+    target = mc2_spread_target(root)
+    active_check = parent.find(MC2_ACTIVE_CHECK)
+    if active_check is None:
+        active_check = ET.SubElement(parent, MC2_ACTIVE_CHECK, {"use": "true"})
+        actions.append({"field": f"CrossChecks/{MC2_ACTIVE_CHECK}", "from": None, "to": dict(active_check.attrib), "changed": True})
+
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        before_use = check.get("use")
+        target_use = "true" if check.tag == MC2_ACTIVE_CHECK else "false"
+        check.set("use", target_use)
+        actions.append({
+            "field": f"CrossChecks/{check.tag}:use",
+            "from": before_use,
+            "to": target_use,
+            "changed": before_use != target_use,
+        })
+        for method in check.findall("./Settings/Methods/Method"):
+            method_type = method.get("type", "")
+            wanted = "true" if check.tag == MC2_ACTIVE_CHECK and method_type in MC2_ACTIVE_METHODS else "false"
+            before_method = method.get("use")
+            method.set("use", wanted)
+            actions.append({
+                "field": f"CrossChecks/{check.tag}/Method:{method_type}:use",
+                "from": before_method,
+                "to": wanted,
+                "changed": before_method != wanted,
+            })
+
+    settings = ensure_direct_child(active_check, "Settings")
+    for tag, wanted in (("NumberOfSimulations", MC2_NUMBER_OF_SIMULATIONS), ("MCUseFullSample", MC2_USE_FULL_SAMPLE)):
+        node = ensure_direct_child(settings, tag)
+        before = node.text or ""
+        node.text = wanted
+        actions.append({"field": f"CrossChecks/{MC2_ACTIVE_CHECK}/Settings/{tag}", "from": before, "to": wanted, "changed": before != wanted})
+
+    methods = ensure_direct_child(settings, "Methods")
+    randomize_spread = None
+    for method in methods.findall("Method"):
+        if method.get("type") == "RandomizeSpread":
+            randomize_spread = method
+            break
+    if randomize_spread is None:
+        randomize_spread = ET.SubElement(methods, "Method", {"type": "RandomizeSpread", "use": "true"})
+        actions.append({"field": f"CrossChecks/{MC2_ACTIVE_CHECK}/Method:RandomizeSpread", "from": None, "to": dict(randomize_spread.attrib), "changed": True})
+    randomize_spread.set("use", "true")
+    set_method_param(randomize_spread, "Min", str(target["min"]), "Double", actions, f"CrossChecks/{MC2_ACTIVE_CHECK}/RandomizeSpread/Min")
+    set_method_param(randomize_spread, "Max", str(target["max"]), "Double", actions, f"CrossChecks/{MC2_ACTIVE_CHECK}/RandomizeSpread/Max")
+    return actions
+
+
+def mc2_acceptance_conditions_ok(root: ET.Element) -> bool:
+    check = root.find(f".//CrossChecks/{MC2_ACTIVE_CHECK}")
+    if check is None:
+        return False
+    conditions = [
+        condition
+        for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
+        if condition.get("use", "true") != "false"
+    ]
+    if len(conditions) != 2:
+        return False
+    numeric = conditions[0].find("./Right-Side/Numeric-Value")
+    left0 = conditions[0].find("./Left-Side/Column-Value")
+    left1 = conditions[1].find("./Left-Side/Column-Value")
+    right1 = conditions[1].find("./Right-Side/Column-Value")
+    comp0 = conditions[0].find("./Comparator")
+    comp1 = conditions[1].find("./Comparator")
+    return bool(
+        left0 is not None
+        and left0.get("column") == "AnnualPctReturnDDRatio"
+        and left0.get("resultType") == "MonteCarloRetest"
+        and left0.get("confidenceLevel") == "100"
+        and comp0 is not None
+        and comp0.get("value") == ">="
+        and numeric is not None
+        and numeric.get("value") == "0"
+        and left1 is not None
+        and left1.get("column") == "AnnualPctReturnDDRatio"
+        and left1.get("resultType") == "MonteCarloRetest"
+        and left1.get("confidenceLevel") == "95"
+        and comp1 is not None
+        and comp1.get("value") == ">="
+        and right1 is not None
+        and right1.get("column") == "AnnualPctReturnDDRatio"
+        and right1.get("resultType") == "main"
+        and right1.get("pctRatio") == "30"
+    )
+
+
+def enforce_mc2_crosschecks_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = mc2_crosschecks_summary(root)
+    cross = summary.get("crossChecks") or {}
+    attrs = cross.get("attrs") or {}
+    if attrs.get("use") != "true" or attrs.get("evaluateAll") != "true":
+        issues.append(f"MC2 CrossChecks attrs are {attrs!r}, expected use/evaluateAll true")
+    if cross.get("active") != [MC2_ACTIVE_CHECK]:
+        issues.append(f"MC2 active crosschecks are {cross.get('active')!r}, expected [{MC2_ACTIVE_CHECK!r}]")
+    checks = {item.get("id"): item for item in cross.get("checks") or []}
+    active = checks.get(MC2_ACTIVE_CHECK) or {}
+    if active.get("numberOfSimulations") != MC2_NUMBER_OF_SIMULATIONS:
+        issues.append(f"MC2 NumberOfSimulations is {active.get('numberOfSimulations')!r}, expected {MC2_NUMBER_OF_SIMULATIONS!r}")
+    if active.get("mcUseFullSample") != MC2_USE_FULL_SAMPLE:
+        issues.append(f"MC2 MCUseFullSample is {active.get('mcUseFullSample')!r}, expected {MC2_USE_FULL_SAMPLE!r}")
+    if set(active.get("activeMethodTypes") or []) != MC2_ACTIVE_METHODS:
+        issues.append(f"MC2 active methods are {active.get('activeMethodTypes')!r}, expected {sorted(MC2_ACTIVE_METHODS)!r}")
+    methods = {item.get("type"): item for item in active.get("methods") or []}
+    spread = methods.get("RandomizeSpread") or {}
+    params = spread.get("params") or {}
+    target = summary.get("spreadTarget") or {}
+    if not target.get("baseSpread"):
+        issues.append("MC2 base spread could not be resolved from task charts")
+    if params.get("Min") != target.get("min") or params.get("Max") != target.get("max"):
+        issues.append(f"MC2 RandomizeSpread range is {(params.get('Min'), params.get('Max'))!r}, expected {(target.get('min'), target.get('max'))!r}")
+    if spread.get("ratioMinToBase") != target.get("ratioMinToBase") or spread.get("ratioMaxToBase") != target.get("ratioMaxToBase"):
+        issues.append("MC2 RandomizeSpread ratios drifted from baseSpread x2-x5")
+    if spread.get("ratioMaxToBase") is not None and spread.get("ratioMaxToBase") >= 10:
+        issues.append("MC2 RandomizeSpread is extreme versus base spread; expected x2-x5, not >= x10")
+    for check in cross.get("checks") or []:
+        if check.get("id") == MC2_ACTIVE_CHECK:
+            continue
+        active_methods = [method for method in check.get("methods") or [] if method.get("use") == "true"]
+        if active_methods:
+            issues.append(f"Inactive MC2 crosscheck {check.get('id')} still has active methods: {[item.get('type') for item in active_methods]}")
+    if not mc2_acceptance_conditions_ok(root):
+        issues.append("MC2 acceptance conditions drifted from AnnualPctReturnDDRatio >= 0 and >= 30% main")
+    return issues
+
+
+def update_mc2_crosschecks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root = load_task_root(cfx, MC2_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "mc2_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = mc2_crosschecks_summary(root)
+    payload["actions"] = apply_mc2_crosschecks_to_root(root)
+    payload["after"] = mc2_crosschecks_summary(root)
+    payload["issues"] = enforce_mc2_crosschecks_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "activeCheck": MC2_ACTIVE_CHECK,
+        "activeMethods": sorted(MC2_ACTIVE_METHODS),
+        "numberOfSimulations": MC2_NUMBER_OF_SIMULATIONS,
+        "mcUseFullSample": MC2_USE_FULL_SAMPLE,
+        "spreadPolicy": "adaptive_base_spread_x2_to_x5",
+        "minMultiplier": MC2_SPREAD_MIN_MULTIPLIER,
+        "maxMultiplier": MC2_SPREAD_MAX_MULTIPLIER,
+    }
+    payload["targetRationale"] = {
+        "academic": "Transaction costs and bid-ask spread are real frictions; stress testing is useful, but repeated tuning against validation data increases data-snooping/backtest-overfitting risk. x2-x5 is a local, evidence-backed heuristic, not a universal theorem.",
+        "localEvidence": "Original 30-50 spread stress was extreme versus the base spread and previously produced 0 passed / 86 failed; x2-x5 restored natural 84 passed / 2 failed without forcing results.",
+        "generatorOwned": "Project Generator must recalculate the absolute Min/Max from the selected asset spread.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_mc2_crosschecks_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase7_mc2_crosschecks_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_mc2_crosschecks_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase7",
+        "operation": "mc2_crosschecks_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase7_mc2_crosschecks_diff_review" if not apply else "phase7_mc2_next_block",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase7_mc2_crosschecks_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -7075,6 +7411,10 @@ def build_parser() -> argparse.ArgumentParser:
     mc_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     mc_closeout.add_argument("--write", action="store_true")
 
+    mc2_crosschecks = sub.add_parser("mc2-crosschecks-target")
+    mc2_crosschecks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    mc2_crosschecks.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -7197,6 +7537,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "mc-closeout-report":
         json_print(mc_closeout_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "mc2-crosschecks-target":
+        json_print(promote_mc2_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

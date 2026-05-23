@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 MC2 CrossChecks
+
+- Adds `mc2-crosschecks-target` to close `MC 2 > CrossChecks` with dry-run-first backup/diff/apply and an idempotent guard over local base and repo template.
+- Changes `MC 2 / RandomizeSpread` from absolute `30-50` to adaptive `baseSpread x2-x5`; the generic seed `AUDCAD/H1` spread `2.0` becomes `4-10`.
+- Adds Project Generator support via `adaptiveSpreadStress`, so generated customs recalculate MC2 spread stress per asset/timeframe; AUDCAD/H4 fallback spread `10` validates as `20-50`.
+- Keeps `MonteCarloRetest` as the only active MC2 crosscheck with `100` simulations, `MCUseFullSample=true`, existing `AnnualPctReturnDDRatio` acceptance filters, natural failed/passed rows and no forced pass state.
+- Records academic/local rationale: transaction-cost stress is necessary, but x2-x5 is a bounded local heuristic backed by clone smokes, not a universal theorem; repeated tuning against validation data remains a data-snooping risk.
+- Records local ledger answer for `MC 2 > CrossChecks` (`133/133`) and report `phase7_mc2_crosschecks_20260523_230735.json`; next exact block is `MC 2 > Data / Databanks / Resources / Options`.
+
 ## 2026-05-23 - C1-CONFIG1 MC Closeout
 
 - Adds `mc-closeout-report` to consolidate all four Phase 6 MC guards in dry-run mode before moving to MC 2.

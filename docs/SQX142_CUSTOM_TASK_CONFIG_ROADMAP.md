@@ -1,6 +1,6 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 6 `MC` cerrada y Fase 7 `MC 2` abierta el 2026-05-23. Fase 0 dejo
+Estado: C1-CONFIG1 con Fase 7 `MC 2 > CrossChecks` cerrada el 2026-05-23. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -106,6 +106,8 @@ tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Vol
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write --full-output
 tools\sqx142_task_config_gate.ps1 record-answer --task-title "MC 2" --tab "CrossChecks" --question-id "<id>" --answer "<answer>"
+tools\sqx142_task_config_gate.ps1 mc2-crosschecks-target --target both
+tools\sqx142_task_config_gate.ps1 mc2-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
 
@@ -802,6 +804,62 @@ Closeout formal de Fase 6 `MC`:
 
 Siguiente bloque exacto: `MC 2 > CrossChecks`, empezando por revisar el stress
 de spread adaptativo `baseSpread x2-x5` antes de tocar valores.
+
+## Estado Fase 7 - MC 2
+
+Fase abierta tras el closeout formal de `MC`. `MC 2` es el retest de Monte
+Carlo historico/coste posterior a `MC`; no debe forzar resultados, relajar
+filtros ni convertirse en optimizador.
+
+Consulta academica registrada para `MC 2 > CrossChecks`:
+
+- White, "A Reality Check for Data Snooping", Econometrica 2000:
+  `https://doi.org/10.1111/1468-0262.00152`.
+- Bailey, Borwein, Lopez de Prado y Zhu, "Pseudo-Mathematics and Financial
+  Charlatanism: The Effects of Backtest Overfitting on Out-of-Sample
+  Performance": `https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2308659`.
+- Horvath, de Carvalho, Leitao y Sowa, "On the different impacts of fixed
+  versus floating bid-ask spreads on an automated intraday stock trading":
+  `https://doi.org/10.1016/j.najef.2020.101247`.
+
+Conclusion aplicada:
+
+- La literatura respalda tratar costes, bid-ask spread y fricciones como parte
+  del realismo de backtest, y tambien advierte contra reusar validaciones para
+  seleccionar/tunear hasta que salgan bien.
+- La regla `baseSpread x2-x5` es una inferencia metodologica local y una
+  heuristica acotada validada por smokes, no un teorema universal.
+- El rango absoluto `30-50` quedaba desanclado del activo: en el seed generico
+  `AUDCAD/H1` con spread `2.0` equivalia a `15x-25x`; en USDJPY/H4 ya se habia
+  observado como extremo y bloqueo posterior.
+
+Decision aplicada para `MC 2 > CrossChecks`:
+
+- Se anade `mc2-crosschecks-target` con dry-run-first, backup/diff/apply y
+  guard idempotente para base local y template repo.
+- `MonteCarloRetest` queda como unico crosscheck activo de `MC 2`.
+- Metodos activos dentro de `MonteCarloRetest`: `RandomizeHistoryData` y
+  `RandomizeSpread`; los metodos activos ocultos dentro de crosschecks
+  inactivos se apagan.
+- `NumberOfSimulations=100` y `MCUseFullSample=true` se preservan.
+- Se preservan los filtros de aceptacion existentes:
+  `AnnualPctReturnDDRatio` MC2 `>= 0` y `AnnualPctReturnDDRatio` MC2 `>= 30%`
+  del main.
+- `RandomizeSpread` pasa de absoluto `30-50` a adaptativo
+  `baseSpread x2-x5`; en el seed generico `spread=2.0` queda `4-10`.
+- Project Generator incorpora `adaptiveSpreadStress` para recalcular el rango
+  por activo/timeframe; smoke de contrato genera AUDCAD/H4 con spread `10` y
+  `RandomizeSpread=20-50`.
+- El dry-run posterior queda idempotente: `changed=false`,
+  `changedActionCount=0` y `guardOk=true`.
+- Ledger local respondido para `MC 2 > CrossChecks` (`133/133`).
+
+Reporte local:
+`.local/sqx142_task_config/phase_reports/phase7_mc2_crosschecks_20260523_230735.json`.
+
+Siguiente bloque exacto: `MC 2 > Data / Databanks / Resources / Options`, para
+cerrar cadena `Input=MC` / `Output=MC2`, periodo, precision y placeholders
+generator-owned antes de pasar a generacion pasiva/estaticos.
 
 ## Disciplina Operativa
 
