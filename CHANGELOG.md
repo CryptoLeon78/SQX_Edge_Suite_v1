@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-23 - SQX142-BRANDING1 Etiqueta Visual Local Antes De RETEST 0
+
+- Adds a local-only SQX 142 footer branding patch so SQUANT displays `Build: 142.2336 Codex` while the technical appVersion remains `142.2336`.
+- Hides About modal private license/identity lines visually and replaces them with `Optimized and Controlled by Codex 3.0 & QxPro for Edge Suite v1.0`.
+- Patches only local web UI/template files, with no binary, engine, license, strategy XML or backend version mutation.
+- Records private backup, post-patch hash, cache refresh, footer smoke and About privacy smoke evidence under ignored `.local/sqx142_branding/`.
+- Archives only volatile Electron cache folders before the second smoke and confirms SQX closes with no leftover `StrategyQuantX*` processes.
+
 ## 2026-05-23 - G8-SQX-AGENT-SKILLS1 Guardianes Antes De RETEST 0
 
 - Updates local Codex skills `sqx-edge-suite-governance` and `sqx142-local-intelligence` with C1-CONFIG1, SQX142-PERF1, Live Guard, handoffs, subagent use and no-mutation limits.

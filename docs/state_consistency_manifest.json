@@ -335,7 +335,7 @@
         ],
         "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
           "2.5. `G8-SQX-AGENT-SKILLS1`, guardianes SQX antes de `RETEST 0`.",
-          "Siguiente fase tras cerrar G8: Fase 3 `RETEST 0`.",
+          "2.6. `SQX142-BRANDING1`, etiqueta visual local antes de `RETEST 0`.",
           "sqx-test-guardian",
           "sqx-docs-curator"
         ],
@@ -357,6 +357,48 @@
         "docs/LOCAL_AI_AGENT_ROADMAP.md": [
           "remote tester capabilities incluye sqx_test_guardian_help",
           "remote tester capabilities incluye sqx_docs_curator_help"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_branding1_local_visual_label",
+      "description": "SQX142-BRANDING1 is a local-only visual label before RETEST 0; the technical SQX appVersion must remain unchanged.",
+      "required": {
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: SQX142-BRANDING1 - Local SQX Visual Build Label",
+          "Build: 142.2336 Codex",
+          "Optimized and Controlled by Codex 3.0 & QxPro for Edge Suite v1.0",
+          "appVersion` remains `142.2336",
+          ".local/sqx142_branding/"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "2.6. `SQX142-BRANDING1`, etiqueta visual local antes de `RETEST 0`.",
+          "Build: 142.2336 Codex",
+          "Optimized and Controlled by Codex 3.0 & QxPro for Edge Suite v1.0",
+          "About queda saneado visualmente",
+          "appVersion=142.2336",
+          "Siguiente fase tras cerrar SQX142-BRANDING1: Fase 3 `RETEST 0`."
+        ],
+        "CHANGELOG.md": [
+          "2026-05-23 - SQX142-BRANDING1 Etiqueta Visual Local Antes De RETEST 0",
+          "technical appVersion remains `142.2336`",
+          "Optimized and Controlled by Codex 3.0 & QxPro for Edge Suite v1.0",
+          ".local/sqx142_branding/"
+        ]
+      },
+      "forbidden": {
+        "docs/PROJECT_GOVERNANCE.md": [
+          "technical appVersion becomes 142.Codex",
+          "binarios SQX modificados para branding"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "version tecnica interna continua siendo `142.Codex`",
+          "se tocaron binarios para branding"
+        ],
+        "CHANGELOG.md": [
+          "engine version changed to Codex",
+          "license patch",
+          "About modal exposes private license identity"
         ]
       }
     }

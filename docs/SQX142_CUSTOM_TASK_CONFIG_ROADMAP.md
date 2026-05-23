@@ -6,6 +6,11 @@ las views ligeras/especializadas desde Mining15 a la base local y al template
 repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro Build.
 Antes de `RETEST 0`, G8-SQX-AGENT-SKILLS1 alinea skills, guardianes,
 perfiles del agente y handoffs locales para proteger el resto del cuestionario.
+La mini fase `SQX142-BRANDING1` queda cerrada antes de `RETEST 0`: cambia solo
+la capa visual local de SQX a `Build: 142.2336 Codex`, oculta en About las
+lineas privadas de licencia/identidad y muestra la trazabilidad
+`Optimized and Controlled by Codex 3.0 & QxPro for Edge Suite v1.0`; la version
+tecnica interna continua siendo `142.2336`.
 
 Este documento gobierna la configuracion interactiva de parametros del custom
 base Capa 1. La fuente inicial es el custom mas actualizado:
@@ -89,6 +94,7 @@ directamente.
    reversibles.
 2. Build Capa1, pestaña por pestaña.
 2.5. `G8-SQX-AGENT-SKILLS1`, guardianes SQX antes de `RETEST 0`.
+2.6. `SQX142-BRANDING1`, etiqueta visual local antes de `RETEST 0`.
 3. `RETEST 0`.
 4. `RETEST 1`.
 5. `TICK REAL`.
@@ -236,7 +242,28 @@ Aplicado como fase puente antes de `RETEST 0`:
   `--launch`, retests reales ni mutaciones de proyectos/databanks sin
   confirmacion explicita.
 
-Siguiente fase tras cerrar G8: Fase 3 `RETEST 0`.
+## Estado SQX142-BRANDING1
+
+Aplicado como mini fase local antes de `RETEST 0`:
+
+- Cambio limitado a UI web local de SQX 142: footer `Build: 142.2336 Codex`.
+- About queda saneado visualmente: no muestra `Hardware ID`, `License number`
+  ni `Licensed to`; en su lugar muestra
+  `Optimized and Controlled by Codex 3.0 & QxPro for Edge Suite v1.0`.
+- Version tecnica intacta: `/main/getCommon` sigue devolviendo
+  `appVersion=142.2336`.
+- No se tocaron binarios, motor, licencia, XMLs de estrategias ni endpoints.
+- Backup y evidencia privada ignorada por Git:
+  `.local/sqx142_branding/SQX142-BRANDING1-20260523-161541/`.
+- Cache Electron refrescada archivando solo carpetas volatiles `Cache`,
+  `Code Cache`, `GPUCache` y `DawnCache`.
+- Smoke real local tras refresh: `http://127.0.0.1:8080/SQUANT/index.html#!/`
+  mostro `ALGOTRADING Build: 142.2336 Codex ...`.
+- Smoke visual About confirmado con Playwright local: modal abierto, marca
+  Codex/QxPro visible y lineas privadas ausentes.
+- Cierre final limpio: sin procesos `StrategyQuantX*` vivos.
+
+Siguiente fase tras cerrar SQX142-BRANDING1: Fase 3 `RETEST 0`.
 
 ## Disciplina Operativa
 
