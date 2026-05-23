@@ -8,6 +8,8 @@ Last updated: 2026-05-21.
 - Windows laptop pilot behind Cloudflare Tunnel and Cloudflare Access.
 - Email-validated access plus app session, entitlement checks, workspace isolation, audit trail, rate limits, revocation, kill switch and watermark.
 - Approved testers can use the full app through `tester_free` grants while remaining authenticated, audited and revocable.
+- Approved authenticated testers can use the guided AI dock in tester-safe mode; it can explain and navigate inside Edge Factory, but it cannot see the creator's local server monitor, local inbox, grants, checkout, Cloudflare controls or protected URLs.
+- Operator launch readiness is checked locally with Backend/Tunnel/Ollama before tester sessions; the monitor is not exposed to remote users.
 - The first tiny cohort monitoring closeout is clean; REMOTE-RILIS-STANDBY keeps a post-fix browser retest pending before the next operator decision review, so a post-fix browser retest is in standby.
 - Edge Factory is becoming the main desktop buyer/tester experience: one guided methodology shell over the existing engines, with technical tabs available from advanced tools instead of primary navigation, WFCO-2 handoffs carrying selected card/mining/generation/analysis/C2/portfolio context, WFCO-3 copy focused on action/output/pending state, WFCO-4 Portfolio Lab classifying Capa 2 candidates as portfolio/similar/review and WFCO-5 desktop polish adding a live command strip/status stack.
 - Dashboard engines remain active behind Edge Factory: Activos, Mining Control, SQX Views, Project Generator, Template Maker, Strategy Control, Champion vs Challenger, BlockSettings Info and Control Panel.
@@ -21,6 +23,7 @@ Last updated: 2026-05-21.
 - Keep Edge Factory in a short acceptance pass while avoiding new surface until the remote standby retest and the pending Capa 2 base v2 decision are clear.
 - Close the standby browser retest after the Project Generator remote-session redirect fix.
 - Resume REMOTE-8G decision review only after the standby retest is confirmed.
+- Keep the local Backend/Tunnel/Ollama monitor green before opening tester work sessions.
 - If the operator later approves a next movement, prepare the later package/approval/execution/monitoring gates without automating grants, emails, checkout, URLs or onboarding.
 - Keep verifying workspace isolation, Access/session stability, artifact generation, browser downloads, support, revocation and restore during each controlled movement.
 - Tighten buyer onboarding copy, FAQ and support macros from real pilot feedback.

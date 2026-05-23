@@ -120,6 +120,8 @@ from core.support_incidents import (
     support_incident_public_response,
     validate_support_incident,
 )
+from core.sqx_compatibility import build_sqx142_status
+from core.sqx_performance import build_sqx142_performance_status
 from core.fulfillment_queue import (
     load_request as load_fulfillment_request,
     process_request as process_fulfillment_request,
@@ -129,6 +131,16 @@ from core.fulfillment_queue import (
     update_request_status as set_fulfillment_request_status,
 )
 from core.customer_cockpit import cockpit_overview as customer_cockpit_overview
+from core.agent.executor import execute_action
+from core.agent.llm_client import OllamaClient, OllamaConfig
+from core.agent.policy import consume_confirmation, create_confirmation, is_action_allowed
+from core.agent.redaction import redact_data, redacted_json
+from core.agent.schemas import LOCAL_AI_AGENT_VERSION, PLAN_RESPONSE_SCHEMA, safe_plan_response
+from core.agent.tool_catalog import (
+    EDGE_STAGE_LABELS,
+    build_action_catalog,
+    recommended_action_for_stage,
+)
 
 app = Flask(__name__)
 
@@ -184,6 +196,8 @@ LOCAL_HOSTS = {"localhost", "127.0.0.1", "::1"}
 LOCAL_REMOTE_ADDRS = {"127.0.0.1", "::1"}
 SAFE_PROJECT_TOKEN_RE = re.compile(r"[^A-Za-z0-9._-]+")
 REMOTE_WRITE_PILOT_AUDIT_PATH = PROJECT_ROOT / ".local" / "remote_service" / "remote_write_pilot.local.jsonl"
+AGENT_AUDIT_PATH = PROJECT_ROOT / ".local" / "agent_inbox" / "agent_actions.local.jsonl"
+REMOTE_AI_ALLOWED_ENTITLEMENTS = {"tester_free", "paid_subscription", "internal_operator"}
 
 
 # ── CORS manual local-only (zero deps) ────────────────────────────
@@ -221,6 +235,10 @@ def _is_public_link_preview_path(path: str) -> bool:
 
 
 def _remote_security_action(method: str, path: str) -> str | None:
+    if path.startswith("/api/agent/") and (
+        _is_authenticated_access_tunnel_request() or bool(request.cookies.get(SESSION_COOKIE_NAME))
+    ):
+        return "remote_ai"
     if not path.startswith("/api/remote/"):
         return None
     if path == "/api/remote/session/login" and method == "POST":
@@ -382,7 +400,7 @@ def enforce_remote_security_controls():
         response.status_code = 429
         response.headers["Retry-After"] = str(rate.get("retryAfterSeconds") or 0)
         return response
-    if is_kill_switch_active(policy) and action in {"remote_session_login", "remote_protected_write"}:
+    if is_kill_switch_active(policy) and action in {"remote_session_login", "remote_protected_write", "remote_ai"}:
         return jsonify({
             "ok": False,
             "version": REMOTE_SECURITY_VERSION,
@@ -1006,6 +1024,647 @@ def manifest():
 @app.get("/api/blocksettings")
 def api_blocksettings():
     return jsonify({"ok": True, "blocksettings": load_blocksettings_manifest()})
+
+
+def _load_agent_profiles() -> dict:
+    profiles = load_manifest("agent_profiles.json")
+    return profiles if isinstance(profiles, dict) else {}
+
+
+def _agent_ollama_config() -> OllamaConfig:
+    profiles = _load_agent_profiles()
+    provider = profiles.get("provider") if isinstance(profiles.get("provider"), dict) else {}
+    return OllamaConfig(
+        base_url=str(provider.get("baseUrl") or "http://127.0.0.1:11434"),
+        model=str(provider.get("model") or "qwen3.5:latest"),
+        fallback_model=str(provider.get("fallbackModel") or "qwen2.5-coder:3b"),
+        timeout_seconds=float(provider.get("timeoutSeconds") or 12),
+        offline_only=bool(provider.get("offlineOnly", True)),
+        auto_start=bool(provider.get("autoStart", True)),
+        executable=str(provider.get("executable") or ""),
+        startup_wait_seconds=float(provider.get("startupWaitSeconds") or 6),
+    )
+
+
+def _agent_translation_ollama_config(status: dict | None = None) -> tuple[OllamaConfig, str]:
+    profiles = _load_agent_profiles()
+    provider = profiles.get("provider") if isinstance(profiles.get("provider"), dict) else {}
+    base_config = _agent_ollama_config()
+    models = status.get("models") if isinstance(status, dict) and isinstance(status.get("models"), list) else []
+    installed = {str(model) for model in models}
+    candidates = [
+        str(provider.get("translationModel") or "").strip(),
+        "qwen2.5-coder:1.5b",
+        str(provider.get("fallbackModel") or "").strip(),
+        "qwen2.5-coder:3b",
+        str((status or {}).get("model") or "").strip(),
+        base_config.model,
+    ]
+    selected = ""
+    for candidate in candidates:
+        if not candidate:
+            continue
+        if not installed or candidate in installed:
+            selected = candidate
+            break
+    selected = selected or base_config.model
+    timeout = float(provider.get("translationTimeoutSeconds") or max(base_config.timeout_seconds, 90))
+    return OllamaConfig(
+        base_url=base_config.base_url,
+        model=selected,
+        fallback_model=base_config.fallback_model,
+        timeout_seconds=timeout,
+        offline_only=base_config.offline_only,
+        auto_start=base_config.auto_start,
+        executable=base_config.executable,
+        startup_wait_seconds=base_config.startup_wait_seconds,
+    ), selected
+
+
+def _agent_access_context() -> tuple[dict | None, tuple | None]:
+    """Allow local operator access plus authenticated remote app sessions for the AI pilot."""
+    local_operator = _is_local_remote(request.remote_addr) and _is_local_host(request.host) and not trusted_email_from_headers(request.headers)
+    if local_operator:
+        return {
+            "scope": "local_operator",
+            "remote": False,
+            "entitlementKind": "internal_operator",
+            "capabilityMode": "operator_full",
+        }, None
+
+    if _is_authenticated_access_tunnel_request() or request.cookies.get(SESSION_COOKIE_NAME):
+        session_status, _device_id = _remote_session_status_for_request(purpose="agent_ai")
+        session = session_status.get("session") if isinstance(session_status.get("session"), dict) else {}
+        access = session_status.get("access") if isinstance(session_status.get("access"), dict) else {}
+        entitlement = session_status.get("entitlement") if isinstance(session_status.get("entitlement"), dict) else {}
+        entitlement_kind = str(session.get("entitlement_kind") or entitlement.get("kind") or "")
+        allowed = bool(session.get("active") and access.get("allowed") and entitlement_kind in REMOTE_AI_ALLOWED_ENTITLEMENTS)
+        if allowed:
+            return {
+                "scope": "remote_user",
+                "remote": True,
+                "entitlementKind": entitlement_kind,
+                "emailRef": session.get("email_ref"),
+                "capabilityMode": "tester_safe",
+            }, None
+        return None, (jsonify({
+            "ok": False,
+            "version": LOCAL_AI_AGENT_VERSION,
+            "error": "remote_ai_session_required",
+            "message": "Inicia una sesion remota valida antes de usar el agente IA.",
+            "privacy": {
+                "local_paths_returned": False,
+                "raw_email_returned": False,
+                "protected_url_returned": False,
+                "prompt_persisted": False,
+            },
+        }), 403)
+
+    return None, (jsonify({
+        "ok": False,
+        "version": LOCAL_AI_AGENT_VERSION,
+        "error": "local_ai_agent_access_denied",
+        "privacy": {
+            "local_paths_returned": False,
+            "raw_email_returned": False,
+            "protected_url_returned": False,
+            "prompt_persisted": False,
+        },
+    }), 403)
+
+
+def _agent_actions_for_context(context: dict | None = None) -> dict:
+    actions = build_action_catalog(_load_agent_profiles())
+    if not context or not context.get("remote"):
+        return actions
+    return {
+        action_id: action
+        for action_id, action in actions.items()
+        if action.risk in {"read", "navigate"}
+        and action.id not in {"inspect_inbox", "sqx142_compat_help", "sqx142_performance_help"}
+        and not action.id.startswith("mark_step:")
+    }
+
+
+def _agent_public_status(context: dict | None = None) -> dict:
+    profiles = _load_agent_profiles()
+    client = OllamaClient(_agent_ollama_config())
+    llm_status = client.status()
+    profile_map = profiles.get("profiles") if isinstance(profiles.get("profiles"), dict) else {}
+    inbox = profiles.get("inbox") if isinstance(profiles.get("inbox"), dict) else {}
+    access = context or {"scope": "local_operator", "remote": False, "capabilityMode": "operator_full"}
+    return {
+        "ok": True,
+        "version": LOCAL_AI_AGENT_VERSION,
+        "active": bool(llm_status.get("available")),
+        "audience": profiles.get("audience") or "local_operator_only",
+        "execution": (profiles.get("policy") or {}).get("execution", "guide_then_confirm") if isinstance(profiles.get("policy"), dict) else "guide_then_confirm",
+        "provider": {
+            "id": (profiles.get("provider") or {}).get("id", "ollama") if isinstance(profiles.get("provider"), dict) else "ollama",
+            "available": bool(llm_status.get("available")),
+            "model": llm_status.get("model"),
+            "configuredModel": llm_status.get("configuredModel"),
+            "fallbackModel": llm_status.get("fallbackModel"),
+            "error": llm_status.get("error", ""),
+            "autoStart": llm_status.get("autoStart") or {},
+        },
+        "access": {
+            "scope": access.get("scope"),
+            "remote": bool(access.get("remote")),
+            "entitlementKind": access.get("entitlementKind"),
+            "capabilityMode": access.get("capabilityMode"),
+            "monitorVisible": False if access.get("remote") else True,
+        },
+        "profiles": [{"id": key, "label": value.get("label", key)} for key, value in sorted(profile_map.items()) if isinstance(value, dict)],
+        "inbox": {
+            "enabled": not bool(access.get("remote")),
+            "root": ".local/agent_inbox",
+            "incoming": inbox.get("incoming", ".local/agent_inbox/incoming") if isinstance(inbox, dict) else ".local/agent_inbox/incoming",
+            "localPathReturned": False,
+        },
+        "sqx142Compat": {"visible": False} if access.get("remote") else build_sqx142_status(include_paths=False),
+        "sqx142Performance": {"visible": False} if access.get("remote") else build_sqx142_performance_status(PROJECT_ROOT, include_paths=False),
+        "privacy": {
+            "local_paths_returned": False,
+            "raw_email_returned": False,
+            "protected_url_returned": False,
+            "prompt_persisted": False,
+            "conversation_persisted": False,
+        },
+    }
+
+
+def _agent_stage_from_payload(data: dict) -> str:
+    state = data.get("edgeFactoryState") if isinstance(data.get("edgeFactoryState"), dict) else {}
+    context = data.get("context") if isinstance(data.get("context"), dict) else {}
+    raw = state.get("activeStep") or context.get("activeStep") or data.get("activeStep") or "session"
+    return str(raw) if str(raw) in EDGE_STAGE_LABELS else "session"
+
+
+def _is_capabilities_question(value: object) -> bool:
+    text = str(value or "").lower()
+    normalized = (
+        text.replace("¿", "")
+        .replace("?", "")
+        .replace("á", "a")
+        .replace("é", "e")
+        .replace("í", "i")
+        .replace("ó", "o")
+        .replace("ú", "u")
+    )
+    markers = [
+        "que eres capaz de hacer",
+        "que puedes hacer",
+        "que sabes hacer",
+        "capabilities",
+        "capacidades",
+        "ayuda",
+        "help",
+    ]
+    return any(marker in normalized for marker in markers)
+
+
+def _is_sqx142_compat_question(value: object) -> bool:
+    text = str(value or "").lower()
+    normalized = (
+        text.replace("¿", "")
+        .replace("?", "")
+        .replace("á", "a")
+        .replace("é", "e")
+        .replace("í", "i")
+        .replace("ó", "o")
+        .replace("ú", "u")
+    )
+    markers = [
+        "sqx 142",
+        "build 143",
+        "build 144",
+        "compatibilidad",
+        "backport",
+        "hotfix",
+        "runtime sqx",
+    ]
+    return any(marker in normalized for marker in markers)
+
+
+def _is_sqx142_performance_question(value: object) -> bool:
+    text = str(value or "").lower()
+    normalized = (
+        text.replace("¿", "")
+        .replace("?", "")
+        .replace("á", "a")
+        .replace("é", "e")
+        .replace("í", "i")
+        .replace("ó", "o")
+        .replace("ú", "u")
+    )
+    markers = [
+        "rendimiento sqx",
+        "performance sqx",
+        "optimizar sqx",
+        "minados",
+        "retests",
+        "montecarlo",
+        "monte carlo",
+        "databanks",
+        "perfil jvm",
+        "perfil activo",
+        "sqx142_performance",
+    ]
+    return any(marker in normalized for marker in markers)
+
+
+def _agent_capabilities_plan(actions: dict | None = None, *, context: dict | None = None) -> dict:
+    actions = actions or build_action_catalog(_load_agent_profiles())
+    action = actions["capabilities_help"]
+    if context and context.get("remote"):
+        reply = (
+            "Soy el agente IA local de SQX Edge Suite en modo tester seguro. Puedo orientarte por Edge Factory, "
+            "explicar el siguiente paso, abrir herramientas internas con tu confirmacion y refrescar el estado visible "
+            "de la app. No tengo acceso al monitor local del servidor, a la bandeja local del creador ni a acciones de "
+            "escritura como marcar etapas. No ejecuto texto libre ni cambios sin confirmacion, y no puedo tocar emails, "
+            "grants, checkout, Cloudflare, permisos, URLs protegidas, borrados, publicaciones ni acciones comerciales externas."
+        )
+    else:
+        reply = (
+            "Soy el agente IA local de SQX Edge Suite para operador. Puedo orientarte por Edge Factory, "
+            "explicar el siguiente paso, abrir herramientas internas con tu confirmacion, refrescar estado local, "
+            "revisar la bandeja local bajo confirmacion, explicar la compatibilidad SQX 142/143/144, analizar rendimiento SQX 142 y preparar acciones seguras. "
+            "No ejecuto texto libre ni cambios sin confirmacion, y no puedo tocar emails, grants, checkout, Cloudflare, permisos, URLs protegidas, "
+            "borrados, publicaciones ni acciones comerciales externas."
+        )
+    return safe_plan_response(
+        reply=reply,
+        profile="orchestrator",
+        action=action,
+        reason="Pregunta directa sobre capacidades del agente.",
+        blockers=[],
+        arguments={},
+        source="fixed_capabilities",
+    )
+
+
+def _agent_sqx142_compat_plan(actions: dict | None = None) -> dict:
+    actions = actions or build_action_catalog(_load_agent_profiles())
+    action = actions["sqx142_compat_help"]
+    status = build_sqx142_status(include_paths=False)
+    java = status.get("java") if isinstance(status.get("java"), dict) else {}
+    active = java.get("active") if isinstance(java.get("active"), dict) else {}
+    reference = java.get("reference") if isinstance(java.get("reference"), dict) else {}
+    blockers = [str(item) for item in status.get("blockers", [])][:8]
+    reply = (
+        "Compatibilidad SQX 142/143: la build 143 local queda como referencia segura para runtime/config y extensiones. "
+        f"Runtime activo: {active.get('label') or 'desconocido'}; referencia 143: {reference.get('label') or 'desconocida'}. "
+        f"Estado: {status.get('status')}. {status.get('recommendation')}"
+    )
+    return safe_plan_response(
+        reply=reply,
+        profile="sqx142-compat",
+        action=action,
+        reason="Consulta interna sobre compatibilidad SQX 142/143/144.",
+        blockers=blockers,
+        arguments={},
+        source="fixed_sqx142_compat",
+    )
+
+
+def _agent_sqx142_performance_plan(actions: dict | None = None) -> dict:
+    actions = actions or build_action_catalog(_load_agent_profiles())
+    action = actions["sqx142_performance_help"]
+    status = build_sqx142_performance_status(PROJECT_ROOT, include_paths=False)
+    profile = status.get("activeProfile") if isinstance(status.get("activeProfile"), dict) else {}
+    resources = status.get("resources") if isinstance(status.get("resources"), dict) else {}
+    disk = resources.get("disk") if isinstance(resources.get("disk"), dict) else {}
+    compat = status.get("compatibility") if isinstance(status.get("compatibility"), dict) else {}
+    intelligence = status.get("intelligence") if isinstance(status.get("intelligence"), dict) else {}
+    views = intelligence.get("views") if isinstance(intelligence.get("views"), dict) else {}
+    latest_evidence = intelligence.get("latestEvidence") if isinstance(intelligence.get("latestEvidence"), dict) else status.get("latestEvidence", {})
+    recommendation = intelligence.get("recommendation") if isinstance(intelligence.get("recommendation"), dict) else {}
+    live_guard = intelligence.get("liveGuard") if isinstance(intelligence.get("liveGuard"), dict) else {}
+    warnings = [str(item) for item in status.get("warnings", [])][:8]
+    view_text = (
+        f"{views.get('presentCount')}/{views.get('expectedCount')} views OK"
+        if views.get("expectedCount") is not None
+        else "views sin resumen"
+    )
+    evidence_text = latest_evidence.get("filename") if isinstance(latest_evidence, dict) and latest_evidence.get("filename") else "sin evidencia reciente"
+    recommendation_text = recommendation.get("label") or "mantener medicion antes de cambiar metodologia"
+    live_guard_text = (
+        f"Live Guard: {live_guard.get('state') or 'sin estado'}, alertas {live_guard.get('alertCount', 0)}"
+        if live_guard
+        else "Live Guard: sin resumen"
+    )
+    reply = (
+        "Performance Gate SQX 142: la optimizacion queda controlada por medicion, perfiles reversibles y calidad protegida. "
+        f"Perfil activo: {profile.get('id') or 'desconocido'}; disco libre: {disk.get('freeHuman') or 'desconocido'} ({disk.get('state') or 'unknown'}); "
+        f"runtime: {compat.get('runtime') or 'desconocido'}; estado: {status.get('status')}; {view_text}; ultima evidencia: {evidence_text}. "
+        f"{live_guard_text}. "
+        f"Siguiente accion recomendada: {recommendation_text}. "
+        "No reduzco OOS/Forward, precision, simulaciones ni filtros finales sin evidencia explicita."
+    )
+    return safe_plan_response(
+        reply=reply,
+        profile="sqx142-performance",
+        action=action,
+        reason="Consulta interna sobre rendimiento SQX 142.",
+        blockers=warnings,
+        arguments={},
+        source="fixed_sqx142_performance",
+    )
+
+
+def _agent_heuristic_plan(
+    data: dict,
+    *,
+    source: str = "heuristic",
+    actions: dict | None = None,
+    context: dict | None = None,
+) -> dict:
+    actions = actions or build_action_catalog(_load_agent_profiles())
+    if _is_capabilities_question(data.get("message") or data.get("question")):
+        return _agent_capabilities_plan(actions, context=context)
+    if not (context and context.get("remote")) and _is_sqx142_performance_question(data.get("message") or data.get("question")):
+        return _agent_sqx142_performance_plan(actions)
+    if not (context and context.get("remote")) and _is_sqx142_compat_question(data.get("message") or data.get("question")):
+        return _agent_sqx142_compat_plan(actions)
+    stage = _agent_stage_from_payload(data)
+    action = actions.get(recommended_action_for_stage(stage)) or actions["explain_next"]
+    label = EDGE_STAGE_LABELS.get(stage, "Punto de partida")
+    message = data.get("message") or data.get("question") or ""
+    reply = (
+        f"Estoy en {label}. El siguiente movimiento seguro es abrir la herramienta de esa etapa, "
+        "revisar el contexto visible y confirmar antes de modificar nada."
+    )
+    if message:
+        reply = f"{reply} He leído tu petición, pero mantengo el flujo con confirmación explícita."
+    return safe_plan_response(
+        reply=reply,
+        profile=stage,
+        action=action,
+        reason=f"Etapa activa Edge Factory: {label}.",
+        blockers=[],
+        arguments={"stage": stage, **action.ui_command},
+        source=source,
+    )
+
+
+def _agent_plan_with_llm(data: dict, *, actions: dict | None = None, context: dict | None = None) -> dict:
+    actions = actions or build_action_catalog(_load_agent_profiles())
+    if _is_capabilities_question(data.get("message") or data.get("question")):
+        return _agent_capabilities_plan(actions, context=context)
+    if not (context and context.get("remote")) and _is_sqx142_performance_question(data.get("message") or data.get("question")):
+        return _agent_sqx142_performance_plan(actions)
+    if not (context and context.get("remote")) and _is_sqx142_compat_question(data.get("message") or data.get("question")):
+        return _agent_sqx142_compat_plan(actions)
+    profiles = _load_agent_profiles()
+    client = OllamaClient(_agent_ollama_config())
+    status = client.status()
+    if not status.get("available"):
+        return _agent_heuristic_plan(data, source="heuristic_no_ollama", actions=actions, context=context)
+    stage = _agent_stage_from_payload(data)
+    safe_context = redact_data({
+        "message": data.get("message") or "",
+        "edgeFactoryState": data.get("edgeFactoryState") or {},
+        "activeStage": stage,
+        "capabilities": [action.public() for action in actions.values()],
+    })
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "Eres el agente local de SQX Edge Suite. Solo puedes recomendar acciones del catalogo. "
+                "No inventes herramientas, no pidas datos sensibles y no ejecutes nada. Responde en JSON segun schema."
+            ),
+        },
+        {"role": "user", "content": redacted_json(safe_context)},
+    ]
+    try:
+        raw = client.chat_json(messages=messages, schema=PLAN_RESPONSE_SCHEMA, model=status.get("model"))
+        action_id = str((raw.get("recommendedAction") or {}).get("id") or "")
+        action = actions.get(action_id) or actions.get(recommended_action_for_stage(stage)) or actions["explain_next"]
+        return safe_plan_response(
+            reply=str(raw.get("reply") or ""),
+            profile=str(raw.get("profile") or stage),
+            action=action,
+            reason=str((raw.get("recommendedAction") or {}).get("reason") or action.description),
+            blockers=[str(item) for item in (raw.get("blockers") or [])][:8],
+            arguments=(raw.get("recommendedAction") or {}).get("arguments") if isinstance((raw.get("recommendedAction") or {}).get("arguments"), dict) else {},
+            source="ollama",
+        )
+    except Exception:
+        return _agent_heuristic_plan(data, source="heuristic_after_llm_error", actions=actions, context=context)
+
+
+def _record_agent_action(action_id: str, result: dict) -> None:
+    try:
+        AGENT_AUDIT_PATH.parent.mkdir(parents=True, exist_ok=True)
+        record = {
+            "version": "local-ai-agent-audit-v1",
+            "at": datetime.now(timezone.utc).isoformat(),
+            "actionId": action_id,
+            "ok": bool(result.get("ok")),
+            "risk": ((result.get("action") or {}).get("risk") or ""),
+        }
+        with AGENT_AUDIT_PATH.open("a", encoding="utf-8") as handle:
+            handle.write(json.dumps(record, ensure_ascii=False, sort_keys=True) + "\n")
+    except OSError:
+        return
+
+
+def _strip_code_fences(value: str) -> str:
+    text = str(value or "").strip()
+    if text.startswith("```"):
+        lines = text.splitlines()
+        if lines:
+            lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        text = "\n".join(lines).strip()
+    if "```" in text:
+        text = text.split("```", 1)[0].strip()
+    return text
+
+
+def _agent_translate_source_code(data: dict) -> tuple[dict, int]:
+    source_code = str(data.get("sourceCode") or data.get("source") or "").strip()
+    target = str(data.get("target") or "MQL5 Expert Advisor").strip()[:120]
+    mode = str(data.get("mode") or "translate").strip().lower()
+    feedback = str(data.get("feedback") or "").strip()[:8000]
+    if not source_code:
+        return {"ok": False, "version": LOCAL_AI_AGENT_VERSION, "error": "missing_source_code"}, 400
+    if len(source_code) > 120000:
+        return {"ok": False, "version": LOCAL_AI_AGENT_VERSION, "error": "source_code_too_large"}, 413
+
+    client = OllamaClient(_agent_ollama_config())
+    status = client.status()
+    if not status.get("available"):
+        return {
+            "ok": False,
+            "version": LOCAL_AI_AGENT_VERSION,
+            "error": "ollama_unavailable",
+            "provider": {"model": status.get("model"), "autoStart": status.get("autoStart") or {}},
+        }, 503
+    translation_config, translation_model = _agent_translation_ollama_config(status)
+    translation_client = OllamaClient(translation_config)
+
+    if mode == "fix":
+        system_prompt = (
+            "You are a local-only trading strategy code fixer. Fix the provided target code while preserving "
+            "strategy logic. Output only complete corrected source code, no markdown fences and no explanations."
+        )
+        user_prompt = (
+            f"Target platform/language: {target}\n\n"
+            f"User feedback or compiler/runtime error:\n{feedback or 'No extra feedback.'}\n\n"
+            f"Code to fix:\n{source_code}"
+        )
+    else:
+        system_prompt = (
+            "You are a local-only trading strategy source-code translator. Translate the complete strategy into "
+            "the requested target platform/language. Preserve parameters, entry and exit rules, indicators, money "
+            "management and order logic. Output only complete source code, no markdown fences and no explanations."
+        )
+        user_prompt = f"Translate this SQX strategy source code to {target}:\n\n{source_code}"
+
+    try:
+        profiles = _load_agent_profiles()
+        provider = profiles.get("provider") if isinstance(profiles.get("provider"), dict) else {}
+        max_tokens = int(provider.get("translationMaxTokens") or 900)
+        output = translation_client.chat_text(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ],
+            model=translation_model,
+            temperature=0.1,
+            num_predict=max_tokens,
+        )
+    except Exception as exc:
+        return {"ok": False, "version": LOCAL_AI_AGENT_VERSION, "error": type(exc).__name__}, 502
+
+    return {
+        "ok": True,
+        "version": LOCAL_AI_AGENT_VERSION,
+        "mode": "fix" if mode == "fix" else "translate",
+        "target": target,
+        "model": translation_model,
+        "code": _strip_code_fences(output),
+        "privacy": {"provider": "ollama_local", "external_api_called": False, "prompt_persisted": False},
+    }, 200
+
+
+def warmup_local_ai_agent() -> dict:
+    """Best-effort Ollama warmup for server start; never blocks app startup hard."""
+    try:
+        return OllamaClient(_agent_ollama_config()).status(auto_start=True)
+    except Exception as exc:
+        return {"ok": False, "available": False, "error": type(exc).__name__}
+
+
+@app.get("/api/agent/status")
+def api_agent_status():
+    context, error = _agent_access_context()
+    if error:
+        return error
+    return jsonify(_agent_public_status(context))
+
+
+@app.get("/api/sqx142/compat/status")
+def api_sqx142_compat_status():
+    local_operator = _is_local_remote(request.remote_addr) and _is_local_host(request.host) and not trusted_email_from_headers(request.headers)
+    if not local_operator:
+        return jsonify({
+            "ok": False,
+            "version": "sqx142-compat-status-v1",
+            "error": "local_operator_required",
+            "privacy": {"local_paths_returned": False},
+        }), 403
+    return jsonify(build_sqx142_status(include_paths=False))
+
+
+@app.get("/api/sqx142/performance/status")
+def api_sqx142_performance_status():
+    local_operator = _is_local_remote(request.remote_addr) and _is_local_host(request.host) and not trusted_email_from_headers(request.headers)
+    if not local_operator:
+        return jsonify({
+            "ok": False,
+            "version": "sqx142-performance-status-v1",
+            "error": "local_operator_required",
+            "privacy": {"local_paths_returned": False},
+        }), 403
+    return jsonify(build_sqx142_performance_status(PROJECT_ROOT, include_paths=False))
+
+
+@app.get("/api/agent/capabilities")
+def api_agent_capabilities():
+    context, error = _agent_access_context()
+    if error:
+        return error
+    actions = _agent_actions_for_context(context)
+    return jsonify({
+        "ok": True,
+        "version": LOCAL_AI_AGENT_VERSION,
+        "capabilities": [action.public() for action in actions.values()],
+        "access": {
+            "scope": context.get("scope"),
+            "remote": bool(context.get("remote")),
+            "capabilityMode": context.get("capabilityMode"),
+        },
+        "privacy": {"local_paths_returned": False, "prompt_persisted": False},
+    })
+
+
+@app.post("/api/agent/plan")
+def api_agent_plan():
+    context, error = _agent_access_context()
+    if error:
+        return error
+    data = request.get_json(silent=True) or {}
+    return jsonify(_agent_plan_with_llm(data, actions=_agent_actions_for_context(context), context=context))
+
+
+@app.post("/api/agent/confirm")
+def api_agent_confirm():
+    context, error = _agent_access_context()
+    if error:
+        return error
+    data = request.get_json(silent=True) or {}
+    actions = _agent_actions_for_context(context)
+    action = actions.get(str(data.get("actionId") or ""))
+    if not action:
+        return jsonify({"ok": False, "version": LOCAL_AI_AGENT_VERSION, "error": "agent_action_unknown"}), 404
+    return jsonify(create_confirmation(action, data.get("arguments") if isinstance(data.get("arguments"), dict) else {}))
+
+
+@app.post("/api/agent/execute")
+def api_agent_execute():
+    context, error = _agent_access_context()
+    if error:
+        return error
+    data = request.get_json(silent=True) or {}
+    actions = _agent_actions_for_context(context)
+    action = actions.get(str(data.get("actionId") or ""))
+    token = str(data.get("confirmationToken") or "")
+    confirmed = False
+    if action and action.requires_confirmation:
+        confirmed, reason = consume_confirmation(token, action.id)
+        if not confirmed:
+            return jsonify({"ok": False, "version": LOCAL_AI_AGENT_VERSION, "error": reason}), 403
+    allowed, reason = is_action_allowed(action, confirmed=confirmed)
+    if not allowed:
+        return jsonify({"ok": False, "version": LOCAL_AI_AGENT_VERSION, "error": reason}), 403
+    result = execute_action(action, arguments=data.get("arguments") if isinstance(data.get("arguments"), dict) else {}, project_root=PROJECT_ROOT)
+    _record_agent_action(action.id, result)
+    return jsonify(result)
+
+
+@app.post("/api/agent/translate-source-code")
+def api_agent_translate_source_code():
+    _context, error = _agent_access_context()
+    if error:
+        return error
+    data = request.get_json(silent=True) or {}
+    result, status = _agent_translate_source_code(data)
+    return jsonify(result), status
 
 
 @app.get("/api/license/status")
@@ -2465,6 +3124,11 @@ def main(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
     print(f"  Project root: {ROOT}")
     print(f"  Templates: {ROOT / 'templates'}")
     print(f"  Output: {resolve_output_dir(load_config())}")
+    agent_status = warmup_local_ai_agent()
+    agent_auto = agent_status.get("autoStart") if isinstance(agent_status.get("autoStart"), dict) else {}
+    print(f"  Local AI: {'available' if agent_status.get('available') else 'pending'} ({agent_status.get('model') or 'ollama'})")
+    if agent_auto.get("attempted"):
+        print(f"  Local AI autostart: {agent_auto.get('reason') or 'attempted'}")
     print(f"\n  Health check: http://{host}:{port}/api/health")
     print(f"  Press Ctrl+C to stop\n")
     app.run(host=host, port=port, debug=False, threaded=True)

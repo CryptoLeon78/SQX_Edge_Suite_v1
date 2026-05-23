@@ -20,6 +20,10 @@ Current implementation base:
 - The Project Generator tab currently talks to the Python API at `http://127.0.0.1:5050`; REMOTE phases will transition this boundary from `local_only` to `remote_tunnel_only`.
 - The active pilot host remains the Windows laptop because SQX resources, `data.db`, templates, PowerShell runbooks and compatibility diagnostics are already aligned there.
 - Docker/Linux is a future hardening option, not an active deployment requirement for testers or buyers.
+- The local AI agent is mediated by Flask: the browser calls `/api/agent/*`, Flask calls Ollama on `127.0.0.1`, backend policy validates structured actions before any UI command is returned, and remote authenticated testers receive only a safe read/navigate subset. The server monitor remains local-only for the creator/operator.
+- SQX 142 local compatibility is mediated by Flask and operator scripts: `/api/sqx142/compat/status` returns redacted runtime/process/config status for the local monitor and agent, while `tools/sqx142_compatibility.ps1` performs dry-run-first preflight/backport steps from the local SQX 143 reference.
+- SQX142 Performance Gate is mediated by Flask and operator scripts: `/api/sqx142/performance/status` returns redacted profile/resource/disk/view/smoke state plus local-only `intelligence` with evidence health, Live Guard and next recommendation, while `tools/sqx142_performance_gate.ps1` owns dry-run-first measurement, reversible JVM profiles and lightweight review views without changing methodology quality.
+- SQX142 Custom Task Config Gate is local/operator-only: `tools/sqx142_task_config_gate.ps1` compares the latest donor custom against Capa1 base/template, writes full questionnaire state under ignored `.local/sqx142_task_config/`, and keeps docs/test methodology summaries sanitized before any Capa1 base promotion.
 
 ## Top-Level Map
 
@@ -48,6 +52,15 @@ flowchart TD
   INIT --> PGM["project-generator-main.js"]
 
   PGM --> API["backend/sqx-edge-tool/api/server.py"]
+  AGUI["Edge Factory Agent Dock"] --> AGAPI["/api/agent/*"]
+  AGAPI --> AGCORE["backend/sqx-edge-tool/core/agent/*"]
+  AGCORE --> OLLAMA["Ollama localhost"]
+  AGAPI --> SQXCOMPAT["/api/sqx142/compat/status"]
+  SQXCOMPAT --> SQXLEDGER["SQX142/143 backport ledger"]
+  AGAPI --> SQXPERF["/api/sqx142/performance/status"]
+  SQXPERF --> SQXPERFTOOLS["SQX142 Performance Gate"]
+  API --> SQXTASKCFG["SQX142 Custom Task Config Gate"]
+  SQXTASKCFG --> SQXTASKCFGTOOLS["tools/sqx142_task_config_gate.ps1"]
   API --> COREPY["backend/sqx-edge-tool/core/*"]
   API --> RELAYIN["Relay ingest endpoint"]
   COREPY --> CONFIG["backend/sqx-edge-tool/config/*.json"]
@@ -143,13 +156,13 @@ REMOTE-2 Cloudflare Tunnel and Access:
 
 REMOTE-RUNBOOK1 operator start/stop:
 
-- `START_SQX_EDGE_REMOTE.bat` opens the visible HTA operator monitor and starts the remote service without leaving service consoles in front of the operator.
+- `START_SQX_EDGE_REMOTE.bat` opens the visible HTA operator monitor and starts Backend, Tunnel and the Flask-mediated Ollama readiness check without leaving service consoles in front of the operator.
 - `STOP_SQX_EDGE_REMOTE.bat` opens the visual operator monitor and stops only this repo backend plus the tunnel using `cloudflared-config.local.yml`.
-- `tools/remote_operator_monitor.hta` is the visible operator monitor with Backend/Tunnel status, manual refresh, guarded `Arrancar`/`Detener` buttons and stop-mode messaging.
-- `tools/remote_operator_probe.ps1` provides the monitor with a reliable PowerShell status probe for backend and Cloudflare Tunnel state when direct HTA/WMI checks are unavailable.
+- `tools/remote_operator_monitor.hta` is the visible local-only operator monitor with Backend/Tunnel/Ollama status, manual refresh, guarded `Arrancar`/`Detener` buttons and stop-mode messaging.
+- `tools/remote_operator_probe.ps1` provides the monitor with a reliable PowerShell status probe for backend, Cloudflare Tunnel and Ollama state when direct HTA/WMI checks are unavailable.
 - `tools/remote_operator_status.ps1` remains as a diagnostic Windows Forms monitor fallback.
 - `tools/remote_operator_start.ps1` and `tools/remote_operator_stop.ps1` remain scriptable helpers for QA and operator diagnostics.
-- The visual runbook is operator-only; users and testers still enter only through the protected Cloudflare URL.
+- The visual runbook is operator-only; users and testers still enter only through the protected Cloudflare URL and never see the server monitor.
 
 REMOTE-OPS1 laptop production readiness drill:
 
@@ -427,20 +440,21 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 34. `js/modules/workflow.js`
 35. `js/modules/edge-factory.js`
 36. `js/modules/edge-factory-ui.js`
-37. `js/modules/view-creator.js`
-38. `js/modules/project-generator-core.js`
-39. `js/modules/project-generator-config.js`
-40. `js/modules/project-generator-dom.js`
-41. `js/modules/project-generator-bindings.js`
-42. `js/modules/project-generator-renderers.js`
-43. `js/modules/project-generator-status.js`
-44. `js/modules/project-generator-cleaner.js`
-45. `js/modules/project-generator.js`
-46. `js/modules/index.js`
-47. `js/data.js`
-48. `js/dashboard.js`
-49. `js/main.js`
-50. `js/project-generator-main.js`
+37. `js/modules/agent-guide.js`
+38. `js/modules/view-creator.js`
+39. `js/modules/project-generator-core.js`
+40. `js/modules/project-generator-config.js`
+41. `js/modules/project-generator-dom.js`
+42. `js/modules/project-generator-bindings.js`
+43. `js/modules/project-generator-renderers.js`
+44. `js/modules/project-generator-status.js`
+45. `js/modules/project-generator-cleaner.js`
+46. `js/modules/project-generator.js`
+47. `js/modules/index.js`
+48. `js/data.js`
+49. `js/dashboard.js`
+50. `js/main.js`
+51. `js/project-generator-main.js`
 
 ## Why This Order Matters
 
@@ -457,6 +471,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 - `template-maker-worker-client.js` loads before Template Maker so the core can delegate CSV parsing, `.sqx` ZIP/hash/XML extraction and diversity cache warmup to `app/js/workers/template-maker-worker.js` when a browser Worker is available, while falling back to the main thread in file mode or unsupported browsers.
 - `template-maker.js` and `template-maker-ui.js` replace the old active analyzer surface with a native SQX module for Capa 1 scoring and C2 generation.
 - `edge-factory.js` and `edge-factory-ui.js` load after Workflow because Edge Factory is the new desktop-first command shell over the existing methodology engines, while Workflow keeps the legacy detail system available as an internal surface.
+- `agent-guide.js` loads after Edge Factory UI so the local/remote-safe agent can read the active stage and reuse safe UI commands without becoming a primary navigation tab or direct Ollama browser client.
 - `modules/index.js` marks the module layer as booted and flushes ready callbacks.
 - `data.js` and `dashboard.js` preserve existing global render functions and dashboard behavior.
 - `main.js` runs shell-level initial rendering and workflow initialization.
@@ -494,6 +509,7 @@ The exact script order is contract-tested in `backend/sqx-edge-tool/test_dashboa
 | `modules/workflow.js` | Workflow tab initialization and subtab behavior. |
 | `modules/edge-factory.js` | Desktop-first Edge Factory state model, 8-stage methodology contract, workspace-scoped persistence key and Portfolio Lab MVP ranking/diversity helpers. |
 | `modules/edge-factory-ui.js` | Edge Factory UI shell, advanced tools drawer, stage completion wiring, handoffs to hidden tools and Portfolio Lab browser export. |
+| `modules/agent-guide.js` | Operator-only local AI dock for Edge Factory, mediated through Flask `/api/agent/*`, with session-only state and confirmed allowlisted UI commands. |
 | `modules/view-creator.js` | Native SQX `.vw` generator for annual Databank views, EGT/Robustez/Template Maker/CVC Decision Cert presets, saved local presets, JSON preset packs with import preview, workflow handoffs and XML downloads. This is the maintained replacement for the archived Tkinter staging prototype. |
 | `modules/project-generator-core.js` | Project Generator shared helpers and API primitives. |
 | `modules/project-generator-config.js` | Project Generator config read/write helpers, enriched starter custom profiles, profile-family packs, local custom preset persistence, import preview and portable custom preset JSON packs. |

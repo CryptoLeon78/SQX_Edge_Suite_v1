@@ -47,6 +47,34 @@ function Test-BackendHealth {
     }
 }
 
+function Get-OllamaStatus {
+    param([string]$Url)
+    try {
+        $payload = Invoke-RestMethod -Uri $Url -TimeoutSec 10
+        $provider = $payload.provider
+        $model = if ($provider -and $provider.model) { [string]$provider.model } else { "ollama" }
+        $autoStart = if ($provider) { $provider.autoStart } else { $null }
+        $reason = if ($autoStart -and $autoStart.reason) { [string]$autoStart.reason } else { $null }
+        return [ordered]@{
+            ok = [bool]$payload.active
+            active = [bool]$payload.active
+            model = $model
+            autoStart = $autoStart
+            reason = $reason
+            text = if ([bool]$payload.active) { "OK - Ollama activo ($model)" } else { "NO-GO - Ollama no disponible ($model)" }
+        }
+    } catch {
+        return [ordered]@{
+            ok = $false
+            active = $false
+            model = $null
+            autoStart = $null
+            reason = $_.Exception.Message
+            text = "NO-GO - Ollama/IA no comprobable"
+        }
+    }
+}
+
 function Get-TunnelProcess {
     param([string]$ConfigName)
     $escaped = $ConfigName.Replace("\", "\\")
@@ -67,6 +95,7 @@ $backendStart = Join-Path $repo "tools\remote_service_start_server.ps1"
 $tunnelRun = Join-Path $repo "tools\remote_tunnel_run.ps1"
 $tunnelConfig = Join-Path $repo ".local\remote_service\cloudflared-config.local.yml"
 $healthUrl = "http://127.0.0.1:5050/api/health"
+$agentStatusUrl = "http://127.0.0.1:5050/api/agent/status"
 $cloudflared = Resolve-Cloudflared $CloudflaredPath
 $runStamp = Get-Date -Format "yyyyMMdd-HHmmssfff"
 
@@ -122,6 +151,13 @@ if (-not $backendHealth.ok) {
     throw "Backend did not become healthy at $healthUrl within $WaitSeconds seconds."
 }
 
+$ollamaStatus = Get-OllamaStatus $agentStatusUrl
+$ollamaDeadline = (Get-Date).AddSeconds([Math]::Max(8, [Math]::Min($WaitSeconds, 30)))
+while (-not $ollamaStatus.ok -and (Get-Date) -lt $ollamaDeadline) {
+    Start-Sleep -Seconds 1
+    $ollamaStatus = Get-OllamaStatus $agentStatusUrl
+}
+
 $tunnelProcess = Get-TunnelProcess "cloudflared-config.local.yml"
 if ($null -eq $tunnelProcess) {
     $tunnelOut = Join-Path $localDir "remote_operator_tunnel_$runStamp.out.log"
@@ -149,7 +185,7 @@ if ($null -eq $tunnelProcess) {
 }
 
 $result = [ordered]@{
-    ok = [bool]($backendHealth.ok -and $null -ne $tunnelProcess)
+    ok = [bool]($backendHealth.ok -and $null -ne $tunnelProcess -and $ollamaStatus.ok)
     phase = "REMOTE-RUNBOOK1"
     repoRoot = $repo
     backend = [ordered]@{
@@ -157,6 +193,7 @@ $result = [ordered]@{
         ok = [bool]$backendHealth.ok
         startedByRunbook = $startedBackend
     }
+    ollama = $ollamaStatus
     tunnel = [ordered]@{
         ok = [bool]($null -ne $tunnelProcess)
         processId = if ($null -ne $tunnelProcess) { [int]$tunnelProcess.ProcessId } else { $null }
@@ -175,13 +212,14 @@ if ($Json) {
     Write-Host ""
     Write-Host "SQX Edge Suite REMOTE operator start"
     Write-Host "  Backend: $($result.backend.ok)  $healthUrl"
+    Write-Host "  Ollama:  $($result.ollama.ok)  $($result.ollama.text)"
     Write-Host "  Tunnel:  $($result.tunnel.ok)  cloudflared process $($result.tunnel.processId)"
     Write-Host "  Logs:    .local\remote_service\remote_operator_*.log"
     Write-Host ""
     if ($result.ok) {
-        Write-Host "OK: servicio remoto listo para abrir el enlace protegido."
+        Write-Host "OK: servicio remoto e IA local listos para abrir el enlace protegido."
     } else {
-        Write-Host "NO-GO: backend o tunel no quedaron listos."
+        Write-Host "NO-GO: backend, tunel u Ollama no quedaron listos."
     }
 }
 

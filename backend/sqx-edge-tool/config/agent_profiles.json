@@ -1,0 +1,95 @@
+{
+  "version": "local-ai-agent-profiles-v1",
+  "provider": {
+    "id": "ollama",
+    "baseUrl": "http://127.0.0.1:11434",
+    "model": "qwen3.5:latest",
+    "fallbackModel": "qwen2.5-coder:3b",
+    "translationModel": "qwen2.5-coder:1.5b",
+    "timeoutSeconds": 12,
+    "translationTimeoutSeconds": 180,
+    "translationMaxTokens": 900,
+    "offlineOnly": true,
+    "autoStart": true,
+    "startupWaitSeconds": 6,
+    "executable": ""
+  },
+  "audience": "local_operator_and_authenticated_remote_testers",
+  "memory": {
+    "mode": "session_only",
+    "persistPrompts": false,
+    "persistResponses": false
+  },
+  "inbox": {
+    "root": ".local/agent_inbox",
+    "incoming": ".local/agent_inbox/incoming",
+    "processed": ".local/agent_inbox/processed",
+    "summaries": ".local/agent_inbox/summaries"
+  },
+  "policy": {
+    "execution": "guide_then_confirm",
+    "blockedActions": [
+      "email",
+      "grant",
+      "checkout",
+      "cloudflare",
+      "protected_url_share",
+      "permission_change",
+      "delete",
+      "publish",
+      "external_commercial_script"
+    ]
+  },
+  "profiles": {
+    "session": {
+      "label": "Punto de partida",
+      "prompt": "Guia al operador para validar acceso local, workspace, backend, descargas y estado de Ollama sin exponer rutas."
+    },
+    "asset": {
+      "label": "Elegir edge",
+      "prompt": "Guia la seleccion de asset, temporalidad, direccion y BlockSetting real antes de generar Capa 1."
+    },
+    "capa1-generate": {
+      "label": "Generar Capa 1",
+      "prompt": "Guia la generacion de .cfx Capa 1 desde un mining trazable y perfil SQX destino."
+    },
+    "capa1-analyze": {
+      "label": "Certificar Capa 1",
+      "prompt": "Guia el paso CSV + SQX en Template Maker, validando ganadores y diversidad."
+    },
+    "c2-template": {
+      "label": "Crear Template C2",
+      "prompt": "Guia la creacion de Template C2 con indicador, cluster, direccion, timeframe y politica de salidas."
+    },
+    "capa2-generate": {
+      "label": "Generar Capa 2",
+      "prompt": "Guia la generacion de .cfx Capa 2 desde template validado."
+    },
+    "capa2-analyze": {
+      "label": "Revisar Capa 2",
+      "prompt": "Guia la revision de resultados Capa 2 y el envio a Portfolio Lab."
+    },
+    "portfolio": {
+      "label": "Portfolio",
+      "prompt": "Guia la shortlist diversa, comparativa y decision exportable."
+    },
+    "sqx142-compat": {
+      "label": "Compatibilidad SQX 142/143/144",
+      "prompt": "Explica el estado local de runtime, procesos, ledger de backport, smoke pendiente y limites: no binarios de engine, no licencia, no ejecucion sin confirmacion."
+    },
+    "sqx142-performance": {
+      "label": "Rendimiento SQX 142",
+      "prompt": "Explica perfil JVM activo, recursos, disco, vistas ligeras, ultimo smoke, cuello de botella probable y siguiente accion recomendada. No propone reducir calidad ni persistencia sin evidencia explicita."
+    }
+  },
+  "toolProfiles": {
+    "projectgen": "Project Generator",
+    "templatemaker": "Template Maker",
+    "pipeline": "Mining Control",
+    "views": "SQX Views",
+    "estrategias": "Strategy Control",
+    "cvc": "Champion vs Challenger",
+    "filtros": "BlockSettings Info",
+    "inicio": "Control Panel"
+  }
+}

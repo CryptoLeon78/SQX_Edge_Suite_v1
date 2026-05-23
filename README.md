@@ -4,6 +4,11 @@ Servicio web Pro para organizar el pipeline SQX Edge, generar Custom Projects `.
 
 ## Estado Actual
 
+- Estado interno: REMOTE-AI-TESTER1 esta aplicado; Edge Factory incluye un agente IA local con Ollama mediado por Flask para operador y sesiones remotas autenticadas en modo tester seguro. El monitor Backend/Tunnel/Ollama sigue siendo local solo para el creador, y el boton `Arrancar` conecta Ollama automaticamente antes de dar listo para testers.
+- Estado interno: SQX142-TRANSLATOR1 esta aplicado; el traductor `Local Ollama Translator` aparece en el tab nativo `Source Code` de SQX 142, usando Flask/Ollama local sin OpenAI externo ni API key. Si `localhost:8080` muestra cambios pero la app Electron no, usar el runbook de cache SQX 142.
+- Estado interno: SQX142-143-BACKPORT1 esta aplicado; `docs/SQX142_143_BACKPORT_LEDGER.md` registra la compatibilidad 142/143/144, `/api/sqx142/compat/status` expone solo estado local-safe para operador, el monitor local muestra SQX 142 runtime/procesos y `tools\sqx142_compatibility.ps1` hace preflight/backport dry-run por defecto.
+- Estado interno: SQX142-PERF1 esta aplicado y cerrado formalmente; `docs/SQX142_PERFORMANCE_ROADMAP.md` gobierna el rendimiento SQX 142 con `/api/sqx142/performance/status`, `tools\sqx142_performance_gate.ps1`, perfiles JVM reversibles, views ligeras, Live Guard e inteligencia local de monitor/agente sin bajar calidad metodologica.
+- Estado interno: C1-CONFIG1 esta iniciado; `docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md` gobierna la configuracion interactiva de parametros Capa1 desde `Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1`, con ledger local `.local/sqx142_task_config/` y `tools\sqx142_task_config_gate.ps1` dry-run-first.
 - Estado interno: WFCO-ACCEPT1 esta aplicado; Edge Factory tiene `Modo básico` por defecto para compradores/testers y `Modo avanzado` para abrir herramientas internas, checks manuales y custom libre sin cambiar motores sensibles.
 - Estado interno: WFCO-5 Visual Polish And Desktop QA esta aplicado; Edge Factory ya funciona como superficie Command Premium de escritorio con command strip vivo, stack de estado y Portfolio Lab Capa 2 para importar CSV, ajustar diversidad, clasificar candidatos como portfolio/similar/revisar y exportar shortlist/resumen desde navegador.
 - Estado interno: TM-PERF2 esta aplicado; Template Maker delega parsing CSV, apertura ZIP `.sqx`, hash, extraccion XML y precalculo de diversidad a un Web Worker local cuando el navegador lo permite, mostrando progreso por archivo y conservando fallback compatible.
@@ -34,6 +39,100 @@ powershell -ExecutionPolicy Bypass -File tools\clean_workspace.ps1 -Aggressive
 ```
 
 El modo agresivo conserva el ZIP tester mas reciente en `dist/` y elimina ZIPs/builds antiguos que se pueden regenerar.
+
+Para refrescar la cache Electron de SQX 142 cuando `localhost:8080` ya sirve bundles nuevos pero la app local no los muestra:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools\sqx142_electron_cache_refresh.ps1 -SQXRoot "C:\BOTS\Versiones\SQX_142_Crack" -Restart
+```
+
+La limpieza mueve caches a backup bajo `.local_cache_backups` dentro de la carpeta SQX; no borra proyectos, databanks, licencias ni archivos del repo. Ver `docs/maintenance/SQX142_ELECTRON_CACHE_RUNBOOK.md`.
+
+## SQX 142 / 143 Compatibility
+
+La build 143 local queda como referencia controlada para estabilizar SQX 142 sin copiar motor, licencia ni ejecutables de StrategyQuant. El ledger vivo es `docs/SQX142_143_BACKPORT_LEDGER.md`.
+
+Comandos operador:
+
+```powershell
+tools\sqx142_compatibility.ps1 status
+tools\sqx142_compatibility.ps1 compare
+tools\sqx142_compatibility.ps1 apply-runtime
+```
+
+`apply-runtime` es dry-run si no se pasa `--apply`. El monitor local consulta `/api/sqx142/compat/status` y muestra runtime SQX 142, procesos vivos y estado de hardening sin exponer rutas a usuarios remotos.
+
+## SQX 142 Performance Gate
+
+El rendimiento de SQX 142 se optimiza por medicion, perfiles seguros y limpieza reversible, nunca reduciendo calidad de metodologia. El roadmap vivo es `docs/SQX142_PERFORMANCE_ROADMAP.md`.
+
+Comandos operador:
+
+```powershell
+tools\sqx142_performance_gate.ps1 status
+tools\sqx142_performance_gate.ps1 snapshot
+tools\sqx142_performance_gate.ps1 create-views
+tools\sqx142_performance_gate.ps1 smoke-start
+tools\sqx142_performance_gate.ps1 begin-project-mc-smoke
+tools\sqx142_performance_gate.ps1 project-mc-snapshot
+tools\sqx142_performance_gate.ps1 project-mc-diff
+tools\sqx142_performance_gate.ps1 project-mining-pipeline-advisor
+tools\sqx142_performance_gate.ps1 phase5-databank-view-guard
+tools\sqx142_performance_gate.ps1 project-retest-queue-plan
+tools\sqx142_performance_gate.ps1 project-retest-next-step --project-name "_PERFQ_Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1_20260522_190338" --log-limit 80
+tools\sqx142_performance_gate.ps1 mc2-spread-diagnostic --project-name "_PERFQ_Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1_20260522_190338" --log-limit 80
+tools\sqx142_performance_gate.ps1 create-mc2-spread-variant --project-name "_PERFQ_Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1_20260522_190338" --spread-min 2.8 --spread-max 7.0 --apply
+tools\sqx142_performance_gate.ps1 create-sequential-diagnostic-variant --project-name "_PERFQ_MC2SPREAD__PERFQ_Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1_20260522_190338_20260522_215125" --max-passed 8 --apply
+tools\sqx142_performance_gate.ps1 queue-task-smoke "Sequential" --project-name "_PERFQ_SEQDIAG_20260522_230211" --apply --max-seconds 900 --stall-seconds 240 --poll-seconds 20 --api-ready-timeout 120 --start-settle-seconds 45
+tools\sqx142_performance_gate.ps1 create-sequential-diagnostic-variant --project-name "_PERFQ_MC2SPREAD__PERFQ_Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1_20260522_190338_20260522_215125" --max-passed 24 --apply
+tools\sqx142_performance_gate.ps1 queue-task-smoke "Sequential" --project-name "_PERFQ_SEQDIAG_20260522_231548" --apply --max-seconds 1800 --stall-seconds 360 --poll-seconds 20 --api-ready-timeout 120 --start-settle-seconds 45
+tools\sqx142_performance_gate.ps1 create-sequential-batch-plan --project-name "_PERFQ_MC2SPREAD__PERFQ_Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1_20260522_190338_20260522_215125" --batches "24,24,24,12" --apply
+tools\sqx142_performance_gate.ps1 sequential-batch-merge-review --plan-evidence sequential_batch_plan_20260522_234314.json
+tools\sqx142_performance_gate.ps1 sequential-final-review --latest --write-csv --apply
+tools\sqx142_performance_gate.ps1 promote-mc2-spread-to-base --project-name "Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1" --min-multiplier 2 --max-multiplier 5
+tools\sqx142_performance_gate.ps1 performance-clone-hygiene --keep-newest 2
+tools\sqx142_performance_gate.ps1 restore-performance-clone --archive-stamp 20260523_081819 --clone-name _PERFQ_SEQBATCH_B01_001-024_20260522_234217
+tools\sqx142_performance_gate.ps1 performance-closeout-report
+tools\sqx142_performance_gate.ps1 performance-next-action
+tools\sqx142_performance_gate.ps1 performance-parallelism-advisor
+tools\sqx142_performance_gate.ps1 live-guard
+tools\sqx142_performance_gate.ps1 clone-performance-project
+tools\sqx142_performance_gate.ps1 prepare-queue-step MC --project-name "_PERFQ_Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1_20260522_190338" --apply --launch
+tools\sqx142_performance_gate.ps1 sqx-local-api probe
+tools\sqx142_performance_gate.ps1 api-auth-smoke --apply --api-ready-timeout 120
+tools\sqx142_performance_gate.ps1 sequential-smoke --project-name "_PERFQ_Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1_20260522_190338" --apply --max-seconds 180 --stall-seconds 60 --api-ready-timeout 120
+```
+
+`create-views`, `apply-profile`, `smoke-start` y `live-guard` son dry-run si no se pasa `--apply`. El monitor local consulta `/api/sqx142/performance/status` para mostrar perfil activo, disco, views, ultima evidencia, Live Guard y siguiente accion recomendada sin exponer rutas a usuarios remotos. Esta inteligencia es pasiva y bajo demanda: se activa al arrancar/refrescar el monitor, al consultar el agente y al detectar SQX abierto, sin proceso residente adicional.
+
+Tras liberar espacio en `C:`, el gate queda en verde con mas de 300 GB libres. La comparativa JVM validada mantiene `baseline_143_safe` como default, deja `retest_robust` como candidato para Monkey/Synthetic/WFM y `mining_fast_safe` como candidato para minado real. Las escrituras de perfil son atomicas y el status detecta configs corruptos o no alineados. `project-mining-pipeline-advisor` cubre Fase 3: lee Build, databanks, ranking, condiciones, bloques y riesgos de eficiencia antes de proponer un smoke de minado en clon `_PERFQ_*`.
+
+El smoke de databanks MC lee `.sqx` directamente sin abrir SQX: `Monkey Test` queda validado con 86 estrategias, 200 simulaciones y mezcla natural 53 passed / 33 failed; `Syntetic` queda validado con 86 estrategias, 100 simulaciones y mezcla natural 85 passed / 1 failed. El proyecto real fue reasignado con backup a las views dedicadas `MC MONKEY RETEST` y `MC SYNTHETIC RETEST`. Para smoke real, `begin-project-mc-smoke --apply --launch` prepara snapshot inicial, perfil `retest_robust` y arranque de SQX; despues de ejecutar Monkey/Synthetic, `project-mc-snapshot` y `project-mc-diff` comparan el resultado.
+
+Smoke real 2026-05-22: Monkey y Syntetic se reejecutaron en SQX 142, actualizaron timestamps, conservaron metodos/simulaciones y mantuvieron la mezcla natural de passed/failed sin warnings de diff ni `hs_err_pid*.log`.
+
+Post-smoke: SQX se cerro, `baseline_143_safe` quedo restaurado y el status vuelve a `ok`. `project-log-summary` mide logs del proyecto: Monkey tardo `5 min. 35 s.`, Synthetic `4 min. 7 s.`, y el 91% del tiempo se concentra en `Monte Carlo retest methods`.
+
+Limpieza local aplicada: `archive-old-logs --keep-days 2 --apply` conserva hoy/ayer, comprime 128 logs antiguos en `SQX_142_Crack_local_backups\archived_logs`, verifica el ZIP y elimina los originales archivados. `user/log` queda en ~141 MB.
+
+Scheduling aplicado: `project-retest-queue-plan` genera una cola robusta desde el `project.cfx` y los logs reales, marcando MC/Monkey/Synthetic/SPP/WFM como tareas a ejecutar solas con perfil `retest_robust`. `clone-performance-project --apply` creo la copia `_PERFQ_Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1_20260522_190338`, verificada con snapshot MC, para medir cambios sin contaminar el proyecto maestro.
+
+Smoke de cola real: `MC` completo en `2 min. 31 s.` con `83 passed / 3 failed`; `MC 2` original completo en `4 min. 17 s.` con `0 passed / 86 failed`, rechazo natural por filtros. El perfil default quedo restaurado a `baseline_143_safe`. `sqx-local-api` y `api-auth-smoke` dejan preparado un wrapper local-only con `localhost:8080`, cookies, cabeceras tipo navegador y cabecera `browserToken` local no expuesta; el bloqueo `Remote access disabled` queda resuelto con evidencia `api_auth_smoke_20260522_205359.json` y `/main/checkaccess` responde `Access granted`. `Sequential` ya arranca por API, pero requiere observabilidad especial porque puede optimizar durante minutos sin escribir databank. La guardia previa evita repetir coste cuando el input no tiene candidatos: `sequential_smoke_20260522_211636.json` detecta `MC2` con 86 archivos y `0 passed`, salta el arranque SQX con `no_input_candidates` y conserva filtros intactos. `SPP` y `FOWARD` quedan omitidos por decision operativa; `WFM` queda bloqueado por depender de `SPP`. `project-retest-next-step` confirma que el foco primario es diagnosticar `MC2 -> Sequential`. El diagnostico XML confirma `MC 2` con `RandomizeSpread` `30-50` frente a spread base `1.4` (`21.43x-35.71x`), causa probable del rechazo total. La variante diagnostica `_PERFQ_MC2SPREAD__..._20260522_215125` cambia solo `MC 2` a `2.8-7.0`; el smoke completo procesa 86 estrategias en `5 min. 5 s.` con `84 passed / 2 failed` naturales. Sequential con ese MC2 desbloqueado muestra actividad real en `ProgressEngine`; el smoke diagnostico `_PERFQ_SEQDIAG_20260522_230211` con 8 candidatos completo en `4 min. 50 s.`, produjo 8 salidas y `8 passed / 0 failed`. El lote intermedio `_PERFQ_SEQDIAG_20260522_231548` con 24 candidatos completo en `12 min. 57 s.`, produjo 24 salidas y `24 passed / 0 failed`; el bloqueo restante es coste/escala. La cola real queda cerrada como `24+24+24+12` en cuatro clones `_PERFQ_SEQBATCH_*`, con merge final `sequential_batch_merge_review_20260523_063406.json`: `84/84`, cero missing, cero inesperados y cero duplicados. El auditor `sequential-final-review` confirma `84/84` `.sqx` legibles, `84` resultados Sequential passed, `569` areas estables y genera CSV local para inspeccion de parametros sin tocar el proyecto maestro. La promocion MC2 queda aplicada con regla adaptativa `spread base x2-x5`: en USDJPY/H4 deriva `2.8-7.0` desde spread base `1.4`, cambia solo `MC 2 / RandomizeSpread` y deja rollback por evidencia `mc2_spread_promotion_20260523_072626.json`. La copia post-promocion valida `MC 81/5` en `2 min. 17 s.`, `MC2 84/2` en `5 min. 46 s.` y `Sequential 8/8` en `4 min. 52 s.`. `queue-task-smoke` espera ahora 180 s por defecto antes de arrancar el proyecto para evitar starts prematuros mientras SQX carga databanks grandes. `performance-clone-hygiene --keep-newest 2 --apply` archiva reversiblemente 8 clones antiguos y deja activos solo los 2 clones post-promocion. `restore-performance-clone` recupera un clon archivado concreto desde `archived_perf_projects` a `user/projects` en dry-run por defecto, bloquea colisiones y exige SQX cerrado al aplicar. `performance-closeout-report` consolida estado, evidencias y la pregunta pendiente obligatoria sobre el enfoque de valores individuales para tareas custom base Capa1/Capa2. `performance-next-action` lee el estado y decide si falta reparar warnings, refrescar evidencia, restaurar baseline o cerrar PERF1. `performance-parallelism-advisor` cubre Fase 7 con perfiles de concurrencia conservadores: un SQX/proyecto pesado a la vez, sin mezclar minado con retests, hasta que un smoke paralelo dedicado demuestre lo contrario. `phase5-databank-view-guard --apply --archive-views` cubre Fase 5: reasigna databanks a views ligeras/especializadas y archiva views legacy pesadas con backup reversible. Fase 9 queda integrada: `/api/sqx142/performance/status` devuelve `intelligence` con perfil, views, evidencia clave, recomendacion activa y modo pasivo `passive_on_probe`; el monitor y el agente consumen ese resumen local-only. `live-guard` añade el cinturon final: vigila logs, crash JVM, API local y procesos mientras SQX esta abierto, y solo aplica reparaciones seguras tras cierre. PERF1 queda cerrado formalmente con `performance_closeout_report_20260523_095800.json`, `performance_next_action_20260523_095758.json` y Live Guard limpio `performance_live_guard_20260523_095802.json`.
+
+## SQX 142 Custom Task Config Gate
+
+C1-CONFIG1 configura Capa1 base tarea por tarea y pestaña por pestaña. El donor es `Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1`, pero la promocion a base es selectiva: no se copian simbolos, timeframe, active flags, resultados ni estado de ejecucion. El roadmap vivo es `docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md`.
+
+Comandos operador:
+
+```powershell
+tools\sqx142_task_config_gate.ps1 status
+tools\sqx142_task_config_gate.ps1 preflight --apply
+tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write
+tools\sqx142_task_config_gate.ps1 record-answer --task-title "MC 2" --tab "CrossChecks" --question-id "<id>" --answer "<answer>"
+```
+
+Las respuestas completas viven en `.local/sqx142_task_config/`; los docs solo reciben resumen limpio al cerrar fase.
 
 ## SQX Edge Pro
 
@@ -165,7 +264,7 @@ START_SQX_EDGE_REMOTE.bat
 STOP_SQX_EDGE_REMOTE.bat
 ```
 
-`START_SQX_EDGE_REMOTE.bat` abre un monitor visual visible de Backend/Tunnel, arranca los servicios en segundo plano y muestra `OK todo en marcha` cuando el portatil esta listo para el enlace protegido. `STOP_SQX_EDGE_REMOTE.bat` abre el mismo monitor y detiene solo el backend/tunel de este proyecto.
+`START_SQX_EDGE_REMOTE.bat` abre un monitor visual visible de Backend/Tunnel/Ollama, arranca los servicios en segundo plano, dispara la conexion local de Ollama a traves de Flask y solo muestra OK cuando el portatil esta listo para testers. `STOP_SQX_EDGE_REMOTE.bat` abre el mismo monitor y detiene solo el backend/tunel de este proyecto.
 
 Operativa privada REMOTE-OPS1:
 

@@ -1,5 +1,88 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 Capa1 Custom Task Config Gate
+
+- Adds `docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md` as the master roadmap for interactive Capa1 base task configuration.
+- Adds `tools/sqx142_task_config_gate.ps1` and `backend/sqx-edge-tool/tools/sqx142_task_config_gate.py` with dry-run-first status, preflight, semantic diff, questionnaire, answer recording and phase-report commands.
+- Creates the ignored local ledger shape under `.local/sqx142_task_config/` for full answers, snapshots, diffs, questionnaires and phase reports.
+- Records Phase 0 preflight against `Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1`, `Capa1_Long_SQX142_Base` and `backend/sqx-edge-tool/templates/Capa1_Long.cfx` without touching SQX base files.
+- Keeps donor promotion selective and normalized: no direct symbol/timeframe/project-name/active-flag/result-state promotion, and `Synthetic`/`Syntetic` is normalized as a historical task alias.
+
+## 2026-05-22 - SQX142-PERF1 Local Performance Gate
+
+- Adds `docs/SQX142_PERFORMANCE_ROADMAP.md` as the master plan for SQX 142 performance work with `qualityReductionAllowed: false`.
+- Adds local measurement and smoke tooling via `/api/sqx142/performance/status`, `backend/sqx-edge-tool/core/sqx_performance.py`, `backend/sqx-edge-tool/tools/sqx142_performance_gate.py` and `tools/sqx142_performance_gate.ps1`.
+- Creates lightweight SQX 142 review views for mining/retest/final decision and keeps Monkey/Synthetic MonteCarlo views separated.
+- Extends the local-only operator monitor and the local AI agent with SQX 142 performance status while remote tester sessions remain blind to local paths, disk and monitor state.
+- Adds JVM profile comparison with automatic restore, atomic config writes and runtime config corruption detection after a power-loss interruption exposed a nulled `CodeEditor.config`.
+- Validates `baseline_143_safe`, `diagnostic_low_risk`, `retest_robust` and `mining_fast_safe` with real SQX start/close smokes, no `hs_err_pid*.log` and no leftover processes.
+- Adds real-project Monkey/Synthetic databank snapshots from `.sqx` files, validates natural passed/failed filter results and updates the project `.cfx` to use the dedicated MC views with backup.
+- Adds a guided MC smoke session and snapshot diff so real Monkey/Synthetic reruns can be compared before/after without touching filters or forcing pass status.
+- Records a successful real SQX 142 Monkey/Synthetic smoke: updated databank timestamps, unchanged methods/simulations, stable natural passed/failed counts and no JVM crash log.
+- Restores the baseline JVM profile after the smoke, tolerates SQX config line reordering in profile detection and adds project log duration summaries for retest scheduling decisions.
+- Adds reversible old-log archiving for SQX 142, keeping today/yesterday logs and zipping verified older logs before removing originals.
+- Adds a retest queue planner and dry-run project cloner so MC/Monkey/Synthetic/SPP/WFM scheduling can be measured on controlled `_PERFQ_*` copies before touching the master project.
+- Adds `prepare-queue-step` to activate a single queued task, apply the recommended JVM profile and launch SQX for controlled smoke runs; fixes Windows ZIP replacement order for `project.cfx`.
+- Records the first controlled `_PERFQ_*` queue smoke: MC completed in `2 min. 31 s.` with `83 passed / 3 failed`, MC 2 completed in `4 min. 17 s.` with `0 passed / 86 failed`, and Sequential is isolated for a dedicated timeout/progress smoke after partial output and an unresponsive local stop.
+- Adds `sqx-local-api`, a local-only dry-run wrapper for the SQX Task Manager API (`probe`, `activate-task`, `start-project`, `stop-project`) so future smokes can be driven without Electron clicks.
+- Adds `api-auth-smoke` and `sequential-smoke` with full evidence, session cookies, browser-like headers, hidden BrowserToken fallback, baseline restore and process cleanup.
+- Resolves the SQX local API `Remote access disabled` blocker by sending the local Chromium-style `browserToken` header without exposing the token; `api_auth_smoke_20260522_205359.json` validates `Access granted` and clean shutdown.
+- Hardens `sequential-smoke` so API automation and methodology progress are separate signals; `sequential_smoke_20260522_211255.json` proves `start-project`/`stop-project` now work, while Sequential remains isolated because it completes with `0 total` and no databank update.
+- Adds a pre-launch Sequential input guard: when the input databank has zero passed candidates, the smoke skips SQX launch as `no_input_candidates`; `sequential_smoke_20260522_211636.json` documents `MC2` with 86 files and 0 passed.
+- Extends the retest queue planner with input candidate diagnostics and `blockedByNoPassedInput`; `retest_queue_plan_20260522_211803.json` marks Sequential as blocked before launch because MC2 has 0 passed / 86 failed.
+- Adds `project-retest-next-step`, a dry recommendation layer that separates blocked tasks, measured retests, next heavy experiment and lower-cost alternative; `retest_next_step_20260522_212528.json` points to SPP as next heavy and FOWARD as the cheap smoke option.
+- Applies the operator decision to omit SPP and FOWARD from tests/optimization, blocks WFM because it depends on omitted SPP output, and refocuses the next-step recommendation on the MC2/Sequential blocker (`retest_next_step_20260522_213847.json`).
+- Adds spread-stress diagnostics for MonteCarlo retests; MC2 is flagged as `spread_stress_extreme_vs_base` because `RandomizeSpread` uses 30-50 against base spread 1.4, matching the likely cause of 0 passed / 86 failed.
+- Adds `mc2-spread-diagnostic` and `create-mc2-spread-variant`; creates a clean `_PERFQ_MC2SPREAD_*` clone with MC2 spread changed to 2.8-7.0 and old MC2/Sequential outputs archived for a controlled smoke.
+- Hardens `queue-task-smoke` to start like the SQX UI by sending `projectXML`, `taskXMLFile` and `taskXML`, waiting for initial databank load settle, archiving prior output reversibly, and starting the stall timer only after `Project execution started`.
+- Records the controlled MC2 spread variant smoke: `queue_task_smoke_20260522_223328.json` generated 86 MC2 outputs in `5 min. 5 s.` with natural `84 passed / 2 failed`, confirming that 2.8-7.0 is a viable diagnostic range versus the original 30-50 stress.
+- Adds live `ProgressEngine` activity detection to `queue-task-smoke` after the Sequential diagnostic showed active optimization in SQX logs without databank output; this prevents false "stalled" classification for long-running retests that only write results at completion.
+- Adds `create-sequential-diagnostic-variant` and validates Sequential on `_PERFQ_SEQDIAG_20260522_230211`: 8 MC2 passed candidates completed in `4 min. 50 s.`, produced 8 Sequential outputs, `8 passed / 0 failed`, no leftover processes and baseline restore. Sequential is now classified as scale/cost-sensitive, not functionally broken.
+- Validates the intermediate Sequential batch `_PERFQ_SEQDIAG_20260522_231548`: 24 MC2 passed candidates completed in `12 min. 57 s.`, produced 24 Sequential outputs, `24 passed / 0 failed`, `28 s.` per strategy, no leftover processes and baseline restore; this supports a 24-candidate batching plan before running all 84 survivors.
+- Adds `create-sequential-batch-plan` and `sequential-batch-merge-review`; creates the real 84-candidate Sequential queue as `24+24+24+12` across four non-overlapping `_PERFQ_SEQBATCH_*` clones and validates initial merge coverage with `sequential_batch_merge_review_20260522_234321.json`.
+- Runs Sequential batch B01/B02: B01 produced 24 outputs and exposed a smoke classification gap, then `queue-task-smoke` was fixed to complete by output coverage; B02 validates the fix with `queue_task_smoke_20260523_012052.json` (`ok=true`, 24/24 outputs). Merge review now reports `48/84` produced, `36` pending, zero duplicates and zero unexpected outputs.
+- Completes Sequential batch B03/B04 and final merge review: B03 produced 24/24, B04 produced 12/12, and `sequential_batch_merge_review_20260523_063406.json` validates `84/84` produced, zero missing, zero unexpected and zero duplicates. Outputs are copied only to `.local/sqx142_performance/sequential_merge_reviews/` for inspection; the master project remains untouched.
+- Adds `sequential-final-review` to audit copied Sequential `.sqx` files as ZIPs; `sequential_final_review_20260523_071458.json` confirms 84/84 readable outputs, 84 `SequentialOptimization_Results.xml` passed, zero invalid files, 569 stable areas and writes a local CSV for parameter-level inspection under `.local/sqx142_performance/sequential_final_reviews/`.
+- Adds guarded MC2 spread promotion tooling: `promote-mc2-spread-to-base` derives the range from the selected asset spread using the adaptive default `baseSpread x2-x5`, validates the final Sequential evidence, shows the XML diff, requires explicit methodology/apply flags, records a backup and pairs with `rollback-mc2-spread-promotion`. Dry-run `mc2_spread_promotion_20260523_072103.json` resolves USDJPY base spread `1.4` into `2.8-7.0` and plans `Min 30 -> 2.8`, `Max 50 -> 7`.
+- Promotes MC2 on the Capa1 base with backup evidence `mc2_spread_promotion_20260523_072626.json`, changing only `RandomizeSpread` from `30-50` to adaptive `baseSpread x2-x5` (`2.8-7.0` for USDJPY/H4). Post-promotion clone smokes validate `MC` 81/5 in `2 min. 17 s.`, `MC 2` 84/2 in `5 min. 46 s.` and Sequential 8/8 in `4 min. 52 s.`; `queue-task-smoke` now defaults to 180 s start settle to avoid starting SQX before large databanks finish loading.
+- Adds `performance-clone-hygiene` and archives eight old `_PERFQ_*` projects reversibly to `SQX_142_Crack_local_backups/archived_perf_projects`; only the two post-promotion smoke clones remain active in SQX `user/projects`, reducing active project footprint from about 3.1 GB to 919.5 MB without deleting evidence or backups.
+- Adds `restore-performance-clone` for selective, dry-run-first recovery of one archived `_PERFQ_*` clone back to SQX `user/projects`, with SQX-process blocking, duplicate-name protection and optional active-clone archiving before restore.
+- Adds `performance-closeout-report`, a local evidence report that summarizes performance status, active/archive clones, key smokes and the deferred operator question required before configuring individual Capa1/Capa2 custom task values.
+- Adds `performance-next-action`, a dry recommendation gate that reads status plus key evidence and returns the next PERF1 command instead of relying on memory after long smoke cycles.
+- Adds `performance-parallelism-advisor` for PERF1 Phase 7, capturing host resources, relevant SQX settings, validated smoke timings and conservative concurrency profiles before any worker/thread tuning.
+- Adds `project-mining-pipeline-advisor` for PERF1 Phase 3, reading Build task structure, databanks, ranking goals, acceptance conditions, block universe and efficiency risks before proposing a clone-only mining smoke.
+- Adds and applies `phase5-databank-view-guard` for PERF1 Phase 5, reassigning project databanks to light/specialized views and archiving legacy heavy views (`todas las metricas posibles`, `PROPIA`, `MONTECARLO RETEST`, `MONTECARLO TRADES`, `ROBUSTEZ`) with reversible backup.
+- Adds PERF1 Phase 9 local intelligence: `/api/sqx142/performance/status` now returns a redacted `intelligence` block with active profile, view coverage, latest evidence, required evidence health and next recommendation; the operator monitor and local agent display it while remote testers remain blind to local state.
+- Adds PERF1-LIVEGUARD1: `live-guard` watches recent SQX logs, JVM crash files, SQX local API responsiveness and running processes without changing anything while SQX is open; `--apply` is post-close only and performs reversible safe repairs such as baseline restore/log archiving.
+- Formally closes PERF1 with `performance_closeout_report_20260523_095800.json`, `performance_next_action_20260523_095758.json` and clean Live Guard evidence `performance_live_guard_20260523_095802.json`; the next gated decision is the operator approach for individual Capa1/Capa2 base task values.
+
+## 2026-05-22 - SQX142-143-BACKPORT1 Local Compatibility Gate
+
+- Adds `docs/SQX142_143_BACKPORT_LEDGER.md` as the master ledger for SQX 142/143/144 compatibility, with explicit no-bulk-engine/no-license backport boundaries.
+- Adds local compatibility diagnostics and maintenance tooling via `/api/sqx142/compat/status`, `backend/sqx-edge-tool/core/sqx_compatibility.py`, `backend/sqx-edge-tool/tools/sqx142_compatibility.py` and `tools/sqx142_compatibility.ps1`.
+- Extends the local-only operator monitor with SQX 142 runtime/process status while keeping remote tester sessions blind to local monitor data and local paths.
+- Adds an internal agent capability for explaining SQX 142/143/144 compatibility from the ledger without executing changes.
+
+## 2026-05-22 - SQX142-TRANSLATOR1 Electron Cache Hardening
+
+- Records that SQX 142 does not reliably expose the build 144 Source Code Translator as a standalone `user/extend/ResultsPlugins` Result Plugin; the validated integration point is the native `Source Code` result tab.
+- Adds a safe Electron cache refresh runbook/script for the case where `localhost:8080` serves new SQX bundles but the local app still shows stale UI.
+- Hardens the local Ollama translator smoke path with a translation-specific model, bounded generation and markdown-fence cleanup so the plugin returns usable code instead of timing out.
+
+## 2026-05-21 - REMOTE-AI-TESTER1 Authenticated Tester AI Pilot
+
+- Enables the Edge Factory AI dock for authenticated remote sessions with active `tester_free`, paid or internal entitlement, using a tester-safe capability subset only.
+- Keeps the server monitor local-only for the creator/operator and adds Backend/Tunnel/Ollama readiness: pressing `Arrancar` now triggers `/api/agent/status` so Flask autostarts/checks Ollama before the monitor reports tester-ready.
+- Blocks remote access to local inbox, mark-step/write actions, server monitor state, local paths, raw emails, protected URLs, grants, checkout, Cloudflare and commercial automation.
+
+## 2026-05-21 - LOCAL-AI1 Local Operator Agent
+
+- Adds a local AI agent layer backed by Ollama, with Flask-mediated `/api/agent/*` endpoints, structured recommendations, allowlisted execution and confirmation tokens.
+- Adds the Edge Factory Agent Dock and Control Panel summary without adding a primary navigation tab.
+- Adds `.local/agent_inbox/` as ignored local inbox plus docs/tests for redaction, policy, remote blocking and no prompt/history persistence.
+- Adds deterministic capabilities help and best-effort Ollama autostart/status reporting so the operator does not need to manually start the model server first.
+- Adds a local SQX 142 Source Code Translator bridge: `/api/agent/translate-source-code` mediates Ollama translation/fix requests, and `tools/build_sqx142_source_translator.py` rebuilds the 144 `.sxp` without external OpenAI calls or API-key storage.
+
 ## 2026-05-21 - WFCO-ACCEPT1 Edge Factory Basic/Advanced Polish
 
 - Adds `Modo básico` / `Modo avanzado` to Edge Factory. Basic is now the default buyer/tester route with one primary action per stage; Advanced explicitly unlocks internal tools, manual checks and custom libre.

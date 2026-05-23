@@ -56,6 +56,10 @@ if (window.SQX && window.SQX.edgeFactoryUI) {
   window.SQX.edgeFactoryUI.init();
 }
 
+if (window.SQX && window.SQX.agentGuide) {
+  window.SQX.agentGuide.init();
+}
+
 if (window.SQX && window.SQX.viewCreator) {
   window.SQX.viewCreator.init();
 }

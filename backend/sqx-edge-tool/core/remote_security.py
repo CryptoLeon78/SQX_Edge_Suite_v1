@@ -19,6 +19,7 @@ DEFAULT_RATE_LIMITS = {
     "remote_session_logout": {"limit": 30, "windowSeconds": 60},
     "remote_payment_webhook": {"limit": 90, "windowSeconds": 60},
     "remote_protected_write": {"limit": 30, "windowSeconds": 60},
+    "remote_ai": {"limit": 20, "windowSeconds": 60},
 }
 DEFAULT_WATERMARK = {
     "enabled": True,

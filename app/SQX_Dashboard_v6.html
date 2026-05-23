@@ -210,19 +210,28 @@
           </button>
         </div>
 
-        <div class="home-readiness">
-          <div class="home-readiness-head">
-            <span>Readiness</span>
-            <strong id="home-readiness-score">--%</strong>
-          </div>
+      <div class="home-readiness">
+        <div class="home-readiness-head">
+          <span>Readiness</span>
+          <strong id="home-readiness-score">--%</strong>
+        </div>
           <div class="home-readiness-track"><div id="home-readiness-bar"></div></div>
           <div class="home-readiness-grid">
             <div class="home-check" id="home-check-manifest"><span></span><strong>Manifest</strong></div>
             <div class="home-check" id="home-check-plan"><span></span><strong>Plan</strong></div>
             <div class="home-check" id="home-check-strategies"><span></span><strong>Estrategias</strong></div>
-            <div class="home-check" id="home-check-backend"><span></span><strong>Backend</strong></div>
-          </div>
+          <div class="home-check" id="home-check-backend"><span></span><strong>Backend</strong></div>
         </div>
+      </div>
+
+        <section class="home-agent-panel" id="home-agent-panel" aria-label="Agente IA SQX">
+          <div>
+            <span>Agente IA</span>
+            <strong id="home-agent-status">Comprobando</strong>
+            <small id="home-agent-model">modelo IA</small>
+          </div>
+          <p id="home-agent-last-action">Sin acciones confirmadas en esta sesion.</p>
+        </section>
 
         <section class="home-method-map" id="home-method-map">
           <div class="home-method-head">
@@ -2231,6 +2240,34 @@
         <article data-edge-signal="portfolio"><span>Portfolio</span><strong>Pendiente</strong><small>Shortlist diversa Capa 2</small></article>
       </div>
 
+        <section class="agent-guide-dock" id="agent-guide-dock" aria-label="Agente IA SQX">
+        <div class="agent-guide-head">
+          <div>
+            <span class="badge info">IA local operador</span>
+            <h3>Guia y ejecutor controlado</h3>
+          </div>
+          <div class="agent-guide-state">
+            <strong id="agent-guide-status">Comprobando</strong>
+            <small id="agent-guide-model">modelo local</small>
+          </div>
+        </div>
+        <div class="agent-guide-body">
+          <div class="agent-guide-prompt">
+            <label for="agent-guide-input">Qué quieres hacer ahora</label>
+            <textarea id="agent-guide-input" rows="2" placeholder="Ejemplo: guíame con el siguiente paso de esta etapa"></textarea>
+          </div>
+          <div class="agent-guide-output" id="agent-guide-output">
+            <strong>Listo para guiar.</strong><span>Pregunta qué hacer ahora o pide revisar la etapa activa.</span>
+          </div>
+        </div>
+        <div class="agent-guide-actions">
+          <button class="filter-btn" id="agent-guide-refresh" type="button">Estado IA</button>
+          <button class="filter-btn" id="agent-guide-ask" type="button">Preguntar</button>
+          <button class="filter-btn" id="agent-guide-cancel" type="button" disabled>Cancelar</button>
+          <button class="export-btn" id="agent-guide-confirm" type="button" disabled>Confirmar accion</button>
+        </div>
+      </section>
+
       <div class="edge-tool-drawer" id="edge-tool-drawer" hidden data-edge-advanced-only>
         <div class="edge-tool-drawer-head">
           <span class="badge info">Override avanzado</span>
@@ -2634,21 +2671,29 @@ Fitness stability range: 25%</pre>
                     </div>
                     <div class="workflow-config-card">
                       <h5>Monkey</h5>
-                      <pre>Number of simulations: 100
+                      <pre>Real Monkey Test V2: ON
+Number of simulations: 100
 Confidence level: 80%
+Period scale / max period / max shift: 3 / 60 / 1
+Threshold min / max: 15 / 85
+View: MC MONKEY RETEST
 
-Net profit (Monkey, Conf. 80%) &gt; 0
-Alternative: Z-score &gt;= 2</pre>
+Net profit (Monkey MC, Conf. 80%) &gt;= 50% of Net profit
+Max DD % (Monkey MC, Conf. 80%) &lt;= 200% of Max DD %</pre>
                     </div>
                     <div class="workflow-config-card">
-                      <h5>Synthetic Bootstrap V3</h5>
+                      <h5>Synthetic MC OHLC</h5>
                       <pre>Number of simulations: 100
-Synthetic Bootstrap V3: ON
-Block size: 20
-Warmup: 200
-Preserve: 85%
+Randomize OHLC history data: ON
+OHLC probability: 60%
+Gap probability: 60%
+Max OHLC / gap change: 5 / 5
+ATR period: 14
+Keep connected: ON
+View: MC SYNTHETIC RETEST
 
-Net profit (Synthetic, Conf. 80%) &gt;= 50% of Net profit</pre>
+Net profit (Synthetic MC, Conf. 80%) &gt;= 80% of Net profit
+Max DD % (Synthetic MC, Conf. 80%) &lt;= 150% of Max DD %</pre>
                     </div>
                     <div class="workflow-config-card">
                       <h5>SPP</h5>
@@ -3327,7 +3372,7 @@ Métodos a marcar:
    ☐ Randomize starting bar
    ☐ Randomize strategy parameters   ← DESACTIVAR (lo testa SPP)
    ☐ Customizable Randomize strategy parameters
-   ☐ Real Monkey Test (PyRE)
+   ☐ Real Monkey Test V2
    ☐ Synthetic Bootstrap V2
 
 Default — Randomize history data:
@@ -3401,12 +3446,15 @@ Stability check:
       <span class="badge info">Vs estrategias random</span>
     </div>
     <h4 class="test-section-title">Settings</h4>
-    <pre class="code-block">Number of simulations: 100
-Confidence level: 80%</pre>
+    <pre class="code-block">Real Monkey Test V2: ON
+Number of simulations: 100
+Confidence level: 80%
+Period scale / max period / max shift: 3 / 60 / 1
+Threshold min / max: 15 / 85
+Databank view: MC MONKEY RETEST</pre>
     <h4 class="test-section-title">Filtering</h4>
-    <pre class="code-block">☑ Net profit (Monkey, Conf. 80%) > 0
-   o alternativamente:
-☑ Z-score >= 2</pre>
+    <pre class="code-block">☑ Net profit (Monkey MC, Conf. 80%) >= 50% of Net profit
+☑ Max DD % (Monkey MC, Conf. 80%) <= 200% of Max DD %</pre>
     <h4 class="test-section-title">Explicación</h4>
     <p class="test-explanation">Genera estrategias con entradas <strong>ALEATORIAS</strong> y compara con tu estrategia. Si una random produce más profit, tu edge no es real.<br><br>
     <strong>Z-score &gt;= 2:</strong> tu estrategia al menos 2 desviaciones estándar por encima del random (95% significancia).</p>
@@ -3415,20 +3463,24 @@ Confidence level: 80%</pre>
   <!-- TEST 8 -->
   <div class="card test-card">
     <div class="card-header">
-      <h2><span class="test-num l1">8</span>SYNTHETIC BOOTSTRAP V3</h2>
-      <span class="badge info">Histórico sintético</span>
+      <h2><span class="test-num l1">8</span>SYNTHETIC MC OHLC</h2>
+      <span class="badge info">Histórico OHLC sintético</span>
     </div>
     <h4 class="test-section-title">Settings</h4>
     <pre class="code-block">Number of simulations: 100
-Synthetic Bootstrap V3: ON
-Block size: 20
-Warmup: 200
-Preserve: 85%</pre>
+Randomize OHLC history data: ON
+OHLC probability: 60%
+Gap probability: 60%
+Max OHLC / gap change: 5 / 5
+ATR period: 14
+Keep connected: ON
+Databank view: MC SYNTHETIC RETEST</pre>
     <h4 class="test-section-title">Filtering</h4>
-    <pre class="code-block">☑ Net profit (Synthetic, Conf. 80%) >= 50% of Net profit</pre>
+    <pre class="code-block">☑ Net profit (Synthetic MC, Conf. 80%) >= 80% of Net profit
+☑ Max DD % (Synthetic MC, Conf. 80%) <= 150% of Max DD %</pre>
     <h4 class="test-section-title">Explicación</h4>
-    <p class="test-explanation">Genera versiones <strong>SINTÉTICAS</strong> del histórico (similares estadísticamente pero distintas) y testa la estrategia. Si depende del orden específico del histórico, falla.<br><br>
-    <strong>Preserve 85%:</strong> mantiene 85% de propiedades estadísticas · <strong>Warmup 200:</strong> primeras 200 barras para estabilizar indicadores.</p>
+    <p class="test-explanation">Genera versiones <strong>SINTÉTICAS</strong> del OHLC manteniendo continuidad de barras y testa la estrategia contra perturbaciones más exigentes. Si el edge depende demasiado de microvariaciones concretas del histórico, falla.<br><br>
+    <strong>80% / 150%:</strong> el retest exige conservar la mayor parte del net profit y evita que el drawdown sintético se degrade sin control.</p>
   </div>
 
   <!-- TEST 9 -->
@@ -3615,7 +3667,7 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
       <div class="pipeline-arrow">↓</div>
       <div class="pipeline-step l2"><div class="step-num">8</div><div class="step-content"><div class="step-title">Monkey Test</div><div class="step-desc">Vs random</div></div></div>
       <div class="pipeline-arrow">↓</div>
-      <div class="pipeline-step l2"><div class="step-num">9</div><div class="step-content"><div class="step-title">Synthetic Bootstrap V3</div><div class="step-desc">Block 20 · Preserve 85%</div></div></div>
+      <div class="pipeline-step l2"><div class="step-num">9</div><div class="step-content"><div class="step-title">Synthetic MC OHLC</div><div class="step-desc">OHLC 60 · Net 80%</div></div></div>
       <div class="pipeline-arrow">↓</div>
       <div class="pipeline-step l2"><div class="step-num">10</div><div class="step-content"><div class="step-title">SPP</div><div class="step-desc">Your own settings, Net 40%</div></div></div>
       <div class="pipeline-arrow">↓</div>
@@ -4518,6 +4570,7 @@ Bloquear Capa 2 si la curva no conserva sentido</pre>
 <script src="js/modules/workflow.js"></script>
 <script src="js/modules/edge-factory.js"></script>
 <script src="js/modules/edge-factory-ui.js"></script>
+<script src="js/modules/agent-guide.js"></script>
 <script src="js/modules/view-creator.js"></script>
 <script src="js/modules/project-generator-core.js"></script>
 <script src="js/modules/project-generator-config.js"></script>

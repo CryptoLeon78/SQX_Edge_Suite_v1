@@ -28,6 +28,7 @@ Current WFCO status:
 - `WFCO-4 · Portfolio Lab MVP`: completed.
 - `WFCO-5 · Visual Polish And Desktop QA`: completed.
 - `WFCO-ACCEPT1 · Basic/Advanced Acceptance Polish`: completed.
+- `WFCO-AI1 · Local/Remote-Safe Agent Dock`: completed.
 
 Historical repair/enrichment pause: TM-DIV1 added a hybrid diversity gate to Template Maker after the TM-FIX2 CSV contract repair. This did not advance the UX-NAV tab order and does not reopen Template Maker as a design pass; it prevents redundant C2 templates by clustering similar `.sqx` logic plus CSV metric behavior.
 
@@ -80,6 +81,7 @@ Design rules:
 - Strategy Builder remains retired.
 - No routes, server paths, private URLs or raw technical backend details are shown to normal users.
 - No profitability claims.
+- Operator-only local AI belongs inside Edge Factory as a dock, not as a primary navigation tab.
 
 WFCO-2 applied handoff rule:
 

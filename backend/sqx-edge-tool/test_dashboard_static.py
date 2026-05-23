@@ -409,6 +409,7 @@ class DashboardStaticTestCase(unittest.TestCase):
                 "js/modules/workflow.js",
                 "js/modules/edge-factory.js",
                 "js/modules/edge-factory-ui.js",
+                "js/modules/agent-guide.js",
                 "js/modules/view-creator.js",
                 "js/modules/project-generator-core.js",
                 "js/modules/project-generator-config.js",

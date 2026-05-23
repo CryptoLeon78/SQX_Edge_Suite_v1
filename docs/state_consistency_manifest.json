@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-05-21",
+  "updated": "2026-05-23",
   "purpose": "Canonical public-safe state markers used by automated docs consistency tests.",
   "coreFiles": [
     "README.md",
@@ -55,10 +55,16 @@
       "description": "UX-NAV docs must agree that WFCO Edge Factory is the active experience track after the operator opened the website facelift.",
       "required": {
         "README.md": [
+          "REMOTE-AI-TESTER1 esta aplicado",
+          "monitor Backend/Tunnel/Ollama sigue siendo local solo para el creador",
           "WFCO-5 Visual Polish And Desktop QA esta aplicado",
           "command strip vivo"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: REMOTE-AI-TESTER1 - Authenticated Tester AI Pilot",
+          "Current phase completed: LOCAL-AI1 - Local Operator AI Agent",
+          "Local AI Agent Gate",
+          "Remote AI Tester Gate",
           "Current phase completed: WFCO-5 - Visual Polish And Desktop QA",
           "Edge Factory Experience Gate",
           "Edge Factory Handoff Gate",
@@ -68,6 +74,7 @@
         ],
         "docs/UX_NAV_TAB_OPTIMIZATION_PLAN.md": [
           "Active experience track: `WFCO - Edge Factory`",
+          "`WFCO-AI1 · Local/Remote-Safe Agent Dock`: completed",
           "`WFCO-2 · Methodology Handoffs`: completed",
           "`WFCO-3 · Content Overhaul`: completed",
           "`WFCO-4 · Portfolio Lab MVP`: completed",
@@ -101,6 +108,8 @@
           "Last updated: 2026-05-21."
         ],
         "CHANGELOG.md": [
+          "2026-05-21 - REMOTE-AI-TESTER1 Authenticated Tester AI Pilot",
+          "2026-05-21 - LOCAL-AI1 Local Operator Agent",
           "2026-05-21 - WFCO5 Visual Polish And Desktop QA",
           "2026-05-21 - WFCO4 Portfolio Lab MVP",
           "2026-05-21 - WFCO3 Content Overhaul",
@@ -112,6 +121,191 @@
           "Last updated: 2026-05-20.",
           "Last updated: 2026-05-16.",
           "Last updated: 2026-05-19."
+        ]
+      }
+    },
+    {
+      "id": "sqx142_translator_cache_rule",
+      "description": "SQX 142 translator docs must preserve the validated Source Code integration point and Electron cache recovery rule.",
+      "required": {
+        "README.md": [
+          "Local Ollama Translator",
+          "tab nativo `Source Code` de SQX 142",
+          "runbook de cache SQX 142",
+          "tools\\sqx142_electron_cache_refresh.ps1"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "SQX 142 Electron Cache Rule",
+          "tools/sqx142_electron_cache_refresh.ps1",
+          "never delete projects, databanks, licenses or user settings"
+        ],
+        "docs/LOCAL_AI_AGENT_ROADMAP.md": [
+          "SQX 142 no lo expone de forma fiable como Result Plugin separado",
+          "Strategy/result -> Source Code -> Local Ollama Translator",
+          "docs/maintenance/SQX142_ELECTRON_CACHE_RUNBOOK.md",
+          "fallback `$.ajax`"
+        ],
+        "docs/maintenance/SQX142_ELECTRON_CACHE_RUNBOOK.md": [
+          "SQX 142 can serve fresh web bundles",
+          "local Electron app still shows stale UI",
+          "tools\\sqx142_electron_cache_refresh.ps1",
+          "The reliable SQX 142 integration point is the native `internal/plugins/ResultsSourceCode` result tab"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-22 - SQX142-TRANSLATOR1 Electron Cache Hardening",
+          "validated integration point is the native `Source Code` result tab"
+        ]
+      },
+      "forbidden": {
+        "docs/LOCAL_AI_AGENT_ROADMAP.md": [
+          "La extension instalada en SQX 142 vive bajo `user/extend/ResultsPlugins/Source Code Translator/index.html`."
+        ]
+      }
+    },
+    {
+      "id": "sqx142_143_backport_gate",
+      "description": "SQX 142/143 compatibility docs must preserve the local-only, dry-run-first backport boundary.",
+      "required": {
+        "README.md": [
+          "SQX142-143-BACKPORT1 esta aplicado",
+          "docs/SQX142_143_BACKPORT_LEDGER.md",
+          "/api/sqx142/compat/status",
+          "tools\\sqx142_compatibility.ps1"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: SQX142-143-BACKPORT1 - Local SQX Compatibility Gate",
+          "SQX 142/143 Compatibility Gate",
+          "tools/sqx142_compatibility.ps1 must run dry-run first",
+          "No bulk copy of StrategyQuant engine binaries"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "/api/sqx142/compat/status",
+          "tools/sqx142_compatibility.ps1",
+          "SQX142/143 backport ledger"
+        ],
+        "docs/LOCAL_AI_AGENT_ROADMAP.md": [
+          "Phase SQX142-143-BACKPORT1 - compatibilidad SQX local",
+          "fixed_sqx142_compat",
+          "sqx142_compat_help",
+          "GET /api/sqx142/compat/status"
+        ],
+        "docs/REMOTE_RUNBOOK1_OPERATOR_START_STOP.md": [
+          "SQX 142 compatibility status",
+          "/api/sqx142/compat/status",
+          "local-operator-only"
+        ],
+        "docs/SQX142_143_BACKPORT_LEDGER.md": [
+          "SQX142-143 Backport Ledger",
+          "SQX 142 used Oracle/GraalVM 25",
+          "SQX 143 uses Azul Zulu 22",
+          "No bulk copy and no engine/bin/license patching"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-22 - SQX142-143-BACKPORT1 Local Compatibility Gate",
+          "local compatibility diagnostics",
+          "SQX 142 runtime/process status"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_143_BACKPORT_LEDGER.md": [
+          "bulk copy of `internal\\plugins`",
+          "copy StrategyQuantX.exe",
+          "license backport"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_performance_gate",
+      "description": "SQX 142 performance docs must preserve measurement-first optimization with no quality reduction.",
+      "required": {
+        "README.md": [
+          "SQX142-PERF1 esta aplicado",
+          "docs/SQX142_PERFORMANCE_ROADMAP.md",
+          "/api/sqx142/performance/status",
+          "tools\\sqx142_performance_gate.ps1"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: SQX142-PERF1 - Local SQX Performance Gate",
+          "SQX 142 Performance Gate",
+          "qualityReductionAllowed: false",
+          "tools/sqx142_performance_gate.ps1"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "/api/sqx142/performance/status",
+          "tools/sqx142_performance_gate.ps1",
+          "SQX142 Performance Gate"
+        ],
+        "docs/LOCAL_AI_AGENT_ROADMAP.md": [
+          "Phase SQX142-PERF1 - rendimiento SQX local",
+          "sqx142_performance_help",
+          "fixed_sqx142_performance",
+          "GET /api/sqx142/performance/status"
+        ],
+        "docs/REMOTE_RUNBOOK1_OPERATOR_START_STOP.md": [
+          "SQX 142 performance status",
+          "/api/sqx142/performance/status",
+          "local-operator-only"
+        ],
+        "docs/SQX142_PERFORMANCE_ROADMAP.md": [
+          "SQX 142 Performance Gate",
+          "baseline_143_safe",
+          "mining_fast_safe",
+          "retest_robust",
+          "diagnostic_low_risk",
+          "qualityReductionAllowed: false"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-22 - SQX142-PERF1 Local Performance Gate",
+          "local measurement and smoke tooling",
+          "SQX 142 performance status"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_PERFORMANCE_ROADMAP.md": [
+          "qualityReductionAllowed: true",
+          "reduce MonteCarlo simulations by default",
+          "delete databanks"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_custom_task_config_gate",
+      "description": "Capa1 base task configuration must stay interactive, local-ledgered and selective from Mining15 donor.",
+      "required": {
+        "README.md": [
+          "C1-CONFIG1 esta iniciado",
+          "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md",
+          "tools\\sqx142_task_config_gate.ps1",
+          ".local/sqx142_task_config/"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "C1-CONFIG1 - Capa1 Custom Task Config Gate",
+          "SQX 142 Custom Task Config Gate",
+          "tools/sqx142_task_config_gate.ps1",
+          "selective and normalized"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "SQX142 Custom Task Config Gate",
+          "tools/sqx142_task_config_gate.ps1",
+          ".local/sqx142_task_config/"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "C1-CONFIG1",
+          "Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1",
+          ".local/sqx142_task_config/",
+          "selective_normalized"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-23 - C1-CONFIG1 Capa1 Custom Task Config Gate",
+          "interactive Capa1 base task configuration",
+          "selective and normalized"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "copy the full Mining15 project directly",
+          "qualityReductionAllowed: true",
+          "commit .local/sqx142_task_config"
         ]
       }
     }

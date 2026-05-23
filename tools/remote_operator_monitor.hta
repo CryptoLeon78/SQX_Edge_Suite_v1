@@ -18,8 +18,8 @@
   <style>
     html, body {
       margin: 0;
-      width: 560px;
-      height: 360px;
+      width: 680px;
+      height: 668px;
       overflow: hidden;
       background: #08111f;
       color: #eef5ff;
@@ -36,6 +36,7 @@
       color: #dbe8ff;
       font-weight: 700;
       font-size: 14px;
+      line-height: 1.35;
     }
     .ok {
       border-color: #1e7f55;
@@ -72,9 +73,12 @@
 <body>
   <div class="wrap">
     <h1>SQX Edge Suite</h1>
-    <p class="sub">Control remoto Backend/Tunnel para el portatil operador</p>
+    <p class="sub">Control local Backend/Tunnel/Ollama para el portatil operador</p>
     <div id="backend" class="panel">Comprobando backend...</div>
     <div id="tunnel" class="panel">Comprobando tunel...</div>
+    <div id="ollama" class="panel">Comprobando Ollama...</div>
+    <div id="sqxcompat" class="panel">Comprobando SQX 142...</div>
+    <div id="sqxperf" class="panel">Comprobando rendimiento SQX 142...</div>
     <div id="overall">Estado: iniciando comprobacion...</div>
     <div class="actions">
       <button id="startBtn" onclick="startServices()">Arrancar</button>
@@ -112,6 +116,10 @@
       var el = document.getElementById(id);
       el.className = "panel " + (ok ? "ok" : "bad");
       el.innerText = text;
+    }
+
+    function parseJson(value) {
+      try { return JSON.parse(value || "{}"); } catch (e) { return null; }
     }
 
     function backendStatus() {
@@ -154,6 +162,98 @@
       }
     }
 
+    function ollamaStatus() {
+      try {
+        var xhr = new ActiveXObject("MSXML2.XMLHTTP");
+        xhr.open("GET", "http://127.0.0.1:5050/api/agent/status", false);
+        xhr.send();
+        if (xhr.status !== 200) {
+          return { ok: false, text: "NO-GO - Ollama/IA responde con error" };
+        }
+        var text = xhr.responseText || "";
+        var ok = text.indexOf('"active":true') >= 0 || text.indexOf('"available":true') >= 0;
+        var modelMatch = text.match(/"model":"([^"]+)"/);
+        var reasonMatch = text.match(/"reason":"([^"]+)"/);
+        var model = modelMatch ? modelMatch[1] : "modelo local";
+        return {
+          ok: ok,
+          text: ok
+            ? "OK - Ollama activo (" + model + ")"
+            : "NO-GO - Ollama no disponible (" + model + (reasonMatch ? ", " + reasonMatch[1] : "") + ")"
+        };
+      } catch (e) {
+        return { ok: false, text: "NO-GO - backend requerido para comprobar Ollama" };
+      }
+    }
+
+    function sqxCompatStatus() {
+      try {
+        var xhr = new ActiveXObject("MSXML2.XMLHTTP");
+        xhr.open("GET", "http://127.0.0.1:5050/api/sqx142/compat/status", false);
+        xhr.send();
+        if (xhr.status !== 200) {
+          return { ok: false, status: "pending", text: "Pendiente - SQX 142 no comprobable" };
+        }
+        var text = xhr.responseText || "";
+        var ok = text.indexOf('"ok":true') >= 0;
+        var statusMatch = text.match(/"status":"([^"]+)"/);
+        var procMatch = text.match(/"count":([0-9]+)/);
+        var labelMatch = text.match(/"active":\{[^}]*"label":"([^"]+)"/);
+        var status = statusMatch ? statusMatch[1] : "unknown";
+        var procCount = procMatch ? procMatch[1] : "0";
+        var label = labelMatch ? labelMatch[1] : "runtime desconocido";
+        return {
+          ok: ok,
+          status: status,
+          text: ok
+            ? "OK - SQX 142 runtime alineado (" + label + ")"
+            : "WARN - SQX 142 " + status + " - procesos: " + procCount
+        };
+      } catch (e) {
+        return { ok: false, status: "pending", text: "Pendiente - backend requerido para comprobar SQX 142" };
+      }
+    }
+
+    function sqxPerformanceStatus() {
+      try {
+        var xhr = new ActiveXObject("MSXML2.XMLHTTP");
+        xhr.open("GET", "http://127.0.0.1:5050/api/sqx142/performance/status", false);
+        xhr.send();
+        if (xhr.status !== 200) {
+          return { ok: false, status: "pending", profile: "unknown", text: "Pendiente - rendimiento SQX 142 no comprobable" };
+        }
+        var text = xhr.responseText || "";
+        var payload = parseJson(text) || {};
+        var ok = text.indexOf('"ok":true') >= 0;
+        var statusMatch = text.match(/"status":"([^"]+)"/);
+        var profileMatch = text.match(/"activeProfile":\{[^}]*"id":"([^"]+)"/);
+        var diskMatch = text.match(/"freeHuman":"([^"]+)"/);
+        var intelligence = payload.intelligence || {};
+        var views = intelligence.views || {};
+        var latest = intelligence.latestEvidence || payload.latestEvidence || {};
+        var recommendation = intelligence.recommendation || {};
+        var liveGuard = intelligence.liveGuard || {};
+        var status = statusMatch ? statusMatch[1] : "unknown";
+        var profile = payload.activeProfile && payload.activeProfile.id ? payload.activeProfile.id : (profileMatch ? profileMatch[1] : "unknown");
+        var disk = payload.resources && payload.resources.disk && payload.resources.disk.freeHuman ? payload.resources.disk.freeHuman + " libre" : (diskMatch ? diskMatch[1] + " libre" : "disco desconocido");
+        var viewsText = typeof views.presentCount !== "undefined" ? ("views " + views.presentCount + "/" + views.expectedCount) : "views ?";
+        var evidence = latest.filename || "sin evidencia";
+        var next = recommendation.label || "sin recomendacion";
+        var guard = liveGuard.state ? ("guard " + liveGuard.state + "/alerts:" + (liveGuard.alertCount || 0)) : "guard ?";
+        return {
+          ok: ok,
+          status: status,
+          profile: profile,
+          recommendation: next,
+          text: ok
+            ? "OK - Performance " + profile + " - " + disk + "\n" + viewsText + " - " + guard + " - evidencia: " + evidence + "\nNext: " + next
+            : "WARN - Performance " + status + " - " + profile + " - " + disk + "\n" + viewsText + " - " + guard + " - evidencia: " + evidence + "\nNext: " + next
+        };
+      } catch (e) {
+        return { ok: false, status: "pending", profile: "unknown", text: "Pendiente - backend requerido para comprobar rendimiento SQX 142" };
+      }
+    }
+
     function requestProbe() {
       var command = 'powershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File ' +
         quote(repo + "\\tools\\remote_operator_probe.ps1") +
@@ -163,9 +263,9 @@
       shell.Run(command, 0, false);
     }
 
-    function setButtons(backendOk, tunnelOk) {
+    function setButtons(backendOk, tunnelOk, ollamaOk) {
       var anyRunning = backendOk || tunnelOk;
-      var allOk = backendOk && tunnelOk;
+      var allOk = backendOk && tunnelOk && ollamaOk;
       document.getElementById("startBtn").disabled = busy || allOk;
       document.getElementById("stopBtn").disabled = busy || !anyRunning;
       document.getElementById("refreshBtn").disabled = busy;
@@ -177,13 +277,19 @@
     function refreshStatus(showOkPopup) {
       var backend = backendStatus();
       var tunnel = tunnelStatus();
-      var allOk = backend.ok && tunnel.ok;
+      var ollama = backend.ok ? ollamaStatus() : { ok: false, text: "Pendiente - backend requerido para comprobar Ollama" };
+      var sqxcompat = backend.ok ? sqxCompatStatus() : { ok: false, status: "pending", text: "Pendiente - backend requerido para comprobar SQX 142" };
+      var sqxperf = backend.ok ? sqxPerformanceStatus() : { ok: false, status: "pending", profile: "unknown", text: "Pendiente - backend requerido para comprobar rendimiento SQX 142" };
+      var allOk = backend.ok && tunnel.ok && ollama.ok;
       var anyRunning = backend.ok || tunnel.ok;
       setPanel("backend", backend.ok, backend.text);
       setPanel("tunnel", tunnel.ok, tunnel.text);
+      setPanel("ollama", ollama.ok, ollama.text);
+      setPanel("sqxcompat", sqxcompat.ok, sqxcompat.text);
+      setPanel("sqxperf", sqxperf.ok, sqxperf.text);
       if (allOk) {
         document.getElementById("overall").style.color = "#9dffca";
-        document.getElementById("overall").innerText = "Estado: OK todo en marcha. Puedes abrir el enlace protegido.";
+        document.getElementById("overall").innerText = "Estado: OK servicios. SQX 142: " + sqxcompat.status + ". Perf: " + sqxperf.profile + "/" + sqxperf.status + " - " + (sqxperf.recommendation || "sin recomendacion") + ".";
       } else if (!anyRunning) {
         document.getElementById("overall").style.color = "#9dffca";
         document.getElementById("overall").innerText = "Estado: servicios detenidos. Backend/Tunnel cerrados.";
@@ -192,11 +298,11 @@
         document.getElementById("overall").innerText = "Estado: parcial. Usa Arrancar/Detener o revisa logs locales.";
       }
       if (showOkPopup && allOk && !lastAllOk) {
-        try { shell.Popup("Backend y Tunnel estan OK.", 2, "SQX Edge Suite", 64); } catch (e) {}
+        try { shell.Popup("Backend, Tunnel y Ollama estan OK.", 2, "SQX Edge Suite", 64); } catch (e) {}
       }
       lastAllOk = allOk;
-      setButtons(backend.ok, tunnel.ok);
-      return { backendOk: backend.ok, tunnelOk: tunnel.ok, allOk: allOk, anyRunning: anyRunning };
+      setButtons(backend.ok, tunnel.ok, ollama.ok);
+      return { backendOk: backend.ok, tunnelOk: tunnel.ok, ollamaOk: ollama.ok, allOk: allOk, anyRunning: anyRunning };
     }
 
     function manualRefresh() {
@@ -220,9 +326,9 @@
     function startServices() {
       if (busy) return;
       busy = true;
-      setButtons(false, false);
+      setButtons(false, false, false);
       document.getElementById("overall").style.color = "#ffda4d";
-      document.getElementById("overall").innerText = "Estado: arrancando backend y tunel...";
+      document.getElementById("overall").innerText = "Estado: arrancando backend, tunel y Ollama...";
       runHidden('powershell.exe -NoProfile -ExecutionPolicy Bypass -File ' +
         quote(repo + "\\tools\\remote_operator_start.ps1") +
         ' -RepoRoot ' + quote(repo) +
@@ -237,7 +343,7 @@
     function stopServices() {
       if (busy) return;
       busy = true;
-      setButtons(false, false);
+      setButtons(false, false, false);
       document.getElementById("overall").style.color = "#ffda4d";
       document.getElementById("overall").innerText = "Estado: deteniendo servicios...";
       runHidden('powershell.exe -NoProfile -ExecutionPolicy Bypass -File ' +
@@ -247,7 +353,7 @@
     }
 
     window.onload = function () {
-      window.resizeTo(580, 390);
+      window.resizeTo(700, 698);
       var args = String(sqxRemoteMonitor.commandLine || "");
       launchMode = requestedMode || (args.indexOf("--stop") >= 0 ? "stop" : (args.indexOf("--start") >= 0 ? "start" : ""));
       requestProbe();
