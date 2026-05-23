@@ -176,6 +176,24 @@ BUILD_RESOURCES_BANNED_DONOR_TOKENS = ("USDJPY", "USDJPY_darwinex", "USDJPY_duka
 BUILD_ACTIVE_CROSSCHECK = "SequentialOptimization"
 BUILD_CROSSCHECK_PARENT_TARGET = {"use": "true", "evaluateAll": "true"}
 BUILD_CROSSCHECK_BANNED_DONOR_TOKENS = ("USDJPY", "USDJPY_darwinex", "USDJPY_dukascopy")
+BUILD_STATIC_TABS = (
+    "Options",
+    "ATMs",
+    "PartsToImprove",
+    "RiskMoneyManagement",
+    "Databanks",
+    "Notes",
+    "Optimization",
+)
+BUILD_STATIC_TAB_HASHES = {
+    "Options": "BF732DD7B130086DC0EA2E16669A270AC42A5910763B72B9DA001BCE4F22038C",
+    "ATMs": "5B18484BDCBB462F169B894A8861C05F7DA323B05EE808FA49BB300442E56C40",
+    "PartsToImprove": "14258C2F5FBFB077CE7FC4009F1D89FB32BD7FD2EBD66EAFF5F1ECB33411AC87",
+    "RiskMoneyManagement": "CFBC9E6C4D1C30782BAC103AED72CFAF66AAA71BF4B892A4CEDDBA1E6317B76F",
+    "Databanks": "31F633435ACD49E3837422C376421A28723FBE7017B4EEBD9EA2F20C29B7BB98",
+    "Notes": "7E0C7BB76E5A63E6CD5B9B97F2571F549C95DF5F79CD0C315895ADAF2742E880",
+    "Optimization": "63655CE465154201278796A666D9FC0A21B36EAF825B356797927DBC8402E3A8",
+}
 
 
 def stamp() -> str:
@@ -1801,6 +1819,111 @@ def promote_build_crosschecks_target(root142: Path, project_root: Path, target: 
     return payload
 
 
+def section_text(root: ET.Element | None, tab: str) -> str:
+    node = find_section(root, tab)
+    if node is None:
+        return ""
+    return serialize_xml(node).strip()
+
+
+def section_sha256(root: ET.Element | None, tab: str) -> str:
+    text = section_text(root, tab)
+    return hashlib.sha256(text.encode("utf-8")).hexdigest().upper() if text else ""
+
+
+def static_tab_business_checks(root: ET.Element | None) -> list[str]:
+    issues: list[str] = []
+    if root is None:
+        return ["Build task missing"]
+
+    fixed_size = root.find(".//RiskMoneyManagement//Method[@type='FixedSize']")
+    fixed_amount = root.find(".//RiskMoneyManagement//Method[@type='FixedAmount']")
+    if fixed_size is None or fixed_size.get("use") != "true":
+        issues.append("RiskMoneyManagement FixedSize must remain active")
+    if fixed_amount is None or fixed_amount.get("use") != "false":
+        issues.append("RiskMoneyManagement FixedAmount must remain disabled")
+
+    databanks = {
+        databank.get("name", ""): databank.get("value", "")
+        for databank in root.findall(".//Databanks/Databank")
+        if databank.get("name")
+    }
+    if databanks.get("Output") != "null":
+        issues.append("Build Databanks Output must remain null; Ranking stores filtered strategies into Results")
+    if "Input" not in databanks:
+        issues.append("Build Databanks Input placeholder missing")
+
+    market_open = root.find(".//BuildTradingOptions/Params/Param[@key='MarketOpenSession']")
+    if market_open is not None and (market_open.text or "") != "No Session":
+        issues.append("Build Options MarketOpenSession must remain No Session")
+    return issues
+
+
+def static_tabs_report(cfx: Path, baseline_hashes: dict[str, str] | None = None) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "tabs": {},
+        "issues": [],
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["issues"].append("missing_or_not_zip")
+        return payload
+    task_xml_name, root = load_task_root(cfx, "Build")
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["issues"].append("build_task_not_found")
+        return payload
+    for tab in BUILD_STATIC_TABS:
+        digest = section_sha256(root, tab)
+        expected = (baseline_hashes or BUILD_STATIC_TAB_HASHES).get(tab, "")
+        payload["tabs"][tab] = {
+            "exists": bool(digest),
+            "sha256": digest,
+            "expectedSha256": expected,
+            "matchesExpected": bool(digest and expected and digest == expected),
+        }
+        if not digest:
+            payload["issues"].append(f"{tab} section missing")
+        elif expected and digest != expected:
+            payload["issues"].append(f"{tab} section drift: {digest} != {expected}")
+    payload["issues"].extend(static_tab_business_checks(root))
+    payload["staticTabsGuardOk"] = not payload["issues"]
+    return payload
+
+
+def promote_build_static_tabs_target(root142: Path, project_root: Path, target: str) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {name: static_tabs_report(path) for name, path in targets.items()}
+    payload: dict[str, Any] = {
+        "ok": all(item.get("exists") and item.get("isZip") and item.get("staticTabsGuardOk") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase2",
+        "operation": "build_static_tabs_target",
+        "target": target,
+        "tabs": list(BUILD_STATIC_TABS),
+        "mode": "audit_only_keep_current_values",
+        "results": results,
+        "targetRationale": {
+            "operatorDecision": "Options, ATMs, PartsToImprove, RiskMoneyManagement, Notes and Optimization stay as current values.",
+            "databanks": "Build Databanks stay as current placeholder; Ranking filters decide what is saved to Results.",
+            "nextStep": "If this audit passes, Build Capa1 Phase 2 can close and move to RETEST 0.",
+        },
+        "nextPhase": "phase2_closeout_or_phase3_retest0",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase2_build_static_tabs_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_blocks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "path": str(cfx),
@@ -2315,6 +2438,9 @@ def build_parser() -> argparse.ArgumentParser:
     promote_crosschecks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     promote_crosschecks.add_argument("--apply", action="store_true")
 
+    promote_static_tabs = sub.add_parser("build-static-tabs-target")
+    promote_static_tabs.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -2388,6 +2514,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "build-crosschecks-target":
         json_print(promote_build_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "build-static-tabs-target":
+        json_print(promote_build_static_tabs_target(root142, project_root, target=args.target))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

@@ -1,3 +1,4 @@
+import hashlib
 import zipfile
 import tempfile
 from pathlib import Path
@@ -34,6 +35,15 @@ def _active_building_block_keys(blocks: ET.Element) -> list[str]:
         and block.get("key") not in {"#Left#", "#Right#"}
         and str(block.get("use")).lower() == "true"
     ]
+
+
+def _section_sha256(root: ET.Element, tab: str) -> str:
+    node = root.find(tab)
+    if node is None:
+        node = root.find(f".//{tab}")
+    assert node is not None
+    text = ET.tostring(node, encoding="unicode", short_empty_elements=True).strip()
+    return hashlib.sha256(text.encode("utf-8")).hexdigest().upper()
 
 
 def _xml_roots(cfx_path: Path):
@@ -198,6 +208,30 @@ def test_capa1_build_crosschecks_only_enable_sequential_optimization():
     assert check_states["MonteCarloManipulation"] == "false"
     assert check_states["WalkForwardOptimization"] == "false"
     assert check_states["RetestOnAdditionalMarkets"] == "false"
+
+
+def test_capa1_build_static_tabs_keep_confirmed_current_contract():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    build = roots["Build-Task1.xml"]
+    expected = {
+        "Options": "BF732DD7B130086DC0EA2E16669A270AC42A5910763B72B9DA001BCE4F22038C",
+        "ATMs": "5B18484BDCBB462F169B894A8861C05F7DA323B05EE808FA49BB300442E56C40",
+        "PartsToImprove": "14258C2F5FBFB077CE7FC4009F1D89FB32BD7FD2EBD66EAFF5F1ECB33411AC87",
+        "RiskMoneyManagement": "CFBC9E6C4D1C30782BAC103AED72CFAF66AAA71BF4B892A4CEDDBA1E6317B76F",
+        "Databanks": "31F633435ACD49E3837422C376421A28723FBE7017B4EEBD9EA2F20C29B7BB98",
+        "Notes": "7E0C7BB76E5A63E6CD5B9B97F2571F549C95DF5F79CD0C315895ADAF2742E880",
+        "Optimization": "63655CE465154201278796A666D9FC0A21B36EAF825B356797927DBC8402E3A8",
+    }
+    for tab, digest in expected.items():
+        assert _section_sha256(build, tab) == digest
+
+    databanks = {
+        databank.get("name"): databank.get("value")
+        for databank in build.findall(".//Databanks/Databank")
+    }
+    assert databanks == {"Output": "null", "Input": "Syntetic"}
+    assert build.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
+    assert build.find(".//RiskMoneyManagement//Method[@type='FixedAmount']").get("use") == "false"
 
 
 def test_capa1_base_uses_phase1_review_views():

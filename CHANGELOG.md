@@ -20,6 +20,7 @@
 - Adds `build-data-target` to guard Build Capa1 Data without donor leakage: `BUILD_C1` dates, `testPrecision=2` simulated data, `No Session`, no Build OOS ranges, and generator-owned charts/spreads/swaps.
 - Adds `build-resources-target` to guard Build Capa1 Resources: no donor `USDJPY` leakage, no resource sessions, chart/resource symbol consistency, `precision=TICK` as source-data metadata, and generator-owned broker/symbol rebuilds.
 - Adds `build-crosschecks-target` to keep Build Capa1 mining lightweight: only `SequentialOptimization` active, with MonteCarlo/WhatIf/HigherPrecision/additional markets/WFO disabled and no donor crosscheck promotion.
+- Adds `build-static-tabs-target` to close the confirmed keep-as-is Build tabs by hash/audit: Options, ATMs, PartsToImprove, RiskMoneyManagement, Databanks, Notes and Optimization.
 
 ## 2026-05-22 - SQX142-PERF1 Local Performance Gate
 

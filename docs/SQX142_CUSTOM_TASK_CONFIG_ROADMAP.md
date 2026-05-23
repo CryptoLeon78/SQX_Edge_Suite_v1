@@ -59,6 +59,7 @@ tools\sqx142_task_config_gate.ps1 build-resources-target --target both
 tools\sqx142_task_config_gate.ps1 build-resources-target --target both --apply
 tools\sqx142_task_config_gate.ps1 build-crosschecks-target --target both
 tools\sqx142_task_config_gate.ps1 build-crosschecks-target --target both --apply
+tools\sqx142_task_config_gate.ps1 build-static-tabs-target --target both
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -207,6 +208,11 @@ Promocion aplicada de `Build > Genetic options`:
   `RetestOnAdditionalMarkets`, WFO/WFM y demas robustez pesada permanecen
   desactivados y no se promocionan settings internos del donor para evitar
   arrastrar simbolos, fechas o cargas impropias del Build.
+- Pestañas estaticas restantes de Build cerradas por hash/auditoria:
+  `Options`, `ATMs`, `PartsToImprove`, `RiskMoneyManagement`, `Databanks`,
+  `Notes` y `Optimization` quedan como valores actuales confirmados. `Databanks`
+  mantiene `Output=null`; el guardia documenta que el flujo real es
+  minado -> `Ranking` filters -> `Results`.
 
 Orden recomendado de preguntas: pestañas sin diferencias primero para cerrar
 bloques rápidos, después `Data`, `Resources`, `WhatToBuild`, `CrossChecks` y al
