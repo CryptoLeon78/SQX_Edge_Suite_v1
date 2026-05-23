@@ -12,6 +12,7 @@
 - Starts Phase 2 Build Capa1 questionnaires with `task-questionnaires`, preserving duplicate XML paths with stable indexes so repeated entries are not collapsed.
 - Adds `build-genetic-target` to apply the confirmed Build Genetic Options target with dry-run, backup and idempotence checks; promotes the values to local Capa1 base and `Capa1_Long.cfx` while leaving `MarketSides` dynamic by generator.
 - Reopens Build Ranking volume values in the local Capa1 checklist because a previous correction used an earlier reference and must not be treated as the final methodology decision.
+- Adds a Capa1 generator regression guard proving `MarketSides` is patched to `long`, `short` or `both` across every generated task XML instead of inheriting the base template side.
 
 ## 2026-05-22 - SQX142-PERF1 Local Performance Gate
 

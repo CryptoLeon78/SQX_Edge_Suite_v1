@@ -207,6 +207,41 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     assert [broker.get("id") for broker in retest1.findall(".//Resources/Brokers/Broker")] == ["3"]
 
 
+def test_generate_project_applies_selected_market_side_to_all_tasks():
+    template = str(TEMPLATE_DIR / "Capa1_Long.cfx")
+    expected_titles = {
+        "long": "Build BS_Volatilidad_v6 · Capa1 LONG H4",
+        "short": "Build BS_Volatilidad_v6 · Capa1 SHORT H4",
+        "both": "Build BS_Volatilidad_v6 · Capa1 L+S H4",
+    }
+    with tempfile.TemporaryDirectory() as tmp:
+        for direction, expected_title in expected_titles.items():
+            mining = Mining(num=94, phase=1, asset="AUDCAD", tf="H4", bs="BS_Volatilidad", dir=direction)
+            out_path = generate_project(
+                mining,
+                template,
+                tmp,
+                capa=1,
+                suffix=f"_{direction}",
+                sqx_db_path=None,
+            )
+            roots = dict(_xml_roots(Path(out_path)))
+            config = roots["config.xml"]
+            build_task = next(task for task in config.findall(".//Task") if task.get("type") == "Build")
+            assert build_task.get("title") == expected_title
+
+            for name, root in roots.items():
+                if name == "config.xml":
+                    continue
+                market_sides = {
+                    node.get("type")
+                    for node in root.findall(".//MarketSides")
+                    if node.get("type")
+                }
+                if market_sides:
+                    assert market_sides == {direction}, name
+
+
 def test_generate_project_applies_intraday_time_window():
     mining = Mining(num=92, phase=1, asset="AUDCAD", tf="H1", bs="BS_Volatilidad", dir="long")
     with tempfile.TemporaryDirectory() as tmp:

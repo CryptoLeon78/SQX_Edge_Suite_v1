@@ -150,6 +150,9 @@ Promocion aplicada de `Build > Genetic options`:
   en IS; la validacion metodologica vive en los retests Capa1 y Capa2.
 - La poblacion inicial queda filtrada por `ProfitFactor >= 1` y
   `NumberOfTrades >= 100`.
+- Smoke local `MarketSides` validado: generando `long`, `short` y `both` desde
+  `Capa1_Long.cfx`, todos los XML internos con `MarketSides` heredan el lado
+  seleccionado y el titulo Build sale como `LONG`, `SHORT` o `L+S`.
 - Los valores de Ranking quedan reabiertos para el checklist de valores Capa1
   porque una correccion previa tomo una referencia anterior y no debe aplicarse
   como cierre final.
