@@ -186,6 +186,37 @@ def test_capa1_build_genetic_options_use_current_sqx142_nodes_only():
     assert restart.get("generations") == "10"
 
 
+def test_capa1_build_blocks_keep_only_market_entry_and_exit_after_bars():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    build = roots["Build-Task1.xml"]
+    blocks = build.find(".//Blocks")
+    assert blocks is not None
+
+    order_types = {
+        block.get("key"): block.get("use")
+        for block in blocks.findall("./OrderTypes/Block")
+    }
+    assert order_types == {
+        "EnterAtMarket": "true",
+        "EnterReverseAtMarket": "false",
+        "EnterAtStop": "false",
+        "EnterAtLimit": "false",
+    }
+
+    exit_types = {
+        block.get("key"): block.get("use")
+        for block in blocks.findall("./ExitTypes/Block")
+    }
+    assert exit_types["ExitAfterBars.ExitAfterBars"] == "true"
+    assert all(value == "false" for key, value in exit_types.items() if key != "ExitAfterBars.ExitAfterBars")
+    assert not any("ExitAfterDays" in key or "ExitAfterTradingDays" in key for key in exit_types)
+
+    custom_data = blocks.find("CustomData")
+    assert custom_data is not None
+    assert custom_data.get("showAll") == "false"
+    assert list(custom_data) == []
+
+
 def test_generate_project_names_build_task_and_applies_capa1_time_window():
     mining = Mining(num=91, phase=1, asset="AUDCAD", tf="H4", bs="BS_Volatilidad", dir="both")
     with tempfile.TemporaryDirectory() as tmp:

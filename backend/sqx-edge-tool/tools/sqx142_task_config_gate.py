@@ -150,6 +150,17 @@ BUILD_RANKING_TARGET = {
     "StopCondition": {"passedStrategies": "500"},
 }
 
+BUILD_ORDER_TYPE_TARGET = {
+    "EnterAtMarket": "true",
+    "EnterReverseAtMarket": "false",
+    "EnterAtStop": "false",
+    "EnterAtLimit": "false",
+}
+
+BUILD_EXIT_TYPE_ACTIVE_KEY = "ExitAfterBars.ExitAfterBars"
+BUILD_EXIT_TYPE_BANNED_TOKENS = ("ExitAfterDays", "ExitAfterTradingDays")
+BUILD_EXTERNAL_CUSTOM_DATA_TARGET = {"showAll": "false"}
+
 
 def stamp() -> str:
     return datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -990,6 +1001,226 @@ def promote_build_ranking_target(root142: Path, project_root: Path, target: str,
     return payload
 
 
+def find_blocks(root: ET.Element | None) -> ET.Element | None:
+    return find_section(root, "Blocks") if root is not None else None
+
+
+def block_key_action(block: ET.Element) -> dict[str, Any]:
+    return {
+        "key": block.get("key", ""),
+        "use": block.get("use", ""),
+        "probability": block.get("probability", ""),
+        "category": block.get("category", ""),
+    }
+
+
+def enforce_order_types(blocks: ET.Element, actions: list[dict[str, Any]]) -> None:
+    order_types = blocks.find("OrderTypes")
+    if order_types is None:
+        actions.append({"field": "OrderTypes", "error": "missing", "changed": False})
+        return
+    for block in order_types.findall("Block"):
+        key = block.get("key", "")
+        if key not in BUILD_ORDER_TYPE_TARGET:
+            continue
+        before = block.get("use", "")
+        wanted = BUILD_ORDER_TYPE_TARGET[key]
+        block.set("use", wanted)
+        actions.append({
+            "field": f"OrderTypes:{key}",
+            "from": before,
+            "to": wanted,
+            "changed": before != wanted,
+        })
+
+
+def enforce_exit_types(blocks: ET.Element, actions: list[dict[str, Any]]) -> None:
+    exit_types = blocks.find("ExitTypes")
+    if exit_types is None:
+        actions.append({"field": "ExitTypes", "error": "missing", "changed": False})
+        return
+    removed = []
+    for block in list(exit_types.findall("Block")):
+        key = block.get("key", "")
+        if any(token in key for token in BUILD_EXIT_TYPE_BANNED_TOKENS):
+            removed.append(block_key_action(block))
+            exit_types.remove(block)
+            continue
+        before = block.get("use", "")
+        wanted = "true" if key == BUILD_EXIT_TYPE_ACTIVE_KEY else "false"
+        block.set("use", wanted)
+        if key == BUILD_EXIT_TYPE_ACTIVE_KEY:
+            block.set("probability", "100")
+            for value in block.findall("Value"):
+                if value.get("key") == "undefined":
+                    value.set("use", "true")
+        actions.append({
+            "field": f"ExitTypes:{key}",
+            "from": before,
+            "to": wanted,
+            "changed": before != wanted,
+        })
+    actions.append({
+        "field": "ExitTypes:removeDayBasedExits",
+        "from": removed,
+        "to": [],
+        "changed": bool(removed),
+    })
+
+
+def enforce_external_custom_data(blocks: ET.Element, actions: list[dict[str, Any]]) -> None:
+    custom_data = blocks.find("CustomData")
+    if custom_data is None:
+        custom_data = ET.SubElement(blocks, "CustomData")
+        before = {}
+    else:
+        before = dict(custom_data.attrib)
+    for key, value in BUILD_EXTERNAL_CUSTOM_DATA_TARGET.items():
+        custom_data.set(key, value)
+    removed_children = [child.tag for child in list(custom_data)]
+    for child in list(custom_data):
+        custom_data.remove(child)
+    after = dict(custom_data.attrib)
+    actions.append({
+        "field": "CustomData",
+        "from": {"attributes": before, "children": removed_children},
+        "to": {"attributes": after, "children": []},
+        "changed": before != after or bool(removed_children),
+    })
+
+
+def update_build_blocks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, "Build")
+    payload["taskXml"] = task_xml_name
+    blocks = find_blocks(root)
+    if not task_xml_name or root is None or blocks is None:
+        payload["error"] = "build_task_or_blocks_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    enforce_order_types(blocks, payload["actions"])
+    enforce_exit_types(blocks, payload["actions"])
+    enforce_external_custom_data(blocks, payload["actions"])
+
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetRationale"] = {
+        "dynamicLeftSide": "Signals/Indicators/Stop-Limit entry blocks remain methodology/generator owned.",
+        "fixedBlueSide": "Only EnterAtMarket and ExitAfterBars are allowed in Capa1 base; external custom data stays empty.",
+        "exitDays": "Day-based exits are removed from the CFX so they cannot be selected by the Builder.",
+    }
+    if apply and payload["changedActionCount"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_build_blocks_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase2_build_blocks_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_build_blocks_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(item.get("exists") and item.get("isZip") and not item.get("error") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase2",
+        "operation": "build_blocks_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "targetValues": {
+            "orderTypes": BUILD_ORDER_TYPE_TARGET,
+            "activeExitType": BUILD_EXIT_TYPE_ACTIVE_KEY,
+            "bannedExitTokens": list(BUILD_EXIT_TYPE_BANNED_TOKENS),
+            "customData": BUILD_EXTERNAL_CUSTOM_DATA_TARGET,
+        },
+        "nextPhase": "phase2_build_blocks_diff_review" if not apply else "phase2_continue_questionnaire",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase2_build_blocks_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
+def exit_day_snippet_candidates(root142: Path) -> list[Path]:
+    extend_root = root142 / "user" / "extend"
+    if not extend_root.is_dir():
+        return []
+    tokens = ("ExitAfterDays", "ExitAfterTradingDays")
+    suffixes = {".java", ".tpl"}
+    return sorted(
+        path
+        for path in extend_root.rglob("*")
+        if path.is_file()
+        and path.suffix in suffixes
+        and any(token in path.name for token in tokens)
+    )
+
+
+def archive_exit_day_snippets(root142: Path, project_root: Path, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    extend_root = (root142 / "user" / "extend").resolve()
+    archive_root = ledger_root(project_root) / "backups" / f"exit_day_snippets_{stamp()}"
+    candidates = exit_day_snippet_candidates(root142)
+    actions = []
+    for source in candidates:
+        resolved = source.resolve()
+        if not str(resolved).casefold().startswith(str(extend_root).casefold()):
+            actions.append({"source": str(source), "error": "outside_user_extend", "willMove": False})
+            continue
+        relative = resolved.relative_to(extend_root)
+        target = archive_root / relative
+        actions.append({
+            "source": str(resolved),
+            "target": str(target),
+            "willMove": apply,
+        })
+        if apply:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(resolved), str(target))
+    payload = {
+        "ok": all(not item.get("error") for item in actions),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase2",
+        "operation": "archive_exit_day_snippets",
+        "apply": apply,
+        "sqxRoot": str(root142),
+        "archiveRoot": str(archive_root) if apply else "",
+        "candidateCount": len(candidates),
+        "actions": actions,
+        "rationale": "Capa1 methodology allows ExitAfterBars only; user-level day-based exit snippets are archived reversibly.",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase2_exit_day_snippet_archive_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_databank_views_in_cfx(cfx: Path, target_views: dict[str, str], backup_root: Path, apply: bool) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "path": str(cfx),
@@ -1346,6 +1577,13 @@ def build_parser() -> argparse.ArgumentParser:
     promote_ranking.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     promote_ranking.add_argument("--apply", action="store_true")
 
+    promote_blocks = sub.add_parser("build-blocks-target")
+    promote_blocks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    promote_blocks.add_argument("--apply", action="store_true")
+
+    archive_exit_days = sub.add_parser("archive-exit-day-snippets")
+    archive_exit_days.add_argument("--apply", action="store_true")
+
     questionnaire = sub.add_parser("questionnaire")
     questionnaire.add_argument("--task-title", required=True)
     questionnaire.add_argument("--tab", required=True)
@@ -1394,6 +1632,12 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "build-ranking-target":
         json_print(promote_build_ranking_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "build-blocks-target":
+        json_print(promote_build_blocks_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "archive-exit-day-snippets":
+        json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
         return 0
     if args.command == "questionnaire":
         payload = build_questionnaire(

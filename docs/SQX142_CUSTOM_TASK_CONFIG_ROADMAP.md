@@ -49,6 +49,10 @@ tools\sqx142_task_config_gate.ps1 build-genetic-target --target both
 tools\sqx142_task_config_gate.ps1 build-genetic-target --target both --apply
 tools\sqx142_task_config_gate.ps1 build-ranking-target --target both
 tools\sqx142_task_config_gate.ps1 build-ranking-target --target both --apply
+tools\sqx142_task_config_gate.ps1 build-blocks-target --target both
+tools\sqx142_task_config_gate.ps1 build-blocks-target --target both --apply
+tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
+tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write --full-output
@@ -167,6 +171,14 @@ Promocion aplicada de `Build > Genetic options`:
   `RulesComplexity`, `SL/PT options` y simetrias de entrada/salida mantienen la
   base. El `MarketSides=long` de la plantilla se trata como placeholder y queda
   cubierto por el Project Generator.
+- Bloque azul `Building blocks` cerrado segun captura: `OrderTypes` mantiene
+  solo `EnterAtMarket`; `ExitTypes` mantiene solo `ExitAfterBars` activo; no se
+  permiten bloques `ExitAfterDays` ni `ExitAfterTradingDays`; `CustomData`
+  queda `showAll=false` y vacio. Los snippets locales de salida por dias en
+  `user/extend` se archivan reversiblemente en `.local`.
+- Bloque blanco `Building blocks` sigue dinamico por metodologia/BlockSettings:
+  señales, indicadores y bloques Stop/Limit de entrada no se fuerzan en esta
+  subfase.
 
 Orden recomendado de preguntas: pestañas sin diferencias primero para cerrar
 bloques rápidos, después `Data`, `Resources`, `WhatToBuild`, `CrossChecks` y al
