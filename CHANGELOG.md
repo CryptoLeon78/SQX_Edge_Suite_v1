@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 RETEST 1 Closeout And TICK REAL Opened
+
+- Closes Phase 4 `RETEST 1` formally in the local task-config ledger, keeping the protected Dukascopy/OOS2 passive retest with all previously applied guards green.
+- Opens Phase 5 `TICK REAL` and maps it to `AutomaticRetest-Task2.xml`, generating the full local questionnaire with `13` tabs, `19,991` entries, `12,334` donor/base differences and `0` duplicate question IDs.
+- Documents the first critical Phase 5 decision before applying changes: current base databanks are `Input=RETEST 0` / `Output=retest 1`, while the updated donor/methodology flow points to `Input=retest 1` / `Output=TICK`.
+- Leaves `TICK REAL` base/template untouched until `Data` / `Databanks` / `Resources` are confirmed with the operator.
+
 ## 2026-05-23 - C1-CONFIG1 RETEST 1 Static/CrossChecks Gate
 
 - Adds `retest1-static-crosschecks-target` to close Phase 4 static tabs and CrossChecks with dry-run-first backup/diff/apply.

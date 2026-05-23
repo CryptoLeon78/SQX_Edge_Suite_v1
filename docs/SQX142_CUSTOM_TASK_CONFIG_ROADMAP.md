@@ -1,6 +1,6 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 4 `RETEST 1` abierta el 2026-05-23. Fase 0 dejo
+Estado: C1-CONFIG1 con Fase 5 `TICK REAL` abierta el 2026-05-23. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -461,8 +461,47 @@ Diferencias estructurales detectadas antes de decidir:
 - `RiskMoneyManagement` ya no queda abierto: se cerro en `FixedSize=true` /
   `FixedAmount=false` como `RETEST 0` y los retests Capa1.
 
-Siguiente bloque de decision: closeout formal de `RETEST 1` o salto a Fase 5
-`TICK REAL`, segun convenga cerrar primero el reporte final de Fase 4.
+Fase cerrada formalmente el 2026-05-23 con reporte local:
+`.local/sqx142_task_config/phase_reports/phase4_20260523_194139.json`.
+`RETEST 1` queda protegido como OOS2/Dukascopy pasivo y el siguiente paso
+exacto es Fase 5 `TICK REAL`.
+
+## Estado Fase 5 - TICK REAL
+
+Fase abierta el 2026-05-23. Objetivo: comprobar si las estrategias que ya
+superaron `RETEST 0` y `RETEST 1` sobreviven a la precision de data del retest
+de robustez, sin mezclarlo con generacion, portfolio ni crosschecks internos.
+
+Fuente actual inspeccionada:
+
+- Base local y template repo: `AutomaticRetest-Task2.xml`.
+- Cuestionario generado en ledger local: `13` pestañas, `19.991` entradas,
+  `12.334` diferencias base vs donor y `0` IDs duplicados.
+- Periodo gobernado por metodologia/generador: `ROBUSTNESS_C1`
+  (`2017.10.02` a `2023.12.31`).
+- `Data/Setup` actual: `testPrecision=2`, `session=No Session`, engine
+  `MetaTrader5 (hedged)`.
+- Recursos actuales: placeholder Darwinex (`AUDCAD_darwinex`, source `4`,
+  broker `4`) con `precision=TICK`; activo/timeframe/spread/swap siguen siendo
+  generator-owned.
+- `CrossChecks` padre esta desactivado, pero conserva settings internos de
+  metodos desactivados; se revisara como bloque propio antes del cierre de
+  fase para evitar restos ejecutables.
+
+Primer bloque critico detectado:
+
+- Base actual: `Databanks Input=RETEST 0` y `Output=retest 1`.
+- Donor Mining15 actualizado: `Input=retest 1` y `Output=TICK`.
+- Recomendacion inicial: tratar `TICK REAL` como retest pasivo posterior a
+  `RETEST 1`, por tanto `Input=retest 1` y `Output=TICK`, manteniendo
+  `DeleteFailedStrategies=false` para analisis natural de passed/failed.
+- No se aplica aun al base/template hasta confirmar el bloque
+  `Data/Databanks/Resources` con el operador.
+
+Siguiente bloque de decision: `TICK REAL > Data / Databanks / Resources`, con
+especial atencion a cadena de databanks, periodo `ROBUSTNESS_C1`,
+precision/source de datos, placeholders de activo/timeframe y ausencia de copia
+literal del donor `USDJPY/H4`.
 
 ## Disciplina Operativa
 
