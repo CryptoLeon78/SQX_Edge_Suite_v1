@@ -134,6 +134,31 @@ def test_capa1_base_v2_matches_active_methodology():
     assert forward_ranges[-1].get("dateTo") == "2026.04.08"
 
 
+def test_capa1_base_uses_phase1_review_views():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    config = roots["config.xml"]
+    views = {
+        databank.get("name"): databank.get("view")
+        for databank in config.findall(".//Databank")
+    }
+    assert views["Results"] == "MINING FAST REVIEW"
+    assert views["Initial population"] == "MINING FAST REVIEW"
+    assert views["Last generation"] == "MINING FAST REVIEW"
+    assert views["Strategies to improve"] == "MINING FAST REVIEW"
+    assert views["Strategies to optimize"] == "MINING FAST REVIEW"
+    assert views["RETEST 0"] == "RETEST QUICK REVIEW"
+    assert views["retest 1"] == "RETEST QUICK REVIEW"
+    assert views["Foward"] == "RETEST QUICK REVIEW"
+    assert views["TICK"] == "RETEST ROBUST REVIEW"
+    assert views["MC"] == "RETEST ROBUST REVIEW"
+    assert views["MC2"] == "RETEST ROBUST REVIEW"
+    assert views["Sequential"] == "RETEST ROBUST REVIEW"
+    assert views["SPP"] == "RETEST ROBUST REVIEW"
+    assert views["WFM"] == "RETEST ROBUST REVIEW"
+    assert views["Monkey Test"] == "MC MONKEY RETEST"
+    assert views["Syntetic"] == "MC SYNTHETIC RETEST"
+
+
 def test_generate_project_names_build_task_and_applies_capa1_time_window():
     mining = Mining(num=91, phase=1, asset="AUDCAD", tf="H4", bs="BS_Volatilidad", dir="both")
     with tempfile.TemporaryDirectory() as tmp:

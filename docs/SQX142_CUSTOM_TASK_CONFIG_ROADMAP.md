@@ -1,7 +1,9 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 iniciado el 2026-05-23. Fase 0 aplicada con preflight,
-snapshots y diff semantico en `.local/sqx142_task_config/`.
+Estado: C1-CONFIG1 en Fase 1 aplicada el 2026-05-23. Fase 0 dejo
+preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
+promociono las views ligeras/especializadas desde Mining15 a la base local y al
+template repo.
 
 Este documento gobierna la configuracion interactiva de parametros del custom
 base Capa 1. La fuente inicial es el custom mas actualizado:
@@ -41,6 +43,8 @@ tools\sqx142_task_config_gate.ps1 status
 tools\sqx142_task_config_gate.ps1 preflight
 tools\sqx142_task_config_gate.ps1 preflight --apply
 tools\sqx142_task_config_gate.ps1 phases
+tools\sqx142_task_config_gate.ps1 promote-views --target both
+tools\sqx142_task_config_gate.ps1 promote-views --target both --apply
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write --full-output
 tools\sqx142_task_config_gate.ps1 record-answer --task-title "MC 2" --tab "CrossChecks" --question-id "<id>" --answer "<answer>"
@@ -92,6 +96,29 @@ Preflight aplicado:
 - `Synthetic`/`Syntetic` se trata como alias historico para evitar falsos
   missing.
 
+## Estado Fase 1
+
+Promocion selectiva aplicada solo a `config.xml`:
+
+- Target local: `Capa1_Long_SQX142_Base/project.cfx`.
+- Target repo: `backend/sqx-edge-tool/templates/Capa1_Long.cfx`.
+- Backup local: `.local/sqx142_task_config/backups/phase1_views_20260523_104759/`.
+- Evidencia local: `.local/sqx142_task_config/diffs/phase1_view_promotion_20260523_104800.json`.
+- SHA template tras promocion: `C63AE53E952113462C0C39943E0E5A1FA616420D865F6D71C30F7E0E97851AD8`.
+
+Views promocionadas:
+
+- `Results`, `Initial population`, `Last generation`, `Strategies to improve`
+  y `Strategies to optimize` -> `MINING FAST REVIEW`.
+- `RETEST 0`, `retest 1` y `Foward` -> `RETEST QUICK REVIEW`.
+- `TICK`, `MC`, `MC2`, `Sequential`, `SPP` y `WFM` ->
+  `RETEST ROBUST REVIEW`.
+- `Monkey Test` -> `MC MONKEY RETEST`.
+- `Syntetic` -> `MC SYNTHETIC RETEST`.
+
+No se tocaron simbolos, timeframe, fechas, filtros, active flags, resultados ni
+databanks fisicos.
+
 ## Disciplina Operativa
 
 En cada fase:
@@ -111,5 +138,6 @@ En cada fase:
 - `tools\sqx142_task_config_gate.ps1 preflight --apply` queda `ok: true`.
 - El ledger local conserva `session_state.json`, snapshots y diff.
 - El roadmap y governance nombran C1-CONFIG1.
+- La Fase 1 no deja `viewAssignments` pendientes en el diff semantico.
 - Docs guard pasa.
 - Antes de promocionar cambios reales a la base, existe diff y rollback.

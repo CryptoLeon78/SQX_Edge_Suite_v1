@@ -8,6 +8,7 @@
 - Records Phase 0 preflight against `Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1`, `Capa1_Long_SQX142_Base` and `backend/sqx-edge-tool/templates/Capa1_Long.cfx` without touching SQX base files.
 - Keeps donor promotion selective and normalized: no direct symbol/timeframe/project-name/active-flag/result-state promotion, and `Synthetic`/`Syntetic` is normalized as a historical task alias.
 - Updates questionnaires to save every detected tab entry by default; console output is compact when writing, while `--full-output` can print the complete question set.
+- Applies Phase 1 view promotion to local `Capa1_Long_SQX142_Base` and repo `Capa1_Long.cfx`, changing only allowlisted databank view assignments and recording local backups/evidence.
 
 ## 2026-05-22 - SQX142-PERF1 Local Performance Gate
 

@@ -17,7 +17,7 @@ On 2026-05-17, CFX-METHOD1 promoted the operator-validated
 `Capa1_Long_SQX142_Base_v2.cfx` to the active repository Capa 1 template:
 
 - Active file: `backend/sqx-edge-tool/templates/Capa1_Long.cfx`
-- SHA-256: `D1BBD9298A311C173E3BB759D3F61C8F76FD94CE7F763717CA1E8335F846C53A`
+- SHA-256: `C63AE53E952113462C0C39943E0E5A1FA616420D865F6D71C30F7E0E97851AD8`
 - Capa 2 status: `Capa2_Base.cfx` remains on the previous SQX 142-compatible
   base until the operator provides the edited Capa 2 v2 template.
 
@@ -45,6 +45,12 @@ task title:
 Example:
 
 `Build BS_Volatilidad_v6 · Capa1 L+S H4`
+
+C1-CONFIG1 Phase 1 later promoted only Capa 1 databank view assignments from
+the validated Mining15 donor into this active template: light mining views,
+quick retest views, robust retest views and dedicated Monkey/Synthetic MC views.
+It did not promote donor symbol, timeframe, active flags, result state or local
+paths.
 
 CFX-TARGET1 adds a target SQX profile selector for the recipient host. The
 primary project resources can remain on the SQX Edge/Darwinex profile or be

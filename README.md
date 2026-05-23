@@ -128,11 +128,12 @@ Comandos operador:
 ```powershell
 tools\sqx142_task_config_gate.ps1 status
 tools\sqx142_task_config_gate.ps1 preflight --apply
+tools\sqx142_task_config_gate.ps1 promote-views --target both
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write
 tools\sqx142_task_config_gate.ps1 record-answer --task-title "MC 2" --tab "CrossChecks" --question-id "<id>" --answer "<answer>"
 ```
 
-Los cuestionarios guardan todas las entradas detectadas por defecto. Las respuestas completas viven en `.local/sqx142_task_config/`; los docs solo reciben resumen limpio al cerrar fase.
+Fase 1 ya promociona solo las views allowlisted de databanks hacia base local y template repo. Los cuestionarios guardan todas las entradas detectadas por defecto. Las respuestas completas viven en `.local/sqx142_task_config/`; los docs solo reciben resumen limpio al cerrar fase.
 
 ## SQX Edge Pro
 

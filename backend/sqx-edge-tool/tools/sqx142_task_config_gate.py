@@ -5,6 +5,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -165,6 +166,13 @@ def write_json(target: Path, payload: dict[str, Any]) -> Path:
     tmp.write_text(content, encoding="utf-8")
     tmp.replace(target)
     return target
+
+
+def safe_zip_text(zf: zipfile.ZipFile, name: str) -> str:
+    try:
+        return zf.read(name).decode("utf-8")
+    except (KeyError, OSError, UnicodeDecodeError, zipfile.BadZipFile):
+        return ""
 
 
 def read_json(path: Path, default: Any) -> Any:
@@ -339,6 +347,20 @@ def extract_cfx_snapshot(cfx: Path, label: str, include_hashes: bool = False) ->
                 "randomizeSpread": randomize_spread_ranges(root),
             })
     return payload
+
+
+def config_databank_views(cfx: Path) -> dict[str, str]:
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        return {}
+    with zipfile.ZipFile(cfx) as zf:
+        config = xml_root_from_zip(zf, "config.xml")
+        if config is None:
+            return {}
+        return {
+            item.get("name", ""): item.get("view", "")
+            for item in config.findall(".//Databank")
+            if item.get("name")
+        }
 
 
 def load_task_root(cfx: Path, task_title_wanted: str) -> tuple[str, ET.Element | None]:
@@ -521,6 +543,110 @@ def compact_questionnaire_payload(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def backup_file(source: Path, backup_root: Path) -> Path:
+    backup_root.mkdir(parents=True, exist_ok=True)
+    target = backup_root / source.name
+    counter = 2
+    while target.exists():
+        target = backup_root / f"{source.stem}.{counter}{source.suffix}"
+        counter += 1
+    shutil.copy2(source, target)
+    return target
+
+
+def replace_config_xml_in_cfx(cfx: Path, new_config_text: str) -> None:
+    tmp = cfx.with_suffix(cfx.suffix + f".{os.getpid()}.{time.time_ns()}.tmp")
+    with zipfile.ZipFile(cfx, "r") as source:
+        with zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED) as target:
+            for item in source.infolist():
+                data = new_config_text.encode("utf-8") if item.filename == "config.xml" else source.read(item.filename)
+                target.writestr(item, data)
+    tmp.replace(cfx)
+
+
+def update_databank_views_in_cfx(cfx: Path, target_views: dict[str, str], backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    with zipfile.ZipFile(cfx, "r") as zf:
+        config_text = safe_zip_text(zf, "config.xml")
+    if not config_text:
+        payload["error"] = "config_unreadable"
+        return payload
+    updated = config_text
+    current_views = config_databank_views(cfx)
+    for databank, wanted_view in sorted(target_views.items()):
+        current = current_views.get(databank, "")
+        if current == wanted_view:
+            continue
+        pattern = rf'(<Databank\b(?=[^>]*\bname="{re.escape(databank)}")[^>]*\bview=")[^"]*(")'
+        updated_candidate, count = re.subn(pattern, rf"\1{wanted_view}\2", updated, count=1)
+        payload["actions"].append({
+            "databank": databank,
+            "from": current,
+            "to": wanted_view,
+            "matched": count == 1,
+            "willWrite": bool(apply and count == 1),
+        })
+        updated = updated_candidate
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("matched"))
+    if apply and payload["changedActionCount"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_config_xml_in_cfx(cfx, updated)
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_view_assignments(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    donor_cfx = cfx_for_project(root142, DEFAULT_DONOR_PROJECT)
+    donor_views = config_databank_views(donor_cfx)
+    target_views = {
+        databank: expected
+        for databank, expected in VIEW_PROMOTION_TARGETS.items()
+        if donor_views.get(databank) == expected
+    }
+    backup_root = ledger_root(project_root) / "backups" / f"phase1_views_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_databank_views_in_cfx(path, target_views, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(item.get("exists") and item.get("isZip") and not item.get("error") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase1",
+        "apply": apply,
+        "target": target,
+        "donorProject": DEFAULT_DONOR_PROJECT,
+        "targetViews": target_views,
+        "results": results,
+        "promotionRule": "Only allowlisted view assignments that already match the donor are promoted.",
+        "nextPhase": "phase2",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase1_view_promotion_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def task_by_title(snapshot: dict[str, Any], title: str) -> dict[str, Any]:
     wanted = title.casefold()
     canonical_wanted = canonical_task_key(title)
@@ -600,7 +726,7 @@ def semantic_diff(donor: dict[str, Any], base: dict[str, Any], template: dict[st
         "templateSha256": template.get("sha256", ""),
         "baseSha256": base.get("sha256", ""),
         "donorSha256": donor.get("sha256", ""),
-        "nextPhase": "phase1",
+        "nextPhase": "phase1" if view_candidates else "phase2",
     }
 
 
@@ -781,6 +907,10 @@ def build_parser() -> argparse.ArgumentParser:
     pre.add_argument("--apply", action="store_true")
     sub.add_parser("phases")
 
+    promote_views = sub.add_parser("promote-views")
+    promote_views.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    promote_views.add_argument("--apply", action="store_true")
+
     questionnaire = sub.add_parser("questionnaire")
     questionnaire.add_argument("--task-title", required=True)
     questionnaire.add_argument("--tab", required=True)
@@ -815,6 +945,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "phases":
         json_print(list_phases())
+        return 0
+    if args.command == "promote-views":
+        json_print(promote_view_assignments(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "questionnaire":
         payload = build_questionnaire(
