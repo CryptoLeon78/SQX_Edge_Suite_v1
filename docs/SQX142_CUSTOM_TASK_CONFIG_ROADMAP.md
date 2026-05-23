@@ -1,10 +1,10 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 en Fase 2 cerrada el 2026-05-23. Fase 0 dejo preflight,
-snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1 promociono
-las views ligeras/especializadas desde Mining15 a la base local y al template
-repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro Build.
-Antes de `RETEST 0`, G8-SQX-AGENT-SKILLS1 alinea skills, guardianes,
+Estado: C1-CONFIG1 en Fase 3 `RETEST 0` abierta el 2026-05-23. Fase 0 dejo
+preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
+promociono las views ligeras/especializadas desde Mining15 a la base local y al
+template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
+Build. Antes de `RETEST 0`, G8-SQX-AGENT-SKILLS1 alinea skills, guardianes,
 perfiles del agente y handoffs locales para proteger el resto del cuestionario.
 La mini fase `SQX142-BRANDING1` queda cerrada antes de `RETEST 0`: cambia solo
 la capa visual local de SQX a `Build: 142.2336 Codex`, oculta en About las
@@ -264,6 +264,46 @@ Aplicado como mini fase local antes de `RETEST 0`:
 - Cierre final limpio: sin procesos `StrategyQuantX*` vivos.
 
 Siguiente fase tras cerrar SQX142-BRANDING1: Fase 3 `RETEST 0`.
+
+## Estado Fase 3 - RETEST 0
+
+Fase abierta el 2026-05-23. Objetivo: configurar `RETEST 0` como primer OOS
+real de Capa1, con data no explorada y sin convertirlo en un tramite blando. Es
+normal que muchas estrategias caigan aqui; el criterio de exito es coherencia,
+trazabilidad, OOS1 limpio y passed/failed natural, no mejorar artificialmente el
+ratio de aprobadas.
+
+Fuente actual inspeccionada:
+
+- Base local y template repo: `Retest-Task3.xml`.
+- Input databank: `Results`.
+- Output databank: `RETEST 0`.
+- View asignada: `RETEST QUICK REVIEW`.
+- Periodo base actual: `2017.10.02` a `2025.01.01`.
+- OOS1 actual: `2023.01.01` a `2025.01.01`.
+- Precision de test: `testPrecision=2`, simulated.
+
+Reglas de decision:
+
+- No copiar fechas vivas del donor Mining15 ni su `USDJPY/H4`.
+- Mantener el rol de `RETEST 0` como OOS1 real posterior al Build Capa1
+  (`BUILD_C1` termina en `2023.01.01`).
+- Las caidas masivas no autorizan suavizar filtros sin evidencia explicita y
+  nueva decision metodologica.
+- Project Generator mantiene propiedad sobre simbolo, timeframe, spread,
+  swap, recursos y lado de mercado cuando dependan de activo/timeframe.
+- Antes de aplicar a base/template: respuestas registradas, backup, diff
+  dry-run y confirmacion de fase cerrada.
+
+Mapa inicial del cuestionario:
+
+- `14` pestañas detectadas.
+- `18.176` entradas auditadas.
+- `8.344` diferencias base vs donor.
+- La mayoria de diferencias vive en `Blocks`; se tratan como ruido de donor
+  salvo que una pregunta concreta demuestre valor metodologico.
+- Primer bloque operativo: `Data/OOS`, porque define si el retest conserva la
+  frontera real entre Build IS y primer OOS.
 
 ## Disciplina Operativa
 
