@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 MC Data/Databanks/Resources/Options
+
+- Adds `mc-data-databanks-resources-options-target` to close the first Phase 6 `MC` block with dry-run-first backup/diff/apply and guards for no nested OOS, no donor USDJPY/H4 leak and generator-owned resources.
+- Keeps MC as a fast/simulated Monte Carlo perturbation gate after TICK: `Input=TICK`, `Output=MC`, `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, `precision=TICK`, `timezone=EETUS`, empty sessions and resource `dateTo=2023.12.31`.
+- Keeps MC Options generic and computationally light: `StoreChartData=false`, `RealisticGapsHandling=false`, `LimitTimeRange=false`, without copying the donor H4 trading window.
+- Records local ledger answers for `MC > Data` (`7/7`), `MC > Databanks` (`2/2`), `MC > Resources` (`1,899/1,899`) and `MC > Options` (`34/34`), with post-apply dry-run idempotent and `guardOk=true`.
+
 ## 2026-05-23 - C1-CONFIG1 TICK REAL Closeout And MC Opened
 
 - Closes Phase 5 `TICK REAL` formally with local report `phase5_tick_real_closeout_20260523_211917.json`; all four TICK guards are idempotent with `changed=false`, `changedActionCount=0` and `guardOk=true`.

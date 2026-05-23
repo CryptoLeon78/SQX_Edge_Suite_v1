@@ -337,6 +337,27 @@ TICK_REAL_PASSIVE_BUILDMODE_TEXT_TARGET = RETEST1_PASSIVE_BUILDMODE_TEXT_TARGET
 TICK_REAL_PASSIVE_BUILDMODE_ATTR_TARGET = RETEST1_PASSIVE_BUILDMODE_ATTR_TARGET
 TICK_REAL_STATIC_TABS = ("ATMs", "RiskMoneyManagement", "Notes", "CustomData")
 
+MC_TASK_TITLE = "MC"
+MC_PERIOD_KEY = "ROBUSTNESS_C1"
+MC_DATA_TEST_PRECISION = "2"
+MC_DATA_SESSION = "No Session"
+MC_DATABANKS_TARGET = {
+    "Input": "TICK",
+    "Output": "MC",
+}
+MC_RESOURCE_PRECISION = "TICK"
+MC_RESOURCE_TIMEZONE = "EETUS"
+MC_DEFAULT_SOURCE_ID = TICK_REAL_DEFAULT_SOURCE_ID
+MC_DEFAULT_BROKER_ID = TICK_REAL_DEFAULT_BROKER_ID
+MC_BANNED_DONOR_TOKENS = TICK_REAL_BANNED_DONOR_TOKENS
+MC_OPTIONS_PARAMS_TARGET = {
+    "Session": "No Session",
+    "MarketOpenSession": "No Session",
+    "LimitTimeRange": "false",
+    "RealisticGapsHandling": "false",
+    "StoreChartData": "false",
+}
+
 
 def stamp() -> str:
     return datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -4085,6 +4106,407 @@ def promote_tick_real_static_crosschecks_target(root142: Path, project_root: Pat
     return payload
 
 
+def mc_data_databanks_resources_options_summary(root: ET.Element) -> dict[str, Any]:
+    summary = tick_real_data_databanks_resources_summary(root)
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in MC_OPTIONS_PARAMS_TARGET
+    }
+    summary["optionsParams"] = params
+    return summary
+
+
+def apply_mc_data_databanks_resources_options_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    period = generator_period(MC_PERIOD_KEY)
+    data = find_section(root, "Data")
+    setup = root.find(".//Data/Setups/Setup")
+    if data is None or setup is None:
+        actions.append({"field": "Data", "error": "missing_data_or_setup", "changed": False})
+        return actions
+
+    for key, wanted in {
+        "dateFrom": period[0],
+        "dateTo": period[1],
+        "testPrecision": MC_DATA_TEST_PRECISION,
+        "session": MC_DATA_SESSION,
+    }.items():
+        before = setup.get(key, "")
+        setup.set(key, wanted)
+        actions.append({"field": f"Data/Setup:{key}", "from": before, "to": wanted, "changed": before != wanted})
+
+    out_of_sample = data.find("OutOfSample")
+    if out_of_sample is None:
+        out_of_sample = ET.SubElement(data, "OutOfSample", {"showGraph": "false"})
+        before_oos_attrs: dict[str, str] | None = None
+    else:
+        before_oos_attrs = dict(out_of_sample.attrib)
+        out_of_sample.set("showGraph", "false")
+    removed_ranges = [dict(node.attrib) for node in out_of_sample.findall("Range")]
+    for node in list(out_of_sample.findall("Range")):
+        out_of_sample.remove(node)
+    actions.append({
+        "field": "Data/OutOfSample",
+        "from": {"attrs": before_oos_attrs, "ranges": removed_ranges},
+        "to": {"attrs": dict(out_of_sample.attrib), "ranges": []},
+        "changed": before_oos_attrs != dict(out_of_sample.attrib) or bool(removed_ranges),
+    })
+
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing_by_name = {
+        node.get("name", ""): node
+        for node in databanks.findall("Databank")
+        if node.get("name")
+    }
+    for name, wanted in MC_DATABANKS_TARGET.items():
+        node = existing_by_name.get(name)
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+            before = None
+        else:
+            before = dict(node.attrib)
+        node.set("name", name)
+        node.set("value", wanted)
+        node.set("label", f"{name} databank")
+        actions.append({
+            "field": f"Databanks/{name}",
+            "from": before,
+            "to": dict(node.attrib),
+            "changed": before != dict(node.attrib),
+        })
+
+    resources = find_section(root, "Resources")
+    if resources is None:
+        resources = ET.SubElement(root, "Resources")
+        before_resources: dict[str, Any] = {"resourcesFound": False}
+    else:
+        before_resources = _tick_real_resource_summary(root)
+
+    charts = setup.findall("Chart")
+    if not charts:
+        chart = ET.SubElement(setup, "Chart", {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2"})
+        charts = [chart]
+        actions.append({"field": "Data/Setup/Chart", "from": None, "to": dict(chart.attrib), "changed": True})
+    chart_by_symbol = {
+        chart.get("symbol", ""): chart
+        for chart in charts
+        if chart.get("symbol")
+    }
+    symbols_node = ensure_resources_container(resources, "Symbols")
+    brokers_node = ensure_resources_container(resources, "Brokers")
+    instruments_node = ensure_resources_container(resources, "Instruments")
+    sessions_node = ensure_resources_container(resources, "Sessions")
+    ensure_resources_container(resources, "CustomIndicators")
+    ensure_resources_container(resources, "CustomBlocks")
+
+    template_symbol_attrs, template_info_attrs = _first_existing_symbol_template(resources)
+    existing_symbols = {
+        symbol.get("name", ""): symbol
+        for symbol in symbols_node.findall("Symbol")
+        if symbol.get("name")
+    }
+    before_symbols = [value_for_node(symbol) for symbol in symbols_node.findall("Symbol")]
+    for symbol in list(symbols_node.findall("Symbol")):
+        symbols_node.remove(symbol)
+
+    referenced_brokers: set[str] = set()
+    date_from_default = str(epoch_ms_for_date(period[0]))
+    date_to_default = str(epoch_ms_for_date(period[1]))
+    for symbol_name, chart in chart_by_symbol.items():
+        existing_symbol = existing_symbols.get(symbol_name)
+        symbol_attrs = dict(existing_symbol.attrib) if existing_symbol is not None else dict(template_symbol_attrs)
+        existing_info = existing_symbol.find("InstrumentInfo") if existing_symbol is not None else None
+        info_attrs = dict(existing_info.attrib) if existing_info is not None else dict(template_info_attrs)
+        broker_id = symbol_attrs.get("broker") or info_attrs.get("broker") or MC_DEFAULT_BROKER_ID
+        source_id = symbol_attrs.get("source") or MC_DEFAULT_SOURCE_ID
+        bounded_from, bounded_to = bounded_period_ms(
+            period,
+            symbol_attrs.get("dateFrom") or date_from_default,
+            symbol_attrs.get("dateTo") or date_to_default,
+        )
+        asset = _asset_from_tick_real_symbol(symbol_name)
+        referenced_brokers.add(broker_id)
+        symbol_node = ET.SubElement(symbols_node, "Symbol", {
+            "name": symbol_name,
+            "source": source_id,
+            "barType": symbol_attrs.get("barType", "1"),
+            "precision": MC_RESOURCE_PRECISION,
+            "timezone": MC_RESOURCE_TIMEZONE,
+            "dateFrom": bounded_from,
+            "dateTo": bounded_to,
+            "uSymbol": symbol_attrs.get("uSymbol") or asset,
+            "uSymbolName": symbol_attrs.get("uSymbolName") or asset,
+            "removeWeekends": symbol_attrs.get("removeWeekends", "false"),
+            "broker": broker_id,
+        })
+        info_attrs.update({
+            "instrument": info_attrs.get("instrument") or symbol_name,
+            "defaultSpread": chart.get("spread", info_attrs.get("defaultSpread", "")),
+            "dateFrom": "0",
+            "dateTo": "0",
+            "rows": "0",
+            "totalDays": "0",
+            "dataType": info_attrs.get("dataType", BUILD_RESOURCES_BASE_DATA_TYPE),
+            "broker": broker_id,
+        })
+        ET.SubElement(symbol_node, "InstrumentInfo", info_attrs)
+
+    after_symbols = [value_for_node(symbol) for symbol in symbols_node.findall("Symbol")]
+    actions.append({
+        "field": "Resources/Symbols",
+        "from": before_symbols,
+        "to": after_symbols,
+        "changed": before_symbols != after_symbols,
+    })
+
+    before_brokers = [value_for_node(broker) for broker in brokers_node.findall("Broker")]
+    existing_brokers = {
+        broker.get("id", ""): broker
+        for broker in brokers_node.findall("Broker")
+        if broker.get("id")
+    }
+    for broker in list(brokers_node.findall("Broker")):
+        if broker.get("id") not in referenced_brokers:
+            brokers_node.remove(broker)
+    for broker_id in sorted(referenced_brokers):
+        if broker_id in existing_brokers and existing_brokers[broker_id] in list(brokers_node):
+            continue
+        ET.SubElement(brokers_node, "Broker", {
+            "id": broker_id,
+            "name": "[[Darwinex]]" if broker_id == MC_DEFAULT_BROKER_ID else f"Broker {broker_id}",
+            "description": "Darwinex CFDs" if broker_id == MC_DEFAULT_BROKER_ID else "",
+            "timezone": MC_RESOURCE_TIMEZONE,
+            "postfix": "_darwinex" if broker_id == MC_DEFAULT_BROKER_ID else "",
+            "mtUse": "true",
+            "spUse": "false",
+        })
+    after_brokers = [value_for_node(broker) for broker in brokers_node.findall("Broker")]
+    actions.append({
+        "field": "Resources/Brokers",
+        "from": before_brokers,
+        "to": after_brokers,
+        "changed": before_brokers != after_brokers,
+    })
+
+    before_instruments = [value_for_node(node) for node in instruments_node.findall("InstrumentInfo")]
+    for node in list(instruments_node.findall("InstrumentInfo")):
+        instruments_node.remove(node)
+    for symbol in symbols_node.findall("Symbol"):
+        info = symbol.find("InstrumentInfo")
+        ET.SubElement(instruments_node, "InstrumentInfo", dict(info.attrib) if info is not None else {})
+    after_instruments = [value_for_node(node) for node in instruments_node.findall("InstrumentInfo")]
+    actions.append({
+        "field": "Resources/Instruments",
+        "from": before_instruments,
+        "to": after_instruments,
+        "changed": before_instruments != after_instruments,
+    })
+
+    removed_sessions = [value_for_node(node) for node in sessions_node.findall("Session")]
+    for node in list(sessions_node.findall("Session")):
+        sessions_node.remove(node)
+    actions.append({
+        "field": "Resources/Sessions",
+        "from": removed_sessions,
+        "to": [],
+        "changed": bool(removed_sessions),
+    })
+    actions.append({
+        "field": "Resources",
+        "from": before_resources,
+        "to": _tick_real_resource_summary(root),
+        "changed": before_resources != _tick_real_resource_summary(root),
+        "note": "CustomIndicators and CustomBlocks are preserved; Project Generator owns final resource rebuild per asset/timeframe.",
+    })
+
+    for key, value in MC_OPTIONS_PARAMS_TARGET.items():
+        set_param_text(root, key, value, actions, "Options")
+    return actions
+
+
+def enforce_mc_data_databanks_resources_options_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    period = generator_period(MC_PERIOD_KEY)
+    setup = root.find(".//Data/Setups/Setup")
+    if setup is None:
+        return ["MC Data/Setup missing"]
+    if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+        issues.append("MC dates are not ROBUSTNESS_C1")
+    if setup.get("testPrecision") != MC_DATA_TEST_PRECISION:
+        issues.append("MC testPrecision must stay 2 for fast/simulated Monte Carlo")
+    if setup.get("session") != MC_DATA_SESSION:
+        issues.append("MC session must stay No Session")
+    if root.findall(".//Data/OutOfSample/Range"):
+        issues.append("MC must not carry nested OutOfSample ranges")
+
+    databanks = {
+        node.get("name", ""): node.get("value", "")
+        for node in root.findall(".//Databanks/Databank")
+        if node.get("name")
+    }
+    for name, wanted in MC_DATABANKS_TARGET.items():
+        if databanks.get(name) != wanted:
+            issues.append(f"MC Databank {name} is {databanks.get(name)!r}, expected {wanted!r}")
+
+    resources = find_section(root, "Resources")
+    if resources is None:
+        issues.append("MC Resources missing")
+        return issues
+    chart_symbols = {
+        chart.get("symbol", "")
+        for chart in setup.findall("Chart")
+        if chart.get("symbol")
+    }
+    resource_symbols = {
+        symbol.get("name", "")
+        for symbol in resources.findall("./Symbols/Symbol")
+        if symbol.get("name")
+    }
+    if chart_symbols != resource_symbols:
+        issues.append(f"MC chart/resource mismatch: charts={sorted(chart_symbols)} resources={sorted(resource_symbols)}")
+    broker_ids = {
+        broker.get("id", "")
+        for broker in resources.findall("./Brokers/Broker")
+        if broker.get("id")
+    }
+    for symbol in resources.findall("./Symbols/Symbol"):
+        if symbol.get("precision") != MC_RESOURCE_PRECISION:
+            issues.append(f"MC resource {symbol.get('name')} precision is not TICK")
+        if symbol.get("timezone") != MC_RESOURCE_TIMEZONE:
+            issues.append(f"MC resource {symbol.get('name')} timezone is not EETUS")
+        if symbol.get("broker") not in broker_ids:
+            issues.append(f"MC resource {symbol.get('name')} references missing broker {symbol.get('broker')}")
+        info = symbol.find("InstrumentInfo")
+        if info is None:
+            issues.append(f"MC resource {symbol.get('name')} has no nested InstrumentInfo")
+        elif info.get("broker") not in broker_ids:
+            issues.append(f"MC nested InstrumentInfo for {symbol.get('name')} references missing broker {info.get('broker')}")
+    if resources.findall("./Sessions/Session"):
+        issues.append("MC resources must not keep session entries")
+
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in MC_OPTIONS_PARAMS_TARGET
+    }
+    for key, wanted in MC_OPTIONS_PARAMS_TARGET.items():
+        if params.get(key) != wanted:
+            issues.append(f"MC Options param {key} is {params.get(key)!r}, expected {wanted!r}")
+
+    data_node = find_section(root, "Data")
+    databanks_node = find_section(root, "Databanks")
+    options_node = find_section(root, "Options")
+    guarded_text = (
+        serialize_xml(data_node if data_node is not None else root)
+        + serialize_xml(databanks_node if databanks_node is not None else root)
+        + serialize_xml(resources)
+        + serialize_xml(options_node if options_node is not None else root)
+    )
+    for token in MC_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into MC Data/Databanks/Resources/Options: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into MC Data/Databanks/Resources/Options")
+    return issues
+
+
+def update_mc_data_databanks_resources_options_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, MC_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "mc_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = mc_data_databanks_resources_options_summary(root)
+    payload["actions"] = apply_mc_data_databanks_resources_options_to_root(root)
+    payload["after"] = mc_data_databanks_resources_options_summary(root)
+    payload["issues"] = enforce_mc_data_databanks_resources_options_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "taskTitle": MC_TASK_TITLE,
+        "periodKey": MC_PERIOD_KEY,
+        "dateFrom": generator_period(MC_PERIOD_KEY)[0],
+        "dateTo": generator_period(MC_PERIOD_KEY)[1],
+        "testPrecision": MC_DATA_TEST_PRECISION,
+        "databanks": MC_DATABANKS_TARGET,
+        "resourcePrecision": MC_RESOURCE_PRECISION,
+        "resourceTimezone": MC_RESOURCE_TIMEZONE,
+        "options": MC_OPTIONS_PARAMS_TARGET,
+    }
+    payload["targetRationale"] = {
+        "methodology": "MC is a fast/simulated Monte Carlo robustness perturbation gate after TICK, not an optimizer or another OOS-selection stage.",
+        "noInternalOos": "RETEST 0/1 own OOS validation; MC must not add a nested OOS split by default.",
+        "naturalResults": "This block preserves natural passed/failed rows and does not force Results=passed.",
+        "generatorOwned": "Symbol, timeframe, spread, swap and final resources remain owned by Project Generator for each selected asset/timeframe.",
+        "noDonorCopy": "Mining15 donor USDJPY/H4 values and H4 trading window are not copied into the generic Capa1 base.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_mc_data_databanks_resources_options_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase6_mc_data_databanks_resources_options_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_mc_data_databanks_resources_options_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase6",
+        "operation": "mc_data_databanks_resources_options_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase6_mc_data_databanks_resources_options_diff_review" if not apply else "phase6_mc_crosschecks_decision",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase6_mc_data_databanks_resources_options_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -5302,6 +5724,10 @@ def build_parser() -> argparse.ArgumentParser:
     tick_real_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     tick_real_static.add_argument("--apply", action="store_true")
 
+    mc_data = sub.add_parser("mc-data-databanks-resources-options-target")
+    mc_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    mc_data.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -5409,6 +5835,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "tick-real-static-crosschecks-target":
         json_print(promote_tick_real_static_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "mc-data-databanks-resources-options-target":
+        json_print(promote_mc_data_databanks_resources_options_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

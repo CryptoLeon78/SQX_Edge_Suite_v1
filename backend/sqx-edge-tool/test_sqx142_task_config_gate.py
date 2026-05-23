@@ -2,6 +2,7 @@ import json
 import xml.etree.ElementTree as ET
 
 from tools.sqx142_task_config_gate import (
+    apply_mc_data_databanks_resources_options_to_root,
     apply_retest1_passive_generation_to_root,
     apply_retest1_data_resources_to_root,
     apply_retest1_options_databanks_rankings_to_root,
@@ -14,6 +15,7 @@ from tools.sqx142_task_config_gate import (
     enforce_retest1_options_databanks_rankings_guard,
     enforce_retest1_passive_generation_guard,
     enforce_retest1_static_crosschecks_guard,
+    enforce_mc_data_databanks_resources_options_guard,
     enforce_tick_real_data_databanks_resources_guard,
     enforce_tick_real_options_rankings_guard,
     enforce_tick_real_passive_generation_guard,
@@ -786,4 +788,127 @@ def test_tick_real_static_crosschecks_guard_rejects_stale_crosscheck_and_customd
     assert any("ATMs enable" in issue for issue in issues)
     assert any("ForceRunCrossChecks" in issue for issue in issues)
     assert any("CustomData dates" in issue for issue in issues)
+    assert any("Forbidden donor token" in issue for issue in issues)
+
+
+def test_mc_data_databanks_resources_options_target_is_fast_generic_and_post_tick():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Data>
+            <Setups>
+              <Setup dateFrom="2010.01.01" dateTo="2026.04.08" testPrecision="4" session="Old Session" slippage="0" minDist="0" engine="MetaTrader4">
+                <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2" />
+              </Setup>
+            </Setups>
+            <OutOfSample showGraph="true"><Range dateFrom="2023.01.01" dateTo="2024.01.01" /></OutOfSample>
+          </Data>
+          <Databanks retestSelected="false">
+            <Databank label="Input databank" name="Input" value="retest 1" />
+            <Databank label="Output databank" name="Output" value="TICK" />
+          </Databanks>
+          <Resources>
+            <Symbols>
+              <Symbol name="AUDCAD_darwinex" source="4" precision="M1" timezone="UTC" dateFrom="1262304000000" dateTo="1775606400000" uSymbol="AUDCAD" uSymbolName="AUDCAD" broker="4">
+                <InstrumentInfo instrument="AUDCAD_darwinex" defaultSpread="1.7" broker="4" />
+              </Symbol>
+            </Symbols>
+            <Brokers><Broker id="4" name="[[Darwinex]]" timezone="UTC" /></Brokers>
+            <Instruments />
+            <Sessions><Session name="Old Session" /></Sessions>
+            <CustomIndicators />
+            <CustomBlocks />
+          </Resources>
+          <Options>
+            <BuildTradingOptions><Params>
+              <Param key="Session">Old Session</Param>
+              <Param key="MarketOpenSession">Old Session</Param>
+              <Param key="LimitTimeRange">true</Param>
+              <Param key="RealisticGapsHandling">true</Param>
+              <Param key="StoreChartData">true</Param>
+            </Params></BuildTradingOptions>
+          </Options>
+        </Task>
+        """
+    )
+
+    actions = apply_mc_data_databanks_resources_options_to_root(root)
+
+    assert any(item["field"] == "Data/OutOfSample" and item["changed"] for item in actions)
+    assert any(item["field"] == "Databanks/Input" and item["changed"] for item in actions)
+    assert enforce_mc_data_databanks_resources_options_guard(root) == []
+    setup = root.find(".//Data/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "2"
+    assert setup.get("session") == "No Session"
+    assert root.findall(".//Data/OutOfSample/Range") == []
+    assert {node.get("name"): node.get("value") for node in root.findall(".//Databanks/Databank")} == {
+        "Input": "TICK",
+        "Output": "MC",
+    }
+    symbol = root.find(".//Resources/Symbols/Symbol")
+    assert symbol.get("name") == "AUDCAD_darwinex"
+    assert symbol.get("precision") == "TICK"
+    assert symbol.get("timezone") == "EETUS"
+    assert symbol.get("dateTo") == "1703980800000"
+    assert root.findall(".//Resources/Sessions/Session") == []
+    params = {
+        param.get("key"): param.text
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+    }
+    assert params["Session"] == "No Session"
+    assert params["MarketOpenSession"] == "No Session"
+    assert params["LimitTimeRange"] == "false"
+    assert params["RealisticGapsHandling"] == "false"
+    assert params["StoreChartData"] == "false"
+
+
+def test_mc_data_databanks_resources_options_guard_rejects_donor_oos_and_wrong_options():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Data>
+            <Setups>
+              <Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="4" session="Old Session">
+                <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="2" />
+              </Setup>
+            </Setups>
+            <OutOfSample showGraph="true"><Range dateFrom="2020.01.01" dateTo="2021.01.01" /></OutOfSample>
+          </Data>
+          <Databanks>
+            <Databank name="Input" value="RETEST 0" />
+            <Databank name="Output" value="TICK" />
+          </Databanks>
+          <Resources>
+            <Symbols>
+              <Symbol name="USDJPY_darwinex" source="4" precision="M1" timezone="UTC" broker="9">
+                <InstrumentInfo instrument="USDJPY_darwinex" broker="9" />
+              </Symbol>
+            </Symbols>
+            <Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers>
+            <Sessions><Session name="Old Session" /></Sessions>
+          </Resources>
+          <Options>
+            <BuildTradingOptions><Params>
+              <Param key="Session">Old Session</Param>
+              <Param key="MarketOpenSession">Old Session</Param>
+              <Param key="LimitTimeRange">true</Param>
+              <Param key="RealisticGapsHandling">true</Param>
+              <Param key="StoreChartData">true</Param>
+            </Params></BuildTradingOptions>
+          </Options>
+        </Task>
+        """
+    )
+
+    issues = enforce_mc_data_databanks_resources_options_guard(root)
+
+    assert any("testPrecision" in issue for issue in issues)
+    assert any("nested OutOfSample" in issue for issue in issues)
+    assert any("Databank Input" in issue for issue in issues)
+    assert any("precision is not TICK" in issue for issue in issues)
+    assert any("references missing broker" in issue for issue in issues)
+    assert any("session entries" in issue for issue in issues)
+    assert any("Options param LimitTimeRange" in issue for issue in issues)
     assert any("Forbidden donor token" in issue for issue in issues)

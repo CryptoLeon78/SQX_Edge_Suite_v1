@@ -90,6 +90,8 @@ tools\sqx142_task_config_gate.ps1 phase-report --phase phase5_tick_real_closeout
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "MC" --write
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC" --tab "Data" --write
 tools\sqx142_task_config_gate.ps1 record-answer --task-title "MC" --tab "Data" --question-id "<id>" --answer "<answer>"
+tools\sqx142_task_config_gate.ps1 mc-data-databanks-resources-options-target --target both
+tools\sqx142_task_config_gate.ps1 mc-data-databanks-resources-options-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -670,8 +672,35 @@ Consulta academica registrada:
 - Carr y Lopez de Prado, "Determining Optimal Trading Rules without
   Backtesting": `https://doi.org/10.48550/arXiv.1408.1159`.
 
-Siguiente bloque exacto: `MC > Data / Databanks / Resources / Options`, con
-consulta `sqx-academic-lopez` disponible si hay dudas de OOS/contaminacion.
+Decision aplicada para `MC > Data / Databanks / Resources / Options`:
+
+- Se anade `mc-data-databanks-resources-options-target` con dry-run-first,
+  backup/diff/apply y guard contra contaminacion OOS/donor.
+- `MC` queda como retest de perturbacion posterior a `TICK`:
+  `Input=TICK` y `Output=MC`.
+- Periodo: `ROBUSTNESS_C1` (`2017.10.02` a `2023.12.31`).
+- `Data/Setup`: `testPrecision=2` fast/simulated, `session=No Session`, sin
+  rangos OOS internos.
+- `Resources`: placeholder Darwinex generico `AUDCAD_darwinex`, source `4`,
+  broker `4`, `precision=TICK`, timezone `EETUS`, fechas acotadas a
+  `2023.12.31`, sesiones vacias y `CustomBlocks` preservados.
+- `Options`: se mantiene la base generica para MC rapido:
+  `Session=No Session`, `MarketOpenSession=No Session`,
+  `StoreChartData=false`, `RealisticGapsHandling=false` y
+  `LimitTimeRange=false`.
+- No se copia el donor `USDJPY/H4` ni la ventana H4 `04:00-20:00`; activo,
+  timeframe, spread, swap y recursos finales siguen siendo propiedad de
+  Project Generator.
+- El dry-run posterior queda idempotente: `changed=false`,
+  `changedActionCount=0` y `guardOk=true`.
+- Ledger local respondido para `MC > Data` (`7/7`), `MC > Databanks` (`2/2`),
+  `MC > Resources` (`1.899/1.899`) y `MC > Options` (`34/34`).
+
+Reporte local:
+`.local/sqx142_task_config/phase_reports/phase6_mc_data_databanks_resources_options_20260523_214211.json`.
+
+Siguiente bloque exacto: `MC > CrossChecks`, donde se revisa el metodo Monte
+Carlo real y sus filtros.
 
 ## Disciplina Operativa
 
