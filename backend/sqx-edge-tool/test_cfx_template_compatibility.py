@@ -100,6 +100,39 @@ def _assert_retest1_passive_generation_contract(retest1: ET.Element) -> None:
     assert list(custom_data) == []
 
 
+def _assert_retest1_static_crosschecks_contract(retest1: ET.Element) -> None:
+    crosschecks = retest1.find(".//CrossChecks")
+    assert crosschecks is not None
+    assert crosschecks.get("use") == "false"
+    assert crosschecks.get("evaluateAll") == "false"
+    for check in list(crosschecks):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        assert check.get("use") == "false"
+        for method in check.findall("./Settings/Methods/Method"):
+            assert method.get("use") == "false"
+
+    rmm_methods = {
+        method.get("type"): method.get("use")
+        for method in retest1.findall(".//RiskMoneyManagement//MoneyManagement/Method")
+        if method.get("type")
+    }
+    assert rmm_methods == {
+        "FixedSize": "true",
+        "RiskFixedBalancePct": "false",
+        "RiskFixedPctOfAccount": "false",
+        "FixedAmount": "false",
+        "StocksSizeByPrice": "false",
+    }
+    atms = retest1.find(".//ATMs")
+    assert atms is not None
+    assert atms.get("enable") == "false"
+    selected = retest1.find(".//SelectedStrategies")
+    assert selected is not None
+    assert list(selected) == []
+    assert (selected.text or "").strip() == ""
+
+
 def _section_sha256(root: ET.Element, tab: str) -> str:
     node = root.find(tab)
     if node is None:
@@ -245,6 +278,7 @@ def test_capa1_base_v2_matches_active_methodology():
         ("NetProfit", ">=", "0"),
     ]
     _assert_retest1_passive_generation_contract(retest1)
+    _assert_retest1_static_crosschecks_contract(retest1)
 
     forward = roots["Retest-Task2.xml"]
     forward_setup = forward.find(".//Data/Setups/Setup")
@@ -544,6 +578,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     assert {node.find("InstrumentInfo").get("broker") for node in retest1_symbols} == {"3"}
     assert [broker.get("id") for broker in retest1.findall(".//Resources/Brokers/Broker")] == ["3"]
     _assert_retest1_passive_generation_contract(retest1)
+    _assert_retest1_static_crosschecks_contract(retest1)
 
 
 def test_generate_project_applies_selected_market_side_to_all_tasks():

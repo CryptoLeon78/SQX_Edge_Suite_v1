@@ -5,9 +5,11 @@ from tools.sqx142_task_config_gate import (
     apply_retest1_passive_generation_to_root,
     apply_retest1_data_resources_to_root,
     apply_retest1_options_databanks_rankings_to_root,
+    apply_retest1_static_crosschecks_to_root,
     enforce_retest1_data_resources_guard,
     enforce_retest1_options_databanks_rankings_guard,
     enforce_retest1_passive_generation_guard,
+    enforce_retest1_static_crosschecks_guard,
     fallback_retest1_oos2_resource,
     question_id,
     record_tab_answer,
@@ -276,3 +278,69 @@ def test_retest1_passive_generation_disables_improve_and_generation_remnants():
     assert root.findall(".//ExitTypes/Block[@key='ExitAfterDays.ExitAfterDays']") == []
     assert root.find(".//BuildingBlocks/Block[@key='Indicators.ATR']").get("use") == "true"
     assert root.find(".//BuildingBlocks/Block[@key='Signals.ADX']").get("use") == "false"
+
+
+def test_retest1_static_crosschecks_target_turns_off_checks_and_uses_fixed_size():
+    root = ET.fromstring(
+        """
+        <Task>
+          <PartsToImprove improveATM="false">
+            <EntryRules symmetry="false"><LongImprovement use="false" action="replace" /><ShortImprovement use="false" action="replace" /></EntryRules>
+            <OrderTypes><LongImprovement use="false" /><ShortImprovement use="false" /></OrderTypes>
+            <ExitRules symmetry="false"><LongImprovement use="false" action="replace" /><ShortImprovement use="false" action="replace" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="RETEST 0" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>false</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>false</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>false</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="false" />
+              <EvoRestartOnStagnation status="false" fitnessType="10" generations="30" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="simple" version="142.2336">
+            <BuildingBlocks><Block key="Indicators.ATR" category="indicators" use="true" probability="1" /></BuildingBlocks>
+            <OrderTypes>
+              <Block key="EnterAtMarket" use="true" probability="1" />
+              <Block key="EnterReverseAtMarket" use="false" probability="1" />
+              <Block key="EnterAtStop" use="false" probability="1" />
+              <Block key="EnterAtLimit" use="false" probability="1" />
+            </OrderTypes>
+            <ExitTypes>
+              <Block key="ExitAfterBars.ExitAfterBars" use="true" probability="100" />
+              <Block key="StopLoss.StopLoss" use="false" probability="50" />
+            </ExitTypes>
+            <CustomData showAll="false" />
+          </Blocks>
+          <CrossChecks use="true" evaluateAll="true">
+            <MonteCarloRetest use="true"><Settings><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings></MonteCarloRetest>
+            <WalkForwardOptimization use="false" />
+          </CrossChecks>
+          <RiskMoneyManagement customSettings="false">
+            <MoneyManagement>
+              <Method type="FixedSize" use="false" />
+              <Method type="RiskFixedBalancePct" use="false" />
+              <Method type="RiskFixedPctOfAccount" use="false" />
+              <Method type="FixedAmount" use="true" />
+              <Method type="StocksSizeByPrice" use="false" />
+            </MoneyManagement>
+          </RiskMoneyManagement>
+          <ATMs enable="false" />
+          <Notes>ok</Notes>
+          <SelectedStrategies />
+          <Rankings><ForceRunCrossChecks>false</ForceRunCrossChecks></Rankings>
+        </Task>
+        """
+    )
+
+    actions = apply_retest1_static_crosschecks_to_root(root)
+
+    assert any(item["field"] == "CrossChecks:attrs" and item["changed"] for item in actions)
+    assert any(item["field"] == "RiskMoneyManagement/Method:FixedSize" and item["changed"] for item in actions)
+    assert enforce_retest1_static_crosschecks_guard(root) == []
+    assert root.find(".//CrossChecks").get("use") == "false"
+    assert root.find(".//CrossChecks/MonteCarloRetest").get("use") == "false"
+    assert root.find(".//CrossChecks/MonteCarloRetest/Settings/Methods/Method").get("use") == "false"
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedAmount']").get("use") == "false"

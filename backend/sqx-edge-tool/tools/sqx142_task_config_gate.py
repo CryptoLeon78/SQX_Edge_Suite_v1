@@ -267,6 +267,16 @@ RETEST1_PASSIVE_BUILDMODE_ATTR_TARGET = {
     "EvoRestartOnFinish": {"status": "false"},
     "EvoRestartOnStagnation": {"status": "false", "fitnessType": "10", "generations": "30"},
 }
+RETEST1_STATIC_TABS = ("ATMs", "RiskMoneyManagement", "Notes", "SelectedStrategies")
+RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET = {
+    "FixedSize": "true",
+    "RiskFixedBalancePct": "false",
+    "RiskFixedPctOfAccount": "false",
+    "FixedAmount": "false",
+    "StocksSizeByPrice": "false",
+}
+RETEST1_ATMS_TARGET = {"enable": "false"}
+RETEST1_CROSSCHECKS_TARGET = {"use": "false", "evaluateAll": "false"}
 
 
 def stamp() -> str:
@@ -2666,6 +2676,266 @@ def promote_retest1_passive_generation_target(root142: Path, project_root: Path,
     return payload
 
 
+def apply_retest1_crosschecks_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    parent = find_section(root, "CrossChecks")
+    if parent is None:
+        parent = ET.SubElement(root, "CrossChecks")
+        actions.append({"field": "CrossChecks", "from": None, "to": "created", "changed": True})
+    before_attrs = dict(parent.attrib)
+    for key, value in RETEST1_CROSSCHECKS_TARGET.items():
+        parent.set(key, value)
+    actions.append({
+        "field": "CrossChecks:attrs",
+        "from": before_attrs,
+        "to": dict(parent.attrib),
+        "changed": before_attrs != dict(parent.attrib),
+    })
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        before = check.get("use", "")
+        check.set("use", "false")
+        actions.append({
+            "field": f"CrossChecks/{check.tag}:use",
+            "from": before,
+            "to": "false",
+            "changed": before != "false",
+        })
+        for method in check.findall("./Settings/Methods/Method"):
+            method_type = method.get("type", "")
+            method_before = method.get("use", "")
+            method.set("use", "false")
+            actions.append({
+                "field": f"CrossChecks/{check.tag}/Method:{method_type}:use",
+                "from": method_before,
+                "to": "false",
+                "changed": method_before != "false",
+            })
+
+
+def apply_retest1_risk_money_management_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    rmm = find_section(root, "RiskMoneyManagement")
+    if rmm is None:
+        rmm = ET.SubElement(root, "RiskMoneyManagement", {"customSettings": "false"})
+        actions.append({"field": "RiskMoneyManagement", "from": None, "to": dict(rmm.attrib), "changed": True})
+    money = rmm.find("MoneyManagement")
+    if money is None:
+        money = ET.SubElement(rmm, "MoneyManagement")
+        actions.append({"field": "RiskMoneyManagement/MoneyManagement", "from": None, "to": "created", "changed": True})
+
+    existing = {method.get("type", ""): method for method in money.findall("Method") if method.get("type")}
+    for method_type, wanted in RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        method = existing.get(method_type)
+        if method is None:
+            method = ET.SubElement(money, "Method", {"type": method_type})
+            before = None
+        else:
+            before = dict(method.attrib)
+        method.set("type", method_type)
+        method.set("use", wanted)
+        actions.append({
+            "field": f"RiskMoneyManagement/Method:{method_type}",
+            "from": before,
+            "to": dict(method.attrib),
+            "changed": before != dict(method.attrib),
+        })
+
+
+def retest1_static_crosschecks_summary(root: ET.Element) -> dict[str, Any]:
+    crosschecks = find_section(root, "CrossChecks")
+    direct_checks: list[dict[str, Any]] = []
+    if crosschecks is not None:
+        for check in list(crosschecks):
+            if not isinstance(check.tag, str) or check.get("use") is None:
+                continue
+            active_methods = [
+                method.get("type", "")
+                for method in check.findall("./Settings/Methods/Method")
+                if method.get("use") == "true"
+            ]
+            direct_checks.append({
+                "id": check.tag,
+                "use": check.get("use", ""),
+                "configuredMethodCount": len(active_methods),
+                "activeMethodCount": len(active_methods) if check.get("use") == "true" else 0,
+                "configuredMethods": active_methods,
+                "activeMethods": active_methods if check.get("use") == "true" else [],
+            })
+
+    rmm = find_section(root, "RiskMoneyManagement")
+    money_methods = {
+        method.get("type", ""): method.get("use", "")
+        for method in (rmm.findall(".//MoneyManagement/Method") if rmm is not None else [])
+        if method.get("type")
+    }
+    atms = find_section(root, "ATMs")
+    notes = find_section(root, "Notes")
+    selected = find_section(root, "SelectedStrategies")
+    return {
+        "crossChecks": {
+            "exists": crosschecks is not None,
+            "attrs": dict(crosschecks.attrib) if crosschecks is not None else {},
+            "active": [item["id"] for item in direct_checks if item["use"] == "true"],
+            "checks": direct_checks,
+            "sha256": section_sha256(root, "CrossChecks"),
+        },
+        "riskMoneyManagement": {
+            "exists": rmm is not None,
+            "methods": money_methods,
+            "sha256": section_sha256(root, "RiskMoneyManagement"),
+        },
+        "atms": {
+            "exists": atms is not None,
+            "attrs": dict(atms.attrib) if atms is not None else {},
+            "sha256": section_sha256(root, "ATMs"),
+        },
+        "notes": {
+            "exists": notes is not None,
+            "sha256": section_sha256(root, "Notes"),
+        },
+        "selectedStrategies": {
+            "exists": selected is not None,
+            "children": len(list(selected)) if selected is not None else 0,
+            "text": (selected.text or "").strip() if selected is not None else "",
+            "sha256": section_sha256(root, "SelectedStrategies"),
+        },
+    }
+
+
+def enforce_retest1_static_crosschecks_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = retest1_static_crosschecks_summary(root)
+    crosschecks = summary.get("crossChecks") or {}
+    if not crosschecks.get("exists"):
+        issues.append("RETEST 1 CrossChecks section missing")
+    if crosschecks.get("attrs") != RETEST1_CROSSCHECKS_TARGET:
+        issues.append(f"RETEST 1 CrossChecks attrs are {crosschecks.get('attrs')!r}, expected {RETEST1_CROSSCHECKS_TARGET!r}")
+    if crosschecks.get("active"):
+        issues.append(f"RETEST 1 must not have active internal crosschecks: {crosschecks.get('active')}")
+    configured_methods = [
+        f"{item.get('id')}:{method}"
+        for item in (crosschecks.get("checks") or [])
+        for method in (item.get("configuredMethods") or [])
+    ]
+    if configured_methods:
+        issues.append(f"RETEST 1 CrossChecks must not keep enabled Settings/Methods: {configured_methods}")
+
+    rmm = summary.get("riskMoneyManagement") or {}
+    methods = rmm.get("methods") or {}
+    for method_type, wanted in RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if methods.get(method_type) != wanted:
+            issues.append(f"RETEST 1 RiskMoneyManagement {method_type} is {methods.get(method_type)!r}, expected {wanted!r}")
+
+    atms = summary.get("atms") or {}
+    for key, wanted in RETEST1_ATMS_TARGET.items():
+        if (atms.get("attrs") or {}).get(key) != wanted:
+            issues.append(f"RETEST 1 ATMs {key} is {(atms.get('attrs') or {}).get(key)!r}, expected {wanted!r}")
+
+    selected = summary.get("selectedStrategies") or {}
+    if selected.get("children") != 0 or selected.get("text"):
+        issues.append("RETEST 1 SelectedStrategies must remain empty in the base template")
+
+    rankings = find_section(root, "Rankings")
+    if rankings is not None and (rankings.findtext("ForceRunCrossChecks") or "") != "false":
+        issues.append("RETEST 1 Rankings/ForceRunCrossChecks must remain false")
+
+    for issue in enforce_retest1_passive_generation_guard(root):
+        issues.append(f"Passive generation guard: {issue}")
+    return issues
+
+
+def apply_retest1_static_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    apply_retest1_crosschecks_to_root(root, actions)
+    apply_retest1_risk_money_management_to_root(root, actions)
+    return actions
+
+
+def update_retest1_static_crosschecks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, RETEST1_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "retest1_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = retest1_static_crosschecks_summary(root)
+    payload["actions"] = apply_retest1_static_crosschecks_to_root(root)
+    payload["after"] = retest1_static_crosschecks_summary(root)
+    payload["issues"] = enforce_retest1_static_crosschecks_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "crossChecks": RETEST1_CROSSCHECKS_TARGET,
+        "riskMoneyManagementMethods": RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET,
+        "staticTabs": RETEST1_STATIC_TABS,
+    }
+    payload["targetRationale"] = {
+        "passiveRetest": "RETEST 1 must remain a pure OOS2 validation task with no internal crosschecks or generation/improvement remnants.",
+        "riskMoneyManagement": "Use FixedSize like RETEST 0 and the other Capa1 retests so validation compares strategy behavior without position-sizing noise.",
+        "staticTabs": "ATMs, Notes and SelectedStrategies are audited and kept as current values.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_retest1_static_crosschecks_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase4_retest1_static_crosschecks_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_retest1_static_crosschecks_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase4",
+        "operation": "retest1_static_crosschecks_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase4_retest1_static_crosschecks_diff_review" if not apply else "phase4_retest1_closeout",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase4_retest1_static_crosschecks_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -3863,6 +4133,10 @@ def build_parser() -> argparse.ArgumentParser:
     retest1_passive.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     retest1_passive.add_argument("--apply", action="store_true")
 
+    retest1_static = sub.add_parser("retest1-static-crosschecks-target")
+    retest1_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    retest1_static.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -3955,6 +4229,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "retest1-passive-generation-target":
         json_print(promote_retest1_passive_generation_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "retest1-static-crosschecks-target":
+        json_print(promote_retest1_static_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

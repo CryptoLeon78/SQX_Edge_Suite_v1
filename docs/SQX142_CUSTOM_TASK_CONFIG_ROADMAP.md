@@ -73,6 +73,8 @@ tools\sqx142_task_config_gate.ps1 retest1-options-databanks-rankings-target --ta
 tools\sqx142_task_config_gate.ps1 retest1-options-databanks-rankings-target --target both --apply
 tools\sqx142_task_config_gate.ps1 retest1-passive-generation-target --target both
 tools\sqx142_task_config_gate.ps1 retest1-passive-generation-target --target both --apply
+tools\sqx142_task_config_gate.ps1 retest1-static-crosschecks-target --target both
+tools\sqx142_task_config_gate.ps1 retest1-static-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -409,6 +411,26 @@ Decision aplicada para `PartsToImprove` / `WhatToBuild` / `Blocks`:
   `RETEST 1 > WhatToBuild` (`67/67`) y `RETEST 1 > Blocks`
   (`17.583/17.583`).
 
+Decision aplicada para pestañas estaticas restantes y `CrossChecks`:
+
+- `CrossChecks` queda completamente apagado en `RETEST 1`: parent
+  `use=false/evaluateAll=false`, todos los checks directos `use=false` y todos
+  los `Settings/Methods/Method` internos `use=false`.
+- Se conserva la normalizacion de los setups internos desactivados a
+  Dukascopy/OOS2, pero no queda ningun metodo de robustez ejecutable dentro de
+  este retest.
+- `RiskMoneyManagement` se alinea con `RETEST 0` y el resto de retests Capa1:
+  `FixedSize=true` y `FixedAmount=false`, para no meter ruido de sizing en la
+  comparacion OOS2.
+- `ATMs` se mantiene desactivado, `Notes` se conserva y
+  `SelectedStrategies` queda vacio en base/template.
+- El guard de generacion pasiva sigue verde: no quedan mejoras activas,
+  fresh-blood/evolucion quedan apagados, `Signals`/`StopLimit` quedan off y no
+  se reintroducen salidas por dias.
+- Ledger local respondido para `RETEST 1 > CrossChecks` (`339/339`),
+  `RETEST 1 > RiskMoneyManagement` (`25/25`), `RETEST 1 > ATMs` (`9/9`),
+  `RETEST 1 > Notes` (`1/1`) y `RETEST 1 > SelectedStrategies` (`0/0`).
+
 Cuestionario inicial generado:
 
 - `13` pestañas detectadas.
@@ -436,13 +458,11 @@ Diferencias estructurales detectadas antes de decidir:
   siendo generator-owned por timeframe.
 - `Rankings/DeleteFailedStrategies=false` se mantiene a proposito como modo
   advisory; no fuerza `Results=passed` ni borra failed.
-- `RiskMoneyManagement` difiere entre `FixedAmount` y `FixedSize`; la regla
-  historica de Capa1 v2 dice Fixed size order size `1`, pero se revisara en la
-  pregunta de fase.
+- `RiskMoneyManagement` ya no queda abierto: se cerro en `FixedSize=true` /
+  `FixedAmount=false` como `RETEST 0` y los retests Capa1.
 
-Siguiente bloque de decision: cerrar pestañas estaticas restantes y
-`CrossChecks`, verificando que no haya crosschecks internos activos ni restos de
-generacion antes del closeout de `RETEST 1`.
+Siguiente bloque de decision: closeout formal de `RETEST 1` o salto a Fase 5
+`TICK REAL`, segun convenga cerrar primero el reporte final de Fase 4.
 
 ## Disciplina Operativa
 

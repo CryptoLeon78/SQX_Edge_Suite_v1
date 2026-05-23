@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 RETEST 1 Static/CrossChecks Gate
+
+- Adds `retest1-static-crosschecks-target` to close Phase 4 static tabs and CrossChecks with dry-run-first backup/diff/apply.
+- Keeps `RETEST 1` as pure OOS2 validation: CrossChecks parent is off, every direct crosscheck is off and every internal `Settings/Methods/Method` is off.
+- Aligns `RiskMoneyManagement` with `RETEST 0` and the other Capa1 retests by switching to `FixedSize=true` and `FixedAmount=false`, while keeping ATMs disabled, Notes unchanged and SelectedStrategies empty.
+- Records local ledger answers for `CrossChecks` (`339/339`), `RiskMoneyManagement` (`25/25`), `ATMs` (`9/9`), `Notes` (`1/1`) and `SelectedStrategies` (`0/0`).
+
 ## 2026-05-23 - C1-CONFIG1 RETEST 1 Passive Generation Gate
 
 - Adds `retest1-passive-generation-target` to close Phase 4 `PartsToImprove` / `WhatToBuild` / `Blocks` with dry-run-first backup/diff/apply.
