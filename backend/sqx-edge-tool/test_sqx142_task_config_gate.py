@@ -27,6 +27,8 @@ from tools.sqx142_task_config_gate import (
     enforce_tick_real_passive_generation_guard,
     enforce_tick_real_static_crosschecks_guard,
     fallback_retest1_oos2_resource,
+    mc_closeout_operation_issues,
+    mc_closeout_operation_summary,
     question_id,
     record_tab_answer,
 )
@@ -1351,3 +1353,50 @@ def test_mc_static_tabs_guard_rejects_portfolio_fit_rank_filters_and_customdata_
     assert any("SelectedStrategies" in issue for issue in issues)
     assert any("CustomData testPrecision" in issue for issue in issues)
     assert any("Forbidden donor token" in issue for issue in issues)
+
+
+def test_mc_closeout_operation_issues_require_green_idempotent_dry_run():
+    payload = {
+        "ok": True,
+        "apply": False,
+        "operation": "mc_static_tabs_target",
+        "nextPhase": "phase6_mc_static_tabs_diff_review",
+        "written": "diff.json",
+        "results": {
+            "localBase": {
+                "exists": True,
+                "isZip": True,
+                "guardOk": True,
+                "changed": False,
+                "changedActionCount": 0,
+                "issues": [],
+                "taskXml": "AutomaticRetest-Task1.xml",
+            },
+            "repoTemplate": {
+                "exists": True,
+                "isZip": True,
+                "guardOk": True,
+                "changed": False,
+                "changedActionCount": 0,
+                "issues": [],
+                "taskXml": "AutomaticRetest-Task1.xml",
+            },
+        },
+    }
+
+    assert mc_closeout_operation_issues("mc-static-tabs-target", payload) == []
+    summary = mc_closeout_operation_summary(payload)
+    assert summary["targets"]["localBase"]["changed"] is False
+    assert summary["targets"]["repoTemplate"]["guardOk"] is True
+
+    payload["results"]["repoTemplate"]["changed"] = True
+    payload["results"]["repoTemplate"]["changedActionCount"] = 2
+    payload["results"]["repoTemplate"]["guardOk"] = False
+    payload["results"]["repoTemplate"]["issues"] = ["MC Rankings drifted"]
+
+    issues = mc_closeout_operation_issues("mc-static-tabs-target", payload)
+
+    assert any("guardOk is not true" in issue for issue in issues)
+    assert any("dry-run is not idempotent" in issue for issue in issues)
+    assert any("changedActionCount" in issue for issue in issues)
+    assert any("MC Rankings drifted" in issue for issue in issues)

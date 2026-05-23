@@ -1,6 +1,6 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 5 `TICK REAL` cerrada y Fase 6 `MC` abierta el 2026-05-23. Fase 0 dejo
+Estado: C1-CONFIG1 con Fase 6 `MC` cerrada y Fase 7 `MC 2` abierta el 2026-05-23. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -98,6 +98,8 @@ tools\sqx142_task_config_gate.ps1 mc-passive-generation-target --target both
 tools\sqx142_task_config_gate.ps1 mc-passive-generation-target --target both --apply
 tools\sqx142_task_config_gate.ps1 mc-static-tabs-target --target both
 tools\sqx142_task_config_gate.ps1 mc-static-tabs-target --target both --apply
+tools\sqx142_task_config_gate.ps1 mc-closeout-report --target both
+tools\sqx142_task_config_gate.ps1 mc-closeout-report --target both --write
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -785,8 +787,21 @@ Decision aplicada para `MC > Rankings / ATMs / RiskMoneyManagement / Notes / Sel
 Reporte local:
 `.local/sqx142_task_config/phase_reports/phase6_mc_static_tabs_20260523_223913.json`.
 
-Siguiente bloque exacto: `phase6_mc_closeout`, para reejecutar todos los guards
-MC en dry-run y cerrar formalmente la Fase 6 antes de `MC 2`.
+Closeout formal de Fase 6 `MC`:
+
+- Se anade `mc-closeout-report` para consolidar, en dry-run, los cuatro guards
+  de MC antes de abrir `MC 2`.
+- El reporte local `phase6_mc_closeout_20260523_224903.json` queda `ok=true`.
+- `mc-data-databanks-resources-options-target`, `mc-crosschecks-target`,
+  `mc-passive-generation-target` y `mc-static-tabs-target` quedan
+  idempotentes en base local y template repo: `changed=false`,
+  `changedActionCount=0` y `guardOk=true`.
+- No habia procesos SQX vivos durante el cierre (`processes=0`).
+- La sesion local queda en `currentPhase=phase6_mc_closeout` y
+  `nextPhase=phase7_mc2_open`.
+
+Siguiente bloque exacto: `MC 2 > CrossChecks`, empezando por revisar el stress
+de spread adaptativo `baseSpread x2-x5` antes de tocar valores.
 
 ## Disciplina Operativa
 

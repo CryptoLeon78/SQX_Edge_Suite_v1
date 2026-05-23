@@ -5733,6 +5733,111 @@ def promote_mc_static_tabs_target(root142: Path, project_root: Path, target: str
     return payload
 
 
+MC_CLOSEOUT_OPERATIONS = (
+    ("dataDatabanksResourcesOptions", "mc-data-databanks-resources-options-target", promote_mc_data_databanks_resources_options_target),
+    ("crosschecks", "mc-crosschecks-target", promote_mc_crosschecks_target),
+    ("passiveGeneration", "mc-passive-generation-target", promote_mc_passive_generation_target),
+    ("staticTabs", "mc-static-tabs-target", promote_mc_static_tabs_target),
+)
+
+
+def mc_closeout_operation_issues(operation: str, payload: dict[str, Any]) -> list[str]:
+    issues: list[str] = []
+    if payload.get("apply") is not False:
+        issues.append(f"{operation}: closeout must run in dry-run mode")
+    if not payload.get("ok"):
+        issues.append(f"{operation}: operation ok=false")
+    results = payload.get("results") or {}
+    if not results:
+        issues.append(f"{operation}: no target results")
+    for target_name, result in results.items():
+        prefix = f"{operation}/{target_name}"
+        if not result.get("exists"):
+            issues.append(f"{prefix}: target file missing")
+        if not result.get("isZip"):
+            issues.append(f"{prefix}: target is not a .cfx/.zip")
+        if result.get("error"):
+            issues.append(f"{prefix}: {result.get('error')}")
+        if result.get("guardOk") is not True:
+            issues.append(f"{prefix}: guardOk is not true")
+        if result.get("changed") is not False:
+            issues.append(f"{prefix}: dry-run is not idempotent")
+        if result.get("changedActionCount") not in {0, "0"}:
+            issues.append(f"{prefix}: changedActionCount is {result.get('changedActionCount')!r}, expected 0")
+        for issue in result.get("issues") or []:
+            issues.append(f"{prefix}: {issue}")
+    return issues
+
+
+def mc_closeout_operation_summary(payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "ok": payload.get("ok"),
+        "operation": payload.get("operation"),
+        "written": payload.get("written", ""),
+        "nextPhase": payload.get("nextPhase", ""),
+        "targets": {
+            target_name: {
+                "exists": result.get("exists"),
+                "isZip": result.get("isZip"),
+                "guardOk": result.get("guardOk"),
+                "changed": result.get("changed"),
+                "changedActionCount": result.get("changedActionCount"),
+                "taskXml": result.get("taskXml", ""),
+                "sha256Before": result.get("sha256Before", ""),
+                "sha256After": result.get("sha256After", ""),
+            }
+            for target_name, result in (payload.get("results") or {}).items()
+        },
+    }
+
+
+def mc_closeout_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    operations: dict[str, Any] = {}
+    issues: list[str] = []
+    for key, command, runner in MC_CLOSEOUT_OPERATIONS:
+        result = runner(root142, project_root, target=target, apply=False)
+        operation_issues = mc_closeout_operation_issues(command, result)
+        operations[key] = {
+            "command": command,
+            "summary": mc_closeout_operation_summary(result),
+            "issues": operation_issues,
+        }
+        issues.extend(operation_issues)
+
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase6_mc_closeout",
+        "target": target,
+        "write": write,
+        "operations": operations,
+        "issues": issues,
+        "processProbe": process_snapshot(),
+        "summary": {
+            "mcTaskTitle": MC_TASK_TITLE,
+            "mcTaskXml": "AutomaticRetest-Task1.xml",
+            "chain": "Input=TICK / Output=MC",
+            "period": MC_PERIOD_KEY,
+            "testPrecision": MC_DATA_TEST_PRECISION,
+            "activeCrossCheck": "MonteCarloManipulation",
+            "nextPhase": "phase7_mc2_open",
+            "closeoutCriterion": "all MC guards must be green and idempotent on local base and repo template",
+        },
+        "nextPhase": "phase7_mc2_open",
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase6_mc_closeout_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase6_mc_closeout", "nextPhase": "phase7_mc2_open"})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -6966,6 +7071,10 @@ def build_parser() -> argparse.ArgumentParser:
     mc_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     mc_static.add_argument("--apply", action="store_true")
 
+    mc_closeout = sub.add_parser("mc-closeout-report")
+    mc_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    mc_closeout.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -7085,6 +7194,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "mc-static-tabs-target":
         json_print(promote_mc_static_tabs_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "mc-closeout-report":
+        json_print(mc_closeout_report(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 MC Closeout
+
+- Adds `mc-closeout-report` to consolidate all four Phase 6 MC guards in dry-run mode before moving to MC 2.
+- Closes Phase 6 `MC` formally with local report `phase6_mc_closeout_20260523_224903.json`; `mc-data-databanks-resources-options-target`, `mc-crosschecks-target`, `mc-passive-generation-target` and `mc-static-tabs-target` are all idempotent on local base and repo template.
+- Keeps the final MC contract intact: `Input=TICK`, `Output=MC`, fast/simulated `testPrecision=2`, only `MonteCarloManipulation` active, no internal OOS split, natural failed/passed rows and no portfolio selection.
+- Updates local task-config session state to `currentPhase=phase6_mc_closeout` and `nextPhase=phase7_mc2_open`; next exact work is `MC 2 > CrossChecks`.
+
 ## 2026-05-23 - C1-CONFIG1 MC Static Tabs
 
 - Adds `mc-static-tabs-target` to close `MC > Rankings / ATMs / RiskMoneyManagement / Notes / SelectedStrategies / CustomData` with dry-run-first backup/diff/apply and a composed MC guard.
