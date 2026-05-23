@@ -288,10 +288,18 @@ Reglas de decision:
 - No copiar fechas vivas del donor Mining15 ni su `USDJPY/H4`.
 - Mantener el rol de `RETEST 0` como OOS1 real posterior al Build Capa1
   (`BUILD_C1` termina en `2023.01.01`).
+- `RETEST 0` corre el periodo completo IS+OOS1 (`2017.10.02` a
+  `2025.01.01`) con el rango OOS1 marcado (`2023.01.01` a `2025.01.01`), no
+  solo el tramo OOS aislado. Asi SQX puede comparar IS vs OOS1 en filtros y
+  ranking; correr solo OOS1 perderia la referencia IS del mismo retest.
 - Las caidas masivas no autorizan suavizar filtros sin evidencia explicita y
   nueva decision metodologica.
 - Project Generator mantiene propiedad sobre simbolo, timeframe, spread,
   swap, recursos y lado de mercado cuando dependan de activo/timeframe.
+- Costes de `Data`: spread, swaps, comisiones y recursos son placeholders en la
+  base; Project Generator los reescribe por instrumento. Si no hay `data.db`,
+  el fallback queda normalizado a comision neutra `SizeBased=0.0` en todos los
+  tasks generados.
 - Antes de aplicar a base/template: respuestas registradas, backup, diff
   dry-run y confirmacion de fase cerrada.
 

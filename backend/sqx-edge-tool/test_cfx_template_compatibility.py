@@ -386,6 +386,28 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
         "SignalTimeRangeTo": "72000",
     }
 
+    retest0 = roots["Retest-Task3.xml"]
+    retest0_setup = retest0.find(".//Data/Setups/Setup")
+    retest0_oos = retest0.find(".//Data/OutOfSample/Range")
+    assert retest0_setup.get("dateFrom") == "2017.10.02"
+    assert retest0_setup.get("dateTo") == "2025.01.01"
+    assert retest0_oos.get("dateFrom") == "2023.01.01"
+    assert retest0_oos.get("dateTo") == "2025.01.01"
+    assert {chart.get("symbol") for chart in retest0.findall(".//Data/Setups/Setup/Chart")} == {"AUDCAD"}
+    assert {chart.get("timeframe") for chart in retest0.findall(".//Data/Setups/Setup/Chart")} == {"H4"}
+    assert {chart.get("spread") for chart in retest0.findall(".//Data/Setups/Setup/Chart")} == {"10"}
+    retest0_swap = retest0_setup.find("Swap")
+    assert retest0_swap is not None
+    assert retest0_swap.get("long") == "-1.0"
+    assert retest0_swap.get("short") == "-1.0"
+    retest0_commission = retest0_setup.find("Commissions/Method[@type='SizeBased']")
+    assert retest0_commission is not None
+    assert retest0_commission.get("use") == "true"
+    assert retest0_commission.find("Params/Param[@key='Commission']").text == "0.0"
+    retest0_resources = retest0.findall(".//Resources/Symbols/Symbol")
+    assert {node.get("name") for node in retest0_resources} == {"AUDCAD"}
+    assert {node.find("InstrumentInfo").get("defaultSpread") for node in retest0_resources} == {"10"}
+
     tick_real = roots["AutomaticRetest-Task2.xml"]
     tick_setup = tick_real.find(".//Data/Setups/Setup")
     assert tick_setup.get("dateFrom") == "2017.10.02"
