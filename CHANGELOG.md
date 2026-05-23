@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 RETEST 1 Data/Resources
+
+- Converts the operator decision into Phase 4 policy: `RETEST 1` is a passive clone of `RETEST 0` plus a protected Dukascopy/OOS2 override, not a wholesale Mining15 donor copy.
+- Adds `retest1-data-resources-target` to the SQX142 task config gate with dry-run-first backup/diff/apply, local `data.db` evidence, compact Dukascopy Resources rebuild and guards against donor/base leakage.
+- Applies the target to local Capa1 base and `backend/sqx-edge-tool/templates/Capa1_Long.cfx`: `Retest-Task1.xml` now uses `2010.01.01-2017.10.02`, `AUDCAD_dukascopy`, source `2`, broker `3`, `testPrecision=2`, no nested OOS ranges, no resource sessions and no embedded `CustomBlocks`.
+- Normalizes disabled internal crosscheck `Setup/Chart` references in `Retest-Task1.xml` to the same Dukascopy placeholder so SQX142 resource checks do not see stale Darwinex symbols.
+- Records full local ledger answers for `RETEST 1 > Data` (`8/8`) and `RETEST 1 > Resources` (`12/12`), then points the next Phase 4 block to `Options` / `Databanks` / `Rankings`.
+
 ## 2026-05-23 - C1-CONFIG1 RETEST 1 Opened
 
 - Opens Phase 4 `RETEST 1` and maps it to `Retest-Task1.xml`, generating the local questionnaire with `13` tabs, `20,024` questions, `12,343` donor/base differences and no duplicate question IDs.

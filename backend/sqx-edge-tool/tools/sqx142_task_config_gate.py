@@ -6,12 +6,13 @@ import json
 import os
 import re
 import shutil
+import sqlite3
 import subprocess
 import sys
 import time
 import zipfile
 from collections import Counter
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 import xml.etree.ElementTree as ET
@@ -195,6 +196,23 @@ BUILD_STATIC_TAB_HASHES = {
     "Notes": "7E0C7BB76E5A63E6CD5B9B97F2571F549C95DF5F79CD0C315895ADAF2742E880",
     "Optimization": "63655CE465154201278796A666D9FC0A21B36EAF825B356797927DBC8402E3A8",
 }
+
+RETEST1_TASK_TITLE = "RETEST 1"
+RETEST1_PERIOD_KEY = "RETEST_1_C1"
+RETEST1_PLACEHOLDER_ASSET = "AUDCAD"
+RETEST1_PLACEHOLDER_TIMEFRAME = "H1"
+RETEST1_BROKER_PROFILE_ID = "dukascopy_oos2"
+RETEST1_DATA_TEST_PRECISION = "2"
+RETEST1_DATA_SESSION = "No Session"
+RETEST1_EXPECTED_SOURCE_ID = "2"
+RETEST1_EXPECTED_BROKER_ID = "3"
+RETEST1_BANNED_RESOURCE_TOKENS = (
+    "USDJPY",
+    "USDJPY_darwinex",
+    "USDJPY_dukascopy",
+    "_darwinex",
+    "Darwinex",
+)
 
 
 def stamp() -> str:
@@ -1371,6 +1389,578 @@ def generator_period(period_key: str) -> tuple[str, str]:
     if len(raw_period) != 2:
         raise ValueError(f"Missing generator period {period_key}")
     return str(raw_period[0]), str(raw_period[1])
+
+
+def epoch_ms_for_date(value: str) -> int:
+    parsed = datetime.strptime(value, "%Y.%m.%d").replace(tzinfo=timezone.utc)
+    return int(parsed.timestamp() * 1000)
+
+
+def bounded_period_ms(period: tuple[str, str], data_from: Any, data_to: Any) -> tuple[str, str]:
+    period_from = epoch_ms_for_date(period[0])
+    period_to = epoch_ms_for_date(period[1])
+    try:
+        available_from = int(data_from)
+        available_to = int(data_to)
+    except (TypeError, ValueError):
+        return str(period_from), str(period_to)
+    if period_to < available_from or period_from > available_to:
+        return str(available_from), str(available_to)
+    return str(max(period_from, available_from)), str(min(period_to, available_to))
+
+
+def _format_decimal(value: Any, default: str = "0.0") -> str:
+    if value is None or value == "":
+        return default
+    try:
+        text = f"{float(value):.12g}"
+    except (TypeError, ValueError):
+        text = str(value)
+    if "e" in text:
+        text = text.replace("e", "E")
+    return text
+
+
+def _sqlite_row_dict(row: sqlite3.Row | None) -> dict[str, Any]:
+    if row is None:
+        return {}
+    return {key: row[key] for key in row.keys()}
+
+
+def _retest1_broker_profile() -> dict[str, Any]:
+    profile = read_json(GENERATOR_PROFILES_PATH, {})
+    return dict(((profile.get("brokerProfiles") or {}).get(RETEST1_BROKER_PROFILE_ID) or {}))
+
+
+def fallback_retest1_oos2_resource() -> dict[str, Any]:
+    profile = _retest1_broker_profile()
+    symbol = f"{RETEST1_PLACEHOLDER_ASSET}{profile.get('brokerPostfix') or '_dukascopy'}"
+    return {
+        "asset": RETEST1_PLACEHOLDER_ASSET,
+        "symbol": symbol,
+        "instrument": symbol,
+        "source_id": str(profile.get("sourceId") or RETEST1_EXPECTED_SOURCE_ID),
+        "broker_id": str(profile.get("brokerId") or RETEST1_EXPECTED_BROKER_ID),
+        "broker_name": profile.get("brokerName") or "[[Dukascopy]]",
+        "broker_description": profile.get("brokerDescription") or "Dukascopy",
+        "broker_postfix": profile.get("brokerPostfix") or "_dukascopy",
+        "broker_timezone": profile.get("timezone") or "EETUS",
+        "precision": profile.get("precision") or "TICK",
+        "description": "FX_Forex_Currency",
+        "tick_size": "0.0001",
+        "tick_step": "0.00001",
+        "min_distance": "0.0",
+        "spread": "1.9",
+        "slippage": "0.0",
+        "point_value": "71848.371197",
+        "data_type": "3",
+        "exchange": "",
+        "country": "",
+        "sector": "Currency",
+        "ordersize_multiplier": "1.0",
+        "ordersize_step": "0.01",
+        "commissions_xml": '<Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0.00</Param></Params></Method>',
+        "swap_xml": '<Swap use="true" type="points" long="-2.07" short="-2.36" tripleSwapOn="NEVER" rolloutHour="23:00"/>',
+        "swap_attrs": {
+            "use": "true",
+            "type": "points",
+            "long": "-2.07",
+            "short": "-2.36",
+            "tripleSwapOn": "NEVER",
+            "rolloutHour": "23:00",
+        },
+        "date_from_ms": str(epoch_ms_for_date(generator_period(RETEST1_PERIOD_KEY)[0])),
+        "date_to_ms": str(epoch_ms_for_date(generator_period(RETEST1_PERIOD_KEY)[1])),
+        "u_symbol": RETEST1_PLACEHOLDER_ASSET,
+        "u_symbol_name": RETEST1_PLACEHOLDER_ASSET,
+        "source": "fallback_static_dukascopy_oos2",
+    }
+
+
+def retest1_oos2_target_resource(root142: Path | None = None) -> dict[str, Any]:
+    """Resolve the protected RETEST 1 placeholder from SQX 142 data.db when possible."""
+    target = fallback_retest1_oos2_resource()
+    if root142 is None:
+        return target
+    db_path = root142 / "user" / "data" / "data.db"
+    if not db_path.is_file():
+        return target
+
+    symbol = target["symbol"]
+    try:
+        conn = sqlite3.connect(str(db_path))
+        conn.row_factory = sqlite3.Row
+        try:
+            instrument = _sqlite_row_dict(conn.execute(
+                "SELECT * FROM INSTRUMENTS WHERE INSTRUMENT = ?",
+                (symbol,),
+            ).fetchone())
+            data = _sqlite_row_dict(conn.execute(
+                """
+                SELECT SYMBOL,INSTRUMENT,TIMEFRAME,TIMEZONE,DATEFROM,DATETO,ROWS,DATATYPE,USYMBOL,USYMBOLNAME,REMOVE_WEEKENDS,SOURCE
+                FROM DATA
+                WHERE SYMBOL = ? OR INSTRUMENT = ?
+                ORDER BY CASE WHEN TIMEFRAME = 'TICK' THEN 0 ELSE 1 END, ROWS DESC
+                LIMIT 1
+                """,
+                (symbol, symbol),
+            ).fetchone())
+            broker_id = instrument.get("BROKER_ID") or int(RETEST1_EXPECTED_BROKER_ID)
+            broker = _sqlite_row_dict(conn.execute(
+                "SELECT * FROM BROKER WHERE ID = ?",
+                (broker_id,),
+            ).fetchone())
+        finally:
+            conn.close()
+    except sqlite3.Error:
+        return target
+
+    if not instrument:
+        return target
+
+    target.update({
+        "instrument": str(instrument.get("INSTRUMENT") or symbol),
+        "description": str(instrument.get("DESCRIPTION") or target["description"]),
+        "tick_size": _format_decimal(instrument.get("TICKSIZE"), target["tick_size"]),
+        "tick_step": _format_decimal(instrument.get("TICKSTEP"), target["tick_step"]),
+        "min_distance": _format_decimal(instrument.get("MIN_DISTANCE"), target["min_distance"]),
+        "spread": _format_decimal(instrument.get("DEFAULTSPREAD"), target["spread"]),
+        "slippage": _format_decimal(instrument.get("DEFAULTSLIPPAGE"), target["slippage"]),
+        "point_value": _format_decimal(instrument.get("POINTVALUE"), target["point_value"]),
+        "data_type": str(instrument.get("DATATYPE") or target["data_type"]),
+        "exchange": str(instrument.get("EXCHANGE") or ""),
+        "country": str(instrument.get("COUNTRY") or ""),
+        "sector": str(instrument.get("SECTOR") or target["sector"]),
+        "ordersize_multiplier": _format_decimal(instrument.get("ORDERSIZEMULTIPLIER"), target["ordersize_multiplier"]),
+        "ordersize_step": _format_decimal(instrument.get("ORDERSIZESTEP"), target["ordersize_step"]),
+        "commissions_xml": str(instrument.get("COMMISSIONS") or target["commissions_xml"]),
+        "swap_xml": str(instrument.get("SWAP") or target["swap_xml"]),
+        "broker_id": str(instrument.get("BROKER_ID") or target["broker_id"]),
+        "broker_postfix": str(broker.get("POSTFIX") or target["broker_postfix"]),
+        "broker_name": str(broker.get("NAME") or target["broker_name"]),
+        "broker_description": str(broker.get("DESC") or target["broker_description"]),
+        "broker_timezone": str(broker.get("MT_TIMEZONE") or target["broker_timezone"]),
+        "date_from_ms": str(data.get("DATEFROM") or target["date_from_ms"]),
+        "date_to_ms": str(data.get("DATETO") or target["date_to_ms"]),
+        "u_symbol": str(data.get("USYMBOL") or RETEST1_PLACEHOLDER_ASSET),
+        "u_symbol_name": str(data.get("USYMBOLNAME") or RETEST1_PLACEHOLDER_ASSET),
+        "source": "sqx142_data_db_instruments",
+    })
+    # Methodology owns the cross-broker profile even if the DATA row carries a legacy broker id.
+    profile = _retest1_broker_profile()
+    target["source_id"] = str(profile.get("sourceId") or RETEST1_EXPECTED_SOURCE_ID)
+    target["broker_id"] = str(profile.get("brokerId") or RETEST1_EXPECTED_BROKER_ID)
+    target["broker_postfix"] = str(profile.get("brokerPostfix") or "_dukascopy")
+    target["broker_name"] = str(profile.get("brokerName") or target["broker_name"])
+    target["broker_description"] = str(profile.get("brokerDescription") or target["broker_description"])
+    target["broker_timezone"] = str(profile.get("timezone") or target["broker_timezone"])
+    target["precision"] = str(profile.get("precision") or target["precision"])
+    target["swap_attrs"] = swap_attrs_from_xml(target["swap_xml"], target["swap_attrs"])
+    return target
+
+
+def swap_attrs_from_xml(raw: str, fallback: dict[str, str]) -> dict[str, str]:
+    try:
+        node = ET.fromstring(raw)
+    except ET.ParseError:
+        return dict(fallback)
+    if node.tag != "Swap":
+        return dict(fallback)
+    attrs = dict(fallback)
+    attrs.update({key: str(value) for key, value in node.attrib.items()})
+    return attrs
+
+
+def ensure_sizebased_commission(setup: ET.Element, commission_value: str, actions: list[dict[str, Any]]) -> None:
+    commissions = setup.find("Commissions")
+    if commissions is None:
+        commissions = ET.SubElement(setup, "Commissions")
+        before = []
+    else:
+        before = [
+            {
+                "type": method.get("type", ""),
+                "use": method.get("use", ""),
+                "params": {
+                    param.get("key", ""): (param.text or "")
+                    for param in method.findall("./Params/Param")
+                    if param.get("key")
+                },
+            }
+            for method in commissions.findall("Method")
+        ]
+    for method in commissions.findall("Method"):
+        method.set("use", "false")
+    size_method = commissions.find("Method[@type='SizeBased']")
+    if size_method is None:
+        size_method = ET.SubElement(commissions, "Method", {"type": "SizeBased"})
+    size_method.set("use", "true")
+    params = size_method.find("Params")
+    if params is None:
+        params = ET.SubElement(size_method, "Params")
+    param = params.find("Param[@key='Commission']")
+    if param is None:
+        param = ET.SubElement(params, "Param", {"key": "Commission", "className": "SizeBased"})
+    param.set("className", "SizeBased")
+    param.text = commission_value
+    after = [
+        {
+            "type": method.get("type", ""),
+            "use": method.get("use", ""),
+            "params": {
+                param_node.get("key", ""): (param_node.text or "")
+                for param_node in method.findall("./Params/Param")
+                if param_node.get("key")
+            },
+        }
+        for method in commissions.findall("Method")
+    ]
+    actions.append({
+        "field": "Data/Setup/Commissions",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+    })
+
+
+def ensure_single_child(parent: ET.Element, tag: str, actions: list[dict[str, Any]], field: str) -> ET.Element:
+    existing = list(parent.findall(tag))
+    if existing:
+        node = existing[0]
+        removed = [value_for_node(item) for item in existing[1:]]
+        for item in existing[1:]:
+            parent.remove(item)
+    else:
+        node = ET.SubElement(parent, tag)
+        removed = []
+    actions.append({
+        "field": f"{field}:dedupe",
+        "from": removed,
+        "to": [],
+        "changed": bool(removed) or not existing,
+    })
+    return node
+
+
+def make_retest1_instrument_attrs(resource: dict[str, Any]) -> dict[str, str]:
+    return {
+        "instrument": str(resource["instrument"]),
+        "description": str(resource.get("description") or ""),
+        "tickSize": str(resource.get("tick_size") or ""),
+        "tickStep": str(resource.get("tick_step") or ""),
+        "minDistance": str(resource.get("min_distance") or "0.0"),
+        "tickValueInMoney": "0.0",
+        "dateFrom": "0",
+        "dateTo": "0",
+        "rows": "0",
+        "totalDays": "0",
+        "defaultSpread": str(resource.get("spread") or ""),
+        "defaultSlippage": str(resource.get("slippage") or "0.0"),
+        "decimals": "5",
+        "commissions": str(resource.get("commissions_xml") or ""),
+        "pointValue": str(resource.get("point_value") or ""),
+        "dataType": str(resource.get("data_type") or "3"),
+        "recognizedFromOrders": "false",
+        "exchange": str(resource.get("exchange") or ""),
+        "country": str(resource.get("country") or ""),
+        "sector": str(resource.get("sector") or ""),
+        "swap": str(resource.get("swap_xml") or ""),
+        "orderSizeMultiplier": str(resource.get("ordersize_multiplier") or "1.0"),
+        "orderSizeStep": str(resource.get("ordersize_step") or "0.01"),
+        "broker": str(resource.get("broker_id") or RETEST1_EXPECTED_BROKER_ID),
+    }
+
+
+def compact_retest1_resources_summary(root: ET.Element) -> dict[str, Any]:
+    resources = root.find(".//Resources")
+    if resources is None:
+        return {"exists": False}
+    summary = build_resources_summary(root)
+    summary.update({
+        "customIndicators": len(resources.findall("./CustomIndicators/*")),
+        "customBlocks": len(resources.findall("./CustomBlocks/*")),
+        "childOrder": [child.tag for child in list(resources)],
+    })
+    return summary
+
+
+def apply_retest1_data_resources_to_root(root: ET.Element, resource: dict[str, Any]) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    period = generator_period(RETEST1_PERIOD_KEY)
+    setup = root.find(".//Data/Setups/Setup")
+    data = find_section(root, "Data")
+    if setup is None or data is None:
+        actions.append({"field": "Data", "error": "missing_setup_or_data", "changed": False})
+        return actions
+
+    for setup_index, current_setup in enumerate(root.findall(".//Setup"), start=1):
+        setup_label = "Data/Setup" if current_setup is setup else f"Setup#{setup_index}"
+        for key, wanted in {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": RETEST1_DATA_TEST_PRECISION,
+            "session": RETEST1_DATA_SESSION,
+        }.items():
+            before = current_setup.get(key, "")
+            current_setup.set(key, wanted)
+            actions.append({"field": f"{setup_label}:{key}", "from": before, "to": wanted, "changed": before != wanted})
+
+        chart = ensure_single_child(current_setup, "Chart", actions, f"{setup_label}/Chart")
+        before_chart = dict(chart.attrib)
+        chart.attrib.clear()
+        chart.attrib.update({
+            "symbol": str(resource["symbol"]),
+            "timeframe": RETEST1_PLACEHOLDER_TIMEFRAME,
+            "spread": str(resource["spread"]),
+        })
+        actions.append({
+            "field": f"{setup_label}/Chart",
+            "from": before_chart,
+            "to": dict(chart.attrib),
+            "changed": before_chart != dict(chart.attrib),
+        })
+
+        ensure_sizebased_commission(current_setup, "0.00", actions)
+
+        swap = ensure_single_child(current_setup, "Swap", actions, f"{setup_label}/Swap")
+        before_swap = dict(swap.attrib)
+        swap.attrib.clear()
+        swap.attrib.update({key: str(value) for key, value in resource.get("swap_attrs", {}).items()})
+        actions.append({
+            "field": f"{setup_label}/Swap",
+            "from": before_swap,
+            "to": dict(swap.attrib),
+            "changed": before_swap != dict(swap.attrib),
+        })
+
+    out_of_sample = data.find("OutOfSample")
+    if out_of_sample is None:
+        out_of_sample = ET.SubElement(data, "OutOfSample", {"showGraph": "false"})
+        before_oos_attrs = {}
+    else:
+        before_oos_attrs = dict(out_of_sample.attrib)
+        out_of_sample.set("showGraph", "false")
+    removed_ranges = [dict(item.attrib) for item in out_of_sample.findall("Range")]
+    for range_node in list(out_of_sample.findall("Range")):
+        out_of_sample.remove(range_node)
+    actions.append({
+        "field": "Data/OutOfSample",
+        "from": {"attrs": before_oos_attrs, "ranges": removed_ranges},
+        "to": {"attrs": dict(out_of_sample.attrib), "ranges": []},
+        "changed": before_oos_attrs != dict(out_of_sample.attrib) or bool(removed_ranges),
+    })
+
+    resources = find_section(root, "Resources")
+    if resources is None:
+        resources = ET.SubElement(root, "Resources")
+        before_resources: dict[str, Any] = {"exists": False}
+    else:
+        before_resources = compact_retest1_resources_summary(root)
+        for child in list(resources):
+            resources.remove(child)
+
+    date_from, date_to = bounded_period_ms(period, resource.get("date_from_ms"), resource.get("date_to_ms"))
+    symbols = ET.SubElement(resources, "Symbols")
+    symbol_node = ET.SubElement(symbols, "Symbol", {
+        "name": str(resource["symbol"]),
+        "source": str(resource["source_id"]),
+        "barType": "1",
+        "precision": str(resource.get("precision") or "TICK"),
+        "timezone": str(resource.get("broker_timezone") or "EETUS"),
+        "dateFrom": date_from,
+        "dateTo": date_to,
+        "uSymbol": str(resource.get("u_symbol") or RETEST1_PLACEHOLDER_ASSET),
+        "uSymbolName": str(resource.get("u_symbol_name") or RETEST1_PLACEHOLDER_ASSET),
+        "removeWeekends": "false",
+        "broker": str(resource["broker_id"]),
+    })
+    instrument_attrs = make_retest1_instrument_attrs(resource)
+    ET.SubElement(symbol_node, "InstrumentInfo", instrument_attrs)
+
+    brokers = ET.SubElement(resources, "Brokers")
+    ET.SubElement(brokers, "Broker", {
+        "id": str(resource["broker_id"]),
+        "name": str(resource.get("broker_name") or "[[Dukascopy]]"),
+        "description": str(resource.get("broker_description") or "Dukascopy"),
+        "timezone": str(resource.get("broker_timezone") or "EETUS"),
+        "postfix": str(resource.get("broker_postfix") or "_dukascopy"),
+        "mtUse": "true",
+        "spUse": "false",
+    })
+    instruments = ET.SubElement(resources, "Instruments")
+    ET.SubElement(instruments, "InstrumentInfo", instrument_attrs)
+    ET.SubElement(resources, "Sessions")
+    ET.SubElement(resources, "CustomIndicators")
+    ET.SubElement(resources, "CustomBlocks")
+    after_resources = compact_retest1_resources_summary(root)
+    actions.append({
+        "field": "Resources",
+        "from": before_resources,
+        "to": after_resources,
+        "changed": before_resources != after_resources,
+    })
+    return actions
+
+
+def enforce_retest1_data_resources_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    period = generator_period(RETEST1_PERIOD_KEY)
+    setup = root.find(".//Data/Setups/Setup")
+    if setup is None:
+        return ["Data/Setup missing"]
+    if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+        issues.append("RETEST 1 dates are not protected RETEST_1_C1")
+    if setup.get("testPrecision") != RETEST1_DATA_TEST_PRECISION:
+        issues.append("RETEST 1 testPrecision is not simulated/tick code 2")
+    charts = setup.findall("Chart")
+    if len(charts) != 1:
+        issues.append(f"RETEST 1 must have exactly one Chart, found {len(charts)}")
+    elif charts[0].get("symbol") != f"{RETEST1_PLACEHOLDER_ASSET}_dukascopy":
+        issues.append(f"RETEST 1 placeholder chart must be {RETEST1_PLACEHOLDER_ASSET}_dukascopy")
+    for chart in root.findall(".//Setup/Chart"):
+        if chart.get("symbol") != f"{RETEST1_PLACEHOLDER_ASSET}_dukascopy":
+            issues.append(f"Stale RETEST 1 setup chart remains: {chart.get('symbol')}")
+    if root.findall(".//Data/OutOfSample/Range"):
+        issues.append("RETEST 1 OOS2-only setup should not carry nested OutOfSample ranges")
+
+    resources = root.find(".//Resources")
+    if resources is None:
+        issues.append("Resources missing")
+        return issues
+    symbols = resources.findall("./Symbols/Symbol")
+    if len(symbols) != 1:
+        issues.append(f"RETEST 1 resources must have exactly one Symbol, found {len(symbols)}")
+    else:
+        symbol = symbols[0]
+        if symbol.get("name") != f"{RETEST1_PLACEHOLDER_ASSET}_dukascopy":
+            issues.append("RETEST 1 resource symbol is not Dukascopy placeholder")
+        if symbol.get("source") != RETEST1_EXPECTED_SOURCE_ID:
+            issues.append("RETEST 1 resource source is not Dukascopy source 2")
+        if symbol.get("broker") != RETEST1_EXPECTED_BROKER_ID:
+            issues.append("RETEST 1 resource broker is not Dukascopy broker 3")
+        info = symbol.find("InstrumentInfo")
+        if info is None or info.get("broker") != RETEST1_EXPECTED_BROKER_ID:
+            issues.append("RETEST 1 nested InstrumentInfo is not broker 3")
+    brokers = resources.findall("./Brokers/Broker")
+    if [broker.get("id") for broker in brokers] != [RETEST1_EXPECTED_BROKER_ID]:
+        issues.append("RETEST 1 Resources/Brokers must contain only broker 3")
+    if resources.findall("./Sessions/Session"):
+        issues.append("RETEST 1 resources should not keep session entries")
+    if resources.findall("./CustomBlocks/*"):
+        issues.append("RETEST 1 resources should not keep embedded CustomBlocks")
+    data = find_section(root, "Data")
+    text = (serialize_xml(data) if data is not None else "") + serialize_xml(resources)
+    for token in RETEST1_BANNED_RESOURCE_TOKENS:
+        if token in text:
+            issues.append(f"Forbidden RETEST 1 donor/base token leaked: {token}")
+    if re.search(r"[A-Za-z]:\\", text):
+        issues.append("Local absolute path leaked into RETEST 1 XML")
+    return issues
+
+
+def update_retest1_data_resources_target_in_cfx(
+    cfx: Path,
+    backup_root: Path,
+    apply: bool,
+    root142: Path,
+) -> dict[str, Any]:
+    resource = retest1_oos2_target_resource(root142)
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+        "resourceSource": resource.get("source", ""),
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, RETEST1_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "retest1_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["beforeData"] = first_setup_summary(root)
+    payload["beforeResources"] = compact_retest1_resources_summary(root)
+    payload["actions"] = apply_retest1_data_resources_to_root(root, resource)
+    payload["afterData"] = first_setup_summary(root)
+    payload["afterResources"] = compact_retest1_resources_summary(root)
+    issues = enforce_retest1_data_resources_guard(root)
+    after_text = serialize_xml(root)
+    payload["issues"] = issues
+    payload["guardOk"] = not issues
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["changed"] = before_text != after_text
+    payload["targetValues"] = {
+        "role": "passive_clone_of_RETEST0_with_protected_OOS2_cross_broker_override",
+        "periodKey": RETEST1_PERIOD_KEY,
+        "dateFrom": generator_period(RETEST1_PERIOD_KEY)[0],
+        "dateTo": generator_period(RETEST1_PERIOD_KEY)[1],
+        "symbol": resource["symbol"],
+        "timeframe": RETEST1_PLACEHOLDER_TIMEFRAME,
+        "spread": resource["spread"],
+        "source": RETEST1_EXPECTED_SOURCE_ID,
+        "broker": RETEST1_EXPECTED_BROKER_ID,
+        "testPrecision": RETEST1_DATA_TEST_PRECISION,
+        "outOfSampleRanges": [],
+        "customBlocks": 0,
+    }
+    payload["targetRationale"] = {
+        "methodology": "RETEST 1 is the protected OOS2/cross-broker Dukascopy validation fed by RETEST 0.",
+        "passiveClone": "Data/Resources receive the protected override; retest generation/improvement choices are handled in later tabs.",
+        "generatorOwned": "Project Generator rewrites this same broker/period for the selected asset while preserving the cross-broker rule.",
+        "noDonorCopy": "Mining15 resources are not copied literally; target is resolved from generator governance and local SQX data.db when available.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_retest1_data_resources_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase4_retest1_data_resources_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_retest1_data_resources_target_in_cfx(path, backup_root / name, apply=apply, root142=root142)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase4",
+        "operation": "retest1_data_resources_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase4_retest1_data_resources_diff_review" if not apply else "phase4_continue_questionnaire",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase4_retest1_data_resources_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
 
 
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
@@ -2558,6 +3148,10 @@ def build_parser() -> argparse.ArgumentParser:
     promote_static_tabs = sub.add_parser("build-static-tabs-target")
     promote_static_tabs.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
 
+    retest1_data_resources = sub.add_parser("retest1-data-resources-target")
+    retest1_data_resources.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    retest1_data_resources.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -2641,6 +3235,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "build-static-tabs-target":
         json_print(promote_build_static_tabs_target(root142, project_root, target=args.target))
+        return 0
+    if args.command == "retest1-data-resources-target":
+        json_print(promote_retest1_data_resources_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

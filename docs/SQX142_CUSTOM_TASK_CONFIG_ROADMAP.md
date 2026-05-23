@@ -67,6 +67,8 @@ tools\sqx142_task_config_gate.ps1 build-resources-target --target both --apply
 tools\sqx142_task_config_gate.ps1 build-crosschecks-target --target both
 tools\sqx142_task_config_gate.ps1 build-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 build-static-tabs-target --target both
+tools\sqx142_task_config_gate.ps1 retest1-data-resources-target --target both
+tools\sqx142_task_config_gate.ps1 retest1-data-resources-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -343,6 +345,25 @@ gobernanza, generator profiles y tests existentes, su rol metodologico
 protegido es OOS2/cross-broker Dukascopy `2010.01.01` a `2017.10.02`, con
 entrada desde `RETEST 0` y salida a `retest 1`.
 
+Decision operativa aplicada para el bloque inicial:
+
+- `RETEST 1` queda tratado como clon pasivo de `RETEST 0` mas override
+  protegido Dukascopy/OOS2.
+- `Data` y `Resources` son el corazon de esta decision y quedan cerrados en
+  base local y template repo con backup/diff dry-run-first.
+- `Retest-Task1.xml` usa `RETEST_1_C1` (`2010.01.01` a `2017.10.02`),
+  `testPrecision=2`, `No Session`, placeholder `AUDCAD_dukascopy`, source `2`,
+  broker `3`, spread `1.9` resuelto desde `data.db`, sin rangos OOS internos y
+  sin sesiones ni `CustomBlocks` embebidos en `Resources`.
+- Los `Setup/Chart` internos de crosschecks desactivados tambien se normalizan
+  al placeholder Dukascopy para no dejar referencias Darwinex huérfanas que
+  rompan la compatibilidad SQX142.
+- No se copia literalmente el donor Mining15: el target sale de governance del
+  Project Generator mas evidencia local SQX142, y el generador reescribira el
+  activo/timeframe real manteniendo la regla cross-broker protegida.
+- Ledger local respondido para `RETEST 1 > Data` (`8/8`) y
+  `RETEST 1 > Resources` (`12/12`).
+
 Cuestionario inicial generado:
 
 - `13` pestañas detectadas.
@@ -354,13 +375,11 @@ Cuestionario inicial generado:
 Diferencias estructurales detectadas antes de decidir:
 
 - `Databanks` coincide en base y donor: input `RETEST 0`, output `retest 1`.
-- `Data` de la base local aun muestra periodo `2017.10.02` a `2025.01.01`,
-  mientras donor/generator/metodologia apuntan a OOS2 Dukascopy
-  `2010.01.01` a `2017.10.02`.
-- `Resources` es el bloque mas divergente: la base local conserva muchos
-  `CustomBlocks` embebidos y recursos pesados; el donor tiene recursos
-  Dukascopy/OOS2 mucho mas compactos. Esto requiere decision especifica, no
-  copia ciega.
+- `Data` ya no arrastra el periodo `2017.10.02` a `2025.01.01`: queda alineado
+  con OOS2 Dukascopy `2010.01.01` a `2017.10.02`.
+- `Resources` ya no conserva recursos Darwinex pesados ni `CustomBlocks`
+  embebidos: queda compacto en Dukascopy source `2` / broker `3`, sin copia
+  literal del donor.
 - `Blocks` en la base local aparece con `Signals`, `Indicators` y
   `Stop/Limit` activos, `ExitAfterBars` al `50%` y sin `version`; donor y la
   regla cerrada de `RETEST 0` apuntan a un universo mas controlado, con
@@ -376,9 +395,9 @@ Diferencias estructurales detectadas antes de decidir:
   historica de Capa1 v2 dice Fixed size order size `1`, pero se revisara en la
   pregunta de fase.
 
-Siguiente bloque de decision: aclarar si `RETEST 1` debe ser OOS2/cross-broker
-pasivo puro o si debe conservar su estructura de mejora de salidas
-(`PartsToImprove` + `Blocks` + `random-generation`).
+Siguiente bloque de decision: `Options` / `Databanks` / `Rankings`, manteniendo
+el rol pasivo de OOS2 y dejando los filtros de `retest 1` algo mas tolerantes o
+advisory que `RETEST 0` si la evidencia de la pestaña lo confirma.
 
 ## Disciplina Operativa
 
