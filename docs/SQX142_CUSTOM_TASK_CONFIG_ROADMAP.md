@@ -96,6 +96,8 @@ tools\sqx142_task_config_gate.ps1 mc-crosschecks-target --target both
 tools\sqx142_task_config_gate.ps1 mc-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 mc-passive-generation-target --target both
 tools\sqx142_task_config_gate.ps1 mc-passive-generation-target --target both --apply
+tools\sqx142_task_config_gate.ps1 mc-static-tabs-target --target both
+tools\sqx142_task_config_gate.ps1 mc-static-tabs-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -758,7 +760,33 @@ Decision aplicada para `MC > PartsToImprove / WhatToBuild / Blocks`:
 Reporte local:
 `.local/sqx142_task_config/phase_reports/phase6_mc_passive_generation_20260523_221854.json`.
 
-Siguiente bloque exacto: `MC > Rankings / ATMs / RiskMoneyManagement / Notes / SelectedStrategies / CustomData`, para cerrar las pestañas estaticas restantes y asegurar que no queda ningun resto ejecutable fuera del metodo MC aprobado.
+Decision aplicada para `MC > Rankings / ATMs / RiskMoneyManagement / Notes / SelectedStrategies / CustomData`:
+
+- Se anade `mc-static-tabs-target` con dry-run-first, backup/diff/apply y
+  guard compuesto sobre los bloques MC anteriores.
+- `Rankings` queda sin filtros extra: `ConditionsType=1`, sin condiciones,
+  `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false` y
+  `CustomAnalysis.filter=false`.
+- `FitPortfolio=false`; MC no hace seleccion de portfolio en Capa1 y el
+  passed/failed queda gobernado por `MonteCarloManipulation`.
+- `ATMs` queda desactivado y `RiskMoneyManagement` mantiene `FixedSize=true`
+  con el resto de modos de riesgo apagados para comparabilidad de retest.
+- `Notes` se preserva y `SelectedStrategies` ausente/vacio queda aceptado como
+  estado pasivo valido.
+- `CustomData` queda generico/no donor: sin copia `USDJPY/H4`, chart seed
+  sincronizado con el Data principal, `Commission=0.0` y `testPrecision=2`
+  simulated.
+- El dry-run posterior queda idempotente: `changed=false`,
+  `changedActionCount=0` y `guardOk=true`.
+- Ledger local respondido para `MC > Rankings` (`22/22`), `MC > ATMs` (`9/9`),
+  `MC > RiskMoneyManagement` (`25/25`), `MC > Notes` (`1/1`),
+  `MC > SelectedStrategies` (`0/0` allow-empty) y `MC > CustomData` (`6/6`).
+
+Reporte local:
+`.local/sqx142_task_config/phase_reports/phase6_mc_static_tabs_20260523_223913.json`.
+
+Siguiente bloque exacto: `phase6_mc_closeout`, para reejecutar todos los guards
+MC en dry-run y cerrar formalmente la Fase 6 antes de `MC 2`.
 
 ## Disciplina Operativa
 

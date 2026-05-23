@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 MC Static Tabs
+
+- Adds `mc-static-tabs-target` to close `MC > Rankings / ATMs / RiskMoneyManagement / Notes / SelectedStrategies / CustomData` with dry-run-first backup/diff/apply and a composed MC guard.
+- Disables `FitPortfolio` in `MC > Rankings`; MC pass/fail remains owned by the `MonteCarloManipulation` crosscheck, with no extra Ranking conditions, `DeleteFailedStrategies=false` and `ForceRunCrossChecks=false`.
+- Keeps static tabs conservative: `ATMs` disabled, `RiskMoneyManagement` fixed-size, Notes preserved and `SelectedStrategies` empty/absent accepted.
+- Normalizes `CustomData` as generic/no-donor seed with `testPrecision=2`, `Commission=0.0`, the main chart seed and no `USDJPY/H4` copy.
+- Records local ledger answers for `MC > Rankings` (`22/22`), `MC > ATMs` (`9/9`), `MC > RiskMoneyManagement` (`25/25`), `MC > Notes` (`1/1`), `MC > SelectedStrategies` (`0/0` allow-empty) and `MC > CustomData` (`6/6`), with post-apply dry-run idempotent and `guardOk=true`.
+
 ## 2026-05-23 - C1-CONFIG1 MC Passive Generation
 
 - Adds `mc-passive-generation-target` to close `MC > PartsToImprove / WhatToBuild / Blocks` with dry-run-first backup/diff/apply and a guard for passive retest behavior.

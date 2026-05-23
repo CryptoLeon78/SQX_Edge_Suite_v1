@@ -461,6 +461,37 @@ MC_STRATEGY_TYPE_TARGET = {
 }
 MC_PASSIVE_BUILDMODE_TEXT_TARGET = RETEST1_PASSIVE_BUILDMODE_TEXT_TARGET
 MC_PASSIVE_BUILDMODE_ATTR_TARGET = RETEST1_PASSIVE_BUILDMODE_ATTR_TARGET
+MC_STATIC_TABS = ("Rankings", "ATMs", "RiskMoneyManagement", "Notes", "SelectedStrategies", "CustomData")
+MC_RANKING_TARGET = {
+    "MaxStrategies": "10000",
+    "ConditionsType": "1",
+    "DeleteFailedStrategies": "false",
+    "ForceRunCrossChecks": "false",
+    "FitPortfolio": {"active": "false", "databank": "Existing portfolio"},
+    "CustomAnalysis": {"filter": "false", "inputArgs": "", "method": "none"},
+    "AutomaticDismissal": {"warnings": "false"},
+    "StopCondition": {
+        "type": "databank-full",
+        "passedStrategies": "1000",
+        "restartCount": "5",
+        "days": "0",
+        "hours": "0",
+        "minutes": "0",
+    },
+}
+MC_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET = {
+    "commissions": "true",
+    "dates": "false",
+    "distance": "true",
+    "engine": "true",
+    "precision": "false",
+    "slippage": "true",
+    "spread": "true",
+    "subcharts": "false",
+    "symbol": "false",
+    "timeframe": "true",
+}
+MC_CUSTOM_DATA_COMMISSION_TARGET = "0.0"
 
 
 def stamp() -> str:
@@ -5314,6 +5345,394 @@ def promote_mc_passive_generation_target(root142: Path, project_root: Path, targ
     return payload
 
 
+def set_attrs_on_node(node: ET.Element, attrs: dict[str, str], actions: list[dict[str, Any]], field: str) -> None:
+    before = dict(node.attrib)
+    for key, value in attrs.items():
+        node.set(key, value)
+    after = dict(node.attrib)
+    actions.append({"field": field, "from": before, "to": after, "changed": before != after})
+
+
+def clear_ranking_conditions(rankings: ET.Element, actions: list[dict[str, Any]], field: str) -> None:
+    conditions = rankings.find("Conditions")
+    if conditions is None:
+        actions.append({
+            "field": field,
+            "from": [],
+            "to": [],
+            "changed": False,
+            "note": "MC pass/fail is owned by CrossChecks acceptance conditions",
+        })
+        return
+    before = summarize_conditions_detailed(conditions)
+    for child in list(conditions):
+        conditions.remove(child)
+    after = summarize_conditions_detailed(conditions)
+    actions.append({
+        "field": field,
+        "from": before,
+        "to": after,
+        "changed": before != after,
+        "note": "MC pass/fail is owned by CrossChecks acceptance conditions",
+    })
+
+
+def main_chart_seed(root: ET.Element) -> dict[str, str]:
+    setup = root.find(".//Data/Setups/Setup")
+    chart = setup.find("Chart") if setup is not None else None
+    if chart is None:
+        return {}
+    return {
+        key: chart.get(key, "")
+        for key in ("symbol", "timeframe", "spread")
+        if chart.get(key) is not None
+    }
+
+
+def apply_mc_rankings_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    rankings = find_section(root, "Rankings")
+    if rankings is None:
+        rankings = ET.SubElement(root, "Rankings", {"type": "never"})
+        actions.append({"field": "Rankings", "from": None, "to": dict(rankings.attrib), "changed": True})
+    before_rank_attrs = dict(rankings.attrib)
+    rankings.set("type", "never")
+    actions.append({
+        "field": "Rankings:type",
+        "from": before_rank_attrs,
+        "to": dict(rankings.attrib),
+        "changed": before_rank_attrs != dict(rankings.attrib),
+    })
+    set_or_create_text_child(rankings, "MaxStrategies", MC_RANKING_TARGET["MaxStrategies"], actions, "Rankings/MaxStrategies")
+    set_or_update_attrs_child(
+        rankings,
+        "FitnessCriteria",
+        {"method": "ComputeFromStrategyResult", "useFitnessByIndex": "false"},
+        actions,
+        "Rankings/FitnessCriteria",
+    )
+    set_or_create_text_child(rankings, "ConditionsType", MC_RANKING_TARGET["ConditionsType"], actions, "Rankings/ConditionsType")
+    set_or_create_text_child(rankings, "DeleteFailedStrategies", MC_RANKING_TARGET["DeleteFailedStrategies"], actions, "Rankings/DeleteFailedStrategies")
+    set_or_create_text_child(rankings, "ForceRunCrossChecks", MC_RANKING_TARGET["ForceRunCrossChecks"], actions, "Rankings/ForceRunCrossChecks")
+    set_or_update_attrs_child(rankings, "AutomaticDismissal", MC_RANKING_TARGET["AutomaticDismissal"], actions, "Rankings/AutomaticDismissal")
+    set_or_update_attrs_child(rankings, "StopCondition", MC_RANKING_TARGET["StopCondition"], actions, "Rankings/StopCondition")
+    set_or_update_attrs_child(rankings, "FitPortfolio", MC_RANKING_TARGET["FitPortfolio"], actions, "Rankings/FitPortfolio")
+    set_or_update_attrs_child(rankings, "CustomAnalysis", MC_RANKING_TARGET["CustomAnalysis"], actions, "Rankings/CustomAnalysis")
+    clear_ranking_conditions(rankings, actions, "Rankings/Conditions")
+
+
+def apply_mc_atms_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    atms = find_section(root, "ATMs")
+    if atms is None:
+        atms = ET.SubElement(root, "ATMs")
+        actions.append({"field": "ATMs", "from": None, "to": dict(atms.attrib), "changed": True})
+    set_attrs_on_node(atms, RETEST1_ATMS_TARGET, actions, "ATMs:attrs")
+
+
+def apply_mc_selected_strategies_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    selected = find_section(root, "SelectedStrategies")
+    if selected is None:
+        actions.append({
+            "field": "SelectedStrategies",
+            "from": None,
+            "to": None,
+            "changed": False,
+            "note": "missing is accepted as empty in SQX automatic retests",
+        })
+        return
+    before = {"text": (selected.text or "").strip(), "children": [value_for_node(child) for child in list(selected)]}
+    for child in list(selected):
+        selected.remove(child)
+    selected.text = None
+    after = {"text": "", "children": []}
+    actions.append({"field": "SelectedStrategies", "from": before, "to": after, "changed": before != after})
+
+
+def apply_mc_custom_data_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    custom = find_section(root, "CustomData")
+    if custom is None:
+        custom = ET.SubElement(root, "CustomData")
+        actions.append({"field": "CustomData", "from": None, "to": "created", "changed": True})
+    setups = ensure_direct_child(custom, "Setups")
+    setup = setups.find("Setup")
+    if setup is None:
+        setup = ET.SubElement(setups, "Setup")
+        actions.append({"field": "CustomData/Setup", "from": None, "to": dict(setup.attrib), "changed": True})
+
+    period = generator_period(MC_PERIOD_KEY)
+    setup_attrs = {
+        "dateFrom": period[0],
+        "dateTo": period[1],
+        "testPrecision": MC_DATA_TEST_PRECISION,
+        "session": MC_DATA_SESSION,
+        "slippage": "0",
+        "minDist": "0",
+    }
+    if not setup.get("engine"):
+        setup_attrs["engine"] = "MetaTrader4"
+    set_attrs_on_node(setup, setup_attrs, actions, "CustomData/Setup:attrs")
+
+    chart = setup.find("Chart")
+    if chart is None:
+        chart = ET.SubElement(setup, "Chart")
+        actions.append({"field": "CustomData/Setup/Chart", "from": None, "to": dict(chart.attrib), "changed": True})
+    chart_target = main_chart_seed(root)
+    if chart_target:
+        set_attrs_on_node(chart, chart_target, actions, "CustomData/Setup/Chart:attrs")
+
+    commissions = ensure_direct_child(setup, "Commissions")
+    existing_methods = {
+        method.get("type", ""): method
+        for method in commissions.findall("Method")
+        if method.get("type")
+    }
+    for method_type, use in {"None": "false", "SizeBased": "true"}.items():
+        method = existing_methods.get(method_type)
+        if method is None:
+            method = ET.SubElement(commissions, "Method", {"type": method_type})
+            before = None
+        else:
+            before = dict(method.attrib)
+        method.set("type", method_type)
+        method.set("use", use)
+        actions.append({
+            "field": f"CustomData/Commissions/Method:{method_type}",
+            "from": before,
+            "to": dict(method.attrib),
+            "changed": before != dict(method.attrib),
+        })
+        if method_type == "SizeBased":
+            params = ensure_direct_child(method, "Params")
+            param = None
+            for candidate in params.findall("Param"):
+                if candidate.get("key") == "Commission":
+                    param = candidate
+                    break
+            if param is None:
+                param = ET.SubElement(params, "Param", {"key": "Commission", "className": "SizeBased"})
+                before_param = None
+            else:
+                before_param = {**dict(param.attrib), "text": param.text or ""}
+            param.set("key", "Commission")
+            param.set("className", "SizeBased")
+            param.text = MC_CUSTOM_DATA_COMMISSION_TARGET
+            after_param = {**dict(param.attrib), "text": param.text or ""}
+            actions.append({
+                "field": "CustomData/Commissions/Method:SizeBased/Param:Commission",
+                "from": before_param,
+                "to": after_param,
+                "changed": before_param != after_param,
+            })
+
+    main_values = setup.find("MainTestValues")
+    if main_values is None:
+        main_values = ET.SubElement(setup, "MainTestValues")
+        actions.append({"field": "CustomData/MainTestValues", "from": None, "to": dict(main_values.attrib), "changed": True})
+    set_attrs_on_node(main_values, MC_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET, actions, "CustomData/MainTestValues:attrs")
+
+
+def apply_mc_static_tabs_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    apply_mc_rankings_to_root(root, actions)
+    apply_retest1_risk_money_management_to_root(root, actions)
+    apply_mc_atms_to_root(root, actions)
+    actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    apply_mc_selected_strategies_to_root(root, actions)
+    apply_mc_custom_data_to_root(root, actions)
+    return actions
+
+
+def mc_static_tabs_summary(root: ET.Element) -> dict[str, Any]:
+    summary = tick_real_static_crosschecks_summary(root)
+    rankings = find_section(root, "Rankings")
+    ranking_data: dict[str, Any] = {}
+    if rankings is not None:
+        ranking_data = {
+            "type": rankings.get("type", ""),
+            "MaxStrategies": rankings.findtext("MaxStrategies") or "",
+            "ConditionsType": rankings.findtext("ConditionsType") or "",
+            "DeleteFailedStrategies": rankings.findtext("DeleteFailedStrategies") or "",
+            "ForceRunCrossChecks": rankings.findtext("ForceRunCrossChecks") or "",
+            "FitPortfolio": dict(rankings.find("FitPortfolio").attrib) if rankings.find("FitPortfolio") is not None else {},
+            "StopCondition": dict(rankings.find("StopCondition").attrib) if rankings.find("StopCondition") is not None else {},
+            "CustomAnalysis": dict(rankings.find("CustomAnalysis").attrib) if rankings.find("CustomAnalysis") is not None else {},
+            "conditions": summarize_conditions_detailed(rankings.find("Conditions")),
+            "sha256": section_sha256(root, "Rankings"),
+        }
+    summary["rankings"] = ranking_data
+    custom = find_section(root, "CustomData")
+    setup = custom.find(".//Setup") if custom is not None else None
+    size_based = setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']") if setup is not None else None
+    main_values = setup.find("MainTestValues") if setup is not None else None
+    if "customData" in summary:
+        summary["customData"]["commission"] = (size_based.text or "") if size_based is not None else ""
+        summary["customData"]["mainTestValues"] = dict(main_values.attrib) if main_values is not None else {}
+    return summary
+
+
+def enforce_mc_static_tabs_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = mc_static_tabs_summary(root)
+    ranking = summary.get("rankings") or {}
+    if ranking.get("type") != "never":
+        issues.append(f"MC Rankings type is {ranking.get('type')!r}, expected 'never'")
+    for key in ("MaxStrategies", "ConditionsType", "DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if ranking.get(key) != MC_RANKING_TARGET[key]:
+            issues.append(f"MC Rankings {key} is {ranking.get(key)!r}, expected {MC_RANKING_TARGET[key]!r}")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append("MC FitPortfolio must remain disabled; portfolio selection belongs to later portfolio phases")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append("MC CustomAnalysis filter must remain disabled")
+    if ranking.get("conditions"):
+        issues.append("MC Rankings must not add extra conditions; CrossChecks acceptance owns MC pass/fail")
+
+    rmm = summary.get("riskMoneyManagement") or {}
+    methods = rmm.get("methods") or {}
+    for method_type, wanted in RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if methods.get(method_type) != wanted:
+            issues.append(f"MC RiskMoneyManagement {method_type} is {methods.get(method_type)!r}, expected {wanted!r}")
+
+    atms = summary.get("atms") or {}
+    for key, wanted in RETEST1_ATMS_TARGET.items():
+        if (atms.get("attrs") or {}).get(key) != wanted:
+            issues.append(f"MC ATMs {key} is {(atms.get('attrs') or {}).get(key)!r}, expected {wanted!r}")
+
+    selected = summary.get("selectedStrategies") or {}
+    if selected.get("children") != 0 or selected.get("text"):
+        issues.append("MC SelectedStrategies must remain empty in the base template")
+
+    custom = summary.get("customData") or {}
+    if not custom.get("exists"):
+        issues.append("MC CustomData section missing")
+    else:
+        period = generator_period(MC_PERIOD_KEY)
+        setup = custom.get("setup") or {}
+        chart = custom.get("chart") or {}
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"MC CustomData dates are {(setup.get('dateFrom'), setup.get('dateTo'))!r}, expected {period!r}")
+        if setup.get("testPrecision") != MC_DATA_TEST_PRECISION:
+            issues.append(f"MC CustomData testPrecision is {setup.get('testPrecision')!r}, expected {MC_DATA_TEST_PRECISION!r}")
+        if setup.get("session") != MC_DATA_SESSION:
+            issues.append(f"MC CustomData session is {setup.get('session')!r}, expected {MC_DATA_SESSION!r}")
+        target_chart = main_chart_seed(root)
+        if target_chart and {key: chart.get(key, "") for key in target_chart} != target_chart:
+            issues.append(f"MC CustomData chart seed is {chart!r}, expected {target_chart!r}")
+        if custom.get("commission") != MC_CUSTOM_DATA_COMMISSION_TARGET:
+            issues.append(f"MC CustomData commission is {custom.get('commission')!r}, expected {MC_CUSTOM_DATA_COMMISSION_TARGET!r}")
+        if custom.get("mainTestValues") != MC_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+            issues.append("MC CustomData MainTestValues drifted from methodology target")
+
+    guarded_text = (
+        section_text(root, "Rankings")
+        + section_text(root, "ATMs")
+        + section_text(root, "RiskMoneyManagement")
+        + section_text(root, "SelectedStrategies")
+        + section_text(root, "CustomData")
+    )
+    for token in MC_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into MC static tabs: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into MC static tabs")
+
+    for issue in enforce_mc_data_databanks_resources_options_guard(root):
+        issues.append(f"Data/Resources guard: {issue}")
+    for issue in enforce_mc_crosschecks_guard(root):
+        issues.append(f"CrossChecks guard: {issue}")
+    for issue in enforce_mc_passive_generation_guard(root):
+        issues.append(f"Passive generation guard: {issue}")
+    return issues
+
+
+def update_mc_static_tabs_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, MC_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "mc_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = mc_static_tabs_summary(root)
+    payload["actions"] = apply_mc_static_tabs_to_root(root)
+    payload["after"] = mc_static_tabs_summary(root)
+    payload["issues"] = enforce_mc_static_tabs_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "rankings": MC_RANKING_TARGET,
+        "rankingConditions": [],
+        "riskMoneyManagementMethods": RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET,
+        "atms": RETEST1_ATMS_TARGET,
+        "staticTabs": MC_STATIC_TABS,
+        "customDataMainTestValues": MC_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+        "customDataCommission": MC_CUSTOM_DATA_COMMISSION_TARGET,
+    }
+    payload["targetRationale"] = {
+        "ranking": "MC pass/fail is owned by MonteCarloManipulation acceptance conditions; Ranking must preserve failed rows and not run portfolio selection.",
+        "riskMoneyManagement": "FixedSize keeps Capa1 retests comparable and avoids sizing noise.",
+        "customData": "CustomData remains a generic local-safe seed synchronized to the main Data chart, not Mining15 donor values.",
+        "staticTabs": "ATMs, Notes and SelectedStrategies stay inert while executable behavior is guarded by previous MC blocks.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_mc_static_tabs_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase6_mc_static_tabs_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_mc_static_tabs_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase6",
+        "operation": "mc_static_tabs_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase6_mc_static_tabs_diff_review" if not apply else "phase6_mc_closeout",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase6_mc_static_tabs_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -6543,6 +6962,10 @@ def build_parser() -> argparse.ArgumentParser:
     mc_passive.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     mc_passive.add_argument("--apply", action="store_true")
 
+    mc_static = sub.add_parser("mc-static-tabs-target")
+    mc_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    mc_static.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -6659,6 +7082,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "mc-passive-generation-target":
         json_print(promote_mc_passive_generation_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "mc-static-tabs-target":
+        json_print(promote_mc_static_tabs_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

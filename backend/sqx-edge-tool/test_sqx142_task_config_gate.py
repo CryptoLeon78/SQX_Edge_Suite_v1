@@ -5,6 +5,7 @@ from tools.sqx142_task_config_gate import (
     apply_mc_data_databanks_resources_options_to_root,
     apply_mc_crosschecks_to_root,
     apply_mc_passive_generation_to_root,
+    apply_mc_static_tabs_to_root,
     apply_retest1_passive_generation_to_root,
     apply_retest1_data_resources_to_root,
     apply_retest1_options_databanks_rankings_to_root,
@@ -20,6 +21,7 @@ from tools.sqx142_task_config_gate import (
     enforce_mc_data_databanks_resources_options_guard,
     enforce_mc_crosschecks_guard,
     enforce_mc_passive_generation_guard,
+    enforce_mc_static_tabs_guard,
     enforce_tick_real_data_databanks_resources_guard,
     enforce_tick_real_options_rankings_guard,
     enforce_tick_real_passive_generation_guard,
@@ -620,7 +622,12 @@ def test_tick_real_passive_generation_guard_rejects_active_improvement_and_day_e
               <Block key="Signals.ADX" category="signals" use="true" probability="1" />
               <Block key="StopLimitBlocks.ATRStop" category="stopLimitBlocks" use="true" probability="1" />
             </BuildingBlocks>
-            <OrderTypes><Block key="EnterAtMarket" use="false" /><Block key="EnterAtStop" use="true" /></OrderTypes>
+            <OrderTypes>
+              <Block key="EnterAtMarket" use="false" />
+              <Block key="EnterReverseAtMarket" use="true" />
+              <Block key="EnterAtStop" use="true" />
+              <Block key="EnterAtLimit" use="true" />
+            </OrderTypes>
             <ExitTypes><Block key="ExitAfterDays.ExitAfterDays" use="true" probability="50" /></ExitTypes>
             <CustomData showAll="true"><Item /></CustomData>
           </Blocks>
@@ -1130,7 +1137,12 @@ def test_mc_passive_generation_guard_rejects_active_generation_and_donor_day_exi
               <Block key="Signals.USDJPY_darwinex" category="signals" use="true" probability="1" />
               <Block key="StopLimitBlocks.ATRStop" category="stopLimitBlocks" use="true" probability="1" />
             </BuildingBlocks>
-            <OrderTypes><Block key="EnterAtMarket" use="false" /><Block key="EnterAtStop" use="true" /></OrderTypes>
+            <OrderTypes>
+              <Block key="EnterAtMarket" use="false" />
+              <Block key="EnterReverseAtMarket" use="true" />
+              <Block key="EnterAtStop" use="true" />
+              <Block key="EnterAtLimit" use="true" />
+            </OrderTypes>
             <ExitTypes><Block key="ExitAfterDays.ExitAfterDays" use="true" probability="50" /></ExitTypes>
             <CustomData showAll="true"><Item /></CustomData>
           </Blocks>
@@ -1149,3 +1161,193 @@ def test_mc_passive_generation_guard_rejects_active_generation_and_donor_day_exi
     assert any("signals must remain disabled" in issue for issue in issues)
     assert any("stop/limit entry blocks" in issue for issue in issues)
     assert any("Forbidden token" in issue for issue in issues)
+
+
+def test_mc_static_tabs_disable_portfolio_fit_and_normalize_custom_data_seed():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Data>
+            <Setups>
+              <Setup dateFrom="2010.01.01" dateTo="2026.04.08" testPrecision="4" session="Old Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)">
+                <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2" />
+              </Setup>
+            </Setups>
+            <OutOfSample showGraph="true"><Range dateFrom="2020.01.01" dateTo="2021.01.01" /></OutOfSample>
+          </Data>
+          <Databanks>
+            <Databank name="Input" value="retest 1" />
+            <Databank name="Output" value="TICK" />
+          </Databanks>
+          <Resources>
+            <Symbols>
+              <Symbol name="AUDCAD_darwinex" source="4" precision="M1" timezone="UTC" broker="4">
+                <InstrumentInfo instrument="AUDCAD_darwinex" defaultSpread="2" broker="4" />
+              </Symbol>
+            </Symbols>
+            <Brokers><Broker id="4" name="[[Darwinex]]" timezone="UTC" /></Brokers>
+            <Instruments />
+            <Sessions><Session name="Old Session" /></Sessions>
+            <CustomIndicators />
+            <CustomBlocks />
+          </Resources>
+          <Options>
+            <BuildTradingOptions><Params>
+              <Param key="Session">Old Session</Param>
+              <Param key="MarketOpenSession">Old Session</Param>
+              <Param key="LimitTimeRange">true</Param>
+              <Param key="RealisticGapsHandling">true</Param>
+              <Param key="StoreChartData">true</Param>
+            </Params></BuildTradingOptions>
+          </Options>
+          <Rankings type="always">
+            <MaxStrategies>500</MaxStrategies>
+            <ConditionsType>1</ConditionsType>
+            <DeleteFailedStrategies>false</DeleteFailedStrategies>
+            <ForceRunCrossChecks>false</ForceRunCrossChecks>
+            <FitPortfolio active="true" databank="Existing portfolio"><Correlation max="0.3" /></FitPortfolio>
+            <CustomAnalysis filter="true" inputArgs="" method="none" />
+            <StopCondition type="passed" passedStrategies="10" restartCount="1" days="1" hours="1" minutes="1" />
+            <Conditions><Condition use="true"><Left-Side><Column-Value column="NetProfit" format="Decimal2" sampleType="127" /></Left-Side><Comparator value=">=" /><Right-Side><Numeric-Value value="1" /></Right-Side></Condition></Conditions>
+          </Rankings>
+          <PartsToImprove improveATM="true">
+            <EntryRules symmetry="true"><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></EntryRules>
+            <OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes>
+            <ExitRules symmetry="true"><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>true</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="true" />
+              <EvoRestartOnStagnation status="true" fitnessType="10" generations="30" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="simple">
+            <BuildingBlocks>
+              <Block key="Signals.ADX" category="signals" use="true" probability="1" />
+              <Block key="Indicators.ATR" category="indicators" use="true" probability="1" />
+              <Block key="StopLimitBlocks.ATRStop" category="stopLimitBlocks" use="true" probability="1" />
+            </BuildingBlocks>
+            <OrderTypes>
+              <Block key="EnterAtMarket" use="false" />
+              <Block key="EnterReverseAtMarket" use="true" />
+              <Block key="EnterAtStop" use="true" />
+              <Block key="EnterAtLimit" use="true" />
+            </OrderTypes>
+            <ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="false" probability="50" /><Block key="StopLoss.StopLoss" use="true" probability="50" /></ExitTypes>
+            <CustomData showAll="true"><Item /></CustomData>
+          </Blocks>
+          <CrossChecks use="false" evaluateAll="false">
+            <MonteCarloRetest use="true"><Settings><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings></MonteCarloRetest>
+            <MonteCarloManipulation use="false">
+              <Settings>
+                <Methods>
+                  <Method type="RandomizeTradesOrder" use="false"><Params><Param key="Method" type="String">permutation</Param></Params></Method>
+                  <Method type="RandomlySkipTrades" use="true"><Params><Param key="Probability" type="Integer">25</Param></Params></Method>
+                </Methods>
+                <NumberOfSimulations>50</NumberOfSimulations>
+                <MCUseFullSample>false</MCUseFullSample>
+              </Settings>
+              <AcceptanceSettings><Conditions CrossCheck="MonteCarloManipulation" /></AcceptanceSettings>
+            </MonteCarloManipulation>
+          </CrossChecks>
+          <RiskMoneyManagement customSettings="false">
+            <MoneyManagement>
+              <Method type="FixedSize" use="false" />
+              <Method type="RiskFixedBalancePct" use="false" />
+              <Method type="RiskFixedPctOfAccount" use="false" />
+              <Method type="FixedAmount" use="true" />
+              <Method type="StocksSizeByPrice" use="false" />
+            </MoneyManagement>
+          </RiskMoneyManagement>
+          <ATMs enable="true" scaleOutType="1" />
+          <Notes>ok</Notes>
+          <SelectedStrategies><Strategy id="legacy" /></SelectedStrategies>
+          <CustomData>
+            <Setups>
+              <Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="1" session="No Session" slippage="0" minDist="0" engine="MetaTrader4">
+                <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
+                <Commissions>
+                  <Method type="None" use="false" />
+                  <Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0</Param></Params></Method>
+                </Commissions>
+                <MainTestValues commissions="true" dates="false" distance="true" engine="true" precision="false" slippage="true" spread="true" subcharts="false" symbol="false" timeframe="true" />
+              </Setup>
+            </Setups>
+          </CustomData>
+        </Task>
+        """
+    )
+
+    apply_mc_data_databanks_resources_options_to_root(root)
+    apply_mc_crosschecks_to_root(root)
+    apply_mc_passive_generation_to_root(root, source_root=root)
+    actions = apply_mc_static_tabs_to_root(root)
+
+    assert any(item["field"] == "Rankings/FitPortfolio" and item["changed"] for item in actions)
+    assert any(item["field"] == "Rankings/Conditions" and item["changed"] for item in actions)
+    assert any(item["field"] == "RiskMoneyManagement/Method:FixedSize" and item["changed"] for item in actions)
+    assert any(item["field"] == "ATMs:attrs" and item["changed"] for item in actions)
+    assert any(item["field"] == "SelectedStrategies" and item["changed"] for item in actions)
+    assert any(item["field"] == "CustomData/Setup:attrs" and item["changed"] for item in actions)
+    assert enforce_mc_static_tabs_guard(root) == []
+    rankings = root.find(".//Rankings")
+    assert rankings.find("FitPortfolio").get("active") == "false"
+    assert rankings.find("CustomAnalysis").get("filter") == "false"
+    assert rankings.findall("./Conditions/Condition") == []
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedAmount']").get("use") == "false"
+    assert root.find(".//ATMs").get("enable") == "false"
+    assert root.find(".//SelectedStrategies").text is None
+    custom_setup = root.find("./CustomData/Setups/Setup")
+    assert custom_setup.get("testPrecision") == "2"
+    assert custom_setup.find("Chart").get("symbol") == "AUDCAD_darwinex"
+    assert custom_setup.find("Chart").get("timeframe") == "H1"
+    assert custom_setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']").text == "0.0"
+
+
+def test_mc_static_tabs_guard_rejects_portfolio_fit_rank_filters_and_customdata_donor():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2" /></Setup></Setups></Data>
+          <Rankings type="always">
+            <MaxStrategies>10000</MaxStrategies>
+            <ConditionsType>1</ConditionsType>
+            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <ForceRunCrossChecks>true</ForceRunCrossChecks>
+            <FitPortfolio active="true" databank="Existing portfolio" />
+            <CustomAnalysis filter="true" inputArgs="" method="none" />
+            <Conditions><Condition use="true"><Left-Side><Column-Value column="NetProfit" format="Decimal2" sampleType="127" /></Left-Side><Comparator value=">=" /><Right-Side><Numeric-Value value="1" /></Right-Side></Condition></Conditions>
+          </Rankings>
+          <ATMs enable="true" />
+          <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement></RiskMoneyManagement>
+          <SelectedStrategies>legacy</SelectedStrategies>
+          <CustomData>
+            <Setups>
+              <Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="1" session="No Session">
+                <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
+                <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission">0</Param></Params></Method></Commissions>
+                <MainTestValues commissions="false" />
+              </Setup>
+            </Setups>
+          </CustomData>
+        </Task>
+        """
+    )
+
+    issues = enforce_mc_static_tabs_guard(root)
+
+    assert any("Rankings type" in issue for issue in issues)
+    assert any("DeleteFailedStrategies" in issue for issue in issues)
+    assert any("ForceRunCrossChecks" in issue for issue in issues)
+    assert any("FitPortfolio" in issue for issue in issues)
+    assert any("extra conditions" in issue for issue in issues)
+    assert any("RiskMoneyManagement FixedSize" in issue for issue in issues)
+    assert any("ATMs enable" in issue for issue in issues)
+    assert any("SelectedStrategies" in issue for issue in issues)
+    assert any("CustomData testPrecision" in issue for issue in issues)
+    assert any("Forbidden donor token" in issue for issue in issues)
