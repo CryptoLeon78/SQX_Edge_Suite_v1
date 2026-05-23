@@ -132,7 +132,7 @@ tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "Cross
 tools\sqx142_task_config_gate.ps1 record-answer --task-title "MC 2" --tab "CrossChecks" --question-id "<id>" --answer "<answer>"
 ```
 
-Las respuestas completas viven en `.local/sqx142_task_config/`; los docs solo reciben resumen limpio al cerrar fase.
+Los cuestionarios guardan todas las entradas detectadas por defecto. Las respuestas completas viven en `.local/sqx142_task_config/`; los docs solo reciben resumen limpio al cerrar fase.
 
 ## SQX Edge Pro
 

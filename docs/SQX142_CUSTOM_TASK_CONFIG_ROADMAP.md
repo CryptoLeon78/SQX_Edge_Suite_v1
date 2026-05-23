@@ -42,12 +42,19 @@ tools\sqx142_task_config_gate.ps1 preflight
 tools\sqx142_task_config_gate.ps1 preflight --apply
 tools\sqx142_task_config_gate.ps1 phases
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write
+tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write --full-output
 tools\sqx142_task_config_gate.ps1 record-answer --task-title "MC 2" --tab "CrossChecks" --question-id "<id>" --answer "<answer>"
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
 
 `preflight --apply` escribe solo evidencia local ignorada por Git: snapshots de
 donor/base/template, diff semantico y `session_state.json`.
+
+`questionnaire` detecta y guarda todas las entradas de la pestaña por defecto.
+`--max-values` queda solo como throttle diagnostico temporal y no debe usarse
+para cerrar una fase. Cuando se usa `--write`, la consola devuelve resumen para
+no inundar el terminal; el JSON completo se guarda en `.local`. `--full-output`
+imprime todas las preguntas si hace falta inspeccionarlo directamente.
 
 ## Fases
 
@@ -90,7 +97,8 @@ Preflight aplicado:
 En cada fase:
 
 1. Extraer valores actuales.
-2. Mostrar pregunta con valor actual, donor, recomendacion y opciones.
+2. Mostrar pregunta con valor actual, donor, recomendacion y opciones para
+   todas las entradas detectadas.
 3. Guardar cada respuesta inmediatamente en `.local/sqx142_task_config/answers`.
 4. Aplicar primero en clon o dry-run.
 5. Mostrar diff antes de tocar base.

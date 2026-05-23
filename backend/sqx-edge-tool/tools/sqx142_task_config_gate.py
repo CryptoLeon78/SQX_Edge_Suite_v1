@@ -394,9 +394,10 @@ def collect_section_values(root: ET.Element | None, tab: str, max_values: int) -
     if section is None:
         return {"exists": False, "section": SECTION_ALIASES.get(tab.casefold(), tab), "values": []}
     values: list[dict[str, Any]] = []
+    limited = max_values > 0
 
     def walk(node: ET.Element, parts: list[str]) -> None:
-        if len(values) >= max_values:
+        if limited and len(values) >= max_values:
             return
         if node.tag in SKIP_SUBTREES and node is not section:
             return
@@ -416,7 +417,8 @@ def collect_section_values(root: ET.Element | None, tab: str, max_values: int) -
     return {
         "exists": True,
         "section": section.tag,
-        "truncated": len(values) >= max_values,
+        "maxValues": max_values if limited else "unlimited",
+        "truncated": bool(limited and len(values) >= max_values),
         "values": values,
     }
 
@@ -496,6 +498,27 @@ def build_questionnaire(
         write_json(target, payload)
         payload["written"] = str(target)
     return payload
+
+
+def compact_questionnaire_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "ok": payload.get("ok", False),
+        "version": payload.get("version", VERSION),
+        "createdAt": payload.get("createdAt", ""),
+        "scope": payload.get("scope", "capa1"),
+        "taskTitle": payload.get("taskTitle", ""),
+        "tab": payload.get("tab", ""),
+        "donorTaskXml": payload.get("donorTaskXml", ""),
+        "baseTaskXml": payload.get("baseTaskXml", ""),
+        "questionCount": payload.get("questionCount", 0),
+        "changedQuestionCount": payload.get("changedQuestionCount", 0),
+        "baseValueCount": len(((payload.get("baseSection") or {}).get("values") or [])),
+        "donorValueCount": len(((payload.get("donorSection") or {}).get("values") or [])),
+        "baseTruncated": (payload.get("baseSection") or {}).get("truncated", False),
+        "donorTruncated": (payload.get("donorSection") or {}).get("truncated", False),
+        "written": payload.get("written", ""),
+        "output": "summary_only_use_--full-output_to_print_all_questions",
+    }
 
 
 def task_by_title(snapshot: dict[str, Any], title: str) -> dict[str, Any]:
@@ -761,8 +784,9 @@ def build_parser() -> argparse.ArgumentParser:
     questionnaire = sub.add_parser("questionnaire")
     questionnaire.add_argument("--task-title", required=True)
     questionnaire.add_argument("--tab", required=True)
-    questionnaire.add_argument("--max-values", type=int, default=350)
+    questionnaire.add_argument("--max-values", type=int, default=0)
     questionnaire.add_argument("--write", action="store_true")
+    questionnaire.add_argument("--full-output", action="store_true")
 
     answer = sub.add_parser("record-answer")
     answer.add_argument("--task-title", required=True)
@@ -793,14 +817,17 @@ def main(argv: list[str] | None = None) -> int:
         json_print(list_phases())
         return 0
     if args.command == "questionnaire":
-        json_print(build_questionnaire(
+        payload = build_questionnaire(
             root142,
             project_root,
             task_title_wanted=args.task_title,
             tab=args.tab,
             max_values=args.max_values,
             write=args.write,
-        ))
+        )
+        if args.write and not args.full_output:
+            payload = compact_questionnaire_payload(payload)
+        json_print(payload)
         return 0
     if args.command == "record-answer":
         json_print(record_answer(
