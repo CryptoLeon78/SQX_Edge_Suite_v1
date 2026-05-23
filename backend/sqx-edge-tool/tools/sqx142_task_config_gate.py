@@ -173,6 +173,9 @@ BUILD_DATA_SESSION = "No Session"
 BUILD_RESOURCES_PRECISION = "TICK"
 BUILD_RESOURCES_BASE_DATA_TYPE = "3"
 BUILD_RESOURCES_BANNED_DONOR_TOKENS = ("USDJPY", "USDJPY_darwinex", "USDJPY_dukascopy")
+BUILD_ACTIVE_CROSSCHECK = "SequentialOptimization"
+BUILD_CROSSCHECK_PARENT_TARGET = {"use": "true", "evaluateAll": "true"}
+BUILD_CROSSCHECK_BANNED_DONOR_TOKENS = ("USDJPY", "USDJPY_darwinex", "USDJPY_dukascopy")
 
 
 def stamp() -> str:
@@ -1632,6 +1635,172 @@ def promote_build_resources_target(root142: Path, project_root: Path, target: st
     return payload
 
 
+def build_crosschecks_summary(root: ET.Element | None) -> dict[str, Any]:
+    parent = root.find(".//CrossChecks") if root is not None else None
+    if parent is None:
+        return {"exists": False, "active": [], "checks": []}
+    checks = []
+    active = []
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        methods = [
+            {
+                "type": method.get("type", ""),
+                "use": method.get("use", ""),
+                "settings": {
+                    param.get("key", ""): (param.text or "")
+                    for param in method.findall(".//Param")
+                    if param.get("key")
+                },
+            }
+            for method in check.findall(".//Method")
+            if method.get("use") == "true"
+        ]
+        conditions = [
+            dict(condition.attrib)
+            for condition in check.findall(".//AcceptanceSettings//Condition")
+            if condition.get("use", "true") != "false"
+        ]
+        item = {
+            "id": check.tag,
+            "use": check.get("use", ""),
+            "activeMethodCount": len(methods),
+            "activeConditionCount": len(conditions),
+            "activeMethods": methods,
+        }
+        checks.append(item)
+        if check.get("use") == "true":
+            active.append(check.tag)
+    return {"exists": True, "attributes": dict(parent.attrib), "active": active, "checks": checks}
+
+
+def enforce_build_crosschecks_guard(root: ET.Element, actions: list[dict[str, Any]]) -> list[str]:
+    issues: list[str] = []
+    parent = root.find(".//CrossChecks")
+    if parent is None:
+        return ["CrossChecks section missing"]
+
+    for key, wanted in BUILD_CROSSCHECK_PARENT_TARGET.items():
+        before = parent.get(key, "")
+        parent.set(key, wanted)
+        actions.append({
+            "field": f"CrossChecks:{key}",
+            "from": before,
+            "to": wanted,
+            "changed": before != wanted,
+        })
+
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        wanted = "true" if check.tag == BUILD_ACTIVE_CROSSCHECK else "false"
+        before = check.get("use", "")
+        check.set("use", wanted)
+        actions.append({
+            "field": f"CrossChecks/{check.tag}:use",
+            "from": before,
+            "to": wanted,
+            "changed": before != wanted,
+        })
+
+    active = [check.tag for check in list(parent) if isinstance(check.tag, str) and check.get("use") == "true"]
+    if active != [BUILD_ACTIVE_CROSSCHECK]:
+        issues.append(f"Build active crosschecks must be only {BUILD_ACTIVE_CROSSCHECK}; found {active}")
+
+    active_text = "".join(
+        serialize_xml(check)
+        for check in list(parent)
+        if isinstance(check.tag, str) and check.get("use") == "true"
+    )
+    for token in BUILD_CROSSCHECK_BANNED_DONOR_TOKENS:
+        if token in active_text:
+            issues.append(f"Donor token leaked into active Build crosscheck: {token}")
+    return issues
+
+
+def update_build_crosschecks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, "Build")
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "build_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    payload["before"] = build_crosschecks_summary(root)
+    issues = enforce_build_crosschecks_guard(root, payload["actions"])
+    payload["after"] = build_crosschecks_summary(root)
+    payload["issues"] = issues
+    payload["crossChecksGuardOk"] = not issues
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "parent": BUILD_CROSSCHECK_PARENT_TARGET,
+        "onlyActive": BUILD_ACTIVE_CROSSCHECK,
+        "bannedDonorTokensInActiveChecks": list(BUILD_CROSSCHECK_BANNED_DONOR_TOKENS),
+    }
+    payload["targetRationale"] = {
+        "methodology": "Build mining keeps only the lightweight SequentialOptimization crosscheck active.",
+        "noDonorCopy": "Disabled crosscheck internals are not promoted from donor to avoid dragging symbols, dates or heavy robustness settings into mining.",
+        "quality": "Heavy robustness checks remain scheduled as dedicated retest tasks outside Build.",
+    }
+    if apply and payload["changedActionCount"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_build_crosschecks_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase2_build_crosschecks_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_build_crosschecks_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("crossChecksGuardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase2",
+        "operation": "build_crosschecks_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase2_build_crosschecks_diff_review" if not apply else "phase2_continue_questionnaire",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase2_build_crosschecks_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_blocks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "path": str(cfx),
@@ -2142,6 +2311,10 @@ def build_parser() -> argparse.ArgumentParser:
     promote_resources.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     promote_resources.add_argument("--apply", action="store_true")
 
+    promote_crosschecks = sub.add_parser("build-crosschecks-target")
+    promote_crosschecks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    promote_crosschecks.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -2212,6 +2385,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "build-resources-target":
         json_print(promote_build_resources_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "build-crosschecks-target":
+        json_print(promote_build_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

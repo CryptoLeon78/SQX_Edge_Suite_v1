@@ -179,6 +179,27 @@ def test_capa1_build_resources_are_generic_generator_owned_placeholder():
     assert all(symbol.find("InstrumentInfo").get("instrument") in symbol_names for symbol in symbols)
 
 
+def test_capa1_build_crosschecks_only_enable_sequential_optimization():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    build = roots["Build-Task1.xml"]
+    crosschecks = build.find(".//CrossChecks")
+    assert crosschecks is not None
+    assert crosschecks.get("use") == "true"
+    assert crosschecks.get("evaluateAll") == "true"
+
+    check_states = {
+        check.tag: check.get("use")
+        for check in list(crosschecks)
+        if isinstance(check.tag, str) and check.get("use") is not None
+    }
+    assert check_states["SequentialOptimization"] == "true"
+    assert [name for name, state in check_states.items() if state == "true"] == ["SequentialOptimization"]
+    assert check_states["MonteCarloRetest"] == "false"
+    assert check_states["MonteCarloManipulation"] == "false"
+    assert check_states["WalkForwardOptimization"] == "false"
+    assert check_states["RetestOnAdditionalMarkets"] == "false"
+
+
 def test_capa1_base_uses_phase1_review_views():
     roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
     config = roots["config.xml"]
