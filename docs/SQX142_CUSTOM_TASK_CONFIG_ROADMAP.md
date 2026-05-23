@@ -176,9 +176,9 @@ Promocion aplicada de `Build > Genetic options`:
   permiten bloques `ExitAfterDays` ni `ExitAfterTradingDays`; `CustomData`
   queda `showAll=false` y vacio. Los snippets locales de salida por dias en
   `user/extend` se archivan reversiblemente en `.local`.
-- Bloque blanco `Building blocks` sigue dinamico por metodologia/BlockSettings:
-  señales, indicadores y bloques Stop/Limit de entrada no se fuerzan en esta
-  subfase.
+- Bloque blanco `Building blocks`: `Signals` y `Stop/Limit entry blocks` quedan
+  siempre desactivados para Capa1 base; `Indicators` se preserva como bloque
+  dinamico gobernado por metodologia/BlockSettings.
 
 Orden recomendado de preguntas: pestañas sin diferencias primero para cerrar
 bloques rápidos, después `Data`, `Resources`, `WhatToBuild`, `CrossChecks` y al

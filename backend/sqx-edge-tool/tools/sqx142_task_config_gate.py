@@ -160,6 +160,8 @@ BUILD_ORDER_TYPE_TARGET = {
 BUILD_EXIT_TYPE_ACTIVE_KEY = "ExitAfterBars.ExitAfterBars"
 BUILD_EXIT_TYPE_BANNED_TOKENS = ("ExitAfterDays", "ExitAfterTradingDays")
 BUILD_EXTERNAL_CUSTOM_DATA_TARGET = {"showAll": "false"}
+BUILD_BLOCK_CATEGORY_DISABLE_TARGET = ("signals", "stopLimitBlocks")
+BUILD_BLOCK_CATEGORY_PRESERVE_TARGET = ("indicators",)
 
 
 def stamp() -> str:
@@ -1089,6 +1091,24 @@ def enforce_external_custom_data(blocks: ET.Element, actions: list[dict[str, Any
     })
 
 
+def enforce_disabled_build_block_categories(blocks: ET.Element, actions: list[dict[str, Any]]) -> None:
+    for category in BUILD_BLOCK_CATEGORY_DISABLE_TARGET:
+        matching_blocks = [block for block in blocks.findall(".//Block") if block.get("category") == category]
+        selected_before = [block_key_action(block) for block in matching_blocks if block.get("use") == "true"]
+        for block in matching_blocks:
+            block.set("use", "false")
+        actions.append({
+            "field": f"BuildingBlocks:disableCategory:{category}",
+            "from": {
+                "selectedCount": len(selected_before),
+                "selected": selected_before[:50],
+                "truncated": len(selected_before) > 50,
+            },
+            "to": {"selectedCount": 0},
+            "changed": bool(selected_before),
+        })
+
+
 def update_build_blocks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "path": str(cfx),
@@ -1114,10 +1134,12 @@ def update_build_blocks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool)
     enforce_order_types(blocks, payload["actions"])
     enforce_exit_types(blocks, payload["actions"])
     enforce_external_custom_data(blocks, payload["actions"])
+    enforce_disabled_build_block_categories(blocks, payload["actions"])
 
     payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
     payload["targetRationale"] = {
-        "dynamicLeftSide": "Signals/Indicators/Stop-Limit entry blocks remain methodology/generator owned.",
+        "fixedLeftSide": "Signals and Stop/Limit entry blocks stay disabled in Capa1 base.",
+        "preservedLeftSide": "Indicators remain methodology/BlockSettings owned and are not rewritten here.",
         "fixedBlueSide": "Only EnterAtMarket and ExitAfterBars are allowed in Capa1 base; external custom data stays empty.",
         "exitDays": "Day-based exits are removed from the CFX so they cannot be selected by the Builder.",
     }
@@ -1157,6 +1179,8 @@ def promote_build_blocks_target(root142: Path, project_root: Path, target: str, 
             "activeExitType": BUILD_EXIT_TYPE_ACTIVE_KEY,
             "bannedExitTokens": list(BUILD_EXIT_TYPE_BANNED_TOKENS),
             "customData": BUILD_EXTERNAL_CUSTOM_DATA_TARGET,
+            "disabledBlockCategories": list(BUILD_BLOCK_CATEGORY_DISABLE_TARGET),
+            "preservedBlockCategories": list(BUILD_BLOCK_CATEGORY_PRESERVE_TARGET),
         },
         "nextPhase": "phase2_build_blocks_diff_review" if not apply else "phase2_continue_questionnaire",
     }

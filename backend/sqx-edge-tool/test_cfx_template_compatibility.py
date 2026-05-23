@@ -217,6 +217,24 @@ def test_capa1_build_blocks_keep_only_market_entry_and_exit_after_bars():
     assert list(custom_data) == []
 
 
+def test_capa1_build_blocks_disable_signals_and_stop_limit_preserve_indicators():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    build = roots["Build-Task1.xml"]
+    blocks = build.find(".//Blocks")
+    assert blocks is not None
+
+    signals = [block for block in blocks.findall(".//Block") if block.get("category") == "signals"]
+    stop_limit_blocks = [block for block in blocks.findall(".//Block") if block.get("category") == "stopLimitBlocks"]
+    indicators = [block for block in blocks.findall(".//Block") if block.get("category") == "indicators"]
+
+    assert signals
+    assert stop_limit_blocks
+    assert indicators
+    assert all(block.get("use") == "false" for block in signals)
+    assert all(block.get("use") == "false" for block in stop_limit_blocks)
+    assert any(block.get("use") == "true" for block in indicators)
+
+
 def test_generate_project_names_build_task_and_applies_capa1_time_window():
     mining = Mining(num=91, phase=1, asset="AUDCAD", tf="H4", bs="BS_Volatilidad", dir="both")
     with tempfile.TemporaryDirectory() as tmp:

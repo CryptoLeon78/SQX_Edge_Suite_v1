@@ -15,7 +15,7 @@
 - Adds a Capa1 generator regression guard proving `MarketSides` is patched to `long`, `short` or `both` across every generated task XML instead of inheriting the base template side.
 - Cleans legacy BuildMode nodes no longer read by SQX 142/143 genetic options UI, keeping `Conditions` and `EvoRestartOnStagnation` as the source of truth.
 - Closes the structural `What to build` block by keeping base `StrategyType`, `RulesComplexity`, SL/PT options and entry/exit symmetry while preserving generator-owned `MarketSides`.
-- Adds `build-blocks-target` and `archive-exit-day-snippets` to enforce the blue Building Blocks rules: market entry only, `ExitAfterBars` only, no day-based exits, and no external custom data; user-level `ExitAfterDays` snippets are archived reversibly.
+- Adds `build-blocks-target` and `archive-exit-day-snippets` to enforce the Building Blocks rules: market entry only, `ExitAfterBars` only, no day-based exits, no external custom data, `Signals`/`StopLimitBlocks` disabled, and `Indicators` preserved for methodology/BlockSettings; user-level `ExitAfterDays` snippets are archived reversibly.
 
 ## 2026-05-22 - SQX142-PERF1 Local Performance Gate
 
