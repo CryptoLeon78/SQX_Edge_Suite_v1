@@ -77,6 +77,8 @@ tools\sqx142_task_config_gate.ps1 retest1-static-crosschecks-target --target bot
 tools\sqx142_task_config_gate.ps1 retest1-static-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 tick-real-data-databanks-resources-target --target both
 tools\sqx142_task_config_gate.ps1 tick-real-data-databanks-resources-target --target both --apply
+tools\sqx142_task_config_gate.ps1 tick-real-options-rankings-target --target both
+tools\sqx142_task_config_gate.ps1 tick-real-options-rankings-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -510,12 +512,42 @@ Decision aplicada para `TICK REAL > Data / Databanks / Resources`:
 - Ledger local respondido para `TICK REAL > Data` (`7/7`),
   `TICK REAL > Databanks` (`3/3`) y `TICK REAL > Resources` (`1.899/1.899`).
 
-Reporte local de fase:
+Reporte local:
 `.local/sqx142_task_config/phase_reports/phase5_20260523_195637.json`.
 
-Siguiente bloque de decision: `TICK REAL > Options / Rankings`, con especial
-atencion a `DeleteFailedStrategies`, filtros advisory, preservacion de
-failed naturales y ausencia de softening que convierta el gate en coladero.
+Decision aplicada para `TICK REAL > Options / Rankings`:
+
+- Se anade `tick-real-options-rankings-target` con dry-run-first,
+  backup/diff/apply, guard contra coladero y tests negativos.
+- Criterio academico aplicado: no se anade split IS/OOS1 interno a TICK REAL.
+  `RETEST 0` ya gobierna IS/OOS1; repetir ese split dentro del gate de tick
+  aumenta riesgo de data-snooping/backtest overfitting. TICK queda como test de
+  precision-data sobre el periodo total `ROBUSTNESS_C1`.
+  Referencias consultadas: Bailey/Borwein/Lopez de Prado/Zhu sobre backtest
+  overfitting (`https://ssrn.com/abstract=2308659`), White Reality Check para
+  data snooping (`https://doi.org/10.1111/1468-0262.00152`) y Hansen SPA para
+  comparaciones predictivas multiples (`https://ssrn.com/abstract=264569`).
+- `Options`: `No Session`, `StoreChartData=false`,
+  `RealisticGapsHandling=true`, `LimitTimeRange=true` y ventana placeholder H1
+  `02:00-22:00`; Project Generator reescribe la ventana por timeframe.
+- `Rankings`: `DeleteFailedStrategies=false` para conservar failed naturales,
+  `ConditionsType=1`, `ForceRunCrossChecks=false`, `FitPortfolio=false`,
+  `CustomAnalysis.filter=false`.
+- Filtros activos total-tick: `NumberOfTrades >= 200`,
+  `ProfitFactor >= 1.3`, `WinningPct >= 50` y `ReturnDDRatio >= 4`.
+- Se evita el coladero manteniendo condiciones activas y el estado failed real;
+  no se fuerza `Results=passed` ni se borran filas failed.
+- El dry-run posterior queda idempotente: `changed=false`,
+  `changedActionCount=0` y `guardOk=true`.
+- Ledger local respondido para `TICK REAL > Options` (`34/34`) y
+  `TICK REAL > Rankings` (`46/46`).
+
+Reporte local:
+`.local/sqx142_task_config/phase_reports/phase5_20260523_202446.json`.
+
+Siguiente bloque de decision: `TICK REAL > PartsToImprove / WhatToBuild /
+Blocks`, para comprobar que el retest es pasivo puro y no queda mejora,
+generacion, portfolio ni bloques de salida no metodologicos.
 
 ## Disciplina Operativa
 

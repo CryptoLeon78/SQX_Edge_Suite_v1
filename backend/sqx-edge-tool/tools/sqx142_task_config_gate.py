@@ -291,6 +291,38 @@ TICK_REAL_RESOURCE_TIMEZONE = "EETUS"
 TICK_REAL_DEFAULT_SOURCE_ID = "4"
 TICK_REAL_DEFAULT_BROKER_ID = "4"
 TICK_REAL_BANNED_DONOR_TOKENS = ("USDJPY", "USDJPY_darwinex", "USDJPY_dukascopy")
+TICK_REAL_OPTIONS_PARAMS_TARGET = {
+    "Session": "No Session",
+    "MarketOpenSession": "No Session",
+    "LimitTimeRange": "true",
+    "SignalTimeRangeFrom": "7200",
+    "SignalTimeRangeTo": "79200",
+    "RealisticGapsHandling": "true",
+    "StoreChartData": "false",
+}
+TICK_REAL_RANKING_TARGET = {
+    "MaxStrategies": "10000",
+    "ConditionsType": "1",
+    "DeleteFailedStrategies": "false",
+    "ForceRunCrossChecks": "false",
+    "FitPortfolio": {"active": "false", "databank": "Existing portfolio"},
+    "CustomAnalysis": {"filter": "false", "inputArgs": "", "method": "none"},
+    "AutomaticDismissal": {"warnings": "false"},
+    "StopCondition": {
+        "type": "databank-full",
+        "passedStrategies": "1000",
+        "restartCount": "5",
+        "days": "0",
+        "hours": "0",
+        "minutes": "0",
+    },
+}
+TICK_REAL_RANKING_CONDITIONS_TARGET = [
+    {"column": "NumberOfTrades", "comparator": ">=", "value": "200", "format": "Integer", "sampleType": "127"},
+    {"column": "ProfitFactor", "comparator": ">=", "value": "1.3", "format": "Decimal2", "sampleType": "127"},
+    {"column": "WinningPct", "comparator": ">=", "value": "50", "format": "Decimal2Pct", "sampleType": "127"},
+    {"column": "ReturnDDRatio", "comparator": ">=", "value": "4", "format": "Decimal2", "sampleType": "127"},
+]
 
 
 def stamp() -> str:
@@ -879,7 +911,13 @@ def set_attr_child(parent: ET.Element, tag: str, attrs: dict[str, str], actions:
     })
 
 
-def make_column_condition(column: str, comparator: str, value: str, fmt: str) -> ET.Element:
+def make_column_condition(
+    column: str,
+    comparator: str,
+    value: str,
+    fmt: str,
+    sample_type: str = "127",
+) -> ET.Element:
     condition = ET.Element("Condition", {"use": "true"})
     condition.text = "\n          "
     left = ET.SubElement(condition, "Left-Side", {"valueType": "column"})
@@ -891,7 +929,7 @@ def make_column_condition(column: str, comparator: str, value: str, fmt: str) ->
         "format": fmt,
         "resultType": "main",
         "direction": "0",
-        "sampleType": "127",
+        "sampleType": sample_type,
         "plType": "10",
         "confidenceLevel": "50",
         "market": "1",
@@ -925,6 +963,59 @@ def summarize_conditions(parent: ET.Element | None) -> list[dict[str, str]]:
             "use": condition.get("use", ""),
         })
     return items
+
+
+def summarize_conditions_detailed(parent: ET.Element | None) -> list[dict[str, str]]:
+    if parent is None:
+        return []
+    items: list[dict[str, str]] = []
+    for condition in parent.findall("Condition"):
+        column_value = condition.find(".//Column-Value")
+        comparator = condition.find("Comparator")
+        numeric = condition.find(".//Numeric-Value")
+        items.append({
+            "column": column_value.get("column", "") if column_value is not None else "",
+            "comparator": comparator.get("value", "") if comparator is not None else "",
+            "value": numeric.get("value", "") if numeric is not None else "",
+            "format": column_value.get("format", "") if column_value is not None else "",
+            "sampleType": column_value.get("sampleType", "") if column_value is not None else "",
+            "use": condition.get("use", ""),
+        })
+    return items
+
+
+def set_ranking_conditions_from_target(
+    rankings: ET.Element,
+    target: list[dict[str, str]],
+    actions: list[dict[str, Any]],
+    field: str,
+) -> None:
+    conditions = rankings.find("Conditions")
+    if conditions is None:
+        conditions = ET.SubElement(rankings, "Conditions")
+        before: list[dict[str, str]] = []
+    else:
+        before = summarize_conditions_detailed(conditions)
+        for child in list(conditions):
+            conditions.remove(child)
+    conditions.text = "\n      "
+    for index, item in enumerate(target):
+        condition = make_column_condition(
+            column=item["column"],
+            comparator=item["comparator"],
+            value=item["value"],
+            fmt=item["format"],
+            sample_type=item.get("sampleType", "127"),
+        )
+        condition.tail = "\n    " if index == len(target) - 1 else "\n      "
+        conditions.append(condition)
+    after = summarize_conditions_detailed(conditions)
+    actions.append({
+        "field": field,
+        "from": before,
+        "to": after,
+        "changed": before != after,
+    })
 
 
 def set_initial_population_conditions(build_mode: ET.Element, actions: list[dict[str, Any]]) -> None:
@@ -3372,6 +3463,207 @@ def promote_tick_real_data_databanks_resources_target(root142: Path, project_roo
     return payload
 
 
+def apply_tick_real_options_rankings_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+
+    for key, value in TICK_REAL_OPTIONS_PARAMS_TARGET.items():
+        set_param_text(root, key, value, actions, "Options")
+
+    rankings = find_section(root, "Rankings")
+    if rankings is None:
+        rankings = ET.SubElement(root, "Rankings", {"type": "never"})
+        actions.append({"field": "Rankings", "from": None, "to": dict(rankings.attrib), "changed": True})
+    before_rank_attrs = dict(rankings.attrib)
+    rankings.set("type", "never")
+    actions.append({
+        "field": "Rankings:type",
+        "from": before_rank_attrs,
+        "to": dict(rankings.attrib),
+        "changed": before_rank_attrs != dict(rankings.attrib),
+    })
+    set_or_create_text_child(rankings, "MaxStrategies", TICK_REAL_RANKING_TARGET["MaxStrategies"], actions, "Rankings/MaxStrategies")
+    set_or_create_attrs_child(
+        rankings,
+        "FitnessCriteria",
+        {"method": "ComputeFromStrategyResult", "useFitnessByIndex": "false"},
+        actions,
+        "Rankings/FitnessCriteria",
+    )
+    set_or_create_text_child(rankings, "ConditionsType", TICK_REAL_RANKING_TARGET["ConditionsType"], actions, "Rankings/ConditionsType")
+    set_or_create_text_child(rankings, "DeleteFailedStrategies", TICK_REAL_RANKING_TARGET["DeleteFailedStrategies"], actions, "Rankings/DeleteFailedStrategies")
+    set_or_create_text_child(rankings, "ForceRunCrossChecks", TICK_REAL_RANKING_TARGET["ForceRunCrossChecks"], actions, "Rankings/ForceRunCrossChecks")
+    set_or_create_attrs_child(rankings, "AutomaticDismissal", TICK_REAL_RANKING_TARGET["AutomaticDismissal"], actions, "Rankings/AutomaticDismissal")
+    set_or_create_attrs_child(rankings, "StopCondition", TICK_REAL_RANKING_TARGET["StopCondition"], actions, "Rankings/StopCondition")
+    set_or_create_attrs_child(rankings, "FitPortfolio", TICK_REAL_RANKING_TARGET["FitPortfolio"], actions, "Rankings/FitPortfolio")
+    set_or_create_attrs_child(rankings, "CustomAnalysis", TICK_REAL_RANKING_TARGET["CustomAnalysis"], actions, "Rankings/CustomAnalysis")
+    set_ranking_conditions_from_target(
+        rankings,
+        TICK_REAL_RANKING_CONDITIONS_TARGET,
+        actions,
+        "Rankings/Conditions",
+    )
+    return actions
+
+
+def tick_real_options_rankings_summary(root: ET.Element) -> dict[str, Any]:
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in TICK_REAL_OPTIONS_PARAMS_TARGET
+    }
+    rankings = find_section(root, "Rankings")
+    ranking_data: dict[str, Any] = {}
+    if rankings is not None:
+        ranking_data = {
+            "type": rankings.get("type", ""),
+            "MaxStrategies": (rankings.findtext("MaxStrategies") or ""),
+            "ConditionsType": (rankings.findtext("ConditionsType") or ""),
+            "DeleteFailedStrategies": (rankings.findtext("DeleteFailedStrategies") or ""),
+            "ForceRunCrossChecks": (rankings.findtext("ForceRunCrossChecks") or ""),
+            "FitPortfolio": dict(rankings.find("FitPortfolio").attrib) if rankings.find("FitPortfolio") is not None else {},
+            "StopCondition": dict(rankings.find("StopCondition").attrib) if rankings.find("StopCondition") is not None else {},
+            "CustomAnalysis": dict(rankings.find("CustomAnalysis").attrib) if rankings.find("CustomAnalysis") is not None else {},
+            "conditions": summarize_conditions_detailed(rankings.find("Conditions")),
+        }
+    return {"optionsParams": params, "rankings": ranking_data}
+
+
+def enforce_tick_real_options_rankings_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = tick_real_options_rankings_summary(root)
+    params = summary.get("optionsParams") or {}
+    for key, wanted in TICK_REAL_OPTIONS_PARAMS_TARGET.items():
+        if params.get(key) != wanted:
+            issues.append(f"TICK REAL Options param {key} is {params.get(key)!r}, expected {wanted!r}")
+
+    if root.findall(".//Data/OutOfSample/Range"):
+        issues.append("TICK REAL must not add an internal OOS split; RETEST 0 owns IS/OOS1 validation")
+
+    ranking = summary.get("rankings") or {}
+    if ranking.get("DeleteFailedStrategies") != "false":
+        issues.append("TICK REAL must keep failed strategies visible for natural passed/failed analysis")
+    if ranking.get("ConditionsType") != "1":
+        issues.append("TICK REAL ranking conditions must stay active")
+    if ranking.get("ForceRunCrossChecks") != "false":
+        issues.append("TICK REAL must not force crosschecks from Rankings")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append("TICK REAL must not run portfolio fit selection")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append("TICK REAL CustomAnalysis filter must remain disabled")
+    expected_conditions = [
+        {
+            "column": item["column"],
+            "comparator": item["comparator"],
+            "value": item["value"],
+            "format": item["format"],
+            "sampleType": item.get("sampleType", "127"),
+            "use": "true",
+        }
+        for item in TICK_REAL_RANKING_CONDITIONS_TARGET
+    ]
+    if ranking.get("conditions") != expected_conditions:
+        issues.append("TICK REAL ranking conditions do not match precision-data robustness target")
+
+    options_node = find_section(root, "Options")
+    rankings_node = find_section(root, "Rankings")
+    guarded_text = (
+        serialize_xml(options_node if options_node is not None else root)
+        + serialize_xml(rankings_node if rankings_node is not None else root)
+    )
+    for token in TICK_REAL_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into TICK REAL Options/Rankings: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into TICK REAL Options/Rankings")
+    return issues
+
+
+def update_tick_real_options_rankings_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, TICK_REAL_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "tick_real_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = tick_real_options_rankings_summary(root)
+    payload["actions"] = apply_tick_real_options_rankings_to_root(root)
+    payload["after"] = tick_real_options_rankings_summary(root)
+    payload["issues"] = enforce_tick_real_options_rankings_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "options": TICK_REAL_OPTIONS_PARAMS_TARGET,
+        "rankings": TICK_REAL_RANKING_TARGET,
+        "conditions": TICK_REAL_RANKING_CONDITIONS_TARGET,
+    }
+    payload["targetRationale"] = {
+        "academic": "Keep a separate robustness gate without re-optimizing on a repeated OOS split; control selection pressure with explicit total-period tick filters.",
+        "naturalResults": "DeleteFailedStrategies=false preserves failed rows, while active conditions let SQX mark natural failed/passed states.",
+        "notPortfolio": "FitPortfolio=false keeps this precision-data retest separate from portfolio selection.",
+        "generatorOwned": "Base time window is the H1 placeholder; Project Generator rewrites it by selected timeframe.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_tick_real_options_rankings_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase5_tick_real_options_rankings_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_tick_real_options_rankings_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase5",
+        "operation": "tick_real_options_rankings_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase5_tick_real_options_rankings_diff_review" if not apply else "phase5_tick_real_passive_generation_decision",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase5_tick_real_options_rankings_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -4577,6 +4869,10 @@ def build_parser() -> argparse.ArgumentParser:
     tick_real_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     tick_real_data.add_argument("--apply", action="store_true")
 
+    tick_real_options = sub.add_parser("tick-real-options-rankings-target")
+    tick_real_options.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    tick_real_options.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -4675,6 +4971,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "tick-real-data-databanks-resources-target":
         json_print(promote_tick_real_data_databanks_resources_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "tick-real-options-rankings-target":
+        json_print(promote_tick_real_options_rankings_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

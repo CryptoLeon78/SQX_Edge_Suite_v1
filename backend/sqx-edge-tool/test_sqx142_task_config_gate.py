@@ -7,11 +7,13 @@ from tools.sqx142_task_config_gate import (
     apply_retest1_options_databanks_rankings_to_root,
     apply_retest1_static_crosschecks_to_root,
     apply_tick_real_data_databanks_resources_to_root,
+    apply_tick_real_options_rankings_to_root,
     enforce_retest1_data_resources_guard,
     enforce_retest1_options_databanks_rankings_guard,
     enforce_retest1_passive_generation_guard,
     enforce_retest1_static_crosschecks_guard,
     enforce_tick_real_data_databanks_resources_guard,
+    enforce_tick_real_options_rankings_guard,
     fallback_retest1_oos2_resource,
     question_id,
     record_tab_answer,
@@ -400,3 +402,102 @@ def test_tick_real_data_databanks_resources_chain_after_retest1_preserves_generi
     assert symbol.find("InstrumentInfo").get("defaultSpread") == "2"
     assert root.findall(".//Resources/Sessions/Session") == []
     assert len(root.findall(".//Resources/CustomBlocks/Item")) == 1
+
+
+def test_tick_real_options_rankings_keep_failed_rows_but_not_coladero():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Data><OutOfSample showGraph="false" /></Data>
+          <Options>
+            <BuildTradingOptions><Params>
+              <Param key="Session" className="SessionOption">No Session</Param>
+              <Param key="MarketOpenSession" className="SessionOption">No Session</Param>
+              <Param key="LimitTimeRange" className="LimitTimeRange">false</Param>
+              <Param key="SignalTimeRangeFrom" className="LimitTimeRange">28800</Param>
+              <Param key="SignalTimeRangeTo" className="LimitTimeRange">57600</Param>
+              <Param key="RealisticGapsHandling" className="RealisticGapsHandling">false</Param>
+              <Param key="StoreChartData" className="StoreChartData">true</Param>
+            </Params></BuildTradingOptions>
+          </Options>
+          <Rankings type="never">
+            <MaxStrategies>10000</MaxStrategies>
+            <ConditionsType>1</ConditionsType>
+            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <ForceRunCrossChecks>true</ForceRunCrossChecks>
+            <FitPortfolio active="true" databank="Existing portfolio" />
+            <CustomAnalysis filter="true" inputArgs="" method="none" />
+            <StopCondition type="databank-full" passedStrategies="1000" restartCount="5" days="0" hours="0" minutes="0" />
+            <Conditions />
+          </Rankings>
+        </Task>
+        """
+    )
+
+    actions = apply_tick_real_options_rankings_to_root(root)
+
+    assert any(item["field"] == "Rankings/DeleteFailedStrategies" and item["changed"] for item in actions)
+    assert enforce_tick_real_options_rankings_guard(root) == []
+    params = {
+        node.get("key"): node.text
+        for node in root.findall(".//BuildTradingOptions/Params/Param")
+    }
+    assert params["LimitTimeRange"] == "true"
+    assert params["SignalTimeRangeFrom"] == "7200"
+    assert params["SignalTimeRangeTo"] == "79200"
+    assert params["RealisticGapsHandling"] == "true"
+    rankings = root.find(".//Rankings")
+    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("ForceRunCrossChecks") == "false"
+    assert rankings.find("FitPortfolio").get("active") == "false"
+    assert rankings.find("CustomAnalysis").get("filter") == "false"
+    conditions = [
+        (
+            condition.find(".//Column-Value").get("column"),
+            condition.find(".//Column-Value").get("sampleType"),
+            condition.find(".//Comparator").get("value"),
+            condition.find(".//Numeric-Value").get("value"),
+        )
+        for condition in rankings.findall("./Conditions/Condition")
+    ]
+    assert conditions == [
+        ("NumberOfTrades", "127", ">=", "200"),
+        ("ProfitFactor", "127", ">=", "1.3"),
+        ("WinningPct", "127", ">=", "50"),
+        ("ReturnDDRatio", "127", ">=", "4"),
+    ]
+
+
+def test_tick_real_options_rankings_guard_rejects_oos_split_and_empty_filters():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Data><OutOfSample showGraph="true"><Range dateFrom="2023.01.01" dateTo="2023.12.31" /></OutOfSample></Data>
+          <Options><BuildTradingOptions><Params>
+            <Param key="Session">No Session</Param>
+            <Param key="MarketOpenSession">No Session</Param>
+            <Param key="LimitTimeRange">true</Param>
+            <Param key="SignalTimeRangeFrom">7200</Param>
+            <Param key="SignalTimeRangeTo">79200</Param>
+            <Param key="RealisticGapsHandling">true</Param>
+            <Param key="StoreChartData">false</Param>
+          </Params></BuildTradingOptions></Options>
+          <Rankings>
+            <ConditionsType>0</ConditionsType>
+            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <ForceRunCrossChecks>false</ForceRunCrossChecks>
+            <FitPortfolio active="true" databank="Existing portfolio" />
+            <CustomAnalysis filter="false" inputArgs="" method="none" />
+            <Conditions />
+          </Rankings>
+        </Task>
+        """
+    )
+
+    issues = enforce_tick_real_options_rankings_guard(root)
+
+    assert any("must not add an internal OOS split" in issue for issue in issues)
+    assert any("failed strategies visible" in issue for issue in issues)
+    assert any("conditions must stay active" in issue for issue in issues)
+    assert any("portfolio fit" in issue for issue in issues)
+    assert any("ranking conditions" in issue for issue in issues)

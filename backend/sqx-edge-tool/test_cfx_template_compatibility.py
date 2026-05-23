@@ -194,6 +194,54 @@ def _assert_tick_real_data_databanks_resources_contract(tick_real: ET.Element, e
             assert info_broker in {"-1", None, ""}
 
 
+def _assert_tick_real_options_rankings_contract(tick_real: ET.Element, expected_window: tuple[str, str]) -> None:
+    params = {
+        node.get("key"): node.text
+        for node in tick_real.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {
+            "Session",
+            "MarketOpenSession",
+            "LimitTimeRange",
+            "SignalTimeRangeFrom",
+            "SignalTimeRangeTo",
+            "RealisticGapsHandling",
+            "StoreChartData",
+        }
+    }
+    assert params == {
+        "Session": "No Session",
+        "MarketOpenSession": "No Session",
+        "LimitTimeRange": "true",
+        "SignalTimeRangeFrom": expected_window[0],
+        "SignalTimeRangeTo": expected_window[1],
+        "RealisticGapsHandling": "true",
+        "StoreChartData": "false",
+    }
+
+    rankings = tick_real.find(".//Rankings")
+    assert rankings is not None
+    assert rankings.findtext("ConditionsType") == "1"
+    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("ForceRunCrossChecks") == "false"
+    assert rankings.find("FitPortfolio").get("active") == "false"
+    assert rankings.find("CustomAnalysis").get("filter") == "false"
+    conditions = [
+        (
+            condition.find(".//Column-Value").get("column"),
+            condition.find(".//Column-Value").get("sampleType"),
+            condition.find(".//Comparator").get("value"),
+            condition.find(".//Numeric-Value").get("value"),
+        )
+        for condition in rankings.findall("./Conditions/Condition")
+    ]
+    assert conditions == [
+        ("NumberOfTrades", "127", ">=", "200"),
+        ("ProfitFactor", "127", ">=", "1.3"),
+        ("WinningPct", "127", ">=", "50"),
+        ("ReturnDDRatio", "127", ">=", "4"),
+    ]
+
+
 def _section_sha256(root: ET.Element, tab: str) -> str:
     node = root.find(tab)
     if node is None:
@@ -312,6 +360,7 @@ def test_capa1_base_v2_matches_active_methodology():
 
     tick_real = roots["AutomaticRetest-Task2.xml"]
     _assert_tick_real_data_databanks_resources_contract(tick_real, expected_symbol="AUDCAD_darwinex", expected_timeframe="H1")
+    _assert_tick_real_options_rankings_contract(tick_real, expected_window=("7200", "79200"))
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_options = {
@@ -604,6 +653,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     assert tick_setup.get("dateFrom") == "2017.10.02"
     assert tick_setup.get("dateTo") == "2023.12.31"
     _assert_tick_real_data_databanks_resources_contract(tick_real, expected_symbol="AUDCAD", expected_timeframe="H4")
+    _assert_tick_real_options_rankings_contract(tick_real, expected_window=("14400", "72000"))
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")

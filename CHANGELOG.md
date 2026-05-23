@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 TICK REAL Options/Rankings
+
+- Adds `tick-real-options-rankings-target` to close the Phase 5 `TICK REAL` Options/Rankings block with dry-run-first backup/diff/apply and anti-coladero guards.
+- Keeps TICK REAL as a precision-data robustness retest without adding an internal IS/OOS1 split; `RETEST 0` remains the owner of IS/OOS1 validation to reduce repeated-OOS selection pressure.
+- Applies realistic passive settings: `RealisticGapsHandling=true`, generator-owned time window, `DeleteFailedStrategies=false`, `ConditionsType=1`, `FitPortfolio=false`, `ForceRunCrossChecks=false` and `CustomAnalysis.filter=false`.
+- Keeps active total-tick filters strict enough for this near-realism gate: `NumberOfTrades >= 200`, `ProfitFactor >= 1.3`, `WinningPct >= 50` and `ReturnDDRatio >= 4`, while preserving natural failed rows.
+- Records local ledger answers for `TICK REAL > Options` (`34/34`) and `TICK REAL > Rankings` (`46/46`), with post-apply dry-run idempotent and `guardOk=true`.
+
 ## 2026-05-23 - C1-CONFIG1 TICK REAL Data/Databanks/Resources
 
 - Adds `tick-real-data-databanks-resources-target` to close the first Phase 5 `TICK REAL` block with dry-run-first backup/diff/apply and a resource guard.
