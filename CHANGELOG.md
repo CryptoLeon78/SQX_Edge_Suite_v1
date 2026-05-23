@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 RETEST 0 Closeout
+
+- Closes `RETEST 0 > Blocks` with the operator-confirmed decision to keep the full base configuration: no new strategy generation, `Signals` and `Stop/Limit` inactive, `Indicators` governed by methodology/BlockSettings, and `EnterAtMarket` plus `ExitAfterBars` only.
+- Records `17,583/17,583` `Blocks` answers in the ignored local task-config ledger and creates the Phase 3 local closeout report pointing to Phase 4 `RETEST 1`.
+- Documents that no donor `Blocks` are copied because Mining15 carries a volatility-specific universe that does not add value to the first OOS retest gate.
+
 ## 2026-05-23 - C1-CONFIG1 Bulk Tab Answer Guard
 
 - Adds `record-tab-answer` to the SQX142 task config gate so very large tabs can be answered atomically from the latest questionnaire instead of spawning thousands of individual calls.

@@ -1,6 +1,6 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 en Fase 3 `RETEST 0` abierta el 2026-05-23. Fase 0 dejo
+Estado: C1-CONFIG1 con Fase 3 `RETEST 0` cerrada el 2026-05-23. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -268,7 +268,7 @@ Siguiente fase tras cerrar SQX142-BRANDING1: Fase 3 `RETEST 0`.
 
 ## Estado Fase 3 - RETEST 0
 
-Fase abierta el 2026-05-23. Objetivo: configurar `RETEST 0` como primer OOS
+Fase cerrada el 2026-05-23. Objetivo: configurar `RETEST 0` como primer OOS
 real de Capa1, con data no explorada y sin convertirlo en un tramite blando. Es
 normal que muchas estrategias caigan aqui; el criterio de exito es coherencia,
 trazabilidad, OOS1 limpio y passed/failed natural, no mejorar artificialmente el
@@ -301,8 +301,10 @@ Reglas de decision:
   base; Project Generator los reescribe por instrumento. Si no hay `data.db`,
   el fallback queda normalizado a comision neutra `SizeBased=0.0` en todos los
   tasks generados.
-- Antes de aplicar a base/template: respuestas registradas, backup, diff
-  dry-run y confirmacion de fase cerrada.
+- La fase cierra sin mutacion adicional de base/template: las decisiones finales
+  mantienen base o placeholders gobernados por Project Generator. Los cambios
+  reales necesarios ya quedan cubiertos por el guardia de comisiones fallback en
+  el generador.
 
 Mapa inicial del cuestionario:
 
@@ -318,13 +320,20 @@ Mapa inicial del cuestionario:
   duplicados.
 - La mayoria de diferencias vive en `Blocks`; se tratan como ruido de donor
   salvo que una pregunta concreta demuestre valor metodologico.
-- Primer bloque operativo: `Data/OOS`, porque define si el retest conserva la
-  frontera real entre Build IS y primer OOS.
+- Primer bloque operativo cerrado: `Data/OOS`, porque define si el retest
+  conserva la frontera real entre Build IS y primer OOS.
 - Pestañas `Data`, `Options`, `Databanks`, `Rankings`, `Resources`,
   `WhatToBuild`, `CrossChecks`, `ATMs`, `RiskMoneyManagement`,
   `PartsToImprove`, `Notes`, `Optimization` y `SelectedStrategies` quedan
-  respondidas en ledger local segun confirmacion del operador. Queda pendiente
-  cerrar `Blocks` antes del reporte formal de Fase 3.
+  respondidas en ledger local segun confirmacion del operador.
+- `Blocks` queda cerrado con `17.583/17.583` respuestas: mantener base completa,
+  porque `RETEST 0` no debe generar estrategias nuevas. `Signals` y
+  `Stop/Limit` permanecen inactivos, `Indicators` sigue gobernado por
+  metodologia/BlockSettings, y solo se conserva `EnterAtMarket` +
+  `ExitAfterBars`. No se copia el donor porque arrastra universo especifico de
+  Mining15/volatilidad y no aporta al retest OOS.
+- Reporte local de cierre: `.local/sqx142_task_config/phase_reports/`.
+- Siguiente fase exacta: Fase 4 `RETEST 1`.
 
 ## Disciplina Operativa
 
