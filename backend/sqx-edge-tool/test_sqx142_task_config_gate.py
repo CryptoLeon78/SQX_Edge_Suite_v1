@@ -6,10 +6,12 @@ from tools.sqx142_task_config_gate import (
     apply_retest1_data_resources_to_root,
     apply_retest1_options_databanks_rankings_to_root,
     apply_retest1_static_crosschecks_to_root,
+    apply_tick_real_data_databanks_resources_to_root,
     enforce_retest1_data_resources_guard,
     enforce_retest1_options_databanks_rankings_guard,
     enforce_retest1_passive_generation_guard,
     enforce_retest1_static_crosschecks_guard,
+    enforce_tick_real_data_databanks_resources_guard,
     fallback_retest1_oos2_resource,
     question_id,
     record_tab_answer,
@@ -344,3 +346,57 @@ def test_retest1_static_crosschecks_target_turns_off_checks_and_uses_fixed_size(
     assert root.find(".//CrossChecks/MonteCarloRetest/Settings/Methods/Method").get("use") == "false"
     assert root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
     assert root.find(".//RiskMoneyManagement//Method[@type='FixedAmount']").get("use") == "false"
+
+
+def test_tick_real_data_databanks_resources_chain_after_retest1_preserves_generic_resources():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Data>
+            <Setups>
+              <Setup dateFrom="2010.01.01" dateTo="2026.04.08" testPrecision="1" session="Old Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)">
+                <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2" />
+              </Setup>
+            </Setups>
+            <OutOfSample showGraph="true"><Range dateFrom="2020.01.01" dateTo="2021.01.01" /></OutOfSample>
+          </Data>
+          <Databanks retestSelected="false">
+            <Databank label="Output databank" name="Output" value="retest 1" />
+            <Databank label="Input databank" name="Input" value="RETEST 0" />
+          </Databanks>
+          <Resources>
+            <Symbols>
+              <Symbol name="AUDCAD_darwinex" source="4" barType="1" precision="M1" timezone="EETUS" dateFrom="1506902400000" dateTo="1775606400000" uSymbol="AUDCAD" uSymbolName="AUDCAD" removeWeekends="false" broker="4">
+                <InstrumentInfo instrument="AUDCAD_darwinex" defaultSpread="1" dataType="3" broker="4" />
+              </Symbol>
+            </Symbols>
+            <Brokers><Broker id="4" name="[[Darwinex]]" description="Darwinex CFDs" timezone="EETUS" postfix="_darwinex" mtUse="true" spUse="false" /></Brokers>
+            <Instruments><InstrumentInfo instrument="AUDCAD_darwinex" defaultSpread="1" dataType="3" broker="4" /></Instruments>
+            <Sessions><Session name="Old" /></Sessions>
+            <CustomIndicators />
+            <CustomBlocks><Item key="keep_me" /></CustomBlocks>
+          </Resources>
+        </Task>
+        """
+    )
+
+    actions = apply_tick_real_data_databanks_resources_to_root(root)
+
+    assert any(item["field"] == "Databanks/Input" and item["changed"] for item in actions)
+    assert enforce_tick_real_data_databanks_resources_guard(root) == []
+    setup = root.find(".//Data/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "2"
+    assert root.findall(".//Data/OutOfSample/Range") == []
+    assert {node.get("name"): node.get("value") for node in root.findall(".//Databanks/Databank")} == {
+        "Output": "TICK",
+        "Input": "retest 1",
+    }
+    symbol = root.find(".//Resources/Symbols/Symbol")
+    assert symbol.get("name") == "AUDCAD_darwinex"
+    assert symbol.get("precision") == "TICK"
+    assert symbol.get("broker") == "4"
+    assert symbol.find("InstrumentInfo").get("defaultSpread") == "2"
+    assert root.findall(".//Resources/Sessions/Session") == []
+    assert len(root.findall(".//Resources/CustomBlocks/Item")) == 1

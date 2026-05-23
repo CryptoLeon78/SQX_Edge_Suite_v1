@@ -350,7 +350,7 @@
     },
     {
       "id": "sqx142_c1_retest1_closed_tick_real_open_gate",
-      "description": "C1-CONFIG1 Phase 4 RETEST 1 must stay formally closed before Phase 5 TICK REAL opens as the precision-data robustness review, with the first TICK REAL decision documented but unapplied until operator confirmation.",
+      "description": "C1-CONFIG1 Phase 4 RETEST 1 must stay formally closed before Phase 5 TICK REAL continues as the precision-data robustness review, with TICK REAL Data/Databanks/Resources closed before Options/Rankings.",
       "required": {
         "docs/PROJECT_GOVERNANCE.md": [
           "C1-CONFIG1 - Phase 5 TICK REAL open",
@@ -362,9 +362,13 @@
           "`19.991` entries",
           "`12.334` donor/base differences",
           "`0` duplicate IDs",
-          "current base chain is `Input=RETEST 0` / `Output=retest 1`",
-          "point to `Input=retest 1` / `Output=TICK`",
-          "pending operator confirmation",
+          "first critical Phase 5 decision is now closed",
+          "tick-real-data-databanks-resources-target",
+          "chain `Input=retest 1` / `Output=TICK`",
+          "`TICK REAL > Data` (`7/7`)",
+          "`TICK REAL > Databanks` (`3/3`)",
+          "`TICK REAL > Resources` (`1.899/1.899`)",
+          "phase5_tick_real_options_rankings_decision",
           "`ROBUSTNESS_C1`",
           ".local/sqx142_task_config/"
         ],
@@ -416,12 +420,23 @@
           "`0` IDs duplicados",
           "`ROBUSTNESS_C1`",
           "`Data/Setup` actual: `testPrecision=2`",
-          "Base actual: `Databanks Input=RETEST 0` y `Output=retest 1`",
-          "Donor Mining15 actualizado: `Input=retest 1` y `Output=TICK`",
-          "No se aplica aun al base/template",
-          "Siguiente bloque de decision: `TICK REAL > Data / Databanks / Resources`"
+          "Decision aplicada para `TICK REAL > Data / Databanks / Resources`",
+          "tick-real-data-databanks-resources-target",
+          "`Input=retest 1` y `Output=TICK`",
+          "`Data/Setup`: `testPrecision=2`",
+          "`CustomBlocks` preservados",
+          "`changedActionCount=0` y `guardOk=true`",
+          "`TICK REAL > Data` (`7/7`)",
+          "`TICK REAL > Databanks` (`3/3`)",
+          "`TICK REAL > Resources` (`1.899/1.899`)",
+          "Siguiente bloque de decision: `TICK REAL > Options / Rankings`"
         ],
         "CHANGELOG.md": [
+          "2026-05-23 - C1-CONFIG1 TICK REAL Data/Databanks/Resources",
+          "tick-real-data-databanks-resources-target",
+          "Input=retest 1",
+          "Output=TICK",
+          "guardOk=true",
           "2026-05-23 - C1-CONFIG1 RETEST 1 Closeout And TICK REAL Opened",
           "AutomaticRetest-Task2.xml",
           "19,991",

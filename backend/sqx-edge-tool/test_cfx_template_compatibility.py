@@ -133,6 +133,67 @@ def _assert_retest1_static_crosschecks_contract(retest1: ET.Element) -> None:
     assert (selected.text or "").strip() == ""
 
 
+def _assert_tick_real_data_databanks_resources_contract(tick_real: ET.Element, expected_symbol: str | None = None, expected_timeframe: str | None = None) -> None:
+    setup = tick_real.find(".//Data/Setups/Setup")
+    assert setup is not None
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "2"
+    assert setup.get("session") == "No Session"
+    assert tick_real.findall(".//Data/OutOfSample/Range") == []
+
+    databanks = {
+        databank.get("name"): databank.get("value")
+        for databank in tick_real.findall(".//Databanks/Databank")
+    }
+    assert databanks["Input"] == "retest 1"
+    assert databanks["Output"] == "TICK"
+
+    chart_symbols = {
+        chart.get("symbol")
+        for chart in tick_real.findall(".//Data/Setups/Setup/Chart")
+        if chart.get("symbol")
+    }
+    if expected_symbol is not None:
+        assert chart_symbols == {expected_symbol}
+    if expected_timeframe is not None:
+        assert {
+            chart.get("timeframe")
+            for chart in tick_real.findall(".//Data/Setups/Setup/Chart")
+        } == {expected_timeframe}
+
+    resources = tick_real.find(".//Resources")
+    assert resources is not None
+    resource_symbols = {
+        symbol.get("name")
+        for symbol in resources.findall("./Symbols/Symbol")
+        if symbol.get("name")
+    }
+    broker_ids = {
+        broker.get("id")
+        for broker in resources.findall("./Brokers/Broker")
+        if broker.get("id")
+    }
+    assert resource_symbols == chart_symbols
+    assert resources.findall("./Sessions/Session") == []
+    assert "USDJPY" not in ET.tostring(resources, encoding="unicode")
+    for symbol in resources.findall("./Symbols/Symbol"):
+        assert symbol.get("precision") == "TICK"
+        assert symbol.get("timezone") == "EETUS"
+        symbol_broker = symbol.get("broker")
+        if broker_ids:
+            assert symbol_broker in broker_ids or symbol_broker == "-1"
+        else:
+            assert symbol_broker in {"-1", None, ""}
+        info = symbol.find("InstrumentInfo")
+        assert info is not None
+        info_broker = info.get("broker")
+        if broker_ids:
+            assert info_broker in broker_ids or info_broker == "-1"
+        else:
+            assert info_broker in {"-1", None, ""}
+
+
 def _section_sha256(root: ET.Element, tab: str) -> str:
     node = root.find(tab)
     if node is None:
@@ -248,6 +309,9 @@ def test_capa1_base_v2_matches_active_methodology():
     assert retest0_setup.get("dateTo") == "2025.01.01"
     assert retest0_oos.get("dateFrom") == "2023.01.01"
     assert retest0_oos.get("dateTo") == "2025.01.01"
+
+    tick_real = roots["AutomaticRetest-Task2.xml"]
+    _assert_tick_real_data_databanks_resources_contract(tick_real, expected_symbol="AUDCAD_darwinex", expected_timeframe="H1")
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_options = {
@@ -539,6 +603,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     tick_setup = tick_real.find(".//Data/Setups/Setup")
     assert tick_setup.get("dateFrom") == "2017.10.02"
     assert tick_setup.get("dateTo") == "2023.12.31"
+    _assert_tick_real_data_databanks_resources_contract(tick_real, expected_symbol="AUDCAD", expected_timeframe="H4")
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")

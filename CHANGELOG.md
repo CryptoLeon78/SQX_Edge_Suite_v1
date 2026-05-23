@@ -1,11 +1,18 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 TICK REAL Data/Databanks/Resources
+
+- Adds `tick-real-data-databanks-resources-target` to close the first Phase 5 `TICK REAL` block with dry-run-first backup/diff/apply and a resource guard.
+- Applies the precision-data chain to local Capa1 base and `backend/sqx-edge-tool/templates/Capa1_Long.cfx`: `Input=retest 1`, `Output=TICK`, `ROBUSTNESS_C1` (`2017.10.02-2023.12.31`), `testPrecision=2`, `No Session` and no nested OOS ranges.
+- Keeps Capa1 base generic: Darwinex placeholder resources stay bounded and SQX-compatible, sessions stay empty, `CustomBlocks` are preserved and no Mining15 `USDJPY/H4` donor resources are copied.
+- Records local ledger answers for `TICK REAL > Data` (`7/7`), `TICK REAL > Databanks` (`3/3`) and `TICK REAL > Resources` (`1,899/1,899`), with the post-apply dry-run idempotent and `guardOk=true`.
+
 ## 2026-05-23 - C1-CONFIG1 RETEST 1 Closeout And TICK REAL Opened
 
 - Closes Phase 4 `RETEST 1` formally in the local task-config ledger, keeping the protected Dukascopy/OOS2 passive retest with all previously applied guards green.
 - Opens Phase 5 `TICK REAL` and maps it to `AutomaticRetest-Task2.xml`, generating the full local questionnaire with `13` tabs, `19,991` entries, `12,334` donor/base differences and `0` duplicate question IDs.
 - Documents the first critical Phase 5 decision before applying changes: current base databanks are `Input=RETEST 0` / `Output=retest 1`, while the updated donor/methodology flow points to `Input=retest 1` / `Output=TICK`.
-- Leaves `TICK REAL` base/template untouched until `Data` / `Databanks` / `Resources` are confirmed with the operator.
+- At opening time, leaves `TICK REAL` base/template untouched until `Data` / `Databanks` / `Resources` are confirmed with the operator.
 
 ## 2026-05-23 - C1-CONFIG1 RETEST 1 Static/CrossChecks Gate
 

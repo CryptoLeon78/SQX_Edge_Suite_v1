@@ -75,6 +75,8 @@ tools\sqx142_task_config_gate.ps1 retest1-passive-generation-target --target bot
 tools\sqx142_task_config_gate.ps1 retest1-passive-generation-target --target both --apply
 tools\sqx142_task_config_gate.ps1 retest1-static-crosschecks-target --target both
 tools\sqx142_task_config_gate.ps1 retest1-static-crosschecks-target --target both --apply
+tools\sqx142_task_config_gate.ps1 tick-real-data-databanks-resources-target --target both
+tools\sqx142_task_config_gate.ps1 tick-real-data-databanks-resources-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -488,20 +490,32 @@ Fuente actual inspeccionada:
   metodos desactivados; se revisara como bloque propio antes del cierre de
   fase para evitar restos ejecutables.
 
-Primer bloque critico detectado:
+Decision aplicada para `TICK REAL > Data / Databanks / Resources`:
 
-- Base actual: `Databanks Input=RETEST 0` y `Output=retest 1`.
-- Donor Mining15 actualizado: `Input=retest 1` y `Output=TICK`.
-- Recomendacion inicial: tratar `TICK REAL` como retest pasivo posterior a
-  `RETEST 1`, por tanto `Input=retest 1` y `Output=TICK`, manteniendo
-  `DeleteFailedStrategies=false` para analisis natural de passed/failed.
-- No se aplica aun al base/template hasta confirmar el bloque
-  `Data/Databanks/Resources` con el operador.
+- Se anade `tick-real-data-databanks-resources-target` con dry-run-first,
+  backup/diff cuando hay escritura, guard de recursos y evidencia local
+  ignorada por Git.
+- `TICK REAL` queda como retest pasivo posterior a `RETEST 1`:
+  `Input=retest 1` y `Output=TICK`; no consume `RETEST 0` directamente.
+- Periodo: `ROBUSTNESS_C1` (`2017.10.02` a `2023.12.31`).
+- `Data/Setup`: `testPrecision=2`, `session=No Session`, sin rangos OOS
+  internos.
+- `Resources`: placeholder Darwinex generico `AUDCAD_darwinex`, source `4`,
+  broker `4`, `precision=TICK`, timezone `EETUS`, fecha de recurso acotada a
+  `2023.12.31`, sesiones vacias y `CustomBlocks` preservados.
+- No se copia el donor `USDJPY/H4`; activo, timeframe, spread, swap y rebuild
+  final de recursos siguen siendo propiedad del Project Generator.
+- El dry-run posterior queda idempotente: `changed=false`,
+  `changedActionCount=0` y `guardOk=true`.
+- Ledger local respondido para `TICK REAL > Data` (`7/7`),
+  `TICK REAL > Databanks` (`3/3`) y `TICK REAL > Resources` (`1.899/1.899`).
 
-Siguiente bloque de decision: `TICK REAL > Data / Databanks / Resources`, con
-especial atencion a cadena de databanks, periodo `ROBUSTNESS_C1`,
-precision/source de datos, placeholders de activo/timeframe y ausencia de copia
-literal del donor `USDJPY/H4`.
+Reporte local de fase:
+`.local/sqx142_task_config/phase_reports/phase5_20260523_195637.json`.
+
+Siguiente bloque de decision: `TICK REAL > Options / Rankings`, con especial
+atencion a `DeleteFailedStrategies`, filtros advisory, preservacion de
+failed naturales y ausencia de softening que convierta el gate en coladero.
 
 ## Disciplina Operativa
 

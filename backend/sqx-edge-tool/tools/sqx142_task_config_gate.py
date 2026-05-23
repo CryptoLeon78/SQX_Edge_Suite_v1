@@ -278,6 +278,20 @@ RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET = {
 RETEST1_ATMS_TARGET = {"enable": "false"}
 RETEST1_CROSSCHECKS_TARGET = {"use": "false", "evaluateAll": "false"}
 
+TICK_REAL_TASK_TITLE = "TICK REAL"
+TICK_REAL_PERIOD_KEY = "ROBUSTNESS_C1"
+TICK_REAL_DATA_TEST_PRECISION = "2"
+TICK_REAL_DATA_SESSION = "No Session"
+TICK_REAL_DATABANKS_TARGET = {
+    "Input": "retest 1",
+    "Output": "TICK",
+}
+TICK_REAL_RESOURCE_PRECISION = "TICK"
+TICK_REAL_RESOURCE_TIMEZONE = "EETUS"
+TICK_REAL_DEFAULT_SOURCE_ID = "4"
+TICK_REAL_DEFAULT_BROKER_ID = "4"
+TICK_REAL_BANNED_DONOR_TOKENS = ("USDJPY", "USDJPY_darwinex", "USDJPY_dukascopy")
+
 
 def stamp() -> str:
     return datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -2936,6 +2950,428 @@ def promote_retest1_static_crosschecks_target(root142: Path, project_root: Path,
     return payload
 
 
+def _asset_from_tick_real_symbol(symbol: str) -> str:
+    return (symbol or "").split("_", 1)[0] or "AUDCAD"
+
+
+def ensure_resources_container(resources: ET.Element, tag: str) -> ET.Element:
+    node = resources.find(tag)
+    if node is None:
+        node = ET.SubElement(resources, tag)
+    return node
+
+
+def _first_existing_symbol_template(resources: ET.Element) -> tuple[dict[str, str], dict[str, str]]:
+    symbol = resources.find("./Symbols/Symbol")
+    if symbol is None:
+        return {}, {}
+    info = symbol.find("InstrumentInfo")
+    return dict(symbol.attrib), dict(info.attrib) if info is not None else {}
+
+
+def _tick_real_resource_summary(root: ET.Element) -> dict[str, Any]:
+    summary = build_resources_summary(root)
+    resources = root.find(".//Resources")
+    summary.update({
+        "customIndicators": len(resources.findall("./CustomIndicators/*")) if resources is not None else 0,
+        "customBlocks": len(resources.findall("./CustomBlocks/*")) if resources is not None else 0,
+        "childOrder": [child.tag for child in list(resources)] if resources is not None else [],
+    })
+    return summary
+
+
+def tick_real_data_databanks_resources_summary(root: ET.Element) -> dict[str, Any]:
+    databanks = {
+        node.get("name", ""): node.get("value", "")
+        for node in root.findall(".//Databanks/Databank")
+        if node.get("name")
+    }
+    data = find_section(root, "Data")
+    return {
+        "data": {
+            "setup": first_setup_summary(root),
+            "outOfSampleRanges": [dict(node.attrib) for node in root.findall(".//Data/OutOfSample/Range")],
+            "outOfSampleAttrs": dict(data.find("OutOfSample").attrib) if data is not None and data.find("OutOfSample") is not None else {},
+        },
+        "databanks": databanks,
+        "resources": _tick_real_resource_summary(root),
+    }
+
+
+def apply_tick_real_data_databanks_resources_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    period = generator_period(TICK_REAL_PERIOD_KEY)
+    data = find_section(root, "Data")
+    setup = root.find(".//Data/Setups/Setup")
+    if data is None or setup is None:
+        actions.append({"field": "Data", "error": "missing_data_or_setup", "changed": False})
+        return actions
+
+    for key, wanted in {
+        "dateFrom": period[0],
+        "dateTo": period[1],
+        "testPrecision": TICK_REAL_DATA_TEST_PRECISION,
+        "session": TICK_REAL_DATA_SESSION,
+    }.items():
+        before = setup.get(key, "")
+        setup.set(key, wanted)
+        actions.append({"field": f"Data/Setup:{key}", "from": before, "to": wanted, "changed": before != wanted})
+
+    out_of_sample = data.find("OutOfSample")
+    if out_of_sample is None:
+        out_of_sample = ET.SubElement(data, "OutOfSample", {"showGraph": "false"})
+        before_oos_attrs: dict[str, str] | None = None
+    else:
+        before_oos_attrs = dict(out_of_sample.attrib)
+        out_of_sample.set("showGraph", "false")
+    removed_ranges = [dict(node.attrib) for node in out_of_sample.findall("Range")]
+    for node in list(out_of_sample.findall("Range")):
+        out_of_sample.remove(node)
+    actions.append({
+        "field": "Data/OutOfSample",
+        "from": {"attrs": before_oos_attrs, "ranges": removed_ranges},
+        "to": {"attrs": dict(out_of_sample.attrib), "ranges": []},
+        "changed": before_oos_attrs != dict(out_of_sample.attrib) or bool(removed_ranges),
+    })
+
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing_by_name = {
+        node.get("name", ""): node
+        for node in databanks.findall("Databank")
+        if node.get("name")
+    }
+    for name, wanted in TICK_REAL_DATABANKS_TARGET.items():
+        node = existing_by_name.get(name)
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+            before = None
+        else:
+            before = dict(node.attrib)
+        node.set("name", name)
+        node.set("value", wanted)
+        node.set("label", f"{name} databank")
+        actions.append({
+            "field": f"Databanks/{name}",
+            "from": before,
+            "to": dict(node.attrib),
+            "changed": before != dict(node.attrib),
+        })
+
+    resources = find_section(root, "Resources")
+    if resources is None:
+        resources = ET.SubElement(root, "Resources")
+        before_resources: dict[str, Any] = {"resourcesFound": False}
+    else:
+        before_resources = _tick_real_resource_summary(root)
+
+    charts = setup.findall("Chart")
+    if not charts:
+        chart = ET.SubElement(setup, "Chart", {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2"})
+        charts = [chart]
+        actions.append({"field": "Data/Setup/Chart", "from": None, "to": dict(chart.attrib), "changed": True})
+    chart_by_symbol = {
+        chart.get("symbol", ""): chart
+        for chart in charts
+        if chart.get("symbol")
+    }
+    symbols_node = ensure_resources_container(resources, "Symbols")
+    brokers_node = ensure_resources_container(resources, "Brokers")
+    instruments_node = ensure_resources_container(resources, "Instruments")
+    sessions_node = ensure_resources_container(resources, "Sessions")
+    ensure_resources_container(resources, "CustomIndicators")
+    ensure_resources_container(resources, "CustomBlocks")
+
+    template_symbol_attrs, template_info_attrs = _first_existing_symbol_template(resources)
+    existing_symbols = {
+        symbol.get("name", ""): symbol
+        for symbol in symbols_node.findall("Symbol")
+        if symbol.get("name")
+    }
+    before_symbols = [value_for_node(symbol) for symbol in symbols_node.findall("Symbol")]
+    for symbol in list(symbols_node.findall("Symbol")):
+        symbols_node.remove(symbol)
+
+    referenced_brokers: set[str] = set()
+    date_from_default = str(epoch_ms_for_date(period[0]))
+    date_to_default = str(epoch_ms_for_date(period[1]))
+    for symbol_name, chart in chart_by_symbol.items():
+        existing_symbol = existing_symbols.get(symbol_name)
+        symbol_attrs = dict(existing_symbol.attrib) if existing_symbol is not None else dict(template_symbol_attrs)
+        existing_info = existing_symbol.find("InstrumentInfo") if existing_symbol is not None else None
+        info_attrs = dict(existing_info.attrib) if existing_info is not None else dict(template_info_attrs)
+        broker_id = symbol_attrs.get("broker") or info_attrs.get("broker") or TICK_REAL_DEFAULT_BROKER_ID
+        source_id = symbol_attrs.get("source") or TICK_REAL_DEFAULT_SOURCE_ID
+        bounded_from, bounded_to = bounded_period_ms(
+            period,
+            symbol_attrs.get("dateFrom") or date_from_default,
+            symbol_attrs.get("dateTo") or date_to_default,
+        )
+        asset = _asset_from_tick_real_symbol(symbol_name)
+        referenced_brokers.add(broker_id)
+        symbol_node = ET.SubElement(symbols_node, "Symbol", {
+            "name": symbol_name,
+            "source": source_id,
+            "barType": symbol_attrs.get("barType", "1"),
+            "precision": TICK_REAL_RESOURCE_PRECISION,
+            "timezone": symbol_attrs.get("timezone") or TICK_REAL_RESOURCE_TIMEZONE,
+            "dateFrom": bounded_from,
+            "dateTo": bounded_to,
+            "uSymbol": symbol_attrs.get("uSymbol") or asset,
+            "uSymbolName": symbol_attrs.get("uSymbolName") or asset,
+            "removeWeekends": symbol_attrs.get("removeWeekends", "false"),
+            "broker": broker_id,
+        })
+        info_attrs.update({
+            "instrument": info_attrs.get("instrument") or symbol_name,
+            "defaultSpread": chart.get("spread", info_attrs.get("defaultSpread", "")),
+            "dateFrom": "0",
+            "dateTo": "0",
+            "rows": "0",
+            "totalDays": "0",
+            "dataType": info_attrs.get("dataType", BUILD_RESOURCES_BASE_DATA_TYPE),
+            "broker": broker_id,
+        })
+        ET.SubElement(symbol_node, "InstrumentInfo", info_attrs)
+
+    after_symbols = [value_for_node(symbol) for symbol in symbols_node.findall("Symbol")]
+    actions.append({
+        "field": "Resources/Symbols",
+        "from": before_symbols,
+        "to": after_symbols,
+        "changed": before_symbols != after_symbols,
+    })
+
+    before_brokers = [value_for_node(broker) for broker in brokers_node.findall("Broker")]
+    existing_brokers = {
+        broker.get("id", ""): broker
+        for broker in brokers_node.findall("Broker")
+        if broker.get("id")
+    }
+    for broker in list(brokers_node.findall("Broker")):
+        if broker.get("id") not in referenced_brokers:
+            brokers_node.remove(broker)
+    for broker_id in sorted(referenced_brokers):
+        if broker_id in existing_brokers and existing_brokers[broker_id] in list(brokers_node):
+            continue
+        ET.SubElement(brokers_node, "Broker", {
+            "id": broker_id,
+            "name": "[[Darwinex]]" if broker_id == TICK_REAL_DEFAULT_BROKER_ID else f"Broker {broker_id}",
+            "description": "Darwinex CFDs" if broker_id == TICK_REAL_DEFAULT_BROKER_ID else "",
+            "timezone": TICK_REAL_RESOURCE_TIMEZONE,
+            "postfix": "_darwinex" if broker_id == TICK_REAL_DEFAULT_BROKER_ID else "",
+            "mtUse": "true",
+            "spUse": "false",
+        })
+    after_brokers = [value_for_node(broker) for broker in brokers_node.findall("Broker")]
+    actions.append({
+        "field": "Resources/Brokers",
+        "from": before_brokers,
+        "to": after_brokers,
+        "changed": before_brokers != after_brokers,
+    })
+
+    before_instruments = [value_for_node(node) for node in instruments_node.findall("InstrumentInfo")]
+    for node in list(instruments_node.findall("InstrumentInfo")):
+        instruments_node.remove(node)
+    for symbol in symbols_node.findall("Symbol"):
+        info = symbol.find("InstrumentInfo")
+        ET.SubElement(instruments_node, "InstrumentInfo", dict(info.attrib) if info is not None else {})
+    after_instruments = [value_for_node(node) for node in instruments_node.findall("InstrumentInfo")]
+    actions.append({
+        "field": "Resources/Instruments",
+        "from": before_instruments,
+        "to": after_instruments,
+        "changed": before_instruments != after_instruments,
+    })
+
+    removed_sessions = [value_for_node(node) for node in sessions_node.findall("Session")]
+    for node in list(sessions_node.findall("Session")):
+        sessions_node.remove(node)
+    actions.append({
+        "field": "Resources/Sessions",
+        "from": removed_sessions,
+        "to": [],
+        "changed": bool(removed_sessions),
+    })
+    actions.append({
+        "field": "Resources",
+        "from": before_resources,
+        "to": _tick_real_resource_summary(root),
+        "changed": before_resources != _tick_real_resource_summary(root),
+        "note": "CustomIndicators and CustomBlocks are preserved; Project Generator owns final resource rebuild per asset/timeframe.",
+    })
+    return actions
+
+
+def enforce_tick_real_data_databanks_resources_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    period = generator_period(TICK_REAL_PERIOD_KEY)
+    setup = root.find(".//Data/Setups/Setup")
+    if setup is None:
+        return ["TICK REAL Data/Setup missing"]
+    if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+        issues.append("TICK REAL dates are not ROBUSTNESS_C1")
+    if setup.get("testPrecision") != TICK_REAL_DATA_TEST_PRECISION:
+        issues.append("TICK REAL testPrecision is not SQX142 tick/simulated code 2")
+    if setup.get("session") != TICK_REAL_DATA_SESSION:
+        issues.append("TICK REAL session must stay No Session")
+    if root.findall(".//Data/OutOfSample/Range"):
+        issues.append("TICK REAL must not carry nested OutOfSample ranges")
+
+    databanks = {
+        node.get("name", ""): node.get("value", "")
+        for node in root.findall(".//Databanks/Databank")
+        if node.get("name")
+    }
+    for name, wanted in TICK_REAL_DATABANKS_TARGET.items():
+        if databanks.get(name) != wanted:
+            issues.append(f"TICK REAL Databank {name} is {databanks.get(name)!r}, expected {wanted!r}")
+
+    resources = find_section(root, "Resources")
+    if resources is None:
+        issues.append("TICK REAL Resources missing")
+        return issues
+    chart_symbols = {
+        chart.get("symbol", "")
+        for chart in setup.findall("Chart")
+        if chart.get("symbol")
+    }
+    resource_symbols = {
+        symbol.get("name", "")
+        for symbol in resources.findall("./Symbols/Symbol")
+        if symbol.get("name")
+    }
+    if chart_symbols != resource_symbols:
+        issues.append(f"TICK REAL chart/resource mismatch: charts={sorted(chart_symbols)} resources={sorted(resource_symbols)}")
+    broker_ids = {
+        broker.get("id", "")
+        for broker in resources.findall("./Brokers/Broker")
+        if broker.get("id")
+    }
+    for symbol in resources.findall("./Symbols/Symbol"):
+        if symbol.get("precision") != TICK_REAL_RESOURCE_PRECISION:
+            issues.append(f"TICK REAL resource {symbol.get('name')} precision is not TICK")
+        if symbol.get("timezone") != TICK_REAL_RESOURCE_TIMEZONE:
+            issues.append(f"TICK REAL resource {symbol.get('name')} timezone is not EETUS")
+        if symbol.get("broker") not in broker_ids:
+            issues.append(f"TICK REAL resource {symbol.get('name')} references missing broker {symbol.get('broker')}")
+        info = symbol.find("InstrumentInfo")
+        if info is None:
+            issues.append(f"TICK REAL resource {symbol.get('name')} has no nested InstrumentInfo")
+        elif info.get("broker") not in broker_ids:
+            issues.append(f"TICK REAL nested InstrumentInfo for {symbol.get('name')} references missing broker {info.get('broker')}")
+    if resources.findall("./Sessions/Session"):
+        issues.append("TICK REAL resources must not keep session entries")
+
+    data_node = find_section(root, "Data")
+    databanks_node = find_section(root, "Databanks")
+    guarded_text = (
+        serialize_xml(data_node if data_node is not None else root)
+        + serialize_xml(databanks_node if databanks_node is not None else root)
+        + serialize_xml(resources)
+    )
+    for token in TICK_REAL_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into TICK REAL Data/Databanks/Resources: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into TICK REAL Data/Databanks/Resources")
+    return issues
+
+
+def update_tick_real_data_databanks_resources_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, TICK_REAL_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "tick_real_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = tick_real_data_databanks_resources_summary(root)
+    payload["actions"] = apply_tick_real_data_databanks_resources_to_root(root)
+    payload["after"] = tick_real_data_databanks_resources_summary(root)
+    payload["issues"] = enforce_tick_real_data_databanks_resources_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "taskTitle": TICK_REAL_TASK_TITLE,
+        "periodKey": TICK_REAL_PERIOD_KEY,
+        "dateFrom": generator_period(TICK_REAL_PERIOD_KEY)[0],
+        "dateTo": generator_period(TICK_REAL_PERIOD_KEY)[1],
+        "testPrecision": TICK_REAL_DATA_TEST_PRECISION,
+        "databanks": TICK_REAL_DATABANKS_TARGET,
+        "resourcePrecision": TICK_REAL_RESOURCE_PRECISION,
+        "resourceTimezone": TICK_REAL_RESOURCE_TIMEZONE,
+    }
+    payload["targetRationale"] = {
+        "methodology": "TICK REAL is the precision-data robustness gate after RETEST 1, so it consumes retest 1 and writes TICK.",
+        "naturalResults": "The chain preserves natural passed/failed rows; this block does not force Results=passed.",
+        "generatorOwned": "Symbol, timeframe, spread, swap and final resources remain owned by Project Generator for each selected asset/timeframe.",
+        "noDonorCopy": "Mining15 donor USDJPY/H4 values are not copied; only the confirmed chain and generic compatibility guards are promoted.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_tick_real_data_databanks_resources_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase5_tick_real_data_databanks_resources_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_tick_real_data_databanks_resources_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase5",
+        "operation": "tick_real_data_databanks_resources_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase5_tick_real_data_databanks_resources_diff_review" if not apply else "phase5_tick_real_options_rankings_decision",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase5_tick_real_data_databanks_resources_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -4137,6 +4573,10 @@ def build_parser() -> argparse.ArgumentParser:
     retest1_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     retest1_static.add_argument("--apply", action="store_true")
 
+    tick_real_data = sub.add_parser("tick-real-data-databanks-resources-target")
+    tick_real_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    tick_real_data.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -4232,6 +4672,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "retest1-static-crosschecks-target":
         json_print(promote_retest1_static_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "tick-real-data-databanks-resources-target":
+        json_print(promote_tick_real_data_databanks_resources_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
