@@ -155,6 +155,30 @@ def test_capa1_base_v2_matches_active_methodology():
     assert forward_ranges[-1].get("dateTo") == "2026.04.08"
 
 
+def test_capa1_build_resources_are_generic_generator_owned_placeholder():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    build = roots["Build-Task1.xml"]
+    resources = build.find(".//Resources")
+    assert resources is not None
+
+    chart_symbols = {
+        chart.get("symbol")
+        for chart in build.findall(".//Data/Setups/Setup/Chart")
+        if chart.get("symbol")
+    }
+    symbols = resources.findall("./Symbols/Symbol")
+    symbol_names = {symbol.get("name") for symbol in symbols}
+    broker_ids = {broker.get("id") for broker in resources.findall("./Brokers/Broker")}
+
+    assert chart_symbols == symbol_names
+    assert resources.findall("./Sessions/Session") == []
+    assert "USDJPY" not in ET.tostring(resources, encoding="unicode")
+    assert {symbol.get("precision") for symbol in symbols} == {"TICK"}
+    assert {symbol.find("InstrumentInfo").get("dataType") for symbol in symbols} == {"3"}
+    assert all(symbol.get("broker") in broker_ids for symbol in symbols)
+    assert all(symbol.find("InstrumentInfo").get("instrument") in symbol_names for symbol in symbols)
+
+
 def test_capa1_base_uses_phase1_review_views():
     roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
     config = roots["config.xml"]

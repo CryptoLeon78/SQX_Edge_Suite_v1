@@ -170,6 +170,9 @@ BUILD_INDICATORS_DEFAULT_TIMEFRAME = "H4"
 BUILD_DATA_PERIOD_KEY = "BUILD_C1"
 BUILD_DATA_TEST_PRECISION = "2"
 BUILD_DATA_SESSION = "No Session"
+BUILD_RESOURCES_PRECISION = "TICK"
+BUILD_RESOURCES_BASE_DATA_TYPE = "3"
+BUILD_RESOURCES_BANNED_DONOR_TOKENS = ("USDJPY", "USDJPY_darwinex", "USDJPY_dukascopy")
 
 
 def stamp() -> str:
@@ -1452,6 +1455,183 @@ def promote_build_data_target(root142: Path, project_root: Path, target: str, ap
     return payload
 
 
+def build_resources_summary(root: ET.Element) -> dict[str, Any]:
+    resources = root.find(".//Resources")
+    chart_symbols = sorted({
+        chart.get("symbol", "")
+        for chart in root.findall(".//Data/Setups/Setup/Chart")
+        if chart.get("symbol")
+    })
+    if resources is None:
+        return {"chartSymbols": chart_symbols, "resourcesFound": False}
+    symbols = [dict(symbol.attrib) for symbol in resources.findall("./Symbols/Symbol")]
+    brokers = [dict(broker.attrib) for broker in resources.findall("./Brokers/Broker")]
+    sessions = [dict(session.attrib) for session in resources.findall("./Sessions/Session")]
+    instruments = [dict(instrument.attrib) for instrument in resources.findall("./Instruments/InstrumentInfo")]
+    nested_infos = []
+    for symbol in resources.findall("./Symbols/Symbol"):
+        info = symbol.find("InstrumentInfo")
+        nested_infos.append(dict(info.attrib) if info is not None else {})
+    return {
+        "chartSymbols": chart_symbols,
+        "resourcesFound": True,
+        "symbols": symbols,
+        "brokers": brokers,
+        "sessions": sessions,
+        "instruments": instruments,
+        "nestedInstrumentInfos": nested_infos,
+    }
+
+
+def enforce_build_resources_guard(root: ET.Element, actions: list[dict[str, Any]]) -> list[str]:
+    issues: list[str] = []
+    resources = root.find(".//Resources")
+    if resources is None:
+        issues.append("Resources section missing")
+        return issues
+
+    chart_symbols = {
+        chart.get("symbol", "")
+        for chart in root.findall(".//Data/Setups/Setup/Chart")
+        if chart.get("symbol")
+    }
+    symbols = resources.findall("./Symbols/Symbol")
+    symbol_names = {symbol.get("name", "") for symbol in symbols if symbol.get("name")}
+    if chart_symbols != symbol_names:
+        issues.append(f"Chart symbols {sorted(chart_symbols)} do not match resource symbols {sorted(symbol_names)}")
+
+    sessions = resources.find("Sessions")
+    removed_sessions = []
+    if sessions is not None:
+        for session in list(sessions.findall("Session")):
+            removed_sessions.append(dict(session.attrib))
+            sessions.remove(session)
+    actions.append({
+        "field": "Resources/Sessions/Session",
+        "from": removed_sessions,
+        "to": [],
+        "changed": bool(removed_sessions),
+    })
+
+    broker_ids = {broker.get("id", "") for broker in resources.findall("./Brokers/Broker") if broker.get("id")}
+    for symbol in symbols:
+        name = symbol.get("name", "")
+        before_precision = symbol.get("precision", "")
+        symbol.set("precision", BUILD_RESOURCES_PRECISION)
+        actions.append({
+            "field": f"Resources/Symbols/Symbol:{name}:precision",
+            "from": before_precision,
+            "to": BUILD_RESOURCES_PRECISION,
+            "changed": before_precision != BUILD_RESOURCES_PRECISION,
+        })
+        broker = symbol.get("broker", "")
+        if broker not in {"", "-1"} and broker not in broker_ids:
+            issues.append(f"Resource symbol {name} references missing broker {broker}")
+        info = symbol.find("InstrumentInfo")
+        if info is None:
+            issues.append(f"Resource symbol {name} has no nested InstrumentInfo")
+            continue
+        info_broker = info.get("broker", "")
+        if info_broker not in {"", "-1"} and info_broker not in broker_ids:
+            issues.append(f"Nested InstrumentInfo for {name} references missing broker {info_broker}")
+
+    for instrument in resources.findall("./Instruments/InstrumentInfo"):
+        instrument_name = instrument.get("instrument", "")
+        if instrument_name and instrument_name not in symbol_names:
+            issues.append(f"Standalone InstrumentInfo {instrument_name} is not represented in Resources/Symbols")
+
+    resource_text = serialize_xml(resources)
+    for token in BUILD_RESOURCES_BANNED_DONOR_TOKENS:
+        if token in resource_text:
+            issues.append(f"Donor token leaked into base resources: {token}")
+    if re.search(r"[A-Za-z]:\\", resource_text):
+        issues.append("Local absolute path leaked into base resources")
+    return issues
+
+
+def update_build_resources_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, "Build")
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "build_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    payload["before"] = build_resources_summary(root)
+    issues = enforce_build_resources_guard(root, payload["actions"])
+    payload["after"] = build_resources_summary(root)
+    payload["issues"] = issues
+    payload["resourceGuardOk"] = not issues
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "precision": BUILD_RESOURCES_PRECISION,
+        "baseDataType": BUILD_RESOURCES_BASE_DATA_TYPE,
+        "sessions": [],
+        "bannedDonorTokens": list(BUILD_RESOURCES_BANNED_DONOR_TOKENS),
+    }
+    payload["targetRationale"] = {
+        "genericBase": "Do not copy donor USDJPY resources; base/template placeholders stay generic.",
+        "generatorOwned": "Project Generator rebuilds Symbols, Brokers, Instruments and resource dates for the selected asset/timeframe/target profile.",
+        "simulatedData": "Resources precision=TICK describes source data; Build simulated mode remains Data/Setup testPrecision=2.",
+    }
+    if apply and payload["changedActionCount"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_build_resources_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase2_build_resources_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_build_resources_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("resourceGuardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase2",
+        "operation": "build_resources_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase2_build_resources_diff_review" if not apply else "phase2_continue_questionnaire",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase2_build_resources_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_blocks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "path": str(cfx),
@@ -1958,6 +2138,10 @@ def build_parser() -> argparse.ArgumentParser:
     promote_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     promote_data.add_argument("--apply", action="store_true")
 
+    promote_resources = sub.add_parser("build-resources-target")
+    promote_resources.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    promote_resources.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -2025,6 +2209,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "build-data-target":
         json_print(promote_build_data_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "build-resources-target":
+        json_print(promote_build_resources_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

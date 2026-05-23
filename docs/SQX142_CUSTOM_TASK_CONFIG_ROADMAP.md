@@ -55,6 +55,8 @@ tools\sqx142_task_config_gate.ps1 build-indicators-target --target both
 tools\sqx142_task_config_gate.ps1 build-indicators-target --target both --apply
 tools\sqx142_task_config_gate.ps1 build-data-target --target both
 tools\sqx142_task_config_gate.ps1 build-data-target --target both --apply
+tools\sqx142_task_config_gate.ps1 build-resources-target --target both
+tools\sqx142_task_config_gate.ps1 build-resources-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -193,6 +195,11 @@ Promocion aplicada de `Build > Genetic options`:
   (`2017.10.02` a `2023.01.01`), `testPrecision=2` conserva data simulated,
   `session=No Session` y Build no usa rangos OOS. `Chart`, `spread` y `Swap`
   quedan genericos y los reescribe Project Generator por activo/timeframe.
+- Bloque `Build > Resources` cerrado como placeholder generico controlado por
+  generador: no se copian recursos `USDJPY` del donor, no hay sesiones de
+  recursos, los simbolos coinciden con los `Chart` placeholder, `precision=TICK`
+  se conserva como tipo de fuente y el modo simulated sigue viviendo en
+  `Data/Setup testPrecision=2`.
 
 Orden recomendado de preguntas: pestañas sin diferencias primero para cerrar
 bloques rápidos, después `Data`, `Resources`, `WhatToBuild`, `CrossChecks` y al

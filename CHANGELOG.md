@@ -18,6 +18,7 @@
 - Adds `build-blocks-target` and `archive-exit-day-snippets` to enforce the Building Blocks rules: market entry only, `ExitAfterBars` only, no day-based exits, no external custom data, `Signals`/`StopLimitBlocks` disabled, and `Indicators` preserved for methodology/BlockSettings; user-level `ExitAfterDays` snippets are archived reversibly.
 - Adds `build-indicators-target` so Capa1 base `BuildingBlocks` can be reconciled from the resolved real `.sqb` BlockSetting source (`BS_Volatilidad_v6` for the H4 placeholder) while generated customs keep resolving by user-selected family/timeframe.
 - Adds `build-data-target` to guard Build Capa1 Data without donor leakage: `BUILD_C1` dates, `testPrecision=2` simulated data, `No Session`, no Build OOS ranges, and generator-owned charts/spreads/swaps.
+- Adds `build-resources-target` to guard Build Capa1 Resources: no donor `USDJPY` leakage, no resource sessions, chart/resource symbol consistency, `precision=TICK` as source-data metadata, and generator-owned broker/symbol rebuilds.
 
 ## 2026-05-22 - SQX142-PERF1 Local Performance Gate
 
