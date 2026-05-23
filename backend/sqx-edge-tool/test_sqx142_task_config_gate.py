@@ -3,6 +3,7 @@ import xml.etree.ElementTree as ET
 
 from tools.sqx142_task_config_gate import (
     apply_mc_data_databanks_resources_options_to_root,
+    apply_mc_crosschecks_to_root,
     apply_retest1_passive_generation_to_root,
     apply_retest1_data_resources_to_root,
     apply_retest1_options_databanks_rankings_to_root,
@@ -16,6 +17,7 @@ from tools.sqx142_task_config_gate import (
     enforce_retest1_passive_generation_guard,
     enforce_retest1_static_crosschecks_guard,
     enforce_mc_data_databanks_resources_options_guard,
+    enforce_mc_crosschecks_guard,
     enforce_tick_real_data_databanks_resources_guard,
     enforce_tick_real_options_rankings_guard,
     enforce_tick_real_passive_generation_guard,
@@ -911,4 +913,120 @@ def test_mc_data_databanks_resources_options_guard_rejects_donor_oos_and_wrong_o
     assert any("references missing broker" in issue for issue in issues)
     assert any("session entries" in issue for issue in issues)
     assert any("Options param LimitTimeRange" in issue for issue in issues)
+    assert any("Forbidden donor token" in issue for issue in issues)
+
+
+def test_mc_crosschecks_target_runs_only_trade_order_manipulation_and_cleans_disabled_methods():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Data>
+            <Setups>
+              <Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session">
+                <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2" />
+              </Setup>
+            </Setups>
+          </Data>
+          <Databanks>
+            <Databank name="Input" value="TICK" />
+            <Databank name="Output" value="MC" />
+          </Databanks>
+          <Rankings><ForceRunCrossChecks>false</ForceRunCrossChecks></Rankings>
+          <CrossChecks use="false" evaluateAll="false">
+            <RetestOnAdditionalMarkets use="true">
+              <Settings>
+                <Setups>
+                  <Setup dateFrom="2017.10.02" dateTo="2026.04.08" testPrecision="1" session="Old Session">
+                    <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2" />
+                  </Setup>
+                </Setups>
+              </Settings>
+            </RetestOnAdditionalMarkets>
+            <MonteCarloRetest use="true">
+              <Settings><Methods><Method type="RandomizeSpread" use="true"><Params><Param key="Min">1.0</Param><Param key="Max">5.0</Param></Params></Method></Methods></Settings>
+            </MonteCarloRetest>
+            <MonteCarloManipulation use="false">
+              <Settings>
+                <Methods>
+                  <Method type="RandomizeTradesOrder" use="false"><Params><Param key="Method" type="String">permutation</Param></Params></Method>
+                  <Method type="RandomlySkipTrades" use="true"><Params><Param key="Probability" type="Integer">25</Param></Params></Method>
+                </Methods>
+                <NumberOfSimulations>50</NumberOfSimulations>
+                <MCUseFullSample>false</MCUseFullSample>
+              </Settings>
+              <AcceptanceSettings><Conditions CrossCheck="MonteCarloManipulation" /></AcceptanceSettings>
+            </MonteCarloManipulation>
+            <WhatIf use="false">
+              <Settings><Methods><Method type="ExcludeTradesWithBiggestPl" use="true"><Params><Param key="Trades">2</Param></Params></Method></Methods></Settings>
+            </WhatIf>
+          </CrossChecks>
+        </Task>
+        """
+    )
+
+    actions = apply_mc_crosschecks_to_root(root)
+
+    assert any(item["field"] == "CrossChecks:attrs" and item["changed"] for item in actions)
+    assert any(item["field"] == "CrossChecks/MonteCarloRetest/Method:RandomizeSpread:use" and item["changed"] for item in actions)
+    assert any(item["field"] == "CrossChecks/*/Settings/Setups/Setup" and item["changed"] for item in actions)
+    assert enforce_mc_crosschecks_guard(root) == []
+    assert root.find(".//CrossChecks").get("use") == "true"
+    assert root.find(".//CrossChecks").get("evaluateAll") == "true"
+    assert root.find(".//CrossChecks/MonteCarloRetest").get("use") == "false"
+    assert root.find(".//CrossChecks/MonteCarloRetest//Method[@type='RandomizeSpread']").get("use") == "false"
+    assert root.find(".//CrossChecks/WhatIf//Method[@type='ExcludeTradesWithBiggestPl']").get("use") == "false"
+    manipulation = root.find(".//CrossChecks/MonteCarloManipulation")
+    assert manipulation.get("use") == "true"
+    assert manipulation.findtext("./Settings/NumberOfSimulations") == "200"
+    assert manipulation.findtext("./Settings/MCUseFullSample") == "true"
+    assert manipulation.find(".//Method[@type='RandomizeTradesOrder']").get("use") == "true"
+    assert manipulation.find(".//Method[@type='RandomizeTradesOrder']/Params/Param[@key='Method']").text == "resampling"
+    assert manipulation.find(".//Method[@type='RandomlySkipTrades']").get("use") == "false"
+    conditions = manipulation.findall("./AcceptanceSettings/Conditions/Condition")
+    assert len(conditions) == 2
+    assert conditions[0].find("./Left-Side/Column-Value").get("column") == "NetProfit"
+    assert conditions[0].find("./Right-Side/Column-Value").get("pctRatio") == "40"
+    assert conditions[1].find("./Left-Side/Column-Value").get("column") == "DrawdownPct"
+    assert conditions[1].find("./Right-Side/Column-Value").get("pctRatio") == "200"
+    nested_setup = root.find(".//CrossChecks/RetestOnAdditionalMarkets/Settings/Setups/Setup")
+    assert nested_setup.get("dateTo") == "2023.12.31"
+    assert nested_setup.get("testPrecision") == "2"
+    assert nested_setup.get("session") == "No Session"
+
+
+def test_mc_crosschecks_guard_rejects_wrong_active_check_disabled_methods_and_donor_tokens():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2" /></Setup></Setups></Data>
+          <Rankings><ForceRunCrossChecks>true</ForceRunCrossChecks></Rankings>
+          <CrossChecks use="true" evaluateAll="true">
+            <MonteCarloRetest use="true">
+              <Settings>
+                <Setups><Setup dateFrom="2017.10.02" dateTo="2026.05.15" testPrecision="1" session="No Session"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups>
+                <Methods><Method type="RandomizeSpread" use="true"><Params><Param key="Min">1.0</Param><Param key="Max">5.0</Param></Params></Method></Methods>
+              </Settings>
+            </MonteCarloRetest>
+            <MonteCarloManipulation use="true">
+              <Settings>
+                <Methods><Method type="RandomizeTradesOrder" use="false"><Params><Param key="Method" type="String">permutation</Param></Params></Method></Methods>
+                <NumberOfSimulations>10</NumberOfSimulations>
+                <MCUseFullSample>false</MCUseFullSample>
+              </Settings>
+              <AcceptanceSettings><Conditions CrossCheck="MonteCarloManipulation" /></AcceptanceSettings>
+            </MonteCarloManipulation>
+          </CrossChecks>
+        </Task>
+        """
+    )
+
+    issues = enforce_mc_crosschecks_guard(root)
+
+    assert any("active crosschecks" in issue for issue in issues)
+    assert any("NumberOfSimulations" in issue for issue in issues)
+    assert any("RandomizeTradesOrder" in issue for issue in issues)
+    assert any("acceptance conditions" in issue for issue in issues)
+    assert any("disabled crosschecks" in issue for issue in issues)
+    assert any("nested CrossChecks setup dates" in issue for issue in issues)
+    assert any("Rankings/ForceRunCrossChecks" in issue for issue in issues)
     assert any("Forbidden donor token" in issue for issue in issues)

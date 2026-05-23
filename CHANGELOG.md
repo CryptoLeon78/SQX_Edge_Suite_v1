@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 MC CrossChecks
+
+- Adds `mc-crosschecks-target` to close the Phase 6 `MC > CrossChecks` block with dry-run-first backup/diff/apply and guards for the exact active Monte Carlo method.
+- Keeps `MC` focused on trade-order robustness only: `CrossChecks use=true/evaluateAll=true`, only `MonteCarloManipulation` active, `RandomizeTradesOrder=resampling`, `RandomlySkipTrades=false`, `NumberOfSimulations=200` and `MCUseFullSample=true`.
+- Preserves natural failed/passed outcomes with acceptance checks at confidence `80`: MC net profit must be at least `40%` of main net profit and MC drawdown must stay within `200%` of main drawdown.
+- Leaves `MC 2`, `Monkey Test` and `Synthetic` as separate tasks, disables active methods hidden inside inactive crosschecks, bounds nested disabled setups to `ROBUSTNESS_C1`, and records ledger answers for `MC > CrossChecks` (`303/303`) with post-apply dry-run idempotent and `guardOk=true`.
+
 ## 2026-05-23 - C1-CONFIG1 MC Data/Databanks/Resources/Options
 
 - Adds `mc-data-databanks-resources-options-target` to close the first Phase 6 `MC` block with dry-run-first backup/diff/apply and guards for no nested OOS, no donor USDJPY/H4 leak and generator-owned resources.

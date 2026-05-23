@@ -92,6 +92,8 @@ tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC" --tab "Data" -
 tools\sqx142_task_config_gate.ps1 record-answer --task-title "MC" --tab "Data" --question-id "<id>" --answer "<answer>"
 tools\sqx142_task_config_gate.ps1 mc-data-databanks-resources-options-target --target both
 tools\sqx142_task_config_gate.ps1 mc-data-databanks-resources-options-target --target both --apply
+tools\sqx142_task_config_gate.ps1 mc-crosschecks-target --target both
+tools\sqx142_task_config_gate.ps1 mc-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -699,8 +701,40 @@ Decision aplicada para `MC > Data / Databanks / Resources / Options`:
 Reporte local:
 `.local/sqx142_task_config/phase_reports/phase6_mc_data_databanks_resources_options_20260523_214211.json`.
 
-Siguiente bloque exacto: `MC > CrossChecks`, donde se revisa el metodo Monte
-Carlo real y sus filtros.
+Decision aplicada para `MC > CrossChecks`:
+
+- Se anade `mc-crosschecks-target` con dry-run-first, backup/diff/apply y guard
+  especifico de metodo Monte Carlo.
+- `CrossChecks` queda ejecutable en el task `MC`: parent `use=true` y
+  `evaluateAll=true`.
+- Solo queda activo `MonteCarloManipulation`; `MC 2`, `Monkey Test` y
+  `Synthetic` siguen siendo tareas separadas y no se mezclan aqui.
+- Metodo activo: `RandomizeTradesOrder` con `Method=resampling`.
+- Metodo apagado dentro del activo: `RandomlySkipTrades=false` con
+  `Probability=10` preservado como parametro no ejecutable.
+- Ajustes: `NumberOfSimulations=200` y `MCUseFullSample=true`, coherente con
+  no crear OOS interno dentro de MC.
+- Condiciones de aceptacion naturales a confianza `80`: `NetProfit`
+  MonteCarloManipulation `>= 40%` del `NetProfit` main y `DrawdownPct`
+  MonteCarloManipulation `<= 200%` del `DrawdownPct` main.
+- Se apagan los metodos residuales que estaban activos dentro de crosschecks
+  desactivados (`MonteCarloRetest` y `WhatIf`) para evitar ejecucion accidental
+  o ruido futuro.
+- Los setups internos de crosschecks desactivados quedan acotados a
+  `ROBUSTNESS_C1` (`2017.10.02` a `2023.12.31`), `testPrecision=2`,
+  `session=No Session` y el chart seed generico actual.
+- No se copia donor `USDJPY/H4`; Project Generator sigue siendo propietario del
+  activo/timeframe/spread/swap final.
+- El dry-run posterior queda idempotente: `changed=false`,
+  `changedActionCount=0` y `guardOk=true`.
+- Ledger local respondido para `MC > CrossChecks` (`303/303`).
+
+Reporte local:
+`.local/sqx142_task_config/phase_reports/phase6_mc_crosschecks_20260523_220422.json`.
+
+Siguiente bloque exacto: `MC > PartsToImprove / WhatToBuild / Blocks`, para
+cerrar el caracter pasivo del retest y confirmar que no genera ni mejora
+estrategias.
 
 ## Disciplina Operativa
 

@@ -357,6 +357,98 @@ MC_OPTIONS_PARAMS_TARGET = {
     "RealisticGapsHandling": "false",
     "StoreChartData": "false",
 }
+MC_CROSSCHECK_PARENT_TARGET = {"use": "true", "evaluateAll": "true"}
+MC_ACTIVE_CROSSCHECK = "MonteCarloManipulation"
+MC_INACTIVE_CROSSCHECKS = (
+    "RetestOnAdditionalMarkets",
+    "WalkForwardOptimization",
+    "RetestWithHigherPrecision",
+    "MonteCarloRetest",
+    "WalkForwardMatrix",
+    "OptProfileSysParamPermutation",
+    "WhatIf",
+    "SequentialOptimization",
+)
+MC_MANIPULATION_SETTINGS_TARGET = {
+    "NumberOfSimulations": "200",
+    "MCUseFullSample": "true",
+}
+MC_MANIPULATION_METHOD_TARGET = {
+    "RandomizeTradesOrder": {
+        "use": "true",
+        "params": {"Method": {"text": "resampling", "type": "String"}},
+    },
+    "RandomlySkipTrades": {
+        "use": "false",
+        "params": {"Probability": {"text": "10", "type": "Integer"}},
+    },
+}
+MC_MANIPULATION_CONDITIONS_TARGET = [
+    {
+        "left": {
+            "column": "NetProfit",
+            "columnType": "0",
+            "name": "Net profit",
+            "format": "Decimal2PL",
+            "resultType": "MonteCarloManipulation",
+            "direction": "0",
+            "sampleType": "10",
+            "plType": "10",
+            "confidenceLevel": "80",
+            "market": "1",
+            "subresult": "30",
+            "pctRatio": "0",
+            "class": "NetProfit",
+        },
+        "comparator": ">=",
+        "right": {
+            "column": "NetProfit",
+            "columnType": "0",
+            "format": "Decimal2PL",
+            "resultType": "main",
+            "direction": "0",
+            "sampleType": "127",
+            "plType": "10",
+            "confidenceLevel": "50",
+            "market": "1",
+            "subresult": "30",
+            "pctRatio": "40",
+            "class": "NetProfit",
+        },
+    },
+    {
+        "left": {
+            "column": "DrawdownPct",
+            "columnType": "0",
+            "name": "Max DD %",
+            "format": "Decimal2Pct",
+            "resultType": "MonteCarloManipulation",
+            "direction": "0",
+            "sampleType": "10",
+            "plType": "10",
+            "confidenceLevel": "80",
+            "market": "1",
+            "subresult": "30",
+            "pctRatio": "0",
+            "class": "DrawdownPct",
+        },
+        "comparator": "<=",
+        "right": {
+            "column": "DrawdownPct",
+            "columnType": "0",
+            "format": "Decimal2Pct",
+            "resultType": "main",
+            "direction": "0",
+            "sampleType": "127",
+            "plType": "10",
+            "confidenceLevel": "50",
+            "market": "1",
+            "subresult": "30",
+            "pctRatio": "200",
+            "class": "DrawdownPct",
+        },
+    },
+]
 
 
 def stamp() -> str:
@@ -4507,6 +4599,476 @@ def promote_mc_data_databanks_resources_options_target(root142: Path, project_ro
     return payload
 
 
+def ensure_direct_child(parent: ET.Element, tag: str) -> ET.Element:
+    child = parent.find(tag)
+    if child is None:
+        child = ET.SubElement(parent, tag)
+    return child
+
+
+def mc_condition_summary(condition: ET.Element) -> dict[str, Any]:
+    left = condition.find("./Left-Side/Column-Value")
+    comparator = condition.find("./Comparator")
+    right = condition.find("./Right-Side/Column-Value")
+    return {
+        "use": condition.get("use", ""),
+        "left": dict(left.attrib) if left is not None else {},
+        "comparator": comparator.get("value", "") if comparator is not None else "",
+        "right": dict(right.attrib) if right is not None else {},
+    }
+
+
+def mc_crosschecks_summary(root: ET.Element) -> dict[str, Any]:
+    parent = find_section(root, "CrossChecks")
+    checks: list[dict[str, Any]] = []
+    if parent is not None:
+        for check in list(parent):
+            if not isinstance(check.tag, str) or check.get("use") is None:
+                continue
+            methods = []
+            for method in check.findall("./Settings/Methods/Method"):
+                methods.append({
+                    "type": method.get("type", ""),
+                    "use": method.get("use", ""),
+                    "params": {
+                        param.get("key", ""): (param.text or "")
+                        for param in method.findall("./Params/Param")
+                        if param.get("key")
+                    },
+                })
+            checks.append({
+                "id": check.tag,
+                "use": check.get("use", ""),
+                "methods": methods,
+                "numberOfSimulations": check.findtext("./Settings/NumberOfSimulations") or "",
+                "mcUseFullSample": check.findtext("./Settings/MCUseFullSample") or "",
+                "conditions": [
+                    mc_condition_summary(condition)
+                    for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
+                ],
+            })
+    rankings = find_section(root, "Rankings")
+    return {
+        "crossChecks": {
+            "exists": parent is not None,
+            "attrs": dict(parent.attrib) if parent is not None else {},
+            "active": [
+                item["id"]
+                for item in checks
+                if item.get("use") == "true"
+            ],
+            "checks": checks,
+            "sha256": section_sha256(root, "CrossChecks"),
+        },
+        "rankings": {
+            "forceRunCrossChecks": (rankings.findtext("ForceRunCrossChecks") or "") if rankings is not None else "",
+        },
+    }
+
+
+def set_method_param(
+    method: ET.Element,
+    key: str,
+    text: str,
+    param_type: str,
+    actions: list[dict[str, Any]],
+    field: str,
+) -> None:
+    params = method.find("Params")
+    if params is None:
+        params = ET.SubElement(method, "Params")
+        before = None
+    else:
+        before = [
+            {"key": param.get("key", ""), "type": param.get("type", ""), "text": param.text or ""}
+            for param in params.findall("Param")
+        ]
+    target = None
+    for param in params.findall("Param"):
+        if param.get("key") == key:
+            target = param
+            break
+    if target is None:
+        target = ET.SubElement(params, "Param")
+    target.set("key", key)
+    target.set("type", param_type)
+    target.text = text
+    after = [
+        {"key": param.get("key", ""), "type": param.get("type", ""), "text": param.text or ""}
+        for param in params.findall("Param")
+    ]
+    actions.append({"field": field, "from": before, "to": after, "changed": before != after})
+
+
+def make_mc_ratio_condition(target: dict[str, Any]) -> ET.Element:
+    condition = ET.Element("Condition", {"use": "true"})
+    condition.text = "\n            "
+    left = ET.SubElement(condition, "Left-Side", {"valueType": "column"})
+    left.text = "\n              "
+    left.tail = "\n            "
+    left_value = ET.SubElement(left, "Column-Value", target["left"])
+    left_value.tail = "\n            "
+    comparator = ET.SubElement(condition, "Comparator", {"value": target["comparator"]})
+    comparator.tail = "\n            "
+    right = ET.SubElement(condition, "Right-Side", {"valueType": "column"})
+    right.text = "\n              "
+    right.tail = "\n          "
+    right_value = ET.SubElement(right, "Column-Value", target["right"])
+    right_value.tail = "\n            "
+    return condition
+
+
+def set_mc_manipulation_acceptance(check: ET.Element, actions: list[dict[str, Any]]) -> None:
+    acceptance = ensure_direct_child(check, "AcceptanceSettings")
+    conditions = acceptance.find("Conditions")
+    if conditions is None:
+        conditions = ET.SubElement(acceptance, "Conditions")
+        before: list[dict[str, Any]] = []
+    else:
+        before = [mc_condition_summary(condition) for condition in conditions.findall("Condition")]
+        for child in list(conditions):
+            conditions.remove(child)
+    conditions.set("CrossCheck", MC_ACTIVE_CROSSCHECK)
+    conditions.text = "\n          "
+    for index, target in enumerate(MC_MANIPULATION_CONDITIONS_TARGET):
+        condition = make_mc_ratio_condition(target)
+        condition.tail = "\n        " if index == len(MC_MANIPULATION_CONDITIONS_TARGET) - 1 else "\n          "
+        conditions.append(condition)
+    after = [mc_condition_summary(condition) for condition in conditions.findall("Condition")]
+    actions.append({
+        "field": "CrossChecks/MonteCarloManipulation/AcceptanceSettings/Conditions",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+    })
+
+
+def normalize_mc_crosscheck_setups(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    period = generator_period(MC_PERIOD_KEY)
+    main_setup = root.find(".//Data/Setups/Setup")
+    main_chart = main_setup.find("Chart") if main_setup is not None else None
+    target_chart = dict(main_chart.attrib) if main_chart is not None else {}
+    before: list[dict[str, Any]] = []
+    after: list[dict[str, Any]] = []
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        setup_before = {
+            "attrs": dict(setup.attrib),
+            "charts": [dict(chart.attrib) for chart in setup.findall("Chart")],
+        }
+        before.append(setup_before)
+        for key, wanted in {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": MC_DATA_TEST_PRECISION,
+            "session": MC_DATA_SESSION,
+        }.items():
+            setup.set(key, wanted)
+        if target_chart:
+            charts = setup.findall("Chart")
+            if not charts:
+                charts = [ET.SubElement(setup, "Chart")]
+            for chart in charts:
+                for key, value in target_chart.items():
+                    chart.set(key, value)
+        after.append({
+            "attrs": dict(setup.attrib),
+            "charts": [dict(chart.attrib) for chart in setup.findall("Chart")],
+        })
+    actions.append({
+        "field": "CrossChecks/*/Settings/Setups/Setup",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+    })
+
+
+def apply_mc_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    parent = find_section(root, "CrossChecks")
+    if parent is None:
+        parent = ET.SubElement(root, "CrossChecks")
+        actions.append({"field": "CrossChecks", "from": None, "to": "created", "changed": True})
+    before_attrs = dict(parent.attrib)
+    for key, value in MC_CROSSCHECK_PARENT_TARGET.items():
+        parent.set(key, value)
+    actions.append({
+        "field": "CrossChecks:attrs",
+        "from": before_attrs,
+        "to": dict(parent.attrib),
+        "changed": before_attrs != dict(parent.attrib),
+    })
+
+    active = parent.find(MC_ACTIVE_CROSSCHECK)
+    if active is None:
+        active = ET.SubElement(parent, MC_ACTIVE_CROSSCHECK)
+        actions.append({"field": f"CrossChecks/{MC_ACTIVE_CROSSCHECK}", "from": None, "to": "created", "changed": True})
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        wanted_use = "true" if check.tag == MC_ACTIVE_CROSSCHECK else "false"
+        before_use = check.get("use", "")
+        check.set("use", wanted_use)
+        actions.append({
+            "field": f"CrossChecks/{check.tag}:use",
+            "from": before_use,
+            "to": wanted_use,
+            "changed": before_use != wanted_use,
+        })
+
+    settings = ensure_direct_child(active, "Settings")
+    methods = ensure_direct_child(settings, "Methods")
+    existing_methods = {
+        method.get("type", ""): method
+        for method in methods.findall("Method")
+        if method.get("type")
+    }
+    for method_type, target in MC_MANIPULATION_METHOD_TARGET.items():
+        method = existing_methods.get(method_type)
+        if method is None:
+            method = ET.SubElement(methods, "Method", {"type": method_type})
+            before_method = None
+        else:
+            before_method = value_for_node(method)
+        method.set("type", method_type)
+        method.set("use", str(target["use"]))
+        for param_key, param_target in target["params"].items():
+            set_method_param(
+                method,
+                key=param_key,
+                text=str(param_target["text"]),
+                param_type=str(param_target["type"]),
+                actions=actions,
+                field=f"CrossChecks/{MC_ACTIVE_CROSSCHECK}/Method:{method_type}/Param:{param_key}",
+            )
+        actions.append({
+            "field": f"CrossChecks/{MC_ACTIVE_CROSSCHECK}/Method:{method_type}",
+            "from": before_method,
+            "to": value_for_node(method),
+            "changed": before_method != value_for_node(method),
+        })
+    for method in methods.findall("Method"):
+        method_type = method.get("type", "")
+        if method_type in MC_MANIPULATION_METHOD_TARGET:
+            continue
+        before = method.get("use", "")
+        method.set("use", "false")
+        actions.append({
+            "field": f"CrossChecks/{MC_ACTIVE_CROSSCHECK}/Method:{method_type}:use",
+            "from": before,
+            "to": "false",
+            "changed": before != "false",
+        })
+
+    for key, value in MC_MANIPULATION_SETTINGS_TARGET.items():
+        set_or_create_text_child(settings, key, value, actions, f"CrossChecks/{MC_ACTIVE_CROSSCHECK}/{key}")
+    set_mc_manipulation_acceptance(active, actions)
+
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.tag == MC_ACTIVE_CROSSCHECK:
+            continue
+        for method in check.findall("./Settings/Methods/Method"):
+            before = method.get("use", "")
+            method.set("use", "false")
+            actions.append({
+                "field": f"CrossChecks/{check.tag}/Method:{method.get('type', '')}:use",
+                "from": before,
+                "to": "false",
+                "changed": before != "false",
+            })
+    normalize_mc_crosscheck_setups(root, actions)
+    return actions
+
+
+def enforce_mc_crosschecks_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    parent = find_section(root, "CrossChecks")
+    if parent is None:
+        return ["MC CrossChecks section missing"]
+    if dict(parent.attrib) != MC_CROSSCHECK_PARENT_TARGET:
+        issues.append(f"MC CrossChecks attrs are {dict(parent.attrib)!r}, expected {MC_CROSSCHECK_PARENT_TARGET!r}")
+    direct_checks = [
+        check
+        for check in list(parent)
+        if isinstance(check.tag, str) and check.get("use") is not None
+    ]
+    active = [check.tag for check in direct_checks if check.get("use") == "true"]
+    if active != [MC_ACTIVE_CROSSCHECK]:
+        issues.append(f"MC active crosschecks must be only {MC_ACTIVE_CROSSCHECK}; found {active}")
+    manipulation = parent.find(MC_ACTIVE_CROSSCHECK)
+    if manipulation is None:
+        issues.append("MC MonteCarloManipulation crosscheck missing")
+    else:
+        settings = manipulation.find("Settings")
+        for key, wanted in MC_MANIPULATION_SETTINGS_TARGET.items():
+            actual = settings.findtext(key) if settings is not None else ""
+            if actual != wanted:
+                issues.append(f"MC MonteCarloManipulation {key} is {actual!r}, expected {wanted!r}")
+        methods = {
+            method.get("type", ""): method
+            for method in manipulation.findall("./Settings/Methods/Method")
+            if method.get("type")
+        }
+        for method_type, target in MC_MANIPULATION_METHOD_TARGET.items():
+            method = methods.get(method_type)
+            if method is None:
+                issues.append(f"MC method {method_type} missing")
+                continue
+            if method.get("use") != target["use"]:
+                issues.append(f"MC method {method_type} use is {method.get('use')!r}, expected {target['use']!r}")
+            params = {
+                param.get("key", ""): (param.text or "")
+                for param in method.findall("./Params/Param")
+                if param.get("key")
+            }
+            for param_key, param_target in target["params"].items():
+                if params.get(param_key) != param_target["text"]:
+                    issues.append(f"MC method {method_type} param {param_key} is {params.get(param_key)!r}, expected {param_target['text']!r}")
+        extra_active_methods = [
+            method_type
+            for method_type, method in methods.items()
+            if method_type not in MC_MANIPULATION_METHOD_TARGET and method.get("use") == "true"
+        ]
+        if extra_active_methods:
+            issues.append(f"MC MonteCarloManipulation has unexpected active methods: {extra_active_methods}")
+        conditions = [
+            mc_condition_summary(condition)
+            for condition in manipulation.findall("./AcceptanceSettings/Conditions/Condition")
+        ]
+        expected_conditions = [
+            {"use": "true", "left": item["left"], "comparator": item["comparator"], "right": item["right"]}
+            for item in MC_MANIPULATION_CONDITIONS_TARGET
+        ]
+        if conditions != expected_conditions:
+            issues.append(f"MC acceptance conditions drifted: {conditions!r}")
+
+    active_disabled_methods = [
+        f"{check.tag}:{method.get('type', '')}"
+        for check in direct_checks
+        if check.tag != MC_ACTIVE_CROSSCHECK
+        for method in check.findall("./Settings/Methods/Method")
+        if method.get("use") == "true"
+    ]
+    if active_disabled_methods:
+        issues.append(f"MC disabled crosschecks must not keep enabled methods: {active_disabled_methods}")
+
+    period = generator_period(MC_PERIOD_KEY)
+    main_setup = root.find(".//Data/Setups/Setup")
+    main_chart = main_setup.find("Chart") if main_setup is not None else None
+    target_chart = dict(main_chart.attrib) if main_chart is not None else {}
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"MC nested CrossChecks setup dates drifted: {dict(setup.attrib)!r}")
+        if setup.get("testPrecision") != MC_DATA_TEST_PRECISION:
+            issues.append(f"MC nested CrossChecks setup precision is {setup.get('testPrecision')!r}, expected {MC_DATA_TEST_PRECISION!r}")
+        if setup.get("session") != MC_DATA_SESSION:
+            issues.append(f"MC nested CrossChecks setup session is {setup.get('session')!r}, expected {MC_DATA_SESSION!r}")
+        for chart in setup.findall("Chart"):
+            if target_chart and dict(chart.attrib) != target_chart:
+                issues.append(f"MC nested CrossChecks chart drifted: {dict(chart.attrib)!r}, expected {target_chart!r}")
+
+    rankings = find_section(root, "Rankings")
+    if rankings is not None and (rankings.findtext("ForceRunCrossChecks") or "") != "false":
+        issues.append("MC Rankings/ForceRunCrossChecks must remain false")
+
+    guarded_text = serialize_xml(parent)
+    for token in MC_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into MC CrossChecks: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into MC CrossChecks")
+    return issues
+
+
+def update_mc_crosschecks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, MC_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "mc_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = mc_crosschecks_summary(root)
+    payload["actions"] = apply_mc_crosschecks_to_root(root)
+    payload["after"] = mc_crosschecks_summary(root)
+    payload["issues"] = enforce_mc_crosschecks_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "parent": MC_CROSSCHECK_PARENT_TARGET,
+        "onlyActive": MC_ACTIVE_CROSSCHECK,
+        "inactiveCrossChecks": list(MC_INACTIVE_CROSSCHECKS),
+        "settings": MC_MANIPULATION_SETTINGS_TARGET,
+        "methods": MC_MANIPULATION_METHOD_TARGET,
+        "conditions": MC_MANIPULATION_CONDITIONS_TARGET,
+        "rankingsForceRunCrossChecks": "false",
+    }
+    payload["targetRationale"] = {
+        "methodology": "MC is the trade-order Monte Carlo manipulation gate after TICK; MC2/Monkey/Synthetic remain separate tasks.",
+        "quality": "Use 200 simulations on the full sample, preserve natural passed/failed results, and avoid using MC as a new optimizer.",
+        "cleanup": "Disabled crosscheck methods are switched off so stale MonteCarloRetest/WhatIf settings cannot execute accidentally.",
+        "generatorOwned": "Nested disabled setups are bounded to ROBUSTNESS_C1 and mirror the base chart seed; Project Generator owns final asset/timeframe rewrites.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_mc_crosschecks_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase6_mc_crosschecks_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_mc_crosschecks_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase6",
+        "operation": "mc_crosschecks_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase6_mc_crosschecks_diff_review" if not apply else "phase6_mc_passive_generation_decision",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase6_mc_crosschecks_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -5728,6 +6290,10 @@ def build_parser() -> argparse.ArgumentParser:
     mc_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     mc_data.add_argument("--apply", action="store_true")
 
+    mc_crosschecks = sub.add_parser("mc-crosschecks-target")
+    mc_crosschecks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    mc_crosschecks.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -5838,6 +6404,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "mc-data-databanks-resources-options-target":
         json_print(promote_mc_data_databanks_resources_options_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "mc-crosschecks-target":
+        json_print(promote_mc_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
