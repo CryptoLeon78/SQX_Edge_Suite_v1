@@ -108,8 +108,8 @@ def _assert_tick_real_passive_generation_contract(tick_real: ET.Element) -> None
     _assert_retest_passive_generation_contract(tick_real, expected_improve_databank="retest 1")
 
 
-def _assert_retest1_static_crosschecks_contract(retest1: ET.Element) -> None:
-    crosschecks = retest1.find(".//CrossChecks")
+def _assert_static_crosschecks_contract(task: ET.Element, require_selected_strategies: bool = True) -> None:
+    crosschecks = task.find(".//CrossChecks")
     assert crosschecks is not None
     assert crosschecks.get("use") == "false"
     assert crosschecks.get("evaluateAll") == "false"
@@ -122,7 +122,7 @@ def _assert_retest1_static_crosschecks_contract(retest1: ET.Element) -> None:
 
     rmm_methods = {
         method.get("type"): method.get("use")
-        for method in retest1.findall(".//RiskMoneyManagement//MoneyManagement/Method")
+        for method in task.findall(".//RiskMoneyManagement//MoneyManagement/Method")
         if method.get("type")
     }
     assert rmm_methods == {
@@ -132,13 +132,31 @@ def _assert_retest1_static_crosschecks_contract(retest1: ET.Element) -> None:
         "FixedAmount": "false",
         "StocksSizeByPrice": "false",
     }
-    atms = retest1.find(".//ATMs")
+    atms = task.find(".//ATMs")
     assert atms is not None
     assert atms.get("enable") == "false"
-    selected = retest1.find(".//SelectedStrategies")
-    assert selected is not None
-    assert list(selected) == []
-    assert (selected.text or "").strip() == ""
+    selected = task.find(".//SelectedStrategies")
+    if require_selected_strategies:
+        assert selected is not None
+        assert list(selected) == []
+        assert (selected.text or "").strip() == ""
+
+
+def _assert_retest1_static_crosschecks_contract(retest1: ET.Element) -> None:
+    _assert_static_crosschecks_contract(retest1, require_selected_strategies=True)
+
+
+def _assert_tick_real_static_crosschecks_contract(tick_real: ET.Element) -> None:
+    _assert_static_crosschecks_contract(tick_real, require_selected_strategies=False)
+    custom = tick_real.find("./CustomData")
+    assert custom is not None
+    custom_text = ET.tostring(custom, encoding="unicode")
+    assert "USDJPY" not in custom_text
+    setup = custom.find(".//Setup")
+    if setup is not None:
+        assert setup.get("dateFrom") == "2017.10.02"
+        assert setup.get("dateTo") == "2023.12.31"
+        assert setup.get("session") == "No Session"
 
 
 def _assert_tick_real_data_databanks_resources_contract(tick_real: ET.Element, expected_symbol: str | None = None, expected_timeframe: str | None = None) -> None:
@@ -370,6 +388,7 @@ def test_capa1_base_v2_matches_active_methodology():
     _assert_tick_real_data_databanks_resources_contract(tick_real, expected_symbol="AUDCAD_darwinex", expected_timeframe="H1")
     _assert_tick_real_options_rankings_contract(tick_real, expected_window=("7200", "79200"))
     _assert_tick_real_passive_generation_contract(tick_real)
+    _assert_tick_real_static_crosschecks_contract(tick_real)
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_options = {
@@ -664,6 +683,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     _assert_tick_real_data_databanks_resources_contract(tick_real, expected_symbol="AUDCAD", expected_timeframe="H4")
     _assert_tick_real_options_rankings_contract(tick_real, expected_window=("14400", "72000"))
     _assert_tick_real_passive_generation_contract(tick_real)
+    _assert_tick_real_static_crosschecks_contract(tick_real)
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")

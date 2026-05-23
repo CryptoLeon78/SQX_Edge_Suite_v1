@@ -9,6 +9,7 @@ from tools.sqx142_task_config_gate import (
     apply_tick_real_data_databanks_resources_to_root,
     apply_tick_real_options_rankings_to_root,
     apply_tick_real_passive_generation_to_root,
+    apply_tick_real_static_crosschecks_to_root,
     enforce_retest1_data_resources_guard,
     enforce_retest1_options_databanks_rankings_guard,
     enforce_retest1_passive_generation_guard,
@@ -16,6 +17,7 @@ from tools.sqx142_task_config_gate import (
     enforce_tick_real_data_databanks_resources_guard,
     enforce_tick_real_options_rankings_guard,
     enforce_tick_real_passive_generation_guard,
+    enforce_tick_real_static_crosschecks_guard,
     fallback_retest1_oos2_resource,
     question_id,
     record_tab_answer,
@@ -630,3 +632,158 @@ def test_tick_real_passive_generation_guard_rejects_active_improvement_and_day_e
     assert any("day-based exit" in issue for issue in issues)
     assert any("signals must remain disabled" in issue for issue in issues)
     assert any("stop/limit entry blocks" in issue for issue in issues)
+
+
+def test_tick_real_static_crosschecks_target_turns_off_internal_checks_and_keeps_static_tabs_safe():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Data>
+            <Setups>
+              <Setup dateFrom="2010.01.01" dateTo="2026.04.08" testPrecision="1" session="Old Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)">
+                <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2" />
+              </Setup>
+            </Setups>
+          </Data>
+          <Databanks retestSelected="false">
+            <Databank label="Input databank" name="Input" value="RETEST 0" />
+            <Databank label="Output databank" name="Output" value="retest 1" />
+          </Databanks>
+          <Resources>
+            <Symbols>
+              <Symbol name="AUDCAD_darwinex" source="4" precision="TICK" timezone="EETUS" broker="4">
+                <InstrumentInfo instrument="AUDCAD_darwinex" broker="4" />
+              </Symbol>
+            </Symbols>
+            <Brokers><Broker id="4" name="[[Darwinex]]" timezone="EETUS" /></Brokers>
+            <Sessions />
+            <CustomIndicators />
+            <CustomBlocks />
+          </Resources>
+          <Options>
+            <BuildTradingOptions><Params>
+              <Param key="Session">Old Session</Param>
+              <Param key="MarketOpenSession">Old Session</Param>
+              <Param key="LimitTimeRange">false</Param>
+              <Param key="SignalTimeRangeFrom">0</Param>
+              <Param key="SignalTimeRangeTo">86400</Param>
+              <Param key="RealisticGapsHandling">false</Param>
+              <Param key="StoreChartData">true</Param>
+            </Params></BuildTradingOptions>
+          </Options>
+          <Rankings>
+            <MaxStrategies>100</MaxStrategies>
+            <ConditionsType>0</ConditionsType>
+            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <ForceRunCrossChecks>true</ForceRunCrossChecks>
+            <Conditions />
+            <FitPortfolio active="true" databank="Existing portfolio" />
+            <CustomAnalysis filter="true" />
+          </Rankings>
+          <PartsToImprove improveATM="true">
+            <EntryRules symmetry="true"><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></EntryRules>
+            <OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes>
+            <ExitRules symmetry="true"><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>true</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="true" />
+              <EvoRestartOnStagnation status="true" fitnessType="10" generations="30" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="simple">
+            <BuildingBlocks>
+              <Block key="Signals.ADX" category="signals" use="true" probability="1" />
+              <Block key="Indicators.ATR" category="indicators" use="true" probability="1" />
+              <Block key="StopLimitBlocks.ATRStop" category="stopLimitBlocks" use="true" probability="1" />
+            </BuildingBlocks>
+            <OrderTypes>
+              <Block key="EnterAtMarket" use="false" probability="1" />
+              <Block key="EnterReverseAtMarket" use="true" probability="1" />
+              <Block key="EnterAtStop" use="true" probability="1" />
+              <Block key="EnterAtLimit" use="true" probability="1" />
+            </OrderTypes>
+            <ExitTypes>
+              <Block key="ExitAfterBars.ExitAfterBars" use="false" probability="50" />
+              <Block key="StopLoss.StopLoss" use="true" probability="50" />
+            </ExitTypes>
+            <CustomData showAll="true"><Item key="legacy" /></CustomData>
+          </Blocks>
+          <CrossChecks use="true" evaluateAll="true">
+            <MonteCarloRetest use="true"><Settings><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings></MonteCarloRetest>
+            <WhatIf use="false"><Settings><Methods><Method type="ExcludeTradesWithBiggestPl" use="true" /></Methods></Settings></WhatIf>
+          </CrossChecks>
+          <RiskMoneyManagement customSettings="false">
+            <MoneyManagement>
+              <Method type="FixedSize" use="false" />
+              <Method type="RiskFixedBalancePct" use="false" />
+              <Method type="RiskFixedPctOfAccount" use="false" />
+              <Method type="FixedAmount" use="true" />
+              <Method type="StocksSizeByPrice" use="false" />
+            </MoneyManagement>
+          </RiskMoneyManagement>
+          <ATMs enable="false" />
+          <Notes>ok</Notes>
+          <CustomData>
+            <Setups>
+              <Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="4" session="No Session" slippage="0" minDist="0" engine="MetaTrader4">
+                <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2" />
+              </Setup>
+            </Setups>
+          </CustomData>
+        </Task>
+        """
+    )
+
+    apply_tick_real_data_databanks_resources_to_root(root)
+    apply_tick_real_options_rankings_to_root(root)
+    apply_tick_real_passive_generation_to_root(root, source_root=root)
+    actions = apply_tick_real_static_crosschecks_to_root(root)
+
+    assert any(item["field"] == "CrossChecks:attrs" and item["changed"] for item in actions)
+    assert any(item["field"] == "CrossChecks/MonteCarloRetest:use" and item["changed"] for item in actions)
+    assert any(item["field"] == "CrossChecks/WhatIf/Method:ExcludeTradesWithBiggestPl:use" and item["changed"] for item in actions)
+    assert any(item["field"] == "RiskMoneyManagement/Method:FixedSize" and item["changed"] for item in actions)
+    assert enforce_tick_real_static_crosschecks_guard(root) == []
+    assert root.find(".//CrossChecks").get("use") == "false"
+    assert root.find(".//CrossChecks").get("evaluateAll") == "false"
+    assert root.find(".//CrossChecks/MonteCarloRetest").get("use") == "false"
+    assert root.find(".//CrossChecks/MonteCarloRetest/Settings/Methods/Method").get("use") == "false"
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedAmount']").get("use") == "false"
+
+
+def test_tick_real_static_crosschecks_guard_rejects_stale_crosscheck_and_customdata_donor():
+    root = ET.fromstring(
+        """
+        <Task>
+          <CrossChecks use="true" evaluateAll="true">
+            <MonteCarloRetest use="true"><Settings><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings></MonteCarloRetest>
+          </CrossChecks>
+          <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement></RiskMoneyManagement>
+          <ATMs enable="true" />
+          <Rankings><ForceRunCrossChecks>true</ForceRunCrossChecks></Rankings>
+          <CustomData>
+            <Setups>
+              <Setup dateFrom="2017.10.02" dateTo="2024.12.31" session="Old Session">
+                <Chart symbol="USDJPY_darwinex" timeframe="H4" />
+              </Setup>
+            </Setups>
+          </CustomData>
+        </Task>
+        """
+    )
+
+    issues = enforce_tick_real_static_crosschecks_guard(root)
+
+    assert any("active internal crosschecks" in issue for issue in issues)
+    assert any("Settings/Methods" in issue for issue in issues)
+    assert any("RiskMoneyManagement FixedSize" in issue for issue in issues)
+    assert any("ATMs enable" in issue for issue in issues)
+    assert any("ForceRunCrossChecks" in issue for issue in issues)
+    assert any("CustomData dates" in issue for issue in issues)
+    assert any("Forbidden donor token" in issue for issue in issues)

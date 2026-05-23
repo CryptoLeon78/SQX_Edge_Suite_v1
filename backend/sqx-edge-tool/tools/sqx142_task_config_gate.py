@@ -335,6 +335,7 @@ TICK_REAL_STRATEGY_TYPE_TARGET = {
 }
 TICK_REAL_PASSIVE_BUILDMODE_TEXT_TARGET = RETEST1_PASSIVE_BUILDMODE_TEXT_TARGET
 TICK_REAL_PASSIVE_BUILDMODE_ATTR_TARGET = RETEST1_PASSIVE_BUILDMODE_ATTR_TARGET
+TICK_REAL_STATIC_TABS = ("ATMs", "RiskMoneyManagement", "Notes", "CustomData")
 
 
 def stamp() -> str:
@@ -3915,6 +3916,175 @@ def promote_tick_real_passive_generation_target(root142: Path, project_root: Pat
     return payload
 
 
+def tick_real_static_crosschecks_summary(root: ET.Element) -> dict[str, Any]:
+    summary = retest1_static_crosschecks_summary(root)
+    custom_data = find_section(root, "CustomData")
+    setup = custom_data.find(".//Setup") if custom_data is not None else None
+    chart = setup.find("Chart") if setup is not None else None
+    summary["customData"] = {
+        "exists": custom_data is not None,
+        "attrs": dict(custom_data.attrib) if custom_data is not None else {},
+        "children": len(list(custom_data)) if custom_data is not None else 0,
+        "setup": dict(setup.attrib) if setup is not None else {},
+        "chart": dict(chart.attrib) if chart is not None else {},
+        "sha256": section_sha256(root, "CustomData"),
+    }
+    return summary
+
+
+def enforce_tick_real_static_crosschecks_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = tick_real_static_crosschecks_summary(root)
+    crosschecks = summary.get("crossChecks") or {}
+    if not crosschecks.get("exists"):
+        issues.append("TICK REAL CrossChecks section missing")
+    if crosschecks.get("attrs") != RETEST1_CROSSCHECKS_TARGET:
+        issues.append(f"TICK REAL CrossChecks attrs are {crosschecks.get('attrs')!r}, expected {RETEST1_CROSSCHECKS_TARGET!r}")
+    if crosschecks.get("active"):
+        issues.append(f"TICK REAL must not have active internal crosschecks: {crosschecks.get('active')}")
+    configured_methods = [
+        f"{item.get('id')}:{method}"
+        for item in (crosschecks.get("checks") or [])
+        for method in (item.get("configuredMethods") or [])
+    ]
+    if configured_methods:
+        issues.append(f"TICK REAL CrossChecks must not keep enabled Settings/Methods: {configured_methods}")
+
+    rmm = summary.get("riskMoneyManagement") or {}
+    methods = rmm.get("methods") or {}
+    for method_type, wanted in RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if methods.get(method_type) != wanted:
+            issues.append(f"TICK REAL RiskMoneyManagement {method_type} is {methods.get(method_type)!r}, expected {wanted!r}")
+
+    atms = summary.get("atms") or {}
+    for key, wanted in RETEST1_ATMS_TARGET.items():
+        if (atms.get("attrs") or {}).get(key) != wanted:
+            issues.append(f"TICK REAL ATMs {key} is {(atms.get('attrs') or {}).get(key)!r}, expected {wanted!r}")
+
+    rankings = find_section(root, "Rankings")
+    if rankings is not None and (rankings.findtext("ForceRunCrossChecks") or "") != "false":
+        issues.append("TICK REAL Rankings/ForceRunCrossChecks must remain false")
+
+    custom = summary.get("customData") or {}
+    if not custom.get("exists"):
+        issues.append("TICK REAL CustomData section missing")
+    else:
+        period = generator_period(TICK_REAL_PERIOD_KEY)
+        setup = custom.get("setup") or {}
+        if setup:
+            if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+                issues.append(f"TICK REAL CustomData dates are {(setup.get('dateFrom'), setup.get('dateTo'))!r}, expected {period!r}")
+            if setup.get("session") != TICK_REAL_DATA_SESSION:
+                issues.append(f"TICK REAL CustomData session is {setup.get('session')!r}, expected {TICK_REAL_DATA_SESSION!r}")
+        custom_text = section_text(root, "CustomData")
+        for token in TICK_REAL_BANNED_DONOR_TOKENS:
+            if token in custom_text:
+                issues.append(f"Forbidden donor token leaked into TICK REAL CustomData: {token}")
+        if re.search(r"[A-Za-z]:\\", custom_text):
+            issues.append("Local absolute path leaked into TICK REAL CustomData")
+
+    for issue in enforce_tick_real_data_databanks_resources_guard(root):
+        issues.append(f"Data/Resources guard: {issue}")
+    for issue in enforce_tick_real_options_rankings_guard(root):
+        issues.append(f"Options/Rankings guard: {issue}")
+    for issue in enforce_tick_real_passive_generation_guard(root):
+        issues.append(f"Passive generation guard: {issue}")
+    return issues
+
+
+def apply_tick_real_static_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    apply_retest1_crosschecks_to_root(root, actions)
+    apply_retest1_risk_money_management_to_root(root, actions)
+    return actions
+
+
+def update_tick_real_static_crosschecks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, TICK_REAL_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "tick_real_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = tick_real_static_crosschecks_summary(root)
+    payload["actions"] = apply_tick_real_static_crosschecks_to_root(root)
+    payload["after"] = tick_real_static_crosschecks_summary(root)
+    payload["issues"] = enforce_tick_real_static_crosschecks_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "crossChecks": RETEST1_CROSSCHECKS_TARGET,
+        "riskMoneyManagementMethods": RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET,
+        "staticTabs": TICK_REAL_STATIC_TABS,
+    }
+    payload["targetRationale"] = {
+        "passiveRetest": "TICK REAL must remain a precision-data validation task after RETEST 1, with no internal crosschecks or generation remnants.",
+        "riskMoneyManagement": "FixedSize stays active and FixedAmount stays disabled to keep validation comparable with other Capa1 retests.",
+        "customData": "CustomData is audited as local-safe and bounded to ROBUSTNESS_C1, but not copied from Mining15 donor.",
+        "staticTabs": "ATMs, Notes and CustomData are audited; only executable crosscheck/risk toggles are normalized.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_tick_real_static_crosschecks_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase5_tick_real_static_crosschecks_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_tick_real_static_crosschecks_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase5",
+        "operation": "tick_real_static_crosschecks_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase5_tick_real_static_crosschecks_diff_review" if not apply else "phase5_tick_real_closeout",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase5_tick_real_static_crosschecks_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -5128,6 +5298,10 @@ def build_parser() -> argparse.ArgumentParser:
     tick_real_passive.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     tick_real_passive.add_argument("--apply", action="store_true")
 
+    tick_real_static = sub.add_parser("tick-real-static-crosschecks-target")
+    tick_real_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    tick_real_static.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -5232,6 +5406,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "tick-real-passive-generation-target":
         json_print(promote_tick_real_passive_generation_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "tick-real-static-crosschecks-target":
+        json_print(promote_tick_real_static_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

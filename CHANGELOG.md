@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 TICK REAL Static/CrossChecks Gate
+
+- Adds `tick-real-static-crosschecks-target` to close the Phase 5 `TICK REAL` static tabs and CrossChecks block with dry-run-first backup/diff/apply and a composed guard over prior TICK decisions.
+- Turns off the remaining executable crosscheck leftovers: `CrossChecks use=false/evaluateAll=false`, `0` active crosschecks and `0` active `Settings/Methods/Method` entries after clearing MonteCarloRetest, MonteCarloManipulation and WhatIf remnants.
+- Keeps static validation tabs safe: `FixedSize=true`, `FixedAmount=false`, `ATMs enable=false`, Notes unchanged and CustomData audited as `ROBUSTNESS_C1` without Mining15 `USDJPY` donor leakage.
+- Records local ledger answers for `TICK REAL > CrossChecks` (`303/303`), `RiskMoneyManagement` (`25/25`), `ATMs` (`9/9`), `CustomData` (`6/6`) and `Notes` (`1/1`), with post-apply dry-run idempotent and `guardOk=true`.
+
 ## 2026-05-23 - C1-CONFIG1 TICK REAL Passive Generation Gate
 
 - Adds `tick-real-passive-generation-target` to close the Phase 5 `TICK REAL` PartsToImprove/WhatToBuild/Blocks block with dry-run-first backup/diff/apply and passive-retest guards.

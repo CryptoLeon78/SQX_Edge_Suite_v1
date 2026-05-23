@@ -81,6 +81,8 @@ tools\sqx142_task_config_gate.ps1 tick-real-options-rankings-target --target bot
 tools\sqx142_task_config_gate.ps1 tick-real-options-rankings-target --target both --apply
 tools\sqx142_task_config_gate.ps1 tick-real-passive-generation-target --target both
 tools\sqx142_task_config_gate.ps1 tick-real-passive-generation-target --target both --apply
+tools\sqx142_task_config_gate.ps1 tick-real-static-crosschecks-target --target both
+tools\sqx142_task_config_gate.ps1 tick-real-static-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -481,8 +483,8 @@ de robustez, sin mezclarlo con generacion, portfolio ni crosschecks internos.
 Fuente actual inspeccionada:
 
 - Base local y template repo: `AutomaticRetest-Task2.xml`.
-- Cuestionario generado en ledger local: `13` pestañas, `19.991` entradas,
-  `12.334` diferencias base vs donor y `0` IDs duplicados.
+- Cuestionario vigente en ledger local: `13` pestañas, `19.992` entradas tras
+  el guard estatico, `12.334` diferencias base vs donor y `0` IDs duplicados.
 - Periodo gobernado por metodologia/generador: `ROBUSTNESS_C1`
   (`2017.10.02` a `2023.12.31`).
 - `Data/Setup` actual: `testPrecision=2`, `session=No Session`, engine
@@ -579,9 +581,35 @@ Decision aplicada para `TICK REAL > PartsToImprove / WhatToBuild / Blocks`:
 Reporte local:
 `.local/sqx142_task_config/phase_reports/phase5_20260523_204910.json`.
 
-Siguiente bloque de decision: `TICK REAL > pestañas estaticas restantes y
-CrossChecks`, para cerrar la fase sin crosschecks internos activos, sin restos
-de generacion y con gestion de riesgo/tabs pasivas auditadas.
+Decision aplicada para `TICK REAL > pestañas estaticas restantes y
+CrossChecks`:
+
+- Se anade `tick-real-static-crosschecks-target` con dry-run-first,
+  backup/diff/apply, guard compuesto e idempotencia posterior.
+- `CrossChecks` queda completamente no ejecutable: parent `use=false`,
+  `evaluateAll=false`, `0` crosschecks directos activos y `0`
+  `Settings/Methods/Method` internos activos.
+- Se limpiaron los restos internos que quedaban aunque el parent estuviera
+  apagado: `MonteCarloRetest` tenia `6` metodos activos,
+  `MonteCarloManipulation` tenia `2` y `WhatIf` tenia `2`.
+- `RiskMoneyManagement` queda como retest Capa1 comparable:
+  `FixedSize=true`, `FixedAmount=false` y resto de metodos desactivados.
+- `ATMs` queda `enable=false`; `Notes` se mantiene sin cambios.
+- `CustomData` queda auditado, no copiado desde Mining15: periodo
+  `ROBUSTNESS_C1`, `session=No Session`, sin `USDJPY` donor leak y sin rutas
+  locales. No se usa para cambiar activo/timeframe final, que sigue siendo
+  propiedad del Project Generator.
+- El dry-run posterior queda idempotente: `changed=false`,
+  `changedActionCount=0` y `guardOk=true`.
+- Ledger local respondido para `TICK REAL > CrossChecks` (`303/303`),
+  `TICK REAL > RiskMoneyManagement` (`25/25`), `TICK REAL > ATMs` (`9/9`),
+  `TICK REAL > CustomData` (`6/6`) y `TICK REAL > Notes` (`1/1`).
+
+Reporte local:
+`.local/sqx142_task_config/phase_reports/phase5_20260523_210515.json`.
+
+Siguiente bloque exacto: `phase5_tick_real_closeout`, cierre formal de
+`TICK REAL` y salto a Fase 6 `MC`.
 
 ## Disciplina Operativa
 
