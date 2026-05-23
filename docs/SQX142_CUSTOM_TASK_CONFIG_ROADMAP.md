@@ -94,6 +94,8 @@ tools\sqx142_task_config_gate.ps1 mc-data-databanks-resources-options-target --t
 tools\sqx142_task_config_gate.ps1 mc-data-databanks-resources-options-target --target both --apply
 tools\sqx142_task_config_gate.ps1 mc-crosschecks-target --target both
 tools\sqx142_task_config_gate.ps1 mc-crosschecks-target --target both --apply
+tools\sqx142_task_config_gate.ps1 mc-passive-generation-target --target both
+tools\sqx142_task_config_gate.ps1 mc-passive-generation-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -732,9 +734,31 @@ Decision aplicada para `MC > CrossChecks`:
 Reporte local:
 `.local/sqx142_task_config/phase_reports/phase6_mc_crosschecks_20260523_220422.json`.
 
-Siguiente bloque exacto: `MC > PartsToImprove / WhatToBuild / Blocks`, para
-cerrar el caracter pasivo del retest y confirmar que no genera ni mejora
-estrategias.
+Decision aplicada para `MC > PartsToImprove / WhatToBuild / Blocks`:
+
+- Se anade `mc-passive-generation-target` con dry-run-first,
+  backup/diff/apply y guard especifico de retest pasivo.
+- `MC` consume candidatos desde `TICK`: `StrategyType.improveDatabank=TICK`.
+- `PartsToImprove` queda sin mejora/generacion: `improveATM=false`,
+  Entry/Order/Exit improvements off y simetrias sin copia donor.
+- `WhatToBuild` mantiene `MarketSides` base/generator-owned, apaga
+  `ShowLastGenerationDatabank`, `FreshBloodReplaceSimilar`,
+  `FreshBloodReplaceWeakest`, `EvoRestartOnFinish` y
+  `EvoRestartOnStagnation`.
+- `Blocks` conserva el universo MC existente para evitar drift Mining15, con
+  `signals=0`, `stopLimitBlocks=0`, `activeIndicatorCount=50`,
+  solo `EnterAtMarket` y solo `ExitAfterBars` con probability `100`.
+- No se copian bloques donor `USDJPY/H4`, no se aceptan salidas por dias y no
+  se inventa un enum SQX pasivo desconocido para `generationType`.
+- El dry-run posterior queda idempotente: `changed=false`,
+  `changedActionCount=0` y `guardOk=true`.
+- Ledger local respondido para `MC > PartsToImprove` (`8/8`),
+  `MC > WhatToBuild` (`67/67`) y `MC > Blocks` (`17.583/17.583`).
+
+Reporte local:
+`.local/sqx142_task_config/phase_reports/phase6_mc_passive_generation_20260523_221854.json`.
+
+Siguiente bloque exacto: `MC > Rankings / ATMs / RiskMoneyManagement / Notes / SelectedStrategies / CustomData`, para cerrar las pestañas estaticas restantes y asegurar que no queda ningun resto ejecutable fuera del metodo MC aprobado.
 
 ## Disciplina Operativa
 

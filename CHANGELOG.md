@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 MC Passive Generation
+
+- Adds `mc-passive-generation-target` to close `MC > PartsToImprove / WhatToBuild / Blocks` with dry-run-first backup/diff/apply and a guard for passive retest behavior.
+- Keeps `MC` as a pure perturbation retest consuming `TICK`: `StrategyType.improveDatabank=TICK`, `improveATM=false`, Entry/Order/Exit improvements off, last-generation/fresh-blood/evolution restart toggles off and no unknown SQX passive enum invented.
+- Preserves the existing MC BuildingBlocks universe instead of copying Mining15 donor blocks, while enforcing `signals=0`, `stopLimitBlocks=0`, `activeIndicatorCount=50`, only `EnterAtMarket` and only `ExitAfterBars` at probability `100`.
+- Records local ledger answers for `MC > PartsToImprove` (`8/8`), `MC > WhatToBuild` (`67/67`) and `MC > Blocks` (`17,583/17,583`), with post-apply dry-run idempotent and `guardOk=true`.
+
 ## 2026-05-23 - C1-CONFIG1 MC CrossChecks
 
 - Adds `mc-crosschecks-target` to close the Phase 6 `MC > CrossChecks` block with dry-run-first backup/diff/apply and guards for the exact active Monte Carlo method.

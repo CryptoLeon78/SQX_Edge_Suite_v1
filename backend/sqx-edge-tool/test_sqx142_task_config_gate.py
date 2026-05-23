@@ -4,6 +4,7 @@ import xml.etree.ElementTree as ET
 from tools.sqx142_task_config_gate import (
     apply_mc_data_databanks_resources_options_to_root,
     apply_mc_crosschecks_to_root,
+    apply_mc_passive_generation_to_root,
     apply_retest1_passive_generation_to_root,
     apply_retest1_data_resources_to_root,
     apply_retest1_options_databanks_rankings_to_root,
@@ -18,6 +19,7 @@ from tools.sqx142_task_config_gate import (
     enforce_retest1_static_crosschecks_guard,
     enforce_mc_data_databanks_resources_options_guard,
     enforce_mc_crosschecks_guard,
+    enforce_mc_passive_generation_guard,
     enforce_tick_real_data_databanks_resources_guard,
     enforce_tick_real_options_rankings_guard,
     enforce_tick_real_passive_generation_guard,
@@ -1030,3 +1032,120 @@ def test_mc_crosschecks_guard_rejects_wrong_active_check_disabled_methods_and_do
     assert any("nested CrossChecks setup dates" in issue for issue in issues)
     assert any("Rankings/ForceRunCrossChecks" in issue for issue in issues)
     assert any("Forbidden donor token" in issue for issue in issues)
+
+
+def test_mc_passive_generation_disables_generation_and_preserves_mc_indicator_universe():
+    root = ET.fromstring(
+        """
+        <Task>
+          <PartsToImprove improveATM="true">
+            <EntryRules symmetry="true"><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></EntryRules>
+            <OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes>
+            <ExitRules symmetry="true"><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" stale="true" />
+            <MarketSides type="long" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>true</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>false</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="true" />
+              <EvoRestartOnStagnation status="true" fitnessType="10" generations="30" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="simple">
+            <BuildingBlocks>
+              <Block key="Signals.ADX" category="signals" use="true" probability="1" />
+              <Block key="Indicators.ATR" category="indicators" use="true" probability="1" />
+              <Block key="StopLimitBlocks.ATRStop" category="stopLimitBlocks" use="true" probability="1" />
+            </BuildingBlocks>
+            <OrderTypes>
+              <Block key="EnterAtMarket" use="false" probability="1" />
+              <Block key="EnterReverseAtMarket" use="true" probability="1" />
+              <Block key="EnterAtStop" use="true" probability="1" />
+              <Block key="EnterAtLimit" use="true" probability="1" />
+            </OrderTypes>
+            <ExitTypes>
+              <Block key="ExitAfterBars.ExitAfterBars" use="true" probability="50" />
+              <Block key="StopLoss.StopLoss" use="true" probability="50" />
+            </ExitTypes>
+            <CustomData showAll="true"><Item key="legacy" /></CustomData>
+          </Blocks>
+        </Task>
+        """
+    )
+    source_root = ET.fromstring(
+        """
+        <Task>
+          <Blocks type="simple" version="142.2336">
+            <BuildingBlocks>
+              <Block key="Indicators.Fallback" category="indicators" use="true" probability="1" />
+            </BuildingBlocks>
+          </Blocks>
+        </Task>
+        """
+    )
+
+    actions = apply_mc_passive_generation_to_root(root, source_root)
+
+    assert any(item["field"] == "BuildingBlocks:disableCategory:signals" and item["changed"] for item in actions)
+    assert enforce_mc_passive_generation_guard(root) == []
+    assert root.find(".//PartsToImprove/ExitRules/LongImprovement").get("use") == "false"
+    assert root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "TICK"
+    assert root.find(".//WhatToBuild/StrategyType").get("stale") is None
+    assert root.find(".//WhatToBuild/MarketSides").get("type") == "long"
+    assert root.find(".//BuildMode/ShowLastGenerationDatabank").text == "false"
+    assert root.find(".//BuildMode/FreshBloodReplaceSimilar").text == "false"
+    assert root.find(".//BuildMode/EvoRestartOnFinish").get("status") == "false"
+    assert root.find(".//Blocks").get("version") == "142.2336"
+    assert root.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("probability") == "100"
+    assert root.find(".//BuildingBlocks/Block[@key='Indicators.ATR']").get("use") == "true"
+    assert root.find(".//BuildingBlocks/Block[@key='Indicators.Fallback']") is None
+    assert root.find(".//BuildingBlocks/Block[@key='Signals.ADX']").get("use") == "false"
+    assert root.find(".//BuildingBlocks/Block[@key='StopLimitBlocks.ATRStop']").get("use") == "false"
+
+
+def test_mc_passive_generation_guard_rejects_active_generation_and_donor_day_exits():
+    root = ET.fromstring(
+        """
+        <Task>
+          <PartsToImprove improveATM="true">
+            <EntryRules symmetry="true"><LongImprovement use="false" action="replace" /><ShortImprovement use="false" action="replace" /></EntryRules>
+            <OrderTypes><LongImprovement use="false" /><ShortImprovement use="false" /></OrderTypes>
+            <ExitRules symmetry="true"><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>true</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>false</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="true" />
+              <EvoRestartOnStagnation status="true" fitnessType="10" generations="30" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="simple">
+            <BuildingBlocks>
+              <Block key="Signals.USDJPY_darwinex" category="signals" use="true" probability="1" />
+              <Block key="StopLimitBlocks.ATRStop" category="stopLimitBlocks" use="true" probability="1" />
+            </BuildingBlocks>
+            <OrderTypes><Block key="EnterAtMarket" use="false" /><Block key="EnterAtStop" use="true" /></OrderTypes>
+            <ExitTypes><Block key="ExitAfterDays.ExitAfterDays" use="true" probability="50" /></ExitTypes>
+            <CustomData showAll="true"><Item /></CustomData>
+          </Blocks>
+        </Task>
+        """
+    )
+
+    issues = enforce_mc_passive_generation_guard(root)
+
+    assert any("ExitRules/LongImprovement" in issue for issue in issues)
+    assert any("StrategyType" in issue for issue in issues)
+    assert any("ShowLastGenerationDatabank" in issue for issue in issues)
+    assert any("order types" in issue for issue in issues)
+    assert any("ExitAfterBars" in issue for issue in issues)
+    assert any("day-based exit" in issue for issue in issues)
+    assert any("signals must remain disabled" in issue for issue in issues)
+    assert any("stop/limit entry blocks" in issue for issue in issues)
+    assert any("Forbidden token" in issue for issue in issues)
