@@ -14,6 +14,7 @@
 - Adds `build-ranking-target` to apply the accepted Build Ranking recommendation (`MaxStrategies=2000`, `passedStrategies=500`) with dry-run, backup and idempotence checks.
 - Adds a Capa1 generator regression guard proving `MarketSides` is patched to `long`, `short` or `both` across every generated task XML instead of inheriting the base template side.
 - Cleans legacy BuildMode nodes no longer read by SQX 142/143 genetic options UI, keeping `Conditions` and `EvoRestartOnStagnation` as the source of truth.
+- Closes the structural `What to build` block by keeping base `StrategyType`, `RulesComplexity`, SL/PT options and entry/exit symmetry while preserving generator-owned `MarketSides`.
 
 ## 2026-05-22 - SQX142-PERF1 Local Performance Gate
 

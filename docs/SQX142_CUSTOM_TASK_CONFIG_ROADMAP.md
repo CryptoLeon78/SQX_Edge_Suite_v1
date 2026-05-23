@@ -163,6 +163,10 @@ Promocion aplicada de `Build > Genetic options`:
   legacy `FilterInitialPopulation`, `EvoFitnessRestartType` y
   `EvoStagnationRestartGenerations`. SQX 142/143 lee y guarda la configuracion
   actual mediante `Conditions` y atributos de `EvoRestartOnStagnation`.
+- Bloque estructural `What to build` cerrado: `StrategyType`,
+  `RulesComplexity`, `SL/PT options` y simetrias de entrada/salida mantienen la
+  base. El `MarketSides=long` de la plantilla se trata como placeholder y queda
+  cubierto por el Project Generator.
 
 Orden recomendado de preguntas: pestañas sin diferencias primero para cerrar
 bloques rápidos, después `Data`, `Resources`, `WhatToBuild`, `CrossChecks` y al
