@@ -139,6 +139,11 @@ BUILD_INITIAL_CONDITIONS_TARGET = [
     {"column": "NumberOfTrades", "comparator": ">=", "value": "100", "format": "Decimal2"},
 ]
 
+BUILD_RANKING_TARGET = {
+    "MaxStrategies": "2000",
+    "StopCondition": {"passedStrategies": "500"},
+}
+
 
 def stamp() -> str:
     return datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -874,6 +879,95 @@ def promote_build_genetic_target(root142: Path, project_root: Path, target: str,
     return payload
 
 
+def find_rankings(root: ET.Element | None) -> ET.Element | None:
+    return find_section(root, "Rankings") if root is not None else None
+
+
+def update_build_ranking_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, "Build")
+    payload["taskXml"] = task_xml_name
+    rankings = find_rankings(root)
+    if not task_xml_name or root is None or rankings is None:
+        payload["error"] = "build_task_or_rankings_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    set_text_child(rankings, "MaxStrategies", BUILD_RANKING_TARGET["MaxStrategies"], payload["actions"])
+    stop_condition = rankings.find("StopCondition")
+    if stop_condition is None:
+        stop_condition = ET.SubElement(rankings, "StopCondition")
+        before = {}
+    else:
+        before = dict(stop_condition.attrib)
+    for key, value in BUILD_RANKING_TARGET["StopCondition"].items():
+        stop_condition.set(key, value)
+    after = dict(stop_condition.attrib)
+    payload["actions"].append({
+        "field": "StopCondition",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+    })
+
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetRationale"] = {
+        "methodology": "operator accepted the recommendation 2000/500",
+        "quality": "keeps ranking logic intact while reducing selection-by-luck surface",
+        "scope": "only MaxStrategies and StopCondition.passedStrategies are changed",
+    }
+    if apply and payload["changedActionCount"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_build_ranking_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase2_build_ranking_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_build_ranking_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(item.get("exists") and item.get("isZip") and not item.get("error") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase2",
+        "operation": "build_ranking_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "targetValues": BUILD_RANKING_TARGET,
+        "nextPhase": "phase2_build_ranking_diff_review" if not apply else "phase2_continue_questionnaire",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase2_build_ranking_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_databank_views_in_cfx(cfx: Path, target_views: dict[str, str], backup_root: Path, apply: bool) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "path": str(cfx),
@@ -1226,6 +1320,10 @@ def build_parser() -> argparse.ArgumentParser:
     promote_genetic.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     promote_genetic.add_argument("--apply", action="store_true")
 
+    promote_ranking = sub.add_parser("build-ranking-target")
+    promote_ranking.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    promote_ranking.add_argument("--apply", action="store_true")
+
     questionnaire = sub.add_parser("questionnaire")
     questionnaire.add_argument("--task-title", required=True)
     questionnaire.add_argument("--tab", required=True)
@@ -1271,6 +1369,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "build-genetic-target":
         json_print(promote_build_genetic_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "build-ranking-target":
+        json_print(promote_build_ranking_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "questionnaire":
         payload = build_questionnaire(

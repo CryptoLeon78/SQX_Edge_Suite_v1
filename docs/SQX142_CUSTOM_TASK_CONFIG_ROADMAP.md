@@ -47,6 +47,8 @@ tools\sqx142_task_config_gate.ps1 promote-views --target both
 tools\sqx142_task_config_gate.ps1 promote-views --target both --apply
 tools\sqx142_task_config_gate.ps1 build-genetic-target --target both
 tools\sqx142_task_config_gate.ps1 build-genetic-target --target both --apply
+tools\sqx142_task_config_gate.ps1 build-ranking-target --target both
+tools\sqx142_task_config_gate.ps1 build-ranking-target --target both --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write --full-output
@@ -153,9 +155,10 @@ Promocion aplicada de `Build > Genetic options`:
 - Smoke local `MarketSides` validado: generando `long`, `short` y `both` desde
   `Capa1_Long.cfx`, todos los XML internos con `MarketSides` heredan el lado
   seleccionado y el titulo Build sale como `LONG`, `SHORT` o `L+S`.
-- Los valores de Ranking quedan reabiertos para el checklist de valores Capa1
-  porque una correccion previa tomo una referencia anterior y no debe aplicarse
-  como cierre final.
+- `Build > Ranking` queda cerrado con la decision final del operador aceptando
+  la recomendacion: `MaxStrategies=2000` y
+  `StopCondition.passedStrategies=500`, manteniendo el resto de la logica igual
+  para reducir seleccion por suerte sin ahogar la cantera.
 
 Orden recomendado de preguntas: pestañas sin diferencias primero para cerrar
 bloques rápidos, después `Data`, `Resources`, `WhatToBuild`, `CrossChecks` y al

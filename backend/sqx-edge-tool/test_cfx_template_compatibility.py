@@ -159,6 +159,18 @@ def test_capa1_base_uses_phase1_review_views():
     assert views["Syntetic"] == "MC SYNTHETIC RETEST"
 
 
+def test_capa1_base_uses_confirmed_build_ranking_volume():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    build = roots["Build-Task1.xml"]
+    ranking = build.find(".//Rankings")
+    assert ranking is not None
+    assert (ranking.findtext("MaxStrategies") or "").strip() == "2000"
+    stop_condition = ranking.find("StopCondition")
+    assert stop_condition is not None
+    assert stop_condition.get("type") == "databank-full"
+    assert stop_condition.get("passedStrategies") == "500"
+
+
 def test_generate_project_names_build_task_and_applies_capa1_time_window():
     mining = Mining(num=91, phase=1, asset="AUDCAD", tf="H4", bs="BS_Volatilidad", dir="both")
     with tempfile.TemporaryDirectory() as tmp:
