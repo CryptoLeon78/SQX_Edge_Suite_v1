@@ -153,6 +153,35 @@ def test_capa1_base_v2_matches_active_methodology():
     assert retest0_oos.get("dateFrom") == "2023.01.01"
     assert retest0_oos.get("dateTo") == "2025.01.01"
 
+    retest1 = roots["Retest-Task1.xml"]
+    retest1_options = {
+        node.get("key"): node.text
+        for node in retest1.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"RealisticGapsHandling", "MarketOpenSession", "SignalTimeRangeFrom", "SignalTimeRangeTo"}
+    }
+    assert retest1_options == {
+        "RealisticGapsHandling": "true",
+        "MarketOpenSession": "No Session",
+        "SignalTimeRangeFrom": "7200",
+        "SignalTimeRangeTo": "79200",
+    }
+    retest1_rankings = retest1.find(".//Rankings")
+    assert retest1_rankings.findtext("DeleteFailedStrategies") == "false"
+    assert retest1_rankings.find("FitPortfolio").get("active") == "false"
+    retest1_ranking_conditions = [
+        (
+            condition.find(".//Column-Value").get("column"),
+            condition.find(".//Comparator").get("value"),
+            condition.find(".//Numeric-Value").get("value"),
+        )
+        for condition in retest1_rankings.findall("./Conditions/Condition")
+    ]
+    assert retest1_ranking_conditions == [
+        ("NumberOfTrades", ">=", "100"),
+        ("RExpectancy", ">", "0.05"),
+        ("NetProfit", ">=", "0"),
+    ]
+
     forward = roots["Retest-Task2.xml"]
     forward_setup = forward.find(".//Data/Setups/Setup")
     forward_ranges = forward.findall(".//Data/OutOfSample/Range")
@@ -417,6 +446,33 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     retest1_setup = retest1.find(".//Data/Setups/Setup")
     assert retest1_setup.get("dateFrom") == "2010.01.01"
     assert retest1_setup.get("dateTo") == "2017.10.02"
+    retest1_options = {
+        node.get("key"): node.text
+        for node in retest1.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"RealisticGapsHandling", "MarketOpenSession", "SignalTimeRangeFrom", "SignalTimeRangeTo"}
+    }
+    assert retest1_options == {
+        "RealisticGapsHandling": "true",
+        "MarketOpenSession": "No Session",
+        "SignalTimeRangeFrom": "14400",
+        "SignalTimeRangeTo": "72000",
+    }
+    retest1_rankings = retest1.find(".//Rankings")
+    assert retest1_rankings.findtext("DeleteFailedStrategies") == "false"
+    assert retest1_rankings.find("FitPortfolio").get("active") == "false"
+    retest1_ranking_conditions = [
+        (
+            condition.find(".//Column-Value").get("column"),
+            condition.find(".//Comparator").get("value"),
+            condition.find(".//Numeric-Value").get("value"),
+        )
+        for condition in retest1_rankings.findall("./Conditions/Condition")
+    ]
+    assert retest1_ranking_conditions == [
+        ("NumberOfTrades", ">=", "100"),
+        ("RExpectancy", ">", "0.05"),
+        ("NetProfit", ">=", "0"),
+    ]
     retest1_symbols = retest1.findall(".//Resources/Symbols/Symbol")
     assert {node.get("name") for node in retest1_symbols} == {"AUDCAD_dukascopy"}
     assert {node.get("source") for node in retest1_symbols} == {"2"}

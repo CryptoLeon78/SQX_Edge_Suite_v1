@@ -3,7 +3,9 @@ import xml.etree.ElementTree as ET
 
 from tools.sqx142_task_config_gate import (
     apply_retest1_data_resources_to_root,
+    apply_retest1_options_databanks_rankings_to_root,
     enforce_retest1_data_resources_guard,
+    enforce_retest1_options_databanks_rankings_guard,
     fallback_retest1_oos2_resource,
     question_id,
     record_tab_answer,
@@ -130,3 +132,63 @@ def test_retest1_data_resources_target_is_protected_dukascopy_oos2():
     assert symbol.find("InstrumentInfo").get("broker") == "3"
     assert [broker.get("id") for broker in root.findall(".//Resources/Brokers/Broker")] == ["3"]
     assert root.findall(".//Resources/CustomBlocks/*") == []
+
+
+def test_retest1_options_databanks_rankings_are_advisory_not_coladero():
+    root = ET.fromstring(
+        """
+        <Task>
+          <Options>
+            <BuildTradingOptions>
+              <Params>
+                <Param key="Session">No Session</Param>
+                <Param key="MarketOpenSession">USDJPY_darwinex</Param>
+                <Param key="LimitTimeRange">false</Param>
+                <Param key="SignalTimeRangeFrom">14400</Param>
+                <Param key="SignalTimeRangeTo">72000</Param>
+                <Param key="RealisticGapsHandling">false</Param>
+                <Param key="StoreChartData">true</Param>
+              </Params>
+            </BuildTradingOptions>
+          </Options>
+          <Databanks>
+            <Databank label="Output databank" name="Output" value="bad" />
+            <Databank label="Input databank" name="Input" value="Results" />
+          </Databanks>
+          <Rankings type="always">
+            <MaxStrategies>500</MaxStrategies>
+            <ConditionsType>0</ConditionsType>
+            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <ForceRunCrossChecks>true</ForceRunCrossChecks>
+            <FitPortfolio active="true" databank="Existing portfolio" />
+            <StopCondition type="passed" passedStrategies="10" restartCount="1" days="1" hours="1" minutes="1" />
+            <Conditions />
+          </Rankings>
+        </Task>
+        """
+    )
+
+    actions = apply_retest1_options_databanks_rankings_to_root(root)
+
+    assert any(item["field"] == "Rankings/DeleteFailedStrategies" and item["changed"] for item in actions)
+    assert enforce_retest1_options_databanks_rankings_guard(root) == []
+    params = {
+        node.get("key"): node.text
+        for node in root.findall(".//BuildTradingOptions/Params/Param")
+    }
+    assert params["MarketOpenSession"] == "No Session"
+    assert params["RealisticGapsHandling"] == "true"
+    assert params["SignalTimeRangeFrom"] == "7200"
+    assert params["SignalTimeRangeTo"] == "79200"
+    assert {node.get("name"): node.get("value") for node in root.findall(".//Databanks/Databank")} == {
+        "Output": "retest 1",
+        "Input": "RETEST 0",
+    }
+    assert root.find(".//Rankings/DeleteFailedStrategies").text == "false"
+    assert root.find(".//Rankings/FitPortfolio").get("active") == "false"
+    conditions = root.findall(".//Rankings/Conditions/Condition")
+    assert [item.find(".//Column-Value").get("column") for item in conditions] == [
+        "NumberOfTrades",
+        "RExpectancy",
+        "NetProfit",
+    ]

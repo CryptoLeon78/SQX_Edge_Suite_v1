@@ -69,6 +69,8 @@ tools\sqx142_task_config_gate.ps1 build-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 build-static-tabs-target --target both
 tools\sqx142_task_config_gate.ps1 retest1-data-resources-target --target both
 tools\sqx142_task_config_gate.ps1 retest1-data-resources-target --target both --apply
+tools\sqx142_task_config_gate.ps1 retest1-options-databanks-rankings-target --target both
+tools\sqx142_task_config_gate.ps1 retest1-options-databanks-rankings-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -364,6 +366,23 @@ Decision operativa aplicada para el bloque inicial:
 - Ledger local respondido para `RETEST 1 > Data` (`8/8`) y
   `RETEST 1 > Resources` (`12/12`).
 
+Decision aplicada para `Options` / `Databanks` / `Rankings`:
+
+- `Options` mantiene `No Session`, ventana H1 placeholder `02:00-22:00`
+  (`7200-79200`) gobernada por Project Generator segun timeframe, y sube
+  `RealisticGapsHandling=true` para que OOS2/cross-broker no sea mas blando
+  que `RETEST 0`.
+- `Databanks` queda cerrado como cadena pasiva `Input=RETEST 0` y
+  `Output=retest 1`.
+- `Rankings` queda `advisory-not-coladero`: `DeleteFailedStrategies=false`
+  conserva filas failed para analisis y trazabilidad, pero los filtros siguen
+  activos con `NumberOfTrades >= 100`, `RExpectancy > 0.05` y
+  `NetProfit >= 0`.
+- `FitPortfolio=false`; `RETEST 1` valida OOS2/cross-broker en Capa1 y no debe
+  hacer seleccion de portfolio ni usar `Existing portfolio`.
+- Ledger local respondido para `RETEST 1 > Options` (`34/34`),
+  `RETEST 1 > Databanks` (`3/3`) y `RETEST 1 > Rankings` (`40/40`).
+
 Cuestionario inicial generado:
 
 - `13` pestañas detectadas.
@@ -389,15 +408,18 @@ Diferencias estructurales detectadas antes de decidir:
   mas que un retest pasivo puro. Este punto queda abierto para debate
   metodologico antes de registrar respuestas masivas.
 - `Rankings/DeleteFailedStrategies` difiere: base `false`, donor `true`.
-- `Options` contiene diferencias de ventana horaria y sesion de mercado que
-  deben seguir siendo generator-owned por timeframe/broker.
+- `Options` ya no contiene sesion donor ni gaps blandos: `MarketOpenSession`
+  queda `No Session` y `RealisticGapsHandling=true`; la ventana horaria sigue
+  siendo generator-owned por timeframe.
+- `Rankings/DeleteFailedStrategies=false` se mantiene a proposito como modo
+  advisory; no fuerza `Results=passed` ni borra failed.
 - `RiskMoneyManagement` difiere entre `FixedAmount` y `FixedSize`; la regla
   historica de Capa1 v2 dice Fixed size order size `1`, pero se revisara en la
   pregunta de fase.
 
-Siguiente bloque de decision: `Options` / `Databanks` / `Rankings`, manteniendo
-el rol pasivo de OOS2 y dejando los filtros de `retest 1` algo mas tolerantes o
-advisory que `RETEST 0` si la evidencia de la pestaña lo confirma.
+Siguiente bloque de decision: cerrar pestañas estaticas o entrar a
+`PartsToImprove` / `WhatToBuild` / `Blocks`, que son las que decidiran si
+`RETEST 1` queda pasivo puro o si hay que apagar restos de mejora/generacion.
 
 ## Disciplina Operativa
 

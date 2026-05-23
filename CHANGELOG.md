@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 RETEST 1 Options/Databanks/Rankings
+
+- Adds `retest1-options-databanks-rankings-target` to close the next Phase 4 block with dry-run-first backup/diff/apply.
+- Keeps `RETEST 1` advisory without becoming a pass-through: `DeleteFailedStrategies=false` preserves failed rows for analysis, while active filters remain `NumberOfTrades >= 100`, `RExpectancy > 0.05` and `NetProfit >= 0`.
+- Sets `RealisticGapsHandling=true` so protected OOS2/cross-broker validation is not softer than `RETEST 0`, while keeping the time window generator-owned by timeframe.
+- Keeps the passive databank chain `Input=RETEST 0` and `Output=retest 1`, and disables `FitPortfolio` because Capa1 RETEST 1 is validation, not portfolio selection.
+- Records local ledger answers for `Options` (`34/34`), `Databanks` (`3/3`) and `Rankings` (`40/40`).
+
 ## 2026-05-23 - C1-CONFIG1 RETEST 1 Data/Resources
 
 - Converts the operator decision into Phase 4 policy: `RETEST 1` is a passive clone of `RETEST 0` plus a protected Dukascopy/OOS2 override, not a wholesale Mining15 donor copy.

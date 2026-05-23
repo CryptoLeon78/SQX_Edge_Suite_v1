@@ -213,6 +213,41 @@ RETEST1_BANNED_RESOURCE_TOKENS = (
     "_darwinex",
     "Darwinex",
 )
+RETEST1_OPTIONS_PARAMS_TARGET = {
+    "Session": "No Session",
+    "MarketOpenSession": "No Session",
+    "LimitTimeRange": "true",
+    "SignalTimeRangeFrom": "7200",
+    "SignalTimeRangeTo": "79200",
+    "RealisticGapsHandling": "true",
+    "StoreChartData": "false",
+}
+RETEST1_DATABANKS_TARGET = {
+    "Input": "RETEST 0",
+    "Output": "retest 1",
+}
+RETEST1_RANKING_TARGET = {
+    "MaxStrategies": "10000",
+    "ConditionsType": "1",
+    "DeleteFailedStrategies": "false",
+    "ForceRunCrossChecks": "false",
+    "FitPortfolio": {"active": "false", "databank": "Existing portfolio"},
+    "CustomAnalysis": {"filter": "false", "inputArgs": "", "method": "none"},
+    "AutomaticDismissal": {"warnings": "false"},
+    "StopCondition": {
+        "type": "databank-full",
+        "passedStrategies": "1000",
+        "restartCount": "5",
+        "days": "0",
+        "hours": "0",
+        "minutes": "0",
+    },
+}
+RETEST1_RANKING_CONDITIONS_TARGET = [
+    {"column": "NumberOfTrades", "comparator": ">=", "value": "100", "format": "Decimal2"},
+    {"column": "RExpectancy", "comparator": ">", "value": "0.05", "format": "Decimal2"},
+    {"column": "NetProfit", "comparator": ">=", "value": "0", "format": "Decimal2"},
+]
 
 
 def stamp() -> str:
@@ -1963,6 +1998,306 @@ def promote_retest1_data_resources_target(root142: Path, project_root: Path, tar
     return payload
 
 
+def set_param_text(root: ET.Element, key: str, value: str, actions: list[dict[str, Any]], field_prefix: str) -> None:
+    nodes = root.findall(f".//BuildTradingOptions/Params/Param[@key='{key}']")
+    if not nodes:
+        actions.append({"field": f"{field_prefix}:Param:{key}", "from": None, "to": value, "changed": False, "error": "missing_param"})
+        return
+    for index, node in enumerate(nodes, start=1):
+        before = node.text or ""
+        node.text = value
+        actions.append({
+            "field": f"{field_prefix}:Param:{key}#{index}",
+            "from": before,
+            "to": value,
+            "changed": before != value,
+        })
+
+
+def set_or_create_text_child(parent: ET.Element, tag: str, value: str, actions: list[dict[str, Any]], field: str) -> ET.Element:
+    child = parent.find(tag)
+    if child is None:
+        child = ET.SubElement(parent, tag)
+        before = None
+    else:
+        before = (child.text or "")
+    child.text = value
+    actions.append({"field": field, "from": before, "to": value, "changed": before != value})
+    return child
+
+
+def set_or_create_attrs_child(parent: ET.Element, tag: str, attrs: dict[str, str], actions: list[dict[str, Any]], field: str) -> ET.Element:
+    child = parent.find(tag)
+    if child is None:
+        child = ET.SubElement(parent, tag)
+        before = None
+    else:
+        before = dict(child.attrib)
+    child.attrib.clear()
+    child.attrib.update(attrs)
+    actions.append({"field": field, "from": before, "to": dict(child.attrib), "changed": before != dict(child.attrib)})
+    return child
+
+
+def ranking_conditions_exact(parent: ET.Element | None) -> list[dict[str, str]]:
+    items = summarize_conditions(parent)
+    return [
+        {
+            "column": item.get("column", ""),
+            "comparator": item.get("comparator", ""),
+            "value": item.get("value", ""),
+            "use": item.get("use", ""),
+        }
+        for item in items
+    ]
+
+
+def set_ranking_conditions(rankings: ET.Element, actions: list[dict[str, Any]]) -> None:
+    conditions = rankings.find("Conditions")
+    if conditions is None:
+        conditions = ET.SubElement(rankings, "Conditions")
+        before: list[dict[str, str]] = []
+    else:
+        before = ranking_conditions_exact(conditions)
+        for child in list(conditions):
+            conditions.remove(child)
+    conditions.text = "\n      "
+    for index, target in enumerate(RETEST1_RANKING_CONDITIONS_TARGET):
+        condition = make_column_condition(
+            column=target["column"],
+            comparator=target["comparator"],
+            value=target["value"],
+            fmt=target["format"],
+        )
+        condition.tail = "\n    " if index == len(RETEST1_RANKING_CONDITIONS_TARGET) - 1 else "\n      "
+        conditions.append(condition)
+    after = ranking_conditions_exact(conditions)
+    actions.append({
+        "field": "Rankings/Conditions",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+    })
+
+
+def apply_retest1_options_databanks_rankings_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+
+    for key, value in RETEST1_OPTIONS_PARAMS_TARGET.items():
+        set_param_text(root, key, value, actions, "Options")
+
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks")
+        actions.append({"field": "Databanks", "from": None, "to": "created", "changed": True})
+    existing_by_name = {
+        node.get("name", ""): node
+        for node in databanks.findall("Databank")
+        if node.get("name")
+    }
+    for name, wanted in RETEST1_DATABANKS_TARGET.items():
+        node = existing_by_name.get(name)
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"label": f"{name} databank", "name": name})
+            before = None
+        else:
+            before = dict(node.attrib)
+        node.set("name", name)
+        node.set("value", wanted)
+        if name == "Input":
+            node.set("label", "Input databank")
+        if name == "Output":
+            node.set("label", "Output databank")
+        actions.append({
+            "field": f"Databanks/{name}",
+            "from": before,
+            "to": dict(node.attrib),
+            "changed": before != dict(node.attrib),
+        })
+
+    rankings = find_section(root, "Rankings")
+    if rankings is None:
+        rankings = ET.SubElement(root, "Rankings", {"type": "never"})
+        actions.append({"field": "Rankings", "from": None, "to": dict(rankings.attrib), "changed": True})
+    before_rank_attrs = dict(rankings.attrib)
+    rankings.set("type", "never")
+    actions.append({
+        "field": "Rankings:type",
+        "from": before_rank_attrs,
+        "to": dict(rankings.attrib),
+        "changed": before_rank_attrs != dict(rankings.attrib),
+    })
+    set_or_create_text_child(rankings, "MaxStrategies", RETEST1_RANKING_TARGET["MaxStrategies"], actions, "Rankings/MaxStrategies")
+    set_or_create_attrs_child(
+        rankings,
+        "FitnessCriteria",
+        {"method": "ComputeFromStrategyResult", "useFitnessByIndex": "false"},
+        actions,
+        "Rankings/FitnessCriteria",
+    )
+    set_or_create_text_child(rankings, "ConditionsType", RETEST1_RANKING_TARGET["ConditionsType"], actions, "Rankings/ConditionsType")
+    set_or_create_text_child(rankings, "DeleteFailedStrategies", RETEST1_RANKING_TARGET["DeleteFailedStrategies"], actions, "Rankings/DeleteFailedStrategies")
+    set_or_create_text_child(rankings, "ForceRunCrossChecks", RETEST1_RANKING_TARGET["ForceRunCrossChecks"], actions, "Rankings/ForceRunCrossChecks")
+    set_or_create_attrs_child(rankings, "AutomaticDismissal", RETEST1_RANKING_TARGET["AutomaticDismissal"], actions, "Rankings/AutomaticDismissal")
+    set_or_create_attrs_child(rankings, "StopCondition", RETEST1_RANKING_TARGET["StopCondition"], actions, "Rankings/StopCondition")
+    set_or_create_attrs_child(rankings, "FitPortfolio", RETEST1_RANKING_TARGET["FitPortfolio"], actions, "Rankings/FitPortfolio")
+    set_or_create_attrs_child(rankings, "CustomAnalysis", RETEST1_RANKING_TARGET["CustomAnalysis"], actions, "Rankings/CustomAnalysis")
+    set_ranking_conditions(rankings, actions)
+    return actions
+
+
+def retest1_options_databanks_rankings_summary(root: ET.Element) -> dict[str, Any]:
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in RETEST1_OPTIONS_PARAMS_TARGET
+    }
+    databanks = {
+        node.get("name", ""): node.get("value", "")
+        for node in root.findall(".//Databanks/Databank")
+        if node.get("name")
+    }
+    rankings = find_section(root, "Rankings")
+    ranking_data: dict[str, Any] = {}
+    if rankings is not None:
+        ranking_data = {
+            "type": rankings.get("type", ""),
+            "MaxStrategies": (rankings.findtext("MaxStrategies") or ""),
+            "ConditionsType": (rankings.findtext("ConditionsType") or ""),
+            "DeleteFailedStrategies": (rankings.findtext("DeleteFailedStrategies") or ""),
+            "ForceRunCrossChecks": (rankings.findtext("ForceRunCrossChecks") or ""),
+            "FitPortfolio": dict(rankings.find("FitPortfolio").attrib) if rankings.find("FitPortfolio") is not None else {},
+            "StopCondition": dict(rankings.find("StopCondition").attrib) if rankings.find("StopCondition") is not None else {},
+            "conditions": ranking_conditions_exact(rankings.find("Conditions")),
+        }
+    return {"optionsParams": params, "databanks": databanks, "rankings": ranking_data}
+
+
+def enforce_retest1_options_databanks_rankings_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = retest1_options_databanks_rankings_summary(root)
+    params = summary.get("optionsParams") or {}
+    for key, wanted in RETEST1_OPTIONS_PARAMS_TARGET.items():
+        if params.get(key) != wanted:
+            issues.append(f"Options param {key} is {params.get(key)!r}, expected {wanted!r}")
+    databanks = summary.get("databanks") or {}
+    for key, wanted in RETEST1_DATABANKS_TARGET.items():
+        if databanks.get(key) != wanted:
+            issues.append(f"Databank {key} is {databanks.get(key)!r}, expected {wanted!r}")
+    ranking = summary.get("rankings") or {}
+    if ranking.get("DeleteFailedStrategies") != "false":
+        issues.append("RETEST 1 must keep failed strategies visible for advisory review")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append("RETEST 1 must not run portfolio fit selection in Capa1")
+    expected_conditions = [
+        {"column": item["column"], "comparator": item["comparator"], "value": item["value"], "use": "true"}
+        for item in RETEST1_RANKING_CONDITIONS_TARGET
+    ]
+    if ranking.get("conditions") != expected_conditions:
+        issues.append("RETEST 1 ranking conditions do not match tolerant advisory target")
+    options_node = find_section(root, "Options")
+    databanks_node = find_section(root, "Databanks")
+    rankings_node = find_section(root, "Rankings")
+    text = (
+        serialize_xml(options_node if options_node is not None else root)
+        + serialize_xml(databanks_node if databanks_node is not None else root)
+        + serialize_xml(rankings_node if rankings_node is not None else root)
+    )
+    for token in ("USDJPY", "USDJPY_darwinex", "USDJPY_dukascopy"):
+        if token in text:
+            issues.append(f"Forbidden donor token leaked into Options/Databanks/Rankings: {token}")
+    if re.search(r"[A-Za-z]:\\", text):
+        issues.append("Local absolute path leaked into Options/Databanks/Rankings")
+    return issues
+
+
+def update_retest1_options_databanks_rankings_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, RETEST1_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "retest1_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = retest1_options_databanks_rankings_summary(root)
+    payload["actions"] = apply_retest1_options_databanks_rankings_to_root(root)
+    payload["after"] = retest1_options_databanks_rankings_summary(root)
+    payload["issues"] = enforce_retest1_options_databanks_rankings_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "options": RETEST1_OPTIONS_PARAMS_TARGET,
+        "databanks": RETEST1_DATABANKS_TARGET,
+        "rankings": RETEST1_RANKING_TARGET,
+        "conditions": RETEST1_RANKING_CONDITIONS_TARGET,
+    }
+    payload["targetRationale"] = {
+        "advisoryNotColadero": "Keep failed rows visible with DeleteFailedStrategies=false, but retain explicit minimum conditions so Result can be failed naturally.",
+        "passiveRetest": "Disable FitPortfolio because Capa1 RETEST 1 should validate OOS2/cross-broker behavior, not perform portfolio selection.",
+        "realism": "Enable RealisticGapsHandling to avoid a softer cross-broker OOS2 pass than RETEST 0.",
+        "generatorOwned": "Time window remains the H1 placeholder in base; Project Generator rewrites it by selected timeframe.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_retest1_options_databanks_rankings_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase4_retest1_options_databanks_rankings_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_retest1_options_databanks_rankings_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase4",
+        "operation": "retest1_options_databanks_rankings_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase4_retest1_options_databanks_rankings_diff_review" if not apply else "phase4_continue_questionnaire",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase4_retest1_options_databanks_rankings_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -3152,6 +3487,10 @@ def build_parser() -> argparse.ArgumentParser:
     retest1_data_resources.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     retest1_data_resources.add_argument("--apply", action="store_true")
 
+    retest1_odr = sub.add_parser("retest1-options-databanks-rankings-target")
+    retest1_odr.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    retest1_odr.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -3238,6 +3577,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "retest1-data-resources-target":
         json_print(promote_retest1_data_resources_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "retest1-options-databanks-rankings-target":
+        json_print(promote_retest1_options_databanks_rankings_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
