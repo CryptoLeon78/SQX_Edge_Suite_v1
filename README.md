@@ -136,6 +136,8 @@ tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "Cross
 tools\sqx142_task_config_gate.ps1 record-answer --task-title "MC 2" --tab "CrossChecks" --question-id "<id>" --answer "<answer>"
 tools\sqx142_task_config_gate.ps1 mc2-crosschecks-target --target both
 tools\sqx142_task_config_gate.ps1 mc2-crosschecks-target --target both --apply
+tools\sqx142_task_config_gate.ps1 mc2-data-databanks-resources-options-target --target both
+tools\sqx142_task_config_gate.ps1 mc2-data-databanks-resources-options-target --target both --apply
 ```
 
 Fase 1 ya promociona solo las views allowlisted de databanks hacia base local y template repo. Fase 2 genera cuestionarios Build completos: todas las entradas detectadas se guardan por defecto, incluidas rutas XML repetidas con indice estable. Las respuestas completas viven en `.local/sqx142_task_config/`; los docs solo reciben resumen limpio al cerrar fase.

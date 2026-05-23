@@ -499,6 +499,30 @@ MC2_ACTIVE_CHECK = "MonteCarloRetest"
 MC2_ACTIVE_METHODS = {"RandomizeHistoryData", "RandomizeSpread"}
 MC2_NUMBER_OF_SIMULATIONS = "100"
 MC2_USE_FULL_SAMPLE = "true"
+MC2_PERIOD_KEY = MC_PERIOD_KEY
+MC2_DATA_TEST_PRECISION = MC_DATA_TEST_PRECISION
+MC2_DATA_SESSION = MC_DATA_SESSION
+MC2_DATABANKS_TARGET = {
+    "Input": "MC",
+    "Output": "MC2",
+}
+MC2_DEFAULT_CHART_TARGET = {
+    "symbol": "AUDCAD_darwinex",
+    "timeframe": "H1",
+    "spread": "2.0",
+}
+MC2_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET = {
+    "engine": "true",
+    "symbol": "true",
+    "timeframe": "true",
+    "dates": "true",
+    "precision": "true",
+    "distance": "true",
+    "spread": "true",
+    "slippage": "true",
+    "commissions": "true",
+}
+MC2_OPTIONS_PARAMS_TARGET = MC_OPTIONS_PARAMS_TARGET
 
 
 def stamp() -> str:
@@ -3398,7 +3422,7 @@ def apply_tick_real_data_databanks_resources_to_root(root: ET.Element) -> list[d
             "broker": broker_id,
         })
         info_attrs.update({
-            "instrument": info_attrs.get("instrument") or symbol_name,
+            "instrument": symbol_name,
             "defaultSpread": chart.get("spread", info_attrs.get("defaultSpread", "")),
             "dateFrom": "0",
             "dateTo": "0",
@@ -4386,7 +4410,7 @@ def apply_mc_data_databanks_resources_options_to_root(root: ET.Element) -> list[
             "broker": broker_id,
         })
         info_attrs.update({
-            "instrument": info_attrs.get("instrument") or symbol_name,
+            "instrument": symbol_name,
             "defaultSpread": chart.get("spread", info_attrs.get("defaultSpread", "")),
             "dateFrom": "0",
             "dateTo": "0",
@@ -6174,6 +6198,523 @@ def promote_mc2_crosschecks_target(root142: Path, project_root: Path, target: st
     return payload
 
 
+def mc2_custom_data_summary(root: ET.Element) -> dict[str, Any]:
+    custom = find_section(root, "CustomData")
+    setup = custom.find("./Setups/Setup") if custom is not None else None
+    chart = setup.find("Chart") if setup is not None else None
+    main_values = setup.find("MainTestValues") if setup is not None else None
+    commission = setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']") if setup is not None else None
+    return {
+        "exists": custom is not None,
+        "attrs": dict(custom.attrib) if custom is not None else {},
+        "setup": dict(setup.attrib) if setup is not None else {},
+        "chart": dict(chart.attrib) if chart is not None else {},
+        "mainTestValues": dict(main_values.attrib) if main_values is not None else {},
+        "commission": commission.text if commission is not None else "",
+        "sha256": section_sha256(root, "CustomData"),
+    }
+
+
+def mc2_data_databanks_resources_options_summary(root: ET.Element) -> dict[str, Any]:
+    databanks = {
+        node.get("name", ""): node.get("value", "")
+        for node in root.findall(".//Databanks/Databank")
+        if node.get("name")
+    }
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in MC2_OPTIONS_PARAMS_TARGET
+    }
+    return {
+        "data": {
+            "exists": root.find("Data") is not None,
+            "outOfSampleRanges": [dict(node.attrib) for node in root.findall(".//Data/OutOfSample/Range")],
+        },
+        "customData": mc2_custom_data_summary(root),
+        "databanks": databanks,
+        "resources": _tick_real_resource_summary(root),
+        "optionsParams": params,
+    }
+
+
+def apply_mc2_custom_data_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> ET.Element | None:
+    data = root.find("Data")
+    if data is not None:
+        before = {"sha256": section_sha256(data, "Data"), "children": [child.tag for child in list(data)]}
+        root.remove(data)
+        actions.append({
+            "field": "Data",
+            "from": before,
+            "to": None,
+            "changed": True,
+            "note": "MC2 uses CustomData as its data carrier; keeping a Data section would create two sources of truth.",
+        })
+    custom = find_section(root, "CustomData")
+    if custom is None:
+        custom = ET.SubElement(root, "CustomData")
+        actions.append({"field": "CustomData", "from": None, "to": "created", "changed": True})
+    setups = ensure_direct_child(custom, "Setups")
+    setup = setups.find("Setup")
+    if setup is None:
+        setup = ET.SubElement(setups, "Setup")
+        actions.append({"field": "CustomData/Setup", "from": None, "to": dict(setup.attrib), "changed": True})
+
+    period = generator_period(MC2_PERIOD_KEY)
+    set_attrs_on_node(
+        setup,
+        {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": MC2_DATA_TEST_PRECISION,
+            "session": MC2_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+            "engine": "MetaTrader4",
+        },
+        actions,
+        "CustomData/Setup:attrs",
+    )
+
+    chart = setup.find("Chart")
+    if chart is None:
+        chart = ET.SubElement(setup, "Chart")
+        actions.append({"field": "CustomData/Setup/Chart", "from": None, "to": dict(chart.attrib), "changed": True})
+    set_attrs_on_node(chart, MC2_DEFAULT_CHART_TARGET, actions, "CustomData/Setup/Chart:attrs")
+
+    commissions = ensure_direct_child(setup, "Commissions")
+    existing_methods = {
+        method.get("type", ""): method
+        for method in commissions.findall("Method")
+        if method.get("type")
+    }
+    for method_type, use in {"None": "false", "SizeBased": "true"}.items():
+        method = existing_methods.get(method_type)
+        if method is None:
+            method = ET.SubElement(commissions, "Method", {"type": method_type})
+            before = None
+        else:
+            before = dict(method.attrib)
+        method.set("type", method_type)
+        method.set("use", use)
+        actions.append({
+            "field": f"CustomData/Commissions/Method:{method_type}",
+            "from": before,
+            "to": dict(method.attrib),
+            "changed": before != dict(method.attrib),
+        })
+        if method_type == "SizeBased":
+            params = ensure_direct_child(method, "Params")
+            param = None
+            for candidate in params.findall("Param"):
+                if candidate.get("key") == "Commission":
+                    param = candidate
+                    break
+            if param is None:
+                param = ET.SubElement(params, "Param", {"key": "Commission", "className": "SizeBased"})
+                before_param = None
+            else:
+                before_param = {**dict(param.attrib), "text": param.text or ""}
+            param.set("key", "Commission")
+            param.set("className", "SizeBased")
+            param.text = MC_CUSTOM_DATA_COMMISSION_TARGET
+            after_param = {**dict(param.attrib), "text": param.text or ""}
+            actions.append({
+                "field": "CustomData/Commissions/Method:SizeBased/Param:Commission",
+                "from": before_param,
+                "to": after_param,
+                "changed": before_param != after_param,
+            })
+
+    main_values = setup.find("MainTestValues")
+    if main_values is None:
+        main_values = ET.SubElement(setup, "MainTestValues")
+        actions.append({"field": "CustomData/MainTestValues", "from": None, "to": dict(main_values.attrib), "changed": True})
+    set_attrs_on_node(main_values, MC2_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET, actions, "CustomData/MainTestValues:attrs")
+    return setup
+
+
+def apply_mc2_resources_from_custom_data(root: ET.Element, setup: ET.Element | None, actions: list[dict[str, Any]]) -> None:
+    resources = find_section(root, "Resources")
+    if resources is None:
+        resources = ET.SubElement(root, "Resources")
+        before_resources: dict[str, Any] = {"resourcesFound": False}
+    else:
+        before_resources = _tick_real_resource_summary(root)
+
+    if setup is None:
+        actions.append({"field": "Resources", "error": "missing_custom_data_setup", "changed": False})
+        return
+
+    charts = setup.findall("Chart")
+    if not charts:
+        chart = ET.SubElement(setup, "Chart", MC2_DEFAULT_CHART_TARGET)
+        charts = [chart]
+        actions.append({"field": "CustomData/Setup/Chart", "from": None, "to": dict(chart.attrib), "changed": True})
+    chart_by_symbol = {
+        chart.get("symbol", ""): chart
+        for chart in charts
+        if chart.get("symbol")
+    }
+    symbols_node = ensure_resources_container(resources, "Symbols")
+    brokers_node = ensure_resources_container(resources, "Brokers")
+    instruments_node = ensure_resources_container(resources, "Instruments")
+    sessions_node = ensure_resources_container(resources, "Sessions")
+    ensure_resources_container(resources, "CustomIndicators")
+    ensure_resources_container(resources, "CustomBlocks")
+
+    template_symbol_attrs, template_info_attrs = _first_existing_symbol_template(resources)
+    existing_symbols = {
+        symbol.get("name", ""): symbol
+        for symbol in symbols_node.findall("Symbol")
+        if symbol.get("name")
+    }
+    before_symbols = [value_for_node(symbol) for symbol in symbols_node.findall("Symbol")]
+    for symbol in list(symbols_node.findall("Symbol")):
+        symbols_node.remove(symbol)
+
+    referenced_brokers: set[str] = set()
+    period = generator_period(MC2_PERIOD_KEY)
+    date_from_default = str(epoch_ms_for_date(period[0]))
+    date_to_default = str(epoch_ms_for_date(period[1]))
+    for symbol_name, chart in chart_by_symbol.items():
+        existing_symbol = existing_symbols.get(symbol_name)
+        symbol_attrs = dict(existing_symbol.attrib) if existing_symbol is not None else dict(template_symbol_attrs)
+        existing_info = existing_symbol.find("InstrumentInfo") if existing_symbol is not None else None
+        info_attrs = dict(existing_info.attrib) if existing_info is not None else dict(template_info_attrs)
+        broker_id = symbol_attrs.get("broker") or info_attrs.get("broker") or MC_DEFAULT_BROKER_ID
+        source_id = symbol_attrs.get("source") or MC_DEFAULT_SOURCE_ID
+        bounded_from, bounded_to = bounded_period_ms(
+            period,
+            symbol_attrs.get("dateFrom") or date_from_default,
+            symbol_attrs.get("dateTo") or date_to_default,
+        )
+        asset = _asset_from_tick_real_symbol(symbol_name)
+        referenced_brokers.add(broker_id)
+        symbol_node = ET.SubElement(symbols_node, "Symbol", {
+            "name": symbol_name,
+            "source": source_id,
+            "barType": symbol_attrs.get("barType", "1"),
+            "precision": MC_RESOURCE_PRECISION,
+            "timezone": MC_RESOURCE_TIMEZONE,
+            "dateFrom": bounded_from,
+            "dateTo": bounded_to,
+            "uSymbol": symbol_attrs.get("uSymbol") or asset,
+            "uSymbolName": symbol_attrs.get("uSymbolName") or asset,
+            "removeWeekends": symbol_attrs.get("removeWeekends", "false"),
+            "broker": broker_id,
+        })
+        info_attrs.update({
+            "instrument": symbol_name,
+            "defaultSpread": chart.get("spread", info_attrs.get("defaultSpread", "")),
+            "dateFrom": "0",
+            "dateTo": "0",
+            "rows": "0",
+            "totalDays": "0",
+            "dataType": info_attrs.get("dataType", BUILD_RESOURCES_BASE_DATA_TYPE),
+            "broker": broker_id,
+        })
+        ET.SubElement(symbol_node, "InstrumentInfo", info_attrs)
+
+    after_symbols = [value_for_node(symbol) for symbol in symbols_node.findall("Symbol")]
+    actions.append({
+        "field": "Resources/Symbols",
+        "from": before_symbols,
+        "to": after_symbols,
+        "changed": before_symbols != after_symbols,
+    })
+
+    before_brokers = [value_for_node(broker) for broker in brokers_node.findall("Broker")]
+    existing_brokers = {
+        broker.get("id", ""): broker
+        for broker in brokers_node.findall("Broker")
+        if broker.get("id")
+    }
+    for broker in list(brokers_node.findall("Broker")):
+        if broker.get("id") not in referenced_brokers:
+            brokers_node.remove(broker)
+    for broker_id in sorted(referenced_brokers):
+        if broker_id in existing_brokers and existing_brokers[broker_id] in list(brokers_node):
+            continue
+        ET.SubElement(brokers_node, "Broker", {
+            "id": broker_id,
+            "name": "[[Darwinex]]" if broker_id == MC_DEFAULT_BROKER_ID else f"Broker {broker_id}",
+            "description": "Darwinex CFDs" if broker_id == MC_DEFAULT_BROKER_ID else "",
+            "timezone": MC_RESOURCE_TIMEZONE,
+            "postfix": "_darwinex" if broker_id == MC_DEFAULT_BROKER_ID else "",
+            "mtUse": "true",
+            "spUse": "false",
+        })
+    after_brokers = [value_for_node(broker) for broker in brokers_node.findall("Broker")]
+    actions.append({
+        "field": "Resources/Brokers",
+        "from": before_brokers,
+        "to": after_brokers,
+        "changed": before_brokers != after_brokers,
+    })
+
+    before_instruments = [value_for_node(node) for node in instruments_node.findall("InstrumentInfo")]
+    for node in list(instruments_node.findall("InstrumentInfo")):
+        instruments_node.remove(node)
+    for symbol in symbols_node.findall("Symbol"):
+        info = symbol.find("InstrumentInfo")
+        ET.SubElement(instruments_node, "InstrumentInfo", dict(info.attrib) if info is not None else {})
+    after_instruments = [value_for_node(node) for node in instruments_node.findall("InstrumentInfo")]
+    actions.append({
+        "field": "Resources/Instruments",
+        "from": before_instruments,
+        "to": after_instruments,
+        "changed": before_instruments != after_instruments,
+    })
+
+    removed_sessions = [value_for_node(node) for node in sessions_node.findall("Session")]
+    for node in list(sessions_node.findall("Session")):
+        sessions_node.remove(node)
+    actions.append({
+        "field": "Resources/Sessions",
+        "from": removed_sessions,
+        "to": [],
+        "changed": bool(removed_sessions),
+    })
+    actions.append({
+        "field": "Resources",
+        "from": before_resources,
+        "to": _tick_real_resource_summary(root),
+        "changed": before_resources != _tick_real_resource_summary(root),
+        "note": "CustomIndicators and CustomBlocks are preserved; Project Generator owns final resource rebuild per asset/timeframe.",
+    })
+
+
+def apply_mc2_data_databanks_resources_options_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    setup = apply_mc2_custom_data_to_root(root, actions)
+
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing_by_name = {
+        node.get("name", ""): node
+        for node in databanks.findall("Databank")
+        if node.get("name")
+    }
+    for name, wanted in MC2_DATABANKS_TARGET.items():
+        node = existing_by_name.get(name)
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+            before = None
+        else:
+            before = dict(node.attrib)
+        node.set("name", name)
+        node.set("value", wanted)
+        node.set("label", f"{name} databank")
+        actions.append({
+            "field": f"Databanks/{name}",
+            "from": before,
+            "to": dict(node.attrib),
+            "changed": before != dict(node.attrib),
+        })
+
+    apply_mc2_resources_from_custom_data(root, setup, actions)
+    for key, value in MC2_OPTIONS_PARAMS_TARGET.items():
+        set_param_text(root, key, value, actions, "Options")
+    return actions
+
+
+def enforce_mc2_data_databanks_resources_options_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    period = generator_period(MC2_PERIOD_KEY)
+    if root.find("Data") is not None:
+        issues.append("MC2 must not carry a Data section; CustomData is the canonical data carrier for this task")
+
+    custom = find_section(root, "CustomData")
+    setup = custom.find("./Setups/Setup") if custom is not None else None
+    if setup is None:
+        issues.append("MC2 CustomData/Setup missing")
+    else:
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append("MC2 CustomData dates are not ROBUSTNESS_C1")
+        if setup.get("testPrecision") != MC2_DATA_TEST_PRECISION:
+            issues.append("MC2 CustomData testPrecision must stay 2 for fast/simulated Monte Carlo")
+        if setup.get("session") != MC2_DATA_SESSION:
+            issues.append("MC2 CustomData session must stay No Session")
+        chart = setup.find("Chart")
+        if chart is None:
+            issues.append("MC2 CustomData chart missing")
+        main_values = setup.find("MainTestValues")
+        main_attrs = dict(main_values.attrib) if main_values is not None else {}
+        if main_attrs != MC2_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+            issues.append("MC2 CustomData MainTestValues drifted from full-retarget target")
+        commission = setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']")
+        if (commission.text if commission is not None else "") != MC_CUSTOM_DATA_COMMISSION_TARGET:
+            issues.append(f"MC2 CustomData commission is {(commission.text if commission is not None else '')!r}, expected {MC_CUSTOM_DATA_COMMISSION_TARGET!r}")
+
+    databanks = {
+        node.get("name", ""): node.get("value", "")
+        for node in root.findall(".//Databanks/Databank")
+        if node.get("name")
+    }
+    for name, wanted in MC2_DATABANKS_TARGET.items():
+        if databanks.get(name) != wanted:
+            issues.append(f"MC2 Databank {name} is {databanks.get(name)!r}, expected {wanted!r}")
+
+    resources = find_section(root, "Resources")
+    if resources is None:
+        issues.append("MC2 Resources missing")
+    else:
+        chart_symbols = {
+            chart.get("symbol", "")
+            for chart in root.findall("./CustomData/Setups/Setup/Chart")
+            if chart.get("symbol")
+        }
+        resource_symbols = {
+            symbol.get("name", "")
+            for symbol in resources.findall("./Symbols/Symbol")
+            if symbol.get("name")
+        }
+        if chart_symbols != resource_symbols:
+            issues.append(f"MC2 custom chart/resource mismatch: charts={sorted(chart_symbols)} resources={sorted(resource_symbols)}")
+        broker_ids = {
+            broker.get("id", "")
+            for broker in resources.findall("./Brokers/Broker")
+            if broker.get("id")
+        }
+        for symbol in resources.findall("./Symbols/Symbol"):
+            if symbol.get("precision") != MC_RESOURCE_PRECISION:
+                issues.append(f"MC2 resource {symbol.get('name')} precision is not TICK")
+            if symbol.get("timezone") != MC_RESOURCE_TIMEZONE:
+                issues.append(f"MC2 resource {symbol.get('name')} timezone is not EETUS")
+            if symbol.get("broker") not in broker_ids:
+                issues.append(f"MC2 resource {symbol.get('name')} references missing broker {symbol.get('broker')}")
+            info = symbol.find("InstrumentInfo")
+            if info is None:
+                issues.append(f"MC2 resource {symbol.get('name')} has no nested InstrumentInfo")
+            elif info.get("broker") not in broker_ids:
+                issues.append(f"MC2 nested InstrumentInfo for {symbol.get('name')} references missing broker {info.get('broker')}")
+        if resources.findall("./Sessions/Session"):
+            issues.append("MC2 resources must not keep session entries")
+
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in MC2_OPTIONS_PARAMS_TARGET
+    }
+    for key, wanted in MC2_OPTIONS_PARAMS_TARGET.items():
+        if params.get(key) != wanted:
+            issues.append(f"MC2 Options param {key} is {params.get(key)!r}, expected {wanted!r}")
+
+    guarded_text = (
+        section_text(root, "Data")
+        + section_text(root, "CustomData")
+        + section_text(root, "Databanks")
+        + section_text(root, "Resources")
+        + section_text(root, "Options")
+    )
+    for token in MC_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into MC2 Data/Databanks/Resources/Options: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into MC2 Data/Databanks/Resources/Options")
+    return issues
+
+
+def update_mc2_data_databanks_resources_options_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root = load_task_root(cfx, MC2_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "mc2_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = mc2_data_databanks_resources_options_summary(root)
+    payload["actions"] = apply_mc2_data_databanks_resources_options_to_root(root)
+    payload["after"] = mc2_data_databanks_resources_options_summary(root)
+    payload["issues"] = enforce_mc2_data_databanks_resources_options_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["xmlChanged"] = before_text != after_text
+    payload["changed"] = payload["changedActionCount"] > 0
+    payload["targetValues"] = {
+        "taskTitle": MC2_TASK_TITLE,
+        "periodKey": MC2_PERIOD_KEY,
+        "dateFrom": generator_period(MC2_PERIOD_KEY)[0],
+        "dateTo": generator_period(MC2_PERIOD_KEY)[1],
+        "dataSection": "absent",
+        "customData": {
+            "testPrecision": MC2_DATA_TEST_PRECISION,
+            "session": MC2_DATA_SESSION,
+            "mainTestValues": MC2_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+        },
+        "databanks": MC2_DATABANKS_TARGET,
+        "resourcePrecision": MC_RESOURCE_PRECISION,
+        "resourceTimezone": MC_RESOURCE_TIMEZONE,
+        "options": MC2_OPTIONS_PARAMS_TARGET,
+    }
+    payload["targetRationale"] = {
+        "methodology": "MC2 is a second Monte Carlo robustness gate after MC; it consumes MC and writes MC2 without adding a new OOS split.",
+        "customDataCarrier": "This SQX automatic retest stores its data setup in CustomData, so no parallel Data section is allowed.",
+        "generatorOwned": "Symbol, timeframe, spread, swap and final resources remain owned by Project Generator for each selected asset/timeframe.",
+        "naturalResults": "This block preserves natural passed/failed rows and does not force Results=passed.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_mc2_data_databanks_resources_options_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase7_mc2_data_databanks_resources_options_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_mc2_data_databanks_resources_options_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase7",
+        "operation": "mc2_data_databanks_resources_options_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase7_mc2_data_databanks_resources_options_diff_review" if not apply else "phase7_mc2_passive_or_static_review",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase7_mc2_data_databanks_resources_options_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -7411,6 +7952,10 @@ def build_parser() -> argparse.ArgumentParser:
     mc_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     mc_closeout.add_argument("--write", action="store_true")
 
+    mc2_data = sub.add_parser("mc2-data-databanks-resources-options-target")
+    mc2_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    mc2_data.add_argument("--apply", action="store_true")
+
     mc2_crosschecks = sub.add_parser("mc2-crosschecks-target")
     mc2_crosschecks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     mc2_crosschecks.add_argument("--apply", action="store_true")
@@ -7537,6 +8082,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "mc-closeout-report":
         json_print(mc_closeout_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "mc2-data-databanks-resources-options-target":
+        json_print(promote_mc2_data_databanks_resources_options_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "mc2-crosschecks-target":
         json_print(promote_mc2_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))

@@ -169,6 +169,85 @@ def _randomize_spread_params(task: ET.Element) -> dict[str, str]:
     }
 
 
+def _assert_mc2_data_databanks_resources_options_contract(mc2: ET.Element, expected_symbol: str | None = None, expected_timeframe: str | None = None) -> None:
+    assert mc2.find("./Data") is None
+    setup = mc2.find("./CustomData/Setups/Setup")
+    assert setup is not None
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "2"
+    assert setup.get("session") == "No Session"
+    assert setup.get("engine") == "MetaTrader4"
+    chart = setup.find("Chart")
+    assert chart is not None
+    if expected_symbol is not None:
+        assert chart.get("symbol") == expected_symbol
+    if expected_timeframe is not None:
+        assert chart.get("timeframe") == expected_timeframe
+    assert dict(setup.find("MainTestValues").attrib) == {
+        "engine": "true",
+        "symbol": "true",
+        "timeframe": "true",
+        "dates": "true",
+        "precision": "true",
+        "distance": "true",
+        "spread": "true",
+        "slippage": "true",
+        "commissions": "true",
+    }
+    assert setup.find("./Commissions/Method[@type='SizeBased']").get("use") == "true"
+    assert setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']").text == "0.0"
+
+    databanks = {
+        databank.get("name"): databank.get("value")
+        for databank in mc2.findall(".//Databanks/Databank")
+    }
+    assert databanks["Input"] == "MC"
+    assert databanks["Output"] == "MC2"
+
+    resources = mc2.find(".//Resources")
+    assert resources is not None
+    resource_symbols = {
+        symbol.get("name")
+        for symbol in resources.findall("./Symbols/Symbol")
+        if symbol.get("name")
+    }
+    assert resource_symbols == {chart.get("symbol")}
+    assert resources.findall("./Sessions/Session") == []
+    assert "USDJPY" not in ET.tostring(resources, encoding="unicode")
+    broker_ids = {
+        broker.get("id")
+        for broker in resources.findall("./Brokers/Broker")
+        if broker.get("id")
+    }
+    for symbol in resources.findall("./Symbols/Symbol"):
+        assert symbol.get("precision") == "TICK"
+        assert symbol.get("timezone") == "EETUS"
+        if broker_ids:
+            assert symbol.get("broker") in broker_ids or symbol.get("broker") == "-1"
+        else:
+            assert symbol.get("broker") in {"-1", None, ""}
+        info = symbol.find("InstrumentInfo")
+        assert info is not None
+        if broker_ids:
+            assert info.get("broker") in broker_ids or info.get("broker") == "-1"
+        else:
+            assert info.get("broker") in {"-1", None, ""}
+
+    params = {
+        node.get("key"): node.text
+        for node in mc2.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"Session", "MarketOpenSession", "LimitTimeRange", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert params == {
+        "Session": "No Session",
+        "MarketOpenSession": "No Session",
+        "LimitTimeRange": "false",
+        "RealisticGapsHandling": "false",
+        "StoreChartData": "false",
+    }
+
+
 def _assert_tick_real_data_databanks_resources_contract(tick_real: ET.Element, expected_symbol: str | None = None, expected_timeframe: str | None = None) -> None:
     setup = tick_real.find(".//Data/Setups/Setup")
     assert setup is not None
@@ -540,6 +619,7 @@ def test_capa1_base_uses_phase1_review_views():
 def test_capa1_mc2_crosschecks_use_adaptive_seed_spread_range():
     roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
     mc2 = roots["AutomaticRetest-Task8.xml"]
+    _assert_mc2_data_databanks_resources_options_contract(mc2, expected_symbol="AUDCAD_darwinex", expected_timeframe="H1")
     crosschecks = mc2.find(".//CrossChecks")
     assert crosschecks is not None
     assert crosschecks.get("use") == "true"
@@ -722,7 +802,20 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     _assert_tick_real_passive_generation_contract(tick_real)
     _assert_tick_real_static_crosschecks_contract(tick_real)
 
+    mc = roots["AutomaticRetest-Task1.xml"]
+    mc_options = {
+        node.get("key"): node.text
+        for node in mc.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"LimitTimeRange", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert mc_options == {
+        "LimitTimeRange": "false",
+        "RealisticGapsHandling": "false",
+        "StoreChartData": "false",
+    }
+
     mc2 = roots["AutomaticRetest-Task8.xml"]
+    _assert_mc2_data_databanks_resources_options_contract(mc2, expected_symbol="AUDCAD", expected_timeframe="H4")
     assert {chart.get("spread") for chart in mc2.findall(".//Chart")} == {"10"}
     assert _randomize_spread_params(mc2) == {"Min": "20", "Max": "50"}
 

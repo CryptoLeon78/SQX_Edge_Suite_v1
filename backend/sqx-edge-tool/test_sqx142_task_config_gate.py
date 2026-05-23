@@ -6,6 +6,7 @@ from tools.sqx142_task_config_gate import (
     apply_mc_crosschecks_to_root,
     apply_mc_passive_generation_to_root,
     apply_mc_static_tabs_to_root,
+    apply_mc2_data_databanks_resources_options_to_root,
     apply_mc2_crosschecks_to_root,
     apply_retest1_passive_generation_to_root,
     apply_retest1_data_resources_to_root,
@@ -23,6 +24,7 @@ from tools.sqx142_task_config_gate import (
     enforce_mc_crosschecks_guard,
     enforce_mc_passive_generation_guard,
     enforce_mc_static_tabs_guard,
+    enforce_mc2_data_databanks_resources_options_guard,
     enforce_mc2_crosschecks_guard,
     enforce_tick_real_data_databanks_resources_guard,
     enforce_tick_real_options_rankings_guard,
@@ -1495,3 +1497,131 @@ def test_mc2_crosschecks_guard_rejects_extreme_spread_stress():
 
     assert any("RandomizeSpread range" in issue for issue in issues)
     assert any("extreme" in issue for issue in issues)
+
+
+def test_mc2_data_databanks_resources_options_uses_customdata_chain_and_generator_seed():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data>
+            <Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups>
+            <OutOfSample><Range dateFrom="2023.01.01" dateTo="2025.01.01" /></OutOfSample>
+          </Data>
+          <CustomData>
+            <Setups>
+              <Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session" slippage="5" minDist="3" engine="MetaTrader5">
+                <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
+                <Commissions><Method type="SizeBased" use="false"><Params><Param key="Commission">9</Param></Params></Method></Commissions>
+                <MainTestValues engine="false" symbol="false" timeframe="false" dates="false" precision="false" distance="false" spread="false" slippage="false" commissions="false" />
+              </Setup>
+            </Setups>
+          </CustomData>
+          <Databanks>
+            <Databank name="Input" value="TICK" />
+            <Databank name="Output" value="MC" />
+          </Databanks>
+          <Resources>
+            <Symbols>
+              <Symbol name="USDJPY_darwinex" source="4" precision="M1" timezone="UTC" broker="9">
+                <InstrumentInfo instrument="USDJPY_darwinex" defaultSpread="1.4" broker="9" />
+              </Symbol>
+            </Symbols>
+            <Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers>
+            <Instruments />
+            <Sessions><Session name="Old Session" /></Sessions>
+            <CustomIndicators />
+            <CustomBlocks />
+          </Resources>
+          <Options>
+            <BuildTradingOptions><Params>
+              <Param key="Session">Old Session</Param>
+              <Param key="MarketOpenSession">Old Session</Param>
+              <Param key="LimitTimeRange">true</Param>
+              <Param key="RealisticGapsHandling">true</Param>
+              <Param key="StoreChartData">true</Param>
+            </Params></BuildTradingOptions>
+          </Options>
+        </Settings>
+        """
+    )
+
+    actions = apply_mc2_data_databanks_resources_options_to_root(root)
+
+    assert any(item["field"] == "Data" and item["changed"] for item in actions)
+    assert enforce_mc2_data_databanks_resources_options_guard(root) == []
+    assert root.find("Data") is None
+    setup = root.find("./CustomData/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "2"
+    assert setup.get("session") == "No Session"
+    assert setup.get("engine") == "MetaTrader4"
+    chart = setup.find("Chart")
+    assert chart.get("symbol") == "AUDCAD_darwinex"
+    assert chart.get("timeframe") == "H1"
+    assert chart.get("spread") == "2.0"
+    assert setup.find("./Commissions/Method[@type='SizeBased']").get("use") == "true"
+    assert setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']").text == "0.0"
+    assert dict(setup.find("MainTestValues").attrib) == {
+        "engine": "true",
+        "symbol": "true",
+        "timeframe": "true",
+        "dates": "true",
+        "precision": "true",
+        "distance": "true",
+        "spread": "true",
+        "slippage": "true",
+        "commissions": "true",
+    }
+    databanks = {node.get("name"): node.get("value") for node in root.findall(".//Databanks/Databank")}
+    assert databanks == {"Input": "MC", "Output": "MC2"}
+    assert {symbol.get("name") for symbol in root.findall(".//Resources/Symbols/Symbol")} == {"AUDCAD_darwinex"}
+    assert root.find(".//Resources/Symbols/Symbol").get("precision") == "TICK"
+    assert root.find(".//Resources/Sessions/Session") is None
+    options = {
+        param.get("key"): param.text
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in {"Session", "MarketOpenSession", "LimitTimeRange", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert options == {
+        "Session": "No Session",
+        "MarketOpenSession": "No Session",
+        "LimitTimeRange": "false",
+        "RealisticGapsHandling": "false",
+        "StoreChartData": "false",
+    }
+
+
+def test_mc2_data_databanks_resources_options_guard_rejects_parallel_data_and_wrong_chain():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data><Setups><Setup><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /></Setup></Setups></Data>
+          <CustomData>
+            <Setups>
+              <Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session">
+                <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
+                <MainTestValues engine="false" />
+              </Setup>
+            </Setups>
+          </CustomData>
+          <Databanks><Databank name="Input" value="TICK" /><Databank name="Output" value="MC" /></Databanks>
+          <Resources>
+            <Symbols><Symbol name="USDJPY_darwinex" precision="M1" timezone="UTC" broker="9"><InstrumentInfo broker="9" /></Symbol></Symbols>
+            <Brokers><Broker id="4" /></Brokers>
+            <Sessions><Session name="Old Session" /></Sessions>
+          </Resources>
+          <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">true</Param></Params></BuildTradingOptions></Options>
+        </Settings>
+        """
+    )
+
+    issues = enforce_mc2_data_databanks_resources_options_guard(root)
+
+    assert any("Data section" in issue for issue in issues)
+    assert any("CustomData dates" in issue for issue in issues)
+    assert any("Databank Input" in issue for issue in issues)
+    assert any("precision is not TICK" in issue for issue in issues)
+    assert any("session entries" in issue for issue in issues)
+    assert any("Options param Session" in issue for issue in issues)
+    assert any("Forbidden donor token" in issue for issue in issues)

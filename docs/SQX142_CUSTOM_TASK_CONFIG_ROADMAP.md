@@ -1,6 +1,6 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 7 `MC 2 > CrossChecks` cerrada el 2026-05-23. Fase 0 dejo
+Estado: C1-CONFIG1 con Fase 7 `MC 2 > Data / Databanks / Resources / Options` cerrada el 2026-05-23. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -108,6 +108,8 @@ tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "Cross
 tools\sqx142_task_config_gate.ps1 record-answer --task-title "MC 2" --tab "CrossChecks" --question-id "<id>" --answer "<answer>"
 tools\sqx142_task_config_gate.ps1 mc2-crosschecks-target --target both
 tools\sqx142_task_config_gate.ps1 mc2-crosschecks-target --target both --apply
+tools\sqx142_task_config_gate.ps1 mc2-data-databanks-resources-options-target --target both
+tools\sqx142_task_config_gate.ps1 mc2-data-databanks-resources-options-target --target both --apply
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
 
@@ -857,9 +859,43 @@ Decision aplicada para `MC 2 > CrossChecks`:
 Reporte local:
 `.local/sqx142_task_config/phase_reports/phase7_mc2_crosschecks_20260523_230735.json`.
 
-Siguiente bloque exacto: `MC 2 > Data / Databanks / Resources / Options`, para
-cerrar cadena `Input=MC` / `Output=MC2`, periodo, precision y placeholders
-generator-owned antes de pasar a generacion pasiva/estaticos.
+Bloque posterior ya cerrado: `MC 2 > Data / Databanks / Resources / Options`,
+donde se cerro la cadena `Input=MC` / `Output=MC2`, periodo, precision y
+placeholders generator-owned antes de pasar a generacion pasiva/estaticos.
+
+Decision aplicada para `MC 2 > Data / Databanks / Resources / Options`:
+
+- Se anade `mc2-data-databanks-resources-options-target` con dry-run-first,
+  backup/diff/apply y guard idempotente para base local y template repo.
+- `MC 2` no usa una seccion `Data` directa en este XML de SQX; `CustomData`
+  queda como portador canonico del setup y se prohibe una fuente `Data`
+  paralela.
+- `CustomData` queda en `ROBUSTNESS_C1` (`2017.10.02-2023.12.31`),
+  `testPrecision=2`, `No Session`, `slippage=0`, `minDist=0`,
+  `engine=MetaTrader4`, `Commission=0.0` y `MainTestValues` completos.
+- La cadena queda explicita: `Input=MC` y `Output=MC2`; no se anade split OOS
+  interno ni se fuerza ningun estado `Results=passed`.
+- `Resources` queda alineado al seed generico `AUDCAD/H1`, precision `TICK`,
+  timezone `EETUS`, sin sesiones y sin tokens donor `USDJPY/H4`; Project
+  Generator sigue siendo dueno del simbolo/timeframe/spread final.
+- `Options` queda rapido/inert: `LimitTimeRange=false`,
+  `RealisticGapsHandling=false`, `StoreChartData=false`, `Session=No Session`
+  y `MarketOpenSession=No Session`.
+- Project Generator queda alineado para no inyectar ventanas horarias en
+  `MC` ni `MC 2`, mientras conserva `adaptiveSpreadStress` para recalcular el
+  spread stress por activo/timeframe.
+- El dry-run posterior queda idempotente: `changed=false`,
+  `changedActionCount=0` y `guardOk=true`.
+- Ledger local respondido para `MC 2 > Data` (`0/0` allow-empty),
+  `MC 2 > Databanks` (`2/2`), `MC 2 > Resources` (`4/4`) y
+  `MC 2 > Options` (`34/34`).
+
+Reporte local:
+`.local/sqx142_task_config/phase_reports/phase7_mc2_data_databanks_resources_options_20260523_233831.json`.
+
+Siguiente bloque exacto: `phase7_mc2_static_or_next_block`, para decidir si
+`MC 2` necesita bloque estatico/closeout directo antes de saltar a
+`Sequential`.
 
 ## Disciplina Operativa
 

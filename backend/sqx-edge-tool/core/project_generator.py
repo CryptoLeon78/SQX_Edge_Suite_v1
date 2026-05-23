@@ -27,6 +27,10 @@ CAPA_TASK_MAPS = {
     for capa, task_map in (_GENERATOR_PROFILE.get("taskPeriodMaps") or {}).items()
 }
 TRADING_TIME_RANGES = _GENERATOR_PROFILE.get("tradingTimeRanges") or {}
+DISABLE_TRADING_TIME_RANGES = {
+    int(capa): set(value or [])
+    for capa, value in (_GENERATOR_PROFILE.get("disableTradingTimeRanges") or {}).items()
+}
 CROSS_BROKER_RETESTS = {
     int(capa): value
     for capa, value in (_GENERATOR_PROFILE.get("crossBrokerRetests") or {}).items()
@@ -61,6 +65,12 @@ def _trading_window_for(capa: int, timeframe: str) -> Optional[tuple[str, str]]:
     if not value or len(value) != 2:
         return None
     return str(value[0]), str(value[1])
+
+
+def _trading_window_for_file(capa: int, filename: str, timeframe: str) -> Optional[tuple[str, str]]:
+    if filename in (DISABLE_TRADING_TIME_RANGES.get(capa) or set()):
+        return None
+    return _trading_window_for(capa, timeframe)
 
 
 def _spread_stress_for(capa: int, filename: str) -> Optional[tuple[float, float]]:
@@ -444,7 +454,6 @@ def generate_project(
     )
     resolved_bs = str(blocksetting_entry.get("canonicalId") or mining.bs)
     base_project_name = project_name or f"Mining{mining.num:02d}_{mining.asset}_{mining.tf}_{resolved_bs}"
-    trading_window = _trading_window_for(capa, mining.tf)
     resolved_target_profile = normalize_target_profile(target_profile, broker_postfix)
 
     # Resolver costos: data.db → fallback. Override manual con sqx_data si pasa.
@@ -503,7 +512,7 @@ def generate_project(
             commission_value=active_costs.get("commission_value"),
             resource={**active_costs, "asset": mining.asset},
             period=period,
-            trading_window=trading_window,
+            trading_window=_trading_window_for_file(capa, filename, mining.tf),
             spread_stress_multipliers=_spread_stress_for(capa, filename),
             clean_paths=True,
         )

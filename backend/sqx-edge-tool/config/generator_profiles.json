@@ -130,6 +130,12 @@
     },
     "capa2": {}
   },
+  "disableTradingTimeRanges": {
+    "1": [
+      "AutomaticRetest-Task1.xml",
+      "AutomaticRetest-Task8.xml"
+    ]
+  },
   "taskPeriodMaps": {
     "1": {
       "Build-Task1.xml": "BUILD_C1",

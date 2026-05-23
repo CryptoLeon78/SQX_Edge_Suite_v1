@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 MC2 Data Databanks Resources Options
+
+- Adds `mc2-data-databanks-resources-options-target` to close `MC 2 > Data / Databanks / Resources / Options` with dry-run-first guard over local base and repo template.
+- Documents that `MC 2` has no direct `Data` section in this SQX automatic retest shape: `CustomData` is the canonical setup carrier with `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, `MetaTrader4`, full `MainTestValues` and `Commission=0.0`.
+- Keeps the chain explicit: `Input=MC`, `Output=MC2`, resources `TICK/EETUS`, no resource sessions, no donor `USDJPY/H4` leakage and no nested OOS split.
+- Keeps MC2 options fast and inert: `LimitTimeRange=false`, `RealisticGapsHandling=false`, `StoreChartData=false`; Project Generator now skips trading-window injection for `MC` and `MC 2` while still recalculating MC2 adaptive spread by asset/timeframe.
+- Records local answers for `MC 2 > Data` (`0/0` allow-empty), `Databanks` (`2/2`), `Resources` (`4/4`) and `Options` (`34/34`), plus report `phase7_mc2_data_databanks_resources_options_20260523_233831.json`; next exact block is `phase7_mc2_static_or_next_block`.
+
 ## 2026-05-23 - C1-CONFIG1 MC2 CrossChecks
 
 - Adds `mc2-crosschecks-target` to close `MC 2 > CrossChecks` with dry-run-first backup/diff/apply and an idempotent guard over local base and repo template.
@@ -7,7 +15,7 @@
 - Adds Project Generator support via `adaptiveSpreadStress`, so generated customs recalculate MC2 spread stress per asset/timeframe; AUDCAD/H4 fallback spread `10` validates as `20-50`.
 - Keeps `MonteCarloRetest` as the only active MC2 crosscheck with `100` simulations, `MCUseFullSample=true`, existing `AnnualPctReturnDDRatio` acceptance filters, natural failed/passed rows and no forced pass state.
 - Records academic/local rationale: transaction-cost stress is necessary, but x2-x5 is a bounded local heuristic backed by clone smokes, not a universal theorem; repeated tuning against validation data remains a data-snooping risk.
-- Records local ledger answer for `MC 2 > CrossChecks` (`133/133`) and report `phase7_mc2_crosschecks_20260523_230735.json`; next exact block is `MC 2 > Data / Databanks / Resources / Options`.
+- Records local ledger answer for `MC 2 > CrossChecks` (`133/133`) and report `phase7_mc2_crosschecks_20260523_230735.json`; the following `MC 2 > Data / Databanks / Resources / Options` block is now closed.
 
 ## 2026-05-23 - C1-CONFIG1 MC Closeout
 
