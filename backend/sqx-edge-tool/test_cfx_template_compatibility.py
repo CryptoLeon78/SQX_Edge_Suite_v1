@@ -4,6 +4,7 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 
 from core.plan import Mining
+from core.blocksettings import load_blocksettings_manifest
 from core.cfx_compatibility import audit_cfx_compatibility
 from core.project_generator import generate_project
 from core.xml_patcher import (
@@ -16,6 +17,23 @@ from core.xml_patcher import (
 
 TOOL_ROOT = Path(__file__).resolve().parent
 TEMPLATE_DIR = TOOL_ROOT / "templates"
+
+
+def _blocksetting_entry(canonical_id: str) -> dict:
+    manifest = load_blocksettings_manifest()
+    return next(entry for entry in manifest["entries"] if entry["canonicalId"] == canonical_id)
+
+
+def _active_building_block_keys(blocks: ET.Element) -> list[str]:
+    building_blocks = blocks.find("BuildingBlocks")
+    assert building_blocks is not None
+    return [
+        block.get("key")
+        for block in building_blocks.findall("Block")
+        if block.get("key")
+        and block.get("key") not in {"#Left#", "#Right#"}
+        and str(block.get("use")).lower() == "true"
+    ]
 
 
 def _xml_roots(cfx_path: Path):
@@ -233,6 +251,20 @@ def test_capa1_build_blocks_disable_signals_and_stop_limit_preserve_indicators()
     assert all(block.get("use") == "false" for block in signals)
     assert all(block.get("use") == "false" for block in stop_limit_blocks)
     assert any(block.get("use") == "true" for block in indicators)
+
+
+def test_capa1_build_blocks_match_resolved_volatility_h4_blocksetting():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    build = roots["Build-Task1.xml"]
+    blocks = build.find(".//Blocks")
+    assert blocks is not None
+    expected = _blocksetting_entry("BS_Volatilidad_v6")
+
+    active_keys = _active_building_block_keys(blocks)
+    active_indicator_keys = [key for key in active_keys if key.startswith("Indicators.")]
+
+    assert set(active_keys) == set(expected["activeBlocks"])
+    assert set(active_indicator_keys) == set(expected["activeIndicators"])
 
 
 def test_generate_project_names_build_task_and_applies_capa1_time_window():

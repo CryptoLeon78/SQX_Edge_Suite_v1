@@ -51,6 +51,8 @@ tools\sqx142_task_config_gate.ps1 build-ranking-target --target both
 tools\sqx142_task_config_gate.ps1 build-ranking-target --target both --apply
 tools\sqx142_task_config_gate.ps1 build-blocks-target --target both
 tools\sqx142_task_config_gate.ps1 build-blocks-target --target both --apply
+tools\sqx142_task_config_gate.ps1 build-indicators-target --target both
+tools\sqx142_task_config_gate.ps1 build-indicators-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -179,6 +181,11 @@ Promocion aplicada de `Build > Genetic options`:
 - Bloque blanco `Building blocks`: `Signals` y `Stop/Limit entry blocks` quedan
   siempre desactivados para Capa1 base; `Indicators` se preserva como bloque
   dinamico gobernado por metodologia/BlockSettings.
+- Subbloque `Indicators`: la base Capa1 usa `BS_Volatilidad/H4` solo como
+  placeholder de plantilla, resuelto a `BS_Volatilidad_v6.sqb`; el Project
+  Generator sustituye el `BuildingBlocks` final segun familia/timeframe del
+  usuario. No se copian indicadores desde el donor; la fuente real es
+  `backend/sqx-edge-tool/resources/blocksettings/*.sqb`.
 
 Orden recomendado de preguntas: pestañas sin diferencias primero para cerrar
 bloques rápidos, después `Data`, `Resources`, `WhatToBuild`, `CrossChecks` y al

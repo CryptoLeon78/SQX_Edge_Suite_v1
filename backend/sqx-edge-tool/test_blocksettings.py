@@ -59,11 +59,12 @@ class BlockSettingsSourceTestCase(unittest.TestCase):
         self.assertIsNotNone(blocks)
         active_keys = [
             node.get("key")
-            for node in blocks.iter("Block")
+            for node in blocks.findall("./BuildingBlocks/Block")
             if str(node.get("use")).lower() == "true"
         ]
-        self.assertGreaterEqual(len(active_keys), expected["counts"]["activeBlocks"])
-        self.assertTrue(set(expected["activeIndicators"][:5]).issubset(set(active_keys)))
+        active_indicator_keys = [key for key in active_keys if str(key).startswith("Indicators.")]
+        self.assertEqual(set(active_keys), set(expected["activeBlocks"]))
+        self.assertEqual(set(active_indicator_keys), set(expected["activeIndicators"]))
         self.assertIn("Indicators.ATR", active_keys)
         self.assertIn("Indicators.HullMovingAverageATRBands", active_keys)
 

@@ -22,6 +22,8 @@ DEFAULT_SQX_ROOT = Path(r"C:\BOTS\Versiones\SQX_142_Crack")
 DEFAULT_DONOR_PROJECT = "Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1"
 DEFAULT_BASE_PROJECT = "Capa1_Long_SQX142_Base"
 DEFAULT_TEMPLATE = TOOL_ROOT / "templates" / "Capa1_Long.cfx"
+BLOCKSETTINGS_MANIFEST_PATH = TOOL_ROOT / "config" / "blocksettings_manifest.json"
+BLOCKSETTINGS_RESOURCE_DIR = TOOL_ROOT / "resources" / "blocksettings"
 LEDGER_DIRNAME = ".local/sqx142_task_config"
 VERSION = "sqx142-task-config-gate-v1"
 
@@ -162,6 +164,8 @@ BUILD_EXIT_TYPE_BANNED_TOKENS = ("ExitAfterDays", "ExitAfterTradingDays")
 BUILD_EXTERNAL_CUSTOM_DATA_TARGET = {"showAll": "false"}
 BUILD_BLOCK_CATEGORY_DISABLE_TARGET = ("signals", "stopLimitBlocks")
 BUILD_BLOCK_CATEGORY_PRESERVE_TARGET = ("indicators",)
+BUILD_INDICATORS_DEFAULT_BLOCKSETTING = "BS_Volatilidad"
+BUILD_INDICATORS_DEFAULT_TIMEFRAME = "H4"
 
 
 def stamp() -> str:
@@ -1109,6 +1113,219 @@ def enforce_disabled_build_block_categories(blocks: ET.Element, actions: list[di
         })
 
 
+def active_building_block_keys(blocks: ET.Element | None) -> list[str]:
+    if blocks is None:
+        return []
+    building_blocks = blocks.find("BuildingBlocks")
+    if building_blocks is None:
+        return []
+    return [
+        block.get("key", "")
+        for block in building_blocks.findall("Block")
+        if block.get("key")
+        and block.get("key") not in {"#Left#", "#Right#"}
+        and str(block.get("use", "")).lower() == "true"
+    ]
+
+
+def indicator_family_keys(active_keys: list[str]) -> list[str]:
+    return [key for key in active_keys if key.startswith("Indicators.")]
+
+
+def blocksettings_entries_by_id(manifest: dict[str, Any]) -> dict[str, dict[str, Any]]:
+    return {
+        str(entry.get("canonicalId")): entry
+        for entry in manifest.get("entries", [])
+        if entry.get("canonicalId")
+    }
+
+
+def normalize_blocksetting_token(value: str) -> str:
+    token = str(value or "").strip()
+    if token.lower().endswith(".sqb"):
+        token = token[:-4]
+    return token
+
+
+def family_from_blocksetting_manifest(manifest: dict[str, Any], value: str) -> str:
+    aliases = manifest.get("aliases") or {}
+    token = normalize_blocksetting_token(value)
+    resolved = aliases.get(token) or aliases.get(token + ".sqb") or token
+    entry = blocksettings_entries_by_id(manifest).get(str(resolved))
+    if entry:
+        return str(entry.get("family") or "")
+    lower = str(resolved).lower()
+    if "soporteresistencia" in lower:
+        return "sr"
+    for family in ("tendencia", "momentum", "volatilidad", "regimen", "volumen", "estadistico", "filtros"):
+        if family in lower:
+            return family
+    return ""
+
+
+def resolve_capa1_blocksetting_manifest_entry(blocksetting: str, timeframe: str) -> tuple[dict[str, Any], dict[str, Any]]:
+    manifest = read_json(BLOCKSETTINGS_MANIFEST_PATH, {})
+    entries = blocksettings_entries_by_id(manifest)
+    aliases = manifest.get("aliases") or {}
+    token = normalize_blocksetting_token(blocksetting)
+    resolved = str(aliases.get(token) or aliases.get(token + ".sqb") or token)
+    family = family_from_blocksetting_manifest(manifest, resolved)
+    resolver = manifest.get("capa1Resolver") or {}
+    family_rules = (resolver.get("families") or {}).get(family) or {}
+    tf = str(timeframe or "").strip().upper()
+    intraday_timeframes = set(resolver.get("intradayTimeframes") or [])
+    if tf in intraday_timeframes and family_rules.get("intraday"):
+        candidate = str(family_rules["intraday"])
+    else:
+        candidate = str(family_rules.get("default") or resolved)
+    entry = entries.get(candidate)
+    if not entry:
+        raise ValueError(f"BlockSetting not found in manifest: {candidate}")
+    return manifest, entry
+
+
+def read_blocksetting_blocks(entry: dict[str, Any]) -> ET.Element:
+    filename = str(entry.get("filename") or "")
+    path = BLOCKSETTINGS_RESOURCE_DIR / filename
+    if not filename or not path.is_file():
+        raise FileNotFoundError(f"BlockSetting .sqb not found: {path}")
+    with zipfile.ZipFile(path) as zf:
+        return ET.fromstring(zf.read("config.xml"))
+
+
+def replace_building_blocks_from_source(blocks: ET.Element, source_blocks: ET.Element) -> dict[str, Any]:
+    current_building_blocks = blocks.find("BuildingBlocks")
+    source_building_blocks = source_blocks.find("BuildingBlocks")
+    if source_building_blocks is None:
+        return {"field": "BuildingBlocks", "error": "source_missing", "changed": False}
+    current_text_raw = serialize_xml(current_building_blocks) if current_building_blocks is not None else ""
+    source_text_raw = serialize_xml(source_building_blocks)
+    current_text = current_text_raw.strip()
+    source_text = source_text_raw.strip()
+    source_copy = ET.fromstring(source_text_raw)
+    if current_building_blocks is None:
+        blocks.insert(0, source_copy)
+    else:
+        children = list(blocks)
+        index = children.index(current_building_blocks)
+        blocks.remove(current_building_blocks)
+        blocks.insert(index, source_copy)
+    return {
+        "field": "BuildingBlocks",
+        "from": {"sha256": hashlib.sha256(current_text.encode("utf-8")).hexdigest().upper()},
+        "to": {"sha256": hashlib.sha256(source_text.encode("utf-8")).hexdigest().upper()},
+        "changed": current_text != source_text,
+    }
+
+
+def update_build_indicators_target_in_cfx(
+    cfx: Path,
+    backup_root: Path,
+    blocksetting: str,
+    timeframe: str,
+    apply: bool,
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, "Build")
+    payload["taskXml"] = task_xml_name
+    blocks = find_blocks(root)
+    if not task_xml_name or root is None or blocks is None:
+        payload["error"] = "build_task_or_blocks_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    _, entry = resolve_capa1_blocksetting_manifest_entry(blocksetting, timeframe)
+    source_blocks = read_blocksetting_blocks(entry)
+    before_active = active_building_block_keys(blocks)
+    expected_active = active_building_block_keys(source_blocks)
+    payload["blocksetting"] = {
+        "requested": blocksetting,
+        "timeframe": timeframe,
+        "resolved": entry.get("canonicalId"),
+        "filename": entry.get("filename"),
+        "sha256": entry.get("sha256"),
+        "activeBlocks": len(expected_active),
+        "activeIndicators": indicator_family_keys(expected_active),
+    }
+    payload["actions"].append({
+        "field": "BuildingBlocks:activeContract",
+        "from": {
+            "activeCount": len(before_active),
+            "missingExpected": sorted(set(expected_active) - set(before_active)),
+            "extraActive": sorted(set(before_active) - set(expected_active)),
+        },
+        "to": {"activeCount": len(expected_active)},
+        "changed": set(before_active) != set(expected_active),
+    })
+    payload["actions"].append(replace_building_blocks_from_source(blocks, source_blocks))
+    enforce_disabled_build_block_categories(blocks, payload["actions"])
+
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetRationale"] = {
+        "source": "BuildingBlocks is copied from the resolved real .sqb BlockSetting source, not from the donor project.",
+        "basePlaceholder": "Capa1 base uses BS_Volatilidad/H4 as placeholder; Project Generator resolves the final BlockSetting by family and timeframe.",
+        "fixedLeftSide": "Signals and Stop/Limit entry blocks remain disabled after the source copy.",
+    }
+    if apply and payload["changedActionCount"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_build_indicators_target(
+    root142: Path,
+    project_root: Path,
+    target: str,
+    blocksetting: str,
+    timeframe: str,
+    apply: bool,
+) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase2_build_indicators_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_build_indicators_target_in_cfx(path, backup_root / name, blocksetting, timeframe, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(item.get("exists") and item.get("isZip") and not item.get("error") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase2",
+        "operation": "build_indicators_target",
+        "apply": apply,
+        "target": target,
+        "requestedBlocksetting": blocksetting,
+        "requestedTimeframe": timeframe,
+        "results": results,
+        "nextPhase": "phase2_build_indicators_diff_review" if not apply else "phase2_continue_questionnaire",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase2_build_indicators_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_blocks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "path": str(cfx),
@@ -1605,6 +1822,12 @@ def build_parser() -> argparse.ArgumentParser:
     promote_blocks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     promote_blocks.add_argument("--apply", action="store_true")
 
+    promote_indicators = sub.add_parser("build-indicators-target")
+    promote_indicators.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    promote_indicators.add_argument("--blocksetting", default=BUILD_INDICATORS_DEFAULT_BLOCKSETTING)
+    promote_indicators.add_argument("--timeframe", default=BUILD_INDICATORS_DEFAULT_TIMEFRAME)
+    promote_indicators.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -1659,6 +1882,16 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "build-blocks-target":
         json_print(promote_build_blocks_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "build-indicators-target":
+        json_print(promote_build_indicators_target(
+            root142,
+            project_root,
+            target=args.target,
+            blocksetting=args.blocksetting,
+            timeframe=args.timeframe,
+            apply=args.apply,
+        ))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
