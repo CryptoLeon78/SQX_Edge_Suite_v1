@@ -53,6 +53,8 @@ tools\sqx142_task_config_gate.ps1 build-blocks-target --target both
 tools\sqx142_task_config_gate.ps1 build-blocks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 build-indicators-target --target both
 tools\sqx142_task_config_gate.ps1 build-indicators-target --target both --apply
+tools\sqx142_task_config_gate.ps1 build-data-target --target both
+tools\sqx142_task_config_gate.ps1 build-data-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -186,6 +188,11 @@ Promocion aplicada de `Build > Genetic options`:
   Generator sustituye el `BuildingBlocks` final segun familia/timeframe del
   usuario. No se copian indicadores desde el donor; la fuente real es
   `backend/sqx-edge-tool/resources/blocksettings/*.sqb`.
+- Bloque `Build > Data` cerrado como guardia, no como copia donor:
+  `dateFrom/dateTo` siguen el periodo `BUILD_C1` de `generator_profiles.json`
+  (`2017.10.02` a `2023.01.01`), `testPrecision=2` conserva data simulated,
+  `session=No Session` y Build no usa rangos OOS. `Chart`, `spread` y `Swap`
+  quedan genericos y los reescribe Project Generator por activo/timeframe.
 
 Orden recomendado de preguntas: pestañas sin diferencias primero para cerrar
 bloques rápidos, después `Data`, `Resources`, `WhatToBuild`, `CrossChecks` y al

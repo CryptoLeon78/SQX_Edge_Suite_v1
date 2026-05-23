@@ -24,6 +24,7 @@ DEFAULT_BASE_PROJECT = "Capa1_Long_SQX142_Base"
 DEFAULT_TEMPLATE = TOOL_ROOT / "templates" / "Capa1_Long.cfx"
 BLOCKSETTINGS_MANIFEST_PATH = TOOL_ROOT / "config" / "blocksettings_manifest.json"
 BLOCKSETTINGS_RESOURCE_DIR = TOOL_ROOT / "resources" / "blocksettings"
+GENERATOR_PROFILES_PATH = TOOL_ROOT / "config" / "generator_profiles.json"
 LEDGER_DIRNAME = ".local/sqx142_task_config"
 VERSION = "sqx142-task-config-gate-v1"
 
@@ -166,6 +167,9 @@ BUILD_BLOCK_CATEGORY_DISABLE_TARGET = ("signals", "stopLimitBlocks")
 BUILD_BLOCK_CATEGORY_PRESERVE_TARGET = ("indicators",)
 BUILD_INDICATORS_DEFAULT_BLOCKSETTING = "BS_Volatilidad"
 BUILD_INDICATORS_DEFAULT_TIMEFRAME = "H4"
+BUILD_DATA_PERIOD_KEY = "BUILD_C1"
+BUILD_DATA_TEST_PRECISION = "2"
+BUILD_DATA_SESSION = "No Session"
 
 
 def stamp() -> str:
@@ -1326,6 +1330,128 @@ def promote_build_indicators_target(
     return payload
 
 
+def generator_period(period_key: str) -> tuple[str, str]:
+    profile = read_json(GENERATOR_PROFILES_PATH, {})
+    raw_period = (profile.get("retestPeriods") or {}).get(period_key) or []
+    if len(raw_period) != 2:
+        raise ValueError(f"Missing generator period {period_key}")
+    return str(raw_period[0]), str(raw_period[1])
+
+
+def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, "Build")
+    payload["taskXml"] = task_xml_name
+    data = find_section(root, "Data")
+    setup = root.find(".//Data/Setups/Setup") if root is not None else None
+    if not task_xml_name or root is None or data is None or setup is None:
+        payload["error"] = "build_task_or_data_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    target_attrs = {
+        "dateFrom": date_from,
+        "dateTo": date_to,
+        "testPrecision": BUILD_DATA_TEST_PRECISION,
+        "session": BUILD_DATA_SESSION,
+    }
+    for key, wanted in target_attrs.items():
+        before = setup.get(key, "")
+        setup.set(key, wanted)
+        payload["actions"].append({
+            "field": f"Data/Setup:{key}",
+            "from": before,
+            "to": wanted,
+            "changed": before != wanted,
+        })
+
+    removed_oos = []
+    out_of_sample = data.find("OutOfSample")
+    if out_of_sample is not None:
+        for range_node in list(out_of_sample.findall("Range")):
+            removed_oos.append(dict(range_node.attrib))
+            out_of_sample.remove(range_node)
+    payload["actions"].append({
+        "field": "Data/OutOfSample/Range",
+        "from": removed_oos,
+        "to": [],
+        "changed": bool(removed_oos),
+    })
+
+    charts = [dict(chart.attrib) for chart in setup.findall("Chart")]
+    swaps = [dict(swap.attrib) for swap in setup.findall("Swap")]
+    payload["generatorOwned"] = {
+        "charts": charts,
+        "swaps": swaps,
+        "note": "Symbol, timeframe, spread and swaps are preserved in the base/template and rewritten by Project Generator per selected asset/timeframe.",
+    }
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "periodKey": BUILD_DATA_PERIOD_KEY,
+        "dateFrom": date_from,
+        "dateTo": date_to,
+        "testPrecision": BUILD_DATA_TEST_PRECISION,
+        "precisionMeaning": "simulated / 1 minute data tick simulation in SQX 142 UI",
+        "session": BUILD_DATA_SESSION,
+        "outOfSampleRanges": [],
+    }
+    payload["targetRationale"] = {
+        "methodology": "Build Capa1 mines only IS; OOS validation is performed by later retest tasks.",
+        "precision": "Operator confirmed Build data must remain simulated; SQX 142 maps this to testPrecision=2.",
+        "genericBase": "Do not copy donor USDJPY/H4 costs; Project Generator owns charts, spreads and swaps.",
+    }
+    if apply and payload["changedActionCount"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_build_data_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase2_build_data_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_build_data_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(item.get("exists") and item.get("isZip") and not item.get("error") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase2",
+        "operation": "build_data_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase2_build_data_diff_review" if not apply else "phase2_continue_questionnaire",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase2_build_data_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_blocks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "path": str(cfx),
@@ -1828,6 +1954,10 @@ def build_parser() -> argparse.ArgumentParser:
     promote_indicators.add_argument("--timeframe", default=BUILD_INDICATORS_DEFAULT_TIMEFRAME)
     promote_indicators.add_argument("--apply", action="store_true")
 
+    promote_data = sub.add_parser("build-data-target")
+    promote_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    promote_data.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -1892,6 +2022,9 @@ def main(argv: list[str] | None = None) -> int:
             timeframe=args.timeframe,
             apply=args.apply,
         ))
+        return 0
+    if args.command == "build-data-target":
+        json_print(promote_build_data_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

@@ -129,6 +129,9 @@ def test_capa1_base_v2_matches_active_methodology():
     build_setup = build.find(".//Data/Setups/Setup")
     assert build_setup.get("dateFrom") == "2017.10.02"
     assert build_setup.get("dateTo") == "2023.01.01"
+    assert build_setup.get("testPrecision") == "2"
+    assert build_setup.get("session") == "No Session"
+    assert build.findall(".//Data/OutOfSample/Range") == []
     assert build.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
     assert build.find(".//RiskMoneyManagement//Method[@type='FixedAmount']").get("use") == "false"
 
@@ -287,6 +290,12 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     setup = build.find(".//Data/Setups/Setup")
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.01.01"
+    assert setup.get("testPrecision") == "2"
+    assert setup.get("session") == "No Session"
+    assert build.findall(".//Data/OutOfSample/Range") == []
+    charts = build.findall(".//Data/Setups/Setup/Chart")
+    assert {chart.get("symbol") for chart in charts} == {"AUDCAD"}
+    assert {chart.get("timeframe") for chart in charts} == {"H4"}
     params = {
         node.get("key"): node.text
         for node in build.findall(".//BuildTradingOptions/Params/Param")
