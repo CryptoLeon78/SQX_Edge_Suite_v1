@@ -1,6 +1,6 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 3 `RETEST 0` cerrada el 2026-05-23. Fase 0 dejo
+Estado: C1-CONFIG1 con Fase 4 `RETEST 1` abierta el 2026-05-23. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -334,6 +334,51 @@ Mapa inicial del cuestionario:
   Mining15/volatilidad y no aporta al retest OOS.
 - Reporte local de cierre: `.local/sqx142_task_config/phase_reports/`.
 - Siguiente fase exacta: Fase 4 `RETEST 1`.
+
+## Estado Fase 4 - RETEST 1
+
+Fase abierta el 2026-05-23. Objetivo: revisar `RETEST 1` sin asumir que es un
+duplicado de `RETEST 0`. `RETEST 1` mapea a `Retest-Task1.xml`; segun
+gobernanza, generator profiles y tests existentes, su rol metodologico
+protegido es OOS2/cross-broker Dukascopy `2010.01.01` a `2017.10.02`, con
+entrada desde `RETEST 0` y salida a `retest 1`.
+
+Cuestionario inicial generado:
+
+- `13` pestañas detectadas.
+- `20.024` entradas auditadas.
+- `12.343` diferencias base vs donor.
+- Todos los IDs del cuestionario son unicos; no hay duplicados.
+- `RETEST 1` no contiene seccion `Optimization`, a diferencia de `RETEST 0`.
+
+Diferencias estructurales detectadas antes de decidir:
+
+- `Databanks` coincide en base y donor: input `RETEST 0`, output `retest 1`.
+- `Data` de la base local aun muestra periodo `2017.10.02` a `2025.01.01`,
+  mientras donor/generator/metodologia apuntan a OOS2 Dukascopy
+  `2010.01.01` a `2017.10.02`.
+- `Resources` es el bloque mas divergente: la base local conserva muchos
+  `CustomBlocks` embebidos y recursos pesados; el donor tiene recursos
+  Dukascopy/OOS2 mucho mas compactos. Esto requiere decision especifica, no
+  copia ciega.
+- `Blocks` en la base local aparece con `Signals`, `Indicators` y
+  `Stop/Limit` activos, `ExitAfterBars` al `50%` y sin `version`; donor y la
+  regla cerrada de `RETEST 0` apuntan a un universo mas controlado, con
+  indicadores/metodologia y `ExitAfterBars` como salida principal.
+- `PartsToImprove` mantiene `ExitRules` activo y `WhatToBuild` usa
+  `random-generation`, lo que sugiere una forma de mejora/retrabajo de salida
+  mas que un retest pasivo puro. Este punto queda abierto para debate
+  metodologico antes de registrar respuestas masivas.
+- `Rankings/DeleteFailedStrategies` difiere: base `false`, donor `true`.
+- `Options` contiene diferencias de ventana horaria y sesion de mercado que
+  deben seguir siendo generator-owned por timeframe/broker.
+- `RiskMoneyManagement` difiere entre `FixedAmount` y `FixedSize`; la regla
+  historica de Capa1 v2 dice Fixed size order size `1`, pero se revisara en la
+  pregunta de fase.
+
+Siguiente bloque de decision: aclarar si `RETEST 1` debe ser OOS2/cross-broker
+pasivo puro o si debe conservar su estructura de mejora de salidas
+(`PartsToImprove` + `Blocks` + `random-generation`).
 
 ## Disciplina Operativa
 

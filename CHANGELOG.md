@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 RETEST 1 Opened
+
+- Opens Phase 4 `RETEST 1` and maps it to `Retest-Task1.xml`, generating the local questionnaire with `13` tabs, `20,024` questions, `12,343` donor/base differences and no duplicate question IDs.
+- Documents the key structural differences versus `RETEST 0`: no `Optimization` section, protected OOS2/Dukascopy role, heavy `Resources` divergence and `PartsToImprove`/`Blocks` shape that may imply exit improvement rather than passive retest.
+- Leaves decisions open for operator debate before recording bulk answers or mutating local base/template files.
+
 ## 2026-05-23 - C1-CONFIG1 RETEST 0 Closeout
 
 - Closes `RETEST 0 > Blocks` with the operator-confirmed decision to keep the full base configuration: no new strategy generation, `Signals` and `Stop/Limit` inactive, `Indicators` governed by methodology/BlockSettings, and `EnterAtMarket` plus `ExitAfterBars` only.
