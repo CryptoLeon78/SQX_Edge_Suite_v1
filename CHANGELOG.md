@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 TICK REAL Closeout And MC Opened
+
+- Closes Phase 5 `TICK REAL` formally with local report `phase5_tick_real_closeout_20260523_211917.json`; all four TICK guards are idempotent with `changed=false`, `changedActionCount=0` and `guardOk=true`.
+- Opens Phase 6 `MC`, mapped to `AutomaticRetest-Task1.xml`, with local questionnaire `13` tabs, `19,966` entries and `12,326` donor/base differences; current chain is `Input=TICK` / `Output=MC`.
+- Adds local-only `sqx-academic-lopez` skill/profile/action for source-backed OOS/MC/data-snooping/backtest-overfitting consultation; remote testers do not receive this capability.
+- Records the initial MC policy before applying CFX changes: use precision fast/simulated for compute efficiency, avoid internal OOS split by default, keep passed/failed natural and leave asset/timeframe/spread/swap/resources generator-owned.
+
 ## 2026-05-23 - C1-CONFIG1 TICK REAL Static/CrossChecks Gate
 
 - Adds `tick-real-static-crosschecks-target` to close the Phase 5 `TICK REAL` static tabs and CrossChecks block with dry-run-first backup/diff/apply and a composed guard over prior TICK decisions.

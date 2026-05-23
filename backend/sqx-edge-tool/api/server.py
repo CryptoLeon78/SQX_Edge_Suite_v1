@@ -1140,6 +1140,7 @@ LOCAL_OPERATOR_ONLY_AGENT_ACTIONS = {
     "sqx_c1_config_help",
     "sqx_test_guardian_help",
     "sqx_docs_curator_help",
+    "sqx_academic_lopez_help",
     "sqx_agent_skills_help",
 }
 
@@ -1362,6 +1363,39 @@ def _is_sqx_docs_curator_question(value: object) -> bool:
     return any(marker in normalized for marker in markers)
 
 
+def _is_sqx_academic_lopez_question(value: object) -> bool:
+    text = str(value or "").lower()
+    normalized = (
+        text.replace("¿", "")
+        .replace("?", "")
+        .replace("á", "a")
+        .replace("é", "e")
+        .replace("í", "i")
+        .replace("ó", "o")
+        .replace("ú", "u")
+    )
+    markers = [
+        "academic",
+        "academico",
+        "academica",
+        "lopez",
+        "lopez de prado",
+        "data snooping",
+        "backtest overfitting",
+        "overfitting",
+        "deflated sharpe",
+        "probability of backtest overfitting",
+        "pbo",
+        "purged",
+        "embargo",
+        "contaminacion",
+        "contaminar",
+        "mc y oos",
+        "monte carlo y oos",
+    ]
+    return any(marker in normalized for marker in markers)
+
+
 def _is_sqx_agent_skills_question(value: object) -> bool:
     text = str(value or "").lower()
     normalized = (
@@ -1401,7 +1435,7 @@ def _agent_capabilities_plan(actions: dict | None = None, *, context: dict | Non
             "Soy el agente IA local de SQX Edge Suite para operador. Puedo orientarte por Edge Factory, "
             "explicar el siguiente paso, abrir herramientas internas con tu confirmacion, refrescar estado local, "
             "revisar la bandeja local bajo confirmacion, explicar la compatibilidad SQX 142/143/144, analizar rendimiento SQX 142, "
-            "explicar C1-CONFIG1 y activar perspectivas internas de Test Guardian, Docs Curator y skills cuando reduzcan riesgo. "
+            "explicar C1-CONFIG1 y activar perspectivas internas de Test Guardian, Docs Curator, Academic Lopez y skills cuando reduzcan riesgo. "
             "No ejecuto texto libre ni cambios sin confirmacion, y no puedo tocar emails, grants, checkout, Cloudflare, permisos, URLs protegidas, "
             "borrados, publicaciones ni acciones comerciales externas."
         )
@@ -1544,6 +1578,28 @@ def _agent_sqx_docs_curator_plan(actions: dict | None = None) -> dict:
     )
 
 
+def _agent_sqx_academic_lopez_plan(actions: dict | None = None) -> dict:
+    actions = actions or build_action_catalog(_load_agent_profiles())
+    action = actions["sqx_academic_lopez_help"]
+    reply = (
+        "SQX Academic Lopez recomienda tratar MC como prueba de perturbacion de robustez, no como un nuevo optimizador. "
+        "Reusar OOS dentro de cada retest aumenta la presion de seleccion sobre el mismo holdout; por defecto conviene mantener "
+        "MC sobre ROBUSTNESS_C1 sin split OOS interno, conservar failed naturales y documentar cualquier cambio de filtros para reducir data snooping. "
+        "La precision fast/simulated es defendible en MC por coste si TICK REAL ya cubre precision-data, dejando el endurecimiento "
+        "realista para TICK REAL, MC2/Sequential o el cierre Capa1. Para una decision final con claims academicos, se debe citar "
+        "White, Bailey/Lopez de Prado y Deflated Sharpe/PBO antes de promocionar metodologia."
+    )
+    return safe_plan_response(
+        reply=reply,
+        profile="sqx-academic-lopez",
+        action=action,
+        reason="Consulta local sobre criterio academico para MC, OOS, data snooping y robustez.",
+        blockers=[],
+        arguments={},
+        source="fixed_sqx_academic_lopez",
+    )
+
+
 def _agent_sqx_agent_skills_plan(actions: dict | None = None) -> dict:
     actions = actions or build_action_catalog(_load_agent_profiles())
     action = actions["sqx_agent_skills_help"]
@@ -1577,6 +1633,8 @@ def _agent_heuristic_plan(
         return _agent_sqx_agent_skills_plan(actions)
     if not (context and context.get("remote")) and _is_sqx_docs_curator_question(data.get("message") or data.get("question")):
         return _agent_sqx_docs_curator_plan(actions)
+    if not (context and context.get("remote")) and _is_sqx_academic_lopez_question(data.get("message") or data.get("question")):
+        return _agent_sqx_academic_lopez_plan(actions)
     if not (context and context.get("remote")) and _is_sqx_test_guardian_question(data.get("message") or data.get("question")):
         return _agent_sqx_test_guardian_plan(actions)
     if not (context and context.get("remote")) and _is_sqx_c1_config_question(data.get("message") or data.get("question")):
@@ -1614,6 +1672,8 @@ def _agent_plan_with_llm(data: dict, *, actions: dict | None = None, context: di
         return _agent_sqx_agent_skills_plan(actions)
     if not (context and context.get("remote")) and _is_sqx_docs_curator_question(data.get("message") or data.get("question")):
         return _agent_sqx_docs_curator_plan(actions)
+    if not (context and context.get("remote")) and _is_sqx_academic_lopez_question(data.get("message") or data.get("question")):
+        return _agent_sqx_academic_lopez_plan(actions)
     if not (context and context.get("remote")) and _is_sqx_test_guardian_question(data.get("message") or data.get("question")):
         return _agent_sqx_test_guardian_plan(actions)
     if not (context and context.get("remote")) and _is_sqx_c1_config_question(data.get("message") or data.get("question")):

@@ -150,6 +150,7 @@ def test_agent_remote_capabilities_exclude_local_inbox_and_write_actions():
     assert "sqx_c1_config_help" not in action_ids
     assert "sqx_test_guardian_help" not in action_ids
     assert "sqx_docs_curator_help" not in action_ids
+    assert "sqx_academic_lopez_help" not in action_ids
     assert "sqx_agent_skills_help" not in action_ids
     assert not any(item.startswith("mark_step:") for item in action_ids)
     assert "open_stage_tool:capa1-generate" in action_ids
@@ -158,13 +159,14 @@ def test_agent_remote_capabilities_exclude_local_inbox_and_write_actions():
 def test_agent_profiles_and_catalog_include_sqx_guardians():
     profiles = server._load_agent_profiles()
     profile_ids = set((profiles.get("profiles") or {}).keys())
-    assert {"sqx-c1-config", "sqx-test-guardian", "sqx-docs-curator", "sqx-agent-skills"} <= profile_ids
+    assert {"sqx-c1-config", "sqx-test-guardian", "sqx-docs-curator", "sqx-academic-lopez", "sqx-agent-skills"} <= profile_ids
 
     actions = build_action_catalog(profiles)
     assert actions["sqx_c1_config_help"].risk == "read"
     assert actions["sqx_c1_config_help"].requires_confirmation is False
     assert actions["sqx_test_guardian_help"].profile == "sqx-test-guardian"
     assert actions["sqx_docs_curator_help"].profile == "sqx-docs-curator"
+    assert actions["sqx_academic_lopez_help"].profile == "sqx-academic-lopez"
     assert actions["sqx_agent_skills_help"].profile == "sqx-agent-skills"
 
 
@@ -352,6 +354,18 @@ def test_agent_sqx_guardian_questions_use_fixed_local_answers():
     assert skills_data["source"] == "fixed_sqx_agent_skills"
     assert skills_data["recommendedAction"]["id"] == "sqx_agent_skills_help"
     assert ".local/agent_handoffs/" in skills_data["reply"]
+
+
+def test_agent_sqx_academic_lopez_question_uses_fixed_local_answer():
+    client = server.app.test_client()
+    response = client.post("/api/agent/plan", json={"message": "consulta academica Lopez sobre MC y OOS"})
+    data = response.get_json()
+    assert response.status_code == 200
+    assert data["source"] == "fixed_sqx_academic_lopez"
+    assert data["recommendedAction"]["id"] == "sqx_academic_lopez_help"
+    assert data["requiresConfirmation"] is False
+    assert "data snooping" in data["reply"]
+    assert "ROBUSTNESS_C1" in data["reply"]
 
 
 def test_agent_capabilities_question_uses_remote_safe_answer_for_testers():

@@ -137,6 +137,15 @@ def build_action_catalog(_profiles: dict[str, Any] | None = None) -> dict[str, A
             requires_confirmation=False,
             ui_command={"type": "none"},
         ),
+        "sqx_academic_lopez_help": AgentAction(
+            id="sqx_academic_lopez_help",
+            label="Consulta academica SQX",
+            risk="read",
+            profile="sqx-academic-lopez",
+            description="Resume criterio academico para OOS, Monte Carlo, data snooping y robustez sin ejecutar mutaciones.",
+            requires_confirmation=False,
+            ui_command={"type": "none"},
+        ),
         "sqx_agent_skills_help": AgentAction(
             id="sqx_agent_skills_help",
             label="Explicar agentes y skills",

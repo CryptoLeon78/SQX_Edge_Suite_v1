@@ -11,6 +11,7 @@
 - Phase SQX142-143-BACKPORT1 - compatibilidad SQX local: aplicado como capability interna local-only.
 - Phase SQX142-PERF1 - rendimiento SQX local: aplicado como capability interna local-only.
 - Phase G8-SQX-AGENT-SKILLS1 - guardianes SQX de agentes/skills: aplicado antes de `RETEST 0` con perfiles local-only, skills actualizadas y handoffs ignorados.
+- Phase G8-SQX-ACADEMIC-LOPEZ1 - consulta academica SQX: aplicada como skill/perfil local-only para MC, OOS, data snooping y backtest overfitting antes de Fase 6 `MC`.
 
 ## Contrato V1
 
@@ -32,7 +33,9 @@ Reglas:
 - Preguntas locales sobre SQX 142, build 143, build 144, backport o compatibilidad usan `fixed_sqx142_compat` y el ledger antes que una respuesta libre del LLM.
 - Preguntas locales sobre rendimiento, minados, retests, MonteCarlo, databanks o perfiles JVM usan `fixed_sqx142_performance` y `docs/SQX142_PERFORMANCE_ROADMAP.md` antes que una respuesta libre del LLM.
 - Preguntas locales sobre C1-CONFIG1, `RETEST 0`, guardianes, skills, handoffs, docs o matriz de tests usan respuestas fijas `fixed_sqx_c1_config`, `fixed_sqx_test_guardian`, `fixed_sqx_docs_curator` o `fixed_sqx_agent_skills` antes que respuesta libre del LLM.
+- Preguntas locales sobre criterio academico, Lopez de Prado, OOS, MC, contaminacion, data snooping, PBO o Deflated Sharpe usan `fixed_sqx_academic_lopez` y fuentes academicas antes que respuesta libre del LLM.
 - `SQX Test Guardian` y `SQX Docs Curator` son perspectivas internas para lectura, planificacion, dry-run y revision; no son ejecutores autonomos de mutaciones.
+- `SQX Academic Lopez` es una perspectiva interna de lectura/criterio; no ejecuta cambios, no decide permisos y no sustituye confirmacion metodologica del operador.
 
 Prohibido en V1:
 
@@ -101,6 +104,7 @@ Perfiles de etapa Edge Factory:
 - `sqx-c1-config`: estado C1-CONFIG1, ledger local, promocion selectiva y salto controlado hacia `RETEST 0`.
 - `sqx-test-guardian`: matriz de checks, riesgos de regresion, dry-runs seguros y limites de no-mutacion.
 - `sqx-docs-curator`: coherencia README/governance/roadmap/changelog/manifest y privacidad documental.
+- `sqx-academic-lopez`: revision academica local de OOS, MC, data snooping, backtest overfitting, multiple testing, PBO/DSR y contaminacion de validacion.
 - `sqx-agent-skills`: capa de skills, handoffs, subagentes permitidos, autonomia y limites.
 
 Subperfiles declarados para evolucion posterior:
@@ -118,7 +122,7 @@ Subperfiles declarados para evolucion posterior:
 - Remote tester capabilities excluye bandeja local, `mark_step:*`, escritura y monitor.
 - Remote tester capabilities excluye `sqx142_compat_help` y cualquier estado del monitor local.
 - Remote tester capabilities excluye `sqx142_performance_help`, `fixed_sqx142_performance` y cualquier estado de rendimiento local.
-- Remote tester capabilities excluye `sqx_c1_config_help`, `sqx_test_guardian_help`, `sqx_docs_curator_help`, `sqx_agent_skills_help` y cualquier estado/handoff local de guardianes SQX.
+- Remote tester capabilities excluye `sqx_c1_config_help`, `sqx_test_guardian_help`, `sqx_docs_curator_help`, `sqx_academic_lopez_help`, `sqx_agent_skills_help` y cualquier estado/handoff local de guardianes SQX.
 - Las respuestas publicas no contienen rutas locales, emails, tokens ni protected URLs.
 - El dock no crea un tab primario nuevo.
 - Confirmar una recomendacion de navegacion abre la herramienta permitida.

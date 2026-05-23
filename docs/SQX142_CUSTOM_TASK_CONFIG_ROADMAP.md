@@ -1,11 +1,14 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 5 `TICK REAL` abierta el 2026-05-23. Fase 0 dejo
+Estado: C1-CONFIG1 con Fase 5 `TICK REAL` cerrada y Fase 6 `MC` abierta el 2026-05-23. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
 Build. Antes de `RETEST 0`, G8-SQX-AGENT-SKILLS1 alinea skills, guardianes,
 perfiles del agente y handoffs locales para proteger el resto del cuestionario.
+Antes de cerrar TICK y abrir MC, `sqx-academic-lopez` queda disponible como
+consulta academica local-only para OOS, MC, data snooping y backtest
+overfitting.
 La mini fase `SQX142-BRANDING1` queda cerrada antes de `RETEST 0`: cambia solo
 la capa visual local de SQX a `Build: 142.2336 Codex`, oculta en About las
 lineas privadas de licencia/identidad y muestra la trazabilidad
@@ -83,6 +86,10 @@ tools\sqx142_task_config_gate.ps1 tick-real-passive-generation-target --target b
 tools\sqx142_task_config_gate.ps1 tick-real-passive-generation-target --target both --apply
 tools\sqx142_task_config_gate.ps1 tick-real-static-crosschecks-target --target both
 tools\sqx142_task_config_gate.ps1 tick-real-static-crosschecks-target --target both --apply
+tools\sqx142_task_config_gate.ps1 phase-report --phase phase5_tick_real_closeout --summary "<summary>" --next-phase phase6_mc_open --write
+tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "MC" --write
+tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC" --tab "Data" --write
+tools\sqx142_task_config_gate.ps1 record-answer --task-title "MC" --tab "Data" --question-id "<id>" --answer "<answer>"
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -252,7 +259,7 @@ Aplicado como fase puente antes de `RETEST 0`:
   `sqx142-local-intelligence`.
 - Skills locales nuevas: `sqx-test-guardian` y `sqx-docs-curator`.
 - Perfiles del agente local: `sqx-c1-config`, `sqx-test-guardian`,
-  `sqx-docs-curator` y `sqx-agent-skills`.
+  `sqx-docs-curator`, `sqx-academic-lopez` y `sqx-agent-skills`.
 - Handoffs locales ignorados: `.local/agent_handoffs/`.
 - Los guardianes pueden usarse proactivamente para lectura, revision de docs,
   matriz de tests y dry-runs seguros, pero no ejecutan `--apply`, `--write`,
@@ -608,8 +615,63 @@ CrossChecks`:
 Reporte local:
 `.local/sqx142_task_config/phase_reports/phase5_20260523_210515.json`.
 
-Siguiente bloque exacto: `phase5_tick_real_closeout`, cierre formal de
-`TICK REAL` y salto a Fase 6 `MC`.
+Fase cerrada formalmente el 2026-05-23 con reporte local:
+`.local/sqx142_task_config/phase_reports/phase5_tick_real_closeout_20260523_211917.json`.
+El cierre reejecuto en dry-run los cuatro guards de TICK REAL
+(`tick-real-data-databanks-resources-target`,
+`tick-real-options-rankings-target`, `tick-real-passive-generation-target` y
+`tick-real-static-crosschecks-target`) contra base local y template repo:
+`ok=true`, `changed=false`, `changedActionCount=0` y `guardOk=true` en todos
+los bloques. La cadena queda `Input=retest 1` / `Output=TICK`, failed
+naturales preservados y sin crosschecks/metodos internos ejecutables.
+
+## Estado Fase 6 - MC
+
+Fase abierta el 2026-05-23. Objetivo: comprobar robustez por perturbacion
+Monte Carlo sobre candidatos que ya pasaron `RETEST 0`, `RETEST 1` y `TICK
+REAL`, sin convertir MC en un optimizador ni en otro filtro que contamine OOS.
+
+Fuente actual inspeccionada:
+
+- Base local y template repo: `AutomaticRetest-Task1.xml`.
+- Cuestionario vigente en ledger local: `13` pestañas, `19.966` entradas y
+  `12.326` diferencias base vs donor.
+- Databanks actuales: `Input=TICK` y `Output=MC`.
+- `Data/Setup` actual: `dateFrom=2017.10.02`, `dateTo=2023.12.31`,
+  `testPrecision=2`, `session=No Session` y engine `MetaTrader5 (hedged)`.
+- Los recursos, activo, timeframe, spread y swaps siguen siendo
+  generator-owned; no se copia el donor `USDJPY/H4`.
+
+Criterio inicial recomendado antes del cuestionario:
+
+- MC debe quedar en precision fast/simulated (`testPrecision=2`) por eficacia
+  computacional: TICK REAL ya cubre la supervivencia a precision-data y MC
+  debe medir estabilidad ante perturbaciones, no repetir el coste maximo de
+  tick en cada simulacion.
+- No anadir split OOS interno por defecto. `RETEST 0` y `RETEST 1` ya gobiernan
+  OOS; reusar OOS dentro de MC para seleccionar candidatos aumenta presion de
+  seleccion, data snooping y backtest overfitting.
+- Mantener passed/failed naturales: MC puede fallar candidatos, pero no se
+  fuerza `Results=passed` ni se borran failed por comodidad.
+- El primer bloque a decidir sera `MC > Data / Databanks / Resources /
+  Options`; despues se abrira `MC > CrossChecks`, donde vive el metodo Monte
+  Carlo real.
+
+Consulta academica registrada:
+
+- White, "A Reality Check for Data Snooping", Econometrica 2000:
+  `https://doi.org/10.1111/1468-0262.00152`.
+- Bailey, Borwein, Lopez de Prado y Zhu, "Pseudo-Mathematics and Financial
+  Charlatanism: The Effects of Backtest Overfitting on Out-of-Sample
+  Performance": `https://ssrn.com/abstract=2308659`.
+- Bailey y Lopez de Prado, "The Deflated Sharpe Ratio: Correcting for
+  Selection Bias, Backtest Overfitting and Non-Normality":
+  `https://www.davidhbailey.com/dhbpapers/deflated-sharpe.pdf`.
+- Carr y Lopez de Prado, "Determining Optimal Trading Rules without
+  Backtesting": `https://doi.org/10.48550/arXiv.1408.1159`.
+
+Siguiente bloque exacto: `MC > Data / Databanks / Resources / Options`, con
+consulta `sqx-academic-lopez` disponible si hay dudas de OOS/contaminacion.
 
 ## Disciplina Operativa
 

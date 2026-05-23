@@ -98,6 +98,10 @@
       "label": "SQX Docs Curator",
       "prompt": "Revisa consistencia entre roadmap, governance, README, CHANGELOG y manifest. No inventa estado ni expone evidencia privada."
     },
+    "sqx-academic-lopez": {
+      "label": "SQX Academic Lopez",
+      "prompt": "Revisa decisiones metodologicas SQX contra evidencia academica: OOS, data snooping, backtest overfitting, Monte Carlo, multiple testing y contaminacion de validacion. Solo aconseja; no aplica cambios."
+    },
     "sqx-agent-skills": {
       "label": "Agentes y skills SQX",
       "prompt": "Explica la capa de skills/agentes, handoffs, uso paralelo permitido, limites de autonomia y proximo movimiento de metodologia."
