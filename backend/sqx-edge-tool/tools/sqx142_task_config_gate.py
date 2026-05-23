@@ -10,6 +10,7 @@ import subprocess
 import sys
 import time
 import zipfile
+from collections import Counter
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -2373,6 +2374,112 @@ def record_answer(project_root: Path, task_title_wanted: str, tab: str, question
     return {"ok": True, "version": VERSION, "written": str(target), "questionId": question_id}
 
 
+def latest_questionnaire_path(project_root: Path, task_title_wanted: str, tab: str) -> Path | None:
+    root = ledger_root(project_root) / "questionnaires" / "capa1" / slug(task_title_wanted)
+    if not root.is_dir():
+        return None
+    candidates = [
+        path
+        for path in root.glob(f"{slug(tab)}_*.json")
+        if path.is_file() and not path.name.startswith("_task_summary_")
+    ]
+    if not candidates:
+        return None
+    return max(candidates, key=lambda path: (path.stat().st_mtime_ns, path.name))
+
+
+def record_tab_answer(
+    project_root: Path,
+    task_title_wanted: str,
+    tab: str,
+    answer: str,
+    note: str,
+    allow_empty: bool,
+) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    source = latest_questionnaire_path(project_root, task_title_wanted, tab)
+    if source is None:
+        return {
+            "ok": False,
+            "version": VERSION,
+            "error": "questionnaire_not_found",
+            "taskTitle": task_title_wanted,
+            "tab": tab,
+            "hint": "Run questionnaire --write before recording a tab answer.",
+        }
+
+    questionnaire = read_json(source, {})
+    questions = questionnaire.get("questions") or []
+    if not questions and not allow_empty:
+        return {
+            "ok": False,
+            "version": VERSION,
+            "error": "questionnaire_has_no_questions",
+            "sourceQuestionnaire": str(source),
+            "taskTitle": task_title_wanted,
+            "tab": tab,
+            "hint": "Use --allow-empty if this tab is intentionally empty.",
+        }
+
+    ids = [str(item.get("id", "")).strip() for item in questions if str(item.get("id", "")).strip()]
+    id_counts = Counter(ids)
+    duplicate_ids = sorted(qid for qid, count in id_counts.items() if count > 1)
+    if duplicate_ids:
+        return {
+            "ok": False,
+            "version": VERSION,
+            "error": "duplicate_question_ids",
+            "sourceQuestionnaire": str(source),
+            "taskTitle": task_title_wanted,
+            "tab": tab,
+            "questionCount": len(questions),
+            "uniqueQuestionCount": len(set(ids)),
+            "duplicateIdCount": len(duplicate_ids),
+            "duplicateIdSample": duplicate_ids[:10],
+            "hint": "Regenerate the questionnaire with the current tool before recording bulk answers.",
+        }
+
+    if not ids and allow_empty:
+        ids = [question_id(f"{task_title_wanted}-{tab}-empty-tab-confirmed")]
+
+    answered_at = now_iso()
+    payload = {
+        "version": VERSION,
+        "scope": "capa1",
+        "taskTitle": task_title_wanted,
+        "tab": tab,
+        "createdAt": answered_at,
+        "updatedAt": answered_at,
+        "bulkAnswer": True,
+        "sourceQuestionnaire": str(source),
+        "questionCount": len(questions),
+        "uniqueQuestionCount": len(ids),
+        "answer": answer,
+        "note": note,
+        "answers": {
+            qid: {
+                "answer": answer,
+                "note": note,
+                "answeredAt": answered_at,
+            }
+            for qid in ids
+        },
+    }
+    target = ledger_root(project_root) / "answers" / "capa1" / slug(task_title_wanted) / f"{slug(tab)}.json"
+    write_json(target, payload)
+    return {
+        "ok": True,
+        "version": VERSION,
+        "written": str(target),
+        "sourceQuestionnaire": str(source),
+        "taskTitle": task_title_wanted,
+        "tab": tab,
+        "answerCount": len(ids),
+        "questionCount": len(questions),
+        "bulkAnswer": True,
+    }
+
+
 def phase_report(project_root: Path, phase_id: str, summary: str, next_phase: str, write: bool) -> dict[str, Any]:
     root = ledger_root(project_root)
     payload = {
@@ -2473,6 +2580,13 @@ def build_parser() -> argparse.ArgumentParser:
     answer.add_argument("--answer", required=True)
     answer.add_argument("--note", default="")
 
+    tab_answer = sub.add_parser("record-tab-answer")
+    tab_answer.add_argument("--task-title", required=True)
+    tab_answer.add_argument("--tab", required=True)
+    tab_answer.add_argument("--answer", required=True)
+    tab_answer.add_argument("--note", default="")
+    tab_answer.add_argument("--allow-empty", action="store_true")
+
     report = sub.add_parser("phase-report")
     report.add_argument("--phase", required=True)
     report.add_argument("--summary", required=True)
@@ -2561,6 +2675,16 @@ def main(argv: list[str] | None = None) -> int:
             question_id=args.question_id,
             answer=args.answer,
             note=args.note,
+        ))
+        return 0
+    if args.command == "record-tab-answer":
+        json_print(record_tab_answer(
+            project_root,
+            task_title_wanted=args.task_title,
+            tab=args.tab,
+            answer=args.answer,
+            note=args.note,
+            allow_empty=args.allow_empty,
         ))
         return 0
     if args.command == "phase-report":

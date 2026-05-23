@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 Bulk Tab Answer Guard
+
+- Adds `record-tab-answer` to the SQX142 task config gate so very large tabs can be answered atomically from the latest questionnaire instead of spawning thousands of individual calls.
+- The command refuses questionnaires with duplicate question IDs and supports intentional empty tabs, protecting `RETEST 0 > Blocks` and later large retest tabs from ledger collapse.
+- Regenerates `RETEST 0 > Blocks` with the fixed question ID scheme: `17,583` unique questions, `8,331` differences and no duplicate IDs before the operator's final Blocks decision.
+
 ## 2026-05-23 - C1-CONFIG1 RETEST 0 Generator Guard
 
 - Opens `RETEST 0` as the first real Capa1 OOS gate and documents that it runs full IS+OOS1 with OOS1 marked, not OOS-only isolation.

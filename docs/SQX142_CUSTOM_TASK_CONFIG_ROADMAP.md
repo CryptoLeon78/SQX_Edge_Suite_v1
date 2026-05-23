@@ -311,10 +311,20 @@ Mapa inicial del cuestionario:
 - `8.344` diferencias base vs donor.
 - `CrossChecks` fue regenerado tras corregir IDs largos de cuestionario: `367`
   preguntas y `367` respuestas unicas en ledger local.
+- El gate incorpora `record-tab-answer` para registrar de forma atomica una
+  decision agrupada sobre pestañas gigantes, rechazando cuestionarios con IDs
+  duplicados. `Blocks` de `RETEST 0` fue regenerado con IDs unicos antes de
+  cualquier respuesta masiva: `17.583` preguntas, `8.331` diferencias y `0`
+  duplicados.
 - La mayoria de diferencias vive en `Blocks`; se tratan como ruido de donor
   salvo que una pregunta concreta demuestre valor metodologico.
 - Primer bloque operativo: `Data/OOS`, porque define si el retest conserva la
   frontera real entre Build IS y primer OOS.
+- Pestañas `Data`, `Options`, `Databanks`, `Rankings`, `Resources`,
+  `WhatToBuild`, `CrossChecks`, `ATMs`, `RiskMoneyManagement`,
+  `PartsToImprove`, `Notes`, `Optimization` y `SelectedStrategies` quedan
+  respondidas en ledger local segun confirmacion del operador. Queda pendiente
+  cerrar `Blocks` antes del reporte formal de Fase 3.
 
 ## Disciplina Operativa
 
