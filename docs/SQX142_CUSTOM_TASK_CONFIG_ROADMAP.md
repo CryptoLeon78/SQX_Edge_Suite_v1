@@ -45,6 +45,8 @@ tools\sqx142_task_config_gate.ps1 preflight --apply
 tools\sqx142_task_config_gate.ps1 phases
 tools\sqx142_task_config_gate.ps1 promote-views --target both
 tools\sqx142_task_config_gate.ps1 promote-views --target both --apply
+tools\sqx142_task_config_gate.ps1 build-genetic-target --target both
+tools\sqx142_task_config_gate.ps1 build-genetic-target --target both --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "MC 2" --tab "CrossChecks" --write --full-output
@@ -136,6 +138,21 @@ Resumen:
 - `Blocks` ya no colapsa rutas repetidas: guarda `17.621` preguntas y `1.363`
   diferencias.
 - La consola muestra resumen; el contenido completo vive en `.local`.
+
+Promocion aplicada de `Build > Genetic options`:
+
+- Target local: `Capa1_Long_SQX142_Base/project.cfx`.
+- Target repo: `backend/sqx-edge-tool/templates/Capa1_Long.cfx`.
+- Backup local: `.local/sqx142_task_config/backups/phase2_build_genetic_20260523_123832/`.
+- Evidencia local: `.local/sqx142_task_config/diffs/phase2_build_genetic_target_20260523_123833.json`.
+- `MarketSides` queda sin tocar y sigue gobernado por el Project Generator.
+- `FitnessRestartType` queda en `In sample (whole)` porque Build Capa1 mina edge
+  en IS; la validacion metodologica vive en los retests Capa1 y Capa2.
+- La poblacion inicial queda filtrada por `ProfitFactor >= 1` y
+  `NumberOfTrades >= 100`.
+- Los valores de Ranking quedan reabiertos para el checklist de valores Capa1
+  porque una correccion previa tomo una referencia anterior y no debe aplicarse
+  como cierre final.
 
 Orden recomendado de preguntas: pestañas sin diferencias primero para cerrar
 bloques rápidos, después `Data`, `Resources`, `WhatToBuild`, `CrossChecks` y al

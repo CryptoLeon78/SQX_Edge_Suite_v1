@@ -111,6 +111,34 @@ DO_NOT_PROMOTE_FIELDS = {
     "session_results",
 }
 
+BUILD_GENETIC_TARGET = {
+    "PopulationSize": "20",
+    "MaxGenerations": "30",
+    "CrossoverProbability": "35",
+    "MutationProbability": "35",
+    "Islands": "7",
+    "MigrationModulo": "5",
+    "MigrationRate": "5",
+    "ShowLastGenerationDatabank": "false",
+    "InitGenerationType": "1",
+    "DecimationCoef": "1",
+    "FreshBloodReplaceSimilar": "true",
+    "FreshBloodReplaceWeakest": "false",
+    "FreshBloodWeakestPct": "10",
+    "FreshBloodWeakestGenerations": "5",
+}
+
+BUILD_GENETIC_ATTR_TARGET = {
+    "EvoRestartOnFinish": {"status": "true"},
+    "EvoRestartOnStagnation": {"status": "true", "fitnessType": "10", "generations": "10"},
+    "EvoInSamplePeriod": {"ratio": "50"},
+}
+
+BUILD_INITIAL_CONDITIONS_TARGET = [
+    {"column": "ProfitFactor", "comparator": ">=", "value": "1", "format": "Decimal2"},
+    {"column": "NumberOfTrades", "comparator": ">=", "value": "100", "format": "Decimal2"},
+]
+
 
 def stamp() -> str:
     return datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -632,6 +660,220 @@ def replace_config_xml_in_cfx(cfx: Path, new_config_text: str) -> None:
     tmp.replace(cfx)
 
 
+def replace_zip_text_entry(cfx: Path, entry_name: str, new_text: str) -> None:
+    tmp = cfx.with_suffix(cfx.suffix + f".{os.getpid()}.{time.time_ns()}.tmp")
+    with zipfile.ZipFile(cfx, "r") as source:
+        with zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED) as target:
+            for item in source.infolist():
+                data = new_text.encode("utf-8") if item.filename == entry_name else source.read(item.filename)
+                target.writestr(item, data)
+    tmp.replace(cfx)
+
+
+def find_build_mode(root: ET.Element | None) -> ET.Element | None:
+    if root is None:
+        return None
+    what_to_build = find_section(root, "WhatToBuild")
+    if what_to_build is not None:
+        build_mode = what_to_build.find("BuildMode")
+        if build_mode is not None:
+            return build_mode
+    return root.find(".//BuildMode")
+
+
+def set_text_child(parent: ET.Element, tag: str, value: str, actions: list[dict[str, Any]]) -> None:
+    child = parent.find(tag)
+    if child is None:
+        child = ET.SubElement(parent, tag)
+        before = None
+    else:
+        before = (child.text or "").strip()
+    if before != value:
+        child.text = value
+    actions.append({
+        "field": tag,
+        "from": before,
+        "to": value,
+        "changed": before != value,
+    })
+
+
+def set_attr_child(parent: ET.Element, tag: str, attrs: dict[str, str], actions: list[dict[str, Any]]) -> None:
+    child = parent.find(tag)
+    if child is None:
+        child = ET.SubElement(parent, tag)
+        before = {}
+    else:
+        before = dict(child.attrib)
+    for key, value in attrs.items():
+        child.set(key, value)
+    after = dict(child.attrib)
+    actions.append({
+        "field": tag,
+        "from": before,
+        "to": after,
+        "changed": before != after,
+    })
+
+
+def make_column_condition(column: str, comparator: str, value: str, fmt: str) -> ET.Element:
+    condition = ET.Element("Condition", {"use": "true"})
+    condition.text = "\n          "
+    left = ET.SubElement(condition, "Left-Side", {"valueType": "column"})
+    left.text = "\n            "
+    left.tail = "\n          "
+    column_value = ET.SubElement(left, "Column-Value", {
+        "column": column,
+        "columnType": "0",
+        "format": fmt,
+        "resultType": "main",
+        "direction": "0",
+        "sampleType": "127",
+        "plType": "10",
+        "confidenceLevel": "50",
+        "market": "1",
+        "subresult": "30",
+        "pctRatio": "0",
+        "class": column,
+    })
+    column_value.tail = "\n          "
+    comp = ET.SubElement(condition, "Comparator", {"value": comparator})
+    comp.tail = "\n          "
+    right = ET.SubElement(condition, "Right-Side", {"valueType": "numeric"})
+    right.text = "\n            "
+    right.tail = "\n        "
+    numeric = ET.SubElement(right, "Numeric-Value", {"value": value})
+    numeric.tail = "\n          "
+    return condition
+
+
+def summarize_conditions(parent: ET.Element | None) -> list[dict[str, str]]:
+    if parent is None:
+        return []
+    items: list[dict[str, str]] = []
+    for condition in parent.findall("Condition"):
+        column_value = condition.find(".//Column-Value")
+        comparator = condition.find("Comparator")
+        numeric = condition.find(".//Numeric-Value")
+        items.append({
+            "column": column_value.get("column", "") if column_value is not None else "",
+            "comparator": comparator.get("value", "") if comparator is not None else "",
+            "value": numeric.get("value", "") if numeric is not None else "",
+            "use": condition.get("use", ""),
+        })
+    return items
+
+
+def set_initial_population_conditions(build_mode: ET.Element, actions: list[dict[str, Any]]) -> None:
+    conditions = build_mode.find("Conditions")
+    if conditions is None:
+        conditions = ET.SubElement(build_mode, "Conditions")
+        before: list[dict[str, str]] = []
+    else:
+        before = summarize_conditions(conditions)
+        for child in list(conditions):
+            conditions.remove(child)
+    conditions.text = "\n        "
+    for index, target in enumerate(BUILD_INITIAL_CONDITIONS_TARGET):
+        condition = make_column_condition(
+            column=target["column"],
+            comparator=target["comparator"],
+            value=target["value"],
+            fmt=target["format"],
+        )
+        condition.tail = "\n      " if index == len(BUILD_INITIAL_CONDITIONS_TARGET) - 1 else "\n        "
+        conditions.append(condition)
+    after = summarize_conditions(conditions)
+    actions.append({
+        "field": "InitialPopulationConditions",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+    })
+
+
+def serialize_xml(root: ET.Element) -> str:
+    return ET.tostring(root, encoding="unicode", short_empty_elements=True)
+
+
+def update_build_genetic_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, "Build")
+    payload["taskXml"] = task_xml_name
+    build_mode = find_build_mode(root)
+    if not task_xml_name or root is None or build_mode is None:
+        payload["error"] = "build_task_or_build_mode_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    for tag, value in BUILD_GENETIC_TARGET.items():
+        set_text_child(build_mode, tag, value, payload["actions"])
+    for tag, attrs in BUILD_GENETIC_ATTR_TARGET.items():
+        set_attr_child(build_mode, tag, attrs, payload["actions"])
+    set_initial_population_conditions(build_mode, payload["actions"])
+
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetRationale"] = {
+        "marketSides": "left untouched; generator remains responsible for side selection",
+        "trainingValidation": "Build is IS edge mining; external Capa1/Capa2 retests are the validation layers",
+        "fitnessType": "10 = In sample (whole)",
+    }
+    if apply and payload["changedActionCount"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_build_genetic_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase2_build_genetic_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_build_genetic_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(item.get("exists") and item.get("isZip") and not item.get("error") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase2",
+        "operation": "build_genetic_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "targetValues": {
+            "text": BUILD_GENETIC_TARGET,
+            "attributes": BUILD_GENETIC_ATTR_TARGET,
+            "initialConditions": BUILD_INITIAL_CONDITIONS_TARGET,
+        },
+        "nextPhase": "phase2_build_diff_review" if not apply else "phase2_continue_questionnaire",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase2_build_genetic_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_databank_views_in_cfx(cfx: Path, target_views: dict[str, str], backup_root: Path, apply: bool) -> dict[str, Any]:
     payload: dict[str, Any] = {
         "path": str(cfx),
@@ -980,6 +1222,10 @@ def build_parser() -> argparse.ArgumentParser:
     promote_views.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     promote_views.add_argument("--apply", action="store_true")
 
+    promote_genetic = sub.add_parser("build-genetic-target")
+    promote_genetic.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    promote_genetic.add_argument("--apply", action="store_true")
+
     questionnaire = sub.add_parser("questionnaire")
     questionnaire.add_argument("--task-title", required=True)
     questionnaire.add_argument("--tab", required=True)
@@ -1022,6 +1268,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "promote-views":
         json_print(promote_view_assignments(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "build-genetic-target":
+        json_print(promote_build_genetic_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "questionnaire":
         payload = build_questionnaire(
