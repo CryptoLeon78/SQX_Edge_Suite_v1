@@ -2,10 +2,12 @@ import json
 import xml.etree.ElementTree as ET
 
 from tools.sqx142_task_config_gate import (
+    apply_retest1_passive_generation_to_root,
     apply_retest1_data_resources_to_root,
     apply_retest1_options_databanks_rankings_to_root,
     enforce_retest1_data_resources_guard,
     enforce_retest1_options_databanks_rankings_guard,
+    enforce_retest1_passive_generation_guard,
     fallback_retest1_oos2_resource,
     question_id,
     record_tab_answer,
@@ -192,3 +194,85 @@ def test_retest1_options_databanks_rankings_are_advisory_not_coladero():
         "RExpectancy",
         "NetProfit",
     ]
+
+
+def test_retest1_passive_generation_disables_improve_and_generation_remnants():
+    root = ET.fromstring(
+        """
+        <Task>
+          <PartsToImprove improveATM="true">
+            <EntryRules symmetry="true"><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></EntryRules>
+            <OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes>
+            <ExitRules symmetry="true"><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" stale="true" />
+            <MarketSides type="long" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>true</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="true" />
+              <EvoRestartOnStagnation status="true" fitnessType="10" generations="30" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="simple">
+            <BuildingBlocks>
+              <Block key="Signals.ADX" category="signals" use="true" probability="1" />
+              <Block key="Indicators.ATR" category="indicators" use="false" probability="1" />
+              <Block key="StopLimitBlocks.ATRStop" category="stopLimitBlocks" use="true" probability="1" />
+            </BuildingBlocks>
+            <OrderTypes>
+              <Block key="EnterAtMarket" use="false" probability="1" />
+              <Block key="EnterReverseAtMarket" use="true" probability="1" />
+              <Block key="EnterAtStop" use="true" probability="1" />
+              <Block key="EnterAtLimit" use="true" probability="1" />
+            </OrderTypes>
+            <ExitTypes>
+              <Block key="ExitAfterBars.ExitAfterBars" use="false" probability="50" />
+              <Block key="ExitAfterDays.ExitAfterDays" use="true" probability="50" />
+              <Block key="StopLoss.StopLoss" use="true" probability="50" />
+            </ExitTypes>
+            <CustomData showAll="true"><Item key="legacy" /></CustomData>
+          </Blocks>
+        </Task>
+        """
+    )
+    source_root = ET.fromstring(
+        """
+        <Task>
+          <Blocks type="simple" version="142.2336">
+            <BuildingBlocks>
+              <Block key="Signals.ADX" category="signals" use="false" probability="1" />
+              <Block key="Indicators.ATR" category="indicators" use="true" probability="1" />
+              <Block key="StopLimitBlocks.ATRStop" category="stopLimitBlocks" use="false" probability="1" />
+            </BuildingBlocks>
+            <OrderTypes>
+              <Block key="EnterAtMarket" use="true" probability="1" />
+              <Block key="EnterReverseAtMarket" use="false" probability="1" />
+              <Block key="EnterAtStop" use="false" probability="1" />
+              <Block key="EnterAtLimit" use="false" probability="1" />
+            </OrderTypes>
+            <ExitTypes>
+              <Block key="ExitAfterBars.ExitAfterBars" use="true" probability="100" />
+              <Block key="StopLoss.StopLoss" use="false" probability="50" />
+            </ExitTypes>
+            <CustomData showAll="false" />
+          </Blocks>
+        </Task>
+        """
+    )
+
+    actions = apply_retest1_passive_generation_to_root(root, source_root)
+
+    assert any(item["field"] == "BuildingBlocks" and item["changed"] for item in actions)
+    assert enforce_retest1_passive_generation_guard(root) == []
+    assert root.find(".//PartsToImprove/ExitRules/LongImprovement").get("use") == "false"
+    assert root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "RETEST 0"
+    assert root.find(".//WhatToBuild/StrategyType").get("stale") is None
+    assert root.find(".//BuildMode/ShowLastGenerationDatabank").text == "false"
+    assert root.find(".//BuildMode/EvoRestartOnFinish").get("status") == "false"
+    assert root.find(".//Blocks").get("version") == "142.2336"
+    assert root.findall(".//ExitTypes/Block[@key='ExitAfterDays.ExitAfterDays']") == []
+    assert root.find(".//BuildingBlocks/Block[@key='Indicators.ATR']").get("use") == "true"
+    assert root.find(".//BuildingBlocks/Block[@key='Signals.ADX']").get("use") == "false"

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 RETEST 1 Passive Generation Gate
+
+- Adds `retest1-passive-generation-target` to close Phase 4 `PartsToImprove` / `WhatToBuild` / `Blocks` with dry-run-first backup/diff/apply.
+- Turns `RETEST 1` into a passive pure retest: all improvement toggles are off, `StrategyType.improveDatabank=RETEST 0`, evolution/fresh-blood UI toggles are disabled and no unknown SQX enum is invented for `BuildMode.generationType`.
+- Normalizes `Blocks` from the approved `RETEST 0` internal contract, not Mining15 donor: Signals and Stop/Limit remain off, methodology indicators stay available, `EnterAtMarket` is the only entry and `ExitAfterBars` is the only active exit at `100`.
+- Records local ledger answers for `PartsToImprove` (`9/9`), `WhatToBuild` (`67/67`) and `Blocks` (`17,583/17,583`).
+
 ## 2026-05-23 - C1-CONFIG1 RETEST 1 Options/Databanks/Rankings
 
 - Adds `retest1-options-databanks-rankings-target` to close the next Phase 4 block with dry-run-first backup/diff/apply.

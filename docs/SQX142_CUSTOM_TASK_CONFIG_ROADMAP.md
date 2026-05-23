@@ -71,6 +71,8 @@ tools\sqx142_task_config_gate.ps1 retest1-data-resources-target --target both
 tools\sqx142_task_config_gate.ps1 retest1-data-resources-target --target both --apply
 tools\sqx142_task_config_gate.ps1 retest1-options-databanks-rankings-target --target both
 tools\sqx142_task_config_gate.ps1 retest1-options-databanks-rankings-target --target both --apply
+tools\sqx142_task_config_gate.ps1 retest1-passive-generation-target --target both
+tools\sqx142_task_config_gate.ps1 retest1-passive-generation-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -383,6 +385,30 @@ Decision aplicada para `Options` / `Databanks` / `Rankings`:
 - Ledger local respondido para `RETEST 1 > Options` (`34/34`),
   `RETEST 1 > Databanks` (`3/3`) y `RETEST 1 > Rankings` (`40/40`).
 
+Decision aplicada para `PartsToImprove` / `WhatToBuild` / `Blocks`:
+
+- `PartsToImprove` queda pasivo puro: `EntryRules`, `OrderTypes` y `ExitRules`
+  tienen `LongImprovement` y `ShortImprovement` en `use=false`; se apaga el
+  antiguo resto de mejora de salida que podia convertir el retest en retrabajo.
+- `WhatToBuild/StrategyType` queda apuntando a `improveDatabank=RETEST 0` para
+  reflejar la cadena real de entrada. `BuildMode.generationType` se conserva
+  como `random-generation` porque no se ha encontrado en CFX locales un enum SQX
+  seguro de tipo `none/passive`; la pasividad se impone con databank de entrada,
+  mejoras apagadas y toggles de evolucion/fresh blood apagados.
+- `BuildMode` desactiva `ShowLastGenerationDatabank`,
+  `FreshBloodReplaceSimilar`, `FreshBloodReplaceWeakest`,
+  `EvoRestartOnFinish` y `EvoRestartOnStagnation`.
+- `Blocks` se normaliza desde el contrato interno ya aprobado de `RETEST 0`, no
+  desde Mining15 donor: `Signals` y `Stop/Limit` quedan inactivos, los
+  indicadores permanecen gobernados por metodologia/BlockSettings,
+  `EnterAtMarket` es la unica entrada activa y `ExitAfterBars` queda como unica
+  salida activa con probabilidad `100`.
+- No hay salidas por dias: `ExitAfterDays` y `ExitAfterTradingDays` quedan
+  prohibidos para este bloque.
+- Ledger local respondido para `RETEST 1 > PartsToImprove` (`9/9`),
+  `RETEST 1 > WhatToBuild` (`67/67`) y `RETEST 1 > Blocks`
+  (`17.583/17.583`).
+
 Cuestionario inicial generado:
 
 - `13` pestañas detectadas.
@@ -399,14 +425,11 @@ Diferencias estructurales detectadas antes de decidir:
 - `Resources` ya no conserva recursos Darwinex pesados ni `CustomBlocks`
   embebidos: queda compacto en Dukascopy source `2` / broker `3`, sin copia
   literal del donor.
-- `Blocks` en la base local aparece con `Signals`, `Indicators` y
-  `Stop/Limit` activos, `ExitAfterBars` al `50%` y sin `version`; donor y la
-  regla cerrada de `RETEST 0` apuntan a un universo mas controlado, con
-  indicadores/metodologia y `ExitAfterBars` como salida principal.
-- `PartsToImprove` mantiene `ExitRules` activo y `WhatToBuild` usa
-  `random-generation`, lo que sugiere una forma de mejora/retrabajo de salida
-  mas que un retest pasivo puro. Este punto queda abierto para debate
-  metodologico antes de registrar respuestas masivas.
+- `Blocks` ya no queda abierto: se cerro como contrato pasivo desde `RETEST 0`,
+  con universo controlado, indicadores/metodologia y `ExitAfterBars` principal.
+- `PartsToImprove` ya no mantiene `ExitRules` activo; `WhatToBuild` conserva el
+  enum SQX conocido `random-generation` solo como placeholder interno, con los
+  toggles de mejora/evolucion apagados.
 - `Rankings/DeleteFailedStrategies` difiere: base `false`, donor `true`.
 - `Options` ya no contiene sesion donor ni gaps blandos: `MarketOpenSession`
   queda `No Session` y `RealisticGapsHandling=true`; la ventana horaria sigue
@@ -417,9 +440,9 @@ Diferencias estructurales detectadas antes de decidir:
   historica de Capa1 v2 dice Fixed size order size `1`, pero se revisara en la
   pregunta de fase.
 
-Siguiente bloque de decision: cerrar pestañas estaticas o entrar a
-`PartsToImprove` / `WhatToBuild` / `Blocks`, que son las que decidiran si
-`RETEST 1` queda pasivo puro o si hay que apagar restos de mejora/generacion.
+Siguiente bloque de decision: cerrar pestañas estaticas restantes y
+`CrossChecks`, verificando que no haya crosschecks internos activos ni restos de
+generacion antes del closeout de `RETEST 1`.
 
 ## Disciplina Operativa
 

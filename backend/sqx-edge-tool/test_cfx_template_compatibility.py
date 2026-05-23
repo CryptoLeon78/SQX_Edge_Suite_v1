@@ -37,6 +37,69 @@ def _active_building_block_keys(blocks: ET.Element) -> list[str]:
     ]
 
 
+def _assert_retest1_passive_generation_contract(retest1: ET.Element) -> None:
+    parts = retest1.find(".//PartsToImprove")
+    assert parts is not None
+    for group_name in ("EntryRules", "OrderTypes", "ExitRules"):
+        group = parts.find(group_name)
+        assert group is not None
+        assert group.find("LongImprovement").get("use") == "false"
+        assert group.find("ShortImprovement").get("use") == "false"
+
+    strategy_type = retest1.find(".//WhatToBuild/StrategyType")
+    assert strategy_type is not None
+    assert strategy_type.get("improveDatabank") == "RETEST 0"
+    assert strategy_type.get("improveType") == "strategy"
+    assert strategy_type.get("architecture") == "sq4"
+
+    build_mode = retest1.find(".//WhatToBuild/BuildMode")
+    assert build_mode is not None
+    assert build_mode.get("generationType") == "random-generation"
+    assert build_mode.findtext("ShowLastGenerationDatabank") == "false"
+    assert build_mode.findtext("FreshBloodReplaceSimilar") == "false"
+    assert build_mode.findtext("FreshBloodReplaceWeakest") == "false"
+    assert build_mode.find("EvoRestartOnFinish").get("status") == "false"
+    assert build_mode.find("EvoRestartOnStagnation").get("status") == "false"
+
+    blocks = retest1.find(".//Blocks")
+    assert blocks is not None
+    assert blocks.get("version") == "142.2336"
+    order_types = {
+        block.get("key"): block.get("use")
+        for block in blocks.findall("./OrderTypes/Block")
+        if block.get("key")
+    }
+    assert order_types == {
+        "EnterAtMarket": "true",
+        "EnterReverseAtMarket": "false",
+        "EnterAtStop": "false",
+        "EnterAtLimit": "false",
+    }
+    exit_types = {
+        block.get("key"): (block.get("use"), block.get("probability"))
+        for block in blocks.findall("./ExitTypes/Block")
+        if block.get("key")
+    }
+    assert exit_types["ExitAfterBars.ExitAfterBars"] == ("true", "100")
+    assert all(use == "false" for key, (use, _) in exit_types.items() if key != "ExitAfterBars.ExitAfterBars")
+    assert "ExitAfterDays" not in ET.tostring(blocks, encoding="unicode")
+    assert "ExitAfterTradingDays" not in ET.tostring(blocks, encoding="unicode")
+
+    active_blocks = [
+        block
+        for block in blocks.findall(".//BuildingBlocks/Block")
+        if str(block.get("use", "")).lower() == "true"
+    ]
+    assert active_blocks
+    assert not [block for block in active_blocks if block.get("category") == "signals"]
+    assert not [block for block in active_blocks if block.get("category") == "stopLimitBlocks"]
+    assert [block for block in active_blocks if block.get("category") == "indicators"]
+    custom_data = blocks.find("CustomData")
+    assert custom_data is not None
+    assert custom_data.get("showAll") == "false"
+    assert list(custom_data) == []
+
+
 def _section_sha256(root: ET.Element, tab: str) -> str:
     node = root.find(tab)
     if node is None:
@@ -181,6 +244,7 @@ def test_capa1_base_v2_matches_active_methodology():
         ("RExpectancy", ">", "0.05"),
         ("NetProfit", ">=", "0"),
     ]
+    _assert_retest1_passive_generation_contract(retest1)
 
     forward = roots["Retest-Task2.xml"]
     forward_setup = forward.find(".//Data/Setups/Setup")
@@ -479,6 +543,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     assert {node.get("broker") for node in retest1_symbols} == {"3"}
     assert {node.find("InstrumentInfo").get("broker") for node in retest1_symbols} == {"3"}
     assert [broker.get("id") for broker in retest1.findall(".//Resources/Brokers/Broker")] == ["3"]
+    _assert_retest1_passive_generation_contract(retest1)
 
 
 def test_generate_project_applies_selected_market_side_to_all_tasks():
