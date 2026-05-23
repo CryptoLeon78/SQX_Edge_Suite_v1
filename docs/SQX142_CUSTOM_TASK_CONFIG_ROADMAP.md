@@ -81,11 +81,12 @@ donor/base/template, diff semantico y `session_state.json`.
 
 `questionnaire` y `task-questionnaires` detectan y guardan todas las entradas
 por defecto, incluyendo entradas XML repetidas con indice estable para que no se
-colapsen. `--max-values` queda solo como throttle diagnostico temporal y no debe
-usarse para cerrar una fase. Cuando se usa `--write`, la consola devuelve
-resumen para no inundar el terminal; el JSON completo se guarda en `.local`.
-`--full-output` imprime todas las preguntas si hace falta inspeccionarlo
-directamente.
+colapsen; los IDs largos anaden hash estable para no perder condiciones
+repetidas en CrossChecks. `--max-values` queda solo como throttle diagnostico
+temporal y no debe usarse para cerrar una fase. Cuando se usa `--write`, la
+consola devuelve resumen para no inundar el terminal; el JSON completo se guarda
+en `.local`. `--full-output` imprime todas las preguntas si hace falta
+inspeccionarlo directamente.
 
 ## Fases
 
@@ -308,6 +309,8 @@ Mapa inicial del cuestionario:
 - `14` pestañas detectadas.
 - `18.176` entradas auditadas.
 - `8.344` diferencias base vs donor.
+- `CrossChecks` fue regenerado tras corregir IDs largos de cuestionario: `367`
+  preguntas y `367` respuestas unicas en ledger local.
 - La mayoria de diferencias vive en `Blocks`; se tratan como ruido de donor
   salvo que una pregunta concreta demuestre valor metodologico.
 - Primer bloque operativo: `Data/OOS`, porque define si el retest conserva la

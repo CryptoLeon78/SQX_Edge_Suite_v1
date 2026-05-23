@@ -5,6 +5,7 @@
 - Opens `RETEST 0` as the first real Capa1 OOS gate and documents that it runs full IS+OOS1 with OOS1 marked, not OOS-only isolation.
 - Makes Project Generator fallback commissions explicit as neutral `SizeBased=0.0` so generated tasks do not inherit accidental donor/base commission state when `data.db` is unavailable.
 - Adds template compatibility coverage proving generated `Retest-Task3.xml` keeps `2017.10.02-2025.01.01`, marks OOS1 `2023.01.01-2025.01.01`, and receives generated chart/spread/swap/commission/resources.
+- Fixes long questionnaire IDs so repeated CrossChecks conditions keep unique answer keys instead of colliding after slug truncation.
 
 ## 2026-05-23 - SQX142-BRANDING1 Etiqueta Visual Local Antes De RETEST 0
 

@@ -214,6 +214,16 @@ def slug(value: str) -> str:
     return safe[:120] or "item"
 
 
+def question_id(value: str) -> str:
+    safe = re.sub(r"[^A-Za-z0-9._-]+", "_", value.strip()).strip("._-")
+    if not safe:
+        return "item"
+    if len(safe) <= 120:
+        return safe
+    digest = hashlib.sha1(value.encode("utf-8")).hexdigest()[:10].upper()
+    return f"{safe[:109].rstrip('._-')}_{digest}"
+
+
 def canonical_task_key(value: str) -> str:
     key = re.sub(r"\s+", " ", value.strip().casefold())
     key = key.replace("syntetic", "synthetic")
@@ -562,7 +572,7 @@ def build_questionnaire(
         base_value = (base_by_path.get(path) or {}).get("value")
         donor_value = (donor_by_path.get(path) or {}).get("value")
         changed = normalize_value(base_value) != normalize_value(donor_value)
-        qid = slug(f"{task_title_wanted}-{tab}-{path}")
+        qid = question_id(f"{task_title_wanted}-{tab}-{path}")
         questions.append({
             "id": qid,
             "taskTitle": task_title_wanted,
