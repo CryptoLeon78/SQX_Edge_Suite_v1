@@ -159,6 +159,10 @@ Promocion aplicada de `Build > Genetic options`:
   la recomendacion: `MaxStrategies=2000` y
   `StopCondition.passedStrategies=500`, manteniendo el resto de la logica igual
   para reducir seleccion por suerte sin ahogar la cantera.
+- Limpieza `WhatToBuild/BuildMode`: se eliminan de la base local los nodos
+  legacy `FilterInitialPopulation`, `EvoFitnessRestartType` y
+  `EvoStagnationRestartGenerations`. SQX 142/143 lee y guarda la configuracion
+  actual mediante `Conditions` y atributos de `EvoRestartOnStagnation`.
 
 Orden recomendado de preguntas: pestañas sin diferencias primero para cerrar
 bloques rápidos, después `Data`, `Resources`, `WhatToBuild`, `CrossChecks` y al

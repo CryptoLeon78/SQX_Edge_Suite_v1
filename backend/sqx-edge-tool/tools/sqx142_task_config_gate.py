@@ -139,6 +139,12 @@ BUILD_INITIAL_CONDITIONS_TARGET = [
     {"column": "NumberOfTrades", "comparator": ">=", "value": "100", "format": "Decimal2"},
 ]
 
+BUILD_MODE_LEGACY_NODES = [
+    "FilterInitialPopulation",
+    "EvoFitnessRestartType",
+    "EvoStagnationRestartGenerations",
+]
+
 BUILD_RANKING_TARGET = {
     "MaxStrategies": "2000",
     "StopCondition": {"passedStrategies": "500"},
@@ -797,6 +803,20 @@ def set_initial_population_conditions(build_mode: ET.Element, actions: list[dict
     })
 
 
+def remove_children_by_tag(parent: ET.Element, tags: list[str], actions: list[dict[str, Any]]) -> None:
+    for tag in tags:
+        removed = []
+        for child in list(parent.findall(tag)):
+            removed.append(value_for_node(child))
+            parent.remove(child)
+        actions.append({
+            "field": f"RemoveLegacy:{tag}",
+            "from": removed,
+            "to": [],
+            "changed": bool(removed),
+        })
+
+
 def serialize_xml(root: ET.Element) -> str:
     return ET.tostring(root, encoding="unicode", short_empty_elements=True)
 
@@ -828,12 +848,14 @@ def update_build_genetic_target_in_cfx(cfx: Path, backup_root: Path, apply: bool
     for tag, attrs in BUILD_GENETIC_ATTR_TARGET.items():
         set_attr_child(build_mode, tag, attrs, payload["actions"])
     set_initial_population_conditions(build_mode, payload["actions"])
+    remove_children_by_tag(build_mode, BUILD_MODE_LEGACY_NODES, payload["actions"])
 
     payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
     payload["targetRationale"] = {
         "marketSides": "left untouched; generator remains responsible for side selection",
         "trainingValidation": "Build is IS edge mining; external Capa1/Capa2 retests are the validation layers",
         "fitnessType": "10 = In sample (whole)",
+        "legacyCleanup": "SQX 142/143 SettingsGeneticOptionsService reads/writes EvoRestartOnStagnation attributes and Conditions, not legacy sibling nodes.",
     }
     if apply and payload["changedActionCount"]:
         backup = backup_file(cfx, backup_root)

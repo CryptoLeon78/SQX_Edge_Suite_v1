@@ -171,6 +171,21 @@ def test_capa1_base_uses_confirmed_build_ranking_volume():
     assert stop_condition.get("passedStrategies") == "500"
 
 
+def test_capa1_build_genetic_options_use_current_sqx142_nodes_only():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    build = roots["Build-Task1.xml"]
+    build_mode = build.find(".//WhatToBuild/BuildMode")
+    assert build_mode is not None
+    assert build_mode.find("FilterInitialPopulation") is None
+    assert build_mode.find("EvoFitnessRestartType") is None
+    assert build_mode.find("EvoStagnationRestartGenerations") is None
+    restart = build_mode.find("EvoRestartOnStagnation")
+    assert restart is not None
+    assert restart.get("status") == "true"
+    assert restart.get("fitnessType") == "10"
+    assert restart.get("generations") == "10"
+
+
 def test_generate_project_names_build_task_and_applies_capa1_time_window():
     mining = Mining(num=91, phase=1, asset="AUDCAD", tf="H4", bs="BS_Volatilidad", dir="both")
     with tempfile.TemporaryDirectory() as tmp:
