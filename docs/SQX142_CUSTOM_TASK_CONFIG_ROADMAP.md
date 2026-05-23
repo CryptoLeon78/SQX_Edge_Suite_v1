@@ -79,6 +79,8 @@ tools\sqx142_task_config_gate.ps1 tick-real-data-databanks-resources-target --ta
 tools\sqx142_task_config_gate.ps1 tick-real-data-databanks-resources-target --target both --apply
 tools\sqx142_task_config_gate.ps1 tick-real-options-rankings-target --target both
 tools\sqx142_task_config_gate.ps1 tick-real-options-rankings-target --target both --apply
+tools\sqx142_task_config_gate.ps1 tick-real-passive-generation-target --target both
+tools\sqx142_task_config_gate.ps1 tick-real-passive-generation-target --target both --apply
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets
 tools\sqx142_task_config_gate.ps1 archive-exit-day-snippets --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "Build BS_Volatilidad_v6 · Capa1 L+S H4" --write
@@ -545,9 +547,41 @@ Decision aplicada para `TICK REAL > Options / Rankings`:
 Reporte local:
 `.local/sqx142_task_config/phase_reports/phase5_20260523_202446.json`.
 
-Siguiente bloque de decision: `TICK REAL > PartsToImprove / WhatToBuild /
-Blocks`, para comprobar que el retest es pasivo puro y no queda mejora,
-generacion, portfolio ni bloques de salida no metodologicos.
+Decision aplicada para `TICK REAL > PartsToImprove / WhatToBuild / Blocks`:
+
+- Se anade `tick-real-passive-generation-target` con dry-run-first,
+  backup/diff/apply, guard de pasividad e idempotencia posterior.
+- `PartsToImprove` queda pasivo puro: no mejora ATM, reglas de entrada, tipos
+  de orden ni reglas de salida; `LongImprovement` y `ShortImprovement` quedan
+  `use=false`.
+- `WhatToBuild/StrategyType` consume `improveDatabank=retest 1`. El
+  `BuildMode.generationType=random-generation` se conserva como enum conocido
+  de SQX porque no hay un enum local seguro de "none/passive", pero la conducta
+  pasiva queda forzada por input databank, mejoras desactivadas y toggles de
+  evolucion apagados.
+- `ShowLastGenerationDatabank=false`, `FreshBloodReplaceSimilar=false`,
+  `FreshBloodReplaceWeakest=false`, `EvoRestartOnFinish=false` y
+  `EvoRestartOnStagnation=false`.
+- `Blocks` preserva el universo existente de `TICK REAL` para no cambiar la
+  logica heredada por error; solo aplica el contrato pasivo: `signals` y
+  `stopLimitBlocks` quedan desactivados, `Indicators` sigue gobernado por
+  metodologia/BlockSettings, `EnterAtMarket` es la unica entrada y
+  `ExitAfterBars` es la unica salida activa con probabilidad `100`.
+- No quedan salidas por dias (`ExitAfterDays` / `ExitAfterTradingDays`) ni
+  `CustomData` externo visible; `CustomData.showAll=false`.
+- Estado post-apply: `activeBlockCount=100`, `activeIndicatorCount=50`,
+  `activeSignalCount=0`, `activeStopLimitCount=0`, `changedActionCount=0` y
+  `guardOk=true` en dry-run posterior.
+- Ledger local respondido para `TICK REAL > PartsToImprove` (`9/9`),
+  `TICK REAL > WhatToBuild` (`67/67`) y `TICK REAL > Blocks`
+  (`17.583/17.583`).
+
+Reporte local:
+`.local/sqx142_task_config/phase_reports/phase5_20260523_204910.json`.
+
+Siguiente bloque de decision: `TICK REAL > pestañas estaticas restantes y
+CrossChecks`, para cerrar la fase sin crosschecks internos activos, sin restos
+de generacion y con gestion de riesgo/tabs pasivas auditadas.
 
 ## Disciplina Operativa
 

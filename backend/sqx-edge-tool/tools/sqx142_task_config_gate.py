@@ -323,6 +323,18 @@ TICK_REAL_RANKING_CONDITIONS_TARGET = [
     {"column": "WinningPct", "comparator": ">=", "value": "50", "format": "Decimal2Pct", "sampleType": "127"},
     {"column": "ReturnDDRatio", "comparator": ">=", "value": "4", "format": "Decimal2", "sampleType": "127"},
 ]
+TICK_REAL_PASSIVE_SOURCE_TASK_TITLE = "RETEST 1"
+TICK_REAL_STRATEGY_TYPE_TARGET = {
+    "type": "simple",
+    "additionalCharts": "2",
+    "templateFile": "",
+    "improveType": "strategy",
+    "strategyFile": "",
+    "architecture": "sq4",
+    "improveDatabank": "retest 1",
+}
+TICK_REAL_PASSIVE_BUILDMODE_TEXT_TARGET = RETEST1_PASSIVE_BUILDMODE_TEXT_TARGET
+TICK_REAL_PASSIVE_BUILDMODE_ATTR_TARGET = RETEST1_PASSIVE_BUILDMODE_ATTR_TARGET
 
 
 def stamp() -> str:
@@ -2583,7 +2595,13 @@ def retest1_passive_generation_summary(root: ET.Element) -> dict[str, Any]:
     exit_types: dict[str, dict[str, str]] = {}
     custom_data: dict[str, Any] = {}
     active_keys = active_building_block_keys(blocks)
+    active_building_blocks = []
     if blocks is not None:
+        active_building_blocks = [
+            block for block in blocks.findall(".//BuildingBlocks/Block")
+            if str(block.get("use", "")).lower() == "true"
+            and block.get("key") not in {"#Left#", "#Right#"}
+        ]
         order_types = {block.get("key", ""): block.get("use", "") for block in blocks.findall("./OrderTypes/Block") if block.get("key")}
         exit_types = {
             block.get("key", ""): {"use": block.get("use", ""), "probability": block.get("probability", "")}
@@ -2615,8 +2633,8 @@ def retest1_passive_generation_summary(root: ET.Element) -> dict[str, Any]:
             "exitTypes": exit_types,
             "activeBlockCount": len(active_keys),
             "activeIndicatorCount": len(indicator_family_keys(active_keys)),
-            "activeSignalCount": len([key for key in active_keys if key.startswith("Signals.")]),
-            "activeStopLimitCount": len([key for key in active_keys if key.startswith("StopLimitBlocks.") or key.startswith("StopLimit.")]),
+            "activeSignalCount": len([block for block in active_building_blocks if block.get("category") == "signals"]),
+            "activeStopLimitCount": len([block for block in active_building_blocks if block.get("category") == "stopLimitBlocks"]),
             "customData": custom_data,
         },
     }
@@ -3659,6 +3677,239 @@ def promote_tick_real_options_rankings_target(root142: Path, project_root: Path,
         "nextPhase": "phase5_tick_real_options_rankings_diff_review" if not apply else "phase5_tick_real_passive_generation_decision",
     }
     evidence_target = ledger_root(project_root) / "diffs" / f"phase5_tick_real_options_rankings_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
+def apply_tick_real_what_to_build_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    what_to_build = find_section(root, "WhatToBuild")
+    if what_to_build is None:
+        what_to_build = ET.SubElement(root, "WhatToBuild")
+        actions.append({"field": "WhatToBuild", "from": None, "to": "created", "changed": True})
+
+    set_or_create_attrs_child(
+        what_to_build,
+        "StrategyType",
+        TICK_REAL_STRATEGY_TYPE_TARGET,
+        actions,
+        "WhatToBuild/StrategyType",
+    )
+    build_mode = what_to_build.find("BuildMode")
+    if build_mode is None:
+        build_mode = ET.SubElement(what_to_build, "BuildMode", {"generationType": "random-generation"})
+        actions.append({"field": "WhatToBuild/BuildMode", "from": None, "to": dict(build_mode.attrib), "changed": True})
+    else:
+        actions.append({
+            "field": "WhatToBuild/BuildMode:generationType",
+            "from": build_mode.get("generationType", ""),
+            "to": build_mode.get("generationType", ""),
+            "changed": False,
+            "note": "left as SQX-known placeholder; TICK REAL passive behavior is enforced by input databank, disabled improve parts and disabled evolution toggles",
+        })
+    for tag, value in TICK_REAL_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        set_or_create_text_child(build_mode, tag, value, actions, f"WhatToBuild/BuildMode/{tag}")
+    for tag, attrs in TICK_REAL_PASSIVE_BUILDMODE_ATTR_TARGET.items():
+        set_or_update_attrs_child(build_mode, tag, attrs, actions, f"WhatToBuild/BuildMode/{tag}")
+
+
+def apply_tick_real_blocks_to_root(root: ET.Element, source_root: ET.Element | None, actions: list[dict[str, Any]]) -> None:
+    blocks = find_blocks(root)
+    if blocks is None:
+        blocks = ET.SubElement(root, "Blocks", {"type": "simple", "version": "142.2336"})
+        actions.append({"field": "Blocks", "from": None, "to": dict(blocks.attrib), "changed": True})
+
+    before_attrs = dict(blocks.attrib)
+    blocks.set("type", "simple")
+    blocks.set("version", "142.2336")
+    actions.append({
+        "field": "Blocks:attrs",
+        "from": before_attrs,
+        "to": dict(blocks.attrib),
+        "changed": before_attrs != dict(blocks.attrib),
+    })
+
+    source_blocks = find_blocks(source_root)
+    if blocks.find("BuildingBlocks") is None and source_blocks is not None:
+        actions.append(replace_building_blocks_from_source(blocks, source_blocks))
+    else:
+        actions.append({
+            "field": "BuildingBlocks",
+            "changed": False,
+            "note": "preserved existing TICK REAL building-block universe; passive gate only enforces no-improve, entry and exit contracts",
+        })
+    enforce_order_types(blocks, actions)
+    enforce_exit_types(blocks, actions)
+    enforce_external_custom_data(blocks, actions)
+    enforce_disabled_build_block_categories(blocks, actions)
+
+
+def apply_tick_real_passive_generation_to_root(root: ET.Element, source_root: ET.Element | None) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    apply_retest1_parts_to_improve_to_root(root, actions)
+    apply_tick_real_what_to_build_to_root(root, actions)
+    apply_tick_real_blocks_to_root(root, source_root, actions)
+    return actions
+
+
+def tick_real_passive_generation_summary(root: ET.Element) -> dict[str, Any]:
+    return retest1_passive_generation_summary(root)
+
+
+def enforce_tick_real_passive_generation_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = tick_real_passive_generation_summary(root)
+    parts = summary.get("partsToImprove") or {}
+    for group_name in ("EntryRules", "OrderTypes", "ExitRules"):
+        group = parts.get(group_name) or {}
+        for side in ("LongImprovement", "ShortImprovement"):
+            if (group.get(side) or {}).get("use") != "false":
+                issues.append(f"TICK REAL {group_name}/{side} must be passive use=false")
+    if summary.get("strategyType") != TICK_REAL_STRATEGY_TYPE_TARGET:
+        issues.append("TICK REAL StrategyType must point passively to retest 1 with known SQX attributes")
+    build_mode = summary.get("buildMode") or {}
+    build_text = build_mode.get("text") or {}
+    for tag, value in TICK_REAL_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        if build_text.get(tag) != value:
+            issues.append(f"TICK REAL BuildMode {tag} is {build_text.get(tag)!r}, expected {value!r}")
+    child_attrs = build_mode.get("childAttrs") or {}
+    for tag, attrs in TICK_REAL_PASSIVE_BUILDMODE_ATTR_TARGET.items():
+        current = child_attrs.get(tag) or {}
+        for key, value in attrs.items():
+            if current.get(key) != value:
+                issues.append(f"TICK REAL BuildMode {tag}.{key} is {current.get(key)!r}, expected {value!r}")
+    blocks = summary.get("blocks") or {}
+    expected_order = BUILD_ORDER_TYPE_TARGET
+    actual_order = {key: blocks.get("orderTypes", {}).get(key) for key in expected_order}
+    if actual_order != expected_order:
+        issues.append(f"TICK REAL order types are {actual_order!r}, expected {expected_order!r}")
+    exits = blocks.get("exitTypes") or {}
+    if exits.get(BUILD_EXIT_TYPE_ACTIVE_KEY, {}).get("use") != "true":
+        issues.append("TICK REAL must keep only ExitAfterBars active")
+    if exits.get(BUILD_EXIT_TYPE_ACTIVE_KEY, {}).get("probability") != "100":
+        issues.append("TICK REAL ExitAfterBars probability must be 100")
+    active_other_exits = [
+        key for key, data in exits.items()
+        if key != BUILD_EXIT_TYPE_ACTIVE_KEY and (data or {}).get("use") == "true"
+    ]
+    if active_other_exits:
+        issues.append(f"TICK REAL has non-passive active exit types: {active_other_exits}")
+    if any(any(token in key for token in BUILD_EXIT_TYPE_BANNED_TOKENS) for key in exits):
+        issues.append("TICK REAL contains day-based exit types")
+    if int(blocks.get("activeSignalCount") or 0) != 0:
+        issues.append("TICK REAL signals must remain disabled in passive retest")
+    if int(blocks.get("activeStopLimitCount") or 0) != 0:
+        issues.append("TICK REAL stop/limit entry blocks must remain disabled in passive retest")
+    if int(blocks.get("activeIndicatorCount") or 0) <= 0:
+        issues.append("TICK REAL must preserve methodology/BlockSettings indicator blocks")
+    custom = blocks.get("customData") or {}
+    if (custom.get("attrs") or {}).get("showAll") != "false" or custom.get("children") != 0:
+        issues.append("TICK REAL external CustomData must stay disabled and empty")
+    guarded_sections = [
+        find_section(root, "PartsToImprove"),
+        find_section(root, "WhatToBuild"),
+        find_section(root, "Blocks"),
+    ]
+    guarded_text = "".join(serialize_xml(section if section is not None else root) for section in guarded_sections)
+    for token in ("ExitAfterDays", "ExitAfterTradingDays", "USDJPY_darwinex", "USDJPY_dukascopy"):
+        if token in guarded_text:
+            issues.append(f"Forbidden token leaked into TICK REAL passive generation tabs: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into TICK REAL passive generation tabs")
+    return issues
+
+
+def update_tick_real_passive_generation_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, TICK_REAL_TASK_TITLE)
+    source_task_xml_name, source_root = load_task_root(cfx, TICK_REAL_PASSIVE_SOURCE_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    payload["sourceTaskXml"] = source_task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "tick_real_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    if not source_task_xml_name or source_root is None:
+        payload["error"] = "tick_real_source_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = tick_real_passive_generation_summary(root)
+    payload["actions"] = apply_tick_real_passive_generation_to_root(root, source_root)
+    payload["after"] = tick_real_passive_generation_summary(root)
+    payload["issues"] = enforce_tick_real_passive_generation_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "strategyType": TICK_REAL_STRATEGY_TYPE_TARGET,
+        "buildModeText": TICK_REAL_PASSIVE_BUILDMODE_TEXT_TARGET,
+        "buildModeAttributes": TICK_REAL_PASSIVE_BUILDMODE_ATTR_TARGET,
+        "sourceTask": TICK_REAL_PASSIVE_SOURCE_TASK_TITLE,
+        "orderTypes": BUILD_ORDER_TYPE_TARGET,
+        "exitType": BUILD_EXIT_TYPE_ACTIVE_KEY,
+        "disabledCategories": BUILD_BLOCK_CATEGORY_DISABLE_TARGET,
+    }
+    payload["targetRationale"] = {
+        "passiveRetest": "TICK REAL consumes retest 1 candidates and must not improve, generate or alter strategy logic.",
+        "noUnknownEnum": "BuildMode.generationType is left as an SQX-known placeholder because no local CFX uses a safe none/passive enum.",
+        "blocksSource": "Existing TICK REAL BuildingBlocks are preserved to avoid changing strategy logic; RETEST 1 is only a fallback if the section is missing.",
+        "methodology": "Signals and Stop/Limit blocks stay off; indicators remain governed by methodology/BlockSettings; only EnterAtMarket plus ExitAfterBars is allowed.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_tick_real_passive_generation_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase5_tick_real_passive_generation_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_tick_real_passive_generation_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase5",
+        "operation": "tick_real_passive_generation_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase5_tick_real_passive_generation_diff_review" if not apply else "phase5_tick_real_static_crosschecks_decision",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase5_tick_real_passive_generation_target_{stamp()}.json"
     write_json(evidence_target, payload)
     payload["written"] = str(evidence_target)
     return payload
@@ -4873,6 +5124,10 @@ def build_parser() -> argparse.ArgumentParser:
     tick_real_options.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     tick_real_options.add_argument("--apply", action="store_true")
 
+    tick_real_passive = sub.add_parser("tick-real-passive-generation-target")
+    tick_real_passive.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    tick_real_passive.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -4974,6 +5229,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "tick-real-options-rankings-target":
         json_print(promote_tick_real_options_rankings_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "tick-real-passive-generation-target":
+        json_print(promote_tick_real_passive_generation_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

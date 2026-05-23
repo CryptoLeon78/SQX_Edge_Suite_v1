@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-23 - C1-CONFIG1 TICK REAL Passive Generation Gate
+
+- Adds `tick-real-passive-generation-target` to close the Phase 5 `TICK REAL` PartsToImprove/WhatToBuild/Blocks block with dry-run-first backup/diff/apply and passive-retest guards.
+- Keeps TICK REAL as a pure precision-data retest after `RETEST 1`: `StrategyType.improveDatabank=retest 1`, all improvement toggles off, last-generation/fresh-blood/evolution restarts off and no unknown SQX passive enum invented.
+- Preserves the existing TICK REAL BuildingBlocks universe to avoid changing strategy logic, while enforcing `signals=0`, `stopLimitBlocks=0`, `activeIndicatorCount=50`, only `EnterAtMarket` and only `ExitAfterBars` at probability `100`.
+- Records local ledger answers for `TICK REAL > PartsToImprove` (`9/9`), `TICK REAL > WhatToBuild` (`67/67`) and `TICK REAL > Blocks` (`17,583/17,583`), with post-apply dry-run idempotent and `guardOk=true`.
+
 ## 2026-05-23 - C1-CONFIG1 TICK REAL Options/Rankings
 
 - Adds `tick-real-options-rankings-target` to close the Phase 5 `TICK REAL` Options/Rankings block with dry-run-first backup/diff/apply and anti-coladero guards.

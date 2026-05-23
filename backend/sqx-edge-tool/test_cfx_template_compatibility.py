@@ -37,8 +37,8 @@ def _active_building_block_keys(blocks: ET.Element) -> list[str]:
     ]
 
 
-def _assert_retest1_passive_generation_contract(retest1: ET.Element) -> None:
-    parts = retest1.find(".//PartsToImprove")
+def _assert_retest_passive_generation_contract(task: ET.Element, expected_improve_databank: str) -> None:
+    parts = task.find(".//PartsToImprove")
     assert parts is not None
     for group_name in ("EntryRules", "OrderTypes", "ExitRules"):
         group = parts.find(group_name)
@@ -46,13 +46,13 @@ def _assert_retest1_passive_generation_contract(retest1: ET.Element) -> None:
         assert group.find("LongImprovement").get("use") == "false"
         assert group.find("ShortImprovement").get("use") == "false"
 
-    strategy_type = retest1.find(".//WhatToBuild/StrategyType")
+    strategy_type = task.find(".//WhatToBuild/StrategyType")
     assert strategy_type is not None
-    assert strategy_type.get("improveDatabank") == "RETEST 0"
+    assert strategy_type.get("improveDatabank") == expected_improve_databank
     assert strategy_type.get("improveType") == "strategy"
     assert strategy_type.get("architecture") == "sq4"
 
-    build_mode = retest1.find(".//WhatToBuild/BuildMode")
+    build_mode = task.find(".//WhatToBuild/BuildMode")
     assert build_mode is not None
     assert build_mode.get("generationType") == "random-generation"
     assert build_mode.findtext("ShowLastGenerationDatabank") == "false"
@@ -61,7 +61,7 @@ def _assert_retest1_passive_generation_contract(retest1: ET.Element) -> None:
     assert build_mode.find("EvoRestartOnFinish").get("status") == "false"
     assert build_mode.find("EvoRestartOnStagnation").get("status") == "false"
 
-    blocks = retest1.find(".//Blocks")
+    blocks = task.find(".//Blocks")
     assert blocks is not None
     assert blocks.get("version") == "142.2336"
     order_types = {
@@ -98,6 +98,14 @@ def _assert_retest1_passive_generation_contract(retest1: ET.Element) -> None:
     assert custom_data is not None
     assert custom_data.get("showAll") == "false"
     assert list(custom_data) == []
+
+
+def _assert_retest1_passive_generation_contract(retest1: ET.Element) -> None:
+    _assert_retest_passive_generation_contract(retest1, expected_improve_databank="RETEST 0")
+
+
+def _assert_tick_real_passive_generation_contract(tick_real: ET.Element) -> None:
+    _assert_retest_passive_generation_contract(tick_real, expected_improve_databank="retest 1")
 
 
 def _assert_retest1_static_crosschecks_contract(retest1: ET.Element) -> None:
@@ -361,6 +369,7 @@ def test_capa1_base_v2_matches_active_methodology():
     tick_real = roots["AutomaticRetest-Task2.xml"]
     _assert_tick_real_data_databanks_resources_contract(tick_real, expected_symbol="AUDCAD_darwinex", expected_timeframe="H1")
     _assert_tick_real_options_rankings_contract(tick_real, expected_window=("7200", "79200"))
+    _assert_tick_real_passive_generation_contract(tick_real)
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_options = {
@@ -654,6 +663,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     assert tick_setup.get("dateTo") == "2023.12.31"
     _assert_tick_real_data_databanks_resources_contract(tick_real, expected_symbol="AUDCAD", expected_timeframe="H4")
     _assert_tick_real_options_rankings_contract(tick_real, expected_window=("14400", "72000"))
+    _assert_tick_real_passive_generation_contract(tick_real)
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")
