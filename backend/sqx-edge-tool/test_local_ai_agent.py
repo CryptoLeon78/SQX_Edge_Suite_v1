@@ -66,6 +66,8 @@ def test_agent_status_handles_ollama_unavailable_without_paths():
     assert data["provider"]["available"] is False
     assert data["sqx142Compat"]["status"] == "needs_hardening"
     assert data["sqx142Performance"]["activeProfile"]["id"] == "baseline_143_safe"
+    assert data["handoffs"]["root"] == ".local/agent_handoffs"
+    assert data["handoffs"]["persistPrompts"] is False
     assert data["privacy"]["local_paths_returned"] is False
     assert "C:\\" not in raw
 
@@ -120,6 +122,7 @@ def test_agent_status_allows_authenticated_remote_tester_session_without_monitor
     assert data["access"]["capabilityMode"] == "tester_safe"
     assert data["access"]["monitorVisible"] is False
     assert data["inbox"]["enabled"] is False
+    assert data["handoffs"]["enabled"] is False
     assert data["sqx142Compat"]["visible"] is False
     assert data["sqx142Performance"]["visible"] is False
 
@@ -144,8 +147,25 @@ def test_agent_remote_capabilities_exclude_local_inbox_and_write_actions():
     assert "inspect_inbox" not in action_ids
     assert "sqx142_compat_help" not in action_ids
     assert "sqx142_performance_help" not in action_ids
+    assert "sqx_c1_config_help" not in action_ids
+    assert "sqx_test_guardian_help" not in action_ids
+    assert "sqx_docs_curator_help" not in action_ids
+    assert "sqx_agent_skills_help" not in action_ids
     assert not any(item.startswith("mark_step:") for item in action_ids)
     assert "open_stage_tool:capa1-generate" in action_ids
+
+
+def test_agent_profiles_and_catalog_include_sqx_guardians():
+    profiles = server._load_agent_profiles()
+    profile_ids = set((profiles.get("profiles") or {}).keys())
+    assert {"sqx-c1-config", "sqx-test-guardian", "sqx-docs-curator", "sqx-agent-skills"} <= profile_ids
+
+    actions = build_action_catalog(profiles)
+    assert actions["sqx_c1_config_help"].risk == "read"
+    assert actions["sqx_c1_config_help"].requires_confirmation is False
+    assert actions["sqx_test_guardian_help"].profile == "sqx-test-guardian"
+    assert actions["sqx_docs_curator_help"].profile == "sqx-docs-curator"
+    assert actions["sqx_agent_skills_help"].profile == "sqx-agent-skills"
 
 
 def test_sqx142_compat_status_is_local_operator_only_and_path_safe():
@@ -296,6 +316,42 @@ def test_agent_sqx142_performance_question_uses_fixed_local_answer():
     assert "6/6 views OK" in data["reply"]
     assert "PERF1 esta listo para cierre operativo" in data["reply"]
     assert "Live Guard: clean_idle" in data["reply"]
+
+
+def test_agent_sqx_c1_config_question_uses_fixed_local_answer():
+    client = server.app.test_client()
+    response = client.post("/api/agent/plan", json={"message": "estado C1-CONFIG1 antes de RETEST 0"})
+    data = response.get_json()
+    assert response.status_code == 200
+    assert data["source"] == "fixed_sqx_c1_config"
+    assert data["recommendedAction"]["id"] == "sqx_c1_config_help"
+    assert data["requiresConfirmation"] is False
+    assert "G8-SQX-AGENT-SKILLS1" in data["reply"]
+    assert "RETEST 0" in data["reply"]
+
+
+def test_agent_sqx_guardian_questions_use_fixed_local_answers():
+    client = server.app.test_client()
+    test_response = client.post("/api/agent/plan", json={"message": "test guardian matriz de tests"})
+    test_data = test_response.get_json()
+    assert test_response.status_code == 200
+    assert test_data["source"] == "fixed_sqx_test_guardian"
+    assert test_data["recommendedAction"]["id"] == "sqx_test_guardian_help"
+    assert "test_local_ai_agent.py" in test_data["reply"]
+
+    docs_response = client.post("/api/agent/plan", json={"message": "docs curator state consistency"})
+    docs_data = docs_response.get_json()
+    assert docs_response.status_code == 200
+    assert docs_data["source"] == "fixed_sqx_docs_curator"
+    assert docs_data["recommendedAction"]["id"] == "sqx_docs_curator_help"
+    assert "state_consistency_manifest" in docs_data["reply"]
+
+    skills_response = client.post("/api/agent/plan", json={"message": "G8-SQX-AGENT-SKILLS1 agentes y skills"})
+    skills_data = skills_response.get_json()
+    assert skills_response.status_code == 200
+    assert skills_data["source"] == "fixed_sqx_agent_skills"
+    assert skills_data["recommendedAction"]["id"] == "sqx_agent_skills_help"
+    assert ".local/agent_handoffs/" in skills_data["reply"]
 
 
 def test_agent_capabilities_question_uses_remote_safe_answer_for_testers():

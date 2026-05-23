@@ -1,9 +1,11 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 en Fase 2 iniciada el 2026-05-23. Fase 0 dejo preflight,
+Estado: C1-CONFIG1 en Fase 2 cerrada el 2026-05-23. Fase 0 dejo preflight,
 snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1 promociono
 las views ligeras/especializadas desde Mining15 a la base local y al template
-repo; Fase 2 genero los cuestionarios completos de Build Capa1.
+repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro Build.
+Antes de `RETEST 0`, G8-SQX-AGENT-SKILLS1 alinea skills, guardianes,
+perfiles del agente y handoffs locales para proteger el resto del cuestionario.
 
 Este documento gobierna la configuracion interactiva de parametros del custom
 base Capa 1. La fuente inicial es el custom mas actualizado:
@@ -86,6 +88,7 @@ directamente.
 1. Promocion selectiva inicial Mining15 -> Capa1 base, solo fixes validados y
    reversibles.
 2. Build Capa1, pestaña por pestaña.
+2.5. `G8-SQX-AGENT-SKILLS1`, guardianes SQX antes de `RETEST 0`.
 3. `RETEST 0`.
 4. `RETEST 1`.
 5. `TICK REAL`.
@@ -218,6 +221,23 @@ Orden recomendado de preguntas: pestañas sin diferencias primero para cerrar
 bloques rápidos, después `Data`, `Resources`, `WhatToBuild`, `CrossChecks` y al
 final `Blocks` por volumen.
 
+## Estado G8-SQX-AGENT-SKILLS1
+
+Aplicado como fase puente antes de `RETEST 0`:
+
+- Skills locales actualizadas: `sqx-edge-suite-governance` y
+  `sqx142-local-intelligence`.
+- Skills locales nuevas: `sqx-test-guardian` y `sqx-docs-curator`.
+- Perfiles del agente local: `sqx-c1-config`, `sqx-test-guardian`,
+  `sqx-docs-curator` y `sqx-agent-skills`.
+- Handoffs locales ignorados: `.local/agent_handoffs/`.
+- Los guardianes pueden usarse proactivamente para lectura, revision de docs,
+  matriz de tests y dry-runs seguros, pero no ejecutan `--apply`, `--write`,
+  `--launch`, retests reales ni mutaciones de proyectos/databanks sin
+  confirmacion explicita.
+
+Siguiente fase tras cerrar G8: Fase 3 `RETEST 0`.
+
 ## Disciplina Operativa
 
 En cada fase:
@@ -231,6 +251,8 @@ En cada fase:
 6. Aplicar a base solo con la fase cerrada.
 7. Emitir reporte de fase.
 8. Indicar exactamente que fase toca en el siguiente mensaje.
+9. Invocar `SQX Test Guardian` y/o `SQX Docs Curator` cuando haya riesgo de
+   regresion, drift documental o verificacion paralela util.
 
 ## Criterios De Aceptacion
 

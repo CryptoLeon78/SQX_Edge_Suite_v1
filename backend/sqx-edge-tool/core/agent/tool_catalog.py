@@ -110,6 +110,42 @@ def build_action_catalog(_profiles: dict[str, Any] | None = None) -> dict[str, A
             requires_confirmation=False,
             ui_command={"type": "none"},
         ),
+        "sqx_c1_config_help": AgentAction(
+            id="sqx_c1_config_help",
+            label="Explicar C1-CONFIG1",
+            risk="read",
+            profile="sqx-c1-config",
+            description="Resume fase Capa1 config, ledger local, reglas de promocion selectiva y siguiente paso sin ejecutar cambios.",
+            requires_confirmation=False,
+            ui_command={"type": "none"},
+        ),
+        "sqx_test_guardian_help": AgentAction(
+            id="sqx_test_guardian_help",
+            label="Recomendar checks SQX",
+            risk="read",
+            profile="sqx-test-guardian",
+            description="Recomienda matriz de checks read-only/dry-run para la fase activa sin ejecutar mutaciones.",
+            requires_confirmation=False,
+            ui_command={"type": "none"},
+        ),
+        "sqx_docs_curator_help": AgentAction(
+            id="sqx_docs_curator_help",
+            label="Revisar docs SQX",
+            risk="read",
+            profile="sqx-docs-curator",
+            description="Explica docs, manifest y governance pendientes sin inventar estado ni exponer evidencia privada.",
+            requires_confirmation=False,
+            ui_command={"type": "none"},
+        ),
+        "sqx_agent_skills_help": AgentAction(
+            id="sqx_agent_skills_help",
+            label="Explicar agentes y skills",
+            risk="read",
+            profile="sqx-agent-skills",
+            description="Resume guardianes, handoffs, uso paralelo permitido y limites de autonomia.",
+            requires_confirmation=False,
+            ui_command={"type": "none"},
+        ),
     }
     for stage, tool_id in EDGE_STAGE_TO_TOOL.items():
         actions[f"open_stage_tool:{stage}"] = AgentAction(

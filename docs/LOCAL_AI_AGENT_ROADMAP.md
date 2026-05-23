@@ -10,6 +10,7 @@
 - Phase REMOTE-AI-TESTER1 - piloto IA para testers autenticados: aplicado con subset seguro.
 - Phase SQX142-143-BACKPORT1 - compatibilidad SQX local: aplicado como capability interna local-only.
 - Phase SQX142-PERF1 - rendimiento SQX local: aplicado como capability interna local-only.
+- Phase G8-SQX-AGENT-SKILLS1 - guardianes SQX de agentes/skills: aplicado antes de `RETEST 0` con perfiles local-only, skills actualizadas y handoffs ignorados.
 
 ## Contrato V1
 
@@ -30,6 +31,8 @@ Reglas:
 - Preguntas como `que eres capaz de hacer?` usan una respuesta fija de capacidades, independiente de Ollama y de la etapa activa.
 - Preguntas locales sobre SQX 142, build 143, build 144, backport o compatibilidad usan `fixed_sqx142_compat` y el ledger antes que una respuesta libre del LLM.
 - Preguntas locales sobre rendimiento, minados, retests, MonteCarlo, databanks o perfiles JVM usan `fixed_sqx142_performance` y `docs/SQX142_PERFORMANCE_ROADMAP.md` antes que una respuesta libre del LLM.
+- Preguntas locales sobre C1-CONFIG1, `RETEST 0`, guardianes, skills, handoffs, docs o matriz de tests usan respuestas fijas `fixed_sqx_c1_config`, `fixed_sqx_test_guardian`, `fixed_sqx_docs_curator` o `fixed_sqx_agent_skills` antes que respuesta libre del LLM.
+- `SQX Test Guardian` y `SQX Docs Curator` son perspectivas internas para lectura, planificacion, dry-run y revision; no son ejecutores autonomos de mutaciones.
 
 Prohibido en V1:
 
@@ -55,6 +58,7 @@ Prohibido en V1:
 - UI principal: dock dentro de Edge Factory, no nuevo tab.
 - Resumen: panel compacto en Control Panel.
 - Bandeja local: `.local/agent_inbox/incoming`, `processed`, `summaries`.
+- Handoffs locales: `.local/agent_handoffs/`, ignorado por Git, solo para resumenes de subagentes/decisiones/checks sin prompts completos ni evidencia privada.
 
 ## SQX 142 Source Code Translator
 
@@ -94,6 +98,10 @@ Perfiles de etapa Edge Factory:
 - `portfolio`: shortlist diversa.
 - `sqx142-compat`: estado local SQX 142/143/144, runtime, procesos, ledger y limites de backport.
 - `sqx142-performance`: perfil JVM activo, disco, procesos, views de rendimiento, evidencias clave, Live Guard, recomendacion activa y reglas de calidad sin ejecutar cambios.
+- `sqx-c1-config`: estado C1-CONFIG1, ledger local, promocion selectiva y salto controlado hacia `RETEST 0`.
+- `sqx-test-guardian`: matriz de checks, riesgos de regresion, dry-runs seguros y limites de no-mutacion.
+- `sqx-docs-curator`: coherencia README/governance/roadmap/changelog/manifest y privacidad documental.
+- `sqx-agent-skills`: capa de skills, handoffs, subagentes permitidos, autonomia y limites.
 
 Subperfiles declarados para evolucion posterior:
 
@@ -110,6 +118,7 @@ Subperfiles declarados para evolucion posterior:
 - Remote tester capabilities excluye bandeja local, `mark_step:*`, escritura y monitor.
 - Remote tester capabilities excluye `sqx142_compat_help` y cualquier estado del monitor local.
 - Remote tester capabilities excluye `sqx142_performance_help`, `fixed_sqx142_performance` y cualquier estado de rendimiento local.
+- Remote tester capabilities excluye `sqx_c1_config_help`, `sqx_test_guardian_help`, `sqx_docs_curator_help`, `sqx_agent_skills_help` y cualquier estado/handoff local de guardianes SQX.
 - Las respuestas publicas no contienen rutas locales, emails, tokens ni protected URLs.
 - El dock no crea un tab primario nuevo.
 - Confirmar una recomendacion de navegacion abre la herramienta permitida.

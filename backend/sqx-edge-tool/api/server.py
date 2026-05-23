@@ -1133,6 +1133,17 @@ def _agent_access_context() -> tuple[dict | None, tuple | None]:
     }), 403)
 
 
+LOCAL_OPERATOR_ONLY_AGENT_ACTIONS = {
+    "inspect_inbox",
+    "sqx142_compat_help",
+    "sqx142_performance_help",
+    "sqx_c1_config_help",
+    "sqx_test_guardian_help",
+    "sqx_docs_curator_help",
+    "sqx_agent_skills_help",
+}
+
+
 def _agent_actions_for_context(context: dict | None = None) -> dict:
     actions = build_action_catalog(_load_agent_profiles())
     if not context or not context.get("remote"):
@@ -1141,7 +1152,7 @@ def _agent_actions_for_context(context: dict | None = None) -> dict:
         action_id: action
         for action_id, action in actions.items()
         if action.risk in {"read", "navigate"}
-        and action.id not in {"inspect_inbox", "sqx142_compat_help", "sqx142_performance_help"}
+        and action.id not in LOCAL_OPERATOR_ONLY_AGENT_ACTIONS
         and not action.id.startswith("mark_step:")
     }
 
@@ -1152,6 +1163,7 @@ def _agent_public_status(context: dict | None = None) -> dict:
     llm_status = client.status()
     profile_map = profiles.get("profiles") if isinstance(profiles.get("profiles"), dict) else {}
     inbox = profiles.get("inbox") if isinstance(profiles.get("inbox"), dict) else {}
+    handoffs = profiles.get("handoffs") if isinstance(profiles.get("handoffs"), dict) else {}
     access = context or {"scope": "local_operator", "remote": False, "capabilityMode": "operator_full"}
     return {
         "ok": True,
@@ -1180,6 +1192,13 @@ def _agent_public_status(context: dict | None = None) -> dict:
             "enabled": not bool(access.get("remote")),
             "root": ".local/agent_inbox",
             "incoming": inbox.get("incoming", ".local/agent_inbox/incoming") if isinstance(inbox, dict) else ".local/agent_inbox/incoming",
+            "localPathReturned": False,
+        },
+        "handoffs": {
+            "enabled": not bool(access.get("remote")),
+            "root": handoffs.get("root", ".local/agent_handoffs") if isinstance(handoffs, dict) else ".local/agent_handoffs",
+            "persistPrompts": bool(handoffs.get("persistPrompts", False)) if isinstance(handoffs, dict) else False,
+            "persistPrivateEvidence": bool(handoffs.get("persistPrivateEvidence", False)) if isinstance(handoffs, dict) else False,
             "localPathReturned": False,
         },
         "sqx142Compat": {"visible": False} if access.get("remote") else build_sqx142_status(include_paths=False),
@@ -1274,6 +1293,98 @@ def _is_sqx142_performance_question(value: object) -> bool:
     return any(marker in normalized for marker in markers)
 
 
+def _is_sqx_c1_config_question(value: object) -> bool:
+    text = str(value or "").lower()
+    normalized = (
+        text.replace("¿", "")
+        .replace("?", "")
+        .replace("á", "a")
+        .replace("é", "e")
+        .replace("í", "i")
+        .replace("ó", "o")
+        .replace("ú", "u")
+    )
+    markers = [
+        "c1-config1",
+        "capa1 config",
+        "config capa1",
+        "task config",
+        "sqx142_task_config",
+        "retest 0",
+        "mining15",
+        "cuestionario",
+    ]
+    return any(marker in normalized for marker in markers)
+
+
+def _is_sqx_test_guardian_question(value: object) -> bool:
+    text = str(value or "").lower()
+    normalized = (
+        text.replace("¿", "")
+        .replace("?", "")
+        .replace("á", "a")
+        .replace("é", "e")
+        .replace("í", "i")
+        .replace("ó", "o")
+        .replace("ú", "u")
+    )
+    markers = [
+        "test guardian",
+        "checks sqx",
+        "matriz de tests",
+        "regresion",
+        "que tests",
+        "verificacion",
+    ]
+    return any(marker in normalized for marker in markers)
+
+
+def _is_sqx_docs_curator_question(value: object) -> bool:
+    text = str(value or "").lower()
+    normalized = (
+        text.replace("¿", "")
+        .replace("?", "")
+        .replace("á", "a")
+        .replace("é", "e")
+        .replace("í", "i")
+        .replace("ó", "o")
+        .replace("ú", "u")
+    )
+    markers = [
+        "docs curator",
+        "documentacion",
+        "manifest",
+        "state consistency",
+        "governance",
+        "gobernanza",
+        "changelog",
+    ]
+    return any(marker in normalized for marker in markers)
+
+
+def _is_sqx_agent_skills_question(value: object) -> bool:
+    text = str(value or "").lower()
+    normalized = (
+        text.replace("¿", "")
+        .replace("?", "")
+        .replace("á", "a")
+        .replace("é", "e")
+        .replace("í", "i")
+        .replace("ó", "o")
+        .replace("ú", "u")
+    )
+    markers = [
+        "agentes",
+        "agents",
+        "skills",
+        "handoff",
+        "subagentes",
+        "subagents",
+        "g8-sqx-agent-skills1",
+    ]
+    return any(marker in normalized for marker in markers)
+
+
 def _agent_capabilities_plan(actions: dict | None = None, *, context: dict | None = None) -> dict:
     actions = actions or build_action_catalog(_load_agent_profiles())
     action = actions["capabilities_help"]
@@ -1289,7 +1400,8 @@ def _agent_capabilities_plan(actions: dict | None = None, *, context: dict | Non
         reply = (
             "Soy el agente IA local de SQX Edge Suite para operador. Puedo orientarte por Edge Factory, "
             "explicar el siguiente paso, abrir herramientas internas con tu confirmacion, refrescar estado local, "
-            "revisar la bandeja local bajo confirmacion, explicar la compatibilidad SQX 142/143/144, analizar rendimiento SQX 142 y preparar acciones seguras. "
+            "revisar la bandeja local bajo confirmacion, explicar la compatibilidad SQX 142/143/144, analizar rendimiento SQX 142, "
+            "explicar C1-CONFIG1 y activar perspectivas internas de Test Guardian, Docs Curator y skills cuando reduzcan riesgo. "
             "No ejecuto texto libre ni cambios sin confirmacion, y no puedo tocar emails, grants, checkout, Cloudflare, permisos, URLs protegidas, "
             "borrados, publicaciones ni acciones comerciales externas."
         )
@@ -1373,6 +1485,84 @@ def _agent_sqx142_performance_plan(actions: dict | None = None) -> dict:
     )
 
 
+def _agent_sqx_c1_config_plan(actions: dict | None = None) -> dict:
+    actions = actions or build_action_catalog(_load_agent_profiles())
+    action = actions["sqx_c1_config_help"]
+    reply = (
+        "C1-CONFIG1 esta en configuracion interactiva de Capa1 base. Build ya queda cerrado y antes de RETEST 0 "
+        "entra G8-SQX-AGENT-SKILLS1 para activar guardianes de tests/docs, handoffs locales y perfiles del agente. "
+        "Las respuestas completas viven en .local/sqx142_task_config/; la promocion desde Mining15 sigue siendo selectiva y normalizada. "
+        "No toco la base ni ejecuto retests sin fase cerrada, backup, diff y confirmacion."
+    )
+    return safe_plan_response(
+        reply=reply,
+        profile="sqx-c1-config",
+        action=action,
+        reason="Consulta local sobre C1-CONFIG1 y el salto controlado hacia RETEST 0.",
+        blockers=[],
+        arguments={},
+        source="fixed_sqx_c1_config",
+    )
+
+
+def _agent_sqx_test_guardian_plan(actions: dict | None = None) -> dict:
+    actions = actions or build_action_catalog(_load_agent_profiles())
+    action = actions["sqx_test_guardian_help"]
+    reply = (
+        "SQX Test Guardian propone la matriz minima para esta fase: compileall backend, "
+        "test_local_ai_agent.py, test_docs_state_consistency.py, agent_guide_contracts.mjs y git diff --check. "
+        "Si cambia UI o wiring JS, suma contratos JS completos. Solo recomienda/ejecuta checks read-only o dry-run; "
+        "no usa --apply, --write, --launch ni arranca SQX real sin aprobacion exacta."
+    )
+    return safe_plan_response(
+        reply=reply,
+        profile="sqx-test-guardian",
+        action=action,
+        reason="Consulta local sobre verificacion y regresion de la fase activa.",
+        blockers=[],
+        arguments={},
+        source="fixed_sqx_test_guardian",
+    )
+
+
+def _agent_sqx_docs_curator_plan(actions: dict | None = None) -> dict:
+    actions = actions or build_action_catalog(_load_agent_profiles())
+    action = actions["sqx_docs_curator_help"]
+    reply = (
+        "SQX Docs Curator revisa que README, CHANGELOG, governance, roadmap C1, roadmap del agente y "
+        "state_consistency_manifest cuenten la misma historia: G8-SQX-AGENT-SKILLS1 va antes de RETEST 0, "
+        "los guardianes son internos/local-only y no hay claims, rutas, emails, tokens ni evidencia privada en docs."
+    )
+    return safe_plan_response(
+        reply=reply,
+        profile="sqx-docs-curator",
+        action=action,
+        reason="Consulta local sobre documentacion y consistencia de estado.",
+        blockers=[],
+        arguments={},
+        source="fixed_sqx_docs_curator",
+    )
+
+
+def _agent_sqx_agent_skills_plan(actions: dict | None = None) -> dict:
+    actions = actions or build_action_catalog(_load_agent_profiles())
+    action = actions["sqx_agent_skills_help"]
+    reply = (
+        "La capa G8-SQX-AGENT-SKILLS1 actualiza skills y perfiles para trabajar con guardianes. "
+        "Puedo invocar perspectivas de tests/docs/SQX142 cuando reduzcan riesgo, usar handoffs locales bajo .local/agent_handoffs/ "
+        "y mantener Codex como orquestador. La autonomia sube en lectura, planificacion y verificacion; no en mutaciones."
+    )
+    return safe_plan_response(
+        reply=reply,
+        profile="sqx-agent-skills",
+        action=action,
+        reason="Consulta local sobre agentes, skills, handoffs y autonomia permitida.",
+        blockers=[],
+        arguments={},
+        source="fixed_sqx_agent_skills",
+    )
+
+
 def _agent_heuristic_plan(
     data: dict,
     *,
@@ -1383,6 +1573,14 @@ def _agent_heuristic_plan(
     actions = actions or build_action_catalog(_load_agent_profiles())
     if _is_capabilities_question(data.get("message") or data.get("question")):
         return _agent_capabilities_plan(actions, context=context)
+    if not (context and context.get("remote")) and _is_sqx_agent_skills_question(data.get("message") or data.get("question")):
+        return _agent_sqx_agent_skills_plan(actions)
+    if not (context and context.get("remote")) and _is_sqx_docs_curator_question(data.get("message") or data.get("question")):
+        return _agent_sqx_docs_curator_plan(actions)
+    if not (context and context.get("remote")) and _is_sqx_test_guardian_question(data.get("message") or data.get("question")):
+        return _agent_sqx_test_guardian_plan(actions)
+    if not (context and context.get("remote")) and _is_sqx_c1_config_question(data.get("message") or data.get("question")):
+        return _agent_sqx_c1_config_plan(actions)
     if not (context and context.get("remote")) and _is_sqx142_performance_question(data.get("message") or data.get("question")):
         return _agent_sqx142_performance_plan(actions)
     if not (context and context.get("remote")) and _is_sqx142_compat_question(data.get("message") or data.get("question")):
@@ -1412,6 +1610,14 @@ def _agent_plan_with_llm(data: dict, *, actions: dict | None = None, context: di
     actions = actions or build_action_catalog(_load_agent_profiles())
     if _is_capabilities_question(data.get("message") or data.get("question")):
         return _agent_capabilities_plan(actions, context=context)
+    if not (context and context.get("remote")) and _is_sqx_agent_skills_question(data.get("message") or data.get("question")):
+        return _agent_sqx_agent_skills_plan(actions)
+    if not (context and context.get("remote")) and _is_sqx_docs_curator_question(data.get("message") or data.get("question")):
+        return _agent_sqx_docs_curator_plan(actions)
+    if not (context and context.get("remote")) and _is_sqx_test_guardian_question(data.get("message") or data.get("question")):
+        return _agent_sqx_test_guardian_plan(actions)
+    if not (context and context.get("remote")) and _is_sqx_c1_config_question(data.get("message") or data.get("question")):
+        return _agent_sqx_c1_config_plan(actions)
     if not (context and context.get("remote")) and _is_sqx142_performance_question(data.get("message") or data.get("question")):
         return _agent_sqx142_performance_plan(actions)
     if not (context and context.get("remote")) and _is_sqx142_compat_question(data.get("message") or data.get("question")):

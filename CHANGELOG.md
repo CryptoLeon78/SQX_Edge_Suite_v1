@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-05-23 - G8-SQX-AGENT-SKILLS1 Guardianes Antes De RETEST 0
+
+- Updates local Codex skills `sqx-edge-suite-governance` and `sqx142-local-intelligence` with C1-CONFIG1, SQX142-PERF1, Live Guard, handoffs, subagent use and no-mutation limits.
+- Adds local skills `sqx-test-guardian` and `sqx-docs-curator` for verification matrix selection, docs consistency, manifest drift and public/private boundary review.
+- Adds local AI profiles/actions for `sqx-c1-config`, `sqx-test-guardian`, `sqx-docs-curator` and `sqx-agent-skills`, all read-only and hidden from remote testers.
+- Adds `.local/agent_handoffs/` as ignored local handoff root for subagent summaries without prompts, secrets or private evidence.
+- Updates governance, the Local AI roadmap, the C1 custom task roadmap and docs consistency manifest so G8 sits between Build closure and `RETEST 0`.
+- Adds backend tests proving guardian profiles/capabilities load locally and remain excluded from remote tester capabilities.
+
 ## 2026-05-23 - C1-CONFIG1 Capa1 Custom Task Config Gate
 
 - Adds `docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md` as the master roadmap for interactive Capa1 base task configuration.

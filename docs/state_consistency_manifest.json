@@ -308,6 +308,57 @@
           "commit .local/sqx142_task_config"
         ]
       }
+    },
+    {
+      "id": "sqx_agent_skills_guardians",
+      "description": "G8-SQX-AGENT-SKILLS1 must stay local-only, before RETEST 0, with Test Guardian and Docs Curator bounded to read-only/dry-run review unless explicitly confirmed.",
+      "required": {
+        "README.md": [
+          "G8-SQX-AGENT-SKILLS1 esta aplicado antes de RETEST 0",
+          "SQX Test Guardian",
+          "SQX Docs Curator",
+          ".local/agent_handoffs/"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Current phase completed: G8-SQX-AGENT-SKILLS1 - SQX Agent/Skills Guardians",
+          "SQX Agent/Skills Guardian Gate",
+          "SQX Test Guardian",
+          "SQX Docs Curator",
+          ".local/agent_handoffs/"
+        ],
+        "docs/LOCAL_AI_AGENT_ROADMAP.md": [
+          "Phase G8-SQX-AGENT-SKILLS1 - guardianes SQX de agentes/skills",
+          "sqx_c1_config_help",
+          "sqx_test_guardian_help",
+          "sqx_docs_curator_help",
+          "sqx_agent_skills_help"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "2.5. `G8-SQX-AGENT-SKILLS1`, guardianes SQX antes de `RETEST 0`.",
+          "Siguiente fase tras cerrar G8: Fase 3 `RETEST 0`.",
+          "sqx-test-guardian",
+          "sqx-docs-curator"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-23 - G8-SQX-AGENT-SKILLS1 Guardianes Antes De RETEST 0",
+          "local AI profiles/actions",
+          "hidden from remote testers"
+        ]
+      },
+      "forbidden": {
+        "docs/PROJECT_GOVERNANCE.md": [
+          "guardians may execute --apply automatically",
+          "guardianes pueden ejecutar --apply automaticamente"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "G8-SQX-AGENT-SKILLS1 despues de RETEST 0",
+          "guardians mutate projects without confirmation"
+        ],
+        "docs/LOCAL_AI_AGENT_ROADMAP.md": [
+          "remote tester capabilities incluye sqx_test_guardian_help",
+          "remote tester capabilities incluye sqx_docs_curator_help"
+        ]
+      }
     }
   ]
 }
