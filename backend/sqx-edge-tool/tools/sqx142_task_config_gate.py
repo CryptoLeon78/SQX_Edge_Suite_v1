@@ -537,6 +537,19 @@ MC2_PASSIVE_BUILDMODE_TEXT_TARGET = MC_PASSIVE_BUILDMODE_TEXT_TARGET
 MC2_PASSIVE_BUILDMODE_ATTR_TARGET = MC_PASSIVE_BUILDMODE_ATTR_TARGET
 MC2_STATIC_TABS = MC_STATIC_TABS
 MC2_RANKING_TARGET = MC_RANKING_TARGET
+SEQUENTIAL_TASK_TITLE = "Sequential"
+SEQUENTIAL_TASK_XML = "AutomaticRetest-Task3.xml"
+SEQUENTIAL_EXPECTED_DATABANKS = {
+    "Input": "MC2",
+    "Output": "Sequential",
+}
+SEQUENTIAL_ACTIVE_CROSSCHECK = "SequentialOptimization"
+SEQUENTIAL_NEXT_PHASE = "phase8_sequential_data_databanks_resources_options"
+SEQUENTIAL_DECISION_PENDING = (
+    "StrategyType.improveDatabank",
+    "Data_vs_CustomData_carrier",
+    "SequentialOptimization_acceptance_settings",
+)
 
 
 def stamp() -> str:
@@ -7218,6 +7231,246 @@ def mc2_closeout_report(root142: Path, project_root: Path, target: str, write: b
     return payload
 
 
+def sequential_optimization_summary(root: ET.Element | None) -> dict[str, Any]:
+    check = root.find(".//CrossChecks/SequentialOptimization") if root is not None else None
+    if check is None:
+        return {"exists": False}
+    parameter_settings = check.find("./Settings/ParameterSettings")
+    what_to_parametrize = check.find("./Settings/WhatToParametrize")
+    acceptance = check.find("./AcceptanceSettings")
+    return {
+        "exists": True,
+        "use": check.get("use", ""),
+        "parameterSettings": {
+            child.tag: (child.text or "")
+            for child in list(parameter_settings) if isinstance(child.tag, str)
+        } if parameter_settings is not None else {},
+        "whatToParametrize": {
+            "attributes": dict(what_to_parametrize.attrib),
+            "values": {
+                child.tag: (child.text or "")
+                for child in list(what_to_parametrize) if isinstance(child.tag, str)
+            },
+        } if what_to_parametrize is not None else {},
+        "acceptanceSettings": {
+            "values": {
+                child.tag: (child.text or "")
+                for child in list(acceptance)
+                if isinstance(child.tag, str) and child.tag != "Conditions"
+            },
+            "activeConditionCount": len([
+                condition
+                for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
+                if condition.get("use", "true") != "false"
+            ]),
+        } if acceptance is not None else {},
+    }
+
+
+def _setup_attrs(node: ET.Element | None) -> dict[str, str]:
+    return dict(node.attrib) if node is not None else {}
+
+
+def sequential_open_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    databanks = {
+        node.get("name", ""): node.get("value", "")
+        for node in root.findall(".//Databanks/Databank")
+        if node.get("name")
+    }
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in {
+            "Session",
+            "MarketOpenSession",
+            "LimitTimeRange",
+            "SignalTimeRangeFrom",
+            "SignalTimeRangeTo",
+            "RealisticGapsHandling",
+            "StoreChartData",
+        }
+    }
+    rankings = find_section(root, "Rankings")
+    fit_portfolio = rankings.find("FitPortfolio") if rankings is not None else None
+    custom_analysis = rankings.find("CustomAnalysis") if rankings is not None else None
+    strategy_type = root.find(".//WhatToBuild/StrategyType")
+    crosschecks = root.find(".//CrossChecks")
+    active_checks = [
+        check.tag
+        for check in list(crosschecks) if crosschecks is not None and isinstance(check.tag, str) and check.get("use") == "true"
+    ] if crosschecks is not None else []
+    return {
+        "exists": True,
+        "data": {
+            "exists": root.find("./Data") is not None,
+            "setup": _setup_attrs(root.find("./Data/Setups/Setup")),
+            "outOfSampleRanges": [dict(node.attrib) for node in root.findall("./Data/OutOfSample/Range")],
+        },
+        "customData": {
+            "exists": root.find("./CustomData") is not None,
+            "setup": _setup_attrs(root.find("./CustomData/Setups/Setup")),
+        },
+        "databanks": databanks,
+        "resources": _tick_real_resource_summary(root),
+        "optionsParams": params,
+        "strategyType": dict(strategy_type.attrib) if strategy_type is not None else {},
+        "passiveGeneration": retest1_passive_generation_summary(root),
+        "crossChecks": {
+            "exists": crosschecks is not None,
+            "attributes": dict(crosschecks.attrib) if crosschecks is not None else {},
+            "active": active_checks,
+            "sequentialOptimization": sequential_optimization_summary(root),
+        },
+        "rankings": {
+            "type": rankings.get("type", "") if rankings is not None else "",
+            "DeleteFailedStrategies": rankings.findtext("DeleteFailedStrategies") if rankings is not None else "",
+            "ForceRunCrossChecks": rankings.findtext("ForceRunCrossChecks") if rankings is not None else "",
+            "FitPortfolio": dict(fit_portfolio.attrib) if fit_portfolio is not None else {},
+            "CustomAnalysis": dict(custom_analysis.attrib) if custom_analysis is not None else {},
+            "activeConditionCount": len([
+                condition
+                for condition in rankings.findall("./Conditions/Condition")
+                if condition.get("use", "true") != "false"
+            ]) if rankings is not None else 0,
+        },
+    }
+
+
+def sequential_open_issues(summary: dict[str, Any]) -> tuple[list[str], list[str]]:
+    issues: list[str] = []
+    warnings: list[str] = []
+    if not summary.get("exists"):
+        return ["Sequential task missing"], warnings
+
+    databanks = summary.get("databanks") or {}
+    for name, wanted in SEQUENTIAL_EXPECTED_DATABANKS.items():
+        if databanks.get(name) != wanted:
+            issues.append(f"Sequential Databank {name} is {databanks.get(name)!r}, expected {wanted!r}")
+
+    crosschecks = summary.get("crossChecks") or {}
+    if not crosschecks.get("exists"):
+        issues.append("Sequential CrossChecks section missing")
+    else:
+        attrs = crosschecks.get("attributes") or {}
+        if attrs.get("use") != "true" or attrs.get("evaluateAll") != "true":
+            issues.append("Sequential CrossChecks must stay active/evaluateAll for the SequentialOptimization gate")
+        active = crosschecks.get("active") or []
+        if active != [SEQUENTIAL_ACTIVE_CROSSCHECK]:
+            issues.append(f"Sequential active crosschecks are {active!r}, expected only {SEQUENTIAL_ACTIVE_CROSSCHECK!r}")
+        sequential = (crosschecks.get("sequentialOptimization") or {})
+        if sequential.get("use") != "true":
+            issues.append("SequentialOptimization must be active")
+        parameter_settings = sequential.get("parameterSettings") or {}
+        if parameter_settings.get("ApplyToStrategy") not in {"false", "False", "0"}:
+            issues.append("SequentialOptimization ApplyToStrategy must remain false until explicitly approved")
+
+    strategy_type = summary.get("strategyType") or {}
+    improve_databank = strategy_type.get("improveDatabank", "")
+    if improve_databank not in {"MC2", "Strategies to improve"}:
+        warnings.append(f"Sequential StrategyType.improveDatabank is {improve_databank!r}; next block must decide whether to normalize it to MC2")
+    elif improve_databank == "Strategies to improve":
+        warnings.append("Sequential StrategyType.improveDatabank is still the SQX placeholder 'Strategies to improve'; next block should decide if it must be normalized to MC2")
+
+    if (summary.get("data") or {}).get("exists") and (summary.get("customData") or {}).get("exists"):
+        warnings.append("Sequential currently carries both Data and CustomData; next block must choose the canonical data carrier before mutation")
+
+    return issues, warnings
+
+
+def sequential_open_target_report(cfx: Path) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256": file_sha256(cfx) if cfx.is_file() else "",
+        "taskTitle": SEQUENTIAL_TASK_TITLE,
+        "taskXml": "",
+        "summary": {},
+        "issues": [],
+        "warnings": [],
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["issues"].append("missing_or_not_zip")
+        payload["ok"] = False
+        return payload
+    task_xml_name, root = load_task_root(cfx, SEQUENTIAL_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["issues"].append("sequential_task_not_found")
+        payload["ok"] = False
+        return payload
+    payload["summary"] = sequential_open_summary(root)
+    issues, warnings = sequential_open_issues(payload["summary"])
+    payload["issues"] = issues
+    payload["warnings"] = warnings
+    payload["ok"] = not issues
+    return payload
+
+
+def sequential_open_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    target_reports = {
+        name: sequential_open_target_report(path)
+        for name, path in targets.items()
+    }
+    previous_gate = mc2_closeout_report(root142, project_root, target=target, write=False)
+    previous_issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        previous_issues.append("mc2-closeout-report: previous gate ok=false")
+    process_probe = process_snapshot()
+    process_warnings = []
+    if process_probe.get("processes"):
+        process_warnings.append("SQX processes are alive; keep phase 8 read-only until SQX is closed")
+    payload: dict[str, Any] = {
+        "ok": all(item.get("ok") for item in target_reports.values()) and not previous_issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase8_sequential_open",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_issues,
+            "nextPhase": previous_gate.get("nextPhase"),
+        },
+        "targets": target_reports,
+        "warnings": process_warnings + [
+            warning
+            for item in target_reports.values()
+            for warning in item.get("warnings", [])
+        ],
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Open Sequential as Phase 8 after MC2 closeout; inspect structure before applying any target values.",
+            "taskTitle": SEQUENTIAL_TASK_TITLE,
+            "taskXml": SEQUENTIAL_TASK_XML,
+            "chain": "Input=MC2 / Output=Sequential",
+            "activeCrossCheck": SEQUENTIAL_ACTIVE_CROSSCHECK,
+            "batchingDiscipline": "Real smokes stay batched/snapshotted; do not launch all survivors blindly.",
+            "noLiveRun": "This gate only reads XML/local state and writes a phase report when requested.",
+            "decisionPending": list(SEQUENTIAL_DECISION_PENDING),
+        },
+        "nextPhase": SEQUENTIAL_NEXT_PHASE,
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase8_sequential_open_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase8_sequential_open", "nextPhase": SEQUENTIAL_NEXT_PHASE})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -8475,6 +8728,10 @@ def build_parser() -> argparse.ArgumentParser:
     mc2_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     mc2_closeout.add_argument("--write", action="store_true")
 
+    sequential_open = sub.add_parser("sequential-open-report")
+    sequential_open.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    sequential_open.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -8612,6 +8869,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "mc2-closeout-report":
         json_print(mc2_closeout_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "sequential-open-report":
+        json_print(sequential_open_report(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

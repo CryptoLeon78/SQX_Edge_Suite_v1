@@ -39,6 +39,8 @@ from tools.sqx142_task_config_gate import (
     mc_closeout_operation_summary,
     question_id,
     record_tab_answer,
+    sequential_open_issues,
+    sequential_open_summary,
 )
 
 
@@ -1772,3 +1774,62 @@ def test_mc2_static_tabs_guard_rejects_portfolio_fit_rank_filters_and_customdata
     assert any("CustomData testPrecision" in issue for issue in issues)
     assert any("Forbidden donor token" in issue for issue in issues)
     assert any("Passive generation guard" in issue for issue in issues)
+
+
+def test_sequential_open_summary_accepts_mc2_chain_and_active_sequential_optimization():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" /></Setups></Data>
+          <CustomData><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" /></Setups></CustomData>
+          <Databanks><Databank name="Input" value="MC2" /><Databank name="Output" value="Sequential" /></Databanks>
+          <WhatToBuild><StrategyType improveDatabank="MC2" improveType="strategy" architecture="sq4" /></WhatToBuild>
+          <CrossChecks use="true" evaluateAll="true">
+            <SequentialOptimization use="true">
+              <Settings>
+                <ParameterSettings><DistributionUp>130</DistributionUp><DistributionDown>70</DistributionDown><Steps>12</Steps><ApplyToStrategy>false</ApplyToStrategy></ParameterSettings>
+                <WhatToParametrize type="1" symmetricVariables="false"><Periods>true</Periods><Constants>true</Constants><ExitParamsUsed>true</ExitParamsUsed></WhatToParametrize>
+              </Settings>
+              <AcceptanceSettings><PctToPass>80</PctToPass><ResultsCount>5</ResultsCount><StabilityRange>25</StabilityRange><Conditions /></AcceptanceSettings>
+            </SequentialOptimization>
+          </CrossChecks>
+          <Rankings type="never"><DeleteFailedStrategies>false</DeleteFailedStrategies><ForceRunCrossChecks>false</ForceRunCrossChecks><FitPortfolio active="false" /><CustomAnalysis filter="false" /></Rankings>
+        </Settings>
+        """
+    )
+
+    summary = sequential_open_summary(root)
+    issues, warnings = sequential_open_issues(summary)
+
+    assert issues == []
+    assert summary["databanks"] == {"Input": "MC2", "Output": "Sequential"}
+    assert summary["crossChecks"]["active"] == ["SequentialOptimization"]
+    assert summary["crossChecks"]["sequentialOptimization"]["parameterSettings"]["ApplyToStrategy"] == "false"
+    assert any("Data and CustomData" in warning for warning in warnings)
+
+
+def test_sequential_open_issues_reject_wrong_chain_and_apply_to_strategy():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Databanks><Databank name="Input" value="MC" /><Databank name="Output" value="MC2" /></Databanks>
+          <WhatToBuild><StrategyType improveDatabank="Legacy" /></WhatToBuild>
+          <CrossChecks use="false" evaluateAll="false">
+            <MonteCarloRetest use="true" />
+            <SequentialOptimization use="true">
+              <Settings><ParameterSettings><ApplyToStrategy>true</ApplyToStrategy></ParameterSettings></Settings>
+              <AcceptanceSettings><Conditions /></AcceptanceSettings>
+            </SequentialOptimization>
+          </CrossChecks>
+        </Settings>
+        """
+    )
+
+    issues, warnings = sequential_open_issues(sequential_open_summary(root))
+
+    assert any("Databank Input" in issue for issue in issues)
+    assert any("Databank Output" in issue for issue in issues)
+    assert any("CrossChecks must stay active" in issue for issue in issues)
+    assert any("active crosschecks" in issue for issue in issues)
+    assert any("ApplyToStrategy" in issue for issue in issues)
+    assert any("StrategyType.improveDatabank" in warning for warning in warnings)

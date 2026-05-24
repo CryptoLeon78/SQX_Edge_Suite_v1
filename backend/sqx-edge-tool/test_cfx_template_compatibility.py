@@ -681,6 +681,41 @@ def test_capa1_mc2_crosschecks_use_adaptive_seed_spread_range():
     _assert_mc2_static_tabs_contract(mc2)
 
 
+def test_capa1_sequential_open_gate_receives_mc2_and_keeps_sequential_optimization():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    sequential = roots["AutomaticRetest-Task3.xml"]
+    databanks = {
+        databank.get("name"): databank.get("value")
+        for databank in sequential.findall(".//Databanks/Databank")
+    }
+    assert databanks == {"Output": "Sequential", "Input": "MC2"}
+
+    crosschecks = sequential.find(".//CrossChecks")
+    assert crosschecks is not None
+    assert crosschecks.get("use") == "true"
+    assert crosschecks.get("evaluateAll") == "true"
+    active = [
+        check.tag
+        for check in list(crosschecks)
+        if isinstance(check.tag, str) and check.get("use") == "true"
+    ]
+    assert active == ["SequentialOptimization"]
+    sequential_optimization = crosschecks.find("SequentialOptimization")
+    assert sequential_optimization is not None
+    assert sequential_optimization.findtext("./Settings/ParameterSettings/ApplyToStrategy") == "false"
+    assert sequential_optimization.findtext("./AcceptanceSettings/PctToPass") == "80"
+    assert sequential_optimization.findtext("./AcceptanceSettings/ResultsCount") == "5"
+    assert sequential_optimization.findtext("./AcceptanceSettings/StabilityRange") == "25"
+
+    rankings = sequential.find(".//Rankings")
+    assert rankings is not None
+    assert rankings.get("type") == "never"
+    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("ForceRunCrossChecks") == "false"
+    assert rankings.find("CustomAnalysis").get("filter") == "false"
+    assert sequential.findall(".//Data/OutOfSample/Range") == []
+
+
 def test_capa1_base_uses_confirmed_build_ranking_volume():
     roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
     build = roots["Build-Task1.xml"]

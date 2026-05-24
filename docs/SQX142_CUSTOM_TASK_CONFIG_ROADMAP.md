@@ -1,6 +1,6 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 7 `MC 2` cerrada formalmente el 2026-05-24 y lista para abrir `Sequential`. Fase 0 dejo
+Estado: C1-CONFIG1 con Fase 8 `Sequential` abierta formalmente el 2026-05-24. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -9,6 +9,9 @@ perfiles del agente y handoffs locales para proteger el resto del cuestionario.
 Antes de cerrar TICK y abrir MC, `sqx-academic-lopez` queda disponible como
 consulta academica local-only para OOS, MC, data snooping y backtest
 overfitting.
+Fase 8 queda abierta con `Input=MC2`, `Output=Sequential`, solo
+`SequentialOptimization` activo y el siguiente bloque exacto
+`phase8_sequential_data_databanks_resources_options`.
 La mini fase `SQX142-BRANDING1` queda cerrada antes de `RETEST 0`: cambia solo
 la capa visual local de SQX a `Build: 142.2336 Codex`, oculta en About las
 lineas privadas de licencia/identidad y muestra la trazabilidad
@@ -940,9 +943,34 @@ Decision aplicada para `phase7_mc2_static_or_next_block`:
 Reporte local:
 `.local/sqx142_task_config/phase_reports/phase7_mc2_closeout_20260524_064023.json`.
 
-Siguiente bloque exacto: `phase8_sequential_open`, para revisar `Sequential`
-con entrada `MC2`, conservar cola por lotes y evitar lanzar los supervivientes
-de golpe sin snapshot/diff.
+Estado Fase 8 - Sequential Open:
+
+- `phase8_sequential_open` queda abierto con `sequential-open-report --target both --write`.
+- `Sequential` queda mapeado a `AutomaticRetest-Task3.xml`; no se confunde con
+  `Retest-Task3.xml` de `RETEST 0`.
+- La cadena ya es correcta en base local y template repo: `Input=MC2` y
+  `Output=Sequential`.
+- `MC 2` queda verificado como gate previo cerrado: `mc2-closeout-report` sigue
+  `ok=true`, sin issues y con `processes=0`.
+- `Sequential` mantiene un unico crosscheck activo: `SequentialOptimization`;
+  `ApplyToStrategy=false`, `PctToPass=80`, `ResultsCount=5` y
+  `StabilityRange=25`.
+- La compuerta no lanza SQX ni ejecuta retests reales; solo lee XML, verifica
+  estado local y guarda reporte.
+- Se conservan las reglas de rendimiento aprendidas: los smokes reales de
+  Sequential deben ir por lotes/snapshot y no lanzar todos los supervivientes
+  de golpe.
+- Quedan dos decisiones tecnicas detectadas antes de mutar:
+  `StrategyType.improveDatabank` sigue como placeholder `Strategies to improve`,
+  y el XML conserva `Data` + `CustomData`; el siguiente bloque decidirá si se
+  normaliza a `MC2` y cual sera el portador canonico.
+
+Reporte local:
+`.local/sqx142_task_config/phase_reports/phase8_sequential_open_20260524_065707.json`.
+
+Siguiente bloque exacto: `phase8_sequential_data_databanks_resources_options`,
+para cerrar Data/Databanks/Resources/Options de `Sequential` con diff antes de
+tocar la base.
 
 ## Disciplina Operativa
 

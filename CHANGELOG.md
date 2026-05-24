@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Sequential Open
+
+- Adds `sequential-open-report` to open Phase 8 after MC2 closeout without launching SQX or mutating task values.
+- Maps `Sequential` to `AutomaticRetest-Task3.xml` and verifies the chain `Input=MC2` / `Output=Sequential` on local base and repo template.
+- Confirms only `SequentialOptimization` is active, with `ApplyToStrategy=false`, `PctToPass=80`, `ResultsCount=5` and `StabilityRange=25`.
+- Records the next decisions before mutation: whether to normalize `StrategyType.improveDatabank` from the SQX placeholder `Strategies to improve` to `MC2`, and whether `Data` or `CustomData` is the canonical carrier.
+- Writes local phase report `phase8_sequential_open_20260524_065707.json`; next exact block is `phase8_sequential_data_databanks_resources_options`.
+
 ## 2026-05-24 - C1-CONFIG1 MC2 Closeout
 
 - Adds `mc2-passive-generation-target`, `mc2-static-tabs-target` and `mc2-closeout-report` to decide and close `phase7_mc2_static_or_next_block` before opening `Sequential`.
