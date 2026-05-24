@@ -1,10 +1,18 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Capa2 Preflight Snapshot
+
+- Adds `capa2-preflight-snapshot` as Phase 16, with evidence `phase16_capa2_preflight_snapshot_20260524_195729.json` and local snapshot folder `.local/sqx142_task_config/snapshots/phase16_capa2_preflight_20260524_195729/`.
+- Corrects the Phase 15 interpretation: `BS_Filtros_v6` and `BS_Filtros_v6_D1` are reference-only/traceability resources for this layer, not active Capa2 BlockSettings, and must not reintroduce `ExitAfterBars` unless explicitly sanitized and promoted later.
+- Records the local Build `templateFile` as the expected operator-owned Template Maker C2 artifact built from Capa1 Forward survivors for cluster/classification/template construction, not as a bug or public template value.
+- Snapshots local base, repo template, generator profiles, BlockSettings manifest and the two reference `BS_Filtros_v6*` resources without CFX mutation, SQX launch, smoke, optimization or forced `Results=passed`.
+- Sets the next exact block to `phase17_capa2_build_questionnaire`.
+
 ## 2026-05-24 - C1-CONFIG1 Capa2 Planning
 
 - Adds `capa2-planning-report` as the Phase 15 read-only gate after Capa1 closeout, with evidence `phase15_capa2_planning_20260524_190708.json`.
 - Records Capa2's anti-overfit contract: preserve the Capa1 market edge while adding bounded SL/TP/trailing and one methodology-owned indicator filter, without using retests as an iterative performance optimizer.
-- Detects apply blockers before touching Capa2: `BS_Filtros_v6` and `BS_Filtros_v6_D1` reintroduce `ExitAfterBars`, Capa2 generator layer 2 lacks complete trading windows/task maps/adaptive spread stress, and the local base still contains a private `templateFile` path.
+- Detects apply blockers before touching Capa2: generator layer 2 lacks complete trading windows/task maps/adaptive spread stress, retests still carry Capa1-style `ExitAfterBars` decisions to review, `BS_Filtros_v6*` must remain reference-only unless sanitized, and the local `templateFile` must remain operator-owned Template Maker C2 input.
 - Uses SQX Test Guardian, local Capa2 inspection and SQX Academic Lopez handoffs; no CFX mutation, SQX launch, smoke, optimization or forced `Results=passed` is claimed.
 - Sets the next exact block to `phase16_capa2_preflight_snapshot`.
 

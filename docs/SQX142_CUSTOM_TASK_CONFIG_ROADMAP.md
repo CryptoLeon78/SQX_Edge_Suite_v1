@@ -1,16 +1,19 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 15 `Capa2 Planning` abierta y cerrada como puerta
-read-only el 2026-05-24 con
-`phase15_capa2_planning_20260524_190708.json`, despues de la Fase 14
+Estado: C1-CONFIG1 con Fase 16 `Capa2 Preflight Snapshot` cerrada el
+2026-05-24 con `phase16_capa2_preflight_snapshot_20260524_195729.json`,
+despues de la Fase 15 `Capa2 Planning`
+(`phase15_capa2_planning_20260524_190708.json`) y de la Fase 14
 `Capa1 Closeout` (`phase14_capa1_closeout_20260524_183012.json`) y de
 `phase13_foward_closeout` verde (`phase13_foward_closeout_20260524_182647.json`).
 Capa2 queda planificada, no aplicada: integra SL/TP/trailing, elimina
 `ExitAfterBars` como salida de Build, agrega un filtro de indicador gobernado
 por BlockSettings/metodologia y protege que la ventaja detectada en Capa1 no
 se fabrique despues por gestion de riesgo. No lanza SQX, no hace smoke, no
-inicia optimizacion, no toca CFX y no fuerza `Results=passed`. El siguiente
-bloque exacto es `phase16_capa2_preflight_snapshot`. Fase 0 dejo
+inicia optimizacion, no toca CFX y no fuerza `Results=passed`. Fase 16 deja
+snapshot local y rollback selectivo en
+`.local/sqx142_task_config/snapshots/phase16_capa2_preflight_20260524_195729/`.
+El siguiente bloque exacto es `phase17_capa2_build_questionnaire`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -2078,15 +2081,18 @@ Siguiente bloque exacto: `phase15_capa2_planning`.
   `EnterAtMarket` salvo decision explicita, `ExitAfterBars` fuera de Build,
   salidas por dias prohibidas y filtro indicador acotado por metodologia /
   BlockSettings.
-- Hallazgos que bloquean cualquier apply posterior hasta resolverlos:
-  `BS_Filtros_v6` y `BS_Filtros_v6_D1` reintroducen
-  `ExitAfterBars=true` cuando Project Generator aplica BlockSettings; hay que
-  bloquear o sanear esto en Fase 16/17.
-- Hallazgos adicionales: la base local Build contiene un `templateFile` con
-  ruta absoluta local que debe pasar a ser generator-owned; varios retests de
-  Capa2 arrastran `ExitAfterBars`; `tradingTimeRanges.capa2` esta vacio;
-  `adaptiveSpreadStress` no tiene layer 2; y `taskPeriodMaps` layer 2 no cubre
-  todos los retests Capa2.
+- Correccion de contrato: `BS_Filtros_v6` y `BS_Filtros_v6_D1` no forman parte
+  activa de esta capa; se conservan como referencia/trazabilidad. Si algun dia
+  se promocionan, antes deben sanearse para no reintroducir
+  `ExitAfterBars=true`.
+- Correccion de contrato: el `templateFile` con ruta local en la base Build es
+  el artefacto esperado de Template Maker C2, construido desde las estrategias
+  que pasaron Forward Capa1 para analisis de cluster, clasificacion y montaje
+  del template C2. Es operator-owned/local, no un valor publico que deba
+  congelarse en generacion.
+- Hallazgos adicionales: varios retests de Capa2 arrastran `ExitAfterBars`;
+  `tradingTimeRanges.capa2` esta vacio; `adaptiveSpreadStress` no tiene layer 2;
+  y `taskPeriodMaps` layer 2 no cubre todos los retests Capa2.
 - Guard academico: Capa2 se trata como segunda capa de seleccion con coste de
   multiple testing. White Reality Check, PBO/DSR y Carr/Lopez de Prado se usan
   como anclas para evitar data snooping; Kaminski/Lo y Lo/Remorov obligan a no
@@ -2100,7 +2106,29 @@ Siguiente bloque exacto: `phase15_capa2_planning`.
 - El estado local queda en `currentPhase=phase15_capa2_planning`,
   `nextPhase=phase16_capa2_preflight_snapshot`, `scope=capa2`.
 
-Siguiente bloque exacto: `phase16_capa2_preflight_snapshot`.
+## Estado Fase 16 - Capa2 Preflight Snapshot
+
+- `phase16_capa2_preflight_snapshot` queda cerrada con
+  `phase16_capa2_preflight_snapshot_20260524_195729.json`.
+- `capa2-preflight-snapshot --target both --write` crea snapshot local ignorado
+  por Git en
+  `.local/sqx142_task_config/snapshots/phase16_capa2_preflight_20260524_195729/`.
+- Snapshot incluido: base local
+  `Capa2_Base_SQX142_Base/project.cfx`, template repo `Capa2_Base.cfx`,
+  `generator_profiles.json`, `blocksettings_manifest.json` y los recursos
+  reference-only `BS_Filtros_v6.sqb` / `BS_Filtros_v6_D1.sqb`.
+- No se muta ningun CFX, generator, BlockSettings, binario, licencia ni runtime
+  SQX. `processProbe` queda sin procesos SQX vivos.
+- Rollback: restauracion selectiva desde snapshot local solo tras diff y
+  confirmacion de la fase; nunca restaurar engine binaries, licencias, plugins
+  core ni internals no relacionados.
+- Phase16 deja como decisiones activas: `BS_Filtros_v6*` reference-only y
+  `templateFile` local como artefacto Template Maker C2 operator-owned desde
+  supervivientes Forward Capa1.
+- El estado local queda en `currentPhase=phase16_capa2_preflight_snapshot`,
+  `nextPhase=phase17_capa2_build_questionnaire`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase17_capa2_build_questionnaire`.
 
 ## Disciplina Operativa
 

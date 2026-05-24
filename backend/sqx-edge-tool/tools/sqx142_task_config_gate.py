@@ -49,6 +49,7 @@ PHASES = [
     {"id": "phase13", "label": "FOWARD configuration review"},
     {"id": "phase14", "label": "Capa1 closeout and methodology sync"},
     {"id": "phase15", "label": "Capa2 planning and anti-overfit contract"},
+    {"id": "phase16", "label": "Capa2 preflight snapshot and rollback plan"},
 ]
 
 SECTION_ALIASES = {
@@ -15737,6 +15738,7 @@ def foward_closeout_report(root142: Path, project_root: Path, target: str, write
 
 CAPA1_CLOSEOUT_NEXT = "phase15_capa2_planning"
 CAPA2_PLANNING_NEXT = "phase16_capa2_preflight_snapshot"
+CAPA2_PREFLIGHT_NEXT = "phase17_capa2_build_questionnaire"
 CAPA2_ACADEMIC_SOURCES = [
     {
         "id": "bailey_pbo",
@@ -15955,6 +15957,7 @@ def capa2_blocksettings_summary() -> dict[str, Any]:
             "canonicalId": canonical_id,
             "filename": filename,
             "path": str(path),
+            "role": "reference_only_traceability_not_active_capa2_layer",
             "exists": path.is_file(),
             "sha256": file_sha256(path) if path.is_file() else "",
             "activeIndicators": entry.get("activeIndicators", []),
@@ -15962,6 +15965,7 @@ def capa2_blocksettings_summary() -> dict[str, Any]:
         })
     return {
         "manifest": str(BLOCKSETTINGS_MANIFEST_PATH),
+        "mode": "reference_only_traceability",
         "recommendations": recommendations,
         "inspected": inspected,
     }
@@ -15992,7 +15996,10 @@ def capa2_planning_issues(summary: dict[str, Any]) -> tuple[list[str], list[str]
         strategy_type = build.get("strategyType") or {}
         template_file = strategy_type.get("templateFile", "")
         if re.search(r"[A-Za-z]:\\", template_file):
-            warnings.append(f"{target_name}: Build templateFile contains a local absolute path and must become generator-owned before Capa2 promotion")
+            warnings.append(
+                f"{target_name}: Build templateFile is a local Template Maker C2 artifact from Capa1 forward survivors; "
+                "phase16 snapshots it as operator-owned input before any generated/public template decision"
+            )
         if strategy_type.get("type") != "template":
             warnings.append(f"{target_name}: Build StrategyType is {strategy_type.get('type')!r}; Capa2 should mine from the fixed C2 template")
         order_types = build.get("orderTypes") or {}
@@ -16037,7 +16044,8 @@ def capa2_planning_issues(summary: dict[str, Any]) -> tuple[list[str], list[str]
         exit_types = item.get("exitTypes") or {}
         if exit_types.get("ExitAfterBars.ExitAfterBars") == "true":
             warnings.append(
-                f"blocksettings: {item.get('canonicalId')} reintroduces ExitAfterBars; phase16 must block or sanitize this before Capa2 apply"
+                f"blocksettings reference: {item.get('canonicalId')} contains ExitAfterBars=true; it is traceability/reference-only "
+                "and must stay excluded from active Capa2 apply unless sanitized"
             )
         if exit_types.get("StopLoss.StopLoss") != "true" or exit_types.get("ProfitTarget.ProfitTarget") != "true":
             warnings.append(f"blocksettings: {item.get('canonicalId')} does not clearly enable both SL and TP")
@@ -16100,7 +16108,8 @@ def capa2_planning_report(root142: Path, project_root: Path, target: str, write:
                 "quality": "Do not reduce OOS windows, precision, realism, costs or robustness thresholds without explicit evidence and operator approval.",
             },
             "blockersBeforeApply": [
-                "BlockSettings Capa2 must not reintroduce ExitAfterBars after Project Generator applies them.",
+                "Reference-only `BS_Filtros_v6*` resources must stay excluded from active Capa2 apply, or be sanitized if ever promoted, so they cannot reintroduce ExitAfterBars.",
+                "Template Maker C2 templateFile must be snapshotted and treated as operator-owned input from Capa1 forward survivors; repo/public generation must not freeze a private local path.",
                 "SL/TP visible ranges and active formula families must be reconciled before Build Capa2 questionnaire apply.",
                 "Capa2 generator ownership for trading windows, Retest 1 broker/feed policy and MC2 spread stress must be explicit.",
             ],
@@ -16145,6 +16154,157 @@ def capa2_planning_report(root142: Path, project_root: Path, target: str, write:
         })
         write_json(state_path, state)
         payload["written"] = str(target_path)
+    return payload
+
+
+def snapshot_file_state(path: Path, role: str, required: bool) -> dict[str, Any]:
+    item: dict[str, Any] = {
+        "role": role,
+        "path": str(path),
+        "required": required,
+        "exists": path.is_file(),
+        "sha256": "",
+        "size": 0,
+        "mtime": "",
+        "isZip": False,
+    }
+    if not path.is_file():
+        return item
+    try:
+        stat = path.stat()
+        item.update({
+            "sha256": file_sha256(path),
+            "size": stat.st_size,
+            "mtime": datetime.fromtimestamp(stat.st_mtime).isoformat(timespec="seconds"),
+            "isZip": zipfile.is_zipfile(path),
+        })
+    except OSError as exc:
+        item["error"] = str(exc)
+    return item
+
+
+def capa2_preflight_snapshot_files(root142: Path, target: str) -> list[dict[str, Any]]:
+    candidates: list[tuple[str, Path, bool]] = []
+    if target in {"local-base", "both"}:
+        candidates.append(("localBaseCfx", capa2_base_project_path(root142), True))
+    if target in {"repo-template", "both"}:
+        candidates.append(("repoTemplateCfx", DEFAULT_CAPA2_TEMPLATE, True))
+    candidates.extend((
+        ("generatorProfiles", GENERATOR_PROFILES_PATH, True),
+        ("blocksettingsManifest", BLOCKSETTINGS_MANIFEST_PATH, True),
+    ))
+    for item in capa2_blocksettings_summary().get("inspected") or []:
+        item_path = Path(str(item.get("path") or ""))
+        if item_path:
+            role = f"referenceBlocksetting_{item.get('canonicalId') or item_path.stem}"
+            candidates.append((role, item_path, False))
+    return [snapshot_file_state(path, role, required) for role, path, required in candidates]
+
+
+def copy_phase16_snapshot_files(files: list[dict[str, Any]], snapshot_dir: Path) -> list[dict[str, str]]:
+    copied: list[dict[str, str]] = []
+    snapshot_dir.mkdir(parents=True, exist_ok=True)
+    used_names: set[str] = set()
+    for item in files:
+        if not item.get("exists"):
+            continue
+        source = Path(str(item.get("path") or ""))
+        base_name = f"{slug(str(item.get('role') or source.stem))}_{slug(source.name)}"
+        candidate = base_name
+        counter = 2
+        while candidate in used_names:
+            candidate = f"{Path(base_name).stem}_{counter}{Path(base_name).suffix}"
+            counter += 1
+        used_names.add(candidate)
+        destination = snapshot_dir / candidate
+        shutil.copy2(source, destination)
+        copied.append({
+            "role": str(item.get("role") or ""),
+            "source": str(source),
+            "destination": str(destination),
+            "sha256": file_sha256(destination),
+        })
+    return copied
+
+
+def capa2_preflight_snapshot(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    run_stamp = stamp()
+    planning_gate = capa2_planning_report(root142, project_root, target="both", write=False)
+    files = capa2_preflight_snapshot_files(root142, target)
+    issues = [
+        f"{item.get('role')}: required snapshot source missing: {item.get('path')}"
+        for item in files
+        if item.get("required") and not item.get("exists")
+    ]
+    warnings: list[str] = []
+    if planning_gate.get("ok") is not True:
+        warnings.append("phase15 planning gate has unresolved configuration blockers; phase16 still snapshots before any apply")
+    for item in files:
+        if not item.get("required") and not item.get("exists"):
+            warnings.append(f"{item.get('role')}: reference-only source missing: {item.get('path')}")
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        warnings.append("SQX processes are alive; snapshot is read-only and no CFX mutation was attempted")
+    snapshot_dir = ledger_root(project_root) / "snapshots" / f"phase16_capa2_preflight_{run_stamp}"
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase16_capa2_preflight_snapshot",
+        "target": target,
+        "write": write,
+        "issues": issues,
+        "warnings": warnings,
+        "processProbe": process_probe,
+        "previousGate": {
+            "phase": planning_gate.get("phase"),
+            "ok": planning_gate.get("ok"),
+            "issues": planning_gate.get("issues") or [],
+            "warnings": planning_gate.get("warnings") or [],
+            "nextPhase": planning_gate.get("nextPhase"),
+            "blockersBeforeApply": ((planning_gate.get("summary") or {}).get("blockersBeforeApply") or []),
+        },
+        "decisions": {
+            "bsFiltrosRole": (
+                "`BS_Filtros_v6` and `BS_Filtros_v6_D1` are reference-only/traceability resources in this phase; "
+                "they are not active Capa2 layers and must not reintroduce ExitAfterBars into active Build."
+            ),
+            "templateFileRole": (
+                "The local Build templateFile is the operator-owned Template Maker C2 artifact built from Capa1 Forward survivors "
+                "for cluster/classification/template construction; it is expected locally and must be snapshotted, not treated as a bug."
+            ),
+            "mutationPolicy": "No CFX, generator, BlockSettings, binary, license or SQX runtime mutation in phase16.",
+        },
+        "files": files,
+        "snapshotDir": str(snapshot_dir),
+        "copiedFiles": [],
+        "rollbackPlan": {
+            "mode": "selective_restore_from_local_snapshot",
+            "source": str(snapshot_dir),
+            "scope": "Only restore a specific file after inspecting diff and confirming the target phase.",
+            "never": "Do not restore/copy engine binaries, licenses, plugins core or unrelated SQX internals from this snapshot.",
+        },
+        "nextPhase": CAPA2_PREFLIGHT_NEXT,
+    }
+    if write:
+        payload["copiedFiles"] = copy_phase16_snapshot_files(files, snapshot_dir)
+        report_path = ledger_root(project_root) / "phase_reports" / f"phase16_capa2_preflight_snapshot_{run_stamp}.json"
+        write_json(report_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase16_capa2_preflight_snapshot",
+            "nextPhase": CAPA2_PREFLIGHT_NEXT,
+            "scope": "capa2",
+            "baseProject": DEFAULT_CAPA2_BASE_PROJECT,
+            "repoTemplate": str(DEFAULT_CAPA2_TEMPLATE),
+            "phase16SnapshotDir": str(snapshot_dir),
+            "phase16Report": str(report_path),
+        })
+        write_json(state_path, state)
+        payload["written"] = str(report_path)
     return payload
 
 
@@ -17545,6 +17705,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_planning.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_planning.add_argument("--write", action="store_true")
 
+    capa2_preflight = sub.add_parser("capa2-preflight-snapshot")
+    capa2_preflight.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_preflight.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -17787,6 +17951,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-planning-report":
         json_print(capa2_planning_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "capa2-preflight-snapshot":
+        json_print(capa2_preflight_snapshot(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

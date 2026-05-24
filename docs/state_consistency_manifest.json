@@ -4120,12 +4120,13 @@
           "one methodology-owned indicator filter",
           "BS_Filtros_v6",
           "BS_Filtros_v6_D1",
-          "reintroducing `ExitAfterBars`",
+          "reference-only/trazabilidad",
           "natural passed/failed",
-          "phase16_capa2_preflight_snapshot"
+          "phase17_capa2_build_questionnaire"
         ],
         "docs/ARCHITECTURE.md": [
-          "Phase 15 now opens Capa2 as read-only planning first",
+          "Phase 15 opens Capa2 as read-only planning first",
+          "Phase 16 snapshots the local base/template/generator/BlockSettings evidence",
           "SL/TP/trailing",
           "indicator filters",
           "`ExitAfterBars` removal",
@@ -4139,7 +4140,7 @@
           "preservar la ventaja de mercado encontrada en Capa1",
           "`SL`, `TP`, `Trailing`",
           "`ExitAfterBars` fuera de Build",
-          "`BS_Filtros_v6` y `BS_Filtros_v6_D1` reintroducen",
+          "Correccion de contrato: `BS_Filtros_v6` y `BS_Filtros_v6_D1` no forman parte",
           "`tradingTimeRanges.capa2` esta vacio",
           "`adaptiveSpreadStress` no tiene layer 2",
           "White Reality Check",
@@ -4154,7 +4155,7 @@
           "preserve the Capa1 market edge",
           "bounded SL/TP/trailing",
           "one methodology-owned indicator filter",
-          "`BS_Filtros_v6` and `BS_Filtros_v6_D1` reintroduce `ExitAfterBars`",
+          "`BS_Filtros_v6*` must remain reference-only unless sanitized",
           "no CFX mutation",
           "no forced `Results=passed`",
           "phase16_capa2_preflight_snapshot"
@@ -4190,6 +4191,78 @@
           "Capa2 Planning forced Results=passed",
           "guaranteed profitability",
           "risk-free"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_c2_phase16_preflight_snapshot",
+      "description": "C1-CONFIG1 Phase 16 must close the Capa2 snapshot safely, preserve reference-only BS_Filtros semantics, and avoid CFX/SQX mutation.",
+      "required": {
+        "README.md": [
+          "phase16_capa2_preflight_snapshot",
+          "phase16_capa2_preflight_snapshot_20260524_195729.json",
+          "`BS_Filtros_v6*` queda reference-only/trazabilidad",
+          "`templateFile` local queda reconocido como artefacto Template Maker C2 operator-owned",
+          "phase17_capa2_build_questionnaire"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 16 `Capa2 Preflight Snapshot` is closed",
+          "phase16_capa2_preflight_snapshot_20260524_195729.json",
+          "`capa2-preflight-snapshot --target both --write`",
+          "reference-only/trazabilidad",
+          "Template Maker C2 artifact",
+          "phase17_capa2_build_questionnaire"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "Phase 16 snapshots the local base/template/generator/BlockSettings evidence",
+          "reference-only `BS_Filtros_v6*`",
+          "Template Maker C2 `templateFile` ownership"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 16 - Capa2 Preflight Snapshot",
+          "`phase16_capa2_preflight_snapshot` queda cerrada",
+          "phase16_capa2_preflight_snapshot_20260524_195729.json",
+          "`capa2-preflight-snapshot --target both --write`",
+          "phase16_capa2_preflight_20260524_195729",
+          "reference-only `BS_Filtros_v6.sqb` / `BS_Filtros_v6_D1.sqb`",
+          "`templateFile` local como artefacto Template Maker C2 operator-owned",
+          "`currentPhase=phase16_capa2_preflight_snapshot`",
+          "`nextPhase=phase17_capa2_build_questionnaire`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-24 - C1-CONFIG1 Capa2 Preflight Snapshot",
+          "`capa2-preflight-snapshot`",
+          "phase16_capa2_preflight_snapshot_20260524_195729.json",
+          "reference-only/traceability resources",
+          "Template Maker C2 artifact",
+          "no CFX mutation",
+          "phase17_capa2_build_questionnaire"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_PREFLIGHT_NEXT = \"phase17_capa2_build_questionnaire\"",
+          "def capa2_preflight_snapshot",
+          "def copy_phase16_snapshot_files",
+          "capa2-preflight-snapshot"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_preflight_snapshot_writes_phase16_and_copies_sources",
+          "test_capa2_preflight_snapshot_cli_is_registered"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 Preflight ejecuta SQX",
+          "Capa2 Preflight lanza smoke",
+          "Capa2 Preflight inicia optimizacion",
+          "Capa2 Preflight aplica CFX",
+          "Capa2 Preflight fuerza Results=passed"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 Preflight ran SQX",
+          "Capa2 Preflight ran smoke",
+          "Capa2 Preflight optimization completed",
+          "Capa2 Preflight applied CFX",
+          "Capa2 Preflight forced Results=passed"
         ]
       }
     },

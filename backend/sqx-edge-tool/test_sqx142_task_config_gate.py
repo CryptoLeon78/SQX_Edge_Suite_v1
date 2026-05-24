@@ -1,5 +1,6 @@
 import json
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 from tools import sqx142_task_config_gate as gate
 from tools.sqx142_task_config_gate import (
@@ -2944,10 +2945,12 @@ def test_capa2_planning_report_writes_phase15_without_mutating_targets(monkeypat
     })
     monkeypatch.setattr(gate, "capa2_blocksettings_summary", lambda: {
         "manifest": "blocksettings_manifest.json",
+        "mode": "reference_only_traceability",
         "recommendations": {"H1": "BS_Filtros_v6"},
         "inspected": [{
             "canonicalId": "BS_Filtros_v6",
             "filename": "BS_Filtros_v6.sqb",
+            "role": "reference_only_traceability_not_active_capa2_layer",
             "exists": True,
             "exitTypes": {"ExitAfterBars.ExitAfterBars": "true", "StopLoss.StopLoss": "true", "ProfitTarget.ProfitTarget": "true"},
         }],
@@ -2964,8 +2967,9 @@ def test_capa2_planning_report_writes_phase15_without_mutating_targets(monkeypat
     assert any("tradingTimeRanges.capa2 is empty" in warning for warning in payload["warnings"])
     assert any("RETEST 0 still carries ExitAfterBars" in warning for warning in payload["warnings"])
     assert any("adaptiveSpreadStress layer 2" in warning for warning in payload["warnings"])
-    assert any("BS_Filtros_v6 reintroduces ExitAfterBars" in warning for warning in payload["warnings"])
-    assert any("BlockSettings Capa2 must not reintroduce ExitAfterBars" in item for item in payload["summary"]["blockersBeforeApply"])
+    assert any("BS_Filtros_v6" in warning and "traceability/reference-only" in warning for warning in payload["warnings"])
+    assert any("Reference-only `BS_Filtros_v6*` resources" in item for item in payload["summary"]["blockersBeforeApply"])
+    assert any("Template Maker C2 templateFile" in item for item in payload["summary"]["blockersBeforeApply"])
     state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
     assert state["currentPhase"] == "phase15_capa2_planning"
     assert state["nextPhase"] == "phase16_capa2_preflight_snapshot"
@@ -3007,6 +3011,63 @@ def test_capa2_planning_cli_is_registered():
 
     assert args.command == "capa2-planning-report"
     assert args.target == "repo-template"
+
+
+def test_capa2_preflight_snapshot_writes_phase16_and_copies_sources(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local_project.cfx"
+    repo_cfx = tmp_path / "repo_template.cfx"
+    generator_profiles = tmp_path / "generator_profiles.json"
+    blocksettings_manifest = tmp_path / "blocksettings_manifest.json"
+    reference_bs = tmp_path / "BS_Filtros_v6.sqb"
+    for path in (local_cfx, repo_cfx, generator_profiles, blocksettings_manifest, reference_bs):
+        path.write_bytes(f"content:{path.name}".encode("utf-8"))
+
+    monkeypatch.setattr(gate, "capa2_planning_report", lambda *args, **kwargs: {
+        "phase": "phase15_capa2_planning",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase16_capa2_preflight_snapshot",
+        "summary": {"blockersBeforeApply": ["reference-only guard"]},
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profiles)
+    monkeypatch.setattr(gate, "BLOCKSETTINGS_MANIFEST_PATH", blocksettings_manifest)
+    monkeypatch.setattr(gate, "capa2_blocksettings_summary", lambda: {
+        "manifest": str(blocksettings_manifest),
+        "mode": "reference_only_traceability",
+        "recommendations": {"H1": "BS_Filtros_v6"},
+        "inspected": [{
+            "canonicalId": "BS_Filtros_v6",
+            "path": str(reference_bs),
+            "role": "reference_only_traceability_not_active_capa2_layer",
+            "exists": True,
+        }],
+    })
+
+    payload = gate.capa2_preflight_snapshot(tmp_path, tmp_path, target="both", write=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase16_capa2_preflight_snapshot"
+    assert payload["nextPhase"] == "phase17_capa2_build_questionnaire"
+    assert "reference-only/traceability" in payload["decisions"]["bsFiltrosRole"]
+    assert "Template Maker C2 artifact" in payload["decisions"]["templateFileRole"]
+    assert len(payload["copiedFiles"]) == 5
+    assert Path(payload["snapshotDir"]).is_dir()
+    assert Path(payload["written"]).is_file()
+    state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
+    assert state["currentPhase"] == "phase16_capa2_preflight_snapshot"
+    assert state["nextPhase"] == "phase17_capa2_build_questionnaire"
+    assert state["phase16SnapshotDir"] == payload["snapshotDir"]
+
+
+def test_capa2_preflight_snapshot_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-preflight-snapshot", "--target", "both"])
+
+    assert args.command == "capa2-preflight-snapshot"
+    assert args.target == "both"
 
 
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
