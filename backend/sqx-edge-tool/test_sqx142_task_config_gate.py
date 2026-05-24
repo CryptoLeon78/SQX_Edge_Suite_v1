@@ -3805,6 +3805,94 @@ def test_capa2_build_static_tabs_cli_is_registered():
     assert args.target == "both"
 
 
+def _write_minimal_capa2_retest0_cfx(path: Path, date_to: str = "2026.04.30") -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    config_xml = """<Project><Tasks><Task title="RETEST 0" taskXMLFile="Retest-Task1.xml" /></Tasks></Project>"""
+    task_xml = f"""
+    <Task>
+      <Options><BuildTradingOptions><Params>
+        <Param key="LimitTimeRange" className="LimitTimeRange">false</Param>
+        <Param key="RealisticGapsHandling" className="RealisticGapsHandling">false</Param>
+      </Params></BuildTradingOptions></Options>
+      <RiskMoneyManagement><MoneyManagement>
+        <Method type="FixedSize" use="true" />
+        <Method type="FixedAmount" use="false" />
+      </MoneyManagement><RiskManagement><Method type="AllowAllTrades" use="false" /></RiskManagement></RiskMoneyManagement>
+      <ATMs enable="true" />
+      <Data><Setups><Setup dateFrom="2017.10.02" dateTo="{date_to}" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /></Setup></Setups><OutOfSample><Range dateFrom="2017.10.02" dateTo="2017.12.31" /></OutOfSample></Data>
+      <Databanks><Databank name="Input" value="Results" /><Databank name="Output" value="RETEST 0" /></Databanks>
+      <Resources><Symbols><Symbol name="AUDCAD_darwinex" source="4" broker="4"><InstrumentInfo instrument="AUDCAD_darwinex" broker="4" /></Symbol></Symbols><Brokers><Broker id="4" /></Brokers><Instruments /><Sessions /></Resources>
+      <Rankings type="top"><Conditions><Condition use="true"><Left-Side valueType="column"><Column-Value column="RMT_ZScore" format="Decimal2" sampleType="20" /></Left-Side><Comparator value="&gt;=" /><Right-Side valueType="numeric"><Numeric-Value value="1.3" /></Right-Side></Condition></Conditions></Rankings>
+      <CrossChecks use="true" evaluateAll="true"><MonteCarloRetest use="false"><Settings><Methods><Method type="RandomizeHistoryData" use="true" /></Methods></Settings><AcceptanceSettings><Conditions><Condition use="true" /></Conditions></AcceptanceSettings></MonteCarloRetest></CrossChecks>
+      <WhatToBuild><StrategyType type="template" templateFile="C:\\private\\c2.sqx" improveDatabank="Strategies to improve" /><BuildMode /></WhatToBuild>
+      <PartsToImprove improveATM="true"><EntryRules><LongImprovement use="true" action="replace" /><ShortImprovement use="true" action="replace" /></EntryRules><OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes><ExitRules><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></ExitRules></PartsToImprove>
+      <Blocks><BuildingBlocks><Block key="AlwaysTrue" category="signals" use="true" /></BuildingBlocks><OrderTypes><Block key="EnterAtMarket" use="true" /><Block key="EnterReverseAtMarket" use="true" /><Block key="EnterAtStop" use="true" /><Block key="EnterAtLimit" use="true" /></OrderTypes><ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="true" probability="50" /><Block key="StopLoss.StopLoss" use="false" probability="100" /><Block key="ProfitTarget.ProfitTarget" use="false" probability="100" /><Block key="TrailingStop.TrailingStop" use="false" probability="50" /></ExitTypes><CustomData showAll="true"><Item /></CustomData></Blocks>
+      <SelectedStrategies><Strategy /></SelectedStrategies>
+      <Notes />
+    </Task>
+    """
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("config.xml", config_xml)
+        archive.writestr("Retest-Task1.xml", task_xml)
+
+
+def test_capa2_retest0_target_applies_and_is_idempotent(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    _write_minimal_capa2_retest0_cfx(local_cfx, date_to="2026.04.08")
+    _write_minimal_capa2_retest0_cfx(repo_cfx, date_to="2026.04.30")
+
+    monkeypatch.setattr(gate, "promote_capa2_build_static_tabs_target", lambda *args, **kwargs: {
+        "phase": "phase17_capa2_build_static_tabs",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase18_capa2_retest0",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+
+    payload = gate.promote_capa2_retest0_target(tmp_path, tmp_path, target="both", apply=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase18_capa2_retest0"
+    assert payload["nextPhase"] == "phase19_capa2_retest1"
+    local_root = gate.load_capa2_retest0_task_root(local_cfx)[1]
+    repo_root = gate.load_capa2_retest0_task_root(repo_cfx)[1]
+    assert gate.enforce_capa2_retest0_guard(local_root, "localBase") == []
+    assert gate.enforce_capa2_retest0_guard(repo_root, "repoTemplate") == []
+    assert local_root.find(".//Data/Setups/Setup").get("dateTo") == "2025.01.01"
+    assert [dict(node.attrib) for node in local_root.findall(".//Data/OutOfSample/Range")] == gate.CAPA2_RETEST0_OOS_RANGES
+    assert local_root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "Results"
+    assert local_root.find(".//CrossChecks").get("use") == "false"
+    assert local_root.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("use") == "false"
+
+    dry_run = gate.promote_capa2_retest0_target(tmp_path, tmp_path, target="both", apply=False)
+    assert dry_run["ok"] is True
+    assert all(result["changedActionCount"] == 0 for result in dry_run["results"].values())
+
+
+def test_capa2_retest0_guard_rejects_forward_contamination(tmp_path):
+    cfx = tmp_path / "Capa2_Base.cfx"
+    _write_minimal_capa2_retest0_cfx(cfx, date_to="2026.04.30")
+    root = gate.load_capa2_retest0_task_root(cfx)[1]
+
+    issues = gate.enforce_capa2_retest0_guard(root, "repoTemplate")
+
+    assert any("dateTo" in issue for issue in issues)
+    assert any("OOS ranges" in issue for issue in issues)
+    assert any("ExitAfterBars" in issue for issue in issues)
+    assert any("StrategyType" in issue for issue in issues)
+
+
+def test_capa2_retest0_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-retest0-target", "--target", "both"])
+
+    assert args.command == "capa2-retest0-target"
+    assert args.target == "both"
+
+
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
     calls = []
 

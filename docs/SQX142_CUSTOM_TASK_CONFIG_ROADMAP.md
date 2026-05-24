@@ -1,8 +1,10 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 17
-`Capa2 Build Static Tabs` cerrada el 2026-05-24 con
-`phase17_capa2_build_static_tabs_target_20260524_231540.json`, despues de
+Estado: C1-CONFIG1 con Fase 18
+`Capa2 Retest 0` cerrada el 2026-05-24 con
+`phase18_capa2_retest0_target_20260524_234752.json`, despues de
+cerrar `phase17_capa2_build_static_tabs_target_20260524_231540.json`,
+despues de
 cerrar `phase17_capa2_build_crosschecks_target_20260524_223128.json`,
 despues de
 cerrar `phase17_capa2_build_rankings_target_20260524_220916.json`,
@@ -53,7 +55,14 @@ normalizados al seed generico Capa2 Build. Static Tabs queda cerrado con
 desactivados, mejora de entradas/tipos de orden apagada, mejora de salidas
 activa para la capa SL/TP/trailing, Optimization acotado y Notes preservado,
 sin cambios CFX semanticos porque local base y template repo ya estaban
-alineados. El siguiente bloque exacto es `phase18_capa2_retest0`. Fase 0 dejo
+alineados. Retest 0 Capa2 queda cerrado como validacion OOS1, no tuning:
+`Retest-Task1.xml`, `Input=Results`, `Output=RETEST 0`, periodo
+`2017.10.02-2025.01.01`, OOS1 `2024.01.01-2025.01.01`, FOWARD reservado
+desde `2025.01.01`, `StrategyType` pasivo desde Results, `PartsToImprove`
+off, `CrossChecks use=false`, `FitPortfolio=false`, `CustomAnalysis=false`,
+filtros OOS predeclarados `NumberOfTrades >= 80`, `ProfitFactor >= 1.05`,
+`ReturnDDRatio >= 1` y `ExitAfterBars=false`. El siguiente bloque exacto es
+`phase19_capa2_retest1`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -2395,6 +2404,37 @@ Siguiente bloque exacto: `phase17_capa2_build_static_tabs`.
   `nextPhase=phase18_capa2_retest0`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase18_capa2_retest0`.
+
+## Estado Fase 18 - Capa2 Retest 0
+
+- `phase18_capa2_retest0` queda cerrada con
+  `phase18_capa2_retest0_target_20260524_234752.json`.
+- Comando aplicado: `capa2-retest0-target --target both --apply`, con
+  dry-run previo, backup/diff local, dry-run posterior idempotente y sin
+  procesos SQX vivos.
+- Contrato tecnico: `Retest-Task1.xml`, `Input=Results`,
+  `Output=RETEST 0`, `testPrecision=2`, `No Session`, seed generico
+  `AUDCAD_darwinex/H1/TICK/EETUS`.
+- Contrato temporal anti-overfit: Retest 0 usa periodo
+  `2017.10.02-2025.01.01` con OOS1 `2024.01.01-2025.01.01`;
+  FOWARD queda reservado desde `2025.01.01` hasta `2026.04.30` en
+  `generator_profiles.json`.
+- Contrato de validacion: `StrategyType` pasivo desde Results,
+  `PartsToImprove` apagado, `CrossChecks use=false/evaluateAll=false`,
+  `FitPortfolio=false`, `CustomAnalysis=false` y `ExitAfterBars=false` para
+  no reintroducir la salida por barras eliminada en Capa2 Build.
+- Filtros OOS predeclarados y amplios: `NumberOfTrades >= 80`,
+  `ProfitFactor >= 1.05` y `ReturnDDRatio >= 1`, todos en muestra OOS.
+- Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
+  `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
+- Guard academico: Retest 0 mide supervivencia OOS de candidatos Capa2 ya
+  generados; no ajusta parametros, rankings, filtros ni estados de resultado.
+- No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
+  `Results=passed`.
+- El estado local queda en `currentPhase=phase18_capa2_retest0`,
+  `nextPhase=phase19_capa2_retest1`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase19_capa2_retest1`.
 
 ## Disciplina Operativa
 

@@ -1934,6 +1934,18 @@ def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_r
         "RealisticGapsHandling": "true",
         "StoreChartData": "false",
     }
+    assert build.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("use") == "false"
+
+    retest0 = roots["Retest-Task1.xml"]
+    retest0_setup = retest0.find(".//Data/Setups/Setup")
+    assert retest0_setup.get("dateFrom") == "2017.10.02"
+    assert retest0_setup.get("dateTo") == "2025.01.01"
+    assert [dict(node.attrib) for node in retest0.findall(".//Data/OutOfSample/Range")] == [
+        {"dateFrom": "2024.01.01", "dateTo": "2025.01.01"}
+    ]
+    assert retest0.find(".//CrossChecks").get("use") == "false"
+    assert retest0.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "Results"
+    assert retest0.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("use") == "false"
 
     retest1 = roots["AutomaticRetest-Task7.xml"]
     retest1_params = {

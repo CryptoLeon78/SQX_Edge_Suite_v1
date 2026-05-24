@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Capa2 Retest 0
+
+- Adds `capa2-retest0-target` as the Phase 18 validation guard for Capa2.
+- Records evidence `phase18_capa2_retest0_target_20260524_234752.json` and closes `Retest-Task1.xml` as `Input=Results` / `Output=RETEST 0`.
+- Separates validation from forward holdout: Retest 0 is `2017.10.02-2025.01.01` with OOS1 `2024.01.01-2025.01.01`, while Capa2 FOWARD is reserved from `2025.01.01` in `generator_profiles.json`.
+- Keeps Retest 0 passive and anti-overfit: `StrategyType` reads Results, `PartsToImprove` off, `CrossChecks use=false`, `FitPortfolio=false`, `CustomAnalysis=false`, `ExitAfterBars=false`, and OOS filters are limited to `NumberOfTrades >= 80`, `ProfitFactor >= 1.05`, `ReturnDDRatio >= 1`.
+- Reports idempotent post-apply guards with `changedActionCount=0`, `guardOk=true`, no SQX process, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
+- Sets the next exact block to `phase19_capa2_retest1`.
+
 ## 2026-05-24 - C1-CONFIG1 Capa2 Build Static Tabs
 
 - Adds `capa2-build-static-tabs-target` as the Phase 17 Build Static Tabs guard for Capa2.

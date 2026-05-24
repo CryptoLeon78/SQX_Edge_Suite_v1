@@ -4855,6 +4855,105 @@
       }
     },
     {
+      "id": "sqx142_c2_phase18_retest0_validation",
+      "description": "C1-CONFIG1 Phase 18 Capa2 Retest 0 must stay closed as a validation-only OOS gate, separated from forward holdout, with no optimization or execution claims.",
+      "required": {
+        "README.md": [
+          "phase18_capa2_retest0",
+          "phase18_capa2_retest0_target_20260524_234752.json",
+          "`Retest-Task1.xml`",
+          "`Input=Results`",
+          "`Output=RETEST 0`",
+          "`2017.10.02-2025.01.01`",
+          "OOS1 `2024.01.01-2025.01.01`",
+          "FOWARD reservado desde `2025.01.01`",
+          "`CrossChecks use=false`",
+          "`ExitAfterBars=false`",
+          "phase19_capa2_retest1"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 18 `Capa2 Retest 0` is closed",
+          "phase18_capa2_retest0_target_20260524_234752.json",
+          "`capa2-retest0-target --target both --apply`",
+          "`Retest-Task1.xml`",
+          "OOS1 `2024.01.01-2025.01.01`",
+          "FOWARD reserved from `2025.01.01`",
+          "`PartsToImprove` off",
+          "`CrossChecks use=false/evaluateAll=false`",
+          "`ExitAfterBars=false`",
+          "phase19_capa2_retest1"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase18_capa2_retest0",
+          "Capa2 Retest 0 `Retest-Task1.xml`",
+          "OOS1 `2024.01.01-2025.01.01`",
+          "FOWARD reserved from `2025.01.01`",
+          "passive Results validation",
+          "`CrossChecks use=false`",
+          "`ExitAfterBars=false`",
+          "Retest 0 does not imply SQX execution or optimization"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 18 - Capa2 Retest 0",
+          "phase18_capa2_retest0_target_20260524_234752.json",
+          "`capa2-retest0-target --target both --apply`",
+          "`Retest-Task1.xml`",
+          "`2017.10.02-2025.01.01`",
+          "OOS1 `2024.01.01-2025.01.01`",
+          "FOWARD queda reservado desde `2025.01.01`",
+          "`StrategyType` pasivo desde Results",
+          "`PartsToImprove` apagado",
+          "`CrossChecks use=false/evaluateAll=false`",
+          "`ExitAfterBars=false`",
+          "`nextPhase=phase19_capa2_retest1`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-24 - C1-CONFIG1 Capa2 Retest 0",
+          "`capa2-retest0-target`",
+          "phase18_capa2_retest0_target_20260524_234752.json",
+          "Retest 0 is `2017.10.02-2025.01.01`",
+          "Capa2 FOWARD is reserved from `2025.01.01`",
+          "`ExitAfterBars=false`",
+          "phase19_capa2_retest1"
+        ],
+        "backend/sqx-edge-tool/config/generator_profiles.json": [
+          "\"RETEST_0\"",
+          "\"2025.01.01\"",
+          "\"FOWARD\"",
+          "\"2026.04.30\""
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_RETEST0_NEXT = \"phase19_capa2_retest1\"",
+          "CAPA2_RETEST0_TASK_XML = \"Retest-Task1.xml\"",
+          "CAPA2_RETEST0_OOS_RANGES",
+          "def promote_capa2_retest0_target",
+          "def enforce_capa2_retest0_guard",
+          "capa2-retest0-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_retest0_target_applies_and_is_idempotent",
+          "test_capa2_retest0_guard_rejects_forward_contamination",
+          "test_capa2_retest0_cli_is_registered"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 Retest 0 ejecuta SQX",
+          "Capa2 Retest 0 lanza smoke",
+          "Capa2 Retest 0 inicia optimizacion",
+          "Capa2 Retest 0 fuerza Results=passed",
+          "Retest 0 Capa2 optimiza parametros"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 Retest 0 ran SQX",
+          "Capa2 Retest 0 ran smoke",
+          "Capa2 Retest 0 optimization completed",
+          "Capa2 Retest 0 forced Results=passed",
+          "Capa2 Retest 0 optimized parameters"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_per_message_bootstrap_g9",
       "description": "G9 must keep per-message specialist activation and new-session bootstrap proactive but orchestrator-owned and mutation-gated.",
       "required": {

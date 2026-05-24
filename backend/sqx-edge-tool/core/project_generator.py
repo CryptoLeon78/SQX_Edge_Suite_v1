@@ -39,6 +39,7 @@ ADAPTIVE_SPREAD_STRESS = {
     int(capa): value
     for capa, value in (_GENERATOR_PROFILE.get("adaptiveSpreadStress") or {}).items()
 }
+CAPA2_NO_EXIT_AFTER_BARS_TASKS = {"Build-Task1.xml", "Retest-Task1.xml"}
 BROKER_PROFILES = _GENERATOR_PROFILE.get("brokerProfiles") or {}
 TARGET_PROFILES = _GENERATOR_PROFILE.get("targetProfiles") or {}
 ASSET_DEFAULTS = _INSTRUMENTS_PROFILE.get("assetDefaults") or {}
@@ -91,6 +92,15 @@ def _spread_stress_for(capa: int, filename: str) -> Optional[tuple[float, float]
 def _build_task_title(blocksetting_id: str, capa: int, direction: str, timeframe: str) -> str:
     tf = (timeframe or "TF").upper()
     return f"Build {blocksetting_id} · Capa{capa} {_direction_label(direction)} {tf}"
+
+
+def _disable_exit_after_bars(root) -> int:
+    patched = 0
+    for block in root.findall(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']"):
+        if block.get("use") != "false":
+            block.set("use", "false")
+            patched += 1
+    return patched
 
 
 def _clean_profile_value(value, default=None):
@@ -470,7 +480,8 @@ def generate_project(
     # Aplicar patches a todos los XMLs internos del .cfx
     total_stats = {"files_patched": 0, "charts": 0, "swaps": 0, "sides": 0,
                    "dates": 0, "resources": 0, "paths_cleaned": 0, "commissions": 0, "spread_stress": 0,
-                   "trading_window": 0, "blocksettings": 0, "costs_source": costs["source"], "symbol": costs["symbol"],
+                   "trading_window": 0, "blocksettings": 0, "exit_after_bars_disabled": 0,
+                   "costs_source": costs["source"], "symbol": costs["symbol"],
                    "blocksetting": blocksetting_trace(blocksetting_entry)}
     for filename, tree in editor.iter_xml_files():
         if filename == "config.xml":
@@ -518,6 +529,8 @@ def generate_project(
         )
         if apply_blocksetting_to_xml(root, blocksetting_entry):
             total_stats["blocksettings"] += 1
+        if capa == 2 and filename in CAPA2_NO_EXIT_AFTER_BARS_TASKS:
+            total_stats["exit_after_bars_disabled"] += _disable_exit_after_bars(root)
         editor.update_xml(filename, tree)
         total_stats["files_patched"] += 1
         for k in ("charts", "swaps", "sides", "dates", "resources", "paths_cleaned", "commissions", "trading_window", "spread_stress"):
