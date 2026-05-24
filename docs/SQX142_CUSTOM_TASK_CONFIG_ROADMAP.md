@@ -1,8 +1,9 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 18
-`Capa2 Retest 0` cerrada el 2026-05-24 con
-`phase18_capa2_retest0_target_20260524_234752.json`, despues de
+Estado: C1-CONFIG1 con Fase 19
+`Capa2 Retest 1` cerrada el 2026-05-25 con
+`phase19_capa2_retest1_target_20260525_003750.json`, despues de
+cerrar `phase18_capa2_retest0_target_20260524_234752.json`, despues de
 cerrar `phase17_capa2_build_static_tabs_target_20260524_231540.json`,
 despues de
 cerrar `phase17_capa2_build_crosschecks_target_20260524_223128.json`,
@@ -61,8 +62,16 @@ alineados. Retest 0 Capa2 queda cerrado como validacion OOS1, no tuning:
 desde `2025.01.01`, `StrategyType` pasivo desde Results, `PartsToImprove`
 off, `CrossChecks use=false`, `FitPortfolio=false`, `CustomAnalysis=false`,
 filtros OOS predeclarados `NumberOfTrades >= 80`, `ProfitFactor >= 1.05`,
-`ReturnDDRatio >= 1` y `ExitAfterBars=false`. El siguiente bloque exacto es
-`phase19_capa2_retest1`. Fase 0 dejo
+`ReturnDDRatio >= 1` y `ExitAfterBars=false`. Retest 1 Capa2 queda cerrado
+como validacion historica cross-broker, no tuning: `AutomaticRetest-Task7.xml`,
+`Input=RETEST 0`, `Output=retest 1`, periodo `RETEST_1
+2010.01.01-2017.10.02`, `CustomData` canonico sin `Data`, data Dukascopy
+`AUDCAD_dukascopy` source `2` broker `3`, `StrategyType` pasivo desde
+`RETEST 0`, `CrossChecks use=false/evaluateAll=false`, `FitPortfolio=false`,
+`CustomAnalysis=false`, filtros predeclarados `NumberOfTrades >= 80`,
+`ProfitFactor >= 1.05`, `ReturnDDRatio >= 1` y `ExitAfterBars=false`.
+`phase20_capa2_tick_real` y el resto de Capa2 vuelven a Darwinex. El
+siguiente bloque exacto es `phase20_capa2_tick_real`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -2435,6 +2444,39 @@ Siguiente bloque exacto: `phase18_capa2_retest0`.
   `nextPhase=phase19_capa2_retest1`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase19_capa2_retest1`.
+
+## Estado Fase 19 - Capa2 Retest 1
+
+- `phase19_capa2_retest1` queda cerrada con
+  `phase19_capa2_retest1_target_20260525_003750.json`.
+- Comando aplicado: `capa2-retest1-target --target both --apply`, con
+  dry-run previo, backup/diff local, dry-run posterior idempotente y
+  `processes=[]`.
+- Contrato tecnico: `AutomaticRetest-Task7.xml`, `Input=RETEST 0`,
+  `Output=retest 1`, `testPrecision=2`, `No Session`, portador canonico
+  `CustomData` sin `Data` directo.
+- Contrato temporal anti-overfit: Retest 1 usa `RETEST_1
+  2010.01.01-2017.10.02`, terminando exactamente al inicio de Build Capa2.
+- Contrato de datos: esta fase usa Dukascopy por validacion historica
+  cross-broker (`AUDCAD_dukascopy`, source `2`, broker `3`). El siguiente
+  bloque `phase20_capa2_tick_real` y el resto de Capa2 vuelven a Darwinex.
+- Contrato de validacion: `StrategyType` pasivo desde `RETEST 0`,
+  `CrossChecks use=false/evaluateAll=false`, metodos/condiciones ocultas
+  apagadas, `FitPortfolio=false`, `CustomAnalysis=false`,
+  `ExitAfterBars=false`.
+- Filtros predeclarados y amplios: `NumberOfTrades >= 80`,
+  `ProfitFactor >= 1.05` y `ReturnDDRatio >= 1`.
+- Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
+  `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
+- Guard academico: Retest 1 mide supervivencia historica de candidatos ya
+  filtrados por Retest 0; no ajusta parametros, rankings, filtros ni estados
+  de resultado.
+- No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
+  `Results=passed`.
+- El estado local queda en `currentPhase=phase19_capa2_retest1`,
+  `nextPhase=phase20_capa2_tick_real`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase20_capa2_tick_real`.
 
 ## Disciplina Operativa
 

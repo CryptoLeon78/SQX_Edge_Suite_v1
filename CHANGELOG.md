@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa2 Retest 1
+
+- Adds `capa2-retest1-target` as the Phase 19 validation guard for Capa2.
+- Records evidence `phase19_capa2_retest1_target_20260525_003750.json` and closes `AutomaticRetest-Task7.xml` as `Input=RETEST 0` / `Output=retest 1`.
+- Pins Retest 1 to historical `RETEST_1 2010.01.01-2017.10.02` using `CustomData` as the canonical carrier with no direct `Data`.
+- Uses Dukascopy data only for Capa2 Retest 1 (`AUDCAD_dukascopy`, source `2`, broker `3`); `phase20_capa2_tick_real` and later Capa2 retests return to Darwinex.
+- Keeps Retest 1 passive and anti-overfit: `StrategyType` reads `RETEST 0`, `CrossChecks use=false/evaluateAll=false`, `FitPortfolio=false`, `CustomAnalysis=false`, `ExitAfterBars=false`, and filters stay broad/predeclared: `NumberOfTrades >= 80`, `ProfitFactor >= 1.05`, `ReturnDDRatio >= 1`.
+- Reports idempotent post-apply guards with `changedActionCount=0`, `guardOk=true`, no SQX process, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
+- Sets the next exact block to `phase20_capa2_tick_real`.
+
 ## 2026-05-25 - G9 Parallel Subagent Runtime Hardening
 
 - Hardens G9 so subagent discipline survives automatic compaction and does not remain only conversational.

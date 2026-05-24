@@ -3893,6 +3893,135 @@ def test_capa2_retest0_cli_is_registered():
     assert args.target == "both"
 
 
+def _write_capa2_retest1_generator_profile(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps({
+            "retestPeriods": {
+                "RETEST_1": ["2010.01.01", "2017.10.02"],
+            },
+            "crossBrokerRetests": {
+                "2": {
+                    "AutomaticRetest-Task7.xml": {
+                        "brokerProfile": "dukascopy_oos2",
+                        "period": "RETEST_1",
+                    },
+                },
+            },
+            "taskPeriodMaps": {
+                "2": {
+                    "AutomaticRetest-Task7.xml": "RETEST_1",
+                },
+            },
+        }),
+        encoding="utf-8",
+    )
+
+
+def _write_minimal_capa2_retest1_cfx(path: Path, include_data: bool = True) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    config_xml = """<Project><Tasks><Task title="RETEST 1" taskXMLFile="AutomaticRetest-Task7.xml" /></Tasks></Project>"""
+    data_xml = """
+      <Data><Setups><Setup dateFrom="2011.01.01" dateTo="2016.12.31" testPrecision="1" session="Old Session"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups></Data>
+    """ if include_data else ""
+    task_xml = f"""
+    <Task>
+      {data_xml}
+      <CustomData showAll="true"><Setups><Setup dateFrom="2010.01.01" dateTo="2016.12.31" testPrecision="2" session="No Session" slippage="1" minDist="3" engine="MetaTrader4"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /><MainTestValues engine="true" symbol="true" timeframe="true" dates="true" /></Setup></Setups></CustomData>
+      <Databanks><Databank name="Input" value="RETEST 0" /><Databank name="Output" value="retest 1" /></Databanks>
+      <Resources><Symbols><Symbol name="USDJPY_darwinex" source="2" broker="3"><InstrumentInfo instrument="USDJPY_darwinex" broker="3" /></Symbol></Symbols><Brokers><Broker id="3" /></Brokers><Instruments /><Sessions><Session name="Old Session" /></Sessions></Resources>
+      <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">false</Param><Param key="ExitOnFriday">true</Param><Param key="RealisticGapsHandling">false</Param></Params></BuildTradingOptions></Options>
+      <Rankings type="top"><MaxStrategies>500</MaxStrategies><DeleteFailedStrategies>true</DeleteFailedStrategies><ForceRunCrossChecks>true</ForceRunCrossChecks><Conditions><Condition use="true"><Left-Side valueType="column"><Column-Value column="RMT_ZScore" format="Decimal2" sampleType="127" /></Left-Side><Comparator value="&gt;=" /><Right-Side valueType="numeric"><Numeric-Value value="1.3" /></Right-Side></Condition></Conditions></Rankings>
+      <CrossChecks use="true" evaluateAll="true"><MonteCarloRetest use="true"><Settings><Setups><Setup dateFrom="2010.01.01" dateTo="2016.12.31" testPrecision="1" session="Old Session" slippage="5" minDist="10" engine="MetaTrader4"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings><AcceptanceSettings><Conditions><Condition use="true" /></Conditions></AcceptanceSettings></MonteCarloRetest></CrossChecks>
+      <WhatToBuild><StrategyType type="template" templateFile="C:\\private\\c2.sqx" improveDatabank="Strategies to improve" /><BuildMode><ShowLastGenerationDatabank>true</ShowLastGenerationDatabank><FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar><FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest><EvoRestartOnFinish status="true" /><EvoRestartOnStagnation status="true" fitnessType="10" generations="30" /></BuildMode></WhatToBuild>
+      <PartsToImprove improveATM="true"><EntryRules><LongImprovement use="true" action="replace" /><ShortImprovement use="true" action="replace" /></EntryRules><ExitRules><LongImprovement use="true" action="replace" /><ShortImprovement use="true" action="replace" /></ExitRules></PartsToImprove>
+      <Blocks><OrderTypes><Block key="EnterAtMarket" use="true" /><Block key="EnterReverseAtMarket" use="true" /><Block key="EnterAtStop" use="true" /><Block key="EnterAtLimit" use="true" /></OrderTypes><ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="true" probability="100" /><Block key="StopLoss.StopLoss" use="false" probability="100" /><Block key="ProfitTarget.ProfitTarget" use="false" probability="100" /><Block key="TrailingStop.TrailingStop" use="false" probability="50" /></ExitTypes><CustomData showAll="true"><Item /></CustomData></Blocks>
+      <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement><RiskManagement><Method type="AllowAllTrades" use="false" /></RiskManagement></RiskMoneyManagement>
+      <ATMs enable="true" />
+      <SelectedStrategies><Strategy /></SelectedStrategies>
+      <Notes />
+    </Task>
+    """
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("config.xml", config_xml)
+        archive.writestr("AutomaticRetest-Task7.xml", task_xml)
+
+
+def test_capa2_retest1_target_applies_and_is_idempotent(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_retest1_cfx(local_cfx, include_data=True)
+    _write_minimal_capa2_retest1_cfx(repo_cfx, include_data=False)
+    _write_capa2_retest1_generator_profile(generator_profile)
+
+    monkeypatch.setattr(gate, "promote_capa2_retest0_target", lambda *args, **kwargs: {
+        "phase": "phase18_capa2_retest0",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase19_capa2_retest1",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+
+    payload = gate.promote_capa2_retest1_target(tmp_path, tmp_path, target="both", apply=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase19_capa2_retest1"
+    assert payload["nextPhase"] == "phase20_capa2_tick_real"
+    local_root = gate.load_capa2_retest1_task_root(local_cfx)[1]
+    repo_root = gate.load_capa2_retest1_task_root(repo_cfx)[1]
+    assert gate.enforce_capa2_retest1_guard(local_root, "localBase") == []
+    assert gate.enforce_capa2_retest1_guard(repo_root, "repoTemplate") == []
+    assert local_root.find("./Data") is None
+    setup = local_root.find("./CustomData/Setups/Setup")
+    assert setup.get("dateFrom") == "2010.01.01"
+    assert setup.get("dateTo") == "2017.10.02"
+    assert setup.find("Chart").attrib == {"symbol": "AUDCAD_dukascopy", "timeframe": "H1", "spread": "1.9"}
+    assert {node.get("name") for node in local_root.findall(".//Resources/Symbols/Symbol")} == {"AUDCAD_dukascopy"}
+    assert {node.get("source") for node in local_root.findall(".//Resources/Symbols/Symbol")} == {"2"}
+    assert {node.get("broker") for node in local_root.findall(".//Resources/Symbols/Symbol")} == {"3"}
+    assert local_root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "RETEST 0"
+    assert local_root.find(".//CrossChecks").get("use") == "false"
+    assert local_root.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("use") == "false"
+    assert local_root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
+
+    dry_run = gate.promote_capa2_retest1_target(tmp_path, tmp_path, target="both", apply=False)
+
+    assert dry_run["ok"] is True
+    assert all(result["changedActionCount"] == 0 for result in dry_run["results"].values())
+
+
+def test_capa2_retest1_guard_rejects_tuning_and_wrong_period(monkeypatch, tmp_path):
+    cfx = tmp_path / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_retest1_cfx(cfx, include_data=True)
+    _write_capa2_retest1_generator_profile(generator_profile)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+    root = gate.load_capa2_retest1_task_root(cfx)[1]
+
+    issues = gate.enforce_capa2_retest1_guard(root, "repoTemplate")
+
+    assert any("direct Data carrier" in issue for issue in issues)
+    assert any("dateTo" in issue for issue in issues)
+    assert any("CrossChecks attrs" in issue for issue in issues)
+    assert any("active methods" in issue for issue in issues)
+    assert any("active acceptance" in issue for issue in issues)
+    assert any("StrategyType" in issue for issue in issues)
+    assert any("ExitAfterBars" in issue for issue in issues)
+    assert any("local absolute path" in issue for issue in issues)
+
+
+def test_capa2_retest1_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-retest1-target", "--target", "both"])
+
+    assert args.command == "capa2-retest1-target"
+    assert args.target == "both"
+
+
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
     calls = []
 

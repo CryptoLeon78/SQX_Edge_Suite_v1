@@ -65,6 +65,13 @@
         "period": "RETEST_1_C1",
         "label": "Retest 1 / OOS2 Dukascopy 2010.01.01-2017.10.02"
       }
+    },
+    "2": {
+      "AutomaticRetest-Task7.xml": {
+        "brokerProfile": "dukascopy_oos2",
+        "period": "RETEST_1",
+        "label": "Capa2 Retest 1 / historical Dukascopy 2010.01.01-2017.10.02"
+      }
     }
   },
   "retestPeriods": {
@@ -90,7 +97,7 @@
     ],
     "RETEST_1": [
       "2010.01.01",
-      "2016.12.31"
+      "2017.10.02"
     ],
     "RETEST_1_C1": [
       "2010.01.01",

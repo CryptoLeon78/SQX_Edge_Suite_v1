@@ -1948,6 +1948,22 @@ def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_r
     assert retest0.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("use") == "false"
 
     retest1 = roots["AutomaticRetest-Task7.xml"]
+    assert retest1.find("./Data") is None
+    retest1_setup = retest1.find("./CustomData/Setups/Setup")
+    assert retest1_setup is not None
+    assert retest1_setup.get("dateFrom") == "2010.01.01"
+    assert retest1_setup.get("dateTo") == "2017.10.02"
+    assert retest1_setup.find("Chart").get("symbol") == "AUDCAD_dukascopy"
+    assert retest1_setup.find("Chart").get("timeframe") == "H4"
+    assert retest1.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "RETEST 0"
+    assert retest1.find(".//CrossChecks").get("use") == "false"
+    retest1_exit_after_bars = retest1.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']")
+    assert retest1_exit_after_bars is None or retest1_exit_after_bars.get("use") == "false"
+    retest1_symbols = retest1.findall(".//Resources/Symbols/Symbol")
+    assert {node.get("name") for node in retest1_symbols} == {"AUDCAD_dukascopy"}
+    assert {node.get("source") for node in retest1_symbols} == {"2"}
+    assert {node.get("broker") for node in retest1_symbols} == {"3"}
+    assert [broker.get("id") for broker in retest1.findall(".//Resources/Brokers/Broker")] == ["3"]
     retest1_params = {
         node.get("key"): node.text
         for node in retest1.findall(".//BuildTradingOptions/Params/Param")

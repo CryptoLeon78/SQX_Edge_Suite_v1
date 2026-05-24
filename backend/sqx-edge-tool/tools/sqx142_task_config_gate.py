@@ -52,6 +52,7 @@ PHASES = [
     {"id": "phase16", "label": "Capa2 preflight snapshot and rollback plan"},
     {"id": "phase17", "label": "Capa2 Build questionnaire"},
     {"id": "phase18", "label": "Capa2 RETEST 0 validation gate"},
+    {"id": "phase19", "label": "Capa2 RETEST 1 validation gate"},
 ]
 
 SECTION_ALIASES = {
@@ -15769,6 +15770,7 @@ CAPA2_BUILD_RANKINGS_NEXT = "phase17_capa2_build_crosschecks"
 CAPA2_BUILD_CROSSCHECKS_NEXT = "phase17_capa2_build_static_tabs"
 CAPA2_BUILD_STATIC_TABS_NEXT = "phase18_capa2_retest0"
 CAPA2_RETEST0_NEXT = "phase19_capa2_retest1"
+CAPA2_RETEST1_NEXT = "phase20_capa2_tick_real"
 CAPA2_BUILD_TASK_XML = "Build-Task1.xml"
 CAPA2_BUILD_TASK_TITLE = "Build strategies"
 CAPA2_RETEST0_TASK_XML = "Retest-Task1.xml"
@@ -15837,6 +15839,84 @@ CAPA2_RETEST0_PARTS_TO_IMPROVE_TARGET = {
 }
 CAPA2_RETEST0_CROSSCHECK_PARENT_TARGET = {"use": "false", "evaluateAll": "false"}
 CAPA2_RETEST0_STATIC_TABS = ("RiskMoneyManagement", "ATMs", "PartsToImprove", "SelectedStrategies", "Notes")
+CAPA2_RETEST1_TASK_XML = "AutomaticRetest-Task7.xml"
+CAPA2_RETEST1_TASK_TITLE = "RETEST 1"
+CAPA2_RETEST1_PERIOD_KEY = "RETEST_1"
+CAPA2_RETEST1_DATA_TEST_PRECISION = "2"
+CAPA2_RETEST1_DATA_SESSION = "No Session"
+CAPA2_RETEST1_DATA_ENGINE = "MetaTrader4"
+CAPA2_RETEST1_RESOURCE_SYMBOL = "AUDCAD_dukascopy"
+CAPA2_RETEST1_RESOURCE_SPREAD = "1.9"
+CAPA2_RETEST1_RESOURCE_SOURCE_ID = "2"
+CAPA2_RETEST1_RESOURCE_BROKER_ID = "3"
+CAPA2_RETEST1_RESOURCE_BROKER_NAME = "[[Dukascopy]]"
+CAPA2_RETEST1_RESOURCE_BROKER_DESCRIPTION = "Dukascopy"
+CAPA2_RETEST1_DATABANKS_TARGET = {"Input": "RETEST 0", "Output": "retest 1"}
+CAPA2_RETEST1_OPTIONS_PARAMS_TARGET = {
+    "Session": "No Session",
+    "MarketOpenSession": "No Session",
+    "LimitTimeRange": "true",
+    "SignalTimeRangeFrom": "7200",
+    "SignalTimeRangeTo": "79200",
+    "ExitAtEndOfDay": "false",
+    "ExitOnFriday": "false",
+    "ExitAtEndOfRange": "false",
+    "RealisticGapsHandling": "true",
+    "StoreChartData": "false",
+}
+CAPA2_RETEST1_RANKING_TARGET = {
+    "MaxStrategies": "10000",
+    "ConditionsType": "1",
+    "DeleteFailedStrategies": "false",
+    "ForceRunCrossChecks": "false",
+    "AutomaticDismissal": {"warnings": "false"},
+    "StopCondition": {
+        "type": "databank-full",
+        "passedStrategies": "1000",
+        "restartCount": "5",
+        "days": "0",
+        "hours": "0",
+        "minutes": "0",
+    },
+    "FitPortfolio": {"active": "false", "databank": "Existing portfolio"},
+    "CustomAnalysis": {"method": "none", "filter": "false", "inputArgs": ""},
+    "FitnessCriteria": {"method": "ComputeFromStrategyResult", "useFitnessByIndex": "false"},
+}
+CAPA2_RETEST1_RANKING_CONDITIONS_TARGET = [
+    {"column": "NumberOfTrades", "comparator": ">=", "value": "80", "format": "Integer", "sampleType": "127"},
+    {"column": "ProfitFactor", "comparator": ">=", "value": "1.05", "format": "Decimal2", "sampleType": "127"},
+    {"column": "ReturnDDRatio", "comparator": ">=", "value": "1", "format": "Decimal2", "sampleType": "127"},
+]
+CAPA2_RETEST1_STRATEGY_TYPE_TARGET = {
+    "type": "simple",
+    "additionalCharts": "2",
+    "templateFile": "",
+    "improveType": "strategy",
+    "strategyFile": "",
+    "architecture": "sq4",
+    "improveDatabank": "RETEST 0",
+}
+CAPA2_RETEST1_CROSSCHECK_PARENT_TARGET = {"use": "false", "evaluateAll": "false"}
+CAPA2_RETEST1_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET = {
+    "commissions": "true",
+    "dates": "false",
+    "distance": "true",
+    "engine": "true",
+    "precision": "true",
+    "slippage": "true",
+    "spread": "true",
+    "subcharts": "false",
+    "symbol": "false",
+    "timeframe": "true",
+}
+CAPA2_RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET = {
+    "FixedSize": "true",
+    "RiskFixedBalancePct": "false",
+    "RiskFixedPctOfAccount": "false",
+    "FixedAmount": "false",
+    "StocksSizeByPrice": "false",
+    "AllowAllTrades": "true",
+}
 CAPA2_BUILD_TAB_ORDER = [
     "WhatToBuild",
     "Data",
@@ -20259,6 +20339,761 @@ def promote_capa2_retest0_target(root142: Path, project_root: Path, target: str,
     return payload
 
 
+def load_capa2_retest1_task_root(cfx: Path) -> tuple[str, ET.Element | None, str]:
+    task_xml, root, title = load_task_root_by_xml(cfx, CAPA2_RETEST1_TASK_XML)
+    if task_xml and root is not None:
+        return task_xml, root, title or CAPA2_RETEST1_TASK_TITLE
+    fallback_task_xml, fallback_root = load_task_root(cfx, CAPA2_RETEST1_TASK_TITLE)
+    return fallback_task_xml, fallback_root, CAPA2_RETEST1_TASK_TITLE if fallback_root is not None else ""
+
+
+def capa2_retest1_custom_data_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    custom = root.find("CustomData")
+    setup = custom.find("./Setups/Setup") if custom is not None else None
+    chart = setup.find("Chart") if setup is not None else None
+    main_values = setup.find("MainTestValues") if setup is not None else None
+    commission = setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']") if setup is not None else None
+    return {
+        "exists": custom is not None,
+        "attrs": dict(custom.attrib) if custom is not None else {},
+        "setup": dict(setup.attrib) if setup is not None else {},
+        "chart": dict(chart.attrib) if chart is not None else {},
+        "mainTestValues": dict(main_values.attrib) if main_values is not None else {},
+        "commission": (commission.text or "") if commission is not None else "",
+    }
+
+
+def capa2_retest1_options_params(root: ET.Element | None) -> dict[str, str]:
+    return {
+        param.get("key", ""): (param.text or "")
+        for param in (root.findall(".//BuildTradingOptions/Params/Param") if root is not None else [])
+        if param.get("key") in CAPA2_RETEST1_OPTIONS_PARAMS_TARGET
+    }
+
+
+def capa2_retest1_rankings_summary(root: ET.Element | None) -> dict[str, Any]:
+    rankings = find_section(root, "Rankings") if root is not None else None
+    if rankings is None:
+        return {"exists": False}
+    return {
+        "exists": True,
+        "type": rankings.get("type", ""),
+        "MaxStrategies": rankings.findtext("MaxStrategies") or "",
+        "ConditionsType": rankings.findtext("ConditionsType") or "",
+        "DeleteFailedStrategies": rankings.findtext("DeleteFailedStrategies") or "",
+        "ForceRunCrossChecks": rankings.findtext("ForceRunCrossChecks") or "",
+        "AutomaticDismissal": dict(rankings.find("AutomaticDismissal").attrib) if rankings.find("AutomaticDismissal") is not None else {},
+        "StopCondition": dict(rankings.find("StopCondition").attrib) if rankings.find("StopCondition") is not None else {},
+        "FitPortfolio": dict(rankings.find("FitPortfolio").attrib) if rankings.find("FitPortfolio") is not None else {},
+        "CustomAnalysis": dict(rankings.find("CustomAnalysis").attrib) if rankings.find("CustomAnalysis") is not None else {},
+        "FitnessCriteria": dict(rankings.find("FitnessCriteria").attrib) if rankings.find("FitnessCriteria") is not None else {},
+        "conditions": summarize_conditions_detailed(rankings.find("Conditions")),
+    }
+
+
+def capa2_retest1_crosschecks_summary(root: ET.Element | None) -> dict[str, Any]:
+    parent = find_section(root, "CrossChecks") if root is not None else None
+    if parent is None:
+        return {"exists": False, "attrs": {}, "active": [], "checks": []}
+    checks: list[dict[str, Any]] = []
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        active_methods = [
+            method.get("type", "")
+            for method in check.findall("./Settings/Methods/Method")
+            if method.get("use") == "true"
+        ]
+        active_conditions = [
+            dict(condition.attrib)
+            for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
+            if condition.get("use", "true") != "false"
+        ]
+        checks.append({
+            "id": check.tag,
+            "use": check.get("use", ""),
+            "activeMethodTypes": active_methods,
+            "activeConditionCount": len(active_conditions),
+        })
+    return {
+        "exists": True,
+        "attrs": dict(parent.attrib),
+        "active": [item["id"] for item in checks if item.get("use") == "true"],
+        "checks": checks,
+    }
+
+
+def capa2_retest1_build_mode_summary(root: ET.Element | None) -> dict[str, Any]:
+    build_mode = root.find(".//WhatToBuild/BuildMode") if root is not None else None
+    if build_mode is None:
+        return {"exists": False, "attrs": {}, "text": {}, "childAttrs": {}}
+    return {
+        "exists": True,
+        "attrs": dict(build_mode.attrib),
+        "text": {
+            child.tag: (child.text or "")
+            for child in list(build_mode)
+            if isinstance(child.tag, str) and child.text is not None
+        },
+        "childAttrs": {
+            child.tag: dict(child.attrib)
+            for child in list(build_mode)
+            if isinstance(child.tag, str) and child.attrib
+        },
+    }
+
+
+def capa2_retest1_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    return {
+        "exists": True,
+        "hasDirectData": root.find("Data") is not None,
+        "customData": capa2_retest1_custom_data_summary(root),
+        "databanks": {
+            node.get("name", ""): node.get("value", "")
+            for node in root.findall(".//Databanks/Databank")
+            if node.get("name")
+        },
+        "resources": _tick_real_resource_summary(root),
+        "optionsParams": capa2_retest1_options_params(root),
+        "rankings": capa2_retest1_rankings_summary(root),
+        "crosschecks": capa2_retest1_crosschecks_summary(root),
+        "strategyType": task_strategy_type_summary(root),
+        "buildMode": capa2_retest1_build_mode_summary(root),
+        "partsToImprove": capa2_build_parts_to_improve_summary(root),
+        "orderTypes": task_order_type_detail_summary(root),
+        "exitTypes": task_exit_type_detail_summary(root),
+        "riskMoneyManagement": task_risk_method_summary(root),
+        "atms": {"attrs": dict(find_section(root, "ATMs").attrib) if find_section(root, "ATMs") is not None else {}},
+        "selectedStrategiesCount": len(list(find_section(root, "SelectedStrategies"))) if find_section(root, "SelectedStrategies") is not None else 0,
+    }
+
+
+def ensure_capa2_retest1_custom_data(root: ET.Element, actions: list[dict[str, Any]]) -> ET.Element:
+    period = generator_period(CAPA2_RETEST1_PERIOD_KEY)
+    data = root.find("Data")
+    if data is not None:
+        before_data = serialize_xml(data)
+        root.remove(data)
+        actions.append({
+            "field": "Data",
+            "from": before_data,
+            "to": None,
+            "changed": True,
+            "note": "Capa2 Retest 1 uses CustomData as the canonical AutomaticRetest carrier; no parallel Data tab is kept.",
+        })
+    custom = root.find("CustomData")
+    if custom is None:
+        custom = ET.SubElement(root, "CustomData", {"showAll": "false"})
+        actions.append({"field": "CustomData", "from": None, "to": dict(custom.attrib), "changed": True})
+    set_attrs_on_node(custom, {"showAll": "false"}, actions, "CustomData:attrs")
+    setups = ensure_direct_child(custom, "Setups")
+    setup = setups.find("Setup")
+    if setup is None:
+        setup = ET.SubElement(setups, "Setup")
+        actions.append({"field": "CustomData/Setups/Setup", "from": None, "to": "created", "changed": True})
+    for key, wanted in {
+        "dateFrom": period[0],
+        "dateTo": period[1],
+        "testPrecision": CAPA2_RETEST1_DATA_TEST_PRECISION,
+        "session": CAPA2_RETEST1_DATA_SESSION,
+        "slippage": "0",
+        "minDist": "0",
+        "engine": CAPA2_RETEST1_DATA_ENGINE,
+    }.items():
+        before = setup.get(key, "")
+        setup.set(key, wanted)
+        actions.append({"field": f"CustomData/Setup:{key}", "from": before, "to": wanted, "changed": before != wanted})
+    chart = setup.find("Chart")
+    if chart is None:
+        chart = ET.SubElement(setup, "Chart")
+        before_chart = None
+    else:
+        before_chart = dict(chart.attrib)
+    chart.attrib.clear()
+    chart.attrib.update({
+        "symbol": CAPA2_RETEST1_RESOURCE_SYMBOL,
+        "timeframe": CAPA2_BUILD_SEED_TIMEFRAME,
+        "spread": CAPA2_RETEST1_RESOURCE_SPREAD,
+    })
+    actions.append({"field": "CustomData/Setup/Chart", "from": before_chart, "to": dict(chart.attrib), "changed": before_chart != dict(chart.attrib)})
+    commissions = ensure_direct_child(setup, "Commissions")
+    existing_methods = {method.get("type", ""): method for method in commissions.findall("Method") if method.get("type")}
+    for method_type, wanted in {"None": "false", "SizeBased": "true"}.items():
+        method = existing_methods.get(method_type)
+        if method is None:
+            method = ET.SubElement(commissions, "Method", {"type": method_type})
+            before = None
+        else:
+            before = dict(method.attrib)
+        method.set("type", method_type)
+        method.set("use", wanted)
+        actions.append({"field": f"CustomData/Commissions/Method:{method_type}", "from": before, "to": dict(method.attrib), "changed": before != dict(method.attrib)})
+    size_based = existing_methods.get("SizeBased")
+    if size_based is None:
+        size_based = commissions.find("Method[@type='SizeBased']")
+    params = ensure_direct_child(size_based, "Params")
+    commission_param = params.find("Param[@key='Commission']")
+    if commission_param is None:
+        commission_param = ET.SubElement(params, "Param", {"key": "Commission", "className": "SizeBased"})
+        before_commission = None
+    else:
+        before_commission = {"attrs": dict(commission_param.attrib), "text": commission_param.text or ""}
+    commission_param.set("key", "Commission")
+    commission_param.set("className", "SizeBased")
+    commission_param.text = MC_CUSTOM_DATA_COMMISSION_TARGET
+    after_commission = {"attrs": dict(commission_param.attrib), "text": commission_param.text or ""}
+    actions.append({"field": "CustomData/Commissions/Method:SizeBased/Param:Commission", "from": before_commission, "to": after_commission, "changed": before_commission != after_commission})
+    main_values = setup.find("MainTestValues")
+    if main_values is None:
+        main_values = ET.SubElement(setup, "MainTestValues")
+        before_main = None
+    else:
+        before_main = dict(main_values.attrib)
+    main_values.attrib.clear()
+    main_values.attrib.update(CAPA2_RETEST1_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET)
+    actions.append({"field": "CustomData/Setup/MainTestValues", "from": before_main, "to": dict(main_values.attrib), "changed": before_main != dict(main_values.attrib)})
+    return setup
+
+
+def ensure_capa2_retest1_resources(root: ET.Element, setup: ET.Element, actions: list[dict[str, Any]]) -> None:
+    resources = find_section(root, "Resources")
+    if resources is None:
+        resources = ET.SubElement(root, "Resources")
+        before_resources: dict[str, Any] = {"resourcesFound": False}
+        actions.append({"field": "Resources", "from": None, "to": "created", "changed": True})
+    else:
+        before_resources = _tick_real_resource_summary(root)
+    symbols_node = ensure_resources_container(resources, "Symbols")
+    brokers_node = ensure_resources_container(resources, "Brokers")
+    instruments_node = ensure_resources_container(resources, "Instruments")
+    sessions_node = ensure_resources_container(resources, "Sessions")
+    ensure_resources_container(resources, "CustomIndicators")
+    ensure_resources_container(resources, "CustomBlocks")
+    template_symbol_attrs, template_info_attrs = _first_existing_symbol_template(resources)
+    before_symbols = [value_for_node(node) for node in symbols_node.findall("Symbol")]
+    for node in list(symbols_node.findall("Symbol")):
+        symbols_node.remove(node)
+    date_from = str(epoch_ms_for_date(setup.get("dateFrom", "2010.01.01")))
+    date_to = str(epoch_ms_for_date(setup.get("dateTo", "2017.10.02")))
+    symbol_attrs = {
+        "name": CAPA2_RETEST1_RESOURCE_SYMBOL,
+        "source": CAPA2_RETEST1_RESOURCE_SOURCE_ID,
+        "barType": template_symbol_attrs.get("barType", "1"),
+        "precision": CAPA2_BUILD_RESOURCE_PRECISION,
+        "timezone": CAPA2_BUILD_RESOURCE_TIMEZONE,
+        "dateFrom": date_from,
+        "dateTo": date_to,
+        "uSymbol": CAPA2_BUILD_SEED_ASSET,
+        "uSymbolName": CAPA2_BUILD_SEED_ASSET,
+        "removeWeekends": template_symbol_attrs.get("removeWeekends", "false"),
+        "broker": CAPA2_RETEST1_RESOURCE_BROKER_ID,
+    }
+    symbol = ET.SubElement(symbols_node, "Symbol", symbol_attrs)
+    info_attrs = {
+        "instrument": CAPA2_RETEST1_RESOURCE_SYMBOL,
+        "description": template_info_attrs.get("description", "Currency"),
+        "tickSize": template_info_attrs.get("tickSize", "0.0001"),
+        "tickStep": template_info_attrs.get("tickStep", "1e-05"),
+        "minDistance": template_info_attrs.get("minDistance", "0.0"),
+        "tickValueInMoney": template_info_attrs.get("tickValueInMoney", "0.0"),
+        "dateFrom": "0",
+        "dateTo": "0",
+        "rows": "0",
+        "totalDays": "0",
+        "defaultSpread": CAPA2_RETEST1_RESOURCE_SPREAD,
+        "defaultSlippage": template_info_attrs.get("defaultSlippage", "0.0"),
+        "decimals": template_info_attrs.get("decimals", "5"),
+        "commissions": template_info_attrs.get("commissions", '<Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0.00</Param></Params></Method>'),
+        "pointValue": template_info_attrs.get("pointValue", "72157.360772"),
+        "dataType": template_info_attrs.get("dataType", BUILD_RESOURCES_BASE_DATA_TYPE),
+        "recognizedFromOrders": template_info_attrs.get("recognizedFromOrders", "false"),
+        "exchange": template_info_attrs.get("exchange", ""),
+        "country": template_info_attrs.get("country", ""),
+        "sector": template_info_attrs.get("sector", "Currency"),
+        "swap": template_info_attrs.get("swap", '<Swap use="true" type="points" long="-0.50" short="-6.30" tripleSwapOn="WEDNESDAY" rolloutHour="23:00"/>'),
+        "orderSizeMultiplier": template_info_attrs.get("orderSizeMultiplier", "1.0"),
+        "orderSizeStep": template_info_attrs.get("orderSizeStep", "0.01"),
+        "broker": symbol_attrs["broker"],
+    }
+    ET.SubElement(symbol, "InstrumentInfo", info_attrs)
+    actions.append({"field": "Resources/Symbols", "from": before_symbols, "to": [value_for_node(node) for node in symbols_node.findall("Symbol")], "changed": before_symbols != [value_for_node(node) for node in symbols_node.findall("Symbol")]})
+    before_brokers = [value_for_node(node) for node in brokers_node.findall("Broker")]
+    for node in list(brokers_node.findall("Broker")):
+        brokers_node.remove(node)
+    ET.SubElement(brokers_node, "Broker", {"id": CAPA2_RETEST1_RESOURCE_BROKER_ID, "name": CAPA2_RETEST1_RESOURCE_BROKER_NAME, "description": CAPA2_RETEST1_RESOURCE_BROKER_DESCRIPTION, "timezone": CAPA2_BUILD_RESOURCE_TIMEZONE, "postfix": "_dukascopy", "mtUse": "true", "spUse": "false"})
+    actions.append({"field": "Resources/Brokers", "from": before_brokers, "to": [value_for_node(node) for node in brokers_node.findall("Broker")], "changed": before_brokers != [value_for_node(node) for node in brokers_node.findall("Broker")]})
+    before_instruments = [value_for_node(node) for node in instruments_node.findall("InstrumentInfo")]
+    for node in list(instruments_node.findall("InstrumentInfo")):
+        instruments_node.remove(node)
+    ET.SubElement(instruments_node, "InstrumentInfo", dict(info_attrs))
+    actions.append({"field": "Resources/Instruments", "from": before_instruments, "to": [value_for_node(node) for node in instruments_node.findall("InstrumentInfo")], "changed": before_instruments != [value_for_node(node) for node in instruments_node.findall("InstrumentInfo")]})
+    removed_sessions = [value_for_node(node) for node in sessions_node.findall("Session")]
+    for node in list(sessions_node.findall("Session")):
+        sessions_node.remove(node)
+    actions.append({"field": "Resources/Sessions", "from": removed_sessions, "to": [], "changed": bool(removed_sessions)})
+    actions.append({
+        "field": "Resources",
+        "from": before_resources,
+        "to": _tick_real_resource_summary(root),
+        "changed": before_resources != _tick_real_resource_summary(root),
+        "note": "Capa2 Retest 1 seed resources follow the CustomData period; Project Generator rewrites them per selected asset/timeframe/profile.",
+    })
+
+
+def ensure_capa2_retest1_options(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    options = find_section(root, "Options")
+    if options is None:
+        options = ET.SubElement(root, "Options")
+        actions.append({"field": "Options", "from": None, "to": "created", "changed": True})
+    trading = ensure_direct_child(options, "BuildTradingOptions")
+    params = ensure_direct_child(trading, "Params")
+    class_names = {
+        "Session": "SessionOption",
+        "MarketOpenSession": "MarketOpenSession",
+        "LimitTimeRange": "LimitTimeRange",
+        "SignalTimeRangeFrom": "LimitTimeRange",
+        "SignalTimeRangeTo": "LimitTimeRange",
+        "ExitAtEndOfRange": "LimitTimeRange",
+        "ExitAtEndOfDay": "ExitAtEndOfDay",
+        "ExitOnFriday": "ExitOnFriday",
+        "RealisticGapsHandling": "RealisticGapsHandling",
+        "StoreChartData": "StoreChartData",
+    }
+    existing = {param.get("key", ""): param for param in params.findall("Param") if param.get("key")}
+    for key, value in CAPA2_RETEST1_OPTIONS_PARAMS_TARGET.items():
+        node = existing.get(key)
+        before = {"attrs": dict(node.attrib), "text": node.text or ""} if node is not None else None
+        if node is None:
+            node = ET.SubElement(params, "Param", {"key": key})
+        node.set("key", key)
+        if key in class_names:
+            node.set("className", class_names[key])
+        node.text = value
+        after = {"attrs": dict(node.attrib), "text": node.text or ""}
+        actions.append({"field": f"Options/Param:{key}", "from": before, "to": after, "changed": before != after})
+
+
+def apply_capa2_retest1_target_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    setup = ensure_capa2_retest1_custom_data(root, actions)
+    ensure_capa2_retest1_resources(root, setup, actions)
+    ensure_capa2_retest1_options(root, actions)
+
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing_databanks = {node.get("name", ""): node for node in databanks.findall("Databank") if node.get("name")}
+    for name, value in CAPA2_RETEST1_DATABANKS_TARGET.items():
+        node = existing_databanks.get(name)
+        before = dict(node.attrib) if node is not None else None
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+        node.set("name", name)
+        node.set("value", value)
+        node.set("label", f"{name} databank" if name != "Output" else "Output databank")
+        actions.append({"field": f"Databanks/{name}", "from": before, "to": dict(node.attrib), "changed": before != dict(node.attrib)})
+
+    rankings = find_section(root, "Rankings")
+    if rankings is None:
+        rankings = ET.SubElement(root, "Rankings")
+        actions.append({"field": "Rankings", "from": None, "to": "created", "changed": True})
+    before_rank_attrs = dict(rankings.attrib)
+    rankings.attrib.update({"type": "never"})
+    actions.append({"field": "Rankings:attrs", "from": before_rank_attrs, "to": dict(rankings.attrib), "changed": before_rank_attrs != dict(rankings.attrib)})
+    set_or_create_text_child(rankings, "MaxStrategies", CAPA2_RETEST1_RANKING_TARGET["MaxStrategies"], actions, "Rankings/MaxStrategies")
+    set_or_create_text_child(rankings, "ConditionsType", CAPA2_RETEST1_RANKING_TARGET["ConditionsType"], actions, "Rankings/ConditionsType")
+    set_or_create_text_child(rankings, "DeleteFailedStrategies", CAPA2_RETEST1_RANKING_TARGET["DeleteFailedStrategies"], actions, "Rankings/DeleteFailedStrategies")
+    set_or_create_text_child(rankings, "ForceRunCrossChecks", CAPA2_RETEST1_RANKING_TARGET["ForceRunCrossChecks"], actions, "Rankings/ForceRunCrossChecks")
+    set_or_create_attrs_child(rankings, "AutomaticDismissal", CAPA2_RETEST1_RANKING_TARGET["AutomaticDismissal"], actions, "Rankings/AutomaticDismissal")
+    set_or_create_attrs_child(rankings, "StopCondition", CAPA2_RETEST1_RANKING_TARGET["StopCondition"], actions, "Rankings/StopCondition")
+    set_or_create_attrs_child(rankings, "FitPortfolio", CAPA2_RETEST1_RANKING_TARGET["FitPortfolio"], actions, "Rankings/FitPortfolio")
+    set_or_create_attrs_child(rankings, "CustomAnalysis", CAPA2_RETEST1_RANKING_TARGET["CustomAnalysis"], actions, "Rankings/CustomAnalysis")
+    set_or_create_attrs_child(rankings, "FitnessCriteria", CAPA2_RETEST1_RANKING_TARGET["FitnessCriteria"], actions, "Rankings/FitnessCriteria")
+    set_ranking_conditions_from_target(rankings, CAPA2_RETEST1_RANKING_CONDITIONS_TARGET, actions, "Rankings/Conditions")
+
+    crosschecks = find_section(root, "CrossChecks")
+    if crosschecks is None:
+        crosschecks = ET.SubElement(root, "CrossChecks")
+        actions.append({"field": "CrossChecks", "from": None, "to": dict(crosschecks.attrib), "changed": True})
+    set_attrs_on_node(crosschecks, CAPA2_RETEST1_CROSSCHECK_PARENT_TARGET, actions, "CrossChecks:attrs")
+    for check in list(crosschecks):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        before_use = check.get("use", "")
+        check.set("use", "false")
+        actions.append({"field": f"CrossChecks/{check.tag}:use", "from": before_use, "to": "false", "changed": before_use != "false"})
+        for nested_setup in check.findall("./Settings/Setups/Setup"):
+            for key in ("dateFrom", "dateTo", "testPrecision", "session", "slippage", "minDist", "engine"):
+                before = nested_setup.get(key, "")
+                nested_setup.set(key, setup.get(key, ""))
+                actions.append({"field": f"CrossChecks/{check.tag}/Setup:{key}", "from": before, "to": nested_setup.get(key, ""), "changed": before != nested_setup.get(key, "")})
+            chart = nested_setup.find("Chart")
+            if chart is not None:
+                before_chart = dict(chart.attrib)
+                chart.attrib.clear()
+                chart.attrib.update({"symbol": CAPA2_RETEST1_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_RETEST1_RESOURCE_SPREAD})
+                actions.append({"field": f"CrossChecks/{check.tag}/Setup/Chart", "from": before_chart, "to": dict(chart.attrib), "changed": before_chart != dict(chart.attrib)})
+        for method in check.findall("./Settings/Methods/Method"):
+            before_method = method.get("use", "")
+            method.set("use", "false")
+            actions.append({"field": f"CrossChecks/{check.tag}/Method:{method.get('type', '')}:use", "from": before_method, "to": "false", "changed": before_method != "false"})
+        for condition in check.findall("./AcceptanceSettings/Conditions/Condition"):
+            before_condition = condition.get("use", "")
+            condition.set("use", "false")
+            actions.append({"field": f"CrossChecks/{check.tag}/AcceptanceSettings/Condition:use", "from": before_condition, "to": "false", "changed": before_condition != "false"})
+
+    what_to_build = find_section(root, "WhatToBuild")
+    if what_to_build is None:
+        what_to_build = ET.SubElement(root, "WhatToBuild")
+        actions.append({"field": "WhatToBuild", "from": None, "to": "created", "changed": True})
+    set_or_create_attrs_child(what_to_build, "StrategyType", CAPA2_RETEST1_STRATEGY_TYPE_TARGET, actions, "WhatToBuild/StrategyType")
+    build_mode = what_to_build.find("BuildMode")
+    if build_mode is None:
+        build_mode = ET.SubElement(what_to_build, "BuildMode", {"generationType": "random-generation"})
+        actions.append({"field": "WhatToBuild/BuildMode", "from": None, "to": dict(build_mode.attrib), "changed": True})
+    for tag, value in RETEST1_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        set_or_create_text_child(build_mode, tag, value, actions, f"WhatToBuild/BuildMode/{tag}")
+    for tag, attrs in RETEST1_PASSIVE_BUILDMODE_ATTR_TARGET.items():
+        set_or_create_attrs_child(build_mode, tag, attrs, actions, f"WhatToBuild/BuildMode/{tag}")
+
+    parts = find_section(root, "PartsToImprove")
+    if parts is not None:
+        set_attrs_on_node(parts, CAPA2_BUILD_PARTS_TO_IMPROVE_ATTR_TARGET, actions, "PartsToImprove:attrs")
+        for group in list(parts):
+            if not isinstance(group.tag, str):
+                continue
+            for side in ("LongImprovement", "ShortImprovement"):
+                node = group.find(side)
+                if node is not None:
+                    before = dict(node.attrib)
+                    node.set("use", "false")
+                    actions.append({"field": f"PartsToImprove/{group.tag}/{side}:use", "from": before, "to": dict(node.attrib), "changed": before != dict(node.attrib)})
+
+    blocks = find_blocks(root)
+    if blocks is not None:
+        for key, wanted in CAPA2_BUILD_BLOCKS_ORDER_TARGET.items():
+            block = blocks.find(f".//OrderTypes/Block[@key='{key}']")
+            if block is not None:
+                before = block.get("use", "")
+                block.set("use", wanted)
+                actions.append({"field": f"Blocks/OrderTypes/{key}:use", "from": before, "to": wanted, "changed": before != wanted})
+        for key, attrs in CAPA2_BUILD_BLOCKS_EXIT_TARGET.items():
+            block = blocks.find(f".//ExitTypes/Block[@key='{key}']")
+            if block is not None:
+                target_attrs = dict(attrs)
+                if key == "ExitAfterBars.ExitAfterBars":
+                    target_attrs["use"] = "false"
+                before = dict(block.attrib)
+                for attr_key, attr_value in target_attrs.items():
+                    block.set(attr_key, attr_value)
+                actions.append({"field": f"Blocks/ExitTypes/{key}:attrs", "from": before, "to": dict(block.attrib), "changed": before != dict(block.attrib)})
+        external = blocks.find("CustomData")
+        if external is not None:
+            before_external = {"attrs": dict(external.attrib), "children": len(list(external)), "text": (external.text or "").strip()}
+            external.attrib.clear()
+            external.set("showAll", "false")
+            for child in list(external):
+                external.remove(child)
+            external.text = None
+            after_external = {"attrs": dict(external.attrib), "children": len(list(external)), "text": (external.text or "").strip()}
+            actions.append({"field": "Blocks/CustomData", "from": before_external, "to": after_external, "changed": before_external != after_external})
+
+    rmm = find_section(root, "RiskMoneyManagement")
+    if rmm is None:
+        rmm = ET.SubElement(root, "RiskMoneyManagement", {"customSettings": "false"})
+        actions.append({"field": "RiskMoneyManagement", "from": None, "to": dict(rmm.attrib), "changed": True})
+    existing_methods = {method.get("type", ""): method for method in rmm.findall(".//Method") if method.get("type")}
+    for method_type, wanted in CAPA2_RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        method = existing_methods.get(method_type)
+        if method is None:
+            parent = rmm.find("RiskManagement") if method_type == "AllowAllTrades" else rmm.find("MoneyManagement")
+            if parent is None:
+                parent = ET.SubElement(rmm, "RiskManagement" if method_type == "AllowAllTrades" else "MoneyManagement")
+            method = ET.SubElement(parent, "Method", {"type": method_type})
+            before = None
+        else:
+            before = dict(method.attrib)
+        method.set("type", method_type)
+        method.set("use", wanted)
+        actions.append({"field": f"RiskMoneyManagement/Method:{method_type}:use", "from": before, "to": dict(method.attrib), "changed": before != dict(method.attrib)})
+    atms = find_section(root, "ATMs")
+    if atms is None:
+        atms = ET.SubElement(root, "ATMs")
+        actions.append({"field": "ATMs", "from": None, "to": dict(atms.attrib), "changed": True})
+    set_attrs_on_node(atms, CAPA2_BUILD_ATMS_TARGET, actions, "ATMs:attrs")
+    selected = find_section(root, "SelectedStrategies")
+    if selected is not None:
+        before_selected = len(list(selected))
+        for child in list(selected):
+            selected.remove(child)
+        actions.append({"field": "SelectedStrategies", "from": before_selected, "to": 0, "changed": before_selected != 0})
+    if find_section(root, "Notes") is None:
+        ET.SubElement(root, "Notes")
+        actions.append({"field": "Notes", "from": None, "to": "created", "changed": True})
+    return actions
+
+
+def capa2_retest1_generator_period_issues() -> list[str]:
+    config = read_json(GENERATOR_PROFILES_PATH, {})
+    periods = config.get("retestPeriods") or {}
+    maps = ((config.get("taskPeriodMaps") or {}).get("2") or {})
+    cross = (((config.get("crossBrokerRetests") or {}).get("2") or {}).get(CAPA2_RETEST1_TASK_XML) or {})
+    issues: list[str] = []
+    if periods.get(CAPA2_RETEST1_PERIOD_KEY) != ["2010.01.01", "2017.10.02"]:
+        issues.append("generator_profiles RETEST_1 must be 2010.01.01-2017.10.02 so Capa2 Retest 1 stays historical and does not overlap Build")
+    if maps.get(CAPA2_RETEST1_TASK_XML) != CAPA2_RETEST1_PERIOD_KEY:
+        issues.append(f"generator_profiles layer 2 must map {CAPA2_RETEST1_TASK_XML} to {CAPA2_RETEST1_PERIOD_KEY}")
+    if cross.get("brokerProfile") != "dukascopy_oos2" or cross.get("period") != CAPA2_RETEST1_PERIOD_KEY:
+        issues.append(f"generator_profiles layer 2 must route {CAPA2_RETEST1_TASK_XML} through dukascopy_oos2 for Retest 1 only")
+    return issues
+
+
+def enforce_capa2_retest1_guard(root: ET.Element, target_name: str) -> list[str]:
+    issues: list[str] = []
+    summary = capa2_retest1_summary(root)
+    if not summary.get("exists"):
+        return [f"{target_name}: Capa2 Retest 1 task missing"]
+    if summary.get("hasDirectData"):
+        issues.append(f"{target_name}: Capa2 Retest 1 must not keep a direct Data carrier; CustomData is canonical")
+    custom = summary.get("customData") or {}
+    if not custom.get("exists"):
+        issues.append(f"{target_name}: Capa2 Retest 1 CustomData carrier missing")
+    period = generator_period(CAPA2_RETEST1_PERIOD_KEY)
+    setup = custom.get("setup") or {}
+    for key, wanted in {
+        "dateFrom": period[0],
+        "dateTo": period[1],
+        "testPrecision": CAPA2_RETEST1_DATA_TEST_PRECISION,
+        "session": CAPA2_RETEST1_DATA_SESSION,
+        "engine": CAPA2_RETEST1_DATA_ENGINE,
+    }.items():
+        if setup.get(key) != wanted:
+            issues.append(f"{target_name}: Capa2 Retest 1 CustomData setup {key} is {setup.get(key)!r}, expected {wanted!r}")
+    if custom.get("chart") != {"symbol": CAPA2_RETEST1_RESOURCE_SYMBOL, "timeframe": CAPA2_BUILD_SEED_TIMEFRAME, "spread": CAPA2_RETEST1_RESOURCE_SPREAD}:
+        issues.append(f"{target_name}: Capa2 Retest 1 CustomData chart drifted")
+    if custom.get("mainTestValues") != CAPA2_RETEST1_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+        issues.append(f"{target_name}: Capa2 Retest 1 MainTestValues drifted")
+    if custom.get("commission") != MC_CUSTOM_DATA_COMMISSION_TARGET:
+        issues.append(f"{target_name}: Capa2 Retest 1 commission is {custom.get('commission')!r}, expected {MC_CUSTOM_DATA_COMMISSION_TARGET!r}")
+    if (summary.get("databanks") or {}) != CAPA2_RETEST1_DATABANKS_TARGET:
+        issues.append(f"{target_name}: Capa2 Retest 1 Databanks are {summary.get('databanks')!r}, expected {CAPA2_RETEST1_DATABANKS_TARGET!r}")
+    resources = summary.get("resources") or {}
+    symbol_names = {symbol.get("name") for symbol in resources.get("symbols", [])}
+    if symbol_names != {CAPA2_RETEST1_RESOURCE_SYMBOL}:
+        issues.append(f"{target_name}: Capa2 Retest 1 resource symbols are {sorted(symbol_names)!r}, expected {CAPA2_RETEST1_RESOURCE_SYMBOL!r}")
+    if any(symbol.get("precision") != CAPA2_BUILD_RESOURCE_PRECISION or symbol.get("timezone") != CAPA2_BUILD_RESOURCE_TIMEZONE for symbol in resources.get("symbols", [])):
+        issues.append(f"{target_name}: Capa2 Retest 1 resources must stay TICK/EETUS")
+    if any(symbol.get("source") != CAPA2_RETEST1_RESOURCE_SOURCE_ID or symbol.get("broker") != CAPA2_RETEST1_RESOURCE_BROKER_ID for symbol in resources.get("symbols", [])):
+        issues.append(f"{target_name}: Capa2 Retest 1 resources must use Dukascopy source 2 / broker 3")
+    if {broker.get("id") for broker in resources.get("brokers", [])} != {CAPA2_RETEST1_RESOURCE_BROKER_ID}:
+        issues.append(f"{target_name}: Capa2 Retest 1 Brokers must contain only Dukascopy broker 3")
+    if resources.get("sessions"):
+        issues.append(f"{target_name}: Capa2 Retest 1 Resources/Sessions must stay empty")
+    for key, wanted in CAPA2_RETEST1_OPTIONS_PARAMS_TARGET.items():
+        if (summary.get("optionsParams") or {}).get(key) != wanted:
+            issues.append(f"{target_name}: Capa2 Retest 1 Options {key} is {(summary.get('optionsParams') or {}).get(key)!r}, expected {wanted!r}")
+    rankings = summary.get("rankings") or {}
+    if rankings.get("type") != "never":
+        issues.append(f"{target_name}: Capa2 Retest 1 Rankings type must stay never")
+    for key in ("MaxStrategies", "ConditionsType", "DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if rankings.get(key) != CAPA2_RETEST1_RANKING_TARGET[key]:
+            issues.append(f"{target_name}: Capa2 Retest 1 Rankings {key} is {rankings.get(key)!r}, expected {CAPA2_RETEST1_RANKING_TARGET[key]!r}")
+    for key in ("AutomaticDismissal", "StopCondition", "FitPortfolio", "CustomAnalysis", "FitnessCriteria"):
+        if rankings.get(key) != CAPA2_RETEST1_RANKING_TARGET[key]:
+            issues.append(f"{target_name}: Capa2 Retest 1 Rankings {key} drifted")
+    expected_conditions = [{**item, "use": "true"} for item in CAPA2_RETEST1_RANKING_CONDITIONS_TARGET]
+    if rankings.get("conditions") != expected_conditions:
+        issues.append(f"{target_name}: Capa2 Retest 1 validation conditions drifted")
+    crosschecks = summary.get("crosschecks") or {}
+    if crosschecks.get("attrs") != CAPA2_RETEST1_CROSSCHECK_PARENT_TARGET:
+        issues.append(f"{target_name}: Capa2 Retest 1 CrossChecks attrs are {crosschecks.get('attrs')!r}, expected {CAPA2_RETEST1_CROSSCHECK_PARENT_TARGET!r}")
+    if crosschecks.get("active"):
+        issues.append(f"{target_name}: Capa2 Retest 1 must not run crosschecks, found {crosschecks.get('active')!r}")
+    for check in crosschecks.get("checks") or []:
+        if check.get("activeMethodTypes"):
+            issues.append(f"{target_name}: Capa2 Retest 1 inactive crosscheck {check.get('id')} has active methods")
+        if int(check.get("activeConditionCount") or 0) != 0:
+            issues.append(f"{target_name}: Capa2 Retest 1 inactive crosscheck {check.get('id')} has active acceptance conditions")
+    if summary.get("strategyType") != CAPA2_RETEST1_STRATEGY_TYPE_TARGET:
+        issues.append(f"{target_name}: Capa2 Retest 1 StrategyType must be passive RETEST 0 validation")
+    build_mode = summary.get("buildMode") or {}
+    build_text = build_mode.get("text") or {}
+    for tag, value in RETEST1_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        if build_text.get(tag) != value:
+            issues.append(f"{target_name}: Capa2 Retest 1 BuildMode {tag} is {build_text.get(tag)!r}, expected {value!r}")
+    child_attrs = build_mode.get("childAttrs") or {}
+    for tag, attrs in RETEST1_PASSIVE_BUILDMODE_ATTR_TARGET.items():
+        current = child_attrs.get(tag) or {}
+        for key, value in attrs.items():
+            if current.get(key) != value:
+                issues.append(f"{target_name}: Capa2 Retest 1 BuildMode {tag}.{key} is {current.get(key)!r}, expected {value!r}")
+    parts = summary.get("partsToImprove") or {}
+    for path, attrs in (parts.get("improvements") or {}).items():
+        if attrs.get("use") != "false":
+            issues.append(f"{target_name}: Capa2 Retest 1 PartsToImprove {path} must stay passive use=false")
+    exits = summary.get("exitTypes") or {}
+    if (exits.get("ExitAfterBars.ExitAfterBars") or {}).get("use") == "true":
+        issues.append(f"{target_name}: Capa2 Retest 1 must not reintroduce ExitAfterBars")
+    for method_type, wanted in CAPA2_RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if (summary.get("riskMoneyManagement") or {}).get(method_type) != wanted:
+            issues.append(f"{target_name}: Capa2 Retest 1 RiskMoneyManagement {method_type} must be {wanted}")
+    for key, wanted in CAPA2_BUILD_ATMS_TARGET.items():
+        if ((summary.get("atms") or {}).get("attrs") or {}).get(key) != wanted:
+            issues.append(f"{target_name}: Capa2 Retest 1 ATMs {key} must be {wanted}")
+    if summary.get("selectedStrategiesCount") not in (0, None):
+        issues.append(f"{target_name}: Capa2 Retest 1 SelectedStrategies must remain empty")
+    guarded_text = "".join(section_text(root, tab) for tab in ("Data", "Databanks", "Resources", "Options", "Rankings", "CrossChecks", "WhatToBuild", "PartsToImprove", "Blocks", "SelectedStrategies", "CustomData"))
+    for token in CAPA2_BUILD_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"{target_name}: forbidden donor token leaked into Capa2 Retest 1: {token}")
+    if "Strategies to improve" in guarded_text:
+        issues.append(f"{target_name}: Capa2 Retest 1 must not reference Strategies to improve")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append(f"{target_name}: local absolute path leaked into Capa2 Retest 1")
+    issues.extend(capa2_retest1_generator_period_issues())
+    return issues
+
+
+def update_capa2_retest1_target_in_cfx(cfx: Path, backup_root: Path, apply: bool, target_name: str) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root, display_title = load_capa2_retest1_task_root(cfx)
+    payload["taskXml"] = task_xml_name
+    payload["displayTitle"] = display_title
+    if not task_xml_name or root is None:
+        payload["error"] = "capa2_retest1_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = capa2_retest1_summary(root)
+    payload["actions"] = apply_capa2_retest1_target_to_root(root)
+    payload["after"] = capa2_retest1_summary(root)
+    payload["issues"] = enforce_capa2_retest1_guard(root, target_name)
+    payload["warnings"] = []
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["serializedChanged"] = before_text != after_text
+    payload["changed"] = payload["changedActionCount"] > 0
+    payload["targetValues"] = {
+        "taskXml": CAPA2_RETEST1_TASK_XML,
+        "period": CAPA2_RETEST1_PERIOD_KEY,
+        "customData": CAPA2_RETEST1_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+        "databanks": CAPA2_RETEST1_DATABANKS_TARGET,
+        "rankingConditions": CAPA2_RETEST1_RANKING_CONDITIONS_TARGET,
+        "strategyType": CAPA2_RETEST1_STRATEGY_TYPE_TARGET,
+        "crossChecks": CAPA2_RETEST1_CROSSCHECK_PARENT_TARGET,
+    }
+    payload["targetRationale"] = {
+        "validation": "Retest 1 validates RETEST 0 survivors on historical pre-Build Dukascopy data; it is not a search, SPP or optimization block.",
+        "antiOverfit": "The RETEST_1 window ends at the Build start date, and filters are broad predeclared validation filters.",
+        "carrier": "AutomaticRetest-Task7.xml keeps CustomData as the canonical carrier and removes any direct Data carrier to avoid divergent dates.",
+        "naturalResults": "Preserve natural passed/failed results; no forced Results=passed.",
+        "noLiveRun": "This operation edits XML/profile configuration only; it never launches SQX.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_capa2_retest1_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = promote_capa2_retest0_target(root142, project_root, target=target, apply=False)
+    issues = list(previous_gate.get("issues") or [])
+    warnings = list(previous_gate.get("warnings") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-retest0-target: previous gate ok=false")
+    backup_root = ledger_root(project_root) / "backups" / f"phase19_capa2_retest1_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    results = {
+        name: update_capa2_retest1_target_in_cfx(path, backup_root / name, apply=apply, target_name=name)
+        for name, path in targets.items()
+    }
+    for name, result in results.items():
+        if not result.get("exists") or not result.get("isZip") or result.get("error"):
+            issues.append(f"{name}: Capa2 Retest 1 target could not be inspected")
+        issues.extend(f"{name}: {issue}" for issue in (result.get("issues") or []))
+        warnings.extend(f"{name}: {warning}" for warning in (result.get("warnings") or []))
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        warnings.append("SQX processes are alive; phase19 Retest 1 target is XML/config-only and should be applied with SQX closed")
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase19_capa2_retest1",
+        "operation": "capa2_retest1_target",
+        "apply": apply,
+        "target": target,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_gate.get("issues") or [],
+            "warnings": previous_gate.get("warnings") or [],
+            "nextPhase": previous_gate.get("nextPhase"),
+            "written": previous_gate.get("written"),
+        },
+        "results": results,
+        "issues": issues,
+        "warnings": warnings,
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Close Capa2 Retest 1 as a passive validation gate, not SPP, tuning or optimization.",
+            "taskXml": CAPA2_RETEST1_TASK_XML,
+            "data": "Historical Dukascopy RETEST_1 window 2010.01.01-2017.10.02, ending exactly at the Capa2 Build start.",
+            "carrier": "CustomData is canonical for AutomaticRetest-Task7.xml; direct Data is removed to prevent divergent periods.",
+            "chain": "Input=RETEST 0, Output=retest 1.",
+            "filters": "Only broad predeclared validation filters: NumberOfTrades >= 80, ProfitFactor >= 1.05, ReturnDDRatio >= 1.",
+            "passive": "StrategyType reads RETEST 0 passively; CrossChecks, FitPortfolio, CustomAnalysis and improvement surfaces are inactive. Later Capa2 retests return to Darwinex.",
+            "naturalResults": "No SQX launch, no smoke, no optimization and no forced Results=passed.",
+            "nextPhase": CAPA2_RETEST1_NEXT,
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": "phase19_capa2_retest1_diff_review" if not apply else CAPA2_RETEST1_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase19_capa2_retest1_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    if apply and payload["ok"]:
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase19_capa2_retest1",
+            "nextPhase": CAPA2_RETEST1_NEXT,
+            "scope": "capa2",
+            "baseProject": DEFAULT_CAPA2_BASE_PROJECT,
+            "repoTemplate": str(DEFAULT_CAPA2_TEMPLATE),
+            "phase19Capa2Retest1Report": str(evidence_target),
+        })
+        write_json(state_path, state)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -21692,6 +22527,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_retest0.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_retest0.add_argument("--apply", action="store_true")
 
+    capa2_retest1 = sub.add_parser("capa2-retest1-target")
+    capa2_retest1.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_retest1.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -21961,6 +22800,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-retest0-target":
         json_print(promote_capa2_retest0_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "capa2-retest1-target":
+        json_print(promote_capa2_retest1_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

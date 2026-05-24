@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-05-24",
+  "updated": "2026-05-25",
   "purpose": "Canonical public-safe state markers used by automated docs consistency tests.",
   "coreFiles": [
     "README.md",
@@ -4950,6 +4950,106 @@
           "Capa2 Retest 0 optimization completed",
           "Capa2 Retest 0 forced Results=passed",
           "Capa2 Retest 0 optimized parameters"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_c2_phase19_retest1_validation",
+      "description": "C1-CONFIG1 Phase 19 Capa2 Retest 1 must stay closed as a historical Dukascopy validation-only gate before Capa2 returns to Darwinex, with no tuning or execution claims.",
+      "required": {
+        "README.md": [
+          "phase19_capa2_retest1",
+          "phase19_capa2_retest1_target_20260525_003750.json",
+          "`AutomaticRetest-Task7.xml`",
+          "`Input=RETEST 0`",
+          "`Output=retest 1`",
+          "`RETEST_1 2010.01.01-2017.10.02`",
+          "`CustomData` canonico sin `Data`",
+          "`AUDCAD_dukascopy` source `2` broker `3`",
+          "`CrossChecks use=false/evaluateAll=false`",
+          "`ExitAfterBars=false`",
+          "phase20_capa2_tick_real"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 19 `Capa2 Retest 1` is closed",
+          "phase19_capa2_retest1_target_20260525_003750.json",
+          "`capa2-retest1-target --target both --apply`",
+          "`AutomaticRetest-Task7.xml`",
+          "`CustomData` canonical with no direct `Data`",
+          "Dukascopy data `AUDCAD_dukascopy` source `2` broker `3`",
+          "`CrossChecks use=false/evaluateAll=false`",
+          "`ExitAfterBars=false`",
+          "phase20_capa2_tick_real"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase19_capa2_retest1",
+          "Capa2 Retest 1 `AutomaticRetest-Task7.xml`",
+          "historical `RETEST_1 2010.01.01-2017.10.02`",
+          "`CustomData` canonical with no direct `Data`",
+          "Dukascopy source `2` broker `3` only for Retest 1",
+          "later Capa2 retests returning to Darwinex",
+          "Retest 0 and Retest 1 do not imply SQX execution or optimization"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 19 - Capa2 Retest 1",
+          "phase19_capa2_retest1_target_20260525_003750.json",
+          "`capa2-retest1-target --target both --apply`",
+          "`AutomaticRetest-Task7.xml`",
+          "`RETEST_1",
+          "2010.01.01-2017.10.02",
+          "`AUDCAD_dukascopy`, source `2`, broker `3`",
+          "`CrossChecks use=false/evaluateAll=false`",
+          "`nextPhase=phase20_capa2_tick_real`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-25 - C1-CONFIG1 Capa2 Retest 1",
+          "`capa2-retest1-target`",
+          "phase19_capa2_retest1_target_20260525_003750.json",
+          "historical `RETEST_1 2010.01.01-2017.10.02`",
+          "`AUDCAD_dukascopy`, source `2`, broker `3`",
+          "phase20_capa2_tick_real"
+        ],
+        "backend/sqx-edge-tool/config/generator_profiles.json": [
+          "\"RETEST_1\"",
+          "\"2017.10.02\"",
+          "\"crossBrokerRetests\"",
+          "\"AutomaticRetest-Task7.xml\"",
+          "\"dukascopy_oos2\""
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_RETEST1_NEXT = \"phase20_capa2_tick_real\"",
+          "CAPA2_RETEST1_TASK_XML = \"AutomaticRetest-Task7.xml\"",
+          "CAPA2_RETEST1_RESOURCE_SYMBOL = \"AUDCAD_dukascopy\"",
+          "def promote_capa2_retest1_target",
+          "def enforce_capa2_retest1_guard",
+          "capa2-retest1-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_retest1_target_applies_and_is_idempotent",
+          "test_capa2_retest1_guard_rejects_tuning_and_wrong_period",
+          "test_capa2_retest1_cli_is_registered"
+        ],
+        "backend/sqx-edge-tool/test_cfx_template_compatibility.py": [
+          "AutomaticRetest-Task7.xml",
+          "AUDCAD_dukascopy"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 Retest 1 ejecuta SQX",
+          "Capa2 Retest 1 lanza smoke",
+          "Capa2 Retest 1 inicia optimizacion",
+          "Capa2 Retest 1 fuerza Results=passed",
+          "Retest 1 Capa2 optimiza parametros",
+          "phase20_capa2_tick_real usa Dukascopy"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 Retest 1 ran SQX",
+          "Capa2 Retest 1 ran smoke",
+          "Capa2 Retest 1 optimization completed",
+          "Capa2 Retest 1 forced Results=passed",
+          "Capa2 Retest 1 optimized parameters",
+          "phase20_capa2_tick_real uses Dukascopy"
         ]
       }
     },
