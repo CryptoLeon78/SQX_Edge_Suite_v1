@@ -770,6 +770,15 @@ SPP_STATIC_TABS = MC_STATIC_TABS
 SPP_RANKING_TARGET = MC_RANKING_TARGET
 SPP_STATIC_TABS_NEXT = "phase11_spp_closeout"
 SPP_CLOSEOUT_NEXT = "phase12_wfm_open"
+WFM_TASK_TITLE = "WFM"
+WFM_TASK_XML = "AutomaticRetest-Task4.xml"
+WFM_EXPECTED_DATABANKS = {
+    "Input": "SPP",
+    "Output": "WFM",
+}
+WFM_ACTIVE_CROSSCHECK = "WalkForwardMatrix"
+WFM_EXECUTION_POLICY = "configuration_review_only_no_smoke_no_optimization_blocked_by_spp"
+WFM_NEXT_PHASE = "phase12_wfm_data_databanks_resources_options"
 SYNTHETIC_ACCEPTANCE_CONDITIONS_TARGET = [
     {
         "left": {
@@ -13293,6 +13302,296 @@ def spp_closeout_report(root142: Path, project_root: Path, target: str, write: b
     return payload
 
 
+def wfm_condition_summary(condition: ET.Element) -> dict[str, Any]:
+    left = condition.find("./Left-Side/Column-Value")
+    comparator = condition.find("./Comparator")
+    right_column = condition.find("./Right-Side/Column-Value")
+    right_numeric = condition.find("./Right-Side/Numeric-Value")
+    return {
+        "use": condition.get("use", ""),
+        "left": dict(left.attrib) if left is not None else {},
+        "comparator": comparator.get("value", "") if comparator is not None else "",
+        "right": {
+            "type": "column" if right_column is not None else "numeric" if right_numeric is not None else "",
+            "value": dict(right_column.attrib) if right_column is not None else dict(right_numeric.attrib) if right_numeric is not None else {},
+        },
+    }
+
+
+def wfm_crosschecks_summary(root: ET.Element | None) -> dict[str, Any]:
+    parent = find_section(root, "CrossChecks") if root is not None else None
+    checks: list[dict[str, Any]] = []
+    if parent is not None:
+        for check in list(parent):
+            if not isinstance(check.tag, str) or check.get("use") is None:
+                continue
+            methods = summarize_crosscheck_methods(check)
+            item: dict[str, Any] = {
+                "id": check.tag,
+                "use": check.get("use", ""),
+                "methods": methods,
+                "activeMethodTypes": [
+                    method.get("type", "")
+                    for method in methods
+                    if method.get("use") == "true"
+                ],
+                "activeAcceptanceConditionCount": len([
+                    condition
+                    for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
+                    if condition.get("use", "true") != "false"
+                ]),
+                "conditions": [
+                    wfm_condition_summary(condition)
+                    for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
+                ],
+                "nestedSetups": [
+                    {
+                        "attrs": dict(setup.attrib),
+                        "charts": [dict(chart.attrib) for chart in setup.findall("Chart")],
+                    }
+                    for setup in check.findall("./Settings/Setups/Setup")
+                ],
+            }
+            if check.tag == WFM_ACTIVE_CROSSCHECK:
+                settings = check.find("./Settings")
+                wf = settings.find("./WalkForward") if settings is not None else None
+                what = settings.find("./WhatToParametrize") if settings is not None else None
+                item["settings"] = {
+                    "WalkForward": dict(wf.attrib) if wf is not None else {},
+                    "Param1": dict(wf.find("./Param1").attrib) if wf is not None and wf.find("./Param1") is not None else {},
+                    "Param2": dict(wf.find("./Param2").attrib) if wf is not None and wf.find("./Param2") is not None else {},
+                    "MaxTests": check.findtext("./Settings/MaxTests") or "",
+                    "WhatToParametrize": dict(what.attrib) if what is not None else {},
+                    "ParametrizeFlags": {
+                        child.tag: (child.text or "")
+                        for child in (list(what) if what is not None else []) if isinstance(child.tag, str)
+                    },
+                }
+            checks.append(item)
+    return {
+        "exists": parent is not None,
+        "attributes": dict(parent.attrib) if parent is not None else {},
+        "active": [item["id"] for item in checks if item.get("use") == "true"],
+        "checks": checks,
+        "sha256": section_sha256(root, "CrossChecks") if root is not None else "",
+    }
+
+
+def wfm_open_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    data_setup = root.find("./Data/Setups/Setup")
+    data_chart = data_setup.find("Chart") if data_setup is not None else None
+    custom_setup = root.find("./CustomData/Setups/Setup")
+    custom_chart = custom_setup.find("Chart") if custom_setup is not None else None
+    custom_main = custom_setup.find("MainTestValues") if custom_setup is not None else None
+    databanks = {
+        node.get("name", ""): node.get("value", "")
+        for node in root.findall(".//Databanks/Databank")
+        if node.get("name")
+    }
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in {
+            "Session",
+            "MarketOpenSession",
+            "LimitTimeRange",
+            "SignalTimeRangeFrom",
+            "SignalTimeRangeTo",
+            "RealisticGapsHandling",
+            "StoreChartData",
+        }
+    }
+    crosschecks = wfm_crosschecks_summary(root)
+    active_check = next(
+        (check for check in crosschecks.get("checks", []) if check.get("id") == WFM_ACTIVE_CROSSCHECK),
+        {},
+    )
+    return {
+        "exists": True,
+        "data": {
+            "exists": root.find("./Data") is not None,
+            "setup": _setup_attrs(data_setup),
+            "chart": dict(data_chart.attrib) if data_chart is not None else {},
+            "outOfSampleRanges": [dict(node.attrib) for node in root.findall("./Data/OutOfSample/Range")],
+        },
+        "customData": {
+            "exists": root.find("./CustomData") is not None,
+            "setup": _setup_attrs(custom_setup),
+            "chart": dict(custom_chart.attrib) if custom_chart is not None else {},
+            "mainTestValues": dict(custom_main.attrib) if custom_main is not None else {},
+        },
+        "databanks": databanks,
+        "resources": _tick_real_resource_summary(root),
+        "optionsParams": params,
+        "crossChecks": crosschecks,
+        "activeWFMCheck": active_check,
+        "executionPolicy": WFM_EXECUTION_POLICY,
+        "upstreamDependency": "WFM consumes SPP output, but SPP is closed as configuration-review only and has not been approved for live execution.",
+    }
+
+
+def wfm_open_issues(summary: dict[str, Any]) -> tuple[list[str], list[str]]:
+    issues: list[str] = []
+    warnings: list[str] = []
+    if not summary.get("exists"):
+        return ["WFM task missing"], warnings
+
+    databanks = summary.get("databanks") or {}
+    for name, wanted in WFM_EXPECTED_DATABANKS.items():
+        if databanks.get(name) != wanted:
+            issues.append(f"WFM Databank {name} is {databanks.get(name)!r}, expected {wanted!r}")
+
+    crosschecks = summary.get("crossChecks") or {}
+    if not crosschecks.get("exists"):
+        issues.append("WFM CrossChecks section missing")
+    else:
+        attrs = crosschecks.get("attributes") or {}
+        if attrs.get("use") != "true" or attrs.get("evaluateAll") != "true":
+            issues.append("WFM CrossChecks must stay active/evaluateAll for WalkForwardMatrix review")
+        active = crosschecks.get("active") or []
+        if active != [WFM_ACTIVE_CROSSCHECK]:
+            issues.append(f"WFM active crosschecks are {active!r}, expected only {WFM_ACTIVE_CROSSCHECK!r}")
+        checks = {item.get("id"): item for item in crosschecks.get("checks") or []}
+        wfm = checks.get(WFM_ACTIVE_CROSSCHECK) or {}
+        settings = wfm.get("settings") or {}
+        if not settings.get("WalkForward"):
+            warnings.append("WFM WalkForwardMatrix settings are empty; CrossChecks review must decide final matrix shape.")
+        if not settings.get("MaxTests"):
+            warnings.append("WFM MaxTests is empty; CrossChecks review must decide final computation budget.")
+        if wfm.get("activeAcceptanceConditionCount", 0) == 0:
+            warnings.append("WFM acceptance filter conditions are currently inactive; CrossChecks review must decide final filters.")
+        inactive_with_active_methods = [
+            {
+                "check": check.get("id"),
+                "methods": check.get("activeMethodTypes") or [],
+            }
+            for check in crosschecks.get("checks") or []
+            if check.get("id") != WFM_ACTIVE_CROSSCHECK and check.get("use") == "false" and check.get("activeMethodTypes")
+        ]
+        if inactive_with_active_methods:
+            warnings.append(f"WFM inactive crosschecks still carry active methods {inactive_with_active_methods!r}; later review should make them inert if WFM remains isolated.")
+
+    data = summary.get("data") or {}
+    custom = summary.get("customData") or {}
+    if data.get("exists") and custom.get("exists"):
+        data_setup = data.get("setup") or {}
+        custom_setup = custom.get("setup") or {}
+        if data_setup.get("engine") != custom_setup.get("engine"):
+            warnings.append(f"WFM Data engine {data_setup.get('engine')!r} differs from CustomData engine {custom_setup.get('engine')!r}; next block must review carrier alignment.")
+        data_chart = data.get("chart") or {}
+        custom_chart = custom.get("chart") or {}
+        if data_chart.get("spread") != custom_chart.get("spread"):
+            warnings.append(f"WFM Data spread {data_chart.get('spread')!r} differs from CustomData spread {custom_chart.get('spread')!r}; next block must normalize or document it.")
+    else:
+        warnings.append("WFM should be reviewed for Data/CustomData carrier shape before any later execution decision.")
+
+    warnings.append("WFM is explicitly review-only in phase12_wfm_open: no smoke, optimization or SQX live execution is allowed.")
+    warnings.append("WFM depends on SPP output; because SPP was not executed, WFM remains blocked until the operator explicitly approves SPP execution.")
+    return issues, warnings
+
+
+def wfm_open_target_report(cfx: Path) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256": file_sha256(cfx) if cfx.is_file() else "",
+        "taskTitle": WFM_TASK_TITLE,
+        "taskXml": "",
+        "summary": {},
+        "issues": [],
+        "warnings": [],
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["issues"].append("missing_or_not_zip")
+        payload["ok"] = False
+        return payload
+    task_xml_name, root = load_task_root(cfx, WFM_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["issues"].append("wfm_task_not_found")
+        payload["ok"] = False
+        return payload
+    if task_xml_name != WFM_TASK_XML:
+        payload["warnings"].append(f"WFM task XML is {task_xml_name!r}, expected {WFM_TASK_XML!r}")
+    payload["summary"] = wfm_open_summary(root)
+    issues, warnings = wfm_open_issues(payload["summary"])
+    payload["issues"] = issues
+    payload["warnings"].extend(warnings)
+    payload["ok"] = not issues
+    return payload
+
+
+def wfm_open_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    target_reports = {
+        name: wfm_open_target_report(path)
+        for name, path in targets.items()
+    }
+    previous_gate = spp_closeout_report(root142, project_root, target=target, write=False)
+    previous_issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        previous_issues.append("spp-closeout-report: previous gate ok=false")
+    process_probe = process_snapshot()
+    process_warnings = []
+    if process_probe.get("processes"):
+        process_warnings.append("SQX processes are alive; keep WFM open read-only and do not run WFM while SQX is active")
+    payload: dict[str, Any] = {
+        "ok": all(item.get("ok") for item in target_reports.values()) and not previous_issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase12_wfm_open",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_issues,
+            "nextPhase": previous_gate.get("nextPhase"),
+        },
+        "targets": target_reports,
+        "warnings": process_warnings + [
+            warning
+            for item in target_reports.values()
+            for warning in item.get("warnings", [])
+        ],
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Open WFM as Phase 12 after SPP closeout; review configuration only and do not execute WFM smokes or optimization.",
+            "taskTitle": WFM_TASK_TITLE,
+            "taskXml": WFM_TASK_XML,
+            "chain": "Input=SPP / Output=WFM",
+            "activeCrossCheck": WFM_ACTIVE_CROSSCHECK,
+            "executionPolicy": WFM_EXECUTION_POLICY,
+            "upstreamDependency": "WFM consumes SPP output, but SPP remains configuration-review only until an explicit operator approval changes that.",
+            "noLiveRun": "This gate only reads XML/local state and writes a phase report when requested.",
+            "decisionPending": [
+                "Data/CustomData carrier, resources and options must be reviewed without copying donor-specific symbol/timeframe state.",
+                "CrossChecks must decide whether WalkForwardMatrix remains active, whether its matrix budget is acceptable, and whether inactive WalkForwardOptimization settings should be made inert.",
+                "WFM remains blocked for execution because SPP output has not been produced by an approved live SPP run.",
+                "Static/passive tabs must preserve natural passed/failed outcomes and avoid portfolio/custom-analysis surfaces unless explicitly approved.",
+            ],
+        },
+        "nextPhase": WFM_NEXT_PHASE,
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase12_wfm_open_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase12_wfm_open", "nextPhase": WFM_NEXT_PHASE})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -14642,6 +14941,10 @@ def build_parser() -> argparse.ArgumentParser:
     spp_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     spp_closeout.add_argument("--write", action="store_true")
 
+    wfm_open = sub.add_parser("wfm-open-report")
+    wfm_open.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    wfm_open.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -14848,6 +15151,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "spp-closeout-report":
         json_print(spp_closeout_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "wfm-open-report":
+        json_print(wfm_open_report(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

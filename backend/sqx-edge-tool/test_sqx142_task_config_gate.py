@@ -3086,6 +3086,79 @@ def test_spp_closeout_report_consolidates_phase11_guards_without_running_spp(mon
     assert state["nextPhase"] == "phase12_wfm_open"
 
 
+def test_wfm_open_summary_detects_wfm_chain_and_blocked_policy():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" engine="MetaTrader5 (hedged)"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2" /></Setup></Setups></Data>
+          <CustomData><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" engine="MetaTrader4"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /><MainTestValues engine="true" symbol="true" timeframe="true" dates="true" precision="true" spread="true" /></Setup></Setups></CustomData>
+          <Databanks><Databank name="Input" value="SPP" /><Databank name="Output" value="WFM" /></Databanks>
+          <Resources><Symbols><Symbol name="AUDCAD_darwinex" precision="TICK" timezone="EETUS" broker="4"><InstrumentInfo instrument="AUDCAD_darwinex" broker="4" /></Symbol></Symbols><Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers><Sessions /></Resources>
+          <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">false</Param><Param key="RealisticGapsHandling">false</Param><Param key="StoreChartData">false</Param><Param key="Session">No Session</Param><Param key="MarketOpenSession">No Session</Param></Params></BuildTradingOptions></Options>
+          <CrossChecks use="true" evaluateAll="true">
+            <WalkForwardOptimization use="false"><Settings><WalkForward type="1" period="10" optimization="15" /><MaxTests>100</MaxTests></Settings><AcceptanceSettings><Conditions><Condition use="true" /></Conditions></AcceptanceSettings></WalkForwardOptimization>
+            <WalkForwardMatrix use="true">
+              <Settings>
+                <WalkForward type="2" period="10" optimization="15" distributionUp="20" distributionDown="20" maxSteps="8"><Param1 value="20" /><Param2 value="10" /></WalkForward>
+                <MaxTests>3000</MaxTests>
+                <WhatToParametrize type="1" symmetricVariables="false"><Recommended>false</Recommended><Periods>true</Periods><Constants>true</Constants><EntryParams>true</EntryParams><ExitParamsUsed>true</ExitParamsUsed></WhatToParametrize>
+              </Settings>
+              <AcceptanceSettings><Conditions thresholdPct="80"><Condition use="true"><Left-Side valueType="column"><Column-Value column="NetProfit" resultType="WalkForwardMatrix" /></Left-Side><Comparator value="&gt;" /><Right-Side valueType="numeric"><Numeric-Value value="0" /></Right-Side></Condition></Conditions></AcceptanceSettings>
+            </WalkForwardMatrix>
+          </CrossChecks>
+        </Settings>
+        """
+    )
+
+    summary = gate.wfm_open_summary(root)
+    issues, warnings = gate.wfm_open_issues(summary)
+
+    assert issues == []
+    assert summary["databanks"] == {"Input": "SPP", "Output": "WFM"}
+    assert summary["executionPolicy"] == "configuration_review_only_no_smoke_no_optimization_blocked_by_spp"
+    assert summary["crossChecks"]["active"] == ["WalkForwardMatrix"]
+    assert summary["activeWFMCheck"]["settings"]["WalkForward"]["type"] == "2"
+    assert summary["activeWFMCheck"]["settings"]["MaxTests"] == "3000"
+    assert any("Data engine" in warning for warning in warnings)
+    assert any("Data spread" in warning for warning in warnings)
+    assert any("WFM depends on SPP output" in warning for warning in warnings)
+
+
+def test_wfm_open_report_requires_spp_closeout_and_writes_state(monkeypatch, tmp_path):
+    monkeypatch.setattr(gate, "wfm_open_target_report", lambda path: {
+        "ok": True,
+        "taskTitle": "WFM",
+        "taskXml": "AutomaticRetest-Task4.xml",
+        "warnings": ["WFM depends on SPP output"],
+        "issues": [],
+        "summary": {
+            "databanks": {"Input": "SPP", "Output": "WFM"},
+            "crossChecks": {"active": ["WalkForwardMatrix"]},
+        },
+    })
+    monkeypatch.setattr(gate, "spp_closeout_report", lambda *args, **kwargs: {
+        "phase": "phase11_spp_closeout",
+        "ok": True,
+        "issues": [],
+        "nextPhase": "phase12_wfm_open",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+
+    payload = gate.wfm_open_report(tmp_path, tmp_path, target="both", write=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase12_wfm_open"
+    assert payload["nextPhase"] == "phase12_wfm_data_databanks_resources_options"
+    assert payload["previousGate"]["phase"] == "phase11_spp_closeout"
+    assert payload["summary"]["chain"] == "Input=SPP / Output=WFM"
+    assert payload["summary"]["activeCrossCheck"] == "WalkForwardMatrix"
+    assert payload["summary"]["executionPolicy"] == "configuration_review_only_no_smoke_no_optimization_blocked_by_spp"
+    assert "SPP output" in payload["summary"]["upstreamDependency"]
+    state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
+    assert state["currentPhase"] == "phase12_wfm_open"
+    assert state["nextPhase"] == "phase12_wfm_data_databanks_resources_options"
+
+
 def test_spp_data_databanks_resources_options_keeps_customdata_only_and_inert_options():
     root = ET.fromstring(
         """

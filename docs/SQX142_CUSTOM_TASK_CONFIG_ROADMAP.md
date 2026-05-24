@@ -1,6 +1,6 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 11 `SPP` en curso el
+Estado: C1-CONFIG1 con Fase 12 `WFM` abierta el
 2026-05-24. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
@@ -1765,6 +1765,50 @@ Decision aplicada para `phase11_spp_closeout`:
 Siguiente bloque exacto: `phase12_wfm_open`, para abrir `WFM` como revision de
 configuracion review-only, recordando que WFM depende de SPP pero sigue
 bloqueado para ejecucion mientras SPP no tenga aprobacion explicita.
+
+## Estado Fase 12 - WFM Open
+
+- `phase12_wfm_open` queda abierto con
+  `phase12_wfm_open_20260524_165030.json`.
+- `wfm-open-report --target both --write` confirma el task real `WFM` en
+  `AutomaticRetest-Task4.xml`, con `Input=SPP` y `Output=WFM`.
+- El unico crosscheck activo es `WalkForwardMatrix`; `CrossChecks` queda
+  `use=true` y `evaluateAll=true`.
+- Configuracion detectada de matriz: `WalkForward type=2`, `period=10`,
+  `optimization=15`, `distributionUp=20`, `distributionDown=20`,
+  `maxSteps=8`, `Param1 start=20 stop=36 step=2`, `Param2 start=5 stop=8
+  step=1` y `MaxTests=3000`.
+- `WhatToParametrize` queda detectado como `type=1`,
+  `symmetricVariables=false`, `Periods=true`, `Constants=true`,
+  `EntryParams=true`, `ExitParamsUsed=true` y el resto de familias no usadas
+  en `false`.
+- Filtros activos detectados: 6 condiciones activas en `WalkForwardMatrix`,
+  incluyendo `NetProfit > 0`, `NetProfit > 60`, `WFPctOfProfitableRuns > 70`,
+  `WFMaxProfitByRunInPct < 50`, `WFMinTradesInRun > 20` y
+  `WFMaxPctDDbyRun <= 25`.
+- El gate queda `ok=true`, `issues=[]` y `processes=[]`; no lanza SQX,
+  no ejecuta WFM, no hace smoke y no inicia optimizacion.
+- Politica de ejecucion:
+  `configuration_review_only_no_smoke_no_optimization_blocked_by_spp`.
+- Warnings aceptados para el siguiente bloque: WFM depende de SPP no ejecutado,
+  `Data engine=MetaTrader5 (hedged)` difiere de `CustomData engine=MetaTrader4`,
+  `Data spread=2` difiere de `CustomData spread=2.0`, y hay metodos activos
+  ocultos en `MonteCarloRetest`, `MonteCarloManipulation` y `WhatIf` aunque esos
+  checks estan inactivos.
+- Cuestionario local completo:
+  `_task_summary_20260524_165019.json`, 13 tabs, 20.011 entradas detectadas y
+  12.323 diferencias donor/base.
+- Breakdown del cuestionario: `ATMs` 9, `Blocks` 17.583, `CrossChecks` 330,
+  `CustomData` 6, `Data` 7, `Databanks` 2, `Notes` 1, `Options` 34,
+  `PartsToImprove` 8, `Rankings` 40, `Resources` 1.899,
+  `RiskMoneyManagement` 25 y `WhatToBuild` 67.
+- El estado local queda en `currentPhase=phase12_wfm_open` y
+  `nextPhase=phase12_wfm_data_databanks_resources_options`.
+
+Siguiente bloque exacto: `phase12_wfm_data_databanks_resources_options`, para
+revisar `Data`, `CustomData`, `Databanks`, `Resources` y `Options` sin copiar
+tokens del donor, sin lanzar WFM y manteniendo el bloqueo por dependencia de
+SPP.
 
 ## Disciplina Operativa
 

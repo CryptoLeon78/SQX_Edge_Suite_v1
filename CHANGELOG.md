@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 WFM Open
+
+- Adds `wfm-open-report` with CLI support to open Phase 12 after SPP closeout without launching SQX, running WFM smokes or starting optimization.
+- Maps WFM to `AutomaticRetest-Task4.xml`, `Input=SPP`, `Output=WFM`, active `WalkForwardMatrix`, `WalkForward type=2`, `period=10`, `optimization=15`, `distributionUp=20`, `distributionDown=20`, `maxSteps=8`, `Param1 start=20 stop=36 step=2`, `Param2 start=5 stop=8 step=1`, `MaxTests=3000` and 6 active acceptance conditions.
+- Records local report `phase12_wfm_open_20260524_165030.json` with `ok=true`, `issues=[]`, `processes=[]`, execution policy `configuration_review_only_no_smoke_no_optimization_blocked_by_spp`, and explicit WFM block because SPP output has not been produced by an approved live SPP run.
+- Generates the full WFM questionnaire locally with `_task_summary_20260524_165019.json`: 13 tabs, 20.011 entries detected and 12.323 donor/base differences. Next exact block is `phase12_wfm_data_databanks_resources_options`.
+
 ## 2026-05-24 - C1-CONFIG1 SPP Closeout
 
 - Adds `spp-closeout-report` with CLI support to close Phase 11 only when Synthetic previous gate and all three SPP guards are green and idempotent in dry-run mode.
