@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 SPP Closeout
+
+- Adds `spp-closeout-report` with CLI support to close Phase 11 only when Synthetic previous gate and all three SPP guards are green and idempotent in dry-run mode.
+- Consolidates `spp-data-databanks-resources-options-target`, `spp-crosschecks-target` and `spp-static-tabs-target` over local base and repo template with `changed=false`, `changedActionCount=0`, `guardOk=true`, `issues=[]`, `warnings=[]` and no SQX processes alive.
+- Keeps SPP as `configuration_review_only_no_smoke_no_optimization`: `Input=Syntetic`, `Output=SPP`, `CustomData`-only carrier, `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, seed `AUDCAD_darwinex/H1` spread `2.0`, active `OptProfileSysParamPermutation`, `MaxTests=3000`, `DistributionUp=20`, `DistributionDown=20`, `Steps=25`, `NetProfit >= 50%` main and `DrawdownPct <= 200%` main.
+- Records closeout dry-runs `phase11_spp_data_databanks_resources_options_target_20260524_163530.json`, `phase11_spp_crosschecks_target_20260524_163530.json`, `phase11_spp_static_tabs_target_20260524_163530.json`, report `phase11_spp_closeout_20260524_163545.json`, no SPP execution, no smoke, no optimization, no WFM unlock, no forced `Results=passed` and next exact block `phase12_wfm_open`.
+
 ## 2026-05-24 - C1-CONFIG1 SPP Static Tabs
 
 - Adds `spp-static-tabs-target` with dry-run/apply support, guard checks and tests for `AutomaticRetest-Task7.xml`.

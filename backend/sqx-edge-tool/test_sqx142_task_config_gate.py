@@ -3010,6 +3010,82 @@ def test_spp_open_report_requires_synthetic_closeout_and_writes_state(monkeypatc
     assert state["nextPhase"] == "phase11_spp_data_databanks_resources_options"
 
 
+def test_spp_closeout_report_consolidates_phase11_guards_without_running_spp(monkeypatch, tmp_path):
+    calls = []
+
+    def green_payload(command: str) -> dict:
+        return {
+            "ok": True,
+            "apply": False,
+            "operation": command.replace("-", "_"),
+            "nextPhase": "phase11_spp_closeout",
+            "written": f"{command}.json",
+            "results": {
+                "localBase": {
+                    "exists": True,
+                    "isZip": True,
+                    "guardOk": True,
+                    "changed": False,
+                    "changedActionCount": 0,
+                    "issues": [],
+                    "taskXml": "AutomaticRetest-Task7.xml",
+                },
+                "repoTemplate": {
+                    "exists": True,
+                    "isZip": True,
+                    "guardOk": True,
+                    "changed": False,
+                    "changedActionCount": 0,
+                    "issues": [],
+                    "taskXml": "AutomaticRetest-Task7.xml",
+                },
+            },
+        }
+
+    def runner_factory(command: str):
+        def runner(root142, project_root, target, apply):
+            calls.append((command, target, apply))
+            return green_payload(command)
+        return runner
+
+    monkeypatch.setattr(gate, "SPP_CLOSEOUT_OPERATIONS", (
+        (
+            "dataDatabanksResourcesOptions",
+            "spp-data-databanks-resources-options-target",
+            runner_factory("spp-data-databanks-resources-options-target"),
+        ),
+        ("crosschecks", "spp-crosschecks-target", runner_factory("spp-crosschecks-target")),
+        ("staticTabs", "spp-static-tabs-target", runner_factory("spp-static-tabs-target")),
+    ))
+    monkeypatch.setattr(gate, "synthetic_closeout_report", lambda *args, **kwargs: {
+        "phase": "phase10_synthetic_closeout",
+        "ok": True,
+        "issues": [],
+        "nextPhase": "phase11_spp_open",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+
+    payload = gate.spp_closeout_report(tmp_path, tmp_path, target="both", write=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase11_spp_closeout"
+    assert payload["nextPhase"] == "phase12_wfm_open"
+    assert payload["summary"]["chain"] == "Input=Syntetic / Output=SPP"
+    assert payload["summary"]["executionPolicy"] == "configuration_review_only_no_smoke_no_optimization"
+    assert payload["summary"]["dataContract"]["carrier"] == "CustomData-only"
+    assert "review-only/blocked" in payload["summary"]["downstreamDependency"]
+    assert {call[0] for call in calls} == {
+        "spp-data-databanks-resources-options-target",
+        "spp-crosschecks-target",
+        "spp-static-tabs-target",
+    }
+    assert all(call[1] == "both" and call[2] is False for call in calls)
+    assert (tmp_path / ".local" / "sqx142_task_config" / "session_state.json").is_file()
+    state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
+    assert state["currentPhase"] == "phase11_spp_closeout"
+    assert state["nextPhase"] == "phase12_wfm_open"
+
+
 def test_spp_data_databanks_resources_options_keeps_customdata_only_and_inert_options():
     root = ET.fromstring(
         """

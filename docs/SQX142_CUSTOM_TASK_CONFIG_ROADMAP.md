@@ -1724,8 +1724,47 @@ Decision aplicada para `phase11_spp_static_tabs`:
 - El estado local queda en `currentPhase=phase11_spp_static_tabs` y
   `nextPhase=phase11_spp_closeout`.
 
-Siguiente bloque exacto: `phase11_spp_closeout`, para consolidar SPP sin
-ejecutarlo y decidir el salto documental hacia `WFM` review-only.
+### Estado Fase 11 - SPP Closeout
+
+`phase11_spp_closeout` queda cerrado con
+`phase11_spp_closeout_20260524_163545.json`.
+
+Decision aplicada para `phase11_spp_closeout`:
+
+- `spp-closeout-report` queda disponible en modo reporte/`--write` para base
+  local y template repo.
+- El cierre consolida `synthetic-closeout-report` previo y los tres guards SPP:
+  `spp-data-databanks-resources-options-target`, `spp-crosschecks-target` y
+  `spp-static-tabs-target`.
+- Todos los guards quedan en dry-run idempotente sobre base local y template
+  repo con `ok=true`, `issues=[]`, `warnings=[]`, `processes=[]`,
+  `changed=false`, `changedActionCount=0` y `guardOk=true`.
+- `SPP` queda como revision de configuracion, no como ejecucion real:
+  `configuration_review_only_no_smoke_no_optimization`, sin ejecutar SPP,
+  sin smoke, sin optimizacion, sin desbloquear WFM y sin forzar
+  `Results=passed`.
+- `AutomaticRetest-Task7.xml` queda trazado como `Input=Syntetic / Output=SPP`,
+  `CustomData` unico, sin `Data`, `ROBUSTNESS_C1`, `testPrecision=2`,
+  `No Session`, seed `AUDCAD_darwinex/H1` y spread `2.0`.
+- `OptProfileSysParamPermutation` queda como unico crosscheck activo con
+  `MaxTests=3000`, `DistributionUp=20`, `DistributionDown=20`, `Steps=25`,
+  `WhatToParametrize` metodologico y filtros `NetProfit >= 50%` main y
+  `DrawdownPct <= 200%` main.
+- Las superficies estaticas quedan inertes: Rankings `type=never`,
+  `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false`,
+  `FitPortfolio.active=false`, `CustomAnalysis.filter=false`, `FixedSize`
+  activo, ATMs apagado y `SelectedStrategies` vacio/ausente aceptado.
+- Evidencia local de cierre:
+  `phase11_spp_data_databanks_resources_options_target_20260524_163530.json`,
+  `phase11_spp_crosschecks_target_20260524_163530.json`,
+  `phase11_spp_static_tabs_target_20260524_163530.json` y reporte
+  `phase11_spp_closeout_20260524_163545.json`.
+- El estado local queda en `currentPhase=phase11_spp_closeout` y
+  `nextPhase=phase12_wfm_open`.
+
+Siguiente bloque exacto: `phase12_wfm_open`, para abrir `WFM` como revision de
+configuracion review-only, recordando que WFM depende de SPP pero sigue
+bloqueado para ejecucion mientras SPP no tenga aprobacion explicita.
 
 ## Disciplina Operativa
 

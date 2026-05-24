@@ -769,6 +769,7 @@ SPP_CROSSCHECKS_NEXT = "phase11_spp_static_tabs"
 SPP_STATIC_TABS = MC_STATIC_TABS
 SPP_RANKING_TARGET = MC_RANKING_TARGET
 SPP_STATIC_TABS_NEXT = "phase11_spp_closeout"
+SPP_CLOSEOUT_NEXT = "phase12_wfm_open"
 SYNTHETIC_ACCEPTANCE_CONDITIONS_TARGET = [
     {
         "left": {
@@ -13182,6 +13183,116 @@ def promote_spp_static_tabs_target(root142: Path, project_root: Path, target: st
     return payload
 
 
+SPP_CLOSEOUT_OPERATIONS = (
+    (
+        "dataDatabanksResourcesOptions",
+        "spp-data-databanks-resources-options-target",
+        promote_spp_data_databanks_resources_options_target,
+    ),
+    ("crosschecks", "spp-crosschecks-target", promote_spp_crosschecks_target),
+    ("staticTabs", "spp-static-tabs-target", promote_spp_static_tabs_target),
+)
+
+
+def spp_closeout_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    operations: dict[str, Any] = {}
+    issues: list[str] = []
+    for key, command, runner in SPP_CLOSEOUT_OPERATIONS:
+        result = runner(root142, project_root, target=target, apply=False)
+        operation_issues = mc_closeout_operation_issues(command, result)
+        operations[key] = {
+            "command": command,
+            "summary": mc_closeout_operation_summary(result),
+            "issues": operation_issues,
+        }
+        issues.extend(operation_issues)
+
+    previous_gate = synthetic_closeout_report(root142, project_root, target=target, write=False)
+    previous_issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        previous_issues.append("synthetic-closeout-report: previous gate ok=false")
+    issues.extend(previous_issues)
+
+    process_probe = process_snapshot()
+    process_warnings = []
+    if process_probe.get("processes"):
+        process_warnings.append("SQX processes are alive; SPP closeout is XML/dry-run only, no SQX runtime mutation was attempted")
+
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase11_spp_closeout",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_issues,
+            "nextPhase": previous_gate.get("nextPhase"),
+        },
+        "operations": operations,
+        "issues": issues,
+        "warnings": process_warnings,
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Close SPP after Phase 11 guards are green and idempotent on local base and repo template; keep it as configuration review only.",
+            "taskTitle": SPP_TASK_TITLE,
+            "taskXml": SPP_TASK_XML,
+            "chain": "Input=Syntetic / Output=SPP",
+            "period": SPP_PERIOD_KEY,
+            "testPrecision": SPP_DATA_TEST_PRECISION,
+            "executionPolicy": SPP_EXECUTION_POLICY,
+            "activeCrossCheck": SPP_ACTIVE_CROSSCHECK,
+            "settings": SPP_CROSSCHECK_SETTINGS_TARGET,
+            "whatToParametrize": {
+                "attributes": SPP_WHAT_TO_PARAMETRIZE_ATTR_TARGET,
+                "flags": SPP_PARAMETRIZE_FLAGS_TARGET,
+            },
+            "acceptanceFilters": [
+                "NetProfit OptProfileSysParamPermutation >= 50% of main NetProfit",
+                "DrawdownPct OptProfileSysParamPermutation <= 200% of main DrawdownPct",
+            ],
+            "dataContract": {
+                "carrier": "CustomData-only",
+                "dataSection": "absent",
+                "period": SPP_PERIOD_KEY,
+                "session": SPP_DATA_SESSION,
+                "seedChart": SPP_DEFAULT_CHART_TARGET,
+                "resources": "TICK/EETUS with no sessions",
+                "options": "inert",
+            },
+            "staticContract": {
+                "ranking": "inert",
+                "deleteFailedStrategies": "false",
+                "forceRunCrossChecks": "false",
+                "fitPortfolio": "false",
+                "customAnalysisFilter": "false",
+                "riskMoneyManagement": "FixedSize",
+                "atms": "disabled",
+                "selectedStrategies": "empty_or_absent",
+                "customDataCarrier": "single_preserved",
+            },
+            "downstreamDependency": "WFM consumes SPP output but remains review-only/blocked unless SPP execution is explicitly approved.",
+            "nextPhase": SPP_CLOSEOUT_NEXT,
+            "closeoutCriterion": "SPP data/resources/options, crosschecks and static tabs must be green/idempotent, with Synthetic closeout green, before opening WFM review.",
+            "naturalResults": "Preserve natural passed/failed outcomes; never force Results=passed.",
+            "noLiveRun": "This closeout only reads XML/local state and writes a phase report when requested.",
+        },
+        "nextPhase": SPP_CLOSEOUT_NEXT,
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase11_spp_closeout_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase11_spp_closeout", "nextPhase": SPP_CLOSEOUT_NEXT})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -14527,6 +14638,10 @@ def build_parser() -> argparse.ArgumentParser:
     spp_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     spp_static.add_argument("--apply", action="store_true")
 
+    spp_closeout = sub.add_parser("spp-closeout-report")
+    spp_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    spp_closeout.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -14730,6 +14845,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "spp-static-tabs-target":
         json_print(promote_spp_static_tabs_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "spp-closeout-report":
+        json_print(spp_closeout_report(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
