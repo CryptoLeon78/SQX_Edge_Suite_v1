@@ -3142,6 +3142,79 @@ def test_capa2_build_questionnaire_cli_is_registered():
     assert args.max_values == 5
 
 
+def test_capa2_build_what_to_build_target_applies_and_is_idempotent(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    _write_minimal_capa2_build_cfx(local_cfx, r"C:\Users\Ivan SQX\Downloads\TemplateMaker\c2.sqx", spread="2")
+    _write_minimal_capa2_build_cfx(repo_cfx, r"C:\Users\Ivan SQX\Downloads\TemplateMaker\private.sqx", spread="2.0")
+
+    monkeypatch.setattr(gate, "capa2_build_questionnaire_report", lambda *args, **kwargs: {
+        "phase": "phase17_capa2_build_questionnaire",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase17_capa2_build_what_to_build",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+
+    payload = gate.promote_capa2_build_what_to_build_target(tmp_path, tmp_path, target="both", apply=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase17_capa2_build_what_to_build"
+    assert payload["nextPhase"] == "phase17_capa2_build_blocks"
+    assert Path(payload["answerRecord"]["written"]).is_file()
+    local_root = gate.load_task_root(local_cfx, gate.CAPA2_BUILD_TASK_TITLE)[1]
+    repo_root = gate.load_task_root(repo_cfx, gate.CAPA2_BUILD_TASK_TITLE)[1]
+    assert gate.enforce_capa2_build_what_to_build_guard(local_root, "localBase") == []
+    assert gate.enforce_capa2_build_what_to_build_guard(repo_root, "repoTemplate") == []
+    assert local_root.find(".//WhatToBuild/StrategyType").get("templateFile").endswith("c2.sqx")
+    assert repo_root.find(".//WhatToBuild/StrategyType").get("templateFile") == ""
+    assert local_root.find(".//WhatToBuild/MarketSides").get("type") == "long"
+    assert local_root.find(".//WhatToBuild/SLPTOptions/SLATR").text == "true"
+    assert local_root.find(".//WhatToBuild/BuildMode/EvoRestartOnStagnation").get("status") == "false"
+
+    dry_run = gate.promote_capa2_build_what_to_build_target(tmp_path, tmp_path, target="both", apply=False)
+
+    assert dry_run["ok"] is True
+    assert dry_run["results"]["localBase"]["changed"] is False
+    assert dry_run["results"]["repoTemplate"]["changed"] is False
+    assert dry_run["results"]["repoTemplate"]["changedActionCount"] == 0
+
+
+def test_capa2_build_what_to_build_guard_rejects_exit_after_bars_and_day_exits():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <WhatToBuild>
+            <StrategyType type="template" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" />
+            <RulesComplexity useDifferentSettings="false"><Chart name="Main chart" minConditions="0" maxConditions="1" minExitConditions="1" maxExitConditions="1" minExitTypes="1" maxExitTypes="5" minPeriod="5" maxPeriod="200" minShift="1" maxShift="1" /></RulesComplexity>
+            <MarketSides type="long"><EntrySymmetry>false</EntrySymmetry><ExitSymmetry>false</ExitSymmetry></MarketSides>
+            <SLPTOptions><SLRequired>true</SLRequired><SLFixedPips>false</SLFixedPips><MinSLInPips>30</MinSLInPips><MaxSLInPips>80</MaxSLInPips><MinSLInMoney>30</MinSLInMoney><MaxSLInMoney>80</MaxSLInMoney><SLATR>true</SLATR><MinSLATRMultiple>0.5</MinSLATRMultiple><MaxSLATRMultiple>5</MaxSLATRMultiple><MinSLATRPeriod>5</MinSLATRPeriod><MaxSLATRPeriod>200</MaxSLATRPeriod><PTRequired>true</PTRequired><SeparatedSettings>true</SeparatedSettings><PTFixedPips>false</PTFixedPips><MinPTInPips>60</MinPTInPips><MaxPTInPips>200</MaxPTInPips><MinPTInMoney>60</MinPTInMoney><MaxPTInMoney>200</MaxPTInMoney><PTATR>true</PTATR><MinPTATRMultiple>0.5</MinPTATRMultiple><MaxPTATRMultiple>5</MaxPTATRMultiple><MinPTATRPeriod>5</MinPTATRPeriod><MaxPTATRPeriod>200</MaxPTATRPeriod><LimitSLPTRRR>false</LimitSLPTRRR><LimitSLPTRRRFrom>50</LimitSLPTRRRFrom><LimitSLPTRRRTo>80</LimitSLPTRRRTo><SLValueType>pips</SLValueType><PTValueType>pips</PTValueType><SLIndicatorBased>false</SLIndicatorBased><PTIndicatorBased>false</PTIndicatorBased><SLPercent>false</SLPercent><MinSLInPercent>1</MinSLInPercent><MaxSLInPercent>10</MaxSLInPercent><PTPercent>false</PTPercent><MinPTInPercent>1</MinPTInPercent><MaxPTInPercent>10</MaxPTInPercent></SLPTOptions>
+            <BuildMode generationType="random-generation"><PopulationSize>55</PopulationSize><MaxGenerations>100</MaxGenerations><CrossoverProbability>31</CrossoverProbability><MutationProbability>30</MutationProbability><ShowAdvancedGeneticSettings>false</ShowAdvancedGeneticSettings><Islands>7</Islands><MigrationModulo>19</MigrationModulo><MigrationRate>4</MigrationRate><ShowLastGenerationDatabank>true</ShowLastGenerationDatabank><InitGenerationType>1</InitGenerationType><DecimationCoef>1</DecimationCoef><FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar><FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest><FreshBloodWeakestPct>10</FreshBloodWeakestPct><FreshBloodWeakestGenerations>100</FreshBloodWeakestGenerations><Conditions><Condition use="true"><Left-Side valueType="column"><Column-Value column="ProfitFactor" format="Decimal2" sampleType="127" /></Left-Side><Comparator value="&gt;" /><Right-Side valueType="numeric"><Numeric-Value value="1" /></Right-Side></Condition></Conditions><EvoRestartOnFinish status="true" /><EvoRestartOnStagnation status="false" fitnessType="10" generations="15" /><EvoInSamplePeriod ratio="50" /></BuildMode>
+          </WhatToBuild>
+          <Blocks>
+            <OrderTypes><Block key="EnterAtMarket" use="true" /></OrderTypes>
+            <ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="true" /><Block key="ExitAfterDays.ExitAfterDays" use="true" /><Block key="StopLoss.StopLoss" use="true" /><Block key="ProfitTarget.ProfitTarget" use="true" /><Block key="TrailingStop.TrailingStop" use="true" /></ExitTypes>
+          </Blocks>
+        </Settings>
+        """
+    )
+
+    issues = gate.enforce_capa2_build_what_to_build_guard(root, "repoTemplate")
+
+    assert any("ExitAfterBars" in issue for issue in issues)
+    assert any("day-based exit" in issue for issue in issues)
+
+
+def test_capa2_build_what_to_build_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-build-what-to-build-target", "--target", "both"])
+
+    assert args.command == "capa2-build-what-to-build-target"
+    assert args.target == "both"
+
+
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
     calls = []
 

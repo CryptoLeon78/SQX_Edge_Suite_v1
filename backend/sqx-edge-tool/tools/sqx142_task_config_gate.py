@@ -1200,10 +1200,12 @@ def ensure_ledger(project_root: Path) -> dict[str, str]:
     dirs = {
         "root": root,
         "answers": root / "answers" / "capa1",
+        "answers_capa2": root / "answers" / "capa2",
         "snapshots": root / "snapshots",
         "phase_reports": root / "phase_reports",
         "diffs": root / "diffs",
         "questionnaires": root / "questionnaires" / "capa1",
+        "questionnaires_capa2": root / "questionnaires" / "capa2",
         "backups": root / "backups",
     }
     for path in dirs.values():
@@ -15741,6 +15743,7 @@ CAPA1_CLOSEOUT_NEXT = "phase15_capa2_planning"
 CAPA2_PLANNING_NEXT = "phase16_capa2_preflight_snapshot"
 CAPA2_PREFLIGHT_NEXT = "phase17_capa2_build_questionnaire"
 CAPA2_BUILD_QUESTIONNAIRE_NEXT = "phase17_capa2_build_what_to_build"
+CAPA2_BUILD_WHAT_TO_BUILD_NEXT = "phase17_capa2_build_blocks"
 CAPA2_BUILD_TASK_TITLE = "Build strategies"
 CAPA2_BUILD_TAB_ORDER = [
     "WhatToBuild",
@@ -15757,6 +15760,102 @@ CAPA2_BUILD_TAB_ORDER = [
     "Optimization",
     "Notes",
 ]
+CAPA2_BUILD_STRATEGY_TYPE_BASE_TARGET = {
+    "type": "template",
+    "additionalCharts": "2",
+    "improveType": "strategy",
+    "strategyFile": "",
+    "architecture": "sq4",
+    "improveDatabank": "Strategies to improve",
+}
+CAPA2_BUILD_RULES_COMPLEXITY_TARGET = {"useDifferentSettings": "false"}
+CAPA2_BUILD_RULES_COMPLEXITY_CHART_TARGET = {
+    "name": "Main chart",
+    "minConditions": "0",
+    "maxConditions": "1",
+    "minExitConditions": "1",
+    "maxExitConditions": "1",
+    "minExitTypes": "1",
+    "maxExitTypes": "5",
+    "minPeriod": "5",
+    "maxPeriod": "200",
+    "minShift": "1",
+    "maxShift": "1",
+}
+CAPA2_BUILD_MARKET_SIDES_ALLOWED = {"long", "short", "both"}
+CAPA2_BUILD_MARKET_SIDES_TEXT_TARGET = {
+    "EntrySymmetry": "false",
+    "ExitSymmetry": "false",
+}
+CAPA2_BUILD_SLPT_TEXT_TARGET = {
+    "SLRequired": "true",
+    "SLFixedPips": "false",
+    "MinSLInPips": "30",
+    "MaxSLInPips": "80",
+    "MinSLInMoney": "30",
+    "MaxSLInMoney": "80",
+    "SLATR": "true",
+    "MinSLATRMultiple": "0.5",
+    "MaxSLATRMultiple": "5",
+    "MinSLATRPeriod": "5",
+    "MaxSLATRPeriod": "200",
+    "PTRequired": "true",
+    "SeparatedSettings": "true",
+    "PTFixedPips": "false",
+    "MinPTInPips": "60",
+    "MaxPTInPips": "200",
+    "MinPTInMoney": "60",
+    "MaxPTInMoney": "200",
+    "PTATR": "true",
+    "MinPTATRMultiple": "0.5",
+    "MaxPTATRMultiple": "5",
+    "MinPTATRPeriod": "5",
+    "MaxPTATRPeriod": "200",
+    "LimitSLPTRRR": "false",
+    "LimitSLPTRRRFrom": "50",
+    "LimitSLPTRRRTo": "80",
+    "SLValueType": "pips",
+    "PTValueType": "pips",
+    "SLIndicatorBased": "false",
+    "PTIndicatorBased": "false",
+    "SLPercent": "false",
+    "MinSLInPercent": "1",
+    "MaxSLInPercent": "10",
+    "PTPercent": "false",
+    "MinPTInPercent": "1",
+    "MaxPTInPercent": "10",
+}
+CAPA2_BUILD_BUILDMODE_TEXT_TARGET = {
+    "PopulationSize": "55",
+    "MaxGenerations": "100",
+    "CrossoverProbability": "31",
+    "MutationProbability": "30",
+    "ShowAdvancedGeneticSettings": "false",
+    "Islands": "7",
+    "MigrationModulo": "19",
+    "MigrationRate": "4",
+    "ShowLastGenerationDatabank": "true",
+    "InitGenerationType": "1",
+    "DecimationCoef": "1",
+    "FreshBloodReplaceSimilar": "true",
+    "FreshBloodReplaceWeakest": "true",
+    "FreshBloodWeakestPct": "10",
+    "FreshBloodWeakestGenerations": "100",
+}
+CAPA2_BUILD_BUILDMODE_ATTR_TARGET = {
+    "EvoRestartOnFinish": {"status": "true"},
+    "EvoRestartOnStagnation": {"status": "false", "fitnessType": "10", "generations": "15"},
+    "EvoInSamplePeriod": {"ratio": "50"},
+}
+CAPA2_BUILD_INITIAL_CONDITIONS_TARGET = [
+    {"column": "ProfitFactor", "comparator": ">", "value": "1", "format": "Decimal2", "sampleType": "127", "use": "true"},
+]
+CAPA2_BUILD_REQUIRED_EXIT_TYPES = {
+    "ExitAfterBars.ExitAfterBars": "false",
+    "ProfitTarget.ProfitTarget": "true",
+    "StopLoss.StopLoss": "true",
+    "TrailingStop.TrailingStop": "true",
+}
 CAPA2_ACADEMIC_SOURCES = [
     {
         "id": "bailey_pbo",
@@ -16578,6 +16677,459 @@ def capa2_build_questionnaire_report(root142: Path, project_root: Path, max_valu
             "phaseReport": str(report_path),
             "taskSummary": str(task_summary_path),
         }
+    return payload
+
+
+def redact_template_file(value: str) -> str:
+    if not value:
+        return ""
+    if re.search(r"[A-Za-z]:\\", value):
+        return "<operator-owned-templateFile>"
+    return value
+
+
+def redact_strategy_type_attrs(attrs: dict[str, str]) -> dict[str, str]:
+    redacted = dict(attrs)
+    if "templateFile" in redacted:
+        redacted["templateFile"] = redact_template_file(redacted.get("templateFile", ""))
+    if "strategyFile" in redacted:
+        redacted["strategyFile"] = redact_template_file(redacted.get("strategyFile", ""))
+    return redacted
+
+
+def capa2_build_strategy_type_target(current_template_file: str, target_name: str) -> dict[str, str]:
+    target = dict(CAPA2_BUILD_STRATEGY_TYPE_BASE_TARGET)
+    target["templateFile"] = current_template_file if target_name == "localBase" else ""
+    return target
+
+
+def set_capa2_strategy_type(
+    what_to_build: ET.Element,
+    current_template_file: str,
+    target_name: str,
+    actions: list[dict[str, Any]],
+) -> ET.Element:
+    strategy_type = what_to_build.find("StrategyType")
+    before = dict(strategy_type.attrib) if strategy_type is not None else None
+    if strategy_type is None:
+        strategy_type = ET.SubElement(what_to_build, "StrategyType")
+    strategy_type.attrib.clear()
+    strategy_type.attrib.update(capa2_build_strategy_type_target(current_template_file, target_name))
+    after = dict(strategy_type.attrib)
+    actions.append({
+        "field": "WhatToBuild/StrategyType",
+        "from": redact_strategy_type_attrs(before or {}),
+        "to": redact_strategy_type_attrs(after),
+        "changed": before != after,
+        "privacy": "templateFile is preserved only for localBase and redacted in reports when it is an operator-owned path",
+    })
+    return strategy_type
+
+
+def set_capa2_build_conditions(build_mode: ET.Element, actions: list[dict[str, Any]]) -> None:
+    conditions = build_mode.find("Conditions")
+    before = summarize_conditions_detailed(conditions)
+    if before == CAPA2_BUILD_INITIAL_CONDITIONS_TARGET:
+        actions.append({
+            "field": "WhatToBuild/BuildMode/Conditions",
+            "from": before,
+            "to": CAPA2_BUILD_INITIAL_CONDITIONS_TARGET,
+            "changed": False,
+        })
+        return
+    set_ranking_conditions_from_target(
+        build_mode,
+        CAPA2_BUILD_INITIAL_CONDITIONS_TARGET,
+        actions,
+        "WhatToBuild/BuildMode/Conditions",
+    )
+
+
+def apply_capa2_build_what_to_build_to_root(root: ET.Element, target_name: str) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    what_to_build = find_section(root, "WhatToBuild")
+    if what_to_build is None:
+        what_to_build = ET.SubElement(root, "WhatToBuild")
+        actions.append({"field": "WhatToBuild", "from": None, "to": "created", "changed": True})
+
+    current_strategy_type = what_to_build.find("StrategyType")
+    current_template_file = current_strategy_type.get("templateFile", "") if current_strategy_type is not None else ""
+    set_capa2_strategy_type(what_to_build, current_template_file, target_name, actions)
+
+    rules = set_or_create_attrs_child(
+        what_to_build,
+        "RulesComplexity",
+        CAPA2_BUILD_RULES_COMPLEXITY_TARGET,
+        actions,
+        "WhatToBuild/RulesComplexity",
+    )
+    set_or_create_attrs_child(
+        rules,
+        "Chart",
+        CAPA2_BUILD_RULES_COMPLEXITY_CHART_TARGET,
+        actions,
+        "WhatToBuild/RulesComplexity/Chart",
+    )
+
+    market_sides = what_to_build.find("MarketSides")
+    if market_sides is None:
+        market_sides = ET.SubElement(what_to_build, "MarketSides", {"type": "long"})
+        actions.append({"field": "WhatToBuild/MarketSides", "from": None, "to": dict(market_sides.attrib), "changed": True})
+    before_market = dict(market_sides.attrib)
+    current_side = market_sides.get("type", "long")
+    if current_side not in CAPA2_BUILD_MARKET_SIDES_ALLOWED:
+        market_sides.set("type", "long")
+    actions.append({
+        "field": "WhatToBuild/MarketSides:type",
+        "from": before_market,
+        "to": dict(market_sides.attrib),
+        "changed": before_market != dict(market_sides.attrib),
+        "ownership": "generator-owned; Project Generator rewrites this per user direction",
+    })
+    for tag, value in CAPA2_BUILD_MARKET_SIDES_TEXT_TARGET.items():
+        set_or_create_text_child(market_sides, tag, value, actions, f"WhatToBuild/MarketSides/{tag}")
+
+    slpt = what_to_build.find("SLPTOptions")
+    if slpt is None:
+        slpt = ET.SubElement(what_to_build, "SLPTOptions")
+        actions.append({"field": "WhatToBuild/SLPTOptions", "from": None, "to": "created", "changed": True})
+    for tag, value in CAPA2_BUILD_SLPT_TEXT_TARGET.items():
+        set_or_create_text_child(slpt, tag, value, actions, f"WhatToBuild/SLPTOptions/{tag}")
+
+    build_mode = what_to_build.find("BuildMode")
+    if build_mode is None:
+        build_mode = ET.SubElement(what_to_build, "BuildMode", {"generationType": "random-generation"})
+        actions.append({"field": "WhatToBuild/BuildMode", "from": None, "to": dict(build_mode.attrib), "changed": True})
+    before_generation_type = build_mode.get("generationType", "")
+    build_mode.set("generationType", "random-generation")
+    actions.append({
+        "field": "WhatToBuild/BuildMode:generationType",
+        "from": before_generation_type,
+        "to": "random-generation",
+        "changed": before_generation_type != "random-generation",
+        "note": "Capa2 mines controlled variations from the Template Maker C2 source; this is not a passive retest.",
+    })
+    for tag, value in CAPA2_BUILD_BUILDMODE_TEXT_TARGET.items():
+        set_or_create_text_child(build_mode, tag, value, actions, f"WhatToBuild/BuildMode/{tag}")
+    for tag, attrs in CAPA2_BUILD_BUILDMODE_ATTR_TARGET.items():
+        set_or_update_attrs_child(build_mode, tag, attrs, actions, f"WhatToBuild/BuildMode/{tag}")
+    set_capa2_build_conditions(build_mode, actions)
+    return actions
+
+
+def capa2_build_what_to_build_summary(root: ET.Element) -> dict[str, Any]:
+    what_to_build = find_section(root, "WhatToBuild")
+    strategy_type = what_to_build.find("StrategyType") if what_to_build is not None else None
+    rules = what_to_build.find("RulesComplexity") if what_to_build is not None else None
+    chart = rules.find("Chart") if rules is not None else None
+    market_sides = what_to_build.find("MarketSides") if what_to_build is not None else None
+    slpt = what_to_build.find("SLPTOptions") if what_to_build is not None else None
+    build_mode = what_to_build.find("BuildMode") if what_to_build is not None else None
+    blocks = find_blocks(root)
+    return {
+        "strategyType": redact_strategy_type_attrs(dict(strategy_type.attrib) if strategy_type is not None else {}),
+        "strategyTypeRaw": dict(strategy_type.attrib) if strategy_type is not None else {},
+        "rulesComplexity": dict(rules.attrib) if rules is not None else {},
+        "rulesComplexityChart": dict(chart.attrib) if chart is not None else {},
+        "marketSides": {
+            "attrs": dict(market_sides.attrib) if market_sides is not None else {},
+            "text": {
+                child.tag: (child.text or "")
+                for child in list(market_sides) if market_sides is not None and isinstance(child.tag, str)
+            } if market_sides is not None else {},
+        },
+        "slptOptions": {
+            child.tag: (child.text or "")
+            for child in list(slpt) if slpt is not None and isinstance(child.tag, str)
+        } if slpt is not None else {},
+        "buildMode": {
+            "attrs": dict(build_mode.attrib) if build_mode is not None else {},
+            "text": {
+                child.tag: (child.text or "")
+                for child in list(build_mode)
+                if build_mode is not None and isinstance(child.tag, str) and child.text is not None and child.tag != "Conditions"
+            } if build_mode is not None else {},
+            "childAttrs": {
+                child.tag: dict(child.attrib)
+                for child in list(build_mode)
+                if build_mode is not None and isinstance(child.tag, str) and child.attrib
+            } if build_mode is not None else {},
+            "conditions": summarize_conditions_detailed(build_mode.find("Conditions") if build_mode is not None else None),
+        },
+        "blocksContext": {
+            "orderTypes": task_order_type_summary(root),
+            "exitTypes": task_exit_type_summary(root),
+            "activeSignalCount": len(active_building_block_keys(blocks)) if blocks is not None else 0,
+        },
+    }
+
+
+def enforce_capa2_build_what_to_build_guard(root: ET.Element, target_name: str) -> list[str]:
+    issues: list[str] = []
+    summary = capa2_build_what_to_build_summary(root)
+    raw_strategy = summary.get("strategyTypeRaw") or {}
+    expected_strategy = capa2_build_strategy_type_target(raw_strategy.get("templateFile", ""), target_name)
+    if raw_strategy != expected_strategy:
+        issues.append("Capa2 Build StrategyType must stay template-based with repo templateFile blank and local templateFile operator-owned")
+    if target_name == "repoTemplate" and raw_strategy.get("templateFile"):
+        issues.append("Repo Capa2 template must not freeze Template Maker local templateFile paths")
+    if target_name == "localBase" and re.search(r"[A-Za-z]:\\", raw_strategy.get("strategyFile", "")):
+        issues.append("Local Capa2 Build strategyFile must stay empty; Template Maker source belongs in templateFile only")
+    if summary.get("rulesComplexity") != CAPA2_BUILD_RULES_COMPLEXITY_TARGET:
+        issues.append("Capa2 Build RulesComplexity attrs drifted")
+    if summary.get("rulesComplexityChart") != CAPA2_BUILD_RULES_COMPLEXITY_CHART_TARGET:
+        issues.append("Capa2 Build RulesComplexity chart bounds drifted")
+    market = summary.get("marketSides") or {}
+    market_type = (market.get("attrs") or {}).get("type", "")
+    if market_type not in CAPA2_BUILD_MARKET_SIDES_ALLOWED:
+        issues.append(f"Capa2 Build MarketSides type {market_type!r} is invalid; generator must own long/short/both")
+    for tag, value in CAPA2_BUILD_MARKET_SIDES_TEXT_TARGET.items():
+        if (market.get("text") or {}).get(tag) != value:
+            issues.append(f"Capa2 Build MarketSides {tag} must be {value}")
+    slpt = summary.get("slptOptions") or {}
+    for tag, value in CAPA2_BUILD_SLPT_TEXT_TARGET.items():
+        if slpt.get(tag) != value:
+            issues.append(f"Capa2 Build SLPTOptions {tag} is {slpt.get(tag)!r}, expected {value!r}")
+    build_mode = summary.get("buildMode") or {}
+    if (build_mode.get("attrs") or {}).get("generationType") != "random-generation":
+        issues.append("Capa2 Build BuildMode generationType must remain random-generation from template")
+    for tag, value in CAPA2_BUILD_BUILDMODE_TEXT_TARGET.items():
+        if (build_mode.get("text") or {}).get(tag) != value:
+            issues.append(f"Capa2 Build BuildMode {tag} is {(build_mode.get('text') or {}).get(tag)!r}, expected {value!r}")
+    for tag, attrs in CAPA2_BUILD_BUILDMODE_ATTR_TARGET.items():
+        current = (build_mode.get("childAttrs") or {}).get(tag) or {}
+        for key, value in attrs.items():
+            if current.get(key) != value:
+                issues.append(f"Capa2 Build BuildMode {tag}.{key} is {current.get(key)!r}, expected {value!r}")
+    if (build_mode.get("conditions") or []) != CAPA2_BUILD_INITIAL_CONDITIONS_TARGET:
+        issues.append("Capa2 Build initial population conditions must remain bounded to ProfitFactor > 1")
+
+    blocks = summary.get("blocksContext") or {}
+    order_types = blocks.get("orderTypes") or {}
+    if order_types.get("EnterAtMarket") != "true":
+        issues.append("Capa2 Build Blocks must keep EnterAtMarket active")
+    for blocked in ("EnterReverseAtMarket", "EnterAtStop", "EnterAtLimit"):
+        if order_types.get(blocked) == "true":
+            issues.append(f"Capa2 Build Blocks must keep {blocked} inactive unless explicitly approved")
+    exit_types = blocks.get("exitTypes") or {}
+    for key, value in CAPA2_BUILD_REQUIRED_EXIT_TYPES.items():
+        if exit_types.get(key) != value:
+            issues.append(f"Capa2 Build Blocks exit {key} is {exit_types.get(key)!r}, expected {value!r}")
+    for key, value in exit_types.items():
+        if any(token in key for token in BUILD_EXIT_TYPE_BANNED_TOKENS) and value == "true":
+            issues.append(f"Capa2 Build Blocks must not enable day-based exit {key}")
+    return issues
+
+
+def capa2_build_what_to_build_warnings(root: ET.Element, target_name: str) -> list[str]:
+    warnings: list[str] = []
+    strategy_type = (capa2_build_what_to_build_summary(root).get("strategyTypeRaw") or {})
+    template_file = strategy_type.get("templateFile", "")
+    if target_name == "localBase" and not template_file:
+        warnings.append("localBase: templateFile is empty; select/refresh the Template Maker C2 source before real SQX mining")
+    if target_name == "localBase" and template_file and not re.search(r"[A-Za-z]:\\", template_file):
+        warnings.append("localBase: templateFile is not an absolute local path; verify SQX can resolve the Template Maker C2 source")
+    return warnings
+
+
+def latest_capa2_questionnaire_path(project_root: Path, task_title_wanted: str, tab: str) -> Path | None:
+    root = ledger_root(project_root) / "questionnaires" / "capa2" / slug(task_title_wanted)
+    if not root.is_dir():
+        return None
+    candidates = [
+        path
+        for path in root.glob(f"{slug(tab)}_*.json")
+        if path.is_file() and not path.name.startswith("_task_summary_")
+    ]
+    if not candidates:
+        return None
+    return max(candidates, key=lambda path: (path.stat().st_mtime_ns, path.name))
+
+
+def record_capa2_build_what_to_build_answers(project_root: Path, report: dict[str, Any]) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    source = latest_capa2_questionnaire_path(project_root, CAPA2_BUILD_TASK_TITLE, "WhatToBuild")
+    questionnaire = read_json(source, {}) if source is not None else {}
+    questions = questionnaire.get("questions") or []
+    ids = [str(item.get("id", "")).strip() for item in questions if str(item.get("id", "")).strip()]
+    answered_at = now_iso()
+    payload = {
+        "version": VERSION,
+        "scope": "capa2",
+        "taskTitle": CAPA2_BUILD_TASK_TITLE,
+        "tab": "WhatToBuild",
+        "phase": "phase17_capa2_build_what_to_build",
+        "createdAt": answered_at,
+        "updatedAt": answered_at,
+        "bulkAnswer": True,
+        "sourceQuestionnaire": str(source) if source is not None else "",
+        "questionCount": len(questions),
+        "uniqueQuestionCount": len(ids),
+        "answer": "recommended_capa2_build_what_to_build_contract",
+        "note": (
+            "StrategyType=template, Template Maker C2 templateFile operator-owned locally and blank in repo, "
+            "MarketSides generator-owned, SL/PT bounded, BuildMode bounded, EnterAtMarket only, ExitAfterBars removed from Build context."
+        ),
+        "decisionSummary": {
+            "strategyType": "template",
+            "templateFile": "operator-owned local only; repo/public blank",
+            "marketSides": "generator-owned long/short/both placeholder",
+            "slpt": "bounded SL/PT options preserved for Capa2 risk management",
+            "buildMode": "bounded template random-generation, not passive retest and not unrestricted optimizer",
+            "nextPhase": CAPA2_BUILD_WHAT_TO_BUILD_NEXT,
+        },
+        "answers": {
+            qid: {
+                "answer": "recommended_capa2_build_what_to_build_contract",
+                "note": "Closed by phase17_capa2_build_what_to_build target after dry-run/apply guard.",
+                "answeredAt": answered_at,
+            }
+            for qid in ids
+        },
+        "sourceReport": report.get("written", ""),
+    }
+    target = ledger_root(project_root) / "answers" / "capa2" / slug(CAPA2_BUILD_TASK_TITLE) / "WhatToBuild.json"
+    write_json(target, payload)
+    return {
+        "ok": True,
+        "version": VERSION,
+        "written": str(target),
+        "sourceQuestionnaire": str(source) if source is not None else "",
+        "answerCount": len(ids),
+        "questionCount": len(questions),
+    }
+
+
+def update_capa2_build_what_to_build_target_in_cfx(cfx: Path, backup_root: Path, apply: bool, target_name: str) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root = load_task_root(cfx, CAPA2_BUILD_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "capa2_build_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = capa2_build_what_to_build_summary(root)
+    payload["actions"] = apply_capa2_build_what_to_build_to_root(root, target_name)
+    payload["after"] = capa2_build_what_to_build_summary(root)
+    payload["issues"] = enforce_capa2_build_what_to_build_guard(root, target_name)
+    payload["warnings"] = capa2_build_what_to_build_warnings(root, target_name)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["serializedChanged"] = before_text != after_text
+    payload["changed"] = payload["changedActionCount"] > 0
+    payload["targetValues"] = {
+        "strategyTypeCommon": CAPA2_BUILD_STRATEGY_TYPE_BASE_TARGET,
+        "templateFilePolicy": "localBase preserves Template Maker C2 operator-owned path; repoTemplate stays blank",
+        "rulesComplexity": CAPA2_BUILD_RULES_COMPLEXITY_CHART_TARGET,
+        "marketSides": "generator-owned; type must be long/short/both",
+        "slptOptions": CAPA2_BUILD_SLPT_TEXT_TARGET,
+        "buildMode": CAPA2_BUILD_BUILDMODE_TEXT_TARGET,
+        "initialConditions": CAPA2_BUILD_INITIAL_CONDITIONS_TARGET,
+        "blocksContext": CAPA2_BUILD_REQUIRED_EXIT_TYPES,
+    }
+    payload["targetRationale"] = {
+        "templateMaker": "Build Capa2 starts from the Template Maker C2 artifact produced by Capa1 forward survivors.",
+        "projectGenerator": "MarketSides and asset/timeframe/cost/resource placeholders remain generator-owned.",
+        "academicGuard": "Keep Capa2 bounded so SL/PT/trailing and filters do not become an unrestricted second optimizer.",
+        "noLiveRun": "This operation edits only the Build > WhatToBuild XML when --apply is used; it never launches SQX.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_capa2_build_what_to_build_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = capa2_build_questionnaire_report(root142, project_root, max_values=0, write=False)
+    issues = list(previous_gate.get("issues") or [])
+    warnings = list(previous_gate.get("warnings") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-build-questionnaire: previous gate ok=false")
+    backup_root = ledger_root(project_root) / "backups" / f"phase17_capa2_build_what_to_build_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    results = {
+        name: update_capa2_build_what_to_build_target_in_cfx(path, backup_root / name, apply=apply, target_name=name)
+        for name, path in targets.items()
+    }
+    for name, result in results.items():
+        if not result.get("exists") or not result.get("isZip") or result.get("error"):
+            issues.append(f"{name}: Capa2 Build WhatToBuild target could not be inspected")
+        issues.extend(f"{name}: {issue}" for issue in (result.get("issues") or []))
+        warnings.extend(f"{name}: {warning}" for warning in (result.get("warnings") or []))
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        warnings.append("SQX processes are alive; phase17 WhatToBuild target is XML-only and should be applied with SQX closed")
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase17_capa2_build_what_to_build",
+        "operation": "capa2_build_what_to_build_target",
+        "apply": apply,
+        "target": target,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_gate.get("issues") or [],
+            "warnings": previous_gate.get("warnings") or [],
+            "nextPhase": previous_gate.get("nextPhase"),
+        },
+        "results": results,
+        "issues": issues,
+        "warnings": warnings,
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Close Capa2 Build > WhatToBuild with the recommended narrow Template Maker C2 contract.",
+            "methodology": "Capa2 starts from StrategyType=template, preserves Capa1 edge provenance, adds bounded risk management context and avoids becoming a second unrestricted edge search.",
+            "templateMaker": "Local templateFile remains operator-owned; repo/public templateFile remains blank and Project Generator/xml_patcher must clean paths for generated customs.",
+            "projectGenerator": "MarketSides remains generator-owned and will be patched per user-selected direction.",
+            "blocksBoundary": "This block only validates Blocks context; the next block applies/reviews entry, ExitAfterBars, SL, TP, trailing and the indicator family in Blocks.",
+            "naturalResults": "No SQX run, no smoke, no optimization and no forced Results=passed.",
+            "nextPhase": CAPA2_BUILD_WHAT_TO_BUILD_NEXT,
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": "phase17_capa2_build_what_to_build_diff_review" if not apply else CAPA2_BUILD_WHAT_TO_BUILD_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase17_capa2_build_what_to_build_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    if apply and payload["ok"]:
+        payload["answerRecord"] = record_capa2_build_what_to_build_answers(project_root, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase17_capa2_build_what_to_build",
+            "nextPhase": CAPA2_BUILD_WHAT_TO_BUILD_NEXT,
+            "scope": "capa2",
+            "baseProject": DEFAULT_CAPA2_BASE_PROJECT,
+            "repoTemplate": str(DEFAULT_CAPA2_TEMPLATE),
+            "phase17WhatToBuildReport": str(evidence_target),
+            "phase17WhatToBuildAnswers": (payload.get("answerRecord") or {}).get("written", ""),
+        })
+        write_json(state_path, state)
     return payload
 
 
@@ -17986,6 +18538,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_build_questionnaire.add_argument("--max-values", type=int, default=0)
     capa2_build_questionnaire.add_argument("--write", action="store_true")
 
+    capa2_build_what_to_build = sub.add_parser("capa2-build-what-to-build-target")
+    capa2_build_what_to_build.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_build_what_to_build.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -18234,6 +18790,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-build-questionnaire":
         json_print(capa2_build_questionnaire_report(root142, project_root, max_values=args.max_values, write=args.write))
+        return 0
+    if args.command == "capa2-build-what-to-build-target":
+        json_print(promote_capa2_build_what_to_build_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

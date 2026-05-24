@@ -4338,6 +4338,83 @@
       }
     },
     {
+      "id": "sqx142_c2_phase17_build_what_to_build",
+      "description": "C1-CONFIG1 Phase 17 Capa2 Build WhatToBuild must stay closed with Template Maker C2 ownership, generator-owned direction and no SQX execution claims.",
+      "required": {
+        "README.md": [
+          "phase17_capa2_build_what_to_build",
+          "phase17_capa2_build_what_to_build_target_20260524_204601.json",
+          "67/67 respuestas",
+          "`StrategyType=template`",
+          "phase17_capa2_build_blocks"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 17 `Capa2 Build WhatToBuild` is closed",
+          "phase17_capa2_build_what_to_build_target_20260524_204601.json",
+          "`capa2-build-what-to-build-target --target both --apply`",
+          "`StrategyType=template`",
+          "local `templateFile` operator-owned",
+          "`MarketSides` generator-owned",
+          "`ExitAfterBars=false`",
+          "phase17_capa2_build_blocks"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase17_capa2_build_what_to_build",
+          "Template Maker C2",
+          "`StrategyType=template`",
+          "`MarketSides` stays generator-owned",
+          "Project Generator/xml_patcher"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 17 - Capa2 Build WhatToBuild",
+          "phase17_capa2_build_what_to_build_target_20260524_204601.json",
+          "`capa2-build-what-to-build-target --target both --apply`",
+          "67/67",
+          "`StrategyType=template`",
+          "`templateFile`",
+          "`MarketSides`",
+          "SL/PT",
+          "BuildMode",
+          "`ExitAfterBars=false`",
+          "`currentPhase=phase17_capa2_build_what_to_build`",
+          "`nextPhase=phase17_capa2_build_blocks`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-24 - C1-CONFIG1 Capa2 Build WhatToBuild",
+          "`capa2-build-what-to-build-target`",
+          "phase17_capa2_build_what_to_build_target_20260524_204601.json",
+          "67/67",
+          "no semantic CFX changes",
+          "phase17_capa2_build_blocks"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_BUILD_WHAT_TO_BUILD_NEXT = \"phase17_capa2_build_blocks\"",
+          "def promote_capa2_build_what_to_build_target",
+          "def enforce_capa2_build_what_to_build_guard",
+          "capa2-build-what-to-build-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_build_what_to_build_target_applies_and_is_idempotent",
+          "test_capa2_build_what_to_build_guard_rejects_exit_after_bars_and_day_exits",
+          "test_capa2_build_what_to_build_cli_is_registered"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 Build WhatToBuild ejecuta SQX",
+          "Capa2 Build WhatToBuild lanza smoke",
+          "Capa2 Build WhatToBuild inicia optimizacion",
+          "Capa2 Build WhatToBuild fuerza Results=passed"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 Build WhatToBuild ran SQX",
+          "Capa2 Build WhatToBuild ran smoke",
+          "Capa2 Build WhatToBuild optimization completed",
+          "Capa2 Build WhatToBuild forced Results=passed"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_skills_guardians",
       "description": "G8-SQX-AGENT-SKILLS1 must stay local-only, before RETEST 0, with Test Guardian and Docs Curator bounded to read-only/dry-run review unless explicitly confirmed.",
       "required": {

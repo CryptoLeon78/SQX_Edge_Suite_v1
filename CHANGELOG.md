@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Capa2 Build WhatToBuild
+
+- Adds `capa2-build-what-to-build-target` as the Phase 17 Build WhatToBuild guard for Capa2.
+- Records evidence `phase17_capa2_build_what_to_build_target_20260524_204601.json` and answers `.local/sqx142_task_config/answers/capa2/Build_strategies/WhatToBuild.json` with 67/67 entries closed.
+- Pins the Template Maker C2 contract: `StrategyType=template`, local `templateFile` operator-owned, repo `templateFile` blank, `MarketSides` generator-owned, SL/PT bounded, BuildMode bounded and `EnterAtMarket` validated with `ExitAfterBars=false` in the next Blocks context.
+- Reports no semantic CFX changes because local base and repo template were already aligned; no SQX launch, smoke, optimization or forced `Results=passed` is claimed.
+- Sets the next exact block to `phase17_capa2_build_blocks`.
+
 ## 2026-05-24 - C1-CONFIG1 Capa2 Build Questionnaire
 
 - Adds `capa2-build-questionnaire` as Phase 17, generating full Build Capa2 questionnaires under ignored `.local/sqx142_task_config/questionnaires/capa2/Build_strategies/`.

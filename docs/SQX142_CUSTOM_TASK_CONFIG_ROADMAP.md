@@ -1,7 +1,8 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 17 `Capa2 Build Questionnaire` generada el
-2026-05-24 con `phase17_capa2_build_questionnaire_20260524_201405.json`,
+Estado: C1-CONFIG1 con Fase 17 `Capa2 Build WhatToBuild` cerrada el
+2026-05-24 con `phase17_capa2_build_what_to_build_target_20260524_204601.json`,
+despues de generar `phase17_capa2_build_questionnaire_20260524_201405.json`,
 despues de la Fase 16 `Capa2 Preflight Snapshot`
 (`phase16_capa2_preflight_snapshot_20260524_195729.json`) y de la Fase 15
 `Capa2 Planning`
@@ -18,7 +19,11 @@ snapshot local y rollback selectivo en
 Phase17 deja cuestionarios completos de Build Capa2 en
 `.local/sqx142_task_config/questionnaires/capa2/Build_strategies/`: 13
 pestanas, 16.647 entradas detectadas y 6 diferencias base/template. El
-siguiente bloque exacto es `phase17_capa2_build_what_to_build`. Fase 0 dejo
+bloque WhatToBuild queda cerrado con 67/67 respuestas, `StrategyType=template`,
+`templateFile` operator-owned solo local, repo `templateFile` limpio,
+`MarketSides` generator-owned, SL/PT bounded, BuildMode acotado y sin cambios
+CFX semanticos porque local base y template repo ya estaban alineados. El
+siguiente bloque exacto es `phase17_capa2_build_blocks`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -2161,6 +2166,38 @@ Siguiente bloque exacto: `phase17_capa2_build_questionnaire`.
   `nextPhase=phase17_capa2_build_what_to_build`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase17_capa2_build_what_to_build`.
+
+## Estado Fase 17 - Capa2 Build WhatToBuild
+
+- `phase17_capa2_build_what_to_build` queda cerrada con
+  `phase17_capa2_build_what_to_build_target_20260524_204601.json`.
+- `capa2-build-what-to-build-target --target both --apply` revisa local base y
+  template repo, registra 67/67 respuestas en
+  `.local/sqx142_task_config/answers/capa2/Build_strategies/WhatToBuild.json`
+  y no detecta issues ni warnings.
+- El apply real queda `ok=true`, `localChanged=false`, `repoChanged=false`,
+  `changedActionCount=0` y `processes=[]`; no hubo cambios CFX semanticos
+  porque ambos targets ya estaban alineados.
+- Decisiones cerradas: `StrategyType=template`, `templateFile` local
+  operator-owned como fuente Template Maker C2 desde supervivientes Capa1
+  Forward, repo `templateFile` vacio, `MarketSides` generator-owned
+  long/short/both, SL/PT bounded, BuildMode bounded, condicion inicial
+  `ProfitFactor > 1`, `EnterAtMarket` validado y contexto Blocks con
+  `ExitAfterBars=false` y salidas por dias prohibidas.
+- Contrato app web: Template Maker C2 conserva trazabilidad/provenance del
+  template local, mientras Project Generator/xml_patcher limpian rutas privadas
+  y adaptan direccion, activo, timeframe, costes, recursos y ventanas segun el
+  usuario.
+- Guard academico: Capa2 no se convierte en un segundo optimizador libre; la
+  gestion SL/TP/trailing y el filtro indicador se revisan en bloques
+  posteriores sin fabricar edge nuevo ni contaminar los retests.
+- Guardias activos: no SQX run, no smoke, no optimizacion, no public path
+  freezing, no copia de `BS_Filtros_v6*` como fuente activa y no
+  `Results=passed` forzado.
+- El estado local queda en `currentPhase=phase17_capa2_build_what_to_build`,
+  `nextPhase=phase17_capa2_build_blocks`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase17_capa2_build_blocks`.
 
 ## Disciplina Operativa
 
