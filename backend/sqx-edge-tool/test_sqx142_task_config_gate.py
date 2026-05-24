@@ -1504,6 +1504,78 @@ def test_sequential_closeout_report_requires_green_phase8_dry_runs(monkeypatch, 
     assert state["nextPhase"] == "phase9_monkey_test_open"
 
 
+def test_monkey_closeout_report_requires_green_phase9_dry_runs(monkeypatch, tmp_path):
+    calls = []
+
+    def green_payload(command: str) -> dict:
+        return {
+            "ok": True,
+            "apply": False,
+            "operation": command.replace("-", "_"),
+            "nextPhase": "phase9_monkey_test_closeout",
+            "written": f"{command}.json",
+            "results": {
+                "localBase": {
+                    "exists": True,
+                    "isZip": True,
+                    "guardOk": True,
+                    "changed": False,
+                    "changedActionCount": 0,
+                    "issues": [],
+                    "taskXml": "AutomaticRetest-Task6.xml",
+                },
+                "repoTemplate": {
+                    "exists": True,
+                    "isZip": True,
+                    "guardOk": True,
+                    "changed": False,
+                    "changedActionCount": 0,
+                    "issues": [],
+                    "taskXml": "AutomaticRetest-Task6.xml",
+                },
+            },
+        }
+
+    def runner_factory(command: str):
+        def runner(root142, project_root, target, apply):
+            calls.append((command, target, apply))
+            return green_payload(command)
+        return runner
+
+    monkeypatch.setattr(gate, "MONKEY_CLOSEOUT_OPERATIONS", (
+        ("dataDatabanksResourcesOptions", "monkey-data-databanks-resources-options-target", runner_factory("monkey-data-databanks-resources-options-target")),
+        ("crosschecks", "monkey-crosschecks-target", runner_factory("monkey-crosschecks-target")),
+        ("passiveGeneration", "monkey-passive-generation-target", runner_factory("monkey-passive-generation-target")),
+        ("staticTabs", "monkey-static-tabs-target", runner_factory("monkey-static-tabs-target")),
+    ))
+    monkeypatch.setattr(gate, "sequential_closeout_report", lambda *args, **kwargs: {
+        "phase": "phase8_sequential_closeout",
+        "ok": True,
+        "issues": [],
+        "nextPhase": "phase9_monkey_test_open",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+
+    payload = gate.monkey_closeout_report(tmp_path, tmp_path, target="both", write=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase9_monkey_test_closeout"
+    assert payload["nextPhase"] == "phase10_synthetic_open"
+    assert payload["summary"]["chain"] == "Input=Sequential / Output=Monkey Test"
+    assert payload["summary"]["activeMethod"] == "RealMonkeyTest"
+    assert {call[0] for call in calls} == {
+        "monkey-data-databanks-resources-options-target",
+        "monkey-crosschecks-target",
+        "monkey-passive-generation-target",
+        "monkey-static-tabs-target",
+    }
+    assert all(call[1] == "both" and call[2] is False for call in calls)
+    assert (tmp_path / ".local" / "sqx142_task_config" / "session_state.json").is_file()
+    state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
+    assert state["currentPhase"] == "phase9_monkey_test_closeout"
+    assert state["nextPhase"] == "phase10_synthetic_open"
+
+
 def test_mc2_crosschecks_apply_adaptive_base_spread_x2_x5_and_clean_inactive_methods():
     root = ET.fromstring(
         """

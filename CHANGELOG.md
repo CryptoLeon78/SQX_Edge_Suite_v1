@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Monkey Test Closeout
+
+- Adds `monkey-closeout-report` to close Phase 9 only when Sequential previous gate and all four Monkey guards are green/idempotent in dry-run mode.
+- Consolidates `monkey-data-databanks-resources-options-target`, `monkey-crosschecks-target`, `monkey-passive-generation-target` and `monkey-static-tabs-target` over local base and repo template with `changed=false`, `changedActionCount=0` and `guardOk=true`.
+- Records `phase9_monkey_test_closeout_20260524_114205.json` with `ok=true`, `issues=[]`, `warnings=[]`, `processes=[]`, `Input=Sequential / Output=Monkey Test`, `RealMonkeyTest`, `NumberOfSimulations=200`, `MCUseFullSample=true`, `MaxChange=90` and natural passed/failed preservation.
+- Sets next exact block to `phase10_synthetic_open`.
+
 ## 2026-05-24 - C1-CONFIG1 Monkey Test Static Tabs
 
 - Adds `monkey-static-tabs-target` with dry-run-first backup/diff/apply over local base and repo template.

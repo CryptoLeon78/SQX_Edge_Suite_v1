@@ -608,6 +608,7 @@ MONKEY_PASSIVE_GENERATION_NEXT = "phase9_monkey_test_static_tabs"
 MONKEY_STATIC_TABS = MC_STATIC_TABS
 MONKEY_RANKING_TARGET = MC_RANKING_TARGET
 MONKEY_STATIC_TABS_NEXT = "phase9_monkey_test_closeout"
+MONKEY_CLOSEOUT_NEXT = "phase10_synthetic_open"
 MONKEY_ACCEPTANCE_CONDITIONS_TARGET = [
     {
         "left": {
@@ -10347,6 +10348,113 @@ def promote_monkey_static_tabs_target(root142: Path, project_root: Path, target:
     return payload
 
 
+MONKEY_CLOSEOUT_OPERATIONS = (
+    (
+        "dataDatabanksResourcesOptions",
+        "monkey-data-databanks-resources-options-target",
+        promote_monkey_data_databanks_resources_options_target,
+    ),
+    ("crosschecks", "monkey-crosschecks-target", promote_monkey_crosschecks_target),
+    ("passiveGeneration", "monkey-passive-generation-target", promote_monkey_passive_generation_target),
+    ("staticTabs", "monkey-static-tabs-target", promote_monkey_static_tabs_target),
+)
+
+
+def monkey_closeout_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    operations: dict[str, Any] = {}
+    issues: list[str] = []
+    for key, command, runner in MONKEY_CLOSEOUT_OPERATIONS:
+        result = runner(root142, project_root, target=target, apply=False)
+        operation_issues = mc_closeout_operation_issues(command, result)
+        operations[key] = {
+            "command": command,
+            "summary": mc_closeout_operation_summary(result),
+            "issues": operation_issues,
+        }
+        issues.extend(operation_issues)
+
+    previous_gate = sequential_closeout_report(root142, project_root, target=target, write=False)
+    previous_issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        previous_issues.append("sequential-closeout-report: previous gate ok=false")
+    issues.extend(previous_issues)
+
+    process_probe = process_snapshot()
+    process_warnings = []
+    if process_probe.get("processes"):
+        process_warnings.append("SQX processes are alive; closeout is XML/dry-run only, no SQX runtime mutation was attempted")
+
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase9_monkey_test_closeout",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_issues,
+            "nextPhase": previous_gate.get("nextPhase"),
+        },
+        "operations": operations,
+        "issues": issues,
+        "warnings": process_warnings,
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Close Monkey Test after all Phase 9 guards are green and idempotent on local base and repo template.",
+            "taskTitle": MONKEY_TASK_TITLE,
+            "taskXml": MONKEY_TASK_XML,
+            "chain": "Input=Sequential / Output=Monkey Test",
+            "period": MONKEY_PERIOD_KEY,
+            "testPrecision": MONKEY_DATA_TEST_PRECISION,
+            "activeCrossCheck": MONKEY_ACTIVE_CROSSCHECK,
+            "activeMethod": MONKEY_ACTIVE_METHOD,
+            "numberOfSimulations": MONKEY_NUMBER_OF_SIMULATIONS,
+            "mcUseFullSample": MONKEY_USE_FULL_SAMPLE,
+            "realMonkeyMaxChange": MONKEY_METHOD_MAX_CHANGE,
+            "acceptanceFilters": [
+                "NetProfit >= 50% of main result",
+                "Max DD <= 200% of main result",
+            ],
+            "passiveContract": {
+                "improveDatabank": MONKEY_STRATEGY_TYPE_TARGET["improveDatabank"],
+                "signals": 0,
+                "stopLimitEntryBlocks": 0,
+                "entry": "EnterAtMarket",
+                "exit": "ExitAfterBars probability 100",
+                "dayBasedExits": "forbidden",
+            },
+            "staticContract": {
+                "ranking": "inert",
+                "deleteFailedStrategies": "false",
+                "forceRunCrossChecks": "false",
+                "fitPortfolio": "false",
+                "customAnalysisFilter": "false",
+                "riskMoneyManagement": "FixedSize",
+                "atms": "disabled",
+                "selectedStrategies": "empty_or_absent",
+                "customDataCarrier": "dual_synced",
+            },
+            "nextPhase": MONKEY_CLOSEOUT_NEXT,
+            "closeoutCriterion": "all Monkey guards plus Sequential previous gate must be green and idempotent before opening Synthetic/Syntetic",
+            "naturalResults": "Preserve natural passed/failed outcomes; never force Results=passed.",
+            "noLiveRun": "This closeout only reads XML/local state and writes a phase report when requested.",
+        },
+        "nextPhase": MONKEY_CLOSEOUT_NEXT,
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase9_monkey_test_closeout_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase9_monkey_test_closeout", "nextPhase": MONKEY_CLOSEOUT_NEXT})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -11648,6 +11756,10 @@ def build_parser() -> argparse.ArgumentParser:
     monkey_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     monkey_static.add_argument("--apply", action="store_true")
 
+    monkey_closeout = sub.add_parser("monkey-closeout-report")
+    monkey_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    monkey_closeout.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -11818,6 +11930,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "monkey-static-tabs-target":
         json_print(promote_monkey_static_tabs_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "monkey-closeout-report":
+        json_print(monkey_closeout_report(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

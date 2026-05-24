@@ -1318,6 +1318,34 @@ Siguiente bloque exacto: `phase9_monkey_test_closeout`, para cerrar formalmente
 Monkey Test con todos sus guards previos y dejar preparado el salto posterior a
 Synthetic/Syntetic.
 
+Closeout formal de Fase 9 `Monkey Test`:
+
+- Se anade `monkey-closeout-report` para consolidar en dry-run los cuatro
+  guards de Monkey y el gate previo `sequential-closeout-report`.
+- `monkey-closeout-report --target both --write` queda `ok=true`, sin issues,
+  sin warnings y sin procesos SQX vivos: `issues=[]`, `warnings=[]`,
+  `processes=[]`.
+- Las cuatro operaciones quedan idempotentes sobre base local y template repo:
+  `monkey-data-databanks-resources-options-target`, `monkey-crosschecks-target`,
+  `monkey-passive-generation-target` y `monkey-static-tabs-target` devuelven
+  `changed=false`, `changedActionCount=0` y `guardOk=true`.
+- Contrato cerrado: `AutomaticRetest-Task6.xml`, `Input=Sequential`,
+  `Output=Monkey Test`, `ROBUSTNESS_C1`, `testPrecision=2`, `RealMonkeyTest`,
+  `NumberOfSimulations=200`, `MCUseFullSample=true`, `MaxChange=90`, filtros
+  `NetProfit >= 50%` y `Max DD <= 200%`, generacion pasiva, Rankings inerte,
+  FixedSize, ATMs off y `CustomData` dual sincronizado.
+- No se lanza SQX, no se ejecutan retests reales y no se fuerza
+  `Results=passed`; se preservan passed/failed naturales para el smoke real
+  futuro.
+- El estado de sesion local pasa a `currentPhase=phase9_monkey_test_closeout`
+  y `nextPhase=phase10_synthetic_open`.
+
+Reportes locales:
+`.local/sqx142_task_config/phase_reports/phase9_monkey_test_closeout_20260524_114205.json`.
+
+Siguiente bloque exacto: `phase10_synthetic_open`, para abrir `Synthetic` /
+`Syntetic` sin arrastrar filtros ni columnas especificas de Monkey.
+
 ## Disciplina Operativa
 
 En cada fase:
