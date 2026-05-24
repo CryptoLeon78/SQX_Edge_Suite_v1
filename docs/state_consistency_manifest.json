@@ -4100,6 +4100,100 @@
       }
     },
     {
+      "id": "sqx142_c2_phase15_planning_gate",
+      "description": "C1-CONFIG1 Phase 15 Capa2 planning must stay read-only, anti-overfit, and must not apply Capa2 CFX changes before phase16/17 preflight guards.",
+      "required": {
+        "README.md": [
+          "phase15_capa2_planning",
+          "phase15_capa2_planning_20260524_190708.json",
+          "phase16_capa2_preflight_snapshot",
+          "ExitAfterBars",
+          "SL/TP/trailing",
+          "generator profile layer 2"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 15 `Capa2 Planning` is closed as a read-only planning gate",
+          "phase15_capa2_planning_20260524_190708.json",
+          "`capa2-planning-report --target both --write`",
+          "preserve the Capa1 market edge",
+          "bounded SL/TP/trailing",
+          "one methodology-owned indicator filter",
+          "BS_Filtros_v6",
+          "BS_Filtros_v6_D1",
+          "reintroducing `ExitAfterBars`",
+          "natural passed/failed",
+          "phase16_capa2_preflight_snapshot"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "Phase 15 now opens Capa2 as read-only planning first",
+          "SL/TP/trailing",
+          "indicator filters",
+          "`ExitAfterBars` removal",
+          "generator layer 2 ownership"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 15 - Capa2 Planning",
+          "`phase15_capa2_planning` queda cerrada",
+          "phase15_capa2_planning_20260524_190708.json",
+          "`capa2-planning-report --target both --write`",
+          "preservar la ventaja de mercado encontrada en Capa1",
+          "`SL`, `TP`, `Trailing`",
+          "`ExitAfterBars` fuera de Build",
+          "`BS_Filtros_v6` y `BS_Filtros_v6_D1` reintroducen",
+          "`tradingTimeRanges.capa2` esta vacio",
+          "`adaptiveSpreadStress` no tiene layer 2",
+          "White Reality Check",
+          "PBO/DSR",
+          "`currentPhase=phase15_capa2_planning`",
+          "`nextPhase=phase16_capa2_preflight_snapshot`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-24 - C1-CONFIG1 Capa2 Planning",
+          "`capa2-planning-report`",
+          "phase15_capa2_planning_20260524_190708.json",
+          "preserve the Capa1 market edge",
+          "bounded SL/TP/trailing",
+          "one methodology-owned indicator filter",
+          "`BS_Filtros_v6` and `BS_Filtros_v6_D1` reintroduce `ExitAfterBars`",
+          "no CFX mutation",
+          "no forced `Results=passed`",
+          "phase16_capa2_preflight_snapshot"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_PLANNING_NEXT = \"phase16_capa2_preflight_snapshot\"",
+          "CAPA2_ACADEMIC_SOURCES",
+          "def capa2_planning_report",
+          "def capa2_blocksettings_summary",
+          "capa2-planning-report"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_planning_report_writes_phase15_without_mutating_targets",
+          "test_capa2_planning_issues_rejects_build_exit_after_bars",
+          "test_capa2_planning_cli_is_registered"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 Planning ejecuta SQX",
+          "Capa2 Planning lanza smoke",
+          "Capa2 Planning inicia optimizacion",
+          "Capa2 Planning aplica CFX",
+          "Capa2 Planning fuerza Results=passed",
+          "guaranteed profitability",
+          "risk-free"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 Planning ran SQX",
+          "Capa2 Planning ran smoke",
+          "Capa2 Planning optimization completed",
+          "Capa2 Planning applied CFX",
+          "Capa2 Planning forced Results=passed",
+          "guaranteed profitability",
+          "risk-free"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_skills_guardians",
       "description": "G8-SQX-AGENT-SKILLS1 must stay local-only, before RETEST 0, with Test Guardian and Docs Curator bounded to read-only/dry-run review unless explicitly confirmed.",
       "required": {

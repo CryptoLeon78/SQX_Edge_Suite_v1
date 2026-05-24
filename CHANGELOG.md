@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Capa2 Planning
+
+- Adds `capa2-planning-report` as the Phase 15 read-only gate after Capa1 closeout, with evidence `phase15_capa2_planning_20260524_190708.json`.
+- Records Capa2's anti-overfit contract: preserve the Capa1 market edge while adding bounded SL/TP/trailing and one methodology-owned indicator filter, without using retests as an iterative performance optimizer.
+- Detects apply blockers before touching Capa2: `BS_Filtros_v6` and `BS_Filtros_v6_D1` reintroduce `ExitAfterBars`, Capa2 generator layer 2 lacks complete trading windows/task maps/adaptive spread stress, and the local base still contains a private `templateFile` path.
+- Uses SQX Test Guardian, local Capa2 inspection and SQX Academic Lopez handoffs; no CFX mutation, SQX launch, smoke, optimization or forced `Results=passed` is claimed.
+- Sets the next exact block to `phase16_capa2_preflight_snapshot`.
+
 ## 2026-05-24 - C1-CONFIG1 Capa1 Closeout
 
 - Records `phase14_capa1_closeout_20260524_183012.json` and `capa1-closeout-report --target both --write` as the green Phase 14 closeout evidence after the green Phase 13 report `phase13_foward_closeout_20260524_182647.json`.

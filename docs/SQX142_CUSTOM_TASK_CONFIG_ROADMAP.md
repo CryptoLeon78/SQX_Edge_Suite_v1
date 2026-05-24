@@ -1,17 +1,16 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 14 `Capa1 Closeout` cerrada formalmente el
-2026-05-24 con `phase14_capa1_closeout_20260524_183012.json`, tras
-`phase13_foward_closeout` verde con
-`phase13_foward_closeout_20260524_182647.json`. `FOWARD` queda como revision
-de configuracion, no como ejecucion real: `Input=Syntetic / Output=Foward`,
-periodo `FOWARD_C1`, OOS `2025.01.01-2026.01.01` y
-`2026.01.01-2026.04.08`, `testPrecision=2`, resources `TICK/EETUS`,
-Options `RealisticGapsHandling=true` y `StoreChartData=false`, filtros forward
-`NumberOfTrades>=30`, `RExpectancy>0`, `NetProfit>=0`, static tabs inertes,
-`FixedSize` y pasivo puro `EnterAtMarket + ExitAfterBars`. No lanza SQX,
-no hace smoke, no inicia optimizacion y no fuerza `Results=passed`. El
-siguiente bloque exacto es `phase15_capa2_planning`. Fase 0 dejo
+Estado: C1-CONFIG1 con Fase 15 `Capa2 Planning` abierta y cerrada como puerta
+read-only el 2026-05-24 con
+`phase15_capa2_planning_20260524_190708.json`, despues de la Fase 14
+`Capa1 Closeout` (`phase14_capa1_closeout_20260524_183012.json`) y de
+`phase13_foward_closeout` verde (`phase13_foward_closeout_20260524_182647.json`).
+Capa2 queda planificada, no aplicada: integra SL/TP/trailing, elimina
+`ExitAfterBars` como salida de Build, agrega un filtro de indicador gobernado
+por BlockSettings/metodologia y protege que la ventaja detectada en Capa1 no
+se fabrique despues por gestion de riesgo. No lanza SQX, no hace smoke, no
+inicia optimizacion, no toca CFX y no fuerza `Results=passed`. El siguiente
+bloque exacto es `phase16_capa2_preflight_snapshot`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -219,6 +218,21 @@ inspeccionarlo directamente.
     decision operativa previa.
 14. Cierre Capa1, regeneracion de custom sample, validacion SQX, docs, tests y
     resumen del siguiente ciclo Capa2.
+15. `Capa2 Planning`, puerta read-only anti-overfit antes de tocar Capa2.
+16. `Capa2 Preflight Snapshot`, backup/diff/rollback de base local, template,
+    generator profile y BlockSettings.
+17. `Capa2 Build Questionnaire`, SL/TP/trailing, filtro indicador,
+    `ExitAfterBars` bloqueado y fuente fija C2.
+18. `Capa2 RETEST 0`.
+19. `Capa2 RETEST 1`.
+20. `Capa2 TICK REAL`.
+21. `Capa2 MC`.
+22. `Capa2 MC 2`.
+23. `Capa2 Sequential`.
+24. `Capa2 Monkey`.
+25. `Capa2 Synthetic`.
+26. `Capa2 SPP/WFM/FOWARD Review`.
+27. `Capa2 Closeout And Methodology Sync`.
 
 ## Estado Fase 0
 
@@ -2048,6 +2062,45 @@ Siguiente bloque exacto al cerrar WFM: `phase13_foward_open`.
   `nextPhase=phase15_capa2_planning`.
 
 Siguiente bloque exacto: `phase15_capa2_planning`.
+
+## Estado Fase 15 - Capa2 Planning
+
+- `phase15_capa2_planning` queda cerrada como fase de planificacion
+  read-only con `phase15_capa2_planning_20260524_190708.json`.
+- `capa2-planning-report --target both --write` inspecciona base local
+  `Capa2_Base_SQX142_Base`, template repo `Capa2_Base.cfx`, generator profile
+  y BlockSettings Capa2 sin mutar CFX ni arrancar SQX.
+- Objetivo Capa2: preservar la ventaja de mercado encontrada en Capa1 mientras
+  se anade gestion de riesgo operativa (`SL`, `TP`, `Trailing`) y un filtro de
+  indicador controlado, evitando que Capa2 se convierta en un optimizador
+  abierto de performance.
+- Contrato Build Capa2: fuente fija C2 generada desde el ganador Capa1,
+  `EnterAtMarket` salvo decision explicita, `ExitAfterBars` fuera de Build,
+  salidas por dias prohibidas y filtro indicador acotado por metodologia /
+  BlockSettings.
+- Hallazgos que bloquean cualquier apply posterior hasta resolverlos:
+  `BS_Filtros_v6` y `BS_Filtros_v6_D1` reintroducen
+  `ExitAfterBars=true` cuando Project Generator aplica BlockSettings; hay que
+  bloquear o sanear esto en Fase 16/17.
+- Hallazgos adicionales: la base local Build contiene un `templateFile` con
+  ruta absoluta local que debe pasar a ser generator-owned; varios retests de
+  Capa2 arrastran `ExitAfterBars`; `tradingTimeRanges.capa2` esta vacio;
+  `adaptiveSpreadStress` no tiene layer 2; y `taskPeriodMaps` layer 2 no cubre
+  todos los retests Capa2.
+- Guard academico: Capa2 se trata como segunda capa de seleccion con coste de
+  multiple testing. White Reality Check, PBO/DSR y Carr/Lopez de Prado se usan
+  como anclas para evitar data snooping; Kaminski/Lo y Lo/Remorov obligan a no
+  asumir que stops/trailing siempre mejoran tras costes.
+- Reglas de validacion: resultados passed/failed naturales, retests como gates
+  de validacion y no como feedback infinito, comparacion padre Capa1 vs hijo
+  Capa2, y ningun ajuste de OOS/forward para "hacer pasar" una estrategia.
+- Subagentes usados: `SQX Test Guardian` para baseline read-only,
+  `SQX Local Capa2 Inspector` para inspeccion CFX/generator/BlockSettings y
+  `SQX Academic Lopez` para riesgo academico de SL/TP/trailing y filtros.
+- El estado local queda en `currentPhase=phase15_capa2_planning`,
+  `nextPhase=phase16_capa2_preflight_snapshot`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase16_capa2_preflight_snapshot`.
 
 ## Disciplina Operativa
 

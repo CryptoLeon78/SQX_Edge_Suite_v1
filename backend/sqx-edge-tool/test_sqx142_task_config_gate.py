@@ -2880,6 +2880,135 @@ def test_synthetic_static_tabs_guard_rejects_portfolio_filters_and_customdata_dr
     assert any("Forbidden donor token" in issue for issue in issues)
 
 
+def _capa2_planning_target_summary(exit_after_bars_build: str = "false") -> dict:
+    return {
+        "path": "Capa2_Base.cfx",
+        "exists": True,
+        "isZip": True,
+        "sha256": "abc",
+        "tasks": {
+            "Build": {
+                "exists": True,
+                "exitTypes": {
+                    "StopLoss.StopLoss": "true",
+                    "ProfitTarget.ProfitTarget": "true",
+                    "TrailingStop.TrailingStop": "true",
+                    "ExitAfterBars.ExitAfterBars": exit_after_bars_build,
+                },
+                "strategyType": {"type": "template", "templateFile": ""},
+                "orderTypes": {
+                    "EnterAtMarket": "true",
+                    "EnterReverseAtMarket": "false",
+                    "EnterAtStop": "false",
+                    "EnterAtLimit": "false",
+                },
+            },
+            "RETEST 0": {
+                "exists": True,
+                "exitTypes": {"ExitAfterBars.ExitAfterBars": "true"},
+                "strategyType": {},
+                "orderTypes": {},
+            },
+            "MC": {
+                "exists": True,
+                "exitTypes": {"ExitAfterBars.ExitAfterBars": "true"},
+                "strategyType": {},
+                "orderTypes": {},
+            },
+        },
+    }
+
+
+def test_capa2_planning_report_writes_phase15_without_mutating_targets(monkeypatch, tmp_path):
+    monkeypatch.setattr(gate, "capa1_closeout_report", lambda *args, **kwargs: {
+        "phase": "phase14_capa1_closeout",
+        "ok": True,
+        "issues": [],
+        "nextPhase": "phase15_capa2_planning",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_target_contract_summary", lambda path: _capa2_planning_target_summary())
+    monkeypatch.setattr(gate, "capa2_generator_profile_summary", lambda project_root: {
+        "path": "generator_profiles.json",
+        "exists": True,
+        "tradingTimeRangesCapa2": {},
+        "disableTradingTimeRangesLayer2": [],
+        "taskPeriodMapsLayer2": {
+            "Build-Task1.xml": {},
+            "Retest-Task1.xml": {},
+            "AutomaticRetest-Task7.xml": {},
+            "Retest-Task2.xml": {},
+        },
+        "adaptiveSpreadStressLayer2": {},
+        "capa2Profile": {},
+    })
+    monkeypatch.setattr(gate, "capa2_blocksettings_summary", lambda: {
+        "manifest": "blocksettings_manifest.json",
+        "recommendations": {"H1": "BS_Filtros_v6"},
+        "inspected": [{
+            "canonicalId": "BS_Filtros_v6",
+            "filename": "BS_Filtros_v6.sqb",
+            "exists": True,
+            "exitTypes": {"ExitAfterBars.ExitAfterBars": "true", "StopLoss.StopLoss": "true", "ProfitTarget.ProfitTarget": "true"},
+        }],
+    })
+
+    payload = gate.capa2_planning_report(tmp_path, tmp_path, target="both", write=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase15_capa2_planning"
+    assert payload["nextPhase"] == "phase16_capa2_preflight_snapshot"
+    assert payload["previousGate"]["phase"] == "phase14_capa1_closeout"
+    assert "Preserve the Capa1 market edge" in payload["summary"]["objective"]
+    assert payload["summary"]["buildTarget"]["riskManagement"].startswith("SL, TP and trailing")
+    assert any("tradingTimeRanges.capa2 is empty" in warning for warning in payload["warnings"])
+    assert any("RETEST 0 still carries ExitAfterBars" in warning for warning in payload["warnings"])
+    assert any("adaptiveSpreadStress layer 2" in warning for warning in payload["warnings"])
+    assert any("BS_Filtros_v6 reintroduces ExitAfterBars" in warning for warning in payload["warnings"])
+    assert any("BlockSettings Capa2 must not reintroduce ExitAfterBars" in item for item in payload["summary"]["blockersBeforeApply"])
+    state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
+    assert state["currentPhase"] == "phase15_capa2_planning"
+    assert state["nextPhase"] == "phase16_capa2_preflight_snapshot"
+    assert state["scope"] == "capa2"
+    assert state["baseProject"] == "Capa2_Base_SQX142_Base"
+
+
+def test_capa2_planning_issues_rejects_build_exit_after_bars():
+    summary = {
+        "targets": {"repoTemplate": _capa2_planning_target_summary(exit_after_bars_build="true")},
+        "generator": {
+            "tradingTimeRangesCapa2": {"H1": []},
+            "taskPeriodMapsLayer2": {
+                "Build-Task1.xml": {},
+                "Retest-Task1.xml": {},
+                "AutomaticRetest-Task7.xml": {},
+                "Retest-Task2.xml": {},
+                "AutomaticRetest-Task1.xml": {},
+                "AutomaticRetest-Task2.xml": {},
+                "AutomaticRetest-Task3.xml": {},
+                "AutomaticRetest-Task4.xml": {},
+                "AutomaticRetest-Task5.xml": {},
+                "AutomaticRetest-Task6.xml": {},
+                "AutomaticRetest-Task8.xml": {},
+            },
+            "adaptiveSpreadStressLayer2": {"default": {"minMultiplier": 2, "maxMultiplier": 5}},
+        },
+        "blocksettings": {"inspected": []},
+    }
+
+    issues, warnings = gate.capa2_planning_issues(summary)
+
+    assert any("Build still allows ExitAfterBars" in issue for issue in issues)
+    assert any("RETEST 0 still carries ExitAfterBars" in warning for warning in warnings)
+
+
+def test_capa2_planning_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-planning-report", "--target", "repo-template"])
+
+    assert args.command == "capa2-planning-report"
+    assert args.target == "repo-template"
+
+
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
     calls = []
 

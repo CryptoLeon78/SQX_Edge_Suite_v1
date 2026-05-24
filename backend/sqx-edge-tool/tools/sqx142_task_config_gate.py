@@ -23,7 +23,9 @@ PROJECT_ROOT = TOOL_ROOT.parents[1]
 DEFAULT_SQX_ROOT = Path(r"C:\BOTS\Versiones\SQX_142_Crack")
 DEFAULT_DONOR_PROJECT = "Mining15_USDJPY_H4_BS_Volatilidad_v6_LS_Capa1"
 DEFAULT_BASE_PROJECT = "Capa1_Long_SQX142_Base"
+DEFAULT_CAPA2_BASE_PROJECT = "Capa2_Base_SQX142_Base"
 DEFAULT_TEMPLATE = TOOL_ROOT / "templates" / "Capa1_Long.cfx"
+DEFAULT_CAPA2_TEMPLATE = TOOL_ROOT / "templates" / "Capa2_Base.cfx"
 BLOCKSETTINGS_MANIFEST_PATH = TOOL_ROOT / "config" / "blocksettings_manifest.json"
 BLOCKSETTINGS_RESOURCE_DIR = TOOL_ROOT / "resources" / "blocksettings"
 GENERATOR_PROFILES_PATH = TOOL_ROOT / "config" / "generator_profiles.json"
@@ -46,6 +48,7 @@ PHASES = [
     {"id": "phase12", "label": "WFM configuration review"},
     {"id": "phase13", "label": "FOWARD configuration review"},
     {"id": "phase14", "label": "Capa1 closeout and methodology sync"},
+    {"id": "phase15", "label": "Capa2 planning and anti-overfit contract"},
 ]
 
 SECTION_ALIASES = {
@@ -15733,8 +15736,39 @@ def foward_closeout_report(root142: Path, project_root: Path, target: str, write
 
 
 CAPA1_CLOSEOUT_NEXT = "phase15_capa2_planning"
-
-
+CAPA2_PLANNING_NEXT = "phase16_capa2_preflight_snapshot"
+CAPA2_ACADEMIC_SOURCES = [
+    {
+        "id": "bailey_pbo",
+        "title": "Bailey, Borwein, Lopez de Prado and Zhu - The Probability of Backtest Overfitting",
+        "url": "https://www.davidhbailey.com/dhbpapers/backtest-prob.pdf",
+        "implication": "Every added Capa2 filter or SL/TP/trailing preset increases selection pressure; keep trials bounded and preserve clean validation.",
+    },
+    {
+        "id": "white_reality_check",
+        "title": "White - A Reality Check for Data Snooping",
+        "url": "https://www.ntuzov.com/Nik_Site/Niks_files/Research/papers/mut_funds/White_2000.pdf",
+        "implication": "Repeated search over trading rules needs explicit data-snooping discipline, not just attractive backtest rankings.",
+    },
+    {
+        "id": "carr_lopez_optimal_rules",
+        "title": "Carr and Lopez de Prado - Determining Optimal Trading Rules without Backtesting",
+        "url": "https://arxiv.org/abs/1408.1159",
+        "implication": "Do not let SL/TP/trailing become a brute-force optimizer that manufactures edge after Capa1 discovered the market signal.",
+    },
+    {
+        "id": "kaminski_lo_stop_loss",
+        "title": "Kaminski and Lo - When Do Stop-Loss Rules Stop Losses?",
+        "url": "https://papers.ssrn.com/sol3/papers.cfm?abstract_id=968338",
+        "implication": "Stop-loss rules can add or subtract value depending on return dynamics; Capa2 must test robustness, not assume stops are always beneficial.",
+    },
+    {
+        "id": "lo_remorov_stop_loss_costs",
+        "title": "Lo and Remorov - Stop-loss strategies with serial correlation, regime switching, and transaction costs",
+        "url": "https://www.sciencedirect.com/science/article/pii/S1386418117300472",
+        "implication": "Tight stops can underperform after costs unless the asset behavior supports them; spread/slippage/cost realism remains mandatory.",
+    },
+]
 def capa1_closeout_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
     ensure_ledger(project_root)
     previous_gate = foward_closeout_report(root142, project_root, target=target, write=False)
@@ -15785,6 +15819,330 @@ def capa1_closeout_report(root142: Path, project_root: Path, target: str, write:
         state_path = ledger_root(project_root) / "session_state.json"
         state = read_json(state_path, {})
         state.update({"updatedAt": now_iso(), "currentPhase": "phase14_capa1_closeout", "nextPhase": CAPA1_CLOSEOUT_NEXT})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
+def capa2_base_project_path(root142: Path) -> Path:
+    return root142 / "user" / "projects" / DEFAULT_CAPA2_BASE_PROJECT / "project.cfx"
+
+
+def task_exit_type_summary(root: ET.Element | None) -> dict[str, str]:
+    if root is None:
+        return {}
+    return {node.get("key", ""): node.get("use", "") for node in root.findall(".//ExitTypes/Block") if node.get("key")}
+
+
+def task_order_type_summary(root: ET.Element | None) -> dict[str, str]:
+    if root is None:
+        return {}
+    return {node.get("key", ""): node.get("use", "") for node in root.findall(".//OrderTypes/Block") if node.get("key")}
+
+
+def task_risk_method_summary(root: ET.Element | None) -> dict[str, str]:
+    if root is None:
+        return {}
+    return {node.get("type", ""): node.get("use", "") for node in root.findall(".//RiskMoneyManagement//Method") if node.get("type")}
+
+
+def task_strategy_type_summary(root: ET.Element | None) -> dict[str, str]:
+    strategy_type = root.find(".//WhatToBuild/StrategyType") if root is not None else None
+    return dict(strategy_type.attrib) if strategy_type is not None else {}
+
+
+def capa2_task_contract(cfx: Path, title: str) -> dict[str, Any]:
+    task_xml, root = load_task_root(cfx, title)
+    setup = first_setup_summary(root)
+    return {
+        "title": title,
+        "taskXml": task_xml,
+        "exists": bool(task_xml and root is not None),
+        "databanks": databank_summary(root),
+        "setup": setup,
+        "strategyType": task_strategy_type_summary(root),
+        "orderTypes": task_order_type_summary(root),
+        "exitTypes": task_exit_type_summary(root),
+        "riskMoneyManagement": task_risk_method_summary(root),
+        "activeCrossChecks": active_cross_checks(root),
+        "randomizeSpread": randomize_spread_ranges(root),
+        "directSections": direct_sections(root),
+    }
+
+
+def capa2_target_contract_summary(cfx: Path) -> dict[str, Any]:
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        return {
+            "path": str(cfx),
+            "exists": cfx.is_file(),
+            "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+            "sha256": file_sha256(cfx) if cfx.is_file() else "",
+            "tasks": {},
+        }
+    build = capa2_task_contract(cfx, "Build strategies")
+    retest0 = capa2_task_contract(cfx, "RETEST 0")
+    retest1 = capa2_task_contract(cfx, "RETEST 1")
+    tick = capa2_task_contract(cfx, "HBP")
+    mc = capa2_task_contract(cfx, "MC")
+    mc2 = capa2_task_contract(cfx, "MC 2")
+    sequential = capa2_task_contract(cfx, "Sequential")
+    monkey = capa2_task_contract(cfx, "Monkey Test")
+    synthetic = capa2_task_contract(cfx, "Syntetic")
+    spp = capa2_task_contract(cfx, "SPP")
+    wfm = capa2_task_contract(cfx, "WFM")
+    foward = capa2_task_contract(cfx, "FOWARD")
+    return {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256": file_sha256(cfx) if cfx.is_file() else "",
+        "tasks": {
+            "Build": build,
+            "RETEST 0": retest0,
+            "RETEST 1": retest1,
+            "HBP": tick,
+            "MC": mc,
+            "MC 2": mc2,
+            "Sequential": sequential,
+            "Monkey Test": monkey,
+            "Syntetic": synthetic,
+            "SPP": spp,
+            "WFM": wfm,
+            "FOWARD": foward,
+        },
+    }
+
+
+def capa2_generator_profile_summary(project_root: Path) -> dict[str, Any]:
+    config = read_json(GENERATOR_PROFILES_PATH, {})
+    return {
+        "path": str(GENERATOR_PROFILES_PATH),
+        "exists": GENERATOR_PROFILES_PATH.is_file(),
+        "tradingTimeRangesCapa2": ((config.get("tradingTimeRanges") or {}).get("capa2") or {}),
+        "disableTradingTimeRangesLayer2": ((config.get("disableTradingTimeRanges") or {}).get("2") or []),
+        "taskPeriodMapsLayer2": ((config.get("taskPeriodMaps") or {}).get("2") or {}),
+        "adaptiveSpreadStressLayer2": ((config.get("adaptiveSpreadStress") or {}).get("2") or {}),
+        "capa2Profile": ((config.get("projectGeneratorProfiles") or {}).get("capa2") or (config.get("profiles") or {}).get("capa2") or {}),
+    }
+
+
+def blocksettings_exit_type_summary(path: Path) -> dict[str, str]:
+    if not path.is_file() or not zipfile.is_zipfile(path):
+        return {}
+    with zipfile.ZipFile(path) as archive:
+        root = ET.fromstring(archive.read("config.xml"))
+    exit_types = root.find(".//ExitTypes")
+    if exit_types is None:
+        return {}
+    return {
+        block.get("key", ""): block.get("use", "")
+        for block in exit_types.findall(".//Block")
+        if block.get("key")
+    }
+
+
+def capa2_blocksettings_summary() -> dict[str, Any]:
+    manifest = read_json(BLOCKSETTINGS_MANIFEST_PATH, {})
+    entries_by_id = {entry.get("canonicalId"): entry for entry in manifest.get("entries", [])}
+    recommendations = ((manifest.get("capa2Recommendations") or {}).get("recommendations") or {})
+    recommended_ids = sorted({value for value in recommendations.values() if value})
+    inspected: list[dict[str, Any]] = []
+    for canonical_id in recommended_ids:
+        entry = entries_by_id.get(canonical_id) or {}
+        filename = entry.get("filename", "")
+        path = BLOCKSETTINGS_RESOURCE_DIR / filename if filename else BLOCKSETTINGS_RESOURCE_DIR / f"{canonical_id}.sqb"
+        inspected.append({
+            "canonicalId": canonical_id,
+            "filename": filename,
+            "path": str(path),
+            "exists": path.is_file(),
+            "sha256": file_sha256(path) if path.is_file() else "",
+            "activeIndicators": entry.get("activeIndicators", []),
+            "exitTypes": blocksettings_exit_type_summary(path),
+        })
+    return {
+        "manifest": str(BLOCKSETTINGS_MANIFEST_PATH),
+        "recommendations": recommendations,
+        "inspected": inspected,
+    }
+
+
+def capa2_planning_issues(summary: dict[str, Any]) -> tuple[list[str], list[str]]:
+    issues: list[str] = []
+    warnings: list[str] = []
+    targets = summary.get("targets") or {}
+    for target_name, target in targets.items():
+        if not target.get("exists"):
+            issues.append(f"{target_name}: Capa2 base/template missing")
+            continue
+        if not target.get("isZip"):
+            issues.append(f"{target_name}: Capa2 target is not a .cfx/.zip")
+            continue
+        tasks = target.get("tasks") or {}
+        build = tasks.get("Build") or {}
+        if not build.get("exists"):
+            issues.append(f"{target_name}: Build task not found")
+            continue
+        build_exits = build.get("exitTypes") or {}
+        for required in ("StopLoss.StopLoss", "ProfitTarget.ProfitTarget", "TrailingStop.TrailingStop"):
+            if build_exits.get(required) != "true":
+                warnings.append(f"{target_name}: Build {required} is {build_exits.get(required)!r}; Capa2 risk-management contract must decide it explicitly")
+        if build_exits.get("ExitAfterBars.ExitAfterBars") == "true":
+            issues.append(f"{target_name}: Build still allows ExitAfterBars; Capa2 planning requires removing bar exit before configuration apply")
+        strategy_type = build.get("strategyType") or {}
+        template_file = strategy_type.get("templateFile", "")
+        if re.search(r"[A-Za-z]:\\", template_file):
+            warnings.append(f"{target_name}: Build templateFile contains a local absolute path and must become generator-owned before Capa2 promotion")
+        if strategy_type.get("type") != "template":
+            warnings.append(f"{target_name}: Build StrategyType is {strategy_type.get('type')!r}; Capa2 should mine from the fixed C2 template")
+        order_types = build.get("orderTypes") or {}
+        if order_types.get("EnterAtMarket") != "true":
+            warnings.append(f"{target_name}: Build EnterAtMarket is not enabled")
+        for blocked_order in ("EnterReverseAtMarket", "EnterAtStop", "EnterAtLimit"):
+            if order_types.get(blocked_order) == "true":
+                warnings.append(f"{target_name}: Build {blocked_order} is enabled; Capa2 should avoid changing entry execution surface unless explicitly approved")
+        for task_name in ("RETEST 0", "HBP", "MC", "Sequential", "Monkey Test", "Syntetic", "FOWARD"):
+            task = tasks.get(task_name) or {}
+            exits = task.get("exitTypes") or {}
+            if exits.get("ExitAfterBars.ExitAfterBars") == "true":
+                warnings.append(f"{target_name}: {task_name} still carries ExitAfterBars; phase16 must decide whether retests preserve Capa2 risk exits only")
+
+    generator = summary.get("generator") or {}
+    if not generator.get("tradingTimeRangesCapa2"):
+        warnings.append("generator: tradingTimeRanges.capa2 is empty; timeframe-owned Capa2 windows must be decided before generated customs")
+    layer2_maps = generator.get("taskPeriodMapsLayer2") or {}
+    required_maps = {"Build-Task1.xml", "Retest-Task1.xml", "AutomaticRetest-Task7.xml", "Retest-Task2.xml"}
+    missing_maps = sorted(required_maps - set(layer2_maps))
+    if missing_maps:
+        warnings.append(f"generator: layer 2 taskPeriodMaps missing {missing_maps}")
+    recommended_maps = {
+        "AutomaticRetest-Task1.xml",
+        "AutomaticRetest-Task2.xml",
+        "AutomaticRetest-Task3.xml",
+        "AutomaticRetest-Task4.xml",
+        "AutomaticRetest-Task5.xml",
+        "AutomaticRetest-Task6.xml",
+        "AutomaticRetest-Task8.xml",
+    }
+    missing_recommended_maps = sorted(recommended_maps - set(layer2_maps))
+    if missing_recommended_maps:
+        warnings.append(f"generator: layer 2 taskPeriodMaps lacks Capa2 retest review for {missing_recommended_maps}")
+    if not generator.get("adaptiveSpreadStressLayer2"):
+        warnings.append("generator: adaptiveSpreadStress layer 2 is empty; decide whether MC2 spread x2-x5 also applies to Capa2")
+    blocksettings = summary.get("blocksettings") or {}
+    for item in blocksettings.get("inspected") or []:
+        if not item.get("exists"):
+            warnings.append(f"blocksettings: {item.get('canonicalId')} resource is missing")
+            continue
+        exit_types = item.get("exitTypes") or {}
+        if exit_types.get("ExitAfterBars.ExitAfterBars") == "true":
+            warnings.append(
+                f"blocksettings: {item.get('canonicalId')} reintroduces ExitAfterBars; phase16 must block or sanitize this before Capa2 apply"
+            )
+        if exit_types.get("StopLoss.StopLoss") != "true" or exit_types.get("ProfitTarget.ProfitTarget") != "true":
+            warnings.append(f"blocksettings: {item.get('canonicalId')} does not clearly enable both SL and TP")
+    return issues, warnings
+
+
+def capa2_planning_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    target_summaries = {name: capa2_target_contract_summary(path) for name, path in targets.items()}
+    previous_gate = capa1_closeout_report(root142, project_root, target="both", write=False)
+    summary: dict[str, Any] = {
+        "targets": target_summaries,
+        "generator": capa2_generator_profile_summary(project_root),
+        "blocksettings": capa2_blocksettings_summary(),
+    }
+    issues, warnings = capa2_planning_issues(summary)
+    previous_issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        previous_issues.append("capa1-closeout-report: previous gate ok=false")
+    issues.extend(previous_issues)
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        warnings.append("SQX processes are alive; Capa2 planning is read-only and did not mutate running SQX")
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase15_capa2_planning",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_issues,
+            "nextPhase": previous_gate.get("nextPhase"),
+        },
+        "issues": issues,
+        "warnings": warnings,
+        "processProbe": process_probe,
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "summary": {
+            "decision": "Open Capa2 planning only; do not apply Capa2 values until the interactive questionnaire confirms each task/tab.",
+            "objective": "Preserve the Capa1 market edge while adding operational risk management and a controlled indicator filter without turning Capa2 into an overfit optimizer.",
+            "buildTarget": {
+                "source": "fixed C2 template generated from the Capa1 winner",
+                "entrySurface": "EnterAtMarket only unless operator approves otherwise",
+                "riskManagement": "SL, TP and trailing are Capa2-controlled and must be bounded by BlockSettings/methodology",
+                "exitPolicy": "ExitAfterBars must be removed from Capa2 Build before apply; day-based exits remain banned",
+                "filterPolicy": "one controlled indicator-filter family first; broader filters require explicit questionnaire approval",
+            },
+            "validationPolicy": {
+                "naturalResults": "Preserve natural passed/failed outcomes; never force Results=passed.",
+                "edgeProtection": "Retests must check that survival is not only a risk-management artefact after Capa1 edge discovery.",
+                "contamination": "Repeated tuning on OOS/forward converts it into validation data; keep final holdout evidence as clean as possible.",
+                "quality": "Do not reduce OOS windows, precision, realism, costs or robustness thresholds without explicit evidence and operator approval.",
+            },
+            "blockersBeforeApply": [
+                "BlockSettings Capa2 must not reintroduce ExitAfterBars after Project Generator applies them.",
+                "SL/TP visible ranges and active formula families must be reconciled before Build Capa2 questionnaire apply.",
+                "Capa2 generator ownership for trading windows, Retest 1 broker/feed policy and MC2 spread stress must be explicit.",
+            ],
+            "plannedSubphases": [
+                "phase16_capa2_preflight_snapshot",
+                "phase17_capa2_build_questionnaire",
+                "phase18_capa2_retest0",
+                "phase19_capa2_retest1",
+                "phase20_capa2_tick_real",
+                "phase21_capa2_mc",
+                "phase22_capa2_mc2",
+                "phase23_capa2_sequential",
+                "phase24_capa2_monkey",
+                "phase25_capa2_synthetic",
+                "phase26_capa2_spp_wfm_foward_review",
+                "phase27_capa2_closeout_and_methodology_sync",
+            ],
+            "agents": {
+                "localInspector": "Read-only Capa2 CFX/project/generator inspection in `.local/agent_handoffs/`.",
+                "academicLopez": "Academic review of SL/TP/trailing, data snooping, PBO and validation contamination.",
+                "testRunner": "Read-only/dry-run test execution with no tracked edits and no SQX launch.",
+            },
+            "nextPhase": CAPA2_PLANNING_NEXT,
+        },
+        "targets": target_summaries,
+        "generator": summary["generator"],
+        "blocksettings": summary["blocksettings"],
+        "nextPhase": CAPA2_PLANNING_NEXT,
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase15_capa2_planning_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase15_capa2_planning",
+            "nextPhase": CAPA2_PLANNING_NEXT,
+            "scope": "capa2",
+            "baseProject": DEFAULT_CAPA2_BASE_PROJECT,
+            "repoTemplate": str(DEFAULT_CAPA2_TEMPLATE),
+        })
         write_json(state_path, state)
         payload["written"] = str(target_path)
     return payload
@@ -17183,6 +17541,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa1_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa1_closeout.add_argument("--write", action="store_true")
 
+    capa2_planning = sub.add_parser("capa2-planning-report")
+    capa2_planning.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_planning.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -17422,6 +17784,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa1-closeout-report":
         json_print(capa1_closeout_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "capa2-planning-report":
+        json_print(capa2_planning_report(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
