@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Capa2 Build CrossChecks
+
+- Adds `capa2-build-crosschecks-target` as the Phase 17 Build CrossChecks guard for Capa2.
+- Records evidence `phase17_capa2_build_crosschecks_target_20260524_223128.json` and answers `.local/sqx142_task_config/answers/capa2/Build_strategies/CrossChecks.json` with 303/303 entries closed.
+- Resolves Capa2 Build by `Build-Task1.xml` instead of the web-generated visible task title.
+- Pins Capa2 Build CrossChecks as inert: `CrossChecks use=false`, `evaluateAll=false`, zero active checks, hidden active methods and acceptance conditions inside inactive checks off, nested setup normalized to the Capa2 Build seed, and `ForceRunCrossChecks=false` protected from Rankings.
+- Keeps heavy robustness outside Build to avoid mixing generation, hidden optimization and validation; no SQX launch, smoke, optimization or forced `Results=passed` is claimed.
+- Sets the next exact block to `phase17_capa2_build_static_tabs`.
+
 ## 2026-05-24 - C1-CONFIG1 Capa2 Build Rankings And G9 Discipline
 
 - Adds `capa2-build-rankings-target` as the Phase 17 Build Rankings guard for Capa2.

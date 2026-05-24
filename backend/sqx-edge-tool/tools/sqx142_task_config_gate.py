@@ -15765,6 +15765,7 @@ CAPA2_BUILD_WHAT_TO_BUILD_NEXT = "phase17_capa2_build_blocks"
 CAPA2_BUILD_BLOCKS_NEXT = "phase17_capa2_build_data_databanks_resources_options"
 CAPA2_BUILD_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT = "phase17_capa2_build_rankings"
 CAPA2_BUILD_RANKINGS_NEXT = "phase17_capa2_build_crosschecks"
+CAPA2_BUILD_CROSSCHECKS_NEXT = "phase17_capa2_build_static_tabs"
 CAPA2_BUILD_TASK_XML = "Build-Task1.xml"
 CAPA2_BUILD_TASK_TITLE = "Build strategies"
 CAPA2_BUILD_TAB_ORDER = [
@@ -15981,6 +15982,8 @@ CAPA2_BUILD_RANKING_ACTIVE_GOAL = {
     "target": "0",
 }
 CAPA2_BUILD_RANKING_ALLOWED_ACTIVE_GOALS = {"RExpectancy"}
+CAPA2_BUILD_CROSSCHECK_PARENT_TARGET = {"use": "false", "evaluateAll": "false"}
+CAPA2_BUILD_CROSSCHECK_SETUP_ENGINE = "MetaTrader5 (hedged)"
 CAPA2_BUILD_BANNED_DONOR_TOKENS = ("USDJPY", "USDJPY_darwinex", "USDJPY_dukascopy")
 CAPA2_TRADING_TIME_RANGES_TARGET = {
     "M5": ["02:00", "22:00"],
@@ -18656,6 +18659,383 @@ def promote_capa2_build_rankings_target(root142: Path, project_root: Path, targe
     return payload
 
 
+def capa2_build_crosschecks_summary(root: ET.Element | None) -> dict[str, Any]:
+    parent = find_section(root, "CrossChecks") if root is not None else None
+    if parent is None:
+        return {"exists": False, "attrs": {}, "active": [], "checks": [], "nestedSetups": []}
+    checks: list[dict[str, Any]] = []
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        methods = summarize_crosscheck_methods(check)
+        active_conditions = [
+            dict(condition.attrib)
+            for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
+            if condition.get("use", "true") != "false"
+        ]
+        checks.append({
+            "id": check.tag,
+            "use": check.get("use", ""),
+            "activeMethodTypes": [
+                method.get("type", "")
+                for method in methods
+                if method.get("use") == "true"
+            ],
+            "methodCount": len(methods),
+            "activeConditionCount": len(active_conditions),
+        })
+    return {
+        "exists": True,
+        "attrs": dict(parent.attrib),
+        "active": [item["id"] for item in checks if item.get("use") == "true"],
+        "checks": checks,
+        "nestedSetups": [
+            {
+                "attrs": dict(setup.attrib),
+                "charts": [dict(chart.attrib) for chart in setup.findall("Chart")],
+            }
+            for setup in parent.findall("./*/Settings/Setups/Setup")
+        ],
+        "sha256": section_sha256(root, "CrossChecks") if root is not None else "",
+    }
+
+
+def normalize_capa2_build_crosscheck_setups(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    period = generator_period(CAPA2_BUILD_DATA_PERIOD_KEY)
+    before: list[dict[str, Any]] = []
+    after: list[dict[str, Any]] = []
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        before.append({
+            "attrs": dict(setup.attrib),
+            "charts": [dict(chart.attrib) for chart in setup.findall("Chart")],
+        })
+        for key, wanted in {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": CAPA2_BUILD_DATA_TEST_PRECISION,
+            "session": CAPA2_BUILD_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+            "engine": CAPA2_BUILD_CROSSCHECK_SETUP_ENGINE,
+        }.items():
+            setup.set(key, wanted)
+        charts = setup.findall("Chart")
+        if not charts:
+            charts = [ET.SubElement(setup, "Chart")]
+        for chart in charts:
+            chart.attrib.clear()
+            chart.attrib.update({
+                "symbol": CAPA2_BUILD_SEED_SYMBOL,
+                "timeframe": CAPA2_BUILD_SEED_TIMEFRAME,
+                "spread": CAPA2_BUILD_SEED_SPREAD,
+            })
+        after.append({
+            "attrs": dict(setup.attrib),
+            "charts": [dict(chart.attrib) for chart in setup.findall("Chart")],
+        })
+    actions.append({
+        "field": "CrossChecks/*/Settings/Setups/Setup",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+        "note": "Capa2 Build keeps internal crosschecks disabled, but nested setups are normalized to the generator-owned seed to avoid stale donor drift.",
+    })
+
+
+def apply_capa2_build_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    parent = find_section(root, "CrossChecks")
+    if parent is None:
+        parent = ET.SubElement(root, "CrossChecks")
+        actions.append({"field": "CrossChecks", "from": None, "to": dict(parent.attrib), "changed": True})
+    before_parent_attrs = dict(parent.attrib)
+    parent.attrib.clear()
+    parent.attrib.update(CAPA2_BUILD_CROSSCHECK_PARENT_TARGET)
+    actions.append({
+        "field": "CrossChecks:attrs",
+        "from": before_parent_attrs,
+        "to": dict(parent.attrib),
+        "changed": before_parent_attrs != dict(parent.attrib),
+    })
+
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        before_use = check.get("use", "")
+        check.set("use", "false")
+        actions.append({
+            "field": f"CrossChecks/{check.tag}:use",
+            "from": before_use,
+            "to": "false",
+            "changed": before_use != "false",
+        })
+        for method in check.findall("./Settings/Methods/Method"):
+            before_method = method.get("use", "")
+            method.set("use", "false")
+            actions.append({
+                "field": f"CrossChecks/{check.tag}/Method:{method.get('type', '')}:use",
+                "from": before_method,
+                "to": "false",
+                "changed": before_method != "false",
+            })
+        for condition in check.findall("./AcceptanceSettings/Conditions/Condition"):
+            before_condition = condition.get("use", "")
+            condition.set("use", "false")
+            actions.append({
+                "field": f"CrossChecks/{check.tag}/AcceptanceSettings/Condition:use",
+                "from": before_condition,
+                "to": "false",
+                "changed": before_condition != "false",
+            })
+    normalize_capa2_build_crosscheck_setups(root, actions)
+    return actions
+
+
+def enforce_capa2_build_crosschecks_guard(root: ET.Element, target_name: str) -> list[str]:
+    issues: list[str] = []
+    summary = capa2_build_crosschecks_summary(root)
+    if not summary.get("exists"):
+        return [f"{target_name}: Capa2 Build CrossChecks section missing"]
+    if summary.get("attrs") != CAPA2_BUILD_CROSSCHECK_PARENT_TARGET:
+        issues.append(f"{target_name}: Capa2 Build CrossChecks attrs are {summary.get('attrs')!r}, expected {CAPA2_BUILD_CROSSCHECK_PARENT_TARGET!r}")
+    if summary.get("active") != []:
+        issues.append(f"{target_name}: Capa2 Build CrossChecks must have no active checks, found {summary.get('active')!r}")
+    for check in summary.get("checks") or []:
+        if check.get("use") != "false":
+            issues.append(f"{target_name}: Capa2 Build crosscheck {check.get('id')} use is {check.get('use')!r}, expected false")
+        if check.get("activeMethodTypes"):
+            issues.append(f"{target_name}: Capa2 Build inactive crosscheck {check.get('id')} still has active methods {check.get('activeMethodTypes')!r}")
+        if int(check.get("activeConditionCount") or 0) != 0:
+            issues.append(f"{target_name}: Capa2 Build inactive crosscheck {check.get('id')} still has active acceptance conditions")
+
+    period = generator_period(CAPA2_BUILD_DATA_PERIOD_KEY)
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        expected_attrs = {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": CAPA2_BUILD_DATA_TEST_PRECISION,
+            "session": CAPA2_BUILD_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+            "engine": CAPA2_BUILD_CROSSCHECK_SETUP_ENGINE,
+        }
+        for key, wanted in expected_attrs.items():
+            if setup.get(key) != wanted:
+                issues.append(f"{target_name}: Capa2 Build nested CrossChecks setup {key} is {setup.get(key)!r}, expected {wanted!r}")
+        for chart in setup.findall("Chart"):
+            expected_chart = {
+                "symbol": CAPA2_BUILD_SEED_SYMBOL,
+                "timeframe": CAPA2_BUILD_SEED_TIMEFRAME,
+                "spread": CAPA2_BUILD_SEED_SPREAD,
+            }
+            for key, wanted in expected_chart.items():
+                if chart.get(key) != wanted:
+                    issues.append(f"{target_name}: Capa2 Build nested CrossChecks chart {key} is {chart.get(key)!r}, expected {wanted!r}")
+
+    rankings = find_section(root, "Rankings")
+    if rankings is not None and (rankings.findtext("ForceRunCrossChecks") or "") != "false":
+        issues.append(f"{target_name}: Capa2 Build Rankings/ForceRunCrossChecks must remain false")
+    guarded_text = section_text(root, "CrossChecks")
+    for token in CAPA2_BUILD_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"{target_name}: forbidden donor token leaked into Capa2 Build CrossChecks: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append(f"{target_name}: local absolute path leaked into Capa2 Build CrossChecks")
+    return issues
+
+
+def record_capa2_build_crosschecks_answers(project_root: Path, report: dict[str, Any]) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    answered_at = now_iso()
+    source = latest_capa2_questionnaire_path(project_root, CAPA2_BUILD_TASK_TITLE, "CrossChecks")
+    questionnaire = read_json(source, {}) if source is not None else {}
+    questions = questionnaire.get("questions") or []
+    ids = [str(item.get("id", "")).strip() for item in questions if str(item.get("id", "")).strip()]
+    payload = {
+        "version": VERSION,
+        "scope": "capa2",
+        "taskTitle": CAPA2_BUILD_TASK_TITLE,
+        "taskXmlIdentity": CAPA2_BUILD_TASK_XML,
+        "tab": "CrossChecks",
+        "phase": "phase17_capa2_build_crosschecks",
+        "createdAt": answered_at,
+        "updatedAt": answered_at,
+        "bulkAnswer": True,
+        "sourceQuestionnaire": str(source) if source is not None else "",
+        "questionCount": len(questions),
+        "uniqueQuestionCount": len(ids),
+        "answer": "recommended_capa2_build_crosschecks_inert_contract",
+        "note": "Build Capa2 CrossChecks closed as inert; retests own robustness/validation.",
+        "decisionSummary": {
+            "parent": CAPA2_BUILD_CROSSCHECK_PARENT_TARGET,
+            "activeChecks": [],
+            "hiddenMethods": "disabled",
+            "hiddenAcceptanceConditions": "disabled",
+            "nestedSetupSeed": {
+                "period": CAPA2_BUILD_DATA_PERIOD_KEY,
+                "symbol": CAPA2_BUILD_SEED_SYMBOL,
+                "timeframe": CAPA2_BUILD_SEED_TIMEFRAME,
+                "spread": CAPA2_BUILD_SEED_SPREAD,
+            },
+            "nextPhase": CAPA2_BUILD_CROSSCHECKS_NEXT,
+        },
+        "answers": {
+            qid: {
+                "answer": "recommended_capa2_build_crosschecks_inert_contract",
+                "note": "Closed by phase17_capa2_build_crosschecks target after dry-run/apply guard.",
+                "answeredAt": answered_at,
+            }
+            for qid in ids
+        },
+        "sourceReport": report.get("written", ""),
+    }
+    target = ledger_root(project_root) / "answers" / "capa2" / slug(CAPA2_BUILD_TASK_TITLE) / "CrossChecks.json"
+    write_json(target, payload)
+    return {
+        "ok": True,
+        "version": VERSION,
+        "tab": "CrossChecks",
+        "written": str(target),
+        "answerCount": len(ids),
+        "questionCount": len(questions),
+    }
+
+
+def update_capa2_build_crosschecks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool, target_name: str) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root, display_title = load_capa2_build_task_root(cfx)
+    payload["taskXml"] = task_xml_name
+    payload["displayTitle"] = display_title
+    if not task_xml_name or root is None:
+        payload["error"] = "capa2_build_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = capa2_build_crosschecks_summary(root)
+    payload["actions"] = apply_capa2_build_crosschecks_to_root(root)
+    payload["after"] = capa2_build_crosschecks_summary(root)
+    payload["issues"] = enforce_capa2_build_crosschecks_guard(root, target_name)
+    payload["warnings"] = []
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["serializedChanged"] = before_text != after_text
+    payload["changed"] = payload["changedActionCount"] > 0
+    payload["targetValues"] = {
+        "parent": CAPA2_BUILD_CROSSCHECK_PARENT_TARGET,
+        "activeChecks": [],
+        "nestedSetupPeriod": CAPA2_BUILD_DATA_PERIOD_KEY,
+        "nestedSetupChartSeed": {
+            "symbol": CAPA2_BUILD_SEED_SYMBOL,
+            "timeframe": CAPA2_BUILD_SEED_TIMEFRAME,
+            "spread": CAPA2_BUILD_SEED_SPREAD,
+        },
+    }
+    payload["targetRationale"] = {
+        "methodology": "Capa2 Build should mine bounded risk-management/indicator variants, while dedicated retests own validation and robustness.",
+        "academic": "Avoid adding a second hidden optimizer inside Build; every internal crosscheck increases selection pressure and compute cost.",
+        "cleanup": "Methods and acceptance rows hidden inside inactive crosschecks are switched off to avoid accidental execution if a UI toggle is changed later.",
+        "naturalResults": "No SQX run, no smoke, no optimization and no forced Results=passed.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_capa2_build_crosschecks_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = promote_capa2_build_rankings_target(root142, project_root, target=target, apply=False)
+    issues = list(previous_gate.get("issues") or [])
+    warnings = list(previous_gate.get("warnings") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-build-rankings-target: previous gate ok=false")
+    backup_root = ledger_root(project_root) / "backups" / f"phase17_capa2_build_crosschecks_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    results = {
+        name: update_capa2_build_crosschecks_target_in_cfx(path, backup_root / name, apply=apply, target_name=name)
+        for name, path in targets.items()
+    }
+    for name, result in results.items():
+        if not result.get("exists") or not result.get("isZip") or result.get("error"):
+            issues.append(f"{name}: Capa2 Build CrossChecks target could not be inspected")
+        issues.extend(f"{name}: {issue}" for issue in (result.get("issues") or []))
+        warnings.extend(f"{name}: {warning}" for warning in (result.get("warnings") or []))
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        warnings.append("SQX processes are alive; phase17 CrossChecks target is XML/config-only and should be applied with SQX closed")
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase17_capa2_build_crosschecks",
+        "operation": "capa2_build_crosschecks_target",
+        "apply": apply,
+        "target": target,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_gate.get("issues") or [],
+            "warnings": previous_gate.get("warnings") or [],
+            "nextPhase": previous_gate.get("nextPhase"),
+            "written": previous_gate.get("written"),
+        },
+        "results": results,
+        "issues": issues,
+        "warnings": warnings,
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Close Capa2 Build > CrossChecks as an inert surface; robustness belongs to dedicated retests.",
+            "parent": "CrossChecks use=false and evaluateAll=false.",
+            "activeChecks": "none",
+            "cleanup": "Hidden methods and acceptance conditions inside inactive checks are disabled.",
+            "nestedSetup": "Existing nested setup is normalized to BUILD/AUDCAD_darwinex/H1 spread 2.0 seed.",
+            "naturalResults": "No SQX run, no smoke, no optimization and no forced Results=passed.",
+            "nextPhase": CAPA2_BUILD_CROSSCHECKS_NEXT,
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": "phase17_capa2_build_crosschecks_diff_review" if not apply else CAPA2_BUILD_CROSSCHECKS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase17_capa2_build_crosschecks_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    if apply and payload["ok"]:
+        payload["answerRecord"] = record_capa2_build_crosschecks_answers(project_root, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase17_capa2_build_crosschecks",
+            "nextPhase": CAPA2_BUILD_CROSSCHECKS_NEXT,
+            "scope": "capa2",
+            "baseProject": DEFAULT_CAPA2_BASE_PROJECT,
+            "repoTemplate": str(DEFAULT_CAPA2_TEMPLATE),
+            "phase17BuildCrossChecksReport": str(evidence_target),
+            "phase17BuildCrossChecksAnswers": (payload.get("answerRecord") or {}).get("written", ""),
+        })
+        write_json(state_path, state)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -20077,6 +20457,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_build_rankings.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_build_rankings.add_argument("--apply", action="store_true")
 
+    capa2_build_crosschecks = sub.add_parser("capa2-build-crosschecks-target")
+    capa2_build_crosschecks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_build_crosschecks.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -20337,6 +20721,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-build-rankings-target":
         json_print(promote_capa2_build_rankings_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "capa2-build-crosschecks-target":
+        json_print(promote_capa2_build_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

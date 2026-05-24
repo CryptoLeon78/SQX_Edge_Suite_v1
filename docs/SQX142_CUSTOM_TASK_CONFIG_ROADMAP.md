@@ -1,10 +1,12 @@
 # SQX142 Custom Task Config Roadmap
 
 Estado: C1-CONFIG1 con Fase 17
-`Capa2 Build Data/Databanks/Resources/Options` cerrada el 2026-05-24 con
+`Capa2 Build CrossChecks` cerrada el 2026-05-24 con
+`phase17_capa2_build_crosschecks_target_20260524_223128.json`, despues de
+cerrar `phase17_capa2_build_rankings_target_20260524_220916.json`,
 `phase17_capa2_build_data_databanks_resources_options_target_20260524_213626.json`,
-despues de cerrar `phase17_capa2_build_blocks_target_20260524_211347.json`,
-despues de cerrar `phase17_capa2_build_what_to_build_target_20260524_204601.json`,
+`phase17_capa2_build_blocks_target_20260524_211347.json` y
+`phase17_capa2_build_what_to_build_target_20260524_204601.json`,
 despues de generar `phase17_capa2_build_questionnaire_20260524_201405.json`,
 despues de la Fase 16 `Capa2 Preflight Snapshot`
 (`phase16_capa2_preflight_snapshot_20260524_195729.json`) y de la Fase 15
@@ -35,8 +37,17 @@ Data/Databanks/Resources/Options queda cerrado con 48/48 respuestas: periodo
 `AUDCAD_darwinex/H1/TICK/EETUS`, sin OOS interno, `Input=Results`,
 `Output=null`, Options `No Session`, `RealisticGapsHandling=true` y
 `StoreChartData=false`; `generator_profiles.json` ya gobierna ventanas Capa2
-por timeframe y evita inyectarlas en retests pesados. El siguiente bloque
-exacto es `phase17_capa2_build_rankings`. Fase 0 dejo
+por timeframe y evita inyectarlas en retests pesados. Rankings queda cerrado
+con 173/173 respuestas y `Build-Task1.xml` como identidad tecnica:
+`MaxStrategies=2000`, `passedStrategies=500`, `DeleteFailedStrategies=false`,
+`ForceRunCrossChecks=false`, `FitPortfolio=false`, `CustomAnalysis=false`,
+objetivo unico `RExpectancy` y filtros `NumberOfTrades >= 120`,
+`ProfitFactor >= 1.1`, `Expectancy >= 0.05`. CrossChecks queda cerrado con
+303/303 respuestas como superficie inerte: `CrossChecks use=false`,
+`evaluateAll=false`, cero checks activos, metodos/condiciones ocultas
+apagadas, `ForceRunCrossChecks=false` protegido y setups internos
+normalizados al seed generico Capa2 Build. El siguiente bloque exacto es
+`phase17_capa2_build_static_tabs`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -2315,6 +2326,41 @@ Siguiente bloque exacto: `phase17_capa2_build_rankings`.
   `nextPhase=phase17_capa2_build_crosschecks`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase17_capa2_build_crosschecks`.
+
+## Estado Fase 17 - Capa2 Build CrossChecks
+
+- `phase17_capa2_build_crosschecks` queda cerrada con
+  `phase17_capa2_build_crosschecks_target_20260524_223128.json`.
+- Comando aplicado: `capa2-build-crosschecks-target --target both --apply`,
+  con backup automatico y dry-run posterior idempotente
+  (`phase17_capa2_build_crosschecks_target_20260524_223211.json`,
+  `changed=false`, `changedActionCount=0`, `guardOk=true`, `issues=[]`) sobre
+  base local y template repo.
+- Ledger local: `CrossChecks` queda contestado con 303/303 entradas en
+  `.local/sqx142_task_config/answers/capa2/Build_strategies/CrossChecks.json`.
+- Identidad de tarea: el Build de Capa2 se resuelve por `Build-Task1.xml`,
+  no por el texto visible generado por la app web.
+- Contrato CrossChecks Capa2:
+  - `CrossChecks use=false`, `evaluateAll=false`.
+  - Cero checks activos: `SequentialOptimization`, `MonteCarloRetest`,
+    `MonteCarloManipulation`, `WalkForwardOptimization`, `WalkForwardMatrix`,
+    `RetestWithHigherPrecision`, `RetestOnAdditionalMarkets`,
+    `OptProfileSysParamPermutation` y `WhatIf` quedan inactivos.
+  - Metodos activos ocultos y condiciones de aceptacion dentro de checks
+    inactivos quedan apagados.
+  - Setups internos normalizados al seed Capa2 Build:
+    `2017.10.02-2023.12.31`, `testPrecision=2`, `No Session`,
+    `AUDCAD_darwinex/H1`, spread `2.0`.
+  - `ForceRunCrossChecks=false` sigue protegido desde Rankings.
+- Guard academico: Build Capa2 mina variantes acotadas de gestion de riesgo y
+  filtro indicador; la robustez/validacion pertenece a los retests dedicados
+  para no mezclar seleccion, optimizacion y validacion dentro del mismo Build.
+- No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
+  `Results=passed`.
+- El estado local queda en `currentPhase=phase17_capa2_build_crosschecks`,
+  `nextPhase=phase17_capa2_build_static_tabs`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase17_capa2_build_static_tabs`.
 
 ## Disciplina Operativa
 

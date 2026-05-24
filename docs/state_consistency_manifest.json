@@ -4687,6 +4687,90 @@
       }
     },
     {
+      "id": "sqx142_c2_phase17_build_crosschecks",
+      "description": "C1-CONFIG1 Phase 17 Capa2 Build CrossChecks must stay closed as an inert Build surface, resolved by Build-Task1.xml, with hidden inactive methods off and no SQX execution claims.",
+      "required": {
+        "README.md": [
+          "phase17_capa2_build_crosschecks",
+          "phase17_capa2_build_crosschecks_target_20260524_223128.json",
+          "303/303 respuestas",
+          "`CrossChecks use=false`",
+          "`evaluateAll=false`",
+          "cero checks activos",
+          "`ForceRunCrossChecks=false`",
+          "phase17_capa2_build_static_tabs"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 17 `Capa2 Build CrossChecks` is closed",
+          "phase17_capa2_build_crosschecks_target_20260524_223128.json",
+          "`capa2-build-crosschecks-target --target both --apply`",
+          "303/303 CrossChecks answers",
+          "`Build-Task1.xml`",
+          "`CrossChecks use=false`",
+          "`evaluateAll=false`",
+          "`ForceRunCrossChecks=false`",
+          "Heavy robustness remains outside Build",
+          "phase17_capa2_build_static_tabs"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase17_capa2_build_crosschecks",
+          "inert Capa2 Build CrossChecks",
+          "hidden inactive crosscheck methods off",
+          "heavy robustness outside Build",
+          "Build CrossChecks do not imply SQX execution"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 17 - Capa2 Build CrossChecks",
+          "phase17_capa2_build_crosschecks_target_20260524_223128.json",
+          "`capa2-build-crosschecks-target --target both --apply`",
+          "303/303",
+          "`Build-Task1.xml`",
+          "`CrossChecks use=false`",
+          "`evaluateAll=false`",
+          "`ForceRunCrossChecks=false`",
+          "`currentPhase=phase17_capa2_build_crosschecks`",
+          "`nextPhase=phase17_capa2_build_static_tabs`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-24 - C1-CONFIG1 Capa2 Build CrossChecks",
+          "`capa2-build-crosschecks-target`",
+          "phase17_capa2_build_crosschecks_target_20260524_223128.json",
+          "303/303",
+          "Build-Task1.xml",
+          "CrossChecks use=false",
+          "phase17_capa2_build_static_tabs"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_BUILD_CROSSCHECKS_NEXT = \"phase17_capa2_build_static_tabs\"",
+          "CAPA2_BUILD_CROSSCHECK_PARENT_TARGET",
+          "def promote_capa2_build_crosschecks_target",
+          "def enforce_capa2_build_crosschecks_guard",
+          "capa2-build-crosschecks-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_build_crosschecks_target_applies_and_is_idempotent",
+          "test_capa2_build_crosschecks_guard_rejects_drift",
+          "test_capa2_build_crosschecks_cli_is_registered"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 Build CrossChecks ejecuta SQX",
+          "Capa2 Build CrossChecks lanza smoke",
+          "Capa2 Build CrossChecks inicia optimizacion",
+          "Capa2 Build CrossChecks fuerza Results=passed",
+          "ForceRunCrossChecks=true en Build Capa2"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 Build CrossChecks ran SQX",
+          "Capa2 Build CrossChecks ran smoke",
+          "Capa2 Build CrossChecks optimization completed",
+          "Capa2 Build CrossChecks forced Results=passed",
+          "ForceRunCrossChecks=true in Capa2 Build"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_per_message_bootstrap_g9",
       "description": "G9 must keep per-message specialist activation and new-session bootstrap proactive but orchestrator-owned and mutation-gated.",
       "required": {

@@ -3569,6 +3569,141 @@ def test_capa2_build_rankings_cli_is_registered():
     assert args.target == "both"
 
 
+def _inject_capa2_build_crosschecks_drift(cfx: Path) -> None:
+    task_xml, root, _title = gate.load_capa2_build_task_root(cfx)
+    rankings = root.find("./Rankings")
+    if rankings is None:
+        rankings = ET.SubElement(root, "Rankings")
+    force = rankings.find("ForceRunCrossChecks")
+    if force is None:
+        force = ET.SubElement(rankings, "ForceRunCrossChecks")
+    force.text = "false"
+    cross = root.find("./CrossChecks")
+    if cross is None:
+        cross = ET.SubElement(root, "CrossChecks", {"use": "true", "evaluateAll": "true"})
+    else:
+        cross.set("use", "true")
+        cross.set("evaluateAll", "true")
+    cross.set("legacy", "true")
+    sequential = cross.find("SequentialOptimization")
+    if sequential is None:
+        sequential = ET.SubElement(cross, "SequentialOptimization", {"use": "true"})
+    else:
+        sequential.set("use", "true")
+    settings = sequential.find("Settings") or ET.SubElement(sequential, "Settings")
+    setups = settings.find("Setups") or ET.SubElement(settings, "Setups")
+    setup = setups.find("Setup") or ET.SubElement(setups, "Setup")
+    setup.attrib.update({
+        "dateFrom": "2010.01.01",
+        "dateTo": "2026.01.01",
+        "testPrecision": "1",
+        "session": "Old Session",
+        "slippage": "5",
+        "minDist": "10",
+        "engine": "MetaTrader4",
+    })
+    chart = setup.find("Chart") or ET.SubElement(setup, "Chart")
+    chart.attrib.update({"symbol": "USDJPY_darwinex", "timeframe": "H4", "spread": "1.4"})
+    methods = settings.find("Methods") or ET.SubElement(settings, "Methods")
+    method = methods.find("Method") or ET.SubElement(methods, "Method", {"type": "RandomizeSpread"})
+    method.attrib.update({"type": "RandomizeSpread", "use": "true"})
+    acceptance = sequential.find("AcceptanceSettings") or ET.SubElement(sequential, "AcceptanceSettings")
+    conditions = acceptance.find("Conditions") or ET.SubElement(acceptance, "Conditions")
+    condition = conditions.find("Condition") or ET.SubElement(conditions, "Condition")
+    condition.set("use", "true")
+    gate.replace_zip_text_entry(cfx, task_xml, gate.serialize_xml(root))
+
+
+def test_capa2_build_crosschecks_target_applies_and_is_idempotent(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    _write_minimal_capa2_build_cfx(local_cfx, "", task_title="Build generated Capa2 label")
+    _write_minimal_capa2_build_cfx(repo_cfx, "", task_title="Build generated repo label")
+    _inject_capa2_build_crosschecks_drift(local_cfx)
+    _inject_capa2_build_crosschecks_drift(repo_cfx)
+
+    monkeypatch.setattr(gate, "promote_capa2_build_rankings_target", lambda *args, **kwargs: {
+        "phase": "phase17_capa2_build_rankings",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase17_capa2_build_crosschecks",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+
+    payload = gate.promote_capa2_build_crosschecks_target(tmp_path, tmp_path, target="both", apply=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase17_capa2_build_crosschecks"
+    assert payload["nextPhase"] == "phase17_capa2_build_static_tabs"
+    assert Path(payload["answerRecord"]["written"]).is_file()
+    local_root = gate.load_capa2_build_task_root(local_cfx)[1]
+    repo_root = gate.load_capa2_build_task_root(repo_cfx)[1]
+    assert gate.enforce_capa2_build_crosschecks_guard(local_root, "localBase") == []
+    assert gate.enforce_capa2_build_crosschecks_guard(repo_root, "repoTemplate") == []
+    cross = local_root.find("./CrossChecks")
+    assert cross.attrib == gate.CAPA2_BUILD_CROSSCHECK_PARENT_TARGET
+    assert gate.capa2_build_crosschecks_summary(local_root)["active"] == []
+    assert all(
+        method.get("use") == "false"
+        for method in local_root.findall(".//CrossChecks/*/Settings/Methods/Method")
+    )
+    assert all(
+        condition.get("use") == "false"
+        for condition in local_root.findall(".//CrossChecks/*/AcceptanceSettings/Conditions/Condition")
+    )
+    setup = local_root.find(".//CrossChecks/*/Settings/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "2"
+    assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
+
+    dry_run = gate.promote_capa2_build_crosschecks_target(tmp_path, tmp_path, target="both", apply=False)
+
+    assert dry_run["ok"] is True
+    assert dry_run["results"]["localBase"]["changed"] is False
+    assert dry_run["results"]["repoTemplate"]["changed"] is False
+    assert dry_run["results"]["repoTemplate"]["changedActionCount"] == 0
+
+
+def test_capa2_build_crosschecks_guard_rejects_drift():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Rankings><ForceRunCrossChecks>true</ForceRunCrossChecks></Rankings>
+          <CrossChecks use="true" evaluateAll="true">
+            <SequentialOptimization use="true">
+              <Settings>
+                <Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session" slippage="5" minDist="10" engine="MetaTrader4"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups>
+                <Methods><Method type="RandomizeSpread" use="true" /></Methods>
+              </Settings>
+              <AcceptanceSettings><Conditions><Condition use="true" /></Conditions></AcceptanceSettings>
+            </SequentialOptimization>
+          </CrossChecks>
+        </Settings>
+        """
+    )
+
+    issues = gate.enforce_capa2_build_crosschecks_guard(root, "repoTemplate")
+
+    assert any("attrs" in issue for issue in issues)
+    assert any("no active checks" in issue for issue in issues)
+    assert any("active methods" in issue for issue in issues)
+    assert any("active acceptance conditions" in issue for issue in issues)
+    assert any("ForceRunCrossChecks" in issue for issue in issues)
+    assert any("forbidden donor token" in issue for issue in issues)
+    assert any("nested CrossChecks setup" in issue for issue in issues)
+
+
+def test_capa2_build_crosschecks_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-build-crosschecks-target", "--target", "both"])
+
+    assert args.command == "capa2-build-crosschecks-target"
+    assert args.target == "both"
+
+
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
     calls = []
 
