@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Synthetic Data Databanks Resources Options
+
+- Adds `synthetic-data-databanks-resources-options-target` with dry-run/apply support, guards and tests for `AutomaticRetest-Task5.xml`.
+- Keeps Synthetic/Syntetic as a separate gate from Monkey: `Input=Monkey Test`, `Output=Syntetic`, dual `Data+CustomData`, `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, no internal OOS, resources `TICK/EETUS` without sessions and inert Options.
+- Updates Project Generator so `AutomaticRetest-Task5.xml` is excluded from trading-window injection like the other passive robustness gates.
+- Normalizes only `Data/Chart spread` from `2` to `2.0` in local base and repo template, with backup/diff `phase10_synthetic_data_databanks_resources_options_target_20260524_121559.json` and idempotent dry-run after apply.
+- Records local answers for `Syntetic > Data` (`7/7`), `Databanks` (`2/2`), `Resources` (`1,899/1,899`) and `Options` (`34/34`), report `phase10_synthetic_data_databanks_resources_options_20260524_121641.json` and next exact block `phase10_synthetic_crosschecks`.
+
 ## 2026-05-24 - C1-CONFIG1 Synthetic Open
 
 - Adds `synthetic-open-report` to open Phase 10 without launching SQX or mutating CFX.

@@ -1,6 +1,7 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 8 `Sequential` en curso el 2026-05-24. Fase 0 dejo
+Estado: C1-CONFIG1 con Fase 10 `Synthetic` / `Syntetic` en curso el
+2026-05-24. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -146,6 +147,10 @@ tools\sqx142_task_config_gate.ps1 sequential-static-tabs-target --target both
 tools\sqx142_task_config_gate.ps1 sequential-static-tabs-target --target both --apply
 tools\sqx142_task_config_gate.ps1 sequential-closeout-report --target both
 tools\sqx142_task_config_gate.ps1 sequential-closeout-report --target both --write
+tools\sqx142_task_config_gate.ps1 synthetic-open-report --target both
+tools\sqx142_task_config_gate.ps1 synthetic-open-report --target both --write
+tools\sqx142_task_config_gate.ps1 synthetic-data-databanks-resources-options-target --target both
+tools\sqx142_task_config_gate.ps1 synthetic-data-databanks-resources-options-target --target both --apply
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
 
@@ -1375,6 +1380,46 @@ Reporte local:
 Siguiente bloque exacto: `phase10_synthetic_data_databanks_resources_options`,
 para cerrar Data, Databanks, Resources y Options de `Synthetic`/`Syntetic` sin
 copiar filtros ni columnas especificas de Monkey.
+
+Estado Fase 10 - Synthetic/Syntetic Data/Databanks/Resources/Options:
+
+- `phase10_synthetic_data_databanks_resources_options` queda cerrado con
+  `phase10_synthetic_data_databanks_resources_options_20260524_121641.json`.
+- `synthetic-data-databanks-resources-options-target --target both --apply`
+  toca solo `AutomaticRetest-Task5.xml` y mantiene el alias real `Syntetic`;
+  no ejecuta SQX, no fuerza `Results=passed` y no copia columnas ni filtros de
+  Monkey.
+- Se conserva el portador dual `Data+CustomData` por compatibilidad SQX142,
+  sincronizado en `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, sin split
+  OOS interno, `slippage=0`, `minDist=0`, comision `0.0` y
+  `MainTestValues` alineado.
+- `Databanks` queda explicito como `Input=Monkey Test` y `Output=Syntetic`.
+- Recursos quedan como seed generico local-safe `AUDCAD_darwinex/H1` con spread
+  `2.0`, precision `TICK`, timezone `EETUS`, sin sesiones; el Project
+  Generator sigue siendo propietario del activo/timeframe/spread real al
+  generar customs.
+- `Options` queda inerte: `LimitTimeRange=false`,
+  `RealisticGapsHandling=false`, `StoreChartData=false`, `Session=No Session`
+  y `MarketOpenSession=No Session`.
+- Project Generator ya no inyecta ventanas horarias en
+  `AutomaticRetest-Task5.xml`; los customs generados mantienen
+  simbolo/timeframe/spread adaptados por activo sin convertir Synthetic en
+  filtro horario.
+- El unico cambio CFX aplicado fue normalizar `Data/Setup/Chart spread` de `2`
+  a `2.0` en base local y template repo, con backup en
+  `.local/sqx142_task_config/backups/phase10_synthetic_data_databanks_resources_options_20260524_121557/`
+  y diff
+  `.local/sqx142_task_config/diffs/phase10_synthetic_data_databanks_resources_options_target_20260524_121559.json`.
+- Dry-run posterior idempotente:
+  `phase10_synthetic_data_databanks_resources_options_target_20260524_121612.json`
+  con `changed=false`, `changedActionCount=0`, `guardOk=true` e `issues=[]`.
+- Ledger local respondido para `Syntetic > Data` (`7/7`),
+  `Syntetic > Databanks` (`2/2`), `Syntetic > Resources` (`1.899/1.899`) y
+  `Syntetic > Options` (`34/34`).
+
+Siguiente bloque exacto: `phase10_synthetic_crosschecks`, para decidir y
+limpiar `SyntheticBootstrapV3`, filtros de aceptacion Synthetic y metodos
+activos ocultos en crosschecks inactivos sin mezclarlo con Monkey.
 
 ## Disciplina Operativa
 
