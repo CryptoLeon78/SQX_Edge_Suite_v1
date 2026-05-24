@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Sequential Data Databanks Resources Options
+
+- Adds `sequential-data-databanks-resources-options-target` with dry-run-first backup/diff/apply over local base and repo template.
+- Keeps Sequential's SQX142-compatible dual carrier `Data + CustomData`, but synchronizes period, precision, session, chart seed, spread and commissions instead of deleting one carrier without UI evidence.
+- Confirms `Sequential` chain as `Input=MC2` / `Output=Sequential`, `ROBUSTNESS_C1`, `testPrecision=2`, no nested OOS split, resources `TICK/EETUS`, no sessions and options `LimitTimeRange=false`, `RealisticGapsHandling=false`, `StoreChartData=false`.
+- Updates Project Generator policy so `AutomaticRetest-Task3.xml` does not receive timeframe trading-window injection; generated Capa1 customs still adapt symbol/timeframe/spread/resources by asset and target profile.
+- Records local answers for `Sequential > Data` (`7/7`), `Databanks` (`2/2`), `Resources` (`1,899/1,899`) and `Options` (`34/34`), plus report `phase8_sequential_data_databanks_resources_options_20260524_071310.json`; next exact block is `phase8_sequential_crosschecks`.
+
 ## 2026-05-24 - C1-CONFIG1 Sequential Open
 
 - Adds `sequential-open-report` to open Phase 8 after MC2 closeout without launching SQX or mutating task values.

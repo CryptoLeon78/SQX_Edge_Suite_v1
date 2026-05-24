@@ -715,6 +715,32 @@ def test_capa1_sequential_open_gate_receives_mc2_and_keeps_sequential_optimizati
     assert rankings.find("CustomAnalysis").get("filter") == "false"
     assert sequential.findall(".//Data/OutOfSample/Range") == []
 
+    data_setup = sequential.find("./Data/Setups/Setup")
+    custom_setup = sequential.find("./CustomData/Setups/Setup")
+    assert data_setup is not None
+    assert custom_setup is not None
+    assert data_setup.get("dateFrom") == custom_setup.get("dateFrom") == "2017.10.02"
+    assert data_setup.get("dateTo") == custom_setup.get("dateTo") == "2023.12.31"
+    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == "2"
+    assert data_setup.get("session") == custom_setup.get("session") == "No Session"
+    assert data_setup.find("Chart").attrib == custom_setup.find("Chart").attrib == {
+        "symbol": "AUDCAD_darwinex",
+        "timeframe": "H1",
+        "spread": "2.0",
+    }
+    params = {
+        node.get("key"): node.text
+        for node in sequential.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"LimitTimeRange", "RealisticGapsHandling", "StoreChartData", "Session", "MarketOpenSession"}
+    }
+    assert params == {
+        "LimitTimeRange": "false",
+        "RealisticGapsHandling": "false",
+        "StoreChartData": "false",
+        "Session": "No Session",
+        "MarketOpenSession": "No Session",
+    }
+
 
 def test_capa1_base_uses_confirmed_build_ranking_volume():
     roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
@@ -892,6 +918,25 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     _assert_mc2_static_tabs_contract(mc2)
     assert {chart.get("spread") for chart in mc2.findall(".//Chart")} == {"10"}
     assert _randomize_spread_params(mc2) == {"Min": "20", "Max": "50"}
+
+    sequential = roots["AutomaticRetest-Task3.xml"]
+    sequential_options = {
+        node.get("key"): node.text
+        for node in sequential.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"LimitTimeRange", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert sequential_options == {
+        "LimitTimeRange": "false",
+        "RealisticGapsHandling": "false",
+        "StoreChartData": "false",
+    }
+    assert {
+        databank.get("name"): databank.get("value")
+        for databank in sequential.findall(".//Databanks/Databank")
+    } == {"Output": "Sequential", "Input": "MC2"}
+    assert {chart.get("symbol") for chart in sequential.findall(".//Setup/Chart")} == {"AUDCAD"}
+    assert {chart.get("timeframe") for chart in sequential.findall(".//Setup/Chart")} == {"H4"}
+    assert {chart.get("spread") for chart in sequential.findall(".//Setup/Chart")} == {"10"}
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")

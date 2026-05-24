@@ -146,10 +146,12 @@ tools\sqx142_task_config_gate.ps1 mc2-closeout-report --target both
 tools\sqx142_task_config_gate.ps1 mc2-closeout-report --target both --write
 tools\sqx142_task_config_gate.ps1 sequential-open-report --target both
 tools\sqx142_task_config_gate.ps1 sequential-open-report --target both --write
+tools\sqx142_task_config_gate.ps1 sequential-data-databanks-resources-options-target --target both
+tools\sqx142_task_config_gate.ps1 sequential-data-databanks-resources-options-target --target both --apply
 ```
 
 Fase 1 ya promociona solo las views allowlisted de databanks hacia base local y template repo. Fase 2 genera cuestionarios Build completos: todas las entradas detectadas se guardan por defecto, incluidas rutas XML repetidas con indice estable. Las respuestas completas viven en `.local/sqx142_task_config/`; los docs solo reciben resumen limpio al cerrar fase.
-Fase 8 queda abierta con `Sequential` mapeado a `AutomaticRetest-Task3.xml`, `Input=MC2`, `Output=Sequential`, solo `SequentialOptimization` activo y el siguiente bloque exacto `phase8_sequential_data_databanks_resources_options`.
+Fase 8 ya cerro `Sequential > Data / Databanks / Resources / Options`: portador dual `Data+CustomData` sincronizado para SQX142, `Input=MC2`, `Output=Sequential`, Options inertes y Project Generator sin ventana horaria para `AutomaticRetest-Task3.xml`. Siguiente bloque exacto: `phase8_sequential_crosschecks`.
 
 ## SQX Edge Pro
 

@@ -9,9 +9,10 @@ perfiles del agente y handoffs locales para proteger el resto del cuestionario.
 Antes de cerrar TICK y abrir MC, `sqx-academic-lopez` queda disponible como
 consulta academica local-only para OOS, MC, data snooping y backtest
 overfitting.
-Fase 8 queda abierta con `Input=MC2`, `Output=Sequential`, solo
-`SequentialOptimization` activo y el siguiente bloque exacto
-`phase8_sequential_data_databanks_resources_options`.
+Fase 8 queda con `Sequential > Data / Databanks / Resources / Options`
+cerrado: `Input=MC2`, `Output=Sequential`, portador dual `Data+CustomData`
+sincronizado para SQX142, Options inertes y siguiente bloque exacto
+`phase8_sequential_crosschecks`.
 La mini fase `SQX142-BRANDING1` queda cerrada antes de `RETEST 0`: cambia solo
 la capa visual local de SQX a `Build: 142.2336 Codex`, oculta en About las
 lineas privadas de licencia/identidad y muestra la trazabilidad
@@ -971,6 +972,42 @@ Reporte local:
 Siguiente bloque exacto: `phase8_sequential_data_databanks_resources_options`,
 para cerrar Data/Databanks/Resources/Options de `Sequential` con diff antes de
 tocar la base.
+
+Decision aplicada para `phase8_sequential_data_databanks_resources_options`:
+
+- Se anade `sequential-data-databanks-resources-options-target` con
+  dry-run-first, backup/diff/apply sobre base local y template repo.
+- `Sequential` mantiene portador dual `Data + CustomData` porque esta es la
+  forma observada en SQX142 y los smokes reales de Sequential ya funcionaron con
+  esa estructura; no se elimina ningun portador sin evidencia UI adicional.
+- Ambos portadores quedan sincronizados en `ROBUSTNESS_C1`, `testPrecision=2`,
+  `No Session`, `slippage=0`, `minDist=0`, seed generico `AUDCAD_darwinex/H1`
+  y spread `2.0`.
+- No se anade split OOS interno: Sequential consume supervivientes de `MC2` y
+  escribe en `Sequential`.
+- `Databanks` queda explicito: `Input=MC2` y `Output=Sequential`.
+- `Resources` queda `TICK/EETUS`, sin sesiones y con brokers/instrumentos
+  coherentes con el chart seed; Project Generator sigue reescribiendo simbolo,
+  timeframe, spread, broker y recursos por activo/target profile.
+- `Options` queda inerte para este robustness gate:
+  `LimitTimeRange=false`, `RealisticGapsHandling=false`, `StoreChartData=false`,
+  `Session=No Session` y `MarketOpenSession=No Session`.
+- Project Generator queda alineado para no inyectar ventanas horarias en
+  `AutomaticRetest-Task3.xml`; los customs generados mantienen simbolo/timeframe
+  adaptados, pero Sequential ya no pasa a `LimitTimeRange=true` por accidente.
+- El unico cambio XML real en base/template fue normalizar `Data/Chart spread`
+  de `2` a `2.0` para igualarlo a `CustomData`; el dry-run posterior queda
+  idempotente (`changed=false`, `changedActionCount=0`, `guardOk=true`).
+- Ledger local respondido para `Sequential > Data` (`7/7`),
+  `Sequential > Databanks` (`2/2`), `Sequential > Resources` (`1.899/1.899`)
+  y `Sequential > Options` (`34/34`).
+
+Reportes locales:
+`.local/sqx142_task_config/diffs/phase8_sequential_data_databanks_resources_options_target_20260524_071203.json`.
+`.local/sqx142_task_config/phase_reports/phase8_sequential_data_databanks_resources_options_20260524_071310.json`.
+
+Siguiente bloque exacto: `phase8_sequential_crosschecks`, para cerrar
+`SequentialOptimization` antes de pasar a generacion/pasividad/rankings.
 
 ## Disciplina Operativa
 
