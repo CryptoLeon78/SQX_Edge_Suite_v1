@@ -155,6 +155,10 @@ tools\sqx142_task_config_gate.ps1 synthetic-crosschecks-target --target both
 tools\sqx142_task_config_gate.ps1 synthetic-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 synthetic-passive-generation-target --target both
 tools\sqx142_task_config_gate.ps1 synthetic-passive-generation-target --target both --apply
+tools\sqx142_task_config_gate.ps1 synthetic-static-tabs-target --target both
+tools\sqx142_task_config_gate.ps1 synthetic-static-tabs-target --target both --apply
+tools\sqx142_task_config_gate.ps1 synthetic-closeout-report --target both
+tools\sqx142_task_config_gate.ps1 synthetic-closeout-report --target both --write
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
 
@@ -1529,6 +1533,48 @@ Estado Fase 10 - Synthetic/Syntetic Static Tabs:
 Siguiente bloque exacto: `phase10_synthetic_closeout`, para cerrar formalmente
 la Fase 10 solo si Data/Resources/Options, CrossChecks, Passive Generation y
 Static Tabs siguen idempotentes en base local y template repo.
+
+## Estado Fase 10 - Synthetic/Syntetic Closeout
+
+- `phase10_synthetic_closeout` queda cerrado con
+  `phase10_synthetic_closeout_20260524_135151.json`.
+- `synthetic-closeout-report --target both --write` consolida el gate previo
+  `monkey-closeout-report` y los cuatro guards Synthetic:
+  `synthetic-data-databanks-resources-options-target`,
+  `synthetic-crosschecks-target`, `synthetic-passive-generation-target` y
+  `synthetic-static-tabs-target`.
+- Todos los guards quedan en dry-run idempotente sobre base local y template
+  repo con `ok=true`, `issues=[]`, `warnings=[]`, `processes=[]`,
+  `changed=false`, `changedActionCount=0` y `guardOk=true`.
+- Synthetic/Syntetic queda como gate de robustez natural en
+  `AutomaticRetest-Task5.xml`: `Input=Monkey Test`, `Output=Syntetic`,
+  `MonteCarloRetest` activo con `SyntheticBootstrapV3`,
+  `NumberOfSimulations=100`, `MCUseFullSample=true`,
+  `MCBacktestPrecision=-1`, `BlockSize=20`, `WarmupBars=200` y
+  `PreservePct=85`.
+- Se conserva el filtro dedicado `NetProfit` MC retest confidence `85` frente
+  a main `NetProfit`; no se copian filtros Monkey, no se lanza SQX y no se
+  fuerza `Results=passed`.
+- Contrato pasivo final: `StrategyType.improveDatabank=Monkey Test`,
+  `Signals=0`, `Stop/Limit entry blocks=0`, solo `EnterAtMarket` y
+  `ExitAfterBars probability 100`, sin salidas por dias.
+- Contrato estatico final: `Rankings` inerte, `DeleteFailedStrategies=false`,
+  `ForceRunCrossChecks=false`, `FitPortfolio=false`,
+  `CustomAnalysis.filter=false`, `FixedSize`, ATMs desactivado,
+  `SelectedStrategies` vacio/ausente aceptado y `CustomData` dual sincronizado
+  con `Data`.
+- Evidencia local de cierre:
+  `phase10_synthetic_data_databanks_resources_options_target_20260524_135137.json`,
+  `phase10_synthetic_crosschecks_target_20260524_135138.json`,
+  `phase10_synthetic_passive_generation_target_20260524_135139.json` y
+  `phase10_synthetic_static_tabs_target_20260524_135140.json`.
+- El estado local queda en `currentPhase=phase10_synthetic_closeout` y
+  `nextPhase=phase11_spp_open`.
+
+Siguiente bloque exacto: `phase11_spp_open`, para abrir la revision de
+configuracion de SPP. SPP sigue omitido de pruebas/smoke/optimizacion por la
+decision operativa previa salvo aprobacion nueva; aqui toca revisar
+configuracion, coherencia y dependencias.
 
 ## Disciplina Operativa
 

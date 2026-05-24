@@ -2862,6 +2862,78 @@ def test_synthetic_static_tabs_guard_rejects_portfolio_filters_and_customdata_dr
     assert any("Forbidden donor token" in issue for issue in issues)
 
 
+def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
+    calls = []
+
+    def green_payload(command: str) -> dict:
+        return {
+            "ok": True,
+            "apply": False,
+            "operation": command.replace("-", "_"),
+            "nextPhase": "phase10_synthetic_closeout",
+            "written": f"{command}.json",
+            "results": {
+                "localBase": {
+                    "exists": True,
+                    "isZip": True,
+                    "guardOk": True,
+                    "changed": False,
+                    "changedActionCount": 0,
+                    "issues": [],
+                    "taskXml": "AutomaticRetest-Task5.xml",
+                },
+                "repoTemplate": {
+                    "exists": True,
+                    "isZip": True,
+                    "guardOk": True,
+                    "changed": False,
+                    "changedActionCount": 0,
+                    "issues": [],
+                    "taskXml": "AutomaticRetest-Task5.xml",
+                },
+            },
+        }
+
+    def runner_factory(command: str):
+        def runner(root142, project_root, target, apply):
+            calls.append((command, target, apply))
+            return green_payload(command)
+        return runner
+
+    monkeypatch.setattr(gate, "SYNTHETIC_CLOSEOUT_OPERATIONS", (
+        ("dataDatabanksResourcesOptions", "synthetic-data-databanks-resources-options-target", runner_factory("synthetic-data-databanks-resources-options-target")),
+        ("crosschecks", "synthetic-crosschecks-target", runner_factory("synthetic-crosschecks-target")),
+        ("passiveGeneration", "synthetic-passive-generation-target", runner_factory("synthetic-passive-generation-target")),
+        ("staticTabs", "synthetic-static-tabs-target", runner_factory("synthetic-static-tabs-target")),
+    ))
+    monkeypatch.setattr(gate, "monkey_closeout_report", lambda *args, **kwargs: {
+        "phase": "phase9_monkey_test_closeout",
+        "ok": True,
+        "issues": [],
+        "nextPhase": "phase10_synthetic_open",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+
+    payload = gate.synthetic_closeout_report(tmp_path, tmp_path, target="both", write=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase10_synthetic_closeout"
+    assert payload["nextPhase"] == "phase11_spp_open"
+    assert payload["summary"]["chain"] == "Input=Monkey Test / Output=Syntetic"
+    assert payload["summary"]["activeMethod"] == "SyntheticBootstrapV3"
+    assert {call[0] for call in calls} == {
+        "synthetic-data-databanks-resources-options-target",
+        "synthetic-crosschecks-target",
+        "synthetic-passive-generation-target",
+        "synthetic-static-tabs-target",
+    }
+    assert all(call[1] == "both" and call[2] is False for call in calls)
+    assert (tmp_path / ".local" / "sqx142_task_config" / "session_state.json").is_file()
+    state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
+    assert state["currentPhase"] == "phase10_synthetic_closeout"
+    assert state["nextPhase"] == "phase11_spp_open"
+
+
 def test_monkey_passive_generation_points_to_sequential_and_preserves_indicator_universe():
     root = ET.fromstring(
         f"""

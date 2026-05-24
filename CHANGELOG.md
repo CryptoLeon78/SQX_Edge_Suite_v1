@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Synthetic Closeout
+
+- Adds `synthetic-closeout-report` with CLI support to close Phase 10 only when the previous Monkey gate and all four Synthetic/Syntetic guards are green and idempotent in dry-run mode.
+- Consolidates `synthetic-data-databanks-resources-options-target`, `synthetic-crosschecks-target`, `synthetic-passive-generation-target` and `synthetic-static-tabs-target` over local base and repo template with `changed=false`, `changedActionCount=0` and `guardOk=true`.
+- Records local report `phase10_synthetic_closeout_20260524_135151.json` with `ok=true`, `issues=[]`, `warnings=[]`, `processes=[]`, `Input=Monkey Test`, `Output=Syntetic`, active `SyntheticBootstrapV3`, `NumberOfSimulations=100`, `MCUseFullSample=true`, `MCBacktestPrecision=-1`, `BlockSize=20`, `WarmupBars=200`, `PreservePct=85` and natural passed/failed preservation.
+- Records closeout dry-runs `phase10_synthetic_data_databanks_resources_options_target_20260524_135137.json`, `phase10_synthetic_crosschecks_target_20260524_135138.json`, `phase10_synthetic_passive_generation_target_20260524_135139.json` and `phase10_synthetic_static_tabs_target_20260524_135140.json`; next exact block is `phase11_spp_open`.
+
 ## 2026-05-24 - C1-CONFIG1 Synthetic Static Tabs
 
 - Adds `synthetic-static-tabs-target` with dry-run/apply support, guards and tests for `AutomaticRetest-Task5.xml`.

@@ -654,6 +654,7 @@ SYNTHETIC_PASSIVE_GENERATION_NEXT = "phase10_synthetic_static_tabs"
 SYNTHETIC_STATIC_TABS = MC_STATIC_TABS
 SYNTHETIC_RANKING_TARGET = MC_RANKING_TARGET
 SYNTHETIC_STATIC_TABS_NEXT = "phase10_synthetic_closeout"
+SYNTHETIC_CLOSEOUT_NEXT = "phase11_spp_open"
 SYNTHETIC_ACCEPTANCE_CONDITIONS_TARGET = [
     {
         "left": {
@@ -11837,6 +11838,114 @@ def promote_synthetic_static_tabs_target(root142: Path, project_root: Path, targ
     return payload
 
 
+SYNTHETIC_CLOSEOUT_OPERATIONS = (
+    (
+        "dataDatabanksResourcesOptions",
+        "synthetic-data-databanks-resources-options-target",
+        promote_synthetic_data_databanks_resources_options_target,
+    ),
+    ("crosschecks", "synthetic-crosschecks-target", promote_synthetic_crosschecks_target),
+    ("passiveGeneration", "synthetic-passive-generation-target", promote_synthetic_passive_generation_target),
+    ("staticTabs", "synthetic-static-tabs-target", promote_synthetic_static_tabs_target),
+)
+
+
+def synthetic_closeout_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    operations: dict[str, Any] = {}
+    issues: list[str] = []
+    for key, command, runner in SYNTHETIC_CLOSEOUT_OPERATIONS:
+        result = runner(root142, project_root, target=target, apply=False)
+        operation_issues = mc_closeout_operation_issues(command, result)
+        operations[key] = {
+            "command": command,
+            "summary": mc_closeout_operation_summary(result),
+            "issues": operation_issues,
+        }
+        issues.extend(operation_issues)
+
+    previous_gate = monkey_closeout_report(root142, project_root, target=target, write=False)
+    previous_issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        previous_issues.append("monkey-closeout-report: previous gate ok=false")
+    issues.extend(previous_issues)
+
+    process_probe = process_snapshot()
+    process_warnings = []
+    if process_probe.get("processes"):
+        process_warnings.append("SQX processes are alive; closeout is XML/dry-run only, no SQX runtime mutation was attempted")
+
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase10_synthetic_closeout",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_issues,
+            "nextPhase": previous_gate.get("nextPhase"),
+        },
+        "operations": operations,
+        "issues": issues,
+        "warnings": process_warnings,
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Close Synthetic/Syntetic after all Phase 10 guards are green and idempotent on local base and repo template.",
+            "taskTitle": SYNTHETIC_DISPLAY_TITLE,
+            "actualTaskTitle": SYNTHETIC_TASK_TITLE,
+            "taskXml": SYNTHETIC_TASK_XML,
+            "chain": "Input=Monkey Test / Output=Syntetic",
+            "period": SYNTHETIC_PERIOD_KEY,
+            "testPrecision": SYNTHETIC_DATA_TEST_PRECISION,
+            "activeCrossCheck": SYNTHETIC_ACTIVE_CROSSCHECK,
+            "activeMethod": SYNTHETIC_ACTIVE_METHOD,
+            "numberOfSimulations": SYNTHETIC_NUMBER_OF_SIMULATIONS,
+            "mcUseFullSample": SYNTHETIC_USE_FULL_SAMPLE,
+            "mcBacktestPrecision": SYNTHETIC_MC_BACKTEST_PRECISION,
+            "methodParams": SYNTHETIC_METHOD_PARAMS_TARGET,
+            "acceptanceFilters": [
+                "Dedicated Synthetic NetProfit MC retest confidence 85 versus main NetProfit",
+            ],
+            "passiveContract": {
+                "improveDatabank": SYNTHETIC_STRATEGY_TYPE_TARGET["improveDatabank"],
+                "signals": 0,
+                "stopLimitEntryBlocks": 0,
+                "entry": "EnterAtMarket",
+                "exit": "ExitAfterBars probability 100",
+                "dayBasedExits": "forbidden",
+            },
+            "staticContract": {
+                "ranking": "inert",
+                "deleteFailedStrategies": "false",
+                "forceRunCrossChecks": "false",
+                "fitPortfolio": "false",
+                "customAnalysisFilter": "false",
+                "riskMoneyManagement": "FixedSize",
+                "atms": "disabled",
+                "selectedStrategies": "empty_or_absent",
+                "customDataCarrier": "dual_synced",
+            },
+            "nextPhase": SYNTHETIC_CLOSEOUT_NEXT,
+            "closeoutCriterion": "all Synthetic guards plus Monkey previous gate must be green and idempotent before opening SPP configuration review",
+            "naturalResults": "Preserve natural passed/failed outcomes; never force Results=passed.",
+            "noLiveRun": "This closeout only reads XML/local state and writes a phase report when requested.",
+        },
+        "nextPhase": SYNTHETIC_CLOSEOUT_NEXT,
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase10_synthetic_closeout_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase10_synthetic_closeout", "nextPhase": SYNTHETIC_CLOSEOUT_NEXT})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -13162,6 +13271,10 @@ def build_parser() -> argparse.ArgumentParser:
     synthetic_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     synthetic_static.add_argument("--apply", action="store_true")
 
+    synthetic_closeout = sub.add_parser("synthetic-closeout-report")
+    synthetic_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    synthetic_closeout.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -13350,6 +13463,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "synthetic-static-tabs-target":
         json_print(promote_synthetic_static_tabs_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "synthetic-closeout-report":
+        json_print(synthetic_closeout_report(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
