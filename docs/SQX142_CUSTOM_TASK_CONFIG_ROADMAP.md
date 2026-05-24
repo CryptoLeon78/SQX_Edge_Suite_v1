@@ -1,6 +1,6 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 8 `Sequential` abierta formalmente el 2026-05-24. Fase 0 dejo
+Estado: C1-CONFIG1 con Fase 8 `Sequential` en curso el 2026-05-24. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -9,10 +9,12 @@ perfiles del agente y handoffs locales para proteger el resto del cuestionario.
 Antes de cerrar TICK y abrir MC, `sqx-academic-lopez` queda disponible como
 consulta academica local-only para OOS, MC, data snooping y backtest
 overfitting.
-Fase 8 queda con `Sequential > Data / Databanks / Resources / Options`
-cerrado: `Input=MC2`, `Output=Sequential`, portador dual `Data+CustomData`
-sincronizado para SQX142, Options inertes y siguiente bloque exacto
-`phase8_sequential_crosschecks`.
+Fase 8 queda con `Sequential > Data / Databanks / Resources / Options` y
+`Sequential > CrossChecks` cerrados: `Input=MC2`, `Output=Sequential`,
+portador dual `Data+CustomData` sincronizado para SQX142, Options inertes,
+solo `SequentialOptimization` activo, `ApplyToStrategy=false`, aceptacion
+`80/5/25`, metodos ocultos de crosschecks inactivos apagados y siguiente bloque
+exacto `phase8_sequential_passive_generation`.
 La mini fase `SQX142-BRANDING1` queda cerrada antes de `RETEST 0`: cambia solo
 la capa visual local de SQX a `Build: 142.2336 Codex`, oculta en About las
 lineas privadas de licencia/identidad y muestra la trazabilidad
@@ -120,6 +122,13 @@ tools\sqx142_task_config_gate.ps1 mc2-static-tabs-target --target both
 tools\sqx142_task_config_gate.ps1 mc2-static-tabs-target --target both --apply
 tools\sqx142_task_config_gate.ps1 mc2-closeout-report --target both
 tools\sqx142_task_config_gate.ps1 mc2-closeout-report --target both --write
+tools\sqx142_task_config_gate.ps1 sequential-open-report --target both
+tools\sqx142_task_config_gate.ps1 sequential-open-report --target both --write
+tools\sqx142_task_config_gate.ps1 sequential-data-databanks-resources-options-target --target both
+tools\sqx142_task_config_gate.ps1 sequential-data-databanks-resources-options-target --target both --apply
+tools\sqx142_task_config_gate.ps1 questionnaire --task-title "Sequential" --tab "CrossChecks" --write
+tools\sqx142_task_config_gate.ps1 sequential-crosschecks-target --target both
+tools\sqx142_task_config_gate.ps1 sequential-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
 
@@ -1008,6 +1017,41 @@ Reportes locales:
 
 Siguiente bloque exacto: `phase8_sequential_crosschecks`, para cerrar
 `SequentialOptimization` antes de pasar a generacion/pasividad/rankings.
+
+Decision aplicada para `phase8_sequential_crosschecks`:
+
+- Se anade `sequential-crosschecks-target` con dry-run-first, backup/diff/apply
+  sobre base local y template repo.
+- `Sequential` queda con `CrossChecks use=true/evaluateAll=true` y solo
+  `SequentialOptimization` activo; no se activa MC, WhatIf, Higher Precision,
+  WFM ni otros checks internos dentro de esta tarea.
+- `SequentialOptimization` queda como gate de estabilidad, no como optimizador:
+  `ApplyToStrategy=false`, `DistributionUp=130`, `DistributionDown=70`,
+  `Steps=12`.
+- `WhatToParametrize` queda acotado a `Periods=true`, `Constants=true` y
+  `ExitParamsUsed=true`; `Recommended`, `Shifts`, `OtherParams`, `EntryParams`,
+  `EntryLogic`, `ExitParamsUnused` y `BooleanParams` quedan en `false`.
+- La aceptacion queda en `PctToPass=80`, `ResultsCount=5` y
+  `StabilityRange=25`, con `Conditions` vacio para no convertir Sequential en
+  otro filtro manual ni forzar resultados.
+- Se apagan metodos que estaban activos dentro de crosschecks inactivos
+  (`MonteCarloRetest`, `MonteCarloManipulation`, `WhatIf`) y se normaliza el
+  setup anidado de crosscheck de spread `2` a `2.0`.
+- La justificacion academica es conservadora: limitar la superficie de busqueda
+  y mantener `ApplyToStrategy=false` reduce la presion de backtest overfitting;
+  Sequential sigue evaluando estabilidad de supervivientes de MC2 y no reescribe
+  estrategias.
+- Dry-run posterior queda idempotente en local base y repo template:
+  `changed=false`, `changedActionCount=0`, `guardOk=true`.
+- Ledger local respondido para `Sequential > CrossChecks` (`321/321`).
+
+Reportes locales:
+`.local/sqx142_task_config/diffs/phase8_sequential_crosschecks_target_20260524_074656.json`.
+`.local/sqx142_task_config/phase_reports/phase8_sequential_crosschecks_20260524_074726.json`.
+
+Siguiente bloque exacto: `phase8_sequential_passive_generation`, para cerrar
+`PartsToImprove` / `WhatToBuild` / `Blocks` y resolver el placeholder
+`StrategyType.improveDatabank=Strategies to improve`.
 
 ## Disciplina Operativa
 

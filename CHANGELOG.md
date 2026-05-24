@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Sequential CrossChecks
+
+- Adds `sequential-crosschecks-target` with dry-run-first backup/diff/apply over local base and repo template.
+- Keeps `SequentialOptimization` as the only active Sequential crosscheck: `ApplyToStrategy=false`, `DistributionUp=130`, `DistributionDown=70`, `Steps=12`, `PctToPass=80`, `ResultsCount=5` and `StabilityRange=25`.
+- Limits parametrization to `Periods=true`, `Constants=true` and `ExitParamsUsed=true`; entry logic, entry params, shifts, unused exits, booleans and broad recommended mode stay off.
+- Clears extra Sequential acceptance `Conditions`, preserves natural passed/failed outcomes and switches hidden methods inside inactive crosschecks off.
+- Records local answers for `Sequential > CrossChecks` (`321/321`) and report `phase8_sequential_crosschecks_20260524_074726.json`; next exact block is `phase8_sequential_passive_generation`.
+
 ## 2026-05-24 - C1-CONFIG1 Sequential Data Databanks Resources Options
 
 - Adds `sequential-data-databanks-resources-options-target` with dry-run-first backup/diff/apply over local base and repo template.

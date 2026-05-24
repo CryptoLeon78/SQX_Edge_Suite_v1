@@ -565,6 +565,32 @@ SEQUENTIAL_OPTIONS_PARAMS_TARGET = MC_OPTIONS_PARAMS_TARGET
 SEQUENTIAL_ACTIVE_CROSSCHECK = "SequentialOptimization"
 SEQUENTIAL_NEXT_PHASE = "phase8_sequential_data_databanks_resources_options"
 SEQUENTIAL_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT = "phase8_sequential_crosschecks"
+SEQUENTIAL_CROSSCHECKS_NEXT = "phase8_sequential_passive_generation"
+SEQUENTIAL_CROSSCHECK_PARENT_TARGET = {"use": "true", "evaluateAll": "true"}
+SEQUENTIAL_PARAMETER_SETTINGS_TARGET = {
+    "DistributionUp": "130",
+    "DistributionDown": "70",
+    "Steps": "12",
+    "ApplyToStrategy": "false",
+}
+SEQUENTIAL_WHAT_TO_PARAMETRIZE_ATTR_TARGET = {"type": "1", "symmetricVariables": "false"}
+SEQUENTIAL_WHAT_TO_PARAMETRIZE_VALUES_TARGET = {
+    "Recommended": "false",
+    "Periods": "true",
+    "Shifts": "false",
+    "Constants": "true",
+    "OtherParams": "false",
+    "EntryParams": "false",
+    "EntryLogic": "false",
+    "ExitParamsUsed": "true",
+    "ExitParamsUnused": "false",
+    "BooleanParams": "false",
+}
+SEQUENTIAL_ACCEPTANCE_SETTINGS_TARGET = {
+    "PctToPass": "80",
+    "ResultsCount": "5",
+    "StabilityRange": "25",
+}
 SEQUENTIAL_DECISION_PENDING = (
     "StrategyType.improveDatabank",
     "Data_vs_CustomData_carrier",
@@ -7885,6 +7911,402 @@ def promote_sequential_data_databanks_resources_options_target(root142: Path, pr
     return payload
 
 
+def summarize_crosscheck_methods(check: ET.Element) -> list[dict[str, Any]]:
+    return [
+        {
+            "type": method.get("type", ""),
+            "use": method.get("use", ""),
+            "params": method_params(method),
+        }
+        for method in check.findall("./Settings/Methods/Method")
+    ]
+
+
+def sequential_crosschecks_summary(root: ET.Element | None) -> dict[str, Any]:
+    parent = find_section(root, "CrossChecks") if root is not None else None
+    checks: list[dict[str, Any]] = []
+    if parent is not None:
+        for check in list(parent):
+            if not isinstance(check.tag, str) or check.get("use") is None:
+                continue
+            methods = summarize_crosscheck_methods(check)
+            checks.append({
+                "id": check.tag,
+                "use": check.get("use", ""),
+                "methods": methods,
+                "activeMethodTypes": [
+                    method.get("type", "")
+                    for method in methods
+                    if method.get("use") == "true"
+                ],
+                "nestedSetups": [
+                    {
+                        "attrs": dict(setup.attrib),
+                        "charts": [dict(chart.attrib) for chart in setup.findall("Chart")],
+                    }
+                    for setup in check.findall("./Settings/Setups/Setup")
+                ],
+            })
+    return {
+        "crossChecks": {
+            "exists": parent is not None,
+            "attrs": dict(parent.attrib) if parent is not None else {},
+            "active": [item["id"] for item in checks if item.get("use") == "true"],
+            "checks": checks,
+            "sequentialOptimization": sequential_optimization_summary(root),
+            "sha256": section_sha256(root, "CrossChecks") if root is not None else "",
+        },
+        "dataGate": sequential_data_databanks_resources_options_summary(root),
+    }
+
+
+def clear_conditions_node(conditions: ET.Element, actions: list[dict[str, Any]], field: str) -> None:
+    before = {
+        "attrs": dict(conditions.attrib),
+        "conditions": summarize_conditions_detailed(conditions),
+        "childTags": [child.tag for child in list(conditions) if isinstance(child.tag, str)],
+    }
+    conditions.attrib.clear()
+    for child in list(conditions):
+        conditions.remove(child)
+    conditions.text = None
+    after = {
+        "attrs": dict(conditions.attrib),
+        "conditions": summarize_conditions_detailed(conditions),
+        "childTags": [child.tag for child in list(conditions) if isinstance(child.tag, str)],
+    }
+    actions.append({"field": field, "from": before, "to": after, "changed": before != after})
+
+
+def remove_unknown_text_children(parent: ET.Element, allowed_tags: set[str], actions: list[dict[str, Any]], field: str) -> None:
+    removed = [
+        {"tag": child.tag, "text": child.text or "", "attrs": dict(child.attrib)}
+        for child in list(parent)
+        if isinstance(child.tag, str) and child.tag not in allowed_tags
+    ]
+    for child in list(parent):
+        if isinstance(child.tag, str) and child.tag not in allowed_tags:
+            parent.remove(child)
+    actions.append({
+        "field": field,
+        "from": removed,
+        "to": [],
+        "changed": bool(removed),
+    })
+
+
+def normalize_sequential_crosscheck_setups(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    period = generator_period(SEQUENTIAL_PERIOD_KEY)
+    before: list[dict[str, Any]] = []
+    after: list[dict[str, Any]] = []
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        before.append({
+            "attrs": dict(setup.attrib),
+            "charts": [dict(chart.attrib) for chart in setup.findall("Chart")],
+        })
+        for key, wanted in {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": SEQUENTIAL_DATA_TEST_PRECISION,
+            "session": SEQUENTIAL_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+        }.items():
+            setup.set(key, wanted)
+        charts = setup.findall("Chart")
+        if not charts:
+            charts = [ET.SubElement(setup, "Chart")]
+        for chart in charts:
+            for key, value in SEQUENTIAL_DEFAULT_CHART_TARGET.items():
+                chart.set(key, value)
+        after.append({
+            "attrs": dict(setup.attrib),
+            "charts": [dict(chart.attrib) for chart in setup.findall("Chart")],
+        })
+    actions.append({
+        "field": "CrossChecks/*/Settings/Setups/Setup",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+        "note": "Inactive nested crosscheck setups are normalized to the same safe seed; SequentialOptimization itself remains the only active gate.",
+    })
+
+
+def apply_sequential_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    parent = find_section(root, "CrossChecks")
+    if parent is None:
+        parent = ET.SubElement(root, "CrossChecks")
+        actions.append({"field": "CrossChecks", "from": None, "to": dict(parent.attrib), "changed": True})
+    set_attrs_on_node(parent, SEQUENTIAL_CROSSCHECK_PARENT_TARGET, actions, "CrossChecks:attrs")
+
+    active = parent.find(SEQUENTIAL_ACTIVE_CROSSCHECK)
+    if active is None:
+        active = ET.SubElement(parent, SEQUENTIAL_ACTIVE_CROSSCHECK, {"use": "true"})
+        actions.append({"field": f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}", "from": None, "to": dict(active.attrib), "changed": True})
+
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        before_use = check.get("use", "")
+        wanted_use = "true" if check.tag == SEQUENTIAL_ACTIVE_CROSSCHECK else "false"
+        check.set("use", wanted_use)
+        actions.append({
+            "field": f"CrossChecks/{check.tag}:use",
+            "from": before_use,
+            "to": wanted_use,
+            "changed": before_use != wanted_use,
+        })
+        if check.tag != SEQUENTIAL_ACTIVE_CROSSCHECK:
+            for method in check.findall("./Settings/Methods/Method"):
+                before_method = method.get("use", "")
+                method.set("use", "false")
+                actions.append({
+                    "field": f"CrossChecks/{check.tag}/Method:{method.get('type', '')}:use",
+                    "from": before_method,
+                    "to": "false",
+                    "changed": before_method != "false",
+                })
+
+    settings = ensure_direct_child(active, "Settings")
+    parameter_settings = ensure_direct_child(settings, "ParameterSettings")
+    for key, wanted in SEQUENTIAL_PARAMETER_SETTINGS_TARGET.items():
+        set_or_create_text_child(
+            parameter_settings,
+            key,
+            wanted,
+            actions,
+            f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/ParameterSettings/{key}",
+        )
+    remove_unknown_text_children(
+        parameter_settings,
+        set(SEQUENTIAL_PARAMETER_SETTINGS_TARGET),
+        actions,
+        f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/ParameterSettings:unknown",
+    )
+
+    what_to_parametrize = settings.find("WhatToParametrize")
+    if what_to_parametrize is None:
+        what_to_parametrize = ET.SubElement(settings, "WhatToParametrize")
+        actions.append({
+            "field": f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/WhatToParametrize",
+            "from": None,
+            "to": dict(what_to_parametrize.attrib),
+            "changed": True,
+        })
+    before_attrs = dict(what_to_parametrize.attrib)
+    what_to_parametrize.attrib.clear()
+    what_to_parametrize.attrib.update(SEQUENTIAL_WHAT_TO_PARAMETRIZE_ATTR_TARGET)
+    actions.append({
+        "field": f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/WhatToParametrize:attrs",
+        "from": before_attrs,
+        "to": dict(what_to_parametrize.attrib),
+        "changed": before_attrs != dict(what_to_parametrize.attrib),
+    })
+    for key, wanted in SEQUENTIAL_WHAT_TO_PARAMETRIZE_VALUES_TARGET.items():
+        set_or_create_text_child(
+            what_to_parametrize,
+            key,
+            wanted,
+            actions,
+            f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/WhatToParametrize/{key}",
+        )
+    remove_unknown_text_children(
+        what_to_parametrize,
+        set(SEQUENTIAL_WHAT_TO_PARAMETRIZE_VALUES_TARGET),
+        actions,
+        f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/WhatToParametrize:unknown",
+    )
+
+    acceptance = ensure_direct_child(active, "AcceptanceSettings")
+    for key, wanted in SEQUENTIAL_ACCEPTANCE_SETTINGS_TARGET.items():
+        set_or_create_text_child(
+            acceptance,
+            key,
+            wanted,
+            actions,
+            f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/AcceptanceSettings/{key}",
+        )
+    remove_unknown_text_children(
+        acceptance,
+        set(SEQUENTIAL_ACCEPTANCE_SETTINGS_TARGET) | {"Conditions"},
+        actions,
+        f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/AcceptanceSettings:unknown",
+    )
+    conditions = acceptance.find("Conditions")
+    if conditions is None:
+        conditions = ET.SubElement(acceptance, "Conditions")
+        actions.append({
+            "field": f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/AcceptanceSettings/Conditions",
+            "from": None,
+            "to": "created_empty",
+            "changed": True,
+        })
+    clear_conditions_node(
+        conditions,
+        actions,
+        f"CrossChecks/{SEQUENTIAL_ACTIVE_CROSSCHECK}/AcceptanceSettings/Conditions",
+    )
+    normalize_sequential_crosscheck_setups(root, actions)
+    return actions
+
+
+def enforce_sequential_crosschecks_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = sequential_crosschecks_summary(root)
+    cross = summary.get("crossChecks") or {}
+    attrs = cross.get("attrs") or {}
+    if attrs != SEQUENTIAL_CROSSCHECK_PARENT_TARGET:
+        issues.append(f"Sequential CrossChecks attrs are {attrs!r}, expected {SEQUENTIAL_CROSSCHECK_PARENT_TARGET!r}")
+    if cross.get("active") != [SEQUENTIAL_ACTIVE_CROSSCHECK]:
+        issues.append(f"Sequential active crosschecks are {cross.get('active')!r}, expected [{SEQUENTIAL_ACTIVE_CROSSCHECK!r}]")
+
+    checks = {item.get("id"): item for item in cross.get("checks") or []}
+    sequential = cross.get("sequentialOptimization") or {}
+    if sequential.get("exists") is not True or sequential.get("use") != "true":
+        issues.append("SequentialOptimization must exist and remain active")
+    if (sequential.get("parameterSettings") or {}) != SEQUENTIAL_PARAMETER_SETTINGS_TARGET:
+        issues.append(f"SequentialOptimization ParameterSettings drifted: {sequential.get('parameterSettings')!r}")
+    what = sequential.get("whatToParametrize") or {}
+    if (what.get("attributes") or {}) != SEQUENTIAL_WHAT_TO_PARAMETRIZE_ATTR_TARGET:
+        issues.append(f"SequentialOptimization WhatToParametrize attrs drifted: {what.get('attributes')!r}")
+    if (what.get("values") or {}) != SEQUENTIAL_WHAT_TO_PARAMETRIZE_VALUES_TARGET:
+        issues.append(f"SequentialOptimization WhatToParametrize values drifted: {what.get('values')!r}")
+    acceptance = sequential.get("acceptanceSettings") or {}
+    if (acceptance.get("values") or {}) != SEQUENTIAL_ACCEPTANCE_SETTINGS_TARGET:
+        issues.append(f"SequentialOptimization AcceptanceSettings drifted: {acceptance.get('values')!r}")
+    if acceptance.get("activeConditionCount") != 0:
+        issues.append("SequentialOptimization AcceptanceSettings must not contain extra filter conditions")
+
+    for check in cross.get("checks") or []:
+        if check.get("id") == SEQUENTIAL_ACTIVE_CROSSCHECK:
+            continue
+        active_methods = [method for method in check.get("methods") or [] if method.get("use") == "true"]
+        if active_methods:
+            issues.append(f"Inactive Sequential crosscheck {check.get('id')} still has active methods: {[item.get('type') for item in active_methods]}")
+
+    period = generator_period(SEQUENTIAL_PERIOD_KEY)
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"Sequential nested CrossChecks setup dates drifted: {dict(setup.attrib)!r}")
+        if setup.get("testPrecision") != SEQUENTIAL_DATA_TEST_PRECISION:
+            issues.append(f"Sequential nested CrossChecks setup precision is {setup.get('testPrecision')!r}, expected {SEQUENTIAL_DATA_TEST_PRECISION!r}")
+        if setup.get("session") != SEQUENTIAL_DATA_SESSION:
+            issues.append(f"Sequential nested CrossChecks setup session is {setup.get('session')!r}, expected {SEQUENTIAL_DATA_SESSION!r}")
+        if setup.get("slippage") != "0" or setup.get("minDist") != "0":
+            issues.append(f"Sequential nested CrossChecks setup costs drifted: {dict(setup.attrib)!r}")
+        for chart in setup.findall("Chart"):
+            for key, wanted in SEQUENTIAL_DEFAULT_CHART_TARGET.items():
+                if chart.get(key) != wanted:
+                    issues.append(f"Sequential nested CrossChecks chart {key} is {chart.get(key)!r}, expected {wanted!r}")
+
+    rankings = find_section(root, "Rankings")
+    if rankings is not None and (rankings.findtext("ForceRunCrossChecks") or "") != "false":
+        issues.append("Sequential Rankings/ForceRunCrossChecks must remain false")
+
+    for issue in enforce_sequential_data_databanks_resources_options_guard(root):
+        issues.append(f"Data/Resources guard: {issue}")
+
+    guarded_text = section_text(root, "CrossChecks")
+    for token in MC_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into Sequential CrossChecks: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into Sequential CrossChecks")
+    return issues
+
+
+def update_sequential_crosschecks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root = load_task_root(cfx, SEQUENTIAL_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "sequential_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = sequential_crosschecks_summary(root)
+    payload["actions"] = apply_sequential_crosschecks_to_root(root)
+    payload["after"] = sequential_crosschecks_summary(root)
+    payload["issues"] = enforce_sequential_crosschecks_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "activeCheck": SEQUENTIAL_ACTIVE_CROSSCHECK,
+        "parent": SEQUENTIAL_CROSSCHECK_PARENT_TARGET,
+        "parameterSettings": SEQUENTIAL_PARAMETER_SETTINGS_TARGET,
+        "whatToParametrizeAttrs": SEQUENTIAL_WHAT_TO_PARAMETRIZE_ATTR_TARGET,
+        "whatToParametrizeValues": SEQUENTIAL_WHAT_TO_PARAMETRIZE_VALUES_TARGET,
+        "acceptanceSettings": SEQUENTIAL_ACCEPTANCE_SETTINGS_TARGET,
+        "acceptanceConditions": [],
+        "nestedSetupPeriod": SEQUENTIAL_PERIOD_KEY,
+        "nestedSetupChartSeed": SEQUENTIAL_DEFAULT_CHART_TARGET,
+    }
+    payload["targetRationale"] = {
+        "methodology": "Sequential is a parameter-stability robustness gate after MC2 survivors, not a second optimizer that rewrites strategies.",
+        "academic": "Limiting the parameter search surface and keeping ApplyToStrategy=false reduces repeated fitting pressure on validation evidence.",
+        "localEvidence": "Sequential smokes were stable when run in batches after MC2 was unlocked; this target preserves the same gate settings while making inactive checks inert.",
+        "naturalResults": "No Results value is forced; passed/failed must remain the natural SQX outcome.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_sequential_crosschecks_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase8_sequential_crosschecks_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_sequential_crosschecks_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase8",
+        "operation": "sequential_crosschecks_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase8_sequential_crosschecks_diff_review" if not apply else SEQUENTIAL_CROSSCHECKS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase8_sequential_crosschecks_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -9150,6 +9572,10 @@ def build_parser() -> argparse.ArgumentParser:
     sequential_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     sequential_data.add_argument("--apply", action="store_true")
 
+    sequential_crosschecks = sub.add_parser("sequential-crosschecks-target")
+    sequential_crosschecks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    sequential_crosschecks.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -9293,6 +9719,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "sequential-data-databanks-resources-options-target":
         json_print(promote_sequential_data_databanks_resources_options_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "sequential-crosschecks-target":
+        json_print(promote_sequential_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

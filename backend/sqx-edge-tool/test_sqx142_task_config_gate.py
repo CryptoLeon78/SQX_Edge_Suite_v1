@@ -11,6 +11,7 @@ from tools.sqx142_task_config_gate import (
     apply_mc2_passive_generation_to_root,
     apply_mc2_static_tabs_to_root,
     apply_sequential_data_databanks_resources_options_to_root,
+    apply_sequential_crosschecks_to_root,
     apply_retest1_passive_generation_to_root,
     apply_retest1_data_resources_to_root,
     apply_retest1_options_databanks_rankings_to_root,
@@ -32,6 +33,7 @@ from tools.sqx142_task_config_gate import (
     enforce_mc2_passive_generation_guard,
     enforce_mc2_static_tabs_guard,
     enforce_sequential_data_databanks_resources_options_guard,
+    enforce_sequential_crosschecks_guard,
     enforce_tick_real_data_databanks_resources_guard,
     enforce_tick_real_options_rankings_guard,
     enforce_tick_real_passive_generation_guard,
@@ -43,6 +45,7 @@ from tools.sqx142_task_config_gate import (
     record_tab_answer,
     sequential_open_issues,
     sequential_open_summary,
+    sequential_crosschecks_summary,
 )
 
 
@@ -1906,3 +1909,120 @@ def test_sequential_data_databanks_resources_options_guard_rejects_divergent_car
     assert any("CustomData MainTestValues" in issue for issue in issues)
     assert any("Databank Input" in issue for issue in issues)
     assert any("Options param" in issue for issue in issues)
+
+
+def _sequential_data_gate_fixture() -> str:
+    return """
+      <Data>
+        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)">
+          <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" />
+          <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0.0</Param></Params></Method></Commissions>
+        </Setup></Setups>
+      </Data>
+      <CustomData>
+        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader4">
+          <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" />
+          <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0.0</Param></Params></Method></Commissions>
+          <MainTestValues engine="true" symbol="true" timeframe="true" dates="true" subcharts="false" precision="true" distance="true" spread="true" slippage="true" commissions="true" />
+        </Setup></Setups>
+      </CustomData>
+      <Databanks><Databank name="Input" value="MC2" /><Databank name="Output" value="Sequential" /></Databanks>
+      <Resources>
+        <Symbols><Symbol name="AUDCAD_darwinex" precision="TICK" timezone="EETUS" broker="4"><InstrumentInfo instrument="AUDCAD_darwinex" broker="4" /></Symbol></Symbols>
+        <Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers>
+        <Instruments><InstrumentInfo instrument="AUDCAD_darwinex" broker="4" /></Instruments>
+        <Sessions />
+      </Resources>
+      <Options><BuildTradingOptions><Params>
+        <Param key="LimitTimeRange">false</Param>
+        <Param key="RealisticGapsHandling">false</Param>
+        <Param key="StoreChartData">false</Param>
+        <Param key="Session">No Session</Param>
+        <Param key="MarketOpenSession">No Session</Param>
+      </Params></BuildTradingOptions></Options>
+    """
+
+
+def test_sequential_crosschecks_enforces_stability_gate_without_rewriting_strategy():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_sequential_data_gate_fixture()}
+          <CrossChecks use="false" evaluateAll="false">
+            <MonteCarloRetest use="true">
+              <Settings>
+                <Methods><Method type="RandomizeSpread" use="true"><Params><Param key="Min">30</Param></Params></Method></Methods>
+                <Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old" slippage="4" minDist="2"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups>
+              </Settings>
+            </MonteCarloRetest>
+            <SequentialOptimization use="false">
+              <Settings>
+                <ParameterSettings><DistributionUp>180</DistributionUp><DistributionDown>30</DistributionDown><Steps>99</Steps><ApplyToStrategy>true</ApplyToStrategy></ParameterSettings>
+                <WhatToParametrize type="2" symmetricVariables="true"><Recommended>true</Recommended><Periods>false</Periods><Constants>false</Constants><EntryLogic>true</EntryLogic><ExitParamsUsed>false</ExitParamsUsed></WhatToParametrize>
+              </Settings>
+              <AcceptanceSettings><PctToPass>10</PctToPass><ResultsCount>1</ResultsCount><StabilityRange>5</StabilityRange><Conditions><Condition use="true" /></Conditions></AcceptanceSettings>
+            </SequentialOptimization>
+          </CrossChecks>
+          <Rankings><ForceRunCrossChecks>false</ForceRunCrossChecks></Rankings>
+        </Settings>
+        """
+    )
+
+    actions = apply_sequential_crosschecks_to_root(root)
+
+    assert any(item["field"] == "CrossChecks:attrs" and item["changed"] for item in actions)
+    assert enforce_sequential_crosschecks_guard(root) == []
+    summary = sequential_crosschecks_summary(root)["crossChecks"]
+    assert summary["active"] == ["SequentialOptimization"]
+    assert summary["sequentialOptimization"]["parameterSettings"] == {
+        "DistributionUp": "130",
+        "DistributionDown": "70",
+        "Steps": "12",
+        "ApplyToStrategy": "false",
+    }
+    assert summary["sequentialOptimization"]["acceptanceSettings"]["values"] == {
+        "PctToPass": "80",
+        "ResultsCount": "5",
+        "StabilityRange": "25",
+    }
+    assert summary["sequentialOptimization"]["acceptanceSettings"]["activeConditionCount"] == 0
+    inactive_methods = [
+        method
+        for check in summary["checks"]
+        if check["id"] != "SequentialOptimization"
+        for method in check["methods"]
+    ]
+    assert all(method["use"] == "false" for method in inactive_methods)
+    setup = root.find(".//CrossChecks/MonteCarloRetest/Settings/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "2"
+    assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
+
+
+def test_sequential_crosschecks_guard_rejects_optimizer_and_extra_conditions():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_sequential_data_gate_fixture()}
+          <CrossChecks use="true" evaluateAll="true">
+            <SequentialOptimization use="true">
+              <Settings>
+                <ParameterSettings><DistributionUp>130</DistributionUp><DistributionDown>70</DistributionDown><Steps>12</Steps><ApplyToStrategy>true</ApplyToStrategy></ParameterSettings>
+                <WhatToParametrize type="1" symmetricVariables="false"><Recommended>false</Recommended><Periods>true</Periods><Shifts>false</Shifts><Constants>true</Constants><OtherParams>false</OtherParams><EntryParams>false</EntryParams><EntryLogic>false</EntryLogic><ExitParamsUsed>true</ExitParamsUsed><ExitParamsUnused>false</ExitParamsUnused><BooleanParams>false</BooleanParams></WhatToParametrize>
+              </Settings>
+              <AcceptanceSettings><PctToPass>80</PctToPass><ResultsCount>5</ResultsCount><StabilityRange>25</StabilityRange><Conditions><Condition use="true" /></Conditions></AcceptanceSettings>
+            </SequentialOptimization>
+            <MonteCarloRetest use="false"><Settings><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings></MonteCarloRetest>
+          </CrossChecks>
+          <Rankings><ForceRunCrossChecks>true</ForceRunCrossChecks></Rankings>
+        </Settings>
+        """
+    )
+
+    issues = enforce_sequential_crosschecks_guard(root)
+
+    assert any("ParameterSettings" in issue for issue in issues)
+    assert any("extra filter conditions" in issue for issue in issues)
+    assert any("still has active methods" in issue for issue in issues)
+    assert any("ForceRunCrossChecks" in issue for issue in issues)

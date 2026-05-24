@@ -702,10 +702,46 @@ def test_capa1_sequential_open_gate_receives_mc2_and_keeps_sequential_optimizati
     assert active == ["SequentialOptimization"]
     sequential_optimization = crosschecks.find("SequentialOptimization")
     assert sequential_optimization is not None
+    parameter_settings = {
+        child.tag: child.text
+        for child in sequential_optimization.findall("./Settings/ParameterSettings/*")
+    }
+    assert parameter_settings == {
+        "DistributionUp": "130",
+        "DistributionDown": "70",
+        "Steps": "12",
+        "ApplyToStrategy": "false",
+    }
+    what_to_parametrize = sequential_optimization.find("./Settings/WhatToParametrize")
+    assert what_to_parametrize is not None
+    assert what_to_parametrize.attrib == {"type": "1", "symmetricVariables": "false"}
+    assert {
+        child.tag: child.text
+        for child in what_to_parametrize
+    } == {
+        "Recommended": "false",
+        "Periods": "true",
+        "Shifts": "false",
+        "Constants": "true",
+        "OtherParams": "false",
+        "EntryParams": "false",
+        "EntryLogic": "false",
+        "ExitParamsUsed": "true",
+        "ExitParamsUnused": "false",
+        "BooleanParams": "false",
+    }
     assert sequential_optimization.findtext("./Settings/ParameterSettings/ApplyToStrategy") == "false"
     assert sequential_optimization.findtext("./AcceptanceSettings/PctToPass") == "80"
     assert sequential_optimization.findtext("./AcceptanceSettings/ResultsCount") == "5"
     assert sequential_optimization.findtext("./AcceptanceSettings/StabilityRange") == "25"
+    assert sequential_optimization.findall("./AcceptanceSettings/Conditions/Condition") == []
+    inactive_methods = [
+        method
+        for check in list(crosschecks)
+        if isinstance(check.tag, str) and check.tag != "SequentialOptimization"
+        for method in check.findall("./Settings/Methods/Method")
+    ]
+    assert all(method.get("use") == "false" for method in inactive_methods)
 
     rankings = sequential.find(".//Rankings")
     assert rankings is not None
@@ -937,6 +973,11 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     assert {chart.get("symbol") for chart in sequential.findall(".//Setup/Chart")} == {"AUDCAD"}
     assert {chart.get("timeframe") for chart in sequential.findall(".//Setup/Chart")} == {"H4"}
     assert {chart.get("spread") for chart in sequential.findall(".//Setup/Chart")} == {"10"}
+    sequential_optimization = sequential.find(".//CrossChecks/SequentialOptimization")
+    assert sequential_optimization is not None
+    assert sequential_optimization.findtext("./Settings/ParameterSettings/ApplyToStrategy") == "false"
+    assert sequential_optimization.findtext("./AcceptanceSettings/PctToPass") == "80"
+    assert sequential_optimization.findall("./AcceptanceSettings/Conditions/Condition") == []
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")
