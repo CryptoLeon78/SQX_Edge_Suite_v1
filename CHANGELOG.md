@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Monkey Test Static Tabs
+
+- Adds `monkey-static-tabs-target` with dry-run-first backup/diff/apply over local base and repo template.
+- Keeps `AutomaticRetest-Task6.xml` as a pure Monkey gate while closing inert surfaces: `Rankings type=never`, `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false`, `FitPortfolio.active=false`, `CustomAnalysis.filter=false` and no ranking conditions.
+- Keeps `FixedSize` active, ATMs disabled, Notes preserved, `SelectedStrategies` empty/absent accepted and `CustomData` dual synced with Data (`ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, commission `0.0`, aligned `MainTestValues`).
+- Records local answers for `Monkey Test > Rankings` (`23/23`), `ATMs` (`9/9`), `RiskMoneyManagement` (`25/25`), `Notes` (`1/1`), `SelectedStrategies` (`0/0`) and `CustomData` (`6/6`), report `phase9_monkey_test_static_tabs_20260524_105942.json`, idempotent dry-run (`changed=false`, `changedActionCount=0`, `guardOk=true`) and next exact block `phase9_monkey_test_closeout`.
+
 ## 2026-05-24 - C1-CONFIG1 Monkey Test Passive Generation
 
 - Adds `monkey-passive-generation-target` with dry-run-first backup/diff/apply over local base and repo template.

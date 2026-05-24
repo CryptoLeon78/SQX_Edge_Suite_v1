@@ -14,6 +14,7 @@ from tools.sqx142_task_config_gate import (
     apply_monkey_crosschecks_to_root,
     apply_monkey_data_databanks_resources_options_to_root,
     apply_monkey_passive_generation_to_root,
+    apply_monkey_static_tabs_to_root,
     apply_sequential_data_databanks_resources_options_to_root,
     apply_sequential_crosschecks_to_root,
     apply_sequential_passive_generation_to_root,
@@ -41,6 +42,7 @@ from tools.sqx142_task_config_gate import (
     enforce_monkey_crosschecks_guard,
     enforce_monkey_data_databanks_resources_options_guard,
     enforce_monkey_passive_generation_guard,
+    enforce_monkey_static_tabs_guard,
     enforce_sequential_data_databanks_resources_options_guard,
     enforce_sequential_crosschecks_guard,
     enforce_sequential_passive_generation_guard,
@@ -2328,6 +2330,155 @@ def test_monkey_passive_generation_guard_rejects_generation_remnants_and_day_exi
     assert any("signals" in issue for issue in issues)
     assert any("stop/limit" in issue for issue in issues)
     assert any("CustomData" in issue for issue in issues)
+
+
+def test_monkey_static_tabs_closes_rankings_risk_and_customdata_without_turning_off_real_monkey():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_monkey_data_gate_fixture()}
+          <CrossChecks use="false" evaluateAll="false">
+            <MonteCarloRetest use="false">
+              <Settings>
+                <NumberOfSimulations>50</NumberOfSimulations>
+                <MCUseFullSample>false</MCUseFullSample>
+                <MCBacktestPrecision>2</MCBacktestPrecision>
+                <Methods>
+                  <Method type="RealMonkeyTest" use="false"><Params><Param key="MaxChange" type="Integer">50</Param></Params></Method>
+                  <Method type="SyntheticBootstrapV3" use="true" />
+                </Methods>
+              </Settings>
+              <AcceptanceSettings><Conditions CrossCheck="MonteCarloRetest"><Condition use="false" /></Conditions></AcceptanceSettings>
+            </MonteCarloRetest>
+          </CrossChecks>
+          <PartsToImprove>
+            <EntryRules><LongImprovement use="true" /><ShortImprovement use="true" /></EntryRules>
+            <OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes>
+            <ExitRules><LongImprovement use="true" /><ShortImprovement use="true" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>true</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>false</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="true" />
+              <EvoRestartOnStagnation status="true" fitnessType="10" generations="30" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="simple">
+            <BuildingBlocks>
+              <Block key="Signals.ADX" category="signals" use="true" probability="1" />
+              <Block key="Indicators.ATR" category="indicators" use="true" probability="1" />
+              <Block key="StopLimitBlocks.ATRStop" category="stopLimitBlocks" use="true" probability="1" />
+            </BuildingBlocks>
+            <OrderTypes><Block key="EnterAtMarket" use="false" /><Block key="EnterReverseAtMarket" use="true" /><Block key="EnterAtStop" use="true" /><Block key="EnterAtLimit" use="true" /></OrderTypes>
+            <ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="false" probability="50" /></ExitTypes>
+            <CustomData showAll="true"><Item /></CustomData>
+          </Blocks>
+          <Rankings type="always">
+            <MaxStrategies>500</MaxStrategies>
+            <ConditionsType>1</ConditionsType>
+            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <ForceRunCrossChecks>true</ForceRunCrossChecks>
+            <FitPortfolio active="true" databank="Existing portfolio" />
+            <CustomAnalysis filter="true" inputArgs="" method="none" />
+            <Conditions><Condition use="true"><Left-Side><Column-Value column="NetProfit" /></Left-Side><Comparator value="&gt;=" /><Right-Side><Numeric-Value value="1" /></Right-Side></Condition></Conditions>
+          </Rankings>
+          <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement></RiskMoneyManagement>
+          <ATMs enable="true" />
+          <Notes>ok</Notes>
+          <SelectedStrategies><Strategy id="legacy" /></SelectedStrategies>
+        </Settings>
+        """
+    )
+
+    apply_monkey_crosschecks_to_root(root)
+    apply_monkey_passive_generation_to_root(root, source_root=root)
+    actions = apply_monkey_static_tabs_to_root(root)
+
+    assert any(item["field"] == "Rankings/FitPortfolio" and item["changed"] for item in actions)
+    assert enforce_monkey_static_tabs_guard(root) == []
+    assert root.find(".//CrossChecks/MonteCarloRetest").get("use") == "true"
+    assert root.find(".//CrossChecks/MonteCarloRetest/Settings/Methods/Method[@type='RealMonkeyTest']").get("use") == "true"
+    assert root.find(".//Rankings").get("type") == "never"
+    assert root.find(".//Rankings/DeleteFailedStrategies").text == "false"
+    assert root.find(".//Rankings/ForceRunCrossChecks").text == "false"
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
+    assert root.find(".//ATMs").get("enable") == "false"
+    assert root.find(".//SelectedStrategies").text is None
+    assert root.find("./Data/Setups/Setup") is not None
+    assert root.find("./CustomData/Setups/Setup/MainTestValues").get("symbol") == "true"
+
+
+def test_monkey_static_tabs_guard_rejects_portfolio_filters_and_customdata_drift():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_monkey_data_gate_fixture()}
+          <CrossChecks use="true" evaluateAll="true">
+            <MonteCarloRetest use="true">
+              <Settings>
+                <NumberOfSimulations>200</NumberOfSimulations>
+                <MCUseFullSample>true</MCUseFullSample>
+                <MCBacktestPrecision>-1</MCBacktestPrecision>
+                <Methods><Method type="RealMonkeyTest" use="true"><Params><Param key="MaxChange" type="Integer">90</Param></Params></Method></Methods>
+              </Settings>
+            </MonteCarloRetest>
+          </CrossChecks>
+          <PartsToImprove improveATM="false">
+            <EntryRules symmetry="false"><LongImprovement use="false" action="replace" /><ShortImprovement use="false" action="replace" /></EntryRules>
+            <OrderTypes><LongImprovement use="false" /><ShortImprovement use="false" /></OrderTypes>
+            <ExitRules symmetry="false"><LongImprovement use="false" action="replace" /><ShortImprovement use="false" action="replace" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Sequential" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>false</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>false</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>false</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="false" />
+              <EvoRestartOnStagnation status="false" fitnessType="10" generations="30" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="simple" version="142.2336">
+            <BuildingBlocks><Block key="Indicators.ATR" category="indicators" use="true" probability="1" /></BuildingBlocks>
+            <OrderTypes><Block key="EnterAtMarket" use="true" /><Block key="EnterReverseAtMarket" use="false" /><Block key="EnterAtStop" use="false" /><Block key="EnterAtLimit" use="false" /></OrderTypes>
+            <ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="true" probability="100" /></ExitTypes>
+            <CustomData showAll="false" />
+          </Blocks>
+          <Rankings type="always">
+            <MaxStrategies>500</MaxStrategies>
+            <ConditionsType>1</ConditionsType>
+            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <ForceRunCrossChecks>true</ForceRunCrossChecks>
+            <FitPortfolio active="true" databank="Existing portfolio" />
+            <CustomAnalysis filter="true" inputArgs="" method="none" />
+            <Conditions><Condition use="true"><Left-Side><Column-Value column="NetProfit" format="Decimal2" sampleType="127" /></Left-Side><Comparator value="&gt;=" /><Right-Side><Numeric-Value value="1" /></Right-Side></Condition></Conditions>
+          </Rankings>
+          <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement></RiskMoneyManagement>
+          <ATMs enable="true" />
+          <SelectedStrategies>legacy</SelectedStrategies>
+        </Settings>
+        """
+    )
+    apply_monkey_crosschecks_to_root(root)
+    setup = root.find("./CustomData/Setups/Setup")
+    setup.set("testPrecision", "1")
+    setup.find("Chart").set("symbol", "USDJPY_darwinex")
+    setup.find("MainTestValues").set("symbol", "false")
+
+    issues = enforce_monkey_static_tabs_guard(root)
+
+    assert any("Rankings type" in issue for issue in issues)
+    assert any("FitPortfolio" in issue for issue in issues)
+    assert any("extra conditions" in issue for issue in issues)
+    assert any("RiskMoneyManagement FixedSize" in issue for issue in issues)
+    assert any("ATMs enable" in issue for issue in issues)
+    assert any("SelectedStrategies" in issue for issue in issues)
+    assert any("CustomData testPrecision" in issue for issue in issues)
+    assert any("CustomData MainTestValues" in issue for issue in issues)
+    assert any("Forbidden donor token" in issue for issue in issues)
 
 
 def test_sequential_data_databanks_resources_options_keeps_dual_carrier_synced():

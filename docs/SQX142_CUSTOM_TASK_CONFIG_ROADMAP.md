@@ -1283,6 +1283,41 @@ Siguiente bloque exacto: `phase9_monkey_test_static_tabs`, para cerrar Rankings,
 ATMs, RiskMoneyManagement, Notes, SelectedStrategies y CustomData de Monkey sin
 activar ejecucion ni mutar logica de estrategia.
 
+Decision aplicada para `phase9_monkey_test_static_tabs`:
+
+- Se anade `monkey-static-tabs-target` con dry-run-first, backup/diff/apply y
+  guard compuesto sobre Data, CrossChecks y generacion pasiva de Monkey.
+- `AutomaticRetest-Task6.xml` conserva `MonteCarloRetest`/`RealMonkeyTest`
+  como unico ejecutor de robustez; este bloque no lanza SQX ni cambia filtros
+  de aceptacion Monkey.
+- `Rankings` queda inerte: `type=never`, `MaxStrategies=10000`,
+  `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false`,
+  `FitPortfolio.active=false`, `CustomAnalysis.filter=false` y sin condiciones
+  adicionales. El passed/failed lo decide `RealMonkeyTest`, no Ranking.
+- `RiskMoneyManagement` queda comparable: `FixedSize=true` y el resto de
+  metodos de sizing en `false`.
+- `ATMs` queda `enable=false`; `Notes` se audita y preserva por hash.
+- `SelectedStrategies` queda vacio o ausente, aceptado como vacio para retests
+  automaticos de SQX.
+- `CustomData` queda como portador dual sincronizado con `Data`:
+  `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, seed generico
+  `AUDCAD_darwinex/H1`, commission `0.0` y `MainTestValues` con
+  `subcharts=false` y simbolo/timeframe/spread/dates/precision activos.
+- Dry-run posterior queda idempotente: `changed=false`,
+  `changedActionCount=0` y `guardOk=true`.
+- Ledger local respondido para `Monkey Test > Rankings` (`23/23`),
+  `Monkey Test > ATMs` (`9/9`), `Monkey Test > RiskMoneyManagement` (`25/25`),
+  `Monkey Test > Notes` (`1/1`), `Monkey Test > SelectedStrategies` (`0/0`) y
+  `Monkey Test > CustomData` (`6/6`).
+
+Reportes locales:
+`.local/sqx142_task_config/diffs/phase9_monkey_test_static_tabs_target_20260524_105703.json`.
+`.local/sqx142_task_config/phase_reports/phase9_monkey_test_static_tabs_20260524_105942.json`.
+
+Siguiente bloque exacto: `phase9_monkey_test_closeout`, para cerrar formalmente
+Monkey Test con todos sus guards previos y dejar preparado el salto posterior a
+Synthetic/Syntetic.
+
 ## Disciplina Operativa
 
 En cada fase:
