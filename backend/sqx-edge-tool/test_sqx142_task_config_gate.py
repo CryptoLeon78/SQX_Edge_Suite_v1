@@ -13,6 +13,7 @@ from tools.sqx142_task_config_gate import (
     apply_sequential_data_databanks_resources_options_to_root,
     apply_sequential_crosschecks_to_root,
     apply_sequential_passive_generation_to_root,
+    apply_sequential_static_tabs_to_root,
     apply_retest1_passive_generation_to_root,
     apply_retest1_data_resources_to_root,
     apply_retest1_options_databanks_rankings_to_root,
@@ -36,6 +37,7 @@ from tools.sqx142_task_config_gate import (
     enforce_sequential_data_databanks_resources_options_guard,
     enforce_sequential_crosschecks_guard,
     enforce_sequential_passive_generation_guard,
+    enforce_sequential_static_tabs_guard,
     enforce_tick_real_data_databanks_resources_guard,
     enforce_tick_real_options_rankings_guard,
     enforce_tick_real_passive_generation_guard,
@@ -1989,6 +1991,13 @@ def _sequential_crosschecks_gate_fixture() -> str:
     """
 
 
+def _sequential_crosschecks_only_fixture() -> str:
+    return _sequential_crosschecks_gate_fixture().replace(
+        '      <Rankings><ForceRunCrossChecks>false</ForceRunCrossChecks></Rankings>',
+        "",
+    )
+
+
 def test_sequential_crosschecks_enforces_stability_gate_without_rewriting_strategy():
     root = ET.fromstring(
         f"""
@@ -2079,7 +2088,7 @@ def test_sequential_passive_generation_points_to_mc2_and_preserves_indicator_uni
         f"""
         <Settings>
           {_sequential_data_gate_fixture()}
-          {_sequential_crosschecks_gate_fixture()}
+          {_sequential_crosschecks_only_fixture()}
           <PartsToImprove improveATM="true">
             <EntryRules symmetry="true"><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></EntryRules>
             <OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes>
@@ -2129,7 +2138,7 @@ def test_sequential_passive_generation_guard_rejects_placeholder_generation_and_
         f"""
         <Settings>
           {_sequential_data_gate_fixture()}
-          {_sequential_crosschecks_gate_fixture()}
+          {_sequential_crosschecks_only_fixture()}
           <PartsToImprove improveATM="true">
             <EntryRules><LongImprovement use="true" /><ShortImprovement use="false" /></EntryRules>
             <OrderTypes><LongImprovement use="false" /><ShortImprovement use="false" /></OrderTypes>
@@ -2171,3 +2180,127 @@ def test_sequential_passive_generation_guard_rejects_placeholder_generation_and_
     assert any("stop/limit" in issue for issue in issues)
     assert any("CustomData" in issue for issue in issues)
     assert any("Strategies to improve" in issue for issue in issues)
+
+
+def test_sequential_static_tabs_closes_rankings_risk_and_customdata_without_turning_off_sequential_optimization():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_sequential_data_gate_fixture()}
+          {_sequential_crosschecks_only_fixture()}
+          <PartsToImprove improveATM="true">
+            <EntryRules symmetry="true"><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></EntryRules>
+            <OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes>
+            <ExitRules symmetry="true"><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>true</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>false</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="true" />
+              <EvoRestartOnStagnation status="true" fitnessType="10" generations="30" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="simple">
+            <BuildingBlocks>
+              <Block key="Signals.ADX" category="signals" use="true" probability="1" />
+              <Block key="Indicators.ATR" category="indicators" use="true" probability="1" />
+              <Block key="StopLimitBlocks.ATRStop" category="stopLimitBlocks" use="true" probability="1" />
+            </BuildingBlocks>
+            <OrderTypes><Block key="EnterAtMarket" use="false" /><Block key="EnterReverseAtMarket" use="true" /><Block key="EnterAtStop" use="true" /><Block key="EnterAtLimit" use="true" /></OrderTypes>
+            <ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="false" probability="50" /></ExitTypes>
+            <CustomData showAll="true"><Item /></CustomData>
+          </Blocks>
+          <Rankings type="always">
+            <MaxStrategies>500</MaxStrategies>
+            <ConditionsType>1</ConditionsType>
+            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <ForceRunCrossChecks>true</ForceRunCrossChecks>
+            <FitPortfolio active="true" databank="Existing portfolio" />
+            <CustomAnalysis filter="true" inputArgs="" method="none" />
+            <Conditions><Condition use="true"><Left-Side><Column-Value column="NetProfit" /></Left-Side><Comparator value="&gt;=" /><Right-Side><Numeric-Value value="1" /></Right-Side></Condition></Conditions>
+          </Rankings>
+          <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement></RiskMoneyManagement>
+          <ATMs enable="true" />
+          <Notes>ok</Notes>
+          <SelectedStrategies><Strategy id="legacy" /></SelectedStrategies>
+        </Settings>
+        """
+    )
+
+    apply_sequential_passive_generation_to_root(root, source_root=root)
+    actions = apply_sequential_static_tabs_to_root(root)
+
+    assert any(item["field"] == "Rankings/FitPortfolio" and item["changed"] for item in actions)
+    assert enforce_sequential_static_tabs_guard(root) == []
+    assert root.find(".//CrossChecks/SequentialOptimization").get("use") == "true"
+    assert root.find(".//Rankings").get("type") == "never"
+    assert root.find(".//Rankings/DeleteFailedStrategies").text == "false"
+    assert root.find(".//Rankings/ForceRunCrossChecks").text == "false"
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
+    assert root.find(".//ATMs").get("enable") == "false"
+    assert root.find(".//SelectedStrategies").text is None
+    assert root.find("./Data/Setups/Setup") is not None
+    assert root.find("./CustomData/Setups/Setup/MainTestValues").get("subcharts") == "false"
+
+
+def test_sequential_static_tabs_guard_rejects_portfolio_filters_and_customdata_drift():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_sequential_data_gate_fixture()}
+          {_sequential_crosschecks_only_fixture()}
+          <PartsToImprove improveATM="false">
+            <EntryRules symmetry="false"><LongImprovement use="false" action="replace" /><ShortImprovement use="false" action="replace" /></EntryRules>
+            <OrderTypes><LongImprovement use="false" /><ShortImprovement use="false" /></OrderTypes>
+            <ExitRules symmetry="false"><LongImprovement use="false" action="replace" /><ShortImprovement use="false" action="replace" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="MC2" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>false</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>false</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>false</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="false" />
+              <EvoRestartOnStagnation status="false" fitnessType="10" generations="30" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="simple" version="142.2336">
+            <BuildingBlocks><Block key="Indicators.ATR" category="indicators" use="true" probability="1" /></BuildingBlocks>
+            <OrderTypes><Block key="EnterAtMarket" use="true" /><Block key="EnterReverseAtMarket" use="false" /><Block key="EnterAtStop" use="false" /><Block key="EnterAtLimit" use="false" /></OrderTypes>
+            <ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="true" probability="100" /></ExitTypes>
+            <CustomData showAll="false" />
+          </Blocks>
+          <Rankings type="always">
+            <MaxStrategies>500</MaxStrategies>
+            <ConditionsType>1</ConditionsType>
+            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <ForceRunCrossChecks>true</ForceRunCrossChecks>
+            <FitPortfolio active="true" databank="Existing portfolio" />
+            <CustomAnalysis filter="true" inputArgs="" method="none" />
+            <Conditions><Condition use="true"><Left-Side><Column-Value column="NetProfit" format="Decimal2" sampleType="127" /></Left-Side><Comparator value="&gt;=" /><Right-Side><Numeric-Value value="1" /></Right-Side></Condition></Conditions>
+          </Rankings>
+          <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement></RiskMoneyManagement>
+          <ATMs enable="true" />
+          <SelectedStrategies>legacy</SelectedStrategies>
+        </Settings>
+        """
+    )
+    setup = root.find("./CustomData/Setups/Setup")
+    setup.set("testPrecision", "1")
+    setup.find("Chart").set("symbol", "USDJPY_darwinex")
+    setup.find("MainTestValues").set("symbol", "false")
+
+    issues = enforce_sequential_static_tabs_guard(root)
+
+    assert any("Rankings type" in issue for issue in issues)
+    assert any("FitPortfolio" in issue for issue in issues)
+    assert any("extra conditions" in issue for issue in issues)
+    assert any("RiskMoneyManagement FixedSize" in issue for issue in issues)
+    assert any("ATMs enable" in issue for issue in issues)
+    assert any("SelectedStrategies" in issue for issue in issues)
+    assert any("CustomData testPrecision" in issue for issue in issues)
+    assert any("CustomData MainTestValues" in issue for issue in issues)
+    assert any("Forbidden donor token" in issue for issue in issues)

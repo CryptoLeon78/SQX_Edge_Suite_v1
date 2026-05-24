@@ -10,14 +10,17 @@ Antes de cerrar TICK y abrir MC, `sqx-academic-lopez` queda disponible como
 consulta academica local-only para OOS, MC, data snooping y backtest
 overfitting.
 Fase 8 queda con `Sequential > Data / Databanks / Resources / Options`,
-`Sequential > CrossChecks` y `Sequential > Passive Generation` cerrados:
-`Input=MC2`, `Output=Sequential`, portador dual `Data+CustomData` sincronizado
-para SQX142, Options inertes, solo `SequentialOptimization` activo,
-`ApplyToStrategy=false`, aceptacion `80/5/25`, metodos ocultos de crosschecks
-inactivos apagados, `StrategyType.improveDatabank=MC2`, `PartsToImprove`
-pasivo, evolution restarts apagados, no Signals, no Stop/Limit entry blocks,
-Indicators preservados y solo `EnterAtMarket` + `ExitAfterBars` probability
-`100`. Siguiente bloque exacto `phase8_sequential_static_tabs`.
+`Sequential > CrossChecks`, `Sequential > Passive Generation` y
+`Sequential > Static Tabs` cerrados: `Input=MC2`, `Output=Sequential`,
+portador dual `Data+CustomData` sincronizado para SQX142, Options inertes,
+solo `SequentialOptimization` activo, `ApplyToStrategy=false`, aceptacion
+`80/5/25`, metodos ocultos de crosschecks inactivos apagados,
+`StrategyType.improveDatabank=MC2`, `PartsToImprove` pasivo, evolution restarts
+apagados, no Signals, no Stop/Limit entry blocks, Indicators preservados, solo
+`EnterAtMarket` + `ExitAfterBars` probability `100`, Rankings inert,
+`FitPortfolio=false`, `CustomAnalysis.filter=false`, ATMs disabled, FixedSize
+active y `SelectedStrategies` empty. Siguiente bloque exacto
+`phase8_sequential_closeout`.
 La mini fase `SQX142-BRANDING1` queda cerrada antes de `RETEST 0`: cambia solo
 la capa visual local de SQX a `Build: 142.2336 Codex`, oculta en About las
 lineas privadas de licencia/identidad y muestra la trazabilidad
@@ -134,6 +137,8 @@ tools\sqx142_task_config_gate.ps1 sequential-crosschecks-target --target both
 tools\sqx142_task_config_gate.ps1 sequential-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 sequential-passive-generation-target --target both
 tools\sqx142_task_config_gate.ps1 sequential-passive-generation-target --target both --apply
+tools\sqx142_task_config_gate.ps1 sequential-static-tabs-target --target both
+tools\sqx142_task_config_gate.ps1 sequential-static-tabs-target --target both --apply
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
 
@@ -1081,9 +1086,40 @@ Reportes locales:
 `.local/sqx142_task_config/diffs/phase8_sequential_passive_generation_target_20260524_081914.json`.
 `.local/sqx142_task_config/phase_reports/phase8_sequential_passive_generation_20260524_081943.json`.
 
-Siguiente bloque exacto: `phase8_sequential_static_tabs`, para cerrar
+Bloque posterior cerrado: `phase8_sequential_static_tabs`, para cerrar
 Rankings / ATMs / RiskMoneyManagement / Notes / SelectedStrategies /
 CustomData de `Sequential`.
+
+Decision aplicada para `phase8_sequential_static_tabs`:
+
+- Se anade `sequential-static-tabs-target` con dry-run-first, backup/diff/apply
+  sobre base local y template repo.
+- `Sequential` conserva `SequentialOptimization` activo; no se apaga el
+  crosscheck real de estabilidad desde esta fase.
+- `Rankings` queda inert: `type=never`, `DeleteFailedStrategies=false`,
+  `ForceRunCrossChecks=false`, `FitPortfolio=false`,
+  `CustomAnalysis.filter=false` y sin condiciones de ranking. El pass/fail
+  natural lo gobierna `SequentialOptimization`, no la pestaña Ranking.
+- `RiskMoneyManagement` conserva `FixedSize` como unico metodo activo para
+  mantener evidencia comparable de Capa1.
+- `ATMs` queda disabled, `Notes` preservado y `SelectedStrategies`
+  empty/missing accepted porque Sequential consume el databank `MC2`.
+- `CustomData` queda como partner dual sincronizado de `Data`: no se elimina
+  `Data`, se conserva `subcharts=false`, `Commission=0.0`, `No Session`,
+  `testPrecision=2` y no se arrastran tokens donor.
+- El dry-run posterior queda idempotente en base local y repo template:
+  `changed=false`, `changedActionCount=0`, `guardOk=true`.
+- Ledger local respondido para `Sequential > Rankings` (`22/22`),
+  `Sequential > ATMs` (`9/9`), `Sequential > RiskMoneyManagement` (`25/25`),
+  `Sequential > Notes` (`1/1`), `Sequential > SelectedStrategies` (`0/0`)
+  y `Sequential > CustomData` (`6/6`).
+
+Reportes locales:
+`.local/sqx142_task_config/diffs/phase8_sequential_static_tabs_target_20260524_084048.json`.
+`.local/sqx142_task_config/phase_reports/phase8_sequential_static_tabs_20260524_084121.json`.
+
+Siguiente bloque exacto: `phase8_sequential_closeout`, para cerrar formalmente
+Fase 8 antes de saltar a `Monkey Test`.
 
 ## Disciplina Operativa
 

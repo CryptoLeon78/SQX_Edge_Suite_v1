@@ -567,6 +567,7 @@ SEQUENTIAL_NEXT_PHASE = "phase8_sequential_data_databanks_resources_options"
 SEQUENTIAL_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT = "phase8_sequential_crosschecks"
 SEQUENTIAL_CROSSCHECKS_NEXT = "phase8_sequential_passive_generation"
 SEQUENTIAL_PASSIVE_GENERATION_NEXT = "phase8_sequential_static_tabs"
+SEQUENTIAL_STATIC_TABS_NEXT = "phase8_sequential_closeout"
 SEQUENTIAL_PASSIVE_SOURCE_TASK_TITLE = MC2_TASK_TITLE
 SEQUENTIAL_STRATEGY_TYPE_TARGET = {
     "type": "simple",
@@ -579,6 +580,8 @@ SEQUENTIAL_STRATEGY_TYPE_TARGET = {
 }
 SEQUENTIAL_PASSIVE_BUILDMODE_TEXT_TARGET = MC2_PASSIVE_BUILDMODE_TEXT_TARGET
 SEQUENTIAL_PASSIVE_BUILDMODE_ATTR_TARGET = MC2_PASSIVE_BUILDMODE_ATTR_TARGET
+SEQUENTIAL_STATIC_TABS = MC_STATIC_TABS
+SEQUENTIAL_RANKING_TARGET = MC_RANKING_TARGET
 SEQUENTIAL_CROSSCHECK_PARENT_TARGET = {"use": "true", "evaluateAll": "true"}
 SEQUENTIAL_PARAMETER_SETTINGS_TARGET = {
     "DistributionUp": "130",
@@ -5470,7 +5473,12 @@ def set_attrs_on_node(node: ET.Element, attrs: dict[str, str], actions: list[dic
     actions.append({"field": field, "from": before, "to": after, "changed": before != after})
 
 
-def clear_ranking_conditions(rankings: ET.Element, actions: list[dict[str, Any]], field: str) -> None:
+def clear_ranking_conditions(
+    rankings: ET.Element,
+    actions: list[dict[str, Any]],
+    field: str,
+    note: str = "MC pass/fail is owned by CrossChecks acceptance conditions",
+) -> None:
     conditions = rankings.find("Conditions")
     if conditions is None:
         actions.append({
@@ -5478,7 +5486,7 @@ def clear_ranking_conditions(rankings: ET.Element, actions: list[dict[str, Any]]
             "from": [],
             "to": [],
             "changed": False,
-            "note": "MC pass/fail is owned by CrossChecks acceptance conditions",
+            "note": note,
         })
         return
     before = summarize_conditions_detailed(conditions)
@@ -5490,7 +5498,7 @@ def clear_ranking_conditions(rankings: ET.Element, actions: list[dict[str, Any]]
         "from": before,
         "to": after,
         "changed": before != after,
-        "note": "MC pass/fail is owned by CrossChecks acceptance conditions",
+        "note": note,
     })
 
 
@@ -5506,7 +5514,11 @@ def main_chart_seed(root: ET.Element) -> dict[str, str]:
     }
 
 
-def apply_mc_rankings_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+def apply_mc_rankings_to_root(
+    root: ET.Element,
+    actions: list[dict[str, Any]],
+    conditions_note: str = "MC pass/fail is owned by CrossChecks acceptance conditions",
+) -> None:
     rankings = find_section(root, "Rankings")
     if rankings is None:
         rankings = ET.SubElement(root, "Rankings", {"type": "never"})
@@ -5534,7 +5546,15 @@ def apply_mc_rankings_to_root(root: ET.Element, actions: list[dict[str, Any]]) -
     set_or_update_attrs_child(rankings, "StopCondition", MC_RANKING_TARGET["StopCondition"], actions, "Rankings/StopCondition")
     set_or_update_attrs_child(rankings, "FitPortfolio", MC_RANKING_TARGET["FitPortfolio"], actions, "Rankings/FitPortfolio")
     set_or_update_attrs_child(rankings, "CustomAnalysis", MC_RANKING_TARGET["CustomAnalysis"], actions, "Rankings/CustomAnalysis")
-    clear_ranking_conditions(rankings, actions, "Rankings/Conditions")
+    clear_ranking_conditions(rankings, actions, "Rankings/Conditions", note=conditions_note)
+
+
+def apply_sequential_rankings_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    apply_mc_rankings_to_root(
+        root,
+        actions,
+        conditions_note="Sequential pass/fail is owned by SequentialOptimization acceptance settings",
+    )
 
 
 def apply_mc_atms_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
@@ -8568,6 +8588,194 @@ def promote_sequential_passive_generation_target(root142: Path, project_root: Pa
     return payload
 
 
+def apply_sequential_custom_data_static_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    apply_sequential_setup_to_root(root, "CustomData", SEQUENTIAL_CUSTOM_DATA_ENGINE, actions)
+
+
+def apply_sequential_static_tabs_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    apply_sequential_rankings_to_root(root, actions)
+    apply_retest1_risk_money_management_to_root(root, actions)
+    apply_mc_atms_to_root(root, actions)
+    actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    apply_mc_selected_strategies_to_root(root, actions)
+    apply_sequential_custom_data_static_to_root(root, actions)
+    return actions
+
+
+def sequential_static_tabs_summary(root: ET.Element) -> dict[str, Any]:
+    summary = mc_static_tabs_summary(root)
+    custom = find_section(root, "CustomData")
+    setup = custom.find(".//Setup") if custom is not None else None
+    size_based = setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']") if setup is not None else None
+    main_values = setup.find("MainTestValues") if setup is not None else None
+    if "customData" in summary:
+        summary["customData"]["commission"] = (size_based.text or "") if size_based is not None else ""
+        summary["customData"]["mainTestValues"] = dict(main_values.attrib) if main_values is not None else {}
+    return summary
+
+
+def enforce_sequential_static_tabs_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = sequential_static_tabs_summary(root)
+    ranking = summary.get("rankings") or {}
+    if ranking.get("type") != "never":
+        issues.append(f"Sequential Rankings type is {ranking.get('type')!r}, expected 'never'")
+    for key in ("MaxStrategies", "ConditionsType", "DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if ranking.get(key) != SEQUENTIAL_RANKING_TARGET[key]:
+            issues.append(f"Sequential Rankings {key} is {ranking.get(key)!r}, expected {SEQUENTIAL_RANKING_TARGET[key]!r}")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append("Sequential FitPortfolio must remain disabled; portfolio selection belongs to later portfolio phases")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append("Sequential CustomAnalysis filter must remain disabled")
+    if ranking.get("conditions"):
+        issues.append("Sequential Rankings must not add extra conditions; SequentialOptimization owns pass/fail")
+
+    rmm = summary.get("riskMoneyManagement") or {}
+    methods = rmm.get("methods") or {}
+    for method_type, wanted in RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if methods.get(method_type) != wanted:
+            issues.append(f"Sequential RiskMoneyManagement {method_type} is {methods.get(method_type)!r}, expected {wanted!r}")
+
+    atms = summary.get("atms") or {}
+    for key, wanted in RETEST1_ATMS_TARGET.items():
+        if (atms.get("attrs") or {}).get(key) != wanted:
+            issues.append(f"Sequential ATMs {key} is {(atms.get('attrs') or {}).get(key)!r}, expected {wanted!r}")
+
+    selected = summary.get("selectedStrategies") or {}
+    if selected.get("children") != 0 or selected.get("text"):
+        issues.append("Sequential SelectedStrategies must remain empty in the base template")
+
+    custom = summary.get("customData") or {}
+    if not custom.get("exists"):
+        issues.append("Sequential CustomData section missing")
+    else:
+        period = generator_period(SEQUENTIAL_PERIOD_KEY)
+        setup = custom.get("setup") or {}
+        chart = custom.get("chart") or {}
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"Sequential CustomData dates are {(setup.get('dateFrom'), setup.get('dateTo'))!r}, expected {period!r}")
+        if setup.get("testPrecision") != SEQUENTIAL_DATA_TEST_PRECISION:
+            issues.append(f"Sequential CustomData testPrecision is {setup.get('testPrecision')!r}, expected {SEQUENTIAL_DATA_TEST_PRECISION!r}")
+        if setup.get("session") != SEQUENTIAL_DATA_SESSION:
+            issues.append(f"Sequential CustomData session is {setup.get('session')!r}, expected {SEQUENTIAL_DATA_SESSION!r}")
+        if chart != SEQUENTIAL_DEFAULT_CHART_TARGET:
+            issues.append(f"Sequential CustomData chart seed is {chart!r}, expected {SEQUENTIAL_DEFAULT_CHART_TARGET!r}")
+        if custom.get("commission") != MC_CUSTOM_DATA_COMMISSION_TARGET:
+            issues.append(f"Sequential CustomData commission is {custom.get('commission')!r}, expected {MC_CUSTOM_DATA_COMMISSION_TARGET!r}")
+        if custom.get("mainTestValues") != SEQUENTIAL_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+            issues.append("Sequential CustomData MainTestValues drifted from Sequential dual-carrier target")
+
+    guarded_text = (
+        section_text(root, "Rankings")
+        + section_text(root, "ATMs")
+        + section_text(root, "RiskMoneyManagement")
+        + section_text(root, "SelectedStrategies")
+        + section_text(root, "CustomData")
+    )
+    for token in MC_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into Sequential static tabs: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into Sequential static tabs")
+
+    for issue in enforce_sequential_passive_generation_guard(root):
+        issues.append(f"Passive generation guard: {issue}")
+    return issues
+
+
+def update_sequential_static_tabs_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, SEQUENTIAL_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "sequential_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = sequential_static_tabs_summary(root)
+    payload["actions"] = apply_sequential_static_tabs_to_root(root)
+    payload["after"] = sequential_static_tabs_summary(root)
+    payload["issues"] = enforce_sequential_static_tabs_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "rankings": SEQUENTIAL_RANKING_TARGET,
+        "rankingConditions": [],
+        "riskMoneyManagementMethods": RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET,
+        "atms": RETEST1_ATMS_TARGET,
+        "staticTabs": SEQUENTIAL_STATIC_TABS,
+        "customDataMainTestValues": SEQUENTIAL_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+        "customDataCommission": MC_CUSTOM_DATA_COMMISSION_TARGET,
+        "customDataCarrier": "dual_synced",
+    }
+    payload["targetRationale"] = {
+        "decision": "Sequential static tabs close the last inert surfaces before phase closeout while keeping SequentialOptimization as the only active robustness decision.",
+        "ranking": "Sequential pass/fail is owned by SequentialOptimization; Ranking must preserve failed rows and not run portfolio selection.",
+        "riskMoneyManagement": "FixedSize keeps Capa1 retests comparable and avoids sizing noise.",
+        "customData": "Sequential keeps SQX142-compatible Data+CustomData dual carrier synchronized; this block only hardens the CustomData tab without deleting Data.",
+        "staticTabs": "ATMs, Notes and SelectedStrategies stay inert while executable behavior is guarded by previous Sequential blocks.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_sequential_static_tabs_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase8_sequential_static_tabs_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_sequential_static_tabs_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase8",
+        "operation": "sequential_static_tabs_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase8_sequential_static_tabs_diff_review" if not apply else SEQUENTIAL_STATIC_TABS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase8_sequential_static_tabs_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -9841,6 +10049,10 @@ def build_parser() -> argparse.ArgumentParser:
     sequential_passive.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     sequential_passive.add_argument("--apply", action="store_true")
 
+    sequential_static = sub.add_parser("sequential-static-tabs-target")
+    sequential_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    sequential_static.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -9990,6 +10202,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "sequential-passive-generation-target":
         json_print(promote_sequential_passive_generation_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "sequential-static-tabs-target":
+        json_print(promote_sequential_static_tabs_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

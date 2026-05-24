@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Sequential Static Tabs
+
+- Adds `sequential-static-tabs-target` with dry-run-first backup/diff/apply over local base and repo template.
+- Closes Sequential inert tabs without disabling `SequentialOptimization`: Rankings stay `type=never`, `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false`, `FitPortfolio=false`, `CustomAnalysis.filter=false` and no ranking conditions.
+- Keeps `FixedSize` as the active money-management method, ATMs disabled, Notes preserved and SelectedStrategies empty/missing accepted.
+- Hardens Sequential `CustomData` as the SQX142 dual carrier partner to Data, preserving `subcharts=false`, `Commission=0.0` and no donor tokens.
+- Records local answers for `Sequential > Rankings` (`22/22`), `ATMs` (`9/9`), `RiskMoneyManagement` (`25/25`), `Notes` (`1/1`), `SelectedStrategies` (`0/0`) and `CustomData` (`6/6`), plus report `phase8_sequential_static_tabs_20260524_084121.json`; next exact block is `phase8_sequential_closeout`.
+
 ## 2026-05-24 - C1-CONFIG1 Sequential Passive Generation
 
 - Adds `sequential-passive-generation-target` with dry-run-first backup/diff/apply over local base and repo template.

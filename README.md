@@ -152,10 +152,12 @@ tools\sqx142_task_config_gate.ps1 sequential-crosschecks-target --target both
 tools\sqx142_task_config_gate.ps1 sequential-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 sequential-passive-generation-target --target both
 tools\sqx142_task_config_gate.ps1 sequential-passive-generation-target --target both --apply
+tools\sqx142_task_config_gate.ps1 sequential-static-tabs-target --target both
+tools\sqx142_task_config_gate.ps1 sequential-static-tabs-target --target both --apply
 ```
 
 Fase 1 ya promociona solo las views allowlisted de databanks hacia base local y template repo. Fase 2 genera cuestionarios Build completos: todas las entradas detectadas se guardan por defecto, incluidas rutas XML repetidas con indice estable. Las respuestas completas viven en `.local/sqx142_task_config/`; los docs solo reciben resumen limpio al cerrar fase.
-Fase 8 ya cerro `Sequential > Data / Databanks / Resources / Options`, `Sequential > CrossChecks` y `Sequential > Passive Generation`: `Input=MC2`, `Output=Sequential`, portador dual `Data+CustomData`, Options inertes, Project Generator sin ventana horaria para `AutomaticRetest-Task3.xml`, solo `SequentialOptimization` activo, `ApplyToStrategy=false`, aceptacion `80/5/25`, placeholder `Strategies to improve` normalizado a `MC2`, `PartsToImprove` pasivo, evolution restarts apagados, no Signals, no Stop/Limit entry blocks, Indicators preservados y solo `EnterAtMarket` + `ExitAfterBars` probability `100`. Siguiente bloque exacto: `phase8_sequential_static_tabs`.
+Fase 8 ya cerro `Sequential > Data / Databanks / Resources / Options`, `Sequential > CrossChecks`, `Sequential > Passive Generation` y `Sequential > Static Tabs`: `Input=MC2`, `Output=Sequential`, portador dual `Data+CustomData`, Options inertes, Project Generator sin ventana horaria para `AutomaticRetest-Task3.xml`, solo `SequentialOptimization` activo, `ApplyToStrategy=false`, aceptacion `80/5/25`, placeholder `Strategies to improve` normalizado a `MC2`, `PartsToImprove` pasivo, evolution restarts apagados, no Signals, no Stop/Limit entry blocks, Indicators preservados, solo `EnterAtMarket` + `ExitAfterBars` probability `100`, Rankings inert, `FitPortfolio=false`, `CustomAnalysis.filter=false`, ATMs disabled, FixedSize active y `SelectedStrategies` empty. Siguiente bloque exacto: `phase8_sequential_closeout`.
 
 ## SQX Edge Pro
 
