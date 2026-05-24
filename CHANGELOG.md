@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Synthetic Static Tabs
+
+- Adds `synthetic-static-tabs-target` with dry-run/apply support, guards and tests for `AutomaticRetest-Task5.xml`.
+- Closes inert Synthetic/Syntetic surfaces without touching `SyntheticBootstrapV3`: `Rankings type=never`, `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false`, no ranking conditions, `FitPortfolio.active=false` and `CustomAnalysis.filter=false/method=none`.
+- Keeps `FixedSize` active, ATMs disabled, Notes preserved, `SelectedStrategies` empty/absent accepted and `CustomData` dual synced with Data (`ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, commission `0.0`, aligned `MainTestValues`).
+- Records backup `phase10_synthetic_static_tabs_20260524_133242`, apply diff `phase10_synthetic_static_tabs_target_20260524_133244.json`, idempotent dry-run `phase10_synthetic_static_tabs_target_20260524_133254.json`, report `phase10_synthetic_static_tabs_20260524_133337.json`, ledger answers for `Syntetic > Rankings` (`22/22`), `ATMs` (`9/9`), `RiskMoneyManagement` (`25/25`), `Notes` (`1/1`), `SelectedStrategies` (`1/0` empty accepted) and `CustomData` (`6/6`), and next exact block `phase10_synthetic_closeout`.
+
 ## 2026-05-24 - C1-CONFIG1 Synthetic Passive Generation
 
 - Adds `synthetic-passive-generation-target` with dry-run/apply support, guards and tests for `AutomaticRetest-Task5.xml`.

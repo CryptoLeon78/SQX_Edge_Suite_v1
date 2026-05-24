@@ -651,6 +651,9 @@ SYNTHETIC_STRATEGY_TYPE_TARGET = {
 SYNTHETIC_PASSIVE_BUILDMODE_TEXT_TARGET = MC2_PASSIVE_BUILDMODE_TEXT_TARGET
 SYNTHETIC_PASSIVE_BUILDMODE_ATTR_TARGET = MC2_PASSIVE_BUILDMODE_ATTR_TARGET
 SYNTHETIC_PASSIVE_GENERATION_NEXT = "phase10_synthetic_static_tabs"
+SYNTHETIC_STATIC_TABS = MC_STATIC_TABS
+SYNTHETIC_RANKING_TARGET = MC_RANKING_TARGET
+SYNTHETIC_STATIC_TABS_NEXT = "phase10_synthetic_closeout"
 SYNTHETIC_ACCEPTANCE_CONDITIONS_TARGET = [
     {
         "left": {
@@ -11638,6 +11641,202 @@ def promote_synthetic_passive_generation_target(root142: Path, project_root: Pat
     return payload
 
 
+def apply_synthetic_rankings_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    apply_mc_rankings_to_root(
+        root,
+        actions,
+        conditions_note="Synthetic pass/fail is owned by MonteCarloRetest/SyntheticBootstrapV3 acceptance conditions",
+    )
+
+
+def apply_synthetic_custom_data_static_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    apply_synthetic_setup_to_root(root, "CustomData", SYNTHETIC_CUSTOM_DATA_ENGINE, actions)
+
+
+def apply_synthetic_static_tabs_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    apply_synthetic_rankings_to_root(root, actions)
+    apply_retest1_risk_money_management_to_root(root, actions)
+    apply_mc_atms_to_root(root, actions)
+    actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    apply_mc_selected_strategies_to_root(root, actions)
+    apply_synthetic_custom_data_static_to_root(root, actions)
+    return actions
+
+
+def synthetic_static_tabs_summary(root: ET.Element) -> dict[str, Any]:
+    summary = mc_static_tabs_summary(root)
+    custom = find_section(root, "CustomData")
+    setup = custom.find(".//Setup") if custom is not None else None
+    size_based = setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']") if setup is not None else None
+    main_values = setup.find("MainTestValues") if setup is not None else None
+    if "customData" in summary:
+        summary["customData"]["commission"] = (size_based.text or "") if size_based is not None else ""
+        summary["customData"]["mainTestValues"] = dict(main_values.attrib) if main_values is not None else {}
+    return summary
+
+
+def enforce_synthetic_static_tabs_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = synthetic_static_tabs_summary(root)
+    ranking = summary.get("rankings") or {}
+    if ranking.get("type") != "never":
+        issues.append(f"Synthetic/Syntetic Rankings type is {ranking.get('type')!r}, expected 'never'")
+    for key in ("MaxStrategies", "ConditionsType", "DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if ranking.get(key) != SYNTHETIC_RANKING_TARGET[key]:
+            issues.append(f"Synthetic/Syntetic Rankings {key} is {ranking.get(key)!r}, expected {SYNTHETIC_RANKING_TARGET[key]!r}")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append("Synthetic/Syntetic FitPortfolio must remain disabled; portfolio selection belongs to later portfolio phases")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append("Synthetic/Syntetic CustomAnalysis filter must remain disabled")
+    if ranking.get("conditions"):
+        issues.append("Synthetic/Syntetic Rankings must not add extra conditions; SyntheticBootstrapV3 acceptance owns pass/fail")
+
+    rmm = summary.get("riskMoneyManagement") or {}
+    methods = rmm.get("methods") or {}
+    for method_type, wanted in RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if methods.get(method_type) != wanted:
+            issues.append(f"Synthetic/Syntetic RiskMoneyManagement {method_type} is {methods.get(method_type)!r}, expected {wanted!r}")
+
+    atms = summary.get("atms") or {}
+    for key, wanted in RETEST1_ATMS_TARGET.items():
+        if (atms.get("attrs") or {}).get(key) != wanted:
+            issues.append(f"Synthetic/Syntetic ATMs {key} is {(atms.get('attrs') or {}).get(key)!r}, expected {wanted!r}")
+
+    selected = summary.get("selectedStrategies") or {}
+    if selected.get("children") != 0 or selected.get("text"):
+        issues.append("Synthetic/Syntetic SelectedStrategies must remain empty in the base template")
+
+    custom = summary.get("customData") or {}
+    if not custom.get("exists"):
+        issues.append("Synthetic/Syntetic CustomData section missing")
+    else:
+        period = generator_period(SYNTHETIC_PERIOD_KEY)
+        setup = custom.get("setup") or {}
+        chart = custom.get("chart") or {}
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"Synthetic/Syntetic CustomData dates are {(setup.get('dateFrom'), setup.get('dateTo'))!r}, expected {period!r}")
+        if setup.get("testPrecision") != SYNTHETIC_DATA_TEST_PRECISION:
+            issues.append(f"Synthetic/Syntetic CustomData testPrecision is {setup.get('testPrecision')!r}, expected {SYNTHETIC_DATA_TEST_PRECISION!r}")
+        if setup.get("session") != SYNTHETIC_DATA_SESSION:
+            issues.append(f"Synthetic/Syntetic CustomData session is {setup.get('session')!r}, expected {SYNTHETIC_DATA_SESSION!r}")
+        if chart != SYNTHETIC_DEFAULT_CHART_TARGET:
+            issues.append(f"Synthetic/Syntetic CustomData chart seed is {chart!r}, expected {SYNTHETIC_DEFAULT_CHART_TARGET!r}")
+        if custom.get("commission") != MC_CUSTOM_DATA_COMMISSION_TARGET:
+            issues.append(f"Synthetic/Syntetic CustomData commission is {custom.get('commission')!r}, expected {MC_CUSTOM_DATA_COMMISSION_TARGET!r}")
+        if custom.get("mainTestValues") != SYNTHETIC_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+            issues.append("Synthetic/Syntetic CustomData MainTestValues drifted from Synthetic dual-carrier target")
+
+    guarded_text = (
+        section_text(root, "Rankings")
+        + section_text(root, "ATMs")
+        + section_text(root, "RiskMoneyManagement")
+        + section_text(root, "SelectedStrategies")
+        + section_text(root, "CustomData")
+    )
+    for token in MC_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into Synthetic/Syntetic static tabs: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into Synthetic/Syntetic static tabs")
+
+    for issue in enforce_synthetic_passive_generation_guard(root):
+        issues.append(f"Passive generation guard: {issue}")
+    return issues
+
+
+def update_synthetic_static_tabs_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, SYNTHETIC_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "synthetic_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = synthetic_static_tabs_summary(root)
+    payload["actions"] = apply_synthetic_static_tabs_to_root(root)
+    payload["after"] = synthetic_static_tabs_summary(root)
+    payload["issues"] = enforce_synthetic_static_tabs_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "rankings": SYNTHETIC_RANKING_TARGET,
+        "rankingConditions": [],
+        "riskMoneyManagementMethods": RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET,
+        "atms": RETEST1_ATMS_TARGET,
+        "staticTabs": SYNTHETIC_STATIC_TABS,
+        "customDataMainTestValues": SYNTHETIC_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+        "customDataCommission": MC_CUSTOM_DATA_COMMISSION_TARGET,
+        "customDataCarrier": "dual_synced",
+    }
+    payload["targetRationale"] = {
+        "decision": "Synthetic static tabs close the last inert surfaces before phase closeout while keeping SyntheticBootstrapV3 as the only active robustness decision.",
+        "ranking": "Synthetic pass/fail is owned by MonteCarloRetest/SyntheticBootstrapV3 acceptance filters; Ranking must preserve failed rows and not run portfolio selection.",
+        "riskMoneyManagement": "FixedSize keeps Capa1 retests comparable and avoids sizing noise.",
+        "customData": "Synthetic keeps SQX142-compatible Data+CustomData dual carrier synchronized; this block hardens only the CustomData tab without deleting Data.",
+        "staticTabs": "ATMs, Notes and SelectedStrategies stay inert while executable behavior is guarded by previous Synthetic blocks.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_synthetic_static_tabs_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase10_synthetic_static_tabs_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_synthetic_static_tabs_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase10",
+        "operation": "synthetic_static_tabs_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase10_synthetic_static_tabs_diff_review" if not apply else SYNTHETIC_STATIC_TABS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase10_synthetic_static_tabs_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -12959,6 +13158,10 @@ def build_parser() -> argparse.ArgumentParser:
     synthetic_passive.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     synthetic_passive.add_argument("--apply", action="store_true")
 
+    synthetic_static = sub.add_parser("synthetic-static-tabs-target")
+    synthetic_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    synthetic_static.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -13144,6 +13347,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "synthetic-passive-generation-target":
         json_print(promote_synthetic_passive_generation_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "synthetic-static-tabs-target":
+        json_print(promote_synthetic_static_tabs_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

@@ -1498,6 +1498,38 @@ Siguiente bloque exacto: `phase10_synthetic_static_tabs`, para cerrar Rankings,
 ATMs, RiskMoneyManagement, Notes, SelectedStrategies y CustomData sin activar
 superficies de ejecucion adicionales.
 
+Estado Fase 10 - Synthetic/Syntetic Static Tabs:
+
+- `phase10_synthetic_static_tabs` queda cerrado con
+  `phase10_synthetic_static_tabs_20260524_133337.json`.
+- `synthetic-static-tabs-target --target both --apply` toca solo
+  `AutomaticRetest-Task5.xml`, no ejecuta SQX, no fuerza `Results=passed` y no
+  toca `SyntheticBootstrapV3`.
+- `Rankings` queda inerte: `type=never`, `DeleteFailedStrategies=false`,
+  `ForceRunCrossChecks=false`, sin condiciones extra, `FitPortfolio.active=false`
+  y `CustomAnalysis.filter=false` con `method=none`.
+- `RiskMoneyManagement` mantiene `FixedSize` activo y el resto de metodos
+  desactivados para evitar ruido de sizing en Capa1.
+- `ATMs` queda desactivado, `Notes` preservado y `SelectedStrategies` queda vacio/ausente aceptado porque la entrada real viene del databank `Monkey Test`.
+- `CustomData` queda como portador dual sincronizado con `Data`:
+  `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, `commission=0.0`,
+  `MainTestValues` alineados y seed generico `AUDCAD_darwinex/H1` spread `2.0`.
+- Backup local:
+  `.local/sqx142_task_config/backups/phase10_synthetic_static_tabs_20260524_133242/`.
+- Diff/apply:
+  `.local/sqx142_task_config/diffs/phase10_synthetic_static_tabs_target_20260524_133244.json`.
+- Dry-run posterior idempotente:
+  `phase10_synthetic_static_tabs_target_20260524_133254.json` con
+  `changed=false`, `changedActionCount=0`, `guardOk=true` e `issues=[]`.
+- Ledger local respondido para `Syntetic > Rankings` (`22/22`),
+  `Syntetic > ATMs` (`9/9`), `Syntetic > RiskMoneyManagement` (`25/25`),
+  `Syntetic > Notes` (`1/1`), `Syntetic > SelectedStrategies`
+  (`1/0` empty accepted) y `Syntetic > CustomData` (`6/6`).
+
+Siguiente bloque exacto: `phase10_synthetic_closeout`, para cerrar formalmente
+la Fase 10 solo si Data/Resources/Options, CrossChecks, Passive Generation y
+Static Tabs siguen idempotentes en base local y template repo.
+
 ## Disciplina Operativa
 
 En cada fase:
