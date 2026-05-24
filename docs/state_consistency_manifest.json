@@ -4955,57 +4955,106 @@
     },
     {
       "id": "sqx_agent_per_message_bootstrap_g9",
-      "description": "G9 must keep per-message specialist activation and new-session bootstrap proactive but orchestrator-owned and mutation-gated.",
+      "description": "G9/G9R must keep per-message specialist activation, new-session bootstrap and explicit parallel subagent runtime loading proactive but orchestrator-owned, compaction-resilient and mutation-gated.",
       "required": {
         "README.md": [
-          "G9 Per-Message Subagents And Session Bootstrap esta aplicado",
+          "G9 Per-Message Subagents And Session Bootstrap esta aplicado y endurecido para compactacion",
           "cada mensaje activa una evaluacion breve de subagentes/skills",
           "cada nueva sesion/chat arranca con bootstrap de estado",
+          "cargar Multi-agent tools via `tool_search`",
+          "lanzar subagentes independientes en paralelo real",
+          "handoff breve local",
           "Codex conserva la orquestacion"
         ],
         "docs/PROJECT_GOVERNANCE.md": [
-          "G9 Per-Message Subagents And Session Bootstrap is active",
+          "G9 Per-Message Subagents And Session Bootstrap is active with G9R runtime hardening",
+          "lazy-loads Multi-agent tools through `tool_search`",
+          "spawns independent subagents in the same round for real parallelism",
+          "short sanitized `.local/agent_handoffs/` summary",
           "Per-message specialist activation",
           "New chat/session bootstrap",
           "Subagent permission escalation remains orchestrator-owned"
         ],
         "docs/decisions/ADR-0001-specialist-agent-governance.md": [
           "G9 extends the baseline",
+          "G9R hardens the runtime behavior",
+          "Multi-agent tools through `tool_search`",
+          "spawn independent subagent tasks in the same round",
+          "short sanitized `.local/agent_handoffs/` summary",
           "per-message specialist activation",
           "session bootstrap",
           "Codex remains orchestrator"
         ],
         "docs/LOCAL_AI_AGENT_ROADMAP.md": [
           "Phase G9 - Per-Message Subagents And Session Bootstrap",
+          "Phase G9R - Parallel Subagent Runtime Bootstrap",
           "Cada mensaje del operador evalua perfiles/subagentes disponibles",
+          "cargarlas primero con `tool_search`",
+          "subagentes independientes se lanzan en la misma ronda",
+          "Tras compactacion automatica",
           "El bootstrap de nueva sesion/chat resume estado del proyecto",
           "La ampliacion de permisos de un subagente no es automatica"
         ],
         "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
           "Cada mensaje del operador activa un triage de subagentes/skills",
+          "tools no estan expuestas",
+          "cargarlas con `tool_search`",
+          "spawn real en la misma ronda",
+          "Tras compactacion automatica",
+          "`.local/agent_handoffs/`",
           "Cada nueva sesion/chat empieza con bootstrap breve",
           "Los permisos ampliados de subagentes no son automaticos"
         ],
         "CHANGELOG.md": [
+          "2026-05-25 - G9 Parallel Subagent Runtime Hardening",
+          "lazy-loading Multi-agent tools through `tool_search`",
+          "independent subagent tasks to be spawned in the same round",
+          "short ignored `.local/agent_handoffs/` summary",
           "G9 Per-Message Subagents And Session Bootstrap discipline",
           "specialist-fit check on every user message",
           "brief project-state bootstrap on new chat/session",
           "orchestrator-owned permission escalation"
+        ],
+        "backend/sqx-edge-tool/config/agent_profiles.json": [
+          "\"runtimeBootstrap\"",
+          "\"g9ParallelSubagents\"",
+          "\"lazyLoadToolSearchQuery\"",
+          "\"Multi-agent tools spawn subagents parallel\"",
+          "\"sameRoundParallelism\": true",
+          "\"handoffWhenMaterial\": \".local/agent_handoffs\""
+        ],
+        "backend/sqx-edge-tool/api/server.py": [
+          "\"runtimeBootstrap\": {\"visible\": False} if access.get(\"remote\") else runtime_bootstrap",
+          "G9R endurece el runtime",
+          "cargar Multi-agent tools con tool_search",
+          "lanzar subagentes independientes en la misma ronda"
+        ],
+        "backend/sqx-edge-tool/test_local_ai_agent.py": [
+          "test_agent_status_handles_ollama_unavailable_without_paths",
+          "lazyLoadToolSearchQuery",
+          "sameRoundParallelism",
+          "G9R",
+          "tool_search"
         ]
       },
       "forbidden": {
         "docs/PROJECT_GOVERNANCE.md": [
           "subagents may mutate automatically",
           "permission expansion is automatic",
-          "skip governance bootstrap"
+          "skip governance bootstrap",
+          "G9 remains conversational only",
+          "serial-only subagents"
         ],
         "docs/LOCAL_AI_AGENT_ROADMAP.md": [
           "guardianes pueden mutar automaticamente",
-          "ampliacion de permisos automatica"
+          "ampliacion de permisos automatica",
+          "G9 solo conversacional",
+          "saltarse handoff antes de compactacion"
         ],
         "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
           "subagentes pueden mutar automaticamente",
-          "saltarse bootstrap de sesion"
+          "saltarse bootstrap de sesion",
+          "saltarse handoff antes de compactacion"
         ]
       }
     },

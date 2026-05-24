@@ -68,6 +68,9 @@ def test_agent_status_handles_ollama_unavailable_without_paths():
     assert data["sqx142Performance"]["activeProfile"]["id"] == "baseline_143_safe"
     assert data["handoffs"]["root"] == ".local/agent_handoffs"
     assert data["handoffs"]["persistPrompts"] is False
+    assert data["runtimeBootstrap"]["g9ParallelSubagents"]["lazyLoadToolSearchQuery"] == "Multi-agent tools spawn subagents parallel"
+    assert data["runtimeBootstrap"]["g9ParallelSubagents"]["sameRoundParallelism"] is True
+    assert data["runtimeBootstrap"]["g9ParallelSubagents"]["handoffWhenMaterial"] == ".local/agent_handoffs"
     assert data["privacy"]["local_paths_returned"] is False
     assert "C:\\" not in raw
 
@@ -123,6 +126,7 @@ def test_agent_status_allows_authenticated_remote_tester_session_without_monitor
     assert data["access"]["monitorVisible"] is False
     assert data["inbox"]["enabled"] is False
     assert data["handoffs"]["enabled"] is False
+    assert data["runtimeBootstrap"]["visible"] is False
     assert data["sqx142Compat"]["visible"] is False
     assert data["sqx142Performance"]["visible"] is False
 
@@ -353,6 +357,9 @@ def test_agent_sqx_guardian_questions_use_fixed_local_answers():
     assert skills_response.status_code == 200
     assert skills_data["source"] == "fixed_sqx_agent_skills"
     assert skills_data["recommendedAction"]["id"] == "sqx_agent_skills_help"
+    assert "G9R" in skills_data["reply"]
+    assert "tool_search" in skills_data["reply"]
+    assert "misma ronda" in skills_data["reply"]
     assert ".local/agent_handoffs/" in skills_data["reply"]
 
 

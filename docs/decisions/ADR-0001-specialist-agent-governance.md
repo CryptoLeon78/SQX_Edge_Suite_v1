@@ -38,6 +38,8 @@ G3 extends the baseline with an internal automation and agent gate. Internal aut
 
 G9 extends the baseline with per-message specialist activation and session bootstrap. Each user message triggers a lightweight specialist-fit check across available agents/skills; each new chat/session starts with a concise project-state bootstrap from tracked governance sources before implementation work.
 
+G9R hardens the runtime behavior for automatic compaction and lazy tools. When the operator explicitly asks for G9, subagents, delegation or parallel agent work, Codex must expose Multi-agent tools through `tool_search` if they are not already available, spawn independent subagent tasks in the same round when they materially help, continue non-overlapping local orchestration work while they run, and store only a short sanitized `.local/agent_handoffs/` summary when their result affects the next action.
+
 ## Consequences
 
 - Future phases should declare active owner areas before implementation.
@@ -46,6 +48,8 @@ G9 extends the baseline with per-message specialist activation and session boots
 - Specialist agents should be used for bounded review or execution slices, not as vague background work.
 - Specialist use is proactive but bounded: Codex remains orchestrator, permissions do not expand automatically, and backup/diff/confirmation gates continue to govern all mutations.
 - New session bootstrap reports current phase, next exact block, open fronts, gates and immediate verification risks before non-trivial work.
+- Parallel subagent claims require actual Multi-agent runtime use, not just reading skill text; compaction recovery revalidates G9 from tracked docs/manifest and reloads tools when needed.
+- Subagent handoffs are local ignored summaries, not memory stores: role, scope, result and next action only.
 - M46 should start from a defined customer cockpit data model and privacy boundary.
 - Roadmap references should avoid ambiguous unprefixed phase numbers where possible.
 - Documentation and tests become part of the phase deliverable, not cleanup after the fact.
@@ -55,5 +59,6 @@ G9 extends the baseline with per-message specialist activation and session boots
 The decision is guarded by:
 
 - `docs/PROJECT_GOVERNANCE.md`
+- `docs/state_consistency_manifest.json`
 - `backend/sqx-edge-tool/test_dashboard_static.py`
 - `backend/sqx-edge-tool/test_packaging.py`

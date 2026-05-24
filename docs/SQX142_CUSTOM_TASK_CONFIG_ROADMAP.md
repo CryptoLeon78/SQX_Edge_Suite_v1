@@ -2455,10 +2455,16 @@ En cada fase:
     y se invocan los adecuados si aportan valor real a seguridad, metodologia,
     verificacion, docs, privacidad o implementacion. Se pueden usar todos los
     subagentes disponibles cuando las tareas sean independientes y utiles.
-11. Cada nueva sesion/chat empieza con bootstrap breve: fase activa, siguiente
+11. Si el operador pide G9, subagentes, delegacion o paralelo y Multi-agent
+    tools no estan expuestas, el orquestador debe cargarlas con `tool_search`;
+    el paralelismo de subagentes exige spawn real en la misma ronda, no solo
+    lectura de skills/docs.
+12. Cada nueva sesion/chat empieza con bootstrap breve: fase activa, siguiente
     bloque exacto, frentes abiertos, gates, riesgos de verificacion y tarea
     anterior pendiente.
-12. Los permisos ampliados de subagentes no son automaticos: Codex sigue siendo
+13. Tras compactacion automatica o si los subagentes condicionan el siguiente
+    paso, dejar resumen sanitizado en `.local/agent_handoffs/`.
+14. Los permisos ampliados de subagentes no son automaticos: Codex sigue siendo
     orquestador, y toda mutacion mantiene fase, backup, diff, tests y
     confirmacion cuando el gate lo exige.
 

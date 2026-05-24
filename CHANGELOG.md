@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-25 - G9 Parallel Subagent Runtime Hardening
+
+- Hardens G9 so subagent discipline survives automatic compaction and does not remain only conversational.
+- Requires lazy-loading Multi-agent tools through `tool_search` when the operator asks for G9/subagents/parallel work and the runtime tools are not already exposed.
+- Requires independent subagent tasks to be spawned in the same round for real parallelism, while Codex continues non-overlapping orchestrator work locally.
+- Keeps subagents read-only/dry-run unless Codex scopes mutation under phase, backup, diff, tests and explicit gate discipline.
+- Requires a short ignored `.local/agent_handoffs/` summary when parallel subagents materially affect the next action.
+
 ## 2026-05-24 - C1-CONFIG1 Capa2 Retest 0
 
 - Adds `capa2-retest0-target` as the Phase 18 validation guard for Capa2.

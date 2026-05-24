@@ -1165,6 +1165,7 @@ def _agent_public_status(context: dict | None = None) -> dict:
     profile_map = profiles.get("profiles") if isinstance(profiles.get("profiles"), dict) else {}
     inbox = profiles.get("inbox") if isinstance(profiles.get("inbox"), dict) else {}
     handoffs = profiles.get("handoffs") if isinstance(profiles.get("handoffs"), dict) else {}
+    runtime_bootstrap = profiles.get("runtimeBootstrap") if isinstance(profiles.get("runtimeBootstrap"), dict) else {}
     access = context or {"scope": "local_operator", "remote": False, "capabilityMode": "operator_full"}
     return {
         "ok": True,
@@ -1202,6 +1203,7 @@ def _agent_public_status(context: dict | None = None) -> dict:
             "persistPrivateEvidence": bool(handoffs.get("persistPrivateEvidence", False)) if isinstance(handoffs, dict) else False,
             "localPathReturned": False,
         },
+        "runtimeBootstrap": {"visible": False} if access.get("remote") else runtime_bootstrap,
         "sqx142Compat": {"visible": False} if access.get("remote") else build_sqx142_status(include_paths=False),
         "sqx142Performance": {"visible": False} if access.get("remote") else build_sqx142_performance_status(PROJECT_ROOT, include_paths=False),
         "privacy": {
@@ -1604,9 +1606,11 @@ def _agent_sqx_agent_skills_plan(actions: dict | None = None) -> dict:
     actions = actions or build_action_catalog(_load_agent_profiles())
     action = actions["sqx_agent_skills_help"]
     reply = (
-        "La capa G8-SQX-AGENT-SKILLS1 actualiza skills y perfiles para trabajar con guardianes. "
-        "Puedo invocar perspectivas de tests/docs/SQX142 cuando reduzcan riesgo, usar handoffs locales bajo .local/agent_handoffs/ "
-        "y mantener Codex como orquestador. La autonomia sube en lectura, planificacion y verificacion; no en mutaciones."
+        "La capa G8-SQX-AGENT-SKILLS1 actualiza skills y perfiles para trabajar con guardianes, y G9R endurece el runtime "
+        "para que no dependa solo de memoria conversacional. Si el operador pide G9, subagentes o trabajo en paralelo, hay que "
+        "cargar Multi-agent tools con tool_search cuando no esten expuestas, lanzar subagentes independientes en la misma ronda "
+        "si las tareas son separables, y dejar handoff breve en .local/agent_handoffs/ cuando afecte al siguiente paso. "
+        "Codex sigue como orquestador: la autonomia sube en lectura, planificacion y verificacion; no en mutaciones."
     )
     return safe_plan_response(
         reply=reply,
