@@ -4589,6 +4589,160 @@
       }
     },
     {
+      "id": "sqx142_c2_phase17_build_rankings",
+      "description": "C1-CONFIG1 Phase 17 Capa2 Build Rankings must stay closed as a bounded cantera filter, resolved by Build-Task1.xml and without SQX execution claims.",
+      "required": {
+        "README.md": [
+          "phase17_capa2_build_rankings",
+          "phase17_capa2_build_rankings_target_20260524_220916.json",
+          "173/173 respuestas",
+          "`Build-Task1.xml`",
+          "`MaxStrategies=2000`",
+          "`passedStrategies=500`",
+          "`DeleteFailedStrategies=false`",
+          "`ForceRunCrossChecks=false`",
+          "`FitPortfolio=false`",
+          "`CustomAnalysis=false`",
+          "`RExpectancy`",
+          "phase17_capa2_build_crosschecks"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 17 `Capa2 Build Rankings` is closed",
+          "phase17_capa2_build_rankings_target_20260524_220916.json",
+          "`capa2-build-rankings-target --target both --apply`",
+          "173/173 Rankings answers",
+          "`Build-Task1.xml`",
+          "`MaxStrategies=2000`",
+          "`passedStrategies=500`",
+          "`DeleteFailedStrategies=false`",
+          "`ForceRunCrossChecks=false`",
+          "`FitPortfolio.active=false`",
+          "`CustomAnalysis.filter=false`",
+          "`RExpectancy`",
+          "phase17_capa2_build_crosschecks"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase17_capa2_build_rankings",
+          "Capa2 Build task identity by `Build-Task1.xml`",
+          "bounded Rankings cantera filter",
+          "no portfolio/custom-analysis selection"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 17 - Capa2 Build Rankings",
+          "phase17_capa2_build_rankings_target_20260524_220916.json",
+          "`capa2-build-rankings-target --target both --apply`",
+          "173/173",
+          "`Build-Task1.xml`",
+          "`MaxStrategies=2000`",
+          "`StopCondition.type=databank-full`",
+          "`passedStrategies=500`",
+          "`DeleteFailedStrategies=false`",
+          "`ForceRunCrossChecks=false`",
+          "`FitPortfolio.active=false`",
+          "`CustomAnalysis.filter=false`",
+          "`RExpectancy`",
+          "`currentPhase=phase17_capa2_build_rankings`",
+          "`nextPhase=phase17_capa2_build_crosschecks`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-24 - C1-CONFIG1 Capa2 Build Rankings And G9 Discipline",
+          "`capa2-build-rankings-target`",
+          "phase17_capa2_build_rankings_target_20260524_220916.json",
+          "173/173",
+          "Build-Task1.xml",
+          "MaxStrategies=2000",
+          "phase17_capa2_build_crosschecks"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_BUILD_RANKINGS_NEXT = \"phase17_capa2_build_crosschecks\"",
+          "CAPA2_BUILD_TASK_XML = \"Build-Task1.xml\"",
+          "def load_capa2_build_task_root",
+          "def promote_capa2_build_rankings_target",
+          "def enforce_capa2_build_rankings_guard",
+          "capa2-build-rankings-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_build_task_resolves_by_xml_when_web_title_is_dynamic",
+          "test_capa2_build_rankings_target_applies_and_is_idempotent",
+          "test_capa2_build_rankings_guard_rejects_drift",
+          "test_capa2_build_rankings_cli_is_registered"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 Build Rankings ejecuta SQX",
+          "Capa2 Build Rankings lanza smoke",
+          "Capa2 Build Rankings inicia optimizacion",
+          "Capa2 Build Rankings fuerza Results=passed",
+          "Build title is fixed forever",
+          "FitPortfolio activo en Build Capa2"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 Build Rankings ran SQX",
+          "Capa2 Build Rankings ran smoke",
+          "Capa2 Build Rankings optimization completed",
+          "Capa2 Build Rankings forced Results=passed",
+          "FitPortfolio active in Capa2 Build"
+        ]
+      }
+    },
+    {
+      "id": "sqx_agent_per_message_bootstrap_g9",
+      "description": "G9 must keep per-message specialist activation and new-session bootstrap proactive but orchestrator-owned and mutation-gated.",
+      "required": {
+        "README.md": [
+          "G9 Per-Message Subagents And Session Bootstrap esta aplicado",
+          "cada mensaje activa una evaluacion breve de subagentes/skills",
+          "cada nueva sesion/chat arranca con bootstrap de estado",
+          "Codex conserva la orquestacion"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "G9 Per-Message Subagents And Session Bootstrap is active",
+          "Per-message specialist activation",
+          "New chat/session bootstrap",
+          "Subagent permission escalation remains orchestrator-owned"
+        ],
+        "docs/decisions/ADR-0001-specialist-agent-governance.md": [
+          "G9 extends the baseline",
+          "per-message specialist activation",
+          "session bootstrap",
+          "Codex remains orchestrator"
+        ],
+        "docs/LOCAL_AI_AGENT_ROADMAP.md": [
+          "Phase G9 - Per-Message Subagents And Session Bootstrap",
+          "Cada mensaje del operador evalua perfiles/subagentes disponibles",
+          "El bootstrap de nueva sesion/chat resume estado del proyecto",
+          "La ampliacion de permisos de un subagente no es automatica"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Cada mensaje del operador activa un triage de subagentes/skills",
+          "Cada nueva sesion/chat empieza con bootstrap breve",
+          "Los permisos ampliados de subagentes no son automaticos"
+        ],
+        "CHANGELOG.md": [
+          "G9 Per-Message Subagents And Session Bootstrap discipline",
+          "specialist-fit check on every user message",
+          "brief project-state bootstrap on new chat/session",
+          "orchestrator-owned permission escalation"
+        ]
+      },
+      "forbidden": {
+        "docs/PROJECT_GOVERNANCE.md": [
+          "subagents may mutate automatically",
+          "permission expansion is automatic",
+          "skip governance bootstrap"
+        ],
+        "docs/LOCAL_AI_AGENT_ROADMAP.md": [
+          "guardianes pueden mutar automaticamente",
+          "ampliacion de permisos automatica"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "subagentes pueden mutar automaticamente",
+          "saltarse bootstrap de sesion"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_skills_guardians",
       "description": "G8-SQX-AGENT-SKILLS1 must stay local-only, before RETEST 0, with Test Guardian and Docs Curator bounded to read-only/dry-run review unless explicitly confirmed.",
       "required": {

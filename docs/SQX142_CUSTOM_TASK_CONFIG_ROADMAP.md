@@ -2286,6 +2286,36 @@ Siguiente bloque exacto: `phase17_capa2_build_data_databanks_resources_options`.
 
 Siguiente bloque exacto: `phase17_capa2_build_rankings`.
 
+## Estado Fase 17 - Capa2 Build Rankings
+
+- `phase17_capa2_build_rankings` queda cerrada con
+  `phase17_capa2_build_rankings_target_20260524_220916.json`.
+- Comando aplicado: `capa2-build-rankings-target --target both --apply`, con
+  dry-run posterior idempotente (`changed=false`, `changedActionCount=0`,
+  `guardOk=true`, `issues=[]`) sobre base local y template repo.
+- Ledger local: `Rankings` queda contestado con 173/173 entradas en
+  `.local/sqx142_task_config/answers/capa2/Build_strategies/Rankings.json`.
+- Identidad de tarea: el Build de Capa2 se resuelve por `Build-Task1.xml`,
+  no por el texto visible `Build strategies`, porque el task title lo puede
+  generar la app web segun activo, plan mining o descarga elegida por el
+  usuario.
+- Contrato Rankings Capa2:
+  - `MaxStrategies=2000`.
+  - `StopCondition.type=databank-full`, `passedStrategies=500`.
+  - `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false`.
+  - `FitPortfolio.active=false`, `CustomAnalysis.filter=false`.
+  - Objetivo activo unico: `RExpectancy`.
+  - Filtros activos: `NumberOfTrades >= 120`,
+    `ProfitFactor >= 1.1`, `Expectancy >= 0.05`.
+- Guard academico: Rankings es filtro de cantera, no validador ni segundo
+  optimizador. No usa OOS/Forward, no fuerza crosschecks internos, no borra
+  fallidos, no activa portfolio fitting y no fabrica `Results=passed`.
+- No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real.
+- El estado local queda en `currentPhase=phase17_capa2_build_rankings`,
+  `nextPhase=phase17_capa2_build_crosschecks`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase17_capa2_build_crosschecks`.
+
 ## Disciplina Operativa
 
 En cada fase:
@@ -2301,6 +2331,16 @@ En cada fase:
 8. Indicar exactamente que fase toca en el siguiente mensaje.
 9. Invocar `SQX Test Guardian` y/o `SQX Docs Curator` cuando haya riesgo de
    regresion, drift documental o verificacion paralela util.
+10. Cada mensaje del operador activa un triage de subagentes/skills disponibles
+    y se invocan los adecuados si aportan valor real a seguridad, metodologia,
+    verificacion, docs, privacidad o implementacion. Se pueden usar todos los
+    subagentes disponibles cuando las tareas sean independientes y utiles.
+11. Cada nueva sesion/chat empieza con bootstrap breve: fase activa, siguiente
+    bloque exacto, frentes abiertos, gates, riesgos de verificacion y tarea
+    anterior pendiente.
+12. Los permisos ampliados de subagentes no son automaticos: Codex sigue siendo
+    orquestador, y toda mutacion mantiene fase, backup, diff, tests y
+    confirmacion cuando el gate lo exige.
 
 ## Criterios De Aceptacion
 

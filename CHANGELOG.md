@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Capa2 Build Rankings And G9 Discipline
+
+- Adds `capa2-build-rankings-target` as the Phase 17 Build Rankings guard for Capa2.
+- Records evidence `phase17_capa2_build_rankings_target_20260524_220916.json` and answers `.local/sqx142_task_config/answers/capa2/Build_strategies/Rankings.json` with 173/173 entries closed.
+- Resolves Capa2 Build by `Build-Task1.xml` instead of the web-generated visible task title.
+- Pins Capa2 Build Rankings as a bounded cantera filter: `MaxStrategies=2000`, `StopCondition.type=databank-full`, `passedStrategies=500`, `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false`, `FitPortfolio.active=false`, `CustomAnalysis.filter=false`, active goal only `RExpectancy`, and filters `NumberOfTrades >= 120`, `ProfitFactor >= 1.1`, `Expectancy >= 0.05`.
+- Adds G9 Per-Message Subagents And Session Bootstrap discipline: specialist-fit check on every user message, brief project-state bootstrap on new chat/session, and orchestrator-owned permission escalation.
+- Sets the next exact block to `phase17_capa2_build_crosschecks`.
+
 ## 2026-05-24 - C1-CONFIG1 Capa2 Build Data/Databanks/Resources/Options
 
 - Adds `capa2-build-data-databanks-resources-options-target` as the Phase 17 Build Data/Databanks/Resources/Options guard for Capa2.

@@ -3071,9 +3071,14 @@ def test_capa2_preflight_snapshot_cli_is_registered():
     assert args.target == "both"
 
 
-def _write_minimal_capa2_build_cfx(path: Path, template_file: str, spread: str = "2.0") -> None:
+def _write_minimal_capa2_build_cfx(
+    path: Path,
+    template_file: str,
+    spread: str = "2.0",
+    task_title: str = "Build strategies",
+) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    config_xml = """<Project><Tasks><Task title="Build strategies" taskXMLFile="Build-Task1.xml" /></Tasks></Project>"""
+    config_xml = f"""<Project><Tasks><Task title="{task_title}" taskXMLFile="Build-Task1.xml" /></Tasks></Project>"""
     indicator_blocks = "\n".join(
         f'<Block key="{key}" category="indicators" use="true" weight="1" />'
         for key in gate.CAPA2_BUILD_BLOCKS_INDICATOR_TARGET
@@ -3437,6 +3442,130 @@ def test_capa2_build_data_databanks_resources_options_cli_is_registered():
     args = gate.build_parser().parse_args(["capa2-build-data-databanks-resources-options-target", "--target", "both"])
 
     assert args.command == "capa2-build-data-databanks-resources-options-target"
+    assert args.target == "both"
+
+
+def test_capa2_build_task_resolves_by_xml_when_web_title_is_dynamic(tmp_path):
+    cfx = tmp_path / "dynamic" / "project.cfx"
+    _write_minimal_capa2_build_cfx(
+        cfx,
+        "",
+        task_title="Build EURUSD M15 Long from Edge Factory",
+    )
+
+    task_xml, root, display_title = gate.load_capa2_build_task_root(cfx)
+
+    assert task_xml == "Build-Task1.xml"
+    assert root is not None
+    assert display_title == "Build EURUSD M15 Long from Edge Factory"
+
+
+def test_capa2_build_rankings_target_applies_and_is_idempotent(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    _write_minimal_capa2_build_cfx(
+        local_cfx,
+        r"C:\Users\Ivan SQX\Downloads\TemplateMaker\c2.sqx",
+        spread="2",
+        task_title="Build AUDCAD H1 Capa2 generated title",
+    )
+    _write_minimal_capa2_build_cfx(repo_cfx, "", spread="2.0", task_title="Build Template Capa2")
+
+    monkeypatch.setattr(gate, "promote_capa2_build_data_databanks_resources_options_target", lambda *args, **kwargs: {
+        "phase": "phase17_capa2_build_data_databanks_resources_options",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase17_capa2_build_rankings",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+
+    payload = gate.promote_capa2_build_rankings_target(tmp_path, tmp_path, target="both", apply=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase17_capa2_build_rankings"
+    assert payload["nextPhase"] == "phase17_capa2_build_crosschecks"
+    assert Path(payload["answerRecord"]["written"]).is_file()
+    local_root = gate.load_capa2_build_task_root(local_cfx)[1]
+    repo_root = gate.load_capa2_build_task_root(repo_cfx)[1]
+    assert gate.enforce_capa2_build_rankings_guard(local_root, "localBase") == []
+    assert gate.enforce_capa2_build_rankings_guard(repo_root, "repoTemplate") == []
+    rankings = local_root.find("./Rankings")
+    assert rankings.get("type") == "never"
+    assert rankings.findtext("MaxStrategies") == "2000"
+    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("ForceRunCrossChecks") == "false"
+    assert rankings.find("StopCondition").attrib["type"] == "databank-full"
+    assert rankings.find("StopCondition").attrib["passedStrategies"] == "500"
+    assert rankings.find("FitPortfolio").get("active") == "false"
+    assert rankings.find("CustomAnalysis").get("filter") == "false"
+    assert gate.summarize_conditions_detailed(rankings.find("Conditions")) == [
+        {
+            "column": item["column"],
+            "comparator": item["comparator"],
+            "value": item["value"],
+            "format": item["format"],
+            "sampleType": item["sampleType"],
+            "use": item["use"],
+        }
+        for item in gate.CAPA2_BUILD_RANKING_CONDITIONS_TARGET
+    ]
+    assert gate.active_ranking_goal_summary(rankings) == [gate.CAPA2_BUILD_RANKING_ACTIVE_GOAL]
+
+    dry_run = gate.promote_capa2_build_rankings_target(tmp_path, tmp_path, target="both", apply=False)
+
+    assert dry_run["ok"] is True
+    assert dry_run["results"]["localBase"]["changed"] is False
+    assert dry_run["results"]["repoTemplate"]["changed"] is False
+    assert dry_run["results"]["repoTemplate"]["changedActionCount"] == 0
+
+
+def test_capa2_build_rankings_guard_rejects_drift():
+    root = ET.fromstring(
+        r"""
+        <Settings>
+          <Rankings type="top">
+            <MaxStrategies>1000</MaxStrategies>
+            <ConditionsType>0</ConditionsType>
+            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <ForceRunCrossChecks>true</ForceRunCrossChecks>
+            <AutomaticDismissal warnings="true" />
+            <StopCondition type="time-limit" passedStrategies="1000" restartCount="5" days="0" hours="6" minutes="0" />
+            <FitPortfolio active="true" databank="Existing portfolio" />
+            <CustomAnalysis method="python" filter="true" inputArgs="C:\private\USDJPY.csv" />
+            <FitnessCriteria method="ComputeFromStrategyResult" useFitnessByIndex="false">
+              <Settings><Ranking type="Weighted">
+                <Goal type="AnnualPctReturnDDRatio" use="true" weight="1" valueType="1" target="0" />
+                <Goal type="ProfitFactor" use="true" weight="1" valueType="1" target="0" />
+              </Ranking></Settings>
+            </FitnessCriteria>
+            <Conditions>
+              <Condition use="true"><Left-Side valueType="column"><Column-Value column="NetProfit" format="Decimal2" sampleType="127" /></Left-Side><Comparator value="&gt;" /><Right-Side valueType="numeric"><Numeric-Value value="999999" /></Right-Side></Condition>
+            </Conditions>
+          </Rankings>
+        </Settings>
+        """
+    )
+
+    issues = gate.enforce_capa2_build_rankings_guard(root, "repoTemplate")
+
+    assert any("type" in issue for issue in issues)
+    assert any("MaxStrategies" in issue for issue in issues)
+    assert any("StopCondition" in issue for issue in issues)
+    assert any("FitPortfolio" in issue for issue in issues)
+    assert any("ForceRunCrossChecks" in issue for issue in issues)
+    assert any("ranking conditions" in issue for issue in issues)
+    assert any("active ranking goals" in issue for issue in issues)
+    assert any("forbidden donor token" in issue for issue in issues)
+    assert any("local absolute path" in issue for issue in issues)
+
+
+def test_capa2_build_rankings_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-build-rankings-target", "--target", "both"])
+
+    assert args.command == "capa2-build-rankings-target"
     assert args.target == "both"
 
 

@@ -12,6 +12,7 @@
 - Phase SQX142-PERF1 - rendimiento SQX local: aplicado como capability interna local-only.
 - Phase G8-SQX-AGENT-SKILLS1 - guardianes SQX de agentes/skills: aplicado antes de `RETEST 0` con perfiles local-only, skills actualizadas y handoffs ignorados.
 - Phase G8-SQX-ACADEMIC-LOPEZ1 - consulta academica SQX: aplicada como skill/perfil local-only para MC, OOS, data snooping y backtest overfitting antes de Fase 6 `MC`.
+- Phase G9 - Per-Message Subagents And Session Bootstrap: aplicado como disciplina operativa interna para evaluar subagentes/skills en cada mensaje y arrancar cada sesion/chat con un reporte breve de fase, frentes abiertos, gates y riesgos.
 
 ## Contrato V1
 
@@ -36,6 +37,9 @@ Reglas:
 - Preguntas locales sobre criterio academico, Lopez de Prado, OOS, MC, contaminacion, data snooping, PBO o Deflated Sharpe usan `fixed_sqx_academic_lopez` y fuentes academicas antes que respuesta libre del LLM.
 - `SQX Test Guardian` y `SQX Docs Curator` son perspectivas internas para lectura, planificacion, dry-run y revision; no son ejecutores autonomos de mutaciones.
 - `SQX Academic Lopez` es una perspectiva interna de lectura/criterio; no ejecuta cambios, no decide permisos y no sustituye confirmacion metodologica del operador.
+- Cada mensaje del operador evalua perfiles/subagentes disponibles y activa los adecuados cuando aportan valor verificable; si todos aportan trabajo independiente, se pueden activar todos los disponibles bajo control del orquestador.
+- El bootstrap de nueva sesion/chat resume estado del proyecto, fase activa, siguiente bloque exacto, frentes abiertos, gates aplicables y limites de privacidad antes de ejecutar trabajo no trivial.
+- La ampliacion de permisos de un subagente no es automatica: Codex/orquestador decide, y toda mutacion conserva fase, backup, diff, tests y confirmacion segun gate.
 
 Prohibido en V1:
 

@@ -1434,6 +1434,24 @@ def load_task_root(cfx: Path, task_title_wanted: str) -> tuple[str, ET.Element |
     return "", None
 
 
+def load_task_root_by_xml(cfx: Path, task_xml_wanted: str) -> tuple[str, ET.Element | None, str]:
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        return "", None, ""
+    wanted = task_xml_wanted.replace("\\", "/").casefold()
+    with zipfile.ZipFile(cfx) as zf:
+        config = xml_root_from_zip(zf, "config.xml")
+        if config is not None:
+            for task in config.findall(".//Task"):
+                file_name = task.get("taskXMLFile", "")
+                if file_name.replace("\\", "/").casefold() == wanted:
+                    return file_name, xml_root_from_zip(zf, file_name), task_title(task)
+        names = {name.replace("\\", "/").casefold(): name for name in zf.namelist()}
+        file_name = names.get(wanted, "")
+        if file_name:
+            return file_name, xml_root_from_zip(zf, file_name), ""
+    return "", None, ""
+
+
 def find_section(root: ET.Element | None, tab: str) -> ET.Element | None:
     if root is None:
         return None
@@ -15746,6 +15764,8 @@ CAPA2_BUILD_QUESTIONNAIRE_NEXT = "phase17_capa2_build_what_to_build"
 CAPA2_BUILD_WHAT_TO_BUILD_NEXT = "phase17_capa2_build_blocks"
 CAPA2_BUILD_BLOCKS_NEXT = "phase17_capa2_build_data_databanks_resources_options"
 CAPA2_BUILD_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT = "phase17_capa2_build_rankings"
+CAPA2_BUILD_RANKINGS_NEXT = "phase17_capa2_build_crosschecks"
+CAPA2_BUILD_TASK_XML = "Build-Task1.xml"
 CAPA2_BUILD_TASK_TITLE = "Build strategies"
 CAPA2_BUILD_TAB_ORDER = [
     "WhatToBuild",
@@ -15929,6 +15949,38 @@ CAPA2_BUILD_OPTIONS_PARAMS_TARGET = {
     "RealisticGapsHandling": "true",
     "StoreChartData": "false",
 }
+CAPA2_BUILD_RANKINGS_TARGET = {
+    "type": "never",
+    "MaxStrategies": "2000",
+    "ConditionsType": "1",
+    "DeleteFailedStrategies": "false",
+    "ForceRunCrossChecks": "false",
+    "AutomaticDismissal": {"warnings": "false"},
+    "StopCondition": {
+        "type": "databank-full",
+        "passedStrategies": "500",
+        "restartCount": "5",
+        "days": "0",
+        "hours": "0",
+        "minutes": "0",
+    },
+    "FitPortfolio": {"active": "false", "databank": "Existing portfolio"},
+    "CustomAnalysis": {"method": "none", "filter": "false", "inputArgs": ""},
+    "FitnessCriteria": {"method": "ComputeFromStrategyResult", "useFitnessByIndex": "false"},
+}
+CAPA2_BUILD_RANKING_CONDITIONS_TARGET = [
+    {"column": "NumberOfTrades", "comparator": ">=", "value": "120", "format": "Decimal2", "sampleType": "127", "use": "true"},
+    {"column": "ProfitFactor", "comparator": ">=", "value": "1.1", "format": "Decimal2", "sampleType": "127", "use": "true"},
+    {"column": "Expectancy", "comparator": ">=", "value": "0.05", "format": "Decimal2", "sampleType": "127", "use": "true"},
+]
+CAPA2_BUILD_RANKING_ACTIVE_GOAL = {
+    "type": "RExpectancy",
+    "use": "true",
+    "weight": "1",
+    "valueType": "1",
+    "target": "0",
+}
+CAPA2_BUILD_RANKING_ALLOWED_ACTIVE_GOALS = {"RExpectancy"}
 CAPA2_BUILD_BANNED_DONOR_TOKENS = ("USDJPY", "USDJPY_darwinex", "USDJPY_dukascopy")
 CAPA2_TRADING_TIME_RANGES_TARGET = {
     "M5": ["02:00", "22:00"],
@@ -16095,11 +16147,24 @@ def task_strategy_type_summary(root: ET.Element | None) -> dict[str, str]:
     return dict(strategy_type.attrib) if strategy_type is not None else {}
 
 
+def load_capa2_build_task_root(cfx: Path) -> tuple[str, ET.Element | None, str]:
+    task_xml, root, title = load_task_root_by_xml(cfx, CAPA2_BUILD_TASK_XML)
+    if task_xml and root is not None:
+        return task_xml, root, title or CAPA2_BUILD_TASK_TITLE
+    fallback_task_xml, fallback_root = load_task_root(cfx, CAPA2_BUILD_TASK_TITLE)
+    return fallback_task_xml, fallback_root, CAPA2_BUILD_TASK_TITLE if fallback_root is not None else ""
+
+
 def capa2_task_contract(cfx: Path, title: str) -> dict[str, Any]:
-    task_xml, root = load_task_root(cfx, title)
+    if canonical_task_key(title) == "build":
+        task_xml, root, actual_title = load_capa2_build_task_root(cfx)
+    else:
+        task_xml, root = load_task_root(cfx, title)
+        actual_title = title
     setup = first_setup_summary(root)
     return {
-        "title": title,
+        "title": actual_title or title,
+        "requestedTitle": title,
         "taskXml": task_xml,
         "exists": bool(task_xml and root is not None),
         "databanks": databank_summary(root),
@@ -16666,8 +16731,8 @@ def capa2_build_questionnaire_report(root142: Path, project_root: Path, max_valu
         issues.append("capa2-preflight-snapshot: previous gate ok=false")
     local_cfx = capa2_base_project_path(root142)
     repo_cfx = DEFAULT_CAPA2_TEMPLATE
-    local_task_xml, local_root = load_task_root(local_cfx, CAPA2_BUILD_TASK_TITLE)
-    repo_task_xml, repo_root = load_task_root(repo_cfx, CAPA2_BUILD_TASK_TITLE)
+    local_task_xml, local_root, local_task_title = load_capa2_build_task_root(local_cfx)
+    repo_task_xml, repo_root, repo_task_title = load_capa2_build_task_root(repo_cfx)
     if local_root is None:
         issues.append("localBase: Capa2 Build task not found")
     if repo_root is None:
@@ -16720,6 +16785,11 @@ def capa2_build_questionnaire_report(root142: Path, project_root: Path, max_valu
         "processProbe": process_probe,
         "task": {
             "title": CAPA2_BUILD_TASK_TITLE,
+            "role": "Build",
+            "taskXmlIdentity": CAPA2_BUILD_TASK_XML,
+            "titleOwnership": "display label generated by the web app; guards resolve by task XML identity",
+            "localDisplayTitle": local_task_title,
+            "repoDisplayTitle": repo_task_title,
             "localTaskXml": local_task_xml,
             "repoTaskXml": repo_task_xml,
             "tabs": tabs,
@@ -17138,8 +17208,9 @@ def update_capa2_build_what_to_build_target_in_cfx(cfx: Path, backup_root: Path,
     if not cfx.is_file() or not zipfile.is_zipfile(cfx):
         payload["error"] = "missing_or_not_zip"
         return payload
-    task_xml_name, root = load_task_root(cfx, CAPA2_BUILD_TASK_TITLE)
+    task_xml_name, root, display_title = load_capa2_build_task_root(cfx)
     payload["taskXml"] = task_xml_name
+    payload["displayTitle"] = display_title
     if not task_xml_name or root is None:
         payload["error"] = "capa2_build_task_not_found"
         payload["sha256After"] = payload["sha256Before"]
@@ -17509,8 +17580,9 @@ def update_capa2_build_blocks_target_in_cfx(cfx: Path, backup_root: Path, apply:
     if not cfx.is_file() or not zipfile.is_zipfile(cfx):
         payload["error"] = "missing_or_not_zip"
         return payload
-    task_xml_name, root = load_task_root(cfx, CAPA2_BUILD_TASK_TITLE)
+    task_xml_name, root, display_title = load_capa2_build_task_root(cfx)
     payload["taskXml"] = task_xml_name
+    payload["displayTitle"] = display_title
     if not task_xml_name or root is None:
         payload["error"] = "capa2_build_task_not_found"
         payload["sha256After"] = payload["sha256Before"]
@@ -18095,8 +18167,9 @@ def update_capa2_build_data_databanks_resources_options_target_in_cfx(
     if not cfx.is_file() or not zipfile.is_zipfile(cfx):
         payload["error"] = "missing_or_not_zip"
         return payload
-    task_xml_name, root = load_task_root(cfx, CAPA2_BUILD_TASK_TITLE)
+    task_xml_name, root, display_title = load_capa2_build_task_root(cfx)
     payload["taskXml"] = task_xml_name
+    payload["displayTitle"] = display_title
     if not task_xml_name or root is None:
         payload["error"] = "capa2_build_task_not_found"
         payload["sha256After"] = payload["sha256Before"]
@@ -18227,6 +18300,357 @@ def promote_capa2_build_data_databanks_resources_options_target(root142: Path, p
             "repoTemplate": str(DEFAULT_CAPA2_TEMPLATE),
             "phase17BuildDataDatabanksResourcesOptionsReport": str(evidence_target),
             "phase17BuildDataDatabanksResourcesOptionsAnswers": (payload.get("answerRecord") or {}).get("written", {}),
+        })
+        write_json(state_path, state)
+    return payload
+
+
+def ranking_goal_summary(rankings: ET.Element | None) -> list[dict[str, str]]:
+    if rankings is None:
+        return []
+    return [dict(goal.attrib) for goal in rankings.findall("./FitnessCriteria/Settings/Ranking/Goal")]
+
+
+def active_ranking_goal_summary(rankings: ET.Element | None) -> list[dict[str, str]]:
+    return [goal for goal in ranking_goal_summary(rankings) if goal.get("use") == "true"]
+
+
+def ensure_fitness_ranking(rankings: ET.Element, actions: list[dict[str, Any]], prefix: str) -> ET.Element:
+    fitness = set_or_create_attrs_child(
+        rankings,
+        "FitnessCriteria",
+        CAPA2_BUILD_RANKINGS_TARGET["FitnessCriteria"],
+        actions,
+        f"{prefix}/FitnessCriteria",
+    )
+    settings = fitness.find("Settings")
+    if settings is None:
+        settings = ET.SubElement(fitness, "Settings")
+        actions.append({"field": f"{prefix}/FitnessCriteria/Settings", "from": None, "to": "created", "changed": True})
+    ranking = settings.find("Ranking")
+    if ranking is None:
+        ranking = ET.SubElement(settings, "Ranking", {"type": "Weighted"})
+        actions.append({"field": f"{prefix}/FitnessCriteria/Settings/Ranking", "from": None, "to": dict(ranking.attrib), "changed": True})
+    before = dict(ranking.attrib)
+    ranking.set("type", "Weighted")
+    actions.append({
+        "field": f"{prefix}/FitnessCriteria/Settings/Ranking:type",
+        "from": before,
+        "to": dict(ranking.attrib),
+        "changed": before != dict(ranking.attrib),
+    })
+    return ranking
+
+
+def apply_capa2_build_ranking_goals(rankings: ET.Element, actions: list[dict[str, Any]]) -> None:
+    ranking = ensure_fitness_ranking(rankings, actions, "Rankings")
+    before_active = active_ranking_goal_summary(rankings)
+    goals = {
+        goal.get("type", ""): goal
+        for goal in ranking.findall("Goal")
+        if goal.get("type")
+    }
+    if CAPA2_BUILD_RANKING_ACTIVE_GOAL["type"] not in goals:
+        goals[CAPA2_BUILD_RANKING_ACTIVE_GOAL["type"]] = ET.SubElement(
+            ranking,
+            "Goal",
+            dict(CAPA2_BUILD_RANKING_ACTIVE_GOAL),
+        )
+    for goal in ranking.findall("Goal"):
+        before = dict(goal.attrib)
+        goal_type = goal.get("type", "")
+        if goal_type == CAPA2_BUILD_RANKING_ACTIVE_GOAL["type"]:
+            goal.attrib.clear()
+            goal.attrib.update(CAPA2_BUILD_RANKING_ACTIVE_GOAL)
+        elif goal.get("use") == "true":
+            goal.set("use", "false")
+        after = dict(goal.attrib)
+        if before != after:
+            actions.append({
+                "field": f"Rankings/FitnessCriteria/Settings/Ranking/Goal:{goal_type}",
+                "from": before,
+                "to": after,
+                "changed": True,
+            })
+    after_active = active_ranking_goal_summary(rankings)
+    actions.append({
+        "field": "Rankings/FitnessCriteria/Settings/Ranking/activeGoals",
+        "from": before_active,
+        "to": after_active,
+        "changed": before_active != after_active,
+        "note": "Capa2 Build keeps one primary ranking objective to reduce selection pressure.",
+    })
+
+
+def capa2_build_rankings_summary(root: ET.Element | None) -> dict[str, Any]:
+    rankings = find_section(root, "Rankings") if root is not None else None
+    if rankings is None:
+        return {}
+    return {
+        "type": rankings.get("type", ""),
+        "MaxStrategies": rankings.findtext("MaxStrategies") or "",
+        "ConditionsType": rankings.findtext("ConditionsType") or "",
+        "DeleteFailedStrategies": rankings.findtext("DeleteFailedStrategies") or "",
+        "ForceRunCrossChecks": rankings.findtext("ForceRunCrossChecks") or "",
+        "AutomaticDismissal": dict(rankings.find("AutomaticDismissal").attrib) if rankings.find("AutomaticDismissal") is not None else {},
+        "StopCondition": dict(rankings.find("StopCondition").attrib) if rankings.find("StopCondition") is not None else {},
+        "FitPortfolio": dict(rankings.find("FitPortfolio").attrib) if rankings.find("FitPortfolio") is not None else {},
+        "CustomAnalysis": dict(rankings.find("CustomAnalysis").attrib) if rankings.find("CustomAnalysis") is not None else {},
+        "FitnessCriteria": dict(rankings.find("FitnessCriteria").attrib) if rankings.find("FitnessCriteria") is not None else {},
+        "conditions": summarize_conditions_detailed(rankings.find("Conditions")),
+        "activeGoals": active_ranking_goal_summary(rankings),
+    }
+
+
+def apply_capa2_build_rankings_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    rankings = find_section(root, "Rankings")
+    if rankings is None:
+        rankings = ET.SubElement(root, "Rankings", {"type": CAPA2_BUILD_RANKINGS_TARGET["type"]})
+        actions.append({"field": "Rankings", "from": None, "to": dict(rankings.attrib), "changed": True})
+    before_rank_attrs = dict(rankings.attrib)
+    rankings.set("type", CAPA2_BUILD_RANKINGS_TARGET["type"])
+    actions.append({
+        "field": "Rankings:type",
+        "from": before_rank_attrs,
+        "to": dict(rankings.attrib),
+        "changed": before_rank_attrs != dict(rankings.attrib),
+    })
+    for tag in ("MaxStrategies", "ConditionsType", "DeleteFailedStrategies", "ForceRunCrossChecks"):
+        set_or_create_text_child(rankings, tag, CAPA2_BUILD_RANKINGS_TARGET[tag], actions, f"Rankings/{tag}")
+    for tag in ("AutomaticDismissal", "StopCondition", "FitPortfolio", "CustomAnalysis"):
+        set_or_create_attrs_child(rankings, tag, CAPA2_BUILD_RANKINGS_TARGET[tag], actions, f"Rankings/{tag}")
+    apply_capa2_build_ranking_goals(rankings, actions)
+    set_ranking_conditions_from_target(
+        rankings,
+        CAPA2_BUILD_RANKING_CONDITIONS_TARGET,
+        actions,
+        "Rankings/Conditions",
+    )
+    return actions
+
+
+def enforce_capa2_build_rankings_guard(root: ET.Element, target_name: str) -> list[str]:
+    issues: list[str] = []
+    summary = capa2_build_rankings_summary(root)
+    if not summary:
+        return [f"{target_name}: Capa2 Build Rankings section missing"]
+    for key in ("type", "MaxStrategies", "ConditionsType", "DeleteFailedStrategies", "ForceRunCrossChecks"):
+        expected = CAPA2_BUILD_RANKINGS_TARGET[key]
+        if summary.get(key) != expected:
+            issues.append(f"{target_name}: Capa2 Build Rankings {key} is {summary.get(key)!r}, expected {expected!r}")
+    for key in ("AutomaticDismissal", "StopCondition", "FitPortfolio", "CustomAnalysis", "FitnessCriteria"):
+        expected = CAPA2_BUILD_RANKINGS_TARGET[key]
+        if summary.get(key) != expected:
+            issues.append(f"{target_name}: Capa2 Build Rankings {key} is {summary.get(key)!r}, expected {expected!r}")
+    expected_conditions = [
+        {
+            "column": item["column"],
+            "comparator": item["comparator"],
+            "value": item["value"],
+            "format": item["format"],
+            "sampleType": item.get("sampleType", "127"),
+            "use": item.get("use", "true"),
+        }
+        for item in CAPA2_BUILD_RANKING_CONDITIONS_TARGET
+    ]
+    if summary.get("conditions") != expected_conditions:
+        issues.append(f"{target_name}: Capa2 Build ranking conditions do not match anti-overfit target")
+    active_goals = summary.get("activeGoals") or []
+    if active_goals != [CAPA2_BUILD_RANKING_ACTIVE_GOAL]:
+        issues.append(f"{target_name}: Capa2 Build active ranking goals are {active_goals!r}, expected only RExpectancy")
+    if (summary.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append(f"{target_name}: Capa2 Build must not run FitPortfolio during mining")
+    if (summary.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append(f"{target_name}: Capa2 Build CustomAnalysis filter must remain disabled")
+    if summary.get("ForceRunCrossChecks") != "false":
+        issues.append(f"{target_name}: Capa2 Build Rankings must not force CrossChecks")
+    guarded_text = section_text(root, "Rankings")
+    for token in CAPA2_BUILD_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"{target_name}: forbidden donor token leaked into Capa2 Build Rankings: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append(f"{target_name}: local absolute path leaked into Capa2 Build Rankings")
+    return issues
+
+
+def record_capa2_build_rankings_answers(project_root: Path, report: dict[str, Any]) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    answered_at = now_iso()
+    source = latest_capa2_questionnaire_path(project_root, CAPA2_BUILD_TASK_TITLE, "Rankings")
+    questionnaire = read_json(source, {}) if source is not None else {}
+    questions = questionnaire.get("questions") or []
+    ids = [str(item.get("id", "")).strip() for item in questions if str(item.get("id", "")).strip()]
+    payload = {
+        "version": VERSION,
+        "scope": "capa2",
+        "taskTitle": CAPA2_BUILD_TASK_TITLE,
+        "tab": "Rankings",
+        "phase": "phase17_capa2_build_rankings",
+        "createdAt": answered_at,
+        "updatedAt": answered_at,
+        "bulkAnswer": True,
+        "sourceQuestionnaire": str(source) if source is not None else "",
+        "questionCount": len(questions),
+        "uniqueQuestionCount": len(ids),
+        "answer": "recommended_capa2_build_rankings_contract",
+        "note": "Build Capa2 Rankings closed with bounded pre-save filters and a single ranking objective.",
+        "decisionSummary": {
+            "maxStrategies": CAPA2_BUILD_RANKINGS_TARGET["MaxStrategies"],
+            "passedStrategies": CAPA2_BUILD_RANKINGS_TARGET["StopCondition"]["passedStrategies"],
+            "conditions": CAPA2_BUILD_RANKING_CONDITIONS_TARGET,
+            "activeGoal": CAPA2_BUILD_RANKING_ACTIVE_GOAL,
+            "fitPortfolio": "disabled during Build Capa2",
+            "crosschecks": "not forced from Rankings",
+            "nextPhase": CAPA2_BUILD_RANKINGS_NEXT,
+        },
+        "answers": {
+            qid: {
+                "answer": "recommended_capa2_build_rankings_contract",
+                "note": "Closed by phase17_capa2_build_rankings target after dry-run/apply guard.",
+                "answeredAt": answered_at,
+            }
+            for qid in ids
+        },
+        "sourceReport": report.get("written", ""),
+    }
+    target = ledger_root(project_root) / "answers" / "capa2" / slug(CAPA2_BUILD_TASK_TITLE) / "Rankings.json"
+    write_json(target, payload)
+    return {
+        "ok": True,
+        "version": VERSION,
+        "tab": "Rankings",
+        "written": str(target),
+        "answerCount": len(ids),
+        "questionCount": len(questions),
+    }
+
+
+def update_capa2_build_rankings_target_in_cfx(cfx: Path, backup_root: Path, apply: bool, target_name: str) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root, display_title = load_capa2_build_task_root(cfx)
+    payload["taskXml"] = task_xml_name
+    payload["displayTitle"] = display_title
+    if not task_xml_name or root is None:
+        payload["error"] = "capa2_build_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = capa2_build_rankings_summary(root)
+    payload["actions"] = apply_capa2_build_rankings_to_root(root)
+    payload["after"] = capa2_build_rankings_summary(root)
+    payload["issues"] = enforce_capa2_build_rankings_guard(root, target_name)
+    payload["warnings"] = []
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["serializedChanged"] = before_text != after_text
+    payload["changed"] = payload["changedActionCount"] > 0
+    payload["targetValues"] = {
+        "rankings": CAPA2_BUILD_RANKINGS_TARGET,
+        "conditions": CAPA2_BUILD_RANKING_CONDITIONS_TARGET,
+        "activeGoal": CAPA2_BUILD_RANKING_ACTIVE_GOAL,
+    }
+    payload["targetRationale"] = {
+        "methodology": "Capa2 Build selects enough candidates to test risk-management variants without turning rankings into a second optimizer.",
+        "selectionPressure": "Use only three cheap pre-save filters and one active ranking objective; heavier truth belongs to later retests.",
+        "naturalResults": "Build filtering saves candidates to Results, while later retests preserve natural passed/failed outcomes.",
+        "noPortfolio": "FitPortfolio and CustomAnalysis are disabled because portfolio/cluster decisions belong after validation, not inside mining.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_capa2_build_rankings_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = promote_capa2_build_data_databanks_resources_options_target(root142, project_root, target=target, apply=False)
+    issues = list(previous_gate.get("issues") or [])
+    warnings = list(previous_gate.get("warnings") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-build-data-databanks-resources-options-target: previous gate ok=false")
+    backup_root = ledger_root(project_root) / "backups" / f"phase17_capa2_build_rankings_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    results = {
+        name: update_capa2_build_rankings_target_in_cfx(path, backup_root / name, apply=apply, target_name=name)
+        for name, path in targets.items()
+    }
+    for name, result in results.items():
+        if not result.get("exists") or not result.get("isZip") or result.get("error"):
+            issues.append(f"{name}: Capa2 Build Rankings target could not be inspected")
+        issues.extend(f"{name}: {issue}" for issue in (result.get("issues") or []))
+        warnings.extend(f"{name}: {warning}" for warning in (result.get("warnings") or []))
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        warnings.append("SQX processes are alive; phase17 Rankings target is XML/config-only and should be applied with SQX closed")
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase17_capa2_build_rankings",
+        "operation": "capa2_build_rankings_target",
+        "apply": apply,
+        "target": target,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_gate.get("issues") or [],
+            "warnings": previous_gate.get("warnings") or [],
+            "nextPhase": previous_gate.get("nextPhase"),
+            "written": previous_gate.get("written"),
+        },
+        "results": results,
+        "issues": issues,
+        "warnings": warnings,
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Close Capa2 Build > Rankings with bounded pre-save filters and no portfolio/custom-analysis selection.",
+            "filters": "NumberOfTrades >= 120, ProfitFactor >= 1.1 and Expectancy >= 0.05 on the full Build sample.",
+            "rankingGoal": "Only RExpectancy stays active as the ranking objective.",
+            "limits": "MaxStrategies=2000 and StopCondition.passedStrategies=500, databank-full.",
+            "disabledSurfaces": "FitPortfolio=false, CustomAnalysis.filter=false and ForceRunCrossChecks=false.",
+            "naturalResults": "No SQX run, no smoke, no optimization and no forced Results=passed.",
+            "nextPhase": CAPA2_BUILD_RANKINGS_NEXT,
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": "phase17_capa2_build_rankings_diff_review" if not apply else CAPA2_BUILD_RANKINGS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase17_capa2_build_rankings_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    if apply and payload["ok"]:
+        payload["answerRecord"] = record_capa2_build_rankings_answers(project_root, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase17_capa2_build_rankings",
+            "nextPhase": CAPA2_BUILD_RANKINGS_NEXT,
+            "scope": "capa2",
+            "baseProject": DEFAULT_CAPA2_BASE_PROJECT,
+            "repoTemplate": str(DEFAULT_CAPA2_TEMPLATE),
+            "phase17BuildRankingsReport": str(evidence_target),
+            "phase17BuildRankingsAnswers": (payload.get("answerRecord") or {}).get("written", ""),
         })
         write_json(state_path, state)
     return payload
@@ -19649,6 +20073,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_build_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_build_data.add_argument("--apply", action="store_true")
 
+    capa2_build_rankings = sub.add_parser("capa2-build-rankings-target")
+    capa2_build_rankings.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_build_rankings.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -19906,6 +20334,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-build-data-databanks-resources-options-target":
         json_print(promote_capa2_build_data_databanks_resources_options_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "capa2-build-rankings-target":
+        json_print(promote_capa2_build_rankings_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
