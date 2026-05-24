@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 WFM Data Databanks Resources Options
+
+- Adds `wfm-data-databanks-resources-options-target` with dry-run/apply support, guard checks and tests for `AutomaticRetest-Task4.xml`.
+- Keeps WFM as a blocked review-only gate after SPP: `Input=SPP`, `Output=WFM`, dual `Data+CustomData`, `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, no internal OOS, generic seed `AUDCAD_darwinex/H1` spread `2.0`, resources `TICK/EETUS` without sessions and inert Options.
+- Preserves section-specific engines intentionally: `Data engine=MetaTrader5 (hedged)` and `CustomData engine=MetaTrader4`, while synchronizing dates, precision, session, slippage, minDist and chart.
+- Updates Project Generator so `AutomaticRetest-Task4.xml` is excluded from trading-window injection; generated Capa1 customs still adapt symbol/timeframe/spread/resources by selected asset.
+- Normalizes only `Data/Chart spread` from `2` to `2.0` in local base and repo template, with apply evidence `phase12_wfm_data_databanks_resources_options_target_20260524_171147.json`, idempotent dry-run `phase12_wfm_data_databanks_resources_options_target_20260524_171200.json`, report `phase12_wfm_data_databanks_resources_options_20260524_171211.json`, no WFM execution, no smoke, no optimization, no SPP unlock and next exact block `phase12_wfm_crosschecks`.
+
 ## 2026-05-24 - C1-CONFIG1 WFM Open
 
 - Adds `wfm-open-report` with CLI support to open Phase 12 after SPP closeout without launching SQX, running WFM smokes or starting optimization.

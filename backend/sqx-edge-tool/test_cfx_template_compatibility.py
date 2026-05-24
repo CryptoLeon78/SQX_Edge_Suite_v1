@@ -716,6 +716,85 @@ def _assert_spp_data_databanks_resources_options_contract(
     }
 
 
+def _assert_wfm_data_databanks_resources_options_contract(
+    wfm: ET.Element,
+    expected_symbol: str | None = None,
+    expected_timeframe: str | None = None,
+    expected_spread: str | None = None,
+) -> None:
+    databanks = {
+        databank.get("name"): databank.get("value")
+        for databank in wfm.findall(".//Databanks/Databank")
+    }
+    assert databanks == {"Output": "WFM", "Input": "SPP"}
+    assert wfm.findall(".//Data/OutOfSample/Range") == []
+
+    data_setup = wfm.find("./Data/Setups/Setup")
+    custom_setup = wfm.find("./CustomData/Setups/Setup")
+    assert data_setup is not None
+    assert custom_setup is not None
+    assert data_setup.get("dateFrom") == custom_setup.get("dateFrom") == "2017.10.02"
+    assert data_setup.get("dateTo") == custom_setup.get("dateTo") == "2023.12.31"
+    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == "2"
+    assert data_setup.get("session") == custom_setup.get("session") == "No Session"
+    assert data_setup.get("engine") == "MetaTrader5 (hedged)"
+    assert custom_setup.get("engine") == "MetaTrader4"
+    data_chart = data_setup.find("Chart")
+    custom_chart = custom_setup.find("Chart")
+    assert data_chart is not None
+    assert custom_chart is not None
+    assert data_chart.attrib == custom_chart.attrib
+    if expected_spread is not None:
+        assert data_chart.get("spread") == expected_spread
+    if expected_symbol is not None:
+        assert data_chart.get("symbol") == expected_symbol
+    if expected_timeframe is not None:
+        assert data_chart.get("timeframe") == expected_timeframe
+
+    assert dict(custom_setup.find("MainTestValues").attrib) == {
+        "engine": "true",
+        "symbol": "true",
+        "timeframe": "true",
+        "dates": "true",
+        "subcharts": "false",
+        "precision": "true",
+        "distance": "true",
+        "spread": "true",
+        "slippage": "true",
+        "commissions": "true",
+    }
+    for setup in (data_setup, custom_setup):
+        assert setup.find("./Commissions/Method[@type='SizeBased']").get("use") == "true"
+        assert setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']").text == "0.0"
+
+    resources = wfm.find(".//Resources")
+    assert resources is not None
+    resource_symbols = {
+        symbol.get("name")
+        for symbol in resources.findall("./Symbols/Symbol")
+        if symbol.get("name")
+    }
+    assert resource_symbols == {custom_chart.get("symbol")}
+    assert resources.findall("./Sessions/Session") == []
+    assert "USDJPY" not in ET.tostring(resources, encoding="unicode")
+    for symbol in resources.findall("./Symbols/Symbol"):
+        assert symbol.get("precision") == "TICK"
+        assert symbol.get("timezone") == "EETUS"
+
+    params = {
+        node.get("key"): node.text
+        for node in wfm.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"Session", "MarketOpenSession", "LimitTimeRange", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert params == {
+        "Session": "No Session",
+        "MarketOpenSession": "No Session",
+        "LimitTimeRange": "false",
+        "RealisticGapsHandling": "false",
+        "StoreChartData": "false",
+    }
+
+
 def _assert_tick_real_data_databanks_resources_contract(tick_real: ET.Element, expected_symbol: str | None = None, expected_timeframe: str | None = None) -> None:
     setup = tick_real.find(".//Data/Setups/Setup")
     assert setup is not None
@@ -1254,6 +1333,17 @@ def test_capa1_spp_data_gate_receives_synthetic_and_keeps_customdata_carrier():
     _assert_spp_static_tabs_contract(spp)
 
 
+def test_capa1_wfm_data_gate_receives_spp_and_keeps_dual_carrier():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    wfm = roots["AutomaticRetest-Task4.xml"]
+    _assert_wfm_data_databanks_resources_options_contract(
+        wfm,
+        expected_symbol="AUDCAD_darwinex",
+        expected_timeframe="H1",
+        expected_spread="2.0",
+    )
+
+
 def test_capa1_base_uses_confirmed_build_ranking_volume():
     roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
     build = roots["Build-Task1.xml"]
@@ -1491,6 +1581,15 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     assert {chart.get("spread") for chart in spp.findall(".//Setup/Chart")} == {"10"}
     _assert_spp_crosschecks_contract(spp)
     _assert_spp_static_tabs_contract(spp)
+
+    wfm = roots["AutomaticRetest-Task4.xml"]
+    _assert_wfm_data_databanks_resources_options_contract(
+        wfm,
+        expected_symbol="AUDCAD",
+        expected_timeframe="H4",
+        expected_spread="10",
+    )
+    assert {chart.get("spread") for chart in wfm.findall(".//Setup/Chart")} == {"10"}
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")

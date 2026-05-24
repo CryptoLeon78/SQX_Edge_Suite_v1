@@ -1,6 +1,7 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 12 `WFM` abierta el
+Estado: C1-CONFIG1 con Fase 12 `WFM` abierta y bloque
+`Data/Databanks/Resources/Options` cerrado el
 2026-05-24. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
@@ -163,6 +164,10 @@ tools\sqx142_task_config_gate.ps1 spp-open-report --target both
 tools\sqx142_task_config_gate.ps1 spp-open-report --target both --write
 tools\sqx142_task_config_gate.ps1 spp-data-databanks-resources-options-target --target both
 tools\sqx142_task_config_gate.ps1 spp-data-databanks-resources-options-target --target both --apply
+tools\sqx142_task_config_gate.ps1 wfm-open-report --target both
+tools\sqx142_task_config_gate.ps1 wfm-open-report --target both --write
+tools\sqx142_task_config_gate.ps1 wfm-data-databanks-resources-options-target --target both
+tools\sqx142_task_config_gate.ps1 wfm-data-databanks-resources-options-target --target both --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "SPP" --write
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
@@ -1809,6 +1814,49 @@ Siguiente bloque exacto: `phase12_wfm_data_databanks_resources_options`, para
 revisar `Data`, `CustomData`, `Databanks`, `Resources` y `Options` sin copiar
 tokens del donor, sin lanzar WFM y manteniendo el bloqueo por dependencia de
 SPP.
+
+## Estado Fase 12 - WFM Data/Databanks/Resources/Options
+
+- `phase12_wfm_data_databanks_resources_options` queda cerrado con
+  `phase12_wfm_data_databanks_resources_options_20260524_171211.json`.
+- `wfm-data-databanks-resources-options-target --target both --apply` normaliza
+  `AutomaticRetest-Task4.xml` en base local y template repo con backup/diff y
+  guardia verde.
+- Portador: dual `Data+CustomData` sincronizado para compatibilidad SQX142. Se
+  conserva `Data engine=MetaTrader5 (hedged)` y
+  `CustomData engine=MetaTrader4`; no se exige igualdad de engine porque cada
+  seccion cumple un rol distinto, pero si se exige igualdad en fechas,
+  precision, sesion, slippage, minDist y `Chart`.
+- Cadena: `Input=SPP` y `Output=WFM`. WFM sigue bloqueado para ejecucion porque
+  SPP no se ha producido con una ejecucion real aprobada.
+- Data objetivo: periodo `ROBUSTNESS_C1` (`2017.10.02` a `2023.12.31`),
+  `testPrecision=2`, `No Session`, sin rangos OOS internos.
+- Seed generico: `AUDCAD_darwinex/H1` con spread `2.0`. El unico cambio CFX
+  aplicado fue normalizar `Data/Chart spread` de `2` a `2.0` para igualarlo con
+  `CustomData`.
+- Resources quedan `TICK/EETUS`, sin sesiones, con broker/resource coherente y
+  sin copiar tokens del donor.
+- Options quedan inertes: `Session=No Session`, `MarketOpenSession=No Session`,
+  `LimitTimeRange=false`, `RealisticGapsHandling=false` y
+  `StoreChartData=false`.
+- Project Generator excluye `AutomaticRetest-Task4.xml` de inyeccion de ventanas
+  horarias; los customs generados siguen adaptando simbolo/timeframe/spread y
+  resources por activo/timeframe.
+- Evidencia local: dry-run previo
+  `phase12_wfm_data_databanks_resources_options_target_20260524_171133.json`,
+  apply `phase12_wfm_data_databanks_resources_options_target_20260524_171147.json`
+  e idempotencia posterior
+  `phase12_wfm_data_databanks_resources_options_target_20260524_171200.json`
+  con `changed=false`, `changedActionCount=0`, `guardOk=true` e `issues=[]`.
+- No lanza SQX, no ejecuta WFM, no hace smoke, no inicia optimizacion,
+  no desbloquea SPP y no fuerza `Results=passed`.
+- El estado local queda en
+  `currentPhase=phase12_wfm_data_databanks_resources_options` y
+  `nextPhase=phase12_wfm_crosschecks`.
+
+Siguiente bloque exacto: `phase12_wfm_crosschecks`, para revisar
+`WalkForwardMatrix`, filtros WFM y limpiar metodos activos ocultos en
+crosschecks inactivos sin ejecutar WFM.
 
 ## Disciplina Operativa
 

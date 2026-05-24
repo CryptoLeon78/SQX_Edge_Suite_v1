@@ -26,6 +26,7 @@ from tools.sqx142_task_config_gate import (
     apply_sequential_crosschecks_to_root,
     apply_sequential_passive_generation_to_root,
     apply_sequential_static_tabs_to_root,
+    apply_wfm_data_databanks_resources_options_to_root,
     apply_retest1_passive_generation_to_root,
     apply_retest1_data_resources_to_root,
     apply_retest1_options_databanks_rankings_to_root,
@@ -61,6 +62,7 @@ from tools.sqx142_task_config_gate import (
     enforce_sequential_crosschecks_guard,
     enforce_sequential_passive_generation_guard,
     enforce_sequential_static_tabs_guard,
+    enforce_wfm_data_databanks_resources_options_guard,
     enforce_tick_real_data_databanks_resources_guard,
     enforce_tick_real_options_rankings_guard,
     enforce_tick_real_passive_generation_guard,
@@ -3157,6 +3159,129 @@ def test_wfm_open_report_requires_spp_closeout_and_writes_state(monkeypatch, tmp
     state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
     assert state["currentPhase"] == "phase12_wfm_open"
     assert state["nextPhase"] == "phase12_wfm_data_databanks_resources_options"
+
+
+def test_wfm_data_databanks_resources_options_keeps_dual_carrier_synced():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data>
+            <Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session" slippage="5" minDist="3" engine="MetaTrader4"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups>
+            <OutOfSample><Range dateFrom="2023.01.01" dateTo="2025.01.01" /></OutOfSample>
+          </Data>
+          <CustomData>
+            <Setups>
+              <Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session" slippage="5" minDist="3" engine="MetaTrader5">
+                <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
+                <Commissions><Method type="SizeBased" use="false"><Params><Param key="Commission">9</Param></Params></Method></Commissions>
+                <MainTestValues engine="false" symbol="false" timeframe="false" dates="false" precision="false" distance="false" spread="false" slippage="false" commissions="false" />
+              </Setup>
+            </Setups>
+          </CustomData>
+          <Databanks>
+            <Databank name="Input" value="Syntetic" />
+            <Databank name="Output" value="SPP" />
+          </Databanks>
+          <Resources>
+            <Symbols>
+              <Symbol name="USDJPY_darwinex" source="4" precision="M1" timezone="UTC" broker="9">
+                <InstrumentInfo instrument="USDJPY_darwinex" defaultSpread="1.4" broker="9" />
+              </Symbol>
+            </Symbols>
+            <Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers>
+            <Instruments />
+            <Sessions><Session name="Old Session" /></Sessions>
+            <CustomIndicators />
+            <CustomBlocks />
+          </Resources>
+          <Options>
+            <BuildTradingOptions><Params>
+              <Param key="Session">Old Session</Param>
+              <Param key="MarketOpenSession">Old Session</Param>
+              <Param key="LimitTimeRange">true</Param>
+              <Param key="RealisticGapsHandling">true</Param>
+              <Param key="StoreChartData">true</Param>
+            </Params></BuildTradingOptions>
+          </Options>
+        </Settings>
+        """
+    )
+
+    actions = apply_wfm_data_databanks_resources_options_to_root(root)
+
+    assert any(item["field"] == "Data/OutOfSample/Range" and item["changed"] for item in actions)
+    assert enforce_wfm_data_databanks_resources_options_guard(root) == []
+    data_setup = root.find("./Data/Setups/Setup")
+    custom_setup = root.find("./CustomData/Setups/Setup")
+    assert data_setup is not None
+    assert custom_setup is not None
+    assert data_setup.get("dateFrom") == custom_setup.get("dateFrom") == "2017.10.02"
+    assert data_setup.get("dateTo") == custom_setup.get("dateTo") == "2023.12.31"
+    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == "2"
+    assert data_setup.get("session") == custom_setup.get("session") == "No Session"
+    assert data_setup.get("engine") == "MetaTrader5 (hedged)"
+    assert custom_setup.get("engine") == "MetaTrader4"
+    assert data_setup.find("Chart").attrib == custom_setup.find("Chart").attrib == {
+        "symbol": "AUDCAD_darwinex",
+        "timeframe": "H1",
+        "spread": "2.0",
+    }
+    assert root.findall("./Data/OutOfSample/Range") == []
+    assert {
+        databank.get("name"): databank.get("value")
+        for databank in root.findall(".//Databanks/Databank")
+    } == {"Input": "SPP", "Output": "WFM"}
+    assert dict(custom_setup.find("MainTestValues").attrib) == {
+        "engine": "true",
+        "symbol": "true",
+        "timeframe": "true",
+        "dates": "true",
+        "subcharts": "false",
+        "precision": "true",
+        "distance": "true",
+        "spread": "true",
+        "slippage": "true",
+        "commissions": "true",
+    }
+    assert {symbol.get("name") for symbol in root.findall(".//Resources/Symbols/Symbol")} == {"AUDCAD_darwinex"}
+    assert root.find(".//Resources/Symbols/Symbol").get("precision") == "TICK"
+    assert root.find(".//Resources/Symbols/Symbol").get("timezone") == "EETUS"
+    assert root.findall(".//Resources/Sessions/Session") == []
+    options = {
+        param.get("key"): param.text
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in {"Session", "MarketOpenSession", "LimitTimeRange", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert options == {
+        "Session": "No Session",
+        "MarketOpenSession": "No Session",
+        "LimitTimeRange": "false",
+        "RealisticGapsHandling": "false",
+        "StoreChartData": "false",
+    }
+
+
+def test_wfm_data_databanks_resources_options_guard_rejects_divergent_carriers():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /></Setup></Setups></Data>
+          <CustomData><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader4"><Chart symbol="AUDCAD_darwinex" timeframe="H4" spread="2.0" /><MainTestValues engine="false" /></Setup></Setups></CustomData>
+          <Databanks><Databank name="Input" value="Syntetic" /><Databank name="Output" value="SPP" /></Databanks>
+          <Resources><Symbols /><Brokers /><Sessions><Session name="Old Session" /></Sessions></Resources>
+          <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">true</Param></Params></BuildTradingOptions></Options>
+        </Settings>
+        """
+    )
+
+    issues = enforce_wfm_data_databanks_resources_options_guard(root)
+
+    assert any("chart mismatch for timeframe" in issue for issue in issues)
+    assert any("CustomData MainTestValues" in issue for issue in issues)
+    assert any("Databank Input" in issue for issue in issues)
+    assert any("Databank Output" in issue for issue in issues)
+    assert any("Resources" in issue or "resource" in issue for issue in issues)
+    assert any("Options param" in issue for issue in issues)
 
 
 def test_spp_data_databanks_resources_options_keeps_customdata_only_and_inert_options():
