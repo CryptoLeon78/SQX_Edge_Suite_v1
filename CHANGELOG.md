@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 SPP Open
+
+- Adds `spp-open-report` with CLI support to open Phase 11 after Synthetic closeout without launching SQX, running SPP smokes or starting optimization.
+- Maps SPP to `AutomaticRetest-Task7.xml`, `Input=Syntetic`, `Output=SPP`, active `OptProfileSysParamPermutation`, `MaxTests=3000`, `DistributionUp=20`, `DistributionDown=20`, `Steps=25`, `ProfitOptPct=30`, `UniformDistrChanges=15` and 2 active acceptance conditions.
+- Records local report `phase11_spp_open_20260524_140703.json` with `ok=true`, `issues=[]`, `processes=[]`, execution policy `configuration_review_only_no_smoke_no_optimization`, warnings for inactive crosschecks carrying active methods, CustomData-only carrier and WFM dependency on SPP.
+- Generates the full SPP questionnaire locally with `_task_summary_20260524_140647.json`: 7 tabs, 180 entries detected and 9 donor/base differences. Next exact block is `phase11_spp_data_databanks_resources_options`.
+
 ## 2026-05-24 - C1-CONFIG1 Synthetic Closeout
 
 - Adds `synthetic-closeout-report` with CLI support to close Phase 10 only when the previous Monkey gate and all four Synthetic/Syntetic guards are green and idempotent in dry-run mode.

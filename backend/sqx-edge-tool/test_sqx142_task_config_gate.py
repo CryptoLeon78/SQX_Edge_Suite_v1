@@ -2934,6 +2934,76 @@ def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, 
     assert state["nextPhase"] == "phase11_spp_open"
 
 
+def test_spp_open_summary_detects_spp_chain_and_execution_policy():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <CustomData><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /></Setup></Setups></CustomData>
+          <Databanks><Databank name="Input" value="Syntetic" /><Databank name="Output" value="SPP" /></Databanks>
+          <Resources><Symbols><Symbol name="AUDCAD_darwinex" precision="TICK" timezone="EETUS" broker="4"><InstrumentInfo instrument="AUDCAD_darwinex" broker="4" /></Symbol></Symbols><Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers><Sessions /></Resources>
+          <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">false</Param><Param key="RealisticGapsHandling">false</Param><Param key="StoreChartData">false</Param><Param key="Session">No Session</Param><Param key="MarketOpenSession">No Session</Param></Params></BuildTradingOptions></Options>
+          <CrossChecks use="true" evaluateAll="true">
+            <OptProfileSysParamPermutation use="true">
+              <Settings>
+                <MaxTests>3000</MaxTests><DistributionUp>20</DistributionUp><DistributionDown>20</DistributionDown><Steps>25</Steps>
+                <WhatToParametrize type="1" symmetricVariables="false"><Recommended>false</Recommended><Periods>true</Periods><Constants>true</Constants><EntryParams>true</EntryParams><ExitParamsUsed>true</ExitParamsUsed></WhatToParametrize>
+              </Settings>
+              <AcceptanceSettings><ProfitOptPct>30</ProfitOptPct><AvgProfit>0</AvgProfit><UniformDistrChanges>15</UniformDistrChanges><StdevAvgProfit>1</StdevAvgProfit><EvalProfitOptCheck>true</EvalProfitOptCheck><EvalAvgProfitCheck>true</EvalAvgProfitCheck><EvalUniformDistrCheck>true</EvalUniformDistrCheck><Conditions><Condition use="true" /><Condition use="true" /></Conditions></AcceptanceSettings>
+            </OptProfileSysParamPermutation>
+            <MonteCarloRetest use="false"><Settings><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings></MonteCarloRetest>
+          </CrossChecks>
+        </Settings>
+        """
+    )
+
+    summary = gate.spp_open_summary(root)
+    issues, warnings = gate.spp_open_issues(summary)
+
+    assert issues == []
+    assert summary["databanks"] == {"Input": "Syntetic", "Output": "SPP"}
+    assert summary["executionPolicy"] == "configuration_review_only_no_smoke_no_optimization"
+    assert summary["crossChecks"]["active"] == ["OptProfileSysParamPermutation"]
+    assert summary["activeSPPCheck"]["settings"]["MaxTests"] == "3000"
+    assert summary["activeSPPCheck"]["settings"]["ParametrizeFlags"]["Periods"] == "true"
+    assert any("inactive crosschecks" in warning for warning in warnings)
+    assert any("configuration-review only" in warning for warning in warnings)
+    assert any("WFM depends on SPP output" in warning for warning in warnings)
+
+
+def test_spp_open_report_requires_synthetic_closeout_and_writes_state(monkeypatch, tmp_path):
+    monkeypatch.setattr(gate, "spp_open_target_report", lambda path: {
+        "ok": True,
+        "taskTitle": "SPP",
+        "taskXml": "AutomaticRetest-Task7.xml",
+        "warnings": ["SPP is explicitly configuration-review only"],
+        "issues": [],
+        "summary": {
+            "databanks": {"Input": "Syntetic", "Output": "SPP"},
+            "crossChecks": {"active": ["OptProfileSysParamPermutation"]},
+        },
+    })
+    monkeypatch.setattr(gate, "synthetic_closeout_report", lambda *args, **kwargs: {
+        "phase": "phase10_synthetic_closeout",
+        "ok": True,
+        "issues": [],
+        "nextPhase": "phase11_spp_open",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+
+    payload = gate.spp_open_report(tmp_path, tmp_path, target="both", write=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase11_spp_open"
+    assert payload["nextPhase"] == "phase11_spp_data_databanks_resources_options"
+    assert payload["previousGate"]["phase"] == "phase10_synthetic_closeout"
+    assert payload["summary"]["chain"] == "Input=Syntetic / Output=SPP"
+    assert payload["summary"]["activeCrossCheck"] == "OptProfileSysParamPermutation"
+    assert payload["summary"]["executionPolicy"] == "configuration_review_only_no_smoke_no_optimization"
+    state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
+    assert state["currentPhase"] == "phase11_spp_open"
+    assert state["nextPhase"] == "phase11_spp_data_databanks_resources_options"
+
+
 def test_monkey_passive_generation_points_to_sequential_and_preserves_indicator_universe():
     root = ET.fromstring(
         f"""

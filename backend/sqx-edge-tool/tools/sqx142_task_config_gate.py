@@ -655,6 +655,15 @@ SYNTHETIC_STATIC_TABS = MC_STATIC_TABS
 SYNTHETIC_RANKING_TARGET = MC_RANKING_TARGET
 SYNTHETIC_STATIC_TABS_NEXT = "phase10_synthetic_closeout"
 SYNTHETIC_CLOSEOUT_NEXT = "phase11_spp_open"
+SPP_TASK_TITLE = "SPP"
+SPP_TASK_XML = "AutomaticRetest-Task7.xml"
+SPP_EXPECTED_DATABANKS = {
+    "Input": "Syntetic",
+    "Output": "SPP",
+}
+SPP_ACTIVE_CROSSCHECK = "OptProfileSysParamPermutation"
+SPP_NEXT_PHASE = "phase11_spp_data_databanks_resources_options"
+SPP_EXECUTION_POLICY = "configuration_review_only_no_smoke_no_optimization"
 SYNTHETIC_ACCEPTANCE_CONDITIONS_TARGET = [
     {
         "left": {
@@ -11946,6 +11955,259 @@ def synthetic_closeout_report(root142: Path, project_root: Path, target: str, wr
     return payload
 
 
+def spp_crosschecks_summary(root: ET.Element | None) -> dict[str, Any]:
+    parent = find_section(root, "CrossChecks") if root is not None else None
+    checks: list[dict[str, Any]] = []
+    if parent is not None:
+        for check in list(parent):
+            if not isinstance(check.tag, str) or check.get("use") is None:
+                continue
+            methods = summarize_crosscheck_methods(check)
+            item: dict[str, Any] = {
+                "id": check.tag,
+                "use": check.get("use", ""),
+                "methods": methods,
+                "activeMethodTypes": [
+                    method.get("type", "")
+                    for method in methods
+                    if method.get("use") == "true"
+                ],
+                "activeAcceptanceConditionCount": len([
+                    condition
+                    for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
+                    if condition.get("use", "true") != "false"
+                ]),
+                "conditions": [
+                    mc_condition_summary(condition)
+                    for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
+                ],
+            }
+            if check.tag == SPP_ACTIVE_CROSSCHECK:
+                settings = check.find("./Settings")
+                what = settings.find("./WhatToParametrize") if settings is not None else None
+                acceptance = check.find("./AcceptanceSettings")
+                item["settings"] = {
+                    "MaxTests": check.findtext("./Settings/MaxTests") or "",
+                    "DistributionUp": check.findtext("./Settings/DistributionUp") or "",
+                    "DistributionDown": check.findtext("./Settings/DistributionDown") or "",
+                    "Steps": check.findtext("./Settings/Steps") or "",
+                    "WhatToParametrize": dict(what.attrib) if what is not None else {},
+                    "ParametrizeFlags": {
+                        child.tag: (child.text or "")
+                        for child in (list(what) if what is not None else []) if isinstance(child.tag, str)
+                    },
+                }
+                item["acceptanceSettings"] = {
+                    child.tag: (child.text or "")
+                    for child in (list(acceptance) if acceptance is not None else []) if isinstance(child.tag, str) and child.tag != "Conditions"
+                }
+            checks.append(item)
+    return {
+        "exists": parent is not None,
+        "attributes": dict(parent.attrib) if parent is not None else {},
+        "active": [item["id"] for item in checks if item.get("use") == "true"],
+        "checks": checks,
+        "sha256": section_sha256(root, "CrossChecks") if root is not None else "",
+    }
+
+
+def spp_open_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    databanks = {
+        node.get("name", ""): node.get("value", "")
+        for node in root.findall(".//Databanks/Databank")
+        if node.get("name")
+    }
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in {
+            "Session",
+            "MarketOpenSession",
+            "LimitTimeRange",
+            "SignalTimeRangeFrom",
+            "SignalTimeRangeTo",
+            "RealisticGapsHandling",
+            "StoreChartData",
+        }
+    }
+    crosschecks = spp_crosschecks_summary(root)
+    active_check = next(
+        (check for check in crosschecks.get("checks", []) if check.get("id") == SPP_ACTIVE_CROSSCHECK),
+        {},
+    )
+    return {
+        "exists": True,
+        "data": {
+            "exists": root.find("./Data") is not None,
+            "setup": _setup_attrs(root.find("./Data/Setups/Setup")),
+            "outOfSampleRanges": [dict(node.attrib) for node in root.findall("./Data/OutOfSample/Range")],
+        },
+        "customData": {
+            "exists": root.find("./CustomData") is not None,
+            "setup": _setup_attrs(root.find("./CustomData/Setups/Setup")),
+        },
+        "databanks": databanks,
+        "resources": _tick_real_resource_summary(root),
+        "optionsParams": params,
+        "crossChecks": crosschecks,
+        "activeSPPCheck": active_check,
+        "executionPolicy": SPP_EXECUTION_POLICY,
+        "downstreamDependency": "WFM consumes SPP output but remains review-only/blocked unless SPP execution is explicitly approved.",
+    }
+
+
+def spp_open_issues(summary: dict[str, Any]) -> tuple[list[str], list[str]]:
+    issues: list[str] = []
+    warnings: list[str] = []
+    if not summary.get("exists"):
+        return ["SPP task missing"], warnings
+
+    databanks = summary.get("databanks") or {}
+    for name, wanted in SPP_EXPECTED_DATABANKS.items():
+        if databanks.get(name) != wanted:
+            issues.append(f"SPP Databank {name} is {databanks.get(name)!r}, expected {wanted!r}")
+
+    crosschecks = summary.get("crossChecks") or {}
+    if not crosschecks.get("exists"):
+        issues.append("SPP CrossChecks section missing")
+    else:
+        attrs = crosschecks.get("attributes") or {}
+        if attrs.get("use") != "true" or attrs.get("evaluateAll") != "true":
+            issues.append("SPP CrossChecks must stay active/evaluateAll for OptProfileSysParamPermutation review")
+        active = crosschecks.get("active") or []
+        if active != [SPP_ACTIVE_CROSSCHECK]:
+            issues.append(f"SPP active crosschecks are {active!r}, expected only {SPP_ACTIVE_CROSSCHECK!r}")
+        checks = {item.get("id"): item for item in crosschecks.get("checks") or []}
+        spp = checks.get(SPP_ACTIVE_CROSSCHECK) or {}
+        settings = spp.get("settings") or {}
+        for key in ("MaxTests", "DistributionUp", "DistributionDown", "Steps"):
+            if not settings.get(key):
+                warnings.append(f"SPP {key} is empty; configuration review must decide final value")
+        if spp.get("activeAcceptanceConditionCount", 0) == 0:
+            warnings.append("SPP acceptance filter conditions are currently inactive; CrossChecks review must decide final filters.")
+        inactive_with_active_methods = [
+            {
+                "check": check.get("id"),
+                "methods": check.get("activeMethodTypes") or [],
+            }
+            for check in crosschecks.get("checks") or []
+            if check.get("id") != SPP_ACTIVE_CROSSCHECK and check.get("use") == "false" and check.get("activeMethodTypes")
+        ]
+        if inactive_with_active_methods:
+            warnings.append(f"SPP inactive crosschecks still carry active methods {inactive_with_active_methods!r}; CrossChecks review should make them inert if SPP remains isolated.")
+
+    if (summary.get("data") or {}).get("exists"):
+        warnings.append("SPP unexpectedly carries Data; next block should confirm whether CustomData remains the canonical SQX142 carrier.")
+    else:
+        warnings.append("SPP currently has no Data section and uses CustomData as canonical setup carrier; next block must review this without launching SQX.")
+
+    warnings.append("SPP is explicitly configuration-review only: no smoke, optimization or SQX live execution is allowed in phase11_spp_open.")
+    warnings.append("WFM depends on SPP output; WFM remains blocked/review-only unless a later operator decision approves SPP execution.")
+    return issues, warnings
+
+
+def spp_open_target_report(cfx: Path) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256": file_sha256(cfx) if cfx.is_file() else "",
+        "taskTitle": SPP_TASK_TITLE,
+        "taskXml": "",
+        "summary": {},
+        "issues": [],
+        "warnings": [],
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["issues"].append("missing_or_not_zip")
+        payload["ok"] = False
+        return payload
+    task_xml_name, root = load_task_root(cfx, SPP_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["issues"].append("spp_task_not_found")
+        payload["ok"] = False
+        return payload
+    if task_xml_name != SPP_TASK_XML:
+        payload["warnings"].append(f"SPP task XML is {task_xml_name!r}, expected {SPP_TASK_XML!r}")
+    payload["summary"] = spp_open_summary(root)
+    issues, warnings = spp_open_issues(payload["summary"])
+    payload["issues"] = issues
+    payload["warnings"].extend(warnings)
+    payload["ok"] = not issues
+    return payload
+
+
+def spp_open_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    target_reports = {
+        name: spp_open_target_report(path)
+        for name, path in targets.items()
+    }
+    previous_gate = synthetic_closeout_report(root142, project_root, target=target, write=False)
+    previous_issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        previous_issues.append("synthetic-closeout-report: previous gate ok=false")
+    process_probe = process_snapshot()
+    process_warnings = []
+    if process_probe.get("processes"):
+        process_warnings.append("SQX processes are alive; keep SPP open read-only and do not run SPP while SQX is active")
+    payload: dict[str, Any] = {
+        "ok": all(item.get("ok") for item in target_reports.values()) and not previous_issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase11_spp_open",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_issues,
+            "nextPhase": previous_gate.get("nextPhase"),
+        },
+        "targets": target_reports,
+        "warnings": process_warnings + [
+            warning
+            for item in target_reports.values()
+            for warning in item.get("warnings", [])
+        ],
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Open SPP as Phase 11 after Synthetic/Syntetic closeout; review configuration only and do not execute SPP smokes or optimization.",
+            "taskTitle": SPP_TASK_TITLE,
+            "taskXml": SPP_TASK_XML,
+            "chain": "Input=Syntetic / Output=SPP",
+            "activeCrossCheck": SPP_ACTIVE_CROSSCHECK,
+            "executionPolicy": SPP_EXECUTION_POLICY,
+            "downstreamDependency": "WFM consumes SPP output and remains review-only/blocked until SPP execution is explicitly approved.",
+            "noLiveRun": "This gate only reads XML/local state and writes a phase report when requested.",
+            "decisionPending": [
+                "Data/CustomData carrier, resources and options must be reviewed without copying donor-specific symbol/timeframe state.",
+                "CrossChecks must decide whether OptProfileSysParamPermutation remains active, how expensive MaxTests/Steps should be, and whether hidden methods in inactive checks must be turned off.",
+                "Rankings/static tabs must preserve natural passed/failed outcomes and avoid portfolio/custom-analysis surfaces unless explicitly approved.",
+                "SPP and FOWARD remain omitted from performance smokes/optimization by prior operator decision.",
+            ],
+        },
+        "nextPhase": SPP_NEXT_PHASE,
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase11_spp_open_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase11_spp_open", "nextPhase": SPP_NEXT_PHASE})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -13275,6 +13537,10 @@ def build_parser() -> argparse.ArgumentParser:
     synthetic_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     synthetic_closeout.add_argument("--write", action="store_true")
 
+    spp_open = sub.add_parser("spp-open-report")
+    spp_open.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    spp_open.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -13466,6 +13732,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "synthetic-closeout-report":
         json_print(synthetic_closeout_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "spp-open-report":
+        json_print(spp_open_report(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

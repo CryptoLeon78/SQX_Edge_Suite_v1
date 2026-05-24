@@ -159,6 +159,9 @@ tools\sqx142_task_config_gate.ps1 synthetic-static-tabs-target --target both
 tools\sqx142_task_config_gate.ps1 synthetic-static-tabs-target --target both --apply
 tools\sqx142_task_config_gate.ps1 synthetic-closeout-report --target both
 tools\sqx142_task_config_gate.ps1 synthetic-closeout-report --target both --write
+tools\sqx142_task_config_gate.ps1 spp-open-report --target both
+tools\sqx142_task_config_gate.ps1 spp-open-report --target both --write
+tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "SPP" --write
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
 
@@ -1575,6 +1578,36 @@ Siguiente bloque exacto: `phase11_spp_open`, para abrir la revision de
 configuracion de SPP. SPP sigue omitido de pruebas/smoke/optimizacion por la
 decision operativa previa salvo aprobacion nueva; aqui toca revisar
 configuracion, coherencia y dependencias.
+
+## Estado Fase 11 - SPP Open
+
+- `phase11_spp_open` queda abierto con
+  `phase11_spp_open_20260524_140703.json`.
+- `spp-open-report --target both --write` confirma el task real `SPP` en
+  `AutomaticRetest-Task7.xml`, con `Input=Syntetic` y `Output=SPP`.
+- El unico crosscheck activo es `OptProfileSysParamPermutation` con
+  `MaxTests=3000`, `DistributionUp=20`, `DistributionDown=20`, `Steps=25`,
+  `ProfitOptPct=30`, `UniformDistrChanges=15` y 2 condiciones activas:
+  `NetProfit` y `DrawdownPct`.
+- El gate queda `ok=true`, `issues=[]` y `processes=[]`; no lanza SQX,
+  no ejecuta SPP, no hace smoke y no inicia optimizacion.
+- Politica de ejecucion: `configuration_review_only_no_smoke_no_optimization`.
+- Warnings aceptados para el siguiente bloque:
+  `SPP` usa `CustomData` como portador canonico, hay metodos activos ocultos
+  en `MonteCarloManipulation` y `MonteCarloRetest` aunque esos crosschecks
+  estan inactivos, y `WFM` depende de `SPP` pero sigue review-only/bloqueado
+  salvo decision posterior.
+- Cuestionario local completo:
+  `_task_summary_20260524_140647.json`, 7 tabs, 180 entradas detectadas y
+  9 diferencias donor/base.
+- Breakdown del cuestionario: `CrossChecks` 94, `CustomData` 6, `Databanks` 2,
+  `Options` 34, `Rankings` 16, `Resources` 4 y `RiskMoneyManagement` 24.
+- El estado local queda en `currentPhase=phase11_spp_open` y
+  `nextPhase=phase11_spp_data_databanks_resources_options`.
+
+Siguiente bloque exacto: `phase11_spp_data_databanks_resources_options`, para
+revisar `CustomData`, `Databanks`, `Resources` y `Options` sin copiar tokens
+del donor y sin ejecutar SPP.
 
 ## Disciplina Operativa
 
