@@ -1652,6 +1652,45 @@ Siguiente bloque exacto: `phase11_spp_crosschecks`, para revisar
 `OptProfileSysParamPermutation`, filtros de aceptacion SPP y limpieza de metodos
 activos ocultos en crosschecks inactivos sin ejecutar SPP.
 
+### Estado Fase 11 - SPP CrossChecks
+
+- `phase11_spp_crosschecks` queda cerrado con
+  `phase11_spp_crosschecks_20260524_152918.json`.
+- Nuevo target aplicado: `spp-crosschecks-target` sobre base local y template
+  repo, con dry-run-first, backup/diff y dry-run posterior idempotente.
+- `SPP` sigue como gate de revision de configuracion: no lanza SQX, no ejecuta
+  SPP, no hace smoke, no inicia optimizacion y no fuerza `Results=passed`.
+- `AutomaticRetest-Task7.xml` queda aislado con solo
+  `OptProfileSysParamPermutation` activo.
+- Parametros SPP preservados: `MaxTests=3000`, `DistributionUp=20`,
+  `DistributionDown=20`, `Steps=25`, `WhatToParametrize type=1`,
+  `symmetricVariables=false`, `Periods=true`, `Constants=true`,
+  `EntryParams=true`, `ExitParamsUsed=true`, y el resto de familias no usadas
+  en `false`.
+- Filtros SPP dedicados: `NetProfit` de
+  `OptProfileSysParamPermutation >= 50%` del main y `DrawdownPct` de
+  `OptProfileSysParamPermutation <= 200%` del main. No se copian filtros Monkey
+  ni Synthetic.
+- Limpieza: los metodos ocultos que estaban activos dentro de
+  `MonteCarloManipulation` y `MonteCarloRetest` quedan apagados aunque esos
+  crosschecks ya estuvieran inactivos.
+- El setup anidado de CrossChecks queda normalizado a `ROBUSTNESS_C1`,
+  `testPrecision=2`, `No Session`, seed `AUDCAD_darwinex/H1` con spread `2.0`.
+- `ForceRunCrossChecks=false` queda explicito para que SPP no pueda ejecutarse
+  como arrastre interno desde ranking/static tabs.
+- Evidencia local: dry-run
+  `phase11_spp_crosschecks_target_20260524_152849.json`, apply
+  `phase11_spp_crosschecks_target_20260524_152857.json`, backup
+  `phase11_spp_crosschecks_20260524_152857/` e idempotent dry-run
+  `phase11_spp_crosschecks_target_20260524_152905.json` con `ok=true`,
+  `changed=false`, `changedActionCount=0`, `guardOk=true` e `issues=[]`.
+- Ledger local respondido: `SPP > CrossChecks` (`94/94`).
+- El estado local queda en `currentPhase=phase11_spp_crosschecks` y
+  `nextPhase=phase11_spp_static_tabs`.
+
+Siguiente bloque exacto: `phase11_spp_static_tabs`, para cerrar Rankings,
+RiskMoneyManagement y superficies estaticas restantes sin activar SPP ni WFM.
+
 ## Disciplina Operativa
 
 En cada fase:

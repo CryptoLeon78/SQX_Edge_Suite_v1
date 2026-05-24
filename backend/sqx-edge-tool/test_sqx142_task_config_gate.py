@@ -20,6 +20,7 @@ from tools.sqx142_task_config_gate import (
     apply_synthetic_passive_generation_to_root,
     apply_synthetic_static_tabs_to_root,
     apply_spp_data_databanks_resources_options_to_root,
+    apply_spp_crosschecks_to_root,
     apply_sequential_data_databanks_resources_options_to_root,
     apply_sequential_crosschecks_to_root,
     apply_sequential_passive_generation_to_root,
@@ -53,6 +54,7 @@ from tools.sqx142_task_config_gate import (
     enforce_synthetic_passive_generation_guard,
     enforce_synthetic_static_tabs_guard,
     enforce_spp_data_databanks_resources_options_guard,
+    enforce_spp_crosschecks_guard,
     enforce_sequential_data_databanks_resources_options_guard,
     enforce_sequential_crosschecks_guard,
     enforce_sequential_passive_generation_guard,
@@ -3136,6 +3138,135 @@ def test_spp_data_databanks_resources_options_guard_rejects_data_and_donor_drift
     assert any("session entries" in issue for issue in issues)
     assert any("Options param Session" in issue for issue in issues)
     assert any("Forbidden donor token" in issue for issue in issues)
+
+
+def _spp_data_gate_fixture() -> str:
+    return """
+      <CustomData>
+        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader4">
+          <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" />
+          <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0.0</Param></Params></Method></Commissions>
+          <MainTestValues engine="true" symbol="true" timeframe="true" dates="true" precision="true" distance="true" spread="true" slippage="true" commissions="true" />
+        </Setup></Setups>
+      </CustomData>
+      <Databanks><Databank name="Input" value="Syntetic" /><Databank name="Output" value="SPP" /></Databanks>
+      <Resources>
+        <Symbols><Symbol name="AUDCAD_darwinex" precision="TICK" timezone="EETUS" broker="4"><InstrumentInfo instrument="AUDCAD_darwinex" broker="4" /></Symbol></Symbols>
+        <Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers>
+        <Instruments><InstrumentInfo instrument="AUDCAD_darwinex" broker="4" /></Instruments>
+        <Sessions />
+      </Resources>
+      <Options><BuildTradingOptions><Params>
+        <Param key="LimitTimeRange">false</Param>
+        <Param key="RealisticGapsHandling">false</Param>
+        <Param key="StoreChartData">false</Param>
+        <Param key="Session">No Session</Param>
+        <Param key="MarketOpenSession">No Session</Param>
+      </Params></BuildTradingOptions></Options>
+    """
+
+
+def test_spp_crosschecks_keeps_optprofile_filters_and_cleans_inactive_methods():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_spp_data_gate_fixture()}
+          <CrossChecks use="false" evaluateAll="false">
+            <RetestOnAdditionalMarkets use="false">
+              <Settings><Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old" slippage="5" minDist="2">
+                <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
+              </Setup></Setups></Settings>
+            </RetestOnAdditionalMarkets>
+            <MonteCarloManipulation use="false">
+              <Settings><Methods><Method type="RandomizeTradesOrder" use="true" /><Method type="RandomlySkipTrades" use="true" /></Methods></Settings>
+            </MonteCarloManipulation>
+            <MonteCarloRetest use="false">
+              <Settings><Methods>
+                <Method type="RandomizeHistoryData" use="true" />
+                <Method type="RandomizeSpread" use="true"><Params><Param key="Min">1</Param><Param key="Max">5</Param></Params></Method>
+              </Methods></Settings>
+            </MonteCarloRetest>
+            <OptProfileSysParamPermutation use="true">
+              <Settings>
+                <MaxTests>1000</MaxTests><DistributionUp>50</DistributionUp><DistributionDown>50</DistributionDown><Steps>10</Steps>
+                <WhatToParametrize type="2" symmetricVariables="true"><Recommended>true</Recommended><Periods>false</Periods><EntryLogic>true</EntryLogic></WhatToParametrize>
+              </Settings>
+              <AcceptanceSettings>
+                <ProfitOptPct>10</ProfitOptPct><AvgProfit>5</AvgProfit><UniformDistrChanges>99</UniformDistrChanges><StdevAvgProfit>2</StdevAvgProfit>
+                <EvalProfitOptCheck>false</EvalProfitOptCheck><EvalAvgProfitCheck>false</EvalAvgProfitCheck><EvalUniformDistrCheck>false</EvalUniformDistrCheck><EvalTopProfitCheck>true</EvalTopProfitCheck>
+                <Conditions><Condition use="false" /></Conditions>
+              </AcceptanceSettings>
+            </OptProfileSysParamPermutation>
+          </CrossChecks>
+          <Rankings><ForceRunCrossChecks>false</ForceRunCrossChecks></Rankings>
+        </Settings>
+        """
+    )
+
+    actions = apply_spp_crosschecks_to_root(root)
+
+    assert any(item["field"] == "CrossChecks:attrs" and item["changed"] for item in actions)
+    assert any(item["field"] == "CrossChecks/MonteCarloRetest/Method:RandomizeSpread:use" and item["changed"] for item in actions)
+    assert enforce_spp_crosschecks_guard(root) == []
+    summary = gate.spp_crosschecks_summary(root)
+    assert summary["active"] == ["OptProfileSysParamPermutation"]
+    spp = next(item for item in summary["checks"] if item["id"] == "OptProfileSysParamPermutation")
+    assert spp["settings"]["MaxTests"] == "3000"
+    assert spp["settings"]["DistributionUp"] == "20"
+    assert spp["settings"]["DistributionDown"] == "20"
+    assert spp["settings"]["Steps"] == "25"
+    assert spp["settings"]["ParametrizeFlags"]["EntryParams"] == "true"
+    assert spp["settings"]["ParametrizeFlags"]["EntryLogic"] == "false"
+    assert spp["acceptanceSettings"]["ProfitOptPct"] == "30"
+    assert spp["acceptanceSettings"]["EvalTopProfitCheck"] == "false"
+    assert len(spp["conditions"]) == 2
+    assert spp["conditions"][0]["left"]["column"] == "NetProfit"
+    assert spp["conditions"][0]["comparator"] == ">="
+    assert spp["conditions"][0]["right"]["pctRatio"] == "50"
+    assert spp["conditions"][1]["left"]["column"] == "DrawdownPct"
+    assert spp["conditions"][1]["comparator"] == "<="
+    assert spp["conditions"][1]["right"]["pctRatio"] == "200"
+    inactive_methods = [
+        method
+        for check in summary["checks"]
+        for method in check["methods"]
+    ]
+    assert all(method["use"] == "false" for method in inactive_methods)
+    setup = root.find(".//CrossChecks/RetestOnAdditionalMarkets/Settings/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "2"
+    assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
+
+
+def test_spp_crosschecks_guard_rejects_active_hidden_methods_bad_filters_and_force_run():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_spp_data_gate_fixture()}
+          <CrossChecks use="true" evaluateAll="true">
+            <MonteCarloRetest use="false"><Settings><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings></MonteCarloRetest>
+            <OptProfileSysParamPermutation use="true">
+              <Settings>
+                <MaxTests>999</MaxTests><DistributionUp>20</DistributionUp><DistributionDown>20</DistributionDown><Steps>25</Steps>
+                <WhatToParametrize type="1" symmetricVariables="false"><Recommended>false</Recommended><Periods>true</Periods><Constants>true</Constants></WhatToParametrize>
+              </Settings>
+              <AcceptanceSettings><ProfitOptPct>30</ProfitOptPct><Conditions><Condition use="false" /></Conditions></AcceptanceSettings>
+            </OptProfileSysParamPermutation>
+          </CrossChecks>
+          <Rankings><ForceRunCrossChecks>true</ForceRunCrossChecks></Rankings>
+        </Settings>
+        """
+    )
+
+    issues = enforce_spp_crosschecks_guard(root)
+
+    assert any("MaxTests" in issue for issue in issues)
+    assert any("ParametrizeFlags" in issue for issue in issues)
+    assert any("AcceptanceSettings" in issue for issue in issues)
+    assert any("acceptance conditions" in issue for issue in issues)
+    assert any("active methods" in issue for issue in issues)
+    assert any("ForceRunCrossChecks" in issue for issue in issues)
 
 
 def test_monkey_passive_generation_points_to_sequential_and_preserves_indicator_universe():

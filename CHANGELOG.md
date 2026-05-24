@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 SPP CrossChecks
+
+- Adds `spp-crosschecks-target` with dry-run/apply support, guard checks and tests for `AutomaticRetest-Task7.xml`.
+- Keeps SPP as configuration-review only: only `OptProfileSysParamPermutation` is active with `MaxTests=3000`, `DistributionUp=20`, `DistributionDown=20`, `Steps=25`, methodology `WhatToParametrize` flags and dedicated filters `NetProfit >= 50%` main plus `DrawdownPct <= 200%` main.
+- Turns off hidden active methods inside inactive `MonteCarloManipulation` and `MonteCarloRetest`, normalizes nested CrossChecks setup to `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, seed `AUDCAD_darwinex/H1` spread `2.0`, and pins `ForceRunCrossChecks=false`.
+- Records backup `phase11_spp_crosschecks_20260524_152857`, apply diff `phase11_spp_crosschecks_target_20260524_152857.json`, idempotent dry-run `phase11_spp_crosschecks_target_20260524_152905.json`, report `phase11_spp_crosschecks_20260524_152918.json`, ledger answer `SPP > CrossChecks` (`94/94`) and next exact block `phase11_spp_static_tabs`.
+
 ## 2026-05-24 - C1-CONFIG1 SPP Data Databanks Resources Options
 
 - Adds `spp-data-databanks-resources-options-target` with dry-run/apply support, guard checks and tests for `AutomaticRetest-Task7.xml`.

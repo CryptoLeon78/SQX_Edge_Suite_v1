@@ -671,6 +671,101 @@ SPP_DEFAULT_CHART_TARGET = MC2_DEFAULT_CHART_TARGET
 SPP_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET = MC2_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET
 SPP_OPTIONS_PARAMS_TARGET = MC_OPTIONS_PARAMS_TARGET
 SPP_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT = "phase11_spp_crosschecks"
+SPP_CROSSCHECK_PARENT_TARGET = {"use": "true", "evaluateAll": "true"}
+SPP_CROSSCHECK_SETTINGS_TARGET = {
+    "MaxTests": "3000",
+    "DistributionUp": "20",
+    "DistributionDown": "20",
+    "Steps": "25",
+}
+SPP_WHAT_TO_PARAMETRIZE_ATTR_TARGET = {"type": "1", "symmetricVariables": "false"}
+SPP_PARAMETRIZE_FLAGS_TARGET = {
+    "Recommended": "false",
+    "Periods": "true",
+    "Shifts": "false",
+    "Constants": "true",
+    "OtherParams": "false",
+    "EntryParams": "true",
+    "EntryLogic": "false",
+    "ExitParamsUsed": "true",
+    "ExitParamsUnused": "false",
+    "BooleanParams": "false",
+}
+SPP_ACCEPTANCE_SETTINGS_TARGET = {
+    "ProfitOptPct": "30",
+    "AvgProfit": "0",
+    "UniformDistrChanges": "15",
+    "StdevAvgProfit": "1",
+    "EvalProfitOptCheck": "true",
+    "EvalAvgProfitCheck": "true",
+    "EvalUniformDistrCheck": "true",
+    "EvalTopProfitCheck": "false",
+}
+SPP_ACCEPTANCE_CONDITIONS_TARGET = [
+    {
+        "left": {
+            "column": "NetProfit",
+            "columnType": "0",
+            "format": "Decimal2PL",
+            "resultType": SPP_ACTIVE_CROSSCHECK,
+            "direction": "0",
+            "sampleType": "10",
+            "plType": "10",
+            "confidenceLevel": "50",
+            "market": "1",
+            "subresult": "30",
+            "pctRatio": "80",
+            "class": "NetProfit",
+        },
+        "comparator": ">=",
+        "right": {
+            "column": "NetProfit",
+            "columnType": "0",
+            "format": "Decimal2PL",
+            "resultType": "main",
+            "direction": "0",
+            "sampleType": "127",
+            "plType": "10",
+            "confidenceLevel": "50",
+            "market": "undefined",
+            "subresult": "30",
+            "pctRatio": "50",
+            "class": "NetProfit",
+        },
+    },
+    {
+        "left": {
+            "column": "DrawdownPct",
+            "columnType": "0",
+            "format": "Decimal2Pct",
+            "resultType": SPP_ACTIVE_CROSSCHECK,
+            "direction": "0",
+            "sampleType": "10",
+            "plType": "10",
+            "confidenceLevel": "50",
+            "market": "1",
+            "subresult": "30",
+            "pctRatio": "80",
+            "class": "DrawdownPct",
+        },
+        "comparator": "<=",
+        "right": {
+            "column": "DrawdownPct",
+            "columnType": "0",
+            "format": "Decimal2Pct",
+            "resultType": "main",
+            "direction": "0",
+            "sampleType": "127",
+            "plType": "10",
+            "confidenceLevel": "50",
+            "market": "undefined",
+            "subresult": "30",
+            "pctRatio": "200",
+            "class": "DrawdownPct",
+        },
+    },
+]
+SPP_CROSSCHECKS_NEXT = "phase11_spp_static_tabs"
 SYNTHETIC_ACCEPTANCE_CONDITIONS_TARGET = [
     {
         "left": {
@@ -11988,6 +12083,13 @@ def spp_crosschecks_summary(root: ET.Element | None) -> dict[str, Any]:
                     mc_condition_summary(condition)
                     for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
                 ],
+                "nestedSetups": [
+                    {
+                        "attrs": dict(setup.attrib),
+                        "charts": [dict(chart.attrib) for chart in setup.findall("Chart")],
+                    }
+                    for setup in check.findall("./Settings/Setups/Setup")
+                ],
             }
             if check.tag == SPP_ACTIVE_CROSSCHECK:
                 settings = check.find("./Settings")
@@ -12537,6 +12639,351 @@ def promote_spp_data_databanks_resources_options_target(root142: Path, project_r
         "nextPhase": "phase11_spp_data_databanks_resources_options_diff_review" if not apply else SPP_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT,
     }
     evidence_target = ledger_root(project_root) / "diffs" / f"phase11_spp_data_databanks_resources_options_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
+def set_spp_acceptance_conditions(check: ET.Element, actions: list[dict[str, Any]]) -> None:
+    acceptance = ensure_direct_child(check, "AcceptanceSettings")
+    for key, wanted in SPP_ACCEPTANCE_SETTINGS_TARGET.items():
+        set_or_create_text_child(
+            acceptance,
+            key,
+            wanted,
+            actions,
+            f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}/AcceptanceSettings/{key}",
+        )
+    remove_unknown_text_children(
+        acceptance,
+        set(SPP_ACCEPTANCE_SETTINGS_TARGET) | {"Conditions"},
+        actions,
+        f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}/AcceptanceSettings:unknown",
+    )
+
+    conditions = acceptance.find("Conditions")
+    if conditions is None:
+        conditions = ET.SubElement(acceptance, "Conditions")
+        before: list[dict[str, Any]] = []
+    else:
+        before = [mc_condition_summary(condition) for condition in conditions.findall("Condition")]
+        for child in list(conditions):
+            conditions.remove(child)
+    conditions.attrib.clear()
+    conditions.set("CrossCheck", SPP_ACTIVE_CROSSCHECK)
+    conditions.text = "\n          "
+    for index, target in enumerate(SPP_ACCEPTANCE_CONDITIONS_TARGET):
+        condition = make_mc_ratio_condition(target)
+        condition.tail = "\n        " if index == len(SPP_ACCEPTANCE_CONDITIONS_TARGET) - 1 else "\n          "
+        conditions.append(condition)
+    after = [mc_condition_summary(condition) for condition in conditions.findall("Condition")]
+    actions.append({
+        "field": f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}/AcceptanceSettings/Conditions",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+        "note": "SPP keeps dedicated parameter-permutation filters: NetProfit >= 50% of main and DrawdownPct <= 200% of main.",
+    })
+
+
+def normalize_spp_crosscheck_setups(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    period = generator_period(SPP_PERIOD_KEY)
+    before: list[dict[str, Any]] = []
+    after: list[dict[str, Any]] = []
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        before.append({
+            "attrs": dict(setup.attrib),
+            "charts": [dict(chart.attrib) for chart in setup.findall("Chart")],
+        })
+        for key, wanted in {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": SPP_DATA_TEST_PRECISION,
+            "session": SPP_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+        }.items():
+            setup.set(key, wanted)
+        charts = setup.findall("Chart")
+        if not charts:
+            charts = [ET.SubElement(setup, "Chart")]
+        for chart in charts:
+            for key, value in SPP_DEFAULT_CHART_TARGET.items():
+                chart.set(key, value)
+        after.append({
+            "attrs": dict(setup.attrib),
+            "charts": [dict(chart.attrib) for chart in setup.findall("Chart")],
+        })
+    actions.append({
+        "field": "CrossChecks/*/Settings/Setups/Setup",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+        "note": "Inactive nested crosscheck setups are normalized to the same safe seed; SPP itself remains configuration-review only.",
+    })
+
+
+def apply_spp_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    parent = find_section(root, "CrossChecks")
+    if parent is None:
+        parent = ET.SubElement(root, "CrossChecks")
+        actions.append({"field": "CrossChecks", "from": None, "to": dict(parent.attrib), "changed": True})
+    set_attrs_on_node(parent, SPP_CROSSCHECK_PARENT_TARGET, actions, "CrossChecks:attrs")
+
+    active = parent.find(SPP_ACTIVE_CROSSCHECK)
+    if active is None:
+        active = ET.SubElement(parent, SPP_ACTIVE_CROSSCHECK, {"use": "true"})
+        actions.append({"field": f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}", "from": None, "to": dict(active.attrib), "changed": True})
+
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        before_use = check.get("use", "")
+        wanted_use = "true" if check.tag == SPP_ACTIVE_CROSSCHECK else "false"
+        check.set("use", wanted_use)
+        actions.append({
+            "field": f"CrossChecks/{check.tag}:use",
+            "from": before_use,
+            "to": wanted_use,
+            "changed": before_use != wanted_use,
+        })
+        for method in check.findall("./Settings/Methods/Method"):
+            before_method = method.get("use", "")
+            method.set("use", "false")
+            actions.append({
+                "field": f"CrossChecks/{check.tag}/Method:{method.get('type', '')}:use",
+                "from": before_method,
+                "to": "false",
+                "changed": before_method != "false",
+            })
+
+    settings = ensure_direct_child(active, "Settings")
+    for key, wanted in SPP_CROSSCHECK_SETTINGS_TARGET.items():
+        set_or_create_text_child(
+            settings,
+            key,
+            wanted,
+            actions,
+            f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}/Settings/{key}",
+        )
+
+    what_to_parametrize = settings.find("WhatToParametrize")
+    if what_to_parametrize is None:
+        what_to_parametrize = ET.SubElement(settings, "WhatToParametrize")
+        actions.append({
+            "field": f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}/WhatToParametrize",
+            "from": None,
+            "to": dict(what_to_parametrize.attrib),
+            "changed": True,
+        })
+    before_attrs = dict(what_to_parametrize.attrib)
+    what_to_parametrize.attrib.clear()
+    what_to_parametrize.attrib.update(SPP_WHAT_TO_PARAMETRIZE_ATTR_TARGET)
+    actions.append({
+        "field": f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}/WhatToParametrize:attrs",
+        "from": before_attrs,
+        "to": dict(what_to_parametrize.attrib),
+        "changed": before_attrs != dict(what_to_parametrize.attrib),
+    })
+    for key, wanted in SPP_PARAMETRIZE_FLAGS_TARGET.items():
+        set_or_create_text_child(
+            what_to_parametrize,
+            key,
+            wanted,
+            actions,
+            f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}/WhatToParametrize/{key}",
+        )
+    remove_unknown_text_children(
+        what_to_parametrize,
+        set(SPP_PARAMETRIZE_FLAGS_TARGET),
+        actions,
+        f"CrossChecks/{SPP_ACTIVE_CROSSCHECK}/WhatToParametrize:unknown",
+    )
+
+    set_spp_acceptance_conditions(active, actions)
+    normalize_spp_crosscheck_setups(root, actions)
+    rankings = find_section(root, "Rankings")
+    if rankings is not None:
+        set_or_create_text_child(
+            rankings,
+            "ForceRunCrossChecks",
+            "false",
+            actions,
+            "Rankings/ForceRunCrossChecks",
+        )
+    return actions
+
+
+def spp_acceptance_conditions_ok(root: ET.Element) -> bool:
+    check = root.find(f".//CrossChecks/{SPP_ACTIVE_CROSSCHECK}")
+    if check is None:
+        return False
+    conditions = [
+        mc_condition_summary(condition)
+        for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
+    ]
+    expected = [
+        {"use": "true", "left": item["left"], "comparator": item["comparator"], "right": item["right"]}
+        for item in SPP_ACCEPTANCE_CONDITIONS_TARGET
+    ]
+    return conditions == expected
+
+
+def enforce_spp_crosschecks_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = spp_crosschecks_summary(root)
+    attrs = summary.get("attributes") or {}
+    if attrs != SPP_CROSSCHECK_PARENT_TARGET:
+        issues.append(f"SPP CrossChecks attrs are {attrs!r}, expected {SPP_CROSSCHECK_PARENT_TARGET!r}")
+    if summary.get("active") != [SPP_ACTIVE_CROSSCHECK]:
+        issues.append(f"SPP active crosschecks are {summary.get('active')!r}, expected [{SPP_ACTIVE_CROSSCHECK!r}]")
+
+    checks = {item.get("id"): item for item in summary.get("checks") or []}
+    active = checks.get(SPP_ACTIVE_CROSSCHECK) or {}
+    if active.get("activeMethodTypes"):
+        issues.append(f"SPP {SPP_ACTIVE_CROSSCHECK} must not have active methods: {active.get('activeMethodTypes')!r}")
+    settings = active.get("settings") or {}
+    for key, wanted in SPP_CROSSCHECK_SETTINGS_TARGET.items():
+        if settings.get(key) != wanted:
+            issues.append(f"SPP {key} is {settings.get(key)!r}, expected {wanted!r}")
+    if (settings.get("WhatToParametrize") or {}) != SPP_WHAT_TO_PARAMETRIZE_ATTR_TARGET:
+        issues.append(f"SPP WhatToParametrize attrs drifted: {settings.get('WhatToParametrize')!r}")
+    if (settings.get("ParametrizeFlags") or {}) != SPP_PARAMETRIZE_FLAGS_TARGET:
+        issues.append(f"SPP ParametrizeFlags drifted: {settings.get('ParametrizeFlags')!r}")
+    if (active.get("acceptanceSettings") or {}) != SPP_ACCEPTANCE_SETTINGS_TARGET:
+        issues.append(f"SPP AcceptanceSettings drifted: {active.get('acceptanceSettings')!r}")
+    if not spp_acceptance_conditions_ok(root):
+        issues.append("SPP acceptance conditions must remain the dedicated OptProfileSysParamPermutation NetProfit/DrawdownPct rows")
+
+    for check in summary.get("checks") or []:
+        active_methods = [method for method in check.get("methods") or [] if method.get("use") == "true"]
+        if active_methods:
+            issues.append(f"SPP crosscheck {check.get('id')} still has active methods: {[item.get('type') for item in active_methods]}")
+
+    period = generator_period(SPP_PERIOD_KEY)
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"SPP nested CrossChecks setup dates drifted: {dict(setup.attrib)!r}")
+        if setup.get("testPrecision") != SPP_DATA_TEST_PRECISION:
+            issues.append(f"SPP nested CrossChecks setup precision is {setup.get('testPrecision')!r}, expected {SPP_DATA_TEST_PRECISION!r}")
+        if setup.get("session") != SPP_DATA_SESSION:
+            issues.append(f"SPP nested CrossChecks setup session is {setup.get('session')!r}, expected {SPP_DATA_SESSION!r}")
+        if setup.get("slippage") != "0" or setup.get("minDist") != "0":
+            issues.append(f"SPP nested CrossChecks setup costs drifted: {dict(setup.attrib)!r}")
+        for chart in setup.findall("Chart"):
+            for key, wanted in SPP_DEFAULT_CHART_TARGET.items():
+                if chart.get(key) != wanted:
+                    issues.append(f"SPP nested CrossChecks chart {key} is {chart.get(key)!r}, expected {wanted!r}")
+
+    rankings = find_section(root, "Rankings")
+    if rankings is not None and (rankings.findtext("ForceRunCrossChecks") or "") != "false":
+        issues.append("SPP Rankings/ForceRunCrossChecks must remain false; SPP is not executed in this phase")
+
+    for issue in enforce_spp_data_databanks_resources_options_guard(root):
+        issues.append(f"Data/Resources guard: {issue}")
+
+    guarded_text = section_text(root, "CrossChecks")
+    for token in MC_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into SPP CrossChecks: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into SPP CrossChecks")
+    return issues
+
+
+def update_spp_crosschecks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root = load_task_root(cfx, SPP_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "spp_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = spp_crosschecks_summary(root)
+    payload["actions"] = apply_spp_crosschecks_to_root(root)
+    payload["after"] = spp_crosschecks_summary(root)
+    payload["issues"] = enforce_spp_crosschecks_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["xmlChanged"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["changed"] = payload["changedActionCount"] > 0
+    payload["targetValues"] = {
+        "taskTitle": SPP_TASK_TITLE,
+        "taskXml": SPP_TASK_XML,
+        "parent": SPP_CROSSCHECK_PARENT_TARGET,
+        "onlyActiveCheck": SPP_ACTIVE_CROSSCHECK,
+        "settings": SPP_CROSSCHECK_SETTINGS_TARGET,
+        "whatToParametrizeAttrs": SPP_WHAT_TO_PARAMETRIZE_ATTR_TARGET,
+        "parametrizeFlags": SPP_PARAMETRIZE_FLAGS_TARGET,
+        "acceptanceSettings": SPP_ACCEPTANCE_SETTINGS_TARGET,
+        "acceptanceConditions": SPP_ACCEPTANCE_CONDITIONS_TARGET,
+        "nestedSetupPeriod": SPP_PERIOD_KEY,
+        "nestedSetupChartSeed": SPP_DEFAULT_CHART_TARGET,
+        "forceRunCrossChecks": "false",
+        "executionPolicy": SPP_EXECUTION_POLICY,
+    }
+    payload["targetRationale"] = {
+        "methodology": "SPP reviews parameter sensitivity after Synthetic/Syntetic; it is not a new optimizer or a live smoke in this phase.",
+        "filters": "Dedicated SPP filters are kept: optimized net profit must not collapse below 50% of main, and drawdown must not exceed 200% of main.",
+        "cleanup": "Methods hidden inside inactive MonteCarloManipulation, MonteCarloRetest and other crosschecks are switched off so SPP stays isolated.",
+        "naturalResults": "No Results value is forced; passed/failed must remain the natural SQX outcome if SPP is executed later by explicit decision.",
+        "noLiveRun": "The tool only edits XML targets with backup/diff and never launches SQX or SPP.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_spp_crosschecks_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase11_spp_crosschecks_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_spp_crosschecks_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase11",
+        "operation": "spp_crosschecks_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase11_spp_crosschecks_diff_review" if not apply else SPP_CROSSCHECKS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase11_spp_crosschecks_target_{stamp()}.json"
     write_json(evidence_target, payload)
     payload["written"] = str(evidence_target)
     return payload
@@ -13879,6 +14326,10 @@ def build_parser() -> argparse.ArgumentParser:
     spp_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     spp_data.add_argument("--apply", action="store_true")
 
+    spp_crosschecks = sub.add_parser("spp-crosschecks-target")
+    spp_crosschecks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    spp_crosschecks.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -14076,6 +14527,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "spp-data-databanks-resources-options-target":
         json_print(promote_spp_data_databanks_resources_options_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "spp-crosschecks-target":
+        json_print(promote_spp_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
