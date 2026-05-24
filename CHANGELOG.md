@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Monkey Test Open
+
+- Adds `monkey-open-report` to open Phase 9 after Sequential closeout without launching SQX or mutating task values.
+- Maps `Monkey Test` to `AutomaticRetest-Task6.xml` and verifies the chain `Input=Sequential` / `Output=Monkey Test` on local base and repo template.
+- Confirms `MonteCarloRetest` as the only active crosscheck with `RealMonkeyTest`, `NumberOfSimulations=200`, `MCUseFullSample=true` and `MaxChange=90`.
+- Records pending decisions before mutation: Data/CustomData carrier, generator-owned resources, inactive acceptance filters, hidden active methods inside inactive checks and passive generation/static tabs.
+- Writes local phase report `phase9_monkey_test_open_20260524_091714.json`, generates the full `Monkey Test` questionnaire (`20,036` detected entries, `12,332` donor/base differences) and sets next exact block `phase9_monkey_test_data_databanks_resources_options`.
+
 ## 2026-05-24 - C1-CONFIG1 Sequential Closeout
 
 - Adds `sequential-closeout-report` to close Phase 8 only when MC2 previous gate and all Sequential guards are green/idempotent in dry-run mode.

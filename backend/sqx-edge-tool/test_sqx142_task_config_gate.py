@@ -46,6 +46,8 @@ from tools.sqx142_task_config_gate import (
     fallback_retest1_oos2_resource,
     mc_closeout_operation_issues,
     mc_closeout_operation_summary,
+    monkey_open_issues,
+    monkey_open_summary,
     question_id,
     record_tab_answer,
     sequential_open_issues,
@@ -1913,6 +1915,80 @@ def test_sequential_open_issues_reject_wrong_chain_and_apply_to_strategy():
     assert any("CrossChecks must stay active" in issue for issue in issues)
     assert any("active crosschecks" in issue for issue in issues)
     assert any("ApplyToStrategy" in issue for issue in issues)
+    assert any("StrategyType.improveDatabank" in warning for warning in warnings)
+
+
+def test_monkey_open_summary_accepts_sequential_chain_and_real_monkey_method():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" /></Setups></Data>
+          <CustomData><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" /></Setups></CustomData>
+          <Databanks><Databank name="Input" value="Sequential" /><Databank name="Output" value="Monkey Test" /></Databanks>
+          <WhatToBuild><StrategyType improveDatabank="Sequential" improveType="strategy" architecture="sq4" /></WhatToBuild>
+          <CrossChecks use="true" evaluateAll="true">
+            <MonteCarloRetest use="true">
+              <Settings>
+                <NumberOfSimulations>200</NumberOfSimulations>
+                <MCUseFullSample>true</MCUseFullSample>
+                <MCBacktestPrecision>-1</MCBacktestPrecision>
+                <Methods>
+                  <Method type="RealMonkeyTest" use="true"><Params><Param key="MaxChange" type="Integer">90</Param></Params></Method>
+                  <Method type="SyntheticBootstrapV3" use="false" />
+                </Methods>
+              </Settings>
+              <AcceptanceSettings><Conditions CrossCheck="MonteCarloRetest"><Condition use="false" /></Conditions></AcceptanceSettings>
+            </MonteCarloRetest>
+            <SequentialOptimization use="false" />
+          </CrossChecks>
+        </Settings>
+        """
+    )
+
+    summary = monkey_open_summary(root)
+    issues, warnings = monkey_open_issues(summary)
+
+    assert issues == []
+    assert summary["databanks"] == {"Input": "Sequential", "Output": "Monkey Test"}
+    assert summary["crossChecks"]["active"] == ["MonteCarloRetest"]
+    assert summary["activeMonkeyMethod"]["type"] == "RealMonkeyTest"
+    assert summary["activeMonkeyMethod"]["params"]["MaxChange"] == "90"
+    assert any("acceptance filter conditions" in warning for warning in warnings)
+    assert any("Data and CustomData" in warning for warning in warnings)
+
+
+def test_monkey_open_issues_reject_wrong_chain_and_wrong_method():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Databanks><Databank name="Input" value="MC2" /><Databank name="Output" value="Sequential" /></Databanks>
+          <WhatToBuild><StrategyType improveDatabank="Legacy" /></WhatToBuild>
+          <CrossChecks use="false" evaluateAll="false">
+            <MonteCarloRetest use="true">
+              <Settings>
+                <NumberOfSimulations>100</NumberOfSimulations>
+                <MCUseFullSample>false</MCUseFullSample>
+                <Methods>
+                  <Method type="SyntheticBootstrapV3" use="true"><Params><Param key="MaxChange" type="Integer">50</Param></Params></Method>
+                </Methods>
+              </Settings>
+            </MonteCarloRetest>
+            <WhatIf use="true" />
+          </CrossChecks>
+        </Settings>
+        """
+    )
+
+    issues, warnings = monkey_open_issues(monkey_open_summary(root))
+
+    assert any("Databank Input" in issue for issue in issues)
+    assert any("Databank Output" in issue for issue in issues)
+    assert any("CrossChecks must stay active" in issue for issue in issues)
+    assert any("active crosschecks" in issue for issue in issues)
+    assert any("NumberOfSimulations" in issue for issue in issues)
+    assert any("MCUseFullSample" in issue for issue in issues)
+    assert any("active methods" in issue for issue in issues)
+    assert any("MaxChange" in issue for issue in issues)
     assert any("StrategyType.improveDatabank" in warning for warning in warnings)
 
 

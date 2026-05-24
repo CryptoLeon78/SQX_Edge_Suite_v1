@@ -1146,6 +1146,39 @@ Reporte local:
 Siguiente bloque exacto: `phase9_monkey_test_open`, para abrir `Monkey Test`
 con la misma disciplina de cuestionario/dry-run antes de tocar valores.
 
+Estado Fase 9 - Monkey Test Open:
+
+- `phase9_monkey_test_open` queda abierto con
+  `monkey-open-report --target both --write`.
+- `Monkey Test` queda mapeado a `AutomaticRetest-Task6.xml`; no se confunde
+  con `MC`, `MC 2`, `Sequential` ni `Synthetic`.
+- La cadena base/template ya es correcta: `Input=Sequential` y
+  `Output=Monkey Test`.
+- `Sequential` queda verificado como gate previo cerrado:
+  `sequential-closeout-report` sigue `ok=true`, sin issues y con
+  `processes=0`.
+- El unico crosscheck activo de Monkey es `MonteCarloRetest`, con metodo
+  `RealMonkeyTest`, `NumberOfSimulations=200`, `MCUseFullSample=true` y
+  `MaxChange=90`.
+- Este open no lanza SQX, no ejecuta retests reales y no muta el CFX; solo lee
+  XML/estado local, escribe reporte y prepara cuestionario completo.
+- Quedan decisiones pendientes antes de aplicar valores: elegir portador
+  `Data`/`CustomData`, mantener recursos gobernados por Project Generator,
+  decidir si los filtros de aceptacion inactivos quedan advisory/off o se
+  activan, y limpiar metodos activos dentro de crosschecks inactivos si seguimos
+  la disciplina de Sequential.
+- Se preserva la regla critica: Monkey debe conservar passed/failed naturales y
+  nunca forzar `Results=passed`.
+- Cuestionario completo generado para `Monkey Test`: `20,036` entradas
+  detectadas y `12,332` diferencias donor/base.
+
+Reporte local:
+`.local/sqx142_task_config/phase_reports/phase9_monkey_test_open_20260524_091714.json`.
+
+Siguiente bloque exacto: `phase9_monkey_test_data_databanks_resources_options`,
+para cerrar Data/Databanks/Resources/Options de `Monkey Test` con diff antes de
+tocar la base.
+
 ## Disciplina Operativa
 
 En cada fase:

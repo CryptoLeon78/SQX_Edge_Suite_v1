@@ -569,6 +569,18 @@ SEQUENTIAL_CROSSCHECKS_NEXT = "phase8_sequential_passive_generation"
 SEQUENTIAL_PASSIVE_GENERATION_NEXT = "phase8_sequential_static_tabs"
 SEQUENTIAL_STATIC_TABS_NEXT = "phase8_sequential_closeout"
 SEQUENTIAL_CLOSEOUT_NEXT = "phase9_monkey_test_open"
+MONKEY_TASK_TITLE = "Monkey Test"
+MONKEY_TASK_XML = "AutomaticRetest-Task6.xml"
+MONKEY_EXPECTED_DATABANKS = {
+    "Input": "Sequential",
+    "Output": "Monkey Test",
+}
+MONKEY_ACTIVE_CROSSCHECK = "MonteCarloRetest"
+MONKEY_ACTIVE_METHOD = "RealMonkeyTest"
+MONKEY_NUMBER_OF_SIMULATIONS = "200"
+MONKEY_USE_FULL_SAMPLE = "true"
+MONKEY_METHOD_MAX_CHANGE = "90"
+MONKEY_NEXT_PHASE = "phase9_monkey_test_data_databanks_resources_options"
 SEQUENTIAL_PASSIVE_SOURCE_TASK_TITLE = MC2_TASK_TITLE
 SEQUENTIAL_STRATEGY_TYPE_TARGET = {
     "type": "simple",
@@ -8883,6 +8895,258 @@ def sequential_closeout_report(root142: Path, project_root: Path, target: str, w
     return payload
 
 
+def monkey_crosschecks_summary(root: ET.Element | None) -> dict[str, Any]:
+    parent = find_section(root, "CrossChecks") if root is not None else None
+    checks: list[dict[str, Any]] = []
+    if parent is not None:
+        for check in list(parent):
+            if not isinstance(check.tag, str) or check.get("use") is None:
+                continue
+            methods = summarize_crosscheck_methods(check)
+            checks.append({
+                "id": check.tag,
+                "use": check.get("use", ""),
+                "numberOfSimulations": check.findtext("./Settings/NumberOfSimulations") or "",
+                "mcUseFullSample": check.findtext("./Settings/MCUseFullSample") or "",
+                "mcBacktestPrecision": check.findtext("./Settings/MCBacktestPrecision") or "",
+                "methods": methods,
+                "activeMethodTypes": [
+                    method.get("type", "")
+                    for method in methods
+                    if method.get("use") == "true"
+                ],
+                "activeAcceptanceConditionCount": len([
+                    condition
+                    for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
+                    if condition.get("use", "true") != "false"
+                ]),
+                "conditions": [
+                    mc_condition_summary(condition)
+                    for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
+                ],
+            })
+    return {
+        "exists": parent is not None,
+        "attributes": dict(parent.attrib) if parent is not None else {},
+        "active": [item["id"] for item in checks if item.get("use") == "true"],
+        "checks": checks,
+        "sha256": section_sha256(root, "CrossChecks") if root is not None else "",
+    }
+
+
+def monkey_open_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    databanks = {
+        node.get("name", ""): node.get("value", "")
+        for node in root.findall(".//Databanks/Databank")
+        if node.get("name")
+    }
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in {
+            "Session",
+            "MarketOpenSession",
+            "LimitTimeRange",
+            "SignalTimeRangeFrom",
+            "SignalTimeRangeTo",
+            "RealisticGapsHandling",
+            "StoreChartData",
+        }
+    }
+    strategy_type = root.find(".//WhatToBuild/StrategyType")
+    crosschecks = monkey_crosschecks_summary(root)
+    active_check = next(
+        (check for check in crosschecks.get("checks", []) if check.get("id") == MONKEY_ACTIVE_CROSSCHECK),
+        {},
+    )
+    active_methods = [
+        method
+        for method in active_check.get("methods", [])
+        if method.get("use") == "true"
+    ]
+    return {
+        "exists": True,
+        "data": {
+            "exists": root.find("./Data") is not None,
+            "setup": _setup_attrs(root.find("./Data/Setups/Setup")),
+            "outOfSampleRanges": [dict(node.attrib) for node in root.findall("./Data/OutOfSample/Range")],
+        },
+        "customData": {
+            "exists": root.find("./CustomData") is not None,
+            "setup": _setup_attrs(root.find("./CustomData/Setups/Setup")),
+        },
+        "databanks": databanks,
+        "resources": _tick_real_resource_summary(root),
+        "optionsParams": params,
+        "strategyType": dict(strategy_type.attrib) if strategy_type is not None else {},
+        "passiveGeneration": retest1_passive_generation_summary(root),
+        "crossChecks": crosschecks,
+        "activeMonkeyMethod": active_methods[0] if active_methods else {},
+    }
+
+
+def monkey_open_issues(summary: dict[str, Any]) -> tuple[list[str], list[str]]:
+    issues: list[str] = []
+    warnings: list[str] = []
+    if not summary.get("exists"):
+        return ["Monkey Test task missing"], warnings
+
+    databanks = summary.get("databanks") or {}
+    for name, wanted in MONKEY_EXPECTED_DATABANKS.items():
+        if databanks.get(name) != wanted:
+            issues.append(f"Monkey Test Databank {name} is {databanks.get(name)!r}, expected {wanted!r}")
+
+    crosschecks = summary.get("crossChecks") or {}
+    if not crosschecks.get("exists"):
+        issues.append("Monkey Test CrossChecks section missing")
+    else:
+        attrs = crosschecks.get("attributes") or {}
+        if attrs.get("use") != "true" or attrs.get("evaluateAll") != "true":
+            issues.append("Monkey Test CrossChecks must stay active/evaluateAll for RealMonkeyTest")
+        active = crosschecks.get("active") or []
+        if active != [MONKEY_ACTIVE_CROSSCHECK]:
+            issues.append(f"Monkey Test active crosschecks are {active!r}, expected only {MONKEY_ACTIVE_CROSSCHECK!r}")
+        checks = {item.get("id"): item for item in crosschecks.get("checks") or []}
+        monte_carlo = checks.get(MONKEY_ACTIVE_CROSSCHECK) or {}
+        if monte_carlo.get("numberOfSimulations") != MONKEY_NUMBER_OF_SIMULATIONS:
+            issues.append(f"Monkey Test NumberOfSimulations is {monte_carlo.get('numberOfSimulations')!r}, expected {MONKEY_NUMBER_OF_SIMULATIONS!r}")
+        if monte_carlo.get("mcUseFullSample") != MONKEY_USE_FULL_SAMPLE:
+            issues.append(f"Monkey Test MCUseFullSample is {monte_carlo.get('mcUseFullSample')!r}, expected {MONKEY_USE_FULL_SAMPLE!r}")
+        active_methods = monte_carlo.get("activeMethodTypes") or []
+        if active_methods != [MONKEY_ACTIVE_METHOD]:
+            issues.append(f"Monkey Test active methods are {active_methods!r}, expected only {MONKEY_ACTIVE_METHOD!r}")
+        method = summary.get("activeMonkeyMethod") or {}
+        params = method.get("params") or {}
+        if params.get("MaxChange") != MONKEY_METHOD_MAX_CHANGE:
+            issues.append(f"Monkey Test RealMonkeyTest MaxChange is {params.get('MaxChange')!r}, expected {MONKEY_METHOD_MAX_CHANGE!r}")
+        if monte_carlo.get("activeAcceptanceConditionCount") == 0:
+            warnings.append("Monkey Test acceptance filter conditions are currently inactive; next block must decide whether to keep filters advisory/off or activate them.")
+        inactive_with_active_methods = [
+            {
+                "check": check.get("id"),
+                "methods": check.get("activeMethodTypes") or [],
+            }
+            for check in crosschecks.get("checks") or []
+            if check.get("id") != MONKEY_ACTIVE_CROSSCHECK and check.get("use") == "false" and check.get("activeMethodTypes")
+        ]
+        if inactive_with_active_methods:
+            warnings.append(f"Monkey Test inactive crosschecks still carry active methods {inactive_with_active_methods!r}; next CrossChecks block should make them inert if we keep the Sequential discipline.")
+
+    strategy_type = summary.get("strategyType") or {}
+    improve_databank = strategy_type.get("improveDatabank", "")
+    if improve_databank and improve_databank != "Sequential":
+        warnings.append(f"Monkey Test StrategyType.improveDatabank is {improve_databank!r}; next passive-generation block should normalize it to Sequential if needed")
+
+    if (summary.get("data") or {}).get("exists") and (summary.get("customData") or {}).get("exists"):
+        warnings.append("Monkey Test currently carries both Data and CustomData; next block must choose the canonical data carrier before mutation")
+
+    return issues, warnings
+
+
+def monkey_open_target_report(cfx: Path) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256": file_sha256(cfx) if cfx.is_file() else "",
+        "taskTitle": MONKEY_TASK_TITLE,
+        "taskXml": "",
+        "summary": {},
+        "issues": [],
+        "warnings": [],
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["issues"].append("missing_or_not_zip")
+        payload["ok"] = False
+        return payload
+    task_xml_name, root = load_task_root(cfx, MONKEY_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["issues"].append("monkey_test_task_not_found")
+        payload["ok"] = False
+        return payload
+    if task_xml_name != MONKEY_TASK_XML:
+        payload["warnings"].append(f"Monkey Test task XML is {task_xml_name!r}, expected {MONKEY_TASK_XML!r}")
+    payload["summary"] = monkey_open_summary(root)
+    issues, warnings = monkey_open_issues(payload["summary"])
+    payload["issues"] = issues
+    payload["warnings"].extend(warnings)
+    payload["ok"] = not issues
+    return payload
+
+
+def monkey_open_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    target_reports = {
+        name: monkey_open_target_report(path)
+        for name, path in targets.items()
+    }
+    previous_gate = sequential_closeout_report(root142, project_root, target=target, write=False)
+    previous_issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        previous_issues.append("sequential-closeout-report: previous gate ok=false")
+    process_probe = process_snapshot()
+    process_warnings = []
+    if process_probe.get("processes"):
+        process_warnings.append("SQX processes are alive; keep phase 9 open read-only until SQX is closed")
+    payload: dict[str, Any] = {
+        "ok": all(item.get("ok") for item in target_reports.values()) and not previous_issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase9_monkey_test_open",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_issues,
+            "nextPhase": previous_gate.get("nextPhase"),
+        },
+        "targets": target_reports,
+        "warnings": process_warnings + [
+            warning
+            for item in target_reports.values()
+            for warning in item.get("warnings", [])
+        ],
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Open Monkey Test as Phase 9 after Sequential closeout; inspect structure before applying target values.",
+            "taskTitle": MONKEY_TASK_TITLE,
+            "taskXml": MONKEY_TASK_XML,
+            "chain": "Input=Sequential / Output=Monkey Test",
+            "activeCrossCheck": MONKEY_ACTIVE_CROSSCHECK,
+            "activeMethod": MONKEY_ACTIVE_METHOD,
+            "numberOfSimulations": MONKEY_NUMBER_OF_SIMULATIONS,
+            "mcUseFullSample": MONKEY_USE_FULL_SAMPLE,
+            "methodMaxChange": MONKEY_METHOD_MAX_CHANGE,
+            "naturalResults": "Preserve natural passed/failed outcomes; never force Results=passed.",
+            "noLiveRun": "This gate only reads XML/local state and writes a phase report when requested.",
+            "decisionPending": [
+                "Data/Databanks/Resources/Options must decide the canonical carrier and keep generator-owned asset/timeframe/spread resources.",
+                "CrossChecks must decide whether inactive acceptance filters remain advisory/off or become explicit filters.",
+                "Passive-generation/static tabs must keep Monkey from generating or altering strategy logic.",
+            ],
+        },
+        "nextPhase": MONKEY_NEXT_PHASE,
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase9_monkey_test_open_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase9_monkey_test_open", "nextPhase": MONKEY_NEXT_PHASE})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -10164,6 +10428,10 @@ def build_parser() -> argparse.ArgumentParser:
     sequential_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     sequential_closeout.add_argument("--write", action="store_true")
 
+    monkey_open = sub.add_parser("monkey-open-report")
+    monkey_open.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    monkey_open.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -10319,6 +10587,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "sequential-closeout-report":
         json_print(sequential_closeout_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "monkey-open-report":
+        json_print(monkey_open_report(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
