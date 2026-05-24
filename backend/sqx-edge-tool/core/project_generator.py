@@ -39,7 +39,11 @@ ADAPTIVE_SPREAD_STRESS = {
     int(capa): value
     for capa, value in (_GENERATOR_PROFILE.get("adaptiveSpreadStress") or {}).items()
 }
-CAPA2_NO_EXIT_AFTER_BARS_TASKS = {"Build-Task1.xml", "Retest-Task1.xml"}
+CAPA2_NO_EXIT_AFTER_BARS_TASKS = {
+    "Build-Task1.xml",
+    "Retest-Task1.xml",
+    "AutomaticRetest-Task2.xml",
+}
 BROKER_PROFILES = _GENERATOR_PROFILE.get("brokerProfiles") or {}
 TARGET_PROFILES = _GENERATOR_PROFILE.get("targetProfiles") or {}
 ASSET_DEFAULTS = _INSTRUMENTS_PROFILE.get("assetDefaults") or {}

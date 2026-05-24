@@ -37,7 +37,15 @@ def _active_building_block_keys(blocks: ET.Element) -> list[str]:
     ]
 
 
-def _assert_retest_passive_generation_contract(task: ET.Element, expected_improve_databank: str) -> None:
+def _assert_retest_passive_generation_contract(
+    task: ET.Element,
+    expected_improve_databank: str,
+    *,
+    expected_exit_after_bars: str = "true",
+    expected_enabled_exits: set[str] | None = None,
+    expected_blocks_version: str | None = "142.2336",
+    expect_no_signal_or_stoplimit_blocks: bool = True,
+) -> None:
     parts = task.find(".//PartsToImprove")
     assert parts is not None
     for group_name in ("EntryRules", "OrderTypes", "ExitRules"):
@@ -61,9 +69,13 @@ def _assert_retest_passive_generation_contract(task: ET.Element, expected_improv
     assert build_mode.find("EvoRestartOnFinish").get("status") == "false"
     assert build_mode.find("EvoRestartOnStagnation").get("status") == "false"
 
-    blocks = task.find(".//Blocks")
+    blocks = next(
+        (candidate for candidate in task.findall(".//Blocks") if candidate.find("OrderTypes") is not None),
+        None,
+    )
     assert blocks is not None
-    assert blocks.get("version") == "142.2336"
+    if expected_blocks_version is not None:
+        assert blocks.get("version") == expected_blocks_version
     order_types = {
         block.get("key"): block.get("use")
         for block in blocks.findall("./OrderTypes/Block")
@@ -80,8 +92,16 @@ def _assert_retest_passive_generation_contract(task: ET.Element, expected_improv
         for block in blocks.findall("./ExitTypes/Block")
         if block.get("key")
     }
-    assert exit_types["ExitAfterBars.ExitAfterBars"] == ("true", "100")
-    assert all(use == "false" for key, (use, _) in exit_types.items() if key != "ExitAfterBars.ExitAfterBars")
+    assert exit_types["ExitAfterBars.ExitAfterBars"][0] == expected_exit_after_bars
+    enabled_exits = expected_enabled_exits or set()
+    for key in enabled_exits:
+        assert exit_types[key][0] == "true"
+    assert all(
+        use == "false"
+        for key, (use, _) in exit_types.items()
+        if key
+        not in {"ExitAfterBars.ExitAfterBars", *enabled_exits}
+    )
     assert "ExitAfterDays" not in ET.tostring(blocks, encoding="unicode")
     assert "ExitAfterTradingDays" not in ET.tostring(blocks, encoding="unicode")
 
@@ -91,8 +111,9 @@ def _assert_retest_passive_generation_contract(task: ET.Element, expected_improv
         if str(block.get("use", "")).lower() == "true"
     ]
     assert active_blocks
-    assert not [block for block in active_blocks if block.get("category") == "signals"]
-    assert not [block for block in active_blocks if block.get("category") == "stopLimitBlocks"]
+    if expect_no_signal_or_stoplimit_blocks:
+        assert not [block for block in active_blocks if block.get("category") == "signals"]
+        assert not [block for block in active_blocks if block.get("category") == "stopLimitBlocks"]
     assert [block for block in active_blocks if block.get("category") == "indicators"]
     custom_data = blocks.find("CustomData")
     assert custom_data is not None
@@ -104,8 +125,22 @@ def _assert_retest1_passive_generation_contract(retest1: ET.Element) -> None:
     _assert_retest_passive_generation_contract(retest1, expected_improve_databank="RETEST 0")
 
 
-def _assert_tick_real_passive_generation_contract(tick_real: ET.Element) -> None:
-    _assert_retest_passive_generation_contract(tick_real, expected_improve_databank="retest 1")
+def _assert_tick_real_passive_generation_contract(
+    tick_real: ET.Element,
+    *,
+    expected_exit_after_bars: str = "true",
+    expected_enabled_exits: set[str] | None = None,
+    expected_blocks_version: str | None = "142.2336",
+    expect_no_signal_or_stoplimit_blocks: bool = True,
+) -> None:
+    _assert_retest_passive_generation_contract(
+        tick_real,
+        expected_improve_databank="retest 1",
+        expected_exit_after_bars=expected_exit_after_bars,
+        expected_enabled_exits=expected_enabled_exits,
+        expected_blocks_version=expected_blocks_version,
+        expect_no_signal_or_stoplimit_blocks=expect_no_signal_or_stoplimit_blocks,
+    )
 
 
 def _assert_mc2_passive_generation_contract(mc2: ET.Element) -> None:
@@ -1278,6 +1313,44 @@ def test_capa1_base_v2_matches_active_methodology():
     )
 
 
+def test_capa2_base_tick_real_matches_phase20_methodology():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa2_Base.cfx"))
+    config = roots["config.xml"]
+    task = next(task for task in config.findall(".//Task") if task.get("taskXMLFile") == "AutomaticRetest-Task2.xml")
+    databanks = {
+        databank.get("name"): databank.get("view")
+        for databank in config.findall(".//Databank")
+    }
+
+    assert task.get("title") == "TICK REAL"
+    assert "HBP" not in databanks
+    assert databanks["TICK"] == "RETEST ROBUST REVIEW"
+
+    tick_real = roots["AutomaticRetest-Task2.xml"]
+    _assert_tick_real_data_databanks_resources_contract(
+        tick_real,
+        expected_symbol="AUDCAD_darwinex",
+        expected_timeframe="H1",
+    )
+    symbols = tick_real.findall(".//Resources/Symbols/Symbol")
+    assert {symbol.get("source") for symbol in symbols} == {"4"}
+    assert {symbol.get("broker") for symbol in symbols} == {"4"}
+    assert [broker.get("id") for broker in tick_real.findall(".//Resources/Brokers/Broker")] == ["4"]
+    _assert_tick_real_options_rankings_contract(tick_real, expected_window=("7200", "79200"))
+    _assert_tick_real_passive_generation_contract(
+        tick_real,
+        expected_exit_after_bars="false",
+        expected_enabled_exits={
+            "StopLoss.StopLoss",
+            "ProfitTarget.ProfitTarget",
+            "TrailingStop.TrailingStop",
+        },
+        expected_blocks_version=None,
+        expect_no_signal_or_stoplimit_blocks=False,
+    )
+    _assert_tick_real_static_crosschecks_contract(tick_real)
+
+
 def test_capa1_build_resources_are_generic_generator_owned_placeholder():
     roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
     build = roots["Build-Task1.xml"]
@@ -1921,6 +1994,13 @@ def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_r
         )
         roots = dict(_xml_roots(Path(out_path)))
 
+    config = roots["config.xml"]
+    tick_task = next(task for task in config.findall(".//Task") if task.get("taskXMLFile") == "AutomaticRetest-Task2.xml")
+    config_databanks = {databank.get("name") for databank in config.findall(".//Databank")}
+    assert tick_task.get("title") == "TICK REAL"
+    assert "TICK" in config_databanks
+    assert "HBP" not in config_databanks
+
     build = roots["Build-Task1.xml"]
     build_params = {
         node.get("key"): node.text
@@ -1974,6 +2054,32 @@ def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_r
         "SignalTimeRangeFrom": "14400",
         "SignalTimeRangeTo": "72000",
     }
+
+    tick_real = roots["AutomaticRetest-Task2.xml"]
+    _assert_tick_real_data_databanks_resources_contract(
+        tick_real,
+        expected_symbol="AUDCAD",
+        expected_timeframe="H4",
+    )
+    tick_symbols = tick_real.findall(".//Resources/Symbols/Symbol")
+    assert {node.get("name") for node in tick_symbols} == {"AUDCAD"}
+    assert {node.get("source") for node in tick_symbols} == {"0"}
+    assert {node.get("broker") for node in tick_symbols} == {"-1"}
+    assert "dukascopy" not in ET.tostring(tick_real, encoding="unicode").lower()
+    _assert_tick_real_options_rankings_contract(tick_real, expected_window=("7200", "79200"))
+    _assert_tick_real_passive_generation_contract(
+        tick_real,
+        expected_exit_after_bars="false",
+        expected_enabled_exits={
+            "StopLoss.StopLoss",
+            "ProfitTarget.ProfitTarget",
+            "TrailingStop.TrailingStop",
+            "TrailingStop.TrailingActivation",
+        },
+        expected_blocks_version=None,
+        expect_no_signal_or_stoplimit_blocks=False,
+    )
+    _assert_tick_real_static_crosschecks_contract(tick_real)
 
     mc = roots["AutomaticRetest-Task1.xml"]
     mc_params = {

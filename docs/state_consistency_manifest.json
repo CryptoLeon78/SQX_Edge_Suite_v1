@@ -5054,6 +5054,116 @@
       }
     },
     {
+      "id": "sqx142_c2_phase20_tick_real_validation",
+      "description": "C1-CONFIG1 Phase 20 Capa2 TICK REAL must stay closed as a Darwinex precision-data validation-only gate, with HBP normalized and no tuning or execution claims.",
+      "required": {
+        "README.md": [
+          "phase20_capa2_tick_real",
+          "phase20_capa2_tick_real_target_20260525_013436.json",
+          "`AutomaticRetest-Task2.xml`",
+          "HBP normalizado a `TICK REAL` / `TICK`",
+          "`Input=retest 1`",
+          "`Output=TICK`",
+          "`ROBUSTNESS_C2 2017.10.02-2023.12.31`",
+          "`AUDCAD_darwinex` source `4` broker `4`",
+          "`ExitAfterBars=false` con SL/PT/trailing activos",
+          "phase21_capa2_mc"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 20 `Capa2 TICK REAL` is closed",
+          "phase20_capa2_tick_real_target_20260525_013436.json",
+          "`capa2-tick-real-target --target both --apply`",
+          "`AutomaticRetest-Task2.xml`",
+          "legacy HBP is normalized to `TICK REAL` / `TICK`",
+          "`ROBUSTNESS_C2 2017.10.02-2023.12.31`",
+          "data `AUDCAD_darwinex` source `4` broker `4`",
+          "`CrossChecks use=false/evaluateAll=false`",
+          "`ExitAfterBars=false` while SL/PT/trailing stay active",
+          "phase21_capa2_mc"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase20_capa2_tick_real",
+          "Capa2 TICK REAL `AutomaticRetest-Task2.xml`",
+          "HBP normalized to `TICK REAL` / `TICK`",
+          "`Input=retest 1`",
+          "`Output=TICK`",
+          "`ROBUSTNESS_C2 2017.10.02-2023.12.31`",
+          "Darwinex `AUDCAD_darwinex` source `4` broker `4`",
+          "Retest 0, Retest 1 and TICK REAL do not imply SQX execution or optimization"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 20 - Capa2 TICK REAL",
+          "phase20_capa2_tick_real_target_20260525_013436.json",
+          "`capa2-tick-real-target --target both --apply`",
+          "`AutomaticRetest-Task2.xml`",
+          "`Input=retest 1`",
+          "`Output=TICK`",
+          "`ROBUSTNESS_C2",
+          "2017.10.02-2023.12.31",
+          "`AUDCAD_darwinex`, source",
+          "`nextPhase=phase21_capa2_mc`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-25 - C1-CONFIG1 Capa2 TICK REAL",
+          "`capa2-tick-real-target`",
+          "phase20_capa2_tick_real_target_20260525_013436.json",
+          "legacy HBP normalized to `TICK REAL` / `TICK`",
+          "`ROBUSTNESS_C2 2017.10.02-2023.12.31`",
+          "`AUDCAD_darwinex`, source `4`, broker `4`",
+          "phase21_capa2_mc"
+        ],
+        "backend/sqx-edge-tool/config/generator_profiles.json": [
+          "\"ROBUSTNESS_C2\"",
+          "\"AutomaticRetest-Task2.xml\"",
+          "\"ROBUSTNESS_C2\""
+        ],
+        "backend/sqx-edge-tool/core/project_generator.py": [
+          "CAPA2_NO_EXIT_AFTER_BARS_TASKS",
+          "\"AutomaticRetest-Task2.xml\""
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_TICK_REAL_NEXT = \"phase21_capa2_mc\"",
+          "CAPA2_TICK_REAL_TASK_XML = \"AutomaticRetest-Task2.xml\"",
+          "CAPA2_TICK_REAL_RESOURCE_SYMBOL = \"AUDCAD_darwinex\"",
+          "def promote_capa2_tick_real_target",
+          "def enforce_capa2_tick_real_guard",
+          "capa2-tick-real-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_tick_real_target_applies_and_is_idempotent",
+          "test_capa2_tick_real_guard_rejects_legacy_hbp_and_dukascopy",
+          "test_capa2_tick_real_cli_is_registered"
+        ],
+        "backend/sqx-edge-tool/test_cfx_template_compatibility.py": [
+          "test_capa2_base_tick_real_matches_phase20_methodology",
+          "AutomaticRetest-Task2.xml",
+          "expected_exit_after_bars=\"false\""
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 TICK REAL usa Dukascopy",
+          "phase20_capa2_tick_real usa Dukascopy",
+          "Capa2 TICK REAL ejecuta SQX",
+          "Capa2 TICK REAL lanza smoke",
+          "Capa2 TICK REAL inicia optimizacion",
+          "Capa2 TICK REAL fuerza Results=passed",
+          "TICK REAL Capa2 optimiza parametros",
+          "Capa2 TICK REAL ExitAfterBars=true"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 TICK REAL uses Dukascopy",
+          "phase20_capa2_tick_real uses Dukascopy",
+          "Capa2 TICK REAL ran SQX",
+          "Capa2 TICK REAL ran smoke",
+          "Capa2 TICK REAL optimization completed",
+          "Capa2 TICK REAL forced Results=passed",
+          "Capa2 TICK REAL optimized parameters",
+          "Capa2 TICK REAL ExitAfterBars=true"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_per_message_bootstrap_g9",
       "description": "G9/G9R must keep per-message specialist activation, new-session bootstrap and explicit parallel subagent runtime loading proactive but orchestrator-owned, compaction-resilient and mutation-gated.",
       "required": {

@@ -87,6 +87,10 @@
       "2017.10.02",
       "2023.12.31"
     ],
+    "ROBUSTNESS_C2": [
+      "2017.10.02",
+      "2023.12.31"
+    ],
     "RETEST_0": [
       "2017.10.02",
       "2025.01.01"
@@ -197,6 +201,7 @@
       "Build-Task1.xml": "BUILD",
       "Retest-Task1.xml": "RETEST_0",
       "AutomaticRetest-Task7.xml": "RETEST_1",
+      "AutomaticRetest-Task2.xml": "ROBUSTNESS_C2",
       "Retest-Task2.xml": "FOWARD",
       "Optimize-Task1.xml": "BUILD"
     }

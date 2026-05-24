@@ -4022,6 +4022,149 @@ def test_capa2_retest1_cli_is_registered():
     assert args.target == "both"
 
 
+def _write_capa2_tick_real_generator_profile(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps({
+            "retestPeriods": {
+                "ROBUSTNESS_C2": ["2017.10.02", "2023.12.31"],
+            },
+            "taskPeriodMaps": {
+                "2": {
+                    "AutomaticRetest-Task2.xml": "ROBUSTNESS_C2",
+                },
+            },
+            "crossBrokerRetests": {"2": {}},
+        }),
+        encoding="utf-8",
+    )
+
+
+def _write_minimal_capa2_tick_real_cfx(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    config_xml = """
+    <Project>
+      <Tasks><Task title="HBP" taskXMLFile="AutomaticRetest-Task2.xml" active="true" /></Tasks>
+      <Databanks><Databank name="HBP" view="GENERAL" /><Databank name="retest 1" view="GENERAL" /></Databanks>
+    </Project>
+    """
+    task_xml = """
+    <Task>
+      <Data><Setups><Setup dateFrom="2010.01.01" dateTo="2017.10.02" testPrecision="1" session="Old Session" engine="MetaTrader5 (hedged)"><Chart symbol="AUDCAD_dukascopy" timeframe="H4" spread="1.9" /></Setup></Setups><OutOfSample><Range dateFrom="2024.01.01" dateTo="2025.01.01" /></OutOfSample></Data>
+      <CustomData showAll="true"><Setups><Setup dateFrom="2010.01.01" dateTo="2017.10.02" testPrecision="1" session="Old Session" engine="MetaTrader4"><Chart symbol="AUDCAD_dukascopy" timeframe="H4" spread="1.9" /><MainTestValues symbol="true" dates="true" /></Setup></Setups></CustomData>
+      <Databanks><Databank name="Input" value="Strategies to improve" /><Databank name="Output" value="HBP" /></Databanks>
+      <Resources><Symbols><Symbol name="AUDCAD_dukascopy" source="2" broker="3" precision="TICK" timezone="EETUS"><InstrumentInfo instrument="AUDCAD_dukascopy" broker="3" /></Symbol></Symbols><Brokers><Broker id="3" /></Brokers><Instruments /><Sessions><Session name="Old Session" /></Sessions></Resources>
+      <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">false</Param><Param key="RealisticGapsHandling">false</Param><Param key="StoreChartData">true</Param></Params></BuildTradingOptions></Options>
+      <Rankings type="top"><MaxStrategies>50</MaxStrategies><ConditionsType>0</ConditionsType><DeleteFailedStrategies>true</DeleteFailedStrategies><ForceRunCrossChecks>true</ForceRunCrossChecks><FitPortfolio active="true" /><CustomAnalysis filter="true" method="script" inputArgs="C:\\private\\x" /><Conditions /></Rankings>
+      <CrossChecks use="true" evaluateAll="true"><MonteCarloRetest use="true"><Settings><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings><AcceptanceSettings><Conditions><Condition use="true" /></Conditions></AcceptanceSettings></MonteCarloRetest></CrossChecks>
+      <WhatToBuild><StrategyType type="template" templateFile="C:\\private\\c2.sqx" improveDatabank="Strategies to improve" /><BuildMode><ShowLastGenerationDatabank>true</ShowLastGenerationDatabank><FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar><FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest><EvoRestartOnFinish status="true" /><EvoRestartOnStagnation status="true" fitnessType="10" generations="30" /></BuildMode></WhatToBuild>
+      <PartsToImprove improveATM="true"><EntryRules><LongImprovement use="true" action="replace" /><ShortImprovement use="true" action="replace" /></EntryRules><ExitRules><LongImprovement use="true" action="replace" /><ShortImprovement use="true" action="replace" /></ExitRules></PartsToImprove>
+      <Blocks><OrderTypes><Block key="EnterAtMarket" use="true" /><Block key="EnterReverseAtMarket" use="true" /><Block key="EnterAtStop" use="true" /><Block key="EnterAtLimit" use="true" /></OrderTypes><ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="true" probability="100" /><Block key="StopLoss.StopLoss" use="false" probability="100" /><Block key="ProfitTarget.ProfitTarget" use="false" probability="100" /><Block key="TrailingStop.TrailingStop" use="false" probability="50" /></ExitTypes><CustomData showAll="true"><Item /></CustomData></Blocks>
+      <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement><RiskManagement><Method type="AllowAllTrades" use="false" /></RiskManagement></RiskMoneyManagement>
+      <ATMs enable="true" />
+      <SelectedStrategies><Strategy /></SelectedStrategies>
+      <Notes />
+    </Task>
+    """
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("config.xml", config_xml)
+        archive.writestr("AutomaticRetest-Task2.xml", task_xml)
+
+
+def test_capa2_tick_real_target_applies_and_is_idempotent(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_tick_real_cfx(local_cfx)
+    _write_minimal_capa2_tick_real_cfx(repo_cfx)
+    _write_capa2_tick_real_generator_profile(generator_profile)
+
+    monkeypatch.setattr(gate, "promote_capa2_retest1_target", lambda *args, **kwargs: {
+        "phase": "phase19_capa2_retest1",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase20_capa2_tick_real",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+
+    payload = gate.promote_capa2_tick_real_target(tmp_path, tmp_path, target="both", apply=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase20_capa2_tick_real"
+    assert payload["nextPhase"] == "phase21_capa2_mc"
+    assert payload["processProbe"]["processes"] == []
+    task_xml, root, title = gate.load_capa2_tick_real_task_root(local_cfx)
+    with zipfile.ZipFile(local_cfx) as archive:
+        config_root = ET.fromstring(archive.read("config.xml"))
+    config = gate.capa2_tick_real_config_summary(config_root)
+    assert task_xml == "AutomaticRetest-Task2.xml"
+    assert title == "TICK REAL"
+    assert config["tasks"][0]["title"] == "TICK REAL"
+    assert "TICK" in config["databanks"]
+    assert "HBP" not in config["databanks"]
+    assert gate.enforce_capa2_tick_real_guard(root, "localBase") == []
+    assert root.find(".//Databanks/Databank[@name='Input']").get("value") == "retest 1"
+    assert root.find(".//Databanks/Databank[@name='Output']").get("value") == "TICK"
+    setup = root.find("./Data/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.find("Chart").get("symbol") == "AUDCAD_darwinex"
+    assert {node.get("source") for node in root.findall(".//Resources/Symbols/Symbol")} == {"4"}
+    assert {node.get("broker") for node in root.findall(".//Resources/Symbols/Symbol")} == {"4"}
+    assert root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "retest 1"
+    assert root.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("use") == "false"
+    assert root.find(".//ExitTypes/Block[@key='StopLoss.StopLoss']").get("use") == "true"
+    assert root.find(".//ExitTypes/Block[@key='ProfitTarget.ProfitTarget']").get("use") == "true"
+    assert root.find(".//ExitTypes/Block[@key='TrailingStop.TrailingStop']").get("use") == "true"
+
+    dry_run = gate.promote_capa2_tick_real_target(tmp_path, tmp_path, target="both", apply=False)
+
+    assert dry_run["ok"] is True
+    assert all(result["changedActionCount"] == 0 for result in dry_run["results"].values())
+
+
+def test_capa2_tick_real_guard_rejects_legacy_hbp_and_dukascopy(monkeypatch, tmp_path):
+    cfx = tmp_path / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_tick_real_cfx(cfx)
+    generator_profile.write_text(
+        json.dumps({
+            "retestPeriods": {"ROBUSTNESS_C2": ["2017.10.02", "2023.12.31"]},
+            "taskPeriodMaps": {"2": {}},
+            "crossBrokerRetests": {"2": {"AutomaticRetest-Task2.xml": {"brokerProfile": "dukascopy_oos2"}}},
+        }),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+    _, root, _ = gate.load_capa2_tick_real_task_root(cfx)
+    with zipfile.ZipFile(cfx) as archive:
+        config_root = ET.fromstring(archive.read("config.xml"))
+
+    issues = gate.enforce_capa2_tick_real_config_guard(config_root, "repoTemplate") + gate.enforce_capa2_tick_real_guard(root, "repoTemplate")
+
+    assert any("legacy HBP" in issue for issue in issues)
+    assert any("Dukascopy" in issue or "cross-broker" in issue for issue in issues)
+    assert any("internal OOS" in issue for issue in issues)
+    assert any("CrossChecks attrs" in issue for issue in issues)
+    assert any("active methods" in issue for issue in issues)
+    assert any("active acceptance" in issue for issue in issues)
+    assert any("StrategyType" in issue for issue in issues)
+    assert any("ExitAfterBars" in issue for issue in issues)
+    assert any("local absolute path" in issue for issue in issues)
+    assert any("AutomaticRetest-Task2.xml" in issue for issue in issues)
+
+
+def test_capa2_tick_real_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-tick-real-target", "--target", "both"])
+
+    assert args.command == "capa2-tick-real-target"
+    assert args.target == "both"
+
+
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
     calls = []
 

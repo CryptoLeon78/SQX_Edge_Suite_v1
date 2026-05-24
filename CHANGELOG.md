@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa2 TICK REAL
+
+- Adds `capa2-tick-real-target` as the Phase 20 precision-data validation guard for Capa2.
+- Records evidence `phase20_capa2_tick_real_target_20260525_013436.json` and closes `AutomaticRetest-Task2.xml` with legacy HBP normalized to `TICK REAL` / `TICK`.
+- Pins TICK REAL to `Input=retest 1`, `Output=TICK`, `ROBUSTNESS_C2 2017.10.02-2023.12.31`, `testPrecision=2`, `No Session`, no internal OOS ranges and Darwinex data (`AUDCAD_darwinex`, source `4`, broker `4`).
+- Keeps TICK REAL passive and anti-overfit: `StrategyType` reads `retest 1`, `CrossChecks use=false/evaluateAll=false`, `FitPortfolio=false`, `CustomAnalysis=false`, `ExitAfterBars=false`, SL/PT/trailing stay active, and filters are predeclared: `NumberOfTrades >= 200`, `ProfitFactor >= 1.3`, `WinningPct >= 50`, `ReturnDDRatio >= 4`.
+- Maps generator layer 2 `AutomaticRetest-Task2.xml` to `ROBUSTNESS_C2`, keeps generated user downloads on their selected target profile, and prevents Dukascopy contamination outside Capa2 Retest 1.
+- Reports idempotent post-apply guards with `changedActionCount=0`, `guardOk=true`, no SQX process, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
+- Sets the next exact block to `phase21_capa2_mc`.
+
 ## 2026-05-25 - C1-CONFIG1 Capa2 Retest 1
 
 - Adds `capa2-retest1-target` as the Phase 19 validation guard for Capa2.

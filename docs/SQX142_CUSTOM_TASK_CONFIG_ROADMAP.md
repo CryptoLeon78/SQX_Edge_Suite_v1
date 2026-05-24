@@ -1,7 +1,8 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 19
-`Capa2 Retest 1` cerrada el 2026-05-25 con
+Estado: C1-CONFIG1 con Fase 20
+`Capa2 TICK REAL` cerrada el 2026-05-25 con
+`phase20_capa2_tick_real_target_20260525_013436.json`, despues de cerrar
 `phase19_capa2_retest1_target_20260525_003750.json`, despues de
 cerrar `phase18_capa2_retest0_target_20260524_234752.json`, despues de
 cerrar `phase17_capa2_build_static_tabs_target_20260524_231540.json`,
@@ -19,11 +20,12 @@ despues de la Fase 16 `Capa2 Preflight Snapshot`
 (`phase15_capa2_planning_20260524_190708.json`) y de la Fase 14
 `Capa1 Closeout` (`phase14_capa1_closeout_20260524_183012.json`) y de
 `phase13_foward_closeout` verde (`phase13_foward_closeout_20260524_182647.json`).
-Capa2 queda planificada, no aplicada: integra SL/TP/trailing, elimina
+La Fase 15 planifico Capa2 antes de aplicarla: integra SL/TP/trailing, elimina
 `ExitAfterBars` como salida de Build, agrega un filtro de indicador gobernado
 por BlockSettings/metodologia y protege que la ventaja detectada en Capa1 no
-se fabrique despues por gestion de riesgo. No lanza SQX, no hace smoke, no
-inicia optimizacion, no toca CFX y no fuerza `Results=passed`. Fase 16 deja
+se fabrique despues por gestion de riesgo. Las fases de configuracion no
+lanzan SQX, no hacen smoke, no inician optimizacion y no fuerzan
+`Results=passed`. Fase 16 deja
 snapshot local y rollback selectivo en
 `.local/sqx142_task_config/snapshots/phase16_capa2_preflight_20260524_195729/`.
 Phase17 deja cuestionarios completos de Build Capa2 en
@@ -70,8 +72,17 @@ como validacion historica cross-broker, no tuning: `AutomaticRetest-Task7.xml`,
 `RETEST 0`, `CrossChecks use=false/evaluateAll=false`, `FitPortfolio=false`,
 `CustomAnalysis=false`, filtros predeclarados `NumberOfTrades >= 80`,
 `ProfitFactor >= 1.05`, `ReturnDDRatio >= 1` y `ExitAfterBars=false`.
-`phase20_capa2_tick_real` y el resto de Capa2 vuelven a Darwinex. El
-siguiente bloque exacto es `phase20_capa2_tick_real`. Fase 0 dejo
+TICK REAL Capa2 queda cerrado como validacion precision-data, no tuning:
+`AutomaticRetest-Task2.xml`, HBP normalizado a `TICK REAL` / `TICK`,
+`Input=retest 1`, `Output=TICK`, periodo `ROBUSTNESS_C2
+2017.10.02-2023.12.31`, data Darwinex `AUDCAD_darwinex` source `4` broker
+`4`, `testPrecision=2`, `No Session`, sin OOS interno, `StrategyType` pasivo
+desde `retest 1`, `CrossChecks use=false/evaluateAll=false`,
+`FitPortfolio=false`, `CustomAnalysis=false`, filtros predeclarados
+`NumberOfTrades >= 200`, `ProfitFactor >= 1.3`, `WinningPct >= 50`,
+`ReturnDDRatio >= 4` y `ExitAfterBars=false` con SL/PT/trailing activos.
+`generator_profiles.json` mapea layer 2 `AutomaticRetest-Task2.xml` a
+`ROBUSTNESS_C2`. El siguiente bloque exacto es `phase21_capa2_mc`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -2477,6 +2488,40 @@ Siguiente bloque exacto: `phase19_capa2_retest1`.
   `nextPhase=phase20_capa2_tick_real`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase20_capa2_tick_real`.
+
+## Estado Fase 20 - Capa2 TICK REAL
+
+- `phase20_capa2_tick_real` queda cerrada con
+  `phase20_capa2_tick_real_target_20260525_013436.json`.
+- Comando aplicado: `capa2-tick-real-target --target both --apply`, con
+  dry-run previo, backup/diff local, dry-run posterior idempotente y
+  `processes=[]`.
+- Contrato tecnico: `AutomaticRetest-Task2.xml`, HBP normalizado a
+  `TICK REAL` / `TICK`, `Input=retest 1`, `Output=TICK`, `testPrecision=2`,
+  `No Session`, sin OOS interno.
+- Contrato temporal anti-overfit: TICK REAL usa `ROBUSTNESS_C2
+  2017.10.02-2023.12.31`, sin reutilizar OOS1/FOWARD ni anadir split interno.
+- Contrato de datos: esta fase vuelve a Darwinex (`AUDCAD_darwinex`, source
+  `4`, broker `4`). Dukascopy queda limitado a `phase19_capa2_retest1`.
+- Contrato de validacion: `StrategyType` pasivo desde `retest 1`,
+  `CrossChecks use=false/evaluateAll=false`, metodos/condiciones ocultas
+  apagadas, `FitPortfolio=false`, `CustomAnalysis=false`,
+  `ExitAfterBars=false` y SL/PT/trailing activos.
+- Filtros predeclarados: `NumberOfTrades >= 200`, `ProfitFactor >= 1.3`,
+  `WinningPct >= 50` y `ReturnDDRatio >= 4`.
+- `generator_profiles.json` registra `ROBUSTNESS_C2` y mapea layer 2
+  `AutomaticRetest-Task2.xml` a esa ventana.
+- Ambos targets quedan idempotentes tras apply: `changedActionCount=0`,
+  `guardOk=true`, `issues=[]`, `warnings=[]`, `processes=[]`.
+- Guard academico: TICK REAL mide sensibilidad a precision-data Darwinex de
+  candidatos ya filtrados por Retest 1; no ajusta parametros, rankings
+  posteriores ni estados de resultado.
+- No hubo lanzamiento SQX, smoke, optimizacion ni ejecucion real; no se fuerza
+  `Results=passed`.
+- El estado local queda en `currentPhase=phase20_capa2_tick_real`,
+  `nextPhase=phase21_capa2_mc`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase21_capa2_mc`.
 
 ## Disciplina Operativa
 
