@@ -1058,6 +1058,102 @@
       }
     },
     {
+      "id": "sqx142_c1_monkey_crosschecks_gate",
+      "description": "C1-CONFIG1 Phase 9 Monkey Test CrossChecks must stay closed with active Monkey filters, no Synthetic mixing and inactive hidden methods off.",
+      "required": {
+        "docs/PROJECT_GOVERNANCE.md": [
+          "`phase9_monkey_test_crosschecks` is now closed",
+          "phase9_monkey_test_crosschecks_20260524_101913.json",
+          "monkey-crosschecks-target",
+          "`AutomaticRetest-Task6.xml`",
+          "`MonteCarloRetest`/`RealMonkeyTest` only",
+          "`NumberOfSimulations=200`",
+          "`MCUseFullSample=true`",
+          "`MCBacktestPrecision=-1`",
+          "`MaxChange=90`",
+          "`NetProfit >= 50%`",
+          "`Max DD <= 200%`",
+          "`SyntheticBootstrapV2/V3` disabled",
+          "`changed=false`",
+          "`changedActionCount=0`",
+          "`guardOk=true`",
+          "`Monkey Test > CrossChecks` (`372/372`)",
+          "phase9_monkey_test_passive_generation"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Decision aplicada para `phase9_monkey_test_crosschecks`",
+          "`monkey-crosschecks-target`",
+          "`RealMonkeyTest`",
+          "`NumberOfSimulations=200`",
+          "`MCUseFullSample=true`",
+          "`MCBacktestPrecision=-1`",
+          "`MaxChange=90`",
+          "`NetProfit >= 50%`",
+          "`Max DD <= 200%`",
+          "`SyntheticBootstrapV2`",
+          "`SyntheticBootstrapV3`",
+          "`MonteCarloManipulation`",
+          "`WhatIf`",
+          "`ROBUSTNESS_C1`",
+          "`testPrecision=2`",
+          "`changed=false`",
+          "`changedActionCount=0`",
+          "`guardOk=true`",
+          "`Monkey Test > CrossChecks` (`372/372`)",
+          "phase9_monkey_test_crosschecks_target_20260524_101857.json",
+          "phase9_monkey_test_crosschecks_20260524_101913.json",
+          "phase9_monkey_test_passive_generation"
+        ],
+        "README.md": [
+          "monkey-crosschecks-target",
+          "`phase9_monkey_test_crosschecks` queda cerrado",
+          "phase9_monkey_test_crosschecks_20260524_101913.json",
+          "`AutomaticRetest-Task6.xml`",
+          "`RealMonkeyTest`",
+          "`NumberOfSimulations=200`",
+          "`MCUseFullSample=true`",
+          "`MCBacktestPrecision=-1`",
+          "`MaxChange=90`",
+          "`NetProfit >= 50%`",
+          "`Max DD <= 200%`",
+          "`SyntheticBootstrapV2/V3` apagados",
+          "`Monkey Test > CrossChecks` (`372/372`)",
+          "`changed=false`",
+          "`changedActionCount=0`",
+          "`guardOk=true`",
+          "phase9_monkey_test_passive_generation"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-24 - C1-CONFIG1 Monkey Test CrossChecks",
+          "`monkey-crosschecks-target`",
+          "`MonteCarloRetest`",
+          "`RealMonkeyTest`",
+          "`NumberOfSimulations=200`",
+          "`MCUseFullSample=true`",
+          "`MCBacktestPrecision=-1`",
+          "`MaxChange=90`",
+          "`NetProfit >= 50%`",
+          "`Max DD <= 200%`",
+          "`SyntheticBootstrapV2`",
+          "`SyntheticBootstrapV3`",
+          "`Monkey Test > CrossChecks` (`372/372`)",
+          "phase9_monkey_test_crosschecks_20260524_101913.json",
+          "phase9_monkey_test_passive_generation"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Monkey Test CrossChecks ejecuta SQX",
+          "forzar Monkey Results=passed",
+          "SyntheticBootstrap activo en Monkey"
+        ],
+        "CHANGELOG.md": [
+          "Monkey Test CrossChecks live retest completed",
+          "SyntheticBootstrap active in Monkey"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_skills_guardians",
       "description": "G8-SQX-AGENT-SKILLS1 must stay local-only, before RETEST 0, with Test Guardian and Docs Curator bounded to read-only/dry-run review unless explicitly confirmed.",
       "required": {

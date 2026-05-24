@@ -1218,6 +1218,38 @@ Siguiente bloque exacto: `phase9_monkey_test_crosschecks`, para decidir filtros
 de aceptacion y limpiar metodos activos dentro de crosschecks inactivos sin
 mezclar Monkey con Synthetic.
 
+Decision aplicada para `phase9_monkey_test_crosschecks`:
+
+- Se anade `monkey-crosschecks-target` con dry-run-first, backup/diff/apply
+  sobre base local y template repo.
+- `Monkey Test` queda como gate puro de `RealMonkeyTest`: `CrossChecks`
+  activo/evaluateAll, solo `MonteCarloRetest` activo, solo metodo
+  `RealMonkeyTest` activo, `NumberOfSimulations=200`, `MCUseFullSample=true`,
+  `MCBacktestPrecision=-1` y `MaxChange=90`.
+- Los filtros de aceptacion dejan de ser advisory/off y quedan activos:
+  `NetProfit >= 50%` del main y `Max DD <= 200%` del main. Esto conserva
+  passed/failed naturales sin forzar `Results=passed`.
+- `SyntheticBootstrapV2` y `SyntheticBootstrapV3` quedan apagados dentro de
+  Monkey para no mezclarlo con la fase posterior `Synthetic`/`Syntetic`.
+- Los metodos activos ocultos de checks inactivos quedan limpiados:
+  `MonteCarloManipulation` ya no conserva `RandomizeTradesOrder` ni
+  `RandomlySkipTrades`; `WhatIf` ya no conserva exclusiones de trades activas.
+- El setup anidado de crosscheck inactivo se normaliza al seed seguro
+  `AUDCAD_darwinex/H1` spread `2.0`, `ROBUSTNESS_C1`, `testPrecision=2`,
+  `No Session`, `slippage=0` y `minDist=0`; Project Generator sigue adaptando
+  simbolo/timeframe/spread por activo.
+- Dry-run posterior queda idempotente: `changed=false`,
+  `changedActionCount=0` y `guardOk=true`.
+- Ledger local respondido para `Monkey Test > CrossChecks` (`372/372`).
+
+Reportes locales:
+`.local/sqx142_task_config/diffs/phase9_monkey_test_crosschecks_target_20260524_101857.json`.
+`.local/sqx142_task_config/phase_reports/phase9_monkey_test_crosschecks_20260524_101913.json`.
+
+Siguiente bloque exacto: `phase9_monkey_test_passive_generation`, para cerrar
+`PartsToImprove` / `WhatToBuild` / `Blocks` y demostrar que Monkey no genera,
+no mejora y no altera logica de entrada/salida.
+
 ## Disciplina Operativa
 
 En cada fase:

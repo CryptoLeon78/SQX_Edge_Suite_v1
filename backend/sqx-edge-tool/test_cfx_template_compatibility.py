@@ -195,6 +195,53 @@ def _assert_monkey_data_databanks_resources_options_contract(
         assert symbol.get("timezone") == "EETUS"
 
 
+def _assert_monkey_crosschecks_contract(monkey: ET.Element) -> None:
+    crosschecks = monkey.find(".//CrossChecks")
+    assert crosschecks is not None
+    assert crosschecks.get("use") == "true"
+    assert crosschecks.get("evaluateAll") == "true"
+    active = [
+        check.tag
+        for check in list(crosschecks)
+        if isinstance(check.tag, str) and check.get("use") == "true"
+    ]
+    assert active == ["MonteCarloRetest"]
+    monte_carlo = crosschecks.find("MonteCarloRetest")
+    assert monte_carlo is not None
+    assert monte_carlo.findtext("./Settings/NumberOfSimulations") == "200"
+    assert monte_carlo.findtext("./Settings/MCUseFullSample") == "true"
+    assert monte_carlo.findtext("./Settings/MCBacktestPrecision") == "-1"
+    methods = {
+        method.get("type"): method.get("use")
+        for method in monte_carlo.findall("./Settings/Methods/Method")
+        if method.get("type")
+    }
+    assert methods["RealMonkeyTest"] == "true"
+    assert all(use == "false" for name, use in methods.items() if name != "RealMonkeyTest")
+    real_monkey = monte_carlo.find("./Settings/Methods/Method[@type='RealMonkeyTest']")
+    assert real_monkey is not None
+    assert real_monkey.find("./Params/Param[@key='MaxChange']").text == "90"
+
+    conditions = monte_carlo.findall("./AcceptanceSettings/Conditions/Condition")
+    assert len(conditions) == 2
+    assert [condition.get("use") for condition in conditions] == ["true", "true"]
+    assert conditions[0].find("./Left-Side/Column-Value").get("column") == "NetProfit"
+    assert conditions[0].find("./Comparator").get("value") == ">="
+    assert conditions[0].find("./Right-Side/Column-Value").get("pctRatio") == "50"
+    assert conditions[1].find("./Left-Side/Column-Value").get("column") == "DrawdownPct"
+    assert conditions[1].find("./Comparator").get("value") == "<="
+    assert conditions[1].find("./Right-Side/Column-Value").get("pctRatio") == "200"
+
+    inactive_active_methods = [
+        (check.tag, method.get("type"))
+        for check in list(crosschecks)
+        if isinstance(check.tag, str) and check.tag != "MonteCarloRetest"
+        for method in check.findall("./Settings/Methods/Method")
+        if method.get("use") == "true"
+    ]
+    assert inactive_active_methods == []
+
+
 def _assert_static_crosschecks_contract(task: ET.Element, require_selected_strategies: bool = True) -> None:
     crosschecks = task.find(".//CrossChecks")
     assert crosschecks is not None
@@ -872,23 +919,7 @@ def test_capa1_monkey_test_data_gate_receives_sequential_and_keeps_dual_carrier(
         expected_timeframe="H1",
         expected_spread="2.0",
     )
-    crosschecks = monkey.find(".//CrossChecks")
-    assert crosschecks is not None
-    active = [
-        check.tag
-        for check in list(crosschecks)
-        if isinstance(check.tag, str) and check.get("use") == "true"
-    ]
-    assert active == ["MonteCarloRetest"]
-    monte_carlo = crosschecks.find("MonteCarloRetest")
-    assert monte_carlo is not None
-    assert monte_carlo.findtext("./Settings/NumberOfSimulations") == "200"
-    assert monte_carlo.findtext("./Settings/MCUseFullSample") == "true"
-    assert {
-        method.get("type"): method.get("use")
-        for method in monte_carlo.findall("./Settings/Methods/Method")
-        if method.get("use") == "true"
-    } == {"RealMonkeyTest": "true"}
+    _assert_monkey_crosschecks_contract(monkey)
 
 
 def test_capa1_base_uses_confirmed_build_ranking_volume():
@@ -1102,6 +1133,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
         expected_spread="10",
     )
     assert {chart.get("spread") for chart in monkey.findall(".//Setup/Chart")} == {"10"}
+    _assert_monkey_crosschecks_contract(monkey)
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")

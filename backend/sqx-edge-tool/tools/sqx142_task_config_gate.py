@@ -590,6 +590,75 @@ MONKEY_CUSTOM_DATA_ENGINE = SEQUENTIAL_CUSTOM_DATA_ENGINE
 MONKEY_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET = SEQUENTIAL_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET
 MONKEY_OPTIONS_PARAMS_TARGET = MC_OPTIONS_PARAMS_TARGET
 MONKEY_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT = "phase9_monkey_test_crosschecks"
+MONKEY_CROSSCHECK_PARENT_TARGET = {"use": "true", "evaluateAll": "true"}
+MONKEY_CROSSCHECKS_NEXT = "phase9_monkey_test_passive_generation"
+MONKEY_ACCEPTANCE_CONDITIONS_TARGET = [
+    {
+        "left": {
+            "column": "NetProfit",
+            "columnType": "0",
+            "name": "Net profit",
+            "format": "Decimal2PL",
+            "resultType": "MonteCarloRetest",
+            "direction": "0",
+            "sampleType": "10",
+            "plType": "10",
+            "confidenceLevel": "80",
+            "market": "1",
+            "subresult": "30",
+            "pctRatio": "0",
+            "class": "NetProfit",
+        },
+        "comparator": ">=",
+        "right": {
+            "column": "NetProfit",
+            "columnType": "0",
+            "name": "Net profit",
+            "format": "Decimal2PL",
+            "resultType": "main",
+            "direction": "0",
+            "sampleType": "127",
+            "plType": "10",
+            "confidenceLevel": "90",
+            "market": "1",
+            "subresult": "30",
+            "pctRatio": "50",
+            "class": "NetProfit",
+        },
+    },
+    {
+        "left": {
+            "column": "DrawdownPct",
+            "columnType": "0",
+            "name": "Max DD %",
+            "format": "Decimal2Pct",
+            "resultType": "MonteCarloRetest",
+            "direction": "0",
+            "sampleType": "127",
+            "plType": "10",
+            "confidenceLevel": "80",
+            "market": "1",
+            "subresult": "30",
+            "pctRatio": "0",
+            "class": "DrawdownPct",
+        },
+        "comparator": "<=",
+        "right": {
+            "column": "DrawdownPct",
+            "columnType": "0",
+            "name": "Max DD %",
+            "dataType": "Decimal2Pct",
+            "direction": "0",
+            "sampleType": "127",
+            "resultType": "main",
+            "pctRatio": "200",
+            "confidenceLevel": "90",
+            "chartSetup": "10",
+            "plType": "10",
+            "class": "DrawdownPct",
+        },
+    },
+]
 SEQUENTIAL_PASSIVE_SOURCE_TASK_TITLE = MC2_TASK_TITLE
 SEQUENTIAL_STRATEGY_TYPE_TARGET = {
     "type": "simple",
@@ -9503,6 +9572,320 @@ def promote_monkey_data_databanks_resources_options_target(root142: Path, projec
     return payload
 
 
+def set_monkey_acceptance_conditions(check: ET.Element, actions: list[dict[str, Any]]) -> None:
+    acceptance = ensure_direct_child(check, "AcceptanceSettings")
+    conditions = acceptance.find("Conditions")
+    if conditions is None:
+        conditions = ET.SubElement(acceptance, "Conditions")
+        before: list[dict[str, Any]] = []
+    else:
+        before = [mc_condition_summary(condition) for condition in conditions.findall("Condition")]
+        for child in list(conditions):
+            conditions.remove(child)
+    conditions.attrib.clear()
+    conditions.set("CrossCheck", MONKEY_ACTIVE_CROSSCHECK)
+    conditions.text = "\n          "
+    for index, target in enumerate(MONKEY_ACCEPTANCE_CONDITIONS_TARGET):
+        condition = make_mc_ratio_condition(target)
+        condition.tail = "\n        " if index == len(MONKEY_ACCEPTANCE_CONDITIONS_TARGET) - 1 else "\n          "
+        conditions.append(condition)
+    after = [mc_condition_summary(condition) for condition in conditions.findall("Condition")]
+    actions.append({
+        "field": "CrossChecks/MonteCarloRetest/AcceptanceSettings/Conditions",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+        "note": "Monkey filters are active acceptance filters, not advisory-only rows; they preserve natural passed/failed results.",
+    })
+
+
+def normalize_monkey_crosscheck_setups(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    period = generator_period(MONKEY_PERIOD_KEY)
+    before: list[dict[str, Any]] = []
+    after: list[dict[str, Any]] = []
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        before.append({
+            "attrs": dict(setup.attrib),
+            "charts": [dict(chart.attrib) for chart in setup.findall("Chart")],
+        })
+        for key, wanted in {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": MONKEY_DATA_TEST_PRECISION,
+            "session": MONKEY_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+        }.items():
+            setup.set(key, wanted)
+        charts = setup.findall("Chart")
+        if not charts:
+            charts = [ET.SubElement(setup, "Chart")]
+        for chart in charts:
+            for key, value in MONKEY_DEFAULT_CHART_TARGET.items():
+                chart.set(key, value)
+        after.append({
+            "attrs": dict(setup.attrib),
+            "charts": [dict(chart.attrib) for chart in setup.findall("Chart")],
+        })
+    actions.append({
+        "field": "CrossChecks/*/Settings/Setups/Setup",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+        "note": "Inactive nested crosscheck setups are normalized to the same safe seed; RealMonkeyTest itself remains the only active Monkey method.",
+    })
+
+
+def apply_monkey_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    parent = find_section(root, "CrossChecks")
+    if parent is None:
+        parent = ET.SubElement(root, "CrossChecks")
+        actions.append({"field": "CrossChecks", "from": None, "to": dict(parent.attrib), "changed": True})
+    set_attrs_on_node(parent, MONKEY_CROSSCHECK_PARENT_TARGET, actions, "CrossChecks:attrs")
+
+    active = parent.find(MONKEY_ACTIVE_CROSSCHECK)
+    if active is None:
+        active = ET.SubElement(parent, MONKEY_ACTIVE_CROSSCHECK, {"use": "true"})
+        actions.append({"field": f"CrossChecks/{MONKEY_ACTIVE_CROSSCHECK}", "from": None, "to": dict(active.attrib), "changed": True})
+
+    for check in list(parent):
+        if not isinstance(check.tag, str) or check.get("use") is None:
+            continue
+        before_use = check.get("use", "")
+        wanted_use = "true" if check.tag == MONKEY_ACTIVE_CROSSCHECK else "false"
+        check.set("use", wanted_use)
+        actions.append({
+            "field": f"CrossChecks/{check.tag}:use",
+            "from": before_use,
+            "to": wanted_use,
+            "changed": before_use != wanted_use,
+        })
+        for method in check.findall("./Settings/Methods/Method"):
+            method_type = method.get("type", "")
+            wanted_method = "true" if check.tag == MONKEY_ACTIVE_CROSSCHECK and method_type == MONKEY_ACTIVE_METHOD else "false"
+            before_method = method.get("use", "")
+            method.set("use", wanted_method)
+            actions.append({
+                "field": f"CrossChecks/{check.tag}/Method:{method_type}:use",
+                "from": before_method,
+                "to": wanted_method,
+                "changed": before_method != wanted_method,
+            })
+
+    settings = ensure_direct_child(active, "Settings")
+    for tag, wanted in (
+        ("NumberOfSimulations", MONKEY_NUMBER_OF_SIMULATIONS),
+        ("MCUseFullSample", MONKEY_USE_FULL_SAMPLE),
+        ("MCBacktestPrecision", "-1"),
+    ):
+        set_or_create_text_child(settings, tag, wanted, actions, f"CrossChecks/{MONKEY_ACTIVE_CROSSCHECK}/Settings/{tag}")
+
+    methods = ensure_direct_child(settings, "Methods")
+    method = None
+    for item in methods.findall("Method"):
+        if item.get("type") == MONKEY_ACTIVE_METHOD:
+            method = item
+            break
+    if method is None:
+        method = ET.SubElement(methods, "Method", {"type": MONKEY_ACTIVE_METHOD, "use": "true"})
+        actions.append({"field": f"CrossChecks/{MONKEY_ACTIVE_CROSSCHECK}/Method:{MONKEY_ACTIVE_METHOD}", "from": None, "to": dict(method.attrib), "changed": True})
+    before_use = method.get("use", "")
+    method.set("use", "true")
+    actions.append({
+        "field": f"CrossChecks/{MONKEY_ACTIVE_CROSSCHECK}/Method:{MONKEY_ACTIVE_METHOD}:use",
+        "from": before_use,
+        "to": "true",
+        "changed": before_use != "true",
+    })
+    set_method_param(
+        method,
+        "MaxChange",
+        MONKEY_METHOD_MAX_CHANGE,
+        "Integer",
+        actions,
+        f"CrossChecks/{MONKEY_ACTIVE_CROSSCHECK}/Method:{MONKEY_ACTIVE_METHOD}/Param:MaxChange",
+    )
+    set_monkey_acceptance_conditions(active, actions)
+    normalize_monkey_crosscheck_setups(root, actions)
+    return actions
+
+
+def monkey_acceptance_conditions_ok(root: ET.Element) -> bool:
+    check = root.find(f".//CrossChecks/{MONKEY_ACTIVE_CROSSCHECK}")
+    if check is None:
+        return False
+    conditions = [
+        mc_condition_summary(condition)
+        for condition in check.findall("./AcceptanceSettings/Conditions/Condition")
+    ]
+    expected = [
+        {"use": "true", "left": item["left"], "comparator": item["comparator"], "right": item["right"]}
+        for item in MONKEY_ACCEPTANCE_CONDITIONS_TARGET
+    ]
+    return conditions == expected
+
+
+def enforce_monkey_crosschecks_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = monkey_crosschecks_summary(root)
+    attrs = summary.get("attributes") or {}
+    if attrs != MONKEY_CROSSCHECK_PARENT_TARGET:
+        issues.append(f"Monkey Test CrossChecks attrs are {attrs!r}, expected {MONKEY_CROSSCHECK_PARENT_TARGET!r}")
+    if summary.get("active") != [MONKEY_ACTIVE_CROSSCHECK]:
+        issues.append(f"Monkey Test active crosschecks are {summary.get('active')!r}, expected [{MONKEY_ACTIVE_CROSSCHECK!r}]")
+
+    checks = {item.get("id"): item for item in summary.get("checks") or []}
+    active = checks.get(MONKEY_ACTIVE_CROSSCHECK) or {}
+    if active.get("numberOfSimulations") != MONKEY_NUMBER_OF_SIMULATIONS:
+        issues.append(f"Monkey Test NumberOfSimulations is {active.get('numberOfSimulations')!r}, expected {MONKEY_NUMBER_OF_SIMULATIONS!r}")
+    if active.get("mcUseFullSample") != MONKEY_USE_FULL_SAMPLE:
+        issues.append(f"Monkey Test MCUseFullSample is {active.get('mcUseFullSample')!r}, expected {MONKEY_USE_FULL_SAMPLE!r}")
+    if active.get("mcBacktestPrecision") != "-1":
+        issues.append(f"Monkey Test MCBacktestPrecision is {active.get('mcBacktestPrecision')!r}, expected '-1'")
+    active_methods = active.get("activeMethodTypes") or []
+    if active_methods != [MONKEY_ACTIVE_METHOD]:
+        issues.append(f"Monkey Test active methods are {active_methods!r}, expected [{MONKEY_ACTIVE_METHOD!r}]")
+    method = next((item for item in active.get("methods") or [] if item.get("type") == MONKEY_ACTIVE_METHOD), {})
+    if (method.get("params") or {}).get("MaxChange") != MONKEY_METHOD_MAX_CHANGE:
+        issues.append(f"Monkey Test RealMonkeyTest MaxChange is {(method.get('params') or {}).get('MaxChange')!r}, expected {MONKEY_METHOD_MAX_CHANGE!r}")
+    if not monkey_acceptance_conditions_ok(root):
+        issues.append("Monkey Test acceptance conditions must be active NetProfit >= 50% main and Max DD <= 200% main")
+
+    for check in summary.get("checks") or []:
+        if check.get("id") == MONKEY_ACTIVE_CROSSCHECK:
+            continue
+        active_methods_in_disabled = [method for method in check.get("methods") or [] if method.get("use") == "true"]
+        if active_methods_in_disabled:
+            issues.append(f"Inactive Monkey crosscheck {check.get('id')} still has active methods: {[item.get('type') for item in active_methods_in_disabled]}")
+
+    period = generator_period(MONKEY_PERIOD_KEY)
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"Monkey nested CrossChecks setup dates drifted: {dict(setup.attrib)!r}")
+        if setup.get("testPrecision") != MONKEY_DATA_TEST_PRECISION:
+            issues.append(f"Monkey nested CrossChecks setup precision is {setup.get('testPrecision')!r}, expected {MONKEY_DATA_TEST_PRECISION!r}")
+        if setup.get("session") != MONKEY_DATA_SESSION:
+            issues.append(f"Monkey nested CrossChecks setup session is {setup.get('session')!r}, expected {MONKEY_DATA_SESSION!r}")
+        if setup.get("slippage") != "0" or setup.get("minDist") != "0":
+            issues.append(f"Monkey nested CrossChecks setup costs drifted: {dict(setup.attrib)!r}")
+        for chart in setup.findall("Chart"):
+            for key, wanted in MONKEY_DEFAULT_CHART_TARGET.items():
+                if chart.get(key) != wanted:
+                    issues.append(f"Monkey nested CrossChecks chart {key} is {chart.get(key)!r}, expected {wanted!r}")
+
+    rankings = find_section(root, "Rankings")
+    if rankings is not None and (rankings.findtext("ForceRunCrossChecks") or "") != "false":
+        issues.append("Monkey Test Rankings/ForceRunCrossChecks must remain false")
+
+    for issue in enforce_monkey_data_databanks_resources_options_guard(root):
+        issues.append(f"Data/Resources guard: {issue}")
+
+    guarded_text = section_text(root, "CrossChecks")
+    for token in MC_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into Monkey Test CrossChecks: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into Monkey Test CrossChecks")
+    return issues
+
+
+def update_monkey_crosschecks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root = load_task_root(cfx, MONKEY_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "monkey_test_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = monkey_crosschecks_summary(root)
+    payload["actions"] = apply_monkey_crosschecks_to_root(root)
+    payload["after"] = monkey_crosschecks_summary(root)
+    payload["issues"] = enforce_monkey_crosschecks_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["xmlChanged"] = before_text != after_text
+    payload["changed"] = payload["changedActionCount"] > 0
+    payload["targetValues"] = {
+        "taskTitle": MONKEY_TASK_TITLE,
+        "taskXml": MONKEY_TASK_XML,
+        "parent": MONKEY_CROSSCHECK_PARENT_TARGET,
+        "onlyActiveCheck": MONKEY_ACTIVE_CROSSCHECK,
+        "onlyActiveMethod": MONKEY_ACTIVE_METHOD,
+        "numberOfSimulations": MONKEY_NUMBER_OF_SIMULATIONS,
+        "mcUseFullSample": MONKEY_USE_FULL_SAMPLE,
+        "mcBacktestPrecision": "-1",
+        "realMonkeyMaxChange": MONKEY_METHOD_MAX_CHANGE,
+        "acceptanceConditions": MONKEY_ACCEPTANCE_CONDITIONS_TARGET,
+        "nestedSetupPeriod": MONKEY_PERIOD_KEY,
+        "nestedSetupChartSeed": MONKEY_DEFAULT_CHART_TARGET,
+    }
+    payload["targetRationale"] = {
+        "methodology": "Monkey Test is the RealMonkeyTest robustness perturbation after Sequential survivors; SyntheticBootstrap methods stay disabled for the later Synthetic/Syntetic task.",
+        "filters": "The two acceptance rows are active filters, not advisory-only rows: MC retest net profit must keep at least 50% of main net profit and MC retest max DD must stay within 200% of main DD.",
+        "academic": "A robustness gate should reject fragile candidates but not become a new optimizer; preserving fixed filters and natural failed/passed rows reduces selection drift.",
+        "cleanup": "Methods hidden inside inactive crosschecks are switched off so stale MonteCarloManipulation/WhatIf/Synthetic settings cannot execute accidentally.",
+        "naturalResults": "No Results value is forced; passed/failed must remain the natural SQX outcome.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_monkey_crosschecks_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase9_monkey_test_crosschecks_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_monkey_crosschecks_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase9",
+        "operation": "monkey_test_crosschecks_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase9_monkey_test_crosschecks_diff_review" if not apply else MONKEY_CROSSCHECKS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase9_monkey_test_crosschecks_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -10792,6 +11175,10 @@ def build_parser() -> argparse.ArgumentParser:
     monkey_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     monkey_data.add_argument("--apply", action="store_true")
 
+    monkey_crosschecks = sub.add_parser("monkey-crosschecks-target")
+    monkey_crosschecks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    monkey_crosschecks.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -10953,6 +11340,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "monkey-data-databanks-resources-options-target":
         json_print(promote_monkey_data_databanks_resources_options_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "monkey-crosschecks-target":
+        json_print(promote_monkey_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

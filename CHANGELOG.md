@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Monkey Test CrossChecks
+
+- Adds `monkey-crosschecks-target` with dry-run-first backup/diff/apply over local base and repo template.
+- Keeps `AutomaticRetest-Task6.xml` as a pure Monkey gate: only `MonteCarloRetest` is active, only `RealMonkeyTest` is active, `NumberOfSimulations=200`, `MCUseFullSample=true`, `MCBacktestPrecision=-1` and `MaxChange=90`.
+- Activates the two Monkey acceptance filters so the retest is not advisory-only: `NetProfit >= 50%` of main and `Max DD <= 200%` of main, preserving natural passed/failed rows.
+- Keeps `SyntheticBootstrapV2` and `SyntheticBootstrapV3` disabled for the later Synthetic/Syntetic task, and clears active methods hidden in inactive `MonteCarloManipulation` and `WhatIf`.
+- Records local answers for `Monkey Test > CrossChecks` (`372/372`), report `phase9_monkey_test_crosschecks_20260524_101913.json`, idempotent dry-run (`changed=false`, `changedActionCount=0`, `guardOk=true`) and next exact block `phase9_monkey_test_passive_generation`.
+
 ## 2026-05-24 - C1-CONFIG1 Monkey Test Data Databanks Resources Options
 
 - Adds `monkey-data-databanks-resources-options-target` with dry-run-first backup/diff/apply over local base and repo template.

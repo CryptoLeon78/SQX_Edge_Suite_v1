@@ -11,6 +11,7 @@ from tools.sqx142_task_config_gate import (
     apply_mc2_crosschecks_to_root,
     apply_mc2_passive_generation_to_root,
     apply_mc2_static_tabs_to_root,
+    apply_monkey_crosschecks_to_root,
     apply_monkey_data_databanks_resources_options_to_root,
     apply_sequential_data_databanks_resources_options_to_root,
     apply_sequential_crosschecks_to_root,
@@ -36,6 +37,7 @@ from tools.sqx142_task_config_gate import (
     enforce_mc2_crosschecks_guard,
     enforce_mc2_passive_generation_guard,
     enforce_mc2_static_tabs_guard,
+    enforce_monkey_crosschecks_guard,
     enforce_monkey_data_databanks_resources_options_guard,
     enforce_sequential_data_databanks_resources_options_guard,
     enforce_sequential_crosschecks_guard,
@@ -50,6 +52,7 @@ from tools.sqx142_task_config_gate import (
     mc_closeout_operation_summary,
     monkey_open_issues,
     monkey_open_summary,
+    monkey_crosschecks_summary,
     question_id,
     record_tab_answer,
     sequential_open_issues,
@@ -2063,6 +2066,148 @@ def test_monkey_data_databanks_resources_options_guard_rejects_divergent_carrier
     assert any("CustomData MainTestValues" in issue for issue in issues)
     assert any("Databank Input" in issue for issue in issues)
     assert any("Options param" in issue for issue in issues)
+
+
+def _monkey_data_gate_fixture() -> str:
+    return """
+      <Data>
+        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)">
+          <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" />
+          <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0.0</Param></Params></Method></Commissions>
+        </Setup></Setups>
+      </Data>
+      <CustomData>
+        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader4">
+          <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" />
+          <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0.0</Param></Params></Method></Commissions>
+          <MainTestValues engine="true" symbol="true" timeframe="true" dates="true" subcharts="false" precision="true" distance="true" spread="true" slippage="true" commissions="true" />
+        </Setup></Setups>
+      </CustomData>
+      <Databanks><Databank name="Input" value="Sequential" /><Databank name="Output" value="Monkey Test" /></Databanks>
+      <Resources>
+        <Symbols><Symbol name="AUDCAD_darwinex" precision="TICK" timezone="EETUS" broker="4"><InstrumentInfo instrument="AUDCAD_darwinex" broker="4" /></Symbol></Symbols>
+        <Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers>
+        <Instruments><InstrumentInfo instrument="AUDCAD_darwinex" broker="4" /></Instruments>
+        <Sessions />
+      </Resources>
+      <Options><BuildTradingOptions><Params>
+        <Param key="LimitTimeRange">false</Param>
+        <Param key="RealisticGapsHandling">false</Param>
+        <Param key="StoreChartData">false</Param>
+        <Param key="Session">No Session</Param>
+        <Param key="MarketOpenSession">No Session</Param>
+      </Params></BuildTradingOptions></Options>
+    """
+
+
+def test_monkey_crosschecks_activates_real_monkey_filters_and_cleans_synthetic_or_disabled_methods():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_monkey_data_gate_fixture()}
+          <CrossChecks use="false" evaluateAll="false">
+            <RetestOnAdditionalMarkets use="true">
+              <Settings><Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old" slippage="5" minDist="2">
+                <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
+              </Setup></Setups></Settings>
+            </RetestOnAdditionalMarkets>
+            <MonteCarloRetest use="false">
+              <Settings>
+                <NumberOfSimulations>50</NumberOfSimulations>
+                <MCUseFullSample>false</MCUseFullSample>
+                <MCBacktestPrecision>2</MCBacktestPrecision>
+                <Methods>
+                  <Method type="RealMonkeyTest" use="false"><Params><Param key="MaxChange" type="Integer">50</Param></Params></Method>
+                  <Method type="SyntheticBootstrapV3" use="true"><Params><Param key="PreservePct">85</Param></Params></Method>
+                  <Method type="RandomizeSpread" use="true"><Params><Param key="Min">1</Param><Param key="Max">5</Param></Params></Method>
+                </Methods>
+              </Settings>
+              <AcceptanceSettings><Conditions CrossCheck="MonteCarloRetest">
+                <Condition use="false" />
+              </Conditions></AcceptanceSettings>
+            </MonteCarloRetest>
+            <MonteCarloManipulation use="false">
+              <Settings><Methods><Method type="RandomizeTradesOrder" use="true" /><Method type="RandomlySkipTrades" use="true" /></Methods></Settings>
+            </MonteCarloManipulation>
+            <WhatIf use="false">
+              <Settings><Methods><Method type="ExcludeTradesWithBiggestPl" use="true" /></Methods></Settings>
+            </WhatIf>
+          </CrossChecks>
+          <Rankings><ForceRunCrossChecks>false</ForceRunCrossChecks></Rankings>
+        </Settings>
+        """
+    )
+
+    actions = apply_monkey_crosschecks_to_root(root)
+
+    assert any(item["field"] == "CrossChecks:attrs" and item["changed"] for item in actions)
+    assert any(item["field"] == "CrossChecks/MonteCarloRetest/Method:SyntheticBootstrapV3:use" and item["changed"] for item in actions)
+    assert enforce_monkey_crosschecks_guard(root) == []
+    summary = monkey_crosschecks_summary(root)
+    assert summary["active"] == ["MonteCarloRetest"]
+    monte_carlo = next(item for item in summary["checks"] if item["id"] == "MonteCarloRetest")
+    assert monte_carlo["numberOfSimulations"] == "200"
+    assert monte_carlo["mcUseFullSample"] == "true"
+    assert monte_carlo["mcBacktestPrecision"] == "-1"
+    assert monte_carlo["activeMethodTypes"] == ["RealMonkeyTest"]
+    methods = {item["type"]: item for item in monte_carlo["methods"]}
+    assert methods["RealMonkeyTest"]["params"]["MaxChange"] == "90"
+    assert methods["SyntheticBootstrapV3"]["use"] == "false"
+    conditions = monte_carlo["conditions"]
+    assert [condition["use"] for condition in conditions] == ["true", "true"]
+    assert conditions[0]["left"]["column"] == "NetProfit"
+    assert conditions[0]["right"]["pctRatio"] == "50"
+    assert conditions[1]["left"]["column"] == "DrawdownPct"
+    assert conditions[1]["right"]["pctRatio"] == "200"
+    inactive_methods = [
+        method
+        for check in summary["checks"]
+        if check["id"] != "MonteCarloRetest"
+        for method in check["methods"]
+    ]
+    assert all(method["use"] == "false" for method in inactive_methods)
+    setup = root.find(".//CrossChecks/RetestOnAdditionalMarkets/Settings/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "2"
+    assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
+
+
+def test_monkey_crosschecks_guard_rejects_inactive_filters_synthetic_method_and_force_run():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_monkey_data_gate_fixture()}
+          <CrossChecks use="true" evaluateAll="true">
+            <MonteCarloRetest use="true">
+              <Settings>
+                <NumberOfSimulations>200</NumberOfSimulations>
+                <MCUseFullSample>true</MCUseFullSample>
+                <MCBacktestPrecision>-1</MCBacktestPrecision>
+                <Methods>
+                  <Method type="RealMonkeyTest" use="true"><Params><Param key="MaxChange" type="Integer">90</Param></Params></Method>
+                  <Method type="SyntheticBootstrapV3" use="true" />
+                </Methods>
+              </Settings>
+              <AcceptanceSettings><Conditions CrossCheck="MonteCarloRetest">
+                <Condition use="false" />
+              </Conditions></AcceptanceSettings>
+            </MonteCarloRetest>
+            <MonteCarloManipulation use="false">
+              <Settings><Methods><Method type="RandomizeTradesOrder" use="true" /></Methods></Settings>
+            </MonteCarloManipulation>
+          </CrossChecks>
+          <Rankings><ForceRunCrossChecks>true</ForceRunCrossChecks></Rankings>
+        </Settings>
+        """
+    )
+
+    issues = enforce_monkey_crosschecks_guard(root)
+
+    assert any("active methods" in issue for issue in issues)
+    assert any("acceptance conditions" in issue for issue in issues)
+    assert any("still has active methods" in issue for issue in issues)
+    assert any("ForceRunCrossChecks" in issue for issue in issues)
 
 
 def test_sequential_data_databanks_resources_options_keeps_dual_carrier_synced():
