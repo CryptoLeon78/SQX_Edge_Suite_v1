@@ -325,6 +325,58 @@ def _assert_monkey_crosschecks_contract(monkey: ET.Element) -> None:
     assert inactive_active_methods == []
 
 
+def _assert_synthetic_crosschecks_contract(synthetic: ET.Element) -> None:
+    crosschecks = synthetic.find(".//CrossChecks")
+    assert crosschecks is not None
+    assert crosschecks.get("use") == "true"
+    assert crosschecks.get("evaluateAll") == "true"
+    active = [
+        check.tag
+        for check in list(crosschecks)
+        if isinstance(check.tag, str) and check.get("use") == "true"
+    ]
+    assert active == ["MonteCarloRetest"]
+    monte_carlo = crosschecks.find("MonteCarloRetest")
+    assert monte_carlo is not None
+    assert monte_carlo.findtext("./Settings/NumberOfSimulations") == "100"
+    assert monte_carlo.findtext("./Settings/MCUseFullSample") == "true"
+    assert monte_carlo.findtext("./Settings/MCBacktestPrecision") == "-1"
+    methods = {
+        method.get("type"): method.get("use")
+        for method in monte_carlo.findall("./Settings/Methods/Method")
+        if method.get("type")
+    }
+    assert methods["SyntheticBootstrapV3"] == "true"
+    assert all(use == "false" for name, use in methods.items() if name != "SyntheticBootstrapV3")
+    bootstrap = monte_carlo.find("./Settings/Methods/Method[@type='SyntheticBootstrapV3']")
+    assert bootstrap is not None
+    params = {
+        param.get("key"): param.text
+        for param in bootstrap.findall("./Params/Param")
+    }
+    assert params["BlockSize"] == "20"
+    assert params["WarmupBars"] == "200"
+    assert params["PreservePct"] == "85"
+
+    conditions = monte_carlo.findall("./AcceptanceSettings/Conditions/Condition")
+    assert len(conditions) == 1
+    assert conditions[0].get("use") == "true"
+    assert conditions[0].find("./Left-Side/Column-Value").get("column") == "NetProfit"
+    assert conditions[0].find("./Left-Side/Column-Value").get("confidenceLevel") == "85"
+    assert conditions[0].find("./Comparator").get("value") == "<="
+    assert conditions[0].find("./Right-Side/Column-Value").get("resultType") == "main"
+    assert conditions[0].find("./Right-Side/Column-Value").get("pctRatio") == "0"
+
+    inactive_active_methods = [
+        (check.tag, method.get("type"))
+        for check in list(crosschecks)
+        if isinstance(check.tag, str) and check.tag != "MonteCarloRetest"
+        for method in check.findall("./Settings/Methods/Method")
+        if method.get("use") == "true"
+    ]
+    assert inactive_active_methods == []
+
+
 def _assert_static_crosschecks_contract(task: ET.Element, require_selected_strategies: bool = True) -> None:
     crosschecks = task.find(".//CrossChecks")
     assert crosschecks is not None
@@ -1016,6 +1068,7 @@ def test_capa1_synthetic_data_gate_receives_monkey_and_keeps_dual_carrier():
         expected_timeframe="H1",
         expected_spread="2.0",
     )
+    _assert_synthetic_crosschecks_contract(synthetic)
 
 
 def test_capa1_base_uses_confirmed_build_ranking_volume():
@@ -1241,6 +1294,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
         expected_spread="10",
     )
     assert {chart.get("spread") for chart in synthetic.findall(".//Setup/Chart")} == {"10"}
+    _assert_synthetic_crosschecks_contract(synthetic)
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")

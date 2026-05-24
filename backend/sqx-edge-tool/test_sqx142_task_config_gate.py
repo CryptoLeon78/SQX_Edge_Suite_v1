@@ -15,6 +15,7 @@ from tools.sqx142_task_config_gate import (
     apply_monkey_data_databanks_resources_options_to_root,
     apply_monkey_passive_generation_to_root,
     apply_monkey_static_tabs_to_root,
+    apply_synthetic_crosschecks_to_root,
     apply_synthetic_data_databanks_resources_options_to_root,
     apply_sequential_data_databanks_resources_options_to_root,
     apply_sequential_crosschecks_to_root,
@@ -44,6 +45,7 @@ from tools.sqx142_task_config_gate import (
     enforce_monkey_data_databanks_resources_options_guard,
     enforce_monkey_passive_generation_guard,
     enforce_monkey_static_tabs_guard,
+    enforce_synthetic_crosschecks_guard,
     enforce_synthetic_data_databanks_resources_options_guard,
     enforce_sequential_data_databanks_resources_options_guard,
     enforce_sequential_crosschecks_guard,
@@ -2326,6 +2328,13 @@ def _monkey_data_gate_fixture() -> str:
     """
 
 
+def _synthetic_data_gate_fixture() -> str:
+    return _monkey_data_gate_fixture().replace(
+        '<Databank name="Input" value="Sequential" /><Databank name="Output" value="Monkey Test" />',
+        '<Databank name="Input" value="Monkey Test" /><Databank name="Output" value="Syntetic" />',
+    )
+
+
 def test_monkey_crosschecks_activates_real_monkey_filters_and_cleans_synthetic_or_disabled_methods():
     root = ET.fromstring(
         f"""
@@ -2429,6 +2438,122 @@ def test_monkey_crosschecks_guard_rejects_inactive_filters_synthetic_method_and_
     )
 
     issues = enforce_monkey_crosschecks_guard(root)
+
+    assert any("active methods" in issue for issue in issues)
+    assert any("acceptance conditions" in issue for issue in issues)
+    assert any("still has active methods" in issue for issue in issues)
+    assert any("ForceRunCrossChecks" in issue for issue in issues)
+
+
+def test_synthetic_crosschecks_activates_bootstrap_filters_and_cleans_monkey_or_disabled_methods():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_synthetic_data_gate_fixture()}
+          <CrossChecks use="false" evaluateAll="false">
+            <RetestOnAdditionalMarkets use="true">
+              <Settings><Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old" slippage="5" minDist="2">
+                <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
+              </Setup></Setups></Settings>
+            </RetestOnAdditionalMarkets>
+            <MonteCarloRetest use="false">
+              <Settings>
+                <NumberOfSimulations>50</NumberOfSimulations>
+                <MCUseFullSample>false</MCUseFullSample>
+                <MCBacktestPrecision>2</MCBacktestPrecision>
+                <Methods>
+                  <Method type="RealMonkeyTest" use="true"><Params><Param key="MaxChange" type="Integer">90</Param></Params></Method>
+                  <Method type="SyntheticBootstrapV3" use="false"><Params><Param key="BlockSize">10</Param><Param key="WarmupBars">50</Param><Param key="PreservePct">60</Param></Params></Method>
+                  <Method type="RandomizeSpread" use="true"><Params><Param key="Min">1</Param><Param key="Max">5</Param></Params></Method>
+                </Methods>
+              </Settings>
+              <AcceptanceSettings><Conditions CrossCheck="MonteCarloRetest">
+                <Condition use="false" />
+              </Conditions></AcceptanceSettings>
+            </MonteCarloRetest>
+            <MonteCarloManipulation use="false">
+              <Settings><Methods><Method type="RandomizeTradesOrder" use="true" /><Method type="RandomlySkipTrades" use="true" /></Methods></Settings>
+            </MonteCarloManipulation>
+            <WhatIf use="false">
+              <Settings><Methods><Method type="ExcludeTradesWithBiggestPl" use="true" /></Methods></Settings>
+            </WhatIf>
+          </CrossChecks>
+          <Rankings><ForceRunCrossChecks>false</ForceRunCrossChecks></Rankings>
+        </Settings>
+        """
+    )
+
+    actions = apply_synthetic_crosschecks_to_root(root)
+
+    assert any(item["field"] == "CrossChecks:attrs" and item["changed"] for item in actions)
+    assert any(item["field"] == "CrossChecks/MonteCarloRetest/Method:RealMonkeyTest:use" and item["changed"] for item in actions)
+    assert enforce_synthetic_crosschecks_guard(root) == []
+    summary = monkey_crosschecks_summary(root)
+    assert summary["active"] == ["MonteCarloRetest"]
+    monte_carlo = next(item for item in summary["checks"] if item["id"] == "MonteCarloRetest")
+    assert monte_carlo["numberOfSimulations"] == "100"
+    assert monte_carlo["mcUseFullSample"] == "true"
+    assert monte_carlo["mcBacktestPrecision"] == "-1"
+    assert monte_carlo["activeMethodTypes"] == ["SyntheticBootstrapV3"]
+    methods = {item["type"]: item for item in monte_carlo["methods"]}
+    assert methods["RealMonkeyTest"]["use"] == "false"
+    assert methods["SyntheticBootstrapV3"]["params"] == {
+        "BlockSize": "20",
+        "WarmupBars": "200",
+        "PreservePct": "85",
+    }
+    conditions = monte_carlo["conditions"]
+    assert len(conditions) == 1
+    assert conditions[0]["use"] == "true"
+    assert conditions[0]["left"]["column"] == "NetProfit"
+    assert conditions[0]["left"]["confidenceLevel"] == "85"
+    assert conditions[0]["comparator"] == "<="
+    assert conditions[0]["right"]["resultType"] == "main"
+    assert conditions[0]["right"]["pctRatio"] == "0"
+    inactive_methods = [
+        method
+        for check in summary["checks"]
+        if check["id"] != "MonteCarloRetest"
+        for method in check["methods"]
+    ]
+    assert all(method["use"] == "false" for method in inactive_methods)
+    setup = root.find(".//CrossChecks/RetestOnAdditionalMarkets/Settings/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "2"
+    assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
+
+
+def test_synthetic_crosschecks_guard_rejects_monkey_method_inactive_filters_and_force_run():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_synthetic_data_gate_fixture()}
+          <CrossChecks use="true" evaluateAll="true">
+            <MonteCarloRetest use="true">
+              <Settings>
+                <NumberOfSimulations>100</NumberOfSimulations>
+                <MCUseFullSample>true</MCUseFullSample>
+                <MCBacktestPrecision>-1</MCBacktestPrecision>
+                <Methods>
+                  <Method type="SyntheticBootstrapV3" use="true"><Params><Param key="BlockSize" type="Integer">20</Param><Param key="WarmupBars" type="Integer">200</Param><Param key="PreservePct" type="Integer">85</Param></Params></Method>
+                  <Method type="RealMonkeyTest" use="true" />
+                </Methods>
+              </Settings>
+              <AcceptanceSettings><Conditions CrossCheck="MonteCarloRetest">
+                <Condition use="false" />
+              </Conditions></AcceptanceSettings>
+            </MonteCarloRetest>
+            <MonteCarloManipulation use="false">
+              <Settings><Methods><Method type="RandomizeTradesOrder" use="true" /></Methods></Settings>
+            </MonteCarloManipulation>
+          </CrossChecks>
+          <Rankings><ForceRunCrossChecks>true</ForceRunCrossChecks></Rankings>
+        </Settings>
+        """
+    )
+
+    issues = enforce_synthetic_crosschecks_guard(root)
 
     assert any("active methods" in issue for issue in issues)
     assert any("acceptance conditions" in issue for issue in issues)

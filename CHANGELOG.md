@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Synthetic CrossChecks
+
+- Adds `synthetic-crosschecks-target` with dry-run/apply support, guards and tests for `AutomaticRetest-Task5.xml`.
+- Keeps Synthetic/Syntetic separate from Monkey: only `MonteCarloRetest` + `SyntheticBootstrapV3` remains active with `NumberOfSimulations=100`, `MCUseFullSample=true`, `MCBacktestPrecision=-1`, `BlockSize=20`, `WarmupBars=200` and `PreservePct=85`.
+- Preserves the dedicated Synthetic acceptance row `NetProfit` MC retest confidence `85` versus main `NetProfit`, without copying Monkey filters and without forcing `Results=passed`.
+- Turns off hidden active methods in inactive `MonteCarloManipulation` and `WhatIf`, and normalizes nested CrossChecks setup spread from `2` to `2.0` in local base and repo template.
+- Records backup `phase10_synthetic_crosschecks_20260524_123823`, apply diff `phase10_synthetic_crosschecks_target_20260524_123825.json`, idempotent dry-run `phase10_synthetic_crosschecks_target_20260524_123846.json`, report `phase10_synthetic_crosschecks_20260524_123911.json`, ledger answer `Syntetic > CrossChecks` (`345/345`) and next exact block `phase10_synthetic_passive_generation`.
+
 ## 2026-05-24 - C1-CONFIG1 Synthetic Data Databanks Resources Options
 
 - Adds `synthetic-data-databanks-resources-options-target` with dry-run/apply support, guards and tests for `AutomaticRetest-Task5.xml`.

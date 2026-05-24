@@ -1421,6 +1421,43 @@ Siguiente bloque exacto: `phase10_synthetic_crosschecks`, para decidir y
 limpiar `SyntheticBootstrapV3`, filtros de aceptacion Synthetic y metodos
 activos ocultos en crosschecks inactivos sin mezclarlo con Monkey.
 
+Estado Fase 10 - Synthetic/Syntetic CrossChecks:
+
+- `phase10_synthetic_crosschecks` queda cerrado con
+  `phase10_synthetic_crosschecks_20260524_123911.json`.
+- `synthetic-crosschecks-target --target both --apply` toca solo
+  `AutomaticRetest-Task5.xml`, no ejecuta SQX, no fuerza `Results=passed` y
+  no copia filtros de Monkey.
+- `CrossChecks` queda activo/evaluateAll por el propio retest Synthetic:
+  solo `MonteCarloRetest` queda en `use=true`.
+- El unico metodo activo es `SyntheticBootstrapV3`; `RealMonkeyTest`,
+  `SyntheticBootstrapV2`, `RandomizeSpread`, `RandomizeSlippage` y el resto de
+  metodos del bloque `MonteCarloRetest` quedan apagados.
+- Parametros Synthetic fijados: `NumberOfSimulations=100`,
+  `MCUseFullSample=true`, `MCBacktestPrecision=-1`, `BlockSize=20`,
+  `WarmupBars=200` y `PreservePct=85`.
+- Se preserva el filtro de aceptacion propio de Synthetic: `NetProfit` del MC
+  retest con `confidenceLevel=85` frente a main `NetProfit`; no se sustituyen por los filtros de Monkey (`NetProfit >= 50%` / `Max DD <= 200%`).
+- Los metodos activos escondidos en crosschecks inactivos quedan apagados:
+  `MonteCarloManipulation` ya no deja activos `RandomizeTradesOrder` ni
+  `RandomlySkipTrades`, y `WhatIf` ya no deja activos
+  `ExcludeTradesWithBiggestPl` ni `ExcludeTradesWithLowestPl`.
+- Nested setups de CrossChecks quedan sincronizados con `ROBUSTNESS_C1`,
+  `testPrecision=2`, `No Session`, `slippage=0`, `minDist=0` y seed
+  `AUDCAD_darwinex/H1` spread `2.0`.
+- Backup local:
+  `.local/sqx142_task_config/backups/phase10_synthetic_crosschecks_20260524_123823/`.
+- Diff/apply:
+  `.local/sqx142_task_config/diffs/phase10_synthetic_crosschecks_target_20260524_123825.json`.
+- Dry-run posterior idempotente:
+  `phase10_synthetic_crosschecks_target_20260524_123846.json` con
+  `changed=false`, `changedActionCount=0`, `guardOk=true` e `issues=[]`.
+- Ledger local respondido para `Syntetic > CrossChecks` (`345/345`).
+
+Siguiente bloque exacto: `phase10_synthetic_passive_generation`, para cerrar
+`PartsToImprove`, `WhatToBuild` y `Blocks` de Synthetic/Syntetic como retest
+pasivo puro desde `Monkey Test`.
+
 ## Disciplina Operativa
 
 En cada fase:
