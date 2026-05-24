@@ -151,6 +151,10 @@ tools\sqx142_task_config_gate.ps1 synthetic-open-report --target both
 tools\sqx142_task_config_gate.ps1 synthetic-open-report --target both --write
 tools\sqx142_task_config_gate.ps1 synthetic-data-databanks-resources-options-target --target both
 tools\sqx142_task_config_gate.ps1 synthetic-data-databanks-resources-options-target --target both --apply
+tools\sqx142_task_config_gate.ps1 synthetic-crosschecks-target --target both
+tools\sqx142_task_config_gate.ps1 synthetic-crosschecks-target --target both --apply
+tools\sqx142_task_config_gate.ps1 synthetic-passive-generation-target --target both
+tools\sqx142_task_config_gate.ps1 synthetic-passive-generation-target --target both --apply
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
 
@@ -1457,6 +1461,42 @@ Estado Fase 10 - Synthetic/Syntetic CrossChecks:
 Siguiente bloque exacto: `phase10_synthetic_passive_generation`, para cerrar
 `PartsToImprove`, `WhatToBuild` y `Blocks` de Synthetic/Syntetic como retest
 pasivo puro desde `Monkey Test`.
+
+Estado Fase 10 - Synthetic/Syntetic Passive Generation:
+
+- `phase10_synthetic_passive_generation` queda cerrado con
+  `phase10_synthetic_passive_generation_20260524_130638.json`.
+- `synthetic-passive-generation-target --target both --apply` toca solo
+  `AutomaticRetest-Task5.xml`, no ejecuta SQX, no fuerza `Results=passed` y
+  no convierte Synthetic en generador.
+- `Syntetic` queda como retest pasivo puro desde `Monkey Test`:
+  `StrategyType.improveDatabank=Monkey Test`.
+- `PartsToImprove` queda apagado para entradas, ordenes y salidas; no se
+  mejora ni reemplaza logica de estrategia en este gate.
+- Restos de evolucion/generacion quedan inertes:
+  `ShowLastGenerationDatabank=false`, `FreshBloodReplaceSimilar=false`,
+  `EvoRestartOnFinish.status=false` y
+  `EvoRestartOnStagnation.status=false`.
+- `Blocks` preserva Indicators gobernados por metodologia/BlockSettings, apaga
+  todos los Signals y todos los Stop/Limit entry blocks.
+- `OrderTypes` permite solo `EnterAtMarket`; `ExitTypes` permite solo
+  `ExitAfterBars` con probability `100`.
+- El guard bloquea salidas por dias (`ExitAfterDays` /
+  `ExitAfterTradingDays`) y preserva resultados naturales.
+- Backup local:
+  `.local/sqx142_task_config/backups/phase10_synthetic_passive_generation_20260524_130601/`.
+- Diff/apply:
+  `.local/sqx142_task_config/diffs/phase10_synthetic_passive_generation_target_20260524_130603.json`.
+- Dry-run posterior idempotente:
+  `phase10_synthetic_passive_generation_target_20260524_130615.json` con
+  `changed=false`, `changedActionCount=0`, `guardOk=true` e `issues=[]`.
+- Ledger local respondido para `Syntetic > PartsToImprove` (`8/8`),
+  `Syntetic > WhatToBuild` (`67/67`) y
+  `Syntetic > Blocks` (`17.583/17.583`).
+
+Siguiente bloque exacto: `phase10_synthetic_static_tabs`, para cerrar Rankings,
+ATMs, RiskMoneyManagement, Notes, SelectedStrategies y CustomData sin activar
+superficies de ejecucion adicionales.
 
 ## Disciplina Operativa
 

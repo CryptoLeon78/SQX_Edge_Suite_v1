@@ -17,6 +17,7 @@ from tools.sqx142_task_config_gate import (
     apply_monkey_static_tabs_to_root,
     apply_synthetic_crosschecks_to_root,
     apply_synthetic_data_databanks_resources_options_to_root,
+    apply_synthetic_passive_generation_to_root,
     apply_sequential_data_databanks_resources_options_to_root,
     apply_sequential_crosschecks_to_root,
     apply_sequential_passive_generation_to_root,
@@ -47,6 +48,7 @@ from tools.sqx142_task_config_gate import (
     enforce_monkey_static_tabs_guard,
     enforce_synthetic_crosschecks_guard,
     enforce_synthetic_data_databanks_resources_options_guard,
+    enforce_synthetic_passive_generation_guard,
     enforce_sequential_data_databanks_resources_options_guard,
     enforce_sequential_crosschecks_guard,
     enforce_sequential_passive_generation_guard,
@@ -2559,6 +2561,150 @@ def test_synthetic_crosschecks_guard_rejects_monkey_method_inactive_filters_and_
     assert any("acceptance conditions" in issue for issue in issues)
     assert any("still has active methods" in issue for issue in issues)
     assert any("ForceRunCrossChecks" in issue for issue in issues)
+
+
+def test_synthetic_passive_generation_points_to_monkey_and_preserves_indicator_universe():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_synthetic_data_gate_fixture()}
+          <CrossChecks use="true" evaluateAll="true">
+            <MonteCarloRetest use="true">
+              <Settings>
+                <NumberOfSimulations>100</NumberOfSimulations>
+                <MCUseFullSample>true</MCUseFullSample>
+                <MCBacktestPrecision>-1</MCBacktestPrecision>
+                <Methods>
+                  <Method type="SyntheticBootstrapV3" use="true"><Params><Param key="BlockSize" type="Integer">20</Param><Param key="WarmupBars" type="Integer">200</Param><Param key="PreservePct" type="Integer">85</Param></Params></Method>
+                </Methods>
+              </Settings>
+              <AcceptanceSettings><Conditions CrossCheck="MonteCarloRetest">
+                <Condition use="true"><Left-Side valueType="column"><Column-Value column="NetProfit" columnType="0" format="Decimal2PL" resultType="MonteCarloRetest" direction="0" sampleType="10" plType="10" confidenceLevel="85" market="1" subresult="30" pctRatio="0" class="NetProfit" /></Left-Side><Comparator value="&lt;=" /><Right-Side valueType="column"><Column-Value column="NetProfit" columnType="0" format="Decimal2PL" resultType="main" direction="0" sampleType="127" plType="10" confidenceLevel="90" market="1" subresult="30" pctRatio="0" class="NetProfit" /></Right-Side></Condition>
+              </Conditions></AcceptanceSettings>
+            </MonteCarloRetest>
+          </CrossChecks>
+          <Rankings><ForceRunCrossChecks>false</ForceRunCrossChecks></Rankings>
+          <PartsToImprove>
+            <EntryRules><LongImprovement use="true" /><ShortImprovement use="true" /></EntryRules>
+            <OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes>
+            <ExitRules><LongImprovement use="true" /><ShortImprovement use="true" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>true</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="true" />
+              <EvoRestartOnStagnation status="true" fitnessType="10" generations="30" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="legacy" version="old">
+            <BuildingBlocks>
+              <Block key="Signals.CCI" category="signals" use="true" />
+              <Block key="Indicators.ATR" category="indicators" use="true" />
+              <Block key="StopLimit.ATR" category="stopLimitBlocks" use="true" />
+            </BuildingBlocks>
+            <OrderTypes>
+              <Block key="EnterAtMarket" use="false" />
+              <Block key="EnterReverseAtMarket" use="true" />
+              <Block key="EnterAtStop" use="true" />
+              <Block key="EnterAtLimit" use="true" />
+            </OrderTypes>
+            <ExitTypes>
+              <Block key="ExitAfterBars.ExitAfterBars" use="false" probability="25"><Value key="undefined" use="false" /></Block>
+              <Block key="ExitAfterDays.ExitAfterDays" use="true" probability="100" />
+              <Block key="StopLoss" use="true" probability="1" />
+            </ExitTypes>
+            <CustomData showAll="true"><External /></CustomData>
+          </Blocks>
+        </Settings>
+        """
+    )
+
+    actions = apply_synthetic_passive_generation_to_root(root, source_root=root)
+
+    assert any(item["field"] == "WhatToBuild/StrategyType" and item["changed"] for item in actions)
+    assert enforce_synthetic_passive_generation_guard(root) == []
+    strategy_type = root.find("./WhatToBuild/StrategyType")
+    assert strategy_type.get("improveDatabank") == "Monkey Test"
+    build_mode = root.find("./WhatToBuild/BuildMode")
+    assert build_mode.findtext("ShowLastGenerationDatabank") == "false"
+    assert build_mode.find("EvoRestartOnFinish").get("status") == "false"
+    assert build_mode.find("EvoRestartOnStagnation").get("status") == "false"
+    blocks = root.find("./Blocks")
+    assert blocks.get("version") == "142.2336"
+    assert blocks.find("./BuildingBlocks/Block[@key='Indicators.ATR']").get("use") == "true"
+    assert blocks.find("./BuildingBlocks/Block[@key='Signals.CCI']").get("use") == "false"
+    assert blocks.find("./BuildingBlocks/Block[@key='StopLimit.ATR']").get("use") == "false"
+    assert blocks.find("./OrderTypes/Block[@key='EnterAtMarket']").get("use") == "true"
+    assert blocks.find("./ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("probability") == "100"
+    assert "ExitAfterDays" not in ET.tostring(blocks, encoding="unicode")
+    assert list(blocks.find("./CustomData")) == []
+
+
+def test_synthetic_passive_generation_guard_rejects_generation_remnants_and_day_exits():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_synthetic_data_gate_fixture()}
+          <CrossChecks use="true" evaluateAll="true">
+            <MonteCarloRetest use="true">
+              <Settings>
+                <NumberOfSimulations>100</NumberOfSimulations>
+                <MCUseFullSample>true</MCUseFullSample>
+                <MCBacktestPrecision>-1</MCBacktestPrecision>
+                <Methods>
+                  <Method type="SyntheticBootstrapV3" use="true"><Params><Param key="BlockSize" type="Integer">20</Param><Param key="WarmupBars" type="Integer">200</Param><Param key="PreservePct" type="Integer">85</Param></Params></Method>
+                </Methods>
+              </Settings>
+              <AcceptanceSettings><Conditions CrossCheck="MonteCarloRetest">
+                <Condition use="true"><Left-Side valueType="column"><Column-Value column="NetProfit" columnType="0" format="Decimal2PL" resultType="MonteCarloRetest" direction="0" sampleType="10" plType="10" confidenceLevel="85" market="1" subresult="30" pctRatio="0" class="NetProfit" /></Left-Side><Comparator value="&lt;=" /><Right-Side valueType="column"><Column-Value column="NetProfit" columnType="0" format="Decimal2PL" resultType="main" direction="0" sampleType="127" plType="10" confidenceLevel="90" market="1" subresult="30" pctRatio="0" class="NetProfit" /></Right-Side></Condition>
+              </Conditions></AcceptanceSettings>
+            </MonteCarloRetest>
+          </CrossChecks>
+          <Rankings><ForceRunCrossChecks>false</ForceRunCrossChecks></Rankings>
+          <PartsToImprove>
+            <EntryRules><LongImprovement use="true" /><ShortImprovement use="false" /></EntryRules>
+            <OrderTypes><LongImprovement use="false" /><ShortImprovement use="false" /></OrderTypes>
+            <ExitRules><LongImprovement use="false" /><ShortImprovement use="false" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>true</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>false</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>false</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="false" />
+              <EvoRestartOnStagnation status="false" fitnessType="10" generations="30" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="simple" version="142.2336">
+            <BuildingBlocks>
+              <Block key="Signals.CCI" category="signals" use="true" />
+              <Block key="Indicators.ATR" category="indicators" use="true" />
+              <Block key="StopLimit.ATR" category="stopLimitBlocks" use="true" />
+            </BuildingBlocks>
+            <OrderTypes><Block key="EnterAtMarket" use="false" /><Block key="EnterReverseAtMarket" use="true" /><Block key="EnterAtStop" use="true" /><Block key="EnterAtLimit" use="true" /></OrderTypes>
+            <ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="true" probability="50" /><Block key="ExitAfterDays.ExitAfterDays" use="true" probability="100" /></ExitTypes>
+            <CustomData showAll="true"><External /></CustomData>
+          </Blocks>
+        </Settings>
+        """
+    )
+
+    issues = enforce_synthetic_passive_generation_guard(root)
+
+    assert any("EntryRules/LongImprovement" in issue for issue in issues)
+    assert any("StrategyType" in issue for issue in issues)
+    assert any("ShowLastGenerationDatabank" in issue for issue in issues)
+    assert any("order types" in issue for issue in issues)
+    assert any("ExitAfterBars probability" in issue for issue in issues)
+    assert any("day-based" in issue for issue in issues)
+    assert any("signals" in issue for issue in issues)
+    assert any("stop/limit" in issue for issue in issues)
+    assert any("CustomData" in issue for issue in issues)
+    assert any("Strategies to improve" in issue for issue in issues)
 
 
 def test_monkey_passive_generation_points_to_sequential_and_preserves_indicator_universe():

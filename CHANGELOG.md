@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Synthetic Passive Generation
+
+- Adds `synthetic-passive-generation-target` with dry-run/apply support, guards and tests for `AutomaticRetest-Task5.xml`.
+- Makes Synthetic/Syntetic a passive retest from `Monkey Test`: `StrategyType.improveDatabank=Monkey Test`, `PartsToImprove` disabled, evolution restarts off and generation remnants inert.
+- Preserves Indicators governed by methodology/BlockSettings while disabling all Signals and Stop/Limit entry blocks.
+- Keeps only `EnterAtMarket` plus `ExitAfterBars` probability `100`, guards against day-based exits and does not force `Results=passed`.
+- Records backup `phase10_synthetic_passive_generation_20260524_130601`, apply diff `phase10_synthetic_passive_generation_target_20260524_130603.json`, idempotent dry-run `phase10_synthetic_passive_generation_target_20260524_130615.json`, report `phase10_synthetic_passive_generation_20260524_130638.json`, ledger answers for `Syntetic > PartsToImprove` (`8/8`), `WhatToBuild` (`67/67`) and `Blocks` (`17,583/17,583`), and next exact block `phase10_synthetic_static_tabs`.
+
 ## 2026-05-24 - C1-CONFIG1 Synthetic CrossChecks
 
 - Adds `synthetic-crosschecks-target` with dry-run/apply support, guards and tests for `AutomaticRetest-Task5.xml`.
