@@ -12,6 +12,7 @@ from tools.sqx142_task_config_gate import (
     apply_mc2_static_tabs_to_root,
     apply_sequential_data_databanks_resources_options_to_root,
     apply_sequential_crosschecks_to_root,
+    apply_sequential_passive_generation_to_root,
     apply_retest1_passive_generation_to_root,
     apply_retest1_data_resources_to_root,
     apply_retest1_options_databanks_rankings_to_root,
@@ -34,6 +35,7 @@ from tools.sqx142_task_config_gate import (
     enforce_mc2_static_tabs_guard,
     enforce_sequential_data_databanks_resources_options_guard,
     enforce_sequential_crosschecks_guard,
+    enforce_sequential_passive_generation_guard,
     enforce_tick_real_data_databanks_resources_guard,
     enforce_tick_real_options_rankings_guard,
     enforce_tick_real_passive_generation_guard,
@@ -1943,6 +1945,50 @@ def _sequential_data_gate_fixture() -> str:
     """
 
 
+def _sequential_crosschecks_gate_fixture() -> str:
+    return """
+      <CrossChecks use="true" evaluateAll="true">
+        <SequentialOptimization use="true">
+          <Settings>
+            <ParameterSettings>
+              <DistributionUp>130</DistributionUp>
+              <DistributionDown>70</DistributionDown>
+              <Steps>12</Steps>
+              <ApplyToStrategy>false</ApplyToStrategy>
+            </ParameterSettings>
+            <WhatToParametrize type="1" symmetricVariables="false">
+              <Recommended>false</Recommended>
+              <Periods>true</Periods>
+              <Shifts>false</Shifts>
+              <Constants>true</Constants>
+              <OtherParams>false</OtherParams>
+              <EntryParams>false</EntryParams>
+              <EntryLogic>false</EntryLogic>
+              <ExitParamsUsed>true</ExitParamsUsed>
+              <ExitParamsUnused>false</ExitParamsUnused>
+              <BooleanParams>false</BooleanParams>
+            </WhatToParametrize>
+          </Settings>
+          <AcceptanceSettings>
+            <PctToPass>80</PctToPass>
+            <ResultsCount>5</ResultsCount>
+            <StabilityRange>25</StabilityRange>
+            <Conditions />
+          </AcceptanceSettings>
+        </SequentialOptimization>
+        <MonteCarloRetest use="false">
+          <Settings>
+            <Methods><Method type="RandomizeSpread" use="false" /></Methods>
+            <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0">
+              <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" />
+            </Setup></Setups>
+          </Settings>
+        </MonteCarloRetest>
+      </CrossChecks>
+      <Rankings><ForceRunCrossChecks>false</ForceRunCrossChecks></Rankings>
+    """
+
+
 def test_sequential_crosschecks_enforces_stability_gate_without_rewriting_strategy():
     root = ET.fromstring(
         f"""
@@ -2026,3 +2072,102 @@ def test_sequential_crosschecks_guard_rejects_optimizer_and_extra_conditions():
     assert any("extra filter conditions" in issue for issue in issues)
     assert any("still has active methods" in issue for issue in issues)
     assert any("ForceRunCrossChecks" in issue for issue in issues)
+
+
+def test_sequential_passive_generation_points_to_mc2_and_preserves_indicator_universe():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_sequential_data_gate_fixture()}
+          {_sequential_crosschecks_gate_fixture()}
+          <PartsToImprove improveATM="true">
+            <EntryRules symmetry="true"><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></EntryRules>
+            <OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes>
+            <ExitRules symmetry="true"><LongImprovement use="true" action="add-or-replace" /><ShortImprovement use="true" action="add-or-replace" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>true</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="true" />
+              <EvoRestartOnStagnation status="true" fitnessType="10" generations="30" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="simple">
+            <BuildingBlocks>
+              <Block key="Signals.ADX" category="signals" use="true" probability="1" />
+              <Block key="Indicators.ATR" category="indicators" use="true" probability="1" />
+              <Block key="StopLimitBlocks.ATRStop" category="stopLimitBlocks" use="true" probability="1" />
+            </BuildingBlocks>
+            <OrderTypes><Block key="EnterAtMarket" use="false" /><Block key="EnterReverseAtMarket" use="true" /><Block key="EnterAtStop" use="true" /><Block key="EnterAtLimit" use="true" /></OrderTypes>
+            <ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="false" probability="50" /><Block key="ExitAfterDays.ExitAfterDays" use="true" probability="50" /></ExitTypes>
+            <CustomData showAll="true"><Item /></CustomData>
+          </Blocks>
+        </Settings>
+        """
+    )
+
+    actions = apply_sequential_passive_generation_to_root(root, source_root=root)
+
+    assert any(item["field"] == "WhatToBuild/StrategyType" and item["changed"] for item in actions)
+    assert enforce_sequential_passive_generation_guard(root) == []
+    assert root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "MC2"
+    assert root.find(".//WhatToBuild/BuildMode/ShowLastGenerationDatabank").text == "false"
+    assert root.find(".//WhatToBuild/BuildMode/EvoRestartOnFinish").get("status") == "false"
+    assert root.find(".//BuildingBlocks/Block[@category='indicators']").get("use") == "true"
+    assert root.find(".//BuildingBlocks/Block[@category='signals']").get("use") == "false"
+    assert root.find(".//BuildingBlocks/Block[@category='stopLimitBlocks']").get("use") == "false"
+    assert root.find(".//OrderTypes/Block[@key='EnterAtMarket']").get("use") == "true"
+    assert root.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("probability") == "100"
+    assert root.find(".//ExitTypes/Block[@key='ExitAfterDays.ExitAfterDays']") is None
+
+
+def test_sequential_passive_generation_guard_rejects_placeholder_generation_and_day_exits():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_sequential_data_gate_fixture()}
+          {_sequential_crosschecks_gate_fixture()}
+          <PartsToImprove improveATM="true">
+            <EntryRules><LongImprovement use="true" /><ShortImprovement use="false" /></EntryRules>
+            <OrderTypes><LongImprovement use="false" /><ShortImprovement use="false" /></OrderTypes>
+            <ExitRules><LongImprovement use="false" /><ShortImprovement use="false" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>true</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>false</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>false</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="false" />
+              <EvoRestartOnStagnation status="false" fitnessType="10" generations="30" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="simple" version="142.2336">
+            <BuildingBlocks>
+              <Block key="Signals.ADX" category="signals" use="true" probability="1" />
+              <Block key="Indicators.ATR" category="indicators" use="true" probability="1" />
+              <Block key="StopLimitBlocks.ATRStop" category="stopLimitBlocks" use="true" probability="1" />
+            </BuildingBlocks>
+            <OrderTypes><Block key="EnterAtMarket" use="false" /><Block key="EnterReverseAtMarket" use="true" /><Block key="EnterAtStop" use="true" /><Block key="EnterAtLimit" use="true" /></OrderTypes>
+            <ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="false" probability="50" /><Block key="ExitAfterDays.ExitAfterDays" use="true" probability="50" /></ExitTypes>
+            <CustomData showAll="true"><Item /></CustomData>
+          </Blocks>
+        </Settings>
+        """
+    )
+
+    issues = enforce_sequential_passive_generation_guard(root)
+
+    assert any("EntryRules/LongImprovement" in issue for issue in issues)
+    assert any("StrategyType" in issue for issue in issues)
+    assert any("BuildMode ShowLastGenerationDatabank" in issue for issue in issues)
+    assert any("order types" in issue for issue in issues)
+    assert any("ExitAfterBars probability" in issue for issue in issues)
+    assert any("day-based" in issue for issue in issues)
+    assert any("signals" in issue for issue in issues)
+    assert any("stop/limit" in issue for issue in issues)
+    assert any("CustomData" in issue for issue in issues)
+    assert any("Strategies to improve" in issue for issue in issues)

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Sequential Passive Generation
+
+- Adds `sequential-passive-generation-target` with dry-run-first backup/diff/apply over local base and repo template.
+- Normalizes `Sequential` from the SQX placeholder `Strategies to improve` to `StrategyType.improveDatabank=MC2`, making the MC2 -> Sequential chain explicit.
+- Leaves Sequential as a passive robustness gate: `PartsToImprove` disabled, evolution restarts off, no Signals, no Stop/Limit entry blocks, indicators preserved, and only `EnterAtMarket` plus `ExitAfterBars` probability `100`.
+- Records local answers for `Sequential > PartsToImprove` (`8/8`), `WhatToBuild` (`67/67`) and `Blocks` (`17,583/17,583`), plus report `phase8_sequential_passive_generation_20260524_081943.json`; next exact block is `phase8_sequential_static_tabs`.
+
 ## 2026-05-24 - C1-CONFIG1 Sequential CrossChecks
 
 - Adds `sequential-crosschecks-target` with dry-run-first backup/diff/apply over local base and repo template.

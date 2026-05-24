@@ -9,12 +9,15 @@ perfiles del agente y handoffs locales para proteger el resto del cuestionario.
 Antes de cerrar TICK y abrir MC, `sqx-academic-lopez` queda disponible como
 consulta academica local-only para OOS, MC, data snooping y backtest
 overfitting.
-Fase 8 queda con `Sequential > Data / Databanks / Resources / Options` y
-`Sequential > CrossChecks` cerrados: `Input=MC2`, `Output=Sequential`,
-portador dual `Data+CustomData` sincronizado para SQX142, Options inertes,
-solo `SequentialOptimization` activo, `ApplyToStrategy=false`, aceptacion
-`80/5/25`, metodos ocultos de crosschecks inactivos apagados y siguiente bloque
-exacto `phase8_sequential_passive_generation`.
+Fase 8 queda con `Sequential > Data / Databanks / Resources / Options`,
+`Sequential > CrossChecks` y `Sequential > Passive Generation` cerrados:
+`Input=MC2`, `Output=Sequential`, portador dual `Data+CustomData` sincronizado
+para SQX142, Options inertes, solo `SequentialOptimization` activo,
+`ApplyToStrategy=false`, aceptacion `80/5/25`, metodos ocultos de crosschecks
+inactivos apagados, `StrategyType.improveDatabank=MC2`, `PartsToImprove`
+pasivo, evolution restarts apagados, no Signals, no Stop/Limit entry blocks,
+Indicators preservados y solo `EnterAtMarket` + `ExitAfterBars` probability
+`100`. Siguiente bloque exacto `phase8_sequential_static_tabs`.
 La mini fase `SQX142-BRANDING1` queda cerrada antes de `RETEST 0`: cambia solo
 la capa visual local de SQX a `Build: 142.2336 Codex`, oculta en About las
 lineas privadas de licencia/identidad y muestra la trazabilidad
@@ -129,6 +132,8 @@ tools\sqx142_task_config_gate.ps1 sequential-data-databanks-resources-options-ta
 tools\sqx142_task_config_gate.ps1 questionnaire --task-title "Sequential" --tab "CrossChecks" --write
 tools\sqx142_task_config_gate.ps1 sequential-crosschecks-target --target both
 tools\sqx142_task_config_gate.ps1 sequential-crosschecks-target --target both --apply
+tools\sqx142_task_config_gate.ps1 sequential-passive-generation-target --target both
+tools\sqx142_task_config_gate.ps1 sequential-passive-generation-target --target both --apply
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
 
@@ -1049,9 +1054,36 @@ Reportes locales:
 `.local/sqx142_task_config/diffs/phase8_sequential_crosschecks_target_20260524_074656.json`.
 `.local/sqx142_task_config/phase_reports/phase8_sequential_crosschecks_20260524_074726.json`.
 
-Siguiente bloque exacto: `phase8_sequential_passive_generation`, para cerrar
-`PartsToImprove` / `WhatToBuild` / `Blocks` y resolver el placeholder
-`StrategyType.improveDatabank=Strategies to improve`.
+Decision aplicada para `phase8_sequential_passive_generation`:
+
+- `sequential-passive-generation-target` se aplica sobre base local y template
+  repo con backup/diff dry-run-first; el apply queda `ok=true` y `guardOk=true`.
+- `Sequential` queda como gate pasivo: consume `MC2`, escribe en `Sequential` y
+  no mejora, genera ni reescribe estrategias.
+- Se resuelve el placeholder de SQX: `StrategyType.improveDatabank` pasa de
+  `Strategies to improve` a `MC2`.
+- `PartsToImprove` queda pasivo (`improveATM=false`; EntryRules, OrderTypes y
+  ExitRules con `use=false`).
+- `BuildMode.generationType` se conserva como enum SQX conocido, pero los
+  restos evolutivos se apagan: `ShowLastGenerationDatabank=false`,
+  `FreshBloodReplaceSimilar=false`, `FreshBloodReplaceWeakest=false`,
+  `EvoRestartOnFinish=false` y `EvoRestartOnStagnation=false`.
+- `Blocks` conserva el universo indicador de la metodologia/BlockSettings:
+  quedan `50` indicators activos, `0` signals activos y `0` stop/limit entry
+  blocks activos.
+- La entrada/salida queda acotada a `EnterAtMarket` y
+  `ExitAfterBars.ExitAfterBars` con probability `100`; no hay salidas por dias.
+- Ledger local respondido para `Sequential > PartsToImprove` (`8/8`),
+  `Sequential > WhatToBuild` (`67/67`) y `Sequential > Blocks`
+  (`17.583/17.583`).
+
+Reportes locales:
+`.local/sqx142_task_config/diffs/phase8_sequential_passive_generation_target_20260524_081914.json`.
+`.local/sqx142_task_config/phase_reports/phase8_sequential_passive_generation_20260524_081943.json`.
+
+Siguiente bloque exacto: `phase8_sequential_static_tabs`, para cerrar
+Rankings / ATMs / RiskMoneyManagement / Notes / SelectedStrategies /
+CustomData de `Sequential`.
 
 ## Disciplina Operativa
 

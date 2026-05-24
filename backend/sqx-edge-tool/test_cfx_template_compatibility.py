@@ -112,6 +112,10 @@ def _assert_mc2_passive_generation_contract(mc2: ET.Element) -> None:
     _assert_retest_passive_generation_contract(mc2, expected_improve_databank="MC")
 
 
+def _assert_sequential_passive_generation_contract(sequential: ET.Element) -> None:
+    _assert_retest_passive_generation_contract(sequential, expected_improve_databank="MC2")
+
+
 def _assert_static_crosschecks_contract(task: ET.Element, require_selected_strategies: bool = True) -> None:
     crosschecks = task.find(".//CrossChecks")
     assert crosschecks is not None
@@ -776,6 +780,7 @@ def test_capa1_sequential_open_gate_receives_mc2_and_keeps_sequential_optimizati
         "Session": "No Session",
         "MarketOpenSession": "No Session",
     }
+    _assert_sequential_passive_generation_contract(sequential)
 
 
 def test_capa1_base_uses_confirmed_build_ranking_volume():
@@ -978,6 +983,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     assert sequential_optimization.findtext("./Settings/ParameterSettings/ApplyToStrategy") == "false"
     assert sequential_optimization.findtext("./AcceptanceSettings/PctToPass") == "80"
     assert sequential_optimization.findall("./AcceptanceSettings/Conditions/Condition") == []
+    _assert_sequential_passive_generation_contract(sequential)
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")
