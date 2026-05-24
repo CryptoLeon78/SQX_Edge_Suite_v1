@@ -19,6 +19,7 @@ from tools.sqx142_task_config_gate import (
     apply_synthetic_data_databanks_resources_options_to_root,
     apply_synthetic_passive_generation_to_root,
     apply_synthetic_static_tabs_to_root,
+    apply_spp_data_databanks_resources_options_to_root,
     apply_sequential_data_databanks_resources_options_to_root,
     apply_sequential_crosschecks_to_root,
     apply_sequential_passive_generation_to_root,
@@ -51,6 +52,7 @@ from tools.sqx142_task_config_gate import (
     enforce_synthetic_data_databanks_resources_options_guard,
     enforce_synthetic_passive_generation_guard,
     enforce_synthetic_static_tabs_guard,
+    enforce_spp_data_databanks_resources_options_guard,
     enforce_sequential_data_databanks_resources_options_guard,
     enforce_sequential_crosschecks_guard,
     enforce_sequential_passive_generation_guard,
@@ -3002,6 +3004,138 @@ def test_spp_open_report_requires_synthetic_closeout_and_writes_state(monkeypatc
     state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
     assert state["currentPhase"] == "phase11_spp_open"
     assert state["nextPhase"] == "phase11_spp_data_databanks_resources_options"
+
+
+def test_spp_data_databanks_resources_options_keeps_customdata_only_and_inert_options():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data>
+            <Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups>
+            <OutOfSample><Range dateFrom="2023.01.01" dateTo="2025.01.01" /></OutOfSample>
+          </Data>
+          <CustomData>
+            <Setups>
+              <Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session" slippage="5" minDist="3" engine="MetaTrader5">
+                <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
+                <Commissions><Method type="SizeBased" use="false"><Params><Param key="Commission">9</Param></Params></Method></Commissions>
+                <MainTestValues engine="false" symbol="false" timeframe="false" dates="false" precision="false" distance="false" spread="false" slippage="false" commissions="false" />
+              </Setup>
+            </Setups>
+          </CustomData>
+          <Databanks>
+            <Databank name="Input" value="Monkey Test" />
+            <Databank name="Output" value="Syntetic" />
+          </Databanks>
+          <Resources>
+            <Symbols>
+              <Symbol name="USDJPY_darwinex" source="4" precision="M1" timezone="UTC" broker="9">
+                <InstrumentInfo instrument="USDJPY_darwinex" defaultSpread="1.4" broker="9" />
+              </Symbol>
+            </Symbols>
+            <Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers>
+            <Instruments />
+            <Sessions><Session name="Old Session" /></Sessions>
+            <CustomIndicators />
+            <CustomBlocks />
+          </Resources>
+          <Options>
+            <BuildTradingOptions><Params>
+              <Param key="Session">Old Session</Param>
+              <Param key="MarketOpenSession">Old Session</Param>
+              <Param key="LimitTimeRange">true</Param>
+              <Param key="RealisticGapsHandling">true</Param>
+              <Param key="StoreChartData">true</Param>
+            </Params></BuildTradingOptions>
+          </Options>
+        </Settings>
+        """
+    )
+
+    actions = apply_spp_data_databanks_resources_options_to_root(root)
+
+    assert any(item["field"] == "Data" and item["changed"] for item in actions)
+    assert enforce_spp_data_databanks_resources_options_guard(root) == []
+    assert root.find("Data") is None
+    setup = root.find("./CustomData/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "2"
+    assert setup.get("session") == "No Session"
+    assert setup.get("engine") == "MetaTrader4"
+    assert setup.find("Chart").attrib == {
+        "symbol": "AUDCAD_darwinex",
+        "timeframe": "H1",
+        "spread": "2.0",
+    }
+    assert setup.find("./Commissions/Method[@type='SizeBased']").get("use") == "true"
+    assert setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']").text == "0.0"
+    assert dict(setup.find("MainTestValues").attrib) == {
+        "engine": "true",
+        "symbol": "true",
+        "timeframe": "true",
+        "dates": "true",
+        "precision": "true",
+        "distance": "true",
+        "spread": "true",
+        "slippage": "true",
+        "commissions": "true",
+    }
+    assert {
+        databank.get("name"): databank.get("value")
+        for databank in root.findall(".//Databanks/Databank")
+    } == {"Input": "Syntetic", "Output": "SPP"}
+    assert {symbol.get("name") for symbol in root.findall(".//Resources/Symbols/Symbol")} == {"AUDCAD_darwinex"}
+    assert root.find(".//Resources/Symbols/Symbol").get("precision") == "TICK"
+    assert root.find(".//Resources/Sessions/Session") is None
+    options = {
+        param.get("key"): param.text
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in {"Session", "MarketOpenSession", "LimitTimeRange", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert options == {
+        "Session": "No Session",
+        "MarketOpenSession": "No Session",
+        "LimitTimeRange": "false",
+        "RealisticGapsHandling": "false",
+        "StoreChartData": "false",
+    }
+
+
+def test_spp_data_databanks_resources_options_guard_rejects_data_and_donor_drift():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data><Setups><Setup><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /></Setup></Setups></Data>
+          <CustomData>
+            <Setups>
+              <Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session" engine="MetaTrader5">
+                <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
+                <MainTestValues engine="false" />
+              </Setup>
+            </Setups>
+          </CustomData>
+          <Databanks><Databank name="Input" value="Monkey Test" /><Databank name="Output" value="Syntetic" /></Databanks>
+          <Resources>
+            <Symbols><Symbol name="USDJPY_darwinex" precision="M1" timezone="UTC" broker="9"><InstrumentInfo broker="9" /></Symbol></Symbols>
+            <Brokers><Broker id="4" /></Brokers>
+            <Sessions><Session name="Old Session" /></Sessions>
+          </Resources>
+          <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">true</Param></Params></BuildTradingOptions></Options>
+        </Settings>
+        """
+    )
+
+    issues = enforce_spp_data_databanks_resources_options_guard(root)
+
+    assert any("Data section" in issue for issue in issues)
+    assert any("CustomData dates" in issue for issue in issues)
+    assert any("CustomData chart symbol" in issue for issue in issues)
+    assert any("Databank Input" in issue for issue in issues)
+    assert any("precision is not TICK" in issue for issue in issues)
+    assert any("session entries" in issue for issue in issues)
+    assert any("Options param Session" in issue for issue in issues)
+    assert any("Forbidden donor token" in issue for issue in issues)
 
 
 def test_monkey_passive_generation_points_to_sequential_and_preserves_indicator_universe():

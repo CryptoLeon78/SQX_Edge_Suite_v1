@@ -556,6 +556,76 @@ def _assert_mc2_data_databanks_resources_options_contract(mc2: ET.Element, expec
     }
 
 
+def _assert_spp_data_databanks_resources_options_contract(
+    spp: ET.Element,
+    expected_symbol: str | None = None,
+    expected_timeframe: str | None = None,
+    expected_spread: str | None = None,
+) -> None:
+    assert spp.find("./Data") is None
+    setup = spp.find("./CustomData/Setups/Setup")
+    assert setup is not None
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "2"
+    assert setup.get("session") == "No Session"
+    assert setup.get("engine") == "MetaTrader4"
+    chart = setup.find("Chart")
+    assert chart is not None
+    if expected_symbol is not None:
+        assert chart.get("symbol") == expected_symbol
+    if expected_timeframe is not None:
+        assert chart.get("timeframe") == expected_timeframe
+    if expected_spread is not None:
+        assert chart.get("spread") == expected_spread
+    assert dict(setup.find("MainTestValues").attrib) == {
+        "engine": "true",
+        "symbol": "true",
+        "timeframe": "true",
+        "dates": "true",
+        "precision": "true",
+        "distance": "true",
+        "spread": "true",
+        "slippage": "true",
+        "commissions": "true",
+    }
+    assert setup.find("./Commissions/Method[@type='SizeBased']").get("use") == "true"
+    assert setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']").text == "0.0"
+
+    databanks = {
+        databank.get("name"): databank.get("value")
+        for databank in spp.findall(".//Databanks/Databank")
+    }
+    assert databanks == {"Output": "SPP", "Input": "Syntetic"}
+
+    resources = spp.find(".//Resources")
+    assert resources is not None
+    resource_symbols = {
+        symbol.get("name")
+        for symbol in resources.findall("./Symbols/Symbol")
+        if symbol.get("name")
+    }
+    assert resource_symbols == {chart.get("symbol")}
+    assert resources.findall("./Sessions/Session") == []
+    assert "USDJPY" not in ET.tostring(resources, encoding="unicode")
+    for symbol in resources.findall("./Symbols/Symbol"):
+        assert symbol.get("precision") == "TICK"
+        assert symbol.get("timezone") == "EETUS"
+
+    params = {
+        node.get("key"): node.text
+        for node in spp.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"Session", "MarketOpenSession", "LimitTimeRange", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert params == {
+        "Session": "No Session",
+        "MarketOpenSession": "No Session",
+        "LimitTimeRange": "false",
+        "RealisticGapsHandling": "false",
+        "StoreChartData": "false",
+    }
+
+
 def _assert_tick_real_data_databanks_resources_contract(tick_real: ET.Element, expected_symbol: str | None = None, expected_timeframe: str | None = None) -> None:
     setup = tick_real.find(".//Data/Setups/Setup")
     assert setup is not None
@@ -1081,6 +1151,17 @@ def test_capa1_synthetic_data_gate_receives_monkey_and_keeps_dual_carrier():
     _assert_synthetic_static_tabs_contract(synthetic)
 
 
+def test_capa1_spp_data_gate_receives_synthetic_and_keeps_customdata_carrier():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    spp = roots["AutomaticRetest-Task7.xml"]
+    _assert_spp_data_databanks_resources_options_contract(
+        spp,
+        expected_symbol="AUDCAD_darwinex",
+        expected_timeframe="H1",
+        expected_spread="2.0",
+    )
+
+
 def test_capa1_base_uses_confirmed_build_ranking_volume():
     roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
     build = roots["Build-Task1.xml"]
@@ -1307,6 +1388,15 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     _assert_synthetic_crosschecks_contract(synthetic)
     _assert_synthetic_passive_generation_contract(synthetic)
     _assert_synthetic_static_tabs_contract(synthetic)
+
+    spp = roots["AutomaticRetest-Task7.xml"]
+    _assert_spp_data_databanks_resources_options_contract(
+        spp,
+        expected_symbol="AUDCAD",
+        expected_timeframe="H4",
+        expected_spread="10",
+    )
+    assert {chart.get("spread") for chart in spp.findall(".//Setup/Chart")} == {"10"}
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")

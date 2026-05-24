@@ -1,6 +1,6 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 10 `Synthetic` / `Syntetic` en curso el
+Estado: C1-CONFIG1 con Fase 11 `SPP` en curso el
 2026-05-24. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
@@ -161,6 +161,8 @@ tools\sqx142_task_config_gate.ps1 synthetic-closeout-report --target both
 tools\sqx142_task_config_gate.ps1 synthetic-closeout-report --target both --write
 tools\sqx142_task_config_gate.ps1 spp-open-report --target both
 tools\sqx142_task_config_gate.ps1 spp-open-report --target both --write
+tools\sqx142_task_config_gate.ps1 spp-data-databanks-resources-options-target --target both
+tools\sqx142_task_config_gate.ps1 spp-data-databanks-resources-options-target --target both --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "SPP" --write
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
@@ -1608,6 +1610,47 @@ configuracion, coherencia y dependencias.
 Siguiente bloque exacto: `phase11_spp_data_databanks_resources_options`, para
 revisar `CustomData`, `Databanks`, `Resources` y `Options` sin copiar tokens
 del donor y sin ejecutar SPP.
+
+## Estado Fase 11 - SPP Data/Databanks/Resources/Options
+
+- `phase11_spp_data_databanks_resources_options` queda cerrado con
+  `phase11_spp_data_databanks_resources_options_20260524_144847.json`.
+- `spp-data-databanks-resources-options-target` valida base local y template
+  repo con `ok=true`, `changed=false`, `changedActionCount=0`, `guardOk=true`
+  e `issues=[]`; el apply no necesitó reescribir CFX porque el portador ya
+  estaba alineado.
+- `SPP` queda en `AutomaticRetest-Task7.xml` como gate de revision de
+  configuracion: no lanza SQX, no ejecuta SPP, no hace smoke y no inicia
+  optimizacion.
+- Portador canonico: `CustomData` only. No se crea `Data`, no hay OOS interno,
+  y se conserva `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, engine
+  `MetaTrader4`, comision `0.0`, `MainTestValues` completos y semilla generica
+  `AUDCAD_darwinex/H1` con spread `2.0`.
+- Cadena: `Input=Syntetic` y `Output=SPP`; no se fuerza `Results=passed` y se
+  preserva la mezcla natural de passed/failed que decidan los filtros SPP.
+- `Resources` queda `TICK/EETUS` sin sesiones y sin tokens donor `USDJPY/H4`;
+  Project Generator sigue siendo dueno de simbolo, timeframe, spread, swap,
+  comisiones y recursos finales por activo/timeframe.
+- `Options` queda inerte: `LimitTimeRange=false`, `RealisticGapsHandling=false`,
+  `StoreChartData=false`, `Session=No Session` y
+  `MarketOpenSession=No Session`.
+- Project Generator ya no inyecta ventanas horarias en
+  `AutomaticRetest-Task7.xml`; los customs generados adaptan
+  simbolo/timeframe/spread/recursos sin convertir SPP en filtro horario.
+- Evidencia local: dry-run
+  `phase11_spp_data_databanks_resources_options_target_20260524_144738.json`,
+  apply `phase11_spp_data_databanks_resources_options_target_20260524_144758.json`
+  e idempotent dry-run
+  `phase11_spp_data_databanks_resources_options_target_20260524_144818.json`.
+- Ledger local respondido: `SPP > CustomData` (`6/6`), `Databanks` (`2/2`),
+  `Resources` (`4/4`) y `Options` (`34/34`).
+- El estado local queda en
+  `currentPhase=phase11_spp_data_databanks_resources_options` y
+  `nextPhase=phase11_spp_crosschecks`.
+
+Siguiente bloque exacto: `phase11_spp_crosschecks`, para revisar
+`OptProfileSysParamPermutation`, filtros de aceptacion SPP y limpieza de metodos
+activos ocultos en crosschecks inactivos sin ejecutar SPP.
 
 ## Disciplina Operativa
 

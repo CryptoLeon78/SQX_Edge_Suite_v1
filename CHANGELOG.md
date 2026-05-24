@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 SPP Data Databanks Resources Options
+
+- Adds `spp-data-databanks-resources-options-target` with dry-run/apply support, guard checks and tests for `AutomaticRetest-Task7.xml`.
+- Keeps SPP as a configuration-review-only gate after Synthetic: `Input=Syntetic`, `Output=SPP`, CustomData-only carrier, no `Data` section, `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, generic seed `AUDCAD_darwinex/H1` spread `2.0`, resources `TICK/EETUS` without sessions and inert Options.
+- Updates Project Generator so `AutomaticRetest-Task7.xml` is excluded from trading-window injection; generated Capa1 customs still adapt symbol/timeframe/spread/resources by selected asset.
+- Records apply/dry-run evidence with `changed=false`, `changedActionCount=0`, `guardOk=true`, report `phase11_spp_data_databanks_resources_options_20260524_144847.json`, ledger answers for `SPP > CustomData` (`6/6`), `Databanks` (`2/2`), `Resources` (`4/4`) and `Options` (`34/34`), and next exact block `phase11_spp_crosschecks`.
+
 ## 2026-05-24 - C1-CONFIG1 SPP Open
 
 - Adds `spp-open-report` with CLI support to open Phase 11 after Synthetic closeout without launching SQX, running SPP smokes or starting optimization.

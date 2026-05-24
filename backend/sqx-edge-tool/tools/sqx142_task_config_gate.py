@@ -664,6 +664,13 @@ SPP_EXPECTED_DATABANKS = {
 SPP_ACTIVE_CROSSCHECK = "OptProfileSysParamPermutation"
 SPP_NEXT_PHASE = "phase11_spp_data_databanks_resources_options"
 SPP_EXECUTION_POLICY = "configuration_review_only_no_smoke_no_optimization"
+SPP_PERIOD_KEY = MC_PERIOD_KEY
+SPP_DATA_TEST_PRECISION = MC_DATA_TEST_PRECISION
+SPP_DATA_SESSION = MC_DATA_SESSION
+SPP_DEFAULT_CHART_TARGET = MC2_DEFAULT_CHART_TARGET
+SPP_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET = MC2_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET
+SPP_OPTIONS_PARAMS_TARGET = MC_OPTIONS_PARAMS_TARGET
+SPP_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT = "phase11_spp_crosschecks"
 SYNTHETIC_ACCEPTANCE_CONDITIONS_TARGET = [
     {
         "left": {
@@ -12208,6 +12215,333 @@ def spp_open_report(root142: Path, project_root: Path, target: str, write: bool)
     return payload
 
 
+def spp_custom_data_summary(root: ET.Element) -> dict[str, Any]:
+    custom = find_section(root, "CustomData")
+    setup = custom.find("./Setups/Setup") if custom is not None else None
+    chart = setup.find("Chart") if setup is not None else None
+    main_values = setup.find("MainTestValues") if setup is not None else None
+    commission = setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']") if setup is not None else None
+    return {
+        "exists": custom is not None,
+        "attrs": dict(custom.attrib) if custom is not None else {},
+        "setup": dict(setup.attrib) if setup is not None else {},
+        "chart": dict(chart.attrib) if chart is not None else {},
+        "mainTestValues": dict(main_values.attrib) if main_values is not None else {},
+        "commission": commission.text if commission is not None else "",
+        "sha256": section_sha256(root, "CustomData"),
+    }
+
+
+def spp_data_databanks_resources_options_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    summary = spp_open_summary(root)
+    summary["customData"] = spp_custom_data_summary(root)
+    summary["carrierDecision"] = {
+        "mode": "customdata_only",
+        "reason": "SPP in SQX142 stores its setup in CustomData; adding a Data section would create a second source of truth before WFM.",
+    }
+    return summary
+
+
+def apply_spp_custom_data_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> ET.Element | None:
+    data = root.find("Data")
+    if data is not None:
+        before = {"sha256": section_sha256(data, "Data"), "children": [child.tag for child in list(data)]}
+        root.remove(data)
+        actions.append({
+            "field": "Data",
+            "from": before,
+            "to": None,
+            "changed": True,
+            "note": "SPP uses CustomData as its canonical data carrier; Data stays absent to avoid duplicate setup sources.",
+        })
+    custom = find_section(root, "CustomData")
+    if custom is None:
+        custom = ET.SubElement(root, "CustomData")
+        actions.append({"field": "CustomData", "from": None, "to": "created", "changed": True})
+    setups = ensure_direct_child(custom, "Setups")
+    setup = setups.find("Setup")
+    if setup is None:
+        setup = ET.SubElement(setups, "Setup")
+        actions.append({"field": "CustomData/Setup", "from": None, "to": dict(setup.attrib), "changed": True})
+
+    period = generator_period(SPP_PERIOD_KEY)
+    set_attrs_on_node(
+        setup,
+        {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": SPP_DATA_TEST_PRECISION,
+            "session": SPP_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+            "engine": "MetaTrader4",
+        },
+        actions,
+        "CustomData/Setup:attrs",
+    )
+
+    chart = setup.find("Chart")
+    if chart is None:
+        chart = ET.SubElement(setup, "Chart")
+        actions.append({"field": "CustomData/Setup/Chart", "from": None, "to": dict(chart.attrib), "changed": True})
+    set_attrs_on_node(chart, SPP_DEFAULT_CHART_TARGET, actions, "CustomData/Setup/Chart:attrs")
+
+    ensure_commission_method(setup, actions, "CustomData/Setup")
+    main_values = setup.find("MainTestValues")
+    if main_values is None:
+        main_values = ET.SubElement(setup, "MainTestValues")
+        actions.append({"field": "CustomData/MainTestValues", "from": None, "to": dict(main_values.attrib), "changed": True})
+    set_attrs_on_node(main_values, SPP_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET, actions, "CustomData/MainTestValues:attrs")
+    return setup
+
+
+def apply_spp_data_databanks_resources_options_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    setup = apply_spp_custom_data_to_root(root, actions)
+
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing_by_name = {
+        node.get("name", ""): node
+        for node in databanks.findall("Databank")
+        if node.get("name")
+    }
+    for name, wanted in SPP_EXPECTED_DATABANKS.items():
+        node = existing_by_name.get(name)
+        before = dict(node.attrib) if node is not None else None
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+        node.set("name", name)
+        node.set("value", wanted)
+        node.set("label", f"{name} databank")
+        actions.append({
+            "field": f"Databanks/{name}",
+            "from": before,
+            "to": dict(node.attrib),
+            "changed": before != dict(node.attrib),
+        })
+
+    apply_mc2_resources_from_custom_data(root, setup, actions)
+    for key, value in SPP_OPTIONS_PARAMS_TARGET.items():
+        set_param_text(root, key, value, actions, "Options")
+    actions.append({
+        "field": "SPP/DataCarrier",
+        "from": value_for_node(setup) if setup is not None else None,
+        "to": "customdata_only",
+        "changed": False,
+        "note": "Kept SPP on CustomData only; Project Generator owns final symbol/timeframe/spread/resources per asset.",
+    })
+    return actions
+
+
+def enforce_spp_data_databanks_resources_options_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    period = generator_period(SPP_PERIOD_KEY)
+    if root.find("Data") is not None:
+        issues.append("SPP must not carry a Data section; CustomData is the canonical data carrier for this task")
+
+    custom = find_section(root, "CustomData")
+    setup = custom.find("./Setups/Setup") if custom is not None else None
+    if setup is None:
+        issues.append("SPP CustomData/Setup missing")
+    else:
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"SPP CustomData dates are not {SPP_PERIOD_KEY}")
+        if setup.get("testPrecision") != SPP_DATA_TEST_PRECISION:
+            issues.append(f"SPP CustomData testPrecision must stay {SPP_DATA_TEST_PRECISION}")
+        if setup.get("session") != SPP_DATA_SESSION:
+            issues.append(f"SPP CustomData session must stay {SPP_DATA_SESSION}")
+        if setup.get("engine") != "MetaTrader4":
+            issues.append(f"SPP CustomData engine is {setup.get('engine')!r}, expected 'MetaTrader4'")
+        chart = setup.find("Chart")
+        if chart is None:
+            issues.append("SPP CustomData chart missing")
+        else:
+            for key, wanted in SPP_DEFAULT_CHART_TARGET.items():
+                if chart.get(key) != wanted:
+                    issues.append(f"SPP CustomData chart {key} is {chart.get(key)!r}, expected {wanted!r}")
+        main_values = setup.find("MainTestValues")
+        main_attrs = dict(main_values.attrib) if main_values is not None else {}
+        if main_attrs != SPP_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+            issues.append("SPP CustomData MainTestValues drifted from full-retarget target")
+        commission = setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']")
+        if (commission.text if commission is not None else "") != MC_CUSTOM_DATA_COMMISSION_TARGET:
+            issues.append(f"SPP CustomData commission is {(commission.text if commission is not None else '')!r}, expected {MC_CUSTOM_DATA_COMMISSION_TARGET!r}")
+
+    databanks = {
+        node.get("name", ""): node.get("value", "")
+        for node in root.findall(".//Databanks/Databank")
+        if node.get("name")
+    }
+    for name, wanted in SPP_EXPECTED_DATABANKS.items():
+        if databanks.get(name) != wanted:
+            issues.append(f"SPP Databank {name} is {databanks.get(name)!r}, expected {wanted!r}")
+
+    resources = find_section(root, "Resources")
+    if resources is None:
+        issues.append("SPP Resources missing")
+    else:
+        chart_symbols = {
+            chart.get("symbol", "")
+            for chart in root.findall("./CustomData/Setups/Setup/Chart")
+            if chart.get("symbol")
+        }
+        resource_symbols = {
+            symbol.get("name", "")
+            for symbol in resources.findall("./Symbols/Symbol")
+            if symbol.get("name")
+        }
+        if chart_symbols != resource_symbols:
+            issues.append(f"SPP custom chart/resource mismatch: charts={sorted(chart_symbols)} resources={sorted(resource_symbols)}")
+        broker_ids = {
+            broker.get("id", "")
+            for broker in resources.findall("./Brokers/Broker")
+            if broker.get("id")
+        }
+        for symbol in resources.findall("./Symbols/Symbol"):
+            if symbol.get("precision") != MC_RESOURCE_PRECISION:
+                issues.append(f"SPP resource {symbol.get('name')} precision is not TICK")
+            if symbol.get("timezone") != MC_RESOURCE_TIMEZONE:
+                issues.append(f"SPP resource {symbol.get('name')} timezone is not EETUS")
+            if symbol.get("broker") not in broker_ids:
+                issues.append(f"SPP resource {symbol.get('name')} references missing broker {symbol.get('broker')}")
+            info = symbol.find("InstrumentInfo")
+            if info is None:
+                issues.append(f"SPP resource {symbol.get('name')} has no nested InstrumentInfo")
+            elif info.get("broker") not in broker_ids:
+                issues.append(f"SPP nested InstrumentInfo for {symbol.get('name')} references missing broker {info.get('broker')}")
+        if resources.findall("./Sessions/Session"):
+            issues.append("SPP resources must not keep session entries")
+
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in SPP_OPTIONS_PARAMS_TARGET
+    }
+    for key, wanted in SPP_OPTIONS_PARAMS_TARGET.items():
+        if params.get(key) != wanted:
+            issues.append(f"SPP Options param {key} is {params.get(key)!r}, expected {wanted!r}")
+
+    guarded_text = (
+        section_text(root, "Data")
+        + section_text(root, "CustomData")
+        + section_text(root, "Databanks")
+        + section_text(root, "Resources")
+        + section_text(root, "Options")
+    )
+    for token in MC_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into SPP Data/Databanks/Resources/Options: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into SPP Data/Databanks/Resources/Options")
+    return issues
+
+
+def update_spp_data_databanks_resources_options_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root = load_task_root(cfx, SPP_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "spp_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = spp_data_databanks_resources_options_summary(root)
+    payload["actions"] = apply_spp_data_databanks_resources_options_to_root(root)
+    payload["after"] = spp_data_databanks_resources_options_summary(root)
+    payload["issues"] = enforce_spp_data_databanks_resources_options_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["xmlChanged"] = before_text != after_text
+    payload["changed"] = payload["changedActionCount"] > 0
+    payload["targetValues"] = {
+        "taskTitle": SPP_TASK_TITLE,
+        "taskXml": SPP_TASK_XML,
+        "periodKey": SPP_PERIOD_KEY,
+        "dateFrom": generator_period(SPP_PERIOD_KEY)[0],
+        "dateTo": generator_period(SPP_PERIOD_KEY)[1],
+        "dataCarrier": "customdata_only",
+        "customData": {
+            "testPrecision": SPP_DATA_TEST_PRECISION,
+            "session": SPP_DATA_SESSION,
+            "mainTestValues": SPP_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+        },
+        "databanks": SPP_EXPECTED_DATABANKS,
+        "resourcePrecision": MC_RESOURCE_PRECISION,
+        "resourceTimezone": MC_RESOURCE_TIMEZONE,
+        "options": SPP_OPTIONS_PARAMS_TARGET,
+        "executionPolicy": SPP_EXECUTION_POLICY,
+    }
+    payload["targetRationale"] = {
+        "methodology": "SPP is a configuration-review-only robustness gate after Synthetic/Syntetic; it consumes Syntetic and writes SPP without adding a nested OOS split.",
+        "customDataCarrier": "This SQX automatic retest stores its setup in CustomData, so no parallel Data section is allowed.",
+        "generatorOwned": "Symbol, timeframe, spread, swap and final resources remain owned by Project Generator for each selected asset/timeframe.",
+        "options": "Trading time ranges are disabled for this SPP review gate; Project Generator must not inject timeframe windows into AutomaticRetest-Task7.xml.",
+        "naturalResults": "The block preserves natural passed/failed rows and does not force Results=passed.",
+        "noLiveRun": "SPP remains omitted from smoke/performance optimization unless a later explicit operator decision approves execution.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_spp_data_databanks_resources_options_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase11_spp_data_databanks_resources_options_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_spp_data_databanks_resources_options_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase11",
+        "operation": "spp_data_databanks_resources_options_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase11_spp_data_databanks_resources_options_diff_review" if not apply else SPP_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase11_spp_data_databanks_resources_options_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -13541,6 +13875,10 @@ def build_parser() -> argparse.ArgumentParser:
     spp_open.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     spp_open.add_argument("--write", action="store_true")
 
+    spp_data = sub.add_parser("spp-data-databanks-resources-options-target")
+    spp_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    spp_data.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -13735,6 +14073,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "spp-open-report":
         json_print(spp_open_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "spp-data-databanks-resources-options-target":
+        json_print(promote_spp_data_databanks_resources_options_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
