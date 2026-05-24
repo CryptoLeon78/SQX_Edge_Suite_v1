@@ -609,6 +609,23 @@ MONKEY_STATIC_TABS = MC_STATIC_TABS
 MONKEY_RANKING_TARGET = MC_RANKING_TARGET
 MONKEY_STATIC_TABS_NEXT = "phase9_monkey_test_closeout"
 MONKEY_CLOSEOUT_NEXT = "phase10_synthetic_open"
+SYNTHETIC_TASK_TITLE = "Syntetic"
+SYNTHETIC_DISPLAY_TITLE = "Synthetic / Syntetic"
+SYNTHETIC_TASK_XML = "AutomaticRetest-Task5.xml"
+SYNTHETIC_EXPECTED_DATABANKS = {
+    "Input": "Monkey Test",
+    "Output": "Syntetic",
+}
+SYNTHETIC_ACTIVE_CROSSCHECK = "MonteCarloRetest"
+SYNTHETIC_ACTIVE_METHOD = "SyntheticBootstrapV3"
+SYNTHETIC_NUMBER_OF_SIMULATIONS = "100"
+SYNTHETIC_USE_FULL_SAMPLE = "true"
+SYNTHETIC_METHOD_PARAMS_TARGET = {
+    "BlockSize": "20",
+    "WarmupBars": "200",
+    "PreservePct": "85",
+}
+SYNTHETIC_NEXT_PHASE = "phase10_synthetic_data_databanks_resources_options"
 MONKEY_ACCEPTANCE_CONDITIONS_TARGET = [
     {
         "left": {
@@ -10455,6 +10472,192 @@ def monkey_closeout_report(root142: Path, project_root: Path, target: str, write
     return payload
 
 
+def synthetic_open_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    summary = monkey_open_summary(root)
+    crosschecks = summary.get("crossChecks") or {}
+    active_check = next(
+        (check for check in crosschecks.get("checks", []) if check.get("id") == SYNTHETIC_ACTIVE_CROSSCHECK),
+        {},
+    )
+    active_methods = [
+        method
+        for method in active_check.get("methods", [])
+        if method.get("use") == "true"
+    ]
+    summary["activeSyntheticMethod"] = active_methods[0] if active_methods else {}
+    summary["alias"] = {
+        "canonical": "Synthetic",
+        "actual": SYNTHETIC_TASK_TITLE,
+        "historical": ["Synthetic", "Syntetic"],
+    }
+    return summary
+
+
+def synthetic_open_issues(summary: dict[str, Any]) -> tuple[list[str], list[str]]:
+    issues: list[str] = []
+    warnings: list[str] = []
+    if not summary.get("exists"):
+        return ["Synthetic/Syntetic task missing"], warnings
+
+    databanks = summary.get("databanks") or {}
+    for name, wanted in SYNTHETIC_EXPECTED_DATABANKS.items():
+        if databanks.get(name) != wanted:
+            issues.append(f"Synthetic/Syntetic Databank {name} is {databanks.get(name)!r}, expected {wanted!r}")
+
+    crosschecks = summary.get("crossChecks") or {}
+    if not crosschecks.get("exists"):
+        issues.append("Synthetic/Syntetic CrossChecks section missing")
+    else:
+        attrs = crosschecks.get("attributes") or {}
+        if attrs.get("use") != "true" or attrs.get("evaluateAll") != "true":
+            issues.append("Synthetic/Syntetic CrossChecks must stay active/evaluateAll for SyntheticBootstrapV3")
+        active = crosschecks.get("active") or []
+        if active != [SYNTHETIC_ACTIVE_CROSSCHECK]:
+            issues.append(f"Synthetic/Syntetic active crosschecks are {active!r}, expected only {SYNTHETIC_ACTIVE_CROSSCHECK!r}")
+        checks = {item.get("id"): item for item in crosschecks.get("checks") or []}
+        monte_carlo = checks.get(SYNTHETIC_ACTIVE_CROSSCHECK) or {}
+        if monte_carlo.get("numberOfSimulations") != SYNTHETIC_NUMBER_OF_SIMULATIONS:
+            issues.append(f"Synthetic/Syntetic NumberOfSimulations is {monte_carlo.get('numberOfSimulations')!r}, expected {SYNTHETIC_NUMBER_OF_SIMULATIONS!r}")
+        if monte_carlo.get("mcUseFullSample") != SYNTHETIC_USE_FULL_SAMPLE:
+            issues.append(f"Synthetic/Syntetic MCUseFullSample is {monte_carlo.get('mcUseFullSample')!r}, expected {SYNTHETIC_USE_FULL_SAMPLE!r}")
+        active_methods = monte_carlo.get("activeMethodTypes") or []
+        if active_methods != [SYNTHETIC_ACTIVE_METHOD]:
+            issues.append(f"Synthetic/Syntetic active methods are {active_methods!r}, expected only {SYNTHETIC_ACTIVE_METHOD!r}")
+        method = summary.get("activeSyntheticMethod") or {}
+        params = method.get("params") or {}
+        for key, wanted in SYNTHETIC_METHOD_PARAMS_TARGET.items():
+            if params.get(key) != wanted:
+                issues.append(f"Synthetic/Syntetic {SYNTHETIC_ACTIVE_METHOD} {key} is {params.get(key)!r}, expected {wanted!r}")
+        if monte_carlo.get("activeAcceptanceConditionCount") == 0:
+            warnings.append("Synthetic/Syntetic acceptance filter conditions are currently inactive; next CrossChecks block must decide final filters.")
+        inactive_with_active_methods = [
+            {
+                "check": check.get("id"),
+                "methods": check.get("activeMethodTypes") or [],
+            }
+            for check in crosschecks.get("checks") or []
+            if check.get("id") != SYNTHETIC_ACTIVE_CROSSCHECK and check.get("use") == "false" and check.get("activeMethodTypes")
+        ]
+        if inactive_with_active_methods:
+            warnings.append(f"Synthetic/Syntetic inactive crosschecks still carry active methods {inactive_with_active_methods!r}; next CrossChecks block should make them inert if we keep task separation.")
+
+    strategy_type = summary.get("strategyType") or {}
+    improve_databank = strategy_type.get("improveDatabank", "")
+    if improve_databank and improve_databank != "Monkey Test":
+        warnings.append(f"Synthetic/Syntetic StrategyType.improveDatabank is {improve_databank!r}; passive-generation block should normalize it to Monkey Test if needed")
+
+    if (summary.get("data") or {}).get("exists") and (summary.get("customData") or {}).get("exists"):
+        warnings.append("Synthetic/Syntetic currently carries both Data and CustomData; next block must choose the canonical data carrier before mutation")
+
+    return issues, warnings
+
+
+def synthetic_open_target_report(cfx: Path) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256": file_sha256(cfx) if cfx.is_file() else "",
+        "taskTitle": SYNTHETIC_DISPLAY_TITLE,
+        "taskXml": "",
+        "summary": {},
+        "issues": [],
+        "warnings": [],
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["issues"].append("missing_or_not_zip")
+        payload["ok"] = False
+        return payload
+    task_xml_name, root = load_task_root(cfx, SYNTHETIC_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["issues"].append("synthetic_task_not_found")
+        payload["ok"] = False
+        return payload
+    if task_xml_name != SYNTHETIC_TASK_XML:
+        payload["warnings"].append(f"Synthetic/Syntetic task XML is {task_xml_name!r}, expected {SYNTHETIC_TASK_XML!r}")
+    payload["summary"] = synthetic_open_summary(root)
+    issues, warnings = synthetic_open_issues(payload["summary"])
+    payload["issues"] = issues
+    payload["warnings"].extend(warnings)
+    payload["ok"] = not issues
+    return payload
+
+
+def synthetic_open_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    target_reports = {
+        name: synthetic_open_target_report(path)
+        for name, path in targets.items()
+    }
+    previous_gate = monkey_closeout_report(root142, project_root, target=target, write=False)
+    previous_issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        previous_issues.append("monkey-closeout-report: previous gate ok=false")
+    process_probe = process_snapshot()
+    process_warnings = []
+    if process_probe.get("processes"):
+        process_warnings.append("SQX processes are alive; keep phase 10 open read-only until SQX is closed")
+    payload: dict[str, Any] = {
+        "ok": all(item.get("ok") for item in target_reports.values()) and not previous_issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase10_synthetic_open",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_issues,
+            "nextPhase": previous_gate.get("nextPhase"),
+        },
+        "targets": target_reports,
+        "warnings": process_warnings + [
+            warning
+            for item in target_reports.values()
+            for warning in item.get("warnings", [])
+        ],
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Open Synthetic/Syntetic as Phase 10 after Monkey Test closeout; inspect structure before applying target values.",
+            "taskTitle": SYNTHETIC_DISPLAY_TITLE,
+            "actualTaskTitle": SYNTHETIC_TASK_TITLE,
+            "taskXml": SYNTHETIC_TASK_XML,
+            "chain": "Input=Monkey Test / Output=Syntetic",
+            "activeCrossCheck": SYNTHETIC_ACTIVE_CROSSCHECK,
+            "activeMethod": SYNTHETIC_ACTIVE_METHOD,
+            "numberOfSimulations": SYNTHETIC_NUMBER_OF_SIMULATIONS,
+            "mcUseFullSample": SYNTHETIC_USE_FULL_SAMPLE,
+            "methodParams": SYNTHETIC_METHOD_PARAMS_TARGET,
+            "aliasPolicy": "Synthetic and Syntetic are treated as the same historical task alias; tracked databank output remains Syntetic until a later explicit migration.",
+            "naturalResults": "Preserve natural passed/failed outcomes; never force Results=passed.",
+            "noLiveRun": "This gate only reads XML/local state and writes a phase report when requested.",
+            "decisionPending": [
+                "Data/Databanks/Resources/Options must keep generator-owned asset/timeframe/spread resources and avoid copying Monkey-specific columns.",
+                "CrossChecks must keep SyntheticBootstrap separated from Monkey RealMonkeyTest and decide acceptance filters explicitly.",
+                "Passive-generation/static tabs must keep Synthetic/Syntetic from generating or altering strategy logic.",
+            ],
+        },
+        "nextPhase": SYNTHETIC_NEXT_PHASE,
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase10_synthetic_open_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase10_synthetic_open", "nextPhase": SYNTHETIC_NEXT_PHASE})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -11760,6 +11963,10 @@ def build_parser() -> argparse.ArgumentParser:
     monkey_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     monkey_closeout.add_argument("--write", action="store_true")
 
+    synthetic_open = sub.add_parser("synthetic-open-report")
+    synthetic_open.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    synthetic_open.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -11933,6 +12140,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "monkey-closeout-report":
         json_print(monkey_closeout_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "synthetic-open-report":
+        json_print(synthetic_open_report(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

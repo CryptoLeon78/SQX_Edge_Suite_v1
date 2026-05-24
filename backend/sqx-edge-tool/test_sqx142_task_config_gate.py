@@ -1576,6 +1576,79 @@ def test_monkey_closeout_report_requires_green_phase9_dry_runs(monkeypatch, tmp_
     assert state["nextPhase"] == "phase10_synthetic_open"
 
 
+def test_synthetic_open_summary_accepts_syntetic_alias_and_flags_pending_cleanup():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2" /></Setup></Setups></Data>
+          <CustomData><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /></Setup></Setups></CustomData>
+          <Databanks><Databank name="Input" value="Monkey Test" /><Databank name="Output" value="Syntetic" /></Databanks>
+          <WhatToBuild><StrategyType improveDatabank="Strategies to improve" /></WhatToBuild>
+          <CrossChecks use="true" evaluateAll="true">
+            <MonteCarloRetest use="true">
+              <Settings>
+                <NumberOfSimulations>100</NumberOfSimulations>
+                <MCUseFullSample>true</MCUseFullSample>
+                <MCBacktestPrecision>-1</MCBacktestPrecision>
+                <Methods>
+                  <Method type="RealMonkeyTest" use="false"><Params><Param key="MaxChange">90</Param></Params></Method>
+                  <Method type="SyntheticBootstrapV3" use="true"><Params><Param key="BlockSize">20</Param><Param key="WarmupBars">200</Param><Param key="PreservePct">85</Param></Params></Method>
+                </Methods>
+              </Settings>
+              <AcceptanceSettings><Conditions CrossCheck="MonteCarloRetest"><Condition use="true" /></Conditions></AcceptanceSettings>
+            </MonteCarloRetest>
+            <WhatIf use="false"><Settings><Methods><Method type="ExcludeTradesWithBiggestPl" use="true" /></Methods></Settings></WhatIf>
+          </CrossChecks>
+        </Settings>
+        """
+    )
+
+    summary = gate.synthetic_open_summary(root)
+    issues, warnings = gate.synthetic_open_issues(summary)
+
+    assert issues == []
+    assert summary["alias"]["historical"] == ["Synthetic", "Syntetic"]
+    assert summary["activeSyntheticMethod"]["type"] == "SyntheticBootstrapV3"
+    assert summary["activeSyntheticMethod"]["params"]["PreservePct"] == "85"
+    assert any("inactive crosschecks still carry active methods" in warning for warning in warnings)
+    assert any("StrategyType.improveDatabank" in warning for warning in warnings)
+    assert any("both Data and CustomData" in warning for warning in warnings)
+
+
+def test_synthetic_open_report_requires_monkey_closeout_and_writes_phase_state(monkeypatch, tmp_path):
+    monkeypatch.setattr(gate, "synthetic_open_target_report", lambda path: {
+        "ok": True,
+        "taskXml": "AutomaticRetest-Task5.xml",
+        "issues": [],
+        "warnings": ["pending cleanup"],
+        "summary": {
+            "databanks": {"Input": "Monkey Test", "Output": "Syntetic"},
+            "activeSyntheticMethod": {"type": "SyntheticBootstrapV3"},
+        },
+    })
+    monkeypatch.setattr(gate, "monkey_closeout_report", lambda *args, **kwargs: {
+        "phase": "phase9_monkey_test_closeout",
+        "ok": True,
+        "issues": [],
+        "nextPhase": "phase10_synthetic_open",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+
+    payload = gate.synthetic_open_report(tmp_path, tmp_path, target="both", write=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase10_synthetic_open"
+    assert payload["nextPhase"] == "phase10_synthetic_data_databanks_resources_options"
+    assert payload["previousGate"]["phase"] == "phase9_monkey_test_closeout"
+    assert payload["summary"]["taskXml"] == "AutomaticRetest-Task5.xml"
+    assert payload["summary"]["actualTaskTitle"] == "Syntetic"
+    assert "pending cleanup" in payload["warnings"]
+    assert (tmp_path / ".local" / "sqx142_task_config" / "session_state.json").is_file()
+    state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
+    assert state["currentPhase"] == "phase10_synthetic_open"
+    assert state["nextPhase"] == "phase10_synthetic_data_databanks_resources_options"
+
+
 def test_mc2_crosschecks_apply_adaptive_base_spread_x2_x5_and_clean_inactive_methods():
     root = ET.fromstring(
         """

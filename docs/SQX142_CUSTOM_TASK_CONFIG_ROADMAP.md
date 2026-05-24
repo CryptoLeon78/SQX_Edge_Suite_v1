@@ -1346,6 +1346,36 @@ Reportes locales:
 Siguiente bloque exacto: `phase10_synthetic_open`, para abrir `Synthetic` /
 `Syntetic` sin arrastrar filtros ni columnas especificas de Monkey.
 
+Estado Fase 10 - Synthetic/Syntetic Open:
+
+- `phase10_synthetic_open` queda abierto con
+  `synthetic-open-report --target both --write`.
+- `Synthetic` y `Syntetic` se tratan como alias historico; el task real del
+  `.cfx` sigue siendo `Syntetic` y queda mapeado a
+  `AutomaticRetest-Task5.xml`.
+- La cadena actual queda verificada como `Input=Monkey Test` y
+  `Output=Syntetic`; no se mezcla con `MC`, `MC 2`, `Sequential` ni las
+  columnas especificas de Monkey.
+- El unico crosscheck activo es `MonteCarloRetest`, con metodo
+  `SyntheticBootstrapV3`, `NumberOfSimulations=100`, `MCUseFullSample=true`,
+  `MCBacktestPrecision=-1`, `BlockSize=20`, `WarmupBars=200` y
+  `PreservePct=85`.
+- El open es read-only: no lanza SQX, no ejecuta retests reales, no muta CFX y
+  no fuerza `Results=passed`.
+- Warnings pendientes para los siguientes bloques: decidir portador
+  `Data+CustomData`, limpiar metodos activos ocultos en `MonteCarloManipulation`
+  y `WhatIf`, y normalizar `StrategyType.improveDatabank=Strategies to improve`
+  hacia el input real `Monkey Test` si procede.
+- Cuestionario completo generado para `Syntetic`: `20.008` entradas detectadas
+  y `12.341` diferencias donor/base.
+
+Reporte local:
+`.local/sqx142_task_config/phase_reports/phase10_synthetic_open_20260524_115744.json`.
+
+Siguiente bloque exacto: `phase10_synthetic_data_databanks_resources_options`,
+para cerrar Data, Databanks, Resources y Options de `Synthetic`/`Syntetic` sin
+copiar filtros ni columnas especificas de Monkey.
+
 ## Disciplina Operativa
 
 En cada fase:

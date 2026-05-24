@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Synthetic Open
+
+- Adds `synthetic-open-report` to open Phase 10 without launching SQX or mutating CFX.
+- Treats `Synthetic`/`Syntetic` as the same historical task alias, mapping the real task `Syntetic` to `AutomaticRetest-Task5.xml`.
+- Verifies `Input=Monkey Test` / `Output=Syntetic`, active `MonteCarloRetest` with `SyntheticBootstrapV3`, `NumberOfSimulations=100`, `MCUseFullSample=true`, `MCBacktestPrecision=-1`, `BlockSize=20`, `WarmupBars=200` and `PreservePct=85`.
+- Records pending warnings for the next blocks: dual `Data+CustomData`, active hidden methods in inactive `MonteCarloManipulation`/`WhatIf`, and `StrategyType.improveDatabank=Strategies to improve`.
+- Writes local report `phase10_synthetic_open_20260524_115744.json`, generates the full `Syntetic` questionnaire (`20,008` detected entries, `12,341` donor/base differences) and sets next exact block `phase10_synthetic_data_databanks_resources_options`.
+
 ## 2026-05-24 - C1-CONFIG1 Monkey Test Closeout
 
 - Adds `monkey-closeout-report` to close Phase 9 only when Sequential previous gate and all four Monkey guards are green/idempotent in dry-run mode.
