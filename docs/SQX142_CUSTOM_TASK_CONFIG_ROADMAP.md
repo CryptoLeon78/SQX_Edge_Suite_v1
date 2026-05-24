@@ -1179,6 +1179,45 @@ Siguiente bloque exacto: `phase9_monkey_test_data_databanks_resources_options`,
 para cerrar Data/Databanks/Resources/Options de `Monkey Test` con diff antes de
 tocar la base.
 
+Decision aplicada para `phase9_monkey_test_data_databanks_resources_options`:
+
+- Se anade `monkey-data-databanks-resources-options-target` con
+  dry-run-first, backup/diff/apply sobre base local y template repo.
+- `Monkey Test` mantiene portador dual `Data + CustomData` porque esta forma ya
+  existe en SQX142 y es compatible con el proyecto base; no se elimina ningun
+  portador sin evidencia UI adicional.
+- Ambos portadores quedan sincronizados en `ROBUSTNESS_C1`, `testPrecision=2`,
+  `No Session`, `slippage=0`, `minDist=0`, seed generico
+  `AUDCAD_darwinex/H1` y spread `2.0`.
+- No se anade split OOS interno: Monkey consume supervivientes de `Sequential`
+  y escribe en `Monkey Test`.
+- `Databanks` queda explicito: `Input=Sequential` y `Output=Monkey Test`.
+- `Resources` queda `TICK/EETUS`, sin sesiones y con brokers/instrumentos
+  coherentes con el chart seed; Project Generator sigue reescribiendo simbolo,
+  timeframe, spread, broker y recursos por activo/target profile.
+- `Options` queda inerte para este robustness gate:
+  `LimitTimeRange=false`, `RealisticGapsHandling=false`, `StoreChartData=false`,
+  `Session=No Session` y `MarketOpenSession=No Session`.
+- Project Generator queda alineado para no inyectar ventanas horarias en
+  `AutomaticRetest-Task6.xml`; los customs generados mantienen simbolo/timeframe
+  adaptados, pero Monkey ya no pasa a `LimitTimeRange=true` por accidente.
+- El unico cambio XML real en base/template fue normalizar `Data/Chart spread`
+  de `2` a `2.0` para igualarlo a `CustomData`; el dry-run posterior queda
+  idempotente (`changed=false`, `changedActionCount=0`, `guardOk=true`).
+- Ledger local respondido para `Monkey Test > Data` (`7/7`),
+  `Monkey Test > Databanks` (`2/2`), `Monkey Test > Resources` (`1.899/1.899`)
+  y `Monkey Test > Options` (`34/34`).
+- Se preserva la regla critica: passed/failed naturales, sin forzar
+  `Results=passed`.
+
+Reportes locales:
+`.local/sqx142_task_config/diffs/phase9_monkey_test_data_databanks_resources_options_target_20260524_093418.json`.
+`.local/sqx142_task_config/phase_reports/phase9_monkey_test_data_databanks_resources_options_20260524_093446.json`.
+
+Siguiente bloque exacto: `phase9_monkey_test_crosschecks`, para decidir filtros
+de aceptacion y limpiar metodos activos dentro de crosschecks inactivos sin
+mezclar Monkey con Synthetic.
+
 ## Disciplina Operativa
 
 En cada fase:

@@ -134,7 +134,8 @@
     "1": [
       "AutomaticRetest-Task1.xml",
       "AutomaticRetest-Task8.xml",
-      "AutomaticRetest-Task3.xml"
+      "AutomaticRetest-Task3.xml",
+      "AutomaticRetest-Task6.xml"
     ]
   },
   "taskPeriodMaps": {

@@ -130,6 +130,71 @@ def _assert_sequential_static_tabs_contract(sequential: ET.Element) -> None:
     assert main_values.get("symbol") == "true"
 
 
+def _assert_monkey_data_databanks_resources_options_contract(
+    monkey: ET.Element,
+    expected_symbol: str | None = None,
+    expected_timeframe: str | None = None,
+    expected_spread: str | None = None,
+) -> None:
+    databanks = {
+        databank.get("name"): databank.get("value")
+        for databank in monkey.findall(".//Databanks/Databank")
+    }
+    assert databanks == {"Output": "Monkey Test", "Input": "Sequential"}
+    assert monkey.findall(".//Data/OutOfSample/Range") == []
+
+    data_setup = monkey.find("./Data/Setups/Setup")
+    custom_setup = monkey.find("./CustomData/Setups/Setup")
+    assert data_setup is not None
+    assert custom_setup is not None
+    assert data_setup.get("dateFrom") == custom_setup.get("dateFrom") == "2017.10.02"
+    assert data_setup.get("dateTo") == custom_setup.get("dateTo") == "2023.12.31"
+    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == "2"
+    assert data_setup.get("session") == custom_setup.get("session") == "No Session"
+    data_chart = data_setup.find("Chart")
+    custom_chart = custom_setup.find("Chart")
+    assert data_chart is not None
+    assert custom_chart is not None
+    assert data_chart.attrib == custom_chart.attrib
+    if expected_spread is not None:
+        assert data_chart.get("spread") == expected_spread
+    if expected_symbol is not None:
+        assert data_chart.get("symbol") == expected_symbol
+    if expected_timeframe is not None:
+        assert data_chart.get("timeframe") == expected_timeframe
+
+    main_values = custom_setup.find("MainTestValues")
+    assert main_values is not None
+    assert main_values.get("subcharts") == "false"
+    assert main_values.get("symbol") == "true"
+
+    params = {
+        node.get("key"): node.text
+        for node in monkey.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"LimitTimeRange", "RealisticGapsHandling", "StoreChartData", "Session", "MarketOpenSession"}
+    }
+    assert params == {
+        "LimitTimeRange": "false",
+        "RealisticGapsHandling": "false",
+        "StoreChartData": "false",
+        "Session": "No Session",
+        "MarketOpenSession": "No Session",
+    }
+
+    resources = monkey.find(".//Resources")
+    assert resources is not None
+    resource_symbols = {
+        symbol.get("name")
+        for symbol in resources.findall("./Symbols/Symbol")
+        if symbol.get("name")
+    }
+    assert resource_symbols == {custom_chart.get("symbol")}
+    assert resources.findall("./Sessions/Session") == []
+    for symbol in resources.findall("./Symbols/Symbol"):
+        assert symbol.get("precision") == "TICK"
+        assert symbol.get("timezone") == "EETUS"
+
+
 def _assert_static_crosschecks_contract(task: ET.Element, require_selected_strategies: bool = True) -> None:
     crosschecks = task.find(".//CrossChecks")
     assert crosschecks is not None
@@ -798,6 +863,34 @@ def test_capa1_sequential_open_gate_receives_mc2_and_keeps_sequential_optimizati
     _assert_sequential_static_tabs_contract(sequential)
 
 
+def test_capa1_monkey_test_data_gate_receives_sequential_and_keeps_dual_carrier():
+    roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
+    monkey = roots["AutomaticRetest-Task6.xml"]
+    _assert_monkey_data_databanks_resources_options_contract(
+        monkey,
+        expected_symbol="AUDCAD_darwinex",
+        expected_timeframe="H1",
+        expected_spread="2.0",
+    )
+    crosschecks = monkey.find(".//CrossChecks")
+    assert crosschecks is not None
+    active = [
+        check.tag
+        for check in list(crosschecks)
+        if isinstance(check.tag, str) and check.get("use") == "true"
+    ]
+    assert active == ["MonteCarloRetest"]
+    monte_carlo = crosschecks.find("MonteCarloRetest")
+    assert monte_carlo is not None
+    assert monte_carlo.findtext("./Settings/NumberOfSimulations") == "200"
+    assert monte_carlo.findtext("./Settings/MCUseFullSample") == "true"
+    assert {
+        method.get("type"): method.get("use")
+        for method in monte_carlo.findall("./Settings/Methods/Method")
+        if method.get("use") == "true"
+    } == {"RealMonkeyTest": "true"}
+
+
 def test_capa1_base_uses_confirmed_build_ranking_volume():
     roots = dict(_xml_roots(TEMPLATE_DIR / "Capa1_Long.cfx"))
     build = roots["Build-Task1.xml"]
@@ -1000,6 +1093,15 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     assert sequential_optimization.findall("./AcceptanceSettings/Conditions/Condition") == []
     _assert_sequential_passive_generation_contract(sequential)
     _assert_sequential_static_tabs_contract(sequential)
+
+    monkey = roots["AutomaticRetest-Task6.xml"]
+    _assert_monkey_data_databanks_resources_options_contract(
+        monkey,
+        expected_symbol="AUDCAD",
+        expected_timeframe="H4",
+        expected_spread="10",
+    )
+    assert {chart.get("spread") for chart in monkey.findall(".//Setup/Chart")} == {"10"}
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")

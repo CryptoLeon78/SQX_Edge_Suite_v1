@@ -11,6 +11,7 @@ from tools.sqx142_task_config_gate import (
     apply_mc2_crosschecks_to_root,
     apply_mc2_passive_generation_to_root,
     apply_mc2_static_tabs_to_root,
+    apply_monkey_data_databanks_resources_options_to_root,
     apply_sequential_data_databanks_resources_options_to_root,
     apply_sequential_crosschecks_to_root,
     apply_sequential_passive_generation_to_root,
@@ -35,6 +36,7 @@ from tools.sqx142_task_config_gate import (
     enforce_mc2_crosschecks_guard,
     enforce_mc2_passive_generation_guard,
     enforce_mc2_static_tabs_guard,
+    enforce_monkey_data_databanks_resources_options_guard,
     enforce_sequential_data_databanks_resources_options_guard,
     enforce_sequential_crosschecks_guard,
     enforce_sequential_passive_generation_guard,
@@ -1990,6 +1992,77 @@ def test_monkey_open_issues_reject_wrong_chain_and_wrong_method():
     assert any("active methods" in issue for issue in issues)
     assert any("MaxChange" in issue for issue in issues)
     assert any("StrategyType.improveDatabank" in warning for warning in warnings)
+
+
+def test_monkey_data_databanks_resources_options_keeps_dual_carrier_synced():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data>
+            <Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old" slippage="5" minDist="3" engine="Legacy">
+              <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
+              <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">9</Param></Params></Method></Commissions>
+            </Setup></Setups>
+            <OutOfSample><Range dateFrom="2023.01.01" dateTo="2025.01.01" /></OutOfSample>
+          </Data>
+          <CustomData>
+            <Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old" slippage="5" minDist="3" engine="Legacy">
+              <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
+              <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">9</Param></Params></Method></Commissions>
+              <MainTestValues engine="false" />
+            </Setup></Setups>
+          </CustomData>
+          <Databanks><Databank name="Input" value="MC2" /><Databank name="Output" value="Sequential" /></Databanks>
+          <Resources>
+            <Symbols><Symbol name="USDJPY_darwinex" precision="M1" timezone="UTC" broker="4"><InstrumentInfo instrument="USDJPY_darwinex" broker="4" /></Symbol></Symbols>
+            <Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers>
+            <Instruments />
+            <Sessions><Session name="Old" /></Sessions>
+            <CustomIndicators />
+            <CustomBlocks />
+          </Resources>
+          <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">true</Param><Param key="RealisticGapsHandling">true</Param><Param key="StoreChartData">true</Param><Param key="Session">Old</Param><Param key="MarketOpenSession">Old</Param></Params></BuildTradingOptions></Options>
+        </Settings>
+        """
+    )
+
+    actions = apply_monkey_data_databanks_resources_options_to_root(root)
+
+    assert any(item["field"] == "Data/Setup/Chart:attrs" and item["changed"] for item in actions)
+    assert enforce_monkey_data_databanks_resources_options_guard(root) == []
+    data_setup = root.find("./Data/Setups/Setup")
+    custom_setup = root.find("./CustomData/Setups/Setup")
+    assert data_setup.get("dateFrom") == custom_setup.get("dateFrom") == "2017.10.02"
+    assert data_setup.find("Chart").get("spread") == custom_setup.find("Chart").get("spread") == "2.0"
+    assert root.find("./Data/OutOfSample/Range") is None
+    assert {
+        databank.get("name"): databank.get("value")
+        for databank in root.findall(".//Databanks/Databank")
+    } == {"Input": "Sequential", "Output": "Monkey Test"}
+    assert root.find(".//BuildTradingOptions/Params/Param[@key='LimitTimeRange']").text == "false"
+    assert root.find(".//Resources/Symbols/Symbol").get("precision") == "TICK"
+    assert root.findall(".//Resources/Sessions/Session") == []
+
+
+def test_monkey_data_databanks_resources_options_guard_rejects_divergent_carriers():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /></Setup></Setups></Data>
+          <CustomData><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0"><Chart symbol="AUDCAD_darwinex" timeframe="H4" spread="2.0" /><MainTestValues engine="false" /></Setup></Setups></CustomData>
+          <Databanks><Databank name="Input" value="MC2" /><Databank name="Output" value="Monkey Test" /></Databanks>
+          <Resources><Symbols /><Brokers /><Sessions /></Resources>
+          <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">true</Param></Params></BuildTradingOptions></Options>
+        </Settings>
+        """
+    )
+
+    issues = enforce_monkey_data_databanks_resources_options_guard(root)
+
+    assert any("chart mismatch for timeframe" in issue for issue in issues)
+    assert any("CustomData MainTestValues" in issue for issue in issues)
+    assert any("Databank Input" in issue for issue in issues)
+    assert any("Options param" in issue for issue in issues)
 
 
 def test_sequential_data_databanks_resources_options_keeps_dual_carrier_synced():

@@ -581,6 +581,15 @@ MONKEY_NUMBER_OF_SIMULATIONS = "200"
 MONKEY_USE_FULL_SAMPLE = "true"
 MONKEY_METHOD_MAX_CHANGE = "90"
 MONKEY_NEXT_PHASE = "phase9_monkey_test_data_databanks_resources_options"
+MONKEY_PERIOD_KEY = MC_PERIOD_KEY
+MONKEY_DATA_TEST_PRECISION = MC_DATA_TEST_PRECISION
+MONKEY_DATA_SESSION = MC_DATA_SESSION
+MONKEY_DEFAULT_CHART_TARGET = MC2_DEFAULT_CHART_TARGET
+MONKEY_DATA_ENGINE = SEQUENTIAL_DATA_ENGINE
+MONKEY_CUSTOM_DATA_ENGINE = SEQUENTIAL_CUSTOM_DATA_ENGINE
+MONKEY_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET = SEQUENTIAL_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET
+MONKEY_OPTIONS_PARAMS_TARGET = MC_OPTIONS_PARAMS_TARGET
+MONKEY_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT = "phase9_monkey_test_crosschecks"
 SEQUENTIAL_PASSIVE_SOURCE_TASK_TITLE = MC2_TASK_TITLE
 SEQUENTIAL_STRATEGY_TYPE_TARGET = {
     "type": "simple",
@@ -9147,6 +9156,353 @@ def monkey_open_report(root142: Path, project_root: Path, target: str, write: bo
     return payload
 
 
+def monkey_data_databanks_resources_options_summary(root: ET.Element | None) -> dict[str, Any]:
+    summary = monkey_open_summary(root)
+    if not summary.get("exists"):
+        return summary
+    setup_pairs = []
+    data_setup = root.find("./Data/Setups/Setup") if root is not None else None
+    custom_setup = root.find("./CustomData/Setups/Setup") if root is not None else None
+    if data_setup is not None and custom_setup is not None:
+        setup_pairs.append({
+            "field": "Data_vs_CustomData",
+            "data": {
+                "dateFrom": data_setup.get("dateFrom", ""),
+                "dateTo": data_setup.get("dateTo", ""),
+                "testPrecision": data_setup.get("testPrecision", ""),
+                "session": data_setup.get("session", ""),
+                "slippage": data_setup.get("slippage", ""),
+                "minDist": data_setup.get("minDist", ""),
+                "chart": dict(data_setup.find("Chart").attrib) if data_setup.find("Chart") is not None else {},
+            },
+            "customData": {
+                "dateFrom": custom_setup.get("dateFrom", ""),
+                "dateTo": custom_setup.get("dateTo", ""),
+                "testPrecision": custom_setup.get("testPrecision", ""),
+                "session": custom_setup.get("session", ""),
+                "slippage": custom_setup.get("slippage", ""),
+                "minDist": custom_setup.get("minDist", ""),
+                "chart": dict(custom_setup.find("Chart").attrib) if custom_setup.find("Chart") is not None else {},
+            },
+        })
+    summary["carrierDecision"] = {
+        "mode": "dual_synced",
+        "reason": "Monkey Test in SQX142 stores both Data and CustomData; keep both synced for compatibility and leave asset/timeframe/spread to Project Generator in generated customs.",
+        "pairs": setup_pairs,
+    }
+    return summary
+
+
+def apply_monkey_setup_to_root(root: ET.Element, section_name: str, engine: str, actions: list[dict[str, Any]]) -> ET.Element:
+    section = find_section(root, section_name)
+    if section is None:
+        section = ET.SubElement(root, section_name)
+        actions.append({"field": section_name, "from": None, "to": "created", "changed": True})
+    setup = ensure_setup_under(section, actions, section_name)
+    period = generator_period(MONKEY_PERIOD_KEY)
+    set_attrs_on_node(
+        setup,
+        {
+            "dateFrom": period[0],
+            "dateTo": period[1],
+            "testPrecision": MONKEY_DATA_TEST_PRECISION,
+            "session": MONKEY_DATA_SESSION,
+            "slippage": "0",
+            "minDist": "0",
+            "engine": engine,
+        },
+        actions,
+        f"{section_name}/Setup:attrs",
+    )
+    chart = setup.find("Chart")
+    if chart is None:
+        chart = ET.SubElement(setup, "Chart")
+        actions.append({"field": f"{section_name}/Setup/Chart", "from": None, "to": dict(chart.attrib), "changed": True})
+    set_attrs_on_node(chart, MONKEY_DEFAULT_CHART_TARGET, actions, f"{section_name}/Setup/Chart:attrs")
+    ensure_commission_method(setup, actions, f"{section_name}/Setup")
+    if section_name == "CustomData":
+        main_values = setup.find("MainTestValues")
+        if main_values is None:
+            main_values = ET.SubElement(setup, "MainTestValues")
+            actions.append({"field": "CustomData/MainTestValues", "from": None, "to": dict(main_values.attrib), "changed": True})
+        set_attrs_on_node(
+            main_values,
+            MONKEY_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+            actions,
+            "CustomData/MainTestValues:attrs",
+        )
+    return setup
+
+
+def apply_monkey_data_databanks_resources_options_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    data_setup = apply_monkey_setup_to_root(root, "Data", MONKEY_DATA_ENGINE, actions)
+    custom_setup = apply_monkey_setup_to_root(root, "CustomData", MONKEY_CUSTOM_DATA_ENGINE, actions)
+
+    data = find_section(root, "Data")
+    out_of_sample = data.find("OutOfSample") if data is not None else None
+    removed_oos = []
+    if out_of_sample is not None:
+        for range_node in list(out_of_sample.findall("Range")):
+            removed_oos.append(dict(range_node.attrib))
+            out_of_sample.remove(range_node)
+    actions.append({
+        "field": "Data/OutOfSample/Range",
+        "from": removed_oos,
+        "to": [],
+        "changed": bool(removed_oos),
+        "note": "Monkey Test is a robustness gate after Sequential survivors and does not add a nested OOS split.",
+    })
+
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing_by_name = {
+        node.get("name", ""): node
+        for node in databanks.findall("Databank")
+        if node.get("name")
+    }
+    for name, wanted in MONKEY_EXPECTED_DATABANKS.items():
+        node = existing_by_name.get(name)
+        before = dict(node.attrib) if node is not None else None
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+        node.set("name", name)
+        node.set("value", wanted)
+        node.set("label", f"{name} databank")
+        actions.append({
+            "field": f"Databanks/{name}",
+            "from": before,
+            "to": dict(node.attrib),
+            "changed": before != dict(node.attrib),
+        })
+
+    apply_mc2_resources_from_custom_data(root, custom_setup, actions)
+    for key, value in MONKEY_OPTIONS_PARAMS_TARGET.items():
+        set_param_text(root, key, value, actions, "Options")
+    actions.append({
+        "field": "Monkey/DataCarrier",
+        "from": {
+            "data": value_for_node(data_setup),
+            "customData": value_for_node(custom_setup),
+        },
+        "to": "dual_synced",
+        "changed": False,
+        "note": "Kept both Data and CustomData for SQX142 compatibility; enforced matching period, precision, session and chart seed.",
+    })
+    return actions
+
+
+def enforce_monkey_data_databanks_resources_options_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    period = generator_period(MONKEY_PERIOD_KEY)
+    data_setup = root.find("./Data/Setups/Setup")
+    custom_setup = root.find("./CustomData/Setups/Setup")
+    if data_setup is None:
+        issues.append("Monkey Test Data/Setup missing")
+    if custom_setup is None:
+        issues.append("Monkey Test CustomData/Setup missing")
+    for label, setup in (("Data", data_setup), ("CustomData", custom_setup)):
+        if setup is None:
+            continue
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"Monkey Test {label} dates are not {MONKEY_PERIOD_KEY}")
+        if setup.get("testPrecision") != MONKEY_DATA_TEST_PRECISION:
+            issues.append(f"Monkey Test {label} testPrecision must stay {MONKEY_DATA_TEST_PRECISION}")
+        if setup.get("session") != MONKEY_DATA_SESSION:
+            issues.append(f"Monkey Test {label} session must stay {MONKEY_DATA_SESSION}")
+        chart = setup.find("Chart")
+        if chart is None:
+            issues.append(f"Monkey Test {label} chart missing")
+        else:
+            for key, wanted in MONKEY_DEFAULT_CHART_TARGET.items():
+                if chart.get(key) != wanted:
+                    issues.append(f"Monkey Test {label} chart {key} is {chart.get(key)!r}, expected {wanted!r}")
+        commission = setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']")
+        if (commission.text if commission is not None else "") != MC_CUSTOM_DATA_COMMISSION_TARGET:
+            issues.append(f"Monkey Test {label} commission is {(commission.text if commission is not None else '')!r}, expected {MC_CUSTOM_DATA_COMMISSION_TARGET!r}")
+    if data_setup is not None and custom_setup is not None:
+        data_chart = data_setup.find("Chart")
+        custom_chart = custom_setup.find("Chart")
+        for key in ("dateFrom", "dateTo", "testPrecision", "session", "slippage", "minDist"):
+            if data_setup.get(key) != custom_setup.get(key):
+                issues.append(f"Monkey Test Data/CustomData setup mismatch for {key}")
+        if data_chart is not None and custom_chart is not None:
+            for key in ("symbol", "timeframe", "spread"):
+                if data_chart.get(key) != custom_chart.get(key):
+                    issues.append(f"Monkey Test Data/CustomData chart mismatch for {key}")
+    main_values = root.find("./CustomData/Setups/Setup/MainTestValues")
+    if main_values is None or dict(main_values.attrib) != MONKEY_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+        issues.append("Monkey Test CustomData MainTestValues drifted from dual-synced target")
+
+    databanks = {
+        node.get("name", ""): node.get("value", "")
+        for node in root.findall(".//Databanks/Databank")
+        if node.get("name")
+    }
+    for name, wanted in MONKEY_EXPECTED_DATABANKS.items():
+        if databanks.get(name) != wanted:
+            issues.append(f"Monkey Test Databank {name} is {databanks.get(name)!r}, expected {wanted!r}")
+
+    resources = find_section(root, "Resources")
+    if resources is None:
+        issues.append("Monkey Test Resources missing")
+    else:
+        chart_symbols = {
+            chart.get("symbol", "")
+            for chart in root.findall("./CustomData/Setups/Setup/Chart")
+            if chart.get("symbol")
+        }
+        resource_symbols = {
+            symbol.get("name", "")
+            for symbol in resources.findall("./Symbols/Symbol")
+            if symbol.get("name")
+        }
+        if chart_symbols != resource_symbols:
+            issues.append(f"Monkey Test custom chart/resource mismatch: charts={sorted(chart_symbols)} resources={sorted(resource_symbols)}")
+        broker_ids = {
+            broker.get("id", "")
+            for broker in resources.findall("./Brokers/Broker")
+            if broker.get("id")
+        }
+        for symbol in resources.findall("./Symbols/Symbol"):
+            if symbol.get("precision") != MC_RESOURCE_PRECISION:
+                issues.append(f"Monkey Test resource {symbol.get('name')} precision is not TICK")
+            if symbol.get("timezone") != MC_RESOURCE_TIMEZONE:
+                issues.append(f"Monkey Test resource {symbol.get('name')} timezone is not EETUS")
+            if symbol.get("broker") not in broker_ids:
+                issues.append(f"Monkey Test resource {symbol.get('name')} references missing broker {symbol.get('broker')}")
+            info = symbol.find("InstrumentInfo")
+            if info is None:
+                issues.append(f"Monkey Test resource {symbol.get('name')} has no nested InstrumentInfo")
+            elif info.get("broker") not in broker_ids:
+                issues.append(f"Monkey Test nested InstrumentInfo for {symbol.get('name')} references missing broker {info.get('broker')}")
+        if resources.findall("./Sessions/Session"):
+            issues.append("Monkey Test resources must not keep session entries")
+
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in MONKEY_OPTIONS_PARAMS_TARGET
+    }
+    for key, wanted in MONKEY_OPTIONS_PARAMS_TARGET.items():
+        if params.get(key) != wanted:
+            issues.append(f"Monkey Test Options param {key} is {params.get(key)!r}, expected {wanted!r}")
+
+    if root.findall("./Data/OutOfSample/Range"):
+        issues.append("Monkey Test Data must not contain nested OOS ranges")
+    guarded_text = (
+        section_text(root, "Data")
+        + section_text(root, "CustomData")
+        + section_text(root, "Databanks")
+        + section_text(root, "Resources")
+        + section_text(root, "Options")
+    )
+    for token in MC_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into Monkey Test Data/Databanks/Resources/Options: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into Monkey Test Data/Databanks/Resources/Options")
+    return issues
+
+
+def update_monkey_data_databanks_resources_options_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root = load_task_root(cfx, MONKEY_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "monkey_test_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = monkey_data_databanks_resources_options_summary(root)
+    payload["actions"] = apply_monkey_data_databanks_resources_options_to_root(root)
+    payload["after"] = monkey_data_databanks_resources_options_summary(root)
+    payload["issues"] = enforce_monkey_data_databanks_resources_options_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["xmlChanged"] = before_text != after_text
+    payload["changed"] = payload["changedActionCount"] > 0
+    payload["targetValues"] = {
+        "taskTitle": MONKEY_TASK_TITLE,
+        "taskXml": MONKEY_TASK_XML,
+        "periodKey": MONKEY_PERIOD_KEY,
+        "dateFrom": generator_period(MONKEY_PERIOD_KEY)[0],
+        "dateTo": generator_period(MONKEY_PERIOD_KEY)[1],
+        "dataCarrier": "dual_synced",
+        "dataEngine": MONKEY_DATA_ENGINE,
+        "customDataEngine": MONKEY_CUSTOM_DATA_ENGINE,
+        "customDataMainTestValues": MONKEY_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+        "databanks": MONKEY_EXPECTED_DATABANKS,
+        "resourcePrecision": MC_RESOURCE_PRECISION,
+        "resourceTimezone": MC_RESOURCE_TIMEZONE,
+        "options": MONKEY_OPTIONS_PARAMS_TARGET,
+    }
+    payload["targetRationale"] = {
+        "methodology": "Monkey Test consumes Sequential survivors and performs a robustness perturbation; it is not a new OOS split or optimizer in Capa1.",
+        "carrier": "SQX142 Monkey Test carries both Data and CustomData in the working base; keeping both synced is safer than deleting one without UI evidence.",
+        "options": "Trading time ranges are disabled for this robustness gate in the base/template; Project Generator should not inject them for Monkey Test.",
+        "naturalResults": "The block preserves natural passed/failed rows and does not force Results=passed.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_monkey_data_databanks_resources_options_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase9_monkey_test_data_databanks_resources_options_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_monkey_data_databanks_resources_options_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase9",
+        "operation": "monkey_test_data_databanks_resources_options_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase9_monkey_test_data_databanks_resources_options_diff_review" if not apply else MONKEY_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase9_monkey_test_data_databanks_resources_options_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -10432,6 +10788,10 @@ def build_parser() -> argparse.ArgumentParser:
     monkey_open.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     monkey_open.add_argument("--write", action="store_true")
 
+    monkey_data = sub.add_parser("monkey-data-databanks-resources-options-target")
+    monkey_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    monkey_data.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -10590,6 +10950,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "monkey-open-report":
         json_print(monkey_open_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "monkey-data-databanks-resources-options-target":
+        json_print(promote_monkey_data_databanks_resources_options_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
