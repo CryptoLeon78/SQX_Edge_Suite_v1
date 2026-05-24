@@ -27,6 +27,7 @@ from tools.sqx142_task_config_gate import (
     apply_sequential_passive_generation_to_root,
     apply_sequential_static_tabs_to_root,
     apply_wfm_data_databanks_resources_options_to_root,
+    apply_wfm_crosschecks_to_root,
     apply_retest1_passive_generation_to_root,
     apply_retest1_data_resources_to_root,
     apply_retest1_options_databanks_rankings_to_root,
@@ -63,6 +64,7 @@ from tools.sqx142_task_config_gate import (
     enforce_sequential_passive_generation_guard,
     enforce_sequential_static_tabs_guard,
     enforce_wfm_data_databanks_resources_options_guard,
+    enforce_wfm_crosschecks_guard,
     enforce_tick_real_data_databanks_resources_guard,
     enforce_tick_real_options_rankings_guard,
     enforce_tick_real_passive_generation_guard,
@@ -3282,6 +3284,115 @@ def test_wfm_data_databanks_resources_options_guard_rejects_divergent_carriers()
     assert any("Databank Output" in issue for issue in issues)
     assert any("Resources" in issue or "resource" in issue for issue in issues)
     assert any("Options param" in issue for issue in issues)
+
+
+def test_wfm_crosschecks_keep_matrix_filters_and_clean_hidden_methods():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /><Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission">0.0</Param></Params></Method></Commissions></Setup></Setups></Data>
+          <CustomData><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader4"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /><Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission">0.0</Param></Params></Method></Commissions><MainTestValues engine="true" symbol="true" timeframe="true" dates="true" subcharts="false" precision="true" distance="true" spread="true" slippage="true" commissions="true" /></Setup></Setups></CustomData>
+          <Databanks><Databank name="Input" value="SPP" /><Databank name="Output" value="WFM" /></Databanks>
+          <Resources><Symbols><Symbol name="AUDCAD_darwinex" precision="TICK" timezone="EETUS" broker="4"><InstrumentInfo instrument="AUDCAD_darwinex" broker="4" /></Symbol></Symbols><Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers><Sessions /></Resources>
+          <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">false</Param><Param key="RealisticGapsHandling">false</Param><Param key="StoreChartData">false</Param><Param key="Session">No Session</Param><Param key="MarketOpenSession">No Session</Param></Params></BuildTradingOptions></Options>
+          <Rankings><ForceRunCrossChecks>true</ForceRunCrossChecks></Rankings>
+          <CrossChecks use="true" evaluateAll="true">
+            <RetestOnAdditionalMarkets use="false"><Settings><Setups><Setup dateFrom="2010.01.01" dateTo="2017.10.02" testPrecision="1" session="Old" slippage="3" minDist="2"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups></Settings></RetestOnAdditionalMarkets>
+            <WalkForwardOptimization use="true"><Settings><Methods><Method type="LegacyWFO" use="true" /></Methods></Settings></WalkForwardOptimization>
+            <WalkForwardMatrix use="false">
+              <Settings>
+                <WalkForward type="1" period="5" optimization="10" distributionUp="10" distributionDown="10" maxSteps="4"><Param1 value="bad" /><Param2 value="bad" /></WalkForward>
+                <MaxTests>10</MaxTests>
+                <WhatToParametrize type="0" symmetricVariables="true"><Recommended>true</Recommended><Shifts>true</Shifts></WhatToParametrize>
+              </Settings>
+              <AcceptanceSettings><Conditions><Condition use="true"><Left-Side valueType="column"><Column-Value column="WFPctOfProfitableRuns" resultType="WalkForwardOptimization" sampleType="10" subresult="33" /></Left-Side><Comparator value="&gt;" /><Right-Side valueType="numeric"><Numeric-Value value="60" /></Right-Side></Condition></Conditions></AcceptanceSettings>
+            </WalkForwardMatrix>
+            <MonteCarloRetest use="false"><Settings><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings></MonteCarloRetest>
+            <MonteCarloManipulation use="false"><Settings><Methods><Method type="RandomizeTradesOrder" use="true" /></Methods></Settings></MonteCarloManipulation>
+            <WhatIf use="false"><Settings><Methods><Method type="ExcludeTradesWithBiggestPl" use="true" /></Methods></Settings></WhatIf>
+          </CrossChecks>
+        </Settings>
+        """
+    )
+
+    actions = apply_wfm_crosschecks_to_root(root)
+
+    assert any("MonteCarloRetest/Method:RandomizeSpread" in item["field"] and item["changed"] for item in actions)
+    assert enforce_wfm_crosschecks_guard(root) == []
+    summary = gate.wfm_crosschecks_summary(root)
+    assert summary["active"] == ["WalkForwardMatrix"]
+    wfm = next(item for item in summary["checks"] if item["id"] == "WalkForwardMatrix")
+    assert wfm["settings"]["WalkForward"] == {
+        "type": "2",
+        "period": "10",
+        "optimization": "15",
+        "distributionUp": "20",
+        "distributionDown": "20",
+        "maxSteps": "8",
+    }
+    active_conditions = [
+        (
+            condition["left"].get("column"),
+            condition["comparator"],
+            condition["right"]["value"].get("value"),
+        )
+        for condition in wfm["conditions"]
+        if condition["use"] == "true"
+    ]
+    assert active_conditions == [
+        ("NetProfit", ">", "0"),
+        ("NetProfit", ">", "60"),
+        ("WFPctOfProfitableRuns", ">", "70"),
+        ("WFMaxProfitByRunInPct", "<", "50"),
+        ("WFMinTradesInRun", ">", "20"),
+        ("WFMaxPctDDbyRun", "<=", "25"),
+    ]
+    inactive_methods = [
+        method
+        for check in summary["checks"]
+        if check["id"] != "WalkForwardMatrix"
+        for method in check["methods"]
+    ]
+    assert all(method["use"] == "false" for method in inactive_methods)
+    assert root.findtext("./Rankings/ForceRunCrossChecks") == "false"
+    setup = root.find(".//CrossChecks/RetestOnAdditionalMarkets/Settings/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.find("Chart").attrib == {
+        "symbol": "AUDCAD_darwinex",
+        "timeframe": "H1",
+        "spread": "2.0",
+    }
+
+
+def test_wfm_crosschecks_guard_rejects_lax_filters_and_hidden_methods():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /><Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission">0.0</Param></Params></Method></Commissions></Setup></Setups></Data>
+          <CustomData><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader4"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /><Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission">0.0</Param></Params></Method></Commissions><MainTestValues engine="true" symbol="true" timeframe="true" dates="true" subcharts="false" precision="true" distance="true" spread="true" slippage="true" commissions="true" /></Setup></Setups></CustomData>
+          <Databanks><Databank name="Input" value="SPP" /><Databank name="Output" value="WFM" /></Databanks>
+          <Resources><Symbols><Symbol name="AUDCAD_darwinex" precision="TICK" timezone="EETUS" broker="4"><InstrumentInfo instrument="AUDCAD_darwinex" broker="4" /></Symbol></Symbols><Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers><Sessions /></Resources>
+          <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">false</Param><Param key="RealisticGapsHandling">false</Param><Param key="StoreChartData">false</Param><Param key="Session">No Session</Param><Param key="MarketOpenSession">No Session</Param></Params></BuildTradingOptions></Options>
+          <Rankings><ForceRunCrossChecks>true</ForceRunCrossChecks></Rankings>
+          <CrossChecks use="true" evaluateAll="true">
+            <WalkForwardOptimization use="true" />
+            <WalkForwardMatrix use="true">
+              <Settings><WalkForward type="2" period="10" optimization="15" distributionUp="20" distributionDown="20" maxSteps="8"><Param1 value="undefined" start="20" stop="36" step="2" /><Param2 value="undefined" start="5" stop="8" step="1" /></WalkForward><MaxTests>3000</MaxTests><WhatToParametrize type="1" symmetricVariables="false"><Recommended>false</Recommended><Periods>true</Periods><Shifts>false</Shifts><Constants>true</Constants><OtherParams>false</OtherParams><EntryParams>true</EntryParams><EntryLogic>false</EntryLogic><ExitParamsUsed>true</ExitParamsUsed><ExitParamsUnused>false</ExitParamsUnused><BooleanParams>false</BooleanParams></WhatToParametrize></Settings>
+              <AcceptanceSettings><Conditions><Condition use="true"><Left-Side valueType="column"><Column-Value column="WFPctOfProfitableRuns" resultType="WalkForwardOptimization" sampleType="10" subresult="33" /></Left-Side><Comparator value="&gt;" /><Right-Side valueType="numeric"><Numeric-Value value="60" /></Right-Side></Condition></Conditions></AcceptanceSettings>
+            </WalkForwardMatrix>
+            <WhatIf use="false"><Settings><Methods><Method type="ExcludeTradesWithBiggestPl" use="true" /></Methods></Settings></WhatIf>
+          </CrossChecks>
+        </Settings>
+        """
+    )
+
+    issues = enforce_wfm_crosschecks_guard(root)
+
+    assert any("active crosschecks" in issue for issue in issues)
+    assert any("acceptance conditions" in issue for issue in issues)
+    assert any("still has active methods" in issue for issue in issues)
+    assert any("ForceRunCrossChecks" in issue for issue in issues)
 
 
 def test_spp_data_databanks_resources_options_keeps_customdata_only_and_inert_options():

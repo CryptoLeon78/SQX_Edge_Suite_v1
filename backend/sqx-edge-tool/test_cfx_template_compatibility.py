@@ -795,6 +795,98 @@ def _assert_wfm_data_databanks_resources_options_contract(
     }
 
 
+def _assert_wfm_crosschecks_contract(wfm: ET.Element) -> None:
+    crosschecks = wfm.find(".//CrossChecks")
+    assert crosschecks is not None
+    assert crosschecks.get("use") == "true"
+    assert crosschecks.get("evaluateAll") == "true"
+
+    active = [
+        check.tag
+        for check in list(crosschecks)
+        if isinstance(check.tag, str) and check.get("use") == "true"
+    ]
+    assert active == ["WalkForwardMatrix"]
+
+    walk_forward_matrix = crosschecks.find("WalkForwardMatrix")
+    assert walk_forward_matrix is not None
+    walk_forward = walk_forward_matrix.find("./Settings/WalkForward")
+    assert walk_forward is not None
+    assert walk_forward.attrib == {
+        "type": "2",
+        "period": "10",
+        "optimization": "15",
+        "distributionUp": "20",
+        "distributionDown": "20",
+        "maxSteps": "8",
+    }
+    assert walk_forward.find("Param1").attrib == {
+        "value": "undefined",
+        "start": "20",
+        "stop": "36",
+        "step": "2",
+    }
+    assert walk_forward.find("Param2").attrib == {
+        "value": "undefined",
+        "start": "5",
+        "stop": "8",
+        "step": "1",
+    }
+    assert walk_forward_matrix.findtext("./Settings/MaxTests") == "3000"
+    what_to_parametrize = walk_forward_matrix.find("./Settings/WhatToParametrize")
+    assert what_to_parametrize is not None
+    assert what_to_parametrize.attrib == {"type": "1", "symmetricVariables": "false"}
+    assert {
+        child.tag: child.text
+        for child in list(what_to_parametrize)
+        if isinstance(child.tag, str)
+    } == {
+        "Recommended": "false",
+        "Periods": "true",
+        "Shifts": "false",
+        "Constants": "true",
+        "OtherParams": "false",
+        "EntryParams": "true",
+        "EntryLogic": "false",
+        "ExitParamsUsed": "true",
+        "ExitParamsUnused": "false",
+        "BooleanParams": "false",
+    }
+
+    active_conditions = [
+        (
+            condition.find("./Left-Side/Column-Value").get("column"),
+            condition.find("./Left-Side/Column-Value").get("resultType"),
+            condition.find("./Left-Side/Column-Value").get("sampleType"),
+            condition.find("./Left-Side/Column-Value").get("subresult"),
+            condition.find("Comparator").get("value"),
+            condition.find("./Right-Side/Numeric-Value").get("value"),
+        )
+        for condition in walk_forward_matrix.findall("./AcceptanceSettings/Conditions/Condition")
+        if condition.get("use") == "true"
+    ]
+    assert active_conditions == [
+        ("NetProfit", "WalkForwardMatrix", "20", "30", ">", "0"),
+        ("NetProfit", "WalkForwardOptimization", "10", "31", ">", "60"),
+        ("WFPctOfProfitableRuns", "WalkForwardOptimization", "10", "33", ">", "70"),
+        ("WFMaxProfitByRunInPct", "WalkForwardOptimization", "10", "33", "<", "50"),
+        ("WFMinTradesInRun", "WalkForwardOptimization", "10", "33", ">", "20"),
+        ("WFMaxPctDDbyRun", "WalkForwardOptimization", "10", "33", "<=", "25"),
+    ]
+
+    inactive_methods = [
+        method
+        for check in list(crosschecks)
+        if isinstance(check.tag, str) and check.tag != "WalkForwardMatrix"
+        for method in check.findall("./Settings/Methods/Method")
+    ]
+    assert all(method.get("use") == "false" for method in inactive_methods)
+
+    rankings = wfm.find(".//Rankings")
+    if rankings is not None:
+        assert rankings.findtext("ForceRunCrossChecks") == "false"
+
+
 def _assert_tick_real_data_databanks_resources_contract(tick_real: ET.Element, expected_symbol: str | None = None, expected_timeframe: str | None = None) -> None:
     setup = tick_real.find(".//Data/Setups/Setup")
     assert setup is not None
@@ -1342,6 +1434,7 @@ def test_capa1_wfm_data_gate_receives_spp_and_keeps_dual_carrier():
         expected_timeframe="H1",
         expected_spread="2.0",
     )
+    _assert_wfm_crosschecks_contract(wfm)
 
 
 def test_capa1_base_uses_confirmed_build_ranking_volume():
@@ -1590,6 +1683,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
         expected_spread="10",
     )
     assert {chart.get("spread") for chart in wfm.findall(".//Setup/Chart")} == {"10"}
+    _assert_wfm_crosschecks_contract(wfm)
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")

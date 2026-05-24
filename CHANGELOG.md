@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 WFM CrossChecks
+
+- Adds `wfm-crosschecks-target` with dry-run/apply support, guard checks and tests for `AutomaticRetest-Task4.xml`.
+- Keeps WFM blocked/review-only after SPP: only `WalkForwardMatrix` is active, `CrossChecks use=true/evaluateAll=true`, `WalkForward type=2`, `period=10`, `optimization=15`, `distributionUp=20`, `distributionDown=20`, `maxSteps=8`, `Param1 20-36 step 2`, `Param2 5-8 step 1` and `MaxTests=3000`.
+- Pins six WFM-specific acceptance filters: `NetProfit > 0`, `NetProfit > 60`, `WFPctOfProfitableRuns > 70`, `WFMaxProfitByRunInPct < 50`, `WFMinTradesInRun > 20` and `WFMaxPctDDbyRun <= 25`; the stricter thresholds are documented as conservative methodology, not universal academic proof.
+- Turns off hidden active methods inside inactive `MonteCarloRetest`, `MonteCarloManipulation`, `WhatIf` and other checks, normalizes nested CrossChecks setups to `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, seed `AUDCAD_darwinex/H1` spread `2.0`, and pins `ForceRunCrossChecks=false`.
+- Records dry-run `phase12_wfm_crosschecks_target_20260524_174318.json`, apply diff `phase12_wfm_crosschecks_target_20260524_174334.json`, idempotent dry-run `phase12_wfm_crosschecks_target_20260524_174344.json`, report `phase12_wfm_crosschecks_20260524_174355.json`, no WFM execution, no smoke, no optimization, no SPP/WFM unlock, no forced `Results=passed` and next exact block `phase12_wfm_static_tabs`.
+
 ## 2026-05-24 - C1-CONFIG1 WFM Data Databanks Resources Options
 
 - Adds `wfm-data-databanks-resources-options-target` with dry-run/apply support, guard checks and tests for `AutomaticRetest-Task4.xml`.

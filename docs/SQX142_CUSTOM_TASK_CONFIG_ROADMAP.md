@@ -168,6 +168,8 @@ tools\sqx142_task_config_gate.ps1 wfm-open-report --target both
 tools\sqx142_task_config_gate.ps1 wfm-open-report --target both --write
 tools\sqx142_task_config_gate.ps1 wfm-data-databanks-resources-options-target --target both
 tools\sqx142_task_config_gate.ps1 wfm-data-databanks-resources-options-target --target both --apply
+tools\sqx142_task_config_gate.ps1 wfm-crosschecks-target --target both
+tools\sqx142_task_config_gate.ps1 wfm-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 task-questionnaires --task-title "SPP" --write
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
@@ -1857,6 +1859,47 @@ SPP.
 Siguiente bloque exacto: `phase12_wfm_crosschecks`, para revisar
 `WalkForwardMatrix`, filtros WFM y limpiar metodos activos ocultos en
 crosschecks inactivos sin ejecutar WFM.
+
+## Estado Fase 12 - WFM CrossChecks
+
+- `phase12_wfm_crosschecks` queda cerrado con
+  `phase12_wfm_crosschecks_20260524_174355.json`.
+- `wfm-crosschecks-target --target both --apply` normaliza
+  `AutomaticRetest-Task4.xml` en base local y template repo con backup/diff,
+  guardia verde e idempotencia posterior.
+- Solo queda activo `WalkForwardMatrix`; `CrossChecks` permanece
+  `use=true/evaluateAll=true`.
+- Matriz objetivo: `WalkForward type=2`, `period=10`, `optimization=15`,
+  `distributionUp=20`, `distributionDown=20`, `maxSteps=8`,
+  `Param1 start=20 stop=36 step=2`, `Param2 start=5 stop=8 step=1` y
+  `MaxTests=3000`.
+- Filtros WFM dedicados: `NetProfit > 0`, `NetProfit > 60`,
+  `WFPctOfProfitableRuns > 70`, `WFMaxProfitByRunInPct < 50`,
+  `WFMinTradesInRun > 20` y `WFMaxPctDDbyRun <= 25`.
+- La consulta academica interna respalda el enfoque general: WFM queda como
+  revision conservadora de fragilidad, no como reoptimizador ni aceptacion
+  automatica post-SPP. Los umbrales `>70` y `<=25` se documentan como
+  politica metodologica conservadora, no como umbrales academicos universales.
+- Se apagan metodos ocultos en checks inactivos, incluidos
+  `MonteCarloRetest`, `MonteCarloManipulation` y `WhatIf`.
+- Los setups anidados de checks inactivos quedan normalizados a
+  `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, seed
+  `AUDCAD_darwinex/H1` spread `2.0`.
+- `Rankings/ForceRunCrossChecks=false` queda explicito para evitar ejecucion
+  accidental desde Rankings.
+- Evidencia local: dry-run previo
+  `phase12_wfm_crosschecks_target_20260524_174318.json`, apply
+  `phase12_wfm_crosschecks_target_20260524_174334.json` e idempotencia
+  posterior `phase12_wfm_crosschecks_target_20260524_174344.json` con
+  `changed=false`, `changedActionCount=0`, `guardOk=true` e `issues=[]`.
+- No lanza SQX, no ejecuta WFM, no hace smoke, no inicia optimizacion, no
+  desbloquea SPP/WFM y no fuerza `Results=passed`.
+- El estado local queda en `currentPhase=phase12_wfm_crosschecks` y
+  `nextPhase=phase12_wfm_static_tabs`.
+
+Siguiente bloque exacto: `phase12_wfm_static_tabs`, para cerrar Rankings,
+ATMs, RiskMoneyManagement, Notes, SelectedStrategies y CustomData de WFM sin
+activar superficies extra ni convertir WFM en ejecucion live.
 
 ## Disciplina Operativa
 
