@@ -3074,17 +3074,33 @@ def test_capa2_preflight_snapshot_cli_is_registered():
 def _write_minimal_capa2_build_cfx(path: Path, template_file: str, spread: str = "2.0") -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     config_xml = """<Project><Tasks><Task title="Build strategies" taskXMLFile="Build-Task1.xml" /></Tasks></Project>"""
+    indicator_blocks = "\n".join(
+        f'<Block key="{key}" category="indicators" use="true" weight="1" />'
+        for key in gate.CAPA2_BUILD_BLOCKS_INDICATOR_TARGET
+    )
     task_xml = f"""
     <Task>
       <WhatToBuild><StrategyType type="template" templateFile="{template_file}" improveDatabank="Strategies to improve" /></WhatToBuild>
       <Blocks>
-        <OrderTypes><Block key="EnterAtMarket" use="true" /><Block key="EnterAtStop" use="false" /></OrderTypes>
+        <BuildingBlocks>
+          <Block key="AlwaysTrue" category="signals" use="true" weight="1" />
+          <Block key="CCI" category="signals" use="false" weight="1" />
+          {indicator_blocks}
+          <Block key="Indicators.RSI" category="indicators" use="false" weight="1" />
+          <Block key="StopEntry.ATR" category="stopLimitBlocks" use="false" weight="1" />
+        </BuildingBlocks>
+        <OrderTypes><Block key="EnterAtMarket" use="true" /><Block key="EnterReverseAtMarket" use="false" /><Block key="EnterAtStop" use="false" /><Block key="EnterAtLimit" use="false" /></OrderTypes>
         <ExitTypes>
-          <Block key="ExitAfterBars.ExitAfterBars" use="false" />
-          <Block key="StopLoss.StopLoss" use="true" />
-          <Block key="ProfitTarget.ProfitTarget" use="true" />
-          <Block key="TrailingStop.TrailingStop" use="true" />
+          <Block key="ExitAfterBars.ExitAfterBars" use="false" probability="50" />
+          <Block key="MoveSL2BE.MoveSL2BE" use="false" probability="50" />
+          <Block key="MoveSL2BE.SL2BEAddPips" use="false" probability="50" />
+          <Block key="StopLoss.StopLoss" use="true" probability="100" />
+          <Block key="ProfitTarget.ProfitTarget" use="true" probability="100" />
+          <Block key="TrailingStop.TrailingStop" use="true" probability="50" />
+          <Block key="TrailingStop.TrailingActivation" use="false" probability="50" />
+          <Block key="_ExitRule_" use="false" probability="50" />
         </ExitTypes>
+        <CustomData showAll="false" />
       </Blocks>
       <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" session="No Session" testPrecision="2"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="{spread}" /></Setup></Setups></Data>
       <Resources><Symbols /></Resources>
@@ -3212,6 +3228,95 @@ def test_capa2_build_what_to_build_cli_is_registered():
     args = gate.build_parser().parse_args(["capa2-build-what-to-build-target", "--target", "both"])
 
     assert args.command == "capa2-build-what-to-build-target"
+    assert args.target == "both"
+
+
+def test_capa2_build_blocks_target_applies_and_is_idempotent(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    _write_minimal_capa2_build_cfx(local_cfx, r"C:\Users\Ivan SQX\Downloads\TemplateMaker\c2.sqx", spread="2")
+    _write_minimal_capa2_build_cfx(repo_cfx, "", spread="2.0")
+    task_xml, repo_root = gate.load_task_root(repo_cfx, gate.CAPA2_BUILD_TASK_TITLE)
+    repo_root.find(".//OrderTypes/Block[@key='EnterAtStop']").set("use", "true")
+    repo_root.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").set("use", "true")
+    repo_root.find(".//ExitTypes/Block[@key='TrailingStop.TrailingStop']").set("use", "false")
+    repo_root.find(".//BuildingBlocks/Block[@key='StopEntry.ATR']").set("use", "true")
+    gate.replace_zip_text_entry(repo_cfx, task_xml, gate.serialize_xml(repo_root))
+
+    monkeypatch.setattr(gate, "promote_capa2_build_what_to_build_target", lambda *args, **kwargs: {
+        "phase": "phase17_capa2_build_what_to_build",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase17_capa2_build_blocks",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+
+    payload = gate.promote_capa2_build_blocks_target(tmp_path, tmp_path, target="both", apply=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase17_capa2_build_blocks"
+    assert payload["nextPhase"] == "phase17_capa2_build_data_databanks_resources_options"
+    assert Path(payload["answerRecord"]["written"]).is_file()
+    local_root = gate.load_task_root(local_cfx, gate.CAPA2_BUILD_TASK_TITLE)[1]
+    repo_root = gate.load_task_root(repo_cfx, gate.CAPA2_BUILD_TASK_TITLE)[1]
+    assert gate.enforce_capa2_build_blocks_guard(local_root, "localBase") == []
+    assert gate.enforce_capa2_build_blocks_guard(repo_root, "repoTemplate") == []
+    assert repo_root.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("use") == "false"
+    assert repo_root.find(".//ExitTypes/Block[@key='StopLoss.StopLoss']").get("probability") == "100"
+    assert repo_root.find(".//ExitTypes/Block[@key='ProfitTarget.ProfitTarget']").get("probability") == "100"
+    assert repo_root.find(".//ExitTypes/Block[@key='TrailingStop.TrailingStop']").get("use") == "true"
+    assert gate.active_building_block_keys_by_category(repo_root.find(".//Blocks"), "signals") == ["AlwaysTrue"]
+    assert gate.active_building_block_keys_by_category(repo_root.find(".//Blocks"), "stopLimitBlocks") == []
+
+    dry_run = gate.promote_capa2_build_blocks_target(tmp_path, tmp_path, target="both", apply=False)
+
+    assert dry_run["ok"] is True
+    assert dry_run["results"]["localBase"]["changed"] is False
+    assert dry_run["results"]["repoTemplate"]["changed"] is False
+    assert dry_run["results"]["repoTemplate"]["changedActionCount"] == 0
+
+
+def test_capa2_build_blocks_guard_rejects_drift():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Blocks>
+            <BuildingBlocks>
+              <Block key="AlwaysTrue" category="signals" use="true" />
+              <Block key="CCI" category="signals" use="true" />
+              <Block key="StopEntry.ATR" category="stopLimitBlocks" use="true" />
+            </BuildingBlocks>
+            <OrderTypes><Block key="EnterAtMarket" use="true" /><Block key="EnterAtStop" use="true" /></OrderTypes>
+            <ExitTypes>
+              <Block key="ExitAfterBars.ExitAfterBars" use="true" probability="50" />
+              <Block key="ExitAfterDays.ExitAfterDays" use="true" />
+              <Block key="StopLoss.StopLoss" use="true" probability="100" />
+              <Block key="ProfitTarget.ProfitTarget" use="true" probability="100" />
+              <Block key="TrailingStop.TrailingStop" use="false" probability="50" />
+            </ExitTypes>
+            <CustomData showAll="true"><Row /></CustomData>
+          </Blocks>
+        </Settings>
+        """
+    )
+
+    issues = gate.enforce_capa2_build_blocks_guard(root, "repoTemplate")
+
+    assert any("EnterAtStop" in issue for issue in issues)
+    assert any("ExitAfterBars" in issue for issue in issues)
+    assert any("TrailingStop" in issue for issue in issues)
+    assert any("AlwaysTrue" in issue for issue in issues)
+    assert any("stop/limit" in issue for issue in issues)
+    assert any("external custom data" in issue for issue in issues)
+
+
+def test_capa2_build_blocks_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-build-blocks-target", "--target", "both"])
+
+    assert args.command == "capa2-build-blocks-target"
     assert args.target == "both"
 
 

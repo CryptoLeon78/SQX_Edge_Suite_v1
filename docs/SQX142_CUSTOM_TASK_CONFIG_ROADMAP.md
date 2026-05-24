@@ -1,7 +1,8 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 17 `Capa2 Build WhatToBuild` cerrada el
-2026-05-24 con `phase17_capa2_build_what_to_build_target_20260524_204601.json`,
+Estado: C1-CONFIG1 con Fase 17 `Capa2 Build Blocks` cerrada el
+2026-05-24 con `phase17_capa2_build_blocks_target_20260524_211347.json`,
+despues de cerrar `phase17_capa2_build_what_to_build_target_20260524_204601.json`,
 despues de generar `phase17_capa2_build_questionnaire_20260524_201405.json`,
 despues de la Fase 16 `Capa2 Preflight Snapshot`
 (`phase16_capa2_preflight_snapshot_20260524_195729.json`) y de la Fase 15
@@ -23,7 +24,11 @@ bloque WhatToBuild queda cerrado con 67/67 respuestas, `StrategyType=template`,
 `templateFile` operator-owned solo local, repo `templateFile` limpio,
 `MarketSides` generator-owned, SL/PT bounded, BuildMode acotado y sin cambios
 CFX semanticos porque local base y template repo ya estaban alineados. El
-siguiente bloque exacto es `phase17_capa2_build_blocks`. Fase 0 dejo
+bloque Blocks queda cerrado con 15.995/15.995 respuestas, `EnterAtMarket`
+only, SL/PT al 100%, `TrailingStop` al 50%, `ExitAfterBars=false`, salidas por
+dias desactivadas, `AlwaysTrue` neutral, filtro indicador Capa2 y stop/limit
+entries off, tambien sin cambios CFX semanticos. El siguiente bloque exacto es
+`phase17_capa2_build_data_databanks_resources_options`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -2198,6 +2203,37 @@ Siguiente bloque exacto: `phase17_capa2_build_what_to_build`.
   `nextPhase=phase17_capa2_build_blocks`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase17_capa2_build_blocks`.
+
+## Estado Fase 17 - Capa2 Build Blocks
+
+- `phase17_capa2_build_blocks` queda cerrada con
+  `phase17_capa2_build_blocks_target_20260524_211347.json`.
+- `capa2-build-blocks-target --target both --apply` revisa local base y
+  template repo, registra 15.995/15.995 respuestas en
+  `.local/sqx142_task_config/answers/capa2/Build_strategies/Blocks.json` y no
+  detecta issues ni warnings.
+- El apply real queda `ok=true`, `localChanged=false`, `repoChanged=false`,
+  `changedActionCount=0` y `processes=[]`; no hubo cambios CFX semanticos
+  porque ambos targets ya estaban alineados.
+- Decisiones cerradas: `EnterAtMarket` only, `EnterReverseAtMarket=false`,
+  `EnterAtStop=false`, `EnterAtLimit=false`, `ExitAfterBars=false`,
+  `StopLoss` y `ProfitTarget` activos al 100%, `TrailingStop` activo al 50%,
+  `TrailingActivation=false`, `MoveSL2BE=false`, `_ExitRule_=false` y salidas
+  por dias prohibidas.
+- Universo de filtro Capa2: `AlwaysTrue` queda como semilla neutral de senal,
+  `Signals` libres siguen apagadas, `Stop/Limit entry blocks` siguen apagados,
+  y la familia activa de indicadores/operadores/precios permite una condicion
+  de filtro Capa2 porque `WhatToBuild` limita la complejidad a una condicion.
+- Guard academico: SL/PT/trailing se tratan como gestion de riesgo acotada y
+  verificable, no como permiso para fabricar edge nuevo; `ExitAfterBars` queda
+  fuera de Build para no arrastrar la salida por barras de Capa1.
+- Guardias activos: no donor copy, no `BS_Filtros_v6*` activo, no SQX run, no
+  smoke, no optimizacion, no public path freezing y no `Results=passed` forzado.
+- El estado local queda en `currentPhase=phase17_capa2_build_blocks`,
+  `nextPhase=phase17_capa2_build_data_databanks_resources_options`,
+  `scope=capa2`.
+
+Siguiente bloque exacto: `phase17_capa2_build_data_databanks_resources_options`.
 
 ## Disciplina Operativa
 

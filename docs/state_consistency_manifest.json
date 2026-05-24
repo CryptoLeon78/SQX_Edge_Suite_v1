@@ -4415,6 +4415,85 @@
       }
     },
     {
+      "id": "sqx142_c2_phase17_build_blocks",
+      "description": "C1-CONFIG1 Phase 17 Capa2 Build Blocks must stay closed with bounded SL/TP/trailing, no bar/day exits, no stop-limit entries and no SQX execution claims.",
+      "required": {
+        "README.md": [
+          "phase17_capa2_build_blocks",
+          "phase17_capa2_build_blocks_target_20260524_211347.json",
+          "15.995/15.995 respuestas",
+          "`EnterAtMarket` only",
+          "`ExitAfterBars=false`",
+          "`TrailingStop` 50%",
+          "phase17_capa2_build_data_databanks_resources_options"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 17 `Capa2 Build Blocks` is closed",
+          "phase17_capa2_build_blocks_target_20260524_211347.json",
+          "`capa2-build-blocks-target --target both --apply`",
+          "15,995/15,995 Blocks answers",
+          "`EnterAtMarket` only",
+          "`ExitAfterBars=false`",
+          "`TrailingStop` active at 50%",
+          "phase17_capa2_build_data_databanks_resources_options"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase17_capa2_build_blocks",
+          "SL/TP/trailing",
+          "`EnterAtMarket` only",
+          "neutral `AlwaysTrue`",
+          "reference-only `BS_Filtros_v6*`"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 17 - Capa2 Build Blocks",
+          "phase17_capa2_build_blocks_target_20260524_211347.json",
+          "`capa2-build-blocks-target --target both --apply`",
+          "15.995/15.995",
+          "`EnterAtMarket` only",
+          "`ExitAfterBars=false`",
+          "`StopLoss`",
+          "`ProfitTarget`",
+          "`TrailingStop`",
+          "`AlwaysTrue`",
+          "`currentPhase=phase17_capa2_build_blocks`",
+          "`nextPhase=phase17_capa2_build_data_databanks_resources_options`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-24 - C1-CONFIG1 Capa2 Build Blocks",
+          "`capa2-build-blocks-target`",
+          "phase17_capa2_build_blocks_target_20260524_211347.json",
+          "15,995/15,995",
+          "no semantic CFX changes",
+          "phase17_capa2_build_data_databanks_resources_options"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_BUILD_BLOCKS_NEXT = \"phase17_capa2_build_data_databanks_resources_options\"",
+          "def promote_capa2_build_blocks_target",
+          "def enforce_capa2_build_blocks_guard",
+          "capa2-build-blocks-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_build_blocks_target_applies_and_is_idempotent",
+          "test_capa2_build_blocks_guard_rejects_drift",
+          "test_capa2_build_blocks_cli_is_registered"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 Build Blocks ejecuta SQX",
+          "Capa2 Build Blocks lanza smoke",
+          "Capa2 Build Blocks inicia optimizacion",
+          "Capa2 Build Blocks fuerza Results=passed"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 Build Blocks ran SQX",
+          "Capa2 Build Blocks ran smoke",
+          "Capa2 Build Blocks optimization completed",
+          "Capa2 Build Blocks forced Results=passed"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_skills_guardians",
       "description": "G8-SQX-AGENT-SKILLS1 must stay local-only, before RETEST 0, with Test Guardian and Docs Curator bounded to read-only/dry-run review unless explicitly confirmed.",
       "required": {

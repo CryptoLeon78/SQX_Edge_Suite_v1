@@ -15744,6 +15744,7 @@ CAPA2_PLANNING_NEXT = "phase16_capa2_preflight_snapshot"
 CAPA2_PREFLIGHT_NEXT = "phase17_capa2_build_questionnaire"
 CAPA2_BUILD_QUESTIONNAIRE_NEXT = "phase17_capa2_build_what_to_build"
 CAPA2_BUILD_WHAT_TO_BUILD_NEXT = "phase17_capa2_build_blocks"
+CAPA2_BUILD_BLOCKS_NEXT = "phase17_capa2_build_data_databanks_resources_options"
 CAPA2_BUILD_TASK_TITLE = "Build strategies"
 CAPA2_BUILD_TAB_ORDER = [
     "WhatToBuild",
@@ -15856,6 +15857,50 @@ CAPA2_BUILD_REQUIRED_EXIT_TYPES = {
     "StopLoss.StopLoss": "true",
     "TrailingStop.TrailingStop": "true",
 }
+CAPA2_BUILD_BLOCKS_ORDER_TARGET = {
+    "EnterAtMarket": "true",
+    "EnterReverseAtMarket": "false",
+    "EnterAtStop": "false",
+    "EnterAtLimit": "false",
+}
+CAPA2_BUILD_BLOCKS_EXIT_TARGET = {
+    "ExitAfterBars.ExitAfterBars": {"use": "false"},
+    "MoveSL2BE.MoveSL2BE": {"use": "false"},
+    "MoveSL2BE.SL2BEAddPips": {"use": "false"},
+    "ProfitTarget.ProfitTarget": {"use": "true", "probability": "100"},
+    "StopLoss.StopLoss": {"use": "true", "probability": "100"},
+    "TrailingStop.TrailingStop": {"use": "true", "probability": "50"},
+    "TrailingStop.TrailingActivation": {"use": "false"},
+    "_ExitRule_": {"use": "false"},
+}
+CAPA2_BUILD_BLOCKS_ALLOWED_ACTIVE_EXITS = {
+    "ProfitTarget.ProfitTarget",
+    "StopLoss.StopLoss",
+    "TrailingStop.TrailingStop",
+}
+CAPA2_BUILD_BLOCKS_SIGNAL_TARGET = ["AlwaysTrue"]
+CAPA2_BUILD_BLOCKS_INDICATOR_TARGET = [
+    "Indicators.ATR",
+    "IsGreater",
+    "IsLower",
+    "IsGreaterOrEqual",
+    "IsLowerOrEqual",
+    "Equals",
+    "NotEquals",
+    "CrossesAbove",
+    "CrossesBelow",
+    "IsGreaterPercentil",
+    "IsLowerPercentil",
+    "IsRising",
+    "IsFalling",
+    "Indicators.KaufmanEfficiencyRatio",
+    "Indicators.AvgVolume",
+    "Indicators.ADX",
+    "Prices.Close",
+    "Prices.Low",
+    "Prices.High",
+    "Prices.Open",
+]
 CAPA2_ACADEMIC_SOURCES = [
     {
         "id": "bailey_pbo",
@@ -15953,10 +15998,45 @@ def task_exit_type_summary(root: ET.Element | None) -> dict[str, str]:
     return {node.get("key", ""): node.get("use", "") for node in root.findall(".//ExitTypes/Block") if node.get("key")}
 
 
+def task_exit_type_detail_summary(root: ET.Element | None) -> dict[str, dict[str, str]]:
+    if root is None:
+        return {}
+    return {
+        node.get("key", ""): {
+            key: value
+            for key, value in {
+                "use": node.get("use", ""),
+                "probability": node.get("probability", ""),
+                "required": node.get("required", ""),
+            }.items()
+            if value != ""
+        }
+        for node in root.findall(".//ExitTypes/Block")
+        if node.get("key")
+    }
+
+
 def task_order_type_summary(root: ET.Element | None) -> dict[str, str]:
     if root is None:
         return {}
     return {node.get("key", ""): node.get("use", "") for node in root.findall(".//OrderTypes/Block") if node.get("key")}
+
+
+def task_order_type_detail_summary(root: ET.Element | None) -> dict[str, dict[str, str]]:
+    if root is None:
+        return {}
+    return {
+        node.get("key", ""): {
+            key: value
+            for key, value in {
+                "use": node.get("use", ""),
+                "probability": node.get("probability", ""),
+            }.items()
+            if value != ""
+        }
+        for node in root.findall(".//OrderTypes/Block")
+        if node.get("key")
+    }
 
 
 def task_risk_method_summary(root: ET.Element | None) -> dict[str, str]:
@@ -17128,6 +17208,376 @@ def promote_capa2_build_what_to_build_target(root142: Path, project_root: Path, 
             "repoTemplate": str(DEFAULT_CAPA2_TEMPLATE),
             "phase17WhatToBuildReport": str(evidence_target),
             "phase17WhatToBuildAnswers": (payload.get("answerRecord") or {}).get("written", ""),
+        })
+        write_json(state_path, state)
+    return payload
+
+
+def active_building_block_keys_by_category(blocks: ET.Element | None, category: str) -> list[str]:
+    if blocks is None:
+        return []
+    building_blocks = blocks.find("BuildingBlocks")
+    if building_blocks is None:
+        return []
+    return [
+        block.get("key", "")
+        for block in building_blocks.findall("Block")
+        if block.get("key")
+        and block.get("key") not in {"#Left#", "#Right#"}
+        and block.get("category") == category
+        and str(block.get("use", "")).lower() == "true"
+    ]
+
+
+def building_block_category_counts(blocks: ET.Element | None) -> dict[str, dict[str, int]]:
+    counts: dict[str, dict[str, int]] = {}
+    if blocks is None:
+        return counts
+    building_blocks = blocks.find("BuildingBlocks")
+    if building_blocks is None:
+        return counts
+    for block in building_blocks.findall("Block"):
+        category = block.get("category", "") or "uncategorized"
+        counts.setdefault(category, {"total": 0, "active": 0})
+        counts[category]["total"] += 1
+        if str(block.get("use", "")).lower() == "true":
+            counts[category]["active"] += 1
+    return counts
+
+
+def set_or_create_block_by_key(parent: ET.Element, key: str, attrs: dict[str, str], actions: list[dict[str, Any]], field_prefix: str) -> ET.Element:
+    block = parent.find(f"./Block[@key='{key}']")
+    before = dict(block.attrib) if block is not None else None
+    if block is None:
+        block = ET.SubElement(parent, "Block", {"key": key})
+    for attr_key, attr_value in attrs.items():
+        block.set(attr_key, attr_value)
+    after = dict(block.attrib)
+    actions.append({
+        "field": f"{field_prefix}:{key}",
+        "from": before,
+        "to": after,
+        "changed": before != after,
+    })
+    return block
+
+
+def apply_capa2_build_blocks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    blocks = find_blocks(root)
+    if blocks is None:
+        blocks = ET.SubElement(root, "Blocks", {"type": "simple", "version": "142.2336"})
+        actions.append({"field": "Blocks", "from": None, "to": dict(blocks.attrib), "changed": True})
+
+    order_types = blocks.find("OrderTypes")
+    if order_types is None:
+        order_types = ET.SubElement(blocks, "OrderTypes")
+        actions.append({"field": "OrderTypes", "from": None, "to": "created", "changed": True})
+    for key, use in CAPA2_BUILD_BLOCKS_ORDER_TARGET.items():
+        set_or_create_block_by_key(order_types, key, {"use": use}, actions, "OrderTypes")
+
+    exit_types = blocks.find("ExitTypes")
+    if exit_types is None:
+        exit_types = ET.SubElement(blocks, "ExitTypes")
+        actions.append({"field": "ExitTypes", "from": None, "to": "created", "changed": True})
+    for key, target_attrs in CAPA2_BUILD_BLOCKS_EXIT_TARGET.items():
+        set_or_create_block_by_key(exit_types, key, target_attrs, actions, "ExitTypes")
+    day_exit_actions = []
+    for block in exit_types.findall("Block"):
+        key = block.get("key", "")
+        if any(token in key for token in BUILD_EXIT_TYPE_BANNED_TOKENS):
+            before = dict(block.attrib)
+            block.set("use", "false")
+            day_exit_actions.append({"from": before, "to": dict(block.attrib), "changed": before != dict(block.attrib)})
+    actions.append({
+        "field": "ExitTypes:disableDayBasedExits",
+        "from": [item["from"] for item in day_exit_actions],
+        "to": [item["to"] for item in day_exit_actions],
+        "changed": any(item["changed"] for item in day_exit_actions),
+    })
+
+    building_blocks = blocks.find("BuildingBlocks")
+    if building_blocks is None:
+        actions.append({"field": "BuildingBlocks", "error": "missing", "changed": False})
+    else:
+        active_before = active_building_block_keys(blocks)
+        for block in building_blocks.findall("Block"):
+            key = block.get("key", "")
+            category = block.get("category", "")
+            if category == "signals":
+                block.set("use", "true" if key in CAPA2_BUILD_BLOCKS_SIGNAL_TARGET else "false")
+            elif category == "indicators":
+                block.set("use", "true" if key in CAPA2_BUILD_BLOCKS_INDICATOR_TARGET else "false")
+            elif category == "stopLimitBlocks":
+                block.set("use", "false")
+        active_after = active_building_block_keys(blocks)
+        actions.append({
+            "field": "BuildingBlocks:activeCapa2FilterContract",
+            "from": {
+                "activeCount": len(active_before),
+                "active": active_before[:80],
+                "truncated": len(active_before) > 80,
+            },
+            "to": {
+                "activeCount": len(active_after),
+                "active": active_after[:80],
+                "truncated": len(active_after) > 80,
+            },
+            "changed": active_before != active_after,
+            "note": "Capa2 keeps one neutral signal seed plus the approved indicator/operator/price universe for the added filter condition.",
+        })
+
+    custom_data = blocks.find("CustomData")
+    if custom_data is None:
+        custom_data = ET.SubElement(blocks, "CustomData")
+        before_custom = None
+    else:
+        before_custom = {"attrs": dict(custom_data.attrib), "children": [child.tag for child in list(custom_data)]}
+    custom_data.set("showAll", "false")
+    for child in list(custom_data):
+        custom_data.remove(child)
+    actions.append({
+        "field": "Blocks/CustomData",
+        "from": before_custom,
+        "to": {"attrs": dict(custom_data.attrib), "children": []},
+        "changed": before_custom != {"attrs": dict(custom_data.attrib), "children": []},
+    })
+    return actions
+
+
+def capa2_build_blocks_summary(root: ET.Element) -> dict[str, Any]:
+    blocks = find_blocks(root)
+    custom_data = blocks.find("CustomData") if blocks is not None else None
+    return {
+        "blocksExists": blocks is not None,
+        "blocksAttrs": dict(blocks.attrib) if blocks is not None else {},
+        "orderTypes": task_order_type_detail_summary(root),
+        "exitTypes": task_exit_type_detail_summary(root),
+        "activeSignals": active_building_block_keys_by_category(blocks, "signals"),
+        "activeIndicators": active_building_block_keys_by_category(blocks, "indicators"),
+        "activeStopLimitBlocks": active_building_block_keys_by_category(blocks, "stopLimitBlocks"),
+        "categoryCounts": building_block_category_counts(blocks),
+        "customData": {
+            "attrs": dict(custom_data.attrib) if custom_data is not None else {},
+            "childCount": len(list(custom_data)) if custom_data is not None else 0,
+        },
+    }
+
+
+def enforce_capa2_build_blocks_guard(root: ET.Element, target_name: str) -> list[str]:
+    issues: list[str] = []
+    summary = capa2_build_blocks_summary(root)
+    if not summary.get("blocksExists"):
+        issues.append(f"{target_name}: Capa2 Build Blocks section is missing")
+    order_types = summary.get("orderTypes") or {}
+    for key, value in CAPA2_BUILD_BLOCKS_ORDER_TARGET.items():
+        if (order_types.get(key) or {}).get("use") != value:
+            issues.append(f"{target_name}: Capa2 Build OrderTypes {key} must be {value}")
+    exit_types = summary.get("exitTypes") or {}
+    for key, attrs in CAPA2_BUILD_BLOCKS_EXIT_TARGET.items():
+        current = exit_types.get(key) or {}
+        if current.get("use") != attrs.get("use"):
+            issues.append(f"{target_name}: Capa2 Build ExitTypes {key}.use must be {attrs.get('use')}")
+        if attrs.get("probability") and current.get("probability") != attrs["probability"]:
+            issues.append(f"{target_name}: Capa2 Build ExitTypes {key}.probability must be {attrs['probability']}")
+    for key, attrs in exit_types.items():
+        if key not in CAPA2_BUILD_BLOCKS_ALLOWED_ACTIVE_EXITS and attrs.get("use") == "true":
+            issues.append(f"{target_name}: Capa2 Build must not activate extra exit type {key}")
+        if any(token in key for token in BUILD_EXIT_TYPE_BANNED_TOKENS) and attrs.get("use") == "true":
+            issues.append(f"{target_name}: Capa2 Build must not activate day-based exit {key}")
+    if sorted(summary.get("activeSignals") or []) != sorted(CAPA2_BUILD_BLOCKS_SIGNAL_TARGET):
+        issues.append(f"{target_name}: Capa2 Build must keep only AlwaysTrue as neutral signal seed")
+    if sorted(summary.get("activeIndicators") or []) != sorted(CAPA2_BUILD_BLOCKS_INDICATOR_TARGET):
+        issues.append(f"{target_name}: Capa2 Build indicator filter universe drifted")
+    if summary.get("activeStopLimitBlocks"):
+        issues.append(f"{target_name}: Capa2 Build stop/limit entry blocks must remain inactive")
+    custom_data = summary.get("customData") or {}
+    if (custom_data.get("attrs") or {}).get("showAll") != "false" or custom_data.get("childCount") != 0:
+        issues.append(f"{target_name}: Capa2 Build external custom data must remain hidden/empty")
+    return issues
+
+
+def record_capa2_build_blocks_answers(project_root: Path, report: dict[str, Any]) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    source = latest_capa2_questionnaire_path(project_root, CAPA2_BUILD_TASK_TITLE, "Blocks")
+    questionnaire = read_json(source, {}) if source is not None else {}
+    questions = questionnaire.get("questions") or []
+    ids = [str(item.get("id", "")).strip() for item in questions if str(item.get("id", "")).strip()]
+    answered_at = now_iso()
+    payload = {
+        "version": VERSION,
+        "scope": "capa2",
+        "taskTitle": CAPA2_BUILD_TASK_TITLE,
+        "tab": "Blocks",
+        "phase": "phase17_capa2_build_blocks",
+        "createdAt": answered_at,
+        "updatedAt": answered_at,
+        "bulkAnswer": True,
+        "sourceQuestionnaire": str(source) if source is not None else "",
+        "questionCount": len(questions),
+        "uniqueQuestionCount": len(ids),
+        "answer": "recommended_capa2_build_blocks_contract",
+        "note": (
+            "EnterAtMarket only; ExitAfterBars/day exits disabled; SL/PT active at 100%; "
+            "TrailingStop active at 50%; AlwaysTrue neutral signal seed plus approved indicator filter universe; stop/limit entries off."
+        ),
+        "decisionSummary": {
+            "entry": "EnterAtMarket only",
+            "exits": "StopLoss and ProfitTarget mandatory 100%; TrailingStop active 50%; ExitAfterBars and day exits disabled",
+            "signals": "AlwaysTrue neutral seed only; no new entry signal mining",
+            "indicators": "approved Capa2 filter universe with max one condition from WhatToBuild",
+            "externalData": "hidden and empty",
+            "nextPhase": CAPA2_BUILD_BLOCKS_NEXT,
+        },
+        "answers": {
+            qid: {
+                "answer": "recommended_capa2_build_blocks_contract",
+                "note": "Closed by phase17_capa2_build_blocks target after dry-run/apply guard.",
+                "answeredAt": answered_at,
+            }
+            for qid in ids
+        },
+        "sourceReport": report.get("written", ""),
+    }
+    target = ledger_root(project_root) / "answers" / "capa2" / slug(CAPA2_BUILD_TASK_TITLE) / "Blocks.json"
+    write_json(target, payload)
+    return {
+        "ok": True,
+        "version": VERSION,
+        "written": str(target),
+        "sourceQuestionnaire": str(source) if source is not None else "",
+        "answerCount": len(ids),
+        "questionCount": len(questions),
+    }
+
+
+def update_capa2_build_blocks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool, target_name: str) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root = load_task_root(cfx, CAPA2_BUILD_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "capa2_build_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = capa2_build_blocks_summary(root)
+    payload["actions"] = apply_capa2_build_blocks_to_root(root)
+    payload["after"] = capa2_build_blocks_summary(root)
+    payload["issues"] = enforce_capa2_build_blocks_guard(root, target_name)
+    payload["warnings"] = []
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["serializedChanged"] = before_text != after_text
+    payload["changed"] = payload["changedActionCount"] > 0
+    payload["targetValues"] = {
+        "orderTypes": CAPA2_BUILD_BLOCKS_ORDER_TARGET,
+        "exitTypes": CAPA2_BUILD_BLOCKS_EXIT_TARGET,
+        "activeSignals": CAPA2_BUILD_BLOCKS_SIGNAL_TARGET,
+        "activeIndicators": CAPA2_BUILD_BLOCKS_INDICATOR_TARGET,
+        "activeStopLimitBlocks": [],
+        "customData": {"showAll": "false", "children": []},
+    }
+    payload["targetRationale"] = {
+        "methodology": "Capa2 starts from a Template Maker C2 edge and adds bounded risk management plus one filter condition, not free entry-signal mining.",
+        "riskManagement": "SL/PT are mandatory; trailing is active but not forced on every generated variant so dependency on risk management can be reviewed later.",
+        "antiOverfit": "ExitAfterBars and day exits are disabled so Capa2 cannot rely on the Capa1 bar-exit edge or a hidden day-based exit.",
+        "noLiveRun": "This operation edits only Build > Blocks XML when --apply is used; it never launches SQX.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_capa2_build_blocks_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = promote_capa2_build_what_to_build_target(root142, project_root, target=target, apply=False)
+    issues = list(previous_gate.get("issues") or [])
+    warnings = list(previous_gate.get("warnings") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-build-what-to-build-target: previous gate ok=false")
+    backup_root = ledger_root(project_root) / "backups" / f"phase17_capa2_build_blocks_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    results = {
+        name: update_capa2_build_blocks_target_in_cfx(path, backup_root / name, apply=apply, target_name=name)
+        for name, path in targets.items()
+    }
+    for name, result in results.items():
+        if not result.get("exists") or not result.get("isZip") or result.get("error"):
+            issues.append(f"{name}: Capa2 Build Blocks target could not be inspected")
+        issues.extend(f"{name}: {issue}" for issue in (result.get("issues") or []))
+        warnings.extend(f"{name}: {warning}" for warning in (result.get("warnings") or []))
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        warnings.append("SQX processes are alive; phase17 Build Blocks target is XML-only and should be applied with SQX closed")
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase17_capa2_build_blocks",
+        "operation": "capa2_build_blocks_target",
+        "apply": apply,
+        "target": target,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_gate.get("issues") or [],
+            "warnings": previous_gate.get("warnings") or [],
+            "nextPhase": previous_gate.get("nextPhase"),
+            "written": previous_gate.get("written"),
+        },
+        "results": results,
+        "issues": issues,
+        "warnings": warnings,
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Close Capa2 Build > Blocks with the approved bounded risk-management and filter universe contract.",
+            "entry": "Only EnterAtMarket is active; reverse, stop and limit entries stay off.",
+            "exits": "StopLoss and ProfitTarget are active at 100%, TrailingStop is active at 50%, ExitAfterBars/day exits are disabled.",
+            "filter": "Only AlwaysTrue remains as neutral signal seed; the approved indicator/operator/price universe supplies the single Capa2 filter condition.",
+            "templateMaker": "This preserves Template Maker C2 provenance while letting Project Generator own asset/timeframe/direction placeholders.",
+            "naturalResults": "No SQX run, no smoke, no optimization and no forced Results=passed.",
+            "nextPhase": CAPA2_BUILD_BLOCKS_NEXT,
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": "phase17_capa2_build_blocks_diff_review" if not apply else CAPA2_BUILD_BLOCKS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase17_capa2_build_blocks_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    if apply and payload["ok"]:
+        payload["answerRecord"] = record_capa2_build_blocks_answers(project_root, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase17_capa2_build_blocks",
+            "nextPhase": CAPA2_BUILD_BLOCKS_NEXT,
+            "scope": "capa2",
+            "baseProject": DEFAULT_CAPA2_BASE_PROJECT,
+            "repoTemplate": str(DEFAULT_CAPA2_TEMPLATE),
+            "phase17BuildBlocksReport": str(evidence_target),
+            "phase17BuildBlocksAnswers": (payload.get("answerRecord") or {}).get("written", ""),
         })
         write_json(state_path, state)
     return payload
@@ -18542,6 +18992,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_build_what_to_build.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_build_what_to_build.add_argument("--apply", action="store_true")
 
+    capa2_build_blocks = sub.add_parser("capa2-build-blocks-target")
+    capa2_build_blocks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_build_blocks.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -18793,6 +19247,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-build-what-to-build-target":
         json_print(promote_capa2_build_what_to_build_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "capa2-build-blocks-target":
+        json_print(promote_capa2_build_blocks_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

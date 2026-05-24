@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Capa2 Build Blocks
+
+- Adds `capa2-build-blocks-target` as the Phase 17 Build Blocks guard for Capa2.
+- Records evidence `phase17_capa2_build_blocks_target_20260524_211347.json` and answers `.local/sqx142_task_config/answers/capa2/Build_strategies/Blocks.json` with 15,995/15,995 entries closed.
+- Pins the Capa2 Build Blocks contract: `EnterAtMarket` only, `ExitAfterBars=false`, day exits disabled, `StopLoss` and `ProfitTarget` active at 100%, `TrailingStop` active at 50%, `AlwaysTrue` as neutral signal seed, approved indicator filter universe and stop/limit entry blocks off.
+- Reports no semantic CFX changes because local base and repo template were already aligned; no SQX launch, smoke, optimization or forced `Results=passed` is claimed.
+- Sets the next exact block to `phase17_capa2_build_data_databanks_resources_options`.
+
 ## 2026-05-24 - C1-CONFIG1 Capa2 Build WhatToBuild
 
 - Adds `capa2-build-what-to-build-target` as the Phase 17 Build WhatToBuild guard for Capa2.
