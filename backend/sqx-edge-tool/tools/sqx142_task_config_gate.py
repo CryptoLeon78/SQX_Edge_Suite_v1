@@ -523,6 +523,20 @@ MC2_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET = {
     "commissions": "true",
 }
 MC2_OPTIONS_PARAMS_TARGET = MC_OPTIONS_PARAMS_TARGET
+MC2_PASSIVE_SOURCE_TASK_TITLE = MC_TASK_TITLE
+MC2_STRATEGY_TYPE_TARGET = {
+    "type": "simple",
+    "additionalCharts": "2",
+    "templateFile": "",
+    "improveType": "strategy",
+    "strategyFile": "",
+    "architecture": "sq4",
+    "improveDatabank": "MC",
+}
+MC2_PASSIVE_BUILDMODE_TEXT_TARGET = MC_PASSIVE_BUILDMODE_TEXT_TARGET
+MC2_PASSIVE_BUILDMODE_ATTR_TARGET = MC_PASSIVE_BUILDMODE_ATTR_TARGET
+MC2_STATIC_TABS = MC_STATIC_TABS
+MC2_RANKING_TARGET = MC_RANKING_TARGET
 
 
 def stamp() -> str:
@@ -6715,6 +6729,495 @@ def promote_mc2_data_databanks_resources_options_target(root142: Path, project_r
     return payload
 
 
+def apply_mc2_what_to_build_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    what_to_build = find_section(root, "WhatToBuild")
+    if what_to_build is None:
+        what_to_build = ET.SubElement(root, "WhatToBuild")
+        actions.append({"field": "WhatToBuild", "from": None, "to": "created", "changed": True})
+
+    set_or_create_attrs_child(
+        what_to_build,
+        "StrategyType",
+        MC2_STRATEGY_TYPE_TARGET,
+        actions,
+        "WhatToBuild/StrategyType",
+    )
+    build_mode = what_to_build.find("BuildMode")
+    if build_mode is None:
+        build_mode = ET.SubElement(what_to_build, "BuildMode", {"generationType": "random-generation"})
+        actions.append({"field": "WhatToBuild/BuildMode", "from": None, "to": dict(build_mode.attrib), "changed": True})
+    else:
+        actions.append({
+            "field": "WhatToBuild/BuildMode:generationType",
+            "from": build_mode.get("generationType", ""),
+            "to": build_mode.get("generationType", ""),
+            "changed": False,
+            "note": "left as SQX-known placeholder; MC2 passive behavior is enforced by input databank, disabled improve parts and disabled evolution toggles",
+        })
+    for tag, value in MC2_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        set_or_create_text_child(build_mode, tag, value, actions, f"WhatToBuild/BuildMode/{tag}")
+    for tag, attrs in MC2_PASSIVE_BUILDMODE_ATTR_TARGET.items():
+        set_or_update_attrs_child(build_mode, tag, attrs, actions, f"WhatToBuild/BuildMode/{tag}")
+
+
+def apply_mc2_blocks_to_root(root: ET.Element, source_root: ET.Element | None, actions: list[dict[str, Any]]) -> None:
+    blocks = find_blocks(root)
+    if blocks is None:
+        blocks = ET.SubElement(root, "Blocks", {"type": "simple", "version": "142.2336"})
+        actions.append({"field": "Blocks", "from": None, "to": dict(blocks.attrib), "changed": True})
+
+    before_attrs = dict(blocks.attrib)
+    blocks.set("type", "simple")
+    blocks.set("version", "142.2336")
+    actions.append({
+        "field": "Blocks:attrs",
+        "from": before_attrs,
+        "to": dict(blocks.attrib),
+        "changed": before_attrs != dict(blocks.attrib),
+    })
+
+    source_blocks = find_blocks(source_root)
+    if blocks.find("BuildingBlocks") is None and source_blocks is not None:
+        actions.append(replace_building_blocks_from_source(blocks, source_blocks))
+    else:
+        actions.append({
+            "field": "BuildingBlocks",
+            "changed": False,
+            "note": "preserved existing MC2 building-block universe; passive gate only enforces no-improve, entry and exit contracts",
+        })
+    if source_blocks is not None:
+        for child_name in ("OrderTypes", "ExitTypes"):
+            if blocks.find(child_name) is None and source_blocks.find(child_name) is not None:
+                blocks.append(ET.fromstring(serialize_xml(source_blocks.find(child_name))))
+                actions.append({
+                    "field": child_name,
+                    "from": None,
+                    "to": "copied_from_mc_source",
+                    "changed": True,
+                    "note": "MC2 had no explicit passive block controls; copied the existing MC source controls before enforcing the methodology contract.",
+                })
+    enforce_order_types(blocks, actions)
+    enforce_exit_types(blocks, actions)
+    enforce_external_custom_data(blocks, actions)
+    enforce_disabled_build_block_categories(blocks, actions)
+
+
+def apply_mc2_passive_generation_to_root(root: ET.Element, source_root: ET.Element | None) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    apply_retest1_parts_to_improve_to_root(root, actions)
+    apply_mc2_what_to_build_to_root(root, actions)
+    apply_mc2_blocks_to_root(root, source_root, actions)
+    return actions
+
+
+def mc2_passive_generation_summary(root: ET.Element) -> dict[str, Any]:
+    return retest1_passive_generation_summary(root)
+
+
+def enforce_mc2_passive_generation_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = mc2_passive_generation_summary(root)
+    parts = summary.get("partsToImprove") or {}
+    for group_name in ("EntryRules", "OrderTypes", "ExitRules"):
+        group = parts.get(group_name) or {}
+        for side in ("LongImprovement", "ShortImprovement"):
+            if (group.get(side) or {}).get("use") != "false":
+                issues.append(f"MC2 {group_name}/{side} must be passive use=false")
+    if summary.get("strategyType") != MC2_STRATEGY_TYPE_TARGET:
+        issues.append("MC2 StrategyType must point passively to MC with known SQX attributes")
+    build_mode = summary.get("buildMode") or {}
+    build_text = build_mode.get("text") or {}
+    for tag, value in MC2_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        if build_text.get(tag) != value:
+            issues.append(f"MC2 BuildMode {tag} is {build_text.get(tag)!r}, expected {value!r}")
+    child_attrs = build_mode.get("childAttrs") or {}
+    for tag, attrs in MC2_PASSIVE_BUILDMODE_ATTR_TARGET.items():
+        current = child_attrs.get(tag) or {}
+        for key, value in attrs.items():
+            if current.get(key) != value:
+                issues.append(f"MC2 BuildMode {tag}.{key} is {current.get(key)!r}, expected {value!r}")
+    blocks = summary.get("blocks") or {}
+    expected_order = BUILD_ORDER_TYPE_TARGET
+    actual_order = {key: blocks.get("orderTypes", {}).get(key) for key in expected_order}
+    if actual_order != expected_order:
+        issues.append(f"MC2 order types are {actual_order!r}, expected {expected_order!r}")
+    exits = blocks.get("exitTypes") or {}
+    if exits.get(BUILD_EXIT_TYPE_ACTIVE_KEY, {}).get("use") != "true":
+        issues.append("MC2 must keep only ExitAfterBars active")
+    if exits.get(BUILD_EXIT_TYPE_ACTIVE_KEY, {}).get("probability") != "100":
+        issues.append("MC2 ExitAfterBars probability must be 100")
+    active_other_exits = [
+        key for key, data in exits.items()
+        if key != BUILD_EXIT_TYPE_ACTIVE_KEY and (data or {}).get("use") == "true"
+    ]
+    if active_other_exits:
+        issues.append(f"MC2 has non-passive active exit types: {active_other_exits}")
+    if any(any(token in key for token in BUILD_EXIT_TYPE_BANNED_TOKENS) for key in exits):
+        issues.append("MC2 contains day-based exit types")
+    if int(blocks.get("activeSignalCount") or 0) != 0:
+        issues.append("MC2 signals must remain disabled in passive retest")
+    if int(blocks.get("activeStopLimitCount") or 0) != 0:
+        issues.append("MC2 stop/limit entry blocks must remain disabled in passive retest")
+    if int(blocks.get("activeIndicatorCount") or 0) <= 0:
+        issues.append("MC2 must preserve methodology/BlockSettings indicator blocks")
+    custom = blocks.get("customData") or {}
+    if (custom.get("attrs") or {}).get("showAll") != "false" or custom.get("children") != 0:
+        issues.append("MC2 external CustomData must stay disabled and empty")
+    guarded_sections = [
+        find_section(root, "PartsToImprove"),
+        find_section(root, "WhatToBuild"),
+        find_section(root, "Blocks"),
+    ]
+    guarded_text = "".join(serialize_xml(section if section is not None else root) for section in guarded_sections)
+    for token in ("ExitAfterDays", "ExitAfterTradingDays", "USDJPY_darwinex", "USDJPY_dukascopy"):
+        if token in guarded_text:
+            issues.append(f"Forbidden token leaked into MC2 passive generation tabs: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into MC2 passive generation tabs")
+    return issues
+
+
+def update_mc2_passive_generation_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, MC2_TASK_TITLE)
+    source_task_xml_name, source_root = load_task_root(cfx, MC2_PASSIVE_SOURCE_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    payload["sourceTaskXml"] = source_task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "mc2_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    if not source_task_xml_name or source_root is None:
+        payload["error"] = "mc2_source_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = mc2_passive_generation_summary(root)
+    payload["actions"] = apply_mc2_passive_generation_to_root(root, source_root)
+    payload["after"] = mc2_passive_generation_summary(root)
+    payload["issues"] = enforce_mc2_passive_generation_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "strategyType": MC2_STRATEGY_TYPE_TARGET,
+        "buildModeText": MC2_PASSIVE_BUILDMODE_TEXT_TARGET,
+        "buildModeAttributes": MC2_PASSIVE_BUILDMODE_ATTR_TARGET,
+        "sourceTask": MC2_PASSIVE_SOURCE_TASK_TITLE,
+        "orderTypes": BUILD_ORDER_TYPE_TARGET,
+        "exitType": BUILD_EXIT_TYPE_ACTIVE_KEY,
+        "disabledCategories": BUILD_BLOCK_CATEGORY_DISABLE_TARGET,
+    }
+    payload["targetRationale"] = {
+        "passiveRetest": "MC2 consumes MC survivors and must not improve, generate or alter strategy logic before Sequential.",
+        "noUnknownEnum": "BuildMode.generationType is left as an SQX-known placeholder because no local CFX uses a safe none/passive enum.",
+        "blocksSource": "Existing MC2 BuildingBlocks are preserved to avoid changing strategy logic; MC is only a fallback if the section is missing.",
+        "methodology": "Signals and Stop/Limit blocks stay off; indicators remain governed by methodology/BlockSettings; only EnterAtMarket plus ExitAfterBars is allowed.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_mc2_passive_generation_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase7_mc2_passive_generation_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_mc2_passive_generation_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase7",
+        "operation": "mc2_passive_generation_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase7_mc2_passive_generation_diff_review" if not apply else "phase7_mc2_static_tabs_decision",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase7_mc2_passive_generation_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
+def apply_mc2_static_tabs_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    apply_mc_rankings_to_root(root, actions)
+    apply_retest1_risk_money_management_to_root(root, actions)
+    apply_mc_atms_to_root(root, actions)
+    actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    apply_mc_selected_strategies_to_root(root, actions)
+    apply_mc2_custom_data_to_root(root, actions)
+    return actions
+
+
+def mc2_static_tabs_summary(root: ET.Element) -> dict[str, Any]:
+    summary = mc_static_tabs_summary(root)
+    custom = find_section(root, "CustomData")
+    setup = custom.find(".//Setup") if custom is not None else None
+    size_based = setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']") if setup is not None else None
+    main_values = setup.find("MainTestValues") if setup is not None else None
+    if "customData" in summary:
+        summary["customData"]["commission"] = (size_based.text or "") if size_based is not None else ""
+        summary["customData"]["mainTestValues"] = dict(main_values.attrib) if main_values is not None else {}
+    return summary
+
+
+def enforce_mc2_static_tabs_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = mc2_static_tabs_summary(root)
+    ranking = summary.get("rankings") or {}
+    if ranking.get("type") != "never":
+        issues.append(f"MC2 Rankings type is {ranking.get('type')!r}, expected 'never'")
+    for key in ("MaxStrategies", "ConditionsType", "DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if ranking.get(key) != MC2_RANKING_TARGET[key]:
+            issues.append(f"MC2 Rankings {key} is {ranking.get(key)!r}, expected {MC2_RANKING_TARGET[key]!r}")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append("MC2 FitPortfolio must remain disabled; portfolio selection belongs to later portfolio phases")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append("MC2 CustomAnalysis filter must remain disabled")
+    if ranking.get("conditions"):
+        issues.append("MC2 Rankings must not add extra conditions; CrossChecks acceptance owns MC2 pass/fail")
+
+    rmm = summary.get("riskMoneyManagement") or {}
+    methods = rmm.get("methods") or {}
+    for method_type, wanted in RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if methods.get(method_type) != wanted:
+            issues.append(f"MC2 RiskMoneyManagement {method_type} is {methods.get(method_type)!r}, expected {wanted!r}")
+
+    atms = summary.get("atms") or {}
+    for key, wanted in RETEST1_ATMS_TARGET.items():
+        if (atms.get("attrs") or {}).get(key) != wanted:
+            issues.append(f"MC2 ATMs {key} is {(atms.get('attrs') or {}).get(key)!r}, expected {wanted!r}")
+
+    selected = summary.get("selectedStrategies") or {}
+    if selected.get("children") != 0 or selected.get("text"):
+        issues.append("MC2 SelectedStrategies must remain empty in the base template")
+
+    custom = summary.get("customData") or {}
+    if not custom.get("exists"):
+        issues.append("MC2 CustomData section missing")
+    else:
+        period = generator_period(MC2_PERIOD_KEY)
+        setup = custom.get("setup") or {}
+        chart = custom.get("chart") or {}
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"MC2 CustomData dates are {(setup.get('dateFrom'), setup.get('dateTo'))!r}, expected {period!r}")
+        if setup.get("testPrecision") != MC2_DATA_TEST_PRECISION:
+            issues.append(f"MC2 CustomData testPrecision is {setup.get('testPrecision')!r}, expected {MC2_DATA_TEST_PRECISION!r}")
+        if setup.get("session") != MC2_DATA_SESSION:
+            issues.append(f"MC2 CustomData session is {setup.get('session')!r}, expected {MC2_DATA_SESSION!r}")
+        if chart != MC2_DEFAULT_CHART_TARGET:
+            issues.append(f"MC2 CustomData chart seed is {chart!r}, expected {MC2_DEFAULT_CHART_TARGET!r}")
+        if custom.get("commission") != MC_CUSTOM_DATA_COMMISSION_TARGET:
+            issues.append(f"MC2 CustomData commission is {custom.get('commission')!r}, expected {MC_CUSTOM_DATA_COMMISSION_TARGET!r}")
+        if custom.get("mainTestValues") != MC2_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+            issues.append("MC2 CustomData MainTestValues drifted from full-retarget target")
+
+    guarded_text = (
+        section_text(root, "Rankings")
+        + section_text(root, "ATMs")
+        + section_text(root, "RiskMoneyManagement")
+        + section_text(root, "SelectedStrategies")
+        + section_text(root, "CustomData")
+    )
+    for token in MC_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into MC2 static tabs: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into MC2 static tabs")
+
+    for issue in enforce_mc2_data_databanks_resources_options_guard(root):
+        issues.append(f"Data/Resources guard: {issue}")
+    for issue in enforce_mc2_crosschecks_guard(root):
+        issues.append(f"CrossChecks guard: {issue}")
+    for issue in enforce_mc2_passive_generation_guard(root):
+        issues.append(f"Passive generation guard: {issue}")
+    return issues
+
+
+def update_mc2_static_tabs_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, MC2_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "mc2_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = mc2_static_tabs_summary(root)
+    payload["actions"] = apply_mc2_static_tabs_to_root(root)
+    payload["after"] = mc2_static_tabs_summary(root)
+    payload["issues"] = enforce_mc2_static_tabs_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "rankings": MC2_RANKING_TARGET,
+        "rankingConditions": [],
+        "riskMoneyManagementMethods": RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET,
+        "atms": RETEST1_ATMS_TARGET,
+        "staticTabs": MC2_STATIC_TABS,
+        "customDataMainTestValues": MC2_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+        "customDataCommission": MC_CUSTOM_DATA_COMMISSION_TARGET,
+    }
+    payload["targetRationale"] = {
+        "decision": "MC2 gets a static/closeout safety block before Sequential because it is the last robustness gate feeding Sequential.",
+        "ranking": "MC2 pass/fail is owned by MonteCarloRetest acceptance conditions; Ranking must preserve failed rows and not run portfolio selection.",
+        "riskMoneyManagement": "FixedSize keeps Capa1 retests comparable and avoids sizing noise.",
+        "customData": "CustomData remains the canonical MC2 data carrier and a generic local-safe seed, not Mining15 donor values.",
+        "staticTabs": "ATMs, Notes and SelectedStrategies stay inert while executable behavior is guarded by previous MC2 blocks.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_mc2_static_tabs_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase7_mc2_static_tabs_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_mc2_static_tabs_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase7",
+        "operation": "mc2_static_tabs_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase7_mc2_static_tabs_diff_review" if not apply else "phase7_mc2_closeout",
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase7_mc2_static_tabs_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
+MC2_CLOSEOUT_OPERATIONS = (
+    ("dataDatabanksResourcesOptions", "mc2-data-databanks-resources-options-target", promote_mc2_data_databanks_resources_options_target),
+    ("crosschecks", "mc2-crosschecks-target", promote_mc2_crosschecks_target),
+    ("passiveGeneration", "mc2-passive-generation-target", promote_mc2_passive_generation_target),
+    ("staticTabs", "mc2-static-tabs-target", promote_mc2_static_tabs_target),
+)
+
+
+def mc2_closeout_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    operations: dict[str, Any] = {}
+    issues: list[str] = []
+    for key, command, runner in MC2_CLOSEOUT_OPERATIONS:
+        result = runner(root142, project_root, target=target, apply=False)
+        operation_issues = mc_closeout_operation_issues(command, result)
+        operations[key] = {
+            "command": command,
+            "summary": mc_closeout_operation_summary(result),
+            "issues": operation_issues,
+        }
+        issues.extend(operation_issues)
+
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase7_mc2_closeout",
+        "target": target,
+        "write": write,
+        "operations": operations,
+        "issues": issues,
+        "processProbe": process_snapshot(),
+        "summary": {
+            "decision": "MC2 needs a static/closeout safety block before Sequential, but no extra long questionnaire if all guards are already green and idempotent.",
+            "mc2TaskTitle": MC2_TASK_TITLE,
+            "mc2TaskXml": "AutomaticRetest-Task8.xml",
+            "chain": "Input=MC / Output=MC2",
+            "period": MC2_PERIOD_KEY,
+            "testPrecision": MC2_DATA_TEST_PRECISION,
+            "activeCrossCheck": MC2_ACTIVE_CHECK,
+            "activeMethods": sorted(MC2_ACTIVE_METHODS),
+            "sequentialInput": "MC2",
+            "nextPhase": "phase8_sequential_open",
+            "closeoutCriterion": "all MC2 guards must be green and idempotent on local base and repo template before Sequential",
+        },
+        "nextPhase": "phase8_sequential_open",
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase7_mc2_closeout_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase7_mc2_closeout", "nextPhase": "phase8_sequential_open"})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -7960,6 +8463,18 @@ def build_parser() -> argparse.ArgumentParser:
     mc2_crosschecks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     mc2_crosschecks.add_argument("--apply", action="store_true")
 
+    mc2_passive = sub.add_parser("mc2-passive-generation-target")
+    mc2_passive.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    mc2_passive.add_argument("--apply", action="store_true")
+
+    mc2_static = sub.add_parser("mc2-static-tabs-target")
+    mc2_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    mc2_static.add_argument("--apply", action="store_true")
+
+    mc2_closeout = sub.add_parser("mc2-closeout-report")
+    mc2_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    mc2_closeout.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -8088,6 +8603,15 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "mc2-crosschecks-target":
         json_print(promote_mc2_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "mc2-passive-generation-target":
+        json_print(promote_mc2_passive_generation_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "mc2-static-tabs-target":
+        json_print(promote_mc2_static_tabs_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "mc2-closeout-report":
+        json_print(mc2_closeout_report(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

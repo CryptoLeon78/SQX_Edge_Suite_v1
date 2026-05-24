@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 MC2 Closeout
+
+- Adds `mc2-passive-generation-target`, `mc2-static-tabs-target` and `mc2-closeout-report` to decide and close `phase7_mc2_static_or_next_block` before opening `Sequential`.
+- Applies the MC2 safety closeout on local base and repo template: `StrategyType.improveDatabank=MC`, passive `PartsToImprove`, disabled evolution toggles, no signals, no stop/limit blocks, preserved indicators and only `EnterAtMarket` plus `ExitAfterBars` at `100`.
+- Normalizes MC2 static tabs: `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false`, `FitPortfolio=false`, `CustomAnalysis.filter=false`, ATMs disabled, FixedSize active, `SelectedStrategies` empty and `CustomData` still canonical for `ROBUSTNESS_C1`.
+- Records the implementation detail that MC2 had no explicit `Blocks`; the guard copies missing passive controls from the `MC` source task before enforcing the contract, avoiding a new block universe before `Sequential`.
+- Writes closeout report `phase7_mc2_closeout_20260524_064023.json` with `ok=true`, `issues=0`, `processes=0`; all four MC2 guards are green and idempotent, and the next exact phase is `phase8_sequential_open`.
+
 ## 2026-05-23 - C1-CONFIG1 MC2 Data Databanks Resources Options
 
 - Adds `mc2-data-databanks-resources-options-target` to close `MC 2 > Data / Databanks / Resources / Options` with dry-run-first guard over local base and repo template.

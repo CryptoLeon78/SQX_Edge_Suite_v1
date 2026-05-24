@@ -108,6 +108,10 @@ def _assert_tick_real_passive_generation_contract(tick_real: ET.Element) -> None
     _assert_retest_passive_generation_contract(tick_real, expected_improve_databank="retest 1")
 
 
+def _assert_mc2_passive_generation_contract(mc2: ET.Element) -> None:
+    _assert_retest_passive_generation_contract(mc2, expected_improve_databank="MC")
+
+
 def _assert_static_crosschecks_contract(task: ET.Element, require_selected_strategies: bool = True) -> None:
     crosschecks = task.find(".//CrossChecks")
     assert crosschecks is not None
@@ -157,6 +161,37 @@ def _assert_tick_real_static_crosschecks_contract(tick_real: ET.Element) -> None
         assert setup.get("dateFrom") == "2017.10.02"
         assert setup.get("dateTo") == "2023.12.31"
         assert setup.get("session") == "No Session"
+
+
+def _assert_mc2_static_tabs_contract(mc2: ET.Element) -> None:
+    rankings = mc2.find(".//Rankings")
+    assert rankings is not None
+    assert rankings.get("type") == "never"
+    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("ForceRunCrossChecks") == "false"
+    assert rankings.find("FitPortfolio").get("active") == "false"
+    assert rankings.find("CustomAnalysis").get("filter") == "false"
+    assert rankings.findall("./Conditions/Condition") == []
+
+    rmm_methods = {
+        method.get("type"): method.get("use")
+        for method in mc2.findall(".//RiskMoneyManagement//MoneyManagement/Method")
+        if method.get("type")
+    }
+    assert rmm_methods == {
+        "FixedSize": "true",
+        "RiskFixedBalancePct": "false",
+        "RiskFixedPctOfAccount": "false",
+        "FixedAmount": "false",
+        "StocksSizeByPrice": "false",
+    }
+    atms = mc2.find(".//ATMs")
+    assert atms is not None
+    assert atms.get("enable") == "false"
+    selected = mc2.find(".//SelectedStrategies")
+    if selected is not None:
+        assert list(selected) == []
+        assert (selected.text or "").strip() == ""
 
 
 def _randomize_spread_params(task: ET.Element) -> dict[str, str]:
@@ -642,6 +677,8 @@ def test_capa1_mc2_crosschecks_use_adaptive_seed_spread_range():
     }
     assert {name for name, state in method_states.items() if state == "true"} == {"RandomizeHistoryData", "RandomizeSpread"}
     assert _randomize_spread_params(mc2) == {"Min": "4", "Max": "10"}
+    _assert_mc2_passive_generation_contract(mc2)
+    _assert_mc2_static_tabs_contract(mc2)
 
 
 def test_capa1_base_uses_confirmed_build_ranking_volume():
@@ -816,6 +853,8 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
 
     mc2 = roots["AutomaticRetest-Task8.xml"]
     _assert_mc2_data_databanks_resources_options_contract(mc2, expected_symbol="AUDCAD", expected_timeframe="H4")
+    _assert_mc2_passive_generation_contract(mc2)
+    _assert_mc2_static_tabs_contract(mc2)
     assert {chart.get("spread") for chart in mc2.findall(".//Chart")} == {"10"}
     assert _randomize_spread_params(mc2) == {"Min": "20", "Max": "50"}
 

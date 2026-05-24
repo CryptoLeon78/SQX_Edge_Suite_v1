@@ -138,6 +138,12 @@ tools\sqx142_task_config_gate.ps1 mc2-crosschecks-target --target both
 tools\sqx142_task_config_gate.ps1 mc2-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 mc2-data-databanks-resources-options-target --target both
 tools\sqx142_task_config_gate.ps1 mc2-data-databanks-resources-options-target --target both --apply
+tools\sqx142_task_config_gate.ps1 mc2-passive-generation-target --target both
+tools\sqx142_task_config_gate.ps1 mc2-passive-generation-target --target both --apply
+tools\sqx142_task_config_gate.ps1 mc2-static-tabs-target --target both
+tools\sqx142_task_config_gate.ps1 mc2-static-tabs-target --target both --apply
+tools\sqx142_task_config_gate.ps1 mc2-closeout-report --target both
+tools\sqx142_task_config_gate.ps1 mc2-closeout-report --target both --write
 ```
 
 Fase 1 ya promociona solo las views allowlisted de databanks hacia base local y template repo. Fase 2 genera cuestionarios Build completos: todas las entradas detectadas se guardan por defecto, incluidas rutas XML repetidas con indice estable. Las respuestas completas viven en `.local/sqx142_task_config/`; los docs solo reciben resumen limpio al cerrar fase.

@@ -1,6 +1,6 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 7 `MC 2 > Data / Databanks / Resources / Options` cerrada el 2026-05-23. Fase 0 dejo
+Estado: C1-CONFIG1 con Fase 7 `MC 2` cerrada formalmente el 2026-05-24 y lista para abrir `Sequential`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -110,6 +110,12 @@ tools\sqx142_task_config_gate.ps1 mc2-crosschecks-target --target both
 tools\sqx142_task_config_gate.ps1 mc2-crosschecks-target --target both --apply
 tools\sqx142_task_config_gate.ps1 mc2-data-databanks-resources-options-target --target both
 tools\sqx142_task_config_gate.ps1 mc2-data-databanks-resources-options-target --target both --apply
+tools\sqx142_task_config_gate.ps1 mc2-passive-generation-target --target both
+tools\sqx142_task_config_gate.ps1 mc2-passive-generation-target --target both --apply
+tools\sqx142_task_config_gate.ps1 mc2-static-tabs-target --target both
+tools\sqx142_task_config_gate.ps1 mc2-static-tabs-target --target both --apply
+tools\sqx142_task_config_gate.ps1 mc2-closeout-report --target both
+tools\sqx142_task_config_gate.ps1 mc2-closeout-report --target both --write
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
 
@@ -893,9 +899,50 @@ Decision aplicada para `MC 2 > Data / Databanks / Resources / Options`:
 Reporte local:
 `.local/sqx142_task_config/phase_reports/phase7_mc2_data_databanks_resources_options_20260523_233831.json`.
 
-Siguiente bloque exacto: `phase7_mc2_static_or_next_block`, para decidir si
-`MC 2` necesita bloque estatico/closeout directo antes de saltar a
-`Sequential`.
+Decision aplicada para `phase7_mc2_static_or_next_block`:
+
+- Se decide que `MC 2` si necesita cierre pasivo/estatico antes de `Sequential`:
+  no como fase larga adicional, sino como candado final para demostrar que no
+  quedan generacion, mejora, ranking/portfolio selection, seleccion manual ni
+  mutaciones ocultas antes de entregar `MC2` a `Sequential`.
+- Se anaden `mc2-passive-generation-target`, `mc2-static-tabs-target` y
+  `mc2-closeout-report`, todos dry-run-first y con backup/diff/apply sobre base
+  local y template repo.
+- `MC 2 > PartsToImprove / WhatToBuild / Blocks` queda pasivo puro:
+  `StrategyType.improveDatabank=MC`, `ShowLastGenerationDatabank=false`,
+  `FreshBloodReplaceSimilar=false`, `FreshBloodReplaceWeakest=false`,
+  `EvoRestartOnFinish=false`, `EvoRestartOnStagnation=false`, signals `0`,
+  stop/limit blocks `0`, indicadores preservados desde el universo metodologico
+  y solo `EnterAtMarket` + `ExitAfterBars` con probability `100`.
+- Como el XML base de `MC 2` no traia `Blocks` explicitos, el guard copia los
+  controles pasivos faltantes desde la tarea `MC` antes de forzar el contrato.
+  Esto evita inventar universo nuevo y mantiene la cadena metodologica
+  `MC -> MC2 -> Sequential`.
+- `MC 2 > Rankings / ATMs / RiskMoneyManagement / Notes / SelectedStrategies /
+  CustomData` queda inerte: `DeleteFailedStrategies=false`,
+  `ForceRunCrossChecks=false`, `FitPortfolio=false`,
+  `CustomAnalysis.filter=false`, ATMs desactivado, FixedSize activo,
+  `SelectedStrategies` vacio y `CustomData` conservado como portador canonico
+  `ROBUSTNESS_C1`.
+- `mc2-closeout-report --target both --write` queda `ok=true`, `issues=0`,
+  `processes=0`; los cuatro guards `mc2-data-databanks-resources-options-target`,
+  `mc2-crosschecks-target`, `mc2-passive-generation-target` y
+  `mc2-static-tabs-target` quedan verdes e idempotentes (`changed=false`,
+  `changedActionCount=0`, `guardOk=true`) en base local y template repo.
+- La justificacion academica se mantiene conservadora: MC/MC2 son gates de
+  robustez sobre supervivientes, no optimizadores nuevos. Repetir ajustes hasta
+  mejorar resultados aumentaria presion de data snooping/backtest overfitting;
+  por eso se preservan failed naturales y no se anade seleccion adicional antes
+  de Sequential. Referencias de criterio: White, "A Reality Check for Data
+  Snooping"; Bailey, Borwein, Lopez de Prado y Zhu, "The Probability of
+  Backtest Overfitting"; Bailey y Lopez de Prado, "The Deflated Sharpe Ratio".
+
+Reporte local:
+`.local/sqx142_task_config/phase_reports/phase7_mc2_closeout_20260524_064023.json`.
+
+Siguiente bloque exacto: `phase8_sequential_open`, para revisar `Sequential`
+con entrada `MC2`, conservar cola por lotes y evitar lanzar los supervivientes
+de golpe sin snapshot/diff.
 
 ## Disciplina Operativa
 
