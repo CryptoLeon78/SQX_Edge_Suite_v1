@@ -13,6 +13,7 @@ from tools.sqx142_task_config_gate import (
     apply_mc2_static_tabs_to_root,
     apply_monkey_crosschecks_to_root,
     apply_monkey_data_databanks_resources_options_to_root,
+    apply_monkey_passive_generation_to_root,
     apply_sequential_data_databanks_resources_options_to_root,
     apply_sequential_crosschecks_to_root,
     apply_sequential_passive_generation_to_root,
@@ -39,6 +40,7 @@ from tools.sqx142_task_config_gate import (
     enforce_mc2_static_tabs_guard,
     enforce_monkey_crosschecks_guard,
     enforce_monkey_data_databanks_resources_options_guard,
+    enforce_monkey_passive_generation_guard,
     enforce_sequential_data_databanks_resources_options_guard,
     enforce_sequential_crosschecks_guard,
     enforce_sequential_passive_generation_guard,
@@ -2208,6 +2210,124 @@ def test_monkey_crosschecks_guard_rejects_inactive_filters_synthetic_method_and_
     assert any("acceptance conditions" in issue for issue in issues)
     assert any("still has active methods" in issue for issue in issues)
     assert any("ForceRunCrossChecks" in issue for issue in issues)
+
+
+def test_monkey_passive_generation_points_to_sequential_and_preserves_indicator_universe():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_monkey_data_gate_fixture()}
+          <PartsToImprove>
+            <EntryRules><LongImprovement use="true" /><ShortImprovement use="true" /></EntryRules>
+            <OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes>
+            <ExitRules><LongImprovement use="true" /><ShortImprovement use="true" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>true</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="true" />
+              <EvoRestartOnStagnation status="true" fitnessType="10" generations="10" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="legacy" version="old">
+            <BuildingBlocks>
+              <Block key="Signals.CCI" category="signals" use="true" />
+              <Block key="Indicators.ATR" category="indicators" use="true" />
+              <Block key="StopLimit.ATR" category="stopLimitBlocks" use="true" />
+            </BuildingBlocks>
+            <OrderTypes>
+              <Block key="EnterAtMarket" use="false" />
+              <Block key="EnterReverseAtMarket" use="true" />
+              <Block key="EnterAtStop" use="true" />
+              <Block key="EnterAtLimit" use="true" />
+            </OrderTypes>
+            <ExitTypes>
+              <Block key="ExitAfterBars.ExitAfterBars" use="false" probability="25"><Value key="undefined" use="false" /></Block>
+              <Block key="ExitAfterDays.ExitAfterDays" use="true" probability="100" />
+              <Block key="StopLoss" use="true" probability="1" />
+            </ExitTypes>
+            <CustomData showAll="true"><External /></CustomData>
+          </Blocks>
+        </Settings>
+        """
+    )
+    apply_monkey_crosschecks_to_root(root)
+
+    actions = apply_monkey_passive_generation_to_root(root, source_root=root)
+
+    assert any(item["field"] == "WhatToBuild/StrategyType" and item["changed"] for item in actions)
+    assert enforce_monkey_passive_generation_guard(root) == []
+    strategy_type = root.find("./WhatToBuild/StrategyType")
+    assert strategy_type.get("improveDatabank") == "Sequential"
+    build_mode = root.find("./WhatToBuild/BuildMode")
+    assert build_mode.findtext("ShowLastGenerationDatabank") == "false"
+    assert build_mode.find("EvoRestartOnFinish").get("status") == "false"
+    assert build_mode.find("EvoRestartOnStagnation").get("status") == "false"
+    blocks = root.find("./Blocks")
+    assert blocks.get("version") == "142.2336"
+    assert blocks.find("./BuildingBlocks/Block[@key='Indicators.ATR']").get("use") == "true"
+    assert blocks.find("./BuildingBlocks/Block[@key='Signals.CCI']").get("use") == "false"
+    assert blocks.find("./BuildingBlocks/Block[@key='StopLimit.ATR']").get("use") == "false"
+    assert blocks.find("./OrderTypes/Block[@key='EnterAtMarket']").get("use") == "true"
+    assert blocks.find("./ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("probability") == "100"
+    assert "ExitAfterDays" not in ET.tostring(blocks, encoding="unicode")
+    assert list(blocks.find("./CustomData")) == []
+
+
+def test_monkey_passive_generation_guard_rejects_generation_remnants_and_day_exits():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_monkey_data_gate_fixture()}
+          <PartsToImprove>
+            <EntryRules><LongImprovement use="false" /><ShortImprovement use="false" /></EntryRules>
+            <OrderTypes><LongImprovement use="false" /><ShortImprovement use="false" /></OrderTypes>
+            <ExitRules><LongImprovement use="false" /><ShortImprovement use="false" /></ExitRules>
+          </PartsToImprove>
+          <WhatToBuild>
+            <StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Sequential" />
+            <BuildMode generationType="random-generation">
+              <ShowLastGenerationDatabank>false</ShowLastGenerationDatabank>
+              <FreshBloodReplaceSimilar>false</FreshBloodReplaceSimilar>
+              <FreshBloodReplaceWeakest>false</FreshBloodReplaceWeakest>
+              <EvoRestartOnFinish status="false" />
+              <EvoRestartOnStagnation status="false" fitnessType="10" generations="10" />
+            </BuildMode>
+          </WhatToBuild>
+          <Blocks type="simple" version="142.2336">
+            <BuildingBlocks>
+              <Block key="Signals.CCI" category="signals" use="true" />
+              <Block key="Indicators.ATR" category="indicators" use="true" />
+              <Block key="StopLimit.ATR" category="stopLimitBlocks" use="true" />
+            </BuildingBlocks>
+            <OrderTypes>
+              <Block key="EnterAtMarket" use="false" />
+              <Block key="EnterReverseAtMarket" use="false" />
+              <Block key="EnterAtStop" use="false" />
+              <Block key="EnterAtLimit" use="false" />
+            </OrderTypes>
+            <ExitTypes>
+              <Block key="ExitAfterBars.ExitAfterBars" use="true" probability="50" />
+              <Block key="ExitAfterDays.ExitAfterDays" use="true" probability="100" />
+            </ExitTypes>
+            <CustomData showAll="true"><External /></CustomData>
+          </Blocks>
+        </Settings>
+        """
+    )
+    apply_monkey_crosschecks_to_root(root)
+
+    issues = enforce_monkey_passive_generation_guard(root)
+
+    assert any("order types" in issue for issue in issues)
+    assert any("ExitAfterBars probability" in issue for issue in issues)
+    assert any("day-based" in issue or "ExitAfterDays" in issue for issue in issues)
+    assert any("signals" in issue for issue in issues)
+    assert any("stop/limit" in issue for issue in issues)
+    assert any("CustomData" in issue for issue in issues)
 
 
 def test_sequential_data_databanks_resources_options_keeps_dual_carrier_synced():

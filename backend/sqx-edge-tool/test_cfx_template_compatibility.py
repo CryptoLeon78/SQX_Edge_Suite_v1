@@ -116,6 +116,10 @@ def _assert_sequential_passive_generation_contract(sequential: ET.Element) -> No
     _assert_retest_passive_generation_contract(sequential, expected_improve_databank="MC2")
 
 
+def _assert_monkey_passive_generation_contract(monkey: ET.Element) -> None:
+    _assert_retest_passive_generation_contract(monkey, expected_improve_databank="Sequential")
+
+
 def _assert_sequential_static_tabs_contract(sequential: ET.Element) -> None:
     _assert_mc2_static_tabs_contract(sequential)
     setup = sequential.find("./CustomData/Setups/Setup")
@@ -920,6 +924,7 @@ def test_capa1_monkey_test_data_gate_receives_sequential_and_keeps_dual_carrier(
         expected_spread="2.0",
     )
     _assert_monkey_crosschecks_contract(monkey)
+    _assert_monkey_passive_generation_contract(monkey)
 
 
 def test_capa1_base_uses_confirmed_build_ranking_volume():
@@ -1134,6 +1139,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     )
     assert {chart.get("spread") for chart in monkey.findall(".//Setup/Chart")} == {"10"}
     _assert_monkey_crosschecks_contract(monkey)
+    _assert_monkey_passive_generation_contract(monkey)
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")

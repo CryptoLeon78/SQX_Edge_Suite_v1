@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Monkey Test Passive Generation
+
+- Adds `monkey-passive-generation-target` with dry-run-first backup/diff/apply over local base and repo template.
+- Makes `AutomaticRetest-Task6.xml` a passive retest from `Sequential`: `StrategyType.improveDatabank=Sequential`, `PartsToImprove` disabled, evolution restarts off and no generation/improvement behavior.
+- Preserves Indicators governed by methodology/BlockSettings while disabling all Signals and Stop/Limit entry blocks.
+- Keeps only `EnterAtMarket` plus `ExitAfterBars` probability `100`, removes/guards against day-based exits, and preserves natural passed/failed rows.
+- Records local answers for `Monkey Test > PartsToImprove` (`8/8`), `WhatToBuild` (`67/67`) and `Blocks` (`17,583/17,583`), report `phase9_monkey_test_passive_generation_20260524_104201.json`, idempotent dry-run (`changed=false`, `changedActionCount=0`, `guardOk=true`) and next exact block `phase9_monkey_test_static_tabs`.
+
 ## 2026-05-24 - C1-CONFIG1 Monkey Test CrossChecks
 
 - Adds `monkey-crosschecks-target` with dry-run-first backup/diff/apply over local base and repo template.

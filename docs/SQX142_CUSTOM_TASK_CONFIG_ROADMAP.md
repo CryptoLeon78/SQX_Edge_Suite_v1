@@ -1250,6 +1250,39 @@ Siguiente bloque exacto: `phase9_monkey_test_passive_generation`, para cerrar
 `PartsToImprove` / `WhatToBuild` / `Blocks` y demostrar que Monkey no genera,
 no mejora y no altera logica de entrada/salida.
 
+Decision aplicada para `phase9_monkey_test_passive_generation`:
+
+- `monkey-passive-generation-target` se aplica sobre base local y template repo
+  con backup/diff previo y `guardOk=true`.
+- `Monkey Test` queda como retest pasivo puro de supervivientes `Sequential`:
+  `StrategyType.improveDatabank=Sequential` sustituye el placeholder
+  `Strategies to improve`.
+- `PartsToImprove` queda apagado: `improveATM=false`, `EntryRules`,
+  `OrderTypes` y `ExitRules` con mejoras long/short `use=false`.
+- `BuildMode` conserva `generationType=random-generation` como enum SQX conocido,
+  pero se neutraliza por contrato: `ShowLastGenerationDatabank=false`,
+  `FreshBloodReplaceSimilar=false`, `FreshBloodReplaceWeakest=false`,
+  `EvoRestartOnFinish.status=false` y
+  `EvoRestartOnStagnation.status=false`.
+- `Blocks` preserva Indicators de metodologia/BlockSettings, apaga todos los
+  `signals` y `stopLimitBlocks`, conserva solo `EnterAtMarket=true` y fuerza
+  `ExitAfterBars.ExitAfterBars` con `probability=100`.
+- No quedan salidas por dias (`ExitAfterDays` / `ExitAfterTradingDays`) ni rutas
+  locales; el resultado passed/failed sigue siendo natural de SQX.
+- Dry-run posterior queda idempotente: `changed=false`,
+  `changedActionCount=0` y `guardOk=true`.
+- Ledger local respondido para `Monkey Test > PartsToImprove` (`8/8`),
+  `Monkey Test > WhatToBuild` (`67/67`) y `Monkey Test > Blocks`
+  (`17.583/17.583`).
+
+Reportes locales:
+`.local/sqx142_task_config/diffs/phase9_monkey_test_passive_generation_target_20260524_104138.json`.
+`.local/sqx142_task_config/phase_reports/phase9_monkey_test_passive_generation_20260524_104201.json`.
+
+Siguiente bloque exacto: `phase9_monkey_test_static_tabs`, para cerrar Rankings,
+ATMs, RiskMoneyManagement, Notes, SelectedStrategies y CustomData de Monkey sin
+activar ejecucion ni mutar logica de estrategia.
+
 ## Disciplina Operativa
 
 En cada fase:

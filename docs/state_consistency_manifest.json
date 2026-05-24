@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-05-23",
+  "updated": "2026-05-24",
   "purpose": "Canonical public-safe state markers used by automated docs consistency tests.",
   "coreFiles": [
     "README.md",
@@ -1150,6 +1150,114 @@
         "CHANGELOG.md": [
           "Monkey Test CrossChecks live retest completed",
           "SyntheticBootstrap active in Monkey"
+        ]
+      }
+    },
+    {
+      "id": "sqx142_c1_monkey_passive_generation_gate",
+      "description": "C1-CONFIG1 Phase 9 Monkey Test Passive Generation must stay closed as a pure passive retest from Sequential with no generation or entry/exit mutation.",
+      "required": {
+        "docs/PROJECT_GOVERNANCE.md": [
+          "`phase9_monkey_test_passive_generation` is now closed",
+          "phase9_monkey_test_passive_generation_20260524_104201.json",
+          "monkey-passive-generation-target",
+          "`AutomaticRetest-Task6.xml`",
+          "`StrategyType.improveDatabank=Sequential`",
+          "`PartsToImprove` disabled",
+          "evolution restarts off",
+          "no Signals",
+          "no Stop/Limit entry blocks",
+          "preserved methodology/BlockSettings Indicators",
+          "`EnterAtMarket` plus `ExitAfterBars` probability `100`",
+          "`ExitAfterDays`/`ExitAfterTradingDays`",
+          "`changed=false`",
+          "`changedActionCount=0`",
+          "`guardOk=true`",
+          "`Monkey Test > PartsToImprove` (`8/8`)",
+          "`Monkey Test > WhatToBuild` (`67/67`)",
+          "`Monkey Test > Blocks` (`17.583/17.583`)",
+          "phase9_monkey_test_static_tabs"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Decision aplicada para `phase9_monkey_test_passive_generation`",
+          "`monkey-passive-generation-target`",
+          "`StrategyType.improveDatabank=Sequential`",
+          "`Strategies to improve`",
+          "`improveATM=false`",
+          "`ShowLastGenerationDatabank=false`",
+          "`FreshBloodReplaceSimilar=false`",
+          "`EvoRestartOnFinish.status=false`",
+          "`EvoRestartOnStagnation.status=false`",
+          "`signals`",
+          "`stopLimitBlocks`",
+          "`EnterAtMarket=true`",
+          "`ExitAfterBars.ExitAfterBars`",
+          "`probability=100`",
+          "`ExitAfterDays` / `ExitAfterTradingDays`",
+          "`changed=false`",
+          "`changedActionCount=0`",
+          "`guardOk=true`",
+          "`Monkey Test > PartsToImprove` (`8/8`)",
+          "`Monkey Test > WhatToBuild` (`67/67`)",
+          "`Monkey Test > Blocks`",
+          "(`17.583/17.583`)",
+          "phase9_monkey_test_passive_generation_target_20260524_104138.json",
+          "phase9_monkey_test_passive_generation_20260524_104201.json",
+          "phase9_monkey_test_static_tabs"
+        ],
+        "README.md": [
+          "monkey-passive-generation-target",
+          "`phase9_monkey_test_passive_generation` queda cerrado",
+          "phase9_monkey_test_passive_generation_20260524_104201.json",
+          "`AutomaticRetest-Task6.xml`",
+          "`Sequential`",
+          "`StrategyType.improveDatabank=Sequential`",
+          "`PartsToImprove`",
+          "evolution restarts",
+          "Indicators",
+          "Signals",
+          "Stop/Limit entry blocks",
+          "`EnterAtMarket` + `ExitAfterBars` probability `100`",
+          "sin salidas por dias",
+          "`Monkey Test > PartsToImprove` (`8/8`)",
+          "`WhatToBuild` (`67/67`)",
+          "`Blocks` (`17.583/17.583`)",
+          "`changed=false`",
+          "`changedActionCount=0`",
+          "`guardOk=true`",
+          "phase9_monkey_test_static_tabs"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-24 - C1-CONFIG1 Monkey Test Passive Generation",
+          "`monkey-passive-generation-target`",
+          "`StrategyType.improveDatabank=Sequential`",
+          "`PartsToImprove` disabled",
+          "evolution restarts off",
+          "Signals",
+          "Stop/Limit entry blocks",
+          "`EnterAtMarket`",
+          "`ExitAfterBars` probability `100`",
+          "day-based exits",
+          "`Monkey Test > PartsToImprove` (`8/8`)",
+          "`WhatToBuild` (`67/67`)",
+          "`Blocks` (`17,583/17,583`)",
+          "phase9_monkey_test_passive_generation_20260524_104201.json",
+          "phase9_monkey_test_static_tabs"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Monkey Test Passive Generation ejecuta SQX",
+          "forzar Monkey Results=passed",
+          "ExitAfterDays activo en Monkey"
+        ],
+        "README.md": [
+          "Monkey Test Passive Generation ejecuta SQX",
+          "forzar Monkey Results=passed"
+        ],
+        "CHANGELOG.md": [
+          "Monkey Test Passive Generation live retest completed",
+          "ExitAfterDays active in Monkey"
         ]
       }
     },
