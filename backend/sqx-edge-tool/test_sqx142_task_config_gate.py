@@ -1,5 +1,6 @@
 import json
 import xml.etree.ElementTree as ET
+import zipfile
 from pathlib import Path
 
 from tools import sqx142_task_config_gate as gate
@@ -3068,6 +3069,77 @@ def test_capa2_preflight_snapshot_cli_is_registered():
 
     assert args.command == "capa2-preflight-snapshot"
     assert args.target == "both"
+
+
+def _write_minimal_capa2_build_cfx(path: Path, template_file: str, spread: str = "2.0") -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    config_xml = """<Project><Tasks><Task title="Build strategies" taskXMLFile="Build-Task1.xml" /></Tasks></Project>"""
+    task_xml = f"""
+    <Task>
+      <WhatToBuild><StrategyType type="template" templateFile="{template_file}" improveDatabank="Strategies to improve" /></WhatToBuild>
+      <Blocks>
+        <OrderTypes><Block key="EnterAtMarket" use="true" /><Block key="EnterAtStop" use="false" /></OrderTypes>
+        <ExitTypes>
+          <Block key="ExitAfterBars.ExitAfterBars" use="false" />
+          <Block key="StopLoss.StopLoss" use="true" />
+          <Block key="ProfitTarget.ProfitTarget" use="true" />
+          <Block key="TrailingStop.TrailingStop" use="true" />
+        </ExitTypes>
+      </Blocks>
+      <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" session="No Session" testPrecision="2"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="{spread}" /></Setup></Setups></Data>
+      <Resources><Symbols /></Resources>
+      <Rankings type="top" />
+    </Task>
+    """
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("config.xml", config_xml)
+        archive.writestr("Build-Task1.xml", task_xml)
+
+
+def test_capa2_build_questionnaire_writes_phase17_without_mutating_targets(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    _write_minimal_capa2_build_cfx(local_cfx, r"C:\Users\Ivan SQX\Downloads\TemplateMaker\c2.sqx", spread="2")
+    _write_minimal_capa2_build_cfx(repo_cfx, "", spread="2.0")
+    before_local = gate.file_sha256(local_cfx)
+    before_repo = gate.file_sha256(repo_cfx)
+
+    monkeypatch.setattr(gate, "capa2_preflight_snapshot", lambda *args, **kwargs: {
+        "phase": "phase16_capa2_preflight_snapshot",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase17_capa2_build_questionnaire",
+        "snapshotDir": str(tmp_path / ".local" / "snapshot"),
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+
+    payload = gate.capa2_build_questionnaire_report(tmp_path, tmp_path, max_values=0, write=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase17_capa2_build_questionnaire"
+    assert payload["nextPhase"] == "phase17_capa2_build_what_to_build"
+    assert payload["questionnaireSummary"]["tabCount"] >= 5
+    assert payload["questionnaireSummary"]["totalQuestionCount"] > 0
+    assert payload["questionnaireSummary"]["totalChangedQuestionCount"] > 0
+    assert "Template Maker C2 templateFile ownership" in payload["summary"]["mustAsk"][0]
+    assert Path(payload["written"]["phaseReport"]).is_file()
+    assert Path(payload["written"]["taskSummary"]).is_file()
+    assert (tmp_path / ".local" / "sqx142_task_config" / "questionnaires" / "capa2" / "Build_strategies").is_dir()
+    state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
+    assert state["currentPhase"] == "phase17_capa2_build_questionnaire"
+    assert state["nextPhase"] == "phase17_capa2_build_what_to_build"
+    assert gate.file_sha256(local_cfx) == before_local
+    assert gate.file_sha256(repo_cfx) == before_repo
+
+
+def test_capa2_build_questionnaire_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-build-questionnaire", "--max-values", "5"])
+
+    assert args.command == "capa2-build-questionnaire"
+    assert args.max_values == 5
 
 
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):

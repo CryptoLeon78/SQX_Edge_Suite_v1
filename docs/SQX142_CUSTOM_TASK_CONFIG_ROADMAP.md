@@ -1,8 +1,10 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 16 `Capa2 Preflight Snapshot` cerrada el
-2026-05-24 con `phase16_capa2_preflight_snapshot_20260524_195729.json`,
-despues de la Fase 15 `Capa2 Planning`
+Estado: C1-CONFIG1 con Fase 17 `Capa2 Build Questionnaire` generada el
+2026-05-24 con `phase17_capa2_build_questionnaire_20260524_201405.json`,
+despues de la Fase 16 `Capa2 Preflight Snapshot`
+(`phase16_capa2_preflight_snapshot_20260524_195729.json`) y de la Fase 15
+`Capa2 Planning`
 (`phase15_capa2_planning_20260524_190708.json`) y de la Fase 14
 `Capa1 Closeout` (`phase14_capa1_closeout_20260524_183012.json`) y de
 `phase13_foward_closeout` verde (`phase13_foward_closeout_20260524_182647.json`).
@@ -13,7 +15,10 @@ se fabrique despues por gestion de riesgo. No lanza SQX, no hace smoke, no
 inicia optimizacion, no toca CFX y no fuerza `Results=passed`. Fase 16 deja
 snapshot local y rollback selectivo en
 `.local/sqx142_task_config/snapshots/phase16_capa2_preflight_20260524_195729/`.
-El siguiente bloque exacto es `phase17_capa2_build_questionnaire`. Fase 0 dejo
+Phase17 deja cuestionarios completos de Build Capa2 en
+`.local/sqx142_task_config/questionnaires/capa2/Build_strategies/`: 13
+pestanas, 16.647 entradas detectadas y 6 diferencias base/template. El
+siguiente bloque exacto es `phase17_capa2_build_what_to_build`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -2129,6 +2134,33 @@ Siguiente bloque exacto: `phase15_capa2_planning`.
   `nextPhase=phase17_capa2_build_questionnaire`, `scope=capa2`.
 
 Siguiente bloque exacto: `phase17_capa2_build_questionnaire`.
+
+## Estado Fase 17 - Capa2 Build Questionnaire
+
+- `phase17_capa2_build_questionnaire` queda generada con
+  `phase17_capa2_build_questionnaire_20260524_201405.json`.
+- `capa2-build-questionnaire --write` escribe cuestionarios completos
+  local-only en
+  `.local/sqx142_task_config/questionnaires/capa2/Build_strategies/`.
+- Cobertura completa detectada: 13 pestanas Build, 16.647 entradas y 6
+  diferencias base/template.
+- Conteo por pestana: `WhatToBuild` 67/1, `Data` 8/1, `Resources` 4/3,
+  `Blocks` 15.995/0, `RiskMoneyManagement` 25/0, `ATMs` 9/0, `Options` 34/0,
+  `Databanks` 2/0, `Rankings` 173/0, `CrossChecks` 303/1,
+  `PartsToImprove` 9/0, `Optimization` 17/0 y `Notes` 1/0
+  (`preguntas/diferencias`).
+- Phase17 no aplica CFX ni cambia base/template. Solo abre decisiones para:
+  Template Maker C2 `templateFile`, fuente `StrategyType=template`,
+  `EnterAtMarket`, retirada de `ExitAfterBars` en Build, `SL`/`TP`/`Trailing`,
+  risk money management, filtro indicador unico, placeholders Project Generator
+  layer 2, rankings/filtros y politica de crosschecks.
+- Guardias activos: `BS_Filtros_v6*` sigue reference-only/trazabilidad, rutas
+  locales Template Maker C2 siguen operator-owned, no SQX run, no smoke, no
+  optimizacion y no `Results=passed` forzado.
+- El estado local queda en `currentPhase=phase17_capa2_build_questionnaire`,
+  `nextPhase=phase17_capa2_build_what_to_build`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase17_capa2_build_what_to_build`.
 
 ## Disciplina Operativa
 

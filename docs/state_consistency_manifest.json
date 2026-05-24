@@ -4267,6 +4267,77 @@
       }
     },
     {
+      "id": "sqx142_c2_phase17_build_questionnaire",
+      "description": "C1-CONFIG1 Phase 17 must generate full Build Capa2 questionnaires without applying CFX, launching SQX or freezing private Template Maker paths.",
+      "required": {
+        "README.md": [
+          "phase17_capa2_build_questionnaire",
+          "phase17_capa2_build_questionnaire_20260524_201405.json",
+          "13 pestañas, 16.647 entradas completas y 6 diferencias base/template",
+          "phase17_capa2_build_what_to_build"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 17 `Capa2 Build Questionnaire` is generated",
+          "phase17_capa2_build_questionnaire_20260524_201405.json",
+          "`capa2-build-questionnaire --write`",
+          "13 tabs, 16,647 entries and 6 local-base/template differences",
+          "Template Maker C2 source",
+          "phase17_capa2_build_what_to_build"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "Phase 17 generates full Build Capa2 questionnaires",
+          "SL/TP/trailing",
+          "Template Maker C2 `templateFile` ownership"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 17 - Capa2 Build Questionnaire",
+          "`phase17_capa2_build_questionnaire` queda generada",
+          "phase17_capa2_build_questionnaire_20260524_201405.json",
+          "`capa2-build-questionnaire --write`",
+          "16.647 entradas",
+          "`WhatToBuild` 67/1",
+          "`Blocks` 15.995/0",
+          "`currentPhase=phase17_capa2_build_questionnaire`",
+          "`nextPhase=phase17_capa2_build_what_to_build`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-24 - C1-CONFIG1 Capa2 Build Questionnaire",
+          "`capa2-build-questionnaire`",
+          "phase17_capa2_build_questionnaire_20260524_201405.json",
+          "16,647 detected entries",
+          "6 local-base/template differences",
+          "no SQX launch",
+          "phase17_capa2_build_what_to_build"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_BUILD_QUESTIONNAIRE_NEXT = \"phase17_capa2_build_what_to_build\"",
+          "def build_capa2_build_questionnaire_tab",
+          "def capa2_build_questionnaire_report",
+          "capa2-build-questionnaire"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_build_questionnaire_writes_phase17_without_mutating_targets",
+          "test_capa2_build_questionnaire_cli_is_registered"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 Build Questionnaire ejecuta SQX",
+          "Capa2 Build Questionnaire lanza smoke",
+          "Capa2 Build Questionnaire inicia optimizacion",
+          "Capa2 Build Questionnaire aplica CFX",
+          "Capa2 Build Questionnaire fuerza Results=passed"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 Build Questionnaire ran SQX",
+          "Capa2 Build Questionnaire ran smoke",
+          "Capa2 Build Questionnaire optimization completed",
+          "Capa2 Build Questionnaire applied CFX",
+          "Capa2 Build Questionnaire forced Results=passed"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_skills_guardians",
       "description": "G8-SQX-AGENT-SKILLS1 must stay local-only, before RETEST 0, with Test Guardian and Docs Curator bounded to read-only/dry-run review unless explicitly confirmed.",
       "required": {

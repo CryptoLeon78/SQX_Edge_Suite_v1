@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Capa2 Build Questionnaire
+
+- Adds `capa2-build-questionnaire` as Phase 17, generating full Build Capa2 questionnaires under ignored `.local/sqx142_task_config/questionnaires/capa2/Build_strategies/`.
+- Records evidence `phase17_capa2_build_questionnaire_20260524_201405.json` and task summary `_task_summary_20260524_201405.json`.
+- Captures 13 Build tabs, 16,647 detected entries and 6 local-base/template differences without applying CFX changes.
+- Keeps Phase17 as questionnaire-only: no SQX launch, smoke, optimization, generator mutation, BlockSettings promotion, public template path freezing or forced `Results=passed`.
+- Sets the next exact block to `phase17_capa2_build_what_to_build`.
+
 ## 2026-05-24 - C1-CONFIG1 Capa2 Preflight Snapshot
 
 - Adds `capa2-preflight-snapshot` as Phase 16, with evidence `phase16_capa2_preflight_snapshot_20260524_195729.json` and local snapshot folder `.local/sqx142_task_config/snapshots/phase16_capa2_preflight_20260524_195729/`.

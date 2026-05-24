@@ -50,6 +50,7 @@ PHASES = [
     {"id": "phase14", "label": "Capa1 closeout and methodology sync"},
     {"id": "phase15", "label": "Capa2 planning and anti-overfit contract"},
     {"id": "phase16", "label": "Capa2 preflight snapshot and rollback plan"},
+    {"id": "phase17", "label": "Capa2 Build questionnaire"},
 ]
 
 SECTION_ALIASES = {
@@ -15739,6 +15740,23 @@ def foward_closeout_report(root142: Path, project_root: Path, target: str, write
 CAPA1_CLOSEOUT_NEXT = "phase15_capa2_planning"
 CAPA2_PLANNING_NEXT = "phase16_capa2_preflight_snapshot"
 CAPA2_PREFLIGHT_NEXT = "phase17_capa2_build_questionnaire"
+CAPA2_BUILD_QUESTIONNAIRE_NEXT = "phase17_capa2_build_what_to_build"
+CAPA2_BUILD_TASK_TITLE = "Build strategies"
+CAPA2_BUILD_TAB_ORDER = [
+    "WhatToBuild",
+    "Data",
+    "Resources",
+    "Blocks",
+    "RiskMoneyManagement",
+    "ATMs",
+    "Options",
+    "Databanks",
+    "Rankings",
+    "CrossChecks",
+    "PartsToImprove",
+    "Optimization",
+    "Notes",
+]
 CAPA2_ACADEMIC_SOURCES = [
     {
         "id": "bailey_pbo",
@@ -16305,6 +16323,261 @@ def capa2_preflight_snapshot(root142: Path, project_root: Path, target: str, wri
         })
         write_json(state_path, state)
         payload["written"] = str(report_path)
+    return payload
+
+
+def ordered_capa2_build_tabs(local_root: ET.Element | None, repo_root: ET.Element | None) -> list[str]:
+    discovered = list(dict.fromkeys(direct_sections(local_root) + direct_sections(repo_root)))
+    ordered = [tab for tab in CAPA2_BUILD_TAB_ORDER if tab in discovered]
+    ordered.extend(tab for tab in discovered if tab not in ordered)
+    return ordered
+
+
+def capa2_questionnaire_focus(tab: str, xml_path: str) -> str:
+    haystack = f"{tab}/{xml_path}".casefold()
+    if "strategytype" in haystack or "templatefile" in haystack:
+        return "template_source"
+    if "exittype" in haystack or "stoploss" in haystack or "profittarget" in haystack or "trailingstop" in haystack:
+        return "exit_and_risk_surface"
+    if "ordertype" in haystack or "enteratmarket" in haystack:
+        return "entry_surface"
+    if "indicator" in haystack or "signals" in haystack or "block" in haystack:
+        return "indicator_filter_and_blocksettings"
+    if "setup" in haystack or "chart" in haystack or "resources" in haystack or "symbol" in haystack:
+        return "generator_owned_asset_timeframe_costs"
+    if "ranking" in haystack or "filter" in haystack or "condition" in haystack:
+        return "selection_pressure"
+    if "crosscheck" in haystack:
+        return "build_crosscheck_policy"
+    return "general_build_contract"
+
+
+def build_capa2_build_questionnaire_tab(
+    project_root: Path,
+    tab: str,
+    local_task_xml: str,
+    local_root: ET.Element | None,
+    repo_task_xml: str,
+    repo_root: ET.Element | None,
+    max_values: int,
+    write: bool,
+) -> dict[str, Any]:
+    local_values = collect_section_values(local_root, tab, max_values)
+    repo_values = collect_section_values(repo_root, tab, max_values)
+    local_by_path = {item["xmlPath"]: item for item in local_values.get("values", [])}
+    repo_by_path = {item["xmlPath"]: item for item in repo_values.get("values", [])}
+    all_paths = sorted(set(local_by_path) | set(repo_by_path))
+    questions: list[dict[str, Any]] = []
+    for path in all_paths:
+        local_value = (local_by_path.get(path) or {}).get("value")
+        repo_value = (repo_by_path.get(path) or {}).get("value")
+        changed = normalize_value(local_value) != normalize_value(repo_value)
+        focus = capa2_questionnaire_focus(tab, path)
+        questions.append({
+            "id": question_id(f"capa2-{CAPA2_BUILD_TASK_TITLE}-{tab}-{path}"),
+            "scope": "capa2",
+            "taskTitle": CAPA2_BUILD_TASK_TITLE,
+            "tab": tab,
+            "xmlPath": path,
+            "localBaseValue": local_value,
+            "repoTemplateValue": repo_value,
+            "changed": changed,
+            "focus": focus,
+            "recommendation": "ask_operator" if changed or focus in {
+                "template_source",
+                "exit_and_risk_surface",
+                "indicator_filter_and_blocksettings",
+                "selection_pressure",
+            } else "confirm_keep_aligned",
+            "options": [
+                {"id": "keep_local_base", "label": "Mantener base local", "value": local_value},
+                {"id": "align_repo_template", "label": "Alinear template repo", "value": repo_value},
+                {"id": "generator_owned_placeholder", "label": "Placeholder Project Generator", "value": None},
+                {"id": "custom_value", "label": "Valor manual", "value": None},
+            ],
+            "status": "pending",
+        })
+    payload: dict[str, Any] = {
+        "ok": bool(local_root is not None or repo_root is not None),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "scope": "capa2",
+        "phase": "phase17_capa2_build_questionnaire",
+        "taskTitle": CAPA2_BUILD_TASK_TITLE,
+        "tab": tab,
+        "localTaskXml": local_task_xml,
+        "repoTaskXml": repo_task_xml,
+        "localBaseSection": local_values,
+        "repoTemplateSection": repo_values,
+        "questionCount": len(questions),
+        "changedQuestionCount": sum(1 for item in questions if item["changed"]),
+        "focusCounts": dict(Counter(str(item.get("focus", "")) for item in questions)),
+        "questions": questions,
+        "discipline": [
+            "Ask every detected entry; unchanged entries still need confirmation when the tab is closed.",
+            "Do not apply Capa2 Build values until operator answers are recorded and a later apply phase has backup/diff/rollback.",
+            "Treat Template Maker C2 templateFile as operator-owned input; do not publish/freeze private local paths.",
+            "Keep BS_Filtros_v6* reference-only unless a later phase explicitly sanitizes and promotes them.",
+        ],
+    }
+    if write:
+        target = (
+            ledger_root(project_root)
+            / "questionnaires"
+            / "capa2"
+            / slug(CAPA2_BUILD_TASK_TITLE)
+            / f"{slug(tab)}_{stamp()}.json"
+        )
+        write_json(target, payload)
+        payload["written"] = str(target)
+    return payload
+
+
+def capa2_build_questionnaire_report(root142: Path, project_root: Path, max_values: int, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    preflight_gate = capa2_preflight_snapshot(root142, project_root, target="both", write=False)
+    issues = list(preflight_gate.get("issues") or [])
+    warnings = list(preflight_gate.get("warnings") or [])
+    if preflight_gate.get("ok") is not True:
+        issues.append("capa2-preflight-snapshot: previous gate ok=false")
+    local_cfx = capa2_base_project_path(root142)
+    repo_cfx = DEFAULT_CAPA2_TEMPLATE
+    local_task_xml, local_root = load_task_root(local_cfx, CAPA2_BUILD_TASK_TITLE)
+    repo_task_xml, repo_root = load_task_root(repo_cfx, CAPA2_BUILD_TASK_TITLE)
+    if local_root is None:
+        issues.append("localBase: Capa2 Build task not found")
+    if repo_root is None:
+        issues.append("repoTemplate: Capa2 Build task not found")
+    tabs = ordered_capa2_build_tabs(local_root, repo_root)
+    questionnaires: list[dict[str, Any]] = []
+    for tab in tabs:
+        questionnaire = build_capa2_build_questionnaire_tab(
+            project_root=project_root,
+            tab=tab,
+            local_task_xml=local_task_xml,
+            local_root=local_root,
+            repo_task_xml=repo_task_xml,
+            repo_root=repo_root,
+            max_values=max_values,
+            write=write,
+        )
+        questionnaires.append({
+            "tab": tab,
+            "ok": questionnaire.get("ok", False),
+            "questionCount": questionnaire.get("questionCount", 0),
+            "changedQuestionCount": questionnaire.get("changedQuestionCount", 0),
+            "focusCounts": questionnaire.get("focusCounts", {}),
+            "localValueCount": len(((questionnaire.get("localBaseSection") or {}).get("values") or [])),
+            "repoValueCount": len(((questionnaire.get("repoTemplateSection") or {}).get("values") or [])),
+            "localTruncated": (questionnaire.get("localBaseSection") or {}).get("truncated", False),
+            "repoTruncated": (questionnaire.get("repoTemplateSection") or {}).get("truncated", False),
+            "written": questionnaire.get("written", ""),
+        })
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        warnings.append("SQX processes are alive; phase17 only generated questionnaires and did not mutate CFX")
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase17_capa2_build_questionnaire",
+        "write": write,
+        "maxValues": max_values if max_values > 0 else "unlimited",
+        "previousGate": {
+            "phase": preflight_gate.get("phase"),
+            "ok": preflight_gate.get("ok"),
+            "issues": preflight_gate.get("issues") or [],
+            "warnings": preflight_gate.get("warnings") or [],
+            "nextPhase": preflight_gate.get("nextPhase"),
+            "snapshotDir": preflight_gate.get("snapshotDir", ""),
+        },
+        "issues": issues,
+        "warnings": warnings,
+        "processProbe": process_probe,
+        "task": {
+            "title": CAPA2_BUILD_TASK_TITLE,
+            "localTaskXml": local_task_xml,
+            "repoTaskXml": repo_task_xml,
+            "tabs": tabs,
+        },
+        "questionnaireSummary": {
+            "scope": "capa2",
+            "taskTitle": CAPA2_BUILD_TASK_TITLE,
+            "tabCount": len(tabs),
+            "tabs": questionnaires,
+            "totalQuestionCount": sum(int(item.get("questionCount") or 0) for item in questionnaires),
+            "totalChangedQuestionCount": sum(int(item.get("changedQuestionCount") or 0) for item in questionnaires),
+        },
+        "buildContracts": {
+            "localBase": capa2_task_contract(local_cfx, CAPA2_BUILD_TASK_TITLE),
+            "repoTemplate": capa2_task_contract(repo_cfx, CAPA2_BUILD_TASK_TITLE),
+        },
+        "summary": {
+            "decision": "Open the interactive Capa2 Build questionnaire; no values are applied in phase17.",
+            "objective": "Configure Build Capa2 so risk management and one controlled indicator filter improve operational robustness without manufacturing a new edge after Capa1.",
+            "mustAsk": [
+                "Template Maker C2 templateFile ownership and how generated/public templates receive it.",
+                "Whether Build Capa2 keeps only EnterAtMarket and removes ExitAfterBars/day exits.",
+                "SL, TP, trailing and risk-money-management bounds.",
+                "The single indicator-filter family and BlockSettings relationship.",
+                "Data/resources/trading windows/spread placeholders owned by Project Generator layer 2.",
+                "Rankings/filters so selection pressure is explicit and natural passed/failed is preserved.",
+            ],
+            "protectedRules": [
+                "No CFX apply until answers are recorded and a later apply phase shows diff/rollback.",
+                "No SQX live run, smoke or optimization in phase17.",
+                "Do not make `BS_Filtros_v6*` active without explicit sanitization.",
+                "Do not freeze private local template paths in repo/public generation.",
+            ],
+            "firstDecisionBlock": CAPA2_BUILD_QUESTIONNAIRE_NEXT,
+            "academicGuard": "Capa2 adds multiple-testing pressure; SL/TP/trailing and filters must remain bounded and validated as robustness, not edge fabrication.",
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": CAPA2_BUILD_QUESTIONNAIRE_NEXT,
+    }
+    if write:
+        task_summary_path = (
+            ledger_root(project_root)
+            / "questionnaires"
+            / "capa2"
+            / slug(CAPA2_BUILD_TASK_TITLE)
+            / f"_task_summary_{stamp()}.json"
+        )
+        write_json(task_summary_path, {
+            "ok": payload["ok"],
+            "version": VERSION,
+            "createdAt": payload["createdAt"],
+            "phase": payload["phase"],
+            "scope": "capa2",
+            "taskTitle": CAPA2_BUILD_TASK_TITLE,
+            "localTaskXml": local_task_xml,
+            "repoTaskXml": repo_task_xml,
+            "write": write,
+            "maxValues": payload["maxValues"],
+            "tabs": questionnaires,
+            "totalQuestionCount": payload["questionnaireSummary"]["totalQuestionCount"],
+            "totalChangedQuestionCount": payload["questionnaireSummary"]["totalChangedQuestionCount"],
+            "nextPhase": CAPA2_BUILD_QUESTIONNAIRE_NEXT,
+        })
+        report_path = ledger_root(project_root) / "phase_reports" / f"phase17_capa2_build_questionnaire_{stamp()}.json"
+        write_json(report_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase17_capa2_build_questionnaire",
+            "nextPhase": CAPA2_BUILD_QUESTIONNAIRE_NEXT,
+            "scope": "capa2",
+            "baseProject": DEFAULT_CAPA2_BASE_PROJECT,
+            "repoTemplate": str(DEFAULT_CAPA2_TEMPLATE),
+            "phase17Report": str(report_path),
+            "phase17TaskSummary": str(task_summary_path),
+        })
+        write_json(state_path, state)
+        payload["written"] = {
+            "phaseReport": str(report_path),
+            "taskSummary": str(task_summary_path),
+        }
     return payload
 
 
@@ -17709,6 +17982,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_preflight.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_preflight.add_argument("--write", action="store_true")
 
+    capa2_build_questionnaire = sub.add_parser("capa2-build-questionnaire")
+    capa2_build_questionnaire.add_argument("--max-values", type=int, default=0)
+    capa2_build_questionnaire.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -17954,6 +18231,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-preflight-snapshot":
         json_print(capa2_preflight_snapshot(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "capa2-build-questionnaire":
+        json_print(capa2_build_questionnaire_report(root142, project_root, max_values=args.max_values, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
