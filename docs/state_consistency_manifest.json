@@ -4494,6 +4494,101 @@
       }
     },
     {
+      "id": "sqx142_c2_phase17_build_data_databanks_resources_options",
+      "description": "C1-CONFIG1 Phase 17 Capa2 Build Data/Databanks/Resources/Options must stay closed with generator-owned seed resources, layer 2 trading windows and no SQX execution claims.",
+      "required": {
+        "README.md": [
+          "phase17_capa2_build_data_databanks_resources_options",
+          "phase17_capa2_build_data_databanks_resources_options_target_20260524_213626.json",
+          "48/48 respuestas",
+          "`BUILD 2017.10.02-2023.12.31`",
+          "`Input=Results`",
+          "`Output=null`",
+          "phase17_capa2_build_rankings"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 17 `Capa2 Build Data/Databanks/Resources/Options` is closed",
+          "phase17_capa2_build_data_databanks_resources_options_target_20260524_213626.json",
+          "`capa2-build-data-databanks-resources-options-target --target both --apply`",
+          "48/48 answers",
+          "`AUDCAD_darwinex/H1/TICK/EETUS`",
+          "`RealisticGapsHandling=true`",
+          "`StoreChartData=false`",
+          "phase17_capa2_build_rankings"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase17_capa2_build_data_databanks_resources_options",
+          "Capa2 Build seed resources",
+          "`testPrecision=2 simulated`",
+          "`Input=Results`",
+          "`Output=null`",
+          "generator layer 2 trading-window ownership"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 17 - Capa2 Build Data/Databanks/Resources/Options",
+          "phase17_capa2_build_data_databanks_resources_options_target_20260524_213626.json",
+          "`capa2-build-data-databanks-resources-options-target --target both --apply`",
+          "48/48",
+          "`BUILD 2017.10.02-2023.12.31`",
+          "`testPrecision=2 simulated`",
+          "`AUDCAD_darwinex/H1`",
+          "`Input=Results`",
+          "`Output=null`",
+          "`RealisticGapsHandling=true`",
+          "`StoreChartData=false`",
+          "`currentPhase=phase17_capa2_build_data_databanks_resources_options`",
+          "`nextPhase=phase17_capa2_build_rankings`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-24 - C1-CONFIG1 Capa2 Build Data/Databanks/Resources/Options",
+          "`capa2-build-data-databanks-resources-options-target`",
+          "phase17_capa2_build_data_databanks_resources_options_target_20260524_213626.json",
+          "48/48",
+          "generator layer 2 ownership",
+          "phase17_capa2_build_rankings"
+        ],
+        "backend/sqx-edge-tool/config/generator_profiles.json": [
+          "\"capa2\"",
+          "\"H4\"",
+          "\"04:00\"",
+          "\"disableTradingTimeRanges\"",
+          "\"2\""
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_BUILD_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT = \"phase17_capa2_build_rankings\"",
+          "def promote_capa2_build_data_databanks_resources_options_target",
+          "def enforce_capa2_build_data_databanks_resources_options_guard",
+          "def enforce_capa2_generator_layer2_contract",
+          "capa2-build-data-databanks-resources-options-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_build_data_databanks_resources_options_applies_and_is_idempotent",
+          "test_capa2_build_data_databanks_resources_options_guard_rejects_drift",
+          "test_capa2_generator_layer2_contract_rejects_missing_windows",
+          "test_capa2_build_data_databanks_resources_options_cli_is_registered"
+        ],
+        "backend/sqx-edge-tool/test_cfx_template_compatibility.py": [
+          "test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_retest_windows"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 Build Data/Databanks/Resources/Options ejecuta SQX",
+          "Capa2 Build Data/Databanks/Resources/Options lanza smoke",
+          "Capa2 Build Data/Databanks/Resources/Options inicia optimizacion",
+          "Capa2 Build Data/Databanks/Resources/Options fuerza Results=passed",
+          "copy the full Mining15 project directly",
+          "qualityReductionAllowed: true"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 Build Data/Databanks/Resources/Options ran SQX",
+          "Capa2 Build Data/Databanks/Resources/Options ran smoke",
+          "Capa2 Build Data/Databanks/Resources/Options optimization completed",
+          "Capa2 Build Data/Databanks/Resources/Options forced Results=passed"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_skills_guardians",
       "description": "G8-SQX-AGENT-SKILLS1 must stay local-only, before RETEST 0, with Test Guardian and Docs Curator bounded to read-only/dry-run review unless explicitly confirmed.",
       "required": {

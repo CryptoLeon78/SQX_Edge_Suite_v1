@@ -1,7 +1,9 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 17 `Capa2 Build Blocks` cerrada el
-2026-05-24 con `phase17_capa2_build_blocks_target_20260524_211347.json`,
+Estado: C1-CONFIG1 con Fase 17
+`Capa2 Build Data/Databanks/Resources/Options` cerrada el 2026-05-24 con
+`phase17_capa2_build_data_databanks_resources_options_target_20260524_213626.json`,
+despues de cerrar `phase17_capa2_build_blocks_target_20260524_211347.json`,
 despues de cerrar `phase17_capa2_build_what_to_build_target_20260524_204601.json`,
 despues de generar `phase17_capa2_build_questionnaire_20260524_201405.json`,
 despues de la Fase 16 `Capa2 Preflight Snapshot`
@@ -27,8 +29,14 @@ CFX semanticos porque local base y template repo ya estaban alineados. El
 bloque Blocks queda cerrado con 15.995/15.995 respuestas, `EnterAtMarket`
 only, SL/PT al 100%, `TrailingStop` al 50%, `ExitAfterBars=false`, salidas por
 dias desactivadas, `AlwaysTrue` neutral, filtro indicador Capa2 y stop/limit
-entries off, tambien sin cambios CFX semanticos. El siguiente bloque exacto es
-`phase17_capa2_build_data_databanks_resources_options`. Fase 0 dejo
+entries off, tambien sin cambios CFX semanticos. El bloque
+Data/Databanks/Resources/Options queda cerrado con 48/48 respuestas: periodo
+`BUILD 2017.10.02-2023.12.31`, `testPrecision=2 simulated`, seed generico
+`AUDCAD_darwinex/H1/TICK/EETUS`, sin OOS interno, `Input=Results`,
+`Output=null`, Options `No Session`, `RealisticGapsHandling=true` y
+`StoreChartData=false`; `generator_profiles.json` ya gobierna ventanas Capa2
+por timeframe y evita inyectarlas en retests pesados. El siguiente bloque
+exacto es `phase17_capa2_build_rankings`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -2234,6 +2242,49 @@ Siguiente bloque exacto: `phase17_capa2_build_blocks`.
   `scope=capa2`.
 
 Siguiente bloque exacto: `phase17_capa2_build_data_databanks_resources_options`.
+
+## Estado Fase 17 - Capa2 Build Data/Databanks/Resources/Options
+
+- `phase17_capa2_build_data_databanks_resources_options` queda cerrada con
+  `phase17_capa2_build_data_databanks_resources_options_target_20260524_213626.json`.
+- `capa2-build-data-databanks-resources-options-target --target both --apply`
+  revisa local base y template repo con backup/diff, registra 48/48 respuestas
+  en `.local/sqx142_task_config/answers/capa2/Build_strategies/{Data,Databanks,Resources,Options}.json`
+  y no detecta issues ni warnings.
+- Data queda como minado puro Capa2: periodo `BUILD 2017.10.02-2023.12.31`,
+  `testPrecision=2 simulated`, `No Session`, un unico seed generico
+  `AUDCAD_darwinex/H1` con spread `2.0` y sin rangos OOS internos. OOS sigue
+  reservado a los retests.
+- Databanks queda `Input=Results` y `Output=null`; la salida a `Results` la
+  gobierna Ranking, no una copia directa de databank.
+- Resources queda como seed generico compatible SQX142: `AUDCAD_darwinex`,
+  broker Darwinex id `4`, precision `TICK`, timezone `EETUS`, sin sesiones,
+  con `InstrumentInfo` coherente en local base y template repo. Project
+  Generator sigue siendo el dueno final de activo, timeframe, spread, costes,
+  swap y recursos por seleccion del usuario.
+- Options queda `No Session`, `MarketOpenSession=No Session`,
+  `LimitTimeRange=true`, ventana seed H1 `02:00-22:00`,
+  `RealisticGapsHandling=true`, `StoreChartData=false` y sin salidas EOD,
+  Friday ni end-of-range.
+- `generator_profiles.json` ya define `tradingTimeRanges.capa2` para
+  M5/M15/M30/H1 (`02:00-22:00`) y H4 (`04:00-20:00`), y
+  `disableTradingTimeRanges.2` bloquea la inyeccion de ventanas en retests
+  pesados de robustez para no contaminar MC/Sequential/Monkey/Synthetic/SPP/WFM.
+- Dry-run posterior idempotente:
+  `phase17_capa2_build_data_databanks_resources_options_target_20260524_213857.json`
+  con `changed=false`, `changedActionCount=0`, `guardOk=true`,
+  `issues=[]`, `warnings=[]` y `processes=[]`.
+- Guard academico: Data/Options del Build Capa2 no se usan para optimizar OOS;
+  mantienen realismo de gaps y ventana operativa generator-owned mientras los
+  filtros y validacion viven en Rankings/retests posteriores.
+- Guardias activos: no donor copy, no tokens `USDJPY`, no rutas locales en
+  Data/Databanks/Resources/Options, no SQX run, no smoke, no optimizacion, no
+  public path freezing y no `Results=passed` forzado.
+- El estado local queda en
+  `currentPhase=phase17_capa2_build_data_databanks_resources_options`,
+  `nextPhase=phase17_capa2_build_rankings`, `scope=capa2`.
+
+Siguiente bloque exacto: `phase17_capa2_build_rankings`.
 
 ## Disciplina Operativa
 

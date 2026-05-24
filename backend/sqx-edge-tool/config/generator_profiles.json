@@ -128,7 +128,28 @@
         "20:00"
       ]
     },
-    "capa2": {}
+    "capa2": {
+      "M5": [
+        "02:00",
+        "22:00"
+      ],
+      "M15": [
+        "02:00",
+        "22:00"
+      ],
+      "M30": [
+        "02:00",
+        "22:00"
+      ],
+      "H1": [
+        "02:00",
+        "22:00"
+      ],
+      "H4": [
+        "04:00",
+        "20:00"
+      ]
+    }
   },
   "disableTradingTimeRanges": {
     "1": [
@@ -138,6 +159,15 @@
       "AutomaticRetest-Task6.xml",
       "AutomaticRetest-Task5.xml",
       "AutomaticRetest-Task7.xml",
+      "AutomaticRetest-Task4.xml"
+    ],
+    "2": [
+      "AutomaticRetest-Task2.xml",
+      "AutomaticRetest-Task1.xml",
+      "AutomaticRetest-Task8.xml",
+      "AutomaticRetest-Task3.xml",
+      "AutomaticRetest-Task6.xml",
+      "AutomaticRetest-Task5.xml",
       "AutomaticRetest-Task4.xml"
     ]
   },

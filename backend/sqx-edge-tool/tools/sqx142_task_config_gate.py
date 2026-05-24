@@ -15745,6 +15745,7 @@ CAPA2_PREFLIGHT_NEXT = "phase17_capa2_build_questionnaire"
 CAPA2_BUILD_QUESTIONNAIRE_NEXT = "phase17_capa2_build_what_to_build"
 CAPA2_BUILD_WHAT_TO_BUILD_NEXT = "phase17_capa2_build_blocks"
 CAPA2_BUILD_BLOCKS_NEXT = "phase17_capa2_build_data_databanks_resources_options"
+CAPA2_BUILD_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT = "phase17_capa2_build_rankings"
 CAPA2_BUILD_TASK_TITLE = "Build strategies"
 CAPA2_BUILD_TAB_ORDER = [
     "WhatToBuild",
@@ -15900,6 +15901,50 @@ CAPA2_BUILD_BLOCKS_INDICATOR_TARGET = [
     "Prices.Low",
     "Prices.High",
     "Prices.Open",
+]
+CAPA2_BUILD_DATA_PERIOD_KEY = "BUILD"
+CAPA2_BUILD_DATA_TEST_PRECISION = "2"
+CAPA2_BUILD_DATA_SESSION = "No Session"
+CAPA2_BUILD_SEED_SYMBOL = "AUDCAD_darwinex"
+CAPA2_BUILD_SEED_ASSET = "AUDCAD"
+CAPA2_BUILD_SEED_TIMEFRAME = "H1"
+CAPA2_BUILD_SEED_SPREAD = "2.0"
+CAPA2_BUILD_RESOURCE_PRECISION = "TICK"
+CAPA2_BUILD_RESOURCE_TIMEZONE = "EETUS"
+CAPA2_BUILD_RESOURCE_SOURCE_ID = "4"
+CAPA2_BUILD_RESOURCE_BROKER_ID = "4"
+CAPA2_BUILD_DATABANKS_TARGET = {
+    "Output": "null",
+    "Input": "Results",
+}
+CAPA2_BUILD_OPTIONS_PARAMS_TARGET = {
+    "Session": "No Session",
+    "MarketOpenSession": "No Session",
+    "LimitTimeRange": "true",
+    "SignalTimeRangeFrom": "7200",
+    "SignalTimeRangeTo": "79200",
+    "ExitAtEndOfDay": "false",
+    "ExitOnFriday": "false",
+    "ExitAtEndOfRange": "false",
+    "RealisticGapsHandling": "true",
+    "StoreChartData": "false",
+}
+CAPA2_BUILD_BANNED_DONOR_TOKENS = ("USDJPY", "USDJPY_darwinex", "USDJPY_dukascopy")
+CAPA2_TRADING_TIME_RANGES_TARGET = {
+    "M5": ["02:00", "22:00"],
+    "M15": ["02:00", "22:00"],
+    "M30": ["02:00", "22:00"],
+    "H1": ["02:00", "22:00"],
+    "H4": ["04:00", "20:00"],
+}
+CAPA2_DISABLE_TRADING_TIME_RANGES_TARGET = [
+    "AutomaticRetest-Task2.xml",
+    "AutomaticRetest-Task1.xml",
+    "AutomaticRetest-Task8.xml",
+    "AutomaticRetest-Task3.xml",
+    "AutomaticRetest-Task6.xml",
+    "AutomaticRetest-Task5.xml",
+    "AutomaticRetest-Task4.xml",
 ]
 CAPA2_ACADEMIC_SOURCES = [
     {
@@ -17583,6 +17628,610 @@ def promote_capa2_build_blocks_target(root142: Path, project_root: Path, target:
     return payload
 
 
+def capa2_build_data_databanks_resources_options_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {}
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in CAPA2_BUILD_OPTIONS_PARAMS_TARGET
+    }
+    data = find_section(root, "Data")
+    out_of_sample = data.find("OutOfSample") if data is not None else None
+    return {
+        "data": {
+            "setup": first_setup_summary(root),
+            "outOfSampleAttrs": dict(out_of_sample.attrib) if out_of_sample is not None else {},
+            "outOfSampleRanges": [dict(node.attrib) for node in root.findall(".//Data/OutOfSample/Range")],
+        },
+        "databanks": {
+            node.get("name", ""): node.get("value", "")
+            for node in root.findall(".//Databanks/Databank")
+            if node.get("name")
+        },
+        "resources": _tick_real_resource_summary(root),
+        "optionsParams": params,
+    }
+
+
+def _ensure_capa2_build_chart(setup: ET.Element, actions: list[dict[str, Any]]) -> ET.Element:
+    chart = setup.find("Chart")
+    if chart is None:
+        chart = ET.SubElement(setup, "Chart")
+        before = None
+    else:
+        before = dict(chart.attrib)
+    chart.attrib.clear()
+    chart.attrib.update({
+        "symbol": CAPA2_BUILD_SEED_SYMBOL,
+        "timeframe": CAPA2_BUILD_SEED_TIMEFRAME,
+        "spread": CAPA2_BUILD_SEED_SPREAD,
+    })
+    actions.append({
+        "field": "Data/Setup/Chart",
+        "from": before,
+        "to": dict(chart.attrib),
+        "changed": before != dict(chart.attrib),
+        "ownership": "generator-owned seed; Project Generator rewrites symbol/timeframe/spread per Capa2 mining request",
+    })
+    return chart
+
+
+def _ensure_capa2_build_resources(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    period = generator_period(CAPA2_BUILD_DATA_PERIOD_KEY)
+    resources = find_section(root, "Resources")
+    if resources is None:
+        resources = ET.SubElement(root, "Resources")
+        before_resources: dict[str, Any] = {"resourcesFound": False}
+        actions.append({"field": "Resources", "from": None, "to": "created", "changed": True})
+    else:
+        before_resources = _tick_real_resource_summary(root)
+
+    symbols_node = ensure_resources_container(resources, "Symbols")
+    brokers_node = ensure_resources_container(resources, "Brokers")
+    instruments_node = ensure_resources_container(resources, "Instruments")
+    sessions_node = ensure_resources_container(resources, "Sessions")
+    ensure_resources_container(resources, "CustomIndicators")
+    ensure_resources_container(resources, "CustomBlocks")
+
+    template_symbol_attrs, template_info_attrs = _first_existing_symbol_template(resources)
+    existing_info = dict(template_info_attrs)
+    for symbol in symbols_node.findall("Symbol"):
+        info = symbol.find("InstrumentInfo")
+        if symbol.get("name") == CAPA2_BUILD_SEED_SYMBOL and info is not None:
+            existing_info = dict(info.attrib)
+            break
+
+    before_symbols = [value_for_node(node) for node in symbols_node.findall("Symbol")]
+    for node in list(symbols_node.findall("Symbol")):
+        symbols_node.remove(node)
+    date_from, date_to = (
+        str(epoch_ms_for_date(period[0])),
+        str(epoch_ms_for_date(period[1])),
+    )
+    symbol_attrs = {
+        "name": CAPA2_BUILD_SEED_SYMBOL,
+        "source": template_symbol_attrs.get("source", CAPA2_BUILD_RESOURCE_SOURCE_ID),
+        "barType": template_symbol_attrs.get("barType", "1"),
+        "precision": CAPA2_BUILD_RESOURCE_PRECISION,
+        "timezone": CAPA2_BUILD_RESOURCE_TIMEZONE,
+        "dateFrom": date_from,
+        "dateTo": date_to,
+        "uSymbol": CAPA2_BUILD_SEED_ASSET,
+        "uSymbolName": CAPA2_BUILD_SEED_ASSET,
+        "removeWeekends": template_symbol_attrs.get("removeWeekends", "false"),
+        "broker": template_symbol_attrs.get("broker", CAPA2_BUILD_RESOURCE_BROKER_ID),
+    }
+    symbol_node = ET.SubElement(symbols_node, "Symbol", symbol_attrs)
+    info_attrs = {
+        "instrument": CAPA2_BUILD_SEED_SYMBOL,
+        "description": existing_info.get("description", "Currency"),
+        "tickSize": existing_info.get("tickSize", "0.0001"),
+        "tickStep": existing_info.get("tickStep", "1e-05"),
+        "minDistance": existing_info.get("minDistance", "0.0"),
+        "tickValueInMoney": existing_info.get("tickValueInMoney", "0.0"),
+        "dateFrom": "0",
+        "dateTo": "0",
+        "rows": "0",
+        "totalDays": "0",
+        "defaultSpread": CAPA2_BUILD_SEED_SPREAD,
+        "defaultSlippage": existing_info.get("defaultSlippage", "0.0"),
+        "decimals": existing_info.get("decimals", "5"),
+        "commissions": existing_info.get(
+            "commissions",
+            '<Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0.00</Param></Params></Method>',
+        ),
+        "pointValue": existing_info.get("pointValue", "72157.360772"),
+        "dataType": existing_info.get("dataType", BUILD_RESOURCES_BASE_DATA_TYPE),
+        "recognizedFromOrders": existing_info.get("recognizedFromOrders", "false"),
+        "exchange": existing_info.get("exchange", ""),
+        "country": existing_info.get("country", ""),
+        "sector": existing_info.get("sector", "Currency"),
+        "swap": existing_info.get(
+            "swap",
+            '<Swap use="true" type="points" long="-0.50" short="-6.30" tripleSwapOn="WEDNESDAY" rolloutHour="23:00"/>',
+        ),
+        "orderSizeMultiplier": existing_info.get("orderSizeMultiplier", "1.0"),
+        "orderSizeStep": existing_info.get("orderSizeStep", "0.01"),
+        "broker": symbol_attrs["broker"],
+    }
+    ET.SubElement(symbol_node, "InstrumentInfo", info_attrs)
+    after_symbols = [value_for_node(node) for node in symbols_node.findall("Symbol")]
+    actions.append({
+        "field": "Resources/Symbols",
+        "from": before_symbols,
+        "to": after_symbols,
+        "changed": before_symbols != after_symbols,
+    })
+
+    before_brokers = [value_for_node(node) for node in brokers_node.findall("Broker")]
+    for node in list(brokers_node.findall("Broker")):
+        brokers_node.remove(node)
+    ET.SubElement(brokers_node, "Broker", {
+        "id": CAPA2_BUILD_RESOURCE_BROKER_ID,
+        "name": "[[Darwinex]]",
+        "description": "Darwinex CFDs",
+        "timezone": CAPA2_BUILD_RESOURCE_TIMEZONE,
+        "postfix": "_darwinex",
+        "mtUse": "true",
+        "spUse": "false",
+    })
+    after_brokers = [value_for_node(node) for node in brokers_node.findall("Broker")]
+    actions.append({
+        "field": "Resources/Brokers",
+        "from": before_brokers,
+        "to": after_brokers,
+        "changed": before_brokers != after_brokers,
+    })
+
+    before_instruments = [value_for_node(node) for node in instruments_node.findall("InstrumentInfo")]
+    for node in list(instruments_node.findall("InstrumentInfo")):
+        instruments_node.remove(node)
+    ET.SubElement(instruments_node, "InstrumentInfo", dict(info_attrs))
+    after_instruments = [value_for_node(node) for node in instruments_node.findall("InstrumentInfo")]
+    actions.append({
+        "field": "Resources/Instruments",
+        "from": before_instruments,
+        "to": after_instruments,
+        "changed": before_instruments != after_instruments,
+    })
+
+    removed_sessions = [value_for_node(node) for node in sessions_node.findall("Session")]
+    for node in list(sessions_node.findall("Session")):
+        sessions_node.remove(node)
+    actions.append({
+        "field": "Resources/Sessions",
+        "from": removed_sessions,
+        "to": [],
+        "changed": bool(removed_sessions),
+    })
+    actions.append({
+        "field": "Resources",
+        "from": before_resources,
+        "to": _tick_real_resource_summary(root),
+        "changed": before_resources != _tick_real_resource_summary(root),
+        "note": "Capa2 Build seed resources stay generic; Project Generator rebuilds them per selected asset/timeframe/target profile.",
+    })
+
+
+def _ensure_build_options_params(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    options = find_section(root, "Options")
+    if options is None:
+        options = ET.SubElement(root, "Options")
+        actions.append({"field": "Options", "from": None, "to": "created", "changed": True})
+    trading = options.find("BuildTradingOptions")
+    if trading is None:
+        trading = ET.SubElement(options, "BuildTradingOptions")
+        actions.append({"field": "Options/BuildTradingOptions", "from": None, "to": "created", "changed": True})
+    params = trading.find("Params")
+    if params is None:
+        params = ET.SubElement(trading, "Params")
+        actions.append({"field": "Options/BuildTradingOptions/Params", "from": None, "to": "created", "changed": True})
+    class_names = {
+        "Session": "SessionOption",
+        "MarketOpenSession": "MarketOpenSession",
+        "LimitTimeRange": "LimitTimeRange",
+        "SignalTimeRangeFrom": "LimitTimeRange",
+        "SignalTimeRangeTo": "LimitTimeRange",
+        "ExitAtEndOfRange": "LimitTimeRange",
+        "ExitAtEndOfDay": "ExitAtEndOfDay",
+        "ExitOnFriday": "ExitOnFriday",
+        "RealisticGapsHandling": "RealisticGapsHandling",
+        "StoreChartData": "StoreChartData",
+    }
+    existing = {
+        param.get("key", ""): param
+        for param in params.findall("Param")
+        if param.get("key")
+    }
+    for key, value in CAPA2_BUILD_OPTIONS_PARAMS_TARGET.items():
+        node = existing.get(key)
+        if node is None:
+            node = ET.SubElement(params, "Param", {"key": key, "className": class_names.get(key, key)})
+            before = None
+        else:
+            before = {"attrs": dict(node.attrib), "text": node.text or ""}
+        node.set("key", key)
+        if key in class_names:
+            node.set("className", class_names[key])
+        node.text = value
+        after = {"attrs": dict(node.attrib), "text": node.text or ""}
+        actions.append({
+            "field": f"Options/Param:{key}",
+            "from": before,
+            "to": after,
+            "changed": before != after,
+        })
+
+
+def apply_capa2_build_data_databanks_resources_options_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    period = generator_period(CAPA2_BUILD_DATA_PERIOD_KEY)
+    data = find_section(root, "Data")
+    if data is None:
+        data = ET.SubElement(root, "Data")
+        actions.append({"field": "Data", "from": None, "to": "created", "changed": True})
+    setups = data.find("Setups")
+    if setups is None:
+        setups = ET.SubElement(data, "Setups")
+        actions.append({"field": "Data/Setups", "from": None, "to": "created", "changed": True})
+    setup = setups.find("Setup")
+    if setup is None:
+        setup = ET.SubElement(setups, "Setup")
+        actions.append({"field": "Data/Setups/Setup", "from": None, "to": "created", "changed": True})
+    for key, wanted in {
+        "dateFrom": period[0],
+        "dateTo": period[1],
+        "testPrecision": CAPA2_BUILD_DATA_TEST_PRECISION,
+        "session": CAPA2_BUILD_DATA_SESSION,
+    }.items():
+        before = setup.get(key, "")
+        setup.set(key, wanted)
+        actions.append({"field": f"Data/Setup:{key}", "from": before, "to": wanted, "changed": before != wanted})
+    _ensure_capa2_build_chart(setup, actions)
+    out_of_sample = data.find("OutOfSample")
+    if out_of_sample is None:
+        out_of_sample = ET.SubElement(data, "OutOfSample", {"showGraph": "false"})
+        before_oos = None
+    else:
+        before_oos = {"attrs": dict(out_of_sample.attrib), "ranges": [dict(node.attrib) for node in out_of_sample.findall("Range")]}
+        out_of_sample.set("showGraph", "false")
+    for node in list(out_of_sample.findall("Range")):
+        out_of_sample.remove(node)
+    after_oos = {"attrs": dict(out_of_sample.attrib), "ranges": []}
+    actions.append({"field": "Data/OutOfSample", "from": before_oos, "to": after_oos, "changed": before_oos != after_oos})
+
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing = {
+        node.get("name", ""): node
+        for node in databanks.findall("Databank")
+        if node.get("name")
+    }
+    for name, value in CAPA2_BUILD_DATABANKS_TARGET.items():
+        node = existing.get(name)
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+            before = None
+        else:
+            before = dict(node.attrib)
+        node.set("name", name)
+        node.set("value", value)
+        node.set("label", f"{name} databank" if name != "Output" else "Output databank")
+        actions.append({"field": f"Databanks/{name}", "from": before, "to": dict(node.attrib), "changed": before != dict(node.attrib)})
+
+    _ensure_capa2_build_resources(root, actions)
+    _ensure_build_options_params(root, actions)
+    return actions
+
+
+def enforce_capa2_build_data_databanks_resources_options_guard(root: ET.Element, target_name: str) -> list[str]:
+    issues: list[str] = []
+    summary = capa2_build_data_databanks_resources_options_summary(root)
+    setup = (summary.get("data") or {}).get("setup") or {}
+    period = generator_period(CAPA2_BUILD_DATA_PERIOD_KEY)
+    for key, wanted in {
+        "dateFrom": period[0],
+        "dateTo": period[1],
+        "testPrecision": CAPA2_BUILD_DATA_TEST_PRECISION,
+        "session": CAPA2_BUILD_DATA_SESSION,
+    }.items():
+        if setup.get(key) != wanted:
+            issues.append(f"{target_name}: Capa2 Build Data setup {key} is {setup.get(key)!r}, expected {wanted!r}")
+    charts = setup.get("charts") or []
+    if len(charts) != 1:
+        issues.append(f"{target_name}: Capa2 Build Data must keep one generic seed chart")
+    else:
+        chart = charts[0]
+        expected_chart = {
+            "symbol": CAPA2_BUILD_SEED_SYMBOL,
+            "timeframe": CAPA2_BUILD_SEED_TIMEFRAME,
+            "spread": CAPA2_BUILD_SEED_SPREAD,
+        }
+        for key, wanted in expected_chart.items():
+            if chart.get(key) != wanted:
+                issues.append(f"{target_name}: Capa2 Build chart {key} is {chart.get(key)!r}, expected {wanted!r}")
+    if (summary.get("data") or {}).get("outOfSampleRanges"):
+        issues.append(f"{target_name}: Capa2 Build must not contain internal OutOfSample ranges")
+    databanks = summary.get("databanks") or {}
+    for name, value in CAPA2_BUILD_DATABANKS_TARGET.items():
+        if databanks.get(name) != value:
+            issues.append(f"{target_name}: Capa2 Build Databank {name} is {databanks.get(name)!r}, expected {value!r}")
+    resources = summary.get("resources") or {}
+    if not resources.get("resourcesFound"):
+        issues.append(f"{target_name}: Capa2 Build Resources section missing")
+    symbols = resources.get("symbols") or []
+    if {item.get("name") for item in symbols} != {CAPA2_BUILD_SEED_SYMBOL}:
+        issues.append(f"{target_name}: Capa2 Build Resources must keep only seed symbol {CAPA2_BUILD_SEED_SYMBOL}")
+    for symbol in symbols:
+        if symbol.get("precision") != CAPA2_BUILD_RESOURCE_PRECISION:
+            issues.append(f"{target_name}: Capa2 Build resource precision is {symbol.get('precision')!r}, expected {CAPA2_BUILD_RESOURCE_PRECISION}")
+        if symbol.get("timezone") != CAPA2_BUILD_RESOURCE_TIMEZONE:
+            issues.append(f"{target_name}: Capa2 Build resource timezone is {symbol.get('timezone')!r}, expected {CAPA2_BUILD_RESOURCE_TIMEZONE}")
+        if symbol.get("broker") != CAPA2_BUILD_RESOURCE_BROKER_ID:
+            issues.append(f"{target_name}: Capa2 Build resource broker is {symbol.get('broker')!r}, expected {CAPA2_BUILD_RESOURCE_BROKER_ID}")
+    if resources.get("sessions"):
+        issues.append(f"{target_name}: Capa2 Build Resources must not keep session entries")
+    options = summary.get("optionsParams") or {}
+    for key, value in CAPA2_BUILD_OPTIONS_PARAMS_TARGET.items():
+        if options.get(key) != value:
+            issues.append(f"{target_name}: Capa2 Build Options param {key} is {options.get(key)!r}, expected {value!r}")
+    guarded_text = (
+        section_text(root, "Data")
+        + section_text(root, "Databanks")
+        + section_text(root, "Resources")
+        + section_text(root, "Options")
+    )
+    for token in CAPA2_BUILD_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"{target_name}: forbidden donor token leaked into Capa2 Build Data/Databanks/Resources/Options: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append(f"{target_name}: local absolute path leaked into Capa2 Build Data/Databanks/Resources/Options")
+    return issues
+
+
+def capa2_generator_layer2_contract_summary() -> dict[str, Any]:
+    config = read_json(GENERATOR_PROFILES_PATH, {})
+    return {
+        "path": str(GENERATOR_PROFILES_PATH),
+        "exists": GENERATOR_PROFILES_PATH.is_file(),
+        "tradingTimeRangesCapa2": (config.get("tradingTimeRanges") or {}).get("capa2") or {},
+        "disableTradingTimeRangesLayer2": (config.get("disableTradingTimeRanges") or {}).get("2") or [],
+        "taskPeriodMapsLayer2": (config.get("taskPeriodMaps") or {}).get("2") or {},
+    }
+
+
+def enforce_capa2_generator_layer2_contract() -> list[str]:
+    issues: list[str] = []
+    summary = capa2_generator_layer2_contract_summary()
+    if not summary.get("exists"):
+        return ["generator_profiles.json missing"]
+    if summary.get("tradingTimeRangesCapa2") != CAPA2_TRADING_TIME_RANGES_TARGET:
+        issues.append("generator_profiles tradingTimeRanges.capa2 must define Capa2 M5/M15/M30/H1/H4 methodology windows")
+    if sorted(summary.get("disableTradingTimeRangesLayer2") or []) != sorted(CAPA2_DISABLE_TRADING_TIME_RANGES_TARGET):
+        issues.append("generator_profiles disableTradingTimeRanges.2 must disable heavy robustness tasks while leaving Build/RETEST0/RETEST1/FOWARD generator-owned")
+    task_map = summary.get("taskPeriodMapsLayer2") or {}
+    if task_map.get("Build-Task1.xml") != CAPA2_BUILD_DATA_PERIOD_KEY:
+        issues.append(f"generator_profiles taskPeriodMaps.2 Build-Task1.xml must be {CAPA2_BUILD_DATA_PERIOD_KEY}")
+    return issues
+
+
+def record_capa2_build_data_databanks_resources_options_answers(project_root: Path, report: dict[str, Any]) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    tabs = ("Data", "Databanks", "Resources", "Options")
+    answered_at = now_iso()
+    written: dict[str, str] = {}
+    total_questions = 0
+    total_answers = 0
+    for tab in tabs:
+        source = latest_capa2_questionnaire_path(project_root, CAPA2_BUILD_TASK_TITLE, tab)
+        questionnaire = read_json(source, {}) if source is not None else {}
+        questions = questionnaire.get("questions") or []
+        ids = [str(item.get("id", "")).strip() for item in questions if str(item.get("id", "")).strip()]
+        payload = {
+            "version": VERSION,
+            "scope": "capa2",
+            "taskTitle": CAPA2_BUILD_TASK_TITLE,
+            "tab": tab,
+            "phase": "phase17_capa2_build_data_databanks_resources_options",
+            "createdAt": answered_at,
+            "updatedAt": answered_at,
+            "bulkAnswer": True,
+            "sourceQuestionnaire": str(source) if source is not None else "",
+            "questionCount": len(questions),
+            "uniqueQuestionCount": len(ids),
+            "answer": "recommended_capa2_build_data_databanks_resources_options_contract",
+            "note": "Build Capa2 Data/Databanks/Resources/Options closed as generic, generator-owned and local-safe.",
+            "decisionSummary": {
+                "data": "BUILD period, testPrecision=2 simulated, No Session, no internal OOS ranges",
+                "databanks": "Input=Results, Output=null; Ranking saves filtered generated strategies to Results",
+                "resources": "generic AUDCAD_darwinex/H1/TICK/EETUS seed, no sessions; Project Generator rewrites final asset/timeframe/costs",
+                "options": "No Session, realistic gaps on, StoreChartData off and Capa2 trading window placeholder 02:00-22:00 for H1 seed",
+                "generatorLayer2": "tradingTimeRanges.capa2 and disableTradingTimeRanges.2 must be present before phase close",
+                "nextPhase": CAPA2_BUILD_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT,
+            },
+            "answers": {
+                qid: {
+                    "answer": "recommended_capa2_build_data_databanks_resources_options_contract",
+                    "note": "Closed by phase17_capa2_build_data_databanks_resources_options target after dry-run/apply guard.",
+                    "answeredAt": answered_at,
+                }
+                for qid in ids
+            },
+            "sourceReport": report.get("written", ""),
+        }
+        target = ledger_root(project_root) / "answers" / "capa2" / slug(CAPA2_BUILD_TASK_TITLE) / f"{tab}.json"
+        write_json(target, payload)
+        written[tab] = str(target)
+        total_questions += len(questions)
+        total_answers += len(ids)
+    return {
+        "ok": True,
+        "version": VERSION,
+        "tabs": list(tabs),
+        "written": written,
+        "answerCount": total_answers,
+        "questionCount": total_questions,
+    }
+
+
+def update_capa2_build_data_databanks_resources_options_target_in_cfx(
+    cfx: Path,
+    backup_root: Path,
+    apply: bool,
+    target_name: str,
+) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root = load_task_root(cfx, CAPA2_BUILD_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "capa2_build_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = capa2_build_data_databanks_resources_options_summary(root)
+    payload["actions"] = apply_capa2_build_data_databanks_resources_options_to_root(root)
+    payload["after"] = capa2_build_data_databanks_resources_options_summary(root)
+    payload["issues"] = enforce_capa2_build_data_databanks_resources_options_guard(root, target_name)
+    payload["warnings"] = []
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["serializedChanged"] = before_text != after_text
+    payload["changed"] = payload["changedActionCount"] > 0
+    payload["targetValues"] = {
+        "dataPeriodKey": CAPA2_BUILD_DATA_PERIOD_KEY,
+        "data": {
+            "dateFrom": generator_period(CAPA2_BUILD_DATA_PERIOD_KEY)[0],
+            "dateTo": generator_period(CAPA2_BUILD_DATA_PERIOD_KEY)[1],
+            "testPrecision": CAPA2_BUILD_DATA_TEST_PRECISION,
+            "session": CAPA2_BUILD_DATA_SESSION,
+            "outOfSampleRanges": [],
+        },
+        "seedChart": {
+            "symbol": CAPA2_BUILD_SEED_SYMBOL,
+            "timeframe": CAPA2_BUILD_SEED_TIMEFRAME,
+            "spread": CAPA2_BUILD_SEED_SPREAD,
+        },
+        "databanks": CAPA2_BUILD_DATABANKS_TARGET,
+        "options": CAPA2_BUILD_OPTIONS_PARAMS_TARGET,
+        "resources": {
+            "precision": CAPA2_BUILD_RESOURCE_PRECISION,
+            "timezone": CAPA2_BUILD_RESOURCE_TIMEZONE,
+            "sessions": [],
+        },
+    }
+    payload["targetRationale"] = {
+        "buildData": "Capa2 Build mines in the Build layer-2 period with simulated/tick-simulation precision; OOS remains for later retests.",
+        "generatorOwned": "The seed chart/resources are generic only; Project Generator rewrites asset, timeframe, spread, broker resources and trading window for the user selection.",
+        "databanks": "Build output is controlled by Ranking into Results, so Databanks stays Input=Results and Output=null.",
+        "options": "Realistic gaps stay on for build realism, StoreChartData stays off for performance, and session references stay No Session.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_capa2_build_data_databanks_resources_options_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = promote_capa2_build_blocks_target(root142, project_root, target=target, apply=False)
+    issues = list(previous_gate.get("issues") or [])
+    warnings = list(previous_gate.get("warnings") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-build-blocks-target: previous gate ok=false")
+    generator_issues = enforce_capa2_generator_layer2_contract()
+    issues.extend(generator_issues)
+    generator_summary = capa2_generator_layer2_contract_summary()
+    backup_root = ledger_root(project_root) / "backups" / f"phase17_capa2_build_data_databanks_resources_options_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    results = {
+        name: update_capa2_build_data_databanks_resources_options_target_in_cfx(path, backup_root / name, apply=apply, target_name=name)
+        for name, path in targets.items()
+    }
+    for name, result in results.items():
+        if not result.get("exists") or not result.get("isZip") or result.get("error"):
+            issues.append(f"{name}: Capa2 Build Data/Databanks/Resources/Options target could not be inspected")
+        issues.extend(f"{name}: {issue}" for issue in (result.get("issues") or []))
+        warnings.extend(f"{name}: {warning}" for warning in (result.get("warnings") or []))
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        warnings.append("SQX processes are alive; phase17 Data/Databanks/Resources/Options target is XML/config-only and should be applied with SQX closed")
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase17_capa2_build_data_databanks_resources_options",
+        "operation": "capa2_build_data_databanks_resources_options_target",
+        "apply": apply,
+        "target": target,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_gate.get("issues") or [],
+            "warnings": previous_gate.get("warnings") or [],
+            "nextPhase": previous_gate.get("nextPhase"),
+            "written": previous_gate.get("written"),
+        },
+        "generatorLayer2": generator_summary,
+        "results": results,
+        "issues": issues,
+        "warnings": warnings,
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Close Capa2 Build > Data / Databanks / Resources / Options with a generic generator-owned seed contract.",
+            "data": "BUILD 2017.10.02-2023.12.31, testPrecision=2 simulated, No Session, no internal OOS ranges.",
+            "databanks": "Input=Results and Output=null; Ranking is the gate that saves generated strategies into Results.",
+            "resources": "AUDCAD_darwinex/H1/TICK/EETUS is only the seed; Project Generator owns final asset/timeframe/spread/resources.",
+            "options": "No Session, realistic gaps on, StoreChartData off, H1 seed window 02:00-22:00 and capa2 generator windows enabled for M5/M15/M30/H1/H4.",
+            "naturalResults": "No SQX run, no smoke, no optimization and no forced Results=passed.",
+            "nextPhase": CAPA2_BUILD_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT,
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": "phase17_capa2_build_data_databanks_resources_options_diff_review" if not apply else CAPA2_BUILD_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase17_capa2_build_data_databanks_resources_options_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    if apply and payload["ok"]:
+        payload["answerRecord"] = record_capa2_build_data_databanks_resources_options_answers(project_root, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase17_capa2_build_data_databanks_resources_options",
+            "nextPhase": CAPA2_BUILD_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT,
+            "scope": "capa2",
+            "baseProject": DEFAULT_CAPA2_BASE_PROJECT,
+            "repoTemplate": str(DEFAULT_CAPA2_TEMPLATE),
+            "phase17BuildDataDatabanksResourcesOptionsReport": str(evidence_target),
+            "phase17BuildDataDatabanksResourcesOptionsAnswers": (payload.get("answerRecord") or {}).get("written", {}),
+        })
+        write_json(state_path, state)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -18996,6 +19645,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_build_blocks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_build_blocks.add_argument("--apply", action="store_true")
 
+    capa2_build_data = sub.add_parser("capa2-build-data-databanks-resources-options-target")
+    capa2_build_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_build_data.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -19250,6 +19903,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-build-blocks-target":
         json_print(promote_capa2_build_blocks_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "capa2-build-data-databanks-resources-options-target":
+        json_print(promote_capa2_build_data_databanks_resources_options_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

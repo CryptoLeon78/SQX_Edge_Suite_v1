@@ -1909,6 +1909,57 @@ def test_generate_project_applies_intraday_time_window():
     assert params == {"SignalTimeRangeFrom": "7200", "SignalTimeRangeTo": "79200"}
 
 
+def test_generate_capa2_project_applies_layer2_build_window_and_disables_heavy_retest_windows():
+    mining = Mining(num=95, phase=2, asset="AUDCAD", tf="H4", bs="BS_Volatilidad", dir="long")
+    with tempfile.TemporaryDirectory() as tmp:
+        out_path = generate_project(
+            mining,
+            str(TEMPLATE_DIR / "Capa2_Base.cfx"),
+            tmp,
+            capa=2,
+            sqx_db_path=None,
+        )
+        roots = dict(_xml_roots(Path(out_path)))
+
+    build = roots["Build-Task1.xml"]
+    build_params = {
+        node.get("key"): node.text
+        for node in build.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"LimitTimeRange", "SignalTimeRangeFrom", "SignalTimeRangeTo", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert build_params == {
+        "LimitTimeRange": "true",
+        "SignalTimeRangeFrom": "14400",
+        "SignalTimeRangeTo": "72000",
+        "RealisticGapsHandling": "true",
+        "StoreChartData": "false",
+    }
+
+    retest1 = roots["AutomaticRetest-Task7.xml"]
+    retest1_params = {
+        node.get("key"): node.text
+        for node in retest1.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"LimitTimeRange", "SignalTimeRangeFrom", "SignalTimeRangeTo"}
+    }
+    assert retest1_params == {
+        "LimitTimeRange": "true",
+        "SignalTimeRangeFrom": "14400",
+        "SignalTimeRangeTo": "72000",
+    }
+
+    mc = roots["AutomaticRetest-Task1.xml"]
+    mc_params = {
+        node.get("key"): node.text
+        for node in mc.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"LimitTimeRange", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert mc_params == {
+        "LimitTimeRange": "false",
+        "RealisticGapsHandling": "false",
+        "StoreChartData": "false",
+    }
+
+
 def test_generate_project_defaults_to_sq_default_exact_symbol_for_user_downloads():
     mining = Mining(num=93, phase=1, asset="GBPJPY", tf="H1", bs="BS_Tendencia", dir="both")
     with tempfile.TemporaryDirectory() as tmp:

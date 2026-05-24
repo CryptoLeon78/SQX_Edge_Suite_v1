@@ -1,5 +1,14 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Capa2 Build Data/Databanks/Resources/Options
+
+- Adds `capa2-build-data-databanks-resources-options-target` as the Phase 17 Build Data/Databanks/Resources/Options guard for Capa2.
+- Records evidence `phase17_capa2_build_data_databanks_resources_options_target_20260524_213626.json` and answers `.local/sqx142_task_config/answers/capa2/Build_strategies/{Data,Databanks,Resources,Options}.json` with 48/48 entries closed.
+- Pins Capa2 Build to `BUILD 2017.10.02-2023.12.31`, `testPrecision=2 simulated`, no internal OOS ranges, generic seed `AUDCAD_darwinex/H1/TICK/EETUS`, `Input=Results`, `Output=null`, `No Session`, `RealisticGapsHandling=true` and `StoreChartData=false`.
+- Completes generator layer 2 ownership by adding Capa2 trading windows for M5/M15/M30/H1/H4 and disabling trading-window injection for heavy robustness tasks.
+- Applies only XML/template normalization with backup/diff and idempotent dry-run evidence; no SQX launch, smoke, optimization or forced `Results=passed` is claimed.
+- Sets the next exact block to `phase17_capa2_build_rankings`.
+
 ## 2026-05-24 - C1-CONFIG1 Capa2 Build Blocks
 
 - Adds `capa2-build-blocks-target` as the Phase 17 Build Blocks guard for Capa2.

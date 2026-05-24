@@ -3320,6 +3320,126 @@ def test_capa2_build_blocks_cli_is_registered():
     assert args.target == "both"
 
 
+def _write_capa2_generator_profile(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps({
+            "retestPeriods": {"BUILD": ["2017.10.02", "2023.12.31"]},
+            "tradingTimeRanges": {"capa2": gate.CAPA2_TRADING_TIME_RANGES_TARGET},
+            "disableTradingTimeRanges": {"2": gate.CAPA2_DISABLE_TRADING_TIME_RANGES_TARGET},
+            "taskPeriodMaps": {"2": {"Build-Task1.xml": "BUILD"}},
+        }),
+        encoding="utf-8",
+    )
+
+
+def test_capa2_build_data_databanks_resources_options_applies_and_is_idempotent(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_build_cfx(local_cfx, r"C:\Users\Ivan SQX\Downloads\TemplateMaker\c2.sqx", spread="2")
+    _write_minimal_capa2_build_cfx(repo_cfx, "", spread="1.4")
+    _write_capa2_generator_profile(generator_profile)
+
+    monkeypatch.setattr(gate, "promote_capa2_build_blocks_target", lambda *args, **kwargs: {
+        "phase": "phase17_capa2_build_blocks",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase17_capa2_build_data_databanks_resources_options",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+
+    payload = gate.promote_capa2_build_data_databanks_resources_options_target(tmp_path, tmp_path, target="both", apply=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase17_capa2_build_data_databanks_resources_options"
+    assert payload["nextPhase"] == "phase17_capa2_build_rankings"
+    assert Path(payload["answerRecord"]["written"]["Data"]).is_file()
+    local_root = gate.load_task_root(local_cfx, gate.CAPA2_BUILD_TASK_TITLE)[1]
+    repo_root = gate.load_task_root(repo_cfx, gate.CAPA2_BUILD_TASK_TITLE)[1]
+    assert gate.enforce_capa2_build_data_databanks_resources_options_guard(local_root, "localBase") == []
+    assert gate.enforce_capa2_build_data_databanks_resources_options_guard(repo_root, "repoTemplate") == []
+    setup = local_root.find("./Data/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "2"
+    assert setup.get("session") == "No Session"
+    assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
+    assert local_root.findall("./Data/OutOfSample/Range") == []
+    assert {
+        databank.get("name"): databank.get("value")
+        for databank in local_root.findall("./Databanks/Databank")
+    } == {"Input": "Results", "Output": "null"}
+    assert local_root.find("./Resources/Symbols/Symbol").get("precision") == "TICK"
+    assert local_root.find("./Resources/Symbols/Symbol").get("timezone") == "EETUS"
+    assert local_root.findall("./Resources/Sessions/Session") == []
+    options = {
+        param.get("key"): param.text
+        for param in local_root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in gate.CAPA2_BUILD_OPTIONS_PARAMS_TARGET
+    }
+    assert options == gate.CAPA2_BUILD_OPTIONS_PARAMS_TARGET
+
+    dry_run = gate.promote_capa2_build_data_databanks_resources_options_target(tmp_path, tmp_path, target="both", apply=False)
+
+    assert dry_run["ok"] is True
+    assert dry_run["results"]["localBase"]["changed"] is False
+    assert dry_run["results"]["repoTemplate"]["changed"] is False
+    assert dry_run["results"]["repoTemplate"]["changedActionCount"] == 0
+
+
+def test_capa2_build_data_databanks_resources_options_guard_rejects_drift():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data>
+            <Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups>
+            <OutOfSample><Range dateFrom="2023.01.01" dateTo="2025.01.01" /></OutOfSample>
+          </Data>
+          <Databanks><Databank name="Input" value="Monkey Test" /><Databank name="Output" value="Results" /></Databanks>
+          <Resources><Symbols><Symbol name="USDJPY_darwinex" precision="M1" timezone="UTC" broker="9"><InstrumentInfo broker="9" /></Symbol></Symbols><Brokers><Broker id="4" /></Brokers><Sessions><Session name="Old" /></Sessions></Resources>
+          <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">false</Param><Param key="RealisticGapsHandling">false</Param><Param key="StoreChartData">true</Param><Param key="Session">Old</Param><Param key="MarketOpenSession">Old</Param></Params></BuildTradingOptions></Options>
+        </Settings>
+        """
+    )
+
+    issues = gate.enforce_capa2_build_data_databanks_resources_options_guard(root, "repoTemplate")
+
+    assert any("dateFrom" in issue for issue in issues)
+    assert any("testPrecision" in issue for issue in issues)
+    assert any("chart symbol" in issue for issue in issues)
+    assert any("OutOfSample" in issue for issue in issues)
+    assert any("Databank Input" in issue for issue in issues)
+    assert any("Resources must keep only seed symbol" in issue for issue in issues)
+    assert any("Options param LimitTimeRange" in issue for issue in issues)
+    assert any("forbidden donor token" in issue for issue in issues)
+
+
+def test_capa2_generator_layer2_contract_rejects_missing_windows(monkeypatch, tmp_path):
+    generator_profile = tmp_path / "generator_profiles.json"
+    generator_profile.write_text(
+        json.dumps({"tradingTimeRanges": {"capa2": {}}, "disableTradingTimeRanges": {}, "taskPeriodMaps": {"2": {"Build-Task1.xml": "BUILD"}}}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+
+    issues = gate.enforce_capa2_generator_layer2_contract()
+
+    assert any("tradingTimeRanges.capa2" in issue for issue in issues)
+    assert any("disableTradingTimeRanges.2" in issue for issue in issues)
+
+
+def test_capa2_build_data_databanks_resources_options_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-build-data-databanks-resources-options-target", "--target", "both"])
+
+    assert args.command == "capa2-build-data-databanks-resources-options-target"
+    assert args.target == "both"
+
+
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
     calls = []
 
