@@ -9,9 +9,9 @@ perfiles del agente y handoffs locales para proteger el resto del cuestionario.
 Antes de cerrar TICK y abrir MC, `sqx-academic-lopez` queda disponible como
 consulta academica local-only para OOS, MC, data snooping y backtest
 overfitting.
-Fase 8 queda con `Sequential > Data / Databanks / Resources / Options`,
-`Sequential > CrossChecks`, `Sequential > Passive Generation` y
-`Sequential > Static Tabs` cerrados: `Input=MC2`, `Output=Sequential`,
+Fase 8 `Sequential` queda cerrada formalmente con
+`phase8_sequential_closeout_20260524_085653.json`: `Input=MC2`,
+`Output=Sequential`,
 portador dual `Data+CustomData` sincronizado para SQX142, Options inertes,
 solo `SequentialOptimization` activo, `ApplyToStrategy=false`, aceptacion
 `80/5/25`, metodos ocultos de crosschecks inactivos apagados,
@@ -19,8 +19,13 @@ solo `SequentialOptimization` activo, `ApplyToStrategy=false`, aceptacion
 apagados, no Signals, no Stop/Limit entry blocks, Indicators preservados, solo
 `EnterAtMarket` + `ExitAfterBars` probability `100`, Rankings inert,
 `FitPortfolio=false`, `CustomAnalysis.filter=false`, ATMs disabled, FixedSize
-active y `SelectedStrategies` empty. Siguiente bloque exacto
-`phase8_sequential_closeout`.
+active y `SelectedStrategies` empty. Todos los guards quedan `ok=true`,
+`changed=false`, `changedActionCount=0`, `guardOk=true`, con `issues=[]`,
+`warnings=[]`, `processes=[]`. Siguiente bloque exacto
+`phase9_monkey_test_open`.
+Subbloques cerrados: `Sequential > Data / Databanks / Resources / Options`,
+`Sequential > CrossChecks`, `Sequential > Passive Generation` y
+`Sequential > Static Tabs`.
 La mini fase `SQX142-BRANDING1` queda cerrada antes de `RETEST 0`: cambia solo
 la capa visual local de SQX a `Build: 142.2336 Codex`, oculta en About las
 lineas privadas de licencia/identidad y muestra la trazabilidad
@@ -139,6 +144,8 @@ tools\sqx142_task_config_gate.ps1 sequential-passive-generation-target --target 
 tools\sqx142_task_config_gate.ps1 sequential-passive-generation-target --target both --apply
 tools\sqx142_task_config_gate.ps1 sequential-static-tabs-target --target both
 tools\sqx142_task_config_gate.ps1 sequential-static-tabs-target --target both --apply
+tools\sqx142_task_config_gate.ps1 sequential-closeout-report --target both
+tools\sqx142_task_config_gate.ps1 sequential-closeout-report --target both --write
 tools\sqx142_task_config_gate.ps1 phase-report --phase phase1 --summary "<summary>" --next-phase phase2 --write
 ```
 
@@ -1118,8 +1125,26 @@ Reportes locales:
 `.local/sqx142_task_config/diffs/phase8_sequential_static_tabs_target_20260524_084048.json`.
 `.local/sqx142_task_config/phase_reports/phase8_sequential_static_tabs_20260524_084121.json`.
 
-Siguiente bloque exacto: `phase8_sequential_closeout`, para cerrar formalmente
-Fase 8 antes de saltar a `Monkey Test`.
+Closeout formal de Fase 8 `Sequential`:
+
+- Se anade `sequential-closeout-report` para cerrar Fase 8 solo si MC2 previo
+  y los cuatro guards Sequential estan verdes e idempotentes en dry-run.
+- Verifica `sequential-data-databanks-resources-options-target`,
+  `sequential-crosschecks-target`, `sequential-passive-generation-target` y
+  `sequential-static-tabs-target` en base local y template repo.
+- El reporte escrito queda `ok=true`, `issues=[]`, `warnings=[]`,
+  `processes=[]`; todos los targets quedan `changed=false`,
+  `changedActionCount=0`, `guardOk=true` y `AutomaticRetest-Task3.xml`.
+- El estado de sesion local pasa a `currentPhase=phase8_sequential_closeout`
+  y `nextPhase=phase9_monkey_test_open`.
+- No se lanza SQX ni se ejecutan retests reales; el cierre solo lee XML/estado
+  local y escribe evidencia ignorada por Git.
+
+Reporte local:
+`.local/sqx142_task_config/phase_reports/phase8_sequential_closeout_20260524_085653.json`.
+
+Siguiente bloque exacto: `phase9_monkey_test_open`, para abrir `Monkey Test`
+con la misma disciplina de cuestionario/dry-run antes de tocar valores.
 
 ## Disciplina Operativa
 

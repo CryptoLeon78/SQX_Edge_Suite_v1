@@ -154,10 +154,12 @@ tools\sqx142_task_config_gate.ps1 sequential-passive-generation-target --target 
 tools\sqx142_task_config_gate.ps1 sequential-passive-generation-target --target both --apply
 tools\sqx142_task_config_gate.ps1 sequential-static-tabs-target --target both
 tools\sqx142_task_config_gate.ps1 sequential-static-tabs-target --target both --apply
+tools\sqx142_task_config_gate.ps1 sequential-closeout-report --target both
+tools\sqx142_task_config_gate.ps1 sequential-closeout-report --target both --write
 ```
 
 Fase 1 ya promociona solo las views allowlisted de databanks hacia base local y template repo. Fase 2 genera cuestionarios Build completos: todas las entradas detectadas se guardan por defecto, incluidas rutas XML repetidas con indice estable. Las respuestas completas viven en `.local/sqx142_task_config/`; los docs solo reciben resumen limpio al cerrar fase.
-Fase 8 ya cerro `Sequential > Data / Databanks / Resources / Options`, `Sequential > CrossChecks`, `Sequential > Passive Generation` y `Sequential > Static Tabs`: `Input=MC2`, `Output=Sequential`, portador dual `Data+CustomData`, Options inertes, Project Generator sin ventana horaria para `AutomaticRetest-Task3.xml`, solo `SequentialOptimization` activo, `ApplyToStrategy=false`, aceptacion `80/5/25`, placeholder `Strategies to improve` normalizado a `MC2`, `PartsToImprove` pasivo, evolution restarts apagados, no Signals, no Stop/Limit entry blocks, Indicators preservados, solo `EnterAtMarket` + `ExitAfterBars` probability `100`, Rankings inert, `FitPortfolio=false`, `CustomAnalysis.filter=false`, ATMs disabled, FixedSize active y `SelectedStrategies` empty. Siguiente bloque exacto: `phase8_sequential_closeout`.
+Fase 8 `Sequential` queda cerrada formalmente con `phase8_sequential_closeout_20260524_085653.json`: `Input=MC2`, `Output=Sequential`, portador dual `Data+CustomData`, Options inertes, Project Generator sin ventana horaria para `AutomaticRetest-Task3.xml`, solo `SequentialOptimization` activo, `ApplyToStrategy=false`, aceptacion `80/5/25`, placeholder `Strategies to improve` normalizado a `MC2`, `PartsToImprove` pasivo, evolution restarts apagados, no Signals, no Stop/Limit entry blocks, Indicators preservados, solo `EnterAtMarket` + `ExitAfterBars` probability `100`, Rankings inert, `FitPortfolio=false`, `CustomAnalysis.filter=false`, ATMs disabled, FixedSize active y `SelectedStrategies` empty. Todos los guards de Sequential y MC2 previo quedan `ok=true`, `changed=false`, `changedActionCount=0`, `guardOk=true`, con `issues=[]`, `warnings=[]`, `processes=[]`. Siguiente bloque exacto: `phase9_monkey_test_open`.
 
 ## SQX Edge Pro
 

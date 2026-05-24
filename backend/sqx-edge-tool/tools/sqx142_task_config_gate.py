@@ -568,6 +568,7 @@ SEQUENTIAL_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT = "phase8_sequential_crosscheck
 SEQUENTIAL_CROSSCHECKS_NEXT = "phase8_sequential_passive_generation"
 SEQUENTIAL_PASSIVE_GENERATION_NEXT = "phase8_sequential_static_tabs"
 SEQUENTIAL_STATIC_TABS_NEXT = "phase8_sequential_closeout"
+SEQUENTIAL_CLOSEOUT_NEXT = "phase9_monkey_test_open"
 SEQUENTIAL_PASSIVE_SOURCE_TASK_TITLE = MC2_TASK_TITLE
 SEQUENTIAL_STRATEGY_TYPE_TARGET = {
     "type": "simple",
@@ -8776,6 +8777,112 @@ def promote_sequential_static_tabs_target(root142: Path, project_root: Path, tar
     return payload
 
 
+SEQUENTIAL_CLOSEOUT_OPERATIONS = (
+    (
+        "dataDatabanksResourcesOptions",
+        "sequential-data-databanks-resources-options-target",
+        promote_sequential_data_databanks_resources_options_target,
+    ),
+    ("crosschecks", "sequential-crosschecks-target", promote_sequential_crosschecks_target),
+    ("passiveGeneration", "sequential-passive-generation-target", promote_sequential_passive_generation_target),
+    ("staticTabs", "sequential-static-tabs-target", promote_sequential_static_tabs_target),
+)
+
+
+def sequential_closeout_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    operations: dict[str, Any] = {}
+    issues: list[str] = []
+    for key, command, runner in SEQUENTIAL_CLOSEOUT_OPERATIONS:
+        result = runner(root142, project_root, target=target, apply=False)
+        operation_issues = mc_closeout_operation_issues(command, result)
+        operations[key] = {
+            "command": command,
+            "summary": mc_closeout_operation_summary(result),
+            "issues": operation_issues,
+        }
+        issues.extend(operation_issues)
+
+    previous_gate = mc2_closeout_report(root142, project_root, target=target, write=False)
+    previous_issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        previous_issues.append("mc2-closeout-report: previous gate ok=false")
+    issues.extend(previous_issues)
+
+    process_probe = process_snapshot()
+    process_warnings = []
+    if process_probe.get("processes"):
+        process_warnings.append("SQX processes are alive; closeout is XML/dry-run only, no SQX runtime mutation was attempted")
+
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase8_sequential_closeout",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_issues,
+            "nextPhase": previous_gate.get("nextPhase"),
+        },
+        "operations": operations,
+        "issues": issues,
+        "warnings": process_warnings,
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Close Sequential after all Phase 8 guards are green and idempotent on local base and repo template.",
+            "taskTitle": SEQUENTIAL_TASK_TITLE,
+            "taskXml": SEQUENTIAL_TASK_XML,
+            "chain": "Input=MC2 / Output=Sequential",
+            "period": SEQUENTIAL_PERIOD_KEY,
+            "testPrecision": SEQUENTIAL_DATA_TEST_PRECISION,
+            "activeCrossCheck": SEQUENTIAL_ACTIVE_CROSSCHECK,
+            "activeCrossCheckSettings": {
+                "ApplyToStrategy": SEQUENTIAL_PARAMETER_SETTINGS_TARGET["ApplyToStrategy"],
+                "DistributionUp": SEQUENTIAL_PARAMETER_SETTINGS_TARGET["DistributionUp"],
+                "DistributionDown": SEQUENTIAL_PARAMETER_SETTINGS_TARGET["DistributionDown"],
+                "Steps": SEQUENTIAL_PARAMETER_SETTINGS_TARGET["Steps"],
+                "PctToPass": SEQUENTIAL_ACCEPTANCE_SETTINGS_TARGET["PctToPass"],
+                "ResultsCount": SEQUENTIAL_ACCEPTANCE_SETTINGS_TARGET["ResultsCount"],
+                "StabilityRange": SEQUENTIAL_ACCEPTANCE_SETTINGS_TARGET["StabilityRange"],
+            },
+            "passiveContract": {
+                "improveDatabank": SEQUENTIAL_STRATEGY_TYPE_TARGET["improveDatabank"],
+                "signals": 0,
+                "stopLimitEntryBlocks": 0,
+                "entry": "EnterAtMarket",
+                "exit": "ExitAfterBars probability 100",
+            },
+            "staticContract": {
+                "ranking": "inert",
+                "deleteFailedStrategies": "false",
+                "forceRunCrossChecks": "false",
+                "fitPortfolio": "false",
+                "customAnalysisFilter": "false",
+                "riskMoneyManagement": "FixedSize",
+                "atms": "disabled",
+                "selectedStrategies": "empty",
+                "customDataCarrier": "dual_synced",
+            },
+            "nextPhase": SEQUENTIAL_CLOSEOUT_NEXT,
+            "closeoutCriterion": "all Sequential guards plus MC2 previous gate must be green and idempotent before opening Monkey Test",
+            "noLiveRun": "This closeout only reads XML/local state and writes a phase report when requested.",
+        },
+        "nextPhase": SEQUENTIAL_CLOSEOUT_NEXT,
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase8_sequential_closeout_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase8_sequential_closeout", "nextPhase": SEQUENTIAL_CLOSEOUT_NEXT})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -10053,6 +10160,10 @@ def build_parser() -> argparse.ArgumentParser:
     sequential_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     sequential_static.add_argument("--apply", action="store_true")
 
+    sequential_closeout = sub.add_parser("sequential-closeout-report")
+    sequential_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    sequential_closeout.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -10205,6 +10316,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "sequential-static-tabs-target":
         json_print(promote_sequential_static_tabs_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "sequential-closeout-report":
+        json_print(sequential_closeout_report(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

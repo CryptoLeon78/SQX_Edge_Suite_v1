@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Sequential Closeout
+
+- Adds `sequential-closeout-report` to close Phase 8 only when MC2 previous gate and all Sequential guards are green/idempotent in dry-run mode.
+- Verifies `sequential-data-databanks-resources-options-target`, `sequential-crosschecks-target`, `sequential-passive-generation-target` and `sequential-static-tabs-target` over local base and repo template with `changed=false`, `changedActionCount=0` and `guardOk=true`.
+- Records `phase8_sequential_closeout_20260524_085653.json` with `issues=[]`, `warnings=[]`, `processes=[]`, chain `Input=MC2 / Output=Sequential`, active `SequentialOptimization` and next exact block `phase9_monkey_test_open`.
+
 ## 2026-05-24 - C1-CONFIG1 Sequential Static Tabs
 
 - Adds `sequential-static-tabs-target` with dry-run-first backup/diff/apply over local base and repo template.
