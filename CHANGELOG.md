@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Capa2 Build Static Tabs
+
+- Adds `capa2-build-static-tabs-target` as the Phase 17 Build Static Tabs guard for Capa2.
+- Records evidence `phase17_capa2_build_static_tabs_target_20260524_231540.json` and answers `.local/sqx142_task_config/answers/capa2/Build_strategies/{RiskMoneyManagement,ATMs,PartsToImprove,Optimization,Notes}.json` with 61/61 entries closed.
+- Pins Capa2 Build static tabs as bounded/inert surfaces: `FixedAmount=true`, ATMs disabled, entry/order improvement off, exit-rule improvement on for the SL/TP/trailing layer, bounded Optimization settings and preserved Notes.
+- Reports both local base and repo template already aligned with `changed=false`, `changedActionCount=0`, `guardOk=true`, no SQX process, no SQX launch, no smoke, no optimization and no forced `Results=passed`.
+- Sets the next exact block to `phase18_capa2_retest0`.
+
 ## 2026-05-24 - C1-CONFIG1 Capa2 Build CrossChecks
 
 - Adds `capa2-build-crosschecks-target` as the Phase 17 Build CrossChecks guard for Capa2.

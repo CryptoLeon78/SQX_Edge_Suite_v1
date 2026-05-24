@@ -4771,6 +4771,90 @@
       }
     },
     {
+      "id": "sqx142_c2_phase17_build_static_tabs",
+      "description": "C1-CONFIG1 Phase 17 Capa2 Build Static Tabs must stay closed as bounded/inert static surfaces with no SQX execution claims.",
+      "required": {
+        "README.md": [
+          "phase17_capa2_build_static_tabs",
+          "phase17_capa2_build_static_tabs_target_20260524_231540.json",
+          "61/61 respuestas",
+          "`FixedAmount` activo",
+          "ATMs desactivados",
+          "mejora de entradas/tipos de orden apagada",
+          "mejora de salidas activa",
+          "phase18_capa2_retest0"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Phase 17 `Capa2 Build Static Tabs` is closed",
+          "phase17_capa2_build_static_tabs_target_20260524_231540.json",
+          "`capa2-build-static-tabs-target --target both --apply`",
+          "61/61 answers",
+          "`FixedAmount` remains the Capa2 Build sizing seed",
+          "ATMs are disabled",
+          "exit-rule improvement stays on",
+          "`changedActionCount=0`",
+          "phase18_capa2_retest0"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "phase17_capa2_build_static_tabs",
+          "bounded Static Tabs",
+          "`FixedAmount`",
+          "ATMs off",
+          "entry/order improvement off",
+          "exit improvement on",
+          "Static Tabs do not imply SQX execution"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Estado Fase 17 - Capa2 Build Static Tabs",
+          "phase17_capa2_build_static_tabs_target_20260524_231540.json",
+          "`capa2-build-static-tabs-target --target both --apply`",
+          "61/61",
+          "`FixedAmount=true`",
+          "`ATMs enable=false`",
+          "`PartsToImprove` mantiene entradas y tipos de orden apagados",
+          "`Optimization` conserva superficie acotada",
+          "`currentPhase=phase17_capa2_build_static_tabs`",
+          "`nextPhase=phase18_capa2_retest0`"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-24 - C1-CONFIG1 Capa2 Build Static Tabs",
+          "`capa2-build-static-tabs-target`",
+          "phase17_capa2_build_static_tabs_target_20260524_231540.json",
+          "61/61",
+          "FixedAmount=true",
+          "phase18_capa2_retest0"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "CAPA2_BUILD_STATIC_TABS_NEXT = \"phase18_capa2_retest0\"",
+          "CAPA2_BUILD_STATIC_TABS",
+          "def promote_capa2_build_static_tabs_target",
+          "def enforce_capa2_build_static_tabs_guard",
+          "capa2-build-static-tabs-target"
+        ],
+        "backend/sqx-edge-tool/test_sqx142_task_config_gate.py": [
+          "test_capa2_build_static_tabs_target_applies_and_is_idempotent",
+          "test_capa2_build_static_tabs_guard_rejects_drift",
+          "test_capa2_build_static_tabs_cli_is_registered"
+        ]
+      },
+      "forbidden": {
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa2 Build Static Tabs ejecuta SQX",
+          "Capa2 Build Static Tabs lanza smoke",
+          "Capa2 Build Static Tabs inicia optimizacion",
+          "Capa2 Build Static Tabs fuerza Results=passed",
+          "ATMs activos en Build Capa2"
+        ],
+        "CHANGELOG.md": [
+          "Capa2 Build Static Tabs ran SQX",
+          "Capa2 Build Static Tabs ran smoke",
+          "Capa2 Build Static Tabs optimization completed",
+          "Capa2 Build Static Tabs forced Results=passed",
+          "ATMs active in Capa2 Build"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_per_message_bootstrap_g9",
       "description": "G9 must keep per-message specialist activation and new-session bootstrap proactive but orchestrator-owned and mutation-gated.",
       "required": {

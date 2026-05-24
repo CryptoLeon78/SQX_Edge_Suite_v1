@@ -3725,7 +3725,7 @@ def retest1_static_crosschecks_summary(root: ET.Element) -> dict[str, Any]:
     rmm = find_section(root, "RiskMoneyManagement")
     money_methods = {
         method.get("type", ""): method.get("use", "")
-        for method in (rmm.findall(".//MoneyManagement/Method") if rmm is not None else [])
+        for method in (rmm.findall(".//Method") if rmm is not None else [])
         if method.get("type")
     }
     atms = find_section(root, "ATMs")
@@ -15766,6 +15766,7 @@ CAPA2_BUILD_BLOCKS_NEXT = "phase17_capa2_build_data_databanks_resources_options"
 CAPA2_BUILD_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT = "phase17_capa2_build_rankings"
 CAPA2_BUILD_RANKINGS_NEXT = "phase17_capa2_build_crosschecks"
 CAPA2_BUILD_CROSSCHECKS_NEXT = "phase17_capa2_build_static_tabs"
+CAPA2_BUILD_STATIC_TABS_NEXT = "phase18_capa2_retest0"
 CAPA2_BUILD_TASK_XML = "Build-Task1.xml"
 CAPA2_BUILD_TASK_TITLE = "Build strategies"
 CAPA2_BUILD_TAB_ORDER = [
@@ -15985,6 +15986,61 @@ CAPA2_BUILD_RANKING_ALLOWED_ACTIVE_GOALS = {"RExpectancy"}
 CAPA2_BUILD_CROSSCHECK_PARENT_TARGET = {"use": "false", "evaluateAll": "false"}
 CAPA2_BUILD_CROSSCHECK_SETUP_ENGINE = "MetaTrader5 (hedged)"
 CAPA2_BUILD_BANNED_DONOR_TOKENS = ("USDJPY", "USDJPY_darwinex", "USDJPY_dukascopy")
+CAPA2_BUILD_STATIC_TABS = (
+    "RiskMoneyManagement",
+    "ATMs",
+    "PartsToImprove",
+    "Optimization",
+    "Notes",
+)
+CAPA2_BUILD_RISK_MONEY_MANAGEMENT_METHOD_TARGET = {
+    "FixedSize": "false",
+    "RiskFixedBalancePct": "false",
+    "RiskFixedPctOfAccount": "false",
+    "FixedAmount": "true",
+    "StocksSizeByPrice": "false",
+    "AllowAllTrades": "true",
+}
+CAPA2_BUILD_ATMS_TARGET = {
+    "enable": "false",
+    "scaleOutType": "1",
+    "sizeDecimals": "1",
+    "minSize": "0.1",
+}
+CAPA2_BUILD_PARTS_TO_IMPROVE_ATTR_TARGET = {"improveATM": "false"}
+CAPA2_BUILD_PARTS_TO_IMPROVE_TARGET = {
+    ("EntryRules", "LongImprovement"): {"use": "false", "action": "replace"},
+    ("EntryRules", "ShortImprovement"): {"use": "false", "action": "replace"},
+    ("OrderTypes", "LongImprovement"): {"use": "false"},
+    ("OrderTypes", "ShortImprovement"): {"use": "false"},
+    ("ExitRules", "LongImprovement"): {"use": "true", "action": "add-or-replace"},
+    ("ExitRules", "ShortImprovement"): {"use": "true", "action": "add-or-replace"},
+}
+CAPA2_BUILD_PARTS_TO_IMPROVE_GROUP_ATTR_TARGET = {
+    "EntryRules": {"symmetry": "false"},
+    "ExitRules": {"symmetry": "false"},
+}
+CAPA2_BUILD_OPTIMIZATION_TARGET = {
+    "attrs": {"type": "1", "maxOptimizations": "15000"},
+    "Source": {"type": "1", "relativePath": "false"},
+    "SimpleOptimization": {"type": "10", "pctToPass": "80", "resultsCount": "5", "stabilityRange": "20"},
+    "OptimizationMethod": {"settings": "automatic", "symmetricVariables": "false", "symmetryDisabled": "false"},
+    "AutomaticSettings": {"distributionUp": "20", "distributionDown": "20", "maxSteps": "8"},
+    "WhatToParametrize": {"type": "0"},
+}
+CAPA2_BUILD_OPTIMIZATION_FLAGS_TARGET = {
+    "Recommended": "true",
+    "Periods": "false",
+    "Shifts": "false",
+    "Constants": "false",
+    "OtherParams": "false",
+    "EntryParams": "false",
+    "EntryLogic": "false",
+    "ExitParamsUsed": "false",
+    "ExitParamsUnused": "false",
+    "BooleanParams": "false",
+    "TradingOptions": "false",
+}
 CAPA2_TRADING_TIME_RANGES_TARGET = {
     "M5": ["02:00", "22:00"],
     "M15": ["02:00", "22:00"],
@@ -19036,6 +19092,447 @@ def promote_capa2_build_crosschecks_target(root142: Path, project_root: Path, ta
     return payload
 
 
+def capa2_build_parts_to_improve_summary(root: ET.Element | None) -> dict[str, Any]:
+    parts = find_section(root, "PartsToImprove") if root is not None else None
+    if parts is None:
+        return {"exists": False}
+    improvements: dict[str, dict[str, str]] = {}
+    groups: dict[str, dict[str, str]] = {}
+    for group in list(parts):
+        if not isinstance(group.tag, str):
+            continue
+        groups[group.tag] = dict(group.attrib)
+        for side in list(group):
+            if isinstance(side.tag, str):
+                improvements[f"{group.tag}/{side.tag}"] = dict(side.attrib)
+    return {
+        "exists": True,
+        "attrs": dict(parts.attrib),
+        "groups": groups,
+        "improvements": improvements,
+        "sha256": section_sha256(root, "PartsToImprove"),
+    }
+
+
+def apply_capa2_build_parts_to_improve_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    parts = find_section(root, "PartsToImprove")
+    if parts is None:
+        parts = ET.SubElement(root, "PartsToImprove")
+        actions.append({"field": "PartsToImprove", "from": None, "to": dict(parts.attrib), "changed": True})
+    set_attrs_on_node(parts, CAPA2_BUILD_PARTS_TO_IMPROVE_ATTR_TARGET, actions, "PartsToImprove:attrs")
+    for group_name, attrs in CAPA2_BUILD_PARTS_TO_IMPROVE_GROUP_ATTR_TARGET.items():
+        group = parts.find(group_name)
+        if group is None:
+            group = ET.SubElement(parts, group_name)
+            actions.append({"field": f"PartsToImprove/{group_name}", "from": None, "to": dict(group.attrib), "changed": True})
+        set_attrs_on_node(group, attrs, actions, f"PartsToImprove/{group_name}:attrs")
+    for (group_name, side_name), attrs in CAPA2_BUILD_PARTS_TO_IMPROVE_TARGET.items():
+        group = parts.find(group_name)
+        if group is None:
+            group = ET.SubElement(parts, group_name)
+            actions.append({"field": f"PartsToImprove/{group_name}", "from": None, "to": dict(group.attrib), "changed": True})
+        side = group.find(side_name)
+        if side is None:
+            side = ET.SubElement(group, side_name)
+            actions.append({"field": f"PartsToImprove/{group_name}/{side_name}", "from": None, "to": dict(side.attrib), "changed": True})
+        set_attrs_on_node(side, attrs, actions, f"PartsToImprove/{group_name}/{side_name}:attrs")
+
+
+def capa2_build_optimization_summary(root: ET.Element | None) -> dict[str, Any]:
+    optimization = find_section(root, "Optimization") if root is not None else None
+    if optimization is None:
+        return {"exists": False}
+    children = {child.tag: dict(child.attrib) for child in list(optimization) if isinstance(child.tag, str)}
+    flags_parent = optimization.find("WhatToParametrize")
+    flags = {
+        child.tag: (child.text or "")
+        for child in list(flags_parent)
+        if isinstance(child.tag, str)
+    } if flags_parent is not None else {}
+    return {
+        "exists": True,
+        "attrs": dict(optimization.attrib),
+        "children": children,
+        "flags": flags,
+        "sha256": section_sha256(root, "Optimization"),
+    }
+
+
+def apply_capa2_build_optimization_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    optimization = find_section(root, "Optimization")
+    if optimization is None:
+        optimization = ET.SubElement(root, "Optimization")
+        actions.append({"field": "Optimization", "from": None, "to": dict(optimization.attrib), "changed": True})
+    set_attrs_on_node(optimization, CAPA2_BUILD_OPTIMIZATION_TARGET["attrs"], actions, "Optimization:attrs")
+    for tag in ("Source", "SimpleOptimization", "OptimizationMethod", "AutomaticSettings"):
+        set_or_create_attrs_child(optimization, tag, CAPA2_BUILD_OPTIMIZATION_TARGET[tag], actions, f"Optimization/{tag}")
+    what = set_or_create_attrs_child(
+        optimization,
+        "WhatToParametrize",
+        CAPA2_BUILD_OPTIMIZATION_TARGET["WhatToParametrize"],
+        actions,
+        "Optimization/WhatToParametrize",
+    )
+    for tag, value in CAPA2_BUILD_OPTIMIZATION_FLAGS_TARGET.items():
+        set_or_create_text_child(what, tag, value, actions, f"Optimization/WhatToParametrize/{tag}")
+
+
+def capa2_build_static_tabs_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    rmm = find_section(root, "RiskMoneyManagement")
+    atms = find_section(root, "ATMs")
+    notes = find_section(root, "Notes")
+    custom = find_section(root, "CustomData")
+    databanks = {
+        databank.get("name", ""): databank.get("value", "")
+        for databank in root.findall(".//Databanks/Databank")
+        if databank.get("name")
+    }
+    money_methods = {
+        method.get("type", ""): method.get("use", "")
+        for method in (rmm.findall(".//Method") if rmm is not None else [])
+        if method.get("type")
+    }
+    return {
+        "exists": True,
+        "tabs": {
+            tab: {"exists": find_section(root, tab) is not None, "sha256": section_sha256(root, tab)}
+            for tab in CAPA2_BUILD_STATIC_TABS
+        },
+        "riskMoneyManagement": {"exists": rmm is not None, "methods": money_methods, "sha256": section_sha256(root, "RiskMoneyManagement")},
+        "atms": {"exists": atms is not None, "attrs": dict(atms.attrib) if atms is not None else {}, "sha256": section_sha256(root, "ATMs")},
+        "partsToImprove": capa2_build_parts_to_improve_summary(root),
+        "optimization": capa2_build_optimization_summary(root),
+        "notes": {"exists": notes is not None, "sha256": section_sha256(root, "Notes")},
+        "databanks": databanks,
+        "customData": {
+            "exists": custom is not None,
+            "attrs": dict(custom.attrib) if custom is not None else {},
+            "children": len(list(custom)) if custom is not None else 0,
+            "text": (custom.text or "").strip() if custom is not None else "",
+            "sha256": section_sha256(root, "CustomData"),
+        },
+    }
+
+
+def apply_capa2_build_static_tabs_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    rmm = find_section(root, "RiskMoneyManagement")
+    if rmm is None:
+        rmm = ET.SubElement(root, "RiskMoneyManagement", {"customSettings": "false"})
+        actions.append({"field": "RiskMoneyManagement", "from": None, "to": dict(rmm.attrib), "changed": True})
+    money = rmm.find("MoneyManagement") if rmm is not None else None
+    if money is None:
+        money = ET.SubElement(rmm, "MoneyManagement")
+        actions.append({"field": "RiskMoneyManagement/MoneyManagement", "from": None, "to": "created", "changed": True})
+    risk = rmm.find("RiskManagement") if rmm is not None else None
+    if risk is None:
+        risk = ET.SubElement(rmm, "RiskManagement", {"maxDrawdown": "30"})
+        actions.append({"field": "RiskMoneyManagement/RiskManagement", "from": None, "to": dict(risk.attrib), "changed": True})
+    existing = {method.get("type", ""): method for method in (rmm.findall(".//Method") if rmm is not None else []) if method.get("type")}
+    for method_type, wanted in CAPA2_BUILD_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        method = existing.get(method_type)
+        parent = risk if method_type == "AllowAllTrades" else money
+        if method is None and parent is not None:
+            method = ET.SubElement(parent, "Method", {"type": method_type})
+            before = None
+        elif method is not None:
+            before = dict(method.attrib)
+        else:
+            continue
+        method.set("type", method_type)
+        method.set("use", wanted)
+        actions.append({
+            "field": f"RiskMoneyManagement/Method:{method_type}:capa2",
+            "from": before,
+            "to": dict(method.attrib),
+            "changed": before != dict(method.attrib),
+        })
+    atms = find_section(root, "ATMs")
+    if atms is None:
+        atms = ET.SubElement(root, "ATMs")
+        actions.append({"field": "ATMs", "from": None, "to": dict(atms.attrib), "changed": True})
+    set_attrs_on_node(atms, CAPA2_BUILD_ATMS_TARGET, actions, "ATMs:attrs")
+    apply_capa2_build_parts_to_improve_to_root(root, actions)
+    apply_capa2_build_optimization_to_root(root, actions)
+    notes = find_section(root, "Notes")
+    if notes is None:
+        ET.SubElement(root, "Notes")
+        actions.append({"field": "Notes", "from": None, "to": "created", "changed": True})
+    else:
+        actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    return actions
+
+
+def enforce_capa2_build_static_tabs_guard(root: ET.Element, target_name: str) -> list[str]:
+    issues: list[str] = []
+    summary = capa2_build_static_tabs_summary(root)
+    if not summary.get("exists"):
+        return [f"{target_name}: Capa2 Build task missing"]
+    for tab in CAPA2_BUILD_STATIC_TABS:
+        if not (summary.get("tabs") or {}).get(tab, {}).get("exists"):
+            issues.append(f"{target_name}: Capa2 Build static tab {tab} is missing")
+    methods = (summary.get("riskMoneyManagement") or {}).get("methods") or {}
+    for method_type, wanted in CAPA2_BUILD_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if methods.get(method_type) != wanted:
+            issues.append(f"{target_name}: Capa2 Build RiskMoneyManagement {method_type} is {methods.get(method_type)!r}, expected {wanted!r}")
+    atms = summary.get("atms") or {}
+    for key, wanted in CAPA2_BUILD_ATMS_TARGET.items():
+        if (atms.get("attrs") or {}).get(key) != wanted:
+            issues.append(f"{target_name}: Capa2 Build ATMs {key} is {(atms.get('attrs') or {}).get(key)!r}, expected {wanted!r}")
+    parts = summary.get("partsToImprove") or {}
+    if (parts.get("attrs") or {}).get("improveATM") != CAPA2_BUILD_PARTS_TO_IMPROVE_ATTR_TARGET["improveATM"]:
+        issues.append(f"{target_name}: Capa2 Build PartsToImprove improveATM must stay false")
+    for group_name, attrs in CAPA2_BUILD_PARTS_TO_IMPROVE_GROUP_ATTR_TARGET.items():
+        group = (parts.get("groups") or {}).get(group_name) or {}
+        for key, wanted in attrs.items():
+            if group.get(key) != wanted:
+                issues.append(f"{target_name}: Capa2 Build PartsToImprove {group_name}.{key} is {group.get(key)!r}, expected {wanted!r}")
+    improvements = parts.get("improvements") or {}
+    for (group_name, side_name), attrs in CAPA2_BUILD_PARTS_TO_IMPROVE_TARGET.items():
+        current = improvements.get(f"{group_name}/{side_name}") or {}
+        for key, wanted in attrs.items():
+            if current.get(key) != wanted:
+                issues.append(f"{target_name}: Capa2 Build PartsToImprove {group_name}/{side_name}.{key} is {current.get(key)!r}, expected {wanted!r}")
+    optimization = summary.get("optimization") or {}
+    if optimization.get("attrs") != CAPA2_BUILD_OPTIMIZATION_TARGET["attrs"]:
+        issues.append(f"{target_name}: Capa2 Build Optimization attrs are {optimization.get('attrs')!r}, expected {CAPA2_BUILD_OPTIMIZATION_TARGET['attrs']!r}")
+    for tag in ("Source", "SimpleOptimization", "OptimizationMethod", "AutomaticSettings", "WhatToParametrize"):
+        expected = CAPA2_BUILD_OPTIMIZATION_TARGET[tag]
+        current = (optimization.get("children") or {}).get(tag) or {}
+        if current != expected:
+            issues.append(f"{target_name}: Capa2 Build Optimization/{tag} is {current!r}, expected {expected!r}")
+    if (optimization.get("flags") or {}) != CAPA2_BUILD_OPTIMIZATION_FLAGS_TARGET:
+        issues.append(f"{target_name}: Capa2 Build Optimization WhatToParametrize flags drifted")
+    if (summary.get("databanks") or {}) != CAPA2_BUILD_DATABANKS_TARGET:
+        issues.append(f"{target_name}: Capa2 Build Databanks are {summary.get('databanks')!r}, expected {CAPA2_BUILD_DATABANKS_TARGET!r}")
+    custom = summary.get("customData") or {}
+    if not custom.get("exists"):
+        issues.append(f"{target_name}: Capa2 Build Blocks CustomData seed is missing")
+    elif (custom.get("attrs") or {}).get("showAll") != "false" or custom.get("children") != 0 or custom.get("text"):
+        issues.append(f"{target_name}: Capa2 Build CustomData must stay empty with showAll=false")
+    guarded_text = (
+        section_text(root, "RiskMoneyManagement")
+        + section_text(root, "ATMs")
+        + section_text(root, "PartsToImprove")
+        + section_text(root, "Optimization")
+        + section_text(root, "Notes")
+        + section_text(root, "Databanks")
+        + section_text(root, "CustomData")
+    )
+    for token in CAPA2_BUILD_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"{target_name}: forbidden donor token leaked into Capa2 Build static tabs: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append(f"{target_name}: local absolute path leaked into Capa2 Build static tabs")
+    for issue in enforce_capa2_build_what_to_build_guard(root, target_name):
+        issues.append(f"WhatToBuild guard: {issue}")
+    for issue in enforce_capa2_build_blocks_guard(root, target_name):
+        issues.append(f"Blocks guard: {issue}")
+    for issue in enforce_capa2_build_data_databanks_resources_options_guard(root, target_name):
+        issues.append(f"Data/Resources guard: {issue}")
+    for issue in enforce_capa2_build_rankings_guard(root, target_name):
+        issues.append(f"Rankings guard: {issue}")
+    for issue in enforce_capa2_build_crosschecks_guard(root, target_name):
+        issues.append(f"CrossChecks guard: {issue}")
+    return issues
+
+
+def record_capa2_build_static_tabs_answers(project_root: Path, report: dict[str, Any]) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    answered_at = now_iso()
+    written: dict[str, str] = {}
+    total_questions = 0
+    total_answers = 0
+    for tab in CAPA2_BUILD_STATIC_TABS:
+        source = latest_capa2_questionnaire_path(project_root, CAPA2_BUILD_TASK_TITLE, tab)
+        questionnaire = read_json(source, {}) if source is not None else {}
+        questions = questionnaire.get("questions") or []
+        ids = [str(item.get("id", "")).strip() for item in questions if str(item.get("id", "")).strip()]
+        payload = {
+            "version": VERSION,
+            "scope": "capa2",
+            "taskTitle": CAPA2_BUILD_TASK_TITLE,
+            "tab": tab,
+            "phase": "phase17_capa2_build_static_tabs",
+            "createdAt": answered_at,
+            "updatedAt": answered_at,
+            "bulkAnswer": True,
+            "sourceQuestionnaire": str(source) if source is not None else "",
+            "questionCount": len(questions),
+            "uniqueQuestionCount": len(ids),
+            "answer": "recommended_capa2_build_static_tabs_contract",
+            "note": "Build Capa2 static tabs closed with inert ATMs, bounded exit improvement and no hidden execution surface.",
+            "decisionSummary": {
+                "riskMoneyManagement": "FixedAmount remains the Capa2 Build sizing seed; SL/PT/trailing are controlled in Blocks, not by portfolio sizing.",
+                "atms": "disabled",
+                "partsToImprove": "entry/order improvement off, exit improvement on for Capa2 risk-management layer",
+                "optimization": "bounded automatic recommended-params surface preserved; no SQX run or optimizer launch",
+                "notes": "preserved",
+                "nextPhase": CAPA2_BUILD_STATIC_TABS_NEXT,
+            },
+            "answers": {
+                qid: {
+                    "answer": "recommended_capa2_build_static_tabs_contract",
+                    "note": "Closed by phase17_capa2_build_static_tabs target after dry-run/apply guard.",
+                    "answeredAt": answered_at,
+                }
+                for qid in ids
+            },
+            "sourceReport": report.get("written", ""),
+        }
+        target = ledger_root(project_root) / "answers" / "capa2" / slug(CAPA2_BUILD_TASK_TITLE) / f"{tab}.json"
+        write_json(target, payload)
+        written[tab] = str(target)
+        total_questions += len(questions)
+        total_answers += len(ids)
+    return {
+        "ok": True,
+        "version": VERSION,
+        "tabs": list(CAPA2_BUILD_STATIC_TABS),
+        "written": written,
+        "answerCount": total_answers,
+        "questionCount": total_questions,
+    }
+
+
+def update_capa2_build_static_tabs_target_in_cfx(cfx: Path, backup_root: Path, apply: bool, target_name: str) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root, display_title = load_capa2_build_task_root(cfx)
+    payload["taskXml"] = task_xml_name
+    payload["displayTitle"] = display_title
+    if not task_xml_name or root is None:
+        payload["error"] = "capa2_build_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = capa2_build_static_tabs_summary(root)
+    payload["actions"] = apply_capa2_build_static_tabs_to_root(root)
+    payload["after"] = capa2_build_static_tabs_summary(root)
+    payload["issues"] = enforce_capa2_build_static_tabs_guard(root, target_name)
+    payload["warnings"] = []
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["serializedChanged"] = before_text != after_text
+    payload["changed"] = payload["changedActionCount"] > 0
+    payload["targetValues"] = {
+        "staticTabs": CAPA2_BUILD_STATIC_TABS,
+        "riskMoneyManagementMethods": CAPA2_BUILD_RISK_MONEY_MANAGEMENT_METHOD_TARGET,
+        "atms": CAPA2_BUILD_ATMS_TARGET,
+        "partsToImprove": {
+            "attrs": CAPA2_BUILD_PARTS_TO_IMPROVE_ATTR_TARGET,
+            "improvements": {"/".join(key): value for key, value in CAPA2_BUILD_PARTS_TO_IMPROVE_TARGET.items()},
+        },
+        "optimization": CAPA2_BUILD_OPTIMIZATION_TARGET,
+        "optimizationFlags": CAPA2_BUILD_OPTIMIZATION_FLAGS_TARGET,
+    }
+    payload["targetRationale"] = {
+        "riskMoneyManagement": "Capa2 Build keeps the existing FixedAmount sizing seed; the methodology risk layer is SL/PT/trailing plus bounded exit improvement.",
+        "partsToImprove": "Entries and order types stay closed so Capa2 does not rediscover the market edge; exit improvement stays enabled for the risk-management layer.",
+        "staticSurfaces": "ATMs disabled, Notes preserved, Databanks already Input=Results/Output=null and CustomData empty.",
+        "naturalResults": "No SQX run, no smoke, no optimization and no forced Results=passed.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_capa2_build_static_tabs_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = promote_capa2_build_crosschecks_target(root142, project_root, target=target, apply=False)
+    issues = list(previous_gate.get("issues") or [])
+    warnings = list(previous_gate.get("warnings") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("capa2-build-crosschecks-target: previous gate ok=false")
+    backup_root = ledger_root(project_root) / "backups" / f"phase17_capa2_build_static_tabs_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = capa2_base_project_path(root142)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_CAPA2_TEMPLATE
+    results = {
+        name: update_capa2_build_static_tabs_target_in_cfx(path, backup_root / name, apply=apply, target_name=name)
+        for name, path in targets.items()
+    }
+    for name, result in results.items():
+        if not result.get("exists") or not result.get("isZip") or result.get("error"):
+            issues.append(f"{name}: Capa2 Build Static Tabs target could not be inspected")
+        issues.extend(f"{name}: {issue}" for issue in (result.get("issues") or []))
+        warnings.extend(f"{name}: {warning}" for warning in (result.get("warnings") or []))
+    process_probe = process_snapshot()
+    if process_probe.get("processes"):
+        warnings.append("SQX processes are alive; phase17 Static Tabs target is XML/config-only and should be applied with SQX closed")
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase17_capa2_build_static_tabs",
+        "operation": "capa2_build_static_tabs_target",
+        "apply": apply,
+        "target": target,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_gate.get("issues") or [],
+            "warnings": previous_gate.get("warnings") or [],
+            "nextPhase": previous_gate.get("nextPhase"),
+            "written": previous_gate.get("written"),
+        },
+        "results": results,
+        "issues": issues,
+        "warnings": warnings,
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Close Capa2 Build static tabs while keeping the task focused on bounded exit/risk-management variants.",
+            "riskMoneyManagement": "FixedAmount stays active and portfolio sizing remains outside Build.",
+            "atms": "ATMs disabled.",
+            "partsToImprove": "Entry/order improvement off; exit-rule improvement on for Capa2 SL/PT/trailing layer.",
+            "optimization": "Optimization settings are bounded and preserved, with no SQX run or optimizer launch.",
+            "naturalResults": "No SQX run, no smoke, no optimization and no forced Results=passed.",
+            "nextPhase": CAPA2_BUILD_STATIC_TABS_NEXT,
+        },
+        "academicSources": CAPA2_ACADEMIC_SOURCES,
+        "nextPhase": "phase17_capa2_build_static_tabs_diff_review" if not apply else CAPA2_BUILD_STATIC_TABS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase17_capa2_build_static_tabs_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    if apply and payload["ok"]:
+        payload["answerRecord"] = record_capa2_build_static_tabs_answers(project_root, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({
+            "updatedAt": now_iso(),
+            "currentPhase": "phase17_capa2_build_static_tabs",
+            "nextPhase": CAPA2_BUILD_STATIC_TABS_NEXT,
+            "scope": "capa2",
+            "baseProject": DEFAULT_CAPA2_BASE_PROJECT,
+            "repoTemplate": str(DEFAULT_CAPA2_TEMPLATE),
+            "phase17BuildStaticTabsReport": str(evidence_target),
+            "phase17BuildStaticTabsAnswers": (payload.get("answerRecord") or {}).get("written", {}),
+        })
+        write_json(state_path, state)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -20461,6 +20958,10 @@ def build_parser() -> argparse.ArgumentParser:
     capa2_build_crosschecks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     capa2_build_crosschecks.add_argument("--apply", action="store_true")
 
+    capa2_build_static_tabs = sub.add_parser("capa2-build-static-tabs-target")
+    capa2_build_static_tabs.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa2_build_static_tabs.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -20724,6 +21225,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "capa2-build-crosschecks-target":
         json_print(promote_capa2_build_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "capa2-build-static-tabs-target":
+        json_print(promote_capa2_build_static_tabs_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

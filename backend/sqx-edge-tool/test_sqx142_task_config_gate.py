@@ -3704,6 +3704,107 @@ def test_capa2_build_crosschecks_cli_is_registered():
     assert args.target == "both"
 
 
+def test_capa2_build_static_tabs_target_applies_and_is_idempotent(monkeypatch, tmp_path):
+    local_cfx = tmp_path / "local" / "project.cfx"
+    repo_cfx = tmp_path / "repo" / "Capa2_Base.cfx"
+    generator_profile = tmp_path / "generator_profiles.json"
+    _write_minimal_capa2_build_cfx(local_cfx, "", task_title="Build generated Capa2 label")
+    _write_minimal_capa2_build_cfx(repo_cfx, "", task_title="Build generated repo label")
+    _write_capa2_generator_profile(generator_profile)
+
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+    monkeypatch.setattr(gate, "capa2_base_project_path", lambda root142: local_cfx)
+    monkeypatch.setattr(gate, "DEFAULT_CAPA2_TEMPLATE", repo_cfx)
+    monkeypatch.setattr(gate, "GENERATOR_PROFILES_PATH", generator_profile)
+
+    for cfx, target_name in ((local_cfx, "localBase"), (repo_cfx, "repoTemplate")):
+        task_xml, root, _title = gate.load_capa2_build_task_root(cfx)
+        gate.apply_capa2_build_what_to_build_to_root(root, target_name)
+        gate.apply_capa2_build_blocks_to_root(root)
+        gate.apply_capa2_build_data_databanks_resources_options_to_root(root)
+        gate.apply_capa2_build_rankings_to_root(root)
+        gate.apply_capa2_build_crosschecks_to_root(root)
+        gate.replace_zip_text_entry(cfx, task_xml, gate.serialize_xml(root))
+    monkeypatch.setattr(gate, "promote_capa2_build_crosschecks_target", lambda *args, **kwargs: {
+        "phase": "phase17_capa2_build_crosschecks",
+        "ok": True,
+        "issues": [],
+        "warnings": [],
+        "nextPhase": "phase17_capa2_build_static_tabs",
+    })
+
+    payload = gate.promote_capa2_build_static_tabs_target(tmp_path, tmp_path, target="both", apply=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase17_capa2_build_static_tabs"
+    assert payload["nextPhase"] == "phase18_capa2_retest0"
+    assert Path(payload["answerRecord"]["written"]["RiskMoneyManagement"]).is_file()
+    local_root = gate.load_capa2_build_task_root(local_cfx)[1]
+    repo_root = gate.load_capa2_build_task_root(repo_cfx)[1]
+    assert gate.enforce_capa2_build_static_tabs_guard(local_root, "localBase") == []
+    assert gate.enforce_capa2_build_static_tabs_guard(repo_root, "repoTemplate") == []
+    methods = {
+        method.get("type"): method.get("use")
+        for method in local_root.findall(".//RiskMoneyManagement//Method")
+    }
+    assert methods["FixedAmount"] == "true"
+    assert methods["FixedSize"] == "false"
+    assert local_root.find("./ATMs").get("enable") == "false"
+    assert local_root.find("./PartsToImprove/EntryRules/LongImprovement").get("use") == "false"
+    assert local_root.find("./PartsToImprove/ExitRules/LongImprovement").get("use") == "true"
+    assert local_root.find("./Optimization/WhatToParametrize/Recommended").text == "true"
+
+    dry_run = gate.promote_capa2_build_static_tabs_target(tmp_path, tmp_path, target="both", apply=False)
+
+    assert dry_run["ok"] is True
+    assert dry_run["results"]["localBase"]["changed"] is False
+    assert dry_run["results"]["repoTemplate"]["changed"] is False
+    assert dry_run["results"]["repoTemplate"]["changedActionCount"] == 0
+
+
+def test_capa2_build_static_tabs_guard_rejects_drift():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <WhatToBuild>
+            <StrategyType type="template" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" />
+            <RulesComplexity useDifferentSettings="false"><Chart name="Main chart" minConditions="0" maxConditions="1" minExitConditions="1" maxExitConditions="1" minExitTypes="1" maxExitTypes="5" minPeriod="5" maxPeriod="200" minShift="1" maxShift="1" /></RulesComplexity>
+            <MarketSides type="long"><EntrySymmetry>false</EntrySymmetry><ExitSymmetry>false</ExitSymmetry></MarketSides>
+            <SLPTOptions><SLRequired>true</SLRequired><SLFixedPips>false</SLFixedPips><MinSLInPips>30</MinSLInPips><MaxSLInPips>80</MaxSLInPips><MinSLInMoney>30</MinSLInMoney><MaxSLInMoney>80</MaxSLInMoney><SLATR>true</SLATR><MinSLATRMultiple>0.5</MinSLATRMultiple><MaxSLATRMultiple>5</MaxSLATRMultiple><MinSLATRPeriod>5</MinSLATRPeriod><MaxSLATRPeriod>200</MaxSLATRPeriod><PTRequired>true</PTRequired><SeparatedSettings>true</SeparatedSettings><PTFixedPips>false</PTFixedPips><MinPTInPips>60</MinPTInPips><MaxPTInPips>200</MaxPTInPips><MinPTInMoney>60</MinPTInMoney><MaxPTInMoney>200</MaxPTInMoney><PTATR>true</PTATR><MinPTATRMultiple>0.5</MinPTATRMultiple><MaxPTATRMultiple>5</MaxPTATRMultiple><MinPTATRPeriod>5</MinPTATRPeriod><MaxPTATRPeriod>200</MaxPTATRPeriod><LimitSLPTRRR>false</LimitSLPTRRR><LimitSLPTRRRFrom>50</LimitSLPTRRRFrom><LimitSLPTRRRTo>80</LimitSLPTRRRTo><SLValueType>pips</SLValueType><PTValueType>pips</PTValueType><SLIndicatorBased>false</SLIndicatorBased><PTIndicatorBased>false</PTIndicatorBased><SLPercent>false</SLPercent><MinSLInPercent>1</MinSLInPercent><MaxSLInPercent>10</MaxSLInPercent><PTPercent>false</PTPercent><MinPTInPercent>1</MinPTInPercent><MaxPTInPercent>10</MaxPTInPercent></SLPTOptions>
+            <BuildMode generationType="random-generation"><PopulationSize>55</PopulationSize><MaxGenerations>100</MaxGenerations><CrossoverProbability>31</CrossoverProbability><MutationProbability>30</MutationProbability><ShowAdvancedGeneticSettings>false</ShowAdvancedGeneticSettings><Islands>7</Islands><MigrationModulo>19</MigrationModulo><MigrationRate>4</MigrationRate><ShowLastGenerationDatabank>true</ShowLastGenerationDatabank><InitGenerationType>1</InitGenerationType><DecimationCoef>1</DecimationCoef><FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar><FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest><FreshBloodWeakestPct>10</FreshBloodWeakestPct><FreshBloodWeakestGenerations>100</FreshBloodWeakestGenerations><Conditions><Condition use="true"><Left-Side valueType="column"><Column-Value column="ProfitFactor" format="Decimal2" sampleType="127" /></Left-Side><Comparator value="&gt;" /><Right-Side valueType="numeric"><Numeric-Value value="1" /></Right-Side></Condition></Conditions><EvoRestartOnFinish status="true" /><EvoRestartOnStagnation status="false" fitnessType="10" generations="15" /><EvoInSamplePeriod ratio="50" /></BuildMode>
+          </WhatToBuild>
+          <Blocks><BuildingBlocks><Block key="AlwaysTrue" category="signals" use="true" /><Block key="Indicators.RSI" category="indicators" use="true" /></BuildingBlocks><OrderTypes><Block key="EnterAtMarket" use="true" /><Block key="EnterReverseAtMarket" use="false" /><Block key="EnterAtStop" use="false" /><Block key="EnterAtLimit" use="false" /></OrderTypes><ExitTypes><Block key="ExitAfterBars.ExitAfterBars" use="false" /><Block key="StopLoss.StopLoss" use="true" probability="100" /><Block key="ProfitTarget.ProfitTarget" use="true" probability="100" /><Block key="TrailingStop.TrailingStop" use="true" probability="50" /><Block key="TrailingStop.TrailingActivation" use="false" /><Block key="MoveSL2BE.MoveSL2BE" use="false" /><Block key="MoveSL2BE.SL2BEAddPips" use="false" /><Block key="_ExitRule_" use="false" /></ExitTypes><CustomData showAll="false" /></Blocks>
+          <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /></Setup></Setups><OutOfSample /></Data>
+          <Databanks><Databank name="Input" value="Results" /><Databank name="Output" value="null" /></Databanks>
+          <Resources><Symbols><Symbol name="AUDCAD_darwinex" precision="TICK" timezone="EETUS" broker="4"><InstrumentInfo broker="4" /></Symbol></Symbols><Brokers><Broker id="4" /></Brokers><Sessions /></Resources>
+          <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">true</Param><Param key="RealisticGapsHandling">true</Param><Param key="StoreChartData">false</Param><Param key="Session">No Session</Param><Param key="MarketOpenSession">No Session</Param></Params></BuildTradingOptions></Options>
+          <Rankings type="never"><MaxStrategies>2000</MaxStrategies><ConditionsType>0</ConditionsType><DeleteFailedStrategies>false</DeleteFailedStrategies><ForceRunCrossChecks>false</ForceRunCrossChecks><AutomaticDismissal warnings="false" /><StopCondition type="databank-full" passedStrategies="500" restartCount="0" days="0" hours="0" minutes="0" /><FitPortfolio active="false" databank="" /><CustomAnalysis method="none" filter="false" inputArgs="" /><FitnessCriteria method="ComputeFromStrategyResult" useFitnessByIndex="false"><Settings><Ranking type="Weighted"><Goal type="RExpectancy" use="true" weight="1" valueType="1" target="0" /></Ranking></Settings></FitnessCriteria><Conditions /></Rankings>
+          <CrossChecks use="false" evaluateAll="false" />
+          <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="true" /><Method type="FixedAmount" use="false" /></MoneyManagement></RiskMoneyManagement>
+          <ATMs enable="true" />
+          <PartsToImprove improveATM="true"><EntryRules symmetry="true"><LongImprovement use="true" action="replace" /><ShortImprovement use="true" action="replace" /></EntryRules><ExitRules symmetry="true"><LongImprovement use="false" action="replace" /><ShortImprovement use="false" action="replace" /></ExitRules></PartsToImprove>
+          <Optimization type="2" maxOptimizations="999"><Source type="2" relativePath="true" /><WhatToParametrize type="1"><Recommended>false</Recommended></WhatToParametrize></Optimization>
+          <Notes />
+        </Settings>
+        """
+    )
+    gate.apply_capa2_build_rankings_to_root(root)
+
+    issues = gate.enforce_capa2_build_static_tabs_guard(root, "repoTemplate")
+
+    assert any("RiskMoneyManagement FixedSize" in issue for issue in issues)
+    assert any("ATMs enable" in issue for issue in issues)
+    assert any("PartsToImprove improveATM" in issue for issue in issues)
+    assert any("Optimization attrs" in issue for issue in issues)
+
+
+def test_capa2_build_static_tabs_cli_is_registered():
+    args = gate.build_parser().parse_args(["capa2-build-static-tabs-target", "--target", "both"])
+
+    assert args.command == "capa2-build-static-tabs-target"
+    assert args.target == "both"
+
+
 def test_synthetic_closeout_report_requires_green_phase10_dry_runs(monkeypatch, tmp_path):
     calls = []
 
