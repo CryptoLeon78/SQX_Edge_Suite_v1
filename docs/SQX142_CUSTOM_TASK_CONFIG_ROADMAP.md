@@ -1688,8 +1688,44 @@ activos ocultos en crosschecks inactivos sin ejecutar SPP.
 - El estado local queda en `currentPhase=phase11_spp_crosschecks` y
   `nextPhase=phase11_spp_static_tabs`.
 
-Siguiente bloque exacto: `phase11_spp_static_tabs`, para cerrar Rankings,
-RiskMoneyManagement y superficies estaticas restantes sin activar SPP ni WFM.
+### Estado Fase 11 - SPP Static Tabs
+
+`phase11_spp_static_tabs` queda cerrado con
+`phase11_spp_static_tabs_20260524_155130.json`.
+
+Decision aplicada para `phase11_spp_static_tabs`:
+
+- `spp-static-tabs-target` queda disponible en dry-run/apply para base local y
+  template repo.
+- `SPP` sigue como gate de revision de configuracion: no lanza SQX, no ejecuta
+  SPP, no hace smoke, no inicia optimizacion, no desbloquea WFM y no fuerza
+  `Results=passed`.
+- `AutomaticRetest-Task7.xml` mantiene `CustomData` como unico portador, sin
+  `Data`, con `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, seed
+  `AUDCAD_darwinex/H1` y spread `2.0`.
+- Rankings queda inerte: `type=never`, `MaxStrategies=10000`,
+  `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false`,
+  `FitPortfolio.active=false`, `CustomAnalysis.filter=false`, `method=none` y
+  sin condiciones extra. El resultado passed/failed lo decide
+  `OptProfileSysParamPermutation`.
+- `RiskMoneyManagement` conserva `FixedSize=true` y el resto de metodos en
+  `false` para evitar ruido de sizing en Capa1.
+- `ATMs` queda apagado, `Notes` preservado, y `SelectedStrategies`
+  vacio/ausente aceptado.
+- Evidencia local: dry-run
+  `phase11_spp_static_tabs_target_20260524_154942.json`, apply
+  `phase11_spp_static_tabs_target_20260524_155003.json`, backup
+  `phase11_spp_static_tabs_20260524_155003/` e idempotent dry-run
+  `phase11_spp_static_tabs_target_20260524_155015.json` con `ok=true`,
+  `changed=false`, `changedActionCount=0`, `guardOk=true` e `issues=[]`.
+- Ledger local respondido: `SPP > Rankings` (`21/21`), `ATMs` (`1/1`),
+  `RiskMoneyManagement` (`24/24`), `Notes` (`1/0` empty accepted),
+  `SelectedStrategies` (`1/0` empty accepted) y `CustomData` (`6/6`).
+- El estado local queda en `currentPhase=phase11_spp_static_tabs` y
+  `nextPhase=phase11_spp_closeout`.
+
+Siguiente bloque exacto: `phase11_spp_closeout`, para consolidar SPP sin
+ejecutarlo y decidir el salto documental hacia `WFM` review-only.
 
 ## Disciplina Operativa
 

@@ -21,6 +21,7 @@ from tools.sqx142_task_config_gate import (
     apply_synthetic_static_tabs_to_root,
     apply_spp_data_databanks_resources_options_to_root,
     apply_spp_crosschecks_to_root,
+    apply_spp_static_tabs_to_root,
     apply_sequential_data_databanks_resources_options_to_root,
     apply_sequential_crosschecks_to_root,
     apply_sequential_passive_generation_to_root,
@@ -55,6 +56,7 @@ from tools.sqx142_task_config_gate import (
     enforce_synthetic_static_tabs_guard,
     enforce_spp_data_databanks_resources_options_guard,
     enforce_spp_crosschecks_guard,
+    enforce_spp_static_tabs_guard,
     enforce_sequential_data_databanks_resources_options_guard,
     enforce_sequential_crosschecks_guard,
     enforce_sequential_passive_generation_guard,
@@ -3267,6 +3269,106 @@ def test_spp_crosschecks_guard_rejects_active_hidden_methods_bad_filters_and_for
     assert any("acceptance conditions" in issue for issue in issues)
     assert any("active methods" in issue for issue in issues)
     assert any("ForceRunCrossChecks" in issue for issue in issues)
+
+
+def test_spp_static_tabs_make_rankings_inert_and_preserve_spp_customdata():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_spp_data_gate_fixture()}
+          <CrossChecks use="false" evaluateAll="false">
+            <MonteCarloRetest use="false"><Settings><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings></MonteCarloRetest>
+            <OptProfileSysParamPermutation use="true">
+              <Settings><MaxTests>1000</MaxTests><DistributionUp>50</DistributionUp><DistributionDown>50</DistributionDown><Steps>10</Steps></Settings>
+              <AcceptanceSettings><Conditions><Condition use="false" /></Conditions></AcceptanceSettings>
+            </OptProfileSysParamPermutation>
+          </CrossChecks>
+          <Data><Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01"><Chart symbol="USDJPY_darwinex" timeframe="H4" /></Setup></Setups></Data>
+          <Rankings type="all">
+            <MaxStrategies>5</MaxStrategies>
+            <ConditionsType>2</ConditionsType>
+            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <ForceRunCrossChecks>true</ForceRunCrossChecks>
+            <FitPortfolio active="true" databank="Old" />
+            <CustomAnalysis filter="true" method="old" />
+            <Conditions><Condition use="true" /></Conditions>
+          </Rankings>
+          <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement></RiskMoneyManagement>
+          <ATMs enable="true" />
+          <Notes>ok</Notes>
+          <SelectedStrategies><Strategy id="legacy" /></SelectedStrategies>
+        </Settings>
+        """
+    )
+
+    apply_spp_crosschecks_to_root(root)
+    actions = apply_spp_static_tabs_to_root(root)
+
+    assert any(item["field"] == "Rankings/DeleteFailedStrategies" and item["changed"] for item in actions)
+    assert any(item["field"] == "SelectedStrategies" and item["changed"] for item in actions)
+    assert enforce_spp_static_tabs_guard(root) == []
+    assert root.find("./Data") is None
+    rankings = root.find("./Rankings")
+    assert rankings.get("type") == "never"
+    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("ForceRunCrossChecks") == "false"
+    assert rankings.findall("./Conditions/Condition") == []
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedAmount']").get("use") == "false"
+    assert root.find("./ATMs").get("enable") == "false"
+    assert root.find("./SelectedStrategies").text is None
+    setup = root.find("./CustomData/Setups/Setup")
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
+
+
+def test_spp_static_tabs_guard_rejects_ranking_portfolio_and_customdata_drift():
+    root = ET.fromstring(
+        f"""
+        <Settings>
+          {_spp_data_gate_fixture()}
+          <CrossChecks use="true" evaluateAll="true">
+            <OptProfileSysParamPermutation use="true">
+              <Settings><MaxTests>3000</MaxTests><DistributionUp>20</DistributionUp><DistributionDown>20</DistributionDown><Steps>25</Steps></Settings>
+              <AcceptanceSettings><Conditions><Condition use="false" /></Conditions></AcceptanceSettings>
+            </OptProfileSysParamPermutation>
+          </CrossChecks>
+          <Rankings type="all">
+            <MaxStrategies>1</MaxStrategies>
+            <ConditionsType>2</ConditionsType>
+            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <ForceRunCrossChecks>true</ForceRunCrossChecks>
+            <FitPortfolio active="true" databank="Existing portfolio" />
+            <CustomAnalysis filter="true" method="custom" />
+            <Conditions><Condition use="true" /></Conditions>
+          </Rankings>
+          <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement></RiskMoneyManagement>
+          <ATMs enable="true" />
+          <SelectedStrategies><Strategy id="legacy" /></SelectedStrategies>
+          <CustomData>
+            <Setups><Setup dateFrom="2017.10.02" dateTo="2024.12.31" testPrecision="4" session="Old">
+              <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
+            </Setup></Setups>
+          </CustomData>
+        </Settings>
+        """
+    )
+
+    root.remove(root.findall("./CustomData")[0])
+    issues = enforce_spp_static_tabs_guard(root)
+
+    assert any("Rankings type" in issue for issue in issues)
+    assert any("DeleteFailedStrategies" in issue for issue in issues)
+    assert any("ForceRunCrossChecks" in issue for issue in issues)
+    assert any("FitPortfolio" in issue for issue in issues)
+    assert any("CustomAnalysis" in issue for issue in issues)
+    assert any("extra conditions" in issue for issue in issues)
+    assert any("RiskMoneyManagement FixedSize" in issue for issue in issues)
+    assert any("ATMs enable" in issue for issue in issues)
+    assert any("SelectedStrategies" in issue for issue in issues)
+    assert any("CustomData dates" in issue for issue in issues)
+    assert any("Forbidden donor token" in issue for issue in issues)
+    assert any("CrossChecks guard" in issue for issue in issues)
 
 
 def test_monkey_passive_generation_points_to_sequential_and_preserves_indicator_universe():

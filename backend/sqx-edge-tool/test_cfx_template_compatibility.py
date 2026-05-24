@@ -460,6 +460,21 @@ def _assert_spp_crosschecks_contract(spp: ET.Element) -> None:
     assert active_methods == []
 
 
+def _assert_spp_static_tabs_contract(spp: ET.Element) -> None:
+    _assert_mc2_static_tabs_contract(spp)
+    rankings = spp.find(".//Rankings")
+    assert rankings is not None
+    assert rankings.get("type") == "never"
+    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("ForceRunCrossChecks") == "false"
+    assert rankings.findall("./Conditions/Condition") == []
+    assert rankings.find("FitPortfolio").get("active") == "false"
+    assert rankings.find("CustomAnalysis").get("filter") == "false"
+    custom = spp.find("./CustomData")
+    assert custom is not None
+    assert "USDJPY" not in ET.tostring(custom, encoding="unicode")
+
+
 def _assert_static_crosschecks_contract(task: ET.Element, require_selected_strategies: bool = True) -> None:
     crosschecks = task.find(".//CrossChecks")
     assert crosschecks is not None
@@ -1236,6 +1251,7 @@ def test_capa1_spp_data_gate_receives_synthetic_and_keeps_customdata_carrier():
         expected_spread="2.0",
     )
     _assert_spp_crosschecks_contract(spp)
+    _assert_spp_static_tabs_contract(spp)
 
 
 def test_capa1_base_uses_confirmed_build_ranking_volume():
@@ -1474,6 +1490,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     )
     assert {chart.get("spread") for chart in spp.findall(".//Setup/Chart")} == {"10"}
     _assert_spp_crosschecks_contract(spp)
+    _assert_spp_static_tabs_contract(spp)
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")

@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 SPP Static Tabs
+
+- Adds `spp-static-tabs-target` with dry-run/apply support, guard checks and tests for `AutomaticRetest-Task7.xml`.
+- Keeps SPP configuration-review only: Rankings are inert (`type=never`, `MaxStrategies=10000`, `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false`, no ranking conditions), `FitPortfolio` and `CustomAnalysis` are disabled, `FixedSize` remains active, ATMs are disabled and `SelectedStrategies` stays empty/absent.
+- Preserves the SPP `CustomData`-only carrier at `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, seed `AUDCAD_darwinex/H1` spread `2.0`, commission `0.0` and aligned `MainTestValues`, without executing SPP or unlocking WFM.
+- Records backup `phase11_spp_static_tabs_20260524_155003`, apply diff `phase11_spp_static_tabs_target_20260524_155003.json`, idempotent dry-run `phase11_spp_static_tabs_target_20260524_155015.json`, report `phase11_spp_static_tabs_20260524_155130.json`, ledger answers for `SPP > Rankings` (`21/21`), `ATMs` (`1/1`), `RiskMoneyManagement` (`24/24`), `Notes` (`1/0` empty accepted), `SelectedStrategies` (`1/0` empty accepted), `CustomData` (`6/6`) and next exact block `phase11_spp_closeout`.
+
 ## 2026-05-24 - C1-CONFIG1 SPP CrossChecks
 
 - Adds `spp-crosschecks-target` with dry-run/apply support, guard checks and tests for `AutomaticRetest-Task7.xml`.

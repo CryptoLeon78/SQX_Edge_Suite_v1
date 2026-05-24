@@ -766,6 +766,9 @@ SPP_ACCEPTANCE_CONDITIONS_TARGET = [
     },
 ]
 SPP_CROSSCHECKS_NEXT = "phase11_spp_static_tabs"
+SPP_STATIC_TABS = MC_STATIC_TABS
+SPP_RANKING_TARGET = MC_RANKING_TARGET
+SPP_STATIC_TABS_NEXT = "phase11_spp_closeout"
 SYNTHETIC_ACCEPTANCE_CONDITIONS_TARGET = [
     {
         "left": {
@@ -12989,6 +12992,196 @@ def promote_spp_crosschecks_target(root142: Path, project_root: Path, target: st
     return payload
 
 
+def apply_spp_rankings_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    apply_mc_rankings_to_root(
+        root,
+        actions,
+        conditions_note="SPP pass/fail is owned by OptProfileSysParamPermutation acceptance settings; this review gate must preserve natural failed rows.",
+    )
+
+
+def apply_spp_static_tabs_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    apply_spp_rankings_to_root(root, actions)
+    apply_retest1_risk_money_management_to_root(root, actions)
+    apply_mc_atms_to_root(root, actions)
+    actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    apply_mc_selected_strategies_to_root(root, actions)
+    apply_spp_custom_data_to_root(root, actions)
+    return actions
+
+
+def spp_static_tabs_summary(root: ET.Element) -> dict[str, Any]:
+    summary = mc_static_tabs_summary(root)
+    summary["customData"] = spp_custom_data_summary(root)
+    summary["executionPolicy"] = SPP_EXECUTION_POLICY
+    return summary
+
+
+def enforce_spp_static_tabs_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = spp_static_tabs_summary(root)
+    ranking = summary.get("rankings") or {}
+    if ranking.get("type") != "never":
+        issues.append(f"SPP Rankings type is {ranking.get('type')!r}, expected 'never'")
+    for key in ("MaxStrategies", "ConditionsType", "DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if ranking.get(key) != SPP_RANKING_TARGET[key]:
+            issues.append(f"SPP Rankings {key} is {ranking.get(key)!r}, expected {SPP_RANKING_TARGET[key]!r}")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append("SPP FitPortfolio must remain disabled; portfolio selection belongs to later portfolio phases")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append("SPP CustomAnalysis filter must remain disabled")
+    if ranking.get("conditions"):
+        issues.append("SPP Rankings must not add extra conditions; OptProfileSysParamPermutation acceptance owns pass/fail")
+
+    rmm = summary.get("riskMoneyManagement") or {}
+    methods = rmm.get("methods") or {}
+    for method_type, wanted in RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if methods.get(method_type) != wanted:
+            issues.append(f"SPP RiskMoneyManagement {method_type} is {methods.get(method_type)!r}, expected {wanted!r}")
+
+    atms = summary.get("atms") or {}
+    for key, wanted in RETEST1_ATMS_TARGET.items():
+        if (atms.get("attrs") or {}).get(key) != wanted:
+            issues.append(f"SPP ATMs {key} is {(atms.get('attrs') or {}).get(key)!r}, expected {wanted!r}")
+
+    selected = summary.get("selectedStrategies") or {}
+    if selected.get("children") != 0 or selected.get("text"):
+        issues.append("SPP SelectedStrategies must remain empty in the base template")
+
+    custom = summary.get("customData") or {}
+    if not custom.get("exists"):
+        issues.append("SPP CustomData section missing")
+    else:
+        period = generator_period(SPP_PERIOD_KEY)
+        setup = custom.get("setup") or {}
+        chart = custom.get("chart") or {}
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"SPP CustomData dates are {(setup.get('dateFrom'), setup.get('dateTo'))!r}, expected {period!r}")
+        if setup.get("testPrecision") != SPP_DATA_TEST_PRECISION:
+            issues.append(f"SPP CustomData testPrecision is {setup.get('testPrecision')!r}, expected {SPP_DATA_TEST_PRECISION!r}")
+        if setup.get("session") != SPP_DATA_SESSION:
+            issues.append(f"SPP CustomData session is {setup.get('session')!r}, expected {SPP_DATA_SESSION!r}")
+        if chart != SPP_DEFAULT_CHART_TARGET:
+            issues.append(f"SPP CustomData chart seed is {chart!r}, expected {SPP_DEFAULT_CHART_TARGET!r}")
+        if custom.get("commission") != MC_CUSTOM_DATA_COMMISSION_TARGET:
+            issues.append(f"SPP CustomData commission is {custom.get('commission')!r}, expected {MC_CUSTOM_DATA_COMMISSION_TARGET!r}")
+        if custom.get("mainTestValues") != SPP_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+            issues.append("SPP CustomData MainTestValues drifted from SPP target")
+
+    guarded_text = (
+        section_text(root, "Rankings")
+        + section_text(root, "ATMs")
+        + section_text(root, "RiskMoneyManagement")
+        + section_text(root, "SelectedStrategies")
+        + section_text(root, "CustomData")
+    )
+    for token in MC_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into SPP static tabs: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into SPP static tabs")
+
+    for issue in enforce_spp_data_databanks_resources_options_guard(root):
+        issues.append(f"Data/Resources guard: {issue}")
+    for issue in enforce_spp_crosschecks_guard(root):
+        issues.append(f"CrossChecks guard: {issue}")
+    return issues
+
+
+def update_spp_static_tabs_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, SPP_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "spp_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = spp_static_tabs_summary(root)
+    payload["actions"] = apply_spp_static_tabs_to_root(root)
+    payload["after"] = spp_static_tabs_summary(root)
+    payload["issues"] = enforce_spp_static_tabs_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "rankings": SPP_RANKING_TARGET,
+        "rankingConditions": [],
+        "riskMoneyManagementMethods": RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET,
+        "atms": RETEST1_ATMS_TARGET,
+        "staticTabs": SPP_STATIC_TABS,
+        "customDataMainTestValues": SPP_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+        "customDataCommission": MC_CUSTOM_DATA_COMMISSION_TARGET,
+        "executionPolicy": SPP_EXECUTION_POLICY,
+    }
+    payload["targetRationale"] = {
+        "decision": "SPP static tabs close inert surfaces without executing SPP, opening WFM or turning the task into an optimizer.",
+        "ranking": "SPP acceptance filters own passed/failed; Ranking must preserve failed rows and avoid portfolio/custom-analysis surfaces.",
+        "riskMoneyManagement": "FixedSize keeps Capa1 retests comparable and avoids sizing noise.",
+        "customData": "SPP remains CustomData-only in SQX142 with a generic local-safe seed; Project Generator owns final asset/timeframe/spread resources.",
+        "staticTabs": "ATMs, Notes and SelectedStrategies stay inert while executable behavior is guarded by the SPP data and CrossChecks blocks.",
+        "noLiveRun": "This operation only mutates CFX XML when --apply is explicit; it never launches SQX or SPP.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_spp_static_tabs_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase11_spp_static_tabs_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_spp_static_tabs_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase11",
+        "operation": "spp_static_tabs_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase11_spp_static_tabs_diff_review" if not apply else SPP_STATIC_TABS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase11_spp_static_tabs_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -14330,6 +14523,10 @@ def build_parser() -> argparse.ArgumentParser:
     spp_crosschecks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     spp_crosschecks.add_argument("--apply", action="store_true")
 
+    spp_static = sub.add_parser("spp-static-tabs-target")
+    spp_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    spp_static.add_argument("--apply", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -14530,6 +14727,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "spp-crosschecks-target":
         json_print(promote_spp_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "spp-static-tabs-target":
+        json_print(promote_spp_static_tabs_target(root142, project_root, target=args.target, apply=args.apply))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))
