@@ -1,8 +1,17 @@
 # SQX142 Custom Task Config Roadmap
 
-Estado: C1-CONFIG1 con Fase 12 `WFM` abierta y bloque
-`Data/Databanks/Resources/Options` cerrado el
-2026-05-24. Fase 0 dejo
+Estado: C1-CONFIG1 con Fase 14 `Capa1 Closeout` cerrada formalmente el
+2026-05-24 con `phase14_capa1_closeout_20260524_183012.json`, tras
+`phase13_foward_closeout` verde con
+`phase13_foward_closeout_20260524_182647.json`. `FOWARD` queda como revision
+de configuracion, no como ejecucion real: `Input=Syntetic / Output=Foward`,
+periodo `FOWARD_C1`, OOS `2025.01.01-2026.01.01` y
+`2026.01.01-2026.04.08`, `testPrecision=2`, resources `TICK/EETUS`,
+Options `RealisticGapsHandling=true` y `StoreChartData=false`, filtros forward
+`NumberOfTrades>=30`, `RExpectancy>0`, `NetProfit>=0`, static tabs inertes,
+`FixedSize` y pasivo puro `EnterAtMarket + ExitAfterBars`. No lanza SQX,
+no hace smoke, no inicia optimizacion y no fuerza `Results=passed`. El
+siguiente bloque exacto es `phase15_capa2_planning`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro
@@ -1900,6 +1909,145 @@ crosschecks inactivos sin ejecutar WFM.
 Siguiente bloque exacto: `phase12_wfm_static_tabs`, para cerrar Rankings,
 ATMs, RiskMoneyManagement, Notes, SelectedStrategies y CustomData de WFM sin
 activar superficies extra ni convertir WFM en ejecucion live.
+
+## Estado Fase 12 - WFM Static Tabs
+
+- `phase12_wfm_static_tabs` queda cerrado mediante
+  `wfm-static-tabs-target --target both --apply`.
+- Evidencia local: dry-run previo
+  `phase12_wfm_static_tabs_target_20260524_180624.json`, apply
+  `phase12_wfm_static_tabs_target_20260524_180633.json`, dry-run posterior
+  `phase12_wfm_static_tabs_target_20260524_180642.json` e idempotencia de
+  cierre `phase12_wfm_static_tabs_target_20260524_180645.json`.
+- El apply cambia solo las superficies estaticas necesarias y el dry-run
+  posterior queda idempotente sobre base local y template repo con
+  `changed=false`, `changedActionCount=0`, `guardOk=true` e `issues=[]`.
+- Rankings queda inerte: `type=never`, `MaxStrategies=10000`,
+  `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false`,
+  `FitPortfolio.active=false`, `CustomAnalysis.filter=false/method=none` y
+  sin condiciones extra. El passed/failed sigue gobernado por
+  `WalkForwardMatrix`.
+- `RiskMoneyManagement` queda en `FixedSize`, ATMs apagado, Notes preservado y
+  `SelectedStrategies` vacio/ausente aceptado.
+- `CustomData` queda sincronizado con el contrato dual de WFM: periodo
+  `ROBUSTNESS_C1`, `2017.10.02` a `2023.12.31`, `testPrecision=2`,
+  `No Session`, engine `MetaTrader4`, comision `0.0`, seed
+  `AUDCAD_darwinex/H1` spread `2.0` y `MainTestValues` alineados.
+- No lanza SQX, no ejecuta WFM, no hace smoke, no inicia optimizacion, no
+  desbloquea SPP/WFM y no fuerza `Results=passed`.
+
+## Estado Fase 12 - WFM Closeout
+
+- `phase12_wfm_closeout` queda cerrado con
+  `phase12_wfm_closeout_20260524_180702.json`.
+- `wfm-closeout-report --target both --write` consolida `spp-closeout-report`
+  previo y los tres guards WFM:
+  `wfm-data-databanks-resources-options-target`, `wfm-crosschecks-target` y
+  `wfm-static-tabs-target`.
+- El reporte queda `ok=true`, `issues=[]`, `warnings=[]`, `processes=[]`; los
+  tres guards WFM quedan verdes e idempotentes en dry-run sobre base local y
+  template repo con `changed=false`, `changedActionCount=0` y `guardOk=true`.
+- WFM queda cerrado como revision de configuracion, no como ejecucion real:
+  `Input=SPP / Output=WFM`, `Data+CustomData` dual sincronizado,
+  `ROBUSTNESS_C1`, resources `TICK/EETUS` sin sesiones, Options inertes,
+  `WalkForwardMatrix` como unico crosscheck activo y filtros dedicados de WFM.
+- El closeout conserva la politica conservadora de fragilidad de CrossChecks y
+  la frontera SPP: `phase11_spp_closeout` esta verde como revision de
+  configuracion, pero no implica que SPP se haya ejecutado en vivo.
+- No lanza SQX, no ejecuta WFM, no hace smoke, no inicia optimizacion, no
+  desbloquea SPP/WFM y no fuerza `Results=passed`.
+- El estado local queda en `currentPhase=phase12_wfm_closeout` y
+  `nextPhase=phase13_foward_open`.
+
+Siguiente bloque exacto al cerrar WFM: `phase13_foward_open`.
+
+## Estado Fase 13 - FOWARD Open
+
+- `phase13_foward_open` queda abierto como revision de configuracion posterior
+  a WFM, sin lanzar SQX, sin smoke y sin optimizacion.
+- `FOWARD` queda mapeado al retest forward de Capa1 con cadena
+  `Input=Syntetic / Output=Foward`.
+- La apertura conserva la frontera review-only heredada de SPP/WFM: no implica
+  ejecucion de SPP, WFM ni FOWARD, y no fuerza `Results=passed`.
+- El siguiente bloque interno de Fase 13 es
+  `phase13_foward_data_databanks_resources_options`.
+
+## Estado Fase 13 - FOWARD Data/Databanks/Resources/Options
+
+- `phase13_foward_data_databanks_resources_options` queda cerrado dentro del
+  cierre verde de Fase 13.
+- `foward-data-databanks-resources-options-target` valida la configuracion
+  forward para base local y template repo sin convertirla en ejecucion SQX.
+- Cadena canonica: `Input=Syntetic / Output=Foward`.
+- Periodo objetivo: `FOWARD_C1`, con OOS
+  `2025.01.01-2026.01.01` y `2026.01.01-2026.04.08`.
+- Data objetivo: `testPrecision=2`, `No Session`, sin smoke y sin
+  optimizacion.
+- Resources quedan `TICK/EETUS`; Project Generator mantiene el control final
+  de simbolo, timeframe, spread, swap y recursos por activo/timeframe.
+- Options quedan especificas de forward: `RealisticGapsHandling=true` y
+  `StoreChartData=false`.
+- El siguiente bloque interno de Fase 13 es `phase13_foward_crosschecks`.
+
+## Estado Fase 13 - FOWARD CrossChecks
+
+- `phase13_foward_crosschecks` queda cerrado dentro del cierre verde de Fase 13.
+- `foward-crosschecks-target` preserva FOWARD como retest directo de ventana
+  forward, sin activar metodos de robustez anidados ni ejecuciones ocultas.
+- `ForceRunCrossChecks=false` queda explicito para evitar arrastres desde
+  Rankings o static tabs.
+- No lanza SQX, no hace smoke, no inicia optimizacion y no fuerza
+  `Results=passed`.
+- El siguiente bloque interno de Fase 13 es `phase13_foward_static_tabs`.
+
+## Estado Fase 13 - FOWARD Static Tabs
+
+- `phase13_foward_static_tabs` queda cerrado dentro del cierre verde de Fase 13.
+- `foward-static-tabs-target` deja los filtros forward en
+  `NumberOfTrades>=30`, `RExpectancy>0` y `NetProfit>=0`.
+- Superficies estaticas: `DeleteFailedStrategies=false`,
+  `ForceRunCrossChecks=false`, `FitPortfolio=false` y `FixedSize`.
+- La generacion queda pasiva pura: `StrategyType.improveDatabank=Syntetic`,
+  sin Signals, sin Stop/Limit entry blocks y solo
+  `EnterAtMarket + ExitAfterBars`.
+- FOWARD queda review-only: no SQX run, no smoke, no optimizacion ni
+  `Results=passed` forzado.
+- El siguiente bloque interno de Fase 13 es `phase13_foward_closeout`.
+
+## Estado Fase 13 - FOWARD Closeout
+
+- `phase13_foward_closeout` queda cerrado con
+  `phase13_foward_closeout_20260524_182647.json`.
+- `foward-closeout-report --target both --write` consolida
+  `foward-data-databanks-resources-options-target`,
+  `foward-crosschecks-target` y `foward-static-tabs-target`.
+- El cierre preserva la cadena `Input=Syntetic / Output=Foward`, periodo
+  `FOWARD_C1`, OOS `2025.01.01-2026.01.01` y
+  `2026.01.01-2026.04.08`, `testPrecision=2`, resources `TICK/EETUS`,
+  Options `RealisticGapsHandling=true` y `StoreChartData=false`, filtros
+  `NumberOfTrades>=30`, `RExpectancy>0`, `NetProfit>=0`, `FixedSize` y pasivo
+  puro `EnterAtMarket + ExitAfterBars`.
+- El closeout no lanza SQX, no hace smoke, no inicia optimizacion, no ejecuta
+  FOWARD en vivo y no fuerza `Results=passed`.
+- El estado local queda en `currentPhase=phase13_foward_closeout` y
+  `nextPhase=phase14_capa1_closeout`.
+
+## Estado Fase 14 - Capa1 Closeout
+
+- `phase14_capa1_closeout` queda cerrado con
+  `phase14_capa1_closeout_20260524_183012.json`.
+- `capa1-closeout-report --target both --write` consolida el cierre de Capa1
+  tras Build, RETEST 0, RETEST 1, TICK, MC, MC 2, Sequential, Monkey,
+  Syntetic, SPP(review-only), WFM(review-only) y Foward.
+- Cadena de Capa1 documentada:
+  `Build -> RETEST 0 -> RETEST 1 -> TICK -> MC -> MC 2 -> Sequential -> Monkey -> Syntetic -> SPP(review-only) -> WFM(review-only) -> Foward`.
+- El cierre de Capa1 no convierte SPP/WFM/FOWARD en ejecuciones SQX reales:
+  no hay SQX run, smoke, optimizacion ni `Results=passed` forzado por la
+  documentacion.
+- El estado local queda en `currentPhase=phase14_capa1_closeout` y
+  `nextPhase=phase15_capa2_planning`.
+
+Siguiente bloque exacto: `phase15_capa2_planning`.
 
 ## Disciplina Operativa
 

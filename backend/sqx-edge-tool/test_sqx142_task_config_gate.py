@@ -28,6 +28,10 @@ from tools.sqx142_task_config_gate import (
     apply_sequential_static_tabs_to_root,
     apply_wfm_data_databanks_resources_options_to_root,
     apply_wfm_crosschecks_to_root,
+    apply_wfm_static_tabs_to_root,
+    apply_foward_data_databanks_resources_options_to_root,
+    apply_foward_crosschecks_to_root,
+    apply_foward_static_tabs_to_root,
     apply_retest1_passive_generation_to_root,
     apply_retest1_data_resources_to_root,
     apply_retest1_options_databanks_rankings_to_root,
@@ -65,6 +69,10 @@ from tools.sqx142_task_config_gate import (
     enforce_sequential_static_tabs_guard,
     enforce_wfm_data_databanks_resources_options_guard,
     enforce_wfm_crosschecks_guard,
+    enforce_wfm_static_tabs_guard,
+    enforce_foward_data_databanks_resources_options_guard,
+    enforce_foward_crosschecks_guard,
+    enforce_foward_static_tabs_guard,
     enforce_tick_real_data_databanks_resources_guard,
     enforce_tick_real_options_rankings_guard,
     enforce_tick_real_passive_generation_guard,
@@ -3393,6 +3401,290 @@ def test_wfm_crosschecks_guard_rejects_lax_filters_and_hidden_methods():
     assert any("acceptance conditions" in issue for issue in issues)
     assert any("still has active methods" in issue for issue in issues)
     assert any("ForceRunCrossChecks" in issue for issue in issues)
+
+
+def test_wfm_static_tabs_make_rankings_inert_and_preserve_dual_customdata():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data>
+            <Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session" slippage="5" minDist="3" engine="MetaTrader4"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups>
+            <OutOfSample><Range dateFrom="2023.01.01" dateTo="2025.01.01" /></OutOfSample>
+          </Data>
+          <CustomData>
+            <Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session" slippage="5" minDist="3" engine="MetaTrader5"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups>
+          </CustomData>
+          <Databanks><Databank name="Input" value="Syntetic" /><Databank name="Output" value="SPP" /></Databanks>
+          <Resources><Symbols><Symbol name="USDJPY_darwinex" source="4" precision="M1" timezone="UTC" broker="9"><InstrumentInfo instrument="USDJPY_darwinex" defaultSpread="1.4" broker="9" /></Symbol></Symbols><Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers><Sessions><Session name="Old Session" /></Sessions></Resources>
+          <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">true</Param><Param key="RealisticGapsHandling">true</Param><Param key="StoreChartData">true</Param><Param key="Session">Old Session</Param><Param key="MarketOpenSession">Old Session</Param></Params></BuildTradingOptions></Options>
+          <CrossChecks use="false" evaluateAll="false">
+            <MonteCarloRetest use="false"><Settings><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings></MonteCarloRetest>
+            <WalkForwardMatrix use="false" />
+          </CrossChecks>
+          <Rankings type="all">
+            <MaxStrategies>5</MaxStrategies>
+            <ConditionsType>2</ConditionsType>
+            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <ForceRunCrossChecks>true</ForceRunCrossChecks>
+            <FitPortfolio active="true" databank="Old" />
+            <CustomAnalysis filter="true" method="old" />
+            <Conditions><Condition use="true" /></Conditions>
+          </Rankings>
+          <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement></RiskMoneyManagement>
+          <ATMs enable="true" />
+          <Notes>ok</Notes>
+          <SelectedStrategies><Strategy id="legacy" /></SelectedStrategies>
+        </Settings>
+        """
+    )
+
+    apply_wfm_data_databanks_resources_options_to_root(root)
+    apply_wfm_crosschecks_to_root(root)
+    actions = apply_wfm_static_tabs_to_root(root)
+
+    assert any(item["field"] == "Rankings/DeleteFailedStrategies" and item["changed"] for item in actions)
+    assert any(item["field"] == "SelectedStrategies" and item["changed"] for item in actions)
+    assert enforce_wfm_static_tabs_guard(root) == []
+    assert root.find("./Data") is not None
+    rankings = root.find("./Rankings")
+    assert rankings.get("type") == "never"
+    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("ForceRunCrossChecks") == "false"
+    assert rankings.findall("./Conditions/Condition") == []
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedAmount']").get("use") == "false"
+    assert root.find("./ATMs").get("enable") == "false"
+    assert root.find("./SelectedStrategies").text is None
+    data_setup = root.find("./Data/Setups/Setup")
+    custom_setup = root.find("./CustomData/Setups/Setup")
+    assert data_setup.find("Chart").attrib == custom_setup.find("Chart").attrib == {
+        "symbol": "AUDCAD_darwinex",
+        "timeframe": "H1",
+        "spread": "2.0",
+    }
+    assert dict(custom_setup.find("MainTestValues").attrib) == {
+        "engine": "true",
+        "symbol": "true",
+        "timeframe": "true",
+        "dates": "true",
+        "subcharts": "false",
+        "precision": "true",
+        "distance": "true",
+        "spread": "true",
+        "slippage": "true",
+        "commissions": "true",
+    }
+
+
+def test_wfm_static_tabs_guard_rejects_ranking_portfolio_and_customdata_drift():
+    root = ET.fromstring(
+        """
+        <Settings>
+          <Data><Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session" slippage="5" minDist="3" engine="MetaTrader4"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups></Data>
+          <CustomData><Setups><Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session" slippage="5" minDist="3" engine="MetaTrader5"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups></CustomData>
+          <Databanks><Databank name="Input" value="Syntetic" /><Databank name="Output" value="SPP" /></Databanks>
+          <Resources><Symbols><Symbol name="USDJPY_darwinex" source="4" precision="M1" timezone="UTC" broker="9"><InstrumentInfo instrument="USDJPY_darwinex" defaultSpread="1.4" broker="9" /></Symbol></Symbols><Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers><Sessions /></Resources>
+          <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">true</Param><Param key="RealisticGapsHandling">true</Param><Param key="StoreChartData">true</Param><Param key="Session">Old Session</Param><Param key="MarketOpenSession">Old Session</Param></Params></BuildTradingOptions></Options>
+          <CrossChecks use="false" evaluateAll="false"><WalkForwardMatrix use="false" /></CrossChecks>
+          <Rankings type="all">
+            <MaxStrategies>1</MaxStrategies>
+            <ConditionsType>2</ConditionsType>
+            <DeleteFailedStrategies>true</DeleteFailedStrategies>
+            <ForceRunCrossChecks>true</ForceRunCrossChecks>
+            <FitPortfolio active="true" databank="Existing portfolio" />
+            <CustomAnalysis filter="true" method="custom" />
+            <Conditions><Condition use="true" /></Conditions>
+          </Rankings>
+          <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement></RiskMoneyManagement>
+          <ATMs enable="true" />
+          <SelectedStrategies><Strategy id="legacy" /></SelectedStrategies>
+        </Settings>
+        """
+    )
+
+    apply_wfm_data_databanks_resources_options_to_root(root)
+    apply_wfm_crosschecks_to_root(root)
+    root.find("./Rankings/ForceRunCrossChecks").text = "true"
+    custom_setup = root.find("./CustomData/Setups/Setup")
+    custom_setup.set("dateFrom", "2010.01.01")
+    custom_setup.find("MainTestValues").set("symbol", "false")
+
+    issues = enforce_wfm_static_tabs_guard(root)
+
+    assert any("Rankings type" in issue for issue in issues)
+    assert any("DeleteFailedStrategies" in issue for issue in issues)
+    assert any("ForceRunCrossChecks" in issue for issue in issues)
+    assert any("FitPortfolio" in issue for issue in issues)
+    assert any("CustomAnalysis" in issue for issue in issues)
+    assert any("extra conditions" in issue for issue in issues)
+    assert any("RiskMoneyManagement FixedSize" in issue for issue in issues)
+    assert any("ATMs enable" in issue for issue in issues)
+    assert any("SelectedStrategies" in issue for issue in issues)
+    assert any("CustomData dates" in issue for issue in issues)
+    assert any("CustomData MainTestValues" in issue for issue in issues)
+    assert any("Data/Resources guard" in issue for issue in issues)
+    assert any("CrossChecks guard" in issue for issue in issues)
+
+
+def _foward_source_root() -> ET.Element:
+    return ET.fromstring(
+        """
+        <Task>
+          <Blocks type="simple" version="142.2336">
+            <BuildingBlocks>
+              <Block key="Signals.ADX" category="signals" use="false" probability="1" />
+              <Block key="Indicators.ATR" category="indicators" use="true" probability="1" />
+              <Block key="StopLimitBlocks.ATRStop" category="stopLimitBlocks" use="false" probability="1" />
+            </BuildingBlocks>
+            <OrderTypes>
+              <Block key="EnterAtMarket" use="true" probability="1" />
+              <Block key="EnterReverseAtMarket" use="false" probability="1" />
+              <Block key="EnterAtStop" use="false" probability="1" />
+              <Block key="EnterAtLimit" use="false" probability="1" />
+            </OrderTypes>
+            <ExitTypes>
+              <Block key="ExitAfterBars.ExitAfterBars" use="true" probability="100" />
+              <Block key="StopLoss.StopLoss" use="false" probability="50" />
+            </ExitTypes>
+            <CustomData showAll="false" />
+          </Blocks>
+        </Task>
+        """
+    )
+
+
+def _foward_dirty_root() -> ET.Element:
+    return ET.fromstring(
+        """
+        <Task>
+          <Data>
+            <Setups><Setup dateFrom="2024.01.01" dateTo="2026.04.30" testPrecision="1" session="Old Session" slippage="5" minDist="3" engine="MetaTrader4"><Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" /></Setup></Setups>
+            <OutOfSample showGraph="true"><Range dateFrom="2024.01.01" dateTo="2025.01.01" /></OutOfSample>
+          </Data>
+          <Databanks><Databank name="Input" value="WFM" /><Databank name="Output" value="old" /></Databanks>
+          <Resources><Symbols><Symbol name="USDJPY_darwinex" source="4" precision="M1" timezone="UTC" broker="9"><InstrumentInfo instrument="USDJPY_darwinex" defaultSpread="1.4" broker="9" dataType="3" /></Symbol></Symbols><Brokers><Broker id="9" name="Old" /></Brokers><Instruments /><Sessions><Session name="Old Session" /></Sessions><CustomIndicators /><CustomBlocks /></Resources>
+          <Options><BuildTradingOptions><Params>
+            <Param key="Session">Old Session</Param>
+            <Param key="MarketOpenSession">Old Session</Param>
+            <Param key="LimitTimeRange">false</Param>
+            <Param key="SignalTimeRangeFrom">28800</Param>
+            <Param key="SignalTimeRangeTo">57600</Param>
+            <Param key="RealisticGapsHandling">false</Param>
+            <Param key="StoreChartData">true</Param>
+          </Params></BuildTradingOptions></Options>
+          <CrossChecks use="true" evaluateAll="true"><MonteCarloRetest use="false"><Settings><Methods><Method type="RandomizeSpread" use="true" /></Methods></Settings></MonteCarloRetest><WhatIf use="false"><Settings><Methods><Method type="ExcludeTradesWithBiggestPl" use="true" /></Methods></Settings></WhatIf></CrossChecks>
+          <Rankings type="all"><MaxStrategies>1</MaxStrategies><ConditionsType>2</ConditionsType><DeleteFailedStrategies>true</DeleteFailedStrategies><ForceRunCrossChecks>true</ForceRunCrossChecks><FitPortfolio active="true" databank="Existing portfolio" /><Conditions /></Rankings>
+          <RiskMoneyManagement><MoneyManagement><Method type="FixedSize" use="false" /><Method type="FixedAmount" use="true" /></MoneyManagement></RiskMoneyManagement>
+          <ATMs enable="true" />
+          <SelectedStrategies><Strategy id="legacy" /></SelectedStrategies>
+          <PartsToImprove><EntryRules><LongImprovement use="true" /><ShortImprovement use="true" /></EntryRules><OrderTypes><LongImprovement use="true" /><ShortImprovement use="true" /></OrderTypes><ExitRules><LongImprovement use="true" /><ShortImprovement use="true" /></ExitRules></PartsToImprove>
+          <WhatToBuild><StrategyType type="simple" additionalCharts="2" templateFile="" improveType="strategy" strategyFile="" architecture="sq4" improveDatabank="Strategies to improve" /><BuildMode generationType="random-generation"><ShowLastGenerationDatabank>true</ShowLastGenerationDatabank><FreshBloodReplaceSimilar>true</FreshBloodReplaceSimilar><FreshBloodReplaceWeakest>true</FreshBloodReplaceWeakest><EvoRestartOnFinish status="true" /><EvoRestartOnStagnation status="true" fitnessType="10" generations="30" /></BuildMode></WhatToBuild>
+          <Blocks type="simple"><BuildingBlocks><Block key="Signals.ADX" category="signals" use="true" /><Block key="Indicators.ATR" category="indicators" use="true" /><Block key="StopLimitBlocks.ATRStop" category="stopLimitBlocks" use="true" /></BuildingBlocks><OrderTypes><Block key="EnterAtMarket" use="false" /><Block key="EnterReverseAtMarket" use="true" /><Block key="EnterAtStop" use="true" /><Block key="EnterAtLimit" use="true" /></OrderTypes><ExitTypes><Block key="ExitAfterDays.ExitAfterDays" use="true" probability="50" /></ExitTypes><CustomData showAll="true"><Item /></CustomData></Blocks>
+        </Task>
+        """
+    )
+
+
+def test_foward_data_databanks_resources_options_keeps_forward_oos_blocks():
+    root = _foward_dirty_root()
+
+    actions = apply_foward_data_databanks_resources_options_to_root(root)
+
+    assert any(item["field"] == "Data/OutOfSample" and item["changed"] for item in actions)
+    assert enforce_foward_data_databanks_resources_options_guard(root) == []
+    setup = root.find(".//Data/Setups/Setup")
+    assert setup.get("dateFrom") == "2025.01.01"
+    assert setup.get("dateTo") == "2026.04.08"
+    assert setup.get("testPrecision") == "2"
+    assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
+    assert [node.attrib for node in root.findall(".//Data/OutOfSample/Range")] == [
+        {"dateFrom": "2025.01.01", "dateTo": "2026.01.01"},
+        {"dateFrom": "2026.01.01", "dateTo": "2026.04.08"},
+    ]
+    assert {node.get("name"): node.get("value") for node in root.findall(".//Databanks/Databank")} == {
+        "Input": "Syntetic",
+        "Output": "Foward",
+    }
+    symbol = root.find(".//Resources/Symbols/Symbol")
+    assert symbol.get("name") == "AUDCAD_darwinex"
+    assert symbol.get("precision") == "TICK"
+    assert root.findall(".//Resources/Sessions/Session") == []
+    options = {node.get("key"): node.text for node in root.findall(".//BuildTradingOptions/Params/Param")}
+    assert options["RealisticGapsHandling"] == "true"
+    assert options["StoreChartData"] == "false"
+
+
+def test_foward_crosschecks_and_static_tabs_make_task_passive():
+    root = _foward_dirty_root()
+    source_root = _foward_source_root()
+
+    apply_foward_data_databanks_resources_options_to_root(root)
+    apply_foward_crosschecks_to_root(root)
+    actions = apply_foward_static_tabs_to_root(root, source_root)
+
+    assert any(item["field"] == "Rankings/Conditions" and item["changed"] for item in actions)
+    assert enforce_foward_crosschecks_guard(root) == []
+    assert enforce_foward_static_tabs_guard(root) == []
+    rankings = root.find(".//Rankings")
+    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.find("FitPortfolio").get("active") == "false"
+    conditions = [
+        (
+            condition.find(".//Column-Value").get("column"),
+            condition.find(".//Column-Value").get("sampleType"),
+            condition.find(".//Comparator").get("value"),
+            condition.find(".//Numeric-Value").get("value"),
+        )
+        for condition in rankings.findall("./Conditions/Condition")
+    ]
+    assert conditions == [
+        ("NumberOfTrades", "20", ">=", "30"),
+        ("RExpectancy", "20", ">", "0"),
+        ("NetProfit", "20", ">=", "0"),
+    ]
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedSize']").get("use") == "true"
+    assert root.find(".//RiskMoneyManagement//Method[@type='FixedAmount']").get("use") == "false"
+    assert root.find("./SelectedStrategies").text is None
+    assert root.find(".//WhatToBuild/StrategyType").get("improveDatabank") == "Syntetic"
+    assert root.find(".//ExitTypes/Block[@key='ExitAfterBars.ExitAfterBars']").get("probability") == "100"
+    assert root.findall(".//ExitTypes/Block[@key='ExitAfterDays.ExitAfterDays']") == []
+
+
+def test_foward_static_tabs_guard_rejects_generation_and_ranking_drift():
+    root = _foward_dirty_root()
+    apply_foward_data_databanks_resources_options_to_root(root)
+    apply_foward_crosschecks_to_root(root)
+
+    issues = enforce_foward_static_tabs_guard(root)
+
+    assert any("Rankings type" in issue for issue in issues)
+    assert any("DeleteFailedStrategies" in issue for issue in issues)
+    assert any("FitPortfolio" in issue for issue in issues)
+    assert any("ranking conditions" in issue for issue in issues)
+    assert any("RiskMoneyManagement FixedSize" in issue for issue in issues)
+    assert any("Passive generation guard" in issue for issue in issues)
+
+
+def test_foward_capa1_closeout_report_writes_final_phase_state(monkeypatch, tmp_path):
+    monkeypatch.setattr(gate, "foward_closeout_report", lambda *args, **kwargs: {
+        "phase": "phase13_foward_closeout",
+        "ok": True,
+        "issues": [],
+        "nextPhase": "phase14_capa1_closeout",
+    })
+    monkeypatch.setattr(gate, "process_snapshot", lambda: {"processes": []})
+
+    payload = gate.capa1_closeout_report(tmp_path, tmp_path, target="both", write=True)
+
+    assert payload["ok"] is True
+    assert payload["phase"] == "phase14_capa1_closeout"
+    assert payload["nextPhase"] == "phase15_capa2_planning"
+    assert payload["previousGate"]["phase"] == "phase13_foward_closeout"
+    assert "Build -> RETEST 0" in payload["summary"]["finalChain"]
+    assert payload["summary"]["agents"]["testRunner"].startswith("SQX Test Guardian")
+    state = json.loads((tmp_path / ".local" / "sqx142_task_config" / "session_state.json").read_text(encoding="utf-8"))
+    assert state["currentPhase"] == "phase14_capa1_closeout"
+    assert state["nextPhase"] == "phase15_capa2_planning"
 
 
 def test_spp_data_databanks_resources_options_keeps_customdata_only_and_inert_options():

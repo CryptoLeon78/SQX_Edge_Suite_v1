@@ -887,6 +887,126 @@ def _assert_wfm_crosschecks_contract(wfm: ET.Element) -> None:
         assert rankings.findtext("ForceRunCrossChecks") == "false"
 
 
+def _assert_wfm_static_tabs_contract(wfm: ET.Element) -> None:
+    _assert_mc2_static_tabs_contract(wfm)
+    custom = wfm.find("./CustomData")
+    assert custom is not None
+    assert "USDJPY" not in ET.tostring(custom, encoding="unicode")
+    setup = custom.find("./Setups/Setup")
+    assert setup is not None
+    assert setup.get("dateFrom") == "2017.10.02"
+    assert setup.get("dateTo") == "2023.12.31"
+    assert setup.get("testPrecision") == "2"
+    assert setup.get("session") == "No Session"
+    assert setup.get("engine") == "MetaTrader4"
+    assert setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']").text == "0.0"
+    assert dict(setup.find("MainTestValues").attrib) == {
+        "engine": "true",
+        "symbol": "true",
+        "timeframe": "true",
+        "dates": "true",
+        "subcharts": "false",
+        "precision": "true",
+        "distance": "true",
+        "spread": "true",
+        "slippage": "true",
+        "commissions": "true",
+    }
+
+
+def _assert_foward_contract(
+    forward: ET.Element,
+    expected_symbol: str | None = None,
+    expected_timeframe: str | None = None,
+    expected_spread: str | None = None,
+    expected_window: tuple[str, str] = ("7200", "79200"),
+) -> None:
+    setup = forward.find(".//Data/Setups/Setup")
+    assert setup is not None
+    assert setup.get("dateFrom") == "2025.01.01"
+    assert setup.get("dateTo") == "2026.04.08"
+    assert setup.get("testPrecision") == "2"
+    assert setup.get("session") == "No Session"
+    assert setup.get("engine") == "MetaTrader5 (hedged)"
+    assert [node.attrib for node in forward.findall(".//Data/OutOfSample/Range")] == [
+        {"dateFrom": "2025.01.01", "dateTo": "2026.01.01"},
+        {"dateFrom": "2026.01.01", "dateTo": "2026.04.08"},
+    ]
+    databanks = {
+        databank.get("name"): databank.get("value")
+        for databank in forward.findall(".//Databanks/Databank")
+    }
+    assert databanks == {"Output": "Foward", "Input": "Syntetic"}
+    charts = setup.findall("Chart")
+    if expected_symbol is not None:
+        assert {chart.get("symbol") for chart in charts} == {expected_symbol}
+    if expected_timeframe is not None:
+        assert {chart.get("timeframe") for chart in charts} == {expected_timeframe}
+    if expected_spread is not None:
+        assert {chart.get("spread") for chart in charts} == {expected_spread}
+    resources = forward.find(".//Resources")
+    assert resources is not None
+    assert resources.findall("./Sessions/Session") == []
+    assert {symbol.get("precision") for symbol in resources.findall("./Symbols/Symbol")} == {"TICK"}
+    assert {symbol.get("timezone") for symbol in resources.findall("./Symbols/Symbol")} == {"EETUS"}
+    if expected_symbol is not None:
+        assert {symbol.get("name") for symbol in resources.findall("./Symbols/Symbol")} == {expected_symbol}
+
+    options = {
+        node.get("key"): node.text
+        for node in forward.findall(".//BuildTradingOptions/Params/Param")
+        if node.get("key") in {"LimitTimeRange", "SignalTimeRangeFrom", "SignalTimeRangeTo", "RealisticGapsHandling", "StoreChartData"}
+    }
+    assert options == {
+        "LimitTimeRange": "true",
+        "SignalTimeRangeFrom": expected_window[0],
+        "SignalTimeRangeTo": expected_window[1],
+        "RealisticGapsHandling": "true",
+        "StoreChartData": "false",
+    }
+    rankings = forward.find(".//Rankings")
+    assert rankings is not None
+    assert rankings.get("type") == "never"
+    assert rankings.findtext("DeleteFailedStrategies") == "false"
+    assert rankings.findtext("ForceRunCrossChecks") == "false"
+    assert rankings.find("FitPortfolio").get("active") == "false"
+    assert rankings.find("CustomAnalysis").get("filter") == "false"
+    assert [
+        (
+            condition.find(".//Column-Value").get("column"),
+            condition.find(".//Column-Value").get("sampleType"),
+            condition.find(".//Comparator").get("value"),
+            condition.find(".//Numeric-Value").get("value"),
+        )
+        for condition in rankings.findall("./Conditions/Condition")
+    ] == [
+        ("NumberOfTrades", "20", ">=", "30"),
+        ("RExpectancy", "20", ">", "0"),
+        ("NetProfit", "20", ">=", "0"),
+    ]
+    _assert_static_crosschecks_contract(forward, require_selected_strategies=True)
+    strategy_type = forward.find(".//WhatToBuild/StrategyType")
+    assert strategy_type is not None
+    assert strategy_type.get("improveDatabank") == "Syntetic"
+    build_mode = forward.find(".//WhatToBuild/BuildMode")
+    assert build_mode.findtext("ShowLastGenerationDatabank") == "false"
+    assert build_mode.findtext("FreshBloodReplaceSimilar") == "false"
+    assert build_mode.findtext("FreshBloodReplaceWeakest") == "false"
+    assert build_mode.find("EvoRestartOnFinish").get("status") == "false"
+    assert build_mode.find("EvoRestartOnStagnation").get("status") == "false"
+    order_types = {block.get("key"): block.get("use") for block in forward.findall(".//Blocks/OrderTypes/Block")}
+    assert order_types == {
+        "EnterAtMarket": "true",
+        "EnterReverseAtMarket": "false",
+        "EnterAtStop": "false",
+        "EnterAtLimit": "false",
+    }
+    exit_types = {block.get("key"): block.get("use") for block in forward.findall(".//Blocks/ExitTypes/Block")}
+    assert exit_types["ExitAfterBars.ExitAfterBars"] == "true"
+    assert all(value == "false" for key, value in exit_types.items() if key != "ExitAfterBars.ExitAfterBars")
+    assert not any("ExitAfterDays" in key or "ExitAfterTradingDays" in key for key in exit_types)
+
+
 def _assert_tick_real_data_databanks_resources_contract(tick_real: ET.Element, expected_symbol: str | None = None, expected_timeframe: str | None = None) -> None:
     setup = tick_real.find(".//Data/Setups/Setup")
     assert setup is not None
@@ -1150,15 +1270,12 @@ def test_capa1_base_v2_matches_active_methodology():
     _assert_retest1_static_crosschecks_contract(retest1)
 
     forward = roots["Retest-Task2.xml"]
-    forward_setup = forward.find(".//Data/Setups/Setup")
-    forward_ranges = forward.findall(".//Data/OutOfSample/Range")
-    assert forward_setup.get("dateFrom") == "2025.01.01"
-    assert forward_setup.get("dateTo") == "2026.04.08"
-    assert len(forward_ranges) == 2
-    assert forward_ranges[0].get("dateFrom") == "2025.01.01"
-    assert forward_ranges[0].get("dateTo") == "2026.01.01"
-    assert forward_ranges[1].get("dateFrom") == "2026.01.01"
-    assert forward_ranges[-1].get("dateTo") == "2026.04.08"
+    _assert_foward_contract(
+        forward,
+        expected_symbol="AUDCAD_darwinex",
+        expected_timeframe="H1",
+        expected_spread="2.0",
+    )
 
 
 def test_capa1_build_resources_are_generic_generator_owned_placeholder():
@@ -1435,6 +1552,7 @@ def test_capa1_wfm_data_gate_receives_spp_and_keeps_dual_carrier():
         expected_spread="2.0",
     )
     _assert_wfm_crosschecks_contract(wfm)
+    _assert_wfm_static_tabs_contract(wfm)
 
 
 def test_capa1_base_uses_confirmed_build_ranking_volume():
@@ -1684,6 +1802,7 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     )
     assert {chart.get("spread") for chart in wfm.findall(".//Setup/Chart")} == {"10"}
     _assert_wfm_crosschecks_contract(wfm)
+    _assert_wfm_static_tabs_contract(wfm)
 
     retest1 = roots["Retest-Task1.xml"]
     retest1_setup = retest1.find(".//Data/Setups/Setup")
@@ -1724,6 +1843,15 @@ def test_generate_project_names_build_task_and_applies_capa1_time_window():
     assert [broker.get("id") for broker in retest1.findall(".//Resources/Brokers/Broker")] == ["3"]
     _assert_retest1_passive_generation_contract(retest1)
     _assert_retest1_static_crosschecks_contract(retest1)
+
+    forward = roots["Retest-Task2.xml"]
+    _assert_foward_contract(
+        forward,
+        expected_symbol="AUDCAD",
+        expected_timeframe="H4",
+        expected_spread="10",
+        expected_window=("14400", "72000"),
+    )
 
 
 def test_generate_project_applies_selected_market_side_to_all_tasks():

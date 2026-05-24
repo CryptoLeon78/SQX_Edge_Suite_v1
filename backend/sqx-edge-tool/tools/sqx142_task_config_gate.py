@@ -790,6 +790,10 @@ WFM_OPTIONS_PARAMS_TARGET = MC_OPTIONS_PARAMS_TARGET
 WFM_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT = "phase12_wfm_crosschecks"
 WFM_CROSSCHECK_PARENT_TARGET = {"use": "true", "evaluateAll": "true"}
 WFM_CROSSCHECKS_NEXT = "phase12_wfm_static_tabs"
+WFM_STATIC_TABS = MC_STATIC_TABS
+WFM_RANKING_TARGET = MC_RANKING_TARGET
+WFM_STATIC_TABS_NEXT = "phase12_wfm_closeout"
+WFM_CLOSEOUT_NEXT = "phase13_foward_open"
 WFM_WALK_FORWARD_ATTR_TARGET = {
     "type": "2",
     "period": "10",
@@ -924,6 +928,81 @@ WFM_ACCEPTANCE_CONDITIONS_TARGET = [
         "right": {"value": "25"},
     },
 ]
+FOWARD_TASK_TITLE = "FOWARD"
+FOWARD_TASK_XML = "Retest-Task2.xml"
+FOWARD_PERIOD_KEY = "FOWARD_C1"
+FOWARD_DATA_TEST_PRECISION = "2"
+FOWARD_DATA_SESSION = "No Session"
+FOWARD_DATA_ENGINE = SEQUENTIAL_DATA_ENGINE
+FOWARD_DEFAULT_CHART_TARGET = MC2_DEFAULT_CHART_TARGET
+FOWARD_EXPECTED_DATABANKS = {
+    "Input": "Syntetic",
+    "Output": "Foward",
+}
+FOWARD_RESOURCE_PRECISION = TICK_REAL_RESOURCE_PRECISION
+FOWARD_RESOURCE_TIMEZONE = TICK_REAL_RESOURCE_TIMEZONE
+FOWARD_DEFAULT_SOURCE_ID = TICK_REAL_DEFAULT_SOURCE_ID
+FOWARD_DEFAULT_BROKER_ID = TICK_REAL_DEFAULT_BROKER_ID
+FOWARD_BANNED_DONOR_TOKENS = TICK_REAL_BANNED_DONOR_TOKENS
+FOWARD_OPTIONS_PARAMS_TARGET = {
+    "Session": "No Session",
+    "MarketOpenSession": "No Session",
+    "LimitTimeRange": "true",
+    "SignalTimeRangeFrom": "7200",
+    "SignalTimeRangeTo": "79200",
+    "RealisticGapsHandling": "true",
+    "StoreChartData": "false",
+}
+FOWARD_RANKING_TARGET = {
+    "MaxStrategies": "10000",
+    "ConditionsType": "1",
+    "DeleteFailedStrategies": "false",
+    "ForceRunCrossChecks": "false",
+    "FitPortfolio": {"active": "false", "databank": "Existing portfolio"},
+    "CustomAnalysis": {"filter": "false", "inputArgs": "", "method": "none"},
+    "AutomaticDismissal": {"warnings": "false"},
+    "StopCondition": {
+        "type": "databank-full",
+        "passedStrategies": "1000",
+        "restartCount": "5",
+        "days": "0",
+        "hours": "0",
+        "minutes": "0",
+    },
+}
+FOWARD_RANKING_CONDITIONS_TARGET = [
+    {"column": "NumberOfTrades", "comparator": ">=", "value": "30", "format": "Integer", "sampleType": "20"},
+    {"column": "RExpectancy", "comparator": ">", "value": "0", "format": "Decimal2", "sampleType": "20"},
+    {"column": "NetProfit", "comparator": ">=", "value": "0", "format": "Decimal2PL", "sampleType": "20"},
+]
+FOWARD_PASSIVE_SOURCE_TASK_TITLE = "Syntetic"
+FOWARD_STRATEGY_TYPE_TARGET = {
+    "type": "simple",
+    "additionalCharts": "2",
+    "templateFile": "",
+    "improveType": "strategy",
+    "strategyFile": "",
+    "architecture": "sq4",
+    "improveDatabank": "Syntetic",
+}
+FOWARD_PASSIVE_BUILDMODE_TEXT_TARGET = RETEST1_PASSIVE_BUILDMODE_TEXT_TARGET
+FOWARD_PASSIVE_BUILDMODE_ATTR_TARGET = RETEST1_PASSIVE_BUILDMODE_ATTR_TARGET
+FOWARD_STATIC_TABS = (
+    "Rankings",
+    "ATMs",
+    "RiskMoneyManagement",
+    "Notes",
+    "SelectedStrategies",
+    "PartsToImprove",
+    "WhatToBuild",
+    "Blocks",
+)
+FOWARD_CROSSCHECKS_TARGET = RETEST1_CROSSCHECKS_TARGET
+FOWARD_NEXT_PHASE = "phase13_foward_data_databanks_resources_options"
+FOWARD_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT = "phase13_foward_crosschecks"
+FOWARD_CROSSCHECKS_NEXT = "phase13_foward_static_tabs"
+FOWARD_STATIC_TABS_NEXT = "phase13_foward_closeout"
+FOWARD_CLOSEOUT_NEXT = "phase14_capa1_closeout"
 SYNTHETIC_ACCEPTANCE_CONDITIONS_TARGET = [
     {
         "left": {
@@ -14500,6 +14579,1217 @@ def promote_wfm_crosschecks_target(root142: Path, project_root: Path, target: st
     return payload
 
 
+def apply_wfm_rankings_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    apply_mc_rankings_to_root(
+        root,
+        actions,
+        conditions_note="WFM pass/fail is owned by WalkForwardMatrix acceptance settings; Ranking must preserve natural failed rows.",
+    )
+
+
+def apply_wfm_static_tabs_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    apply_wfm_rankings_to_root(root, actions)
+    apply_retest1_risk_money_management_to_root(root, actions)
+    apply_mc_atms_to_root(root, actions)
+    actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    apply_mc_selected_strategies_to_root(root, actions)
+    apply_wfm_setup_to_root(root, "CustomData", WFM_CUSTOM_DATA_ENGINE, actions)
+    return actions
+
+
+def wfm_static_tabs_summary(root: ET.Element) -> dict[str, Any]:
+    summary = mc_static_tabs_summary(root)
+    wfm_data = wfm_data_databanks_resources_options_summary(root)
+    summary["wfmDataGate"] = wfm_data
+    summary["customData"] = wfm_data.get("customData", {})
+    setup = root.find("./CustomData/Setups/Setup")
+    size_based = setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']") if setup is not None else None
+    main_values = setup.find("MainTestValues") if setup is not None else None
+    summary["customData"]["commission"] = (size_based.text or "") if size_based is not None else ""
+    summary["customData"]["mainTestValues"] = dict(main_values.attrib) if main_values is not None else {}
+    summary["executionPolicy"] = WFM_EXECUTION_POLICY
+    return summary
+
+
+def enforce_wfm_static_tabs_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = wfm_static_tabs_summary(root)
+    ranking = summary.get("rankings") or {}
+    if ranking.get("type") != "never":
+        issues.append(f"WFM Rankings type is {ranking.get('type')!r}, expected 'never'")
+    for key in ("MaxStrategies", "ConditionsType", "DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if ranking.get(key) != WFM_RANKING_TARGET[key]:
+            issues.append(f"WFM Rankings {key} is {ranking.get(key)!r}, expected {WFM_RANKING_TARGET[key]!r}")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append("WFM FitPortfolio must remain disabled; portfolio selection belongs to later portfolio phases")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append("WFM CustomAnalysis filter must remain disabled")
+    if ranking.get("conditions"):
+        issues.append("WFM Rankings must not add extra conditions; WalkForwardMatrix acceptance owns pass/fail")
+
+    rmm = summary.get("riskMoneyManagement") or {}
+    methods = rmm.get("methods") or {}
+    for method_type, wanted in RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if methods.get(method_type) != wanted:
+            issues.append(f"WFM RiskMoneyManagement {method_type} is {methods.get(method_type)!r}, expected {wanted!r}")
+
+    atms = summary.get("atms") or {}
+    for key, wanted in RETEST1_ATMS_TARGET.items():
+        if (atms.get("attrs") or {}).get(key) != wanted:
+            issues.append(f"WFM ATMs {key} is {(atms.get('attrs') or {}).get(key)!r}, expected {wanted!r}")
+
+    selected = summary.get("selectedStrategies") or {}
+    if selected.get("children") != 0 or selected.get("text"):
+        issues.append("WFM SelectedStrategies must remain empty in the base template")
+
+    custom = summary.get("customData") or {}
+    if not custom.get("exists"):
+        issues.append("WFM CustomData section missing")
+    else:
+        period = generator_period(WFM_PERIOD_KEY)
+        setup = custom.get("setup") or {}
+        chart = custom.get("chart") or {}
+        if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+            issues.append(f"WFM CustomData dates are {(setup.get('dateFrom'), setup.get('dateTo'))!r}, expected {period!r}")
+        if setup.get("testPrecision") != WFM_DATA_TEST_PRECISION:
+            issues.append(f"WFM CustomData testPrecision is {setup.get('testPrecision')!r}, expected {WFM_DATA_TEST_PRECISION!r}")
+        if setup.get("session") != WFM_DATA_SESSION:
+            issues.append(f"WFM CustomData session is {setup.get('session')!r}, expected {WFM_DATA_SESSION!r}")
+        if setup.get("engine") != WFM_CUSTOM_DATA_ENGINE:
+            issues.append(f"WFM CustomData engine is {setup.get('engine')!r}, expected {WFM_CUSTOM_DATA_ENGINE!r}")
+        for key, wanted in WFM_DEFAULT_CHART_TARGET.items():
+            if chart.get(key) != wanted:
+                issues.append(f"WFM CustomData chart {key} is {chart.get(key)!r}, expected {wanted!r}")
+        if custom.get("commission") != MC_CUSTOM_DATA_COMMISSION_TARGET:
+            issues.append(f"WFM CustomData commission is {custom.get('commission')!r}, expected {MC_CUSTOM_DATA_COMMISSION_TARGET!r}")
+        if custom.get("mainTestValues") != WFM_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET:
+            issues.append("WFM CustomData MainTestValues drifted from dual-synced target")
+
+    guarded_text = (
+        section_text(root, "Rankings")
+        + section_text(root, "ATMs")
+        + section_text(root, "RiskMoneyManagement")
+        + section_text(root, "SelectedStrategies")
+        + section_text(root, "CustomData")
+    )
+    for token in MC_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into WFM static tabs: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into WFM static tabs")
+
+    for issue in enforce_wfm_data_databanks_resources_options_guard(root):
+        issues.append(f"Data/Resources guard: {issue}")
+    for issue in enforce_wfm_crosschecks_guard(root):
+        issues.append(f"CrossChecks guard: {issue}")
+    return issues
+
+
+def update_wfm_static_tabs_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+
+    task_xml_name, root = load_task_root(cfx, WFM_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "wfm_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+
+    before_text = serialize_xml(root)
+    payload["before"] = wfm_static_tabs_summary(root)
+    payload["actions"] = apply_wfm_static_tabs_to_root(root)
+    payload["after"] = wfm_static_tabs_summary(root)
+    payload["issues"] = enforce_wfm_static_tabs_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "rankings": WFM_RANKING_TARGET,
+        "rankingConditions": [],
+        "riskMoneyManagementMethods": RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET,
+        "atms": RETEST1_ATMS_TARGET,
+        "staticTabs": WFM_STATIC_TABS,
+        "customDataMainTestValues": WFM_CUSTOM_DATA_MAIN_TEST_VALUES_TARGET,
+        "customDataCommission": MC_CUSTOM_DATA_COMMISSION_TARGET,
+        "executionPolicy": WFM_EXECUTION_POLICY,
+    }
+    payload["targetRationale"] = {
+        "decision": "WFM static tabs close inert surfaces while preserving the WFM dual-carrier compatibility contract.",
+        "ranking": "WalkForwardMatrix acceptance owns passed/failed; Ranking must not delete failed rows or add portfolio/custom-analysis filters.",
+        "riskMoneyManagement": "FixedSize keeps Capa1 retest comparisons independent from sizing noise.",
+        "customData": "WFM keeps CustomData synced with Data for SQX142 compatibility; Project Generator owns final asset/timeframe/spread.",
+        "staticTabs": "ATMs, Notes and SelectedStrategies stay inert while execution behavior remains governed by the WFM CrossChecks block.",
+        "noLiveRun": "This operation only mutates CFX XML with explicit --apply; it never launches SQX or WFM.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_wfm_static_tabs_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase12_wfm_static_tabs_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {
+        name: update_wfm_static_tabs_target_in_cfx(path, backup_root / name, apply=apply)
+        for name, path in targets.items()
+    }
+    payload: dict[str, Any] = {
+        "ok": all(
+            item.get("exists")
+            and item.get("isZip")
+            and not item.get("error")
+            and item.get("guardOk")
+            for item in results.values()
+        ),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase12",
+        "operation": "wfm_static_tabs_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase12_wfm_static_tabs_diff_review" if not apply else WFM_STATIC_TABS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase12_wfm_static_tabs_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
+WFM_CLOSEOUT_OPERATIONS = (
+    (
+        "dataDatabanksResourcesOptions",
+        "wfm-data-databanks-resources-options-target",
+        promote_wfm_data_databanks_resources_options_target,
+    ),
+    ("crosschecks", "wfm-crosschecks-target", promote_wfm_crosschecks_target),
+    ("staticTabs", "wfm-static-tabs-target", promote_wfm_static_tabs_target),
+)
+
+
+def wfm_closeout_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    operations: dict[str, Any] = {}
+    issues: list[str] = []
+    for key, command, runner in WFM_CLOSEOUT_OPERATIONS:
+        result = runner(root142, project_root, target=target, apply=False)
+        operation_issues = mc_closeout_operation_issues(command, result)
+        operations[key] = {
+            "command": command,
+            "summary": mc_closeout_operation_summary(result),
+            "issues": operation_issues,
+        }
+        issues.extend(operation_issues)
+
+    previous_gate = spp_closeout_report(root142, project_root, target=target, write=False)
+    previous_issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        previous_issues.append("spp-closeout-report: previous gate ok=false")
+    issues.extend(previous_issues)
+
+    process_probe = process_snapshot()
+    process_warnings = []
+    if process_probe.get("processes"):
+        process_warnings.append("SQX processes are alive; WFM closeout is XML/dry-run only, no SQX runtime mutation was attempted")
+
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase12_wfm_closeout",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": previous_issues,
+            "nextPhase": previous_gate.get("nextPhase"),
+        },
+        "operations": operations,
+        "issues": issues,
+        "warnings": process_warnings,
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Close WFM as a review-only configuration gate after Phase 12 guards are green and idempotent on local base and repo template.",
+            "taskTitle": WFM_TASK_TITLE,
+            "taskXml": WFM_TASK_XML,
+            "chain": "Input=SPP / Output=WFM",
+            "period": WFM_PERIOD_KEY,
+            "testPrecision": WFM_DATA_TEST_PRECISION,
+            "executionPolicy": WFM_EXECUTION_POLICY,
+            "activeCrossCheck": WFM_ACTIVE_CROSSCHECK,
+            "walkForward": WFM_WALK_FORWARD_ATTR_TARGET,
+            "whatToParametrize": {
+                "attributes": WFM_WHAT_TO_PARAMETRIZE_ATTR_TARGET,
+                "flags": WFM_PARAMETRIZE_FLAGS_TARGET,
+            },
+            "acceptanceFilters": [
+                "NetProfit WalkForwardMatrix > 0",
+                "NetProfit WalkForwardOptimization > 60",
+                "WFPctOfProfitableRuns > 70",
+                "WFMaxProfitByRunInPct < 50",
+                "WFMinTradesInRun > 20",
+                "WFMaxPctDDbyRun <= 25",
+            ],
+            "dataContract": {
+                "carrier": "Data + CustomData dual-synced",
+                "period": WFM_PERIOD_KEY,
+                "session": WFM_DATA_SESSION,
+                "seedChart": WFM_DEFAULT_CHART_TARGET,
+                "resources": "TICK/EETUS with no sessions",
+                "options": "inert",
+            },
+            "staticContract": {
+                "ranking": "inert",
+                "deleteFailedStrategies": "false",
+                "forceRunCrossChecks": "false",
+                "fitPortfolio": "false",
+                "customAnalysisFilter": "false",
+                "riskMoneyManagement": "FixedSize",
+                "atms": "disabled",
+                "selectedStrategies": "empty",
+                "customDataCarrier": "dual_synced",
+            },
+            "nextPhase": WFM_CLOSEOUT_NEXT,
+            "closeoutCriterion": "WFM data/resources/options, crosschecks and static tabs must be green/idempotent, with SPP closeout green, before opening FOWARD review.",
+            "naturalResults": "Preserve natural passed/failed outcomes; never force Results=passed.",
+            "noLiveRun": "This closeout only reads XML/local state and writes a phase report when requested.",
+        },
+        "nextPhase": WFM_CLOSEOUT_NEXT,
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase12_wfm_closeout_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase12_wfm_closeout", "nextPhase": WFM_CLOSEOUT_NEXT})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
+def foward_oos_ranges_target() -> list[dict[str, str]]:
+    date_from, date_to = generator_period(FOWARD_PERIOD_KEY)
+    split = "2026.01.01"
+    if date_from < split < date_to:
+        return [{"dateFrom": date_from, "dateTo": split}, {"dateFrom": split, "dateTo": date_to}]
+    return [{"dateFrom": date_from, "dateTo": date_to}]
+
+
+def foward_open_summary(root: ET.Element | None) -> dict[str, Any]:
+    if root is None:
+        return {"exists": False}
+    return {
+        "exists": True,
+        "taskTitle": FOWARD_TASK_TITLE,
+        "taskXml": FOWARD_TASK_XML,
+        "data": {
+            "setup": first_setup_summary(root),
+            "targetOosRanges": foward_oos_ranges_target(),
+        },
+        "databanks": {
+            node.get("name", ""): node.get("value", "")
+            for node in root.findall(".//Databanks/Databank")
+            if node.get("name")
+        },
+        "optionsRankings": tick_real_options_rankings_summary(root),
+        "crossChecks": retest1_static_crosschecks_summary(root).get("crossChecks", {}),
+        "passiveGeneration": retest1_passive_generation_summary(root),
+        "resources": _tick_real_resource_summary(root),
+        "executionPolicy": "configuration_review_only_no_smoke_no_optimization",
+    }
+
+
+def foward_open_issues(summary: dict[str, Any]) -> tuple[list[str], list[str]]:
+    issues: list[str] = []
+    warnings: list[str] = []
+    if not summary.get("exists"):
+        return ["FOWARD task missing"], warnings
+    setup = ((summary.get("data") or {}).get("setup") or {})
+    if setup.get("dateFrom") != generator_period(FOWARD_PERIOD_KEY)[0] or setup.get("dateTo") != generator_period(FOWARD_PERIOD_KEY)[1]:
+        warnings.append("FOWARD dates need normalization to FOWARD_C1.")
+    databanks = summary.get("databanks") or {}
+    if databanks != FOWARD_EXPECTED_DATABANKS:
+        warnings.append(f"FOWARD databanks are {databanks!r}; target is {FOWARD_EXPECTED_DATABANKS!r}.")
+    crosschecks = summary.get("crossChecks") or {}
+    if crosschecks.get("attrs") != FOWARD_CROSSCHECKS_TARGET or crosschecks.get("configuredMethodCount"):
+        warnings.append("FOWARD CrossChecks contain active parent/hidden methods and must be normalized before closeout.")
+    ranking = ((summary.get("optionsRankings") or {}).get("rankings") or {})
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false" or not ranking.get("conditions"):
+        warnings.append("FOWARD Ranking needs inert portfolio selection and active forward review conditions.")
+    passive = summary.get("passiveGeneration") or {}
+    strategy = passive.get("strategyType") or {}
+    if strategy.get("improveDatabank") != FOWARD_EXPECTED_DATABANKS["Input"]:
+        warnings.append("FOWARD passive generation still points to a stale improve databank.")
+    return issues, warnings
+
+
+def foward_open_target_report(cfx: Path) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256": file_sha256(cfx) if cfx.is_file() else "",
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root = load_task_root(cfx, FOWARD_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    payload["summary"] = foward_open_summary(root)
+    issues, warnings = foward_open_issues(payload["summary"])
+    payload["issues"] = issues
+    payload["warnings"] = warnings
+    payload["ok"] = not issues
+    return payload
+
+
+def foward_open_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {name: foward_open_target_report(path) for name, path in targets.items()}
+    previous_gate = wfm_closeout_report(root142, project_root, target=target, write=False)
+    issues: list[str] = []
+    if previous_gate.get("ok") is not True:
+        issues.append("wfm-closeout-report: previous gate ok=false")
+    for name, result in results.items():
+        for issue in result.get("issues") or []:
+            issues.append(f"{name}: {issue}")
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase13_foward_open",
+        "target": target,
+        "write": write,
+        "previousGate": {"phase": previous_gate.get("phase"), "ok": previous_gate.get("ok"), "nextPhase": previous_gate.get("nextPhase")},
+        "results": results,
+        "issues": issues,
+        "warnings": [
+            f"{name}: {warning}"
+            for name, result in results.items()
+            for warning in (result.get("warnings") or [])
+        ],
+        "summary": {
+            "decision": "Open FOWARD as Capa1 final forward-window configuration review only; no SQX smoke, optimization or live execution in this phase.",
+            "taskTitle": FOWARD_TASK_TITLE,
+            "taskXml": FOWARD_TASK_XML,
+            "period": FOWARD_PERIOD_KEY,
+            "databanks": FOWARD_EXPECTED_DATABANKS,
+            "oosRanges": foward_oos_ranges_target(),
+            "nextPhase": FOWARD_NEXT_PHASE,
+        },
+        "nextPhase": FOWARD_NEXT_PHASE,
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase13_foward_open_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase13_foward_open", "nextPhase": FOWARD_NEXT_PHASE})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
+def foward_data_databanks_resources_options_summary(root: ET.Element) -> dict[str, Any]:
+    summary = tick_real_data_databanks_resources_summary(root)
+    summary["optionsParams"] = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in FOWARD_OPTIONS_PARAMS_TARGET
+    }
+    return summary
+
+
+def apply_foward_data_databanks_resources_options_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    period = generator_period(FOWARD_PERIOD_KEY)
+    data = find_section(root, "Data")
+    setup = root.find(".//Data/Setups/Setup")
+    if data is None or setup is None:
+        actions.append({"field": "Data", "error": "missing_data_or_setup", "changed": False})
+        return actions
+
+    for key, wanted in {
+        "dateFrom": period[0],
+        "dateTo": period[1],
+        "testPrecision": FOWARD_DATA_TEST_PRECISION,
+        "session": FOWARD_DATA_SESSION,
+        "engine": FOWARD_DATA_ENGINE,
+    }.items():
+        before = setup.get(key, "")
+        setup.set(key, wanted)
+        actions.append({"field": f"Data/Setup:{key}", "from": before, "to": wanted, "changed": before != wanted})
+    charts = setup.findall("Chart")
+    if not charts:
+        chart = ET.SubElement(setup, "Chart")
+        charts = [chart]
+        actions.append({"field": "Data/Setup/Chart", "from": None, "to": dict(chart.attrib), "changed": True})
+    for index, chart in enumerate(charts, start=1):
+        set_attrs_on_node(chart, FOWARD_DEFAULT_CHART_TARGET, actions, f"Data/Setup/Chart#{index}:attrs")
+
+    out_of_sample = data.find("OutOfSample")
+    if out_of_sample is None:
+        out_of_sample = ET.SubElement(data, "OutOfSample", {"showGraph": "false"})
+        before_oos_attrs: dict[str, str] | None = None
+    else:
+        before_oos_attrs = dict(out_of_sample.attrib)
+    out_of_sample.set("showGraph", "false")
+    before_ranges = [dict(node.attrib) for node in out_of_sample.findall("Range")]
+    for node in list(out_of_sample.findall("Range")):
+        out_of_sample.remove(node)
+    target_ranges = foward_oos_ranges_target()
+    for index, attrs in enumerate(target_ranges):
+        node = ET.SubElement(out_of_sample, "Range", attrs)
+        node.tail = "\n      " if index == len(target_ranges) - 1 else "\n        "
+    actions.append({
+        "field": "Data/OutOfSample",
+        "from": {"attrs": before_oos_attrs, "ranges": before_ranges},
+        "to": {"attrs": dict(out_of_sample.attrib), "ranges": target_ranges},
+        "changed": before_oos_attrs != dict(out_of_sample.attrib) or before_ranges != target_ranges,
+    })
+
+    databanks = find_section(root, "Databanks")
+    if databanks is None:
+        databanks = ET.SubElement(root, "Databanks", {"retestSelected": "false"})
+        actions.append({"field": "Databanks", "from": None, "to": dict(databanks.attrib), "changed": True})
+    existing_by_name = {node.get("name", ""): node for node in databanks.findall("Databank") if node.get("name")}
+    for name, wanted in FOWARD_EXPECTED_DATABANKS.items():
+        node = existing_by_name.get(name)
+        before = dict(node.attrib) if node is not None else None
+        if node is None:
+            node = ET.SubElement(databanks, "Databank", {"name": name})
+        node.set("name", name)
+        node.set("value", wanted)
+        node.set("label", f"{name} databank")
+        actions.append({"field": f"Databanks/{name}", "from": before, "to": dict(node.attrib), "changed": before != dict(node.attrib)})
+
+    resources = find_section(root, "Resources")
+    if resources is None:
+        resources = ET.SubElement(root, "Resources")
+        before_resources: dict[str, Any] = {"resourcesFound": False}
+    else:
+        before_resources = _tick_real_resource_summary(root)
+    symbols_node = ensure_resources_container(resources, "Symbols")
+    brokers_node = ensure_resources_container(resources, "Brokers")
+    instruments_node = ensure_resources_container(resources, "Instruments")
+    sessions_node = ensure_resources_container(resources, "Sessions")
+    ensure_resources_container(resources, "CustomIndicators")
+    ensure_resources_container(resources, "CustomBlocks")
+    template_symbol_attrs, template_info_attrs = _first_existing_symbol_template(resources)
+    for node in list(symbols_node.findall("Symbol")):
+        symbols_node.remove(node)
+    for node in list(brokers_node.findall("Broker")):
+        brokers_node.remove(node)
+    for node in list(instruments_node.findall("InstrumentInfo")):
+        instruments_node.remove(node)
+    for node in list(sessions_node.findall("Session")):
+        sessions_node.remove(node)
+
+    for chart in setup.findall("Chart"):
+        symbol_name = chart.get("symbol") or FOWARD_DEFAULT_CHART_TARGET["symbol"]
+        asset = _asset_from_tick_real_symbol(symbol_name)
+        symbol_attrs = dict(template_symbol_attrs)
+        info_attrs = dict(template_info_attrs)
+        symbol_node = ET.SubElement(symbols_node, "Symbol", {
+            "name": symbol_name,
+            "source": FOWARD_DEFAULT_SOURCE_ID,
+            "barType": symbol_attrs.get("barType", "1"),
+            "precision": FOWARD_RESOURCE_PRECISION,
+            "timezone": FOWARD_RESOURCE_TIMEZONE,
+            "dateFrom": str(epoch_ms_for_date(period[0])),
+            "dateTo": str(epoch_ms_for_date(period[1])),
+            "uSymbol": symbol_attrs.get("uSymbol") or asset,
+            "uSymbolName": symbol_attrs.get("uSymbolName") or asset,
+            "removeWeekends": symbol_attrs.get("removeWeekends", "false"),
+            "broker": FOWARD_DEFAULT_BROKER_ID,
+        })
+        info_attrs.update({
+            "instrument": symbol_name,
+            "defaultSpread": chart.get("spread", info_attrs.get("defaultSpread", "")),
+            "dateFrom": "0",
+            "dateTo": "0",
+            "rows": "0",
+            "totalDays": "0",
+            "dataType": info_attrs.get("dataType", BUILD_RESOURCES_BASE_DATA_TYPE),
+            "broker": symbol_node.get("broker", FOWARD_DEFAULT_BROKER_ID),
+        })
+        ET.SubElement(symbol_node, "InstrumentInfo", info_attrs)
+        ET.SubElement(instruments_node, "InstrumentInfo", dict(info_attrs))
+    ET.SubElement(brokers_node, "Broker", {
+        "id": FOWARD_DEFAULT_BROKER_ID,
+        "name": "[[Darwinex]]",
+        "description": "Darwinex CFDs",
+        "timezone": FOWARD_RESOURCE_TIMEZONE,
+        "postfix": "_darwinex",
+        "mtUse": "true",
+        "spUse": "false",
+    })
+    actions.append({
+        "field": "Resources",
+        "from": before_resources,
+        "to": _tick_real_resource_summary(root),
+        "changed": before_resources != _tick_real_resource_summary(root),
+        "note": "Forward resources are normalized to local-safe Darwinex placeholders; Project Generator owns final asset/timeframe/spread.",
+    })
+
+    for key, value in FOWARD_OPTIONS_PARAMS_TARGET.items():
+        set_param_text(root, key, value, actions, "Options")
+    return actions
+
+
+def enforce_foward_data_databanks_resources_options_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    period = generator_period(FOWARD_PERIOD_KEY)
+    setup = root.find(".//Data/Setups/Setup")
+    if setup is None:
+        return ["FOWARD Data/Setup missing"]
+    if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
+        issues.append("FOWARD dates are not FOWARD_C1")
+    if setup.get("testPrecision") != FOWARD_DATA_TEST_PRECISION:
+        issues.append(f"FOWARD testPrecision is {setup.get('testPrecision')!r}, expected {FOWARD_DATA_TEST_PRECISION!r}")
+    if setup.get("session") != FOWARD_DATA_SESSION:
+        issues.append("FOWARD session must stay No Session")
+    if setup.get("engine") != FOWARD_DATA_ENGINE:
+        issues.append(f"FOWARD engine is {setup.get('engine')!r}, expected {FOWARD_DATA_ENGINE!r}")
+    ranges = [dict(node.attrib) for node in root.findall(".//Data/OutOfSample/Range")]
+    if ranges != foward_oos_ranges_target():
+        issues.append(f"FOWARD OOS ranges are {ranges!r}, expected {foward_oos_ranges_target()!r}")
+
+    databanks = {node.get("name", ""): node.get("value", "") for node in root.findall(".//Databanks/Databank") if node.get("name")}
+    for name, wanted in FOWARD_EXPECTED_DATABANKS.items():
+        if databanks.get(name) != wanted:
+            issues.append(f"FOWARD Databank {name} is {databanks.get(name)!r}, expected {wanted!r}")
+
+    params = {
+        param.get("key", ""): (param.text or "")
+        for param in root.findall(".//BuildTradingOptions/Params/Param")
+        if param.get("key") in FOWARD_OPTIONS_PARAMS_TARGET
+    }
+    for key, wanted in FOWARD_OPTIONS_PARAMS_TARGET.items():
+        if params.get(key) != wanted:
+            issues.append(f"FOWARD Options param {key} is {params.get(key)!r}, expected {wanted!r}")
+
+    resources = find_section(root, "Resources")
+    if resources is None:
+        issues.append("FOWARD Resources missing")
+        return issues
+    chart_symbols = {chart.get("symbol", "") for chart in setup.findall("Chart") if chart.get("symbol")}
+    resource_symbols = {symbol.get("name", "") for symbol in resources.findall("./Symbols/Symbol") if symbol.get("name")}
+    if chart_symbols != resource_symbols:
+        issues.append(f"FOWARD chart/resource mismatch: charts={sorted(chart_symbols)} resources={sorted(resource_symbols)}")
+    broker_ids = {broker.get("id", "") for broker in resources.findall("./Brokers/Broker") if broker.get("id")}
+    for symbol in resources.findall("./Symbols/Symbol"):
+        if symbol.get("precision") != FOWARD_RESOURCE_PRECISION:
+            issues.append(f"FOWARD resource {symbol.get('name')} precision is not {FOWARD_RESOURCE_PRECISION}")
+        if symbol.get("timezone") != FOWARD_RESOURCE_TIMEZONE:
+            issues.append(f"FOWARD resource {symbol.get('name')} timezone is not {FOWARD_RESOURCE_TIMEZONE}")
+        if symbol.get("broker") not in broker_ids:
+            issues.append(f"FOWARD resource {symbol.get('name')} references missing broker {symbol.get('broker')}")
+    if resources.findall("./Sessions/Session"):
+        issues.append("FOWARD resources must not keep session entries")
+
+    guarded_text = section_text(root, "Data") + section_text(root, "Databanks") + section_text(root, "Resources") + section_text(root, "Options")
+    for token in FOWARD_BANNED_DONOR_TOKENS:
+        if token in guarded_text:
+            issues.append(f"Forbidden donor token leaked into FOWARD Data/Databanks/Resources/Options: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into FOWARD Data/Databanks/Resources/Options")
+    return issues
+
+
+def update_foward_data_databanks_resources_options_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root = load_task_root(cfx, FOWARD_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "foward_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = foward_data_databanks_resources_options_summary(root)
+    payload["actions"] = apply_foward_data_databanks_resources_options_to_root(root)
+    payload["after"] = foward_data_databanks_resources_options_summary(root)
+    payload["issues"] = enforce_foward_data_databanks_resources_options_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "taskTitle": FOWARD_TASK_TITLE,
+        "periodKey": FOWARD_PERIOD_KEY,
+        "dateFrom": generator_period(FOWARD_PERIOD_KEY)[0],
+        "dateTo": generator_period(FOWARD_PERIOD_KEY)[1],
+        "oosRanges": foward_oos_ranges_target(),
+        "testPrecision": FOWARD_DATA_TEST_PRECISION,
+        "databanks": FOWARD_EXPECTED_DATABANKS,
+        "options": FOWARD_OPTIONS_PARAMS_TARGET,
+        "resourcePrecision": FOWARD_RESOURCE_PRECISION,
+        "resourceTimezone": FOWARD_RESOURCE_TIMEZONE,
+    }
+    payload["targetRationale"] = {
+        "methodology": "FOWARD is the final Capa1 forward-window review from 2025 to current data, with explicit OOS blocks.",
+        "chain": "It consumes Syntetic output and writes Foward, preserving independence from omitted SPP/WFM live execution.",
+        "quality": "Realistic gaps and timeframe-owned trading windows stay enabled while StoreChartData remains off.",
+        "noLiveRun": "This operation edits XML only with explicit --apply; it never launches SQX or FOWARD.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_foward_data_databanks_resources_options_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase13_foward_data_databanks_resources_options_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {name: update_foward_data_databanks_resources_options_target_in_cfx(path, backup_root / name, apply=apply) for name, path in targets.items()}
+    payload: dict[str, Any] = {
+        "ok": all(item.get("exists") and item.get("isZip") and not item.get("error") and item.get("guardOk") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase13",
+        "operation": "foward_data_databanks_resources_options_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase13_foward_data_databanks_resources_options_diff_review" if not apply else FOWARD_DATA_DATABANKS_RESOURCES_OPTIONS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase13_foward_data_databanks_resources_options_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
+def foward_crosschecks_summary(root: ET.Element) -> dict[str, Any]:
+    return retest1_static_crosschecks_summary(root).get("crossChecks", {})
+
+
+def apply_foward_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    apply_retest1_crosschecks_to_root(root, actions)
+    return actions
+
+
+def enforce_foward_crosschecks_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    crosschecks = foward_crosschecks_summary(root)
+    if not crosschecks.get("exists"):
+        issues.append("FOWARD CrossChecks section missing")
+    if crosschecks.get("attrs") != FOWARD_CROSSCHECKS_TARGET:
+        issues.append(f"FOWARD CrossChecks attrs are {crosschecks.get('attrs')!r}, expected {FOWARD_CROSSCHECKS_TARGET!r}")
+    if crosschecks.get("active"):
+        issues.append(f"FOWARD must not have active internal crosschecks: {crosschecks.get('active')}")
+    configured_methods = [f"{item.get('id')}:{method}" for item in (crosschecks.get("checks") or []) for method in (item.get("configuredMethods") or [])]
+    if configured_methods:
+        issues.append(f"FOWARD CrossChecks must not keep enabled Settings/Methods: {configured_methods}")
+    rankings = find_section(root, "Rankings")
+    if rankings is not None and (rankings.findtext("ForceRunCrossChecks") or "") != "false":
+        issues.append("FOWARD Rankings/ForceRunCrossChecks must remain false")
+    return issues
+
+
+def update_foward_crosschecks_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root = load_task_root(cfx, FOWARD_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "foward_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = foward_crosschecks_summary(root)
+    payload["actions"] = apply_foward_crosschecks_to_root(root)
+    payload["after"] = foward_crosschecks_summary(root)
+    payload["issues"] = enforce_foward_crosschecks_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {"crossChecks": FOWARD_CROSSCHECKS_TARGET}
+    payload["targetRationale"] = {
+        "passiveForward": "FOWARD is a direct forward-window retest and must not run nested robustness crosschecks.",
+        "cleanup": "Methods hidden inside inactive MonteCarlo/WhatIf blocks are switched off to avoid surprise execution.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_foward_crosschecks_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase13_foward_crosschecks_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {name: update_foward_crosschecks_target_in_cfx(path, backup_root / name, apply=apply) for name, path in targets.items()}
+    payload: dict[str, Any] = {
+        "ok": all(item.get("exists") and item.get("isZip") and not item.get("error") and item.get("guardOk") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase13",
+        "operation": "foward_crosschecks_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase13_foward_crosschecks_diff_review" if not apply else FOWARD_CROSSCHECKS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase13_foward_crosschecks_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
+def apply_foward_what_to_build_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    what_to_build = find_section(root, "WhatToBuild")
+    if what_to_build is None:
+        what_to_build = ET.SubElement(root, "WhatToBuild")
+        actions.append({"field": "WhatToBuild", "from": None, "to": "created", "changed": True})
+    set_or_create_attrs_child(what_to_build, "StrategyType", FOWARD_STRATEGY_TYPE_TARGET, actions, "WhatToBuild/StrategyType")
+    build_mode = what_to_build.find("BuildMode")
+    if build_mode is None:
+        build_mode = ET.SubElement(what_to_build, "BuildMode", {"generationType": "random-generation"})
+        actions.append({"field": "WhatToBuild/BuildMode", "from": None, "to": dict(build_mode.attrib), "changed": True})
+    else:
+        actions.append({
+            "field": "WhatToBuild/BuildMode:generationType",
+            "from": build_mode.get("generationType", ""),
+            "to": build_mode.get("generationType", ""),
+            "changed": False,
+            "note": "left as SQX-known placeholder; passive behavior is enforced by disabled improvement/evolution toggles",
+        })
+    for tag, value in FOWARD_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        set_or_create_text_child(build_mode, tag, value, actions, f"WhatToBuild/BuildMode/{tag}")
+    for tag, attrs in FOWARD_PASSIVE_BUILDMODE_ATTR_TARGET.items():
+        set_or_update_attrs_child(build_mode, tag, attrs, actions, f"WhatToBuild/BuildMode/{tag}")
+
+
+def apply_foward_rankings_to_root(root: ET.Element, actions: list[dict[str, Any]]) -> None:
+    rankings = find_section(root, "Rankings")
+    if rankings is None:
+        rankings = ET.SubElement(root, "Rankings", {"type": "never"})
+        actions.append({"field": "Rankings", "from": None, "to": dict(rankings.attrib), "changed": True})
+    before_rank_attrs = dict(rankings.attrib)
+    rankings.set("type", "never")
+    actions.append({"field": "Rankings:type", "from": before_rank_attrs, "to": dict(rankings.attrib), "changed": before_rank_attrs != dict(rankings.attrib)})
+    set_or_create_text_child(rankings, "MaxStrategies", FOWARD_RANKING_TARGET["MaxStrategies"], actions, "Rankings/MaxStrategies")
+    set_or_create_attrs_child(rankings, "FitnessCriteria", {"method": "ComputeFromStrategyResult", "useFitnessByIndex": "false"}, actions, "Rankings/FitnessCriteria")
+    set_or_create_text_child(rankings, "ConditionsType", FOWARD_RANKING_TARGET["ConditionsType"], actions, "Rankings/ConditionsType")
+    set_or_create_text_child(rankings, "DeleteFailedStrategies", FOWARD_RANKING_TARGET["DeleteFailedStrategies"], actions, "Rankings/DeleteFailedStrategies")
+    set_or_create_text_child(rankings, "ForceRunCrossChecks", FOWARD_RANKING_TARGET["ForceRunCrossChecks"], actions, "Rankings/ForceRunCrossChecks")
+    set_or_create_attrs_child(rankings, "AutomaticDismissal", FOWARD_RANKING_TARGET["AutomaticDismissal"], actions, "Rankings/AutomaticDismissal")
+    set_or_create_attrs_child(rankings, "StopCondition", FOWARD_RANKING_TARGET["StopCondition"], actions, "Rankings/StopCondition")
+    set_or_create_attrs_child(rankings, "FitPortfolio", FOWARD_RANKING_TARGET["FitPortfolio"], actions, "Rankings/FitPortfolio")
+    set_or_create_attrs_child(rankings, "CustomAnalysis", FOWARD_RANKING_TARGET["CustomAnalysis"], actions, "Rankings/CustomAnalysis")
+    set_ranking_conditions_from_target(rankings, FOWARD_RANKING_CONDITIONS_TARGET, actions, "Rankings/Conditions")
+
+
+def apply_foward_static_tabs_to_root(root: ET.Element, source_root: ET.Element | None) -> list[dict[str, Any]]:
+    actions: list[dict[str, Any]] = []
+    apply_foward_rankings_to_root(root, actions)
+    apply_retest1_risk_money_management_to_root(root, actions)
+    apply_mc_atms_to_root(root, actions)
+    actions.append({"field": "Notes", "changed": False, "sha256": section_sha256(root, "Notes"), "note": "audited and preserved"})
+    apply_mc_selected_strategies_to_root(root, actions)
+    apply_retest1_parts_to_improve_to_root(root, actions)
+    apply_foward_what_to_build_to_root(root, actions)
+    apply_retest1_blocks_to_root(root, source_root, actions)
+    blocks = find_blocks(root)
+    if blocks is not None:
+        exit_types = blocks.find("ExitTypes")
+        if exit_types is None:
+            exit_types = ET.SubElement(blocks, "ExitTypes")
+            actions.append({"field": "ExitTypes", "from": None, "to": "created", "changed": True})
+        if exit_types.find(f"./Block[@key='{BUILD_EXIT_TYPE_ACTIVE_KEY}']") is None:
+            block = ET.SubElement(exit_types, "Block", {"key": BUILD_EXIT_TYPE_ACTIVE_KEY, "use": "true", "probability": "100"})
+            actions.append({"field": f"ExitTypes:{BUILD_EXIT_TYPE_ACTIVE_KEY}", "from": None, "to": dict(block.attrib), "changed": True})
+        enforce_exit_types(blocks, actions)
+    return actions
+
+
+def foward_static_tabs_summary(root: ET.Element) -> dict[str, Any]:
+    summary = tick_real_static_crosschecks_summary(root)
+    summary["rankings"] = tick_real_options_rankings_summary(root).get("rankings", {})
+    summary["passiveGeneration"] = retest1_passive_generation_summary(root)
+    return summary
+
+
+def enforce_foward_passive_generation_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = retest1_passive_generation_summary(root)
+    parts = summary.get("partsToImprove") or {}
+    for group_name in ("EntryRules", "OrderTypes", "ExitRules"):
+        group = parts.get(group_name) or {}
+        for side in ("LongImprovement", "ShortImprovement"):
+            if (group.get(side) or {}).get("use") != "false":
+                issues.append(f"FOWARD {group_name}/{side} must be passive use=false")
+    if summary.get("strategyType") != FOWARD_STRATEGY_TYPE_TARGET:
+        issues.append("FOWARD StrategyType does not point passively to Syntetic with known SQX attributes")
+    build_mode = summary.get("buildMode") or {}
+    build_text = build_mode.get("text") or {}
+    for tag, value in FOWARD_PASSIVE_BUILDMODE_TEXT_TARGET.items():
+        if build_text.get(tag) != value:
+            issues.append(f"FOWARD BuildMode {tag} is {build_text.get(tag)!r}, expected {value!r}")
+    child_attrs = build_mode.get("childAttrs") or {}
+    for tag, attrs in FOWARD_PASSIVE_BUILDMODE_ATTR_TARGET.items():
+        current = child_attrs.get(tag) or {}
+        for key, value in attrs.items():
+            if current.get(key) != value:
+                issues.append(f"FOWARD BuildMode {tag}.{key} is {current.get(key)!r}, expected {value!r}")
+    blocks = summary.get("blocks") or {}
+    actual_order = {key: blocks.get("orderTypes", {}).get(key) for key in BUILD_ORDER_TYPE_TARGET}
+    if actual_order != BUILD_ORDER_TYPE_TARGET:
+        issues.append(f"FOWARD order types are {actual_order!r}, expected {BUILD_ORDER_TYPE_TARGET!r}")
+    exits = blocks.get("exitTypes") or {}
+    if exits.get(BUILD_EXIT_TYPE_ACTIVE_KEY, {}).get("use") != "true":
+        issues.append("FOWARD must keep only ExitAfterBars active")
+    if exits.get(BUILD_EXIT_TYPE_ACTIVE_KEY, {}).get("probability") != "100":
+        issues.append("FOWARD ExitAfterBars probability must be 100")
+    active_other_exits = [key for key, data in exits.items() if key != BUILD_EXIT_TYPE_ACTIVE_KEY and (data or {}).get("use") == "true"]
+    if active_other_exits:
+        issues.append(f"FOWARD has non-passive active exit types: {active_other_exits}")
+    if any(any(token in key for token in BUILD_EXIT_TYPE_BANNED_TOKENS) for key in exits):
+        issues.append("FOWARD contains day-based exit types")
+    if int(blocks.get("activeSignalCount") or 0) != 0:
+        issues.append("FOWARD signals must remain disabled in passive retest")
+    if int(blocks.get("activeStopLimitCount") or 0) != 0:
+        issues.append("FOWARD stop/limit entry blocks must remain disabled in passive retest")
+    if int(blocks.get("activeIndicatorCount") or 0) <= 0:
+        issues.append("FOWARD must preserve methodology/BlockSettings indicator blocks")
+    custom = blocks.get("customData") or {}
+    if (custom.get("attrs") or {}).get("showAll") != "false" or custom.get("children") != 0:
+        issues.append("FOWARD external CustomData must stay disabled and empty")
+    guarded_text = section_text(root, "PartsToImprove") + section_text(root, "WhatToBuild") + section_text(root, "Blocks")
+    for token in ("ExitAfterDays", "ExitAfterTradingDays", "USDJPY_darwinex", "USDJPY_dukascopy"):
+        if token in guarded_text:
+            issues.append(f"Forbidden token leaked into FOWARD passive generation tabs: {token}")
+    if re.search(r"[A-Za-z]:\\", guarded_text):
+        issues.append("Local absolute path leaked into FOWARD passive generation tabs")
+    return issues
+
+
+def enforce_foward_static_tabs_guard(root: ET.Element) -> list[str]:
+    issues: list[str] = []
+    summary = foward_static_tabs_summary(root)
+    ranking = summary.get("rankings") or {}
+    if ranking.get("type") != "never":
+        issues.append(f"FOWARD Rankings type is {ranking.get('type')!r}, expected 'never'")
+    for key in ("MaxStrategies", "ConditionsType", "DeleteFailedStrategies", "ForceRunCrossChecks"):
+        if ranking.get(key) != FOWARD_RANKING_TARGET[key]:
+            issues.append(f"FOWARD Rankings {key} is {ranking.get(key)!r}, expected {FOWARD_RANKING_TARGET[key]!r}")
+    if (ranking.get("FitPortfolio") or {}).get("active") != "false":
+        issues.append("FOWARD FitPortfolio must remain disabled")
+    if (ranking.get("CustomAnalysis") or {}).get("filter") != "false":
+        issues.append("FOWARD CustomAnalysis filter must remain disabled")
+    expected_conditions = [{**item, "use": "true"} for item in FOWARD_RANKING_CONDITIONS_TARGET]
+    if ranking.get("conditions") != expected_conditions:
+        issues.append("FOWARD ranking conditions do not match forward-window review target")
+
+    rmm = summary.get("riskMoneyManagement") or {}
+    methods = rmm.get("methods") or {}
+    for method_type, wanted in RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET.items():
+        if methods.get(method_type) != wanted:
+            issues.append(f"FOWARD RiskMoneyManagement {method_type} is {methods.get(method_type)!r}, expected {wanted!r}")
+    atms = summary.get("atms") or {}
+    for key, wanted in RETEST1_ATMS_TARGET.items():
+        if (atms.get("attrs") or {}).get(key) != wanted:
+            issues.append(f"FOWARD ATMs {key} is {(atms.get('attrs') or {}).get(key)!r}, expected {wanted!r}")
+    selected = summary.get("selectedStrategies") or {}
+    if selected.get("children") != 0 or selected.get("text"):
+        issues.append("FOWARD SelectedStrategies must remain empty")
+    for issue in enforce_foward_passive_generation_guard(root):
+        issues.append(f"Passive generation guard: {issue}")
+    for issue in enforce_foward_data_databanks_resources_options_guard(root):
+        issues.append(f"Data/Resources guard: {issue}")
+    for issue in enforce_foward_crosschecks_guard(root):
+        issues.append(f"CrossChecks guard: {issue}")
+    return issues
+
+
+def update_foward_static_tabs_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
+    payload: dict[str, Any] = {
+        "path": str(cfx),
+        "exists": cfx.is_file(),
+        "isZip": bool(cfx.is_file() and zipfile.is_zipfile(cfx)),
+        "sha256Before": file_sha256(cfx) if cfx.is_file() else "",
+        "actions": [],
+        "backup": "",
+        "willWrite": apply,
+    }
+    if not cfx.is_file() or not zipfile.is_zipfile(cfx):
+        payload["error"] = "missing_or_not_zip"
+        return payload
+    task_xml_name, root = load_task_root(cfx, FOWARD_TASK_TITLE)
+    source_task_xml_name, source_root = load_task_root(cfx, FOWARD_PASSIVE_SOURCE_TASK_TITLE)
+    payload["taskXml"] = task_xml_name
+    payload["sourceTaskXml"] = source_task_xml_name
+    if not task_xml_name or root is None:
+        payload["error"] = "foward_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    if not source_task_xml_name or source_root is None:
+        payload["error"] = "syntetic_source_task_not_found"
+        payload["sha256After"] = payload["sha256Before"]
+        return payload
+    before_text = serialize_xml(root)
+    payload["before"] = foward_static_tabs_summary(root)
+    payload["actions"] = apply_foward_static_tabs_to_root(root, source_root)
+    payload["after"] = foward_static_tabs_summary(root)
+    payload["issues"] = enforce_foward_static_tabs_guard(root)
+    payload["guardOk"] = not payload["issues"]
+    after_text = serialize_xml(root)
+    payload["changed"] = before_text != after_text
+    payload["changedActionCount"] = sum(1 for item in payload["actions"] if item.get("changed"))
+    payload["targetValues"] = {
+        "rankings": FOWARD_RANKING_TARGET,
+        "rankingConditions": FOWARD_RANKING_CONDITIONS_TARGET,
+        "riskMoneyManagementMethods": RETEST1_RISK_MONEY_MANAGEMENT_METHOD_TARGET,
+        "atms": RETEST1_ATMS_TARGET,
+        "strategyType": FOWARD_STRATEGY_TYPE_TARGET,
+        "buildModeText": FOWARD_PASSIVE_BUILDMODE_TEXT_TARGET,
+        "buildModeAttributes": FOWARD_PASSIVE_BUILDMODE_ATTR_TARGET,
+        "sourceTask": FOWARD_PASSIVE_SOURCE_TASK_TITLE,
+        "staticTabs": FOWARD_STATIC_TABS,
+    }
+    payload["targetRationale"] = {
+        "passiveRetest": "FOWARD reviews a fixed forward window and must not generate, improve or mutate strategy logic.",
+        "ranking": "Forward conditions are intentionally light: enough trades, positive expectancy and non-negative profit on the forward/OOS sample while keeping failed rows visible.",
+        "blocks": "Blocks are copied from the Syntetic carrier only to preserve entry/exit universe; generation stays disabled and only EnterAtMarket + ExitAfterBars survives.",
+        "noLiveRun": "This operation only edits XML with explicit --apply and never launches SQX.",
+    }
+    if apply and payload["changed"] and payload["guardOk"]:
+        backup = backup_file(cfx, backup_root)
+        payload["backup"] = str(backup)
+        replace_zip_text_entry(cfx, task_xml_name, serialize_xml(root))
+        payload["sha256After"] = file_sha256(cfx)
+    else:
+        payload["sha256After"] = payload["sha256Before"]
+    return payload
+
+
+def promote_foward_static_tabs_target(root142: Path, project_root: Path, target: str, apply: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    backup_root = ledger_root(project_root) / "backups" / f"phase13_foward_static_tabs_{stamp()}"
+    targets: dict[str, Path] = {}
+    if target in {"local-base", "both"}:
+        targets["localBase"] = cfx_for_project(root142, DEFAULT_BASE_PROJECT)
+    if target in {"repo-template", "both"}:
+        targets["repoTemplate"] = DEFAULT_TEMPLATE
+    results = {name: update_foward_static_tabs_target_in_cfx(path, backup_root / name, apply=apply) for name, path in targets.items()}
+    payload: dict[str, Any] = {
+        "ok": all(item.get("exists") and item.get("isZip") and not item.get("error") and item.get("guardOk") for item in results.values()),
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase13",
+        "operation": "foward_static_tabs_target",
+        "apply": apply,
+        "target": target,
+        "results": results,
+        "nextPhase": "phase13_foward_static_tabs_diff_review" if not apply else FOWARD_STATIC_TABS_NEXT,
+    }
+    evidence_target = ledger_root(project_root) / "diffs" / f"phase13_foward_static_tabs_target_{stamp()}.json"
+    write_json(evidence_target, payload)
+    payload["written"] = str(evidence_target)
+    return payload
+
+
+FOWARD_CLOSEOUT_OPERATIONS = (
+    ("dataDatabanksResourcesOptions", "foward-data-databanks-resources-options-target", promote_foward_data_databanks_resources_options_target),
+    ("crosschecks", "foward-crosschecks-target", promote_foward_crosschecks_target),
+    ("staticTabs", "foward-static-tabs-target", promote_foward_static_tabs_target),
+)
+
+
+def foward_closeout_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    operations: dict[str, Any] = {}
+    issues: list[str] = []
+    for key, command, runner in FOWARD_CLOSEOUT_OPERATIONS:
+        result = runner(root142, project_root, target=target, apply=False)
+        operation_issues = mc_closeout_operation_issues(command, result)
+        operations[key] = {"command": command, "summary": mc_closeout_operation_summary(result), "issues": operation_issues}
+        issues.extend(operation_issues)
+    previous_gate = wfm_closeout_report(root142, project_root, target=target, write=False)
+    previous_issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        previous_issues.append("wfm-closeout-report: previous gate ok=false")
+    issues.extend(previous_issues)
+    process_probe = process_snapshot()
+    process_warnings = []
+    if process_probe.get("processes"):
+        process_warnings.append("SQX processes are alive; FOWARD closeout is XML/dry-run only, no SQX runtime mutation was attempted")
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase13_foward_closeout",
+        "target": target,
+        "write": write,
+        "previousGate": {"phase": previous_gate.get("phase"), "ok": previous_gate.get("ok"), "issues": previous_issues, "nextPhase": previous_gate.get("nextPhase")},
+        "operations": operations,
+        "issues": issues,
+        "warnings": process_warnings,
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Close FOWARD as Capa1 final forward-window configuration review, without SQX smoke/optimization/live execution.",
+            "taskTitle": FOWARD_TASK_TITLE,
+            "taskXml": FOWARD_TASK_XML,
+            "chain": "Input=Syntetic / Output=Foward",
+            "period": FOWARD_PERIOD_KEY,
+            "oosRanges": foward_oos_ranges_target(),
+            "testPrecision": FOWARD_DATA_TEST_PRECISION,
+            "rankingConditions": FOWARD_RANKING_CONDITIONS_TARGET,
+            "staticContract": {
+                "ranking": "light_forward_review_filters",
+                "deleteFailedStrategies": "false",
+                "forceRunCrossChecks": "false",
+                "fitPortfolio": "false",
+                "customAnalysisFilter": "false",
+                "riskMoneyManagement": "FixedSize",
+                "atms": "disabled",
+                "selectedStrategies": "empty",
+                "passiveGeneration": "no improve/generate; EnterAtMarket + ExitAfterBars only",
+            },
+            "nextPhase": FOWARD_CLOSEOUT_NEXT,
+            "naturalResults": "Preserve natural passed/failed outcomes; never force Results=passed.",
+            "noLiveRun": "This closeout only reads XML/local state and writes a phase report when requested.",
+        },
+        "nextPhase": FOWARD_CLOSEOUT_NEXT,
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase13_foward_closeout_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase13_foward_closeout", "nextPhase": FOWARD_CLOSEOUT_NEXT})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
+CAPA1_CLOSEOUT_NEXT = "phase15_capa2_planning"
+
+
+def capa1_closeout_report(root142: Path, project_root: Path, target: str, write: bool) -> dict[str, Any]:
+    ensure_ledger(project_root)
+    previous_gate = foward_closeout_report(root142, project_root, target=target, write=False)
+    issues = list(previous_gate.get("issues") or [])
+    if previous_gate.get("ok") is not True:
+        issues.append("foward-closeout-report: previous gate ok=false")
+    process_probe = process_snapshot()
+    process_warnings = []
+    if process_probe.get("processes"):
+        process_warnings.append("SQX processes are alive; Capa1 closeout is audit-only and did not mutate the running app")
+    payload: dict[str, Any] = {
+        "ok": not issues,
+        "version": VERSION,
+        "createdAt": now_iso(),
+        "phase": "phase14_capa1_closeout",
+        "target": target,
+        "write": write,
+        "previousGate": {
+            "phase": previous_gate.get("phase"),
+            "ok": previous_gate.get("ok"),
+            "issues": issues,
+            "nextPhase": previous_gate.get("nextPhase"),
+        },
+        "issues": issues,
+        "warnings": process_warnings,
+        "processProbe": process_probe,
+        "summary": {
+            "decision": "Close Capa1 base configuration after Build, RETEST 0, RETEST 1, TICK REAL, MC, MC 2, Sequential, Monkey, Synthetic, SPP, WFM and FOWARD gates.",
+            "scope": "XML/template/base configuration closeout only; no SQX live run, no retest execution and no forced Results=passed.",
+            "localBase": str(DEFAULT_SQX_ROOT / "user" / "projects" / DEFAULT_BASE_PROJECT / "project.cfx"),
+            "repoTemplate": str(DEFAULT_TEMPLATE),
+            "completedTail": ["SPP", "WFM", "FOWARD"],
+            "finalChain": "Build -> RETEST 0 -> RETEST 1 -> TICK -> MC -> MC 2 -> Sequential -> Monkey -> Syntetic -> SPP(review-only) -> WFM(review-only) -> Foward",
+            "naturalResults": "Preserve natural passed/failed outcomes and keep failed rows visible where the gate explicitly requires it.",
+            "methodologySync": "Project Generator remains owner of asset/timeframe/direction/spread/window placeholders; Capa1 base stays generic.",
+            "agents": {
+                "testRunner": "SQX Test Guardian / Newton runs read-only and dry-run checks in parallel, writing only ignored handoffs.",
+                "docsCurator": "SQX Docs Curator / Gibbs updates roadmap, changelog and manifest after implementation evidence exists.",
+                "orchestrator": "Codex keeps authority over applies, tracked edits, commits and pushes.",
+            },
+            "nextPhase": CAPA1_CLOSEOUT_NEXT,
+        },
+        "nextPhase": CAPA1_CLOSEOUT_NEXT,
+    }
+    if write:
+        target_path = ledger_root(project_root) / "phase_reports" / f"phase14_capa1_closeout_{stamp()}.json"
+        write_json(target_path, payload)
+        state_path = ledger_root(project_root) / "session_state.json"
+        state = read_json(state_path, {})
+        state.update({"updatedAt": now_iso(), "currentPhase": "phase14_capa1_closeout", "nextPhase": CAPA1_CLOSEOUT_NEXT})
+        write_json(state_path, state)
+        payload["written"] = str(target_path)
+    return payload
+
+
 def update_build_data_target_in_cfx(cfx: Path, backup_root: Path, apply: bool) -> dict[str, Any]:
     date_from, date_to = generator_period(BUILD_DATA_PERIOD_KEY)
     payload: dict[str, Any] = {
@@ -15861,6 +17151,38 @@ def build_parser() -> argparse.ArgumentParser:
     wfm_crosschecks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
     wfm_crosschecks.add_argument("--apply", action="store_true")
 
+    wfm_static = sub.add_parser("wfm-static-tabs-target")
+    wfm_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    wfm_static.add_argument("--apply", action="store_true")
+
+    wfm_closeout = sub.add_parser("wfm-closeout-report")
+    wfm_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    wfm_closeout.add_argument("--write", action="store_true")
+
+    foward_open = sub.add_parser("foward-open-report")
+    foward_open.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    foward_open.add_argument("--write", action="store_true")
+
+    foward_data = sub.add_parser("foward-data-databanks-resources-options-target")
+    foward_data.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    foward_data.add_argument("--apply", action="store_true")
+
+    foward_crosschecks = sub.add_parser("foward-crosschecks-target")
+    foward_crosschecks.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    foward_crosschecks.add_argument("--apply", action="store_true")
+
+    foward_static = sub.add_parser("foward-static-tabs-target")
+    foward_static.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    foward_static.add_argument("--apply", action="store_true")
+
+    foward_closeout = sub.add_parser("foward-closeout-report")
+    foward_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    foward_closeout.add_argument("--write", action="store_true")
+
+    capa1_closeout = sub.add_parser("capa1-closeout-report")
+    capa1_closeout.add_argument("--target", choices=("local-base", "repo-template", "both"), default="both")
+    capa1_closeout.add_argument("--write", action="store_true")
+
     archive_exit_days = sub.add_parser("archive-exit-day-snippets")
     archive_exit_days.add_argument("--apply", action="store_true")
 
@@ -16076,6 +17398,30 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "wfm-crosschecks-target":
         json_print(promote_wfm_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "wfm-static-tabs-target":
+        json_print(promote_wfm_static_tabs_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "wfm-closeout-report":
+        json_print(wfm_closeout_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "foward-open-report":
+        json_print(foward_open_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "foward-data-databanks-resources-options-target":
+        json_print(promote_foward_data_databanks_resources_options_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "foward-crosschecks-target":
+        json_print(promote_foward_crosschecks_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "foward-static-tabs-target":
+        json_print(promote_foward_static_tabs_target(root142, project_root, target=args.target, apply=args.apply))
+        return 0
+    if args.command == "foward-closeout-report":
+        json_print(foward_closeout_report(root142, project_root, target=args.target, write=args.write))
+        return 0
+    if args.command == "capa1-closeout-report":
+        json_print(capa1_closeout_report(root142, project_root, target=args.target, write=args.write))
         return 0
     if args.command == "archive-exit-day-snippets":
         json_print(archive_exit_day_snippets(root142, project_root, apply=args.apply))

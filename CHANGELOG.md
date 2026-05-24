@@ -1,5 +1,34 @@
 # Changelog
 
+## 2026-05-24 - C1-CONFIG1 Capa1 Closeout
+
+- Records `phase14_capa1_closeout_20260524_183012.json` and `capa1-closeout-report --target both --write` as the green Phase 14 closeout evidence after the green Phase 13 report `phase13_foward_closeout_20260524_182647.json`.
+- Documents the Capa1 chain: `Build -> RETEST 0 -> RETEST 1 -> TICK -> MC -> MC 2 -> Sequential -> Monkey -> Syntetic -> SPP(review-only) -> WFM(review-only) -> Foward`.
+- Keeps SPP, WFM and FOWARD boundaries factual: no SQX run, no smoke, no optimization and no forced `Results=passed` are claimed by the closeout documentation.
+- Sets the next exact block to `phase15_capa2_planning`.
+
+## 2026-05-24 - C1-CONFIG1 FOWARD Closeout
+
+- Records `phase13_foward_closeout_20260524_182647.json` and `foward-closeout-report --target both --write` as the green Phase 13 closeout evidence.
+- Documents FOWARD open/data/crosschecks/static/closeout, consolidating `foward-data-databanks-resources-options-target`, `foward-crosschecks-target` and `foward-static-tabs-target`.
+- Pins the forward chain and data contract: `Input=Syntetic / Output=Foward`, period `FOWARD_C1`, OOS `2025.01.01-2026.01.01` and `2026.01.01-2026.04.08`, `testPrecision=2`, `No Session` and resources `TICK/EETUS`.
+- Pins Options and static surfaces: `RealisticGapsHandling=true`, `StoreChartData=false`, forward filters `NumberOfTrades>=30`, `RExpectancy>0`, `NetProfit>=0`, `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false`, `FitPortfolio=false`, `FixedSize` and passive pure `EnterAtMarket + ExitAfterBars`.
+- Keeps FOWARD as configuration review, not a live execution: no SQX run, no smoke, no optimization, no live FOWARD execution and no forced `Results=passed`; next exact block is `phase14_capa1_closeout`.
+
+## 2026-05-24 - C1-CONFIG1 WFM Closeout
+
+- Adds `wfm-closeout-report` to close Phase 12 only when SPP closeout and the three WFM guards are green/idempotent in dry-run mode.
+- Consolidates `wfm-data-databanks-resources-options-target`, `wfm-crosschecks-target` and `wfm-static-tabs-target` over local base and repo template with `changed=false`, `changedActionCount=0`, `guardOk=true`, `issues=[]`, `warnings=[]` and no SQX processes alive.
+- Closes WFM as `configuration_review_only_no_smoke_no_optimization_blocked_by_spp`: `Input=SPP / Output=WFM`, `Data+CustomData` dual synced, `ROBUSTNESS_C1`, resources `TICK/EETUS` without sessions, inert Options, `WalkForwardMatrix` only, WFM-specific acceptance filters and inert static surfaces.
+- Records `phase12_wfm_closeout_20260524_180702.json`, no WFM execution, no smoke, no optimization, no SPP/WFM unlock, no forced `Results=passed` and the historical next exact block `phase13_foward_open`.
+
+## 2026-05-24 - C1-CONFIG1 WFM Static Tabs
+
+- Adds `wfm-static-tabs-target` with dry-run/apply support, guard checks and tests for `AutomaticRetest-Task4.xml`.
+- Keeps WFM static surfaces inert while preserving the WFM data/crosschecks contracts: Rankings `type=never`, `MaxStrategies=10000`, `DeleteFailedStrategies=false`, `ForceRunCrossChecks=false`, no ranking conditions, `FitPortfolio.active=false` and `CustomAnalysis.filter=false/method=none`.
+- Keeps `FixedSize` active, ATMs disabled, Notes preserved, `SelectedStrategies` empty/absent accepted and `CustomData` dual synced with Data at `ROBUSTNESS_C1`, `testPrecision=2`, `No Session`, engine `MetaTrader4`, commission `0.0`, `AUDCAD_darwinex/H1` spread `2.0` and aligned `MainTestValues`.
+- Records dry-run `phase12_wfm_static_tabs_target_20260524_180624.json`, apply diff `phase12_wfm_static_tabs_target_20260524_180633.json`, idempotent dry-runs `phase12_wfm_static_tabs_target_20260524_180642.json` and `phase12_wfm_static_tabs_target_20260524_180645.json`, no WFM execution, no smoke, no optimization, no SPP/WFM unlock, no forced `Results=passed` and next exact block `phase12_wfm_closeout`.
+
 ## 2026-05-24 - C1-CONFIG1 WFM CrossChecks
 
 - Adds `wfm-crosschecks-target` with dry-run/apply support, guard checks and tests for `AutomaticRetest-Task4.xml`.
