@@ -350,7 +350,7 @@ TICK_REAL_STATIC_TABS = ("ATMs", "RiskMoneyManagement", "Notes", "CustomData")
 
 MC_TASK_TITLE = "MC"
 MC_PERIOD_KEY = "ROBUSTNESS_C1"
-MC_DATA_TEST_PRECISION = "2"
+MC_DATA_TEST_PRECISION = "1"
 MC_DATA_SESSION = "No Session"
 MC_DATABANKS_TARGET = {
     "Input": "TICK",
@@ -4828,6 +4828,8 @@ def enforce_tick_real_static_crosschecks_guard(root: ET.Element) -> list[str]:
         if setup:
             if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
                 issues.append(f"TICK REAL CustomData dates are {(setup.get('dateFrom'), setup.get('dateTo'))!r}, expected {period!r}")
+            if setup.get("testPrecision") != TICK_REAL_DATA_TEST_PRECISION:
+                issues.append(f"TICK REAL CustomData testPrecision is {setup.get('testPrecision')!r}, expected {TICK_REAL_DATA_TEST_PRECISION!r}")
             if setup.get("session") != TICK_REAL_DATA_SESSION:
                 issues.append(f"TICK REAL CustomData session is {setup.get('session')!r}, expected {TICK_REAL_DATA_SESSION!r}")
         custom_text = section_text(root, "CustomData")
@@ -4843,6 +4845,9 @@ def enforce_tick_real_static_crosschecks_guard(root: ET.Element) -> list[str]:
         issues.append(f"Options/Rankings guard: {issue}")
     for issue in enforce_tick_real_passive_generation_guard(root):
         issues.append(f"Passive generation guard: {issue}")
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        if setup.get("testPrecision") != TICK_REAL_DATA_TEST_PRECISION:
+            issues.append(f"TICK REAL nested CrossChecks setup precision is {setup.get('testPrecision')!r}, expected {TICK_REAL_DATA_TEST_PRECISION!r}")
     return issues
 
 
@@ -4850,6 +4855,36 @@ def apply_tick_real_static_crosschecks_to_root(root: ET.Element) -> list[dict[st
     actions: list[dict[str, Any]] = []
     apply_retest1_crosschecks_to_root(root, actions)
     apply_retest1_risk_money_management_to_root(root, actions)
+    period = generator_period(TICK_REAL_PERIOD_KEY)
+    data_setup = root.find(".//Data/Setups/Setup")
+    data_chart = data_setup.find("Chart") if data_setup is not None else None
+    custom = find_section(root, "CustomData")
+    custom_setup = custom.find("./Setups/Setup") if custom is not None else None
+    if custom_setup is not None:
+        set_attrs_on_node(
+            custom_setup,
+            {
+                "dateFrom": period[0],
+                "dateTo": period[1],
+                "testPrecision": TICK_REAL_DATA_TEST_PRECISION,
+                "session": TICK_REAL_DATA_SESSION,
+            },
+            actions,
+            "CustomData/Setup:tick-real-attrs",
+        )
+        if data_chart is not None:
+            chart = custom_setup.find("Chart")
+            if chart is None:
+                chart = ET.SubElement(custom_setup, "Chart")
+                actions.append({"field": "CustomData/Setup/Chart", "from": None, "to": dict(chart.attrib), "changed": True})
+            set_attrs_on_node(chart, dict(data_chart.attrib), actions, "CustomData/Setup/Chart:attrs")
+    normalize_mc_crosscheck_setups(
+        root,
+        actions,
+        period_key=TICK_REAL_PERIOD_KEY,
+        test_precision=TICK_REAL_DATA_TEST_PRECISION,
+        session=TICK_REAL_DATA_SESSION,
+    )
     return actions
 
 
@@ -5170,7 +5205,7 @@ def enforce_mc_data_databanks_resources_options_guard(root: ET.Element) -> list[
     if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
         issues.append("MC dates are not ROBUSTNESS_C1")
     if setup.get("testPrecision") != MC_DATA_TEST_PRECISION:
-        issues.append("MC testPrecision must stay 2 for fast/simulated Monte Carlo")
+        issues.append(f"MC testPrecision must stay {MC_DATA_TEST_PRECISION} for fastest Monte Carlo")
     if setup.get("session") != MC_DATA_SESSION:
         issues.append("MC session must stay No Session")
     if root.findall(".//Data/OutOfSample/Range"):
@@ -5289,7 +5324,7 @@ def update_mc_data_databanks_resources_options_target_in_cfx(cfx: Path, backup_r
         "options": MC_OPTIONS_PARAMS_TARGET,
     }
     payload["targetRationale"] = {
-        "methodology": "MC is a fast/simulated Monte Carlo robustness perturbation gate after TICK, not an optimizer or another OOS-selection stage.",
+        "methodology": "MC is a fastest Monte Carlo robustness perturbation gate after TICK, not an optimizer or another OOS-selection stage.",
         "noInternalOos": "RETEST 0/1 own OOS validation; MC must not add a nested OOS split by default.",
         "naturalResults": "This block preserves natural passed/failed rows and does not force Results=passed.",
         "generatorOwned": "Symbol, timeframe, spread, swap and final resources remain owned by Project Generator for each selected asset/timeframe.",
@@ -5494,6 +5529,8 @@ def normalize_mc_crosscheck_setups(
 ) -> None:
     period = generator_period(period_key)
     main_setup = root.find(".//Data/Setups/Setup")
+    if main_setup is None:
+        main_setup = root.find(".//CustomData/Setups/Setup")
     main_chart = main_setup.find("Chart") if main_setup is not None else None
     target_chart = dict(main_chart.attrib) if main_chart is not None else {}
     before: list[dict[str, Any]] = []
@@ -6682,7 +6719,7 @@ def mc2_crosschecks_summary(root: ET.Element) -> dict[str, Any]:
     }
 
 
-def apply_mc2_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
+def apply_mc2_crosschecks_to_root(root: ET.Element, *, normalize_nested_setups: bool = True) -> list[dict[str, Any]]:
     actions: list[dict[str, Any]] = []
     parent = find_section(root, "CrossChecks")
     if parent is None:
@@ -6739,6 +6776,14 @@ def apply_mc2_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
     randomize_spread.set("use", "true")
     set_method_param(randomize_spread, "Min", str(target["min"]), "Double", actions, f"CrossChecks/{MC2_ACTIVE_CHECK}/RandomizeSpread/Min")
     set_method_param(randomize_spread, "Max", str(target["max"]), "Double", actions, f"CrossChecks/{MC2_ACTIVE_CHECK}/RandomizeSpread/Max")
+    if normalize_nested_setups:
+        normalize_mc_crosscheck_setups(
+            root,
+            actions,
+            period_key=MC2_PERIOD_KEY,
+            test_precision=MC2_DATA_TEST_PRECISION,
+            session=MC2_DATA_SESSION,
+        )
     return actions
 
 
@@ -6816,6 +6861,9 @@ def enforce_mc2_crosschecks_guard(root: ET.Element) -> list[str]:
         active_methods = [method for method in check.get("methods") or [] if method.get("use") == "true"]
         if active_methods:
             issues.append(f"Inactive MC2 crosscheck {check.get('id')} still has active methods: {[item.get('type') for item in active_methods]}")
+    for setup in root.findall(".//CrossChecks/*/Settings/Setups/Setup"):
+        if setup.get("testPrecision") != MC2_DATA_TEST_PRECISION:
+            issues.append(f"MC2 nested CrossChecks setup precision is {setup.get('testPrecision')!r}, expected {MC2_DATA_TEST_PRECISION!r}")
     if not mc2_acceptance_conditions_ok(root):
         issues.append("MC2 acceptance conditions drifted from AnnualPctReturnDDRatio >= 0 and >= 30% main")
     return issues
@@ -7245,7 +7293,7 @@ def enforce_mc2_data_databanks_resources_options_guard(root: ET.Element) -> list
         if setup.get("dateFrom") != period[0] or setup.get("dateTo") != period[1]:
             issues.append("MC2 CustomData dates are not ROBUSTNESS_C1")
         if setup.get("testPrecision") != MC2_DATA_TEST_PRECISION:
-            issues.append("MC2 CustomData testPrecision must stay 2 for fast/simulated Monte Carlo")
+            issues.append(f"MC2 CustomData testPrecision must stay {MC2_DATA_TEST_PRECISION} for fastest Monte Carlo")
         if setup.get("session") != MC2_DATA_SESSION:
             issues.append("MC2 CustomData session must stay No Session")
         chart = setup.find("Chart")
@@ -22602,7 +22650,7 @@ def normalize_capa2_mc2_crosscheck_setups(root: ET.Element, actions: list[dict[s
 
 
 def apply_capa2_mc2_crosschecks_to_root(root: ET.Element) -> list[dict[str, Any]]:
-    actions = apply_mc2_crosschecks_to_root(root)
+    actions = apply_mc2_crosschecks_to_root(root, normalize_nested_setups=False)
     check = root.find(f".//CrossChecks/{MC2_ACTIVE_CHECK}")
     if check is None:
         return actions

@@ -5818,6 +5818,71 @@
       }
     },
     {
+      "id": "sqx142_c1_fastest_precision_correction_before_c2_spp",
+      "description": "C1-CONFIG1 must record the important Capa1 precision correction after Capa2 Synthetic and before Capa2 SPP: MC through WFM use fastest/testPrecision=1, while Foward remains tick/testPrecision=2.",
+      "required": {
+        "README.md": [
+          "Capa1 Fastest Precision Correction Before Capa2 SPP",
+          "Capa1 MC, MC2, Sequential, Monkey, Synthetic, SPP and WFM",
+          "`testPrecision=1 fastest`",
+          "Forward/Foward remains tick precision with `testPrecision=2`",
+          "TICK REAL mantiene sus setups auditados/inactivos en `testPrecision=2`",
+          "no Capa2 SPP apply/run was performed"
+        ],
+        "docs/PROJECT_GOVERNANCE.md": [
+          "Capa1 Fastest Precision Correction Before Capa2 SPP",
+          "after Phase 25 `phase25_capa2_synthetic`",
+          "before starting `phase26_capa2_spp`",
+          "`testPrecision=1 fastest`",
+          "Foward remains tick precision with `testPrecision=2`",
+          "TICK REAL audited/inactive setups are normalized to `testPrecision=2`"
+        ],
+        "docs/ARCHITECTURE.md": [
+          "Capa1 Fastest Precision Correction Before Capa2 SPP",
+          "Capa1 robustness retests MC through WFM use `testPrecision=1 fastest`",
+          "Capa1 Foward remains `testPrecision=2`",
+          "TICK REAL audited/inactive setups stay `testPrecision=2`"
+        ],
+        "docs/SQX142_CUSTOM_TASK_CONFIG_ROADMAP.md": [
+          "Capa1 Fastest Precision Correction Before Capa2 SPP",
+          "supersedes older Capa1 closeout text",
+          "TICK REAL mantiene sus setups auditados e inactivos en `testPrecision=2`",
+          "`phase26_capa2_spp` not started by this correction"
+        ],
+        "CHANGELOG.md": [
+          "2026-05-25 - C1-CONFIG1 Capa1 Fastest Precision Correction Before Capa2 SPP",
+          "MC through WFM to `testPrecision=1 fastest`",
+          "Forward/Foward as tick precision with `testPrecision=2`",
+          "inactive TICK REAL audit setups normalized back to `testPrecision=2`"
+        ],
+        "backend/sqx-edge-tool/tools/sqx142_task_config_gate.py": [
+          "MC_DATA_TEST_PRECISION = \"1\"",
+          "FOWARD_DATA_TEST_PRECISION = \"2\"",
+          "normalize_mc_crosscheck_setups("
+        ],
+        "backend/sqx-edge-tool/core/project_generator.py": [
+          "CAPA1_FASTEST_PRECISION_TASKS",
+          "if capa == 1 and filename in CAPA1_FASTEST_PRECISION_TASKS:",
+          "return \"1\""
+        ],
+        "backend/sqx-edge-tool/test_cfx_template_compatibility.py": [
+          "C1_FASTEST_ROBUSTNESS_TEST_PRECISION = \"1\"",
+          "C1_TICK_TEST_PRECISION = \"2\"",
+          "for setup in tick_real.findall(\".//CrossChecks/*/Settings/Setups/Setup\")"
+        ]
+      },
+      "forbidden": {
+        "README.md": [
+          "Capa1 MC through WFM remains `testPrecision=2`",
+          "Forward inherits fastest"
+        ],
+        "CHANGELOG.md": [
+          "Capa1 MC through WFM remains `testPrecision=2`",
+          "Forward inherits fastest"
+        ]
+      }
+    },
+    {
       "id": "sqx_agent_per_message_bootstrap_g9",
       "description": "G9/G9R must keep per-message specialist activation, new-session bootstrap and explicit parallel subagent runtime loading proactive but orchestrator-owned, compaction-resilient and mutation-gated.",
       "required": {

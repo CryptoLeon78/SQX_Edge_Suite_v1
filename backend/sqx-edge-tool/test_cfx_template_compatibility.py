@@ -18,6 +18,8 @@ from core.xml_patcher import (
 
 TOOL_ROOT = Path(__file__).resolve().parent
 TEMPLATE_DIR = TOOL_ROOT / "templates"
+C1_FASTEST_ROBUSTNESS_TEST_PRECISION = "1"
+C1_TICK_TEST_PRECISION = "2"
 
 
 def _blocksetting_entry(canonical_id: str) -> dict:
@@ -169,7 +171,7 @@ def _assert_monkey_static_tabs_contract(monkey: ET.Element) -> None:
     assert setup is not None
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.12.31"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == C1_FASTEST_ROBUSTNESS_TEST_PRECISION
     assert setup.get("session") == "No Session"
     main_values = setup.find("MainTestValues")
     assert main_values is not None
@@ -183,7 +185,7 @@ def _assert_sequential_static_tabs_contract(sequential: ET.Element) -> None:
     assert setup is not None
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.12.31"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == C1_FASTEST_ROBUSTNESS_TEST_PRECISION
     assert setup.get("session") == "No Session"
     main_values = setup.find("MainTestValues")
     assert main_values is not None
@@ -210,7 +212,7 @@ def _assert_monkey_data_databanks_resources_options_contract(
     assert custom_setup is not None
     assert data_setup.get("dateFrom") == custom_setup.get("dateFrom") == "2017.10.02"
     assert data_setup.get("dateTo") == custom_setup.get("dateTo") == "2023.12.31"
-    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == "2"
+    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == C1_FASTEST_ROBUSTNESS_TEST_PRECISION
     assert data_setup.get("session") == custom_setup.get("session") == "No Session"
     data_chart = data_setup.find("Chart")
     custom_chart = custom_setup.find("Chart")
@@ -275,7 +277,7 @@ def _assert_synthetic_data_databanks_resources_options_contract(
     assert custom_setup is not None
     assert data_setup.get("dateFrom") == custom_setup.get("dateFrom") == "2017.10.02"
     assert data_setup.get("dateTo") == custom_setup.get("dateTo") == "2023.12.31"
-    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == "2"
+    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == C1_FASTEST_ROBUSTNESS_TEST_PRECISION
     assert data_setup.get("session") == custom_setup.get("session") == "No Session"
     data_chart = data_setup.find("Chart")
     custom_chart = custom_setup.find("Chart")
@@ -558,7 +560,12 @@ def _assert_tick_real_static_crosschecks_contract(tick_real: ET.Element) -> None
     if setup is not None:
         assert setup.get("dateFrom") == "2017.10.02"
         assert setup.get("dateTo") == "2023.12.31"
+        assert setup.get("testPrecision") == C1_TICK_TEST_PRECISION
         assert setup.get("session") == "No Session"
+    assert {
+        setup.get("testPrecision")
+        for setup in tick_real.findall(".//CrossChecks/*/Settings/Setups/Setup")
+    } <= {C1_TICK_TEST_PRECISION}
 
 
 def _assert_capa2_mc_contract(mc: ET.Element, expected_symbol: str, expected_timeframe: str, expected_source: str, expected_broker: str) -> None:
@@ -1059,7 +1066,7 @@ def _assert_mc2_data_databanks_resources_options_contract(mc2: ET.Element, expec
     assert setup is not None
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.12.31"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == C1_FASTEST_ROBUSTNESS_TEST_PRECISION
     assert setup.get("session") == "No Session"
     assert setup.get("engine") == "MetaTrader4"
     chart = setup.find("Chart")
@@ -1143,7 +1150,7 @@ def _assert_spp_data_databanks_resources_options_contract(
     assert setup is not None
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.12.31"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == C1_FASTEST_ROBUSTNESS_TEST_PRECISION
     assert setup.get("session") == "No Session"
     assert setup.get("engine") == "MetaTrader4"
     chart = setup.find("Chart")
@@ -1221,7 +1228,7 @@ def _assert_wfm_data_databanks_resources_options_contract(
     assert custom_setup is not None
     assert data_setup.get("dateFrom") == custom_setup.get("dateFrom") == "2017.10.02"
     assert data_setup.get("dateTo") == custom_setup.get("dateTo") == "2023.12.31"
-    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == "2"
+    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == C1_FASTEST_ROBUSTNESS_TEST_PRECISION
     assert data_setup.get("session") == custom_setup.get("session") == "No Session"
     assert data_setup.get("engine") == "MetaTrader5 (hedged)"
     assert custom_setup.get("engine") == "MetaTrader4"
@@ -1382,7 +1389,7 @@ def _assert_wfm_static_tabs_contract(wfm: ET.Element) -> None:
     assert setup is not None
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.12.31"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == C1_FASTEST_ROBUSTNESS_TEST_PRECISION
     assert setup.get("session") == "No Session"
     assert setup.get("engine") == "MetaTrader4"
     assert setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']").text == "0.0"
@@ -1411,7 +1418,7 @@ def _assert_foward_contract(
     assert setup is not None
     assert setup.get("dateFrom") == "2025.01.01"
     assert setup.get("dateTo") == "2026.04.08"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == C1_TICK_TEST_PRECISION
     assert setup.get("session") == "No Session"
     assert setup.get("engine") == "MetaTrader5 (hedged)"
     assert [node.attrib for node in forward.findall(".//Data/OutOfSample/Range")] == [
@@ -1498,7 +1505,7 @@ def _assert_tick_real_data_databanks_resources_contract(tick_real: ET.Element, e
     assert setup is not None
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.12.31"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == C1_TICK_TEST_PRECISION
     assert setup.get("session") == "No Session"
     assert tick_real.findall(".//Data/OutOfSample/Range") == []
 
@@ -2028,6 +2035,10 @@ def test_capa1_mc2_crosschecks_use_adaptive_seed_spread_range():
     }
     assert {name for name, state in method_states.items() if state == "true"} == {"RandomizeHistoryData", "RandomizeSpread"}
     assert _randomize_spread_params(mc2) == {"Min": "4", "Max": "10"}
+    assert {
+        setup.get("testPrecision")
+        for setup in mc2.findall(".//CrossChecks/*/Settings/Setups/Setup")
+    } <= {C1_FASTEST_ROBUSTNESS_TEST_PRECISION}
     _assert_mc2_passive_generation_contract(mc2)
     _assert_mc2_static_tabs_contract(mc2)
 
@@ -2108,7 +2119,7 @@ def test_capa1_sequential_open_gate_receives_mc2_and_keeps_sequential_optimizati
     assert custom_setup is not None
     assert data_setup.get("dateFrom") == custom_setup.get("dateFrom") == "2017.10.02"
     assert data_setup.get("dateTo") == custom_setup.get("dateTo") == "2023.12.31"
-    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == "2"
+    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == C1_FASTEST_ROBUSTNESS_TEST_PRECISION
     assert data_setup.get("session") == custom_setup.get("session") == "No Session"
     assert data_setup.find("Chart").attrib == custom_setup.find("Chart").attrib == {
         "symbol": "AUDCAD_darwinex",

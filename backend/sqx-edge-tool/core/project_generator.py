@@ -60,6 +60,15 @@ CAPA2_FASTEST_PRECISION_TASKS = {
 CAPA2_TICK_PRECISION_TASKS = {
     "Retest-Task2.xml",
 }
+CAPA1_FASTEST_PRECISION_TASKS = {
+    "AutomaticRetest-Task1.xml",
+    "AutomaticRetest-Task8.xml",
+    "AutomaticRetest-Task3.xml",
+    "AutomaticRetest-Task6.xml",
+    "AutomaticRetest-Task5.xml",
+    "AutomaticRetest-Task7.xml",
+    "AutomaticRetest-Task4.xml",
+}
 BROKER_PROFILES = _GENERATOR_PROFILE.get("brokerProfiles") or {}
 TARGET_PROFILES = _GENERATOR_PROFILE.get("targetProfiles") or {}
 ASSET_DEFAULTS = _INSTRUMENTS_PROFILE.get("assetDefaults") or {}
@@ -110,6 +119,8 @@ def _spread_stress_for(capa: int, filename: str) -> Optional[tuple[float, float]
 
 
 def _backtest_precision_for_file(capa: int, filename: str) -> str:
+    if capa == 1 and filename in CAPA1_FASTEST_PRECISION_TASKS:
+        return "1"
     if capa == 2 and filename in CAPA2_FASTEST_PRECISION_TASKS:
         return "1"
     if capa == 2 and filename in CAPA2_TICK_PRECISION_TASKS:

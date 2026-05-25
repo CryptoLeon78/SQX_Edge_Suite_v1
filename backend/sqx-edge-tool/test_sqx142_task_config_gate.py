@@ -912,7 +912,7 @@ def test_mc_data_databanks_resources_options_target_is_fast_generic_and_post_tic
     setup = root.find(".//Data/Setups/Setup")
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.12.31"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == "1"
     assert setup.get("session") == "No Session"
     assert root.findall(".//Data/OutOfSample/Range") == []
     assert {node.get("name"): node.get("value") for node in root.findall(".//Databanks/Databank")} == {
@@ -1060,7 +1060,7 @@ def test_mc_crosschecks_target_runs_only_trade_order_manipulation_and_cleans_dis
     assert conditions[1].find("./Right-Side/Column-Value").get("pctRatio") == "200"
     nested_setup = root.find(".//CrossChecks/RetestOnAdditionalMarkets/Settings/Setups/Setup")
     assert nested_setup.get("dateTo") == "2023.12.31"
-    assert nested_setup.get("testPrecision") == "2"
+    assert nested_setup.get("testPrecision") == "1"
     assert nested_setup.get("session") == "No Session"
 
 
@@ -1329,7 +1329,7 @@ def test_mc_static_tabs_disable_portfolio_fit_and_normalize_custom_data_seed():
           <SelectedStrategies><Strategy id="legacy" /></SelectedStrategies>
           <CustomData>
             <Setups>
-              <Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="1" session="No Session" slippage="0" minDist="0" engine="MetaTrader4">
+              <Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader4">
                 <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
                 <Commissions>
                   <Method type="None" use="false" />
@@ -1364,7 +1364,7 @@ def test_mc_static_tabs_disable_portfolio_fit_and_normalize_custom_data_seed():
     assert root.find(".//ATMs").get("enable") == "false"
     assert root.find(".//SelectedStrategies").text is None
     custom_setup = root.find("./CustomData/Setups/Setup")
-    assert custom_setup.get("testPrecision") == "2"
+    assert custom_setup.get("testPrecision") == "1"
     assert custom_setup.find("Chart").get("symbol") == "AUDCAD_darwinex"
     assert custom_setup.find("Chart").get("timeframe") == "H1"
     assert custom_setup.find("./Commissions/Method[@type='SizeBased']/Params/Param[@key='Commission']").text == "0.0"
@@ -1389,7 +1389,7 @@ def test_mc_static_tabs_guard_rejects_portfolio_fit_rank_filters_and_customdata_
           <SelectedStrategies>legacy</SelectedStrategies>
           <CustomData>
             <Setups>
-              <Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="1" session="No Session">
+              <Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session">
                 <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
                 <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission">0</Param></Params></Method></Commissions>
                 <MainTestValues commissions="false" />
@@ -1717,7 +1717,7 @@ def test_synthetic_data_databanks_resources_options_keeps_dual_carrier_synced_wi
     custom_setup = root.find("./CustomData/Setups/Setup")
     assert data_setup.get("dateFrom") == custom_setup.get("dateFrom") == "2017.10.02"
     assert data_setup.get("dateTo") == custom_setup.get("dateTo") == "2023.12.31"
-    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == "2"
+    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == "1"
     assert data_setup.find("Chart").get("spread") == custom_setup.find("Chart").get("spread") == "2.0"
     assert root.find("./Data/OutOfSample/Range") is None
     assert {
@@ -1899,7 +1899,7 @@ def test_mc2_data_databanks_resources_options_uses_customdata_chain_and_generato
     setup = root.find("./CustomData/Setups/Setup")
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.12.31"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == "1"
     assert setup.get("session") == "No Session"
     assert setup.get("engine") == "MetaTrader4"
     chart = setup.find("Chart")
@@ -1945,7 +1945,7 @@ def test_mc2_data_databanks_resources_options_guard_rejects_parallel_data_and_wr
           <Data><Setups><Setup><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /></Setup></Setups></Data>
           <CustomData>
             <Setups>
-              <Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session">
+              <Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="2" session="Old Session">
                 <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
                 <MainTestValues engine="false" />
               </Setup>
@@ -2079,7 +2079,7 @@ def test_mc2_static_tabs_guard_rejects_portfolio_fit_rank_filters_and_customdata
         <Settings>
           <CustomData>
             <Setups>
-              <Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="1" session="Old Session">
+              <Setup dateFrom="2010.01.01" dateTo="2026.01.01" testPrecision="2" session="Old Session">
                 <Chart symbol="USDJPY_darwinex" timeframe="H4" spread="1.4" />
                 <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission">9</Param></Params></Method></Commissions>
                 <MainTestValues engine="false" />
@@ -2323,13 +2323,13 @@ def test_monkey_data_databanks_resources_options_guard_rejects_divergent_carrier
 def _monkey_data_gate_fixture() -> str:
     return """
       <Data>
-        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)">
+        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="1" session="No Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)">
           <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" />
           <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0.0</Param></Params></Method></Commissions>
         </Setup></Setups>
       </Data>
       <CustomData>
-        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader4">
+        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="1" session="No Session" slippage="0" minDist="0" engine="MetaTrader4">
           <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" />
           <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0.0</Param></Params></Method></Commissions>
           <MainTestValues engine="true" symbol="true" timeframe="true" dates="true" subcharts="false" precision="true" distance="true" spread="true" slippage="true" commissions="true" />
@@ -2428,7 +2428,7 @@ def test_monkey_crosschecks_activates_real_monkey_filters_and_cleans_synthetic_o
     setup = root.find(".//CrossChecks/RetestOnAdditionalMarkets/Settings/Setups/Setup")
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.12.31"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == "1"
     assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
 
 
@@ -2544,7 +2544,7 @@ def test_synthetic_crosschecks_activates_bootstrap_filters_and_cleans_monkey_or_
     setup = root.find(".//CrossChecks/RetestOnAdditionalMarkets/Settings/Setups/Setup")
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.12.31"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == "1"
     assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
 
 
@@ -2865,7 +2865,7 @@ def test_synthetic_static_tabs_guard_rejects_portfolio_filters_and_customdata_dr
         """
     )
     setup = root.find("./CustomData/Setups/Setup")
-    setup.set("testPrecision", "1")
+    setup.set("testPrecision", "2")
     setup.find("Chart").set("symbol", "USDJPY_darwinex")
     setup.find("MainTestValues").set("symbol", "false")
 
@@ -5331,7 +5331,7 @@ def test_wfm_data_databanks_resources_options_keeps_dual_carrier_synced():
     assert custom_setup is not None
     assert data_setup.get("dateFrom") == custom_setup.get("dateFrom") == "2017.10.02"
     assert data_setup.get("dateTo") == custom_setup.get("dateTo") == "2023.12.31"
-    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == "2"
+    assert data_setup.get("testPrecision") == custom_setup.get("testPrecision") == "1"
     assert data_setup.get("session") == custom_setup.get("session") == "No Session"
     assert data_setup.get("engine") == "MetaTrader5 (hedged)"
     assert custom_setup.get("engine") == "MetaTrader4"
@@ -5402,8 +5402,8 @@ def test_wfm_crosschecks_keep_matrix_filters_and_clean_hidden_methods():
     root = ET.fromstring(
         """
         <Settings>
-          <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /><Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission">0.0</Param></Params></Method></Commissions></Setup></Setups></Data>
-          <CustomData><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader4"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /><Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission">0.0</Param></Params></Method></Commissions><MainTestValues engine="true" symbol="true" timeframe="true" dates="true" subcharts="false" precision="true" distance="true" spread="true" slippage="true" commissions="true" /></Setup></Setups></CustomData>
+          <Data><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="1" session="No Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /><Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission">0.0</Param></Params></Method></Commissions></Setup></Setups></Data>
+          <CustomData><Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="1" session="No Session" slippage="0" minDist="0" engine="MetaTrader4"><Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" /><Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission">0.0</Param></Params></Method></Commissions><MainTestValues engine="true" symbol="true" timeframe="true" dates="true" subcharts="false" precision="true" distance="true" spread="true" slippage="true" commissions="true" /></Setup></Setups></CustomData>
           <Databanks><Databank name="Input" value="SPP" /><Databank name="Output" value="WFM" /></Databanks>
           <Resources><Symbols><Symbol name="AUDCAD_darwinex" precision="TICK" timezone="EETUS" broker="4"><InstrumentInfo instrument="AUDCAD_darwinex" broker="4" /></Symbol></Symbols><Brokers><Broker id="4" name="[[Darwinex]]" /></Brokers><Sessions /></Resources>
           <Options><BuildTradingOptions><Params><Param key="LimitTimeRange">false</Param><Param key="RealisticGapsHandling">false</Param><Param key="StoreChartData">false</Param><Param key="Session">No Session</Param><Param key="MarketOpenSession">No Session</Param></Params></BuildTradingOptions></Options>
@@ -5845,7 +5845,7 @@ def test_spp_data_databanks_resources_options_keeps_customdata_only_and_inert_op
     setup = root.find("./CustomData/Setups/Setup")
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.12.31"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == "1"
     assert setup.get("session") == "No Session"
     assert setup.get("engine") == "MetaTrader4"
     assert setup.find("Chart").attrib == {
@@ -5926,7 +5926,7 @@ def test_spp_data_databanks_resources_options_guard_rejects_data_and_donor_drift
 def _spp_data_gate_fixture() -> str:
     return """
       <CustomData>
-        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader4">
+        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="1" session="No Session" slippage="0" minDist="0" engine="MetaTrader4">
           <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" />
           <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0.0</Param></Params></Method></Commissions>
           <MainTestValues engine="true" symbol="true" timeframe="true" dates="true" precision="true" distance="true" spread="true" slippage="true" commissions="true" />
@@ -6018,7 +6018,7 @@ def test_spp_crosschecks_keeps_optprofile_filters_and_cleans_inactive_methods():
     setup = root.find(".//CrossChecks/RetestOnAdditionalMarkets/Settings/Setups/Setup")
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.12.31"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == "1"
     assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
 
 
@@ -6402,7 +6402,7 @@ def test_monkey_static_tabs_guard_rejects_portfolio_filters_and_customdata_drift
     )
     apply_monkey_crosschecks_to_root(root)
     setup = root.find("./CustomData/Setups/Setup")
-    setup.set("testPrecision", "1")
+    setup.set("testPrecision", "2")
     setup.find("Chart").set("symbol", "USDJPY_darwinex")
     setup.find("MainTestValues").set("symbol", "false")
 
@@ -6493,13 +6493,13 @@ def test_sequential_data_databanks_resources_options_guard_rejects_divergent_car
 def _sequential_data_gate_fixture() -> str:
     return """
       <Data>
-        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)">
+        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="1" session="No Session" slippage="0" minDist="0" engine="MetaTrader5 (hedged)">
           <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" />
           <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0.0</Param></Params></Method></Commissions>
         </Setup></Setups>
       </Data>
       <CustomData>
-        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0" engine="MetaTrader4">
+        <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="1" session="No Session" slippage="0" minDist="0" engine="MetaTrader4">
           <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" />
           <Commissions><Method type="SizeBased" use="true"><Params><Param key="Commission" className="SizeBased">0.0</Param></Params></Method></Commissions>
           <MainTestValues engine="true" symbol="true" timeframe="true" dates="true" subcharts="false" precision="true" distance="true" spread="true" slippage="true" commissions="true" />
@@ -6556,7 +6556,7 @@ def _sequential_crosschecks_gate_fixture() -> str:
         <MonteCarloRetest use="false">
           <Settings>
             <Methods><Method type="RandomizeSpread" use="false" /></Methods>
-            <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="2" session="No Session" slippage="0" minDist="0">
+            <Setups><Setup dateFrom="2017.10.02" dateTo="2023.12.31" testPrecision="1" session="No Session" slippage="0" minDist="0">
               <Chart symbol="AUDCAD_darwinex" timeframe="H1" spread="2.0" />
             </Setup></Setups>
           </Settings>
@@ -6626,7 +6626,7 @@ def test_sequential_crosschecks_enforces_stability_gate_without_rewriting_strate
     setup = root.find(".//CrossChecks/MonteCarloRetest/Settings/Setups/Setup")
     assert setup.get("dateFrom") == "2017.10.02"
     assert setup.get("dateTo") == "2023.12.31"
-    assert setup.get("testPrecision") == "2"
+    assert setup.get("testPrecision") == "1"
     assert setup.find("Chart").attrib == {"symbol": "AUDCAD_darwinex", "timeframe": "H1", "spread": "2.0"}
 
 
@@ -6864,7 +6864,7 @@ def test_sequential_static_tabs_guard_rejects_portfolio_filters_and_customdata_d
         """
     )
     setup = root.find("./CustomData/Setups/Setup")
-    setup.set("testPrecision", "1")
+    setup.set("testPrecision", "2")
     setup.find("Chart").set("symbol", "USDJPY_darwinex")
     setup.find("MainTestValues").set("symbol", "false")
 

@@ -108,7 +108,15 @@ especial `MC SYNTHETIC RETEST`, `testPrecision=1 fastest`,
 `SyntheticBootstrapV3`, 100 simulaciones, muestra completa,
 `MCBacktestPrecision=-1`, `BlockSize=20`, `WarmupBars=200`, `PreservePct=85`,
 sin portfolio/custom-analysis/ranking filters y `ExitAfterBars=false` con
-SL/PT/trailing activos. El siguiente bloque exacto es `phase26_capa2_spp`. Fase 0 dejo
+SL/PT/trailing activos. El siguiente bloque exacto es `phase26_capa2_spp`.
+Capa1 Fastest Precision Correction Before Capa2 SPP queda aplicada como
+correccion importante tras `phase25_capa2_synthetic` y antes de empezar
+`phase26_capa2_spp`: Capa1 MC, MC2, Sequential, Monkey, Synthetic, SPP and
+WFM pasan a `testPrecision=1 fastest`; Capa1 Forward/Foward remains tick
+precision with `testPrecision=2`. TICK REAL mantiene sus setups auditados e inactivos en `testPrecision=2`.
+Esta nota supersedes older Capa1 closeout text que registraba MC through WFM como `testPrecision=2`;
+`phase26_capa2_spp` not started by this correction, no SQX launch, no smoke,
+no optimization and no forced `Results=passed`. Fase 0 dejo
 preflight, snapshots y diff semantico en `.local/sqx142_task_config/`; Fase 1
 promociono las views ligeras/especializadas desde Mining15 a la base local y al
 template repo; Fase 2 genero los cuestionarios completos de Build Capa1 y cerro

@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-05-25 - C1-CONFIG1 Capa1 Fastest Precision Correction Before Capa2 SPP
+
+- Corrects the live Capa1 robustness precision policy after Phase 25 `phase25_capa2_synthetic` and before starting `phase26_capa2_spp`.
+- Sets Capa1 MC through WFM to `testPrecision=1 fastest`: MC, MC2, Sequential, Monkey, Synthetic, SPP and WFM now share the same fastest precision policy that Capa2 inherited from MC onward.
+- Keeps Forward/Foward as tick precision with `testPrecision=2`; Build, Retest validation and TICK REAL stay on tick/simulated precision, including inactive TICK REAL audit setups normalized back to `testPrecision=2`.
+- Supersedes older Capa1 closeout text that recorded MC through WFM as `testPrecision=2`; the historical notes stay as history, while this marker is the active policy.
+- Normalizes the MC2 nested additional-market setup and updates Capa1 template/tests/guards without starting Capa2 SPP, launching SQX, running smoke, optimizing or forcing `Results=passed`.
+
 ## 2026-05-25 - C1-CONFIG1 Capa2 Synthetic
 
 - Adds `capa2-synthetic-target` as the Phase 25 SyntheticBootstrapV3 validation guard for Capa2.
